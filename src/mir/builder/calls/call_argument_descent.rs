@@ -15,6 +15,8 @@ use super::super::recursive_child_lowering::{
     RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
+use crate::mir::resolved_semantics::home_new_prefix::{LocalCallArgumentV1, LocalCallObservationV1};
+use crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1 as ArgumentProjection;
 
 pub(in crate::mir::builder) trait CallArgumentDescentPortV1:
     RecursiveChildLoweringPortV1
@@ -67,12 +69,33 @@ where
 /// with one additional check that the raw argument scope matches the source
 /// sites sealed by the producer.  No second AST walk or target lookup is
 /// introduced here.
+/// One completed ordered descent; raw values cannot manufacture its source sites.
+pub(in crate::mir::builder) struct CompletedDirectCallArgumentsV1 {
+    values: Vec<ValueId>,
+    observations: Vec<(u32, SourceExprSiteV1, ValueId)>,
+    projections: Option<Vec<ArgumentProjection>>,
+}
+impl CompletedDirectCallArgumentsV1 {
+    pub(in crate::mir::builder) fn into_parts(self) -> (Vec<ValueId>, Vec<(u32, SourceExprSiteV1, ValueId)>) {
+        (self.values, self.observations)
+    }
+    pub(in crate::mir::builder) fn into_values(self) -> Vec<ValueId> { self.values }
+    pub(in crate::mir::builder) fn bind_row(self,
+        mut row: crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
+    ) -> Result<(crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1, Vec<ValueId>), String> {
+        row.retain_argument_descent(self.observations)?;
+        if let Some(projections) = self.projections { row.retain_argument_projections_v1(projections)?; }
+        Ok((row, self.values))
+    }
+}
+
 pub(in crate::mir::builder) fn drive_call_arguments_with_expected_sites_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     input: &Port::ArgumentsInput,
     expected_sites: &[SourceExprSiteV1],
-) -> Result<Vec<ValueId>, String>
+    original: Option<&LocalCallObservationV1>,
+) -> Result<CompletedDirectCallArgumentsV1, String>
 where
     Port: CallArgumentDescentPortV1 + DirectCallDispositionPortV1,
 {
@@ -86,18 +109,60 @@ where
     }
     enforce_moved_same_call_args_contract(port, input)?;
 
+    if original.is_some_and(|source| source.arguments().len() != expected_sites.len()) {
+        return Err("[freeze:contract][static-execution/argument-source-cardinality]".into());
+    }
     let mut values = Vec::with_capacity(port.argument_count(input));
+    let mut observations = Vec::with_capacity(expected_sites.len());
+    let mut projections = original.map(|_| Vec::with_capacity(expected_sites.len()));
     for (index, expected_site) in expected_sites.iter().enumerate() {
         preflight_record_value_argument(builder, port, input, index)?;
-        let value = port.with_call_argument_source_v1(index, |port| {
+        let (value, projection) = port.with_call_argument_source_v1(index, |port| -> Result<(ValueId, Option<ArgumentProjection>), String> {
             port.validate_current_call_argument_site_v1(expected_site)?;
+            let source = original.map(|source| &source.arguments()[index]);
+            // An exact read owns this site's consumption. Generic variable
+            // descent would consume it a second time, so it is not invoked.
+            if let Some(LocalCallArgumentV1::Scalar(binding)) = source {
+                let projection = ArgumentProjection::Scalar(port.take_exact_static_argument_read_v1(expected_site, *binding)?);
+                let value = projection.value_for_source_v1(source.unwrap(), original.unwrap().owner(), expected_site, None, None)?;
+                return Ok((value, Some(projection)));
+            }
+            if let Some(LocalCallArgumentV1::Expression { ordinal, site }) = source {
+                if *ordinal as usize != index || site != expected_site {
+                    return Err("[freeze:contract][static-execution/argument-expression-site]".into());
+                }
+                let (value, projection) = port.emit_static_argument_expression_v1(builder, original.unwrap().site(), *ordinal, site)?;
+                return Ok((value, Some(projection)));
+            }
+            if source.is_some_and(|source| !matches!(source, LocalCallArgumentV1::Integer(_))) {
+                return Err("[freeze:contract][static-execution/argument-child-proof-required]".into());
+            }
             let expression_input = port.argument_expression_input(input, index)?;
-            drive_legacy_expression_v1(builder, port, expression_input)
+            let value = drive_legacy_expression_v1(builder, port, expression_input)?;
+            let projection = if let Some(source) = source {
+                let function = builder.function_state.current_function.as_ref()
+                    .ok_or("[freeze:contract][static-execution/argument-function]")?;
+                let mut definitions = function.blocks.iter().flat_map(|(block, body)|
+                    body.all_instructions().map(move |row| (*block, row)))
+                    .filter(|(_, row)| row.dst_value() == Some(value));
+                let (block, row) = definitions.next().ok_or("[freeze:contract][static-execution/argument-producer]")?;
+                if definitions.next().is_some() || function.params.contains(&value) {
+                    return Err("[freeze:contract][static-execution/argument-producer-duplicate]".into());
+                }
+                let projection = ArgumentProjection::Integer((block, row.clone()));
+                if projection.value_for_source_v1(source, original.unwrap().owner(), expected_site, None, None)? != value {
+                    return Err("[freeze:contract][static-execution/argument-value-drift]".into());
+                }
+                Some(projection)
+            } else { None };
+            Ok((value, projection))
         })?;
+        if let (Some(projections), Some(projection)) = (&mut projections, projection) { projections.push(projection); }
         observe_undefined_argument_value(builder, port, input, index, value);
+        observations.push((u32::try_from(index).map_err(|_| "[freeze:contract][direct-call/argument-ordinal-overflow]")?, expected_site.clone(), value));
         values.push(value);
     }
-    Ok(values)
+    Ok(CompletedDirectCallArgumentsV1 { values, observations, projections })
 }
 
 /// Lower one already-selected argument through the same projection and

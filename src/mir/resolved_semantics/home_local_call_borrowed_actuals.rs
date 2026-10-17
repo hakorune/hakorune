@@ -32,6 +32,8 @@ pub(crate) enum BorrowedCallActualValueV1 {
         parent: BindingRefV1,
         acquisition: OwnedExprSiteV1,
     },
+    /// Original expression membership, without value class or execution rights.
+    Expression,
     Unknown,
 }
 
@@ -66,7 +68,8 @@ pub(crate) fn borrowed_actual_source_atom_v1(
                 _ => input.function().method_call_source_v1(site).map(|source| BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(source)))
                     .or_else(|| matches!(input.body_shape().and_then(|shape| shape.expression_shape(site)),
                         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))
-                        .then_some(BorrowedCallActualValueV1::FieldAccess)),
+                        .then_some(BorrowedCallActualValueV1::FieldAccess))
+                    .or_else(|| source.binary(site).is_some().then_some(BorrowedCallActualValueV1::Expression)),
             }),
     }
 }
@@ -262,6 +265,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>, prefix_known: bool, prior_homes: &[BindingRefV1],
+    local_calls: &[LocalCallObservationV1],
     fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1)
         -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
@@ -280,7 +284,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
         };
         if let Some(site) = call_root {
             let owned = OwnedExprSiteV1::new(input.owner(), site);
-            stage_argument_expressions(input, statement, &owned, locals, prefix_known, prior_homes, fields, port)?;
+            stage_argument_expressions(input, statement, &owned, locals, prefix_known, prior_homes, local_calls, fields, port)?;
         }
     Ok(())
 }
@@ -290,12 +294,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_argument_expressions<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     root: &OwnedExprSiteV1, locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[BindingRefV1],
+    local_calls: &[LocalCallObservationV1],
     fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1) -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
     for (call_site, actuals) in observe_borrowed_call_actuals(input, root, locals, prefix_known, homes) {
         port(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
-        super::super::argument_expression::observe(input, statement, &call_site, &actuals, locals, prefix_known, homes, fields, port)?;
+        super::super::argument_expression::observe(input, statement, &call_site, &actuals, locals, prefix_known, homes, local_calls, fields, port)?;
     }
     Ok(())
 }

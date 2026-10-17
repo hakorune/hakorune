@@ -10,6 +10,8 @@ use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDisposition
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+#[path = "lexical_argument_projection.rs"]
+mod argument_projection;
 type Binding = (BasicBlockId, MirInstruction);
 use super::super::physical_boundary::FinishedBindings;
 
@@ -68,6 +70,7 @@ impl PendingStaticCallProjectionV1 {
 #[derive(Debug)]
 pub(in crate::mir) enum LexicalCallArgumentProjectionV1 {
     Integer(Binding),
+    Expression(Box<argument_projection::EmittedArgumentExpressionProjectionV1>),
     Scalar(ExactLexicalReadV1),
     CallResult(Box<EmittedLexicalCallProjectionV1>),
     BorrowedLiteral {
@@ -216,6 +219,9 @@ impl PreparedLexicalCallProjectionV1 {
             match argument {
                 LexicalCallArgumentProjectionV1::Integer(binding) => {
                     require_recorded(bindings, binding, finishing)?;
+                }
+                LexicalCallArgumentProjectionV1::Expression(_) => {
+                    return Err(freeze("lexical-i64/expression-disposition-owner-required"));
                 }
                 LexicalCallArgumentProjectionV1::BorrowedLiteral { binding, .. } => {
                     require_recorded(bindings, binding, finishing)?;
@@ -412,50 +418,7 @@ impl PreparedLexicalCallProjectionV1 {
         for ((projection, source), site) in
             self.arguments.iter().zip(source).zip(row.argument_sites())
         {
-            let value = match (projection, source) {
-                (
-                    LexicalCallArgumentProjectionV1::Integer((
-                        _,
-                        MirInstruction::Const {
-                            dst,
-                            value: crate::mir::ConstValue::Integer(actual),
-                        },
-                    )),
-                    LocalCallArgumentV1::Integer(expected),
-                ) if actual == expected => *dst,
-                (
-                    LexicalCallArgumentProjectionV1::Scalar(read),
-                    LocalCallArgumentV1::Scalar(binding),
-                ) => read
-                    .value_for(owner, site.node(), *binding)
-                    .map_err(|error| {
-                        format!("[freeze:contract][lexical-i64/argument/{error:?}]")
-                    })?,
-                (
-                    LexicalCallArgumentProjectionV1::CallResult(emitted),
-                    LocalCallArgumentV1::CallResult(inner),
-                ) if inner.site().owner() == owner
-                    && inner.site().site() == site
-                    && emitted.call_site() == inner.site() =>
-                {
-                    emitted.value_using(owner, inner.arguments(), context)?
-                }
-                (
-                    projection,
-                    LocalCallArgumentV1::BorrowedActual {
-                        ordinal,
-                        site: original,
-                    },
-                ) if original == site => borrowed_projection::value(
-                    projection,
-                    owner,
-                    row,
-                    *ordinal,
-                    original,
-                    context.ok_or_else(|| freeze("lexical-i64/borrowed-lender-missing"))?,
-                )?,
-                _ => return Err(freeze("lexical-i64/argument-projection-drift")),
-            };
+            let value = projection.value_for_source_v1(source, owner, site, Some(row), context)?;
             values.push(value);
         }
         Ok(MirCall::new(None, callee, values))

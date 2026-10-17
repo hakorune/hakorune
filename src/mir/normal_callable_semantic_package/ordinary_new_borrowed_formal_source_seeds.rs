@@ -296,7 +296,13 @@ pub(super) fn prepare_original_formal_seeds_v1(
     // These roots demand original expression analysis only. They contribute no
     // incoming argument, formal value or constraint to the source domain.
     let mut initializer_roots = Vec::new();
-    for declaration in batch.declarations().filter(|row| product.source_owners.contains(&row.owner())) {
+    for declaration in batch.declarations().filter(|row| product.source_owners.contains(&row.owner())
+        || app_main.is_some_and(|main| main.checked_caller_key(batch, contracts, row.owner(), row.batch_slot()).is_ok())
+        || inventory.source_rows_v1().any(|incoming| incoming.call.owner() == row.owner()
+            && matches!(&incoming.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                if original.parameters().iter().any(|formal| matches!(formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
+                    && selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.caller().clone())) == Some(row.batch_slot())
+                    && selected.identity_for_batch_slot(row.batch_slot()).is_some_and(|identity| identity.same_as(row.identity()))))) {
         crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, declaration.owner(), |context, input| -> Result<(), String> {
                 let Some(source_context) = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
@@ -312,6 +318,21 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     let Some(site) = initializer.initializer_site() else { continue };
                     initializer_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                         local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
+                }
+                // Static result classification does not walk its actuals.
+                // Demand those original typed argument roots separately; this
+                // adds no incoming constraint or formal-domain membership.
+                for incoming in inventory.source_rows_v1().filter(|row| row.call.owner() == input.owner()) {
+                    let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &incoming.source else { continue };
+                    if !input.function().method_call_source_v1(original.call_site().site())
+                        .is_some_and(|call| std::sync::Arc::ptr_eq(call, original.method_source())) {
+                        return Err("[freeze:contract][source-argument-demand/original-call]".into());
+                    }
+                    for (formal, site) in original.parameters().iter().zip(original.argument_sites()) {
+                        if !matches!(formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) { continue; }
+                        initializer_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                            local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
+                    }
                 }
                 Ok(())
             })??;

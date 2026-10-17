@@ -28,6 +28,20 @@ impl<'a> CallValidationContextV1<'a> {
             check(found.ok_or_else(|| freeze("field-write/original-packet-missing"))?)
         })
     }
+    pub(in crate::mir) fn with_original_initializer_v1<R>(self,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1>,
+        check: impl FnOnce(&EmittedInitializerExpressionProjectionV1) -> Result<R, String>,
+    ) -> Result<R, String> {
+        self.with_local_call_groups_v1(frame.source().owner(), |groups| {
+            let mut found = None;
+            for group in groups {
+                let Some(packet) = group.initializer() else { continue };
+                if !std::rc::Rc::ptr_eq(packet.frame(), frame) { continue; }
+                if found.replace(packet).is_some() { return Err(freeze("initializer-expression/packet-duplicate")); }
+            }
+            check(found.ok_or_else(|| freeze("initializer-expression/packet-missing"))?)
+        })
+    }
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
         match self { Self::Lowering(ledger) => ledger, Self::Finalized(source) => &source.ledger }
     }
@@ -93,6 +107,20 @@ impl<'a> CallValidationContextV1<'a> {
         check: impl FnOnce(&LexicalInstanceCallDispositionRowV1) -> Result<R, String>,
     ) -> Result<R, String> {
         self.with_taken_packet_v1(site, |packet| check(packet.original_row()?))
+    }
+
+    pub(in crate::mir) fn original_scalar_call_result_v1(self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    ) -> Result<ValueId, String> {
+        if self.ledger().lexical_i64_call_source(source.site()) != Some(source) {
+            return Err(freeze("scalar-call/original-source"));
+        }
+        self.with_local_call_groups_v1(source.owner(), |groups| {
+            let mut matching = groups.iter().filter(|group| group.site() == source.site());
+            let group = matching.next().ok_or_else(|| freeze("scalar-call/group-missing"))?;
+            if matching.next().is_some() { return Err(freeze("scalar-call/group-duplicate")); }
+            group.scalar_call_value_v1(source, self)
+        })
     }
 
     pub(in crate::mir) fn with_taken_packet_v1<R>(

@@ -85,6 +85,9 @@ pub(in crate::mir::builder) trait QualifiedStaticMethodHandoffPortV1 {
 }
 
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
+    fn lower_checked_local_initializer_v1(&mut self, _builder: &mut MirBuilder, _source: &PreparedRawChildSourceV1, _ordinal: u32)
+        -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> { Ok(None) }
+
     type BodyInput;
     type StatementInput;
     type ExpressionInput;
@@ -412,6 +415,36 @@ pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
     fn take_direct_call_disposition_v1(&mut self) -> Result<DirectCallDispositionRowV1, String> {
         Err("[freeze:contract][direct-call/loan-unavailable]".to_owned())
     }
+
+    fn has_static_execution_for_owner_v1(&self, _owner: crate::mir::resolved_semantics::FunctionOwnerIdV1) -> bool { false }
+    fn take_optional_static_execution_row_v1(&mut self) -> Result<Option<DirectCallDispositionRowV1>, String> { Ok(None) }
+
+    fn emit_static_argument_expression_v1(&mut self, _builder: &mut MirBuilder,
+        _call: &crate::mir::resolved_semantics::OwnedExprSiteV1, _ordinal: u32, _site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<(ValueId, crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1), String> {
+        Err("[freeze:contract][static-execution/argument-expression-port-unavailable]".into())
+    }
+    fn static_execution_argument_source_v1(&self, _row: &DirectCallDispositionRowV1)
+        -> Result<crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1, String> {
+        Err("[freeze:contract][static-execution/argument-source-unavailable]".into())
+    }
+    fn take_exact_static_argument_read_v1(&mut self,
+        _site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        _binding: crate::mir::resolved_semantics::BindingRefV1,
+    ) -> Result<crate::mir::builder::ExactLexicalReadV1, String> {
+        Err("[freeze:contract][static-execution/argument-read-unavailable]".into())
+    }
+
+    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>>, String> { Ok(None) }
+    fn record_source_required_static_scalar_call_v1(&mut self, _builder: &mut MirBuilder,
+        _source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, _observations: Vec<(u32, crate::mir::resolved_semantics::SourceExprSiteV1, ValueId)>,
+        _binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> { Err("[freeze:contract][static-scalar/proof-consumer-unavailable]".into()) }
+
+    fn record_scalar_direct_call_v1(&mut self, _builder: &mut MirBuilder,
+        _row: DirectCallDispositionRowV1, _arguments: Vec<ValueId>,
+        _binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> { Ok(()) }
 
     fn emit_local_lifecycle_call_v1(
         &mut self,

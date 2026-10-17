@@ -131,21 +131,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
 #[derive(Debug, Clone)]
 pub(crate) struct ArgumentExpressionSourceLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
+    i64_result: bool,
     cores: BTreeMap<usize, Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
 }
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.plan, &other.plan) && self.cores.len() == other.cores.len()
+        Rc::ptr_eq(&self.plan, &other.plan) && self.i64_result == other.i64_result && self.cores.len() == other.cores.len()
             && self.cores.iter().all(|(node, core)| other.cores.get(node).is_some_and(|other| Rc::ptr_eq(core, other)))
     }
 }
 impl Eq for ArgumentExpressionSourceLoanV1 {}
 impl ArgumentExpressionSourceLoanV1 {
+    pub(crate) fn requires_i64_v1(&self) -> bool { self.i64_result }
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
     /// SAME closed operand premise at an exact original node. This is source
     /// class evidence only and must be joined with current Prefix availability.
     pub(crate) fn signed_operand_contains(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
-        self.cores.values().any(|receipt| { let core = receipt.source(); self.plan.nodes().iter().any(|node| node.site() == site)
+        self.i64_result && self.plan.nodes().iter().any(|node| node.site() == site)
+            || self.cores.values().any(|receipt| { let core = receipt.source(); self.plan.nodes().iter().any(|node| node.site() == site)
             && core.source().arguments().iter().zip(core.target().parameters())
                 .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
                     && site.node().segments().starts_with(arg.site().node().segments())) })
@@ -156,7 +159,7 @@ impl ArgumentExpressionSourceLoanV1 {
             site == core.source().receiver_site()
                 || core.source().arguments().iter().zip(core.target().parameters())
                     .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
-        }) || self.resolver_source().is_none() && self.plan.nodes().first().is_some_and(|node| node.site() == site
+        }) || !self.i64_result && self.resolver_source().is_none() && self.plan.nodes().first().is_some_and(|node| node.site() == site
             && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
     }
 
@@ -209,6 +212,8 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1 as Literal, ResolvedLexicalRefV1 as Ref};
         match (&candidate.value, plan.nodes()[0].source()) {
+            (BorrowedCallActualValueV1::Expression, Node::Binary(_)) if identity.integer_evidence.get(index) == Some(&false) => {}
+            (BorrowedCallActualValueV1::Expression, _) => return Err(freeze("borrowed-static/argument-source-identity")),
             (BorrowedCallActualValueV1::String(value), Node::Literal(Literal::String(original))) if value == original => {}
             (BorrowedCallActualValueV1::String(_), _) => return Err(freeze("borrowed-static/argument-source-identity")),
             (BorrowedCallActualValueV1::Binding(binding), Node::Reference(Ref::Local(original))) if binding == original => {}
@@ -225,7 +230,11 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
                     || method.owner() != site.owner() || method.site() != site.site()
                     || identity.integer_evidence.get(index) != Some(&false)
                     || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
-                    || receipt.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
+                    || !match (&formal.kind, receipt.source().target().result()) {
+                        (kind, crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller) => kind.is_ordinary_borrowed_handle(),
+                        (CallableParameterContractKindV1::ExactTrivial(abi), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller) => abi.is_i64(),
+                        _ => false,
+                    }
                 { return Err(freeze("borrowed-static/core-source-identity")); }
             }
             (BorrowedCallActualValueV1::MethodCall(_), None) | (_, Some(_)) => return Err(freeze("borrowed-static/core-source-identity")),
@@ -247,6 +256,11 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
                 BorrowedCallActualValueV1::Scalar(expected, SourceScalarKind::Integer),
                 LocalCallArgumentV1::Scalar(actual),
             ) if abi.is_i64() => expected == actual && actual.owner() == site.owner(),
+            (
+                CallableParameterContractKindV1::ExactTrivial(abi),
+                BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_),
+                LocalCallArgumentV1::Expression { ordinal, site: original },
+            ) if abi.is_i64() => *ordinal == formal.ordinal && original == &candidate.site,
             _ => false,
         };
         if !matches {
@@ -272,7 +286,7 @@ pub(super) fn validate_qualified_argument_sources_v1(
     for actual in &identity.candidates {
         let core = identity.core_arguments.contains_key(&actual.ordinal);
         let expression = core || matches!(actual.value,
-            BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))
+            BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))
             || matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
                 && !prepared.static_arguments.contains_key(&(site.clone(), actual.ordinal));
         if !expression { continue; }
@@ -286,7 +300,7 @@ pub(super) fn validate_qualified_argument_sources_v1(
             .ok_or_else(|| freeze("borrowed-static/argument-frame-identity"))?;
         if !Rc::ptr_eq(frame.source(), slot) || frame.source_loan() != &original
             || !frame.evaluation().reference_coverage_is_exact()
-            || frame.evaluation().root_class() != Leaf::Value(Class::String) {
+            || frame.evaluation().root_class() != Leaf::Value(if original.requires_i64_v1() { Class::I64 } else { Class::String }) {
             return Err(freeze("borrowed-static/argument-frame-identity"));
         }
     }
@@ -319,7 +333,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
         && !cores.get(&0).is_some_and(|core| identity.core_arguments.get(&ordinal).is_some_and(|root| Rc::ptr_eq(core, root))) {
         return Err(freeze("borrowed-static/core-source-identity"));
     }
-    Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), cores }))
+    let formal = identity.source.parameters().get(ordinal as usize).ok_or_else(|| freeze("borrowed-static/argument-formal"))?;
+    let i64_result = matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64());
+    Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), i64_result, cores }))
 }
 
 /// The covered observer selects original Text source roles in the same pending
@@ -331,6 +347,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     if input.owner() != site.owner() { return Err(freeze("borrowed-static/core-source-identity")); }
     let Some(call) = input.function().method_call_source_v1(site.site()) else { return Ok(None) };
     let Some(arg) = call.arguments().get(ordinal as usize).filter(|arg| arg.ordinal() == ordinal) else { return Ok(None) };
+    let Some(original) = original_static_source_v1(prepared, site)? else { return Ok(None) };
+    let Some(formal) = original.parameters().get(ordinal as usize).filter(|formal| formal.ordinal == ordinal) else { return Ok(None) };
+    if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) {
+        let eligible = match crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, arg.site()) {
+            Some(BorrowedCallActualValueV1::Expression) => true,
+            Some(BorrowedCallActualValueV1::MethodCall(method)) => prepared.ordinary_core_source_v1(
+                &OwnedExprSiteV1::new(input.owner(), arg.site().clone())).is_some_and(|core|
+                    std::sync::Arc::ptr_eq(&method, core.source().source())
+                        && core.source().target().result() == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller),
+            _ => false,
+        };
+        if !eligible { return Ok(None); }
+        return lend_argument_expression_source_v1(prepared, pending, site, ordinal);
+    }
     if let Some(core) = prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(site.owner(), arg.site().clone())) {
         if core.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller { return Ok(None); }
         if !input.function().method_call_source_v1(arg.site()).is_some_and(|method| std::sync::Arc::ptr_eq(method, core.source().source())) {
@@ -425,4 +455,28 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_expression_core_sou
     let node = plan.nodes().iter().position(|node| node.site() == site.site())
         .ok_or_else(|| freeze("expression-core/source-identity"))?;
     crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1::lend(input, plan, node, core).map(Some)
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn argument_expression_frame_v1(&self, call: &OwnedExprSiteV1, ordinal: u32,
+        site: &SourceExprSiteV1,
+    ) -> Result<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>, String> {
+        let prepared = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("argument-expression/source-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let rows = self.borrowed_formal_actuals.get(call).ok_or_else(|| freeze("argument-expression/observation-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { return Err(freeze("argument-expression/source-phase")) };
+        let identity = validate_static_source_actuals_v1(prepared, rows, call, identity.source.required_i64_arguments())?;
+        validate_qualified_argument_sources_v1(prepared, &self.borrowed_formal_actuals, call, identity)?;
+        let Some(StaticArgumentExpressionV1::Qualified(frame)) = identity.argument_sources.get(&ordinal) else {
+            return Err(freeze("argument-expression/frame-missing"));
+        };
+        if !frame.is_i64() || identity.source.argument_sites().get(ordinal as usize) != Some(site)
+            || !self.completion_for_owner(call.owner()).and_then(|completion| completion.cleanup().root_flow())
+                .is_some_and(|flow| flow.expression_plans().iter().filter_map(|plan| plan.argument_frame())
+                    .any(|original| Rc::ptr_eq(original, frame))) {
+            return Err(freeze("argument-expression/home-membership"));
+        }
+        Ok(Rc::clone(frame))
+    }
 }

@@ -384,7 +384,7 @@ mod tests {
                         assert_eq!(emitted.reference_reads.len(), frame.static_reads().len());
                         // Dependency producers precede the expression entry. Mutation
                         // or removal must fail the shared physical check independently.
-                        let producer = &emitted.reference_reads.values().next().unwrap().1;
+                        let producer = emitted.reference_reads.values().next().unwrap().definition().unwrap();
                         for remove in [true, false] {
                             let mut changed = builder.function_state.current_function.as_ref().unwrap().clone();
                             let body = changed.blocks.get_mut(&producer.0).unwrap();

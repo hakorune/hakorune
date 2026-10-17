@@ -275,7 +275,10 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             })
             .map_err(|error| format!("[mir/main-import-view/static-route-input] {error:?}"))?
             .map_err(|error| error.into_boxed_str())?;
-        if static_local_route {
+        let typed_static_route = self.batch.with_lowering_input(main_slot, |input|
+            self.direct_call_loans.as_ref().is_some_and(|loans| loans.has_static_execution_for_owner_v1(input.owner())))
+            .map_err(|error| format!("[mir/main-import-view/static-execution-input] {error:?}"))?;
+        if static_local_route || typed_static_route {
             return Ok(None);
         }
         let mut rows = Vec::new();

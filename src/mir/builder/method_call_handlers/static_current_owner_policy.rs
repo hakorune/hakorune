@@ -40,6 +40,9 @@ impl MeCallPolicyBox {
             .is_some_and(qualified_math_compatibility_owner);
         if !math_compatibility {
             if let Some(owner_name) = current_enclosing_box_name(builder) {
+                if let Some(value) = descent.try_emit_static_execution_v1(builder, &owner_name, method, arguments.len())? {
+                    return Ok(Some(value));
+                }
                 if let Some(value) = descent
                     .terminal_port()
                     .emit_local_static_lifecycle_call_v1(

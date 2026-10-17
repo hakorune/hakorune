@@ -163,3 +163,47 @@ pub(super) fn has_original_borrowed_walk_v1(
             || source.borrowed_formal_return_target_v1(owner))
     .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })
 }
+
+/// Original typed Static edges demand complete caller/callee source analysis.
+/// This is preparation only: it grants no execution row or module participant.
+pub(super) fn typed_static_walk_owners_v1(
+    source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+) -> Result<std::collections::BTreeSet<crate::mir::resolved_semantics::FunctionOwnerIdV1>, OrdinaryNewCoSealIssueV1> {
+    let mut owners = std::collections::BTreeSet::new();
+    let Ok(source) = source else { return Ok(owners) };
+    for original in source.original_static_sources_v1() {
+        let Ok(original) = original else { continue };
+        if (!original.is_qualified_i64_source_v1() && !original.is_current_owner_i64_source_v1())
+            || original.parameters().iter().any(|formal| formal.kind != crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)) { continue; }
+        // This consumer owns real Local initializers in checked Static/Main
+        // declarations. Terminal/condition/Instance/Birth sources keep theirs.
+        let Some(caller) = batch.declarations().find(|row| row.owner() == original.call_site().owner()) else { continue };
+        if caller.mode() != crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod { continue; }
+        let genuine_local = batch.with_lowering_input(caller.batch_slot(), |input|
+            input.function().expression_source().initializers().any(|initializer|
+                initializer.initializer_site() == Some(original.call_site().site())
+                    && matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. })))
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+        if !genuine_local { continue; }
+        let target = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.target().clone());
+        if selected.batch_slot(&target) != Some(original.target_batch_slot()) { continue; }
+        let Some(callee) = batch.declarations().find(|row| row.batch_slot() == original.target_batch_slot()) else {
+            return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+        };
+        if callee.owner() != original.callee_owner()
+            || !selected.identity_for_batch_slot(callee.batch_slot()).is_some_and(|identity| identity.same_as(callee.identity()))
+            || !original.catalog_brand().is_same(selected.catalog_brand()) { return Err(OrdinaryNewCoSealIssueV1::BatchLoan); }
+        let caller_key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.caller().clone());
+        let selected_caller = selected.batch_slot(&caller_key) == Some(caller.batch_slot())
+            && selected.identity_for_batch_slot(caller.batch_slot()).is_some_and(|identity| identity.same_as(caller.identity()));
+        let checked_main = main.is_some_and(|main| main.caller_source_ref_v1().checked_caller_key(
+            batch, contracts, caller.owner(), caller.batch_slot()).is_ok_and(|key| key == original.caller()));
+        if selected_caller || checked_main { owners.extend([caller.owner(), callee.owner()]); }
+    }
+    Ok(owners)
+}

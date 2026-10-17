@@ -788,6 +788,7 @@ mod source_requirement_tests;
 
 #[path = "ordinary_new_borrowed_app_main_source.rs"]
 mod app_main_source;
+pub(in crate::mir) use app_main_source::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(in crate::mir::normal_callable_semantic_package) use app_main_source::{
     borrow_app_main_source_v1, AppMainSourceRefV1, BorrowedAppMainSourceLoanV1,
 };

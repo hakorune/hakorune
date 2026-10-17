@@ -52,7 +52,7 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
     );
     assert!(row.lifecycle_emission().is_ok());
     assert_eq!(
-        row.into_scalar_emission().err(),
+        row.scalar_emission().err(),
         Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
     // `use_map` returns i64, but its sealed body already carries lifecycle
@@ -69,7 +69,7 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
     );
     assert!(callee.lifecycle_emission().is_ok());
     assert_eq!(
-        callee.into_scalar_emission().err(),
+        callee.scalar_emission().err(),
         Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
     package

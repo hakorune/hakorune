@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
-use crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1;
+use crate::mir::normal_callable_semantic_package::{EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1};
 use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, LocalCallObservationV1};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedLiteralSourceV1 as Literal};
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
@@ -17,7 +17,7 @@ pub(super) struct EmittedExpressionValueV1 {
     pub(super) values: Vec<Option<Operand>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, crate::mir::builder::ExactLexicalReadV1>,
-    pub(super) reference_reads: std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
+    pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     pub(super) acquired: Vec<(usize, ValueId)>,
     pub(super) homes: Vec<InvokeOperation>,
     pub(super) fault_frame: ValueId,
@@ -45,6 +45,9 @@ pub(super) fn emit(
     }
     for &index in frame.ordered_nodes() {
         if frame.transfers_node(index) || frame.node_is_identity(index) { continue; }
+        if matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::Scalar(read)) if read.original_read().is_none()) {
+            return Err(freeze("expression/reference-scalar-obligation"));
+        }
         if let Some(CheckedExpressionReferenceV1::ArgumentEntry(requirement)) = frame.references().get(&index) {
             let prepared = state.prepare_exact_lexical_read(owner, requirement.read().node(), requirement.binding()).map_err(|error| error.to_string())?;
             ledger.validate_prepared_text_entry_read_v1(requirement,
@@ -54,7 +57,7 @@ pub(super) fn emit(
             return Err(freeze("expression/reference-execution-pending/text-entry-string-consumer"));
         }
         if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
-            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_))) {
+            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_))) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
@@ -92,6 +95,14 @@ pub(super) fn emit(
                     return Err(freeze("expression/static-dependency-identity"));
                 }
             }
+            reference_slots.insert(index, (pending.len(), ExpressionReferenceReadV1::prepare_definition(producer)));
+            pending.push(read);
+        }
+        if let Some(CheckedExpressionReferenceV1::Scalar(original)) = frame.references().get(&index) {
+            let original = original.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?;
+            let read = state.prepare_exact_lexical_read(owner, node.site().node(), original.binding()).map_err(|error| error.to_string())?;
+            let producer = ExpressionReferenceReadV1::prepare_scalar(original, read.observation_v1(), CallValidationContextV1::Lowering(ledger),
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
             reference_slots.insert(index, (pending.len(), producer));
             pending.push(read);
         }
@@ -130,7 +141,7 @@ pub(super) fn emit(
         path_reads.insert(site, reads[slot].take().ok_or_else(|| freeze("expression-value/read-slot"))?);
     }
     let reference_reads = reference_slots.into_iter().map(|(node, (slot, producer))| {
-        Ok((node, (reads[slot].take().ok_or_else(|| freeze("expression-value/reference-slot"))?, producer)))
+        Ok((node, producer.finish(reads[slot].take().ok_or_else(|| freeze("expression-value/reference-slot"))?)))
     }).collect::<Result<std::collections::BTreeMap<_, _>, String>>()?;
     let fault_frame = state.borrow_fault_frame(builder)?;
     let mut bindings = vec![fault_frame_binding(builder, state, fault_frame)?];
@@ -212,11 +223,13 @@ pub(super) fn emit(
                 Operand::NormalInteger(value)
             }
             Node::Reference(_) => {
-                let Some(CheckedExpressionReferenceV1::StaticText(original)) = frame.references().get(&index) else {
-                    return Err(freeze("expression/reference-execution-pending"));
-                };
-                if !reference_reads.contains_key(&index) { return Err(freeze("expression/reference-read-missing")); }
-                Operand::StaticText { utf8: original.utf8().to_owned() }
+                let observed = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                match frame.references().get(&index) {
+                    Some(CheckedExpressionReferenceV1::StaticText(original)) => Operand::StaticText { utf8: original.utf8().to_owned() },
+                    Some(CheckedExpressionReferenceV1::Scalar(source)) => Operand::NormalInteger(observed.validate_scalar_source(
+                        source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, CallValidationContextV1::Lowering(ledger))?),
+                    _ => return Err(freeze("expression/reference-execution-pending")),
+                }
             }
             Node::MethodCall if frame.cores().contains_key(&index) => {
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
@@ -302,4 +315,30 @@ fn emit_string_value(
     builder.function_state.type_ctx.value_types.insert(value, kind);
     if owned { acquired.push((node, value)); }
     Ok(operand)
+}
+
+/// I64 purpose completion retains the scalar result and ends only its child
+/// Text acquisitions. Prior Homes remain live on Normal and unwind on Fault.
+pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
+    -> Result<(Binding, Binding), String> {
+    if !matches!(expression.value, Operand::NormalInteger(_)) { return Err(freeze("expression/scalar-continuation-result")); }
+    let mut writer = RawRootGraphWriterV1;
+    let next = writer.reserve_block(builder)?;
+    let clean = writer.reserve_block(builder)?;
+    let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
+    writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.bindings)?;
+    let normal: Vec<_> = expression.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
+    let fault = pending_operations(&expression.acquired, &expression.homes);
+    let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
+    // The Local terminal is an infallible Jump. Its child acquisitions already
+    // own their Fault paths; do not emit a detached terminal-acquisition suffix.
+    let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, expression.fault_frame, clean,
+        &normal, &fault, &after, &[], &mut expression.bindings)?;
+    let terminal = writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?;
+    expression.bindings.push(terminal.clone());
+    builder.start_new_block(next)?;
+    let mut unique = Vec::new();
+    for binding in std::mem::take(&mut expression.bindings) { if !unique.contains(&binding) { unique.push(binding); } }
+    expression.bindings = unique;
+    Ok((terminal, continuation))
 }

@@ -21,6 +21,7 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedBoolConditionFrameV1>,
     },
+    InitializerExpression { site: OwnedExprSiteV1, frame: std::rc::Rc<CheckedInitializerExpressionFrameV1> },
     PrintExpression {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedPrintExpressionFrameV1>,
@@ -32,12 +33,13 @@ pub(crate) enum LifecyclePrefixSourceV1 {
 }
 impl LifecyclePrefixSourceV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        match self { Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
+        match self { Self::InitializerExpression { site, .. } | Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
     }
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
             Self::Call { statement, .. } | Self::OwnedArrayAppend { statement, .. } => statement,
             Self::FieldArrayAppend { proof, .. } => proof.site(),
+            Self::InitializerExpression { frame, .. } => frame.source().root().statement(),
             Self::PrintExpression { frame, .. } => frame.source().root().statement(),
             Self::BoolCondition { frame, .. } => frame.source().root().statement(),
             Self::BorrowedFieldWrite { frame, .. } => frame.source().root().statement(),
@@ -46,7 +48,7 @@ impl LifecyclePrefixSourceV1 {
     pub(crate) fn covered_by(&self, exit: &RootHomeExitV1) -> bool {
         match self {
             Self::Call { site, .. } => exit.covered_calls().contains(site),
-            Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
+            Self::InitializerExpression { .. } | Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
         }
     }
 }
@@ -55,16 +57,26 @@ impl RootHomeFlow {
     /// Preserve the existing call postorder within a statement. Only enclosing
     /// statement paths order separate prefixes; expression-path ordering would
     /// incorrectly put an outer call before its evaluated arguments.
+    pub(crate) fn initializer_scalar_call_dependency_v1(&self, site: &OwnedExprSiteV1) -> bool {
+        self.expression_plans.iter().filter_map(HomeExpressionPlanV1::initializer_frame).any(|frame|
+            frame.evaluation().references().values().any(|reference| match reference {
+                super::CheckedExpressionReferenceV1::Scalar(read) => read.original_read().is_some_and(|read|
+                    matches!(read.producer(), super::CurrentScalarProducerV1::Call(call) if call.site() == site)),
+                _ => false,
+            }))
+    }
     pub(crate) fn lifecycle_prefixes(&self, routed: &[OwnedExprSiteV1]) -> Result<Vec<LifecyclePrefixSourceV1>, &'static str> {
         let frames: Vec<_> = self.expression_plans.iter().filter_map(HomeExpressionPlanV1::print_frame).collect();
+        let initializers: Vec<_> = self.expression_plans.iter().filter_map(HomeExpressionPlanV1::initializer_frame).collect();
         let conditions: Vec<_> = self.expression_plans.iter().filter_map(HomeExpressionPlanV1::condition_frame).collect();
         let mut prefixes: Vec<_> = self.local_calls.iter().filter(|call| {
             matches!(call.result(), super::LocalCallResultClassV1::Unit | super::LocalCallResultClassV1::I64
                 | super::LocalCallResultClassV1::Bool
                 | super::LocalCallResultClassV1::Handle | super::LocalCallResultClassV1::Nullable
                 | super::LocalCallResultClassV1::BorrowedNullable | super::LocalCallResultClassV1::MixedObject)
-                && routed.contains(call.site())
+                && (routed.contains(call.site()) || self.initializer_scalar_call_dependency_v1(call.site()))
                 && !frames.iter().any(|frame| frame.calls().iter().any(|nested| nested.site() == call.site()))
+                && !initializers.iter().any(|frame| frame.evaluation().calls().iter().any(|nested| nested.site() == call.site()))
                 && !conditions.iter().any(|frame| frame.calls().iter().any(|nested| nested.site() == call.site()))
         }).map(|call| LifecyclePrefixSourceV1::Call {
             site: call.site().clone(), statement: call.statement().clone(),
@@ -77,6 +89,9 @@ impl RootHomeFlow {
         prefixes.extend(frames.into_iter().map(|frame| LifecyclePrefixSourceV1::PrintExpression {
             site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()),
             frame: std::rc::Rc::clone(frame),
+        }));
+        prefixes.extend(initializers.into_iter().map(|frame| LifecyclePrefixSourceV1::InitializerExpression {
+            site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()), frame: std::rc::Rc::clone(frame),
         }));
         prefixes.extend(conditions.into_iter().map(|frame| LifecyclePrefixSourceV1::BoolCondition {
             site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()),

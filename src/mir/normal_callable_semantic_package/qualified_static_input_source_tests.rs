@@ -434,3 +434,66 @@ fn qualified_static_input_source_rejects_foreign_owner_and_absent_caller_or_site
         })
         .unwrap();
 }
+
+#[test]
+fn main_argument_source_retains_original_policy_and_refuses_foreign_or_changed_declarations() {
+    fn copied(source: &MainArgumentsSourceV1) -> MainArgumentsSourceV1 {
+        MainArgumentsSourceV1 {
+            identity: source.identity.clone(), key: source.key.clone(), brand: source.brand.clone(),
+            owner: source.owner, batch_slot: source.batch_slot,
+            parameters: source.parameters.iter().map(|row| MainArgumentParameterV1 {
+                ordinal: row.ordinal, binding: row.binding, name: row.name.clone(), kind: row.kind,
+            }).collect(),
+        }
+    }
+    for (parameters, resource) in [("", None), ("args", Some(0)), ("other, args", Some(1))] {
+        let text = format!("static box Main {{ main({parameters}) {{ return 0 }} }}");
+        let package = issue(&text);
+        let main = borrow_app_main_source_v1(package.batch(), package.catalog.catalog().source_backed_app_main())
+            .unwrap().unwrap();
+        let source = main.arguments_source_v1(package.batch(), &package.parameter_contracts).unwrap();
+        assert_eq!(source.resource_ordinal(), resource);
+        assert_eq!(source.requires_lifecycle(), resource.is_some());
+        assert!(source.matches_catalog_v1(package.catalog.catalog().source_backed_app_main().unwrap()));
+        let foreign = issue(&text);
+        assert!(!source.matches_catalog_v1(foreign.catalog.catalog().source_backed_app_main().unwrap()));
+        assert!(source.require_original_v1(foreign.batch(), &foreign.parameter_contracts).is_err());
+        let mut foreign_brand = copied(&source);
+        foreign_brand.brand = foreign.catalog.catalog().source_backed_app_main().unwrap().catalog_brand().clone();
+        assert!(!foreign_brand.matches_catalog_v1(package.catalog.catalog().source_backed_app_main().unwrap()),
+            "same identity/key cannot substitute catalog brand");
+        package.batch().with_lowering_input(main.batch_slot(), |input| {
+            let retained = package.ordinary_new_claim_ledger.main_arguments_source_v1(input, main.source.parser_identity()).unwrap();
+            let again = package.ordinary_new_claim_ledger.main_arguments_source_v1(input, main.source.parser_identity()).unwrap();
+            assert!(Rc::ptr_eq(&retained, &again), "one retained source policy");
+        }).unwrap();
+        for mutation in 0..8 {
+            if source.parameters.is_empty() && mutation >= 3 { continue; }
+            let mut changed = copied(&source);
+            match mutation {
+                0 => changed.identity = foreign.catalog.catalog().source_backed_app_main().unwrap().parser_identity().clone(),
+                1 => changed.batch_slot = u32::MAX,
+                2 => changed.owner = foreign.batch().declarations().next().unwrap().owner(),
+                3 => changed.parameters[0].ordinal = u32::MAX,
+                4 => changed.parameters[0].binding = foreign.parameter_contracts[0].parameters[0].binding,
+                5 => changed.parameters[0].name.push_str("_drift"),
+                6 => changed.parameters = Box::new([]),
+                7 => changed.parameters.reverse(),
+                _ => unreachable!(),
+            }
+            // A singleton reversal is identical, so it is not a negative case.
+            if mutation == 7 && source.parameters.len() < 2 { continue; }
+            assert!(changed.require_original_v1(package.batch(), &package.parameter_contracts).is_err(),
+                "mutation {mutation}, parameters {parameters}");
+        }
+    }
+    let (_, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(
+        "static box Main { main(args) { return 0 } }");
+    let source = ledger.main_arguments_source.as_ref().unwrap();
+    let emission_slot = ledger.main_arguments.borrow();
+    let emission = emission_slot.as_ref().unwrap();
+    assert!(emission.corroborates_source(emission.owner(), source));
+    assert!(!emission.corroborates_source(emission.owner(), &Rc::new(copied(source))),
+        "same contents cannot replace the retained source Rc");
+
+}

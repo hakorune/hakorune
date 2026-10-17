@@ -124,7 +124,7 @@ pub(in crate::mir::builder) fn emit(
     site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     row: DirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
-    let emission = row.physical_emission();
+    let emission = row.physical_emission().map_err(|_| freeze("direct-source-required"))?;
     let result = row.result();
     let block = builder
         .function_state
@@ -312,12 +312,12 @@ pub(in crate::mir::builder) fn emit_local(
         // The callee's canonical object moves to this owner at the Return
         // edge; begin records it so terminal cleanup owes one HomeRelease.
         InvokeCallResultKind::Handle => {
-            ledger.begin_handle_call_emission(&owned_site, lifecycle.target().callable().owner())?
+            ledger.begin_handle_call_emission(&owned_site, row.callee_owner_v1())?
         }
         _ => {}
     }
     let call = lifecycle
-        .materialize_call(None, arguments)
+        .materialize_call(None, arguments.clone())
         .map_err(|_| freeze("local-call-projection-failed"))?;
     let frame = state.borrow_fault_frame(builder)?;
     let origin = builder
@@ -357,9 +357,7 @@ pub(in crate::mir::builder) fn emit_local(
     builder.emit_instruction(projection.clone())?;
     let result_class = match result_kind {
         InvokeCallResultKind::Handle => Some(
-            lifecycle
-                .target()
-                .published_key()
+            row.published_key_v1()
                 .and_then(|key| ledger.callable_result_class(key))
                 .ok_or_else(|| freeze("handle-result-class-missing"))?,
         ),
@@ -370,13 +368,18 @@ pub(in crate::mir::builder) fn emit_local(
         .type_ctx
         .value_types
         .insert(result, result_type(result_kind, result_class)?);
-    bindings.push((origin, invoke));
-    bindings.push((normal_landing, projection));
+    let invoke = (origin, invoke);
+    let projection = (normal_landing, projection);
+    bindings.push(invoke.clone());
+    bindings.push(projection.clone());
     match result_kind {
         InvokeCallResultKind::Map => ledger.record_map_emission(&owned_site, result, bindings)?,
         InvokeCallResultKind::Handle => {
             ledger.record_handle_call_emission(&owned_site, result, bindings)?
         }
+        InvokeCallResultKind::I64 => ledger.record_root_direct_scalar_call_bindings_v1(
+            row, relation.clone(), arguments, invoke, projection, bindings,
+            builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?,
         _ => ledger.record_root_local_call_bindings(owner, owned_site, bindings)?,
     }
     Ok(result)

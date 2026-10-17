@@ -8,6 +8,11 @@ use crate::mir::resolved_semantics::ResolvedLiteralSourceV1 as Literal;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
+#[path = "expression_reference_read.rs"]
+mod reference_read;
+pub(in crate::mir) use reference_read::ExpressionReferenceReadV1;
+#[path = "expression_terminal_paths.rs"]
+mod terminal_paths;
 
 /// A view of the purpose's original observations, never a second packet pool.
 /// Successful correspondence grants no terminal, residence or cleanup rights.
@@ -16,7 +21,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     values: &'a [Option<Operand>],
     calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
     path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
-    reference_reads: &'a std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
+    reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     original: &'a [Binding],
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
@@ -25,7 +30,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         values: &'a [Option<Operand>],
         calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
         path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
-        reference_reads: &'a std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
+        reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
         original: &'a [Binding],
     ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original } }
 
@@ -111,7 +116,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::StaticText(original)) = self.frame.references().get(&index) else {
                         return Err(freeze("expression/reference-source-kind"));
                     };
-                    let (read, producer) = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                    let observed = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                    let read = observed.read();
+                    let producer = observed.definition().ok_or_else(|| freeze("expression/reference-static-producer"))?;
                     read.value_for(source.owner(), node.site().node(), original.binding()).map_err(|error| error.to_string())?;
                     let (initializer, _) = read.loan_local_initializer_v1(original.definition_binding())?;
                     if utf8 != original.utf8() || !matches!(&producer.1,
@@ -119,6 +126,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                             if *dst == initializer && text == original.utf8()) {
                         return Err(freeze("expression/reference-static-value"));
                     }
+                }
+                (Node::Reference(_), Some(Operand::NormalInteger(value))) => {
+                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(source)) = self.frame.references().get(&index) else {
+                        return Err(freeze("expression/reference-scalar-source"));
+                    };
+                    let source = source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?;
+                    let observed = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                    if observed.validate_scalar_source(source, context)? != *value { return Err(freeze("expression/reference-scalar-value")); }
                 }
                 (Node::Literal(Literal::Integer(expected)), Some(Operand::NormalInteger(dst))) => {
                     self.require_unique(|row| matches!(row, MirInstruction::Const { dst: actual, value: crate::mir::ConstValue::Integer(value) }
@@ -234,11 +249,16 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.validate_source(context)?;
+        for (&node, observed) in self.reference_reads {
+            if let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(original)) = self.frame.references().get(&node) {
+                observed.validate_scalar_layout(original.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, context, function)?;
+            }
+        }
         if let (Some(projection), CallValidationContextV1::Finalized(_)) = (finishing, context) {
             return self.validate_finished_reference_dependencies(function, projection);
         }
-        for (read, producer) in self.reference_reads.values() {
-            for original in std::iter::once(producer).chain(read.original_copy_dependencies_v1()?.iter()) {
+        for observed in self.reference_reads.values() {
+            for original in observed.dependencies()? {
                 let actual = match (finishing, context) {
                     (Some(_), CallValidationContextV1::Finalized(_)) => unreachable!("final dependencies handled above"),
                     (Some(projection), CallValidationContextV1::Lowering(_)) => {
@@ -263,8 +283,8 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     fn validate_finished_reference_dependencies(
         &self, function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
     ) -> Result<(), String> {
-        for (read, producer) in self.reference_reads.values() {
-            for original in std::iter::once(producer).chain(read.original_copy_dependencies_v1()?.iter()) {
+        for observed in self.reference_reads.values() {
+            for original in observed.dependencies()? {
                 // Only the existing sealed boundary can approve an omission.
                 projection.relation_binding(function, original)?;
             }
@@ -286,8 +306,8 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let mut projection = boundary.project(&original).unwrap();
         boundary.validate_complete(&original, &mut projection, &bindings).unwrap();
         self.validate_finished_reference_dependencies(&original, &projection).unwrap();
-        for (read, producer) in self.reference_reads.values() {
-            for dependency in std::iter::once(producer).chain(read.original_copy_dependencies_v1().unwrap()) {
+        for observed in self.reference_reads.values() {
+            for dependency in observed.dependencies().unwrap() {
                 let mut changed = original.clone();
                 changed.blocks.get_mut(&dependency.0).unwrap().instructions.retain(|row| row != &dependency.1);
                 assert!(self.validate_finished_reference_dependencies(&changed, &projection).is_err(),
@@ -333,6 +353,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 ordered.extend([invoke.clone(), result.clone()]);
                 continue;
             }
+            if matches!(source.nodes()[index].source(), Node::Reference(_)) { continue; }
             match self.values[index].as_ref() {
                 Some(Operand::NormalInteger(value)) => {
                     if let Some(packet) = self

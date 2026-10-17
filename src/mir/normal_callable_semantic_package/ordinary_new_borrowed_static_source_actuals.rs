@@ -163,7 +163,7 @@ pub(super) fn prepare_static_source_actuals_v1(
     let original_text_formal = |root| prepared.source_value_sum_v1(root).is_some_and(|sum|
         sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
     let source_expression = actuals.iter().any(|actual| match actual.value {
-        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_) => true,
+        BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_) => true,
         BorrowedCallActualValueV1::SelfRooted { root, .. } => original_text_formal(root),
         _ => false,
     });
@@ -239,6 +239,8 @@ pub(super) fn prepare_static_source_actuals_v1(
         }
         let integer = match &actual.value {
             BorrowedCallActualValueV1::Integer(_) => true,
+            BorrowedCallActualValueV1::Expression if matches!(&formal.kind,
+                CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) => false,
             BorrowedCallActualValueV1::Bool(_) | BorrowedCallActualValueV1::Null => false,
             BorrowedCallActualValueV1::String(_) if formal.kind.is_ordinary_borrowed_handle() => false,
             BorrowedCallActualValueV1::Binding(binding)
@@ -264,8 +266,11 @@ pub(super) fn prepare_static_source_actuals_v1(
                 if method.owner() != call.owner() || method.site() != &actual.site
                     || !std::sync::Arc::ptr_eq(method, receipt.source().source())
                     || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
-                    || receipt.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
-                    || !formal.kind.is_ordinary_borrowed_handle()
+                    || !match (&formal.kind, receipt.source().target().result()) {
+                        (kind, crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller) => kind.is_ordinary_borrowed_handle(),
+                        (CallableParameterContractKindV1::ExactTrivial(abi), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller) => abi.is_i64(),
+                        _ => false,
+                    }
                 { return Err(freeze("borrowed-static/core-source-identity")); }
                 core_arguments.insert(actual.ordinal, Rc::clone(receipt));
                 false
@@ -287,6 +292,9 @@ pub(super) fn prepare_static_source_actuals_v1(
                     {
                         LocalCallArgumentV1::Scalar(binding)
                     }
+                    BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) => LocalCallArgumentV1::Expression {
+                        ordinal: actual.ordinal, site: actual.site.clone(),
+                    },
                     _ if source.is_current_owner_i64_source_v1()
                         && !matches!(
                             &actual.value,
@@ -654,7 +662,9 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
     // SourceStatic still owns no executable payload or physical permission.
     argument_source::validate_qualified_argument_sources_v1(prepared, pending, site, identity)?;
     if required_i64_arguments.iter().any(|ordinal| {
-        if identity.integer_evidence.get(*ordinal as usize) == Some(&true) {
+        if identity.integer_evidence.get(*ordinal as usize) == Some(&true)
+            || identity.argument_sources.get(ordinal).is_some_and(|slot| matches!(slot,
+                StaticArgumentExpressionV1::Qualified(frame) if frame.is_i64())) {
             return false;
         }
         let index = *ordinal as usize;

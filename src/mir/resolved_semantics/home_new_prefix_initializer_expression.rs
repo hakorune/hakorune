@@ -114,7 +114,7 @@ pub(crate) fn observe_for_test<E>(
         let initializer = input.function().expression_source().initializers()
             .find(|row| matches!(row.declaration_site(), SourceBindingSiteV1::Local { statement: site, ordinal: 0 } if site == statement.site())).unwrap();
         let root = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
-        local_call_flow::stage_argument_expressions(input, &statement, &root, &locals, known, &homes, fields, port)?;
+        local_call_flow::stage_argument_expressions(input, &statement, &root, &locals, known, &homes, &calls, fields, port)?;
         if !observe(input, &statement, initializer, &mut locals, &mut homes, known, &mut calls, &mut path, fields, port)? {
             // Same generic alias/scalar installation used by the production
             // Local walker after the Text purpose declines this initializer.

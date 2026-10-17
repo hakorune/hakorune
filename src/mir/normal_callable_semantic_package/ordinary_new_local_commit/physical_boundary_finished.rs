@@ -75,7 +75,7 @@ impl FinishedBindings {
                 original.1,
                 MirInstruction::Const { .. } | MirInstruction::Copy { .. }
             )
-            && self.validated_auxiliary_omissions.contains(&mapped)
+            && self.validated_sequence_omissions.contains(&mapped)
         {
             return Ok(None);
         }
@@ -99,6 +99,38 @@ impl FinishedBindings {
         }
         Ok(mapped)
     }
+    /// Structural Jumps may contract only through the original destination map.
+    /// Recheck the surviving terminator even for an omitted trampoline.
+    pub(in super::super) fn structural_jump_binding(
+        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
+        finalized: bool,
+    ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        let MirInstruction::Jump { target, edge_args: None } = original.1 else {
+            return Err(fault("structural-jump-shape"));
+        };
+        if self.captured.iter().filter(|row| *row == original).count() != 1 {
+            return Err(fault("structural-jump-capture"));
+        }
+        let mapped = self.binding(original.0, &original.1)?;
+        let destination = self.destination(original.0).ok_or_else(|| fault("structural-jump-destination"))?;
+        let expected = match &mapped {
+            Some((_, instruction)) => {
+                if finalized && self.recorded.iter().filter(|row| **row == (destination, instruction.clone())).count() != 1 {
+                    return Err(fault("structural-jump-finished-membership"));
+                }
+                instruction.clone()
+            }
+            None => {
+                if self.destination(target) != Some(destination) { return Err(fault("structural-jump-contraction")); }
+                self.instruction(self.sequences.get(&destination).ok_or_else(|| fault("structural-jump-sequence"))?.1.clone())
+            }
+        };
+        if function.blocks.get(&destination).and_then(|block| block.terminator.as_ref()) != Some(&expected) {
+            return Err(fault("structural-jump-actual"));
+        }
+        Ok(mapped)
+    }
+
     /// Final effects additionally require the sealed source-owned census.
     pub(in super::super) fn required_effect_binding(
         &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),

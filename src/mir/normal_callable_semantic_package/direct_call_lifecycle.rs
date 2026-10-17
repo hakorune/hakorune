@@ -21,7 +21,7 @@ fn map_owned(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     row: &DirectCallDispositionRowV1,
 ) -> bool {
-    map_owned_owner(batch, row.emission.target().callable().owner())
+    row.resolver_emission().is_some_and(|emission| map_owned_owner(batch, emission.target().callable().owner()))
 }
 
 /// The callee's own sealed products already prove it will emit lifecycle
@@ -173,7 +173,8 @@ fn map_argument_edge(
     site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     row: &DirectCallDispositionRowV1,
 ) -> bool {
-    let target = row.emission.target();
+    let Some(emission) = row.resolver_emission() else { return false };
+    let target = emission.target();
     let signature = target.signature();
     if signature.result() != Some(ExactTrivialScalarAbiV1::I64)
         || signature.arity() != row.argument_sites.len()
@@ -321,12 +322,13 @@ fn map_argument_edge(
         .unwrap_or(false)
 }
 
-fn exact_formals(
+pub(super) fn exact_formals(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameters: &[OwnedCallableParameterContractDeclarationV1],
     row: &DirectCallDispositionRowV1,
 ) -> bool {
-    let target = row.emission.target();
+    let Some(emission) = row.resolver_emission() else { return false };
+    let target = emission.target();
     if !target.published_key().is_some_and(|key| {
         key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
     }) {
@@ -380,11 +382,12 @@ impl DirectCallDispositionLoanV1 {
         let Some(DirectCallDispositionSlotV1::Ready(row)) = self.rows.get(site) else {
             return false;
         };
-        row.emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::I64)
+        let Some(emission) = row.resolver_emission() else { return false };
+        emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::I64)
             && input
                 .function()
                 .direct_call_target(site.site())
-                .is_some_and(|target| target.callable() == row.emission.target().callable())
+                .is_some_and(|target| target.callable() == emission.target().callable())
             && input
                 .function()
                 .direct_call_observations()
@@ -413,7 +416,7 @@ impl DirectCallDispositionLoanV1 {
             DirectCallDispositionSlotV1::Ready(row) if map_owned(batch, row) => Some(row),
             DirectCallDispositionSlotV1::Ready(_) | DirectCallDispositionSlotV1::Taken => None,
         }) {
-            owners.insert(row.emission.target().callable().owner());
+            if let Some(emission) = row.resolver_emission() { owners.insert(emission.target().callable().owner()); }
         }
         (!owners.is_empty()).then(|| owners.into_iter().collect())
     }
@@ -441,13 +444,14 @@ impl DirectCallDispositionLoanV1 {
         }
         match self.rows.get(site) {
             Some(DirectCallDispositionSlotV1::Ready(row)) => {
-                row.emission.target().signature().result().is_none()
+                let Some(emission) = row.resolver_emission() else { return false };
+                emission.target().signature().result().is_none()
                     && map_owned(batch, row)
                     && exact_formals(batch, parameters, row)
                     && input
                         .function()
                         .direct_call_target(site.site())
-                        .is_some_and(|target| target.callable() == row.emission.target().callable())
+                        .is_some_and(|target| target.callable() == emission.target().callable())
                     && input.function().direct_call_observations().any(
                         |(observed_site, observation)| {
                             observed_site == site.site()
@@ -475,13 +479,14 @@ impl DirectCallDispositionLoanV1 {
         }
         match self.rows.get(site) {
             Some(DirectCallDispositionSlotV1::Ready(row)) => {
-                row.emission.target().signature().result().is_none()
-                    && construction_result_callee(batch, row.emission.target().callable().owner())
+                let Some(emission) = row.resolver_emission() else { return false };
+                emission.target().signature().result().is_none()
+                    && construction_result_callee(batch, emission.target().callable().owner())
                     && exact_formals(batch, parameters, row)
                     && input
                         .function()
                         .direct_call_target(site.site())
-                        .is_some_and(|target| target.callable() == row.emission.target().callable())
+                        .is_some_and(|target| target.callable() == emission.target().callable())
                     && input.function().direct_call_observations().any(
                         |(observed_site, observation)| {
                             observed_site == site.site()
@@ -506,17 +511,18 @@ impl DirectCallDispositionLoanV1 {
             let DirectCallDispositionSlotV1::Ready(row) = slot else {
                 return Err(reject);
             };
+            let emission = row.resolver_emission().ok_or(reject)?;
             // A construction-result callee leaves through the same
             // lifecycle gates as a map-owned one: its unannotated header
             // proves nothing, and the sealed terminal relation decides.
             let construction_result =
-                construction_result_callee(batch, row.emission.target().callable().owner());
+                construction_result_callee(batch, emission.target().callable().owner());
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
             if !map_owned(batch, row) && !construction_result {
                 // An unannotated target is callable only through the
                 // map-result lane; a scalar call into it has no admitted
                 // route.
-                if row.emission.target().signature().result() != Some(ExactTrivialScalarAbiV1::I64)
+                if emission.target().signature().result() != Some(ExactTrivialScalarAbiV1::I64)
                 {
                     return Err(reject);
                 }
@@ -525,8 +531,7 @@ impl DirectCallDispositionLoanV1 {
                 // (for example a borrowed MapBox storage pointer) can never
                 // be reached through this edge — neither the terminal Call
                 // nor the local-call arm may admit it.
-                if row
-                    .emission
+                if emission
                     .target()
                     .signature()
                     .params()
@@ -556,7 +561,7 @@ impl DirectCallDispositionLoanV1 {
                 let Some(local) = root.local_call_for_owner(self.owner, site.site()) else {
                     continue;
                 };
-                let signature = row.emission.target().signature();
+                let signature = emission.target().signature();
                 let call_terminals = root.call_relations_for_owner(self.owner);
                 if call_terminals.is_empty() {
                     // A lifecycle-bearing callee cannot ride the scalar
@@ -566,7 +571,7 @@ impl DirectCallDispositionLoanV1 {
                     // same Invoke edge and the Plain exit entry records
                     // the local binding groups directly. A callee with
                     // no sealed lifecycle product keeps the Call route.
-                    let callee = row.emission.target().callable().owner();
+                    let callee = emission.target().callable().owner();
                     if !callee_lifecycle_participant(root, callee) {
                         continue;
                     }
@@ -619,7 +624,7 @@ impl DirectCallDispositionLoanV1 {
             // carry the I64 class, an unannotated callee whose every
             // `return` constructs one `new` class carries the Handle
             // class, and other unannotated map-owned callees carry Map.
-            let expected_class = match row.emission.target().signature().result() {
+            let expected_class = match emission.target().signature().result() {
                 Some(ExactTrivialScalarAbiV1::I64) => LocalCallResultClassV1::I64,
                 None if construction_result => LocalCallResultClassV1::Handle,
                 None => LocalCallResultClassV1::Map,
@@ -668,7 +673,7 @@ impl DirectCallDispositionLoanV1 {
                     (local.arguments().len(), binding_site)
                 }
             };
-            let owner = row.emission.target().callable().owner();
+            let owner = emission.target().callable().owner();
             let mut matches = results.rows().filter(|result| result.owner() == owner);
             let callee = matches.next().ok_or(reject)?.borrow();
             if matches.next().is_some()
@@ -728,7 +733,7 @@ impl DirectCallDispositionLoanV1 {
                                 // annotation or generic JSON lane decides.
                                 owned.owner() == owner
                                     && root.result_transfer_proven(owned)
-                                    && row.emission.target().published_key().is_some_and(|key| {
+                                    && emission.target().published_key().is_some_and(|key| {
                                         root.callable_result_class(key).is_some()
                                     })
                             }

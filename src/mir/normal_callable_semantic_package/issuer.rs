@@ -570,6 +570,10 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &mut ordinary_new_claim_ledger,
         &static_claim_index,
     )?;
+    super::direct_call_loan::DirectCallDispositionLoansV1::join_static_execution_v1(
+        &mut direct_call_loans, &batch, &selected, catalog.catalog().source_backed_app_main(),
+        &parameter_contracts, &ordinary_new_claim_ledger, &physical_signature, &result_contracts,
+    ).map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
     let app_main_batch_slot = app_main_identity.as_ref().and_then(|identity| {
         batch
             .declarations()

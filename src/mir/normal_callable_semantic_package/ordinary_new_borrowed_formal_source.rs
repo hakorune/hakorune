@@ -312,6 +312,13 @@ fn object_view_for(
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Borrow canonical Static sources without exposing or reissuing the census.
+    /// Unavailable rows stay in their original owner for selected consumers.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_static_sources_v1(&self)
+        -> impl Iterator<Item = Result<&std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, &str>> {
+        self.source_incoming.static_observations().values().map(|row| row.as_ref().map_err(String::as_str))
+    }
+
     /// Existing physical consumers borrow only the admitted transport view.
     /// A retained source-only class cannot activate an entry or field read.
     pub(in crate::mir::normal_callable_semantic_package) fn formal_object_view(

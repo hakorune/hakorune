@@ -125,7 +125,7 @@ pub(super) fn scan_statement_flow<'a, E>(
         };
         covered_statements.push(statement.site().clone());
         local_call_flow::stage_statement_actuals(input, &statement, locals,
-            unavailable.is_none(), homes, local_field_read, borrowed_actuals)?;
+            unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
 
         if exit_sites.contains(statement.site()) {
             super::terminal::observe_terminal_statement(
@@ -402,7 +402,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
             local_call_flow::stage_argument_expressions(input, &statement, &owned, locals,
-                unavailable.is_none(), homes, local_field_read, borrowed_actuals)?;
+                unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
             if mixed_call::observe(input, statement.site(), &owned, &declaration, binding,
                 homes, locals, local_calls, path_calls, unavailable, borrowed_actuals)? {
                 continue;

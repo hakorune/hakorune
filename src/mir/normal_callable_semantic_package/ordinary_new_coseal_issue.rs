@@ -172,12 +172,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         borrowed_formal_source.as_ref().ok(),
     )?;
     let mut preissued_static_i64_products = BTreeMap::new();
+    let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(&borrowed_formal_source, selected, app_main.as_ref(), batch, parameter_contracts)?;
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
         let source_core_calls = selected.keys().find(|key| selected.batch_slot(key) == Some(batch_slot))
             .and_then(|key| source_core_method_calls.get(key));
         let is_app_main = app_main_batch_slot == Some(batch_slot);
+        let has_typed_static_walk = typed_static_walk_owners.contains(&owner);
         if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
             continue;
         }
@@ -365,7 +367,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     && !has_stored_terminal
                     && !has_required_scalar_source_walk
                     && !has_field_scalar_walk
-                    && !has_static_source_local
+                    && !has_static_source_local && !has_typed_static_walk
                     && !has_print_expression
                     && !has_text_initializer
                     && !has_array_residence
@@ -378,7 +380,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let app_main_integer_result = walk_triggers::plain_main_integer_result_v1(
                     input,
                     is_app_main,
-                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_text_initializer,
+                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_text_initializer && !has_typed_static_walk,
                     !has_map && owner_loan.is_none(),
                     &static_source_sites,
                 );
@@ -393,7 +395,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     &mut root_terminal_relation,
                     &mut top_level_input,
                 )?;
-                let verified_walk = has_print_expression
+                let verified_walk = has_print_expression || has_typed_static_walk
                     || has_text_initializer
                     || has_array_residence
                     || owner_loan.is_some()
@@ -675,7 +677,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
                                                 static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))
-                                        || ((has_integer_return || has_required_scalar_source_walk || has_field_scalar_walk) && matches!(row, TerminalRelationV1::I64Scalar(_)))
+                                        || ((has_integer_return || has_required_scalar_source_walk || has_field_scalar_walk || has_typed_static_walk) && matches!(row, TerminalRelationV1::I64Scalar(_)))
                                         || loop_issue::retain_static_i64_search_early_return_v1(
                                             input, static_caller_key.as_ref(), static_call_claims,
                                             &preissued_static_i64_products, row))
@@ -789,7 +791,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = std::rc::Rc::new(root_terminal_relation);
-    ledger.retain_app_main_source_v1(app_main_source);
+    ledger.retain_app_main_source_v1(app_main_source, batch, parameter_contracts)?;
     ledger.install_loop_static_source_loans_v1(loop_static_source_loans);
     *ledger.preissued_static_i64_products.get_mut() = preissued_static_i64_products;
     Ok((ledger, seeds.finish()))

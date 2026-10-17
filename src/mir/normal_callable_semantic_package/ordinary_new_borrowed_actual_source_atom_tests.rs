@@ -27,7 +27,7 @@ fn borrowed_source_atoms_preserve_literal_tags_signed_site_and_unsupported_spell
                 if call.selector() != "probe" { continue; }
                 checked += 1;
                 let atoms: Vec<_> = call.arguments().iter().map(|argument| borrowed_actual_source_atom_v1(input, argument.site())).collect();
-                assert_eq!(atoms, vec![Some(BorrowedCallActualValueV1::Integer(7)), Some(BorrowedCallActualValueV1::Bool(true)), Some(BorrowedCallActualValueV1::Null), Some(BorrowedCallActualValueV1::Integer(-7)), Some(BorrowedCallActualValueV1::String("no".into())), None, None]);
+                assert_eq!(atoms, vec![Some(BorrowedCallActualValueV1::Integer(7)), Some(BorrowedCallActualValueV1::Bool(true)), Some(BorrowedCallActualValueV1::Null), Some(BorrowedCallActualValueV1::Integer(-7)), Some(BorrowedCallActualValueV1::String("no".into())), Some(BorrowedCallActualValueV1::Expression), None]);
                 assert!(borrowed_actual_source_atom_v1(input, call.receiver_site()).is_some_and(|atom| matches!(atom, BorrowedCallActualValueV1::Binding(binding) if binding.owner() == input.owner())));
             }
         }).unwrap();

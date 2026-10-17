@@ -17,6 +17,7 @@ use crate::mir::{MirBuilder, ValueId};
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
+use super::super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1;
 
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
@@ -29,6 +30,7 @@ pub(in crate::mir::builder) struct RawLegacyLocalInputV1 {
     statement: ASTNode,
     initializer_observer: Option<LocalInitializerObservationSinkV1>,
     annotation_source: LocalAnnotationSourceV1,
+    selected_initializers: Vec<PendingInitializerExpressionV1>,
 }
 
 // This is an input provenance choice, not a second semantic issuer.
@@ -60,6 +62,7 @@ impl RawLegacyLocalInputV1 {
             statement,
             initializer_observer: None,
             annotation_source: LocalAnnotationSourceV1::RawCompatibility,
+            selected_initializers: Vec::new(),
         }
     }
 
@@ -71,6 +74,7 @@ impl RawLegacyLocalInputV1 {
             statement,
             initializer_observer: Some(initializer_observer),
             annotation_source: LocalAnnotationSourceV1::RawCompatibility,
+            selected_initializers: Vec::new(),
         }
     }
 
@@ -123,6 +127,7 @@ impl RawLegacyLocalInputV1 {
                 relation,
                 array_recipe,
             },
+            selected_initializers: Vec::new(),
         })
     }
 
@@ -210,6 +215,8 @@ pub(in crate::mir::builder) trait LocalStatementDescentPortV1:
         index: usize,
     ) -> Result<ValueId, String>;
 
+    fn take_checked_initializers(&mut self, _input: &mut Self::LocalInput) -> Vec<PendingInitializerExpressionV1> { Vec::new() }
+
     fn lower_typed_array_literal_initializer(
         &mut self,
         builder: &mut MirBuilder,
@@ -254,6 +261,10 @@ where
         Ok(syntax)
     }
 
+    fn take_checked_initializers(&mut self, input: &mut Self::LocalInput) -> Vec<PendingInitializerExpressionV1> {
+        std::mem::take(&mut input.selected_initializers)
+    }
+
     fn lower_ordinary_initializer(
         &mut self,
         builder: &mut MirBuilder,
@@ -266,6 +277,13 @@ where
             ExprChildRoleV1::LocalInitializer(index),
         )?;
         let observation_source = source.clone();
+        if let Some(emission) = self.lower_checked_local_initializer_v1(builder, &source, index)? {
+            let value = emission.value();
+            take_initializer(input, index as usize)?;
+            input.observe_initializer(index as usize, observation_source, value, None)?;
+            input.selected_initializers.push(emission);
+            return Ok(value);
+        }
         let initializer = take_initializer(input, index as usize)?;
         let mut scoped = RawStructuredChildScopePortV1::new(self, vec![source], Vec::new());
         let value = drive_legacy_expression_v1(builder, &mut scoped, initializer)?;
@@ -430,6 +448,7 @@ where
 pub(in crate::mir::builder) struct CompletedLocalStatementV1 {
     result: ValueId,
     bindings: Box<[CompletedLocalBindingV1]>,
+    selected_initializers: Vec<PendingInitializerExpressionV1>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -496,7 +515,12 @@ impl CompletedLocalStatementV1 {
         Self {
             result,
             bindings: bindings.into_boxed_slice(),
+            selected_initializers: Vec::new(),
         }
+    }
+
+    pub(in crate::mir::builder) fn take_checked_initializers(&mut self) -> Vec<PendingInitializerExpressionV1> {
+        std::mem::take(&mut self.selected_initializers)
     }
 
     pub(in crate::mir::builder) const fn result(&self) -> ValueId {
@@ -581,11 +605,18 @@ where
         preclaimed_arrays.push(preclaimed);
     }
 
-    let placements = evaluated_values
-        .iter()
-        .enumerate()
-        .map(|(i, value)| placement(i, *value))
-        .collect::<Result<Vec<_>, _>>()?;
+    let selected_initializers = port.take_checked_initializers(&mut input);
+    let mut seen = std::collections::BTreeSet::new();
+    for emission in &selected_initializers {
+        if !seen.insert(emission.ordinal()) || evaluated_values.get(emission.ordinal() as usize) != Some(&emission.value()) {
+            return Err("[freeze:contract][initializer-expression/local-ordinal-value]".into());
+        }
+    }
+    let placements = evaluated_values.iter().enumerate().map(|(index, value)| {
+        match selected_initializers.iter().find(|emission| emission.ordinal() as usize == index) {
+            Some(emission) => emission.placement(*value), None => placement(index, *value),
+        }
+    }).collect::<Result<Vec<_>, _>>()?;
     let mut values = Vec::with_capacity(variables.len());
     let result = super::variable_stmt::build_local_statement_from_values_with_types_and_preclaims_with_receipt_v1(
         builder,
@@ -599,5 +630,6 @@ where
     Ok(CompletedLocalStatementV1 {
         result,
         bindings: values.into_boxed_slice(),
+        selected_initializers,
     })
 }

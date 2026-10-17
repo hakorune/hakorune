@@ -55,7 +55,7 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
             .unwrap();
         assert_eq!(row.argument_sites().len(), 2);
         assert_eq!(
-            row.into_scalar_emission().err(),
+            row.scalar_emission().err(),
             Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
         );
         let mut context = crate::mir::builder::CompilationContext::new();
@@ -487,7 +487,7 @@ fn non_map_terminal_call_retains_source_completion_and_scalar_row() {
         .unwrap()
         .take_once(owner, site)
         .unwrap();
-    assert!(row.into_scalar_emission().is_ok());
+    assert!(row.scalar_emission().is_ok());
 }
 
 #[test]
@@ -568,11 +568,11 @@ fn non_map_local_call_selects_lifecycle_without_reclassifying_terminal() {
         .unwrap();
     assert!(local.lifecycle_emission().is_ok());
     assert_eq!(
-        local.into_scalar_emission().err(),
+        local.scalar_emission().err(),
         Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
     let terminal = loan.take_once(owner, terminal.call_site().clone()).unwrap();
-    assert!(terminal.into_scalar_emission().is_ok());
+    assert!(terminal.scalar_emission().is_ok());
 }
 
 #[test]
@@ -615,7 +615,7 @@ fn non_map_local_call_with_plain_return_preserves_scalar() {
         .unwrap()
         .take_once(completion.owner(), locals[0].site().site().clone())
         .unwrap();
-    assert!(row.into_scalar_emission().is_ok());
+    assert!(row.scalar_emission().is_ok());
 }
 
 #[test]
@@ -650,7 +650,7 @@ fn map_result_local_call_installs_map_class_and_map_row() {
     );
     assert!(row.lifecycle_emission().is_ok());
     assert_eq!(
-        row.into_scalar_emission().err(),
+        row.scalar_emission().err(),
         Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
 }

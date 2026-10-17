@@ -2,7 +2,7 @@
 use super::NormalRuntimeInputSnapshotV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::instruction::InvokeOperation;
-use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1};
+use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{
     BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
 };
@@ -14,7 +14,7 @@ use std::{
 
 #[derive(Debug)]
 pub(in crate::mir) struct MainArgumentsEmissionV1 {
-    identity: CallableDeclarationIdentityV1,
+    source: Rc<crate::mir::normal_callable_semantic_package::MainArgumentsSourceV1>,
     owner: FunctionOwnerIdV1,
     parameters: Box<[(BindingRefV1, String, ValueId)]>,
     snapshot: Rc<[String]>,
@@ -37,43 +37,15 @@ impl MainArgumentsEmissionV1 {
         builder: &mut MirBuilder,
         input: ResolvedFunctionLoweringInputV1<'_>,
         identity: &CallableDeclarationIdentityV1,
+        source: Rc<crate::mir::normal_callable_semantic_package::MainArgumentsSourceV1>,
         runtime: &NormalRuntimeInputSnapshotV1,
         frame_binding: Option<(BasicBlockId, MirInstruction)>,
     ) -> Result<Self, String> {
-        let owner = input.function();
-        let mut rows = owner
-            .declaration_sites()
-            .filter_map(|site| match site {
-                SourceBindingSiteV1::Parameter { index } => Some(*index),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
-        rows.sort_unstable();
-        let mut source_parameters = Vec::new();
-        for (ordinal, index) in rows.into_iter().enumerate() {
-            if index as usize != ordinal {
-                return Err(fault("parameter-order"));
-            }
-            let binding = owner
-                .declaration_binding(&SourceBindingSiteV1::Parameter { index })
-                .ok_or_else(|| fault("parameter-binding"))?;
-            let name = owner
-                .binding(binding)
-                .ok_or_else(|| fault("parameter-record"))?
-                .diagnostic_name()
-                .to_owned();
-            source_parameters.push((binding, name));
-        }
-        if source_parameters
-            .iter()
-            .filter(|(_, name)| name == "args")
-            .count()
-            > 1
-        {
-            return Err(fault("duplicate-args"));
+        if !source.corroborates_input(input, identity) {
+            return Err(fault("source-parameters"));
         }
         let mut emission = Self {
-            identity: identity.clone(),
+            source: Rc::clone(&source),
             owner: input.owner(),
             parameters: Box::new([]),
             snapshot: runtime.script_args_snapshot(),
@@ -86,8 +58,10 @@ impl MainArgumentsEmissionV1 {
             },
         };
         let mut parameters = Vec::new();
-        for (binding, name) in source_parameters {
-            let value = if name == "args" {
+        for parameter in source.parameters() {
+            let binding = parameter.binding();
+            let name = parameter.name().to_owned();
+            let value = if parameter.kind() == crate::mir::normal_callable_semantic_package::MainArgumentKindV1::ScriptArguments {
                 let frame = match emission.physical.frame_binding.as_ref().map(|row| &row.1) {
                     Some(MirInstruction::FaultFrameEnter {
                         dst,
@@ -218,9 +192,8 @@ impl MainArgumentsEmissionV1 {
     }
 
     fn argv_value(&self) -> Result<ValueId, String> {
-        self.parameters
-            .iter()
-            .find(|(_, name, _)| name == "args")
+        self.source.resource_ordinal()
+            .and_then(|ordinal| self.parameters.get(ordinal))
             .map(|(_, _, value)| *value)
             .ok_or_else(|| fault("args-binding"))
     }
@@ -232,10 +205,10 @@ impl MainArgumentsEmissionV1 {
     pub(in crate::mir) fn corroborates_source(
         &self,
         owner: FunctionOwnerIdV1,
-        identity: &CallableDeclarationIdentityV1,
+        source: &Rc<crate::mir::normal_callable_semantic_package::MainArgumentsSourceV1>,
     ) -> bool {
         self.owner == owner
-            && self.identity.same_as(identity)
+            && Rc::ptr_eq(&self.source, source)
             && self
                 .parameters
                 .iter()

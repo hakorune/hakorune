@@ -182,7 +182,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
             .iter()
             .zip(call.arguments())
             .any(|(argument, original)| match argument {
-                LocalCallArgumentV1::BorrowedActual { ordinal, site } => {
+                LocalCallArgumentV1::BorrowedActual { ordinal, site } | LocalCallArgumentV1::Expression { ordinal, site } => {
                     *ordinal != original.ordinal() || site != original.site()
                 }
                 LocalCallArgumentV1::Integer(_) => false,

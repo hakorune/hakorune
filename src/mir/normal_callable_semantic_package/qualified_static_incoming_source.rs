@@ -163,7 +163,7 @@ impl StaticIncomingSourceV1 {
             && self.matches_publication_handoff_identity(handoff)
     }
 
-    fn matches_publication_handoff_identity(
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_publication_handoff_identity(
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
@@ -188,7 +188,7 @@ impl StaticIncomingSourceV1 {
     ) -> FunctionOwnerIdV1 {
         self.callee_owner
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn argument_sites(
+    pub(in crate::mir) fn argument_sites(
         &self,
     ) -> &[SourceExprSiteV1] {
         &self.argument_sites

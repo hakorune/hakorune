@@ -271,7 +271,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect::<Result<_, String>>()?;
             match row {
                 RootCallDispositionV1::Direct(row) => row
-                    .physical_emission()
+                    .physical_emission().map_err(|_| freeze("direct-source-required"))?
                     .materialize_call_typed(None, typed)
                     .map_err(|_| freeze("call-projection-failed"))?,
                 RootCallDispositionV1::Lexical(_)

@@ -54,6 +54,9 @@ pub(crate) enum LocalCallArgumentV1 {
     Bool(bool),
     Scalar(BindingRefV1),
     CallResult(Box<ArgumentCallObservationV1>),
+    /// Nonopaque source expression obligation; its canonical frame remains in
+    /// the existing argument ordinal owner, never inferred from this marker.
+    Expression { ordinal: u32, site: SourceExprSiteV1 },
     /// Original opaque argument reference; the package ledger owns its domain.
     BorrowedActual {
         ordinal: u32,
@@ -321,7 +324,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
                         .iter()
                         .zip(call.arguments())
                         .any(|(argument, original)| match argument {
-                            LocalCallArgumentV1::BorrowedActual { ordinal, site } => {
+                            LocalCallArgumentV1::BorrowedActual { ordinal, site } | LocalCallArgumentV1::Expression { ordinal, site } => {
                                 *ordinal != original.ordinal() || site != original.site()
                             }
                             LocalCallArgumentV1::Integer(_) => false,

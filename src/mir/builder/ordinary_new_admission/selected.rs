@@ -18,6 +18,8 @@ pub(in crate::mir::builder) mod bool_condition;
 mod expression_value;
 #[path = "selected/expression_acquisition_prefix.rs"]
 mod expression_acquisition_prefix;
+#[path = "selected/initializer_expression.rs"]
+pub(in crate::mir::builder) mod initializer_expression;
 #[path = "selected/print_expression.rs"]
 pub(in crate::mir::builder) mod print_expression;
 #[path = "selected/terminal_call.rs"]
@@ -695,3 +697,7 @@ pub(in crate::mir::builder) mod borrowed_field_write;
 
 #[path = "selected/checked_field_write.rs"]
 pub(in crate::mir::builder) mod checked_field_write;
+
+#[path = "selected/argument_expression.rs"]
+mod argument_expression;
+pub(in crate::mir::builder) use argument_expression::emit as emit_argument_expression_v1;

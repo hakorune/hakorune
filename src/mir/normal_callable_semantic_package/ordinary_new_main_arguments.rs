@@ -2,6 +2,21 @@
 use super::*;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 impl OrdinaryNewClaimLedgerV1 {
+    /// Lend the same source-only policy to ABI selection and physical emission.
+    pub(in crate::mir) fn main_arguments_source_v1(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        identity: &crate::parser::CallableDeclarationIdentityV1,
+    ) -> Result<Rc<MainArgumentsSourceV1>, String> {
+        let source = self.main_arguments_source.as_ref().ok_or_else(|| fault("source-missing"))?;
+        let key = self.app_main_catalog_key.as_ref().ok_or_else(|| fault("source-key"))?;
+        let original = self.app_main_identity.as_ref().ok_or_else(|| fault("root-identity"))?;
+        if !original.same_as(identity) || !source.corroborates_anchor(input.owner(), original, key)
+            || !source.corroborates_input(input, identity) {
+            return Err(fault("source-mismatch"));
+        }
+        Ok(Rc::clone(source))
+    }
     pub(in crate::mir) fn retain_main_arguments_v1(
         &self,
         emission: crate::mir::builder::MainArgumentsEmissionV1,
@@ -12,11 +27,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|row| row.as_ref().ok())
             .map(|row| row.owner())
             .ok_or_else(|| fault("root-completion"))?;
-        let identity = self
-            .app_main_identity
-            .as_ref()
-            .ok_or_else(|| fault("root-identity"))?;
-        if !emission.corroborates_source(owner, identity) {
+        let source = self.main_arguments_source.as_ref().ok_or_else(|| fault("source-missing"))?;
+        if !emission.corroborates_source(owner, source) {
             return Err(fault("source-mismatch"));
         }
         let mut slot = self.main_arguments.borrow_mut();
@@ -78,11 +90,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|row| row.as_ref().ok())
             .map(|row| row.owner())
             .ok_or_else(|| fault("root-completion"))?;
-        let identity = self
-            .app_main_identity
-            .as_ref()
-            .ok_or_else(|| fault("root-identity"))?;
-        if !emission.corroborates_source(owner, identity) {
+        let source = self.main_arguments_source.as_ref().ok_or_else(|| fault("source-missing"))?;
+        if !emission.corroborates_source(owner, source) {
             return Err(fault("source-mismatch"));
         }
         emission.projected_bindings(function, map)

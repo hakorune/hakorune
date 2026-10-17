@@ -390,7 +390,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         if matches!(&row, RootCallDispositionV1::Direct(_)) {
             if let RootCallDispositionV1::Direct(direct) = &row {
-                let _ = direct.physical_emission();
+                direct.physical_emission().map_err(|_| freeze("direct-source-required"))?;
             }
         }
         if matches!(&row, RootCallDispositionV1::PendingStatic(_)) {
@@ -773,9 +773,11 @@ mod expression_projection;
 #[path = "root_call_entry/print_expression_projection.rs"]
 mod print_expression_projection;
 pub(crate) use expression_projection::checked_expression_core_operation_v1;
+pub(in crate::mir) use expression_projection::ExpressionReferenceReadV1;
 #[cfg(test)]
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
+pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;
 
 #[path = "root_call_entry/owned_array_append_projection.rs"]
 mod owned_array_append_projection;

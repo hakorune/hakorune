@@ -415,10 +415,16 @@ pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1
 /// The target is structural and owned by the caller; this terminal never
 /// reconstructs it from an owner, method, or formatted symbol.
 pub(in crate::mir::builder) fn emit_static_global_target_value_terminal_v1(
+    builder: &mut MirBuilder, target: CanonicalGlobalTargetV1, arguments: Vec<ValueId>,
+) -> Result<ValueId, String> {
+    emit_static_global_target_value_terminal_with_receipt_v1(builder, target, arguments).map(|receipt| receipt.final_destination())
+}
+
+pub(in crate::mir::builder) fn emit_static_global_target_value_terminal_with_receipt_v1(
     builder: &mut MirBuilder,
     target: CanonicalGlobalTargetV1,
     arguments: Vec<ValueId>,
-) -> Result<ValueId, String> {
+) -> Result<CompletedUnifiedValueCallEmissionV1, String> {
     let destination = builder.next_value_id();
     let emission = builder
         .emit_unified_value_call_with_lookup_receipt_v1(
@@ -428,7 +434,7 @@ pub(in crate::mir::builder) fn emit_static_global_target_value_terminal_v1(
             None,
         )
         .map_err(|error| format!("[freeze:contract][static-target-only/call] {error:?}"))?;
-    Ok(emission.final_destination())
+    Ok(emission)
 }
 
 pub(in crate::mir::builder) fn emit_env_value_terminal_raw_v1(

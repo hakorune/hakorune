@@ -16,13 +16,14 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     call_site: &OwnedExprSiteV1, actuals: &[BorrowedCallActualCandidateV1],
     locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[BindingRefV1],
+    local_calls: &[LocalCallObservationV1],
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
     if !prefix_known { return Ok(()); }
     for actual in actuals {
         match &actual.value {
-            BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_)
+            BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_)
             | BorrowedCallActualValueV1::SelfRooted { .. } => {},
             BorrowedCallActualValueV1::Binding(_) if locals.static_text_reference(&actual.site).is_some()
                 || locals.text_reference(&actual.site).is_some() => {},
@@ -44,19 +45,21 @@ pub(super) fn observe<E>(
         }
         if !ready { continue; }
         let source = std::rc::Rc::clone(loan.plan());
-        let mut installation = locals.expression_installation();
+        let mut installation = None;
         if let Some(candidate) = qualify_argument_expression_v1(loan, statement.site(), homes, &reads,
             &mut |site| text_reference(input, locals, site),
             &mut |site| locals.static_text_reference(site),
             &mut |site| locals.text_reference(site),
-            &mut |site| match locals.observe(site) {
-                Some(OrdinaryObservation::TrivialLocal(binding, Some(SourceScalarKind::Integer))) => Some((binding, SourceScalarKind::Integer)),
-                _ => None,
-            },
+            &mut |site| locals.current_scalar_read_v1(site, local_calls),
             &mut |site| field_read::expression_field_read_request(input, &source, site, locals),
             &mut |site| local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
                 &mut |binding| locals.field_alias_call_path(binding), port),
-            &mut |plan| installation.approve(plan),
+            &mut |plan| {
+                let mut candidate = locals.expression_installation();
+                if !candidate.approve(plan) { return false; }
+                installation = Some(candidate);
+                true
+            },
             &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))? {
             let frame = candidate.argument_frame().expect("argument qualifier retains its frame");
             let Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)) = port(call_site,
@@ -65,6 +68,7 @@ pub(super) fn observe<E>(
             };
             // The approved candidate must use the same canonical frame that
             // the pending Call now owns for this current Home walk.
+            let mut installation = installation.expect("approved argument installation");
             assert!(installation.retain_approved_argument(frame), "completed argument must match the approved Home frame");
             installation.commit();
         }
@@ -83,6 +87,6 @@ pub(crate) fn observe_for_test<E>(
     let mut locals = PrefixLocalFlow::new(input);
     assert!(locals.install_parameters(parameters));
     if let Some(binding) = unavailable { locals.install_uninitialized(binding); }
-    local_call_flow::stage_statement_actuals(input, statement, &locals, prefix_known, &[], fields, port)?;
+    local_call_flow::stage_statement_actuals(input, statement, &locals, prefix_known, &[], &[], fields, port)?;
     Ok(locals.expression_plans())
 }

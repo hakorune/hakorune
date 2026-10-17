@@ -67,6 +67,8 @@ impl OrdinaryNewClaimLedgerV1 {
             self.original_borrowed_array_set_bindings_v1(owner)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
             self.original_checked_field_bindings_v1(owner)?, true)?);
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            boundary.control_producer_bindings_v1(function)?, true)?);
         roots.insert(symbol.to_owned(), required);
         Ok(())
     }
@@ -105,7 +107,7 @@ fn validated_roots_with_auxiliary(
             continue;
         }
         if projection.relation_binding(function, &original)?.as_ref() != Some(&original) {
-            return Err(freeze("scalar-liveness/original-drift"));
+            return Err(format!("{} original={original:?}", freeze("scalar-liveness/original-drift")));
         }
     }
     Ok(bindings.keys().copied().collect())

@@ -2,6 +2,13 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// An original New requires lifecycle context even while its execution
+    /// premise is unavailable. Keep that failure in the claim for its consumer;
+    /// neither membership nor this query grants construction permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_new_context_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.claims.borrow().keys().chain(self.result_claims.borrow().keys()).any(|site| site.owner() == owner)
+    }
+
     /// Existing source New claims already cloned initial eligibility. Update
     /// both families before any physical take, retaining all other core products.
     pub(in crate::mir::normal_callable_semantic_package) fn install_late_constructor_plan_v1(
@@ -231,6 +238,7 @@ impl OrdinaryNewClaimLedgerV1 {
             terminal_result_progress: RefCell::new(BTreeMap::new()),
             root_completion: None,
             completion_index: BTreeMap::new(),
+            main_arguments_source: None,
             app_main_identity: None,
             app_main_catalog_key: None,
         }
@@ -528,9 +536,15 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn retain_app_main_source_v1(
         &mut self,
         source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
-    ) {
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+    ) -> Result<(), OrdinaryNewCoSealIssueV1> {
+        self.main_arguments_source = lexical_instance_call::borrow_app_main_source_v1(batch, source)?
+            .map(|loan| loan.arguments_source_v1(batch, contracts)).transpose()
+            .map_err(|reason| OrdinaryNewCoSealIssueV1::CompletionIndexRetention { reason })?;
         self.app_main_identity = source.map(|main| main.parser_identity().clone());
         self.app_main_catalog_key = source.map(|main| main.catalog_key().clone());
+        Ok(())
     }
 
     pub(crate) fn register_app_main_root(

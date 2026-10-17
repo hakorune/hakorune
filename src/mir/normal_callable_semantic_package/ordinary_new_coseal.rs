@@ -115,6 +115,7 @@ pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRoot
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
 pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
+pub(in crate::mir) use lexical_instance_call::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
 pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
 #[cfg(test)]
@@ -138,6 +139,7 @@ pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
 pub(crate) use local_commit::checked_expression_core_operation_v1;
+pub(in crate::mir) use local_commit::ExpressionReferenceReadV1;
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
 pub(crate) use local_commit::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
@@ -356,6 +358,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     array_holder_lifecycles: RefCell<BTreeMap<BindingRefV1, Rc<lexical_instance_call::ArrayHolderLifecycleRecipeV1>>>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
+    main_arguments_source: Option<Rc<MainArgumentsSourceV1>>,
     main_arguments: RefCell<Option<Rc<crate::mir::builder::MainArgumentsEmissionV1>>>,
     child_physical_validation:
         RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
@@ -676,7 +679,7 @@ pub(in crate::mir) use local_commit::{
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::source_result_facts_for_test;
 
-pub(crate) use local_commit::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
+pub(crate) use local_commit::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 

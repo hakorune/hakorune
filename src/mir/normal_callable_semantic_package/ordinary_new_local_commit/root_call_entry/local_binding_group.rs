@@ -3,6 +3,9 @@
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use std::rc::Rc;
+#[path = "direct_scalar_call.rs"]
+mod direct_scalar;
+use direct_scalar::DirectScalarCallProjectionV1;
 
 #[derive(Debug, Clone)]
 pub(crate) struct RootLifecyclePrefixBindingGroupV1 {
@@ -15,6 +18,8 @@ pub(crate) struct RootLifecyclePrefixBindingGroupV1 {
 #[derive(Debug, Clone)]
 enum PrefixPhysicalProofV1 {
     Call(Option<Rc<EmittedLexicalCallProjectionV1>>),
+    DirectScalar(Rc<DirectScalarCallProjectionV1>),
+    InitializerExpression(Rc<EmittedInitializerExpressionProjectionV1>),
     BoolCondition(Rc<EmittedBoolConditionProjectionV1>),
     PrintExpression(Rc<print_expression_projection::EmittedPrintExpressionProjectionV1>),
     OwnedArrayAppend(Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>),
@@ -102,10 +107,21 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
         Ok(())
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn scalar_call_value_v1(
+        &self, source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<ValueId, String> {
+        if self.site() != source.site() { return Err(freeze("scalar-call/group-site")); }
+        match &self.proof {
+            PrefixPhysicalProofV1::Call(Some(packet)) => packet.value_in_context_v1(source.owner(), source.arguments(), context),
+            PrefixPhysicalProofV1::DirectScalar(packet) => packet.value(source, context),
+            _ => Err(freeze("scalar-call/source-packet-missing")),
+        }
+    }
     pub(in crate::mir) fn lexical(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.proof {
             PrefixPhysicalProofV1::Call(packet) => packet.as_deref(),
-            PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
+            PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::InitializerExpression(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
         }
     }
 
@@ -129,8 +145,18 @@ impl RootLifecyclePrefixBindingGroupV1 {
             _ => None,
         };
         self.lexical().into_iter().chain(print.into_iter().flat_map(|packet| packet.calls()))
+            .chain(self.initializer().into_iter().flat_map(|packet| packet.calls()))
             .chain(self.bool_condition().into_iter().flat_map(|packet| packet.calls()))
             .chain(self.owned_array_append().and_then(|packet| packet.candidate_packet()))
+    }
+
+    pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
+        match &self.proof { PrefixPhysicalProofV1::InitializerExpression(packet) => Some(packet), _ => None }
+    }
+    pub(super) fn new_initializer(packet: Rc<EmittedInitializerExpressionProjectionV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Result<Self, String> {
+        packet.validate_recorded(&bindings, None)?;
+        Ok(Self { site: OwnedExprSiteV1::new(packet.frame().source().owner(), packet.frame().source().nodes()[0].site().clone()),
+            bindings, proof: PrefixPhysicalProofV1::InitializerExpression(packet), projected: false })
     }
 
     pub(super) fn bool_condition(&self) -> Option<&EmittedBoolConditionProjectionV1> {
@@ -179,9 +205,10 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn matches_source(&self, source: &LifecyclePrefixSourceV1) -> bool {
         if self.site() != source.site() { return false; }
         match (&self.proof, source) {
+            (PrefixPhysicalProofV1::InitializerExpression(packet), LifecyclePrefixSourceV1::InitializerExpression { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
             (PrefixPhysicalProofV1::BorrowedFieldWrite(packet), LifecyclePrefixSourceV1::BorrowedFieldWrite { frame, .. }) =>
                 Rc::ptr_eq(packet.source().frame(), frame),
-            (PrefixPhysicalProofV1::Call(_), LifecyclePrefixSourceV1::Call { .. }) => true,
+            (PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_), LifecyclePrefixSourceV1::Call { .. }) => true,
             (PrefixPhysicalProofV1::FieldArrayAppend(packet), LifecyclePrefixSourceV1::FieldArrayAppend { proof, index, .. }) =>
                 packet.source().matches_original(proof, *index),
             (PrefixPhysicalProofV1::BoolCondition(packet), LifecyclePrefixSourceV1::BoolCondition { frame, .. }) =>
@@ -207,12 +234,17 @@ impl RootLifecyclePrefixBindingGroupV1 {
     ) -> Result<(), String> {
         let coordinates = if self.projected { finishing } else { None };
         match &self.proof {
+            PrefixPhysicalProofV1::InitializerExpression(packet) => {
+                packet.validate_recorded(&self.bindings, coordinates)?;
+                packet.validate_paths(context, function, finishing).map(drop)
+            }
             PrefixPhysicalProofV1::BorrowedFieldWrite(packet) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing)
             },
             PrefixPhysicalProofV1::Call(Some(packet)) => packet.validate_recorded_projected(&self.bindings, coordinates),
             PrefixPhysicalProofV1::Call(None) => Ok(()),
+            PrefixPhysicalProofV1::DirectScalar(packet) => packet.validate(context, function, finishing, &self.bindings, coordinates),
             PrefixPhysicalProofV1::BoolCondition(packet) =>
                 packet.validate_recorded(&self.bindings, context, function, coordinates, finishing),
             PrefixPhysicalProofV1::PrintExpression(packet) => {

@@ -7,6 +7,16 @@ use std::rc::Rc;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Lend the canonical incoming source without exposing its inventory.
+    pub(in crate::mir::normal_callable_semantic_package)
+    fn borrow_original_static_source_v1(&self, site: &OwnedExprSiteV1)
+        -> Result<Option<&Rc<StaticIncomingSourceV1>>, String> {
+        let Some(source) = self.borrowed_formal_source.as_ref() else { return Ok(None) };
+        let source = source.as_ref().map_err(Clone::clone)?;
+        source.source_incoming.static_observations().get(site)
+            .map(|row| row.as_ref().map_err(Clone::clone)).transpose()
+    }
+
     /// Bridge the completed original scalar cohort to its ordered packet actuals.
     fn checked_static_scalar_packet_actuals_v1(
         &self,
@@ -518,6 +528,24 @@ impl OrdinaryNewClaimLedgerV1 {
             self.checked_completed_static_one_actuals_v1(original)?
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
         }
+        self.verify_original_static_source_v1(original)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn verify_original_static_execution_signature_v1(
+        &self, source: &Rc<StaticIncomingSourceV1>,
+        signatures: &Rc<crate::mir::normal_callable_semantic_package::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
+    ) -> Result<(), String> {
+        self.verify_original_static_source_v1(source)?;
+        let (selected, original) = self.original_instance_input_issuance.as_ref().ok_or_else(|| freeze("static-execution/issuance"))?;
+        if !Rc::ptr_eq(original, signatures) || !source.catalog_brand().is_same(selected.catalog_brand())
+            || selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) != Some(source.target_batch_slot()) {
+            return Err(freeze("static-execution/original-signature"));
+        }
+        Ok(())
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn verify_original_static_source_v1(
+        &self, original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<(), String> {
         let source = self
             .borrowed_formal_source
             .as_ref()

@@ -17,20 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-Gate1 STATIC-TEXT-INPUT-S0 selected; full series unaccepted.
-Original Text -> ordinary static borrowed argument, including whole incoming,
-entry/result, ordered temporary cleanup, both final scans and matching JSON/C.
-Current BoxShape slice retains SAME resolver method Arc through actual/source
-consumers; no Text/runtime admission or lossy marker remains after verification.
-CLI186 unchanged json-stream app205 source-actual-unavailable Body7 Value;
-line.substring(start,end) enters StringHelpers.to_i64. Source Text/bounds and
-mixed incoming proof must close; general String*Dynamic semantics not selected.
-RequiredObjectForwardS0 remains unaccepted at prior card; V851496237ca50 removes
-duplicate target resolution, root10 PASS. Binary-trees app203 reaches source-not-i64
-and lacks existing untyped storage premise; do not reopen that sealed family.
-Unchanged mimalloc app204 canonical EXE/native exact7/exit0 PASS; Pair app197 PASS.
+Gate1 STATIC-TEXT-INPUT-S0 source-to-consumer construction remains selected;
+full Text series is unaccepted. Common initializer/Core-I64 execution and
+source-bound typed Static arguments now reach publication in focused evidence.
+Current build/app receipts and remaining entry/residence/whole-incoming/lifetime,
+both-scan and named JSON/C obligations belong only to the active card.
+RequiredObjectForwardS0 and parked untyped storage retain their prior conditions.
 Full finite goal retains integration, R6/R7/Loop/authority/parser/nondelegating
-selfcompile and every mandatory acceptance. No current full-suite/CI green claim.
+selfcompile and every mandatory acceptance. No full-suite/CI green claim.
 """
 next_design_card = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"

@@ -17,6 +17,11 @@ use branch_threading::ThreadedBranches;
 mod phi_policy;
 #[path = "physical_boundary_selected_loop.rs"]
 mod selected_loop;
+#[path = "physical_boundary_control_scope.rs"]
+mod control_scope;
+#[path = "physical_boundary_value_dependencies.rs"]
+mod value_dependencies;
+pub(super) use value_dependencies::original_value_dependencies_v1;
 
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<
@@ -37,6 +42,7 @@ struct Node {
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct PhysicalBoundary {
+    entry: BasicBlockId,
     /// Recorded-binding blocks only — the validation scope.
     nodes: BTreeMap<BasicBlockId, Node>,
     /// Every draft block — the contraction-walk scope. A recorded block may
@@ -62,8 +68,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
 
 #[derive(Debug)]
 pub(super) struct FinishedBindings {
+    entry: BasicBlockId,
     captured: Vec<(BasicBlockId, MirInstruction)>,
-    validated_auxiliary_omissions: Vec<(BasicBlockId, MirInstruction)>,
+    validated_sequence_omissions: Vec<(BasicBlockId, MirInstruction)>,
+    sealed_incoming: Option<Incoming>,
     destinations: BTreeMap<BasicBlockId, BasicBlockId>,
     recorded: Vec<(BasicBlockId, MirInstruction)>,
     sequences: BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
@@ -254,6 +262,7 @@ impl PhysicalBoundary {
             );
         }
         Ok(Self {
+            entry: function.entry_block,
             nodes,
             walk_graph,
             incoming: incoming(function, &ids),
@@ -307,6 +316,10 @@ impl PhysicalBoundary {
                 )
             })
             .collect();
+        let controls = control_scope::governing_predecessors(self, &walk_graph);
+        if !controls.is_empty() && function.entry_block != self.entry {
+            return Err(fault("control-entry"));
+        }
         // A sole predecessor means one predecessor *block*, matching the
         // finishing merge's `predecessors.len() == 1` on the deduplicated
         // predecessor set — a both-arms-equal `Branch` is still one.
@@ -342,7 +355,7 @@ impl PhysicalBoundary {
             // walk start, so the expected sequence is recorded whenever the
             // walk carried any binding block, not only when the start is one.
             let mut carries_binding =
-                self.nodes.contains_key(id) || literal_controls.carries_validation(*id);
+                self.nodes.contains_key(id) || controls.contains(id) || literal_controls.carries_validation(*id);
             loop {
                 if destinations.insert(cursor, *id).is_some() {
                     return Err(fault("duplicate-or-cycle"));
@@ -384,7 +397,7 @@ impl PhysicalBoundary {
                     .get(&target)
                     .ok_or_else(|| fault("foreign-target"))?;
                 cursor = target;
-                carries_binding |= self.nodes.contains_key(&cursor);
+                carries_binding |= self.nodes.contains_key(&cursor) || controls.contains(&cursor);
                 carries_binding |= literal_controls.carries_validation(cursor);
             }
             if carries_binding {
@@ -393,13 +406,18 @@ impl PhysicalBoundary {
         }
         let threaded_branches = ThreadedBranches::project(
             &self.nodes,
+            &controls,
             &walk_graph,
             function,
             &mut destinations,
             &expected,
         )?;
         literal_controls.validate_carrier_destinations(&walk_graph, &destinations)?;
+        if controls.iter().any(|id| !destinations.contains_key(id)) {
+            return Err(fault("control-unmapped-block"));
+        }
         Ok(FinishedBindings {
+            entry: self.entry,
             captured: self
                 .walk_graph
                 .iter()
@@ -410,7 +428,8 @@ impl PhysicalBoundary {
                         .map(move |instruction| (*block, instruction.clone()))
                 })
                 .collect(),
-            validated_auxiliary_omissions: Vec::new(),
+            validated_sequence_omissions: Vec::new(),
+            sealed_incoming: None,
             destinations,
             recorded: Vec::new(),
             sequences: expected,
@@ -461,12 +480,7 @@ impl PhysicalBoundary {
                     .accepts_omission(expected, &self.recorded_dsts)?
                 {
                     // The original proof cone owns this no-definition/no-use omission.
-                    if matches!(
-                        expected,
-                        MirInstruction::Const { .. } | MirInstruction::Copy { .. }
-                    ) {
-                        auxiliary_omissions.push((*id, expected.clone()));
-                    }
+                    auxiliary_omissions.push((*id, expected.clone()));
                 } else if self.borrowed_copies.contains(expected) {
                     if !self.borrowed_copies.may_omit(function, expected) {
                         return Err(fault("borrowed-copy-omission"));
@@ -488,12 +502,7 @@ impl PhysicalBoundary {
                     // duplicate, a folded phi, or plain DCE. A recorded
                     // binding never rides this permission, and an actual-side
                     // extra instruction still fails the sequence.
-                    if matches!(
-                        expected,
-                        MirInstruction::Const { .. } | MirInstruction::Copy { .. }
-                    ) {
-                        auxiliary_omissions.push((*id, expected.clone()));
-                    }
+                    auxiliary_omissions.push((*id, expected.clone()));
                     continue;
                 } else {
                     if crate::config::env::builder_mir_compile_trace() {
@@ -521,15 +530,7 @@ impl PhysicalBoundary {
                 return Err(fault("finished-sequence"));
             }
         }
-        let surviving: BTreeSet<BasicBlockId> = self
-            .walk_graph
-            .keys()
-            .filter(|id| {
-                self.nodes.contains_key(id) || projection.literal_controls.carries_validation(**id)
-            })
-            .filter_map(|id| projection.destinations.get(id))
-            .copied()
-            .collect();
+        let surviving: BTreeSet<BasicBlockId> = projection.sequences.keys().copied().collect();
         // Entry-edge correspondence is checked through the destination map:
         // a draft edge `s -> t` lands as `dest(s) -> dest(t)` keeping its
         // terminator shape and args, a source that was itself contracted or
@@ -617,12 +618,14 @@ impl PhysicalBoundary {
                 function.signature.name
             )));
         }
-        projection.validated_auxiliary_omissions = auxiliary_omissions;
+        projection.validated_sequence_omissions = auxiliary_omissions;
         for binding in projection.bindings(bindings)? {
             if !projection.recorded.contains(&binding) {
                 projection.recorded.push(binding);
             }
         }
+        projection.sealed_incoming = Some(incoming(function, &surviving));
+        projection.validate_finished_sequences_v1(function)?;
         Ok(())
     }
 }

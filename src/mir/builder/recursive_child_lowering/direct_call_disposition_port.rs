@@ -58,6 +58,83 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.take_direct_call_disposition_inner_v1()
     }
 
+    fn has_static_execution_for_owner_v1(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1) -> bool {
+        self.direct_call_loans.as_deref().is_some_and(|loans| loans.has_static_execution_for_owner_v1(owner))
+    }
+    fn take_optional_static_execution_row_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1>, String> {
+        if !self.is_direct_call_scope_v1() { return Ok(None); }
+        let Some(owner) = self.callable_owner_v1() else { return Ok(None) };
+        let Some(loan) = self.direct_call_loans.as_deref_mut().and_then(|loans| loans.get_mut(owner)) else { return Ok(None) };
+        let site = self.active_source.as_ref().and_then(|source| match source {
+            RawInvocationSourceContextV1::Located { site, .. } => Some(site.clone()), _ => None,
+        }).ok_or_else(|| "[freeze:contract][static-execution/site-missing]".to_owned())?;
+        loan.take_optional_static_execution_v1(owner, crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site))
+            .map_err(|error| format!("[freeze:contract][static-execution/{error:?}]"))
+    }
+
+    fn emit_static_argument_expression_v1(&mut self, builder: &mut MirBuilder,
+        call: &crate::mir::resolved_semantics::OwnedExprSiteV1, ordinal: u32, site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<(ValueId, crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1), String> {
+        self.validate_current_call_argument_site_v1(site)?;
+        if self.callable_owner_v1() != Some(call.owner()) { return Err("[freeze:contract][argument-expression/owner]".into()); }
+        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][argument-expression/ledger]")?;
+        let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][argument-expression/state]")?;
+        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+        crate::mir::builder::ordinary_new_admission::selected::emit_argument_expression_v1(
+            builder, &mut state.borrow_mut(), ledger, call, ordinal, site, &consume_receiver)
+    }
+    fn static_execution_argument_source_v1(&self, row: &crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1)
+        -> Result<crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1, String> {
+        let original = row.static_source_v1().ok_or("[freeze:contract][static-execution/argument-source-origin]")?;
+        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][static-execution/argument-ledger]")?;
+        self.validate_current_call_argument_site_v1(original.call_site().site())?;
+        if self.callable_owner_v1() != Some(original.call_site().owner()) || row.taken_site() != Some(original.call_site()) {
+            return Err("[freeze:contract][static-execution/argument-owner]".into());
+        }
+        row.validate_static_source_v1(ledger)?;
+        let source = ledger.lexical_i64_call_source(original.call_site())
+            .ok_or("[freeze:contract][static-execution/argument-observation]")?;
+        if source.local_binding().is_none() || source.arguments().len() != row.argument_sites().len() {
+            return Err("[freeze:contract][static-execution/argument-observation-drift]".into());
+        }
+        Ok(source.clone())
+    }
+    fn take_exact_static_argument_read_v1(&mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+    ) -> Result<crate::mir::builder::ExactLexicalReadV1, String> {
+        self.validate_current_call_argument_site_v1(site)?;
+        let owner = self.callable_owner_v1().ok_or("[freeze:contract][static-execution/argument-read-owner]")?;
+        if binding.owner() != owner { return Err("[freeze:contract][static-execution/argument-binding-owner]".into()); }
+        self.callable_ledger.as_ref().ok_or("[freeze:contract][static-execution/argument-read-state]")?
+            .borrow_mut().take_exact_lexical_read(owner, site.node(), binding)
+            .map_err(|error| format!("[freeze:contract][static-execution/argument-read/{error:?}]"))
+    }
+
+    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>>, String> {
+        let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None) };
+        let site = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][static-scalar/source-site]".to_owned())?;
+        ledger.source_required_static_scalar_call_v1(&crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site)))
+    }
+    fn record_source_required_static_scalar_call_v1(&mut self, builder: &mut MirBuilder,
+        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, observations: Vec<(u32, crate::mir::resolved_semantics::SourceExprSiteV1, ValueId)>,
+        binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> {
+        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or_else(|| "[freeze:contract][static-scalar/ledger-missing]".to_owned())?;
+        ledger.record_source_required_static_scalar_call_v1(source, observations, binding,
+            builder.function_state.current_function.as_ref().ok_or_else(|| "[freeze:contract][static-scalar/no-function]".to_owned())?)
+    }
+
+    fn record_scalar_direct_call_v1(&mut self, builder: &mut MirBuilder,
+        row: crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
+        arguments: Vec<ValueId>, binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(()) };
+        ledger.record_source_required_plain_call_v1(row, arguments, binding,
+            builder.function_state.current_function.as_ref().ok_or_else(|| "[freeze:contract][direct-call/no-function]".to_owned())?)
+    }
+
     fn emit_local_lifecycle_call_v1(
         &mut self,
         builder: &mut MirBuilder,

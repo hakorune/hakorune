@@ -768,3 +768,6 @@ fn required_effect_needs_captured_recorded_and_actual_membership() {
     assert!(projection.captured_effect_binding(&original, &foreign).is_err());
     assert!(projection.required_effect_binding(&original, &bindings[0]).is_err(), "dst producer uses relation_binding");
 }
+
+#[path = "physical_boundary_control_scope_tests.rs"]
+mod control_scope_tests;

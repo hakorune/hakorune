@@ -369,3 +369,114 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
     }
 }
 }
+
+#[test]
+fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_cleanup() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut failures = Vec::new();
+        for (methods, body, returned) in [
+            ("", "local n = \"abc\".length()", "0"),
+            ("", "local text = \"abc\" local n = text.length()", "0"),
+            ("", "local start = 1 local alias = start local n = alias + \"abc\".length()", "0"),
+            ("", "local n = (\"a\" + \"b\").length()", "0"),
+            ("", "local first = \"abc\".length() local next = first + \"d\".length()", "0"),
+            ("static box Values { find(): i64 { return 1 } run(count: i64): i64 { local first = Values.find() local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local first = Values.find(count) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local alias = count local first = Values.find(alias) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local first = Values.find(count + 1) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local first = Values.find(count + (\"a\" + \"b\").length()) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local computed = \"abc\".length() local first = Values.find(computed + 1) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local first = Values.find(\"abc\".length()) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
+            ("static box Values { read(count: i64, other: i64): i64 { local n = count + \"d\".length() return 0 } }", "local out = Values.read(1, 2)", "0"),
+        ] {
+            // Declared Main args selects the existing ordinary body consumer;
+            // arity-0 qualified Main has a distinct canonical trivial-body route.
+            let main_parameters = if methods.is_empty() { "" } else { "args" };
+            let text = format!("{methods} static box Main {{ main({main_parameters}) {{ {body} return {returned} }} }}");
+            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                &text, crate::parser::ParserBuildConfig::default()).unwrap();
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source") };
+            let mut consumed = false;
+            let result = crate::mir::MirCompiler::with_options(false).compile_normal_with_published(
+                crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()).for_closed_app_executable(),
+                |view, verification| {
+                    verification.as_ref().map_err(|errors| format!("{errors:?}"))?;
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    crate::mir::emit_lifecycle_physical_abi_json(&input)?;
+                    let root = view.retained_root_source().ok_or_else(|| "missing original initializer source".to_owned())?;
+                    root.visit_finalized_lexical_call_nodes_v1(view.module(), |_, _, _, _, _, _, _| Ok(()))?;
+                    if methods.contains("find(") {
+                        let function = view.module().functions.values().find(|function| function.signature.name.contains("run")).unwrap();
+                        let call_sites: Vec<_> = function.blocks.iter().filter_map(|(block, body)| {
+                            match body.terminator.as_ref() {
+                                Some(crate::mir::MirInstruction::Invoke {
+                                    operation: crate::mir::instruction::InvokeOperation::Call { result: crate::mir::instruction::InvokeCallResultKind::I64, .. },
+                                    normal_landing, ..
+                                }) => Some((*block, *normal_landing)),
+                                _ => None,
+                            }
+                        }).collect();
+                        assert_eq!(call_sites.len(), 1, "original scalar producer must remain in the real child");
+                        for mutation in ["callee", "result", "arguments"] {
+                            let mut changed = view.module().clone();
+                            let (block, normal) = call_sites[0];
+                            let changed_function = changed.functions.get_mut(&function.signature.name).unwrap();
+                            if mutation == "result" {
+                                let result = changed_function.blocks.get_mut(&normal).unwrap().instructions.iter_mut()
+                                    .find(|row| matches!(row, crate::mir::MirInstruction::InvokeNormalResult { invoke_block, .. } if *invoke_block == block)).unwrap();
+                                let crate::mir::MirInstruction::InvokeNormalResult { dst, .. } = result else { unreachable!() };
+                                *dst = crate::mir::ValueId(99999);
+                            } else {
+                                let Some(crate::mir::MirInstruction::Invoke {
+                                    operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, ..
+                                }) = changed_function.blocks.get_mut(&block).unwrap().terminator.as_mut() else { unreachable!() };
+                                match mutation {
+                                    "callee" => call.callee = crate::mir::Callee::Global(
+                                        crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method("Values", "run", 1)
+                                            .canonical_global_target_v1().unwrap()),
+                                    "arguments" => call.args.push(crate::mir::ValueId(99999)),
+                                    _ => unreachable!(),
+                                }
+                            }
+                            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
+                        }
+                    }
+                    if methods.contains("find(") {
+                        let function = view.module().functions.values().find(|function| function.signature.name.contains("run")).unwrap();
+                        for (block, body) in &function.blocks {
+                            for (index, instruction) in body.instructions.iter().enumerate() {
+                                if !matches!(instruction, crate::mir::MirInstruction::BinOp { op: crate::mir::BinaryOp::Add, .. }) { continue; }
+                                let mut changed = view.module().clone();
+                                let crate::mir::MirInstruction::BinOp { op, .. } = &mut changed.functions.get_mut(&function.signature.name).unwrap().blocks.get_mut(block).unwrap().instructions[index] else { unreachable!() };
+                                *op = crate::mir::BinaryOp::Sub;
+                                assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "original integer operation cannot change");
+                            }
+                            if matches!(body.terminator, Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { .. }), .. })) {
+                                let mut changed = view.module().clone();
+                                let Some(crate::mir::MirInstruction::Invoke { operation, .. }) = changed.functions.get_mut(&function.signature.name).unwrap().blocks.get_mut(block).unwrap().terminator.as_mut() else { unreachable!() };
+                                *operation = crate::mir::instruction::InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: crate::mir::ValueId(99999) });
+                                assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "argument child cleanup cannot change");
+                            }
+                        }
+                    }
+                    if let Some(function) = view.module().functions.values().find(|function| function.params.len() == 2) {
+                        let mut changed = view.module().clone();
+                        changed.functions.get_mut(&function.signature.name).unwrap().params.swap(0, 1);
+                        let root = view.retained_root_source().ok_or_else(|| "missing original initializer source".to_owned())?;
+                        assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(),
+                            "equal-I64 parameters cannot exchange their original ordinal/value identity");
+                    }
+                    consumed = true;
+                    Ok(())
+                });
+            match result {
+                Err(error) => failures.push(format!("{text}: {error}")),
+                Ok(_) if !consumed => failures.push(format!("original initializer must reach publication: {text}")),
+                Ok(_) => (),
+            }
+        }
+        assert!(failures.is_empty(), "{}", failures.join("\n"));
+    });
+}

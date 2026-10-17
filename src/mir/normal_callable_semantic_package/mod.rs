@@ -54,10 +54,12 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
+pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1};
 mod physical_header;
 mod physical_signature;
 mod qualified_static_call_claim;
+pub(in crate::mir) use qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 mod result_contract;
 pub(crate) use result_contract::VerifiedCallableResultContractCohortV1;
 mod s6c_child;
@@ -246,9 +248,10 @@ pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayRea
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayGetSourceV1, ArgumentFieldArrayReadSourceV1};
 
 pub(crate) use ordinary_new_coseal::checked_expression_core_operation_v1;
+pub(in crate::mir) use ordinary_new_coseal::ExpressionReferenceReadV1;
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
-pub(crate) use ordinary_new_coseal::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
+pub(crate) use ordinary_new_coseal::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayReadV1;
 pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgumentV1};

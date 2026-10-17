@@ -10,10 +10,40 @@ use super::method_call_descent::{
     AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
 };
 use super::method_call_terminal::{
-    emit_static_global_target_value_terminal_v1, emit_static_global_value_terminal_with_receipt_v1,
+    emit_static_global_target_value_terminal_with_receipt_v1, emit_static_global_value_terminal_with_receipt_v1,
 };
 use super::static_result_publication::PreparedStaticCallResultPublicationV1;
 use super::CallTarget;
+use crate::mir::builder::recursive_child_lowering::DirectCallDispositionPortV1;
+use crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1;
+type ScalarArguments = (std::rc::Rc<StaticIncomingSourceV1>, Vec<(u32, SourceExprSiteV1, ValueId)>);
+
+fn scalar_arguments<Port: MethodCallDescentPortV1 + DirectCallDispositionPortV1>(
+    builder: &mut MirBuilder, descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    target: &CanonicalSameModuleCallableKeyV1, expected: Option<&[SourceExprSiteV1]>,
+) -> Result<(Vec<ValueId>, Option<ScalarArguments>), String> {
+    let source = descent.terminal_port().prepare_source_required_static_scalar_call_v1()?;
+    if let Some(source) = source {
+        if source.target() != target || expected.is_some_and(|sites| sites != source.argument_sites()) {
+            return Err("[freeze:contract][static-scalar/bridge-source]".into());
+        }
+        let completed = descent.lower_all_observed_with_expected_sites(builder, source.argument_sites())?;
+        let (values, observations) = completed.into_parts();
+        Ok((values, Some((source, observations))))
+    } else {
+        let values = match expected { Some(sites) => descent.lower_all_with_expected_sites(builder, sites)?, None => descent.lower_all(builder)? };
+        Ok((values, None))
+    }
+}
+fn record_scalar<Port: MethodCallDescentPortV1 + DirectCallDispositionPortV1>(
+    builder: &mut MirBuilder, descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    source: Option<ScalarArguments>, binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+) -> Result<(), String> {
+    if let Some((source, observations)) = source {
+        descent.terminal_port().record_source_required_static_scalar_call_v1(builder, source, observations, binding)?;
+    }
+    Ok(())
+}
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
@@ -25,7 +55,7 @@ pub(in crate::mir::builder) fn lower_selected_static_result_publication_v1<Port>
     source_argument_count: usize,
 ) -> Result<ValueId, String>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallDescentPortV1 + DirectCallDispositionPortV1,
 {
     let expected_arity = handoff.target().arity() as usize;
     if source_argument_count != expected_arity {
@@ -39,7 +69,7 @@ where
     let target = target_key.canonical_global_target_v1().map_err(|error| {
         format!("[freeze:contract][static-result-bridge/target-projection] {error}")
     })?;
-    let argument_values = descent.lower_all(builder)?;
+    let (argument_values, scalar) = scalar_arguments(builder, descent, &target_key, None)?;
     if argument_values.len() != expected_arity {
         return Err("[freeze:contract][static-result-bridge/physical-arity]".to_owned());
     }
@@ -48,9 +78,11 @@ where
             .map_err(|error| {
                 format!("[freeze:contract][static-result-bridge/call-receipt] {error:?}")
             })?;
+    let binding = emission.binding().clone();
     let publication = PreparedStaticCallResultPublicationV1::prepare(demand, emission);
     let destination = publication.destination();
     publication.commit(builder)?;
+    record_scalar(builder, descent, scalar, binding)?;
     Ok(destination)
 }
 
@@ -139,7 +171,7 @@ pub(in crate::mir::builder) fn lower_target_only_static_result_publication_v1<Po
     source_argument_count: usize,
 ) -> Result<ValueId, String>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallDescentPortV1 + DirectCallDispositionPortV1,
 {
     let expected_arity = target_key.arity() as usize;
     if source_argument_count != expected_arity {
@@ -151,7 +183,7 @@ where
     let target = target_key.canonical_global_target_v1().map_err(|error| {
         format!("[freeze:contract][static-target-only/target-projection] {error}")
     })?;
-    let argument_values = descent.lower_all(builder)?;
+    let (argument_values, scalar) = scalar_arguments(builder, descent, &target_key, None)?;
     if argument_values.len() != expected_arity {
         return Err(format!(
             "[freeze:contract][static-target-only/physical-arity] expected {}, got {}",
@@ -159,7 +191,9 @@ where
             argument_values.len()
         ));
     }
-    emit_static_global_target_value_terminal_v1(builder, target, argument_values)
+    let emission = emit_static_global_target_value_terminal_with_receipt_v1(builder, target, argument_values)?;
+    record_scalar(builder, descent, scalar, emission.binding().clone())?;
+    Ok(emission.final_destination())
 }
 
 pub(in crate::mir::builder) fn lower_target_only_static_result_publication_with_expected_sites_v1<
@@ -185,7 +219,7 @@ where
     let target = target_key.canonical_global_target_v1().map_err(|error| {
         format!("[freeze:contract][static-target-only/target-projection] {error}")
     })?;
-    let argument_values = descent.lower_all_with_expected_sites(builder, expected_sites)?;
+    let (argument_values, scalar) = scalar_arguments(builder, descent, &target_key, Some(expected_sites))?;
     if argument_values.len() != expected_arity {
         return Err(format!(
             "[freeze:contract][static-target-only/physical-arity] expected={} actual={}",
@@ -193,7 +227,9 @@ where
             argument_values.len()
         ));
     }
-    emit_static_global_target_value_terminal_v1(builder, target, argument_values)
+    let emission = emit_static_global_target_value_terminal_with_receipt_v1(builder, target, argument_values)?;
+    record_scalar(builder, descent, scalar, emission.binding().clone())?;
+    Ok(emission.final_destination())
 }
 
 #[cfg(test)]

@@ -170,6 +170,44 @@ where
         self.port
     }
 
+    pub(in crate::mir::builder) fn try_emit_static_execution_v1(
+        &mut self, builder: &mut MirBuilder, owner: &str, method: &str, arity: usize,
+    ) -> Result<Option<ValueId>, String>
+    where Port: DirectCallDispositionPortV1 + super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1 {
+        use super::super::static_result_publication_ingress::{StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1 as Ingress};
+        use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1 as Publication;
+        let Some(mut row) = self.port.take_optional_static_execution_row_v1()? else { return Ok(None) };
+        let original = row.static_source_v1().ok_or("[freeze:contract][static-execution/origin-missing]")?;
+        if original.target().owner() != owner || original.target().name() != method
+            || original.target().arity() as usize != arity || row.lifecycle_emission().is_err() {
+            return Err("[freeze:contract][static-execution/target-drift]".into());
+        }
+        let publication = self.port.take_static_result_publication_ingress_v1(
+            builder.comp_ctx.callable_declaration_catalog().ok(), owner, method, arity,
+        ).map_err(|error| error.to_string())?;
+        let publication = match publication {
+            Ingress::Selected(handoff) => Publication::Selected(handoff),
+            Ingress::TargetOnly(target) => Publication::TargetOnly(target),
+            Ingress::Unavailable | Ingress::NoExactStaticTarget => return Err("[freeze:contract][static-execution/publication-unavailable]".into()),
+        };
+        row.retain_static_publication_v1(publication)?;
+        let sites = row.argument_sites().to_vec();
+        let source = self.port.static_execution_argument_source_v1(&row)?;
+        let arguments = self.port.call_arguments_input(self.input)?;
+        let completed = drive_call_arguments_with_expected_sites_v1(builder, self.port, arguments, &sites, Some(&source))?;
+        let (row, values) = completed.bind_row(row)?;
+        self.port.emit_local_lifecycle_call_v1(builder, row, values)?
+            .map(Some).ok_or_else(|| "[freeze:contract][static-execution/consumer-missing]".into())
+    }
+
+    pub(in crate::mir::builder) fn lower_all_observed_with_expected_sites(
+        &mut self, builder: &mut MirBuilder, expected_sites: &[SourceExprSiteV1],
+    ) -> Result<super::call_argument_descent::CompletedDirectCallArgumentsV1, String>
+    where Port: DirectCallDispositionPortV1 {
+        let arguments = self.port.call_arguments_input(self.input)?;
+        drive_call_arguments_with_expected_sites_v1(builder, self.port, arguments, expected_sites, None)
+    }
+
     pub(in crate::mir::builder) fn lower_all_with_expected_sites(
         &mut self,
         builder: &mut MirBuilder,
@@ -178,8 +216,7 @@ where
     where
         Port: DirectCallDispositionPortV1,
     {
-        let arguments = self.port.call_arguments_input(self.input)?;
-        drive_call_arguments_with_expected_sites_v1(builder, self.port, arguments, expected_sites)
+        self.lower_all_observed_with_expected_sites(builder, expected_sites).map(|completed| completed.into_values())
     }
 }
 

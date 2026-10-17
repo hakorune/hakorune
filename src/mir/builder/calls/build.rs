@@ -143,7 +143,9 @@ impl MirBuilder {
             port,
             arguments.as_slice(),
             expected_sites.as_slice(),
+            None,
         )?;
+        let (row, arg_values) = arg_values.bind_row(row)?;
         if is_lifecycle {
             return port
                 .emit_local_lifecycle_call_v1(self, row, arg_values)?
@@ -151,14 +153,16 @@ impl MirBuilder {
                     "[freeze:contract][direct-call/lifecycle-consumer-missing]".to_owned()
                 });
         }
-        let emission = row.into_scalar_emission().map_err(|error| {
+        let emission = row.scalar_emission().map_err(|error| {
             format!("[freeze:contract][direct-call/lifecycle-consumer-missing] {error:?}")
         })?;
         let dst = self.next_value_id();
-        let instruction = emission
-            .materialize(dst, arg_values)
+        let instruction = emission.clone()
+            .materialize(dst, arg_values.clone())
             .map_err(|error| format!("[freeze:contract][direct-call/materialization] {error:?}"))?;
-        self.emit_instruction(instruction)?;
+        let block = self.function_state.current_block.ok_or_else(|| "[freeze:contract][direct-call/no-block]".to_owned())?;
+        self.emit_instruction(instruction.clone())?;
+        port.record_scalar_direct_call_v1(self, row, arg_values, (block, instruction))?;
         Ok(dst)
     }
 

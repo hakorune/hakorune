@@ -162,6 +162,10 @@ impl MirBuilder {
                     let syntax = port.method_call_syntax(input)?;
                     (syntax.method().to_owned(), syntax.arguments())
                 };
+                if let Some(value) = AssociatedMethodCallArgumentsV1::new(port, input)
+                    .try_emit_static_execution_v1(self, &box_name, &method, arguments.len())? {
+                    return Ok(value);
+                }
                 if let Some(value) = port.emit_local_static_lifecycle_call_v1(
                     self,
                     &box_name,

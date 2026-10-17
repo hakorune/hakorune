@@ -309,3 +309,5 @@ fn static_current_owner_argument_failure_does_not_emit_retry_or_fallback() {
             .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     });
 }
+
+impl crate::mir::builder::recursive_child_lowering::DirectCallDispositionPortV1 for ArgumentPort {}

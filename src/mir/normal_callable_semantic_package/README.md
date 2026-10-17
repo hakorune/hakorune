@@ -4627,10 +4627,45 @@ execution remains unadmitted until its old-acquisition cleanup is connected.
 Original possible Text Add source demand selects the existing homes-aware
 completion walk, with no second scanner/storage or source-class solver. Bare
 literal/entry alias initializers keep their existing non-owning owner. The
-physical Local consumer selects the SAME retained owned initializer frame and
-refuses execution-pending before generic descent until entry, local packet,
-residence handoff/End and both final scans are complete. A semantic frame and
-source demand alone grant no descriptor, pair, copy or publication permission.
+physical Local consumer selects the SAME retained initializer frame. Core-I64
+uses the common ordered writer, then moves its observations through the existing
+from-values Local receipt into one lifecycle prefix group. The generic loop
+observation sink owns no packet. Exact scalar entry/Const/Call/prior-initializer
+producers and their lexical Copy chains share the existing reference-read map;
+source obligations without a physical producer refuse before read reservation.
+An initializer's original Call dependency also selects mandatory prefix retention
+for an existing Plain Direct call, without changing its execution mode or the
+lifecycle route set. Direct rows retain their original take key and the shared
+expected-sites argument descent's ordinal/site/value product. Plain Call and
+lifecycle Invoke/Normal share one group proof and result lender with lexical
+calls. Transitive argument producers and entry layout are physical corroboration
+through the existing boundary; they grant no source classification or fallback.
+Static target-only/publication bridges retain the SAME original incoming source,
+completed ordered argument descent and sole unified-writer Call receipt; they do
+not borrow Direct-row authority or change execution routes. Recorded scalar Calls
+also retain governing predecessor sequences in the SAME boundary projection after
+its existing literal-control selection. This transient scope leaves recorded-node
+DAG and canonical Loop/Phi permissions unchanged. Both final consumers replay
+sealed sequence/omission correspondence and unique producers, including external
+conditions and parameter collisions; final MIR cannot issue new DCE permission.
+The same boundary lends consumed condition/Phi/Call-argument producers through
+scalar_finishing_liveness to existing finishing preservation. No later trivial
+Phi substitution may change a source-consumed identity. Unrelated dead pure
+operations remain removable. One original physical dependency walker serves
+both these preservation loans and Call argument corroboration.
+Retained Plain Static proof does not issue lifecycle entry or Fault ABI. Typed
+qualified calls still need the original source-owned execution selection and
+complete argument expression before their lifecycle program can publish.
+Both final consumers recheck original dependencies, unique Local definitions and
+entry/terminal/continuation Jumps through the captured physical boundary. Only
+that boundary permits Copy omission or structural block contraction. I64 Normal
+ends all child Text temporaries and preserves prior Homes. Owned Text, borrowed
+Text entry/residence and finite operands retain their execution fences until the
+same source-use/ownership handoff and both final scans close. Exact numeric Local
+annotations retain their LocalContractWrite owner; selected initializers reject
+before evaluation until its typed receipt/provenance is connected. No contract
+write is coerced to Copy or accepted by an unsupported native backend. A semantic
+frame alone grants no descriptor, pair, ownership or publication permission.
 
 Physical expression correspondence has one borrowed body view over the SAME
 checked evaluation and writer observations. Print delegates node/value/source,
@@ -4661,3 +4696,60 @@ singleton Text SUM. Full physical cohort, ordered evaluation/Call/Fault cleanup
 and both final scans remain mandatory; these frames alone do not activate Static
 actuals, entry markers or serialization. Source flow shares the exact alias-origin
 query for Entry and terminal Expression and rejects Join/Unknown/cycle guessing.
+
+Main wrapper parameter policy is issued once from the original parser/catalog
+co-seal and exact parameter contracts. The ledger retains one immutable source Rc
+with declaration identity, catalog brand/key, owner/slot and ordered bindings.
+Main ingress borrows that same policy for its resource/Fault-frame requirement
+and emission; runtime argv payload and physical allocation/release coordinates
+remain in the emission product. Default-void parameters keep their existing
+policy. Both final consumers require the emission's identical source Rc. This
+source requirement alone admits no additional callable or lifecycle execution row.
+
+Static execution normalization keeps ResolverDirect and original Static emission
+separate inside the existing affine row. Static emission borrows the same source
+Rc and physical-signature Rc, exact source I64 formal contracts and result
+completion. Its call uses the common conservative effect projection. A finite
+source-context closure chooses lifecycle ABI; it grants no new module roots.
+Only genuine Local initializer roots of checked Static/Main callers enter this
+consumer. Expression/terminal/Instance/Birth sources retain their existing owner.
+The same source demand selects caller/callee Home analysis before plain completion
+seeds; pure components still keep Scalar execution. Main route gates query actual
+Ready Static rows in the existing loan inventory. Both final consumers recheck
+original source/signature identity through the shared DirectScalar packet.
+This construction is unaccepted: original publication handoff consumption, pure
+callee Home/terminal completion and original argument-value projections remain
+required. Site identity and captured MIR dependencies alone do not prove argument
+meaning. No Static execution or full Text series acceptance is claimed here.
+
+Static execution argument values reuse the lexical argument projection owner:
+original Local observations are borrowed before recursive descent, each Scalar
+consumes its exact source read in its own argument scope, and each Integer's
+unique emitted Const must equal the original literal. Completed observations
+and move-only projections remain on the same Direct row. Both final scans
+recheck the original argument meaning and retained alias Copy dependencies;
+site/value cardinality alone is not a source-value proof. Nested and borrowed
+arguments still require their existing child/frame owners.
+The Home-aware body requirement is queried only for canonical Ready routes;
+DirectAccum, CallableSingleLoop and GenericG0 retain their own selection rules.
+The same typed Static source-walk demand also retains its already-issued
+I64Scalar terminal relation in the existing child completion filter. A checked
+root Home flow must not lose the return-parameter proof before final projection.
+
+A nonopaque `LocalCallArgumentV1::Expression` is an original ordinal/site
+obligation only. The existing Static argument Source/Qualified slot retains its
+sole plan/frame; the original formal supplies the required result class. Covered
+Prefix qualification retains original current scalar reads. Passive projection
+requires the qualified class, while physical execution additionally requires the
+same frame in the accepted Home completion. A source marker grants no execution.
+I64 Argument execution uses the sole expression writer and the same infallible
+scalar continuation as initializer execution. Child Text temporaries end before
+the next argument; their Fault paths retain prior Home unwind. The physical
+Argument packet stays on its enclosing Call row, and all its bindings/effects
+are included in that Call group for both final scans. No independent group or
+receipt pool exists. Text root transfer requires its own outer-call lifetime.
+Original typed Static argument roots also demand the existing conditional Core
+source analysis. They are graph seeds only, not incoming constraints or callee
+result dependencies; a declared result must not suppress actual-subtree analysis.
+The caller comes from the same checked Static/Main original context. Ordinary
+non-Core nested calls retain their existing argument owner.

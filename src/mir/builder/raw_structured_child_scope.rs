@@ -464,63 +464,8 @@ where
     }
 }
 
-impl<Port> DirectCallDispositionPortV1 for RawStructuredChildScopePortV1<'_, Port>
-where
-    Port: DirectCallDispositionPortV1,
-{
-    fn take_direct_call_disposition_v1(
-        &mut self,
-    ) -> Result<crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1, String>
-    {
-        self.child.take_direct_call_disposition_v1()
-    }
-
-    fn emit_local_lifecycle_call_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        row: crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
-        arguments: Vec<ValueId>,
-    ) -> Result<Option<ValueId>, String> {
-        self.child
-            .emit_local_lifecycle_call_v1(builder, row, arguments)
-    }
-
-    fn emit_local_static_lifecycle_call_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        owner: &str,
-        method: &str,
-        arity: usize,
-    ) -> Result<Option<ValueId>, String> {
-        self.child.emit_local_static_lifecycle_call_v1(builder, owner, method, arity)
-    }
-
-    fn emit_local_lexical_lifecycle_call_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        method: &str,
-    ) -> Result<Option<ValueId>, String> {
-        self.child.emit_local_lexical_lifecycle_call_v1(builder, method)
-    }
-
-    fn emit_receiver_nullable_lifecycle_call_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-        receiver: ValueId,
-        read: Option<crate::mir::builder::ExactLexicalReadV1>,
-    ) -> Result<Option<ValueId>, String> {
-        self.child
-            .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver, read)
-    }
-
-    fn validate_current_call_argument_site_v1(
-        &self,
-        expected: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Result<(), String> {
-        self.child.validate_current_call_argument_site_v1(expected)
-    }
-}
+#[path = "raw_structured_direct_call.rs"]
+mod direct_call;
 
 impl<Port> StaticResultPublicationIngressPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where

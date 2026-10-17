@@ -19,6 +19,7 @@ use super::UnifiedValueCallReceiptErrorV1;
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CompletedUnifiedValueCallEmissionV1 {
     final_destination: ValueId,
+    binding: (crate::mir::BasicBlockId, MirInstruction),
     _seal: CompletedUnifiedValueCallEmissionSealV1,
 }
 
@@ -26,6 +27,7 @@ pub(in crate::mir::builder) struct CompletedUnifiedValueCallEmissionV1 {
 struct CompletedUnifiedValueCallEmissionSealV1;
 
 impl CompletedUnifiedValueCallEmissionV1 {
+    pub(in crate::mir::builder) fn binding(&self) -> &(crate::mir::BasicBlockId, MirInstruction) { &self.binding }
     pub(in crate::mir::builder) const fn final_destination(&self) -> ValueId {
         self.final_destination
     }
@@ -91,13 +93,15 @@ pub(super) fn emit_finalized_generic_call_v1(
 
     let call_inst = MirInstruction::call(call.dst, call.callee, call.args, call.effects);
 
-    builder.emit_instruction(call_inst)?;
+    let block = builder.function_state.current_block.ok_or_else(|| "[freeze:contract][unified-call/no-block]".to_owned())?;
+    builder.emit_instruction(call_inst.clone())?;
     prepared_post_success.commit_after_success(builder);
 
     Ok(match final_destination {
         Some(final_destination) => {
             CompletedUnifiedCallEmissionV1::Value(CompletedUnifiedValueCallEmissionV1 {
                 final_destination,
+                binding: (block, call_inst),
                 _seal: CompletedUnifiedValueCallEmissionSealV1,
             })
         }

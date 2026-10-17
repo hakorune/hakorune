@@ -100,3 +100,19 @@ fn ordered_projection_refuses_nested_target_landing_and_literal_drift() {
             .is_err());
     }
 }
+
+#[test]
+fn original_literal_argument_rejects_wrong_initial_producer_without_packet_authority() {
+    let (_, row, source) = lexical_call_projection_test_fixture();
+    let LocalCallArgumentV1::CallResult(inner) = &source[1] else { panic!("original nested call") };
+    let LocalCallArgumentV1::Integer(literal) = inner.arguments()[0] else { panic!("original literal") };
+    for actual in [literal, literal + 1] {
+        let projection = LexicalCallArgumentProjectionV1::Integer((BasicBlockId(1), MirInstruction::Const {
+            dst: ValueId(80), value: crate::mir::ConstValue::Integer(actual),
+        }));
+        let result = projection.value_for_source_v1(&inner.arguments()[0], row.call_site().owner(),
+            inner.site().site(), None, None);
+        if actual == literal { assert_eq!(result.unwrap(), ValueId(80)); }
+        else { assert!(result.unwrap_err().contains("argument-projection-drift")); }
+    }
+}

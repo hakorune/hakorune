@@ -16,13 +16,14 @@ struct ThreadedBranch {
 impl ThreadedBranches {
     pub(super) fn project(
         recorded: &BTreeMap<BasicBlockId, Node>,
+        controls: &BTreeSet<BasicBlockId>,
         graph: &BTreeMap<BasicBlockId, Node>,
         function: &MirFunction,
         destinations: &mut BTreeMap<BasicBlockId, BasicBlockId>,
         expected: &BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
     ) -> Result<Self, String> {
         let mut proof = Self::default();
-        for (&middle, node) in recorded {
+        for (&middle, node) in graph.iter().filter(|(id, _)| recorded.contains_key(id) || controls.contains(id)) {
             if destinations.contains_key(&middle) || function.blocks.contains_key(&middle) {
                 continue;
             }

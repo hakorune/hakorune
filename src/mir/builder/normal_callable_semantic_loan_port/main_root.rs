@@ -12,7 +12,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
+    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
@@ -229,14 +229,15 @@ pub(super) fn lower_app_main_root_body_v1(
                         // from the owner product (the same authority the
                         // ledger installs entry bindings against) and
                         // adopt the published values.
-                        let declared_parameter_names =
-                            declared_parameter_names_v1(input)?;
+                        let argument_source = ordinary_new_claim_ledger.main_arguments_source_v1(input, expected_identity)?;
+                        let declared_parameter_names: Box<[String]> = argument_source.parameters().iter()
+                            .map(|row| row.name().to_owned()).collect();
                         if declared_parameter_names.as_ref() != parameters {
                             return Err("[freeze:contract][main-arguments/declared-parameters]".into());
                         }
                         let runtime = runtime_inputs.ok_or_else(||
                             "[freeze:contract][main-arguments/runtime-snapshot-missing]".to_owned())?;
-                        let frame = if declared_parameter_names.iter().any(|name| name == "args") {
+                        let frame = if argument_source.requires_lifecycle() {
                             let state = inner.callable_ledger.as_ref().ok_or_else(||
                                 "[freeze:contract][main-arguments/ledger-missing]".to_owned())?;
                             state.borrow_mut().borrow_fault_frame(builder)?;
@@ -244,7 +245,7 @@ pub(super) fn lower_app_main_root_body_v1(
                                 .ok_or_else(|| "[freeze:contract][main-arguments/function-missing]".to_owned())?)?)
                         } else { None };
                         let mut main_arguments = crate::mir::builder::MainArgumentsEmissionV1::emit(
-                            builder, input, expected_identity, runtime, frame,
+                            builder, input, expected_identity, argument_source, runtime, frame,
                         )?;
                         let arity0 = declared_parameter_names.is_empty();
                         inner.adopt_callable_entry_values_v1(
@@ -271,7 +272,8 @@ pub(super) fn lower_app_main_root_body_v1(
                         // Exact co-sealed Static locals use the same ordinary
                         // root source owner as instance lexical calls.
                         let static_local_route = ordinary_new_claim_ledger
-                            .has_routed_static_local_for_owner_v1(identity.owner())?;
+                            .has_routed_static_local_for_owner_v1(identity.owner())?
+                            || inner.has_static_execution_for_owner_v1(identity.owner());
                         let value = if arity0 && !static_local_route
                             && input.function().method_calls().any(|(_, call)| {
                                 call.receiver()
@@ -322,45 +324,6 @@ pub(super) fn lower_app_main_root_body_v1(
         .map_err(super::package_issue)?
 }
 
-/// Declared source parameter names in `Parameter{index}` order, taken
-/// from the resolved owner product — the same authority the callable
-/// ledger installs entry bindings against.  On the app-main wrapper
-/// route these are realized as the injector's published `variable_map`
-/// locals (`decls.rs` argv materialization), never as physical formals.
-fn declared_parameter_names_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-) -> Result<Box<[String]>, String> {
-    let owner = input
-        .forest()
-        .owner(input.owner())
-        .ok_or_else(|| "[freeze:contract][mir/callable-main/owner-product-missing]".to_owned())?;
-    let mut parameter_ordinals = owner
-        .declaration_sites()
-        .filter_map(|site| match site {
-            SourceBindingSiteV1::Parameter { index } => Some(*index),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    parameter_ordinals.sort_unstable();
-    parameter_ordinals
-        .into_iter()
-        .map(|index| {
-            let binding = owner
-                .declaration_binding(&SourceBindingSiteV1::Parameter { index })
-                .ok_or_else(|| {
-                    "[freeze:contract][mir/callable-main/parameter-binding-missing]".to_owned()
-                })?;
-            owner
-                .binding(binding)
-                .map(|record| record.diagnostic_name().to_owned())
-                .ok_or_else(|| {
-                    "[freeze:contract][mir/callable-main/parameter-record-missing]".to_owned()
-                })
-        })
-        .collect::<Result<Vec<_>, String>>()
-        .map(Vec::into_boxed_slice)
-}
-
 fn verify_raw_callable_owner_v1(
     expected: FunctionOwnerIdV1,
     actual: Option<FunctionOwnerIdV1>,
@@ -379,6 +342,46 @@ impl DirectCallDispositionPortV1
 {
     fn take_direct_call_disposition_v1(&mut self) -> Result<DirectCallDispositionRowV1, String> {
         self.inner.take_direct_call_disposition_v1()
+    }
+
+    fn has_static_execution_for_owner_v1(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1) -> bool {
+        self.inner.has_static_execution_for_owner_v1(owner)
+    }
+    fn take_optional_static_execution_row_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1>, String> {
+        self.inner.take_optional_static_execution_row_v1()
+    }
+
+    fn emit_static_argument_expression_v1(&mut self, builder: &mut MirBuilder,
+        call: &crate::mir::resolved_semantics::OwnedExprSiteV1, ordinal: u32, site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<(ValueId, crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1), String> {
+        self.inner.emit_static_argument_expression_v1(builder, call, ordinal, site)
+    }
+    fn static_execution_argument_source_v1(&self, row: &crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1)
+        -> Result<crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1, String> {
+        self.inner.static_execution_argument_source_v1(row)
+    }
+    fn take_exact_static_argument_read_v1(&mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+    ) -> Result<crate::mir::builder::ExactLexicalReadV1, String> {
+        self.inner.take_exact_static_argument_read_v1(site, binding)
+    }
+
+    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>>, String> {
+        self.inner.prepare_source_required_static_scalar_call_v1()
+    }
+    fn record_source_required_static_scalar_call_v1(&mut self, builder: &mut crate::mir::MirBuilder,
+        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, observations: Vec<(u32, crate::mir::resolved_semantics::SourceExprSiteV1, crate::mir::ValueId)>,
+        binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> {
+        self.inner.record_source_required_static_scalar_call_v1(builder, source, observations, binding)
+    }
+
+    fn record_scalar_direct_call_v1(&mut self, builder: &mut crate::mir::MirBuilder,
+        row: crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
+        arguments: Vec<crate::mir::ValueId>, binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> {
+        self.inner.record_scalar_direct_call_v1(builder, row, arguments, binding)
     }
 
     fn emit_local_lifecycle_call_v1(

@@ -137,6 +137,24 @@ impl RawInvocationChildPortV1<'_, '_> {
         self.record_callable_rebind_v1(&target_site, value)?;
         Ok(value)
     }
+    pub(in crate::mir::builder) fn emit_checked_local_initializer_v1(&mut self, builder: &mut MirBuilder,
+        source: &super::raw_structured_child_scope::PreparedRawChildSourceV1, ordinal: u32,
+    ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> {
+        let (Some(claims), Some(state)) = (&self.ordinary_new_claim_ledger, &self.callable_ledger) else { return Ok(None) };
+        let site = self.current_callable_site_v1("initializer-expression/statement-site")?;
+        let Some(frame) = claims.initializer_expression_frame_v1(state.borrow().owner(), &site)? else { return Ok(None) };
+        let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+            return Err(freeze("initializer-expression/exact-source-required"));
+        };
+        if context.site() != Some(frame.source().nodes()[0].site().node())
+            || !matches!(frame.source().root().initializer().map(|row| row.declaration_site()),
+                Some(crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: source_ordinal, .. }) if *source_ordinal == ordinal) {
+            return Err(freeze("initializer-expression/source-drift"));
+        }
+        let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+        super::ordinary_new_admission::selected::initializer_expression::emit(builder, &mut state.borrow_mut(), claims,
+            frame, ordinal, &consume).map(Some)
+    }
     pub(super) fn lower_callable_local_v1(
         &mut self,
         builder: &mut MirBuilder,
@@ -147,12 +165,8 @@ impl RawInvocationChildPortV1<'_, '_> {
             .clone()
             .expect("callable local lowering requires its scoped ledger");
         let site = self.current_callable_site_v1("local-site")?;
-        if self.ordinary_new_claim_ledger.as_ref().map(|claims|
-            claims.initializer_expression_frame_v1(ledger.borrow().owner(), &site)).transpose()?.flatten().is_some() {
-            return Err(freeze("text-initializer/execution-pending"));
-        }
         let claims_for_placement = self.ordinary_new_claim_ledger.clone();
-        let completed = drive_local_statement_with_placement_v1(
+        let mut completed = drive_local_statement_with_placement_v1(
             builder,
             self,
             RawLegacyLocalInputV1::with_initializer_observer(
@@ -174,6 +188,14 @@ impl RawInvocationChildPortV1<'_, '_> {
                 .borrow()
                 .record_completed_ordinary_new_local(&site, &completed, claims)?;
         }
+        let pending = completed.take_checked_initializers();
+        if let Some(claims) = self.ordinary_new_claim_ledger.as_ref() {
+            for emission in pending {
+                let receipt = completed.bindings().iter().find(|row| row.ordinal() == emission.ordinal())
+                    .ok_or_else(|| freeze("initializer-expression/completed-ordinal"))?;
+                emission.publish(receipt, claims, builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
+            }
+        } else if !pending.is_empty() { return Err(freeze("initializer-expression/claim-ledger-missing")); }
         Ok(completed.result())
     }
 
