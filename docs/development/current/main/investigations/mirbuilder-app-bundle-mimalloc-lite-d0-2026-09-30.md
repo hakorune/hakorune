@@ -292,6 +292,42 @@ EXE or S0 completion claim. No adapter introduced. Definition move lands as the 
 commit of this behavior-neutral series. README navigation is docs-only after
 the build; compiled Rust bytes are unchanged. Initialization connection follows.
 
+## Allocation-only source retention — V840 preparation
+
+Worker reviewed the accepted source-to-final mapping. Current bounded preparation
+adds completion disposition to the existing construction source, retains it in
+the SAME no-Birth catalog row and deletes the sole source-discarding wrapper.
+Exact canonical nonweak i64 fields and PlainI64NoHook declaration destruction
+qualify; no caller stores issue construction/destruction facts. Both complete-plan
+qualification entrypoints keep InitializationContractMissing for allocation-only.
+Existing declaration/order, unavailable and foreign-parent/arity tests are extended;
+no new root test or publication permission. Source retention is preparation only:
+owned LOCAL writer/readiness, both final consumers/C and unchanged Pair EXE/OBJ30
+remain required. Build PASS95.387059s (`RUST_MIN_STACK=16777216 cargo
+quick-test-fast --no-run --message-format=json`, jobs4); constructor25/0
+PASS .075084s and existing claim construction/override + unavailable descriptor
+cases2/0 PASS. Root inventory9213 unchanged. Both complete-plan fences reject
+allocation-only; unsupported usize/Array/untyped and incomplete Birth stay
+unavailable. Foreign-parent/arity, original Rc/field ordinal checks PASS.
+Root-route/layer/thin-shim/pointer/diff PASS. Worker source/permission review
+found no required correction. Deleted `issue_construction_plan` has zero source
+references; the existing source issuer and same-row derived eligibility replace
+its sole caller. No adapter or second classifier added.
+
+Root SHA2ed77ce8382458f214a6a01627b24253dc18cc9cb324c41cca95a56c79316252,
+`v840a-root` source/build/focused and `v840a-claim` receipts retained. Rust source
+drift zero. Keep V839/preparation pins while comparing the following connection;
+current CLI176/native evidence remains pre-change, no fresh EXE claim. Latest
+available CI35681768498 is historical d4168473d5 failure, not current-SHA evidence.
+
+Next: retain this SAME source in New resolution/candidate and claim core (local
+and result), respecting overrides. Existing compatibility/emission gates stay
+closed until LOCAL readiness/final/C connection. Reuse HomeFieldSourceConsult
+and original-writer inventory, separate owned LOCAL from formal write permission;
+branch-local readiness must not use shared mutable state. Preserve original
+Normal New/Home installation, RHS-before-write and post-commit published cleanup.
+No new row or language decision. CLI176 frontier remains unaccepted.
+
 ## Temporary artifact disposition
 
 Completed history stays in244c8d3f5e/fbc57efa14. Retain current CLI175, C831e,

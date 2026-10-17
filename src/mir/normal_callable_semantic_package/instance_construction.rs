@@ -142,7 +142,7 @@ impl ConstructionStoreV1 {
 
 #[path = "instance_construction_body.rs"]
 mod body;
-pub(crate) use body::{ConstructionChildCallSourceLoanV1, ConstructionSourceStructureV1, ConstructionSourceStepV1};
+pub(crate) use body::{ConstructionChildCallSourceLoanV1, ConstructionCompletionV1, ConstructionSourceStructureV1, ConstructionSourceStepV1};
 use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -165,6 +165,7 @@ impl ConstructionPlanV1 {
         mut qualify: impl FnMut(&Rc<ConstructionSourceStructureV1>, &OwnedExprSiteV1) -> Result<bool, String>,
     ) -> Result<ConstructionEligibilityV1, String> {
         let source = match source { Ok(source) => source, Err(reason) => return Ok(Err(*reason)) };
+        if let Err(reason) = source.require_initialized_fields() { return Ok(Err(reason)); }
         let mut saw_call = false;
         for step in source.steps() {
             match step {
@@ -185,6 +186,7 @@ impl ConstructionPlanV1 {
 
     pub(super) fn without_child_calls(source: &ConstructionSourceEligibilityV1) -> ConstructionEligibilityV1 {
         let source = source.as_ref().map_err(|reason| *reason)?;
+        source.require_initialized_fields()?;
         if source.steps.iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
             return Err(ConstructionUnavailableV1::BodyCoverageUnsupported);
         }
@@ -192,41 +194,9 @@ impl ConstructionPlanV1 {
     }
 }
 
-/// Called only within the exact parser declaration loan at semantic issuance.
-///
-/// `provider_static_sources` is the caller's published `birth` key paired
-/// with the package's qualified static-call membership index: the sole
-/// authority for admitting `Alias.m(..)` results as provider `new`
-/// arguments. Rows outside a Birth carry `None` — they own no provider
-/// arguments at all.
-pub(super) fn issue_construction_plan(
-    object_id: CanonicalObjectIdV1,
-    source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
-    declaration: &ASTNode,
-    birth: Option<(
-        &crate::parser::ConstructorSourceIdV1,
-        ResolvedFunctionLoweringInputV1<'_>,
-    )>,
-    provider_static_sources: Option<(
-        &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-        &[std::rc::Rc<super::instance_constructor_semantic::provider_source::ProviderStaticArgumentSourceV1>],
-    )>,
-    // Published Birth inventory keyed by final Box ordinal: the same
-    // membership `birth_for` consults, loaned by the catalog caller so
-    // a provider child seals `BirthIndexed` vs `NoBirthZero` here —
-    // emission never re-derives it.
-    birth_rows: &BTreeMap<usize, BTreeSet<u32>>,
-    objects: &[(
-        crate::parser::ParserOrdinaryBoxSourceRowV1,
-        CanonicalObjectIdV1,
-    )],
-    definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
-) -> ConstructionEligibilityV1 {
-    ConstructionPlanV1::without_child_calls(&issue_construction_source_v1(
-        object_id, source, declaration, birth, provider_static_sources, birth_rows, objects, definitions,
-    ))
-}
-
+/// Called within the exact declaration loan. Provider arguments, when present,
+/// retain the published Birth key and qualified static-call source membership.
+/// Source retention alone never grants a complete construction execution plan.
 pub(super) fn issue_construction_source_v1(
     object_id: CanonicalObjectIdV1,
     source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
@@ -300,17 +270,35 @@ pub(super) fn issue_construction_source_v1(
     }
     let mut plan = ConstructionSourceStructureV1 {
         object: object_id,
+        completion: ConstructionCompletionV1::InitializedFields,
         field_demands: vec![HomeDemandV1::Trivial; fields.len()].into_boxed_slice(),
         stores: Box::new([]),
         constructor: None,
         steps: Vec::new().into_boxed_slice(),
     };
     let Some((source_id, input)) = birth else {
-        return if fields.is_empty() {
-            Ok(Rc::new(plan))
-        } else {
-            Err(U::InitializationContractMissing)
-        };
+        if !fields.is_empty() {
+            let definition = definitions.get(object_id.declaration_index() as usize)
+                .ok_or(U::SourceRelationMissing)?;
+            if definition.destruction_disposition()
+                != crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                || definition.fields().len() != field_decls.len()
+                || definition.fields().iter().zip(field_decls).any(|(canonical, field)| {
+                    canonical.name != field.name || canonical.is_weak
+                        || canonical.declared_type_name.as_deref() != Some("i64")
+                        || field.declared_type_name.as_deref() != Some("i64")
+                })
+            {
+                return Err(U::InitializationContractMissing);
+            }
+            plan.completion = ConstructionCompletionV1::AllocationOnlyI64 {
+                fields: (0..fields.len()).map(|ordinal| {
+                    CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
+                        .ok_or(U::SourceRelationMissing)
+                }).collect::<Result<Vec<_>, _>>()?.into_boxed_slice(),
+            };
+        }
+        return Ok(Rc::new(plan));
     };
     plan.constructor = Some((source_id.clone(), input.owner()));
     let function = input.function();

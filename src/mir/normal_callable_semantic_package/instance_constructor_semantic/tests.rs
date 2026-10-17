@@ -1,5 +1,6 @@
 use super::*;
 use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
+use super::super::instance_construction::{ConstructionCompletionV1, ConstructionPlanV1};
 use crate::mir::normal_callable_semantic_package::{BirthAbiHandoffV1, ConstructionStoreRhsV1};
 
 #[test]
@@ -237,6 +238,9 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         let batch = &package.instance_constructors;
         let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
         let plan = batch.construction_for(parent, 1).unwrap().as_ref().unwrap();
+        let original = batch.construction_source_for(parent, 1).unwrap().as_ref().unwrap();
+        assert_eq!(original.completion(), &ConstructionCompletionV1::InitializedFields);
+        assert!(std::rc::Rc::ptr_eq(original, batch.construction_source_for(parent, 1).unwrap().as_ref().unwrap()));
         assert_eq!(
             plan.field_demands(),
             &[crate::mir::resolved_semantics::HomeDemandV1::Trivial; 2]
@@ -295,6 +299,30 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
     let plan = batch.construction_for(parent, 0).unwrap().as_ref().unwrap();
     assert!(plan.field_demands().is_empty() && plan.stores().is_empty());
     assert!(plan.constructor().is_none());
+    assert_eq!(batch.construction_source_for(parent, 0).unwrap().as_ref().unwrap().completion(),
+        &ConstructionCompletionV1::InitializedFields);
+    for declaration in ["box Pair { left: i64\nright: i64 }", "box Pair { east: i64\nwest: i64 }"] {
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(declaration).unwrap();
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Pair").unwrap().unwrap();
+        let source = batch.construction_source_for(parent, 0).unwrap();
+        let original = source.as_ref().unwrap();
+        assert!(std::rc::Rc::ptr_eq(original,
+            batch.construction_source_for(parent, 0).unwrap().as_ref().unwrap()));
+        let ConstructionCompletionV1::AllocationOnlyI64 { fields } = original.completion() else {
+            panic!("no-Birth declared scalar source must retain allocation-only completion");
+        };
+        assert_eq!(fields.iter().map(|field| field.declaration_ordinal()).collect::<Vec<_>>(), [0, 1]);
+        assert!(fields.iter().all(|field| field.object() == batch.object_for(parent).unwrap()));
+        assert!(original.constructor().is_none() && original.stores().is_empty() && original.steps().is_empty());
+        assert_eq!(batch.construction_for(parent, 0).unwrap(),
+            &Err(super::super::instance_construction::ConstructionUnavailableV1::InitializationContractMissing));
+        assert!(ConstructionPlanV1::without_child_calls(source).is_err());
+        assert!(ConstructionPlanV1::qualify_ordered_unit_calls_v1(source,
+            |_, _| panic!("allocation-only cannot qualify through child calls")).unwrap().is_err());
+        assert_eq!(batch.construction_source_for(parent, 1),
+            Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch));
+    }
     assert!(
         plan.reclaims_unpublished_outer_storage(),
         "no fields is not no construction cleanup"
@@ -307,6 +335,9 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
     let mut failures = Vec::new();
     for (source, expected) in [
         ("box Page { value: i64 }", U::InitializationContractMissing),
+        ("box Page { value: usize }", U::InitializationContractMissing),
+        ("box Page { value: ArrayBox }", U::InitializationContractMissing),
+        ("box Page { value }", U::InitializationContractMissing),
         (
             "box Page { value: i64\nbirth() {} }",
             U::InitializationContractMissing,
@@ -370,6 +401,13 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
             .iter()
             .find(|row| row.kind() == ConstructorSourceKindV1::Birth)
             .map_or(0, |row| row.source_arity() as usize);
+        let retained = batch.construction_source_for(parent, arity).unwrap();
+        if source == "box Page { value: i64 }" {
+            assert!(matches!(retained.as_ref().unwrap().completion(),
+                ConstructionCompletionV1::AllocationOnlyI64 { .. }));
+        } else {
+            assert!(retained.is_err(), "unsupported source must not gain allocation-only completion: {source}");
+        }
         let actual = batch.construction_for(parent, arity).unwrap();
         if actual != &Err(expected) {
             failures.push(format!("{source}: expected {expected:?}, got {actual:?}"));
@@ -425,7 +463,11 @@ fn construction_plan_rejects_foreign_parent_and_birth_arity_not_as_no_birth() {
         batch.construction_for(foreign_parent, 1),
         Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
     );
+    assert_eq!(batch.construction_source_for(foreign_parent, 1),
+        Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
     let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+    assert_eq!(batch.construction_source_for(parent, 0),
+        Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch));
     assert_eq!(
         batch.construction_for(parent, 0),
         Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch)

@@ -19,15 +19,33 @@ pub(crate) struct ConstructionChildCallSourceV1 {
     pub(super) arguments: Box<[SourceExprSiteV1]>,
     pub(super) fault_discharge: Box<[OwnedFieldChildV1]>,
 }
+/// New completion and field readiness are distinct source obligations.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ConstructionCompletionV1 {
+    InitializedFields,
+    /// Exact declaration fields; none has an initial readable value.
+    AllocationOnlyI64 { fields: Box<[CanonicalFieldRefV1]> },
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructionSourceStructureV1 {
     pub(super) object: CanonicalObjectIdV1,
+    pub(super) completion: ConstructionCompletionV1,
     pub(super) field_demands: Box<[HomeDemandV1]>,
     pub(super) stores: Box<[ConstructionStoreV1]>,
     pub(super) constructor: Option<(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)>,
     pub(super) steps: Box<[ConstructionSourceStepV1]>,
 }
 impl ConstructionSourceStructureV1 {
+    pub(crate) fn completion(&self) -> &ConstructionCompletionV1 { &self.completion }
+
+    pub(super) fn require_initialized_fields(&self) -> Result<(), ConstructionUnavailableV1> {
+        match self.completion() {
+            ConstructionCompletionV1::InitializedFields => Ok(()),
+            ConstructionCompletionV1::AllocationOnlyI64 { .. } =>
+                Err(ConstructionUnavailableV1::InitializationContractMissing),
+        }
+    }
     pub(crate) fn child_call_source_v1(self: &Rc<Self>, site: &OwnedExprSiteV1) -> Result<Option<ConstructionChildCallSourceLoanV1>, String> {
         let mut matching = self.steps.iter().enumerate().filter_map(|(index, step)| match step {
             ConstructionSourceStepV1::StoredChildCall(call) if &call.site == site => Some(index),

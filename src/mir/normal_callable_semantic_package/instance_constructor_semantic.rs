@@ -8,7 +8,7 @@ mod formal_contract;
 pub(super) mod provider_source;
 mod object_definition;
 use super::instance_construction::{
-    issue_construction_plan, issue_construction_source_v1, ConstructionEligibilityV1,
+    issue_construction_source_v1, ConstructionEligibilityV1,
     ConstructionPlanV1, ConstructionSourceEligibilityV1,
 };
 pub(crate) use formal_contract::{
@@ -90,7 +90,11 @@ pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     box_sources: ParserOrdinaryBoxSourceCoverageV1,
     object_sources: Box<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
     object_definitions: std::cell::RefCell<Option<Box<[CanonicalObjectDefinitionV1]>>>,
-    no_birth_construction: Vec<(ParserOrdinaryBoxSourceRowV1, ConstructionEligibilityV1)>,
+    no_birth_construction: Vec<(
+        ParserOrdinaryBoxSourceRowV1,
+        ConstructionSourceEligibilityV1,
+        ConstructionEligibilityV1,
+    )>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -229,6 +233,22 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         Ok(Some(row))
     }
 
+    /// Lends the same declaration-issued source, including unavailable execution.
+    pub(crate) fn construction_source_for(
+        &self,
+        parent: &ParserOrdinaryBoxSourceRowV1,
+        arity: usize,
+    ) -> Result<&ConstructionSourceEligibilityV1, InstanceConstructorBirthLookupErrorV1> {
+        if let Some(row) = self.birth_for(parent, arity)? {
+            return Ok(&row.construction_source);
+        }
+        if arity != 0 { return Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch); }
+        self.no_birth_construction.iter()
+            .find(|(own, _, _)| own.same_source_as(parent))
+            .map(|(_, source, _)| source)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
+    }
+
     pub(crate) fn construction_for(
         &self,
         parent: &ParserOrdinaryBoxSourceRowV1,
@@ -239,8 +259,8 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         }
         self.no_birth_construction
             .iter()
-            .find(|(own, _)| own.same_source_as(parent))
-            .map(|(_, plan)| plan)
+            .find(|(own, _, _)| own.same_source_as(parent))
+            .map(|(_, _, plan)| plan)
             .ok_or(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
     }
 }
@@ -435,8 +455,8 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     && row.box_source().same_source_as(parent)) {
                     continue;
                 }
-                let plan = source.with_ordinary_box_syntax(parent, |declaration| {
-                    issue_construction_plan(
+                let construction_source = source.with_ordinary_box_syntax(parent, |declaration| {
+                    issue_construction_source_v1(
                         *object_id,
                         parent,
                         declaration,
@@ -447,7 +467,8 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         &object_definitions,
                     )
                 }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
-                no_birth_construction.push((parent.clone(), plan));
+                let plan = ConstructionPlanV1::without_child_calls(&construction_source);
+                no_birth_construction.push((parent.clone(), construction_source, plan));
             }
             let mut candidates = Vec::with_capacity(loan.rows().len());
             let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
