@@ -261,6 +261,38 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
     Ok(identity)
 }
 
+/// During Home scanning this lends only already-qualified source arguments.
+/// Accepted Home membership and executable payload belong to later activation.
+pub(super) fn validate_qualified_argument_sources_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, pending: &PendingBorrowedFormalActualsV1,
+    site: &OwnedExprSiteV1, identity: &StaticSourceActualIdentityV1,
+) -> Result<(), String> {
+    use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
+        expression_projection::ExpressionLeafClassV1 as Leaf};
+    for actual in &identity.candidates {
+        let core = identity.core_arguments.contains_key(&actual.ordinal);
+        let expression = core || matches!(actual.value,
+            BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))
+            || matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
+                && !prepared.static_arguments.contains_key(&(site.clone(), actual.ordinal));
+        if !expression { continue; }
+        let slot = identity.argument_sources.get(&actual.ordinal)
+            .ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
+        let StaticArgumentExpressionV1::Qualified(frame) = slot else {
+            return Err(freeze(if core { "borrowed-static/core-expression-execution-pending" }
+                else { "borrowed-static/text-expression-execution-pending" }));
+        };
+        let original = lend_argument_expression_source_v1(prepared, pending, site, actual.ordinal)?
+            .ok_or_else(|| freeze("borrowed-static/argument-frame-identity"))?;
+        if !Rc::ptr_eq(frame.source(), slot) || frame.source_loan() != &original
+            || !frame.evaluation().reference_coverage_is_exact()
+            || frame.evaluation().root_class() != Leaf::Value(Class::String) {
+            return Err(freeze("borrowed-static/argument-frame-identity"));
+        }
+    }
+    Ok(())
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression_source_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,

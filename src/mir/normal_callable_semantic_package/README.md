@@ -264,6 +264,14 @@ sites retain the existing strict protocol. Failed owner walks revoke staged
 source evidence. SourceStatic grants no executable actuals, Static entry, ABI,
 physical packet or publication permission; those require later owner closure.
 
+During Home scanning, Text source arguments lend their original ordered view
+only after each expression's current Qualified frame matches the SAME pending
+plan and canonical source loan, exact reference coverage and checked String root.
+Original required-I64 proofs remain mandatory. Explicit Observe invalidates that
+qualification. This passive projection cannot inspect accepted Home completion
+or construct opaque actuals; executable activation must independently join the
+accepted Home flow and close the physical argument/lifetime obligations.
+
 The original AppMain co-seal also lends its direct ReturnValue sites. A
 Qualified call at one of those sites with one OpaqueHandle formal may retain
 source-only ordered actuals and a destination-less Call exit. The statement's

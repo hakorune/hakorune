@@ -492,7 +492,9 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
     });
     let has_expression_source = pending.get(site).is_some_and(|rows| matches!(rows,
         Ok(rows) if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(identity)
-            if !identity.core_arguments.is_empty() || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
+            if !identity.core_arguments.is_empty()
+                || identity.argument_sources.values().any(|slot| matches!(slot, StaticArgumentExpressionV1::Qualified(_)))
+                || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
     let retained = original_static_source_v1(prepared, site)?;
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
     let has_static_terminal_source = !current_owner
@@ -648,17 +650,9 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
             .map(|args| Some(args.into()));
     }
     let identity = argument_source::validate_static_source_actuals_v1(prepared, rows, site, required_i64_arguments)?;
-    // Result/source closure does not evaluate the expression. Keep this phase
-    // passive even for a callee with no required-I64 arguments or unused input.
-    if !identity.core_arguments.is_empty() {
-        return Err(freeze("borrowed-static/core-expression-execution-pending"));
-    }
-    if identity.candidates.iter().any(|actual| matches!(actual.value,
-        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))
-        || matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
-            && !prepared.static_arguments.contains_key(&(site.clone(), actual.ordinal))) {
-        return Err(freeze("borrowed-static/text-expression-execution-pending"));
-    }
+    // Current qualified frames lend passive source arguments during Home scanning.
+    // SourceStatic still owns no executable payload or physical permission.
+    argument_source::validate_qualified_argument_sources_v1(prepared, pending, site, identity)?;
     if required_i64_arguments.iter().any(|ordinal| {
         if identity.integer_evidence.get(*ordinal as usize) == Some(&true) {
             return false;

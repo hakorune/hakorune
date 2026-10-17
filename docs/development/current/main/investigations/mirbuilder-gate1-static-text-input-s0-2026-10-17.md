@@ -929,47 +929,19 @@ SAME-evaluation reference proof map through writer/shared final projection.
 Their commits own361PASS/14baseline and unchanged JSON/native evidence; neither
 activated Text input. Successor evidence replaces their temporary binaries.
 
-V882 landed147934da47: original static literal root + materialized initializer/
-Copy chain + exact atomic read join, same common writer/projection; strict final
-dependency checks preserve sealed omission authority. Commit owns source-derived
-zeroarg/alias and negative evidence, Root882E361PASS/14same, CLI220/app261 JSON
-SAME/app262 mimalloc exact7/exit0, timings/provenance and535MB superseded pin
-retirement. Matched pins kept; full Text series remains open.
+V882147934da47, V8830e6afb5ef6 and V8848321756907 retain original static
+read/materialized Copy corroboration, finite Text entry structure and SAME current
+Home/Call frame handoff with explicit Observe invalidation. Their commits own
+361PASS/14same and unchanged JSON/native provenance. No Text activation; stronger
+successor pins replace root/CLI roles as recorded at closeout. Matched prior
+CLI223/app268/runtime877A/FFI876B remain until new native evidence replaces them.
 
-V883 landed0e6afb5ef6: exact Text domain, original read/contract, whole physical
-carrier/entry tuple and Copy corroboration. Commit retains Root883D361PASS/14same,
-CLI221/app263 JSON SAME/app264 mimalloc exact7/exit0, timings and535MB superseded
-pin retirement. Matched final/baseline pins remain; full Text series stays open.
+V885 landed559993951d: one common acquisition-prefix owner replaces Print-only
+checks, with original postorder/node/value, unique normal projection and owned
+result-kind correspondence. Commit retains final Root885D361PASS/14same,
+CLI224/app269 JSON SAME and intermediate build classification. Native effects
+unchanged; prior CLI223/app268 matched native baseline remains retained.
 
-V884 landed8321756907: SAME current Home/Call argument frame in Source/Qualified
-ordinal product; explicit Observe alone invalidates previous Home qualification,
-retaining original plan. Commit owns final Root884C361PASS/14same, CLI223/app267
-JSON SAME/app268 unchanged mimalloc exact7/exit0, timings and1,289,442,368B retired
-superseded pins. Keep current884C/CLI223/app268/runtime877A/FFI876B until successor
-evidence replaces their roles; older logs/manifests remain. Full Text series open.
-
-V885 Decision (reference_integration_review): normalize Print-only physical
-acquisition prefix to SAME CheckedExpressionEvaluationV1. Exact source postorder,
-Call membership and unique normal-result producer correspondences remain required;
-use the operation owner's owns_normal_result(), not a second Add-only classifier.
-The sole expression writer checks its complete acquisition sequence with the same
-owner. Source/terminal permissions stay in purpose wrappers; no AST rewalk/new
-packet pool or input/ABI grant. Existing static/Core/alias argument fixtures reuse
-this actual writer and add independent malformed acquisition/producer checks.
-Paths: existing expression writer, one extracted acquisition-prefix child,
-Call expression prefix and Print caller, reused argument helper, MIR README/card.
-Full activation still requires current pending-frame AND Home-flow membership,
-common argument packet and Normal/Fault lifetime closure, both source-aware final
-scans and compiled domain image. Call Fault must be built after argument prep;
-Normal consumes only this Call's temporaries. Fault order: current arg -> prior
-args -> enclosing expression -> prior Homes; every group reversed exactly once.
-Separate argument frames must retain their own source identity, never bare node
-index concatenation. Runtime fences stay until those mandatory consumers close.
-Worker value-correspondence correction: thread the existing per-node operand
-slice through the common Call callback/prefix and complete-evaluation check;
-acquired(node,value) must be that node's OwnedString operand. Exact source operation
-correspondence still belongs to the common projection and both final consumers.
-A prefix never independently issues a value/source permission.
 Next activation ordering (same review): QualifiedStaticSourceArguments is demanded
 DURING Home scanning. It must lend passive whole-tuple ordered arguments from
 current Qualified frames + original scalar proofs, without activating inputs.
@@ -981,16 +953,48 @@ original-tuple validator with separate passive/activated payload requirements;
 no Text-specific finisher or completed-entry lookup. Structural finite domains
 remain construction authority; whole original uses/incoming close at finalization.
 
-V885 verified BoxShape: common acquisition-prefix owner replaces Print-only
-algorithm; ordered node/value, unique projection and owned-result kind checked.
-Root885A failed missing child path; B passed69.922s before value strengthening;
-C failed local name shadowing; corrected finalD build68.114s, focused42filters
-10.596s:375distinct/361PASS/14same identities AND diagnostics vs884C. CLI224
-build163.399s, no new warning messages vs223. Unchanged app269 JSON direct EXE
-0.123s exit1/no artifact, SAME core-expression-execution-pending owner20 Body7
-Value as267; no source permission or app improvement claimed. Stable pointer,
-root-route/layer/thin/diff PASS; CI35681768498 remains historical d4168473d5 red.
-Keep final885D/CLI224 and prior CLI223/app268/runtime877A/FFI876B for unfinished series;
-no new adapter or native effect, no repeated native run. Failed/intermediate
-builds have logs/manifests but no pinned test binaries; successor pins replace
-884C root role only. Full Text activation/cleanup/final consumers remain open.
+V886 Decision (reference_integration_review fresh read-only check): during Home
+walk lend the SAME passive ordered arguments only after every selected Text role
+has its current Qualified frame, original plan/source loan, exact reference
+coverage and String root. Preserve original required-I64 proofs unchanged.
+Incomplete source retains existing pending refusal. No accepted-Home lookup here
+(cycle); executable activation, opaque payload, physical packets and both final
+consumers stay separate unfinished work in this SAME Text series. Replace the
+two unconditional expression fences in static projection with the argument-source
+owner's common check. Reuse genuine source claim + existing port test to verify
+qualification, Observe invalidation and repeated Home walk; keep tuple drift and
+SourceStatic executable refusal coverage. Paths: static source projection and
+argument-source owner, existing port tests, package README and this card.
+Dispatch correction from all-role positive coverage: SelfRooted Text may have
+no older static fact; select its already-issued Qualified slot, never all raw
+SelfRooted candidates or inferred SUM Text. Full tuple/frame/I64 checks still
+follow. Explicit Observe-reset regression keeps raw SelfRooted unselected.
+Next dependency decision (same worker, reused whole-source audit): scalar local
+start=pos+needle.length() lacks canonical Core integration in scalar preflight;
+end also needs the real scan's verified After, not the Mul-only HomeAfter loan.
+First inspect genuine FULL RootHomeFlow's exact Prefix/start/end observations;
+the local initializer test helper skips loops and cannot establish that boundary.
+Normalize Core-containing I64 initializers through SAME checked evaluation/writer,
+purpose-specific local install and completed-local provenance, not a second
+scalar evaluator. Reuse genuine Facts/Recipe/JoinSig After for end, with zero-trip,
+Break and rebind checks; source SUM/MIR type alone is never current-read authority.
+Observation route selected by same worker: use actual canonical CLI/module
+expansion and existing NYASH_MIR_COMPILE_TRACE, at scan_statement_flow before
+stage_statement_actuals may Err and argument observe before prefix-known return.
+Capture only original site/binding/current observation + first unavailable; no
+mock callbacks, raw app inclusion, new semantic receipt or admission mutation.
+Temporary diagnostics retire once actual Prefix/start/end evidence is recorded.
+
+V886 verified: passive SAME-qualified Text argument projection, all original
+roles incl forwarded Text; SourceStatic still cannot execute. RootA failed test
+imports/key types83.717s; B74.249s had2 new key-selection test failures; C57.142s
+fixed keys and exposed1 real forwarded-dispatch hole; corrected finalD71.766s,
+42filters10.437s:375distinct/361PASS/14same identities+diagnostics vs885D.
+CLI225151.636s intermediate; final226148.622s/no new root/CLI warnings. App270
+unchanged JSON direct EXE0.120s exit1/no artifact, byte-identical269 diagnostic
+core-expression-execution-pending owner20Body7Value. Actual app still unaccepted.
+App271 unchanged mimalloc canonical EXE134.084s/native0.001451s, exact7 stdout,
+stderr and exit0 vs268. Stable pointer/root-route/layer/thin/diff PASS; CI remains
+historical35681768498/d4168473d5 failure. Retired superseded root/CLI/native pins
+1,221,299,848B; logs/manifests/output retained. Keep886D/CLI226/app271 + matched
+runtime877A/FFI876B for unfinished source/entry/cleanup/both-final-consumer series.

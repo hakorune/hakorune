@@ -1,6 +1,8 @@
 use crate::mir::normal_callable_semantic_package::STORED_BORROWED_LOCAL_SOURCE;
 
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PendingBorrowedFormalActualsV1;
+use crate::mir::resolved_semantics::home_new_prefix::{LocalCallArgumentV1, BorrowedCallActualCandidateV1, BorrowedCallActualValueV1};
 
 fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1
 {
@@ -354,6 +356,11 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
         let statement = input.source().body_stmt(&body, 0).unwrap();
         let call_site = input.function().method_calls().find(|(_, call)| call.selector() == "sink")
             .map(|(site, _)| OwnedExprSiteV1::new(input.owner(), site.clone())).unwrap();
+        let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Values", "caller", contract.parameters.len() as u32);
+        let (claim, _) = package.source_static_claims_for_test.claim_target(&caller, call_site.site()).unwrap();
+        let project = |pending: &PendingBorrowedFormalActualsV1|
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::project_pending_static_source_arguments_v1(
+                source, pending, &call_site, claim);
         for mutation in 0..7 {
             let mut contracts = crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test(&package.parameter_contracts);
             if mutation == 6 {
@@ -403,6 +410,9 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 assert!(frame.evaluation().ordered_nodes().iter().all(|node| !frame.transfers_node(*node)), "Core receiver/bounds remain in source postorder");
                 let source_loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_argument_expression_source_v1(ingress, &pending, &call_site, 0).unwrap().unwrap();
                 assert_eq!(frame.source_loan(), &source_loan);
+                let expected = vec![LocalCallArgumentV1::BorrowedActual { ordinal: 0,
+                    site: frame.source().nodes()[0].site().clone() }].into_boxed_slice();
+                assert_eq!(project(&pending).unwrap(), Some(expected.clone()), "qualified source projection stays passive");
                 let reissued = Rc::new(frame.as_ref().clone());
                 assert!(!Rc::ptr_eq(frame, &reissued));
                 let retained = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
@@ -411,6 +421,15 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap().unwrap();
                 let BorrowedCallArgumentsV1::ArgumentExpressionFrame(retained) = retained else { panic!("same pending frame") };
                 assert!(Rc::ptr_eq(frame, &retained), "pending actual and Home retain the SAME canonical frame");
+                let actuals = [BorrowedCallActualCandidateV1 { ordinal: 0,
+                    site: frame.source().nodes()[0].site().clone(),
+                    value: BorrowedCallActualValueV1::MethodCall(source_loan.resolver_source().unwrap().source().clone()) }];
+                borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
+                    &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                    &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
+                assert!(project(&pending).unwrap_err().contains("core-expression-execution-pending"),
+                    "Observe invalidates old qualification before a new Home walk");
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
                 let repeated = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
                     input, &statement, parameters, true, None,
@@ -420,6 +439,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                         &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
                 assert!(!Rc::ptr_eq(frame, repeated[0].argument_frame().unwrap()), "explicit Observe requires a fresh current frame");
                 assert!(Rc::ptr_eq(frame.source(), repeated[0].argument_frame().unwrap().source()));
+                assert_eq!(project(&pending).unwrap(), Some(expected), "new current frame closes passive projection again");
                 // Existing Core actual tests retain the independent execution-pending checks.
             }
         }
@@ -659,12 +679,32 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, site, request,
                     &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+            let call_site = input.function().method_calls().find(|(_, call)| call.selector() == "sink")
+                .map(|(site, _)| OwnedExprSiteV1::new(input.owner(), site.clone())).unwrap();
+            let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Values", "caller", contract.parameters.len() as u32);
+            let (claim, _) = package.source_static_claims_for_test.claim_target(&caller, call_site.site()).unwrap();
             let frames: Vec<_> = plans.iter().filter_map(|plan| plan.argument_frame()).collect();
             assert_eq!(frames.len(), usize::from(expected), "{prefix}/{argument}/{incoming}");
             if let Some(frame) = frames.first() {
+                let projected = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::project_pending_static_source_arguments_v1(
+                    source, &pending, &call_site, claim).unwrap().expect("qualified original Text source projection");
+                assert_eq!(projected.as_ref(), &[LocalCallArgumentV1::BorrowedActual { ordinal: 0,
+                    site: frame.source().nodes()[0].site().clone() }], "same source tuple across all Text roles");
                 assert!(Rc::ptr_eq(frame.source(), frame.source_loan().plan()));
                 assert!(frame.evaluation().reference_coverage_is_exact());
                 assert_eq!(frame.evaluation().references().len(), static_reads + residence_reads + entry_reads + frame.references().len());
+                if entry_reads > 0 && !owned {
+                    let mut unqualified = pending.clone();
+                    let read = frame.text_reads()[0];
+                    let actuals = [BorrowedCallActualCandidateV1 { ordinal: 0, site: read.read().clone(),
+                        value: BorrowedCallActualValueV1::SelfRooted { binding: read.binding(), root: read.formal().1 } }];
+                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
+                        &[], None, source, &Ok(Default::default()), &mut unqualified, &ledger.borrowed_i64_results,
+                        &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
+                        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
+                    assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::project_pending_static_source_arguments_v1(
+                        source, &unqualified, &call_site, claim).unwrap().is_none(), "unqualified SelfRooted does not gain selection");
+                }
                 assert_eq!(frame.static_reads().len(), static_reads);
                 assert_eq!(frame.residence_reads().len(), residence_reads);
                 assert_eq!(frame.text_reads().len(), entry_reads);
