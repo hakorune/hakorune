@@ -391,3 +391,14 @@ The physical-program allowlist still rejects these operations. Source
 acquisition/commit/live borrow/End handback, indexed runtime descriptor/complete
 End emission and independent final coverage remain required before execution
 admission changes. Existing Array input execution gates remain closed.
+
+Checked String physical instructions live in `instruction/invoke_string.rs` and
+share the existing Invoke/Normal/Fault and independent `verification/invoke_string`
+ownership checks. Add and Substring acquire only on Normal; Length and IndexOf
+borrow and return I64. All three Core projections have fixed CodePoint behavior.
+Operands and integer slice bounds remain separate typed roles; owned pairs never
+become scalar bounds, copied handles or arbitrary call values. Physical ABI/JSON
+publication and both C cohorts must retain the same result/operand/lifetime law.
+These physical operations do not issue source admission: exact Core contracts,
+selected CP profile where required, entry/current read proofs and both source
+final consumers are still required before execution fences can be removed.

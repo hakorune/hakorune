@@ -2,6 +2,7 @@
 //! Normal/Fault acquisition order; the existing lease owner owns exact End.
 use super::{Diagnostic, FaultFrame, Status};
 use nyash_rust::runtime::dynamic_v2_lease as lease;
+use nyash_rust::boxes::string_ops::{self, StringIndexMode};
 use std::{ffi::c_void, io::Write, num::NonZeroU64};
 
 const STATIC_TEXT: u32 = 1;
@@ -91,6 +92,54 @@ unsafe fn text(value: &Operand) -> Result<String, Status> {
     }
 }
 
+unsafe fn text_operand(value: *const Operand) -> Result<String, Status> {
+    let value = unsafe { operand(value) }?;
+    if !matches!(value.kind, STATIC_TEXT | OWNED_TEXT) { return Err(Status::InvalidContract); }
+    unsafe { text(value) }
+}
+
+/// Every successful acquisition, including full/empty slices, is independent.
+unsafe fn publish(frame: &mut FaultFrame, site: u64, result: String, out: *mut OwnedText) -> u32 {
+    let owned = match lease::publish_end_authorized_text(result) {
+        Ok(v) => v,
+        Err(_) => return fault(frame, site, ALLOCATION_FAILED),
+    };
+    unsafe { out.write(OwnedText { handle: owned.handle(), token: owned.token().get() }) };
+    Status::Normal as u32
+}
+
+/// Fixed CodePoint contract. No legacy indexing toggle or handle dispatch.
+#[export_name = "nyash.string.checked_length_v1"]
+pub unsafe extern "C" fn length(storage: *mut c_void, _site: u64, value: *const Operand, out: *mut i64) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    if let Err(s) = unsafe { frame(storage) } { return s as u32; }
+    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let Ok(count) = i64::try_from(value.chars().count()) else { return Status::InvalidContract as u32 };
+    unsafe { out.write(count) };
+    Status::Normal as u32
+}
+
+#[export_name = "nyash.string.checked_substring_v1"]
+pub unsafe extern "C" fn substring(storage: *mut c_void, site: u64, value: *const Operand,
+    start: i64, end: i64, out: *mut OwnedText) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
+    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let result = string_ops::substring(&value, start, Some(end), StringIndexMode::CodePoint);
+    unsafe { publish(frame, site, result, out) }
+}
+
+#[export_name = "nyash.string.checked_index_of_v1"]
+pub unsafe extern "C" fn index_of(storage: *mut c_void, _site: u64, value: *const Operand,
+    needle: *const Operand, out: *mut i64) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    if let Err(s) = unsafe { frame(storage) } { return s as u32; }
+    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let needle = match unsafe { text_operand(needle) } { Ok(v) => v, Err(s) => return s as u32 };
+    unsafe { out.write(string_ops::index_of(&value, &needle, None, StringIndexMode::CodePoint)) };
+    Status::Normal as u32
+}
+
 /// Caller guarantees live nonoverlapping frame/operands/out storage. Only
 /// String+String or String+NormalInteger is this ABI; integer Add stays scalar.
 /// Normal alone writes both result words and creates one fresh End obligation.
@@ -134,17 +183,7 @@ pub unsafe extern "C" fn add(
         return fault(frame, site, ALLOCATION_FAILED);
     }
     result.push_str(&suffix);
-    let owned = match lease::publish_end_authorized_text(result) {
-        Ok(v) => v,
-        Err(_) => return fault(frame, site, ALLOCATION_FAILED),
-    };
-    unsafe {
-        out.write(OwnedText {
-            handle: owned.handle(),
-            token: owned.token().get(),
-        })
-    };
-    Status::Normal as u32
+    unsafe { publish(frame, site, result, out) }
 }
 
 pub(super) fn print_to(

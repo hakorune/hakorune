@@ -70,3 +70,13 @@ Treat them as public symbol-family exports, not as ownership boundaries.
   generation policy, handle release, or semantic Fault.
 - Do not replace a glob export with explicit symbols until that family has a
   wiring test or inventory note that pins the exported symbol set.
+
+`fault_checked_string.rs` owns the checked descriptor ABI for borrowed UTF-8 /
+end-authorized pairs. Add and Substring publish a fresh independent pair only on
+Normal; Length and IndexOf return i64 and never consume an input. The latter three
+use the existing fixed CodePoint implementation, independent of legacy string
+indexing env switches: CP count, independently clamped half-open slice (reverse
+is empty), and CP search index with empty=0/miss=-1 Normal. Copies end their lease
+read scope before any publication. Invalid descriptor/pair/output contracts leave
+outputs and Fault diagnostics untouched. Generated source/Core/profile authority,
+ordered cleanup and final correspondence remain compiler obligations.

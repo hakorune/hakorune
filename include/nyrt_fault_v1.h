@@ -121,6 +121,17 @@ uint32_t nyrt_string_checked_print_v1(void *, uint64_t, const NyrtStringOperandV
     __asm__("nyash.string.checked_print_v1");
 uint32_t nyrt_string_checked_end_v1(void *, uint64_t, uint64_t, uint64_t)
     __asm__("nyash.string.checked_end_v1");
+/* Fixed CodePoint operations, independent of legacy indexing env switches.
+ * Length counts CPs; IndexOf is a CP index, empty=0 and missing=-1 Normal.
+ * Substring clamps each endpoint independently; start>=end yields empty.
+ * Full/empty slices still publish a fresh pair; inputs stay borrowed/live.
+ * Only Normal writes out. Integer-kind Text operands are InvalidContract. */
+uint32_t nyrt_string_checked_length_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t *)
+    __asm__("nyash.string.checked_length_v1");
+uint32_t nyrt_string_checked_substring_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t, int64_t, NyrtOwnedStringV1 *)
+    __asm__("nyash.string.checked_substring_v1");
+uint32_t nyrt_string_checked_index_of_v1(void *, uint64_t, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
+    __asm__("nyash.string.checked_index_of_v1");
 
 uint32_t nyrt_fault_frame_init_v1(void *) __asm__("nyash.fault.frame_init_v1");
 uint32_t nyrt_fault_record_static_v1(void *, uint32_t, uint64_t, int64_t, int64_t)

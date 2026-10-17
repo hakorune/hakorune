@@ -825,92 +825,17 @@ Full entry/domain, physical guard/evaluation, LocalCommit handoff/End and both
 module/published scans remain owed before source execution fences can be removed.
 
 
-V875 construction Decision: normalize the existing argument source/purpose product
-before its sole physical actual consumer. SAME plan is common; Core receipt is an
-optional, strictly corroborated source capability. Literal, current Static Text
-local, current owned Text residence and original Text-only formal join that same
-argument frame. Source flow's existing alias traversal is shared for Entry and
-terminal Expression origins; Join/Unknown/cycle remain unavailable. Static Text
-Prefix state retains exact original definition, never Handle/Scalar/Home; alias,
-store and branch join preserve or invalidate that identity. Covered reads retain
-SAME flow, original reaching value/terminal definition/payload, or SAME residence
-acquisition. Actual execution still needs whole entry/cohort, writer/Fault/Call,
-LocalCommit and both final scans; do not remove pending fences or issue a new
-Static phase. Core and finite-mixed initializer behavior remain within their
-existing contracts. Paths: source_value_flow and existing tests, Prefix Text child/
-state/initializer, existing argument loan/lender/observer/purpose, existing argument
-port/source tests, owner READMEs and this card. Read-only worker results are
-integrated here; view construction must remain structural to avoid the recursive
-entry-readiness/actual-readiness dependency. No extra registry or flow solver.
-
-V875 implementation: the existing argument source loan now holds SAME plan plus
-optional SAME Core Rc. The single argument frame retains literal/reference source,
-StaticTextRead (SAME flow/read/reaching value/terminal definition/bytes), current
-TextResidenceRead (SAME acquisition Rc), or original Text entry requirements.
-Bare borrowed formal selection requires the original singleton Text SUM. A whole-
-census SelfRooted Text argument without a legacy static_arguments fact is staged
-passively with no Integer evidence; its binder validates exact alias Entry root.
-Legacy fact arguments retain their existing owner proofs, including Loop proofs;
-they are not forced through the narrower alias-origin query. The binder now joins
-the canonical Static census directly and keeps SAME argument plans on re-walk.
-No legacy observation or forward fact is synthesized.
-
-Bare String LOCALs select the existing Prefix walk and retain non-owning original
-Static Text definition. Dedicated current read verifies its actual source-flow
-terminal; aliases preserve the definition, store replaces state and sibling joins
-require identical definitions. Generic observe still exposes no Text as Handle,
-Scalar or BoundValue. Current residence reads independently require original root/
-acquisition and Home liveness. Literal/residence/forward borrow adds no root owner;
-only actual Core evaluation marks its result for Normal acquisition. The optional
-Core loan removes the former Core-only argument-purpose restriction and does not
-create another profile, Static phase, registry or solver.
-
-Root875D jobs4/stack16MiB `cargo quick-test-fast --no-run --message-format=json`
-PASS54.853573s. Reused35 focused filters execute nonzero tests in10.205572s;
-distinct282/pass269/baseline13. Exact known failure identities and messages match
-Root874E.extra (only existing thread-ID/plugin-map normalization); no new root
-warning messages. The one added table test covers14 original backing/alias/source
-cases, including changed same-byte definition rejection, non-Text entry rejection,
-current owned residence and Core receiver reads. Existing argument covered-prefix,
-immutable finite initializer, source-flow branch/Loop and source-only execution
-fence tests remain. During construction A/B located the omitted full-census Text
-forward plus a test helper's missing generic alias installation. C's two new
-Object-scope regressions were fixed by selecting actual Text roles before request
-and checking the original target formal; D restores both existing negatives.
-Those earlier observations are not claimed passing. The shared source-flow alias
-query is independently exercised by existing source-flow tests.
-
-The local-state enum file is761 lines (soft760/hard800 considered); all new Text
-read/provenance behavior lives in its existing Text child, not inline expansion.
-Root-reference/layer/thin/pointer/diff PASS. Physical Text entry/domain, actual
-writer/evaluation, LocalCommit handoff/End and both independent final consumers
-remain unconstructed/unfinished as above; no execution fence is removed here.
-
-CLI212 jobs4/stack16MiB `cargo build --profile quick --bin hakorune
---message-format=json` PASS196.122499s; binary SHA
-1aee8dfea54766a2f293dc372fec8f6e6581fef7eb93042456e4614df04e751d.
-Root875D/CLI212/current source manifests are exact; no new CLI warning messages.
-Canonical direct unchanged JSON app247 exits1/no artifact in0.118412s: identical
-compilation1/slot20/Body7/Value core-expression-execution-pending and byte-equal
-stderr to app245. Original mimalloc app248 canonical EXE PASS130.856981s;
-native0.001634s/original7-line stdout exact/exit0, runtime stderr exact app246.
-EXE SHA e8d20ef36026658f26296538657929b0e1994722e04e16e60c04bd18745babd5.
-Both commands: CLI212 --grammar-profile canonical --backend mir --emit-exe OUT
---emit-exe-nyrt runtime808b ORIGINAL_SOURCE; clean HAKO/NYASH env then plugins
- disabled1, trace1, pure-first, compat replay none, stack16MiB and FFI872B.
-All backend-owned paths match FFI872B; original app/runtime hashes are unchanged.
-No backend changes require a C rebuild. Latest CI remains historical failed
-35681768498/d4168473d5, with no current CI/full-suite/performance claim.
-
-Keep Root875D/CLI212/app247-248 pins/manifests/logs and exact baseline comparison
-under the existing /tmp evidence owner until complete Text-series acceptance;
-failed construction observations can retire then. Full reproducible commands,
-conditions and outcomes are recorded here in Git. There is no temporary adapter
-or additional test/guard owner. The old Core-only source loan/purpose restriction
-and duplicate entry-only alias traversal were physically replaced; shared existing
-executable cohorts/physical owners remain live. V874 history is compressed to
-d4b1fc04b1. This is verified source/current argument construction, not physical
-Text cutover, and the full finite goal remains open.
+V875 landed atc515ef3dc1: one argument-purpose frame retains SAME plan and
+optional Core receipt, Static Text definition/current reads, owned residence Rc,
+or original Text-only formal requirements. Existing source-flow alias traversal
+is shared for Entry and terminal Expression; no new registry/profile/fact. Full-
+census Text forwarding without legacy facts is passive and separately validates
+exact alias Entry; legacy proof owners remain intact. Root875D build54.853573s,
+35 filters/distinct282/pass269/baseline13 identical to874E; CLI212196.122499s.
+App247 JSON SAME Core execution fence; unchanged app248 mimalloc canonical EXE /
+native original7 lines/exit0 PASS130.856981s+0.001634s. That commit retains exact
+commands, manifests/hashes, negative classifications and guards. No Text physical
+cutover was claimed; both source fences and the full series remain open.
 
 Physical mapping clarification from the read-only worker: raw handle Core calls
 cannot stand in for checked borrowed Text/OwnedString. Current checked String ABI
@@ -920,8 +845,100 @@ to Length:I64, Substring:OwnedString pair and IndexOf:I64 in that same checked
 owner/runtime/JSON/C boundary. Keep expression_value as sole ordered descent;
 retain exact Core operand mapping, Invoke/Normal and complete Fault cleanup in
 the shared expression projection for both final scans. Only substring acquires.
-Reuse existing text-pair lease checks/publication and confirmed byte-index/range
-laws; old substring_hii may return an existing/shared handle and cannot be
+Reuse existing text-pair lease checks/publication; V876 below corrects the
+initial byte-index helper suggestion. Old substring_hii may return a shared handle and cannot be
 relabeled a fresh owned pair. This is the next real execution connection, together
 with the already-recorded borrowed/finite entry and actual-packet obligations;
 no literal-only executable phase or generic boxed-string adapter is selected.
+
+V876 construction Decision: connect checked String Length/Substring/IndexOf
+through the existing physical instruction/ABI/JSON/C/runtime owner, using the
+original Core receipt at later source emission. Read-only worker corrected the
+prior helper suggestion: legacy byte range clamps swap endpoints and are NOT the
+canonical law. docs/reference/language/strings.md fixes CP count and independently
+clamped half-open CP slicing (start>=end empty), CP search miss=-1/empty=0.
+Reuse nyash_rust::boxes::string_ops::{substring,index_of} with explicit CodePoint,
+never env/raw-handle dispatch; publish a fresh exact lease pair even for empty/full
+substring. Length/indexOf borrow and return I64, acquire nothing. IndexOf's generated
+manifest law is Unprojected: source activation must retain the existing selected
+CP profile rather than inventing a generated law. Current source fences remain.
+Physical operand validation, all Normal/Fault outputs, owned-pair producer/use/End
+checks and C native/indexed paths must agree. Normalize physical String kind/result/
+operand access within the existing schema so operation additions do not duplicate
+classification across consumers. Paths: existing invoke String instruction/verifier,
+published physical ABI/JSON and C String schema/index/flow/emitter, checked String
+runtime/header and existing tests, relevant owner README and this card. Source
+argument/entry/current/writer/final proof connection stays in this same open series;
+backend or runtime capability tests do not close its production acceptance.
+
+
+V876 implementation and evidence (source Text series still OPEN):
+- Existing InvokeString owner now has Length:I64, Substring:OwnedString and
+  IndexOf:I64, with ordered operands and strict Text receiver/needle domains.
+  One owns_normal_result helper covers acquisition/End validation; slice bounds
+  cannot consume owned pairs. Existing tests cover producer/projection mutation.
+- Runtime reuses fixed CP operations and one Add/Substring publication function.
+  Fresh substring pairs include full/empty slices; readers acquire nothing.
+  Invalid/stale/wrong-token descriptors preserve output; registry read leases end
+  before publication. Header and all owner READMEs describe the same contract.
+- Physical ABI/JSON and both C consumers use shared String kind/result/operand
+  classification. Bounds require I64; scalar Normal projections consume their
+  marker without creating End debt. Existing String fixture/probe owners cover
+  new operations, Normal/Fault cleanup and malformed domains. No new repository
+  test/guard/profile/adapter owner or .hako workaround was introduced.
+- Read-only packet_origin_review found no serious domain, result, publication or
+  cleanup hole. owned_write_final_scan supplied the fixed-CP correction above.
+
+Reproduction uses /tmp/mirbuilder-required-forward-resume build_current.py,
+which captures complete source manifests/commands/output and jobs=4, stack16MiB.
+Root876A: cargo quick-test-fast --no-run --message-format=json PASS86.966630s.
+36 reused focused filters: distinct283/pass270/baseline13 in9.872686s; exact
+failed identities/messages match Root875D (thread IDs/plugin map order normalized).
+No new warnings. Existing String lifetime and JSON transport filters each PASS1.
+Kernel876A: cargo test --profile quick -p nyash_kernel --no-default-features
+--features lifecycle-core --lib --no-run --message-format=json PASS236.618233s.
+Run pinned test binary with NYASH_STR_CP=0, filter
+checked_string_pairs_preserve_bytes_independence_and_fault_cleanup and
+--test-threads=1: PASS1,397 filtered,0.002612s. Unicode CP positions, independent
+clamps/reversed-empty ranges, empty needle/miss, fresh full/empty pairs, invalid
+UTF8/stale/wrong token/reserved operands, output preservation and cleanup covered.
+Runtime876A: cargo build --profile quick -p nyash_lifecycle_kernel
+--message-format=json PASS7.272173s; archive SHA256
+15e44c133e414bdeaf9437c8ffd95b03c3cceb1e25843f265745a2803a60f2db.
+FFI876B: cc -fPIC -shared -Werror=format, existing four C sources
+(hako_llvmc_ffi.c,hako_aot.c,hako_json_v1.c,yyjson.c), yyjson include,
+PASS6.830226s; shared library SHA256
+1877c0b42d2a1197aec15d27e1986e0134f7f45d61938917f534b7e12091680f.
+HAKO_TEST_FFI_DIR=.../ffi-v876b HAKO_TEST_LIFECYCLE_ARCHIVE=.../runtime-v876a/
+libnyash_lifecycle_kernel.a NYASH_STR_CP=0 python3
+lang/c-abi/tests/published_native_array_physical_test.py .../ffi-v876b-string
+--checked-string: PASS, stderr empty; total wall time unmeasured. Both native and
+indexed paths run real ABI CP ops and preserve old Add/Print/End/NUL/MIN tests;
+Substring acquisition/read faults and malformed bounds/needle/End/scalar reuse
+reject or clean up at the required boundary before an invalid artifact.
+Supplemental existing borrowed_ingress fixture reused its two unchanged pointer
+forward hops and exact formal Copy. Replace its leaf Print with substring(1,3),
+length(slice),indexOf(original,"界"),print(slice/index),End(slice), then original
+store/Return. For original literal and owned "aé界z" callers, both Normal/store
+Fault runs output é界 then2 and release exactly1/2 pairs respectively. All4 PASS
+in12.122165s using real archive and existing runtime probe; no repo test duplicate.
+
+CLI213: cargo build --profile quick --bin hakorune --message-format=json
+PASS192.586672s, no new warnings; pinned binary SHA256
+bfcd10c7535981964387bbed53043414a086033d4062f9665fb7c61d9aaefe44.
+Canonical direct app command: CLI213 --grammar-profile canonical --backend mir
+--emit-exe OUT --emit-exe-nyrt runtime-v876a ORIGINAL_SOURCE; clean HAKO/NYASH
+then plugins disabled, route trace1, pure-first, compat replay none, stack16MiB,
+HAKO_AOT_FFI_LIB=ffi-v876b/libhako_llvmc_ffi.so. All source manifests match.
+App249 unchanged json-stream-aggregator exits1/no artifact in0.127663s, SAME
+slot20/Body7/Value core-expression-execution-pending, stderr byte-identical247.
+App250 unchanged mimalloc-lite EXE135.174449s/native0.001641s, original7 lines
+and exit0 exact; stderr byte-identical248. EXE SHA256
+35ff4ceef9019a3cad3f78c19225e87374c410a72e83099ef9a209a936e3339a.
+These are physical/runtime capability and app regression evidence, not source
+Text acceptance. General checked argument/entry/Core emission, initializer handoff,
+complete cleanup and both final source scans remain owed as recorded above.
+Retain matched CLI/FFI/runtime/source manifests, fixture helper and receipts until
+this series acceptance; then retire scratch (including superseded FFI876A).
+No old production caller has switched; shared legacy retirement is not claimed.
+Latest observed CI35681768498 failed at historical d4168473d5, not current green.

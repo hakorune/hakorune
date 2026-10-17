@@ -352,7 +352,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "invoke_normal_result")) {
         int kind = lv4_input_type(in, fn, dst);
         hako_lv4_block* producer = in->native ? NULL : lv4_index_block(&in->index[fi], lv4_u(ins, "invoke_block"));
-        yyjson_val* producer_op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+        yyjson_val* producer_op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") :
+            in->native ? yyjson_obj_get(lv4_term(hako_physical_block_by_id(fn, lv4_u(ins, "invoke_block"))), "operation") : NULL;
         const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" :
             kind == LV4_OUTCOME ? "outcome" : kind == LV4_MAP_VIEW ? "view" :
             kind == LV4_TEXT_VIEW ? "text" : NULL;
@@ -363,7 +364,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
               "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
               dst, producer_id, dst, producer_id, dst, dst);
-        } else if (kind == LV4_ARRAY_BORROW)
+        } else if (kind == LV4_I64 && hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == 2)
+          fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if (kind == LV4_ARRAY_BORROW)
           fprintf(f, "  %%v%u = load i64, ptr %%owned_get%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||

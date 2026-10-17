@@ -105,6 +105,7 @@ def checked_string_physical():
              "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
              "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",
              "nyash.string.checked_add_v1", "nyash.string.checked_print_v1", "nyash.string.checked_end_v1",
+             "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_index_of_v1",
              "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
     def execute(data, defines=(), status=0, endings=(), payload=None, primary=None):
         compile_input(data, True)
@@ -176,6 +177,41 @@ def checked_string_physical():
             else:
                 b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 10)
                 b["terminator"] = {"index": 0, "instruction": fault}; b["edges"] = []
+            compile_input(bad, False)
+        cp = copy.deepcopy(data)
+        projection = lambda source, dst: {"op": "invoke_normal_result", "invoke_block": source, "dst": dst}
+        cp_rows = [
+            block(0, inv("string_add", 1, 90, left=literal("aé界z"), right=literal("")),
+                  [entry[0], {"op":"const_i64", "dst":1, "value":1}, {"op":"const_i64", "dst":4, "value":3},
+                   {"op":"const_i64", "dst":5, "value":0}]),
+            block(1, inv("string_substring", 2, 10, value=owned(2), start=1, end=4), [projection(0,2)]),
+            block(2, inv("string_length", 3, 20, value=owned(3)), [projection(1,3)]),
+            block(3, inv("string_index_of", 4, 20, value=owned(3), needle=literal("界")), [projection(2,7)]),
+            block(4, inv("string_print", 5, 20, value={"kind":"normal_integer", "value":7}), [projection(3,8)]),
+            block(5, inv("string_print", 6, 20, value={"kind":"normal_integer", "value":8})),
+            block(6, inv("string_print", 7, 20, value=owned(3))),
+            block(7, end(3, 8, 21)), block(8, end(2, 9, 90)), block(9, {"op":"return", "value":5}),
+            block(10, end(2, 90, 91)), block(20, end(3, 21, 22)),
+            block(21, end(2, 90, 91)), block(22, end(2, 90, 91)), block(90, fault), block(91, fault)]
+        for b in list(cp_rows):
+            term = b["terminator"]["instruction"]
+            if term["op"] == "invoke" and term["operation"]["kind"] in ["string_end", "string_print"]:
+                target = term["normal"]; landing = 1000 + b["id"]; term["normal"] = landing
+                b["edges"][0]["target"] = landing
+                cp_rows.append(block(landing, {"op":"jump", "target":target, "args":None}))
+        for i, b in enumerate(cp_rows):
+            if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 200 + i
+        cp["functions"][0]["blocks"] = cp_rows
+        execute(cp, endings=[1,0], payload="2\n1\né界\n".encode())
+        execute(cp, ["-DTEST_FAIL_STRING_SUBSTRING"], 70, [0], primary=9304)
+        for read_at in [1,2]: execute(cp, [f"-DTEST_FAIL_STRING_READ_AT={read_at}"], 70, [1,0], primary=9305)
+        for mutation in ["owned_bound", "integer_receiver", "integer_needle", "end_scalar", "slice_scalar"]:
+            bad = copy.deepcopy(cp)
+            if mutation == "owned_bound": first(bad, "string_substring")["operation"]["start"] = 2
+            elif mutation == "integer_receiver": first(bad, "string_length")["operation"]["value"] = {"kind":"normal_integer", "value":1}
+            elif mutation == "integer_needle": first(bad, "string_index_of")["operation"]["needle"] = {"kind":"normal_integer", "value":1}
+            elif mutation == "end_scalar": first(bad, "string_end")["operation"]["value"] = 7
+            else: first(bad, "string_print")["operation"]["value"] = {"kind":"normal_integer", "value":3}
             compile_input(bad, False)
     print("checked String: indexed/native real ABI, literal NUL, MIN Integer, Normal/Fault LIFO End and malformed input refusal")
 

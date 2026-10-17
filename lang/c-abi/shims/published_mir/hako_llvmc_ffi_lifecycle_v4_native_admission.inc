@@ -63,6 +63,7 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
       if (faulted || origin < 0 || ri != 0 ||
           (lv4_type(fn, lv4_u(ins, "dst"), budget) == LV4_OWNED_STRING
               ? state[origin] <= LV4_STRING_RANK_BASE : state[origin] != 1)) return 0;
+      if (lv4_type(fn, lv4_u(ins, "dst"), budget) == LV4_I64) state[origin] = 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       int origin = lv4_native_origin(fn, lv4_u(ins, "value"), budget);
       if (origin < 0 || !state[origin] ||
@@ -90,11 +91,15 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
       if (lv4_type(fn, value, budget) != LV4_OWNED_STRING || origin < 0 ||
           state[origin] <= LV4_STRING_RANK_BASE || state[origin] != lv4_string_top(state, count)) return 0;
       normal[origin] = state[origin] = 0;
-    } else if (lv4_is(op, "kind", "string_add") || lv4_is(op, "kind", "string_print")) {
-      int add = lv4_is(op, "kind", "string_add");
-      if (state[bi] || !lv4_string_native_operand(fn, yyjson_obj_get(op, add ? "left" : "value"), state, budget) ||
-          (add && !lv4_string_native_operand(fn, yyjson_obj_get(op, "right"), state, budget))) return 0;
-      if (add && !lv4_string_push(state, count, &normal[bi])) return 0;
+    } else if (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
+      if (state[bi]) return 0;
+      for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)
+        if (!lv4_string_native_operand(fn, hako_physical_string_operand_at(op, role), state, budget)) return 0;
+      if (lv4_is(op, "kind", "string_substring") &&
+          (lv4_type(fn, lv4_u(op, "start"), budget) != LV4_I64 || lv4_type(fn, lv4_u(op, "end"), budget) != LV4_I64)) return 0;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
+          !lv4_string_push(state, count, &normal[bi])) return 0;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 2) normal[bi] = 1;
     } else if (lv4_is(op, "kind", "array_new")) {
       if (state[bi]) return 0;
       normal[bi] = 1;
@@ -142,8 +147,7 @@ static int lv4_native_admit(hako_lv4_input* in) {
     if (lv4_u(block, "id") == lv4_u(fn, "entry")) entry = bi;
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++)
       frames += lv4_is(yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction"), "op", "fault_frame_enter");
-    if (!lv4_is(term, "op", "invoke") || !(lv4_is(yyjson_obj_get(term, "operation"), "kind", "array_new") ||
-        lv4_is(yyjson_obj_get(term, "operation"), "kind", "string_add"))) continue;
+    if (!lv4_is(term, "op", "invoke") || !hako_physical_result_operation(yyjson_obj_get(term, "operation"), 1)) continue;
     yyjson_val* landing = hako_physical_block_by_id(fn, lv4_u(term, "normal"));
     yyjson_val* landing_rows = yyjson_obj_get(landing, "instructions");
     size_t results = 0;

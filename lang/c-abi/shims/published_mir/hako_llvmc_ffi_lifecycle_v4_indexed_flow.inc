@@ -192,12 +192,18 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     failed = 1;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
-    } else if (lv4_is(op, "kind", "string_add") || lv4_is(op, "kind", "string_print")) {
-      int add = lv4_is(op, "kind", "string_add");
-      if (birth || faulted || state[bi] ||
-          !lv4_string_indexed_operand(fn, yyjson_obj_get(op, add ? "left" : "value"), state) ||
-          (add && !lv4_string_indexed_operand(fn, yyjson_obj_get(op, "right"), state))) return 0;
-      if (add && !lv4_string_push(state, count, &normal[bi])) return 0;
+    } else if (hako_physical_string_operand_count(op)) {
+      if (birth || faulted || state[bi]) return 0;
+      for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)
+        if (!lv4_string_indexed_operand(fn, hako_physical_string_operand_at(op, role), state)) return 0;
+      if (lv4_is(op, "kind", "string_substring")) {
+        hako_lv4_value* start = lv4_index_value(fn, lv4_u(op, "start"));
+        hako_lv4_value* end = lv4_index_value(fn, lv4_u(op, "end"));
+        if (!start || !end || start->kind != LV4_I64 || end->kind != LV4_I64) return 0;
+      }
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
+          !lv4_string_push(state, count, &normal[bi])) return 0;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 2) normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "string_end")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       if (birth || !value || value->kind != LV4_OWNED_STRING || value->origin < 0 ||

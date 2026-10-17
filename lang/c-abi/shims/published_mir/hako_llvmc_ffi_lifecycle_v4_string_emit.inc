@@ -8,7 +8,10 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       "%%nyrt.string.owned = type { i64, i64 }\n"
       "declare i32 @\"nyash.string.checked_add_v1\"(ptr, i64, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_print_v1\"(ptr, i64, ptr)\n"
-      "declare i32 @\"nyash.string.checked_end_v1\"(ptr, i64, i64, i64)\n");
+      "declare i32 @\"nyash.string.checked_end_v1\"(ptr, i64, i64, i64)\n"
+      "declare i32 @\"nyash.string.checked_length_v1\"(ptr, i64, ptr, ptr)\n"
+      "declare i32 @\"nyash.string.checked_substring_v1\"(ptr, i64, ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.string.checked_index_of_v1\"(ptr, i64, ptr, ptr, ptr)\n");
   for (size_t fi = 0; fi < yyjson_arr_size(in->functions); fi++) {
     yyjson_val* blocks = hako_physical_blocks(yyjson_arr_get(in->functions, fi));
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
@@ -16,13 +19,12 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       int call = lv4_is(op, "kind", "ordinary_call");
       if (!call && (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end"))) continue;
-      int add = lv4_is(op, "kind", "string_add");
       yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
-      size_t count = call ? yyjson_arr_size(args) : add ? 2u : 1u;
+      size_t count = call ? yyjson_arr_size(args) : hako_physical_string_operand_count(op);
       for (unsigned role = 0; role < count; role++) {
         yyjson_val* arg = call ? yyjson_arr_get(args, role) : NULL;
         yyjson_val* operand = call ? (lv4_is(arg, "kind", "borrowed_text") ? yyjson_obj_get(arg, "operand") : NULL) :
-            yyjson_obj_get(op, add ? (role ? "right" : "left") : "value");
+            hako_physical_string_operand_at(op, role);
         if (!lv4_is(operand, "kind", "static_text")) continue;
         yyjson_val* text = yyjson_obj_get(operand, "utf8");
         size_t len = yyjson_get_len(text);
@@ -43,10 +45,10 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
     return;
   }
   if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end")) return;
-  int add = lv4_is(op, "kind", "string_add");
-  for (unsigned role = 0; role < (add ? 2u : 1u); role++)
+  int result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind")));
+  for (unsigned role = 0; role < hako_physical_string_operand_count(op); role++)
     fprintf(f, "  %%strarg%u_%u = alloca %%nyrt.string.operand, align 8\n", b, role);
-  if (add) fprintf(f, "  %%strout%u = alloca %%nyrt.string.owned, align 8\n", b);
+  if (result) fprintf(f, "  %%strout%u = alloca %s, align 8\n", b, result == 1 ? "%nyrt.string.owned" : "i64");
 }
 static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
     size_t fi, uint32_t b, unsigned role) {
@@ -106,11 +108,14 @@ static void lv4_string_emit(FILE* f, yyjson_val* op, size_t fi, uint32_t b,
     uint32_t value = lv4_u(op, "value");
     fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_end_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%t%u)\n", b,site,value,value);
   } else {
-    int add = lv4_is(op, "kind", "string_add");
-    for (unsigned role = 0; role < (add ? 2u : 1u); role++)
-      lv4_string_operand_emit(f, yyjson_obj_get(op, add ? (role ? "right" : "left") : "value"), fi,b,role);
-    fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_%s_v1\"(ptr %%frame, i64 %llu, ptr %%strarg%u_0", b,add?"add":"print",site,b);
-    if (add) fprintf(f, ", ptr %%strarg%u_1, ptr %%strout%u",b,b);
+    const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
+    size_t count = hako_physical_string_operand_count(op);
+    for (unsigned role = 0; role < count; role++)
+      lv4_string_operand_emit(f, hako_physical_string_operand_at(op, role), fi,b,role);
+    fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_%s_v1\"(ptr %%frame, i64 %llu, ptr %%strarg%u_0", b,kind + 7,site,b);
+    if (count == 2) fprintf(f, ", ptr %%strarg%u_1", b);
+    if (lv4_is(op, "kind", "string_substring")) fprintf(f, ", i64 %%v%u, i64 %%v%u", lv4_u(op, "start"), lv4_u(op, "end"));
+    if (hako_physical_string_result(kind)) fprintf(f, ", ptr %%strout%u", b);
     fprintf(f, ")\n");
   }
   fprintf(f, "  switch i32 %%status%u, label %%invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",b,normal,fault);

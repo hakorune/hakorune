@@ -35,9 +35,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         .get(invoke_block)
                         .and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke {
-                        operation: InvokeOperation::String(Op::Add { .. }),
+                        operation: InvokeOperation::String(operation),
                         ..
-                    })
+                    }) if operation.owns_normal_result()
                 ) {
                     if results.insert(*dst, *invoke_block).is_some()
                         || producers.insert(*invoke_block, *dst).is_some()
@@ -55,8 +55,11 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 ..
             } = instruction
             {
-                if matches!(operation, Op::Add { left, .. } if !left.is_text()) {
-                    return Err("string-add-left-domain");
+                if !operation.valid_operand_domains() {
+                    return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
+                }
+                if matches!(operation, Op::Substring { start, end, .. } if results.contains_key(start) || results.contains_key(end)) {
+                    return Err("string-integer-domain");
                 }
                 for operand in operation.operands() {
                     match operand {
@@ -147,7 +150,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             {
                 next_faulted |= target == *fault_landing;
                 if target == *normal_landing
-                    && matches!(operation, InvokeOperation::String(Op::Add { .. }))
+                    && matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result())
                 {
                     next.push(*producers.get(&id).ok_or("string-result-missing")?);
                 }
@@ -255,7 +258,7 @@ mod tests {
                 ..
             } = term
             {
-                if !matches!(operation, InvokeOperation::String(Op::Add { .. })) {
+                if !matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result()) {
                     let target = *normal_landing;
                     *normal_landing = BasicBlockId(1000 + *id);
                     trampolines.push((
@@ -298,6 +301,28 @@ mod tests {
         let verified = super::super::check_function(&good);
         assert!(verified.is_ok(), "{verified:?}");
         assert_eq!(check(&good), Ok(()));
+        let mut slice = good.clone();
+        if let Some(MirInstruction::Invoke { operation, .. }) = &mut slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator {
+            *operation = InvokeOperation::String(Op::Substring { value: Operand::OwnedString(ValueId(2)), start: ValueId(1), end: ValueId(1) });
+        }
+        assert!(super::super::check_function(&slice).is_ok());
+        assert_eq!(check(&slice), Ok(()), "substring has the same Normal acquisition and both Fault prefixes");
+        let mut bad_slice = slice.clone();
+        if let Some(MirInstruction::Invoke { operation: InvokeOperation::String(Op::Substring { start, .. }), .. }) =
+            &mut bad_slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator { *start = ValueId(2); }
+        assert_eq!(check(&bad_slice), Err("string-integer-domain"));
+        for operation in [Op::Length { value: Operand::OwnedString(ValueId(3)) },
+            Op::IndexOf { value: Operand::OwnedString(ValueId(3)), needle: Operand::StaticText { utf8: "界".into() } }] {
+            let mut read = good.clone();
+            if let Some(MirInstruction::Invoke { operation: slot, .. }) = &mut read.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator {
+                *slot = InvokeOperation::String(operation);
+            }
+            read.blocks.get_mut(&BasicBlockId(1002)).unwrap().instructions.push(MirInstruction::InvokeNormalResult {
+                invoke_block: BasicBlockId(2), dst: ValueId(10),
+            });
+            assert!(super::super::check_function(&read).is_ok());
+            assert_eq!(check(&read), Ok(()), "scalar reads borrow without acquisition or End");
+        }
         let cases: Vec<(u32, MirInstruction, &str)> = vec![
             (3, end(2, 4, 21), "string-end-order-or-not-live"),
             (4, end(3, 5, 90), "string-end-order-or-not-live"),

@@ -395,6 +395,14 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         ) -> u32;
         #[link_name = "nyash.string.checked_end_v1"]
         fn checked_end(storage: *mut std::ffi::c_void, site: u64, handle: u64, token: u64) -> u32;
+        #[link_name = "nyash.string.checked_length_v1"]
+        fn checked_length(storage: *mut std::ffi::c_void, site: u64, value: *const Operand, out: *mut i64) -> u32;
+        #[link_name = "nyash.string.checked_substring_v1"]
+        fn checked_substring(storage: *mut std::ffi::c_void, site: u64, value: *const Operand,
+            start: i64, end: i64, out: *mut OwnedText) -> u32;
+        #[link_name = "nyash.string.checked_index_of_v1"]
+        fn checked_index_of(storage: *mut std::ffi::c_void, site: u64, value: *const Operand,
+            needle: *const Operand, out: *mut i64) -> u32;
     }
     let literal = |bytes: &[u8]| Operand {
         kind: 1,
@@ -493,6 +501,58 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
             assert_eq!(checked_add(pointer, 6, &left, &right, &mut out), 2);
             assert_eq!(out, sentinel);
         }
+        assert!(frame.diagnostics().unwrap().0.is_none());
+        let mut base = sentinel;
+        assert_eq!(checked_add(pointer, 20, &literal("aé界z".as_bytes()), &literal(b""), &mut base), 0);
+        for operand in [literal("aé界z".as_bytes()), owned(base)] {
+            let mut count = 999;
+            assert_eq!(checked_length(pointer, 21, &operand, &mut count), 0);
+            assert_eq!(count, 4);
+            for (start, end, expected) in [
+                (1, 3, "é界"), (-5, 99, "aé界z"), (3, 1, ""),
+                (i64::MIN, i64::MAX, "aé界z"), (2, 2, ""), (99, 100, ""),
+            ] {
+                let mut slice = sentinel;
+                assert_eq!(checked_substring(pointer, 22, &operand, start, end, &mut slice), 0);
+                assert_ne!(slice.handle, base.handle);
+                assert_ne!(slice.token, base.token);
+                assert_eq!(read(slice), Ok(expected.into()));
+                assert_eq!(checked_end(pointer, 23, slice.handle, slice.token), 0);
+            }
+            for (needle, expected) in [("界", 2), ("", 0), ("absent", -1)] {
+                let mut index = 999;
+                assert_eq!(checked_index_of(pointer, 24, &operand, &literal(needle.as_bytes()), &mut index), 0);
+                assert_eq!(index, expected);
+            }
+        }
+        for bad in [integer, literal(&[0xff]), owned(first), Operand { reserved: 1, ..owned(base) },
+            Operand { token: base.token + 1, ..owned(base) }] {
+            let mut scalar = 999;
+            let mut slice = sentinel;
+            assert_eq!(checked_length(pointer, 25, &bad, &mut scalar), 2);
+            assert_eq!(checked_index_of(pointer, 25, &bad, &literal(b""), &mut scalar), 2);
+            assert_eq!(checked_index_of(pointer, 25, &owned(base), &bad, &mut scalar), 2);
+            assert_eq!(checked_substring(pointer, 25, &bad, 0, 1, &mut slice), 2);
+            assert_eq!(scalar, 999);
+            assert_eq!(slice, sentinel);
+        }
+        let mut full = sentinel;
+        let mut empty = sentinel;
+        assert_eq!(checked_substring(pointer, 26, &owned(base), 0, 99, &mut full), 0);
+        assert_eq!(checked_substring(pointer, 26, &owned(base), 4, 0, &mut empty), 0);
+        assert_ne!(full.handle, empty.handle);
+        assert_ne!(full.token, empty.token);
+        assert_eq!(checked_length(pointer, 27, &owned(base), std::ptr::null_mut()), 2);
+        assert_eq!(checked_substring(pointer, 27, &owned(base), 0, 1, std::ptr::null_mut()), 2);
+        assert_eq!(checked_index_of(pointer, 27, &owned(base), &literal(b""), std::ptr::null_mut()), 2);
+        assert_eq!(checked_end(pointer, 28, base.handle, base.token), 0);
+        assert_eq!(read(full), Ok("aé界z".into()));
+        assert_eq!(read(empty), Ok(String::new()));
+        assert_eq!(checked_end(pointer, 29, empty.handle, empty.token), 0);
+        assert_eq!(checked_end(pointer, 29, full.handle, full.token), 0);
+        let mut count = 999;
+        assert_eq!(checked_length(pointer, 30, &literal(b"\0"), &mut count), 0);
+        assert_eq!(count, 1);
         assert!(frame.diagnostics().unwrap().0.is_none());
         // Existing primary stays primary, IO fault becomes suppressed; every
         // successful acquisition remains End-able after the writer fails.
