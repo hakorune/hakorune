@@ -508,3 +508,26 @@ post-hoc MIR type inference. Reuse literal and arithmetic append owners and one
 FieldSet/pins/Fault/Normal/finished-projection owner. Both final scans independently
 check LOCAL New/Home, RHS producer chain and write Normal -> read dominance;
 formal null/integer guard checks and usize corroboration stay origin-specific.
+
+## V846 common checked FieldSet physical owner (BoxShape, 2 commits)
+
+Same S0 physical dependency; no acceptance expansion. First extract common
+pins/Invoke/Normal continuation/recorded bindings/seal/Fault inventory validation
+from the existing borrowed packet; original source and exact operand receipt
+validation remain mandatory in that packet. Then move the sole checked FieldSet
+writer behind that physical graph. No LOCAL admission or new queue/writer;
+source origin and full RHS proof still owed before activation.
+Scope: existing root_call_entry borrowed field projection plus one physical leaf,
+selected borrowed writer/common writer leaf and their resolving reexports.
+Existing real borrowed-write positive/refusal regressions and final consumers
+validate behavior preservation; do not add implementation-mirroring tests.
+
+V846 first BoxShape step: rootB build76.445845s, existing7 focused regressions
+PASS (source frame identity, both-scan store roles/guards/coverage, nullable-source,
+ABI numeric contract, layout drift, published unit store). No warning delta.
+Worker compared extraction to HEAD: identical source/read/pin checks, mandatory
+binding/Invoke/Normal checks, Home unwind and Fault inventory order. One physical
+state owner, no duplicate OnceCell/instruction list. RootA32.427299s failed on a
+parameter-shadowing extraction mistake, fixed before rootB PASS; no waiver.
+Native real writer/publication acceptance remains pending the second BoxShape
+step, using canonical unchanged mimalloc-lite with matching backend/runtime.

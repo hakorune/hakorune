@@ -4328,3 +4328,8 @@ execution eligibility through affine take. LOCAL readiness rechecks that same Rc
 on pending claims and committed rows; allocation-only source never becomes an
 initialized execution plan by retention. Existing actual classification still
 requires the stronger successful construction eligibility.
+
+Checked FieldSet physical correspondence is owned by CheckedFieldWriteGraphV1:
+LocalSSA pins, original Invoke/Normal continuation, finishing and Fault inventory.
+Source packets retain source-origin and exact operand proofs; the graph itself
+cannot authorize a field write or replace an independent final source scan.
