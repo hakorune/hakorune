@@ -877,22 +877,13 @@ Print RED only at pinned V827b three-hop New prior-home baseline. Independent
 Handle/Provided Print publication and final base/Normal/Fault/raw substitutions
 PASS. Actual M190 C frontier follows below; no source landing or full-goal claim.
 
-V829 Decision (BoxShape, read-only mapped): same borrowed MirFunction, original
-packet/Field actual and current context. Transient origins/dominators and
-terminator-derived reverse edges are shared; alias facts are per-read End batch.
-No persistent cache, Home/source issuance or new authority. Reverse edges must
-not use metadata successors. Exact producer/order, unknown origins, same-slot
-reads, mutation/transfer/destruction and rejoining Fault still refuse; destructive
-unknown origins are checked only within visited intervals. Terminating Fault stays
-separate. Existing read/support validators own execution; no C/EXE completion claim.
-
-V829a root70.018128s PASS; focused67 executions PASS (overlapping filters),
-aggregate Print RED only at the same pinned V827b three-hop New baseline. Existing
-interval destruction/mutation/transfer/Copy/Phi and terminating/rejoining Fault
-checks PASS. Read-only worker reviewed implementation: no acceptance broadening;
-terminator reverse edges, finish exclusion and original actual census preserved.
-Per-function lazy analysis and per-actual End batch replace repeated construction;
-source unlanded; CLI173/application evidence follows below.
+V829 source-interval BoxShape contract and verification: **68981c01b7**.
+Source stays WIP. Same borrowed function/packet/context; transient origin and
+terminator reverse-edge analysis shared per function, alias facts per End batch.
+No persistent cache/Home/source issuance. Unknown origins, mutation/transfer,
+same-slot reads and rejoining Fault still refuse; terminating Fault stays distinct.
+Focused67 PASS; only aggregate Print's pinned V827b New-provider baseline RED,
+subsequently fixed at V832. Retain current source acceptance and landing duty.
 
 V830 BoxShape contract/source and full verification: **a341e08cec**. Original
 JSON edges, definition uniqueness/order, terminal-vs-row census, duplicate-ID
@@ -942,7 +933,7 @@ wrong zero-filter harness classification are preserved at **f3efcde2bc**.
 Only eight Rust/owner-doc paths changed from V829a; typed provider normalization
 physically removes the Array-only discharge writer/walker. CLI174 build167.051369s,
 retained binary44b326de76dc94bbe46be7f01c12b9fea28e6c1037d6d0015ce394ee6719acd6.
-Actual app both-opts remains live; app176 native repin PASS above.
+Actual app both-opts V832a PASS3339.060297s; app176 native repin PASS above.
 No source landing or whole-row acceptance claimed. Fixed11 terminal RED379.209432s: PASS4/FAIL7;
 three direct EXE positives (Birth, Birth-param, method), plus one empty boundary
 marker PASS. Failures: typed-newbox PrefixNotCovered Body1; json-stream Static
@@ -969,26 +960,33 @@ PASS. Canonical route guard intentionally ABORTED its redundant debug build;
 never counted PASS. Two unchanged763-line owner warnings follow RULES§8.
 Actual root test remains on b4435f1e1d47490868590005a2b98a1ef169eeb9f2c51b2831ca6229692ed3b5.
 
-V833 additive runtime32 boundary landed and pushed at **8a2d2974a8**.
-That commit preserves the full dependency Decision, exact source scope, commands,
-provenance and verification: primary and isolated HEAD+32 kernel builds PASS,
-Fault34/typed-object33 PASS on both, existing Array53 PASS. Existing DirectSlotV0
-assertion repaired to its unchanged positive-pointer handle law; negative
-indexed-generation handles retain separate tests. No compiler/C cutover or
-selected old-edge retirement is claimed by this additive runtime prerequisite.
-C-only landing remains refused: HEAD Rust lacks required FieldSet numeric-check
-and Return result_origin columns. Producer and consumer must land together;
-no fallback/version guess. Caller source remains the sealed move/loan authority;
-runtime physical checks never issue Home. Array C execution, full S0 acceptance
-and remaining Rust/C source landing remain owed; unrelated ownership.md retained.
-Production runtime/header/Array match runtime808; existing archive remains valid.
-Post-landing cleanup verified every isolated path was preserved in8a2d2974a8,
-then removed the owned isolated checkout and two superseded copied kernel test
-binaries. Shared target, manifests/logs and current primary kernel pin remain.
-Keep runtime808b/CLI174/C831e/original wire until coordinated source landing;
-retire superseded pins once that landing's required evidence no longer needs them.
-Actual both-opts root PID713636/session80669 remains live on its original binary;
-last verified at49min, CPU96%, false trace current/true trace not yet current.
-Read-only worker could not obtain stack (ptrace denied); main waits, test thread
-runs. This proves a live CPU-bound test, not finite completion or nontermination.
-Do not restart or count it PASS; original selected acceptance remains pending.
+V833 runtime32 landing, verification and post-landing cleanup: **8a2d2974a8**,
+**68981c01b7**. Additive ABI-compatible prerequisite only, not compiler cutover.
+C-only landing remains refused: HEAD Rust lacks required numeric-check and
+Return-origin columns; producer and consumer must land together. Keep current
+runtime808b/CLI174/C831e/wire/kernel pins until coordinated source landing.
+Original actual V832a both-opts PASS3339.060297s; no restart. Receipt
+`v832a-root.extra.extra.focused.json`, same pinned binary/source manifest above.
+
+V834 same-series BoxShape Decision (worker read-only source-to-consumer review):
+Live low-frequency DWARF samples locate repeated scalar loan grounding under
+Mixed result recheck → input selection → callable scalar participant → each
+terminal/cleanup anchor. Each immutable scan recomputes the full source/field
+fixed point for every loan. Scope: the existing scalar loan owner and README;
+share one lazy grounding fold within the SAME borrowed ingress/result scan.
+Keep original target, result row/class, nonempty owner/unique Return census,
+dependencies and facts Rc checks for EVERY loan. No public set injection,
+persistent cache, source/Home permission, new classifier or acceptance expansion.
+Lazy initialization preserves anchors-absent Ok(false), target/source error order
+and short-circuit refusal. Existing source/result/retained-loss/dependency tests
+plus current actual acceptance remain required; no new redundant fixture.
+V834a build RED91.991126s: one remaining old helper caller (E0425), corrected.
+V834b root build PASS95.460835s. Existing scalar identity, qualified retained-loss
+and composed dependency tests3 PASS (.055866/.027874/.054154s incl process).
+Root-route/thin-shim/pointer/diff PASS; worker confirms no input interior mutation
+and same edge-before-dedup/error order. No acceptance widening/new test added.
+Changed-source default-stack run terminated exit-6/5.885892s (stack overflow),
+not PASS. Same binary now runs with the card's existing16MiB condition (V753),
+PID799336/session67424; separate TMPDIR preserves original traces. Binary b3c1817d0ab518f2def34f9c044e6b8982edafaa6c6e204247a9c10cacc684eb;
+manifest v834b-root.source.json, run v834c-actual.started/receipt.json. No speed
+claim until terminal; changed scalar owner/README remain part of Rust/C WIP.

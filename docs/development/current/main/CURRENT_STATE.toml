@@ -25,7 +25,8 @@ CLI174/C831e/runtime808b unchanged M190 app176 canonical EXE/run/exact11/exit0 P
 (compile484.178246s, native .001699s). First mimalloc-lite milestone remains PASS.
 V832 three-hop New-provider source/publication/native and six runtime Faults PASS;
 Array-only provider discharge writer/walker replaced by existing typed owners.
-Current independent actual both-opts test remains live, not accepted or restarted.
+V832a independent actual both-opts PASS3339.060297s; no restart.
+V834 scopes repeated grounding to one immutable scan; focused3 PASS, actual live.
 Fixed11 suite PASS4/FAIL7; only three are direct EXE positives, fourth is a marker.
 Required Array C, PlanSourcePublication Set, full FieldWrite/initialization,
 coordinated Rust/C cutover/retirement and fixed acceptance remain owed.
