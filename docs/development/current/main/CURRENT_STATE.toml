@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/c-received-field-cohort"
+current_blocker_token = "required-object-forward/new-provider-prior-home"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,7 +17,13 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted, Rust WIP unlanded; CLI173/M190 app174 C unsupported-cohort.
+RequiredObjectForwardS0 unaccepted; cumulative source WIP unlanded.
+CLI173/C831e/M190 app175 canonical direct EXE/run/exact11lines/exit0 PASS.
+Compile412.394787s, native .001497s; original wire identical to prior app174.
+C owned16/field-return6/stored-child and independent wire negatives PASS.
+Remaining selected source acceptance: existing three-hop New-provider Print
+positive rejects lexical-call-prior-home-unavailable (confirmed baseline).
+Current Rust both-opts/fixed acceptance and source landing remain owed.
 First milestone PASS, re-pinned V801b/CLI149/app149: unchanged mimalloc-lite
 canonical direct EXE, run, exact existing stdout and exit0. No source landing.
 V801b whole-source compiled-entry/ABI/backend PASS both opts, including both
@@ -30,9 +36,8 @@ unchanged M189 stop advances caller-key to formal-root. Main input5/static
 terminal7/source identity and drift checks PASS. Four broadened source test
 reds reduced to one; remaining full page_heap prefix6/2 test lacks executable
 static input at Layout.normalize_size after original dependencies are supplied.
-V803 retains Formal/Acquired Mixed anchors, sole original initializer/rootRc;
-source/actual identity and C owned16/field-return6 regressions PASS. Mixed runtime
-acceptance and full field/Home/End remain owed. C regressions do not prove it.
+V803 Formal/Acquired anchors and source/actual identity remain premises;
+C-only regressions do not substitute for full source/field/Home/End acceptance.
 CLI154 unchanged M189 now passes Main argument generation and package issuance;
 first stop is callable-main/lowering print-expression/source-unavailable.
 V810/811 field+Array→New→Birth and V812 non-Me source focused17 PASS; V813
@@ -41,19 +46,14 @@ V815f source/final50 PASS. CLI162 unchanged M189 direct EXE/run/exact output PAS
 C816 M189 repeats PASS (c3003843fd). C830 shape a341e08cec: same M190 wire
 V2 951.529179s→7.596664s (same V4 refusal); no new cohort/EXE. V817e source/final78 and V818b source/domain81 PASS. CLI164 M190
 passes declared-object-class; Main Body7 field actual now refuses. Source unlanded.
-V806 source-observation test repairs are unaccepted: omitted Static identity and
-no checked marker, consumed Loop loans checked in preissued V2 product. Latest
-focused test passes Static/Loop checks, then stale Heap definition absence RED.
 Existing M189/M190, unchanged and on canonical direct EXE, select required
 Mixed0/1/2 and Borrowed0/2 plus Forward field support, anchor and conditional End.
-Publication/body validation is not reached-runtime evidence. No fake Main call,
-.hako workaround, new registry, fallback or optional tiny Root lane.
+No fake Main call, .hako workaround, new registry, fallback or optional tiny Root lane.
 Required Array C execution, PlanSourcePublication Set, full field Birth/support
 and remaining real FieldWrite pins stay owed. V734/V739 source connections and
 fb512d0549 if-merge normalization remain premises, not new tasks.
-Full MIRBUILDER-FINAL-PIPELINE-v1 remains open: fixedsuite/integration,
-production cutover and retirement, R6/R7/Loop/authority/parser and nondelegating
-selfcompile. Accepted history stays in the active card and cited commits.
+Full goal remains open: fixedsuite/integration, cutover/retirement,
+R6/R7/Loop/authority/parser and nondelegating selfcompile; history is in the card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

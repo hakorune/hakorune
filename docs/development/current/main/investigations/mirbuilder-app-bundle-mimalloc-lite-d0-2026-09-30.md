@@ -39,7 +39,8 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   V813 received-read current packet checks are pinned premises below.
   CLI162 unchanged M189 now passes canonical direct EXE/run/exact proof output;
   V815f source/final50 PASS connects original Local-New stored scalar calls.
-  V814 deeper-provider and typed Nullable/full M190 conditions remain owed.
+  M190 native acceptance now PASS on pinned C831e/app175 WIP. V814 deeper-provider
+  source acceptance and independent final validation remain owed.
   Landed separate BoxShape removes quadratic C physical block lookup; preserve
   the completed source→final connection and required whole-row acceptance.
   Cumulative source WIP remains unlanded; this is not full-goal completion.
@@ -57,59 +58,50 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   distinct Mixed conditional obligations and Home-less BorrowedNullable results;
   substitute inner callee ordinal through the actual to the outer formal rather
   than comparing those ordinals. JSON params already exclude the receiver.
-- Do not invent Main-local support: actual mimalloc Main/run has no call to
-  Heap.reallocResult. Its body-internal replacement=me.realloc is real source.
+- Do not invent Main-local support: mimalloc-lite Main/run has no call to
+  Heap.reallocResult; M190 has real selected reallocResult calls and Field actuals.
   Publication alone is not incoming authority. Wider outgoing TypedHome or
   ReceivedNullable support stays refused unless an actual frontier requires it.
 - No AST rewrite, .hako workaround, fallback, legacy retry, second Builder or
   competing source/classification registry. Extend the existing result contract.
 
-## Latest unchanged product measurement
+## Latest unchanged product measurement — C831e / app175
 
-**First milestone PASS on pinned cumulative WIP:** unchanged app148 canonical
-EXE generation rc0 **575.569618s**, direct execution rc0 **.001782s**, stdout
-exactly matches the existing seven-line smoke expectation below. No compat
-replay or source rewrite. Source landing/whole-series acceptance remains open.
-All30fn/2031blocks/856values passed C classification/flow/emission. V2 structural
-validation361.941263s, V4 2.083778s, emit .033693s/library .108356s. These overlap
-root/native regressions and are not a performance improvement claim.
+**M190 PASS on pinned cumulative WIP:** unchanged
+`apps/mimalloc-result-contract-proof/main.hako` canonical direct EXE generation
+rc0 **412.394787s**, native execution rc0 **.001497s**, exact existing ten-line
+guard expectation plus canonical `Result: 0`. No source rewrite or compat replay.
+CLI173 / C831e / runtime808b; command and original receipts retained under
+`/tmp/mirbuilder-required-forward-resume` as `app-v175-result-contract.json`,
+`.run.receipt.json`, `.run.stdout`, `.run.stderr`, and `.wire-capture.json`.
 
-```text
-target/quick/hakorune --grammar-profile canonical --backend mir \
-  --emit-exe <fresh-output> --emit-exe-nyrt <runtime-v757> apps/mimalloc-lite/main.hako
-NYASH_DISABLE_PLUGINS=1 NYASH_LLVM_ROUTE_TRACE=1
-HAKO_BACKEND_COMPILE_RECIPE=pure-first HAKO_BACKEND_COMPAT_REPLAY=none
-HAKO_AOT_FFI_LIB=<ffi-v798/libhako_llvmc_ffi.so>
-```
-
-| identity | SHA256 / source |
+| identity | SHA256 |
 | --- | --- |
-| unchanged app | `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` |
-| CLI147 binary | `0c7bf6084d517c3cc5588b322a87d724bd3e9763613b22aba761c3e77234cb68` |
-| FFI798 | `ec0ac2127f1b2d4a8aebef80c92086c362c0b73794b1921ce15071a9d0c4ef4d` |
-| runtime757 archive | `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b` |
+| unchanged M190 | `598e0edb2fc0a60214f3f11dd91654517138ee34083528afbf35addd3cbfa9e4` |
+| CLI173 | `d623aa608403e15311bf8ebf5afb93257d7d19926d82ee128be65d74ea6d9c14` |
+| FFI831e | `ee5d244562c8104dd080bcf20aff008f854babce17496817346644f546d350d7` |
+| runtime808b | `2b6083aac7e2d168fe8f76eb821c079900d15e69c8da0bc5eb843a05eba9222c` |
+| generated EXE | `17cf5fc4aa5c9dd1d3f076888f5e26c6665d0b2fcca87a45c72d69e87844f2a2` |
 
-Source manifest/run: `cli-v147.source.json`, `app-v148.json` and
-`app-v148.run.receipt.json` under the evidence
-base below. Previous CLI140/141 results are retained below; earlier CLI139 is at f6f942f5d0.
-App148 source/C validation overlapped V797 bothopts/native39 tests;
-these durations are measured results, not a speed baseline.
+Original wire equals app174: `707a1b47f6e66f899271f0779961fffed72ce53120be472d5449d76341ef5332`.
+All694 value kinds / all6554 flow and emitted blocks pass. Actual canonical C
+V2 **7.606468s**, V4 **166.648943s**, emit **.464642s**, library **.288137s**.
+Original Field loans, Provided/Forward support, child End and wrapper cleanup
+reach native execution. This does not accept cumulative source WIP or the row.
+C831e owned16 / field-return6 / stored-child regressions PASS; independent
+original-wire missing End, wrong formal, numeric move, nullable raw reads and
+early parent End negatives all reject without artifact. Shared interval unit PASS.
+Known plugin-disabled stderr is informational. Scratch harness's extra empty-
+stderr assertion was stricter than acceptance; preserved original stdout/exit
+prove PASS without rerunning or filtering output.
 
-The generated EXE SHA256 is
-`b2e83cbedc6a162ceba64b89b8a1d3a66046148e31a5c06416da924c03205be1`.
-Execution: `NYASH_DISABLE_PLUGINS=1 <fresh app148 EXE>`, clearing inherited
-HAKO_/NYASH_ overrides. stdout exact, exit0; stderr only the expected plugin-
-disabled warning. Expected source: existing `mimalloc_lite_exe.sh` (unchanged).
-
-```text
-mimalloc-lite
-small_allocs=9 frees=3 reused=3 peak=6 free=2
-medium_allocs=4 frees=1 reused=1 peak=3 free=1
-requested_bytes=360
-outstanding=9
-summary=ok
-Result: 0
-```
+First milestone unchanged mimalloc-lite app148 and later CLI149/app149 repin
+remain PASS; full seven-line output, command and identities are preserved in
+this card at **fa6d0cb155** (earlier full evidence **8508d9d37d**).
+Next existing source acceptance is the three-hop New-provider Print positive
+`original_print_source_reaches_normal_compiler_and_finished_string_lifetimes`:
+`lexical-call-prior-home-unavailable` is an independently confirmed baseline RED.
+Keep original wire, manifests and binaries until source landing and C closeout.
 
 ## Verified premises; no automatic product acceptance
 
@@ -367,7 +359,7 @@ series acceptance and landing disposition. app148 first EXE/input/run receipts
 are preserved until that decision. Native override test distinguishes host9f6
 from observer757; product app pins757 only. Source WIP remains unaccepted.
 
-## Current acceptance connection
+## Earlier acceptance connection — V799, superseded below
 
 V799 construction begun: existing observation owner joins exact self Nullable
 local flow/site/callee/destination/argument ordinal+source sites/canonical class
@@ -909,42 +901,18 @@ QualifiedObject priority and exact actual/formal joins remain mandatory. Passive
 AnchoredFields grants no End; descriptor() remains closed. CLI171/app172 reached
 Main43 Body10 Print source-unavailable, before final/C publication. Full goal open.
 
-V828 Decision (same Forward series, source→print consumer; read-only mapped):
-field_read_receiver omits original ReceivedHandle. Normalize Nullable acquisition
-into Object{original acquisition, nullable}, checked against same ObjectCallSourceLoan
-and exact initializer/current target/root Rc; do not mark it New/alias/non-null.
-Connect nested root using this same source and original packet Normal/real Home.
-Each hop separately keeps residence/nullability; Handle wrapper does not prove
-nullable child non-null. Existing field-read progress, checked FieldGet Normal/Fault,
-expression projection and final census own execution; no new registry or fake Home.
-Scope: field request/local flow, received source, nested source root/batch,
-existing physical/final field/Print owners, owner README and existing tests.
-Direct-source normalization is internal preparation; whole nested Field/Fault/final
-and unchanged M190 must be remeasured before any product claim. C closure still owed.
-Worker mapping refinement: received-field demand must join original SourceInstance
-input selection/finisher/full-slot argument lender, keeping QualifiedObject priority.
-New direct Handle Print fixture V828a: source demand=true, observation=Some(true),
-but typed QualifiedObject-only arguments=None; lifecycle route absent, placement
-correctly rejects. Fix common source input participation; never loosen placement.
-Nested-only demand must borrow the same root Received loan, not miss its input.
-
-V828 refinement: normalize existing Nullable LOCAL input issuer to owning Object
-LOCAL input (Handle/Nullable exact kind+class+root Rc), before incoming/Observe.
-No Mixed/BorrowedNullable/ForwardFormal roots; Object roots are nonempty all Fresh.
-Current-target lender follows affine SourcePending/Ready/Taken with explicit
-Lowering/Finalized context; the graph callback borrows that current owner.
-V828a–f root/CLI/native mapping and complete receipts: **6db78387d5**.
-CLI172/app173 unchanged M190 crossed Rust Print/Main/finishing, then refused C
-V4 unsupported-cohort: RED1325.728371s/no EXE; V2=873.403207s, V4=0.256463s.
-Source WIP remains unlanded. Root g below supersedes earlier focused results.
-
-V828g root56.546037s/focused66 executions PASS; contracts and full earlier evidence
-in **6db78387d5**. Aggregate Print RED only at pinned V827b three-hop New prior-home
-baseline, with independent cases continuing. Handle→Print and Provided nullable
-child→checked-scalar publication/mutations PASS. Late input classifier retired;
-canonical owning LOCAL issuer preserves exact kind/original roots/current graph.
-All Rust source remains unlanded. CLI172 predates d–g input/context fixes; its
-V4 kind-index refusal required original-wire capture, now obtained below.
+V828 original Received→nested Print and owning LOCAL input contracts/evidence:
+**6db78387d5**, **fa6d0cb155**. Source remains unlanded. Same original acquisition,
+initializer/current target/full root Rc; no New/non-null/class-from-use shortcut.
+Each path hop keeps nullability; nullable child uses existing checked scalar
+Normal/Fault and final census. Canonical owning LOCAL input issues before incoming/
+Observe: Handle all-Fresh/nonempty, Nullable Fresh/Null, no Mixed/Borrowed/Forward.
+Affine Pending/Ready/Taken lender borrows current Lowering/Finalized owner. Late
+received-input classifier retired; QualifiedObject priority and Array-only
+exemption remain exact. Root828g56.546037s/focused66 executions PASS; aggregate
+Print RED only at pinned V827b three-hop New prior-home baseline. Independent
+Handle/Provided Print publication and final base/Normal/Fault/raw substitutions
+PASS. Actual M190 C frontier follows below; no source landing or full-goal claim.
 
 V829 Decision (BoxShape, read-only mapped): same borrowed MirFunction, original
 packet/Field actual and current context. Transient origins/dominators and
@@ -969,25 +937,52 @@ pair order, Phi predecessor multiplicity and unreachable-use behavior preserved.
 Original linear lookup/BFS membership and indexed array walks replaced in their
 sole physical owner; no cache/new source, class or ownership admission.
 
-V829 CLI173 build194.762510s PASS, same Rust manifest as root829a. Canonical
-unchanged M190 app174 TERMINAL RED1179.635000s on C816, exit1/no artifact;
-Rust/Main/finishing pass, V4 unsupported-cohort (seed8, flow0), V2=951.529179s.
-Original wire captured228.411597s/1346391bytes, SHA707a1b47f6e66f899271f0779961fffed72ce53120be472d5449d76341ef5332.
-V4-only diagnostic0.302395s confirms seed8 main/value56 reads object1.field2 from
-value53, original allocateResult target12 Invoke697→Normal698. Parent Call identity
-is unavailable before later callee kind/owned-result indexing; not an End stop.
-V830c C shape landed **a341e08cec**; Rust/other C WIP stays unaccepted. FFI build7.800270s;
-current and isolated HEAD+only geometry patch parser PASS; worker review clear.
-Differential2570graphs (all ≤3-node graphs/entries +1000 seed830 sparse cyclic cases),
-112486 dominance and30840 definition queries incl terminal dst match original.
-Same original wire V2-only PASS10.729920s on FFI2eae7de6, versus C816951.529179s.
-Runs overlapped other diagnostics; this is V2 validation time, not full build/EXE.
-After old run ended, existing V4 driver replays identical unmodified wire: total
-7.948175s, V2=7.596664s/V4=0.254080s, same seed8 unsupported-cohort/no artifact.
-Header-driver replay is C-boundary evidence, not Rust/archive admission or EXE.
-a/b diagnostic probes explicitly superseded/terminated143 after native mapping;
-not timeout failure or acceptance. Keep original wire, pins, scripts/logs until
-Rust source landing/C closure; C shape changes alone grant no new accepted cohort.
-Next functional unit: all-function independent seeds→original owned-result class
-correspondence→dependent Field provenance→full kind/Return/support/flow checks.
-Provided fields must borrow original callee construction/actual anchor, not layout.
+V829 CLI173/app174 and original-wire/C830 verification: **fa6d0cb155**.
+Unchanged M190 app174 RED1179.635000s/no EXE; V2=951.529179s, V4 seed8/flow0.
+Same original wire C830c V2=7.596664s, same V4 refusal; no Rust/archive/EXE claim.
+Retain original wire/pins/scripts until Rust source landing and C closure. Wire
+SHA707a1b47f6e66f899271f0779961fffed72ce53120be472d5449d76341ef5332:
+main56 reads object1.field2 from53, allocateResult target12 Invoke697→Normal698.
+Rust WIP unlanded; known aggregate Print three-hop New baseline still owed.
+
+V831 Decision (BoxCount, read-only worker mapping; same Forward series):
+Source authority + canonical issuer: original indexed Invoke/Normal/target and all
+callee Return/result_origin/field-support rows. Whole-function independent seeds
+precede dependent field classification. Existing owned-result DFS lends class;
+separate per-value active seed state refuses cycles. BAD aliases may borrow a
+separate exact HANDLE Copy/unanimous-Phi root without setting kind; full union,
+Phi restrictions and all Return/support/flow checks remain mandatory before emit.
+Non-authority: FieldGet layout/class tuple only corroborates original parent;
+no class-from-use, fake Home, legacy retry, source rewrite or new registry.
+Fail-fast: wrong/nullable root, missing/conflicting/cyclic producer or callee,
+foreign field/support, mutation, early End and incomplete conditional cleanup.
+Scope: existing index seed/owned-result correspondence→field borrow/received read
+and original support/anchor/End consumers; existing C family tests and owner README.
+First implementation unit normalizes seed dependencies; then SAME series must
+connect Provided field proof and caller Normal liveness through final consumption.
+Acceptance: existing owned result/field-return/stored-child positives+mutations,
+original captured wire and unchanged canonical M190 EXE/run/output; kind green
+alone is preparation. Full goal/fixedsuite/cutover/retirement remain open.
+
+V831a–e implementation history: independent all-function seeding; original
+Provided Return/New/Birth/store proof; nullable loan consumers; one strict/read
+and exact-discharge reverse interval; received checked scalar Handle|Nullable.
+Final C831e/native app175 evidence is recorded in Latest unchanged product
+measurement. Intermediate kinds/flow-only greens were preparation, not EXE proof.
+Strict raw BASE/method receiver/numeric move/Birth boundaries remain mandatory.
+
+V832 selected same-series deeper-provider acceptance (worker read-only review):
+Source authority + canonical issuer: original provider construction source and
+canonical declared child inventory, existing all-writer residence seal and
+constructor recipe. Parent→Middle→Leaf currently declines at the provider RHS's
+Plain/Array-only child guard; installed Home exists but is not teardown-ready.
+Next connection: replace Array-only provider inventory with existing typed
+OwnedFieldChildV1, join the SAME sealed inventory, use shared field discharge
+emission/validation for post-Birth store Fault, retain storage-only Birth Fault.
+Non-authority: declaring a field or lifting a depth guard alone; no manufactured
+Home, source workaround, extra classifier, legacy retry or weakened unwind gate.
+Acceptance: existing aggregate Print original source positive and mutations,
+existing constructor/provider/Fault source+final tests, then current independent
+final/both-opts and selected native provider evidence. C831 native success does
+not close these source obligations. Required Array/Set/FieldWrite/fixedsuite and
+remaining retirement stay open; cumulative WIP is not accepted.
