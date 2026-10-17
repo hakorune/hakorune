@@ -902,20 +902,10 @@ connected by V823–825. Small self-LOCAL publication still fails Maker.wrap h=m
 placement; do not weaken source/placement. Retain pinned source/build/test/EXE and
 GDB receipts until source landing. Current frontier and WIP remain below.
 
-V823 original parent connection contract: **e760a8e600** (source WIP). SAME Field
-hop ObjectCallSourceLoan/destination, original census and current roots/writer/
-relation alternatives select common producer input. issue_received_producer_local_call
-remains sole Home issuer; Array-only no-LOCAL observation exemption stays exact.
-No new registry, fake Home, result class-name authority, Completion cycle or retry.
-
-V823 source/input/full focused and GDB evidence: **910d948173** (source WIP).
-Array-only callee classifier retired; source getter retained. All target errors
-propagate before selected Nullable/Field observation. CLI168/M190 parent alloc/
-same/moved Homes real; first prefix loss Body4 invalid_size then Body7 refuses.
-
-V824 sibling contract: **e760a8e600**. Whole original input cohort preserves
-QualifiedObject priority; each sibling proves its own initializer/all roots.
-Field cohort + actual LOCAL selects packet; Array exemption stays exact.
+V823–824 original parent and sibling input/Home connection, source contracts and
+complete GDB/focused evidence: **e760a8e600**, **910d948173**. Same Field loan/
+destination, whole incoming census/current roots/writers, QualifiedObject priority;
+each sibling owns its initializer. Array-only exemption remains exact.
 
 V824/825 contracts and exact root/CLI/app evidence: **e760a8e600** (source WIP).
 Sibling LOCAL input→Home→packet connected; physical dispatch uses samepacket
@@ -932,49 +922,75 @@ At CLI170, ObjectReturnHandoff retained original supports but ObjectPacket store
 only classwide teardown, CallReceived only release/end_children. V826 retains
 source requirements in the packet; physical anchor + conditional End remain open.
 
-V826 Decision (complete mapping worker-confirmed; same Forward field series):
-Existing all-exit result verifier retains ordered per-exit source requirements
-(SAME root/relation/witness Rc), borrowing Fresh leaf and composed OwnedCall
-supports. ObjectPacket keeps these with its existing whole incoming actual census;
-join own formal ordinal/binding/site to original Field Read or Null (no fakeformal).
-CallReceived must retain same obligations and require real packet emission plus
-parent Home/all-exit ordered cleanup before End-ready. Finishing and wire/C
-independently corroborate original actual→field relation and 0/1/2 residence End.
-Keep classwide unavailable guard; only explicitly anchored debt may instantiate.
-First internal slice retains/rechecks source requirements through packet input;
-it grants no new teardown permission. Existing result/packet tests verify source
-loss/reissue/census/formal mismatches; subsequent physical/End connection required.
-Scope: result verifier/handoff getter, packet source, tests and owner README.
+V826 source retention/actual join Decision: **fe1b212687**. Whole original roots,
+relations/writers, ordered exit census and exact actual/formal join stay mandatory;
+passive source support alone grants no End. Same series owes physical/final/C.
 
 V826 source retention/actual join and complete evidence: **fe1b212687**
 (docs checkpoint; source WIP). g root65.596144s/focused41 unique+5 old guard
 PASS. Source-only pending actuals grant no End/Ready; latest measured app171.
 
-V827 Decision (workers mapped all consumers; same anchored field End series):
-Reducer distinguishes passive AnchoredFields from unrelated Unavailable;
-classwide descriptor() still rejects anchored templates. Same packet lends own
-Field/Null requirements, preserving original read Rc/parent acquisition and current
-writer graph. Begin records passive parents; actual Read/Copy/ConstNull binding
-precedes End-ready on same CallReceived packet Rc. Existing interval extends
-parent Normal→wrapper End. Normal/Fault cleanup orders wrapper before anchors.
-Common object LOCAL writer retains packet for lexical and entry receivers alike;
-old literal writer keeps unselected callers. Final context uses same packet.
-C received-call Normal and exact child-End discharge remain required before EXE;
-no new opcode/ABI. Scope adds local commit/physical packet helpers/existing tests.
-No fake formal, shallow End or retry. Full series and goal remain open.
+V827 anchored Field source→physical/final Decision and complete evidence:
+**af4e4649e1**. Passive AnchoredFields, same packet/actual/parent proof, extended
+Field interval and all-exit ordered cleanup; descriptor() stays closed. Current
+C closure is not accepted merely because Rust reached its consumer.
 
-V827b source WIP: root61.163932s PASS; selected result/handoff/teardown/packet/
-slot/returned-source/root-order50 executions PASS, plus existing received cleanup,
-borrowed-copy boundary and child-finishing3 PASS on the same pinned binary.
-Current Field membership recheck is shared and nonmutating: missing row stays
-missing; identical foreign Rc rejects. Anchored+Null unsupported envelope refuses.
-CLI171188.289023s PASS; root/CLI source manifests identical. Pinned binary
-4631eb0db0fcff4f307bb4330c9d0b9d60bf3e89de4360adf666d1c2ef2c2058.
-Unchanged M190598e0edb/C816483c6e84/runtime808b2b6083aa canonical direct EXE
-app172 RED13.565551s exit1/no artifact: print-expression/source-unavailable.
-This advances the old teardown-unavailable refusal, not final End/C or EXE proof.
-Read-only worker maps original print source→all consumers before next patch;
-same Forward series remains open. C received root/Provided writer/cleanup-aware
-child discharge are mapped to existing owners, not implemented or accepted.
-Receipts v827b-root.*, v827-cli171.*, app-v172-result-contract.* retained until
-source landing; source WIP uncommitted, full goal remains active.
+V827b root/CLI/focused53 and unchanged M190 evidence: **af4e4649e1**.
+CLI1714631eb0d / app172 RED13.565551s, print-expression/source-unavailable;
+source WIP remains unlanded. Root/CLI source identical except later owner README.
+Exact native worker confirms Main43 Body0–8 prefix covered, Body9 literal print
+passes, Body10 alloc=... first unavailable. No final/C or EXE acceptance.
+
+V828 Decision (same Forward series, source→print consumer; read-only mapped):
+field_read_receiver omits original ReceivedHandle. Normalize Nullable acquisition
+into Object{original acquisition, nullable}, checked against same ObjectCallSourceLoan
+and exact initializer/current target/root Rc; do not mark it New/alias/non-null.
+Connect nested root using this same source and original packet Normal/real Home.
+Each hop separately keeps residence/nullability; Handle wrapper does not prove
+nullable child non-null. Existing field-read progress, checked FieldGet Normal/Fault,
+expression projection and final census own execution; no new registry or fake Home.
+Scope: field request/local flow, received source, nested source root/batch,
+existing physical/final field/Print owners, owner README and existing tests.
+Direct-source normalization is internal preparation; whole nested Field/Fault/final
+and unchanged M190 must be remeasured before any product claim. C closure still owed.
+Worker mapping refinement: received-field demand must join original SourceInstance
+input selection/finisher/full-slot argument lender, keeping QualifiedObject priority.
+New direct Handle Print fixture V828a: source demand=true, observation=Some(true),
+but typed QualifiedObject-only arguments=None; lifecycle route absent, placement
+correctly rejects. Fix common source input participation; never loosen placement.
+Nested-only demand must borrow the same root Received loan, not miss its input.
+
+V828 refinement: normalize existing Nullable LOCAL input issuer to owning Object
+LOCAL input (Handle/Nullable exact kind+class+root Rc), before incoming/Observe.
+No Mixed/BorrowedNullable/ForwardFormal roots; Object roots are nonempty all Fresh.
+Current-target lender follows affine SourcePending/Ready/Taken with explicit
+Lowering/Finalized context; the graph callback borrows that current owner.
+V828a root79.763846s/focused35 PASS + new directHandle Print RED placement; c
+root69.226413s confirms same missing original actual and nested source target gap.
+b compile RED26.708712s test Rc mutation fixed; d RED87.770451s import fixed.
+e root115.848868s PASS; direct Handle Print now crosses placement. Aggregate
+Print test still RED at old 3-hop New cleanup, independently identical on pinned
+V827b19029460 / baseline0.371511s. e nested3/input1/packet12/returned1/observer1
+PASS. f retires late received-input classifier after canonical owning-input cutover;
+aggregate test now keeps all independent cases running before reporting baseline.
+CLI172173.296537s/app173 TERMINAL RED1325.728371s, unchanged M190, exit1/no EXE:
+published-lifecycle-v4/unsupported-cohort. Rust Print/Main/finishing crossed.
+CLI b081ea64/C816483c6e84/runtime808b2b6083aa; v2_ns873403206587,
+v4_ns256462607, functions29/blocks6554/rows7315, flow_blocks0. C closure owed.
+Separate30s probe shows earlier Rust interval hot owner; no C at that sample.
+Per-End origins/dominators/backward fixed-point repeats need transient owner reuse.
+C v2 time and exact initial admission refusal now worker-mapped before next patch.
+
+V828g root56.546037s PASS, focused66 executions PASS plus aggregate Print RED
+only at exact pinned V827b baseline (three-hop New prior-home cleanup). Aggregate
+continues through all other independent cases before reporting this same error.
+New Handle→Print and Provided nullable-child→checked-scalar publication succeed;
+base/Normal/Fault substitution and checked→raw mutations refuse in final consumer.
+Late received-input classifier physically removed/caller-zero; canonical owning
+LOCAL input issuer replaces Nullable-only file/type/getters, preserving exact kind
+and original roots. Existing current field/packet/graph verification retained.
+Latest measured CLI172 precedes d–g input/context fixes; no g EXE claim. All Rust
+source WIP uncommitted. C first refusal is initial V4 kind seed (8 resolves, flow0),
+not yet exact operand; original invocation wire was ephemeral/deleted. Next capture
+same canonical wire for diagnosis and normalize transient Rust interval/V2 geometry
+analysis separately as BoxShape; never skip verification or change semantics.
