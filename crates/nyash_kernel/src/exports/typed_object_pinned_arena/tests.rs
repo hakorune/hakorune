@@ -53,9 +53,13 @@ fn direct_slot_cell_v0_preserves_tagged_payloads() {
     let slot = TypedSlot {
         storage: TypedSlotStorage::I64,
         value: TypedSlotValue::I64(42),
+        residence: None,
     };
-    let cell = DirectSlotCellV0::from_typed_slot(&slot);
+    let cell = DirectSlotCellV0::from_typed_slot(&slot).unwrap();
     assert_eq!(cell.read_compat_i64(), Some(42));
+    let mut selected = TypedSlot::new(TypedSlotStorage::I64);
+    assert!(selected.install_object_residence(0, super::super::typed_object::ObjectResidenceOutcomeV1::Null));
+    assert!(DirectSlotCellV0::from_typed_slot(&selected).is_none());
 }
 
 #[test]
@@ -82,7 +86,9 @@ fn direct_slot_object_snapshot_preserves_usize_storage() {
 fn direct_slot_object_v0_header_and_field_offsets_are_stable() {
     let object = DirectSlotObjectV0Box::new(7, 1, &[DirectSlotCellV0::from_i64(1)]).expect("box");
     assert!(object.as_ptr() as usize > 0);
-    assert!(object.handle().expect("handle") < 0);
+    // DirectSlotV0 carries a positive tagged pointer. Negative generation
+    // handles belong to PinnedTypedObjectArena, tested separately above.
+    assert!(object.handle().expect("handle") > 0);
 }
 
 #[test]

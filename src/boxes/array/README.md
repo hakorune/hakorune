@@ -1,5 +1,26 @@
 # Array runtime owner
 
+The selected append-only object provider uses `owned_slots.rs` in the SAME
+`ArrayStateCell` and an explicit `ArrayStorage::OwnedObject` representation.
+Its immutable physical descriptor binds constant identity, indexed object
+profile/type, nullable class and canonical compiled End address. This is physical
+validation, not source ownership authorization. Claim accepts only an empty,
+uncontracted builtin Array; primitive/boxed mutation and materialization cannot
+reinterpret the object slots. Generic `invoke_surface` rejects this mode through
+its existing error owner. Representation diagnostics and length inspection do
+not lend a source borrow or End capability.
+
+Append validates the live descriptor and unique non-null identity, reserves
+before commit, and changes ownership only on Normal. Null occupies a slot with
+no child Home. Read checks Live/SAME descriptor and lends the nullable identity
+without clone, retain or a new Home. End changes Live to Ending and detaches the
+successful slots under the state lock. The kernel caller leaves the host registry
+closure before invoking reverse-order child End, continues after returned Fault,
+then marks Ended and releases the Array residence. Ending/Ended never revive.
+Reserve failure is returned before commit; other allocation/registry failures
+retain their existing fatal policy. Compiler descriptor/final bindings remain
+required before this preparation can authorize a production Array consumer.
+
 `ArrayStateCell` in `mod.rs` owns storage and the optional element contract under
 one `RwLock`. Shared aliases retain this state; clone/slice create fresh state
 according to their existing contracts. No handle-keyed contract table is needed.

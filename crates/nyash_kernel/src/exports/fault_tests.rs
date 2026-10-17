@@ -27,6 +27,9 @@ fn exact_field_read_distinguishes_zero_and_preserves_output_on_contract_failure(
             let mut output = 777;
             assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 0);
             assert_eq!(output, value);
+            output = 777;
+            assert_eq!(api::field_get_fallible(pointer, profile, 20, handle, 10, 0, &mut output), 0);
+            assert_eq!(output, value, "fallible Normal read includes exact zero and extrema");
         }
         for (p, h, ty, slot) in [
             (99, handle, 10, 0),
@@ -48,7 +51,36 @@ fn exact_field_read_distinguishes_zero_and_preserves_output_on_contract_failure(
         assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 0);
         assert_eq!(output, i64::MAX, "failed reads leave storage unchanged");
         assert!(frame.diagnostics().unwrap().0.is_none());
-        assert_eq!(api::home_release(pointer, profile, 3, handle, 10), 0);
+        let mut failed_read_frame = FaultFrame::new();
+        let failed_read_pointer = (&mut failed_read_frame as *mut FaultFrame).cast();
+        for (h, ty, slot) in [(0, 10, 0), (handle, 11, 0), (handle, 10, 1)] {
+            output = 777;
+            assert_eq!(api::field_get_fallible(failed_read_pointer, profile, 41, h, ty, slot, &mut output), 1);
+            assert_eq!(output, 777, "Fault cannot publish a value");
+        }
+        let (primary, suppressed, _) = failed_read_frame.diagnostics().unwrap();
+        assert_eq!((primary.unwrap().reason, primary.unwrap().site), (101, 41));
+        assert_eq!(suppressed.len(), 2);
+        for p in [99, 3 - profile] {
+            assert_eq!(api::field_get_fallible(pointer, p, 42, handle, 10, 0, &mut output), 2);
+            assert_eq!(output, 777);
+        }
+        assert_eq!(api::field_get_fallible(std::ptr::null_mut(), profile, 42, handle, 10, 0, &mut output), 2);
+        assert_eq!(api::field_get_fallible(pointer, profile, 42, handle, 10, 0, std::ptr::null_mut()), 2);
+        assert!(frame.diagnostics().unwrap().0.is_none());
+        assert_eq!(api::home_release(failed_read_pointer, profile, 43, handle, 10), 0);
+        output = 777;
+        assert_eq!(api::field_get_fallible(failed_read_pointer, profile, 44, handle, 10, 0, &mut output), 1);
+        assert_eq!(output, 777);
+        assert_eq!(failed_read_frame.diagnostics().unwrap().0.unwrap().site, 41,
+            "remaining cleanup preserves the primary read Fault");
+        let mut survivor = 0;
+        assert_eq!(api::allocate(pointer, profile, 45, 10, [1].as_ptr(), 1, &mut survivor), 0);
+        assert_eq!(api::home_release(failed_read_pointer, profile, 46, survivor, 10), 0,
+            "a prior read Fault does not prevent remaining Home cleanup");
+        // The original handle was released above under the failing frame.
+        assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 2);
+        output = i64::MAX;
         assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 2);
         assert_eq!(output, i64::MAX);
     }
@@ -302,6 +334,48 @@ fn checked_c_operations_preserve_primary_and_out_slot() {
             2
         );
         assert_eq!(handle, 777);
+    }
+    let mut frame = FaultFrame::new();
+    let pointer = (&mut frame as *mut FaultFrame).cast();
+    let mut parent = 777;
+    let mut child = 777;
+    let sentinel = api::ObjectResidenceV1 { value: 999, outcome: 99, reserved: 88 };
+    unsafe {
+        assert_eq!(api::allocate(pointer, profile, 80, 901, [1, 1, 1].as_ptr(), 3, &mut parent), 0);
+        assert_eq!(api::allocate(pointer, profile, 81, 902, std::ptr::null(), 0, &mut child), 0);
+        let mut out = sentinel;
+        assert_eq!(api::residence_get(profile, parent, 901, 0, 902, &mut out), 2);
+        assert_eq!(out, sentinel);
+        assert_eq!(api::residence_set(pointer, profile, 90, parent, 901, 0, 902, child, 99), 2);
+        assert_eq!(api::residence_set(pointer, profile, 90, parent, 901, 0, 902, child, 0), 2);
+        assert!(frame.diagnostics().unwrap().0.is_none());
+        // A valid pair with a wrong canonical child records Fault without
+        // changing the slot. Later successful operations preserve that Fault.
+        assert_eq!(api::residence_set(pointer, profile, 91, parent, 901, 0, 903, child, 1), 1);
+        for (slot, value, outcome) in [(0, 0, 0), (1, child, 1), (2, child, 2)] {
+            assert_eq!(api::residence_set(pointer, profile, 92, parent, 901, slot, 902, value, outcome), 0);
+            assert_eq!(api::residence_get(profile, parent, 901, slot, 902, &mut out), 0);
+            assert_eq!(out, api::ObjectResidenceV1 { value, outcome, reserved: 0 });
+            for (bad_profile, bad_parent, bad_type, bad_slot, bad_child) in [
+                (99, parent, 901, slot, 902), (profile, parent, 900, slot, 902),
+                (profile, i64::MIN, 901, slot, 902), (profile, parent, 901, 9, 902),
+            ] {
+                out = sentinel;
+                assert_eq!(api::residence_get(bad_profile, bad_parent, bad_type, bad_slot, bad_child, &mut out), 2);
+                assert_eq!(out, sentinel);
+            }
+            assert_eq!(api::residence_get(profile, parent, 901, slot, 902, std::ptr::null_mut()), 2);
+            assert_eq!(api::field_set(pointer, profile, 93, parent, 901, slot, 44), 1);
+            assert_eq!(api::residence_get(profile, parent, 901, slot, 902, &mut out), 0);
+            assert_eq!(out, api::ObjectResidenceV1 { value, outcome, reserved: 0 });
+            assert_eq!(frame.diagnostics().unwrap().0.unwrap().site, 91);
+        }
+        assert_eq!(api::reclaim(pointer, profile, 94, parent, 901), 0);
+        assert_eq!(api::reclaim(pointer, profile, 95, child, 902), 0);
+        out = sentinel;
+        assert_eq!(api::residence_get(profile, parent, 901, 0, 902, &mut out), 2);
+        assert_eq!(out, sentinel);
+        assert_eq!(frame_dispose(pointer), 0);
     }
 }
 

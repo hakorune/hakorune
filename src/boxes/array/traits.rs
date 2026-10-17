@@ -15,6 +15,7 @@ impl Clone for ArrayBox {
             ArrayStorage::InlineBool(values) => ArrayStorage::InlineBool(values.clone()),
             ArrayStorage::InlineF64(values) => ArrayStorage::InlineF64(values.clone()),
             ArrayStorage::InlineRecord(values) => ArrayStorage::InlineRecord(values.clone()),
+            ArrayStorage::OwnedObject(_) => panic!("[array/owned-slots/copy-denied]"),
         };
 
         ArrayBox {
@@ -58,6 +59,7 @@ impl BoxCore for ArrayBox {
             ArrayStorage::InlineF64(values) => {
                 write!(f, "[{}]", Self::format_inline_f64_values(values))
             }
+            ArrayStorage::OwnedObject(_) => write!(f, "[array/owned-slots]"),
             ArrayStorage::InlineRecord(values) => {
                 write!(f, "{}", values.summary())
             }
@@ -89,6 +91,10 @@ impl NyashBox for ArrayBox {
 
     /// 🎯 状態共有の核心実装
     fn share_box(&self) -> Box<dyn NyashBox> {
+        assert!(
+            !matches!(&*self.items.read(), ArrayStorage::OwnedObject(_)),
+            "[array/owned-slots/share-denied]"
+        );
         let new_instance = ArrayBox {
             items: Arc::clone(&self.items), // Arcクローンで状態共有
             base: BoxBase::new(),           // 新しいID
@@ -119,6 +125,7 @@ impl NyashBox for ArrayBox {
                 StringBox::new(format!("[{}]", Self::format_inline_f64_values(values)))
             }
             ArrayStorage::InlineRecord(values) => StringBox::new(values.summary()),
+            ArrayStorage::OwnedObject(_) => StringBox::new("[array/owned-slots]"),
         }
     }
 
@@ -136,6 +143,9 @@ impl NyashBox for ArrayBox {
             }
 
             match (&*self_items, &*other_items) {
+                (ArrayStorage::OwnedObject(_), _) | (_, ArrayStorage::OwnedObject(_)) => {
+                    return BoolBox::new(false)
+                }
                 (ArrayStorage::InlineI64(lhs), ArrayStorage::InlineI64(rhs)) => {
                     return BoolBox::new(lhs == rhs);
                 }
@@ -278,6 +288,7 @@ impl std::fmt::Debug for ArrayBox {
             ArrayStorage::InlineBool(_) => "inline_bool",
             ArrayStorage::InlineF64(_) => "inline_f64",
             ArrayStorage::InlineRecord(_) => "inline_record",
+            ArrayStorage::OwnedObject(_) => "owned_object",
         };
         f.debug_struct("ArrayBox")
             .field("id", &self.base.id)

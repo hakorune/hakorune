@@ -6,6 +6,9 @@ impl ArrayBox {
     pub fn slice(&self, start: Box<dyn NyashBox>, end: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let contract = self.items.element_contract();
         let items = self.items.read();
+        if matches!(&*items, ArrayStorage::OwnedObject(_)) {
+            return Box::new(StringBox::new("[array/owned-slots/copy-denied]"));
+        }
 
         let start_idx = if let Some(start_int) = start.as_any().downcast_ref::<IntegerBox>() {
             if start_int.value < 0 {
@@ -57,6 +60,9 @@ impl ArrayBox {
             }
             ArrayStorage::InlineF64(values) => {
                 ArrayStorage::InlineF64(values[start_idx..end_idx].to_vec())
+            }
+            ArrayStorage::OwnedObject(_) => {
+                return Box::new(StringBox::new("[array/owned-slots/copy-denied]"))
             }
             ArrayStorage::InlineRecord(values) => {
                 ArrayStorage::InlineRecord(values.slice_rows(start_idx, end_idx))

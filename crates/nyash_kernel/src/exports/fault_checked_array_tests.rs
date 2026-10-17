@@ -5,8 +5,42 @@ use crate::nyrt_handle_release_h;
 mod wire {
     use std::ffi::c_void;
     extern "C" {
+        #[link_name = "nyash.array.checked_owned_claim_v1"]
+        pub fn owned_claim(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const super::super::owned::Descriptor,
+        ) -> u32;
+        #[link_name = "nyash.array.checked_owned_append_v1"]
+        pub fn owned_append(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const super::super::owned::Descriptor,
+            candidate: i64,
+        ) -> u32;
+        #[link_name = "nyash.array.checked_owned_get_v1"]
+        pub fn owned_get(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const super::super::owned::Descriptor,
+            index: i64,
+            out: *mut i64,
+        ) -> u32;
+        #[link_name = "nyash.array.checked_owned_end_v1"]
+        pub fn owned_end(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const super::super::owned::Descriptor,
+        ) -> u32;
         #[link_name = "nyash.array.checked_new_v1"]
         pub fn new(frame: *mut c_void, site: u64, out: *mut i64) -> u32;
+        #[link_name = "nyash.array.checked_script_arguments_new_v1"]
+        pub fn script_arguments(frame: *mut c_void, site: u64,
+            values: *const super::super::ScriptArgumentUtf8, count: usize, out: *mut i64) -> u32;
         #[link_name = "nyash.array.checked_claim_v1"]
         pub fn claim(frame: *mut c_void, site: u64, handle: i64, tag: u32) -> u32;
         #[link_name = "nyash.array.checked_append_i64_v1"]
@@ -16,6 +50,120 @@ mod wire {
         #[link_name = "nyash.array.checked_append_f64_v1"]
         pub fn f64(frame: *mut c_void, site: u64, handle: i64, value: f64) -> u32;
     }
+}
+
+#[test]
+fn checked_owned_array_wire_commits_borrows_and_ends_outside_registry_lock() {
+    use crate::exports::typed_object::TypedSlotStorage;
+    use crate::exports::typed_object_store_backend::{
+        get_checked_indexed, new_checked_indexed, reclaim_checked_indexed, set_checked_indexed,
+        TypedObjectStoreBackend,
+    };
+    use std::sync::{Mutex, OnceLock};
+    static EVENTS: OnceLock<Mutex<Vec<i64>>> = OnceLock::new();
+    const TYPE: i64 = 934;
+    unsafe extern "C" fn child_end(raw: *mut c_void, child: i64, site: u64) -> u32 {
+        let profile = TypedObjectStoreBackend::SafeMutex;
+        let nested = get_checked_indexed(profile, child, TYPE, 0).unwrap();
+        // Requires the registry WRITE lock. Deadlocks if the Array callback is
+        // still inside with_array_box_direct's registry READ lock.
+        nyrt_handle_release_h(nested);
+        reclaim_checked_indexed(profile, child, TYPE).unwrap();
+        EVENTS
+            .get_or_init(|| Mutex::new(Vec::new()))
+            .lock()
+            .unwrap()
+            .push(child);
+        let frame = unsafe { admit(raw) }.unwrap();
+        record(frame, Ok(Diagnostic::new(909, site, [child, 0])))
+    }
+    let _guard = crate::test_support::handle_registry_test_lock();
+    EVENTS
+        .get_or_init(|| Mutex::new(Vec::new()))
+        .lock()
+        .unwrap()
+        .clear();
+    let profile = TypedObjectStoreBackend::SafeMutex;
+    let descriptor = super::owned::Descriptor {
+        profile: 1,
+        nullable: 1,
+        type_id: TYPE,
+        end: Some(child_end),
+    };
+    let foreign = super::owned::Descriptor {
+        profile: 1,
+        nullable: 1,
+        type_id: TYPE,
+        end: Some(child_end),
+    };
+    let mut frame = FaultFrame::new();
+    let array = OwnedArray::new(&mut frame);
+    let mut children = Vec::new();
+    let mut nested_handles = Vec::new();
+    for _ in 0..3 {
+        let nested = OwnedArray::new(&mut frame);
+        nested_handles.push(nested.0);
+        let child = new_checked_indexed(profile, TYPE, &[TypedSlotStorage::I64]).unwrap();
+        set_checked_indexed(profile, child, TYPE, 0, nested.0).unwrap();
+        std::mem::forget(nested); // original child End owns this residence
+        children.push(child);
+    }
+    let ptr = pointer(&mut frame);
+    let mut out = 717;
+    unsafe {
+        assert_eq!(wire::owned_claim(ptr, 1, array.0, &descriptor), 0);
+        assert_eq!(
+            wire::owned_append(ptr, 2, array.0, &foreign, children[0]),
+            2
+        );
+        assert!(get_checked_indexed(profile, children[0], TYPE, 0).is_ok());
+        for child in &children {
+            assert_eq!(wire::owned_append(ptr, 3, array.0, &descriptor, *child), 0);
+        }
+        assert_eq!(
+            wire::owned_append(ptr, 4, array.0, &descriptor, children[0]),
+            2
+        );
+        assert_eq!(wire::owned_append(ptr, 5, array.0, &descriptor, 0), 0);
+        assert_eq!(wire::owned_get(ptr, 6, array.0, &foreign, 0, &mut out), 2);
+        assert_eq!(out, 717);
+        assert_eq!(
+            wire::owned_get(ptr, 7, array.0, &descriptor, 1, &mut out),
+            0
+        );
+        assert_eq!(out, children[1]);
+        assert_eq!(
+            wire::owned_get(ptr, 8, array.0, &descriptor, 3, &mut out),
+            0
+        );
+        assert_eq!(out, 0);
+        assert_eq!(
+            wire::owned_get(ptr, 9, array.0, &descriptor, 99, &mut out),
+            0
+        );
+        assert_eq!(out, 0);
+        assert_eq!(wire::owned_end(ptr, 10, array.0, &descriptor), 1);
+        out = 717;
+        assert_eq!(
+            wire::owned_get(ptr, 11, array.0, &descriptor, 0, &mut out),
+            2
+        );
+        assert_eq!(out, 717);
+        assert_eq!(wire::owned_end(ptr, 12, array.0, &descriptor), 2);
+    }
+    assert_eq!(
+        *EVENTS.get().unwrap().lock().unwrap(),
+        children.iter().rev().copied().collect::<Vec<_>>()
+    );
+    assert_eq!(primary(&frame), (909, 10, [children[2], 0]));
+    assert_eq!(frame.diagnostics().unwrap().1.len(), 2);
+    for child in children {
+        assert!(get_checked_indexed(profile, child, TYPE, 0).is_err());
+    }
+    for nested in nested_handles {
+        assert!(handles::get(nested as u64).is_none());
+    }
+    assert!(handles::get(array.0 as u64).is_none());
 }
 
 fn pointer(frame: &mut FaultFrame) -> *mut c_void {
@@ -154,6 +302,31 @@ fn checked_array_payloads_keep_bool_f64_and_integer_distinct() {
     })
     .unwrap();
     assert!(frame.diagnostics().unwrap().0.is_none());
+    for texts in [Vec::<&str>::new(), vec!["alpha", "猫", "x\0y", ""]] {
+        let arguments = texts.iter().map(|text| ScriptArgumentUtf8 {
+            data: text.as_ptr(), length: text.len(),
+        }).collect::<Vec<_>>();
+        let mut out = -7;
+        assert_eq!(unsafe { wire::script_arguments(ptr, 9, arguments.as_ptr(), arguments.len(), &mut out) }, 0);
+        let argv = OwnedArray(out);
+        assert_eq!(argv.values(), texts);
+        with_array_box_direct(argv.0, |array| {
+            for index in 0..texts.len() {
+                assert!(array.get_index_i64(index as i64).as_any()
+                    .is::<nyash_rust::box_trait::StringBox>());
+            }
+        }).unwrap();
+    }
+    // Reject a malformed later element before publishing any handle. Local
+    // Array/String RAII drops the successfully constructed prefix too.
+    let invalid = [0xffu8];
+    let arguments = [ScriptArgumentUtf8 { data: b"first".as_ptr(), length: 5 },
+        ScriptArgumentUtf8 { data: invalid.as_ptr(), length: 1 }];
+    let mut out = 777;
+    assert_eq!(unsafe { wire::script_arguments(ptr, 9, arguments.as_ptr(), arguments.len(), &mut out) }, 2);
+    assert_eq!(out, 777);
+    assert!(frame.diagnostics().unwrap().0.is_none());
+
 }
 
 #[test]

@@ -45,6 +45,21 @@ owns the outcome and failure policy.
 
 ### Checked native Array ABI
 
+The same Array ABI owner includes `fault_checked_array_owned.rs` with
+`nyash.array.checked_owned_{claim,append,get,end}_v1`. Every entry receives the
+same live immutable AOT descriptor: constant identity plus profile/type,
+nullable class and canonical compiled child End pointer. Indexed child identities
+are negative and host Array handles positive. The runtime validates identity;
+the original source/final obligations remain the only transfer authority.
+Append Normal commits once, while rejection preserves the candidate and prior
+slots. Reservation failure records reason205 before commit. Get writes its out
+slot only on Normal, including nullable zero; wrong descriptor/state never
+becomes zero. End detaches through direct Array access, releases both storage
+and host registry locks, runs child End in reverse order, continues after Fault,
+then retires residence. No mutable FaultFrame borrow crosses a callback.
+These entries are preparation in the open object-forward series; compiler/final
+bindings and unchanged-app acceptance are not yet established.
+
 `exports/fault_checked_array.rs` exports `nyash.array.checked_new_v1`,
 `checked_claim_v1` and `checked_append_{i64,bool,f64}_v1`.
 The existing Array claim/atomic append owns validation and state; the existing
@@ -74,6 +89,15 @@ InvalidContract leaves it unchanged, with no zero substitution, storage fallback
 or source Fault. Supported profiles are SafeMutex and SingleThreadExact.
 The trusted pointer contract is in `include/nyrt_fault_v1.h`; the ABI alone does
 not activate a compiler/backend lifecycle consumer.
+
+`nyash.object.checked_field_get_fallible_i64_v1` additionally borrows a valid
+FaultFrame and source site for an original received-object read. Normal alone
+writes out. It shares checked FieldSet's storage-error law: unavailable storage
+records100, object/field mismatch records101, profile/layout violations remain
+InvalidContract. Recording preserves the first Fault and does not stop remaining
+Home cleanup. Source/canonical field identity, nullable or Mixed provenance and
+Normal/Fault graph validation belong to the compiler/final consumers; this ABI
+alone grants no new field access. The nonfallible getter keeps its own contract.
 
 ### Checked Map borrowed read descriptors
 
@@ -298,3 +322,28 @@ preserving any primary Fault. Reservation/publication failure records reason301;
 allocator termination remains fatal. Compiler callers must End actual Normal
 acquisitions in reverse order after Print or a later Fault. These exports do not
 activate source lowering or prove compiler/native frame correspondence.
+
+### Checked Main argument snapshot
+
+`nyash.array.checked_script_arguments_new_v1` accepts immutable UTF-8 slices
+with explicit lengths (including NUL), never process argv/environment. It
+builds ArrayBox/StringBox values under local RAII and registers the handle only
+after every element succeeds. Normal alone writes out; malformed trusted input
+returns InvalidContract without changing out or recording a language Fault.
+Fatal allocation termination remains fatal. After Normal the compiler owns one
+Array residence and owes one release, after the source body's own cleanup.
+Empty input still allocates a real residence. This physical helper grants no
+source admission or numeric/owned-object element contract.
+
+
+Selected object-field residence transport keeps payload and Null/Fresh/Forward
+outcome in the same `TypedSlot`. Checked installation validates profile, parent,
+slot, payload/outcome and canonical child under one existing backend guard before
+mutation. It is single-assignment; scalar writes cannot replace an installed
+residence. The checked pair read writes its out-slot only on Normal. Indexed
+SafeMutex/SingleThreadExact profiles remain the supported boundary; DirectSlot
+V0 cannot encode this metadata and refuses conversion instead of dropping it.
+These storage checks issue no source ownership or End permission. The final
+source/ABI consumer must authorize the move or borrow, retain Forward support,
+and perform complete child End only for Fresh. That consumer connection remains
+required before Mixed field execution is admitted.

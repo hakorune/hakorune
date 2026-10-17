@@ -274,6 +274,7 @@ pub enum ArraySurfaceInvokeResult {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArraySurfaceInvokeError {
+    OwnedSlotsRequireCheckedOperation,
     Arity {
         method: ArrayMethodId,
         expected: usize,
@@ -288,6 +289,9 @@ pub enum ArraySurfaceInvokeError {
 impl fmt::Display for ArraySurfaceInvokeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::OwnedSlotsRequireCheckedOperation => {
+                write!(f, "[array/owned-slots/checked-operation-required]")
+            }
             Self::Arity {
                 method,
                 expected,
@@ -315,6 +319,9 @@ impl ArrayBox {
         method: ArrayMethodId,
         args: Vec<Box<dyn NyashBox>>,
     ) -> Result<ArraySurfaceInvokeResult, ArraySurfaceInvokeError> {
+        if matches!(&*self.items.read(), ArrayStorage::OwnedObject(_)) {
+            return Err(ArraySurfaceInvokeError::OwnedSlotsRequireCheckedOperation);
+        }
         let expected = method.arity();
         let actual = args.len();
         if actual != expected {

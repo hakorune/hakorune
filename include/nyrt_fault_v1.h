@@ -144,6 +144,27 @@ uint32_t nyrt_object_checked_field_set_v1(void *, uint32_t, uint64_t, int64_t,
  * Never returns source Fault, records a diagnostic or substitutes zero. */
 uint32_t nyrt_object_checked_field_get_i64_v1(uint32_t, int64_t, int64_t,
     size_t, int64_t *) __asm__("nyash.object.checked_field_get_i64_v1");
+/* Fallible exact received read: same checked-object Fault 100/101 law as Set.
+ * Normal alone writes out. InvalidContract and Fault preserve the out-slot. */
+uint32_t nyrt_object_checked_field_get_fallible_i64_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, int64_t *)
+    __asm__("nyash.object.checked_field_get_fallible_i64_v1");
+/* Selected object-field residence: payload and outcome are one atomic store.
+ * Null=0, Fresh=1, Forward=2; payload never establishes ownership. Installation
+ * requires an unassigned slot; scalar writers cannot overwrite it. The source
+ * caller authorizes transfer/borrowing and keeps Forward support alive.
+ * Reads write all columns only on Normal; reserved is always zero. */
+typedef struct NyrtObjectResidenceV1 {
+  int64_t value;
+  uint32_t outcome;
+  uint32_t reserved;
+} NyrtObjectResidenceV1;
+uint32_t nyrt_object_checked_residence_set_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, int64_t, int64_t, uint32_t)
+    __asm__("nyash.object.checked_residence_set_v1");
+uint32_t nyrt_object_checked_residence_get_v1(uint32_t, int64_t, int64_t,
+    size_t, int64_t, NyrtObjectResidenceV1 *)
+    __asm__("nyash.object.checked_residence_get_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,
     int64_t) __asm__("nyash.object.reclaim_unpublished_v1");
 uint32_t nyrt_object_home_release_plain_i64_v1(void *, uint32_t, uint64_t, int64_t,
@@ -157,6 +178,12 @@ uint32_t nyrt_object_home_release_plain_i64_v1(void *, uint32_t, uint64_t, int64
  * has no returned-result or cleanup guarantee. Release uses nyrt_handle_release_h. */
 uint32_t nyrt_array_checked_new_v1(void *, uint64_t, int64_t *)
     __asm__("nyash.array.checked_new_v1");
+/* Whole immutable Main ingress snapshot. UTF-8 slices may contain NUL.
+ * Normal alone publishes out. Before publication all elements stay local RAII. */
+typedef struct { const uint8_t *data; size_t length; } nyrt_script_argument_utf8_v1;
+uint32_t nyrt_array_checked_script_arguments_new_v1(void *, uint64_t,
+    const nyrt_script_argument_utf8_v1 *, size_t, int64_t *)
+    __asm__("nyash.array.checked_script_arguments_new_v1");
 uint32_t nyrt_array_checked_claim_v1(void *, uint64_t, int64_t, uint32_t)
     __asm__("nyash.array.checked_claim_v1");
 uint32_t nyrt_array_checked_append_i64_v1(void *, uint64_t, int64_t, int64_t)
@@ -165,6 +192,33 @@ uint32_t nyrt_array_checked_append_bool_v1(void *, uint64_t, int64_t, uint32_t)
     __asm__("nyash.array.checked_append_bool_v1");
 uint32_t nyrt_array_checked_append_f64_v1(void *, uint64_t, int64_t, double)
     __asm__("nyash.array.checked_append_f64_v1");
+/* Source-issued append-only object slots. Descriptor is an immutable live AOT
+ * constant; its address and all fields must be identical at every operation.
+ * Profiles: 1=SafeMutex, 2=SingleThreadExact; nullable is exactly 0/1.
+ * Child indexed handles are negative, null is zero, Array handles positive.
+ * Normal append is the sole transfer point; refusal preserves the candidate.
+ * Reservation failure records Fault205 before commit. Get publishes only on
+ * Normal; missing/null is zero, invalid descriptor/state never publishes.
+ * End callback ABI matches the canonical compiled complete End, runs outside
+ * Array AND registry locks and must record returned Fault in the same frame.
+ * End continues after Fault, then retires the Array residence. InvalidContract
+ * is unrecoverable; Ending/Ended cannot revive. This physical descriptor does
+ * not issue source transfer authority or replace compiler final bindings. */
+typedef uint32_t (*NyrtArrayOwnedEndV1)(void *, int64_t, uint64_t);
+typedef struct NyrtArrayOwnedDescriptorV1 {
+    uint32_t profile;
+    uint32_t nullable;
+    int64_t type_id;
+    NyrtArrayOwnedEndV1 end;
+} NyrtArrayOwnedDescriptorV1;
+uint32_t nyrt_array_checked_owned_claim_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *)
+    __asm__("nyash.array.checked_owned_claim_v1");
+uint32_t nyrt_array_checked_owned_append_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *, int64_t)
+    __asm__("nyash.array.checked_owned_append_v1");
+uint32_t nyrt_array_checked_owned_get_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *, int64_t, int64_t *)
+    __asm__("nyash.array.checked_owned_get_v1");
+uint32_t nyrt_array_checked_owned_end_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *)
+    __asm__("nyash.array.checked_owned_end_v1");
 /* Checked Map ABI: opaque region sizes/alignment come only from descriptor V2.
  * All regions are initialized, aligned, nonoverlapping and synchronous. Init
  * requires fresh unique bytes, not a live value. Key UTF-8 prepare precedes child

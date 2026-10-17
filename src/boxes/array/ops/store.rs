@@ -26,7 +26,12 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
-        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+        if idx > state.storage.len()
+            || matches!(
+                &state.storage,
+                ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            )
+        {
             return false;
         }
         if super::super::runtime_contract::validate_boxed_element(
@@ -151,7 +156,10 @@ impl ArrayBox {
         if idx > state.storage.len() {
             return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
-        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+        if matches!(
+            &state.storage,
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+        ) {
             return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
         super::super::runtime_contract::validate_i64_element(state.element_contract, value)
@@ -238,7 +246,10 @@ impl ArrayBox {
         if idx > state.storage.len() {
             return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
-        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+        if matches!(
+            &state.storage,
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+        ) {
             return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
         if state.element_contract.is_some() {
@@ -324,7 +335,10 @@ impl ArrayBox {
         if idx > state.storage.len() {
             return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
-        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+        if matches!(
+            &state.storage,
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+        ) {
             return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
         if state.element_contract.is_some() {
@@ -375,7 +389,10 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
-        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+        if matches!(
+            &state.storage,
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+        ) {
             return None;
         }
         let contract = state.element_contract;

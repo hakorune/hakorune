@@ -21,7 +21,10 @@ impl ArrayBox {
     /// Visible `push()` semantics stay above this seam.
     pub fn slot_append_box_raw(&self, item: Box<dyn NyashBox>) -> i64 {
         let mut state = self.items.state.write();
-        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+        if matches!(
+            &state.storage,
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+        ) {
             return -1;
         }
         if super::super::runtime_contract::validate_boxed_element(
@@ -75,6 +78,7 @@ impl ArrayBox {
             ArrayStorage::InlineBool(values) => values.reserve(additional),
             ArrayStorage::InlineF64(values) => values.reserve(additional),
             ArrayStorage::InlineRecord(values) => values.reserve(additional),
+            ArrayStorage::OwnedObject(_) => return false,
         }
         true
     }
@@ -83,6 +87,9 @@ impl ArrayBox {
     /// Keeps visible owner semantics above the capacity seam.
     pub fn slot_grow_capacity_raw(&self, target_capacity: usize) -> bool {
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::OwnedObject(_)) {
+            return false;
+        }
         let current_capacity = items.capacity();
         if current_capacity < target_capacity {
             let needed = target_capacity.saturating_sub(items.len());
@@ -94,6 +101,7 @@ impl ArrayBox {
                     ArrayStorage::InlineBool(values) => values.reserve(needed),
                     ArrayStorage::InlineF64(values) => values.reserve(needed),
                     ArrayStorage::InlineRecord(values) => values.reserve(needed),
+                    ArrayStorage::OwnedObject(_) => return false,
                 }
             }
         }
@@ -154,6 +162,9 @@ impl ArrayBox {
                     }
                 }
             },
+            ArrayStorage::OwnedObject(_) => {
+                Box::new(StringBox::new("[array/owned-slots/mutation-denied]"))
+            }
             ArrayStorage::InlineRecord(values) => {
                 if values.len() == 0 {
                     if Self::oob_strict_enabled() {

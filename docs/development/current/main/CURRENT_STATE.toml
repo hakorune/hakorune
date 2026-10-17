@@ -17,43 +17,20 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted; cumulative source WIP unlanded.
-CLI174/C831e/M190 app176 canonical direct EXE/run/exact11lines/exit0 PASS.
-Compile484.178246s, native .001699s; prior app175 wire matched app174.
-C owned16/field-return6/stored-child and independent wire negatives PASS.
-V832a three-hop New-provider Print source/publication/native PASS; shared typed
-provider discharge replaces Array-only writer/walker, six runtime Faults PASS.
-Current both-opts running; fixed11 PASS4/FAIL7, source gaps and landing owed.
-First milestone PASS, re-pinned V801b/CLI149/app149: unchanged mimalloc-lite
-canonical direct EXE, run, exact existing stdout and exit0. No source landing.
-V801b whole-source compiled-entry/ABI/backend PASS both opts, including both
-independent final scans and original Mixed/Borrowed mutations. Full suite owed.
-V799 self Nullable switched to the common packet; exclusive old writer and
-unwind helper physically removed. V800 child Add retention and V801 Birth Fault
-owner checks pass; existing physical JSON33/source22 PASS on that pinned source.
-V802 borrows the original Main co-seal at local-call source lookup; CLI150
-unchanged M189 stop advances caller-key to formal-root. Main input5/static
-terminal7/source identity and drift checks PASS. Four broadened source test
-reds reduced to one; remaining full page_heap prefix6/2 test lacks executable
-static input at Layout.normalize_size after original dependencies are supplied.
-V803 Formal/Acquired anchors and source/actual identity remain premises;
-C-only regressions do not substitute for full source/field/Home/End acceptance.
-CLI154 unchanged M189 now passes Main argument generation and package issuance;
-first stop is callable-main/lowering print-expression/source-unavailable.
-V810/811 field+Array→New→Birth and V812 non-Me source focused17 PASS; V813
-current packet received-read focused13 PASS, spent-vector helper removed.
-V815f source/final50 PASS. CLI162 unchanged M189 direct EXE/run/exact output PASS.
-C816 M189 repeats PASS (c3003843fd). C830 shape a341e08cec: same M190 wire
-V2 951.529179s→7.596664s (same V4 refusal); no new cohort/EXE. V817e source/final78 and V818b source/domain81 PASS. CLI164 M190
-passes declared-object-class; Main Body7 field actual now refuses. Source unlanded.
-Existing M189/M190, unchanged and on canonical direct EXE, select required
-Mixed0/1/2 and Borrowed0/2 plus Forward field support, anchor and conditional End.
-No fake Main call, .hako workaround, new registry, fallback or optional tiny Root lane.
-Required Array C execution, PlanSourcePublication Set, full field Birth/support
-and remaining real FieldWrite pins stay owed. V734/V739 source connections and
-fb512d0549 if-merge normalization remain premises, not new tasks.
-Full goal remains open: fixedsuite/integration, cutover/retirement,
-R6/R7/Loop/authority/parser and nondelegating selfcompile; history is in the card.
+RequiredObjectForwardS0 remains unaccepted; Rust/C source WIP remains unlanded.
+Additive runtime32 boundary lands with kernel Fault34/typed-object33 PASS on
+both primary and isolated HEAD+32 source; Array53 PASS. Old runtime ABI retained.
+C alone cannot land: HEAD Rust lacks required numeric-check/Return-origin columns.
+CLI174/C831e/runtime808b unchanged M190 app176 canonical EXE/run/exact11/exit0 PASS
+(compile484.178246s, native .001699s). First mimalloc-lite milestone remains PASS.
+V832 three-hop New-provider source/publication/native and six runtime Faults PASS;
+Array-only provider discharge writer/walker replaced by existing typed owners.
+Current independent actual both-opts test remains live, not accepted or restarted.
+Fixed11 suite PASS4/FAIL7; only three are direct EXE positives, fourth is a marker.
+Required Array C, PlanSourcePublication Set, full FieldWrite/initialization,
+coordinated Rust/C cutover/retirement and fixed acceptance remain owed.
+Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
+selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

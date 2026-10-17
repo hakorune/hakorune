@@ -54,7 +54,7 @@ impl DirectSlotObjectV0Box {
             .fields
             .iter()
             .map(DirectSlotCellV0::from_typed_slot)
-            .collect::<Vec<_>>();
+            .collect::<Option<Vec<_>>>()?;
         Self::new(object.type_id, 1, &cells)
     }
 
@@ -319,8 +319,10 @@ impl PinnedTypedObjectArena {
 }
 
 impl DirectSlotCellV0 {
-    pub(crate) fn from_typed_slot(slot: &TypedSlot) -> Self {
-        match (slot.storage, &slot.value) {
+    pub(crate) fn from_typed_slot(slot: &TypedSlot) -> Option<Self> {
+        // The V0 direct cell has no residence ABI. Never erase the outcome.
+        if slot.residence.is_some() { return None; }
+        Some(match (slot.storage, &slot.value) {
             (TypedSlotStorage::I64, TypedSlotValue::I64(value)) => Self::from_i64(*value),
             (TypedSlotStorage::U64, TypedSlotValue::Unsigned(value)) => {
                 Self::from_u64(u64::try_from(*value).unwrap_or(0))
@@ -340,7 +342,7 @@ impl DirectSlotCellV0 {
                 flags: 0,
                 payload: 0,
             },
-        }
+        })
     }
 
     #[allow(dead_code)]
@@ -349,18 +351,22 @@ impl DirectSlotCellV0 {
             DIRECT_SLOT_TAG_I64 => Some(TypedSlot {
                 storage: TypedSlotStorage::I64,
                 value: TypedSlotValue::I64(self.payload as i64),
+                residence: None,
             }),
             DIRECT_SLOT_TAG_U64 => Some(TypedSlot {
                 storage: TypedSlotStorage::U64,
                 value: TypedSlotValue::Unsigned(self.payload as u128),
+                residence: None,
             }),
             DIRECT_SLOT_TAG_USIZE => Some(TypedSlot {
                 storage: TypedSlotStorage::USize,
                 value: TypedSlotValue::Unsigned(self.payload as u128),
+                residence: None,
             }),
             DIRECT_SLOT_TAG_HANDLE => Some(TypedSlot {
                 storage: TypedSlotStorage::Handle,
                 value: TypedSlotValue::Handle(self.payload as i64),
+                residence: None,
             }),
             _ => None,
         }

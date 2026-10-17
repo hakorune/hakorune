@@ -1,10 +1,20 @@
 //! Trusted typed lifecycle ABI. Published definitions authorize operations;
 //! this module only validates physical operands and records runtime failures.
 use super::{Diagnostic, FaultFrame, Status};
+use crate::exports::typed_object::ObjectResidenceOutcomeV1;
 use crate::exports::typed_object_store_backend::{
     self as store, CheckedStorageError, TypedObjectStoreBackend,
 };
 use std::ffi::c_void;
+
+/// A physical residence pair, never a dynamically inferred ownership claim.
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct ObjectResidenceV1 {
+    pub(super) value: i64,
+    pub(super) outcome: u32,
+    pub(super) reserved: u32,
+}
 
 fn indexed_profile(profile: u32) -> Result<TypedObjectStoreBackend, Status> {
     match profile {
@@ -57,6 +67,33 @@ pub unsafe extern "C" fn field_get(
             Status::Normal as u32
         }
         Err(_) => Status::InvalidContract as u32,
+    }
+}
+
+/// Fallible exact received-object read. The original source and final consumers
+/// authorize field identity; this entry records the existing checked-object
+/// failure and writes the out-slot exclusively on Normal.
+#[export_name = "nyash.object.checked_field_get_fallible_i64_v1"]
+pub unsafe extern "C" fn field_get_fallible(
+    storage: *mut c_void,
+    profile: u32,
+    site: u64,
+    handle: i64,
+    type_id: i64,
+    slot: usize,
+    out: *mut i64,
+) -> u32 {
+    if out.is_null() { return Status::InvalidContract as u32; }
+    let (frame, profile) = match unsafe { admit(storage, profile) } {
+        Ok(value) => value,
+        Err(status) => return status as u32,
+    };
+    match store::get_checked_indexed(profile, handle, type_id, slot) {
+        Ok(value) => {
+            unsafe { out.write(value); }
+            Status::Normal as u32
+        }
+        Err(error) => failed(frame, error, site),
     }
 }
 
@@ -132,6 +169,74 @@ pub unsafe extern "C" fn field_set(
     match store::set_checked_indexed(profile, handle, type_id, slot, value) {
         Ok(()) => Status::Normal as u32,
         Err(error) => failed(frame, error, site),
+    }
+}
+
+/// Published actual/formal/store correspondence authorizes this one move.
+/// The runtime validates both columns before changing either one.
+#[export_name = "nyash.object.checked_residence_set_v1"]
+pub unsafe extern "C" fn residence_set(
+    storage: *mut c_void,
+    profile: u32,
+    site: u64,
+    handle: i64,
+    type_id: i64,
+    slot: usize,
+    child_type: i64,
+    value: i64,
+    outcome: u32,
+) -> u32 {
+    let outcome = match outcome {
+        0 => ObjectResidenceOutcomeV1::Null,
+        1 => ObjectResidenceOutcomeV1::Fresh,
+        2 => ObjectResidenceOutcomeV1::Forward,
+        _ => return Status::InvalidContract as u32,
+    };
+    if !outcome.accepts_payload(value) {
+        return Status::InvalidContract as u32;
+    }
+    let (frame, profile) = match unsafe { admit(storage, profile) } {
+        Ok(value) => value,
+        Err(status) => return status as u32,
+    };
+    match store::install_object_residence_checked(
+        profile, handle, type_id, slot, child_type, value, outcome,
+    ) {
+        Ok(()) => Status::Normal as u32,
+        Err(error) => failed(frame, error, site),
+    }
+}
+
+/// Exact read: neither a source Fault nor a zero/default substitution.
+/// Caller provides aligned nonoverlapping storage, written only on Normal.
+#[export_name = "nyash.object.checked_residence_get_v1"]
+pub unsafe extern "C" fn residence_get(
+    profile: u32,
+    handle: i64,
+    type_id: i64,
+    slot: usize,
+    child_type: i64,
+    out: *mut ObjectResidenceV1,
+) -> u32 {
+    if out.is_null() {
+        return Status::InvalidContract as u32;
+    }
+    let profile = match indexed_profile(profile) {
+        Ok(profile) => profile,
+        Err(status) => return status as u32,
+    };
+    match store::get_object_residence_checked(profile, handle, type_id, slot, child_type) {
+        Ok((value, outcome)) => {
+            unsafe {
+                out.write(ObjectResidenceV1 {
+                    value,
+                    outcome: outcome as u32,
+                    reserved: 0,
+                });
+            }
+            Status::Normal as u32
+        }
+        Err(_) => Status::InvalidContract as u32,
     }
 }
 

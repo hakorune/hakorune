@@ -19,6 +19,8 @@ mod inline_record_plan_probe;
 #[cfg(test)]
 mod inline_record_probe;
 mod ops;
+mod owned_slots;
+pub use owned_slots::{ArrayOwnedSlotDescriptor, ArrayOwnedSlotError};
 pub(crate) mod runtime_contract;
 pub use runtime_contract::{ArrayPrimitiveWriteError, TypedArrayRuntimeContractError};
 mod storage;
@@ -87,7 +89,8 @@ impl ArrayStateCell {
 
     fn write_uncontracted(&self) -> Option<MappedRwLockWriteGuard<'_, ArrayStorage>> {
         let state = self.state.write();
-        if state.element_contract.is_some() {
+        if state.element_contract.is_some() || matches!(state.storage, ArrayStorage::OwnedObject(_))
+        {
             return None;
         }
         Some(RwLockWriteGuard::map(state, |payload| &mut payload.storage))

@@ -9,6 +9,9 @@ use nyash_rust::runtime::host_handles as handles;
 use nyash_rust::typed_array_contract_spec::{ArrayElementContractSpec, ExactArrayElementType};
 use std::{ffi::c_void, sync::Arc};
 
+#[path = "fault_checked_array_owned.rs"]
+mod owned;
+
 const ELEMENT_I8: u32 = 1;
 const ELEMENT_I16: u32 = 2;
 const ELEMENT_I32: u32 = 3;
@@ -107,6 +110,65 @@ pub unsafe extern "C" fn allocate(storage: *mut c_void, _site: u64, out: *mut i6
         }
     };
     // SAFETY: validated nonnull out; remaining pointer validity is caller-owned.
+    unsafe { out.write(handle) };
+    Status::Normal as u32
+}
+
+/// A trusted UTF-8 slice in the immutable compiler ingress snapshot.
+#[repr(C)]
+pub struct ScriptArgumentUtf8 {
+    pub data: *const u8,
+    pub length: usize,
+}
+
+/// Whole Main argv materialization. Unpublished storage and String elements
+/// remain local RAII values until the entire snapshot is built. Fatal allocation
+/// termination is unchanged. Only Normal publishes out; no environment is read.
+#[export_name = "nyash.array.checked_script_arguments_new_v1"]
+pub unsafe extern "C" fn script_arguments(
+    storage: *mut c_void,
+    _site: u64,
+    values: *const ScriptArgumentUtf8,
+    count: usize,
+    out: *mut i64,
+) -> u32 {
+    if out.is_null() || (count != 0 && values.is_null())
+        || count > isize::MAX as usize / std::mem::size_of::<ScriptArgumentUtf8>()
+    {
+        return Status::InvalidContract as u32;
+    }
+    if let Err(status) = unsafe { admit(storage) } {
+        return status as u32;
+    }
+    let values = if count == 0 { &[] } else {
+        // SAFETY: trusted synchronous caller lends count aligned live slices.
+        unsafe { std::slice::from_raw_parts(values, count) }
+    };
+    let array = ArrayBox::new();
+    for value in values {
+        if (value.length != 0 && value.data.is_null()) || value.length > isize::MAX as usize {
+            return Status::InvalidContract as u32;
+        }
+        let bytes = if value.length == 0 { &[] } else {
+            // SAFETY: each trusted slice remains live for this call.
+            unsafe { std::slice::from_raw_parts(value.data, value.length) }
+        };
+        let Ok(text) = std::str::from_utf8(bytes) else {
+            return Status::InvalidContract as u32;
+        };
+        if array.slot_append_box_raw(Box::new(nyash_rust::box_trait::StringBox::new(text))) < 0 {
+            return Status::InvalidContract as u32;
+        }
+    }
+    let raw = handles::to_handle_arc(Arc::new(array));
+    let handle = match i64::try_from(raw) {
+        Ok(handle) if handle > 0 => handle,
+        _ => {
+            handles::drop_handle(raw);
+            return Status::InvalidContract as u32;
+        }
+    };
+    // SAFETY: caller lends an exclusive writable nonoverlapping output slot.
     unsafe { out.write(handle) };
     Status::Normal as u32
 }
@@ -231,8 +293,7 @@ pub unsafe extern "C" fn set_i64(
         Ok(frame) => frame,
         Err(status) => return status as u32,
     };
-    match with_array_box_direct(handle, |array| array.slot_store_i64_result(index, value))
-    {
+    match with_array_box_direct(handle, |array| array.slot_store_i64_result(index, value)) {
         Some(Ok(())) => Status::Normal as u32,
         Some(Err(ArrayPrimitiveWriteError::ElementContract { reason })) => record(
             frame,

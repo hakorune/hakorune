@@ -16,7 +16,7 @@ impl ArrayBox {
                 values.get(idx).map(|value| if *value { 1 } else { 0 })
             }
             ArrayStorage::InlineF64(_) => None,
-            ArrayStorage::InlineRecord(_) => None,
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_) => None,
         }
     }
 
@@ -106,6 +106,9 @@ impl ArrayBox {
                     }
                 }
             },
+            ArrayStorage::OwnedObject(_) => {
+                Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
+            }
             ArrayStorage::InlineRecord(values) => {
                 if idx < values.len() {
                     Box::new(StringBox::new(

@@ -72,7 +72,8 @@ fn audit_storage(
         ArrayStorage::Text(_)
         | ArrayStorage::InlineBool(_)
         | ArrayStorage::InlineF64(_)
-        | ArrayStorage::InlineRecord(_) => {
+        | ArrayStorage::InlineRecord(_)
+        | ArrayStorage::OwnedObject(_) => {
             Err(TypedArrayRuntimeContractError::ExistingElementMismatch {
                 index: 0,
                 reason: "runtime-type-mismatch",
@@ -120,10 +121,92 @@ pub(super) fn validate_i64_element(
 mod tests {
     use super::*;
     use crate::box_trait::{IntegerBox, NyashBox};
+    use crate::boxes::array::{ArrayOwnedSlotDescriptor, ArrayOwnedSlotError};
     use crate::typed_array_contract_spec::{ArrayElementContractSpec, ExactArrayElementType};
 
     fn spec(element: ExactArrayElementType) -> ArrayElementContractSpec {
         ArrayElementContractSpec { element }
+    }
+
+    #[test]
+    fn owned_slots_preserve_commit_identity_and_terminal_state() {
+        let key = ArrayOwnedSlotDescriptor {
+            identity: 1,
+            profile: 1,
+            type_id: 91,
+            end_address: 2,
+            nullable: true,
+        };
+        let foreign = ArrayOwnedSlotDescriptor { identity: 3, ..key };
+        let array = ArrayBox::new();
+        array.claim_owned_slots(key).unwrap();
+        assert!(matches!(
+            array.invoke_surface(super::super::ArrayMethodId::Length, vec![]),
+            Err(super::super::ArraySurfaceInvokeError::OwnedSlotsRequireCheckedOperation)
+        ));
+        assert_eq!(array.append_owned_slot(key, -1), Ok(1));
+        assert_eq!(array.append_owned_slot(key, 0), Ok(2));
+        assert_eq!(
+            array.append_owned_slot(foreign, -2),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
+        assert_eq!(
+            array.append_owned_slot(key, -1),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
+        assert_eq!(
+            array.append_owned_slot(key, 9),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
+        assert_eq!(array.borrow_owned_slot(key, 0), Ok(-1));
+        assert_eq!(array.borrow_owned_slot(key, 1), Ok(0));
+        assert_eq!(array.borrow_owned_slot(key, 2), Ok(0));
+        assert_eq!(
+            array.borrow_owned_slot(foreign, 2),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
+        assert_eq!(
+            array.slot_append_i64_result(7),
+            Err(ArrayPrimitiveWriteError::UnsupportedStorage)
+        );
+        assert!(!array.slot_store_box_raw(0, Box::new(IntegerBox::new(7))));
+        assert!(!array.slot_insert_box_raw(0, Box::new(IntegerBox::new(7))));
+        assert!(!array.slot_reserve_capacity_raw(5));
+        assert!(array
+            .clear()
+            .to_string_box()
+            .value
+            .contains("mutation-denied"));
+        assert!(array
+            .get_index_i64(0)
+            .to_string_box()
+            .value
+            .contains("generic-access-denied"));
+        assert_eq!(array.slot_load_i64_raw(0), None);
+        assert!(array
+            .claim_element_contract(spec(ExactArrayElementType::I64))
+            .is_err());
+        assert_eq!(array.detach_owned_slots_for_end(key), Ok(vec![-1, 0]));
+        for operation in [
+            array.borrow_owned_slot(key, 0).map(|_| ()),
+            array.claim_owned_slots(key),
+            array.append_owned_slot(key, -2).map(|_| ()),
+        ] {
+            assert_eq!(operation, Err(ArrayOwnedSlotError::InvalidContract));
+        }
+        array.finish_owned_slots_end(key).unwrap();
+        assert_eq!(
+            array.claim_owned_slots(key),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
+        assert_eq!(
+            array.detach_owned_slots_for_end(key),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
+        assert_eq!(
+            array.finish_owned_slots_end(key),
+            Err(ArrayOwnedSlotError::InvalidContract)
+        );
     }
 
     #[test]

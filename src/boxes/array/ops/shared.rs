@@ -56,7 +56,7 @@ impl ArrayBox {
                 let materialized = Self::boxed_from_inline_f64(values);
                 f(&materialized)
             }
-            ArrayStorage::InlineRecord(_) => {
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_) => {
                 panic!("[array/inline-record/unmaterialized] boxed read view is not enabled")
             }
         }

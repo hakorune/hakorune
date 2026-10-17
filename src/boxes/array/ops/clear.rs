@@ -12,6 +12,9 @@ impl ArrayBox {
             ArrayStorage::InlineBool(values) => values.clear(),
             ArrayStorage::InlineF64(values) => values.clear(),
             ArrayStorage::InlineRecord(values) => values.clear(),
+            ArrayStorage::OwnedObject(_) => {
+                return Box::new(StringBox::new("[array/owned-slots/mutation-denied]"))
+            }
         }
         Box::new(StringBox::new("ok"))
     }

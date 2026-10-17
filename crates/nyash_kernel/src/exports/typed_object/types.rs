@@ -124,6 +124,26 @@ impl TypedSlotValue {
 pub(crate) struct TypedSlot {
     pub(crate) storage: TypedSlotStorage,
     pub(crate) value: TypedSlotValue,
+    /// Selected object-field residence, independent of the payload bits.
+    /// Legacy scalar fields have no residence contract.
+    pub(crate) residence: Option<ObjectResidenceOutcomeV1>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub(crate) enum ObjectResidenceOutcomeV1 {
+    Null = 0,
+    Fresh = 1,
+    Forward = 2,
+}
+
+impl ObjectResidenceOutcomeV1 {
+    pub(crate) fn accepts_payload(self, value: i64) -> bool {
+        match self {
+            Self::Null => value == 0,
+            Self::Fresh | Self::Forward => value != 0,
+        }
+    }
 }
 
 impl TypedSlot {
@@ -131,11 +151,12 @@ impl TypedSlot {
         Self {
             storage,
             value: TypedSlotValue::default_for(storage),
+            residence: None,
         }
     }
 
     pub(crate) fn set_i64_exact(&mut self, value: i64) -> bool {
-        if self.storage != TypedSlotStorage::I64 {
+        if self.residence.is_some() || self.storage != TypedSlotStorage::I64 {
             return false;
         }
         self.value = TypedSlotValue::I64(value);
@@ -144,7 +165,7 @@ impl TypedSlot {
 
     #[inline(always)]
     pub(crate) fn set_compat_i64(&mut self, value: i64) -> bool {
-        if !self.storage.supports_compat_i64() {
+        if self.residence.is_some() || !self.storage.supports_compat_i64() {
             return false;
         }
         self.value = match self.storage {
@@ -174,6 +195,9 @@ impl TypedSlot {
     }
 
     pub(crate) fn set_exact_unsigned_u64(&mut self, value: u64) -> bool {
+        if self.residence.is_some() {
+            return false;
+        }
         let Some(max) = self.storage.unsigned_max() else {
             return false;
         };
@@ -195,6 +219,9 @@ impl TypedSlot {
     }
 
     pub(crate) fn set_exact_signed_i64(&mut self, value: i64) -> bool {
+        if self.residence.is_some() {
+            return false;
+        }
         let Some((min, max)) = self.storage.signed_range() else {
             return false;
         };
@@ -207,6 +234,36 @@ impl TypedSlot {
             _ => TypedSlotValue::Signed(exact_value),
         };
         true
+    }
+
+    /// Constructor publication is single-assignment. Identity and source
+    /// authorization are checked by the enclosing storage/compiled owners.
+    pub(crate) fn install_object_residence(
+        &mut self,
+        value: i64,
+        outcome: ObjectResidenceOutcomeV1,
+    ) -> bool {
+        if self.storage != TypedSlotStorage::I64
+            || self.residence.is_some()
+            || self.value != TypedSlotValue::I64(0)
+            || !outcome.accepts_payload(value)
+        {
+            return false;
+        }
+        self.value = TypedSlotValue::I64(value);
+        self.residence = Some(outcome);
+        true
+    }
+
+    pub(crate) fn object_residence(&self) -> Option<(i64, ObjectResidenceOutcomeV1)> {
+        if self.storage != TypedSlotStorage::I64 {
+            return None;
+        }
+        let TypedSlotValue::I64(value) = self.value else {
+            return None;
+        };
+        let outcome = self.residence?;
+        outcome.accepts_payload(value).then_some((value, outcome))
     }
 
     pub(crate) fn rmw_add_exact_unsigned_u64(&mut self, delta: u128) -> Option<i64> {

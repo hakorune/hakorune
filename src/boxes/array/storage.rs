@@ -7,6 +7,7 @@ pub(super) enum ArrayStorage {
     InlineBool(Vec<bool>),
     InlineF64(Vec<f64>),
     InlineRecord(ArrayInlineRecordStorage),
+    OwnedObject(super::owned_slots::ArrayOwnedObjectStorage),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -180,6 +181,7 @@ impl ArrayStorage {
             Self::InlineBool(values) => values.len(),
             Self::InlineF64(values) => values.len(),
             Self::InlineRecord(values) => values.len(),
+            Self::OwnedObject(values) => values.len(),
         }
     }
 
@@ -191,6 +193,7 @@ impl ArrayStorage {
             Self::InlineBool(values) => values.capacity(),
             Self::InlineF64(values) => values.capacity(),
             Self::InlineRecord(values) => values.capacity(),
+            Self::OwnedObject(values) => values.capacity(),
         }
     }
 }
@@ -278,7 +281,7 @@ impl ArrayBox {
             | ArrayStorage::InlineF64(_) => {
                 unreachable!("inline storage promoted to boxed")
             }
-            ArrayStorage::InlineRecord(_) => {
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_) => {
                 panic!("[array/inline-record/unmaterialized] boxed materialization is not enabled")
             }
         }
@@ -295,7 +298,8 @@ impl ArrayBox {
             | ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
-            | ArrayStorage::InlineRecord(_) => None,
+            | ArrayStorage::InlineRecord(_)
+            | ArrayStorage::OwnedObject(_) => None,
         }
     }
 
@@ -310,7 +314,8 @@ impl ArrayBox {
             | ArrayStorage::Text(_)
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
-            | ArrayStorage::InlineRecord(_) => None,
+            | ArrayStorage::InlineRecord(_)
+            | ArrayStorage::OwnedObject(_) => None,
         }
     }
 
@@ -325,7 +330,8 @@ impl ArrayBox {
             | ArrayStorage::Text(_)
             | ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineF64(_)
-            | ArrayStorage::InlineRecord(_) => None,
+            | ArrayStorage::InlineRecord(_)
+            | ArrayStorage::OwnedObject(_) => None,
         }
     }
 
@@ -340,7 +346,8 @@ impl ArrayBox {
             | ArrayStorage::Text(_)
             | ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineRecord(_) => None,
+            | ArrayStorage::InlineRecord(_)
+            | ArrayStorage::OwnedObject(_) => None,
         }
     }
 

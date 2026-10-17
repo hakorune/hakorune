@@ -14,6 +14,10 @@ use super::typed_object_direct_slot_backend::{
 use super::typed_object_pinned_arena::PinnedTypedObjectArena;
 use crate::backend_env::{cached_env_choice, panic_unsupported_env_value, try_cached_env_choice};
 
+#[path = "typed_object_store_residence.rs"]
+mod residence;
+pub(super) use residence::{get_object_residence_checked, install_object_residence_checked};
+
 pub(super) const TYPED_OBJECT_STORE_ENV: &str = "HAKO_TYPED_OBJECT_STORE";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -601,6 +605,7 @@ mod indexed_storage_tests {
     #[test]
     fn checked_operations_preserve_identity_and_reject_before_mutation() {
         let profile = selected_backend();
+        residence::check_atomic_residence_operations(profile);
         if !matches!(
             profile,
             TypedObjectStoreBackend::SafeMutex | TypedObjectStoreBackend::SingleThreadExact

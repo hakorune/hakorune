@@ -1,5 +1,5 @@
 use super::super::super::{ArrayBox, ArrayStorage};
-use crate::box_trait::{BoolBox, IntegerBox, NyashBox};
+use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox};
 
 impl ArrayBox {
     /// 指定された値のインデックスを検索
@@ -45,6 +45,9 @@ impl ArrayBox {
                 }
             }
             ArrayStorage::InlineRecord(_) => {}
+            ArrayStorage::OwnedObject(_) => {
+                return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
+            }
         }
         Box::new(IntegerBox::new(-1))
     }
@@ -87,6 +90,9 @@ impl ArrayBox {
                 }
             }
             ArrayStorage::InlineRecord(_) => {}
+            ArrayStorage::OwnedObject(_) => {
+                return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
+            }
         }
         Box::new(BoolBox::new(false))
     }

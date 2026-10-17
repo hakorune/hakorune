@@ -7,7 +7,7 @@ mod types;
 pub(crate) use types::{
     default_layout_fields, field_get_hii_dispatch, field_set_hii_dispatch, handle_to_index,
     normalize_field_count, normalize_slot, typed_layouts, TypedSlot, TypedSlotLayout,
-    TypedSlotObject, TypedSlotStorage, TypedSlotValue,
+    TypedSlotObject, TypedSlotStorage, TypedSlotValue, ObjectResidenceOutcomeV1,
 };
 
 use super::typed_object_pinned_arena::read_direct_slot_compat_i64;

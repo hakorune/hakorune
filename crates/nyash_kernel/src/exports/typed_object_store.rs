@@ -52,7 +52,7 @@ mod tests {
             type_id,
             fields: fields
                 .into_iter()
-                .map(|(storage, value)| TypedSlot { storage, value })
+                .map(|(storage, value)| TypedSlot { storage, value, residence: None })
                 .collect(),
         }
     }

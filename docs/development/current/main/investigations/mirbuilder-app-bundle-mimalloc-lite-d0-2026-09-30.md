@@ -39,8 +39,8 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   V813 received-read current packet checks are pinned premises below.
   CLI162 unchanged M189 now passes canonical direct EXE/run/exact proof output;
   V815f source/final50 PASS connects original Local-New stored scalar calls.
-  M190 native acceptance now PASS on pinned C831e/app175 WIP. V814 deeper-provider
-  source acceptance and independent final validation remain owed.
+  M190 native acceptance PASS on CLI174/C831e/app176 WIP. V832 deeper-provider
+  source/publication/native PASS; independent final acceptance/landing remain owed.
   Landed separate BoxShape removes quadratic C physical block lookup; preserve
   the completed source→final connection and required whole-row acceptance.
   Cumulative source WIP remains unlanded; this is not full-goal completion.
@@ -107,9 +107,9 @@ prove PASS without rerunning or filtering output.
 First milestone unchanged mimalloc-lite app148 and later CLI149/app149 repin
 remain PASS; full seven-line output, command and identities are preserved in
 this card at **fa6d0cb155** (earlier full evidence **8508d9d37d**).
-Next existing source acceptance is the three-hop New-provider Print positive
-`original_print_source_reaches_normal_compiler_and_finished_string_lifetimes`:
-`lexical-call-prior-home-unavailable` is an independently confirmed baseline RED.
+The existing three-hop New-provider Print baseline RED is now resolved by
+V832 source/publication/native evidence below; current independent both-opts
+acceptance and coordinated source landing remain open.
 Keep original wire, manifests and binaries until source landing and C closeout.
 
 ## Verified premises; no automatic product acceptance
@@ -287,23 +287,11 @@ Live binding contracts retained from that investigation:
   declaration owners and all source/type/flow admission stay unchanged. Duplicate
   branch declarations removed, net5 emitter lines deleted; landed8508d9d37d.
 
-Verified evidence at that checkpoint (not a whole-suite claim):
-
-| selected evidence | measured result |
-| --- | --- |
-| original source header normalization, stored-child96 + G0 | V791 PASS20.79s |
-| owned16 / fieldReturn6 / stored96 / String / ownedArray / Map normal+Fault+wire refusals | V792–794 PASS; Map includes >256blocks; exact cases/timing at8508d9d37d |
-| same-root Copy/Phi, differing-root/unused-after-End refusals | V794 owned131.009003s / stored14.825800s PASS |
-| Direct cleanup3/order5/graph5, Fresh original+joint final mutation | V795 PASS; both original/FinishedBindings contracts remain |
-| instance8, source move/Fault inventory, nullable Birth JSON, joint consumer mutation | V795c PASS (.10/.33/.08/.81s) |
-| Bool discard true/false original source→C execution and callee Fault | V796 PASS12.335907s after original fixture reissue |
-| declared/direct-copy×null/object×bothopts, carrier/producer mutations | V797 source .91s; original forwarded/receiver .12s PASS |
-| declared source C20 / class+wire+release refusals | V797 PASS196.347264s |
-| physical JSON35 | V797 32PASS/3RED; repair mapping below, no waiver |
-| original unchanged app compiled-entry→ABI→backend, both final scans and Mixed/Borrowed mutations | V797 PASS1634.930994s bothopts |
-| native39 production host + independent physical/runtime/Fault/malformed | V798 PASS519.883085s; host archive9f6…, Python observer757 (separate pins) |
-| isolated HEAD+declaration-only C build/native source EXE/exit30 | V798 PASS; native compile103.006463s; no other source WIP |
-| unchanged mimalloc canonical EXE/run/stdout/exit0 | V798 app148 PASS; full command/pins/output above |
+Completed V791–V798 evidence, exact counts/times/identities and all historical
+red classifications are preserved at **8508d9d37d**, with later repins at
+**f3efcde2bc**. This includes dual final scans, native39, isolated declaration-
+only HEAD build and first milestone. They do not substitute for current-source
+acceptance; live contracts above remain mandatory.
 
 V753 specific Rust optfalse forbidden-operand RED is now PASS at the SAME
 restored whole compiled-entry/ABI demand. Both module-all-instruction and
@@ -947,19 +935,14 @@ final/both-opts and selected native provider evidence. C831 native success does
 not close these source obligations. Required Array/Set/FieldWrite/fixedsuite and
 remaining retirement stay open; cumulative WIP is not accepted.
 
-V832a verification: root build66.417804s PASS, source manifest v832a-root;
-only eight Rust/owner-doc paths differ from pinned V829a (typed provider source,
-plan, ledger join, emitter, validator and existing aggregate test). Existing
-aggregate Print1 PASS. Owned inventory9/constructor plan10/typed cleanup2/provider
-argument4 PASS. Initial wrong filter selected0 and was rejected by the harness;
-correct filters above ran25, not a product failure or claimed zero-test success.
-Original deep-provider published JSON SHA49a57b51d149ab4b3743646bc2267b8e7829c065429eec6fc61093f20f2f117b
-C831e/runtime808b native n=7/exit0 PASS. Existing owned runtime probe proves
-all3 store-Fault and all3 allocation-Fault boundaries exit70, acquired=freed,
-with exact expected Home versus unpublished reclaim counts. No input repair.
-Array-only discharge writer/walker physically removed; existing typed owner is
-sole. CLI174 build167.051369s PASS; binary44b326de76dc94bbe46be7f01c12b9fea28e6c1037d6d0015ce394ee6719acd6
-is retained as v832-cli174.hakorune. Actual app both-opts gate remains running; app176 repin PASS above.
+V832a root build66.417804s, aggregate Print1 and owned/constructor/cleanup/provider
+25 PASS. Original deep-provider source/publication/native n=7 plus all3 store
+and all3 allocation Fault exact-once PASS. Full commands/pins/timing and the
+wrong zero-filter harness classification are preserved at **f3efcde2bc**.
+Only eight Rust/owner-doc paths changed from V829a; typed provider normalization
+physically removes the Array-only discharge writer/walker. CLI174 build167.051369s,
+retained binary44b326de76dc94bbe46be7f01c12b9fea28e6c1037d6d0015ce394ee6719acd6.
+Actual app both-opts remains live; app176 native repin PASS above.
 No source landing or whole-row acceptance claimed. Fixed11 terminal RED379.209432s: PASS4/FAIL7;
 three direct EXE positives (Birth, Birth-param, method), plus one empty boundary
 marker PASS. Failures: typed-newbox PrefixNotCovered Body1; json-stream Static
@@ -979,18 +962,38 @@ InitializationContractMissing. LOCAL pair writes also lack selected source
 prefix coverage. These are profile gaps, not source invalidity; keep unchanged
 positive, no fabricated Birth, zero-fill proof, or conversion to a negative.
 
-Ancillary existing root-route guard reconciliation (worker read-only, 65 counts
-and all remaining predicates): HEAD/current caller counts identical. Four stale
-counts come from committed static-parent/method tests, existing cfg(test) root
-fixtures, enclosing-box reject and retired post-seal macro AST mutation. Repin
-merged facade test from3128f03b8d; current binary focused1 PASS .022082s.
-Old C0 touched-file<760 acceptance remains historical and is not rewritten.
-This S0 does not reopen C0 or edit its two763-line files. Reusable size check
-now follows RULES§8: consider split at760 (warn), hard stop at800; no compression
-or extra source permission. All authority/forbidden/caller predicates retained.
-Canonical route guard was intentionally ABORTED at its redundant embedded debug
-build (not PASS); Cargo/rustc terminated. Layer/thin-shim guards PASS. Additional
-current physical JSON33/terminal source22/observation1/final refusal1/missing
-result1 PASS. Root-route guard PASS with the reviewed corrections above; two
-unchanged763-line owner warnings remain. Original source manifests have zero
-drift. Final actual remains live (pinned binary b4435f1e1d47490868590005a2b98a1ef169eeb9f2c51b2831ca6229692ed3b5).
+Ancillary root-route reconciliation and full worker count/predicate audit are
+landed at **f3efcde2bc**. Root-route/layer/thin-shim/pointer/diff PASS; source
+JSON33/terminal22/observation1/final-refusal1/missing-result1 and merged facade1
+PASS. Canonical route guard intentionally ABORTED its redundant debug build;
+never counted PASS. Two unchanged763-line owner warnings follow RULES§8.
+Actual root test remains on b4435f1e1d47490868590005a2b98a1ef169eeb9f2c51b2831ca6229692ed3b5.
+
+V833 landing Decision (same series, worker read-only dependency/cutover review):
+C-only landing is refused: HEAD Rust lacks required FieldSet numeric-check and
+Return result_origin columns; new C consumer must cut over with its producer.
+No fallback/version guess. Runtime-only additive boundary is32 explicit paths:
+kernel13 + Array18 + header1; old exports/old storage behavior remain compatible.
+New residence and OwnedObject states can only be entered by the new APIs;
+all generic escapes reject them. src/mir, ownership.md and lang selfhost stay WIP.
+Source authority remains the caller's original sealed move/loan; runtime physical
+identity/outcome checks issue no Home or source permission. Existing all-field
+Fault/atomic/Array tests and actual M190 are required evidence, not schema-only.
+Pinned v808 kernel artifact provenance and relevant source hashes corroborated:
+Fault34 PASS, typed-object32 PASS/1 RED at stale DirectSlotV0 negative-handle
+assertion. HEAD encode/decode unchanged; SSOT prior9164286970 already records
+same RED (constructor lifecycle803). Fix only existing assertion to positive
+pointer-handle law; generation-indexed negative handles retain their own tests.
+Test-only sign fix: primary kernel build240.721336s PASS; Fault34/typed-object33
+PASS. Full existing Array53 PASS .257524s on pinned V832 source (runtime unchanged).
+HEAD f3efcde2bc plus exactly32 candidate paths: isolated build263.279830s PASS,
+then Fault34/typed-object33 PASS. No src/mir/C WIP present; subset source hashes
+match primary exactly. Commands/manifests/logs: v833-kernel, v833-runtime-isolated,
+v833-array-regression under existing evidence base. This implementation commit
+lands only additive runtime prerequisites and the stale assertion repair; no
+compiler consumer cutover, Array C execution acceptance or full S0 acceptance.
+Production runtime/header/Array hashes match runtime808; no archive rebuild.
+Retain runtime808b/CLI174/C831e/original wire and current primary kernel test pin
+until coordinated source landing. Retire this turn's isolated checkout and two
+superseded copied kernel test binaries after landing; logs/manifests remain.
+Actual both-opts root PID713636/session80669 remains live; do not restart it.
