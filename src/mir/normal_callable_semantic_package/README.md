@@ -4639,3 +4639,14 @@ proofs and every required existing Add envelope with one common Normal result.
 Physical entry/domain and guard-to-read dominance must be independently checked
 by both final consumers before activation. The current initializer and finite-
 envelope writer fences remain; no Text-only marker admits mixed input.
+
+The original argument source loan is shared by literal/local/forwarded/residence
+and Core purposes: plan identity is common and the closed Core receipt is optional.
+The covered argument frame retains original Static Text definition/read loans,
+current owned Text residence acquisition Rc, or exact Text entry requirements.
+Only Core result evaluation adds an owned root acquisition; borrowing a literal,
+residence or entry adds none. Bare formal source selection requires the original
+singleton Text SUM. Full physical cohort, ordered evaluation/Call/Fault cleanup
+and both final scans remain mandatory; these frames alone do not activate Static
+actuals, entry markers or serialization. Source flow shares the exact alias-origin
+query for Entry and terminal Expression and rejects Join/Unknown/cycle guessing.

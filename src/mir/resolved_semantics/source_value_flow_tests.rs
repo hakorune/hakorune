@@ -110,6 +110,8 @@ fn join(
     value: SourceValueRefV1,
     expected: K,
 ) -> &[(E, SourceValueRefV1)] {
+    assert!(flow(product).alias_origin(value, |site| product.variable_ref(site)).is_none(),
+        "an alias query cannot select one incoming predecessor");
     let Some(O::Join { kind, incoming, .. }) = flow(product).origin(value) else {
         panic!("not a join: {:?}", flow(product).origin(value));
     };
@@ -122,6 +124,8 @@ fn source_value_flow_rebind_reads_old_value_then_publishes_rhs_and_checks_owner(
     let product = resolve(vec![set(var()), ret(var())]);
     let first = read(&product, &[P::Body(0), P::Value]);
     assert!(matches!(flow(&product).origin(first), Some(O::Entry(_))));
+    assert_eq!(flow(&product).alias_origin(read(&product, &[P::Body(1), P::Value]),
+        |site| product.variable_ref(site)), Some(first));
     expression(
         &product,
         read(&product, &[P::Body(1), P::Value]),
@@ -138,6 +142,11 @@ fn source_value_flow_rebind_reads_old_value_then_publishes_rhs_and_checks_owner(
         .read(&site(&[P::Body(0), P::Value]), foreign)
         .is_none());
     assert!(flow(&other).origin(first).is_none());
+    assert!(flow(&other).alias_origin(first, |site| other.variable_ref(site)).is_none());
+    let literal = resolve(vec![local(Some(int(7))), ret(var())]);
+    let value = read(&literal, &[P::Body(1), P::Value]);
+    assert_eq!(flow(&literal).alias_origin(value, |site| literal.variable_ref(site)), Some(value));
+    assert!(flow(&literal).alias_entry_origin(value, |site| literal.variable_ref(site)).is_none());
 }
 
 #[test]

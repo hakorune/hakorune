@@ -32,6 +32,7 @@ pub(super) fn corroborates_argument_source_v1(
 /// coverage only: literal, local and Core inputs share no execution shortcut.
 pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sources_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
+    prepared: &PreparedBorrowedFormalIngressV1,
     site: &OwnedExprSiteV1,
     previous: Option<&Result<PreparedBorrowedCallActualsV1, String>>,
     rows: Option<&mut PreparedBorrowedCallActualsV1>,
@@ -39,6 +40,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
     let Some(rows) = rows else { return Ok(()) };
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase else { return Ok(()) };
     let reject = || freeze("borrowed-static/core-source-identity");
+    if !original_static_source_v1(prepared, site)?.is_some_and(|source| Rc::ptr_eq(source, &identity.source)) { return Err(reject()); }
     let old = previous.map(|rows| {
         let rows = rows.as_ref().map_err(|_| freeze("borrowed-actual/repeated-walk-drift"))?;
         let BorrowedCallActualEvidencePhaseV1::SourceStatic(old) = &rows.phase else { return Err(reject()) };
@@ -69,6 +71,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
             _ => false,
         };
         if !same { return Err(reject()); }
+        if let BorrowedCallActualValueV1::SelfRooted { binding, root } = candidate.value {
+            if !prepared.static_arguments.contains_key(&(site.clone(), ordinal)) {
+                let flow = input.function().expression_source().value_flow().ok_or_else(reject)?;
+                if flow.read(&candidate.site, binding).and_then(|value|
+                    flow.alias_entry_origin(value, |site| input.function().variable_ref(site))) != Some(root) {
+                    return Err(reject());
+                }
+            }
+        }
         if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
             let receipt = identity.core_arguments.get(&ordinal).ok_or_else(reject)?;
             if !std::sync::Arc::ptr_eq(method, receipt.source().source())
@@ -96,11 +107,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
 #[derive(Debug, Clone)]
 pub(crate) struct ArgumentExpressionSourceLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
-    core: Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>,
+    core: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
 }
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.plan, &other.plan) && Rc::ptr_eq(&self.core, &other.core)
+        Rc::ptr_eq(&self.plan, &other.plan) && match (&self.core, &other.core) {
+            (None, None) => true, (Some(a), Some(b)) => Rc::ptr_eq(a, b), _ => false,
+        }
     }
 }
 impl Eq for ArgumentExpressionSourceLoanV1 {}
@@ -109,18 +122,23 @@ impl ArgumentExpressionSourceLoanV1 {
     /// SAME closed operand premise at an exact original node. This is source
     /// class evidence only and must be joined with current Prefix availability.
     pub(crate) fn signed_operand_contains(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
-        self.plan.nodes().iter().any(|node| node.site() == site)
-            && self.resolver_source().source().arguments().iter().zip(self.resolver_source().target().parameters())
+        self.resolver_source().is_some_and(|core| self.plan.nodes().iter().any(|node| node.site() == site)
+            && core.source().arguments().iter().zip(core.target().parameters())
                 .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
-                    && site.node().segments().starts_with(arg.site().node().segments()))
+                    && site.node().segments().starts_with(arg.site().node().segments())))
     }
     pub(crate) fn text_operand_is(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
-        site == self.resolver_source().source().receiver_site()
-            || self.resolver_source().source().arguments().iter().zip(self.resolver_source().target().parameters())
-                .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
+        if let Some(core) = self.resolver_source() {
+            site == core.source().receiver_site()
+                || core.source().arguments().iter().zip(core.target().parameters())
+                    .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
+        } else {
+            self.plan.nodes().first().is_some_and(|node| node.site() == site
+                && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+        }
     }
-    pub(crate) fn resolver_source(&self) -> &crate::mir::resolved_semantics::VerifiedResolverOrdinaryCoreMethodSourceV1 {
-        self.core.source()
+    pub(crate) fn resolver_source(&self) -> Option<&crate::mir::resolved_semantics::VerifiedResolverOrdinaryCoreMethodSourceV1> {
+        self.core.as_ref().map(|core| core.source())
     }
 }
 
@@ -232,16 +250,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
     let identity = validate_static_source_actuals_v1(prepared, rows, site, identity.source.required_i64_arguments())?;
     let candidate = identity.candidates.get(ordinal as usize)
         .filter(|row| row.ordinal == ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
-    if !matches!(candidate.value, BorrowedCallActualValueV1::MethodCall(_)) { return Ok(None); }
-    // A selected Core candidate with missing evidence is a refusal, never an
-    // absent loan that invites retry through another source or execution route.
-    let core = identity.core_arguments.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
+    let core = if matches!(candidate.value, BorrowedCallActualValueV1::MethodCall(_)) {
+        Some(Rc::clone(identity.core_arguments.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?))
+    } else { None };
     let plan = identity.argument_sources.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
-    Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), core: Rc::clone(core) }))
+    Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), core }))
 }
 
-/// The covered observer may ask about any actual. Only the SAME closed original
-/// Text Core selects this responsibility; selected candidates then lend strictly.
+/// The covered observer selects original Text source roles in the same pending
+/// argument product. Core results and local/reference reads keep distinct proof.
 pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source_v1(
     input: ResolvedFunctionLoweringInputV1<'_>, prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1, site: &OwnedExprSiteV1, ordinal: u32,
@@ -249,10 +266,32 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     if input.owner() != site.owner() { return Err(freeze("borrowed-static/core-source-identity")); }
     let Some(call) = input.function().method_call_source_v1(site.site()) else { return Ok(None) };
     let Some(arg) = call.arguments().get(ordinal as usize).filter(|arg| arg.ordinal() == ordinal) else { return Ok(None) };
-    let Some(core) = prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(site.owner(), arg.site().clone())) else { return Ok(None) };
-    if core.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller { return Ok(None); }
-    if !input.function().method_call_source_v1(arg.site()).is_some_and(|method| std::sync::Arc::ptr_eq(method, core.source().source())) {
-        return Err(freeze("borrowed-static/core-source-identity"));
+    if let Some(core) = prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(site.owner(), arg.site().clone())) {
+        if core.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller { return Ok(None); }
+        if !input.function().method_call_source_v1(arg.site()).is_some_and(|method| std::sync::Arc::ptr_eq(method, core.source().source())) {
+            return Err(freeze("borrowed-static/core-source-identity"));
+        }
+    } else if !matches!(crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, arg.site()),
+        Some(BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))) {
+        return Ok(None);
+    }
+    if let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(arg.site()) {
+        if let Some(flow) = input.function().expression_source().value_flow() {
+            if let Some(root) = flow.read(arg.site(), binding).and_then(|value|
+                flow.alias_entry_origin(value, |site| input.function().variable_ref(site))) {
+                if !prepared.source_value_sum_v1(root).is_some_and(|sum| sum.alternatives().len() == 1
+                    && sum.alternatives().contains(&super::super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)) { return Ok(None); }
+            }
+        }
+    }
+    // Only canonical Static source participates. Preserve a selected original
+    // refusal; do not turn an Err into an absent loan and invite another route.
+    let Some(original) = original_static_source_v1(prepared, site)? else { return Ok(None) };
+    if !original.parameters().get(ordinal as usize).is_some_and(|formal|
+        formal.ordinal == ordinal && formal.kind.is_ordinary_borrowed_handle()) { return Ok(None); }
+    if let Some(rows) = pending.get(site) {
+        let rows = rows.as_ref().map_err(Clone::clone)?;
+        if !matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_)) { return Ok(None); }
     }
     lend_argument_expression_source_v1(prepared, pending, site, ordinal)
 }
@@ -269,6 +308,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
     if !loan.text_operand_is(read) || call.site() != site.site() || loan.plan().owner() != site.owner()
         || lend_argument_expression_source_v1(prepared, pending, site, *ordinal)?.as_ref() != Some(loan) {
         return Err(freeze("borrowed-text-entry/source-identity"));
+    }
+    if loan.resolver_source().is_none() && !prepared.source_value_sum_v1(root).is_some_and(|sum|
+        sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)) {
+        return Err(freeze("borrowed-text-entry/source-domain-unclosed"));
     }
     super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan.plan(), read, binding, root)
 }

@@ -21,6 +21,7 @@ mod field_alias;
 mod field_readiness;
 #[path = "home_prefix_text.rs"]
 mod text;
+pub(crate) use text::StaticTextReadV1;
 #[cfg(test)]
 pub(crate) use text::assert_identity_for_test as assert_text_residence_identity_for_test;
 pub(crate) use field_alias::FieldAliasPathV1;
@@ -66,6 +67,7 @@ pub(crate) enum SourceScalarKind {
 
 #[derive(Clone)]
 enum StoredLocal {
+    StaticText { definition: SourceExprSiteV1 },
     Text { root: BindingRefV1, acquisition: std::rc::Rc<super::CheckedTextInitializerFrameV1> },
     NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
@@ -180,6 +182,7 @@ impl OrdinaryObservation {
 
 fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
+        (StoredLocal::StaticText { definition: a }, StoredLocal::StaticText { definition: b }) => a == b,
         (StoredLocal::Text { root: a, acquisition: ap }, StoredLocal::Text { root: b, acquisition: bp }) => a == b && std::rc::Rc::ptr_eq(ap, bp),
         (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
         (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
@@ -494,7 +497,7 @@ impl<'source> PrefixLocalFlow<'source> {
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
             // A field-read alias names borrowed storage, never a movable
             // value — every observation lane stays fail-closed on it.
-            StoredLocal::Text { .. } | StoredLocal::FieldAlias { .. } | StoredLocal::NamedArrayHolder(_) | StoredLocal::BorrowedArray { .. } => None,
+            StoredLocal::StaticText { .. } | StoredLocal::Text { .. } | StoredLocal::FieldAlias { .. } | StoredLocal::NamedArrayHolder(_) | StoredLocal::BorrowedArray { .. } => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Null => Some(OrdinaryObservation::Null),

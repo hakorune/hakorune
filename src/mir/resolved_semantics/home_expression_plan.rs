@@ -246,7 +246,7 @@ impl HomeExpressionPlanV1 {
                     _ => false,
                 })
             && self.condition_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
-            && self.argument_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source) && Rc::ptr_eq(frame.core().plan(), &self.source))
+            && self.argument_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source) && Rc::ptr_eq(frame.source_loan().plan(), &self.source))
             && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.text_initializer.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.source_fields.iter().all(|field| Rc::ptr_eq(&self.source, field.plan()) && field.is_consistent())

@@ -14,6 +14,14 @@ pub(super) fn observe<E>(
     let Some(site) = initializer.initializer_site() else { return Ok(false) };
     if initializer.binding().owner() != input.owner()
         || !matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. } if original == statement.site()) { return Ok(false); }
+    if matches!(input.function().expression_source().literal(site), Some(ResolvedLiteralSourceV1::String(_))) {
+        locals.install_static_text(initializer.binding(), site.clone());
+        return Ok(true);
+    }
+    if let Some(read) = locals.static_text_reference(site) {
+        locals.install_static_text(initializer.binding(), read.definition().clone());
+        return Ok(true);
+    }
     if let Some((_, root, acquisition)) = locals.text_reference(site) {
         locals.install_text_alias(initializer.binding(), root, acquisition);
         return Ok(true);
@@ -83,7 +91,15 @@ pub(crate) fn observe_for_test<E>(
             .find(|row| matches!(row.declaration_site(), SourceBindingSiteV1::Local { statement: site, ordinal: 0 } if site == statement.site())).unwrap();
         let root = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
         local_call_flow::stage_argument_expressions(input, &statement, &root, &locals, known, &homes, fields, port)?;
-        known &= observe(input, &statement, initializer, &mut locals, &mut homes, known, &mut calls, &mut path, fields, port)?;
+        if !observe(input, &statement, initializer, &mut locals, &mut homes, known, &mut calls, &mut path, fields, port)? {
+            // Same generic alias/scalar installation used by the production
+            // Local walker after the Text purpose declines this initializer.
+            if known {
+                if let Some(value) = locals.observe(initializer.initializer_site().unwrap()) {
+                    locals.install_observed(initializer.binding(), value);
+                } else { known = false; }
+            }
+        }
     }
     Ok((locals.expression_plans(), homes))
 }

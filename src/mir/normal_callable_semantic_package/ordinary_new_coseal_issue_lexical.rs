@@ -472,7 +472,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             receiver,
             nullable_class,
         ).and_then(|mut rows| {
-            super::super::lexical_instance_call::bind_static_argument_sources_v1(input, site, pending.get(site), rows.as_mut())?;
+            super::super::lexical_instance_call::bind_static_argument_sources_v1(input, source.as_ref().map_err(Clone::clone)?, site, pending.get(site), rows.as_mut())?;
             Ok(rows)
         });
         super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(

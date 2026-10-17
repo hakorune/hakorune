@@ -1616,8 +1616,16 @@ current locals/Homes, a Loop product or evaluation permission.
 The real prefix observer now connects original argument-source loans after the
 same ordered actual Observe for Return/statement calls and local initializers.
 Uncovered staging never qualifies a frame. The argument purpose wraps the shared
-checked expression body in the existing Home inventory, retaining original Core,
-exact current scalar references and mandatory borrowed Text entry-read requirements.
+checked expression body in the existing Home inventory. The same source plan
+lends an optional original Core receipt; literal, Static Text local, current
+owned residence and Text-only entry reference use that same purpose. Static Text
+reads retain SAME source flow, reaching value, terminal definition and literal
+payload, corroborated with the actual Prefix state. Static Text is non-owning
+and remains outside generic Handle/Scalar/BoundValue observation; aliases retain
+the original definition, stores replace it and branch joins require identity.
+Entry references require the original singleton Text SUM for source selection;
+this is distinct from a physical entry grant. Core retains exact current scalar
+references and mandatory borrowed Text entry-read requirements.
 Core receiver/arguments stay in postorder rather than becoming transferred scalar
 call inputs. Whole-child source coverage, current roots/values, unique Homes,
 source/frame identity and the final field batch precede publication. Missing proof

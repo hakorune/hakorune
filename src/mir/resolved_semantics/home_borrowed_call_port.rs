@@ -8,7 +8,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement(super::BindingRefV1),
     Observe(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, &'a [BorrowedCallActualCandidateV1]),
-    /// Original argument plan/Core loan only; no evaluation permission.
+    /// Original argument plan and optional Core loan; no evaluation permission.
     ArgumentExpressionSource(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, u32),
     ArgumentTextEntryRead { source: &'a crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
         read: &'a super::SourceExprSiteV1, binding: super::BindingRefV1, root: super::BindingRefV1 },

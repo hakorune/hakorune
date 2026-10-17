@@ -20,6 +20,9 @@ impl PartialEq for TextResidenceReadV1 {
 }
 impl Eq for TextResidenceReadV1 {}
 impl TextResidenceReadV1 {
+    pub(super) fn new(node: usize, binding: BindingRefV1, root: BindingRefV1, acquisition: Rc<CheckedTextInitializerFrameV1>) -> Self {
+        Self { node, binding, root, acquisition }
+    }
     pub(crate) fn node(&self) -> usize { self.node }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn root(&self) -> BindingRefV1 { self.root }

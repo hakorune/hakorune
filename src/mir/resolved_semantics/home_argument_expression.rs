@@ -11,13 +11,17 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedArgumentExpressionFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
-    core: ArgumentExpressionSourceLoanV1,
+    source_loan: ArgumentExpressionSourceLoanV1,
     text_reads: Box<[BorrowedTextEntryReadRequirementV1]>,
     references: BTreeMap<usize, (BindingRefV1, SourceScalarKind)>,
+    static_reads: Box<[super::super::StaticTextReadV1]>,
+    residence_reads: Box<[super::text_initializer::TextResidenceReadV1]>,
 }
 impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
-    pub(crate) fn core(&self) -> &ArgumentExpressionSourceLoanV1 { &self.core }
+    pub(crate) fn source_loan(&self) -> &ArgumentExpressionSourceLoanV1 { &self.source_loan }
+    pub(crate) fn static_reads(&self) -> &[super::super::StaticTextReadV1] { &self.static_reads }
+    pub(crate) fn residence_reads(&self) -> &[super::text_initializer::TextResidenceReadV1] { &self.residence_reads }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
     pub(crate) fn text_reads(&self) -> &[BorrowedTextEntryReadRequirementV1] { &self.text_reads }
@@ -29,6 +33,8 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     core: ArgumentExpressionSourceLoanV1, statement: &SourceStmtSiteV1, prior_homes: &[BindingRefV1],
     text_reads: &[BorrowedTextEntryReadRequirementV1],
     text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
+    static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, SourceScalarKind)>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
@@ -37,18 +43,40 @@ pub(crate) fn qualify_argument_expression_v1<E>(
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
     let source = Rc::clone(core.plan());
     let ExpressionPlanRootV1::CallArgument { statement: original, call, ordinal } = source.root() else { return Ok(None) };
-    let method = core.resolver_source().source();
-    if original != statement || call.owner() != source.owner() || method.owner() != source.owner()
-        || call.arguments().get(*ordinal as usize).is_none_or(|arg| arg.ordinal() != *ordinal || arg.site() != method.site())
-        || source.nodes().first().is_none_or(|node| node.site() != method.site() || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall)) {
+    let Some(root) = source.nodes().first() else { return Ok(None) };
+    if original != statement || call.owner() != source.owner()
+        || call.arguments().get(*ordinal as usize).is_none_or(|arg| arg.ordinal() != *ordinal || arg.site() != root.site()) {
         return Ok(None);
     }
+    if let Some(resolver) = core.resolver_source() {
+        let method = resolver.source();
+        if method.owner() != source.owner() || root.site() != method.site()
+            || !matches!(root.source(), ExpressionNodeSourceV1::MethodCall) { return Ok(None); }
+    } else if !matches!(root.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
+        | ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_))) { return Ok(None); }
     let mut homes = BTreeSet::new();
     if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(*home)) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
-    let mut seeded = BTreeMap::from([(0, Leaf::Value(Class::String))]);
+    let mut seeded = BTreeMap::new();
+    if core.resolver_source().is_some() { seeded.insert(0, Leaf::Value(Class::String)); }
+    let mut static_reads = Vec::new();
+    let mut residence_reads = Vec::new();
+    for (index, node) in source.nodes().iter().enumerate() {
+        let ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = node.source() else { continue };
+        if !core.text_operand_is(node.site()) { continue; }
+        if let Some(read) = static_reference(node.site()) {
+            if read.read() != node.site() || read.binding() != *binding
+                || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
+            static_reads.push(read);
+        } else if let Some((current, root, acquisition)) = residence_reference(node.site()) {
+            if current != *binding || root != acquisition.binding() || acquisition.source().owner() != source.owner()
+                || (acquisition.owns_root() && !homes.contains(&root))
+                || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
+            residence_reads.push(super::text_initializer::TextResidenceReadV1::new(index, current, root, acquisition));
+        }
+    }
     for read in text_reads {
         if !Rc::ptr_eq(read.source_plan(), &source) || !core.text_operand_is(read.read())
             || text_reference(read.read()) != Some((read.binding(), read.formal().1)) { return Ok(None); }
@@ -66,12 +94,13 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     if classes[0] != Leaf::Value(Class::String) || transferred.contains(&0) { return Ok(None); }
     let Some((operations, mut owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     // The source plan lists acquisition templates; only physical Normal acquires.
-    owned_results.push(0);
+    if core.resolver_source().is_some() { owned_results.push(0); }
     let frame = Rc::new(CheckedArgumentExpressionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
             operations: operations.into_boxed_slice(), owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred },
-        core, text_reads: text_reads.into(), references,
+        source_loan: core, text_reads: text_reads.into(), references,
+        static_reads: static_reads.into_boxed_slice(), residence_reads: residence_reads.into_boxed_slice(),
     });
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
         print_frame: None, condition_frame: None, argument_frame: Some(frame), text_initializer: None, field_write: None, initializer_homes: None };

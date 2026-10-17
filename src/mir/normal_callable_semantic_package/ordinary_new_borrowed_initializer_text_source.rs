@@ -85,6 +85,8 @@ impl PreparedBorrowedFormalIngressV1 {
         use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
         let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false };
         input.function().expression_source().initializers().any(|initializer| {
+            if initializer.initializer_site().is_some_and(|site|
+                matches!(input.function().expression_source().literal(site), Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)))) { return true; }
             if !initializer.initializer_site().and_then(|site| input.function().expression_source().binary(site))
                 .is_some_and(|binary| binary.operator() == ResolvedBinaryOperatorV1::Add) { return false; }
             let Ok(plan) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer) else { return false };

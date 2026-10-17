@@ -21,7 +21,13 @@ pub(super) fn observe<E>(
 ) -> Result<(), E> {
     if !prefix_known { return Ok(()); }
     for actual in actuals {
-        if !matches!(actual.value, BorrowedCallActualValueV1::MethodCall(_)) { continue; }
+        match &actual.value {
+            BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_)
+            | BorrowedCallActualValueV1::SelfRooted { .. } => {},
+            BorrowedCallActualValueV1::Binding(_) if locals.static_text_reference(&actual.site).is_some()
+                || locals.text_reference(&actual.site).is_some() => {},
+            _ => continue,
+        }
         let Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(loan)) =
             port(call_site, BorrowedCallActualRequestV1::ArgumentExpressionSource(input, actual.ordinal))? else { continue };
         if loan.plan().root().statement() != statement.site() || loan.plan().nodes().first().is_none_or(|node| node.site() != &actual.site) { continue; }
@@ -29,6 +35,7 @@ pub(super) fn observe<E>(
         let mut ready = true;
         for node in loan.plan().nodes() {
             if !loan.text_operand_is(node.site()) || !matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) { continue; }
+            if locals.static_text_reference(node.site()).is_some() || locals.text_reference(node.site()).is_some() { continue; }
             let Some((binding, root)) = text_reference(input, locals, node.site()) else { ready = false; break };
             let Some(BorrowedCallArgumentsV1::TextEntryRead(read)) = port(call_site,
                 BorrowedCallActualRequestV1::ArgumentTextEntryRead { source: &loan, read: node.site(), binding, root })?
@@ -40,6 +47,8 @@ pub(super) fn observe<E>(
         let mut installation = locals.expression_installation();
         if qualify_argument_expression_v1(loan, statement.site(), homes, &reads,
             &mut |site| text_reference(input, locals, site),
+            &mut |site| locals.static_text_reference(site),
+            &mut |site| locals.text_reference(site),
             &mut |site| match locals.observe(site) {
                 Some(OrdinaryObservation::TrivialLocal(binding, Some(SourceScalarKind::Integer))) => Some((binding, SourceScalarKind::Integer)),
                 _ => None,

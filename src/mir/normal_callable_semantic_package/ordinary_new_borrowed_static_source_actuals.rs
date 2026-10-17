@@ -126,8 +126,13 @@ pub(super) fn prepare_static_source_actuals_v1(
         prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone()))
             .is_some_and(|receipt| std::sync::Arc::ptr_eq(method, receipt.source().source()))
     });
-    let source_expression = actuals.iter().any(|actual| matches!(actual.value,
-        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_)));
+    let original_text_formal = |root| prepared.source_value_sum_v1(root).is_some_and(|sum|
+        sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+    let source_expression = actuals.iter().any(|actual| match actual.value {
+        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_) => true,
+        BorrowedCallActualValueV1::SelfRooted { root, .. } => original_text_formal(root),
+        _ => false,
+    });
     let original = original_static_source_v1(prepared, call)?;
     let original_source = original
         .is_some_and(|source| {
@@ -207,14 +212,16 @@ pub(super) fn prepare_static_source_actuals_v1(
             BorrowedCallActualValueV1::Scalar(binding, kind) if binding.owner() == call.owner() => {
                 *kind == SourceScalarKind::Integer
             }
-            BorrowedCallActualValueV1::SelfRooted { root, .. } => {
-                if !prepared
-                    .static_arguments
-                    .contains_key(&(call.clone(), actual.ordinal))
-                {
-                    return Err(freeze("borrowed-static/forward-source-missing"));
-                }
-                prepared.candidate_integer_agreement(*root)
+            BorrowedCallActualValueV1::SelfRooted { binding, root } => {
+                if prepared.static_arguments.contains_key(&(call.clone(), actual.ordinal)) {
+                    prepared.candidate_integer_agreement(*root)
+                } else if binding.owner() == call.owner() && root.owner() == call.owner()
+                    && formal.kind.is_ordinary_borrowed_handle() && original_text_formal(*root) {
+                    // Full-census Text source stays passive. The binder checks
+                    // exact Entry provenance; the covered purpose checks current
+                    // roots. No legacy forward fact or Integer proof is minted.
+                    false
+                } else { return Err(freeze("borrowed-static/forward-source-missing")); }
             }
             BorrowedCallActualValueV1::MethodCall(method) => {
                 let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
@@ -613,7 +620,9 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         return Err(freeze("borrowed-static/core-expression-execution-pending"));
     }
     if identity.candidates.iter().any(|actual| matches!(actual.value,
-        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))) {
+        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))
+        || matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
+            && !prepared.static_arguments.contains_key(&(site.clone(), actual.ordinal))) {
         return Err(freeze("borrowed-static/text-expression-execution-pending"));
     }
     if required_i64_arguments.iter().any(|ordinal| {

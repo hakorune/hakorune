@@ -394,7 +394,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
             if mutation == 1 { assert_eq!(source_requests, 0, "uncovered staging cannot request a current frame"); }
             if let Some(plan) = frames.first() {
                 let frame = plan.argument_frame().unwrap();
-                assert!(Rc::ptr_eq(plan.source(), frame.core().plan()));
+                assert!(Rc::ptr_eq(plan.source(), frame.source_loan().plan()));
                 assert_eq!(frame.references().len(), 2);
                 assert_eq!(frame.text_reads().len(), 1);
                 assert_eq!(frame.text_reads()[0].formal(), (0, contract.parameters[0].binding));
@@ -402,7 +402,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 assert_eq!(frame.evaluation().ordered_nodes().last(), Some(&0));
                 assert!(frame.evaluation().ordered_nodes().iter().all(|node| !frame.transfers_node(*node)), "Core receiver/bounds remain in source postorder");
                 let source_loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_argument_expression_source_v1(ingress, &pending, &call_site, 0).unwrap().unwrap();
-                assert_eq!(frame.core(), &source_loan);
+                assert_eq!(frame.source_loan(), &source_loan);
                 // Existing Core actual tests retain the independent execution-pending checks.
             }
         }
@@ -591,5 +591,58 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
             let selected = ledger.text_initializer_frame_v1(contract.owner, frame.source().root().statement().node()).unwrap().unwrap();
             assert!(Rc::ptr_eq(frame, &selected), "the real production selector retains this SAME complete frame");
         }
+    }
+}
+
+#[test]
+fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct() {
+    for (prefix, argument, incoming, expected, static_reads, residence_reads, entry_reads, owned) in [
+        ("", "\"bytes\"", "\"seed\"", true, 0, 0, 0, false),
+        ("local key = \"bytes\"", "key", "\"seed\"", true, 1, 0, 0, false),
+        ("local key = \"bytes\" local alias = key", "alias", "\"seed\"", true, 1, 0, 0, false),
+        ("local key = \"bytes\" key = 7", "key", "\"seed\"", false, 0, 0, 0, false),
+        ("local key = \"bytes\" key = \"bytes\"", "key", "\"seed\"", false, 0, 0, 0, false),
+        ("local key = \"a\" + \"b\"", "key", "\"seed\"", true, 0, 1, 0, false),
+        ("local key = \"a\" + \"b\" local alias = key", "alias", "\"seed\"", true, 0, 1, 0, false),
+        ("", "line", "\"seed\"", true, 0, 0, 1, false),
+        ("local alias = line", "alias", "\"seed\"", true, 0, 0, 1, false),
+        ("", "line", "7", false, 0, 0, 0, false),
+        ("", "line", "null", false, 0, 0, 0, false),
+        ("local key = \"bytes\"", "key.substring(0,1)", "\"seed\"", true, 1, 0, 0, true),
+        ("local key = \"a\" + \"b\"", "key.substring(0,1)", "\"seed\"", true, 0, 1, 0, true),
+        ("", "line.substring(0,1)", "\"seed\"", true, 0, 0, 1, true),
+    ] {
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller(line) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({incoming}) }} }} static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let source = ledger.borrowed_formal_source.as_ref().unwrap();
+        let declaration = package.batch().declarations().find(|row|
+            package.parameter_contracts.iter().any(|contract| contract.owner == row.owner() && contract.parameters.len() == 1)
+                && package.batch().with_lowering_input(row.batch_slot(), |input|
+                    input.function().method_calls().any(|(_, call)| call.selector() == "sink")).unwrap()).unwrap();
+        package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+            let contract = package.parameter_contracts.iter().find(|row| row.owner == input.owner()).unwrap();
+            let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+            let mut pending = ledger.borrowed_formal_actuals.clone();
+            let (plans, _) = crate::mir::resolved_semantics::home_new_prefix::observe_text_initializers_for_test(
+                input, parameters, true, None,
+                &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
+                &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+                    &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
+                    &ledger.borrowed_i64_results, &mut |_| None, site, request,
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+            let frames: Vec<_> = plans.iter().filter_map(|plan| plan.argument_frame()).collect();
+            assert_eq!(frames.len(), usize::from(expected), "{prefix}/{argument}/{incoming}");
+            if let Some(frame) = frames.first() {
+                assert!(Rc::ptr_eq(frame.source(), frame.source_loan().plan()));
+                assert_eq!(frame.static_reads().len(), static_reads);
+                assert_eq!(frame.residence_reads().len(), residence_reads);
+                assert_eq!(frame.text_reads().len(), entry_reads);
+                assert_eq!(frame.evaluation().owned_result_nodes().contains(&0), owned);
+                assert_eq!(frame.source_loan().resolver_source().is_some(), owned);
+                if let Some(read) = frame.static_reads().first() { assert_eq!(read.utf8(), "bytes"); }
+            }
+        }).unwrap();
     }
 }
