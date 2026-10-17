@@ -269,22 +269,41 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         }
     }
     let legacy_owners: std::collections::BTreeSet<_> = definitions.keys().copied().collect();
-    // Source registration is independent of a usable borrowed-transport draft.
-    if static_context.is_some() {
-        for contract in contracts.iter().filter(|row| row.mode == CallableParameterDeclarationModeV1::StaticBoxMethod) {
-            let key = match selected.key_for_batch_slot(contract.batch_slot) {
-                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) => Some(key),
-                _ => omitted_static_callers.get(&contract.owner),
-            };
-            let Some(key) = key else { continue; };
-            if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
-                || key.arity() as usize != contract.parameters.len()
-                || contracts.iter().filter(|row| row.owner == contract.owner).count() != 1
-                || !contract.parameters.iter().enumerate().all(|(ordinal, formal)|
-                    formal.ordinal as usize == ordinal && formal.binding.owner() == contract.owner)
-            { return Err(BorrowedIncomingDraftErrorV1::SourceIdentity); }
-            definitions.entry(contract.owner).or_insert((contract, key));
-        }
+    // Source identity never depends on a usable transport/use draft. Keep the
+    // legacy set frozen above, and feed both namespaces to the SAME scan.
+    for contract in contracts {
+        if matches!(selected.key_for_batch_slot(contract.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod)
+            && contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
+        { return Err(BorrowedIncomingDraftErrorV1::SourceIdentity); }
+        let namespace = match contract.mode {
+            CallableParameterDeclarationModeV1::InstanceBoxMethod => hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            CallableParameterDeclarationModeV1::StaticBoxMethod if static_context.is_some() => hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod,
+            _ => continue,
+        };
+        let key = match selected.key_for_batch_slot(contract.batch_slot) {
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) => Some(key),
+            _ if namespace == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod => omitted_static_callers.get(&contract.owner),
+            _ => None,
+        };
+        let Some(key) = key else { continue; };
+        let declaration = batch.declarations().find(|row| row.batch_slot() == contract.batch_slot)
+            .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
+        let same_mode = matches!((contract.mode, declaration.mode()),
+            (CallableParameterDeclarationModeV1::InstanceBoxMethod, crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::InstanceBoxMethod)
+            | (CallableParameterDeclarationModeV1::StaticBoxMethod, crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod));
+        let original_parameters = batch.with_lowering_input(contract.batch_slot, |input|
+            input.owner() == contract.owner && contract.parameters.iter().all(|formal|
+                input.function().declaration_binding(&crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index: formal.ordinal }) == Some(formal.binding)))
+            .map_err(|_| BorrowedIncomingDraftErrorV1::BatchLoan)?;
+        if key.namespace() != namespace || declaration.owner() != contract.owner || !same_mode
+            || key.arity() as usize != contract.parameters.len() || !original_parameters
+            || contracts.iter().filter(|row| row.owner == contract.owner).count() != 1
+            || !contract.parameters.iter().enumerate().all(|(ordinal, formal)|
+                formal.ordinal as usize == ordinal && formal.binding.owner() == contract.owner)
+        { return Err(BorrowedIncomingDraftErrorV1::SourceIdentity); }
+        definitions.entry(contract.owner).or_insert((contract, key));
     }
     let mut legacy_seen = std::collections::BTreeSet::new();
     let mut static_observations = BTreeMap::new();

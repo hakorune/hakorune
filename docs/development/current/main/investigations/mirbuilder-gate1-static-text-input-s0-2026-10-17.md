@@ -31,33 +31,24 @@ This confirms the prior app200 stop; it is not EXE acceptance.
 
 ## One Decision
 
-V862 previous turn PROGRESS:37934abe54 source reaching definitions landed;
-app220 retains the same source-actual stop and app221 native exact7/exit0 PASS.
-Implement the worker-confirmed SAME classifier/SUM connection recorded below.
-Core operands alone select explicit PointPremise mode; general incoming/object/
-receiver/provider rows and all legacy projections retain their original mapping.
-Deferred original owner/value refs expand through the existing source-input
-reborrow into the SAME graph; memo precedes children and all expansion precedes
-formal registration validation/SCC. No second solver or syntax pass. ONE original
-binary transfer computes exact I64/I64 and Text/Text Add using existing pure
-source laws, with independent grounding and complete operand alternatives.
-Unknown/incomplete/unsupported source cannot retry legacy. Source types confer
-no range/nonFault, Home, Loop Recipe or runtime/publication permission.
-Paths: actual_seed, actual_method_result context, source_seeds/source_sum with
-its solver/binary children, existing static-source-domain owner with point child,
-package README and this card. Splitting the existing SAME SCC implementation
-into a child keeps its source-size bound while extending transfer; not a second
-solver. Existing domain test parent775 lines uses a child for the independent
-point-boundary matrix. Reuse root source/legacy/Core/Loop tests and guards;
-measure unchanged json/mimalloc canonical direct EXE/native after final source.
-Root862A built77.315007s; existing source/legacy/Core outcomes and extended SCC
-remain unchanged. The new boundary matrix initially required the scan-local
-substring cache too; the existing cache is original-actual/New-demand derived,
-not an all-Core inventory. Limit that assertion to the original outer actual;
-inner scan control/execution remains with Loop Facts/Recipe. No production
-relaxation or new inventory follows from that test correction.
-Full S0 and finite objective remain unaccepted. V861 detailed evidence/contract
-is retained in37934abe54 and its verified section below.
+V863 source preparation verified: the SAME source census registers canonical
+Instance declarations independently of executable use drafts. Original owner,
+mode, key/arity, formal ordinal and Parameter binding are checked; legacy owners
+freeze before SourceOnly registration. Text and unknown/Bool forwarding keep all
+original inputs. No receiver/transport/entry or physical right is issued.
+CLI200/app225 unchanged json first-stop ADVANCES to core-expression-execution-
+pending at original slot20/Body7/Value; source receipt now reaches its consumer.
+This is source completion only, not Text execution or full-series acceptance.
+
+Next responsibility remains ordinary Text expression arguments: SAME original
+Core receipt plus current evaluation/Home/Loop state -> sole expression writer
+-> Static argument/entry -> caller-owned result/End -> complete Normal/Fault
+cleanup -> both final scans and named JSON/C. Keep existing fence until these
+selected consumers close; do not turn a proved source/result into execution.
+Existing physical scan's signed Loop After proof and descriptor adaptation must
+use their own owners; no fake Loop membership or alternate substring evaluator.
+Read-only worker is reusing the top-down consumer mapping below. Extend the
+bounded implementation path list before building the next physical connection.
 
 Completed preparation decisions and their full evidence live in their commits:
 V8587b1f4f5f32 canonical Core Arc; V859b554b33626 conditional source premises;
@@ -122,6 +113,23 @@ Fault-frame, incompatible String-operand or unused-argument checks.
 | physical call | SAME LexicalCallArgumentProjectionV1 and existing static emitter; original Text recipe, execution packet and exact pair/borrow coordinate |
 | lifetime | existing expression/root cleanup writer; ordered acquired arguments before outer Call suffix construction; later-argument Fault, Call Fault and Normal all close |
 | final publication | retained packet, existing module AND published scans, String verifier, ABI/JSON/C schema/indexed flow/emitter validate exact producer, entry, read/Copy, bounds, descriptor and End |
+
+V863 read-only physical review confirms the next common construction boundary:
+qualify an argument frame from home_expression_plan/leaves without fabricated
+Print/Loop frames; share selected/print_expression's sole descent with the
+argument consumer. terminal_call/lexical_i64 currently builds outer Fault cleanup
+before argument preparation: change this only with ordered acquisition evidence,
+so later-argument Fault uses the prior prefix and outer Normal/Fault uses the full
+prefix in reverse acquisition order. root_call_entry/lexical_projection retains
+that packet; borrowed_entry and compiled_entry_contract/borrowed_call_uses enforce
+tag4 borrow/forward and both final scans. StringInvokeOperation/invoke_string must
+admit the exact original substring producer and ordinary borrow together, keeping
+arbitrary Call escape forbidden. JSON call_transport/operation + physical_abi and
+published_lifecycle_call_transport/indexed flow/lifecycle_v4_string_emit share
+the named descriptor contract. Runtime adaptation belongs to existing checked
+String/lease owner: validate descriptor kind1/2 and exact owned pair before the
+raw-handle scan; both transport and DynamicV2CallOut statuses remain checked.
+No source-only fence removal or independent evaluator is a safe construction.
 
 Actual prerequisites remain inside this series: line is a formal; start comes
 from a static result plus StringLen; end is loop-carried with break and zero-
@@ -552,25 +560,69 @@ actual/evaluation/entry/cleanup/publication fence remains; full S0/goal stay ope
 Completed preparation history compressed to implementation commit references;
 current contracts, negative boundaries, missing consumers and needed pins remain.
 
-Because app222 retains the same real first-stop, BOTH existing workers reviewed
-the complete source-to-consumer chain before another patch. Consumer receipt
-loss is not indicated: a valid ordinary Core receipt would reach identity or
-explicit execution-pending checks, not this unavailable token. Need measured
-original source properties across Main.sampleStream -> ingest(stream) ->
-ingestLine(line) -> JsonLine.find/intField -> StringHelpers.to_i64, including
-imported helper callers. Direct Core matrix success does not prove that closure.
-Structural gaps to inspect, not yet measured causes: real find is Loop-bearing
-and its Static result proof may be absent; ordinary incoming needle/start still
-use Legacy source mapping, and binary/mutable actuals may remain unknown.
+### Instance original incoming registration (V863)
 
-Next action: inspect SAME source witness at source_sum solve completion and the
-failing original actual, recording request node/text/i64 values, original formal
-seeds, source veto/refusal and find result evidence. No new proof app/permanent
-switch or typed guess. Reuse production prepare_normal_source_with_imports plus
-lineage-preserving materialize on the unchanged file; never strip using or
-remove helper callers. Existing binaries have no debugger symbol table/trace
-hook, so a temporary failure-only diagnostic at those existing owners may be
-needed; remove it before a source-responsibility landing. Unify the missing
-ordinary Call property transport/result responsibility after evidence, not
-another substring-bound leaf. Physical Loop/Home After/Recipe and every Text
-argument/entry/result/cleanup/publication obligation remain in this same series.
+CLI199 temporary diagnostic/app224 measured the SAME full-import source before
+this change: substring's two signed bounds close, but its receiver Text is absent
+because ingest/ingestLine Instance declarations have no registered incoming.
+The existing find ExactI64(required[2]) and Core operand consumer are present.
+The measurement-only module/gate and Debug derives were removed before this
+slice; observer source/patch and matched logs/manifests remain in /tmp until
+full-series acceptance. There is no permanent debug switch or new proof app.
+
+The same source registration now includes canonical Instance declarations even
+without Static context. Legacy owners freeze before registration; source-only
+rows reuse the same lexical/pending-Stored targets and sole scan. Original
+Parameter binding, owner/mode/arity/ordinal and namespace are checked. Unknown
+siblings retain source veto; no receiver/transport/entry authority is issued.
+Read-only review confirms selected key/declaration identity remains co-sealed.
+
+RootA/B built; the new Core integration test hit an existing executable argument
+fence before its observation seam, so it cannot inspect a source-only contract.
+Use the direct existing source-SUM seam for the Instance Text/unknown/Bool
+forwarding matrix, with the existing Core consumer tests unchanged. RootA's
+partial focused run also lacked16MiB RUST_MIN_STACK and aborted one filter; no
+zero/aborted filter counts as PASS. The final reused focused root must replace
+these incomplete runs. No production condition was weakened for test setup.
+Full original Text evaluation/entry/cleanup/publication remains unaccepted.
+
+Root863C build PASS66.183946s.16 nonempty reused filters cover206 distinct tests:
+194 PASS and SAME12 baseline failure identities/diagnostics versusbe368415ca,
+normalizing only thread IDs and unordered plugin Debug map order. New2 cases
+cover source-only Instance registration without Static context/transport drafts,
+original owner/mode/formal/ordinal corruption, same-name other-class exclusion,
+2-hop Text forwarding, Unknown and mixed Text|Other Bool preservation. Existing
+Core/source-flow/Array/legacy tests unchanged. Root/layer/thin/pointer/diff guards
+PASS. RootA69.970055s/RootB59.423755s test setup/partial evidence is superseded;
+their3 temporary root binary copies retired787,998,032 bytes, while source/build/
+focused logs/receipts remain. RootC binary/source/receipt pins stay until complete
+series acceptance. No temporary adapter or dedicated guard was introduced.
+
+CLI200 build PASS177.482275s; RootC/CLI/current compiled-source manifests match.
+CLI SHAc0bf432bfe47359bb7e595c28cd2feca1ab8236d5c2f1b8b21e0e4072de1e736.
+Unchanged json app225 canonical direct EXE0.114318s exits1/no artifact, but its
+original compilation1/slot20/Body7/Value first stop ADVANCES from source-actual-
+unavailable to core-expression-execution-pending. The SAME ordinary Core receipt
+now reaches its existing Static actual consumer. This proves the missing source
+connection, not physical Text evaluation, entry or EXE acceptance. Arguments,
+result/End, complete Normal/Fault cleanup and both final scans/JSON/C remain owed.
+CLI199 diagnostic binary retired69,487,984 bytes after this stronger default-route
+measurement; observer patch/source and logs/manifests stay for series closeout.
+App225 uses unchanged source SHAb5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370,
+FFI831e/runtime808b, canonical --backend mir --emit-exe/--emit-exe-nyrt,
+pure-first/no compat replay, plugins disabled and16MiB stack. Exact argv/env,
+binary/backend/source hashes and logs are retained in the app225 receipt.
+Latest CI checked at this closeout remains historical failed35681768498/d4168473d5;
+no current CI/full-suite/performance or full-goal completion claim.
+
+Unchanged mimalloc app226 canonical EXE PASS132.527377s; native0.001562s,
+original7-line stdout EXACT/exit0 and only original plugin-disabled stderr warning.
+EXE SHA7085a252189b6ae6f79c2159e320721399101d9eb675ddfdfc31382bb2bce39f.
+Same CLI200/backend/runtime/canonical argv/env as app225; source unchanged.
+Keep Root863C/CLI200/app225-226 logs/manifests/receipts and current pins for the
+unfinished Text series. Diagnostic observer records remain explanatory evidence,
+not a runtime adapter. Prior shared legacy transport retains its callers; this
+slice replaces its accidental source-registration prerequisite only. No private
+retirable adapter was added. Next same-series physical construction is recorded
+above; pending fence and shared expression/cleanup/entry owners remain until
+source-to-final-consumer acceptance closes. Full finite goal stays active/open.

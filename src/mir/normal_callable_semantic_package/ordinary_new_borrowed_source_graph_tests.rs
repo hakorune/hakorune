@@ -1,4 +1,6 @@
 //! Original rows and callee vetoes share one immutable inventory.
+#[path = "ordinary_new_borrowed_instance_source_domain_tests.rs"]
+mod instance_source_domain_tests;
 use super::super::super::borrowed_formal_uses::{borrow_call_sources_v1, BorrowedCallSourceLoanV1};
 use super::*;
 use std::rc::Rc;

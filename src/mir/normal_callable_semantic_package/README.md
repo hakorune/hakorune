@@ -4455,6 +4455,16 @@ structurally equal reissued row cannot lend the original read. Existing source
 phase equality remains structural and cannot replace this identity check. Text
 actual transport and its lifetime/entry/publication closure remain unaccepted.
 
+Source registration covers canonical Instance and Static declarations independently
+of accepted transport/use drafts. The sole scan registers Instance contracts even
+without a Static observation context, checking the selected key, original owner,
+mode, arity and ordered Parameter bindings. Its legacy owner set is frozen before
+this extension: new declarations and incoming rows are SourceOnly, never executable
+entries. Existing lexical targets and pending Stored dispatch supply exact identity;
+unknown siblings keep their original method Arc and veto. Formal forwarding through
+these declarations can close Core operand premises in the same source SUM without
+issuing receiver, Home, ABI or physical execution permission.
+
 Source incoming also visits nested semantic owners in the SAME collector using
 the original forest input loans. A nested owner has no fabricated declaration
 or Birth caller key: its calls remain scoped Unknown obligations, retaining
