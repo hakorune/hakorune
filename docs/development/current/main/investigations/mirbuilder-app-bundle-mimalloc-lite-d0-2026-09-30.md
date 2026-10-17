@@ -643,134 +643,30 @@ removed (3110967720 bytes); logs/manifests retained; no saved adapter exists.
 Parked runtime selector/fast-lane guard remains outside this accepted lifecycle
 profile and is not reactivated by these results.
 
-## V851 original LOCAL call input — preparation verified; series unfinished
+## V851 original LOCAL call input — landed `496237ca50`
 
-Decision: same S0 remaining integration responsibility. Reuse the canonical
-prepared call target for original owning Object/NullableObject LOCAL input,
-rather than selecting its receiver class again through the narrower result
-resolver. Read-only worker traced source through incoming/entry, ordered actuals,
-object packet, Home cleanup and both final consumers. The first binary-trees
-failure is before Loop recipe: `iterationCheck`'s `builder` is a parameter and
-the second resolver rejects Parameter even though canonical preparation already
-selected `BinaryTreeBuilder.make`. This is not a new loop spelling/profile.
+That commit owns the complete Decision, source-to-consumer audit, preparation,
+replaced duplicate target-selection edge, root10PASS and CLI/native evidence.
+The owning input now retains canonical prepared target coordinates and original
+result-root Rc rather than rerunning the narrower receiver resolver. Shared
+mixed/borrowed/construction-child resolver callers remain live.
 
-Source authority + canonical issuer: original resolved initializer/declaration,
-existing PreparedSourceCallNeed canonical reference, selected batch map and
-result owner's original LOCAL call witness/root issuer. Share the existing
-pending-call original-method correspondence check. Retain original caller-key
-validation (including genuine AppMain), call/receiver/selector/ordered actuals,
-callee key/slot/owner/compilation and identical result-root Rc.
-Non-authority: a second receiver-class resolver, MIR types, inferred names,
-empty argument lists, copied roots, fabricated constructor batch slots or Home.
-Fail-fast boundary: any original-call, destination, selected callee or root
-mismatch refuses before input demand; existing whole-incoming/entry, argument
-phase, result acquisition, cleanup and publication checks remain mandatory.
-Smallest next slice: normalize the owning input issuer and its production caller;
-reuse root/phase/census negative tests, add independent parameter-receiver and
-reference-drift cases to the existing tests, build once and run focused checks,
-then unchanged binary-trees canonical direct EXE. Connect subsequent source gaps
-to existing owners in this same responsibility series; do not call input-only
-preparation product completion. Existing mixed/borrowed result and construction-child provenance resolver callers
-remain live and are not deleted. No new constructor execution support is claimed.
+CLI186 unchanged binary-trees app203 moves past nullable-input/source-missing to
+borrowed-result/source-not-i64 at slot9 Body2 LoopBody3 Value Rhs, .097460s,
+exit1/no EXE. Owner review confirms TreeNode's unannotated Parameter Birth fields
+lack construction/field/End authority under existing untyped-storage D0. That
+family remains sealed; scalar SCC work cannot cure its missing premise. Later
+formal receiver/source-use/entry/cleanup/final-scan obligations remain unfinished
+in this S0; base Returns, names and MIR types cannot seed missing source facts.
+CLI186 unchanged mimalloc app204 EXE128.414574s/native .001570s/exact7/exit0 PASS.
+Source-to-consumer series, independent required acceptance and full goal stay open.
+Root851C/CLI186/app203-205/backend pins stay for reproduction. Superseded RootB
+pin retired259807640 bytes; logs/manifests retained. No temporary adapter.
 
-Fresh baseline at c012deab7c, CLI185 matched source manifest, C831e/runtime808b,
-canonical --emit-exe direct route, pure-first/no replay/16MiB, unchanged apps:
-
-| app / receipt | elapsed seconds | first stop (all exit1, no EXE) |
-| --- | --- | --- |
-| binary-trees / app199 | .022443 | nullable-input/source-missing, slot9 Body2 LoopBody0 Initializer0 |
-| json-stream / app200 | .041477 | borrowed-static/source-actual-unavailable, slot20 Body7 Value |
-| boxtorrent / app201 | .073239 | stored-child/receiver-unavailable, slot51 Body2 Initializer0 |
-| allocator-stress / app202 | .036968 | NamedArray(TextSourceMissing) |
-
-Commands, source/binary/backend hashes and elapsed receipts remain in
-`/tmp/mirbuilder-required-forward-resume/v851-canonical-frontiers.json` and
-app-v199 through app-v202 logs. These are baseline failures, not current green.
-
-Implementation/verification in progress:
-- Owning input borrows the prepared canonical reference, original LOCAL witness
-  and same result-root Rc; source owner checks the selected key/slot/owner and
-  original method. Pending capture shares that method-correspondence checker;
-  its former inline duplicate is removed. The owning caller no longer takes
-  field-class claims to reselect its target. Mixed/borrowed and construction-child provenance resolver callers and
-  genuine constructor boundaries remain unchanged; no temporary adapter exists.
-- Read-only post-edit review found no blocking source/consumer issue. Full
-  incoming census, phase/argument reconstruction, result packet/Home, cleanup
-  and both final consumers still require their original evidence.
-- RootC quick-test-fast no-run PASS42.417919s. Existing7 nonempty filters10PASS,
-  including self and parameter receivers, six reference corruptions per receiver,
-  five original-root corruptions per receiver, whole-input phase/census,
-  original lexical/stored defaults, borrowed nullable and returned-field input.
-  Final root warnings870 vs prior871; no warning suppression. First RootA test
-  fixture compile failed E0599 (wrong construction accessor), corrected; RootB
-  intermediate5PASS and an introduced visibility warning are superseded by C.
-  Final source/receipts: v851c-root.source/build/focused in evidence base.
-- CLI186 quick build PASS173.397904s; source manifest matches RootC exactly.
-  CLI warnings1807 vs prior1808; SHA
-  be634fc210d90c9ed7dc9c8b744ba859d93e3dd1e2472e027ac196cd4745747d.
-  Unchanged binary-trees app203 direct canonical EXE exits1/no artifact in
-  .097460s. Prior nullable-input/source-missing at LoopBody0 is gone; measured
-  first stop is now ordinary-new/borrowed-result/source-not-i64 at slot9
-  Body2 LoopBody3 Value Rhs (`negative.itemCheck()` in the accumulator).
-  Do not infer all earlier calls execute from diagnostic traversal order.
-  This is real source-frontier movement, NOT EXE/S0 acceptance. Unchanged
-  mimalloc regression app204 on the same CLI/backend pins PASS: direct EXE
-  128.414574s; native .001570s, exact existing7 stdout/exit0/expected plugin-disabled
-  warning. Native SHA
-  d59385a44d4a30c7ee87588680cd76e392671aa9285362dce5475ef8c2a515f6.
-- Root-route, builder-layer, thin-shim, pointer and diff guards PASS. No fixed
-  suite rerun/current aggregate-green, CI-green or controlled speedup claim.
-  The changed Rust sources remain under800 lines; lexical facade is793 with a
-  changed reexport only. This preparation replaces the owning input's duplicate
-  target-selection edge; remaining shared resolver callers are live, not debt
-  that can be deleted here. S0/full goal and source-to-consumer series stay open.
-
-Worker follow-through mapping (remaining parameter-receiver obligations;
-not the first app203 stop and not acceptance):
-- A formal method-receiver read currently becomes UnsupportedUse in the existing
-  formal-use draft; source/entry must retain the canonical target's exact receiver
-  use, original formal/alias provenance and all-incoming source-object basis.
-- Home observation currently admits owned LOCAL or self only. The existing
-  OriginalFormalObjectBasisV1 is passive class/input evidence, not a fabricated
-  Home or executable entry. Its receiver read must be tied to the genuine entry.
-- Existing lexical Object emitter requires Home for every non-self receiver;
-  use the SAME ExactLexicalRead/EmittedLexicalCallProjection receiver packet for
-  borrowed entry proof, preserving original current/prior cleanup ownership.
-- Both compiled-entry scans currently reject formal operands in callee. They
-  need the SAME exact packet-backed receiver-use correspondence while retaining
-  fault-frame/other-operand rejection. Borrowed argument copy/entry lending is
-  the existing precedent, not permission for a parallel receiver emitter.
-- Existing physical ordinary_call.receiver/JSON/C already separate receiver
-  from explicit args. No new Home, result family or runtime ABI is selected.
-
-Measured app203 classification after full owner review: the current scalar
-refusal already lacks the existing untyped-storage/constructor premise. TreeNode
-left/right/value are unannotated and their Birth RHSs are Parameter.
-`instance_construction::issue_construction_source_v1` only admits unannotated
-ProviderConstruction, so this exact source has FieldContractUnsupported.
-`ordinary_new_field_value_source::issue` requires successful original construction;
-its value field therefore has no DeclaredFieldValueSourceV1/productive Birth root.
-Object destruction also remains Unavailable(FieldType). Numeric result inference
-cannot manufacture that storage/End contract.
-
-The accepted owner is
-[untyped storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md): declared
-migration was authorized only for the named Birth-param fixture, while essential
-untyped storage remains sealed until source-backed tagged dynamic/opaque authority
-is selected. This series does not change binary-trees or reopen that family.
-SCC/Stored scalar closure and borrowed formal receiver execution above remain
-independent later obligations; SCC work is NOT the next safe implementation on
-this unmodified source. Existing ungrounded-cycle refusals remain required; a
-base Return, name or MIR type cannot seed a result. No new refusal-only test/task
-is needed: existing regression owners plus the actual app203/source trace suffice.
-
-Next available action inside remaining S0 acceptance: read-only source-to-consumer
-review of app200 json-stream's canonical borrowed-static/source-actual-unavailable
-at slot20 Body7 Value. Settle its original actual/issuer and one Decision before
-implementation; if the semantic owner/family changes, transfer row/card with the
-old S0 unfinished conditions retained. No language/storage expansion, parked lane
-reactivation or full-goal completion is authorized by this candidate inspection.
-
-/tmp disposition: keep RootC/CLI186/app203-204 and matched backend pins for this
-unfinished source-to-consumer series. RootB's superseded test binary was deleted
-(259807640 bytes); source manifests, logs and receipts remain. No saved adapter. All build/test/native handles are terminal.
+Execution transfer: required Gate1 String source/input family is now selected in
+[STATIC-TEXT-INPUT-S0](mirbuilder-gate1-static-text-input-s0-2026-10-17.md).
+This old RequiredObjectForwardS0 is NOT completed or renamed into the new row.
+Its required independent acceptance/initialization and receiver/cleanup/publication
+conditions remain here. The new card owns the distinct static Text source, entry,
+argument lifetime and ABI/JSON/C series and its one Decision. Do not accumulate
+that owner's implementation history in this card.
