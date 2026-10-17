@@ -89,6 +89,28 @@ consumes the parent lease. A raw I64 payload is never Array provenance. Birth
 internal Array reads remain refused here until their commit-marker consumer
 is connected. Native Script Array keeps its separate existing claim consumer.
 
+Borrowed Text uses the existing kind/payload pair with the closed physical
+formal declaration `text_view: true`, `object_view: null`, and
+`representation: "borrowed_kind_payload_v1"`. It is currently restricted to
+ordinary-i64 functions. Unmarked formals retain their original tags0..3 domain.
+Every incoming edge must supply either a named `borrowed_text` actual containing
+a `static_text` or live `owned_string` operand, or a `tagged` forward of the SAME
+Text formal through original Copies. Numeric tag4 constructors, scalar actuals,
+cross-domain forwards and inferred Text domains refuse before emission.
+
+The caller creates the synchronous descriptor per Call argument ordinal. Runtime
+tag4 points to that caller-owned `NyrtStringOperandV1`, restricted to static or
+owned String kind1/2. Forwarding preserves the same tag/pointer. A String
+`borrowed_text` operand must resolve to its exact marked formal/Copy root;
+emission checks tag, nonzero aligned pointer and descriptor kind before use.
+The borrow neither acquires nor consumes the caller's String pair on Normal or
+Fault. Callee String Add may acquire its own separately discharged pair. Borrowed
+Text cannot be Ended, stored, returned, used as a scalar or object anchor, or
+silently admitted into a generic tagged domain. Empty and embedded-NUL text use
+the same descriptor contract. This backend capability issues no source proof:
+Rust must retain and verify the original closed Text entry authority before
+publishing the marker; physical fixture success cannot remove source fences.
+
 This is the implemented consumer contract, not an execution acceptance claim.
 The unchanged app's canonical direct EXE/run/output/exit and independent source,
 wire-correspondence and Fault evidence must establish the complete connection.

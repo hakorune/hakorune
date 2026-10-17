@@ -740,72 +740,112 @@ from all HEAD inputs; no allowlist change. Keep matched records/pins until full
 Text-series acceptance; no adapter/new registry/guard/test owner was introduced.
 Full Text execution/entry/cleanup/both scans/named JSON/C remain unaccepted.
 
-V871 selected responsibility: fulfill original expression lexical field-root
-reads atomically before its first physical effect. Reuse the exact-read state
-owner: non-consuming prepare retains source/site/binding/value/provenance;
-batch commit rechecks the complete current snapshot and consumes all or none.
-The existing single-read API shares that same source validation. Connect this
-to the sole `selected/expression_value.rs` consumer: reserve original path/direct
-field sources in source order, preflight all roots, then commit before FaultFrame,
-entry Jump or operation emission. Field writers, physical receipts and both final
-consumers stay unchanged. Paths are the existing crosswalk + its local-copy tests,
-shared expression evaluator, owner README and this card. No new registry/test
-owner/guard or Text/tag4 admission; full Text initializer purpose still owes its
-entry/residence/scalar receipts and root handoff/cleanup. Worker also corrected
-registration timing: take a Text LocalCommit lazily at its actual physical
-initializer, after constructor finishing; never bulk-register Pending rows for
-source-only/omitted owners, because final handoff requires every actual row done.
+V871 landed at 8d4b57badd: exact-read state owner now prepares without consuming,
+rechecks complete current snapshots/duplicate sites, then atomically consumes
+all own field-root reads before the sole expression writer's first effect.
+Source/current/Copy provenance and nested ancestor correspondence are retained;
+transferred child-call reads stay with their owner. Field reservations need not
+roll back on compilation refusal; only lexical consumption is atomic.
+Root871A crosswalk17 PASS; reused30 filters249 PASS/SAME12 baseline failures.
+CLI208/json239 SAME source frontier; unchanged mimalloc240 EXE/native exact7/exit0
+PASS. Full commands, times, hashes and baseline classification are in8d4b57badd.
+Keep matched pins until Text acceptance. Lazy Text LocalCommit registration at
+its actual initializer after constructor finishing remains required; never
+bulk-register Pending rows for omitted/source-only owners. All source Text
+execution fences, root handoff/cleanup and both final scans remain unaccepted.
 
-V871 implements that boundary in the existing crosswalk and sole expression
-writer. Prepared reads have a private constructor and retain the exact source
-site, binding, value and original Copy provenance; they grant no source class or
-runtime ownership. Batch commit rechecks every current snapshot and duplicate
-site before the first consumed-site update. Single take reuses the same prepare
-without a batch allocation or intervening callback. Expression field paths and
-direct field sources reserve in original order; their exact lexical receipts
-commit together before FaultFrame/Jump/effects. Nested receiver binding still
-requires actual ancestor Emitted/CheckedEmitted output. Those SAME committed
-receipts reach the existing field writers/Print packet/final source consumer.
-Transferred child-call reads retain their own owner; this does not claim their
-physical inputs or borrowed Text reads are fulfilled. Read-only review found no
-lost source/current/ancestor checks. Failed preflight can retain earlier field
-reservations: compilation aborts, never retries. Only consumed lexical sites
-are atomic; no field-reservation rollback claim is made.
+V872 next Decision: genuine Text entry cannot yet be recorded. Existing entry
+registration rechecks executable actuals, whose model has no Text atom; a closed
+SUM or hand-injected EntryValues/SelectedTagged fixture cannot substitute for it.
+Read-only workers confirmed this and the current end-to-end physical mapping.
+Build the required backend transport capability first, keeping Rust source
+admission pending. Extend existing C physical schema/indexed flow/String and Call
+emission plus the borrowed-ingress physical test owner and published_mir README.
+Use named `borrowed_text` actuals around static_text/live owned_string operands;
+forward the same descriptor through existing tagged copies. Numeric4 remains
+rejected. All call outcomes preserve the caller's String ownership; callee cannot
+End/store/return it. Final incoming/operand domain must be explicit and closed,
+not inferred from an arbitrary tagged ValueId or checked only by a runtime guard.
+No Text source/class loan is issued from backend fixture evidence. Full actual/
+entry/initializer/cleanup/both scans integration remains required in this series.
 
-Root871A build PASS130.495524s; no new warning messages versus870B. Existing
-crosswalk17 PASS includes the two new independent boundary tests in its existing
-local-copy owner: one real resolved two-alias source checks success and seven
-late refusals (duplicate, value/provenance/binding drift, consumed, foreign,
-missing), and one abandoned preparation leaves the original read available.
-Its separate focused run0.032151s precedes the reused30-filter regression run:
-261 distinct cases249 PASS/SAME12 failures versus870B/10f8b2d22a, identities and
-diagnostics equal under the same thread-ID/unordered Debug-map normalization.
-Regression8.153764s excludes build. Existing Print4/String1/ordered4/install1,
-owned-RHS2 and source/argument/Core/Array checks retain their prior results.
-Normal-root reference route, Builder layer, inc thin-shim, pointer and diff
-guards PASS; the additional facade guard's unrelated ArrayReadSiteId baseline
-red remains the unchanged V870 observation, not a current PASS claim.
-CLI208 build PASS215.137398s; source manifest matches Root871A.
-CLI SHA f972adb2e3b444474b76e93a5e8649968cd64f00f80ff3fe8091373b59809756.
-Unchanged json app239 canonical direct EXE0.116219s exits1/no artifact at SAME
-slot20/Body7/Value core-expression-execution-pending; stderr byte-equal toapp237.
-The real app frontier did not advance. Unchanged mimalloc app240 canonical EXE
-PASS130.998549s; native0.001491s/original7-line stdout EXACT/exit0, only the same
-plugin-disabled warning (stderr byte-equal toapp238). EXE SHA39ad5c13ddfc605b51a27f91a836e0e90f8ba1a80462a537d23041eb2e685612.
-App commands remain canonical --backend mir --emit-exe OUT --emit-exe-nyrt
-runtime808b SOURCE, FFI831e/pure-first/no compat replay/plugins disabled/16MiB
-stack with the same original source/backend/runtime hashes. No app changes.
-First milestone remains verified; the complete Text series and finite goal are
-still unaccepted. Latest CI query again shows only historical failed35681768498/
-d4168473d5; no current CI, full-suite or performance claim.
+Physical Text domain choice: keep the same borrowed kind/payload representation,
+and publish `text_view: true` with `object_view: null` on the selected ordinary-i64
+formal. This is a closed physical domain declaration, not a source proof issuer
+or new ABI word. Only named Text actuals or SAME Text-formal forwards may enter
+that domain; all incoming edges are checked. String borrowed operands require
+that exact formal/Copy root. Existing unmarked0..3 formals keep their old domain;
+Text cannot enter scalar arithmetic/stores, object views, End or returned-handle
+anchors. Rust must eventually publish the marker only from its SAME retained
+closed Text entry proof. No marker is inferred from a raw tag or backend fixture.
 
-Keep Root871A/CLI208/app239-240 logs, receipts, source manifests and binary pins
-with their matched backend/prior baseline until Text-series acceptance. No new
-adapter or registry exists; the prepared read is permanent physical state-owner
-API, not a semantic receipt or temporary alternate evaluator. The two new cases
-extend the existing Copy/read contract owner, with no new fixture or guard.
-V870 completed history is compressed to 10f8b2d22a. Next: the initializer purpose
-must join its original Text entry/SAME residence/signed inputs to this preflight,
-then emit its SAME root packet/handoff/LocalCommit and both final scans. Borrowed
-Text input transport, child-call acquisition cleanup and named JSON/C remain
-mandatory; no execution-pending fence has been removed.
+V872 backend capability implemented in the existing schema, indexed flow and
+String/Call emitter owners; the old tagged-formal checker now shares the exact
+formal/Copy-root resolver with a separate closed Text domain. No ABI header,
+runtime symbol, alternate emitter, registry or source admission was introduced.
+Named Call operands get one caller-frame descriptor per argument ordinal;
+forwarding preserves the same pointer. Borrowed String use checks tag4/nonzero/
+alignment/kind1-or2 before reading it. Callee-owned Add results have independent
+End obligations. Caller ownership survives both Call outcomes. Owner README and
+existing borrowed-ingress/runtime-probe tests carry the same contract. Read-only
+worker final review found no remaining required change or lost escape boundary.
+
+FFI872B C build PASS6.165556s with cc -fPIC -shared -Werror=format, yyjson include,
+existing hako_llvmc_ffi.c/hako_aot.c/hako_json_v1.c/yyjson.c inputs. Shared library
+SHA29bb53ddd83f64d1d3fd5391997f35eeee219ce4241b6110f60ddf897b4580d0.
+CLI209 cargo build --profile quick --bin hakorune --message-format=json
+PASS0.333586s (cached Rust; no Rust source changes); jobs4/stack16MiB. CLI SHA
+f972adb2e3b444474b76e93a5e8649968cd64f00f80ff3fe8091373b59809756.
+Both builds and both C regression runs have identical current compiled-source
+manifests; this is backend execution evidence, not source Text entry acceptance.
+
+Full published_lifecycle_v4_borrowed_ingress_test.py with the existing issued
+stored-child scalar layout, pinned FFI872B via LD_LIBRARY_PATH and runtime808b
+archive PASS140.869068s, including the complete original0..3/nullable/range/
+receiver/producer negative matrix. New Text cases execute static UTF8/NUL, live
+owned pair, two forwards, empty literal and two independent argument ordinals;
+Normal, callee field Fault, Print Fault and failed Add check exact disposal and
+End counts. SAME owned pair borrowed twice is Ended once by caller; callee Add
+acquires/Ends separately. Numeric4/scalar/forged pointer/domain drift, callee
+End/store/return/arithmetic, spent source and missing caller End on either exit
+all refuse without changing the pre-existing artifact or leaking a temp object.
+Existing published_native_array_physical_test.py --checked-string with pinned
+FFI872B/runtime808b PASS106.093752s: indexed and native static/owned strings,
+embedded NUL, MIN Integer, Add/Print/End Fault LIFO and malformed-input refusals.
+No test cases failed. No new fixture, test owner or guard was created.
+
+Unchanged json app241 canonical direct EXE0.130166s exits1/no artifact at SAME
+compilation1/slot20/Body7/Value core-expression-execution-pending; stderr exact
+versusapp239. Real source frontier has not advanced. Unchanged mimalloc app242
+canonical direct EXE PASS150.044167s; native0.001448s/original7-line stdout exact/
+exit0, same plugin-disabled runtime warning versusapp240. EXE SHA
+12be77eb021dec6961cd568b660ff7ef28e8efd7d5d9fe9f516119fd2e9303cd.
+Both app commands use --grammar-profile canonical --backend mir --emit-exe OUT
+--emit-exe-nyrt runtime808b ORIGINAL_SOURCE; plugins disabled, pure-first,
+compat replay none, route trace enabled, stack16MiB, matched CLI209/FFI872B.
+Original JSON/mimalloc source and runtime archive hashes remain the V871 values.
+Normal-root route, Builder layer, inc thin-shim, pointer and diff checks PASS.
+Extra facade baseline red remains the earlier classified V870 observation;
+no current full-suite/CI/performance claim. Finite goal and Text series stay open.
+
+Keep /tmp/mirbuilder-required-forward-resume FFI872B/CLI209/app241-242 and C
+regression receipts/logs/manifests/pins until full Text acceptance. Completed
+contracts/results are recorded here in Git, not only as temporary paths+hashes.
+The regression helper's TemporaryDirectory artifacts are already discarded;
+checked-string scratch may be discarded after series acceptance. No alternate
+adapter needs retirement; existing0..3 and native paths remain shared live owners.
+V871 completed history is compressed to8d4b57badd.
+
+Next Decision, checked top-down by read-only worker: extend the existing actual
+product and shared argument evaluation plan, then qualify genuine entry from its
+whole original incoming cohort. Retain SAME Static Rc/ordinal/argument plan/Core
+receipt and complete evaluation/cleanup; do not create a literal-only parallel
+profile, registry, hand-filled EntryValues or SelectedTagged shortcut. Text marker
+must come from closed Text-only SUM and all incoming; mixed Text|Integer/Null,
+unknown/unresolved incoming and seedless forwarding cycles remain refused.
+Bind the genuine entry tuple/actual function param/carrier to the original
+InitializerTextEntryRead and atomic lexical-read/Copy provenance. Retain those
+same proofs through the Call packet, both final source scans and JSON marker/
+named operand publication. Initializer root handoff/LocalCommit and ordered
+cleanup remain mandatory. The full to_i64 mixed domain is still unselected;
+no backend capability or literal-only pass removes that source boundary.

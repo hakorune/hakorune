@@ -14,10 +14,15 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-      if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end")) continue;
+      int call = lv4_is(op, "kind", "ordinary_call");
+      if (!call && (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end"))) continue;
       int add = lv4_is(op, "kind", "string_add");
-      for (unsigned role = 0; role < (add ? 2u : 1u); role++) {
-        yyjson_val* operand = yyjson_obj_get(op, add ? (role ? "right" : "left") : "value");
+      yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
+      size_t count = call ? yyjson_arr_size(args) : add ? 2u : 1u;
+      for (unsigned role = 0; role < count; role++) {
+        yyjson_val* arg = call ? yyjson_arr_get(args, role) : NULL;
+        yyjson_val* operand = call ? (lv4_is(arg, "kind", "borrowed_text") ? yyjson_obj_get(arg, "operand") : NULL) :
+            yyjson_obj_get(op, add ? (role ? "right" : "left") : "value");
         if (!lv4_is(operand, "kind", "static_text")) continue;
         yyjson_val* text = yyjson_obj_get(operand, "utf8");
         size_t len = yyjson_get_len(text);
@@ -30,6 +35,13 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
   }
 }
 static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
+  if (lv4_is(op, "kind", "ordinary_call")) {
+    yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
+    for (size_t i = 0; i < yyjson_arr_size(args); i++)
+      if (lv4_is(yyjson_arr_get(args, i), "kind", "borrowed_text"))
+        fprintf(f, "  %%strarg%u_%zu = alloca %%nyrt.string.operand, align 8\n", b, i);
+    return;
+  }
   if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end")) return;
   int add = lv4_is(op, "kind", "string_add");
   for (unsigned role = 0; role < (add ? 2u : 1u); role++)
@@ -41,6 +53,32 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
   int text = lv4_is(operand, "kind", "static_text");
   int owned = lv4_is(operand, "kind", "owned_string");
   uint32_t value = lv4_u(operand, "value");
+  if (lv4_is(operand, "kind", "borrowed_text")) {
+    /* The indexed source domain proves a borrowed formal/Copy root. These
+       guards supplement that proof before any descriptor memory is read. */
+    fprintf(f,
+        "  %%strtag%u_%u = icmp eq i32 %%k%u, 4\n"
+        "  %%strnonzero%u_%u = icmp ne i64 %%v%u, 0\n"
+        "  %%stralign%u_%u = and i64 %%v%u, 7\n"
+        "  %%straligned%u_%u = icmp eq i64 %%stralign%u_%u, 0\n"
+        "  %%straddress%u_%u = and i1 %%strnonzero%u_%u, %%straligned%u_%u\n"
+        "  %%strvalid%u_%u = and i1 %%strtag%u_%u, %%straddress%u_%u\n"
+        "  br i1 %%strvalid%u_%u, label %%strborrow%u_%u, label %%invalid\nstrborrow%u_%u:\n"
+        "  %%strptr%u_%u = inttoptr i64 %%v%u to ptr\n"
+        "  %%strkind%u_%u = load i32, ptr %%strptr%u_%u, align 8\n"
+        "  %%strstatic%u_%u = icmp eq i32 %%strkind%u_%u, 1\n"
+        "  %%strowned%u_%u = icmp eq i32 %%strkind%u_%u, 2\n"
+        "  %%strtext%u_%u = or i1 %%strstatic%u_%u, %%strowned%u_%u\n"
+        "  br i1 %%strtext%u_%u, label %%struse%u_%u, label %%invalid\nstruse%u_%u:\n"
+        "  %%strview%u_%u = load %%nyrt.string.operand, ptr %%strptr%u_%u, align 8\n"
+        "  store %%nyrt.string.operand %%strview%u_%u, ptr %%strarg%u_%u, align 8\n",
+        b,role,value, b,role,value, b,role,value, b,role,b,role,
+        b,role,b,role,b,role, b,role,b,role,b,role,
+        b,role,b,role,b,role, b,role,value, b,role,b,role,
+        b,role,b,role, b,role,b,role, b,role,b,role,b,role,
+        b,role,b,role,b,role, b,role,b,role, b,role,b,role);
+    return;
+  }
   fprintf(f, "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 %d, 0\n",
       b, role, text ? 1 : owned ? 2 : 3);
   if (text) {

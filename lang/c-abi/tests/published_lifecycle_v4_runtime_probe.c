@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../../include/nyrt_fault_v1.h"
-#if defined(HAKO_TEST_OWNED_CALL_RESULT) || defined(HAKO_TEST_SCRIPT_ARGUMENTS)
+#if defined(HAKO_TEST_OWNED_CALL_RESULT) || defined(HAKO_TEST_SCRIPT_ARGUMENTS) || defined(HAKO_TEST_BORROWED_TEXT)
 #include <assert.h>
 #endif
 #ifdef HAKO_TEST_OWNED_CALL_RESULT
@@ -21,12 +21,18 @@ static unsigned owned_live_index(int64_t handle, int64_t type) {
 
 static unsigned init, stores, home, reclaim, report, dispose;
 static const char* mode;
+#ifdef HAKO_TEST_BORROWED_TEXT
+static unsigned text_ends, text_adds;
+#endif
 #ifdef HAKO_TEST_SCRIPT_ARGUMENTS
 static unsigned argv_attempts, argv_acquired, argv_released;
 static int64_t argv_handle;
 #endif
 static void counts(void) {
   printf("COUNTS %u %u %u %u %u %u\n", init, stores, home, reclaim, report, dispose);
+#ifdef HAKO_TEST_BORROWED_TEXT
+  printf("TEXT_ENDS %u\n", text_ends);
+#endif
 #ifdef HAKO_TEST_SCRIPT_ARGUMENTS
   assert(argv_acquired == argv_released);
   printf("ARGV %u %u %u\n", argv_attempts, argv_acquired, argv_released);
@@ -189,5 +195,41 @@ void wrap_argv_release(int64_t value) {
     ++argv_released;
   }
   real_argv_release(value);
+}
+#endif
+
+#ifdef HAKO_TEST_BORROWED_TEXT
+uint32_t real_text_end(void*, uint64_t, uint64_t, uint64_t)
+    __asm__("__real_nyash.string.checked_end_v1");
+uint32_t wrap_text_end(void*, uint64_t, uint64_t, uint64_t)
+    __asm__("__wrap_nyash.string.checked_end_v1");
+uint32_t wrap_text_end(void* frame, uint64_t site, uint64_t handle, uint64_t token) {
+  ++text_ends;
+  uint32_t status = real_text_end(frame, site, handle, token);
+  assert(status == NYRT_FAULT_NORMAL_V1);
+  return status;
+}
+#endif
+
+#ifdef HAKO_TEST_BORROWED_TEXT
+uint32_t real_text_print(void*, uint64_t, const NyrtStringOperandV1*)
+    __asm__("__real_nyash.string.checked_print_v1");
+uint32_t wrap_text_print(void*, uint64_t, const NyrtStringOperandV1*)
+    __asm__("__wrap_nyash.string.checked_print_v1");
+uint32_t wrap_text_print(void* frame, uint64_t site, const NyrtStringOperandV1* value) {
+  if (mode && !strcmp(mode, "text-print-fault"))
+    return nyrt_fault_record_static_v1(frame, NYRT_FAULT_REASON_STRING_WRITE_FAILED_V1, site, 0, 0);
+  return real_text_print(frame, site, value);
+}
+uint32_t real_text_add(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__real_nyash.string.checked_add_v1");
+uint32_t wrap_text_add(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__wrap_nyash.string.checked_add_v1");
+uint32_t wrap_text_add(void* frame, uint64_t site, const NyrtStringOperandV1* left,
+    const NyrtStringOperandV1* right, NyrtOwnedStringV1* out) {
+  const char* at = getenv("V4_PROBE_STRING_ADD_FAULT_AT");
+  if (++text_adds && at && text_adds == strtoul(at, NULL, 10))
+    return nyrt_fault_record_static_v1(frame, NYRT_FAULT_REASON_STRING_ALLOCATION_FAILED_V1, site, 0, 0);
+  return real_text_add(frame, site, left, right, out);
 }
 #endif

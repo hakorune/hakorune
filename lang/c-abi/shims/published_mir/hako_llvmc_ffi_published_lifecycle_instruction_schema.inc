@@ -10,6 +10,7 @@ static int hako_physical_string_operand(yyjson_val* function, yyjson_val* operan
   if (hako_physical_string(yyjson_obj_get(operand, "kind"), "static_text"))
     return hako_physical_exact_keys(operand, text, 2) && yyjson_is_str(yyjson_obj_get(operand, "utf8"));
   return (hako_physical_string(yyjson_obj_get(operand, "kind"), "owned_string") ||
+      hako_physical_string(yyjson_obj_get(operand, "kind"), "borrowed_text") ||
       (!text_only && hako_physical_string(yyjson_obj_get(operand, "kind"), "normal_integer"))) &&
       hako_physical_exact_keys(operand, value_keys, 2) &&
       hako_physical_u32(yyjson_obj_get(operand, "value"), &value) &&

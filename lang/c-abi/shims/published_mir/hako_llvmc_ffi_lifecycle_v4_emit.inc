@@ -16,6 +16,8 @@ static int lv4_emit_pair_actual(FILE* f, yyjson_val* arg, uint32_t b, size_t i) 
   yyjson_val* tag = yyjson_obj_get(arg, "kind");
   if (yyjson_is_uint(tag))
     fprintf(f, ", i32 %u, i64 %%v%u", (uint32_t)yyjson_get_uint(tag), value);
+  else if (lv4_is(arg, "kind", "borrowed_text"))
+    fprintf(f, ", i32 4, i64 %%textbits%u_%zu", b, i);
   else if (lv4_is(arg, "kind", "tagged"))
     fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
   else if (lv4_is(arg, "kind", "nullable_typed_object"))
@@ -190,6 +192,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         lv4_is(fn, "role", "ordinary_mixed_handle")) &&
         i == lv4_u(fn, "result_formal_ordinal")) {
       lv4_emit_borrowed_result_formal_guard(f, v);
+      continue;
+    }
+    if (yyjson_is_true(yyjson_obj_get(param, "text_view"))) {
+      fprintf(f,
+          "  %%arg_text%u = icmp eq i32 %%k%u, 4\n"
+          "  %%arg_textptr%u = icmp ne i64 %%v%u, 0\n"
+          "  %%arg_textok%u = and i1 %%arg_text%u, %%arg_textptr%u\n"
+          "  br i1 %%arg_textok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v, v,v, v,v,v, v,v,v);
       continue;
     }
     /* Nonzero supplements the closed incoming/live proof; it is not that
@@ -477,6 +488,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "ordinary_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          if (!lv4_is(arg, "kind", "borrowed_text")) continue;
+          lv4_string_operand_emit(f, yyjson_obj_get(arg, "operand"), fi, b, (unsigned)i);
+          fprintf(f, "  %%textbits%u_%zu = ptrtoint ptr %%strarg%u_%zu to i64\n", b,i,b,i);
+        }
         lv4_emit_nullable_actual_tags(f, args, b);
         if (lv4_is(op, "result", "unit"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame",

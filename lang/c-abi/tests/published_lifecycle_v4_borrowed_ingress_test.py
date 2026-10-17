@@ -174,6 +174,73 @@ def received_field_read_graph(null_result):
     return data
 
 
+def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱"):
+    """A caller descriptor, two unchanged-pointer forwards, and a read-only leaf."""
+    data = graph(1)
+    for fn in data['functions'][1:]:
+        fn['params'][0]['text_view'] = True
+    middle = copy.deepcopy(data['functions'][1])
+    middle['name'] = 'forward2'
+    data['functions'][1]['blocks'][0]['terminator']['instruction']['operation']['call']['target'] = 3
+    data['functions'].append(middle)
+    root, leaf = data['functions'][0], data['functions'][2]
+    root['blocks'][1]['instructions'] = root['blocks'][1]['instructions'][:1]
+    root['blocks'][1]['terminator']['index'] = 1
+    actual = {'kind': 'borrowed_text', 'operand': {'kind': 'static_text', 'utf8': text}}
+    root['blocks'][1]['terminator']['instruction']['operation']['call']['args'] = [actual]
+    old_store = copy.deepcopy(leaf['blocks'][0]['terminator']['instruction']['operation'])
+    leaf['blocks'][0]['instructions'].append({'index': 2, 'instruction': {'op': 'copy', 'dst': 4, 'src': 3}})
+    leaf['blocks'][0]['terminator'] = {'index': 3, 'instruction': invoke(
+        {'kind': 'string_print', 'value': {'kind': 'borrowed_text', 'value': 4}, 'site': 76}, 3, 2)}
+    leaf['blocks'][0]['edges'] = [{'target': 3, 'args': None}, {'target': 2, 'args': None}]
+    leaf['blocks'].append(block(3, [], invoke(old_store, 1, 2), (1, 2)))
+    if owned:
+        old_call = copy.deepcopy(root['blocks'][1]['terminator']['instruction']['operation'])
+        old_call['call']['args'][0]['operand'] = {'kind': 'owned_string', 'value': 10}
+        old_release = root['blocks'][3]['terminator']['instruction']['operation']
+        root['blocks'][1]['terminator']['instruction'] = invoke(
+            {'kind': 'string_add', 'left': {'kind': 'static_text', 'utf8': text},
+             'right': {'kind': 'static_text', 'utf8': ''}, 'site': 70}, 7, 5)
+        root['blocks'][1]['edges'] = [{'target': 7, 'args': None}, {'target': 5, 'args': None}]
+        root['blocks'].append(block(7, [{'op': 'invoke_normal_result', 'invoke_block': 1, 'dst': 10}],
+                                  invoke(old_call, 3, 8), (3, 8)))
+        root['blocks'][3]['instructions'][0]['instruction']['invoke_block'] = 7
+        root['blocks'][3]['terminator']['instruction'] = invoke({'kind': 'string_end', 'value': 10, 'site': 71}, 9, 5)
+        root['blocks'][3]['edges'] = [{'target': 9, 'args': None}, {'target': 5, 'args': None}]
+        root['blocks'].extend([block(8, [], invoke({'kind': 'string_end', 'value': 10, 'site': 72}, 5, 5), (5, 5)),
+                               block(9, [], invoke(old_release, 4, 2), (4, 2))])
+    if add:
+        print_op = {'kind': 'string_print', 'value': {'kind': 'owned_string', 'value': 11}, 'site': 78}
+        leaf['blocks'][0]['terminator']['instruction'] = invoke(
+            {'kind': 'string_add', 'left': {'kind': 'static_text', 'utf8': 'prefix:'},
+             'right': {'kind': 'borrowed_text', 'value': 4}, 'site': 76}, 4, 2)
+        leaf['blocks'][0]['edges'] = [{'target': 4, 'args': None}, {'target': 2, 'args': None}]
+        leaf['blocks'].extend([
+            block(4, [{'op': 'invoke_normal_result', 'invoke_block': 0, 'dst': 11}], invoke(print_op, 5, 6), (5, 6)),
+            block(5, [], invoke({'kind': 'string_end', 'value': 11, 'site': 79}, 3, 2), (3, 2)),
+            block(6, [], invoke({'kind': 'string_end', 'value': 11, 'site': 80}, 2, 2), (2, 2))])
+        text = 'prefix:' + text
+    if two:
+        assert add
+        for fn in data['functions'][1:]:
+            fn['params'].append({'value': 6, 'representation': 'borrowed_kind_payload_v1',
+                                 'object_view': None, 'text_view': True})
+            rows = fn['blocks'][0]['instructions']
+            rows.append({'index': len(rows), 'instruction': {'op': 'copy', 'dst': 7, 'src': 6}})
+            fn['blocks'][0]['terminator']['index'] = len(rows)
+            if fn is not leaf:
+                fn['blocks'][0]['terminator']['instruction']['operation']['call']['args'].append({'kind': 'tagged', 'value': 7})
+        source = next(b for b in root['blocks'] if b['id'] == (7 if owned else 1))
+        actual = source['terminator']['instruction']['operation']['call']['args'][0]
+        second = copy.deepcopy(actual) if owned else {'kind': 'borrowed_text', 'operand': {'kind': 'static_text', 'utf8': 'second'}}
+        source['terminator']['instruction']['operation']['call']['args'].append(second)
+        leaf['blocks'][0]['terminator']['instruction']['operation']['left'] = {'kind': 'borrowed_text', 'value': 4}
+        leaf['blocks'][0]['terminator']['instruction']['operation']['right'] = {'kind': 'borrowed_text', 'value': 7}
+        original = text[len('prefix:'):]
+        text = original + (original if owned else 'second')
+    return data, text
+
+
 with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'borrowed.o', 'borrowed')]
@@ -195,6 +262,91 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             assert '[freeze:contract]' in result.stderr, result.stderr
             assert obj.read_bytes() == marker
         assert not list(work.glob('borrowed.o.*'))
+
+    for owned in [False, True]:
+        data, text = borrowed_text_graph(owned)
+        compile_input(data)
+        checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps + ['string.checked_end', 'string.checked_print', 'string.checked_add']],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        for mode, expected_exit in [('normal', 7), ('fault-first', 70)]:
+            result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE=mode), capture_output=True, text=True)
+            assert result.returncode == expected_exit, (owned, mode, result)
+            assert text + '\n' in result.stdout, (owned, mode, result)
+            assert 'TEXT_ENDS ' + str(int(owned)) + '\n' in result.stdout, result
+            assert ('COUNTS 1 1 1 0 ' + ('1' if mode == 'fault-first' else '0') + ' 1\n') in result.stdout, result
+        for mutation in ['numeric4', 'scalar-incoming', 'scalar-operand', 'forged-pointer', 'object-view', 'lost-domain',
+                         'false-domain', 'end', 'escape', 'arithmetic', 'store']:
+            changed = copy.deepcopy(data)
+            root, forward, leaf, middle = changed['functions']
+            call_block = next(b for b in root['blocks'] if b['id'] == (7 if owned else 1))
+            args = call_block['terminator']['instruction']['operation']['call']['args']
+            if mutation == 'numeric4': args[0] = {'kind': 4, 'value': 10 if owned else 2}
+            elif mutation == 'scalar-incoming':
+                rows = call_block['instructions']
+                rows.append({'index': len(rows), 'instruction': {'op': 'const_i64', 'dst': 12, 'value': 8}})
+                call_block['terminator']['index'] = len(rows)
+                args[0] = {'kind': 1, 'value': 12}
+            elif mutation == 'scalar-operand': args[0]['operand'] = {'kind': 'normal_integer', 'value': 2}
+            elif mutation == 'forged-pointer': leaf['blocks'][0]['terminator']['instruction']['operation']['value']['value'] = 2
+            elif mutation == 'object-view': forward['params'][0]['object_view'] = OBJECT
+            elif mutation == 'lost-domain': del middle['params'][0]['text_view']
+            elif mutation == 'false-domain': forward['params'][0]['text_view'] = False
+            elif mutation == 'end': leaf['blocks'][0]['terminator']['instruction']['operation'] = {'kind': 'string_end', 'value': 4, 'site': 76}
+            elif mutation == 'escape': leaf['blocks'][1]['terminator']['instruction']['value'] = 4
+            elif mutation == 'store': leaf['blocks'][3]['terminator']['instruction']['operation']['value'] = 4
+            elif mutation == 'arithmetic':
+                leaf['blocks'][1]['instructions'] = [{'index': 0, 'instruction': {'op': 'add', 'dst': 9, 'lhs': 4, 'rhs': 2}}]
+                leaf['blocks'][1]['terminator']['index'] = 1
+                leaf['blocks'][1]['terminator']['instruction']['value'] = 9
+            compile_input(changed, False)
+        if owned:
+            changed = copy.deepcopy(data)
+            root = changed['functions'][0]
+            before = next(b for b in root['blocks'] if b['id'] == 7)
+            original_call = copy.deepcopy(before['terminator']['instruction']['operation'])
+            before['terminator']['instruction'] = invoke({'kind': 'string_end', 'value': 10, 'site': 73}, 11, 5)
+            before['edges'] = [{'target': 11, 'args': None}, {'target': 5, 'args': None}]
+            root['blocks'].append(block(11, [], invoke(original_call, 3, 8), (3, 8)))
+            root['blocks'][3]['instructions'][0]['instruction']['invoke_block'] = 11
+            compile_input(changed, False)
+            for missing in [3, 8]:
+                changed = copy.deepcopy(data)
+                end = next(b for b in changed['functions'][0]['blocks'] if b['id'] == missing)
+                target = 9 if missing == 3 else 5
+                end['terminator']['instruction'] = {'op': 'jump', 'target': target, 'args': None}
+                end['edges'] = [{'target': target, 'args': None}]
+                compile_input(changed, False)
+        print('borrowed Text', 'owned' if owned else 'UTF-8/NUL', 'two forwards, Normal/Fault, exact caller End and domain/escape negatives PASS')
+    for owned, two in [(False, False), (True, False), (False, True), (True, True)]:
+        data, text = borrowed_text_graph(owned, add=True, two=two)
+        compile_input(data)
+        checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps +
+                   ['string.checked_end', 'string.checked_print', 'string.checked_add']],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        for mode in ['normal', 'fault-first', 'text-print-fault', 'text-add-fault']:
+            fault = mode != 'normal'
+            extra = {'V4_PROBE_STRING_ADD_FAULT_AT': str(2 if owned else 1)} if mode == 'text-add-fault' else {}
+            result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE=mode, **extra), capture_output=True, text=True)
+            assert result.returncode == (70 if fault else 7), (owned, mode, result)
+            assert (text + '\n' in result.stdout) == (mode in ['normal', 'fault-first']), result
+            ends = int(owned) + int(mode != 'text-add-fault')
+            assert 'TEXT_ENDS ' + str(ends) + '\n' in result.stdout, (owned, mode, result)
+            stores = int(mode in ['normal', 'fault-first'])
+            assert f'COUNTS 1 {stores} 1 0 {int(fault)} 1\n' in result.stdout, result
+        print('borrowed Text Add', owned, 'two ordinals', two, 'separate callee acquisition, Print/Call Fault, failed Add without End PASS')
+    empty, _ = borrowed_text_graph(text='')
+    compile_input(empty)
+    checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps +
+               ['string.checked_end', 'string.checked_print', 'string.checked_add']],
+             '-lpthread', '-ldl', '-lm', '-o', exe])
+    result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+    assert result.returncode == 7 and result.stdout.startswith('\n') and 'TEXT_ENDS 0\n' in result.stdout, result
+    print('borrowed empty Text descriptor executes without a fabricated SSA literal PASS')
+    if '--text-only' in sys.argv:
+        raise SystemExit(0)
 
     for null_result in [False, True]:
         data = received_field_read_graph(null_result)

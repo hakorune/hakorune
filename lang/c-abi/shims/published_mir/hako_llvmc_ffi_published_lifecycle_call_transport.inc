@@ -1,3 +1,5 @@
+/* The String operand schema is defined by the following instruction include. */
+static int hako_physical_string_operand(yyjson_val*, yyjson_val*, uint32_t, uint32_t, int);
 /* Exact Birth/ordinary Call transport; included after value availability helpers. */
 static int hako_physical_call_args(yyjson_val* function, yyjson_val* callee,
     yyjson_val* args, uint32_t block, uint32_t index) {
@@ -88,10 +90,23 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
        "map" and is admitted only against a "map" formal — the storage
        pointer rides the edge borrowed. Every other pair stays i64; a map
        claim on one side alone is ABI drift, never a silent scalar fill. */
+    if (hako_physical_string(yyjson_obj_get(arg, "kind"), "borrowed_text")) {
+      static const char* const text_keys[] = {"kind", "operand"};
+      yyjson_val* operand = yyjson_obj_get(arg, "operand");
+      if (!hako_physical_exact_keys(arg, text_keys, 2) ||
+          !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1") ||
+          !yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
+          !(hako_physical_string(yyjson_obj_get(operand, "kind"), "static_text") ||
+            hako_physical_string(yyjson_obj_get(operand, "kind"), "owned_string")) ||
+          !hako_physical_string_operand(function, operand, block, index, 1)) return 0;
+      continue;
+    }
     if (!hako_physical_exact_keys(arg, arg_keys, 2) ||
         !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
         !hako_physical_value_available_at(function, value, block, index)) return 0;
     arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+    if (yyjson_is_true(yyjson_obj_get(param, "text_view")) &&
+        (!arg_kind || strcmp(arg_kind, "tagged"))) return 0;
     if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {
       uint32_t kind;
       /* Tag 0 (exact null) and the nullable typed-object pair join the

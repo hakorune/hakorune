@@ -71,8 +71,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          only; the emitted kind==1 branch proves the i64 read at the use
          site, uniform with the checked compare. */
       if (!lhs || !rhs ||
-          (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
-          (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
+          (lhs->kind != LV4_I64 && !(lhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, lhs))) ||
+          (rhs->kind != LV4_I64 && !(rhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, rhs)))) return 0;
     } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -85,8 +85,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       /* The borrowed kind/payload lane may serve a checked compare only;
          the emitted kind==1 branch proves the i64 read at the use site. */
       if (!lhs || !rhs ||
-          (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
-          (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
+          (lhs->kind != LV4_I64 && !(lhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, lhs))) ||
+          (rhs->kind != LV4_I64 && !(rhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, rhs)))) return 0;
     } else if (lv4_is(ins, "op", "borrowed_null_compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -101,6 +101,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       rnull = lv4_is(rhs->instruction, "op", "const_null");
       if (lnull == rnull) return 0;
       carrier = lnull ? rhs : lhs;
+      if (lv4_borrowed_text_formal(fn, carrier)) return 0;
       if (carrier->kind != LV4_TAGGED && carrier->kind != LV4_HANDLE &&
           carrier->kind != LV4_I64 && carrier->kind != LV4_BOOL && carrier->kind != LV4_BORROWED_OBJECT && carrier->kind != LV4_MIXED_OBJECT) return 0;
       if (carrier->kind == LV4_MIXED_OBJECT &&
@@ -119,7 +120,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (faulted || birth || !array ||
           !lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id")) ||
           !index || index->kind != LV4_I64 ||
-          !value || (value->kind != LV4_I64 && value->kind != LV4_TAGGED)) return 0;
+          !value || (value->kind != LV4_I64 && !(value->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, value)))) return 0;
     } else if (lv4_is(ins, "op", "array_get")) {
       /* A routed `.get` element read: the array operand is the same
          slot-loaded handle lane and the index a committed i64 — the read
