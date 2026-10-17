@@ -178,6 +178,52 @@ impl super::OrdinaryNewResultClassClaimsV1 {
             .map_err(|_| "borrowed-nullable/caller-input")?
     }
 
+    /// Consume the canonical preparation's original target coordinates. This
+    /// lends an input demand only; receiver eligibility is proved downstream.
+    pub(super) fn original_prepared_local_call_source_v1(
+        &self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        reference: &super::super::lexical_instance_call::CallTargetReferenceV1,
+        destination: super::BindingRefV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<OriginalLocalCallSourceV1, &'static str> {
+        let call = &reference.call_site;
+        let mut callers = batch.declarations().filter(|row| row.owner() == call.owner());
+        let caller = callers.next().ok_or("borrowed-nullable/caller-missing")?;
+        if callers.next().is_some() { return Err("borrowed-nullable/caller-not-unique"); }
+        let slot = caller.batch_slot();
+        match selected.key_for_batch_slot(slot) {
+            Some(super::SelectedNormalCallableKeyV1::Cataloged(_)) => {},
+            None => { app_main.ok_or("borrowed-nullable/caller-key")?
+                .checked_caller_key(batch, parameters, call.owner(), slot)?; },
+            Some(_) => return Err("borrowed-nullable/caller-key"),
+        }
+        let mut callees = batch.declarations().filter(|row| row.batch_slot() == reference.target_batch_slot);
+        let callee = callees.next().ok_or("borrowed-nullable/callee-owner")?;
+        if callees.next().is_some() || callee.owner() != reference.callee_owner
+            || callee.owner().compilation_brand() != call.owner().compilation_brand()
+            || !matches!(selected.key_for_batch_slot(reference.target_batch_slot),
+                Some(super::SelectedNormalCallableKeyV1::Cataloged(key)) if key == &reference.target)
+        { return Err("borrowed-nullable/callee-owner"); }
+        batch.with_lowering_input(slot, |input| {
+            let declaration = original_local_declaration_v1(input, call, destination)?;
+            let method = input.function().method_call(call.site())
+                .ok_or("borrowed-nullable/original-call")?;
+            if !reference.matches_original_call_v1(input, method) {
+                return Err("borrowed-nullable/original-call");
+            }
+            Ok(OriginalLocalCallSourceV1 {
+                declaration, receiver: Some(reference.receiver_site.clone()),
+                key: reference.target.clone(), callee_owner: reference.callee_owner,
+                caller_slot: slot,
+                actuals: super::call_actual_bindings(&reference.argument_sites, input.function()),
+                call: call.clone(),
+            })
+        }).map_err(|_| "borrowed-nullable/caller-input")?
+    }
+
     /// Borrow the already checked raw target without resolving its key again.
     /// This input source grants no result, Home or completed wrapper support.
     pub(super) fn original_local_object_target_source_v1(

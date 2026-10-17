@@ -42,16 +42,15 @@ impl OwningObjectLocalInputSourceLoanV1 {
     }
 }
 impl OrdinaryNewResultClassClaimsV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn owning_object_local_input_source_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn owning_object_local_input_source_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         parameters: &[OwnedCallableParameterContractDeclarationV1],
-        call: &crate::mir::resolved_semantics::OwnedExprSiteV1, destination: BindingRefV1,
+        reference: &super::super::lexical_instance_call::CallTargetReferenceV1, destination: BindingRefV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<OwningObjectLocalInputSourceLoanV1>, &'static str> {
-        let Some(source) = self.original_local_call_source_v1(batch, selected, fields,
-            call, destination, parameters, app_main)? else { return Ok(None); };
+        let source = self.original_prepared_local_call_source_v1(batch, selected, reference,
+            destination, parameters, app_main)?;
         let (class, nullable) = match self.get(&source.key) {
             Some(OrdinaryNewResultClassV1::Object(class)) => (class, false),
             Some(OrdinaryNewResultClassV1::NullableObject(class)) => (class, true),
@@ -90,42 +89,82 @@ mod tests {
 
     #[test]
     fn owning_object_local_input_rejects_lost_replaced_and_reissued_roots() {
-        let text = "box Token {} box Maker { make(size: i64) { if size <= 0 { return null } return new Token() }
-             relay(size: i64) { local out = me.make(size) return out } }
-             static box Main { main() { return 0 } }";
-        super::super::with_source_claims_fixture(text, |batch, selected, constructors, parameters, main| {
-            let (fields, _, facts, _) = super::super::super::coseal_issue::source_claims::prepare_source_claims(
-                batch, selected, main, constructors, parameters).unwrap();
-            let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "relay", 1);
-            let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
-            let (call, destination) = batch.with_lowering_input(slot, |input| {
-                let row = input.function().expression_source().initializers().next().unwrap();
-                (crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), row.initializer_site().unwrap().clone()), row.binding())
-            }).unwrap();
-            let loan = facts.owning_object_local_input_source_v1(batch, selected, &fields,
-                parameters, &call, destination, None).unwrap().unwrap();
-            facts.recheck_owning_object_local_input_roots_v1(&loan).unwrap();
-            assert!(loan.roots.len() >= 2);
-            for mutation in 0..5 {
-                let mut changed = loan.clone();
-                match mutation {
-                    0 => changed.roots = Box::new([]),
-                    1 => changed.roots[0] = changed.roots[1].clone(),
-                    2 => {
-                        let ordinal = changed.roots.iter().position(|root|
-                            matches!(root.origin(), ResultValueOriginV1::Null)).unwrap();
-                        changed.roots[ordinal] = Rc::new(ResultOriginWitnessV1 {
-                            site: changed.roots[ordinal].site().clone(),
-                            origin: ResultValueOriginV1::Null,
-                            step: ResultWitnessStepV1::NullLiteral,
-                        });
-                    }
-                    3 => changed.nullable = !changed.nullable,
-                    _ => changed.class = "Other".into(),
+        for (caller, text) in [
+            ("Maker", "box Token {} box Maker { make(size: i64, tag: i64) { if size <= 0 { return null } return new Token() }
+                relay(size: i64) { local out = me.make(size, 7) return out } }
+                static box Main { main() { return 0 } }"),
+            ("Caller", "box Token {} box Maker { make(size: i64, tag: i64) { if size <= 0 { return null } return new Token() } }
+                box Caller { relay(builder, size: i64) { local out = builder.make(size, 7) return out }
+                    drive(size: i64) { local builder = new Maker() return me.relay(builder, size) } }
+                static box Main { main() { return 0 } }"),
+        ] {
+            super::super::with_source_claims_fixture(text, |batch, selected, constructors, parameters, main| {
+                let (fields, _, facts, _) = super::super::super::coseal_issue::source_claims::prepare_source_claims(
+                    batch, selected, main, constructors, parameters).unwrap();
+                let key = CanonicalSameModuleCallableKeyV1::instance_box_method(caller, "relay", if caller == "Maker" { 1 } else { 2 });
+                let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+                let (call, destination) = batch.with_lowering_input(slot, |input| {
+                    let row = input.function().expression_source().initializers().next().unwrap();
+                    (crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), row.initializer_site().unwrap().clone()), row.binding())
+                }).unwrap();
+                let names: Vec<Box<str>> = batch.ordinary_box_coverage().rows().iter()
+                    .map(|row| row.name().into()).collect();
+                let mut new_classes = BTreeMap::new();
+                for row in batch.declarations() {
+                    batch.with_lowering_input(row.batch_slot(), |input| {
+                        for construction in input.function().expression_source().constructions() {
+                            new_classes.insert(crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), construction.site().clone()),
+                                construction.class().into());
+                        }
+                    }).unwrap();
                 }
-                assert!(facts.recheck_owning_object_local_input_roots_v1(&changed)
-                    .is_err(), "original immutable root identity mutation {mutation}");
-            }
-        });
+                use super::super::super::lexical_instance_call::{CallTargetReferenceV1, PreparedSourceCallNeedV1};
+                let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
+                    batch, selected, &new_classes, &names, &fields, &facts, &mut |_, _, _| Ok(None), None).unwrap();
+                let target = needs.iter().filter_map(|row| row.as_ref().unwrap().as_ref()).find_map(|need| match need {
+                    PreparedSourceCallNeedV1::Lexical(target) if target.call_site() == &call => Some(target),
+                    _ => None,
+                }).expect("canonical self or parameter receiver target");
+                let reference = CallTargetReferenceV1::from_target(target);
+                let loan = facts.owning_object_local_input_source_v1(batch, selected,
+                    parameters, &reference, destination, None).unwrap().unwrap();
+                assert!(loan.matches_target(target));
+                for mutation in 0..6 {
+                    let mut changed = reference.clone();
+                    match mutation {
+                        0 => changed.receiver_site = changed.argument_sites[0].clone(),
+                        1 => changed.argument_sites.swap(0, 1),
+                        2 => changed.argument_sites = Box::new([]),
+                        3 => changed.target = CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "other", 2),
+                        4 => changed.target_batch_slot = u32::MAX,
+                        _ => changed.callee_owner = call.owner(),
+                    }
+                    assert!(facts.owning_object_local_input_source_v1(batch, selected,
+                        parameters, &changed, destination, None).is_err(), "original reference mutation {mutation}");
+                }
+                facts.recheck_owning_object_local_input_roots_v1(&loan).unwrap();
+                assert!(loan.roots.len() >= 2);
+                for mutation in 0..5 {
+                    let mut changed = loan.clone();
+                    match mutation {
+                        0 => changed.roots = Box::new([]),
+                        1 => changed.roots[0] = changed.roots[1].clone(),
+                        2 => {
+                            let ordinal = changed.roots.iter().position(|root|
+                                matches!(root.origin(), ResultValueOriginV1::Null)).unwrap();
+                            changed.roots[ordinal] = Rc::new(ResultOriginWitnessV1 {
+                                site: changed.roots[ordinal].site().clone(),
+                                origin: ResultValueOriginV1::Null,
+                                step: ResultWitnessStepV1::NullLiteral,
+                            });
+                        }
+                        3 => changed.nullable = !changed.nullable,
+                        _ => changed.class = "Other".into(),
+                    }
+                    assert!(facts.recheck_owning_object_local_input_roots_v1(&changed)
+                        .is_err(), "original immutable root identity mutation {mutation}");
+                }
+            });
+        }
     }
 }

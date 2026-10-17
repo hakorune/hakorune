@@ -4316,6 +4316,17 @@ source revalidation borrows current targets by affine state: SourcePending/Ready
 from their slot, Taken from the current Lowering/Finalized packet owner. Graph
 rechecks borrow that target through a callback; no second source registry exists.
 
+The owning LOCAL input witness consumes the canonical prepared target reference;
+it does not rerun the narrower result-forwarding receiver resolver. The same
+original-method correspondence check serves pending result capture and this
+input issuer: owner/call/receiver/selector/ordered argument sites are exact.
+Selected callee slot/key/owner and compilation identity are corroborated before
+retaining original initializer/declaration and identical result-root Rc. Parameter
+receivers retain their existing canonical incoming-class proof; a source input
+witness grants no entry, completed actuals, acquired Home or executable result.
+Whole incoming/phase, object packet, cleanup and both final consumers keep their
+independent requirements. Mixed/borrowed forwarding resolver callers stay live.
+
 Allocation-only LOCAL field requests retain the exact successful write frame.
 Terminal relations and staged value sources preserve that same Rc, canonical
 field and acquisition; an owned LOCAL value is distinct from a borrowed numeric

@@ -628,114 +628,149 @@ RootF/CLI182/source/app receipts and V848D baseline remain comparisons for the
 unfinished write/read/final-consumer series; intermediate V849B/C/D pins retired.
 No saved adapter exists. Current V850 evidence and remaining scope follow.
 
-## V850 LOCAL FieldSet/read cleanup — landing
+## V850 LOCAL FieldSet/read cleanup — landed `c012deab7c`
 
-Decision: retain the original Completion/write frame/RHS/New source throughout
-lifecycle, readiness, finishing and both independent consumers. LOCAL functions
-including AppMain are enumerated from source, never invented formal roots.
-Field value readiness comes from the SAME prior writer's successful Normal;
-read Fault cleanup comes from current evaluation Homes, not that older snapshot.
+The implementation commit above retains the complete Decision, source/physical
+connection, selected retirement and exact verification. LOCAL writes/read Fault
+cleanup now use the common writer, original source packets and both final scans.
+RootQ focused77+receiver15 PASS; CLI185 unchanged Pair app197 EXE/native Result30,
+exit30 PASS; unchanged mimalloc app198 EXE/native exact7/exit0 PASS. Migrated
+canonical typed-newbox fixture separately PASS. Fixed11 was4PASS/7FAIL before
+that fixture migration; its aggregate is not rewritten by the separate PASS.
+S0/full goal remain open. RootQ/M, CLI185, current app receipts and V849F/V848D
+baselines stay pinned for unfinished acceptance. Superseded V850 test pins were
+removed (3110967720 bytes); logs/manifests retained; no saved adapter exists.
+Parked runtime selector/fast-lane guard remains outside this accepted lifecycle
+profile and is not reactivated by these results.
 
-Source/physical connection:
-- Initializer direct/Add reads retain whole original source and current ordered
-  Homes with mandatory field requirements. Whole scalar preflight and field batch
-  install atomically. Sub/Div retain their same source/operation Rc; Add gets no
-  fabricated operation. LOCAL uses its own ready-source proof, not a formal loan.
-- Raw and Plan carry the exact once-taken receiver Rc and original invocation
-  state into common completion. Plan freshening preserves source output and
-  checks projected values; a changed receiver without original correspondence
-  refuses checked-receiver-context, never reconstructing a receipt. Broader
-  freshened/Loop Home execution is not claimed here.
-- One checked append handles optional Plan destinations. Print retains its
-  enclosing acquired-temporary cleanup; standalone reads retain source requirement,
-  FaultFrame and complete Fault bindings from existing root cleanup writers.
-  Normal RHS producers and Fault-only rows are separate inventories.
-- Common lifecycle capture and DCE consume those same retained read rows. Both
-  final scans check source/New/write/read correspondence, row/producer uniqueness,
-  exact handles, New/operand-before-store and store-Normal-before-read dominance.
-  Their closed-use inventory includes other same-owner canonical lifecycle uses
-  (e.g. q acquisition Fault releasing p) from FinishedBindings.recorded, NOT the
-  full-MIR captured pool; those rows are already projected and never mapped twice.
-- Phase is explicit: pre-seal Phi repair uses original provisional observations;
-  finishing requires completed/sealed loans. RHS Lowering checks unique captured
-  plus actual effects; Finalized additionally requires sealed recorded membership.
-  Empty pools/censuses and failed strict checks never select a weaker route.
+## V851 original LOCAL call input — preparation verified; series unfinished
 
-Retirement: selected LOCAL physical-consumer fence and owned-write lifecycle
-rejection removed. The old exclusive checked append moved into its fields child
-and serves all checked callers; no duplicate reader or evaluator remains.
-Shared formal/null/numeric guards, Print cleanup, existing constructor/Home
-owners, context-required refusal and preseal helper have live callers and stay.
-Read-only workers reviewed source->entry->cleanup->both-consumer wiring and final
-phase dispatch; no further caller-zero temporary adapter was identified.
+Decision: same S0 remaining integration responsibility. Reuse the canonical
+prepared call target for original owning Object/NullableObject LOCAL input,
+rather than selecting its receiver class again through the narrower result
+resolver. Read-only worker traced source through incoming/entry, ordered actuals,
+object packet, Home cleanup and both final consumers. The first binary-trees
+failure is before Loop recipe: `iterationCheck`'s `builder` is a parameter and
+the second resolver rejects Parameter even though canonical preparation already
+selected `BinaryTreeBuilder.make`. This is not a new loop spelling/profile.
 
-Verification (HEAD-at-build ac89c645b7 plus this scoped implementation):
-- RootQ quick-test-fast no-run PASS65.216491s; CLI185 quick bin build
-  PASS190.363460s, exact compiler/source manifests equal. Warning counts871 root
-  and1808 CLI unchanged. CLI SHA76dbdc0aabefb0fc8e430b6199288a14fe436f818bfabec610a3c0b43ed852a7.
-- RootQ77 focused PASS/0 FAIL over19 nonempty filters, plus receiver-crosswalk15
-  PASS (.237949s). Includes four read-time p,q source snapshots,13 unready
-  refusals,8 ready MIR/actual published-ABI positives, read Fault skip/extra/wrong
-  frame mutations, nine-case independent scan closure,14 RHS source/MIR cases
-  with7 supported ABI positives and7 explicit unsupported capability refusals,
-  formal/borrowed regressions, actual Plan Set and condition freshener.
-- RootM supplementary owned_call_results... PASS523.549204s with16MiB stack.
-  A broad54-case filter aborted at default stack; it is not aggregate green.
-  Exact Plan Set/freshener also passed. RootQ borrowed_local_call_results... RED
-  matches V849F root-exit-source-missing exactly (.032865s current); this baseline
-  remains unaccepted, not a waiver or a current whole-lib success.
-- CLI185/C831e/runtime808b unchanged Pair app197 canonical direct EXE
-  PASS119.224177s/native .001532s, stdout Result30/exit30/expected warning;
-  native SHA f1eda49def226811fa80bb51a94973bea9ce1da45f2c4c554b8b4cc46e4fa0d1.
-- Same pin unchanged mimalloc app198 EXE PASS147.371757s/native .001563s,
-  original exact7 stdout/exit0/expected warning; native SHA
-  8bcd9451b5ee91d68aa583395be07d8a6fd88a7abd766fd9520ce6746119bb81.
-- Canonical argv: --grammar-profile canonical --backend mir --emit-exe OUT
-  --emit-exe-nyrt runtime-v808b SOURCE. Plugins disabled, pure-first/no compat
-  replay, RUST_MIN_STACK16777216. FFI C831e SHA
-  ee5d244562c8104dd080bcf20aff008f854babce17496817346644f546d350d7;
-  kernel archive SHA2b6083aac7e2d168fe8f76eb821c079900d15e69c8da0bc5eb843a05eba9222c.
-- Existing typed-newbox smoke switched to the same accepted direct lifecycle V4
-  recipe as Birth-param: C-API trace, real executable, exit30, no replay. Retired
-  JSON intermediate/ny-llvmc caller and its old metadata checks removed (net -11
-  lines); no app source or fixture count changed. Focused smoke PASS114.970079s,
-  fixture SHA1077df940b78692637f58592fc79e9607a392ba8aad1508005fc0ee4a5b533b8.
-- Root-route/layer/thin-shim/pointer/diff guards and fixture bash -n PASS; touched
-  Rust source under800. No current CI-green or performance improvement claim.
+Source authority + canonical issuer: original resolved initializer/declaration,
+existing PreparedSourceCallNeed canonical reference, selected batch map and
+result owner's original LOCAL call witness/root issuer. Share the existing
+pending-call original-method correspondence check. Retain original caller-key
+validation (including genuine AppMain), call/receiver/selector/ordered actuals,
+callee key/slot/owner/compilation and identical result-root Rc.
+Non-authority: a second receiver-class resolver, MIR types, inferred names,
+empty argument lists, copied roots, fabricated constructor batch slots or Home.
+Fail-fast boundary: any original-call, destination, selected callee or root
+mismatch refuses before input demand; existing whole-incoming/entry, argument
+phase, result acquisition, cleanup and publication checks remain mandatory.
+Smallest next slice: normalize the owning input issuer and its production caller;
+reuse root/phase/census negative tests, add independent parameter-receiver and
+reference-drift cases to the existing tests, build once and run focused checks,
+then unchanged binary-trees canonical direct EXE. Connect subsequent source gaps
+to existing owners in this same responsibility series; do not call input-only
+preparation product completion. Existing mixed/borrowed result and construction-child provenance resolver callers
+remain live and are not deleted. No new constructor execution support is claimed.
 
-Official fixed11 remeasurement: v850-fixedsuite, CLI185,335.316209s exit1,
-4PASS/7FAIL. It already executed OLD typed-newbox before fixture migration; the
-separate migrated-fixture PASS does not rewrite that aggregate. Six other stops
-match V835; untyped-field's ValueId15 return-type panic is identical there.
+Fresh baseline at c012deab7c, CLI185 matched source manifest, C831e/runtime808b,
+canonical --emit-exe direct route, pure-first/no replay/16MiB, unchanged apps:
 
-| failed case in that run | stop |
-| --- | --- |
-| typed-newbox (old fixture) | canonical-transport/instruction-outside-profile; new direct fixture separately PASS |
-| json-stream | borrowed-static/source-actual-unavailable |
-| boxtorrent | stored-child/receiver-unavailable |
-| binary-trees | nullable-input/source-missing in original Loop Body2 |
-| allocator-stress | NamedArray(TextSourceMissing) |
-| mimalloc generic negative | required-integer-source-unproved before pinned Invoke |
-| untyped-field negative | return_type_strategy.rs142 type inference ValueId15 before pinned Invoke |
+| app / receipt | elapsed seconds | first stop (all exit1, no EXE) |
+| --- | --- | --- |
+| binary-trees / app199 | .022443 | nullable-input/source-missing, slot9 Body2 LoopBody0 Initializer0 |
+| json-stream / app200 | .041477 | borrowed-static/source-actual-unavailable, slot20 Body7 Value |
+| boxtorrent / app201 | .073239 | stored-child/receiver-unavailable, slot51 Body2 Initializer0 |
+| allocator-stress / app202 | .036968 | NamedArray(TextSourceMissing) |
 
-These source/gate gaps remain required work; do not retarget a negative to hide
-them or count an old marker as an actual executable. S0 and full goal stay open.
-Next: select the remaining actual source responsibility from this same row's
-required initialization/forward/fixed-acceptance obligations, using fresh direct
-canonical evidence and existing worker consultation. No language redesign needed.
+Commands, source/binary/backend hashes and elapsed receipts remain in
+`/tmp/mirbuilder-required-forward-resume/v851-canonical-frontiers.json` and
+app-v199 through app-v202 logs. These are baseline failures, not current green.
 
-Outside fixture caller: parked row191 fast-lane guard targets legacy kernel and
-has replacement/hook inactive. Its backend/perf contract is not migrated. Reusing
-app197 with explicit single_thread_exact or invalid selector returns Fault70 in
-the selected lifecycle profile (default still exact30). Informational outside
-profile refusal; keep parked guard/source and resolve its own accepted runtime
-before reactivation. No selector masking, compat path or backend activation.
+Implementation/verification in progress:
+- Owning input borrows the prepared canonical reference, original LOCAL witness
+  and same result-root Rc; source owner checks the selected key/slot/owner and
+  original method. Pending capture shares that method-correspondence checker;
+  its former inline duplicate is removed. The owning caller no longer takes
+  field-class claims to reselect its target. Mixed/borrowed and construction-child provenance resolver callers and
+  genuine constructor boundaries remain unchanged; no temporary adapter exists.
+- Read-only post-edit review found no blocking source/consumer issue. Full
+  incoming census, phase/argument reconstruction, result packet/Home, cleanup
+  and both final consumers still require their original evidence.
+- RootC quick-test-fast no-run PASS42.417919s. Existing7 nonempty filters10PASS,
+  including self and parameter receivers, six reference corruptions per receiver,
+  five original-root corruptions per receiver, whole-input phase/census,
+  original lexical/stored defaults, borrowed nullable and returned-field input.
+  Final root warnings870 vs prior871; no warning suppression. First RootA test
+  fixture compile failed E0599 (wrong construction accessor), corrected; RootB
+  intermediate5PASS and an introduced visibility warning are superseded by C.
+  Final source/receipts: v851c-root.source/build/focused in evidence base.
+- CLI186 quick build PASS173.397904s; source manifest matches RootC exactly.
+  CLI warnings1807 vs prior1808; SHA
+  be634fc210d90c9ed7dc9c8b744ba859d93e3dd1e2472e027ac196cd4745747d.
+  Unchanged binary-trees app203 direct canonical EXE exits1/no artifact in
+  .097460s. Prior nullable-input/source-missing at LoopBody0 is gone; measured
+  first stop is now ordinary-new/borrowed-result/source-not-i64 at slot9
+  Body2 LoopBody3 Value Rhs (`negative.itemCheck()` in the accumulator).
+  Do not infer all earlier calls execute from diagnostic traversal order.
+  This is real source-frontier movement, NOT EXE/S0 acceptance. Unchanged
+  mimalloc regression app204 on the same CLI/backend pins PASS: direct EXE
+  128.414574s; native .001570s, exact existing7 stdout/exit0/expected plugin-disabled
+  warning. Native SHA
+  d59385a44d4a30c7ee87588680cd76e392671aa9285362dce5475ef8c2a515f6.
+- Root-route, builder-layer, thin-shim, pointer and diff guards PASS. No fixed
+  suite rerun/current aggregate-green, CI-green or controlled speedup claim.
+  The changed Rust sources remain under800 lines; lexical facade is793 with a
+  changed reexport only. This preparation replaces the owning input's duplicate
+  target-selection edge; remaining shared resolver callers are live, not debt
+  that can be deleted here. S0/full goal and source-to-consumer series stay open.
 
-/tmp disposition: RootQ latest/CLI185/app197-198/source/focused/smoke/full-suite
-receipts, C831e/runtime808b and V849F/V848D baselines remain reproduction evidence
-for unfinished full acceptance. Keep RootM long supplementary test pin; all
-other V850 intermediate test pins retired,3110967720 bytes reclaimed. Logs and
-manifests retained, no saved adapter. The temporary test-harness nested-env-lock
-hang was corrected; final tests terminate normally. All build/test/native/suite
-handles are terminal. This landing records code/contracts and exact evidence;
-a later closeout can compress this section to its commit reference.
+Worker follow-through mapping (remaining parameter-receiver obligations;
+not the first app203 stop and not acceptance):
+- A formal method-receiver read currently becomes UnsupportedUse in the existing
+  formal-use draft; source/entry must retain the canonical target's exact receiver
+  use, original formal/alias provenance and all-incoming source-object basis.
+- Home observation currently admits owned LOCAL or self only. The existing
+  OriginalFormalObjectBasisV1 is passive class/input evidence, not a fabricated
+  Home or executable entry. Its receiver read must be tied to the genuine entry.
+- Existing lexical Object emitter requires Home for every non-self receiver;
+  use the SAME ExactLexicalRead/EmittedLexicalCallProjection receiver packet for
+  borrowed entry proof, preserving original current/prior cleanup ownership.
+- Both compiled-entry scans currently reject formal operands in callee. They
+  need the SAME exact packet-backed receiver-use correspondence while retaining
+  fault-frame/other-operand rejection. Borrowed argument copy/entry lending is
+  the existing precedent, not permission for a parallel receiver emitter.
+- Existing physical ordinary_call.receiver/JSON/C already separate receiver
+  from explicit args. No new Home, result family or runtime ABI is selected.
+
+Measured app203 classification after full owner review: the current scalar
+refusal already lacks the existing untyped-storage/constructor premise. TreeNode
+left/right/value are unannotated and their Birth RHSs are Parameter.
+`instance_construction::issue_construction_source_v1` only admits unannotated
+ProviderConstruction, so this exact source has FieldContractUnsupported.
+`ordinary_new_field_value_source::issue` requires successful original construction;
+its value field therefore has no DeclaredFieldValueSourceV1/productive Birth root.
+Object destruction also remains Unavailable(FieldType). Numeric result inference
+cannot manufacture that storage/End contract.
+
+The accepted owner is
+[untyped storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md): declared
+migration was authorized only for the named Birth-param fixture, while essential
+untyped storage remains sealed until source-backed tagged dynamic/opaque authority
+is selected. This series does not change binary-trees or reopen that family.
+SCC/Stored scalar closure and borrowed formal receiver execution above remain
+independent later obligations; SCC work is NOT the next safe implementation on
+this unmodified source. Existing ungrounded-cycle refusals remain required; a
+base Return, name or MIR type cannot seed a result. No new refusal-only test/task
+is needed: existing regression owners plus the actual app203/source trace suffice.
+
+Next available action inside remaining S0 acceptance: read-only source-to-consumer
+review of app200 json-stream's canonical borrowed-static/source-actual-unavailable
+at slot20 Body7 Value. Settle its original actual/issuer and one Decision before
+implementation; if the semantic owner/family changes, transfer row/card with the
+old S0 unfinished conditions retained. No language/storage expansion, parked lane
+reactivation or full-goal completion is authorized by this candidate inspection.
+
+/tmp disposition: keep RootC/CLI186/app203-204 and matched backend pins for this
+unfinished source-to-consumer series. RootB's superseded test binary was deleted
+(259807640 bytes); source manifests, logs and receipts remain. No saved adapter. All build/test/native handles are terminal.

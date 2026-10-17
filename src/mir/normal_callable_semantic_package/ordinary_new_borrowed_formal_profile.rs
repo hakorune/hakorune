@@ -23,7 +23,6 @@ fn attach_owning_object_local_input_v1(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
-    fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
 ) -> Result<(), String> {
@@ -41,11 +40,12 @@ fn attach_owning_object_local_input_v1(
             Ok(destination)
         })??;
     let Some(destination) = destination else { return Ok(()); };
-    let loan = facts.owning_object_local_input_source_v1(batch, selected, fields, contracts,
-        &reference.call_site, destination, app_main.map(|main| main.caller_source_ref_v1()))
+    let loan = facts.owning_object_local_input_source_v1(batch, selected, contracts,
+        &reference, destination, app_main.map(|main| main.caller_source_ref_v1()))
         .map_err(freeze)?.ok_or_else(|| freeze("nullable-input/source-missing"))?;
     if loan.key() != &reference.target || loan.callee_owner() != reference.callee_owner
-        || loan.receiver() != Some(&reference.receiver_site) {
+        || loan.receiver() != Some(&reference.receiver_site)
+        || !loan.matches_arguments_v1(&reference.argument_sites) {
         return Err(freeze("nullable-input/original-target"));
     }
     need.set_owning_object_input_v1(std::rc::Rc::new(loan));
@@ -200,7 +200,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 continue;
             }
             attach_owning_object_local_input_v1(need, batch, constructors, selected, contracts,
-                field_write_claims, callable_result_classes, app_main)
+                callable_result_classes, app_main)
                 .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                     site: reference.call_site.clone(), issue,
                 })?;

@@ -104,17 +104,34 @@ pub(super) fn stored_parent_matches_v1(
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct CallTargetReferenceV1 {
-    pub(super) call_site: OwnedExprSiteV1,
-    pub(super) receiver_site: SourceExprSiteV1,
-    pub(super) target: CanonicalSameModuleCallableKeyV1,
-    pub(super) target_batch_slot: u32,
-    pub(super) callee_owner: FunctionOwnerIdV1,
-    pub(super) argument_sites: Box<[SourceExprSiteV1]>,
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct CallTargetReferenceV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) call_site: OwnedExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) receiver_site: SourceExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) target: CanonicalSameModuleCallableKeyV1,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) target_batch_slot: u32,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) callee_owner: FunctionOwnerIdV1,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) argument_sites: Box<[SourceExprSiteV1]>,
 }
 
 impl CallTargetReferenceV1 {
-    pub(super) fn from_target(row: &LexicalInstanceCallSourceTargetV1) -> Self {
+    /// Corroboration only: canonical preparation still owns target selection.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn matches_original_call_v1(
+        &self, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    ) -> bool {
+        self.call_site.owner() == input.owner() && call.owner() == input.owner()
+            && self.call_site.site() == call.site()
+            && input.function().method_call(call.site()) == Some(call)
+            && self.receiver_site == *call.receiver_site()
+            && self.target.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+            && self.target.name() == call.selector() && self.target.arity() == call.arity()
+            && self.argument_sites.len() == call.arguments().len()
+            && self.argument_sites.iter().zip(call.arguments()).enumerate()
+                .all(|(ordinal, (site, argument))| argument.ordinal() as usize == ordinal
+                    && site == argument.site())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn from_target(row: &LexicalInstanceCallSourceTargetV1) -> Self {
         Self {
             call_site: row.call_site.clone(), receiver_site: row.receiver_site.clone(),
             target: row.target.clone(), target_batch_slot: row.target_batch_slot,

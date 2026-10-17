@@ -170,16 +170,7 @@ pub(super) fn exact_call_source_v1<'a>(
         return Ok(None);
     };
     let reference = need.reference();
-    if matching.next().is_some()
-        || reference.receiver_site != *call.receiver_site()
-        || reference.target.arity() != call.arity()
-        || reference.target.name() != call.selector()
-        || reference.argument_sites.len() != call.arguments().len()
-        || !reference
-            .argument_sites
-            .iter()
-            .zip(call.arguments())
-            .all(|(site, argument)| site == argument.site())
+    if matching.next().is_some() || !reference.matches_original_call_v1(input, call)
     {
         return Err(freeze("borrowed-result/call-source-identity"));
     }

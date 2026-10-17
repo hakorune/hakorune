@@ -380,7 +380,7 @@ mod source;
 pub(in crate::mir::normal_callable_semantic_package) use source::{StoredReceiverSourceOriginV1, StoredReceiverSourceV1, original_lexical_target_at_v1};
 pub(super) use source::{
     prepare_lexical_source_targets_v1, PreparedLexicalInstanceCallSourceTargetsV1,
-    PreparedSourceCallNeedV1,
+    PreparedSourceCallNeedV1, CallTargetReferenceV1,
 };
 
 #[path = "ordinary_new_borrowed_static_argument.rs"]
