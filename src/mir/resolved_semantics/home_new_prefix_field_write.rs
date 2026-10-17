@@ -5,6 +5,8 @@
 //! writer/receiver/value consults, a numeric field declaration and checked RHS.
 //! Neither path acquires a Home or issues physical FieldSet permission.
 use super::*;
+#[path = "home_new_prefix_owned_field_write.rs"]
+mod owned_local;
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, BodyMeReceiverV1, ResolvedAssignmentFormV1, ResolvedBinaryOperatorV1,
     ResolvedAssignmentTargetV1, VerifiedResolvedBodyShapeInventoryV1,
@@ -16,13 +18,16 @@ use crate::mir::resolved_semantics::{
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &PrefixLocalFlow<'_>,
+    locals: &mut PrefixLocalFlow<'_>,
     homes: &[BindingRefV1],
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
+    if let Some(admitted) = owned_local::observe(input, statement, locals, homes, scalar_field, fields)? {
+        return Ok(admitted);
+    }
     if !observe_receiver_field_write(input, statement, locals, scalar_field, view_use)? { return Ok(false); }
     let shape = input.body_shape().expect("field effect validated its original shape");
     let assignment = shape.assignment_sources().iter()
@@ -47,7 +52,7 @@ pub(super) fn observe<E>(
         matches!(binary.operator(), ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide)))
     { return Ok(true); }
     let mut installation = locals.expression_installation();
-    let plan = super::expression_plan::qualify_field_write_expression_v1(source, false,
+    let plan = super::expression_plan::qualify_field_write_expression_v1(source, false, None,
         &mut |site| match locals.observe(site) {
             Some(OrdinaryObservation::Integer(_)) => Some(SourceScalarKind::Integer),
             Some(OrdinaryObservation::Bool(_)) => Some(SourceScalarKind::Bool),

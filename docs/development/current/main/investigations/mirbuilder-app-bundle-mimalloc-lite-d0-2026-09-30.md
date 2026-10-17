@@ -10,7 +10,7 @@ Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
 ## Current position and history
 
 Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`.
-Mode: fast for required constructor-owner preparation; allocation-only restoration Decision below.
+Mode: fast for required LOCAL initialization/Return readiness connection; Decision below.
 Full prior card, decisions, original-source contracts, red classifications,
 commands, pins and preparation evidence are preserved in this path at
 **244c8d3f5e** and **fbc57efa14**. These are implementation commits, not just
@@ -162,8 +162,8 @@ manifests retained (v837-cleanup). No new adapter was introduced.
 - [ ] Required field Birth/full support and remaining actual FieldWrite/
   initialization pins; reuse V734/V739, do not invent fields or zero-fill proof.
   Typed-newbox Pair has no Birth: current NoBirthZero requires fieldless class,
-  causing InitializationContractMissing, and LOCAL pair writes lack selected
-  prefix coverage. This is a compiler profile gap, not invalid source. Keep the
+  keeping complete execution at InitializationContractMissing. V843 now covers
+  both LOCAL pair writes; Return field-value readiness is the next source stop. This is a compiler profile gap, not invalid source. Keep the
   unchanged positive, no fabricated Birth or conversion into a negative.
   The bounded restoration Decision is resolved in `cac87926f6` and below:
   the existing allocation-only typed-i64 positive retains its original New/Home
@@ -260,7 +260,8 @@ Local failure accounting, original store order/overwrites, no fake Birth,
 no AST/.hako rewrite and no retry. Source-to-physical-to-BOTH-final-scans-to-C
 readiness and complete occurrence coverage remain mandatory before activation.
 Unchanged no-Birth Pair EXE/OBJ30 is required; Birth-Pair does not substitute.
-CLI176 app181 remains exit1/noEXE .021610s PrefixNotCovered Body1 until repaired.
+CLI176 app181 was exit1/noEXE .021610s PrefixNotCovered Body1; V843/CLI177
+below supersedes that selected source frontier, not the historical suite result.
 
 Required BoxShape is complete: test-owner split `da029c5c36` and
 existing-definition-owner move `ea70a42bd2`; V839 evidence below. No semantic admission changed.
@@ -319,20 +320,77 @@ its real source commits above, retaining current contracts/reds and required pin
 Latest available CI35681768498 remains historical d4168473d5 failure, not evidence
 for current source. Existing CLI176/native/frontier provenance is unchanged.
 
-Next: one normalized assignment frame with common source/prior Homes and explicit
-FormalBorrowed vs OwnedLocal source/acquisition/root/field/original-writer
-payload. Keep the formal accessor filtered; common consistency/refinement and
-lifecycle occurrence coverage must preserve LOCAL, never silently omit it.
-Attach frame BEFORE installation.approve, which clones the candidate; then
-validate fields against prior readiness, commit, and refine branch-local Normal
-readiness. A successful RHS source plan alone cannot authorize FieldSet. Readiness
-must stay branch-local and expire on consume/rebind. Existing Home state is740
-lines: use a cohesive child owner before growth, not source compression.
-Owned LOCAL must never pass FormalFieldWriteReceiver/Value or borrow a formal
-permission. Both independent final consumers, physical cleanup/Normal dominance,
-matching C and unchanged Pair EXE/OBJ30 remain required before activation.
-Compatibility/emission construction.is_ok gates remain closed; no fresh EXE or
-frontier advancement claim from this preparation.
+The normalized assignment frame and source Normal readiness now land in V843
+below. Its local source progress does not activate physical/publication support.
+
+## LOCAL source frame / Normal readiness — V843
+
+Previous goal turn PROGRESS: `2da3f845ef` supplies declared field lookup, retained
+original writer loans and whole-I64 RHS demand. Worker reviewed this mapping and
+current diff from original source to mandatory final consumer boundary. One
+module/reexport mismatch found before build and corrected. V843a build PASS
+104.486474s/focused50PASS. Added two actual branch-join refusal cases to the SAME
+existing test, then V843b build PASS56.118552s/focused50PASS (root9213 unchanged).
+Command remains16MiB-stack cargo quick-test-fast --no-run --message-format=json,
+jobs4. Constructor25/ordinary-New23/expression transaction1/original writer1;
+Normal store/overwrite, type/read/compound refusal and unequal branch frames
+PASS. Worker review and root-route/layer/thin-shim/diff PASS, no waived red.
+Root B SHA07f707a03585cf4743f6651444d7ce004aa086b4f30f1361549b238ff8b1e977;
+v843b source/build/focused receipts retained. Superseded A test binary retired
+only after B PASS and exact source comparison (only test table differs), no live
+process; reclaimed258155432 bytes. A logs/manifests remain, B/current baseline
+and native pins kept (v843-root-disposition). No temporary adapter introduced.
+
+Decision: extend the existing assignment frame/slot into CheckedFieldWriteFrame,
+with common original source/prior Homes and explicit FormalBorrowed vs OwnedLocal.
+No parallel optional frame or compatibility type alias. A sealed LOCAL source
+matches exact candidate acquisition/destination/SAME constructor Rc and source
+field, original writer inventory, same resolver assignment/target/receiver and
+LOCAL binding. Existing me-only receiver attribution/global field veto remains.
+
+Scope: existing writer/candidate consult, frame/whole-RHS qualifier, expression
+slot/consistency/refinement/lifecycle formal consumer and reexports; two cohesive
+children for LOCAL observation and branch-local readiness; old scanner/read gate
+and existing brand claim regression, owner README/card. No fixture or new root
+test. Attach frame before approve; validate old-readiness RHS and final field
+batch, commit, then record latest Normal field writer. Every store remains in
+expression inventory. Exact frame joins, overwrite order and consume/rebind state
+loss are required. Tests cover renamed stores/overwrite/source identity/formal
+refusal and wrong type/missing field/read-before-write/unwritten field/compound
+refusal; positive read-after-write and physical Normal dominance still owed.
+
+The common lifecycle collector retains ALL frame occurrences and explicitly
+rejects LOCAL with owned-local-field-write-consumer-pending. Its owner is the
+existing lifecycle/selected FieldSet connection; retire this bounded pending
+refusal only when source->sole writer->BOTH final consumers->C closes. Constructor
+complete eligibility and publication remain unavailable; no broad formal bypass,
+New/Home delay or ReclaimUnpublished after Local commit. Keep fixed acceptance
+and unchanged Pair EXE/OBJ30, physical Fault/cleanup and required retirement open.
+
+## Current source frontier — CLI177/app182
+
+CLI177 `cargo build --profile quick --bin hakorune --message-format=json`
+PASS191.121111s. Same WIP source fingerprint as root B; source drift zero.
+Binary SHAa0985b4e58cf23152a142b44df58e3886c79e63dcead4f4f30fea51984958fc7.
+Unchanged `apps/typed-object-newbox-min/main.hako` SHA80b07fe145e5fe61b2d326620fd5b1929c452124e3fe5c5528d4aeb96be54a7b,
+canonical direct `--backend mir --emit-exe`, pure-first/no replay, C831e/runtime808b
+pins unchanged. App182 exit1/noEXE .092705s:
+`ordinary-new/object-return/normal-projection-exit: ReturnValueNotCovered Body3`.
+Prior CLI176/app181 stopped PrefixNotCovered Body1. Original LOCAL stores Body1/2
+now pass the source walk; Return's value proof is still unavailable. This is a
+verified first-stop advance, not EXE/native success, fixed-suite success or S0
+completion. Receipts app-v182/v843-cli177 retain argv/environment/pins/timing.
+
+Next: keep exact prior-ready frame in LocalFieldReadRequest and staged descriptor
+instead of reducing it to bool. Existing ExpressionFieldRequirement carries that
+request; source value provenance must distinguish existing all-writer proof from
+LOCAL original-ready frame before global field_candidates/formal lookup. Keep
+me-only global veto. Return observe_terminal_scalar_source currently uses the
+old field_is_integer bool / initialized_integer_field complete-construction path;
+thread the SAME request/ready frame into terminal field staging, not a true bypass
+or Return-specific inference rule. Then sole checked FieldSet/Get writer, physical
+Normal/Fault/cleanup coverage, both final scans and C must consume these exact
+sources before constructor/publication profile activates. No second classifier.
 
 ## Temporary artifact disposition
 

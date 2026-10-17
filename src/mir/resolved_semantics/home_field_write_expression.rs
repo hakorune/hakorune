@@ -13,6 +13,7 @@ use super::super::SourceScalarKind;
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>,
     require_i64: bool,
+    frame: Option<Rc<CheckedFieldWriteFrameV1>>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<SourceScalarKind>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
@@ -22,6 +23,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
     if assignment.form() != ResolvedAssignmentFormV1::Plain || source.has_opaque_obligations()
         || source.nodes().first().is_none_or(|root| root.site() != assignment.value_site())
     { return Ok(None); }
+    if frame.as_ref().is_some_and(|frame| !require_i64 || !Rc::ptr_eq(frame.source(), &source)
+        || frame.owned_local().is_none()) { return Ok(None); }
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
     let mut requests = Vec::new();
     for (index, node) in source.nodes().iter().enumerate() {
@@ -73,7 +76,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         }
     }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: operations,
-        source_fields: Vec::new(), print_frame: None, condition_frame: None, borrowed_field_write: None };
+        source_fields: Vec::new(), print_frame: None, condition_frame: None, field_write: frame };
     let Some(candidate) = candidate.with_source_field_requirements(&requests) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }
     if !field_batch(&requests, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? {

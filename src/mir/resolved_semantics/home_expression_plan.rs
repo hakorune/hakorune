@@ -35,8 +35,8 @@ mod print_expression;
 pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};
 
 #[path = "home_borrowed_field_write.rs"]
-mod borrowed_field_write;
-pub(crate) use borrowed_field_write::CheckedBorrowedFieldWriteFrameV1;
+mod field_write;
+pub(crate) use field_write::CheckedFieldWriteFrameV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExpressionScalarOperationLoanV1 {
@@ -95,7 +95,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     source_fields: Vec<ExpressionFieldRequirementV1>,
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
-    borrowed_field_write: Option<Rc<CheckedBorrowedFieldWriteFrameV1>>,
+    field_write: Option<Rc<CheckedFieldWriteFrameV1>>,
 }
 impl HomeExpressionPlanV1 {
     /// Called only after the original scalar preflight proves both Integer
@@ -135,7 +135,7 @@ impl HomeExpressionPlanV1 {
             source,
             scalar_operations: vec![loan],
             source_fields: Vec::new(),
-            print_frame: None, condition_frame: None, borrowed_field_write: None,
+            print_frame: None, condition_frame: None, field_write: None,
         })
     }
     /// Refine an already qualified whole root after its strict field batch.
@@ -165,8 +165,10 @@ impl HomeExpressionPlanV1 {
         self.source_fields = fields;
         self.is_consistent().then_some(self)
     }
-    pub(crate) fn borrowed_field_write_frame(&self) -> Option<&Rc<CheckedBorrowedFieldWriteFrameV1>> {
-        self.borrowed_field_write.as_ref()
+    pub(crate) fn field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> { self.field_write.as_ref() }
+    /// Existing formal consumers cannot borrow a LOCAL permission.
+    pub(crate) fn borrowed_field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> {
+        self.field_write.as_ref().filter(|frame| frame.is_borrowed())
     }
     pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> { self.condition_frame.as_ref() }
     pub(crate) fn print_frame(&self) -> Option<&Rc<CheckedPrintExpressionFrameV1>> { self.print_frame.as_ref() }
@@ -181,9 +183,9 @@ impl HomeExpressionPlanV1 {
     }
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
-        [self.print_frame.is_some(), self.condition_frame.is_some(), self.borrowed_field_write.is_some()]
+        [self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some()]
             .into_iter().filter(|present| *present).count() <= 1
-            && self.borrowed_field_write.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.field_write.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.condition_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.source_fields.iter().all(|field| Rc::ptr_eq(&self.source, field.plan()) && field.is_consistent())
@@ -220,7 +222,7 @@ impl super::RootHomeFlow {
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
                 _ => true,
             }
-            || match (original.borrowed_field_write_frame(), refined.borrowed_field_write_frame()) {
+            || match (original.field_write_frame(), refined.field_write_frame()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
                 _ => true,
@@ -348,7 +350,7 @@ mod installation_tests {
                 let flow = PrefixLocalFlow::new(input);
                 let mut installation = flow.expression_installation();
                 let mut batches = 0;
-                let plan = qualify_field_write_expression_v1::<()>(Rc::clone(&source), true,
+                let plan = qualify_field_write_expression_v1::<()>(Rc::clone(&source), true, None,
                     &mut |_| integer_reference.then_some(crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer),
                     &mut |_| None, &mut |plan| installation.approve(plan),
                     &mut |requests, _| { assert!(requests.is_empty()); batches += 1; Ok(batch_succeeds) }).unwrap();

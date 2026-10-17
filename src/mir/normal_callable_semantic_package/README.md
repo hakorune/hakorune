@@ -718,7 +718,21 @@ Home field consult lends the original writer inventory loan; its expression-only
 projection uses the same loan and recheck. LOCAL RHS preparation can demand I64
 for the whole expression, including literal/reference/Add roots; a wrong class
 rejects before installation/field staging. Existing effect-only receiver writes
-keep their prior demand. None of these preparations grants LOCAL store readiness.
+keep their prior demand. Source readiness still grants no physical FieldSet.
+
+The one `CheckedFieldWriteFrameV1` holds common original expression and prior
+Homes plus explicit FormalBorrowed/OwnedLocal provenance. LOCAL retains original
+New/destination, SAME construction Rc, canonical field and original writer loan;
+its receiver is corroborated from the same resolver target/shape, preserving the
+global me-only attribution/veto. Formal accessors and source-pair consumers refuse
+LOCAL. The Home walk attaches this frame before approve, validates RHS/field batch
+against prior state, commits, then records branch-local Normal readiness. Store
+overwrite changes the latest per-field frame but keeps every occurrence in the
+shared expression inventory. Join requires exact same frames; consume/rebind
+invalidates readiness with the Home. A read of an unwritten allocation-only field
+stays unavailable. The lifecycle collector inspects ALL assignment frames and
+explicitly refuses LOCAL until its physical/final-consumer connection exists;
+it cannot omit the occurrence or retry through formal handling.
 
 [Constructor issuance](instance_constructor_semantic.rs) retains a non-Clone
 parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals

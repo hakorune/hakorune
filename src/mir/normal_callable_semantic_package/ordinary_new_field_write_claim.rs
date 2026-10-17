@@ -90,7 +90,63 @@ impl PartialEq for OriginalFieldWriteSourceLoanV1 {
     }
 }
 impl Eq for OriginalFieldWriteSourceLoanV1 {}
+/// Exact selected LOCAL New and declaration field, paired with one original writer.
+/// No RHS value, Normal readiness or physical write permission is issued here.
+#[derive(Debug, Clone)]
+pub(crate) struct OwnedLocalFieldWriteSourceV1 {
+    acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    root: crate::mir::resolved_semantics::BindingRefV1,
+    construction: Rc<super::super::ConstructionSourceStructureV1>,
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    original: OriginalFieldWriteSourceLoanV1,
+}
+impl PartialEq for OwnedLocalFieldWriteSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.acquisition == other.acquisition && self.root == other.root && self.field == other.field
+            && Rc::ptr_eq(&self.construction, &other.construction) && self.original == other.original
+    }
+}
+impl Eq for OwnedLocalFieldWriteSourceV1 {}
+impl OwnedLocalFieldWriteSourceV1 {
+    pub(crate) fn acquisition(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 { &self.acquisition }
+    pub(crate) fn root(&self) -> crate::mir::resolved_semantics::BindingRefV1 { self.root }
+    pub(crate) fn construction(&self) -> &Rc<super::super::ConstructionSourceStructureV1> { &self.construction }
+    pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
+    pub(crate) fn original(&self) -> &OriginalFieldWriteSourceLoanV1 { &self.original }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
+        self.original.write().source().expect("sealed original writer source")
+    }
+}
 impl OriginalFieldWriteSourceLoanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn owned_local_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>,
+        acquisition: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        root: crate::mir::resolved_semantics::BindingRefV1,
+        construction: Rc<super::super::ConstructionSourceStructureV1>,
+    ) -> Option<OwnedLocalFieldWriteSourceV1> {
+        let write = self.write();
+        let source = write.source().ok()?;
+        let shape = input.body_shape()?;
+        let assignment = write.assignment();
+        let ResolvedAssignmentTargetV1::FieldWrite { receiver } = input.function().assignment_target(assignment.target_site())? else { return None };
+        let BodyExpressionShapeV1::FieldAccess { object, field, .. } = shape.expression_shape(assignment.target_site())? else { return None };
+        let field_ref = construction.allocation_only_i64_field(field)?;
+        if input.owner() != write.owner() || source.owner() != input.owner()
+            || acquisition.owner() != input.owner() || root.owner() != input.owner()
+            || write.in_birth() || object != receiver || receiver != write.receiver_site()
+            || field.as_ref() != write.field()
+            || assignment.form() != crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+            || !shape.assignment_sources().iter().any(|row| row == assignment)
+            || !matches!(source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment: own } if own == assignment)
+            || input.function().variable_ref(receiver) != Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(root))
+            || !matches!(input.function().binding(root).map(|row| row.kind()), Some(BindingKindV1::Local { .. }))
+            || !input.function().expression_source().initializers().any(|row|
+                row.binding() == root && row.initializer_site() == Some(acquisition.site()))
+        { return None; }
+        Some(OwnedLocalFieldWriteSourceV1 { acquisition: acquisition.clone(), root,
+            construction, field: field_ref, original: self.clone() })
+    }
+
     pub(crate) fn write(&self) -> &ObservedFieldWriteV1 {
         &self.inventory.writes[self.index]
     }

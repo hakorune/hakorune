@@ -39,6 +39,10 @@ pub(crate) struct ConstructionSourceStructureV1 {
 impl ConstructionSourceStructureV1 {
     pub(crate) fn completion(&self) -> &ConstructionCompletionV1 { &self.completion }
 
+    pub(crate) fn is_allocation_only_i64(&self) -> bool {
+        matches!(self.completion(), ConstructionCompletionV1::AllocationOnlyI64 { .. })
+    }
+
     /// Resolve only within this original declaration, never a global name table.
     pub(crate) fn allocation_only_i64_field(&self, name: &str) -> Option<CanonicalFieldRefV1> {
         let ConstructionCompletionV1::AllocationOnlyI64 { fields } = self.completion() else { return None };

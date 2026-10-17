@@ -27,7 +27,7 @@ pub(crate) enum LifecyclePrefixSourceV1 {
     },
     BorrowedFieldWrite {
         site: OwnedExprSiteV1,
-        frame: std::rc::Rc<CheckedBorrowedFieldWriteFrameV1>,
+        frame: std::rc::Rc<CheckedFieldWriteFrameV1>,
     },
 }
 impl LifecyclePrefixSourceV1 {
@@ -83,7 +83,11 @@ impl RootHomeFlow {
             frame: std::rc::Rc::clone(frame),
         }));
         let writes: Vec<_> = self.expression_plans.iter()
-            .filter_map(HomeExpressionPlanV1::borrowed_field_write_frame).collect();
+            .filter_map(HomeExpressionPlanV1::field_write_frame).collect();
+        if writes.iter().any(|frame| !frame.is_borrowed()) {
+            // Retain mandatory LOCAL occurrence; no silent drop/formal retry.
+            return Err("lifecycle-prefix/owned-local-field-write-consumer-pending");
+        }
         if writes.windows(2).any(|pair|
             pair[0].source().root().statement() > pair[1].source().root().statement()) {
             return Err("lifecycle-prefix/source-order");

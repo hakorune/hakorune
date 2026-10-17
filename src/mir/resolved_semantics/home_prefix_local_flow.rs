@@ -17,6 +17,8 @@ use std::collections::{BTreeMap, BTreeSet};
 mod borrowed_nullable;
 #[path = "home_prefix_field_alias.rs"]
 mod field_alias;
+#[path = "home_prefix_field_readiness.rs"]
+mod field_readiness;
 pub(crate) use field_alias::FieldAliasPathV1;
 
 /// Exact pre-Loop scalar-class snapshot minted by the running Home walk.
@@ -65,6 +67,7 @@ enum StoredLocal {
         acquisition: super::OwnedExprSiteV1,
         /// Immutable declaration source; branch-local readiness is not shared here.
         construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
+        ready: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, std::rc::Rc<super::CheckedFieldWriteFrameV1>>,
     },
     /// A call-result handle the caller received as an owned Home. It owes
     /// the caller's exit exactly one release like a `Home`, but its
@@ -174,8 +177,10 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
         (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
         (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
-        (StoredLocal::Home { acquisition: a, construction_source: ac },
-            StoredLocal::Home { acquisition: b, construction_source: bc }) => a == b && match (ac, bc) {
+        (StoredLocal::Home { acquisition: a, construction_source: ac, ready: ar },
+            StoredLocal::Home { acquisition: b, construction_source: bc, ready: br }) =>
+            a == b && ar.len() == br.len() && ar.iter().all(|(field, frame)|
+                br.get(field).is_some_and(|other| std::rc::Rc::ptr_eq(frame, other))) && match (ac, bc) {
                 (None, None) => true,
                 (Some(a), Some(b)) => std::rc::Rc::ptr_eq(a, b),
                 _ => false,
@@ -712,7 +717,7 @@ impl<'source> PrefixLocalFlow<'source> {
         acquisition: super::OwnedExprSiteV1,
         construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
     ) {
-        self.store(binding, StoredLocal::Home { acquisition, construction_source });
+        self.store(binding, StoredLocal::Home { acquisition, construction_source, ready: BTreeMap::new() });
     }
 
     pub(super) fn install_observed(&mut self, binding: BindingRefV1, value: OrdinaryObservation) {

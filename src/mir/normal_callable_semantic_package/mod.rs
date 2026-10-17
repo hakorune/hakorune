@@ -53,7 +53,7 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
-pub(crate) use ordinary_new_coseal::OriginalFieldWriteSourceLoanV1;
+pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1};
 mod physical_header;
 mod physical_signature;
 mod qualified_static_call_claim;

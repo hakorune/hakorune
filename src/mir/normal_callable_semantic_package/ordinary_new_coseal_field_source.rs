@@ -53,6 +53,19 @@ where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, 
         receiver: BindingRefV1, home: BindingRefV1, field: &str) -> Result<bool, OrdinaryNewCoSealIssueV1> {
         (self.reads)(site, receiver_site, receiver, home, field)
     }
+    fn owned_local_write(&mut self, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        acquisition: &OwnedExprSiteV1, root: BindingRefV1,
+        construction: &Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>,
+        target: &SourceExprSiteV1)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1>, OrdinaryNewCoSealIssueV1> {
+        let mut candidates = self.candidates.iter().filter(|row| &row.site == acquisition && row.destination == root);
+        let Some(candidate) = candidates.next() else { return Ok(None) };
+        if candidates.next().is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: acquisition.clone() }); }
+        if !candidate.construction_source.as_ref().is_ok_and(|source| Rc::ptr_eq(source, construction))
+            || candidate.object != construction.object() { return Ok(None); }
+        let Some(original) = self.original_writer(input.owner(), target)? else { return Ok(None) };
+        Ok(original.owned_local_v1(input, acquisition, root, Rc::clone(construction)))
+    }
     fn original_writer(&mut self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         target: &SourceExprSiteV1) -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, OrdinaryNewCoSealIssueV1> {
         let issue = || OrdinaryNewCoSealIssueV1::SourceNavigation { site: OwnedExprSiteV1::new(owner, target.clone()) };

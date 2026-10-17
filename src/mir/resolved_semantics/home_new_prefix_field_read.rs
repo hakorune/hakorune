@@ -163,6 +163,7 @@ pub(super) fn field_read_request(
         }
         local_flow::FieldReadReceiverV1::GuardedFormal => (receiver, None, false, true),
     };
+    if !locals.field_read_ready(home, field) { return None; }
     Some(LocalFieldReadRequestV1 {
         site: OwnedExprSiteV1::new(input.owner(), site.clone()),
         receiver_site: object.clone(),

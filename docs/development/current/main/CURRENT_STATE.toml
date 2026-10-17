@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-initialization/source-readiness-connection"
+current_blocker_token = "required-initialization/return-field-readiness"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -34,9 +34,10 @@ V835 fixed11 PASS4/FAIL7, same named stops; three EXE positives plus one marker.
 Bounded LOCAL object Array and field I64 residence native PASS on unchanged app179.
 V837 Plan FieldGet/Set connects original affine reads to the sole recorded writer;
 raw/Plan operand completion unified, focused27 PASS; CLI176 app180 native exact7 PASS.
-Typed-newbox app181 still PrefixNotCovered Body1; allocation-only restoration
-Decision accepted from original Pair history; New/Home publication stays fixed.
-Required constructor owner split then source readiness connection; S0 still open.
+Constructor owner split and original construction source carry landed.
+V843 source-owned LOCAL write frames/readiness, focused50 PASS; same New/Home timing.
+CLI177 app182 unchanged Pair now ReturnValueNotCovered Body3 (prior Body1), noEXE.
+Next exact ready-frame -> Return/field value proof, final consumers/C; S0 open.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """

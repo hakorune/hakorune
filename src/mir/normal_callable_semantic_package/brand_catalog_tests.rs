@@ -123,8 +123,9 @@ fn ordinary_new_descriptor_errors_follow_candidate_source_order() {
 #[test]
 fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     use super::instance_construction::ConstructionUnavailableV1;
-    for declaration in ["box Pair { left: i64 right: i64 }", "box Pair { east: i64 west: i64 }"] {
-        let source = format!("{declaration} static box Main {{ main() {{ local pair = new Pair() return 0 }} }}");
+    for (declaration, first, second) in [("box Pair { left: i64 right: i64 }", "left", "right"),
+        ("box Pair { east: i64 west: i64 }", "east", "west")] {
+        let source = format!("{declaration} static box Main {{ main() {{ local pair = new Pair() pair.{first} = 10 pair.{second} = 20 pair.{first} = 30 return 0 }} }}");
         let package = issue_with_brand_catalog(&source).unwrap();
         let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claim = rows.values().next().unwrap();
@@ -135,10 +136,41 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert!(matches!(retained.completion(),
             super::instance_construction::ConstructionCompletionV1::AllocationOnlyI64 { .. }));
         assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
+        let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
+        let flow = completion.cleanup().root_flow().expect("retained original source flow");
+        let writes: Vec<_> = flow.expression_plans().iter().filter_map(|plan| {
+            assert!(plan.borrowed_field_write_frame().is_none(), "LOCAL cannot borrow a formal frame");
+            plan.field_write_frame()
+        }).collect();
+        assert_eq!(writes.len(), 3, "preserve both stores and the overwrite");
+        assert_eq!(writes.iter().map(|frame| frame.owned_local().unwrap().field().declaration_ordinal()).collect::<Vec<_>>(), [0, 1, 0]);
+        for frame in &writes {
+            let local = frame.owned_local().unwrap();
+            assert_eq!(local.acquisition(), claim.site());
+            assert_eq!(local.root(), claim.home_prefix().unwrap().destination());
+            assert!(std::rc::Rc::ptr_eq(local.construction(), retained));
+            assert!(std::rc::Rc::ptr_eq(local.source(), frame.source()));
+            assert_eq!(frame.prior_homes(), &[local.root()]);
+        }
+        assert_eq!(flow.lifecycle_prefixes(&[]).unwrap_err(), "lifecycle-prefix/owned-local-field-write-consumer-pending");
         let foreign = issue_with_brand_catalog(&source).unwrap();
         let foreign_rows = foreign.ordinary_new_claim_ledger.pending_claims_for_test();
         assert!(!std::rc::Rc::ptr_eq(retained,
             foreign_rows.values().next().unwrap().construction_source().as_ref().unwrap()));
+    }
+    for (body, frames) in [("pair.left = true", 0), ("pair.missing = 1", 0),
+        ("pair.left = pair.left", 0), ("pair.left = 1 local x = pair.right", 1),
+        ("pair.left += 1", 0),
+        ("if true { pair.left = 1 } else { pair.left = 2 }", 2),
+        ("pair.left = 1 if true { pair.left = 2 } else {}", 2)] {
+        let source = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local pair = new Pair() {body} return 0 }} }}");
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        let claim = rows.values().next().unwrap();
+        let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
+        let flow = completion.cleanup().root_flow().unwrap();
+        assert_eq!(flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count(), frames, "{body}");
+        assert!(completion.cleanup().terminal_homes().unwrap().is_err(), "unproved suffix stays unavailable: {body}");
     }
     let source = "box Page { value: i64\nbirth(value) { me.value = value } }
         static box Main { main() { local page = new Page(7)\nreturn 0 } }";

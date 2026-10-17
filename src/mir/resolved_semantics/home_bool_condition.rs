@@ -112,7 +112,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     });
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-        print_frame: None, condition_frame: Some(frame), borrowed_field_write: None,
+        print_frame: None, condition_frame: Some(frame), field_write: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }

@@ -5,7 +5,7 @@ use super::super::borrowed_formal_uses::{BorrowedFormalUsesDraftV1, BorrowedForm
 use super::super::borrowed_formal_uses::CheckedIntegerOperandReachV1;
 use super::super::super::field_write_claim::OriginalFieldWriteSourceLoanV1;
 use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathV1, SourcePathSegmentV1};
-use crate::mir::resolved_semantics::home_new_prefix::CheckedBorrowedFieldWriteFrameV1;
+use crate::mir::resolved_semantics::home_new_prefix::CheckedFieldWriteFrameV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
 
 #[derive(Debug)]
@@ -17,11 +17,11 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFieldWritePa
 
 pub(in crate::mir::normal_callable_semantic_package) fn checked_field_write_pair_v1<'a>(
     owner: FunctionOwnerIdV1, formals: &[(u32, BindingRefV1)],
-    definition: &'a BorrowedFormalUsesDraftV1, frame: &CheckedBorrowedFieldWriteFrameV1,
+    definition: &'a BorrowedFormalUsesDraftV1, frame: &CheckedFieldWriteFrameV1,
 ) -> Result<BorrowedFieldWritePairRefV1<'a>, String> {
     let fail = || freeze("borrowed-field-write/source-pair");
     let ExpressionPlanRootV1::Assignment { assignment } = frame.source().root() else { return Err(fail()) };
-    if frame.source().owner() != owner { return Err(fail()); }
+    if !frame.is_borrowed() || frame.source().owner() != owner { return Err(fail()); }
     let mut receivers = definition.uses.iter().filter_map(|row| match &row.kind {
         Use::FieldWriteReceiver { source, guard }
             if source.write().assignment() == assignment => Some((row, source, guard)),
@@ -61,7 +61,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFieldWriteSo
 }
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_field_write_use_for_frame_v1(
-        &self, ledger: &OrdinaryNewClaimLedgerV1, frame: &Rc<CheckedBorrowedFieldWriteFrameV1>,
+        &self, ledger: &OrdinaryNewClaimLedgerV1, frame: &Rc<CheckedFieldWriteFrameV1>,
     ) -> Result<BorrowedFieldWriteSourceRefV1<'_>, String> {
         let pair = checked_field_write_pair_v1(self.owner, &self.formals, self.definition, frame)?;
         ledger.recheck_borrowed_field_write_frame_v1(frame, pair.original)?;
@@ -78,7 +78,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_borrowed_field_write_frame_v1(
-        &self, frame: &Rc<CheckedBorrowedFieldWriteFrameV1>, original: &OriginalFieldWriteSourceLoanV1,
+        &self, frame: &Rc<CheckedFieldWriteFrameV1>, original: &OriginalFieldWriteSourceLoanV1,
     ) -> Result<(), String> {
         self.field_write_claims.recheck_original_write_source_v1(original)
             .map_err(|_| freeze("borrowed-field-write/source-inventory"))?;
@@ -100,7 +100,7 @@ impl OrdinaryNewClaimLedgerV1 {
 /// Construction does not authorize any physical instruction or runtime payload.
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedFieldWriteSourceLoanV1 {
-    frame: Rc<CheckedBorrowedFieldWriteFrameV1>,
+    frame: Rc<CheckedFieldWriteFrameV1>,
     completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
     original: OriginalFieldWriteSourceLoanV1,
     receiver: (BindingRefV1, BindingRefV1, OwnedExprSiteV1, SourceNodeSiteV1),
@@ -111,7 +111,7 @@ impl BorrowedFieldWriteSourceLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn null_guard_v1(&self) -> &SourceNodeSiteV1 { &self.receiver.3 }
     pub(in crate::mir) fn integer_guard_site_v1(&self) -> &OwnedExprSiteV1 { self.value.3.guard().binary_site_v1() }
     pub(crate) fn field_name(&self) -> &str { self.original.write().field() }
-    pub(crate) fn frame(&self) -> &Rc<CheckedBorrowedFieldWriteFrameV1> { &self.frame }
+    pub(crate) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> { &self.frame }
     pub(crate) fn field_source(&self) -> &Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1> { &self.field }
     pub(crate) fn receiver(&self) -> (BindingRefV1, BindingRefV1, &OwnedExprSiteV1) {
         (self.receiver.0, self.receiver.1, &self.receiver.2)
