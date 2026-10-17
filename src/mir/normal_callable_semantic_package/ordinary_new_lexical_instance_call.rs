@@ -391,6 +391,7 @@ mod borrowed_formal_uses;
 
 #[path = "ordinary_new_borrowed_formal_source.rs"]
 mod borrowed_formal_source;
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::ClosedOriginalCoreSourceV1;
 
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;

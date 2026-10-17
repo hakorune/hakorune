@@ -24,13 +24,14 @@ mod observation;
 #[path = "ordinary_new_borrowed_formal_actual_seed.rs"]
 mod actual_seed;
 use actual_seed::{
-    OriginalFormalActualSeedV1, OriginalActualSourceContextV1, OriginalConditionalCoreRequestV1, classify_actual_seed_in_scope,
+    OriginalFormalActualSeedV1, OriginalActualSourceContextV1, OriginalCoreOperandRequestV1, classify_actual_seed_in_scope,
     classify_original_actual_seed_in_scope, classify_original_actual_seed_with_seen_v1,
     alias_source_binding,
 };
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
 pub(super) use source_seeds::{OriginalBorrowedFormalSourceV1, OriginalIntegerBasisV1, OriginalNewI64InputsLoanV1, OriginalNewSourceLoanV1, OriginalFormalObjectBasisV1, SourceValueSumV1, SourceValueAlternativeV1};
+pub(in crate::mir::normal_callable_semantic_package) use source_seeds::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_source_static_cohort.rs"]
 mod static_cohort;
 #[path = "ordinary_new_borrowed_formal_source_target_static.rs"]

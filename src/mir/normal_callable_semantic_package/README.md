@@ -4485,3 +4485,14 @@ Closed source loans retain the exact method/manifest and premise domains only
 after graph closure and original census corroboration. They are the source
 input for ordinary target issuance, not an issued target, Loop frame, runtime
 permission or substitute for mutable exact-site/Loop After evidence.
+
+CatalogCore and conditional Core now share the same ordinary operand request.
+Its dependency IDs borrow the same solved graph; catalog result representation
+does not depend on execution predicates, while conditional results still do.
+Only closed Text/I64 premises produce an ordinary source receipt through the
+existing target issuer and shared resolver source/target checks. Receipts retain
+the same closed Rc and canonical method Arc after original input reborrow.
+Static source actuals may retain a Text receipt at the exact outer ordinal/site,
+with false integer evidence; projection explicitly stays execution-pending until
+argument evaluation/entry/cleanup/publication are connected. No Loop membership
+or result-representation-only execution permission is created.

@@ -11,6 +11,9 @@ use super::*;
 
 const TEXT: &str = "static box Layout { pick(p) { local alias: i64 = p if p <= 0 { return 0 } return 1 } } box Heap { lookup(size) { local k = Layout.pick(size) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7) local a = Layout.pick(8) return 0 } }";
 
+#[path = "ordinary_new_borrowed_static_core_source_actual_tests.rs"]
+mod core_source;
+
 #[test]
 fn current_owner_nonopaque_actual_retains_original_source_without_entry() {
     let package = package("static box Layout { pick(p: i64): i64 { return p + 1 } run(): i64 { local k = me.pick(8) return k } } static box Main { main() { return 0 } }");

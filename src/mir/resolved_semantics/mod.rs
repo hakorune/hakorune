@@ -301,7 +301,7 @@ pub(crate) use resolver::{
 };
 pub(crate) use resolver_core_method_callable_contract::{
     ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
-    VerifiedResolverCoreMethodCallableContractV1,
+    VerifiedResolverCoreMethodCallableContractV1, VerifiedResolverOrdinaryCoreMethodSourceV1,
 };
 pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(crate) use selected_callable_deferred::{

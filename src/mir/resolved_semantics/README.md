@@ -363,6 +363,14 @@ It does not choose by selector, narrow with
 open S6C production. A source row, frame, or target mismatch rejects before any
 Facts/Recipe or physical effect.
 
+Ordinary Core source receipts reuse canonical Arc/site/result identity,
+ordered-argument and generated target checks from the same resolver issuer.
+Their distinct source-only product has no Loop frame or membership. The semantic
+package supplies a separately closed Text/I64 operand loan before target issuance;
+this product alone grants no evaluation, ABI or cleanup permission. Lexical
+receiver restriction, placement and named-Array requirements stay with the Loop
+wrapper, preserving its original rejection order.
+
 ## S6C explicit typed-input contract I0
 
 `expression_source.rs` extends the same resolver seal with passive, AST-free

@@ -3,7 +3,8 @@
 use super::*;
 #[path = "ordinary_new_borrowed_formal_source_sum.rs"]
 mod source_sum;
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1, ClosedOriginalCoreSourceV1};
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
+pub(in crate::mir::normal_callable_semantic_package) use source_sum::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
 mod new_seeds;
 #[path = "ordinary_new_borrowed_object_producer_source.rs"]
@@ -51,6 +52,7 @@ pub(super) struct OriginalFormalSeedProductV1 {
     source_i64s: Option<SourceIntegerDomainV1>,
     source_objects: Option<Rc<SourceObjectDomainV1>>,
     source_sums: Option<source_sum::OriginalSourceSumsV1>,
+    ordinary_core: BTreeMap<OwnedExprSiteV1, Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
     new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
 }
 
@@ -266,6 +268,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
         source_i64s: None,
         source_objects: None,
         source_sums: None,
+        ordinary_core: BTreeMap::new(),
         new_calls: Rc::new(new_calls),
     };
     product.source_integers = Some(SourceIntegerDomainV1 {
@@ -283,7 +286,14 @@ pub(super) fn prepare_original_formal_seeds_v1(
             FormalDomainProjectionV1::SourceObject)?.0,
         new_calls: Rc::clone(&product.new_calls),
     }));
-    product.source_sums = Some(source_sum::resolve_original_source_sums_v1(&product, contracts, constructors));
+    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors);
+    for (site, operands) in &sums.core_calls {
+        let receipt = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, site.owner(), |_, input|
+                crate::mir::normal_callable_semantic_package::core_method_source::issue_ordinary_core_source_v1(input, operands))??;
+        product.ordinary_core.insert(site.clone(), receipt);
+    }
+    product.source_sums = Some(sums);
     Ok(product)
 }
 
@@ -291,6 +301,11 @@ impl OriginalFormalSeedProductV1 {
     /// Binding selected Stored targets changes no original row/ordered actual.
     /// Equal but newly issued source Rcs, loss and additional rows stay refused.
     pub(super) fn corroborate_original_v1(&self, inventory: &BorrowedIncomingInventoryV1) -> bool {
+        if let Some(sums) = &self.source_sums {
+            if self.ordinary_core.len() != sums.core_calls.len() || self.ordinary_core.iter().any(|(site, call)|
+                sums.core_calls.get(site).is_none_or(|original| !Rc::ptr_eq(original, call.operands())
+                    || !std::sync::Arc::ptr_eq(original.method(), call.source().source()))) { return false; }
+        } else if !self.ordinary_core.is_empty() { return false; }
         if self.source_integers.iter().chain(self.source_i64s.iter())
                 .any(|domain| !Rc::ptr_eq(&domain.new_calls, &self.new_calls))
             || self.source_objects.as_ref().is_some_and(|domain| !Rc::ptr_eq(&domain.new_calls, &self.new_calls))
@@ -320,7 +335,7 @@ impl OriginalFormalSeedProductV1 {
         self.corroborate_original_v1(inventory).then_some(())?;
         self.source_sums.as_ref()?.values.get(&formal)
     }
-    fn closed_core_source_v1(&self, inventory: &BorrowedIncomingInventoryV1, site: &OwnedExprSiteV1) -> Option<&ClosedOriginalCoreSourceV1> {
+    fn closed_core_source_v1(&self, inventory: &BorrowedIncomingInventoryV1, site: &OwnedExprSiteV1) -> Option<&Rc<ClosedOriginalCoreSourceV1>> {
         self.corroborate_original_v1(inventory).then_some(())?;
         self.source_sums.as_ref()?.core_calls.get(site)
     }
@@ -611,7 +626,13 @@ impl PreparedBorrowedFormalIngressV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
         &self, site: &OwnedExprSiteV1,
-    ) -> Option<&ClosedOriginalCoreSourceV1> {
+    ) -> Option<&Rc<ClosedOriginalCoreSourceV1>> {
         self.original_formal_seeds.closed_core_source_v1(&self.source_incoming, site)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {
+        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        self.original_formal_seeds.ordinary_core.get(site)
     }
 }

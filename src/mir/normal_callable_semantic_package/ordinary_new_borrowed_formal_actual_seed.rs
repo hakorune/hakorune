@@ -4,7 +4,7 @@ use super::*;
 mod method_result;
 pub(super) use method_result::OriginalActualSourceContextV1;
 use method_result::{OriginalMethodResultSeedV1, OriginalMethodResultResolutionV1};
-pub(super) use method_result::OriginalConditionalCoreRequestV1;
+pub(super) use method_result::OriginalCoreOperandRequestV1;
 
 /// Original source classification retains a forward's declaration constraint
 /// without deciding transport membership. The same row can be projected later.
@@ -189,14 +189,14 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         return OriginalFormalActualSeedV1::Integer;
     }
     if let Some(method) = function.method_call_source_v1(site) {
-        let (proof, conditional_core) = match source_context.map(|context| context.resolve(input, method, inventory)) {
-            Some(OriginalMethodResultResolutionV1::Existing(proof)) => (proof, None),
+        let (proof, core_operand_request) = match source_context.map(|context| context.resolve(input, method, inventory)) {
+            Some(OriginalMethodResultResolutionV1::Existing { proof, operands }) => (proof, operands),
             Some(OriginalMethodResultResolutionV1::ConditionalCore(request)) => (None, Some(request)),
             _ => (None, None),
         };
         let classify = |site: &SourceExprSiteV1| classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
             caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, inherited);
-        let requirements = if let Some(request) = conditional_core { request.i64_ordinals() }
+        let requirements = if let Some(request) = core_operand_request { request.i64_ordinals() }
             else { proof.as_ref().map(|proof| proof.callee_i64_ordinals()).unwrap_or(&[]) };
         let required_i64 = requirements.iter().map(|ordinal| {
             match method.arguments().get(*ordinal as usize).filter(|argument| argument.ordinal() == *ordinal) {
@@ -205,7 +205,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             }
         }).collect();
         let mut required_text = Vec::new();
-        if let Some(request) = conditional_core {
+        if let Some(request) = core_operand_request {
             required_text.push(classify(method.receiver_site()));
             for ordinal in request.text_ordinals() {
                 required_text.push(match method.arguments().get(*ordinal as usize).filter(|arg| arg.ordinal() == *ordinal) {
@@ -215,7 +215,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             }
         }
         return OriginalFormalActualSeedV1::MethodResult(Box::new(OriginalMethodResultSeedV1 {
-            method: std::sync::Arc::clone(method), proof, conditional_core, required_i64,
+            method: std::sync::Arc::clone(method), proof, core_operand_request, required_i64,
             required_text: required_text.into_boxed_slice(),
         }));
     }

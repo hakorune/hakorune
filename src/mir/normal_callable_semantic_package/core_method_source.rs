@@ -7,6 +7,8 @@
 mod collector;
 mod emission;
 mod field_append;
+mod ordinary;
+pub(super) use ordinary::{issue_ordinary_core_source_v1, OrdinaryCoreSourceCallV1};
 pub(crate) use field_append::FieldArrayAppendSourceLoanV1;
 pub(crate) use collector::NamedArrayEmissionCollectorV1;
 pub(crate) use emission::{

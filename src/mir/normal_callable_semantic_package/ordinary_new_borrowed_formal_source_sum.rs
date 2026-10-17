@@ -36,21 +36,21 @@ impl SourceValueSumV1 {
 pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
     pub(super) values: BTreeMap<BindingRefV1, SourceValueSumV1>,
-    pub(super) core_calls: BTreeMap<OwnedExprSiteV1, ClosedOriginalCoreSourceV1>,
+    pub(super) core_calls: BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
 }
 /// Closed source premises, not an evaluation, ABI or cleanup capability.
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+pub(in crate::mir::normal_callable_semantic_package)
 struct ClosedOriginalCoreSourceV1 {
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
-    request: OriginalConditionalCoreRequestV1,
+    request: OriginalCoreOperandRequestV1,
     text: Box<[SourceValueSumV1]>,
     i64: Box<[SourceValueSumV1]>,
 }
 impl ClosedOriginalCoreSourceV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn method(&self)
+    pub(in crate::mir::normal_callable_semantic_package) fn method(&self)
         -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn manifest(&self)
+    pub(in crate::mir::normal_callable_semantic_package) fn manifest(&self)
         -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 { self.request.manifest() }
     fn matches(&self, other: &Self) -> bool {
         std::sync::Arc::ptr_eq(&self.method, &other.method)
@@ -61,8 +61,10 @@ impl ClosedOriginalCoreSourceV1 {
 }
 struct CoreRequestNode {
     node: usize,
+    text: Vec<usize>,
+    i64: Vec<usize>,
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
-    request: OriginalConditionalCoreRequestV1,
+    request: OriginalCoreOperandRequestV1,
 }
 #[derive(Default)]
 struct Node {
@@ -170,12 +172,18 @@ impl Graph<'_> {
                     }
                     None => row.invalid = true,
                 }
-                row.required_i64
-                    .extend(source.required_i64().iter().map(|seed| self.seed(seed)));
-                row.required_text.extend(source.required_text().iter().map(|seed| self.seed(seed)));
-                if let Some(request) = source.conditional_core() {
+                let i64: Vec<_> = source.required_i64().iter().map(|seed| self.seed(seed)).collect();
+                let text: Vec<_> = source.required_text().iter().map(|seed| self.seed(seed)).collect();
+                if let Some(request) = source.core_operand_request() {
                     self.core_requests.push(CoreRequestNode { node: id,
-                        method: std::sync::Arc::clone(source.method()), request });
+                        method: std::sync::Arc::clone(source.method()), request,
+                        text: text.clone(), i64: i64.clone() });
+                }
+                // Catalog result representation stays independent of operand
+                // execution premises; conditional results need those premises.
+                if source.core_operand_request().is_none() || source.conditional_result() {
+                    row.required_i64 = i64;
+                    row.required_text = text;
                 }
             }
             OriginalFormalActualSeedV1::Conflict | OriginalFormalActualSeedV1::SumUnknown(_) => {
@@ -248,12 +256,13 @@ pub(super) fn resolve_original_source_sums_v1(
     let values = solve(&graph.nodes);
     let mut core_calls: BTreeMap<_, Option<ClosedOriginalCoreSourceV1>> = BTreeMap::new();
     for request in graph.core_requests {
-        let node = &graph.nodes[request.node];
-        let closed = values[request.node].as_ref().and_then(|_| {
+        let premises_closed = request.text.iter().all(|dependency| values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only))
+            && request.i64.iter().all(|dependency| values[*dependency].as_ref().is_some_and(SourceValueSumV1::signed_only));
+        let closed = values[request.node].as_ref().filter(|_| premises_closed).and_then(|_| {
             Some(ClosedOriginalCoreSourceV1 {
                 method: std::sync::Arc::clone(&request.method), request: request.request,
-                text: node.required_text.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
-                i64: node.required_i64.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
+                text: request.text.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
+                i64: request.i64.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
             })
         });
         let site = OwnedExprSiteV1::new(request.method.owner(), request.method.site().clone());
@@ -266,7 +275,7 @@ pub(super) fn resolve_original_source_sums_v1(
     }
     OriginalSourceSumsV1 {
         new_calls: Rc::clone(&source.new_calls),
-        core_calls: core_calls.into_iter().filter_map(|(site, value)| value.map(|value| (site, value))).collect(),
+        core_calls: core_calls.into_iter().filter_map(|(site, value)| value.map(|value| (site, Rc::new(value)))).collect(),
         values: graph
             .formals
             .into_iter()

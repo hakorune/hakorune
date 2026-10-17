@@ -114,6 +114,7 @@ mod candidate;
 pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRootSourceV1;
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
+pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
 pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
 pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
 #[cfg(test)]

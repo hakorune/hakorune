@@ -133,6 +133,21 @@ impl VerifiedResolverCoreMethodCallableContractV1 {
 pub(crate) struct ResolverCoreMethodCallableContractIssuerV1;
 
 impl ResolverCoreMethodCallableContractIssuerV1 {
+    /// Source/target correspondence only. The ordinary consumer must separately
+    /// retain its closed Text/I64 operand loan; no Loop evidence is fabricated.
+    pub(crate) fn issue_ordinary_source(
+        ledger: &CallableSemanticSourceLedgerView<'_>,
+        call: &VerifiedResolvedMethodCallSourceV1,
+        target: VerifiedCoreMethodInstanceTargetV1,
+    ) -> Result<VerifiedResolverOrdinaryCoreMethodSourceV1, ResolverCoreMethodCallableContractRejectV1> {
+        let source = verify_source_identity(ledger, call)?;
+        verify_arguments(call, &target)?;
+        if target.schema() != CoreMethodHomeSchemaV1::StringBoxText {
+            return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
+        }
+        verify_target(&target, call)?;
+        Ok(VerifiedResolverOrdinaryCoreMethodSourceV1 { source: std::sync::Arc::clone(source), target })
+    }
     pub(crate) fn issue(
         ledger: &CallableSemanticSourceLedgerView<'_>,
         call: &VerifiedResolvedMethodCallSourceV1,
@@ -186,26 +201,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         {
             return Err(ResolverCoreMethodCallableContractRejectV1::ForeignLoopMembership);
         }
-        let source = ledger
-            .method_call_source_v1(call.site())
-            .filter(|source| std::ptr::eq(source.as_ref(), call))
-            .ok_or(ResolverCoreMethodCallableContractRejectV1::ForeignSourceRow)?;
-
-        let source_sites = ledger.source_site_inventory();
-        for site in std::iter::once(call.site())
-            .chain(std::iter::once(call.receiver_site()))
-            .chain(call.arguments().iter().map(|argument| argument.site()))
-            .chain(std::iter::once(call.result_site()))
-        {
-            if !source_sites.contains_expression(site) {
-                return Err(
-                    ResolverCoreMethodCallableContractRejectV1::MissingSourceSite(site.clone()),
-                );
-            }
-        }
-        if call.result_site() != call.site() {
-            return Err(ResolverCoreMethodCallableContractRejectV1::ResultSiteMismatch);
-        }
+        let source = verify_source_identity(ledger, call)?;
 
         let receiver = match call.receiver() {
             ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
@@ -229,33 +225,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             }
         };
 
-        let expected_arity = target.row().arity();
-        if call.arity() != expected_arity {
-            return Err(
-                ResolverCoreMethodCallableContractRejectV1::TargetArityMismatch {
-                    expected: expected_arity,
-                    actual: call.arity(),
-                },
-            );
-        }
-        if call.arguments().len() != expected_arity as usize {
-            return Err(
-                ResolverCoreMethodCallableContractRejectV1::ArgumentCardinality {
-                    expected: expected_arity,
-                    actual: call.arguments().len(),
-                },
-            );
-        }
-        for (expected, argument) in call.arguments().iter().enumerate() {
-            if argument.ordinal() != expected as u32 {
-                return Err(
-                    ResolverCoreMethodCallableContractRejectV1::ArgumentOrdinal {
-                        expected: expected as u32,
-                        actual: argument.ordinal(),
-                    },
-                );
-            }
-        }
+        verify_arguments(call, &target)?;
 
         verify_target_placement(&target, placement)?;
         for site in std::iter::once(call.site())
@@ -315,6 +285,87 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             named_array,
         })
     }
+}
+
+/// Ordinary source identity plus existing generated target. This is distinct
+/// from a Loop contract and has no frame, membership, or physical authority.
+#[derive(Debug)]
+pub(crate) struct VerifiedResolverOrdinaryCoreMethodSourceV1 {
+    source: std::sync::Arc<VerifiedResolvedMethodCallSourceV1>,
+    target: VerifiedCoreMethodInstanceTargetV1,
+}
+impl VerifiedResolverOrdinaryCoreMethodSourceV1 {
+    pub(crate) fn source(&self) -> &std::sync::Arc<VerifiedResolvedMethodCallSourceV1> { &self.source }
+    pub(crate) fn target(&self) -> &VerifiedCoreMethodInstanceTargetV1 { &self.target }
+}
+
+
+/// Common source identity and ordered-argument checks. Loop policy stays in
+/// its wrapper; ordinary calls require their separate closed operand loan.
+fn verify_source_identity<'a>(
+    ledger: &'a CallableSemanticSourceLedgerView<'_>,
+    call: &VerifiedResolvedMethodCallSourceV1,
+) -> Result<&'a std::sync::Arc<VerifiedResolvedMethodCallSourceV1>, ResolverCoreMethodCallableContractRejectV1> {
+    if call.owner() != ledger.owner() {
+        return Err(ResolverCoreMethodCallableContractRejectV1::ForeignCallOwner);
+    }
+        let source = ledger
+            .method_call_source_v1(call.site())
+            .filter(|source| std::ptr::eq(source.as_ref(), call))
+            .ok_or(ResolverCoreMethodCallableContractRejectV1::ForeignSourceRow)?;
+
+        let source_sites = ledger.source_site_inventory();
+        for site in std::iter::once(call.site())
+            .chain(std::iter::once(call.receiver_site()))
+            .chain(call.arguments().iter().map(|argument| argument.site()))
+            .chain(std::iter::once(call.result_site()))
+        {
+            if !source_sites.contains_expression(site) {
+                return Err(
+                    ResolverCoreMethodCallableContractRejectV1::MissingSourceSite(site.clone()),
+                );
+            }
+        }
+        if call.result_site() != call.site() {
+            return Err(ResolverCoreMethodCallableContractRejectV1::ResultSiteMismatch);
+        }
+
+    Ok(source)
+}
+
+fn verify_arguments(
+    call: &VerifiedResolvedMethodCallSourceV1,
+    target: &VerifiedCoreMethodInstanceTargetV1,
+) -> Result<(), ResolverCoreMethodCallableContractRejectV1> {
+        let expected_arity = target.row().arity();
+        if call.arity() != expected_arity {
+            return Err(
+                ResolverCoreMethodCallableContractRejectV1::TargetArityMismatch {
+                    expected: expected_arity,
+                    actual: call.arity(),
+                },
+            );
+        }
+        if call.arguments().len() != expected_arity as usize {
+            return Err(
+                ResolverCoreMethodCallableContractRejectV1::ArgumentCardinality {
+                    expected: expected_arity,
+                    actual: call.arguments().len(),
+                },
+            );
+        }
+        for (expected, argument) in call.arguments().iter().enumerate() {
+            if argument.ordinal() != expected as u32 {
+                return Err(
+                    ResolverCoreMethodCallableContractRejectV1::ArgumentOrdinal {
+                        expected: expected as u32,
+                        actual: argument.ordinal(),
+                    },
+                );
+            }
+        }
+
+    Ok(())
 }
 
 /// Bounded Loop placements admitted for one target (op, arity). This set
