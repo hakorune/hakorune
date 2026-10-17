@@ -3,7 +3,7 @@
 use super::*;
 #[path = "ordinary_new_borrowed_formal_source_sum.rs"]
 mod source_sum;
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1, ClosedOriginalCoreSourceV1};
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
 mod new_seeds;
 #[path = "ordinary_new_borrowed_object_producer_source.rs"]
@@ -320,6 +320,10 @@ impl OriginalFormalSeedProductV1 {
         self.corroborate_original_v1(inventory).then_some(())?;
         self.source_sums.as_ref()?.values.get(&formal)
     }
+    fn closed_core_source_v1(&self, inventory: &BorrowedIncomingInventoryV1, site: &OwnedExprSiteV1) -> Option<&ClosedOriginalCoreSourceV1> {
+        self.corroborate_original_v1(inventory).then_some(())?;
+        self.source_sums.as_ref()?.core_calls.get(site)
+    }
 
     pub(super) fn candidate_integer_agreement_v1(
         &self, inventory: &BorrowedIncomingInventoryV1, formal: BindingRefV1,
@@ -604,5 +608,10 @@ impl PreparedBorrowedFormalIngressV1 {
         &self, formal: BindingRefV1,
     ) -> Option<&SourceValueSumV1> {
         self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Option<&ClosedOriginalCoreSourceV1> {
+        self.original_formal_seeds.closed_core_source_v1(&self.source_incoming, site)
     }
 }

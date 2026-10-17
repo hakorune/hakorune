@@ -31,6 +31,25 @@ This confirms the prior app200 stop; it is not EXE acceptance.
 
 ## One Decision
 
+V859 follows the worker-confirmed conditional Core mapping below. Previous turn
+PROGRESS:7b1f4f5f32 landed canonical Core source identity,36 existing tests PASS.
+Paths: original actual_seed/method_result; existing source_sum/source_seeds;
+existing source-domain and SCC tests, semantic-package README and this card.
+Add one conditional request under the SAME classifier/graph, retain original
+method/manifest and exact Text/I64 premises, and cache closed source loans only
+after the original complete census and graph closure. Static unresolved is
+terminal, never Core retry. Reuse existing tests; extend their tables for
+mixed receiver/wrong bounds/unknown/static/cycles. No target, Loop membership,
+runtime call, cleanup or publication permission follows from a candidate atom.
+The closed loan is the next ordinary issuer's source input; full series remains
+open and unchanged json-stream/mimalloc probes distinguish preparation from
+actual product progress.
+The existing borrowed_formal_source parent also imports the request type for
+its same child projection; no new owner is introduced. Worker WIP review found
+no additional material hole. Closed Core cache is demand-derived from original
+actual/New seeds, not an all-Core-call inventory; absence stays Unknown/pending
+and cannot authorize a fallback. Existing Core catalog path is unchanged.
+
 Resume after the user's explicit stop release: keep this SAME selected series.
 Read-only worker confirmed the bounded Core contract requires actual Loop
 membership; Body7 Value is outside that scope. First normalize its original
@@ -407,19 +426,46 @@ not select a new feature or narrow the remaining full-series acceptance.
 
 ### Canonical Core source identity normalization (V858)
 
-The existing Loop Core contract now retains the SAME resolver method Arc and
-borrows source owner/receiver/ordered arguments/sites from it. Its old copied
-source snapshot is removed; original pointer validation and all subsequent
-Loop/target/named-Array refusal ordering remain. One S6C forwarding owner getter
-became non-const because Arc access is runtime borrowing. No new issuer,
-membership, ordinary Core permission, test, guard or adapter was introduced.
+Landed7b1f4f5f32: SAME resolver method Arc replaces copied Core source snapshot;
+Loop/target/named-Array checks and refusal order unchanged. Existing36 tests and
+all guards PASS, Root858B78.548432s. One S6C getter const dependency corrected.
+Keep B evidence until this full series closes; no adapter or successful A pin.
+No CLI/native rerun or ordinary Text/entry/cleanup/publication claim at V858.
 
-Root858A exited101 on that const dependency only. Corrected Root858B build
-PASS78.548432s; five nonempty existing filters PASS36/36: resolver contract9,
-source-bound Core3, S6C4, selected Core11 and named-Array9. Root/layer/thin/
-pointer/diff guards PASS. Keep B's pin/logs/manifest/receipt until this full
-series closes; A has diagnostic logs but no successful binary to retire.
-CLI/native/frontier were not rerun for this storage-only normalization; app214
-and app215 remain prior-revision evidence, not a new json-stream advance.
-Ordinary Text qualification, exact-site bounds and all remaining entry/cleanup/
-publication obligations above remain unaccepted. Full finite goal stays active.
+### Conditional Core source construction (V859)
+
+Root859A build PASS134.158193s. SAME ten nonempty filters as V857 yield160 tests:
+148 PASS and SAME12 baseline failure identities and assertion/freeze messages.
+Existing source-domain11/11 and SCC test cover conditional substring/length/
+indexOf, wrong or mixed receiver, Bool/Null/Text bounds, missing incoming,
+unresolved Static and independently grounded versus seedless Text cycles.
+All tests reuse existing owners; no new test/fixture/guard. Stable guards PASS.
+CLI195 build PASS214.296569s; exact source manifest matches this slice, binary
+SHA c7e293d616f6f2b69761f03f761fe649473db72d0a7cdc8fc3eb07160ad44058.
+Same canonical direct EXE argv, original runtime/FFI pins and unchanged app
+source hashes as app214/215:
+- Json app216:0.114324s, exit1/no artifact, SAME compilation1/slot20/Body7/Value
+  ordinary-new/borrowed-static/source-actual-unavailable. No product advance.
+- Mimalloc app217:EXE130.980956s, native0.001570s, exact7-line stdout/exit0,
+  original plugin-disabled stderr warning only PASS. EXE SHA
+  0a0d9ad8b3b669c65f39f27212bcd5ea18479f2544644813601cf40c1048fc1b.
+Keep Root859A/CLI195/app216-217 pins/logs/manifests/receipts and prior baseline
+classification evidence until full series acceptance. No superseded successful
+pin or parked adapter was created this slice. No full-suite/current CI or
+performance claim; latest observed CI is historical d4168473d5, not this slice.
+Closed conditional source evidence is verified preparation. Ordinary source
+target/receipt, exact-site bounds/Loop After, entry/cleanup/publication and the
+full finite objective remain open. Do not mark this series or goal complete.
+
+Next producer-to-consumer connection confirmed by the same read-only worker:
+normalize ONE ordinary operand request for CatalogCore and ConditionalCore.
+Keep the catalog row as existing result-representation authority; its result
+node remains unchanged while a separate operand node proves receiver/needle
+Text and bounds I64. Conditional results depend on that same operand node.
+One closed operand loan feeds core_method_source's ordinary issuer, sharing
+resolver call/receiver/ordered-argument/target checks with the Loop wrapper;
+real Loop membership/placement stay only in that wrapper. Reborrow the saved
+request from original input after graph closure, then retain its expression
+receipt through prepare_static_source_actuals with outer call/ordinal/site/SAME
+method Arc checks. Text is not integer_evidence=true. No second AST/classifier
+or Core result authority, missing bounds/Loop After/MapGet remains unresolved.

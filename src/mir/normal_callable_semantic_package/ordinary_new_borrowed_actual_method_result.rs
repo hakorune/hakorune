@@ -22,6 +22,34 @@ struct OriginalActualSourceContextV1
     owner: FunctionOwnerIdV1,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
+    pub(super) fn resolve(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        method: &Arc<VerifiedResolvedMethodCallSourceV1>,
+        inventory: Option<&BorrowedIncomingInventoryV1>,
+    ) -> OriginalMethodResultResolutionV1 {
+        if input.owner() != self.owner || method.owner() != input.owner()
+            || !input.function().method_call_source_v1(method.site())
+                .is_some_and(|original| Arc::ptr_eq(original, method))
+        {
+            return OriginalMethodResultResolutionV1::Unknown;
+        }
+        // A canonical Static route remains Static even when its result or
+        // incoming loan is unavailable. It cannot retry as a Core selector.
+        if self.claims.source_target(&self.caller, method.site()).is_some() {
+            return OriginalMethodResultResolutionV1::Existing(self.proof(input, method, inventory));
+        }
+        if let Some(row) = self.claims.call_result_source_arc_v1(&self.caller, method.site()) {
+            return match row.evidence() {
+                CallableResultEvidenceV1::CoreStringMethod { .. } =>
+                    OriginalMethodResultResolutionV1::Existing(self.proof(input, method, inventory)),
+                CallableResultEvidenceV1::SameModuleStatic { .. } => OriginalMethodResultResolutionV1::Unknown,
+            };
+        }
+        OriginalConditionalCoreRequestV1::checked(input, method)
+            .map(OriginalMethodResultResolutionV1::ConditionalCore)
+            .unwrap_or(OriginalMethodResultResolutionV1::Unknown)
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked(
         caller: OriginalCallSourceCallerV1<'_>,
         input: ResolvedFunctionLoweringInputV1<'_>,
@@ -171,6 +199,62 @@ impl<'a> OriginalActualSourceContextV1<'a> {
     }
 }
 
+pub(super) enum OriginalMethodResultResolutionV1 {
+    Existing(Option<OriginalMethodResultProofV1>),
+    ConditionalCore(OriginalConditionalCoreRequestV1),
+    Unknown,
+}
+
+/// A generated manifest request, not a receiver proof or issued target.
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+struct OriginalConditionalCoreRequestV1 {
+    manifest: crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2,
+}
+impl OriginalConditionalCoreRequestV1 {
+    fn checked(input: ResolvedFunctionLoweringInputV1<'_>, method: &Arc<VerifiedResolvedMethodCallSourceV1>) -> Option<Self> {
+        use crate::mir::resolved_semantics::{ResolvedMethodCallReceiverSourceV1 as Receiver, ResolvedLexicalRefV1};
+        match method.receiver() {
+            Receiver::Lexical(ResolvedLexicalRefV1::Local(binding))
+                if binding.owner() == input.owner()
+                    && input.function().variable_ref(method.receiver_site()) == Some(ResolvedLexicalRefV1::Local(binding)) => {}
+            Receiver::Other => {}
+            _ => return None,
+        }
+        if method.arguments().len() != method.arity() as usize
+            || method.arguments().iter().enumerate().any(|(ordinal, arg)| ordinal != arg.ordinal() as usize)
+            || method.result_site() != method.site()
+        { return None; }
+        use crate::mir::core_method_op::CoreMethodOp;
+        use crate::mir::core_method_result_kind::{lookup_core_method_result_row_v2, issue_core_method_manifest_row_ref_v2};
+        let row = lookup_core_method_result_row_v2("StringBox", method.selector(), method.arity())?;
+        if !matches!((row.op, method.arity()), (CoreMethodOp::StringLen, 0)
+            | (CoreMethodOp::StringSubstring, 2) | (CoreMethodOp::StringIndexOf, 1)) { return None; }
+        let manifest = issue_core_method_manifest_row_ref_v2(row.op, method.arity())?;
+        std::ptr::eq(manifest.row(), row).then_some(Self { manifest })
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn manifest(self)
+        -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 { self.manifest }
+    pub(super) fn i64_ordinals(self) -> &'static [u32] {
+        match self.manifest.row().op {
+            crate::mir::core_method_op::CoreMethodOp::StringSubstring => &[0, 1],
+            _ => &[],
+        }
+    }
+    pub(super) fn text_ordinals(self) -> &'static [u32] {
+        match self.manifest.row().op {
+            crate::mir::core_method_op::CoreMethodOp::StringIndexOf => &[0],
+            _ => &[],
+        }
+    }
+    fn representation(self) -> VerifiedCallableResultRepresentationV1 {
+        match self.manifest.row().op {
+            crate::mir::core_method_op::CoreMethodOp::StringSubstring => VerifiedCallableResultRepresentationV1::ExactString,
+            _ => VerifiedCallableResultRepresentationV1::ExactI64,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 enum OriginalMethodResultProofV1 {
@@ -206,7 +290,9 @@ struct OriginalMethodResultSeedV1
 {
     pub(super) method: Arc<VerifiedResolvedMethodCallSourceV1>,
     pub(super) proof: Option<OriginalMethodResultProofV1>,
+    pub(super) conditional_core: Option<OriginalConditionalCoreRequestV1>,
     pub(super) required_i64: Box<[OriginalFormalActualSeedV1]>,
+    pub(super) required_text: Box<[OriginalFormalActualSeedV1]>,
 }
 
 impl OriginalMethodResultSeedV1 {
@@ -218,13 +304,19 @@ impl OriginalMethodResultSeedV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn normal_representation(
         &self,
     ) -> Option<VerifiedCallableResultRepresentationV1> {
-        self.proof.as_ref()?.representation()
+        match (&self.proof, self.conditional_core) {
+            (Some(proof), None) => proof.representation(),
+            (None, Some(request)) => Some(request.representation()),
+            _ => None,
+        }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn required_i64(
         &self,
     ) -> &[OriginalFormalActualSeedV1] {
         &self.required_i64
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn required_text(&self) -> &[OriginalFormalActualSeedV1] { &self.required_text }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn conditional_core(&self) -> Option<OriginalConditionalCoreRequestV1> { self.conditional_core }
 }
 
 #[cfg(test)]

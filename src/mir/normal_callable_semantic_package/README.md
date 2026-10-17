@@ -4474,3 +4474,14 @@ new evidence. SUM components close only with original complete incoming/New
 participation, grounded dependencies and exact conditional I64 requirements.
 Seedless cycles and unknown siblings cannot be rescued by upstream Text. A closed
 source SUM supplies no ABI, evaluation, cleanup or publication permission.
+
+Unresolved ordinary Core expressions retain conditional requests under that
+same classifier. Canonical Static routing is terminal even without a result;
+existing Core catalog evidence retains priority. A request carries the original
+method Arc and generated manifest, with receiver/needle Text-only and bounds
+signed-I64-only dependencies in the same graph. Both predicate kinds require
+independent SCC grounding; literal bounds cannot bootstrap a receiver cycle.
+Closed source loans retain the exact method/manifest and premise domains only
+after graph closure and original census corroboration. They are the source
+input for ordinary target issuance, not an issued target, Loop frame, runtime
+permission or substitute for mutable exact-site/Loop After evidence.

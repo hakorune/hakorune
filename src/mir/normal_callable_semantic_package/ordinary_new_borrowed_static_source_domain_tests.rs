@@ -231,6 +231,48 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
         assert!(!source.checked_static_input(p));
     }
 
+    for (actual, calls, expected) in [
+        ("q.substring(0,1)", "Values.chain(\"text\")", Some(Value::Text)),
+        ("q.substring(0,1)", "Values.chain(7)", None),
+        ("q.substring(0,1)", "Values.chain(null)", None),
+        ("q.substring(0,1)", "Values.chain(\"text\") local b = Values.chain(7)", None),
+        ("q.substring(true,1)", "Values.chain(\"text\")", None),
+        ("q.substring(0,null)", "Values.chain(\"text\")", None),
+        ("q.substring(0,\"end\")", "Values.chain(\"text\")", None),
+        ("q.substring(0,1)", "", None),
+        ("q.length()", "Values.chain(\"text\")", Some(Value::SignedI64)),
+        ("q.indexOf(\"t\")", "Values.chain(\"text\")", Some(Value::SignedI64)),
+        ("q.indexOf(7)", "Values.chain(\"text\")", None),
+        ("Values.substring(0,1)", "Values.chain(\"text\")", None),
+    ] {
+        let caller = if calls.is_empty() { "return 0".to_owned() } else { format!("local a = {calls} return 0") };
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} substring(a,b) {{ return null }} chain(q) {{ local n = Values.sink({actual}) return 0 }} unused() {{ {caller} }} }} static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let source = ingress(&package);
+        let p = formal(&package, "Values", "sink");
+        assert_eq!(source.source_value_sum_v1(p).map(|sum| sum.alternatives().clone()),
+            expected.clone().map(|value| BTreeSet::from([value])), "{actual}; {calls}");
+        let mut checked = 0;
+        for declaration in package.batch().declarations() {
+            package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+                for (site, method) in input.function().method_calls() {
+                    if method.selector() != "substring" && method.selector() != "length" && method.selector() != "indexOf" { continue; }
+                    let closed = source.closed_core_source_v1(&OwnedExprSiteV1::new(input.owner(), site.clone()));
+                    assert_eq!(closed.is_some(), expected.is_some(), "closed original request: {actual}; {calls}");
+                    if let Some(closed) = closed {
+                        assert!(std::sync::Arc::ptr_eq(closed.method(), input.function().method_call_source_v1(site).unwrap()));
+                        assert_eq!(closed.manifest().arity(), method.arity());
+                    }
+                    checked += 1;
+                }
+            }).unwrap();
+        }
+        assert_eq!(checked, 1);
+        assert!(!source.checked_static_input(p), "closed Core source cannot grant an executable entry");
+    }
+
 }
 
 #[test]

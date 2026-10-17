@@ -23,6 +23,9 @@ impl SourceValueSumV1 {
     fn signed_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::SignedI64)
     }
+    fn text_only(&self) -> bool {
+        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Text)
+    }
     fn permits_object(&self, name: &str) -> bool {
         self.0.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
             || matches!(value, SourceValueAlternativeV1::Object(actual) if actual.as_ref() == name))
@@ -33,25 +36,54 @@ impl SourceValueSumV1 {
 pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
     pub(super) values: BTreeMap<BindingRefV1, SourceValueSumV1>,
+    pub(super) core_calls: BTreeMap<OwnedExprSiteV1, ClosedOriginalCoreSourceV1>,
+}
+/// Closed source premises, not an evaluation, ABI or cleanup capability.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+struct ClosedOriginalCoreSourceV1 {
+    method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    request: OriginalConditionalCoreRequestV1,
+    text: Box<[SourceValueSumV1]>,
+    i64: Box<[SourceValueSumV1]>,
+}
+impl ClosedOriginalCoreSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn method(&self)
+        -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn manifest(&self)
+        -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 { self.request.manifest() }
+    fn matches(&self, other: &Self) -> bool {
+        std::sync::Arc::ptr_eq(&self.method, &other.method)
+            && std::ptr::eq(self.manifest().row(), other.manifest().row())
+            && self.manifest().arity() == other.manifest().arity()
+            && self.text == other.text && self.i64 == other.i64
+    }
+}
+struct CoreRequestNode {
+    node: usize,
+    method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    request: OriginalConditionalCoreRequestV1,
 }
 #[derive(Default)]
 struct Node {
     atoms: BTreeSet<SourceValueAlternativeV1>,
     union: Vec<usize>,
     required_i64: Vec<usize>,
+    required_text: Vec<usize>,
     constraints: Vec<Box<str>>,
     invalid: bool,
     unconditional: bool,
 }
 impl Node {
     fn dependencies(&self) -> impl Iterator<Item = usize> + '_ {
-        self.union.iter().chain(&self.required_i64).copied()
+        self.union.iter().chain(&self.required_i64).chain(&self.required_text).copied()
     }
 }
 struct Graph<'a> {
     nodes: Vec<Node>,
     formals: BTreeMap<BindingRefV1, usize>,
     constructors: &'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    core_requests: Vec<CoreRequestNode>,
 }
 impl Graph<'_> {
     fn formal(&mut self, binding: BindingRefV1) -> usize {
@@ -140,12 +172,17 @@ impl Graph<'_> {
                 }
                 row.required_i64
                     .extend(source.required_i64().iter().map(|seed| self.seed(seed)));
+                row.required_text.extend(source.required_text().iter().map(|seed| self.seed(seed)));
+                if let Some(request) = source.conditional_core() {
+                    self.core_requests.push(CoreRequestNode { node: id,
+                        method: std::sync::Arc::clone(source.method()), request });
+                }
             }
             OriginalFormalActualSeedV1::Conflict | OriginalFormalActualSeedV1::SumUnknown(_) => {
                 row.invalid = true
             }
         }
-        row.unconditional = row.required_i64.is_empty() && !row.atoms.is_empty();
+        row.unconditional = row.required_i64.is_empty() && row.required_text.is_empty() && !row.atoms.is_empty();
         self.nodes[id] = row;
         id
     }
@@ -170,6 +207,7 @@ pub(super) fn resolve_original_source_sums_v1(
         nodes: Vec::new(),
         formals: BTreeMap::new(),
         constructors,
+        core_requests: Vec::new(),
     };
     let mut registered = BTreeSet::new();
     for contract in contracts
@@ -208,8 +246,27 @@ pub(super) fn resolve_original_source_sums_v1(
             !registered.contains(binding) || graph.nodes[*node].union.is_empty();
     }
     let values = solve(&graph.nodes);
+    let mut core_calls: BTreeMap<_, Option<ClosedOriginalCoreSourceV1>> = BTreeMap::new();
+    for request in graph.core_requests {
+        let node = &graph.nodes[request.node];
+        let closed = values[request.node].as_ref().and_then(|_| {
+            Some(ClosedOriginalCoreSourceV1 {
+                method: std::sync::Arc::clone(&request.method), request: request.request,
+                text: node.required_text.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
+                i64: node.required_i64.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
+            })
+        });
+        let site = OwnedExprSiteV1::new(request.method.owner(), request.method.site().clone());
+        match core_calls.entry(site) {
+            std::collections::btree_map::Entry::Vacant(entry) => { entry.insert(closed); }
+            std::collections::btree_map::Entry::Occupied(mut entry) => {
+                if !matches!((entry.get(), &closed), (Some(a), Some(b)) if a.matches(b)) { entry.insert(None); }
+            }
+        }
+    }
     OriginalSourceSumsV1 {
         new_calls: Rc::clone(&source.new_calls),
+        core_calls: core_calls.into_iter().filter_map(|(site, value)| value.map(|value| (site, value))).collect(),
         values: graph
             .formals
             .into_iter()
@@ -304,6 +361,10 @@ fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                             .as_ref()
                             .is_some_and(SourceValueSumV1::signed_only)
                 })
+                && nodes[*node].required_text.iter().all(|dependency| {
+                    groups[*dependency] != component
+                        && values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only)
+                })
         });
         if !valid || !grounded {
             return;
@@ -353,6 +414,13 @@ fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                     values[*dependency]
                         .as_ref()
                         .is_some_and(SourceValueSumV1::signed_only)
+                }
+            });
+            valid &= nodes[*node].required_text.iter().all(|dependency| {
+                if groups[*dependency] == component {
+                    SourceValueSumV1(candidate[dependency].clone()).text_only()
+                } else {
+                    values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only)
                 }
             });
         }
@@ -436,5 +504,19 @@ mod tests {
             solve(&nodes)[0].is_none(),
             "unknown siblings survive condensation"
         );
+        // P=P.substring(0,1): closed bounds cannot ground receiver Text.
+        let mut nodes = vec![Node { union: vec![1], ..Default::default() }, Node {
+            atoms: BTreeSet::from([Text]), required_text: vec![0], required_i64: vec![2],
+            ..Default::default()
+        }, atom(SignedI64)];
+        assert!(solve(&nodes)[0].is_none());
+        nodes[0].union.push(3);
+        nodes.push(atom(Text));
+        assert!(solve(&nodes)[0].as_ref().unwrap().text_only(), "independent Text grounds its recursive cohort");
+        nodes[3] = atom(Other);
+        assert!(solve(&nodes)[0].is_none(), "mixed receiver is not Text-only");
+        nodes[3] = atom(Text);
+        nodes[2] = atom(Text);
+        assert!(solve(&nodes)[0].is_none(), "Text bounds are not signed I64");
     }
 }
