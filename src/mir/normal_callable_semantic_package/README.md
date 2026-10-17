@@ -4333,3 +4333,8 @@ Checked FieldSet physical correspondence is owned by CheckedFieldWriteGraphV1:
 LocalSSA pins, original Invoke/Normal continuation, finishing and Fault inventory.
 Source packets retain source-origin and exact operand proofs; the graph itself
 cannot authorize a field write or replace an independent final source scan.
+
+The selected checked_field_write writer creates that same physical graph from
+already-proved operands, canonical field and Home unwind operations. Source
+packets validate their own operands and source before recording the graph; the
+writer does not classify AST, infer an origin or grant a source permission.

@@ -257,4 +257,4 @@ pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 
 pub(crate) use ordinary_new_coseal::BorrowedFieldWriteSourceLoanV1;
 
-pub(crate) use ordinary_new_coseal::EmittedBorrowedFieldWriteV1;
+pub(crate) use ordinary_new_coseal::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};

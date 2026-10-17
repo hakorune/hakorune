@@ -12,13 +12,13 @@ pub(crate) struct CheckedFieldWriteGraphV1 {
     fault_bindings: Vec<Binding>,
 }
 impl CheckedFieldWriteGraphV1 {
-    pub(crate) fn new(pins: [Rc<LocalSsaPhysicalRelationV1>; 2], invoke: Binding,
+    pub(in crate::mir) fn new(pins: [Rc<LocalSsaPhysicalRelationV1>; 2], invoke: Binding,
         continuation: Binding, original: Vec<Binding>, fault_bindings: Vec<Binding>,
     ) -> Self {
         Self { pins, invoke, continuation, original, fault_bindings, completed: OnceCell::new() }
     }
     pub(crate) fn invoke_binding(&self) -> &Binding { &self.invoke }
-    pub(crate) fn pins(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] { &self.pins }
+    pub(in crate::mir) fn pins(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] { &self.pins }
     pub(crate) fn bindings(&self) -> &[Binding] { self.completed.get().unwrap_or(&self.original) }
     pub(super) fn require_sealed_v1(&self) -> Result<(), String> {
         if self.completed.get().is_none() { return Err(freeze("borrowed-field-write/unsealed")); }

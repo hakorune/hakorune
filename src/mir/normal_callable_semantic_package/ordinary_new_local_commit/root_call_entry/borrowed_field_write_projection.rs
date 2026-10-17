@@ -14,7 +14,7 @@ pub(crate) struct EmittedBorrowedFieldWriteV1 {
 }
 #[path = "checked_field_write_graph.rs"]
 mod checked_graph;
-use checked_graph::CheckedFieldWriteGraphV1;
+pub(crate) use checked_graph::CheckedFieldWriteGraphV1;
 
 impl EmittedBorrowedFieldWriteV1 {
     pub(crate) fn source(&self) -> &BorrowedFieldWriteSourceLoanV1 { &self.source }
@@ -27,10 +27,8 @@ impl EmittedBorrowedFieldWriteV1 {
     }
     pub(super) fn seal_bindings_v1(&self) -> Result<(), String> { self.graph.seal_bindings_v1() }
     pub(crate) fn new(source: BorrowedFieldWriteSourceLoanV1, reads: [Rc<ExactLexicalReadV1>; 2],
-        pins: [Rc<LocalSsaPhysicalRelationV1>; 2], invoke: Binding, continuation: Binding,
-        original: Vec<Binding>, fault_bindings: Vec<Binding>, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+        graph: CheckedFieldWriteGraphV1, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        let graph = CheckedFieldWriteGraphV1::new(pins, invoke, continuation, original, fault_bindings);
         let packet = Self { source, reads, graph };
         packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(packet)

@@ -531,3 +531,39 @@ state owner, no duplicate OnceCell/instruction list. RootA32.427299s failed on a
 parameter-shadowing extraction mistake, fixed before rootB PASS; no waiver.
 Native real writer/publication acceptance remains pending the second BoxShape
 step, using canonical unchanged mimalloc-lite with matching backend/runtime.
+
+V846 second step scope is now selected borrowed writer -> sole checked writer
+returning the same graph, existing packet constructor and resolving reexports.
+Receiver pin before value pin, observed pins before fault-frame, then original
+Fault chain/Invoke/Normal Jump order is preserved. Same canonical source field
+and ledger-issued unwind operations; no new source classification at emission.
+
+V846 two-step BoxShape complete: first graph extraction `6e949ef06a`; second
+moves the existing selected production caller to the sole checked writer and
+removes its former physical append body. Source wrapper remains live for its
+formal-specific checks. No duplicate graph fields/OnceCell or writer remains.
+RootC58.912284s and rootD44.148736s build PASS; final rootE40.957533s plus same7
+focused PASS. New visibility warnings exposed by graph reexport were corrected
+to LocalSSA's mir visibility before rootE; final warning delta versus V845a zero.
+RootE pin SHA c7cd5a5aaec4975ee337a5d4a84b4be63182b3cf47ece04495cebd5a676b8aaf.
+Worker compared the full second extraction: identical source-before-mutation,
+pin/ID/append/cleanup order and packet-before-record checks; consumers unchanged.
+
+Fresh CLI179 build173.920229s; identical rootE/CLI source fingerprints including
+untracked source at build time, matching landing code. CLI SHA
+fa72d158bf06640bb5e09d52aba030fba370a98c61417051e2e0964b98abf5dc.
+C831e/runtime808b and canonical source hashes/argv/env unchanged (receipts
+app-v184-typed-newbox and app-v185-mimalloc-lite under evidence base):
+- Pair app184 .085307s/exit1/noEXE, same raw-field-read-reentry as app183.
+- mimalloc-lite app185 compile128.457439s/native .001452s, EXE/generated/native
+  exact existing7 lines/exit0 PASS; only expected plugin-disabled warning.
+This verifies current real checked writer/publication/native regression. No new
+LOCAL acceptance, first-stop improvement, both-opts root rerun, full-suite/current
+CI green or performance gain is claimed. Next source origin/RHS evidence and both
+independent final LOCAL consumers remain the V845 mapping; no raw reentry bypass.
+
+Root-route/layer/thin-shim/pointer/diff guards PASS. Temporary rootD duplicate pin
+retired after current rootE same SHA/7PASS, visibility-only source diff and no live
+executable check (258265864B reclaimed). RootB/E, CLI179/native185 and matching
+C/runtime pins/logs/manifests retained for pending LOCAL connection. No temporary
+adapter introduced or kept after caller zero. Full goal and S0 remain open.

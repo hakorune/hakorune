@@ -688,3 +688,6 @@ pub(in crate::mir::builder) mod field_array_append;
 
 #[path = "selected/borrowed_field_write.rs"]
 pub(in crate::mir::builder) mod borrowed_field_write;
+
+#[path = "selected/checked_field_write.rs"]
+pub(in crate::mir::builder) mod checked_field_write;

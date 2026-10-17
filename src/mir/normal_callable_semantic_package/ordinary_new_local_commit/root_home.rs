@@ -702,4 +702,4 @@ pub(crate) use call_entry::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1
 
 pub(in crate::mir) use call_entry::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
 
-pub(crate) use call_entry::EmittedBorrowedFieldWriteV1;
+pub(crate) use call_entry::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
