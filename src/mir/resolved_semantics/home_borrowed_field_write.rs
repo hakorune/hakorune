@@ -57,7 +57,7 @@ impl HomeExpressionPlanV1 {
         let frame = Rc::new(CheckedFieldWriteFrameV1 {
             source: Rc::clone(&source), prior_homes: homes.into(), receiver: FieldWriteReceiverV1::FormalBorrowed,
         });
-        Some(Self { source, scalar_operations: Vec::new(), source_fields: Vec::new(),
+        Some(Self { source, scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,
             print_frame: None, condition_frame: None, field_write: Some(FieldWritePlanV1 { frame, rhs: None }) })
     }
 }

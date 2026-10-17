@@ -146,7 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if original.receiver_site != row.receiver_site || original.receiver != row.receiver
                     || original.home != row.home || original.field != row.source.field()
                 { return Err(fault("borrowed-entry-terminal-conflict")); }
-                self.recheck_terminal_field_value_v1(&site, original)?;
+                self.recheck_terminal_field_value_v1(&site, original, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(self))?;
                 continue;
             }
             if let Some(original) = self.argument_field_reads.borrow().get(&site) {

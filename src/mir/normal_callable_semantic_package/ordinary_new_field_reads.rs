@@ -28,6 +28,9 @@ pub(super) use owned_ready::{OwnedReadyFieldReadSourceV1, TerminalFieldValueSour
 mod received;
 #[path = "ordinary_new_checked_field_read.rs"]
 mod checked;
+#[path = "ordinary_new_checked_field_cleanup.rs"]
+mod checked_cleanup;
+use checked_cleanup::CheckedFieldReadCleanupV1;
 #[path = "ordinary_new_returned_field_read.rs"]
 mod returned;
 pub(in crate::mir::normal_callable_semantic_package) use received::{ReceivedFieldReadSourceV1, ReceivedFieldContextV1};
@@ -134,7 +137,8 @@ pub(super) enum LocalReadProgress {
     CheckedEmitted {
         source: Rc<LocalFieldReadSourceV1>,
         invoke: (BasicBlockId, MirInstruction), normal: (BasicBlockId, MirInstruction),
-        read: Option<crate::mir::builder::ExactLexicalReadV1>,
+        read: Option<Rc<crate::mir::builder::ExactLexicalReadV1>>,
+        cleanup: CheckedFieldReadCleanupV1,
     },
 }
 
@@ -400,7 +404,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok((*block, instruction.clone()))
     }
 
-    fn source_field_requirement_v1(&self, site: &OwnedExprSiteV1) -> Result<Option<&crate::mir::resolved_semantics::home_new_prefix::ExpressionFieldRequirementV1>, String> {
+    pub(in crate::mir) fn source_field_requirement_v1(&self, site: &OwnedExprSiteV1) -> Result<Option<&crate::mir::resolved_semantics::home_new_prefix::ExpressionFieldRequirementV1>, String> {
         let Some(flow) = self.completion_for_owner(site.owner()).and_then(|completion| completion.cleanup().root_flow())
             else { return Ok(None) };
         let mut fields = flow.source_expression_fields().filter(|field| field.request().site == *site);
@@ -411,7 +415,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     fn recheck_local_field_source_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
         context.require_ledger(self)?;
-        if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row); }
+        if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row, context); }
         if row.source.returned.is_some() { return self.recheck_returned_field_read_v1(site, row); }
         if row.source.expression_path.is_some() { return self.recheck_result_path_field_v1(site, row, context); }
         if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(source) = row.source.result() {
@@ -497,7 +501,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if *last != SourcePathSegmentV1::Receiver || parent != site.site().node().segments() {
             return Err(fault("receiver-source-site"));
         }
-        self.recheck_terminal_field_value_v1(site, row)?;
+        self.recheck_terminal_field_value_v1(site, row, CallValidationContextV1::Lowering(self))?;
         // `installs` — not `installs_ordinary`: a non-null-narrowed
         // received nullable is a `CallReceived` row, not an `Ordinary`
         // `new` Home, and it still names a physically materialized base.
@@ -621,7 +625,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let row = reads
             .get_mut(site)
             .ok_or_else(|| fault("missing-source-site"))?;
-        self.recheck_terminal_field_value_v1(site, row)?;
+        self.recheck_terminal_field_value_v1(site, row, CallValidationContextV1::Lowering(self))?;
         if !matches!(row.progress, Progress::Taken(expected) if expected == base)
             || row.field != field
         {
@@ -659,7 +663,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(super) fn validate_field_reads_with_projection_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction, context: CallValidationContextV1<'_>,
-        project: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<Option<(BasicBlockId, MirInstruction)>, String>,
+        mut project: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<Option<(BasicBlockId, MirInstruction)>, String>,
     ) -> Result<(), String> {
         let reads = self.field_reads.borrow();
         let mut expected = Vec::new();
@@ -673,7 +677,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if site.owner() != owner {
                 continue;
             }
-            self.recheck_terminal_field_value_v1(site, row)?;
+            self.recheck_terminal_field_value_v1(site, row, context)?;
             let Progress::Emitted(block, instruction) = &row.progress else {
                 return Err(fault("unconsumed-read"));
             };
@@ -736,8 +740,9 @@ impl OrdinaryNewClaimLedgerV1 {
         if !expected.is_empty() {
             return Err(fault("missing-emission"));
         }
+        self.validate_owned_ready_reads_v1(owner, function, context, &mut project)?;
         self.validate_checked_field_census_v1(owner, function,
-            crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(self), project)
+            context, project)
             .map(|_| ())
     }
 }

@@ -271,6 +271,8 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     {
         return Err(fault("borrowed-incoming/coverage-mismatch"));
     }
+    source.with_owned_field_write_functions_v1(module, |owner, function|
+        uses.local_field_writes_entry(source, owner, function))?;
     let object_views = uses.finish(program, module)?;
     Ok((witnessed, object_views))
 }

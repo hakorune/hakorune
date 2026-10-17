@@ -58,6 +58,7 @@ pub(super) fn observe_local_field_read<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
+    homes: &[BindingRefV1],
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
         LocalFieldReadDemandV1,
@@ -66,10 +67,30 @@ pub(super) fn observe_local_field_read<E>(
     let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
     };
-    let Some(mut results) = local_field_read(&[request], LocalFieldReadDemandV1::Declared { scalar_only: false })? else {
+    let plan = if request.owned_ready.is_some() {
+        let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(None) };
+        let mut rows = input.function().expression_source().initializers()
+            .filter(|row| row.initializer_site() == Some(site));
+        let Some(initializer) = rows.next() else { return Ok(None) };
+        if rows.next().is_some() { return Ok(None); }
+        let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+            &ledger, input.body_shape(), initializer) else { return Ok(None) };
+        let Some(plan) = HomeExpressionPlanV1::initializer_reads(source, homes, None, std::slice::from_ref(&request))
+            else { return Ok(None) };
+        Some(plan)
+    } else { None };
+    let mut installation = plan.as_ref().map(|_| locals.expression_installation());
+    if let (Some(plan), Some(installation)) = (&plan, &mut installation) {
+        if !installation.approve(plan) { return Ok(None); }
+    }
+    let demand = plan.as_ref().map(|plan| LocalFieldReadDemandV1::SourceExpression {
+        plan: std::rc::Rc::clone(plan.source()) }).unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: false });
+    let Some(mut results) = local_field_read(&[request], demand)? else {
         return Ok(None);
     };
-    Ok((results.len() == 1).then(|| results.remove(0)))
+    if results.len() != 1 { return Ok(None); }
+    if let Some(installation) = installation { installation.commit(); }
+    Ok(Some(results.remove(0)))
 }
 
 /// Original received acquisition; no class, nonnull fact or Home is issued.

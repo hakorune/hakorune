@@ -393,7 +393,14 @@ fn find_unremapped_value_id_effect(
                     .map(|new| (*value, new, "Effect::VariantMake.payload"))
             })
         }
-        CoreEffectPlan::FieldGet { dst, base, .. } => {
+        CoreEffectPlan::FieldGet { dst, base, receiver_source, .. } => {
+            if let Some(source) = receiver_source {
+                for value in source.projected_values() {
+                    if let Some(&new) = value_map.get(&value) {
+                        return Some((value, new, "Effect::FieldGet.receiver_source"));
+                    }
+                }
+            }
             if let Some(&new) = value_map.get(dst) {
                 return Some((*dst, new, "Effect::FieldGet.dst"));
             }

@@ -78,12 +78,13 @@ impl super::super::PlanNormalizer {
                 let object = port
                     .child_expr(&input, ExprChildRoleV1::Receiver)
                     .map_err(|error| error.render())?;
-                let (object_id, mut effects) =
-                    Self::lower_value_input(port, object, builder, phi_bindings)?;
+                let (object_id, mut effects, receiver_source) =
+                    Self::lower_value_input_with_source_output(port, object, builder, phi_bindings)?;
                 let declared_type = Self::declared_field_type_for_base(builder, object_id, field);
                 let result_id = Self::allocate_field_result(builder, &declared_type);
                 effects.push(CoreEffectPlan::FieldGet {
                     source,
+                    receiver_source: receiver_source.map(super::SourceValueProjectionV1::from_output),
                     dst: result_id,
                     base: object_id,
                     field: field.clone(),

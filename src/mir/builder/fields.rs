@@ -8,6 +8,7 @@ use crate::mir::builder::recursive_child_lowering::{
 mod assignment;
 mod post_success;
 mod store_post_success;
+mod checked_read;
 
 pub(in crate::mir::builder) use assignment::{
     lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
@@ -23,6 +24,11 @@ pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
 /// `Integer`, `Alias` reads a `Box` handle of the declared class.
 pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
     Terminal,
+    CheckedLocal {
+        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>,
+        read: std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>,
+        state: std::rc::Rc<std::cell::RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+    },
     Local(std::rc::Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>),
 }
 
@@ -150,7 +156,8 @@ impl PreparedRawFieldReadV1 {
             self.route,
             PreparedRawFieldReadRouteV1::Dynamic { .. }
                 | PreparedRawFieldReadRouteV1::ResultPath { .. }
-                | PreparedRawFieldReadRouteV1::ExactObject { .. }
+        ) || matches!(&self.route, PreparedRawFieldReadRouteV1::ExactObject { claim, .. }
+            if !matches!(claim, PreparedExactFieldReadClaimV1::CheckedLocal { .. })
         )
     }
 }
@@ -181,34 +188,6 @@ impl super::MirBuilder {
         Ok((dst, (block, instruction)))
     }
 
-    /// Sole checked received-field append. The caller supplies the enclosing
-    /// source-owned Fault cleanup; this writer never infers receiver authority.
-    pub(in crate::mir::builder) fn append_checked_received_field_read_v1(
-        &mut self, base: ValueId,
-        source: &crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1,
-        fault_frame: ValueId, normal: crate::mir::BasicBlockId, fault: crate::mir::BasicBlockId,
-    ) -> Result<(ValueId, [(crate::mir::BasicBlockId, crate::mir::MirInstruction); 2]), String> {
-        use crate::mir::{MirInstruction, MirType};
-        if !source.requires_checked_field_read_v1() || normal == fault {
-            return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into());
-        }
-        let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
-        let invoke = MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::FieldGet { field: source.field(), base },
-            fault_frame, normal_landing: normal, fault_landing: fault,
-        };
-        self.emit_instruction(invoke.clone())?;
-        self.start_new_block(normal)?;
-        let dst = self.next_value_id();
-        let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst };
-        self.emit_instruction(projection.clone())?;
-        self.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
-        if let Some(function) = self.function_state.current_function.as_mut() {
-            function.metadata.value_types.insert(dst, MirType::Integer);
-        }
-        Ok((dst, [(block, invoke), (normal, projection)]))
-    }
-
     /// Both raw FieldAccess and a retained expression consume this same
     /// append/type/record transaction, preserving the original affine row.
     pub(in crate::mir::builder) fn complete_exact_field_read_v1(
@@ -236,11 +215,16 @@ impl super::MirBuilder {
                 return Err("[freeze:contract][ordinary-field-read/destination-already-defined]".into());
             }
         }
+        if let PreparedExactFieldReadClaimV1::CheckedLocal { source, read, state } = &claim {
+            return self.complete_source_checked_field_read_v1(base, field, site, ledger, source,
+                std::rc::Rc::clone(read), &mut state.borrow_mut(), destination);
+        }
         if matches!(&claim, PreparedExactFieldReadClaimV1::Local(source) if source.requires_checked_field_read_v1()) {
             return Err("[freeze:contract][ordinary-field-read/checked-fault-context-missing]".into());
         }
         let ty = match &claim {
             PreparedExactFieldReadClaimV1::Terminal => crate::mir::MirType::Integer,
+            PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
             PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
@@ -273,6 +257,7 @@ impl super::MirBuilder {
         }
         let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
         match claim {
+            PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
             PreparedExactFieldReadClaimV1::Terminal => ledger.record_terminal_field_read(site, binding.0, dst, base, field)?,
             PreparedExactFieldReadClaimV1::Local(source) => ledger.record_local_field_read(site, binding.0, dst, base, field, &source)?,
         }
@@ -302,6 +287,9 @@ impl super::MirBuilder {
                 ledger,
                 claim,
             } => {
+                if matches!(&claim, PreparedExactFieldReadClaimV1::CheckedLocal { .. }) {
+                    return self.complete_exact_field_read_v1(base, field, &site, &ledger, claim).map(|(value, _)| value);
+                }
                 let actual = drive_legacy_expression_v1(self, port, object)?;
                 if actual != base {
                     return Err(

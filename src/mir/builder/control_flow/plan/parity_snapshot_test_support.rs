@@ -424,6 +424,7 @@ fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'sta
         },
         CoreEffectPlan::FieldGet {
             source: _,
+            receiver_source: _,
             dst,
             base,
             field,

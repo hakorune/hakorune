@@ -60,11 +60,13 @@ impl OrdinaryNewClaimLedgerV1 {
         required.extend(validated_roots_with_auxiliary(function, boundary,
             self.original_field_array_append_bindings_v1(owner)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
-            self.original_borrowed_field_write_bindings_v1(owner)?, true)?);
+            self.original_borrowed_field_write_bindings_v1(owner, true)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
             self.original_borrowed_field_write_guard_bindings_v1(owner)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
             self.original_borrowed_array_set_bindings_v1(owner)?, true)?);
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            self.original_checked_field_bindings_v1(owner)?, true)?);
         roots.insert(symbol.to_owned(), required);
         Ok(())
     }

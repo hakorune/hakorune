@@ -2,6 +2,8 @@
 //! Physical store/read Normal dominance remains a separate required consumer proof.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{CheckedFieldWriteFrameV1, LocalFieldReadRequestV1};
+#[path = "ordinary_new_owned_ready_field_physical.rs"]
+mod physical;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct OwnedReadyFieldReadSourceV1 {
@@ -46,6 +48,7 @@ impl OwnedReadyFieldReadSourceV1 {
     }
     fn recheck(&self, ledger: &OrdinaryNewClaimLedgerV1, site: &OwnedExprSiteV1,
         receiver_site: &SourceExprSiteV1, receiver: BindingRefV1, home: BindingRefV1, field: CanonicalFieldRefV1,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let fail = || fault("owned-ready/identity");
         let local = self.frame.owned_local().ok_or_else(fail)?;
@@ -56,7 +59,11 @@ impl OwnedReadyFieldReadSourceV1 {
             .ok_or_else(fail)?;
         if !Rc::ptr_eq(source.frame(), &self.frame) || source.owned_rhs().is_none() { return Err(fail()); }
         source.validate_source(ledger)?;
-        Ok(())
+        context.require_ledger(ledger)?;
+        context.with_original_field_write_v1(&self.frame, |packet| {
+            if packet.source().owned_rhs().is_none() { return Err(fail()); }
+            packet.source().validate_source(ledger)
+        })
     }
 }
 
@@ -67,7 +74,9 @@ pub(in crate::mir::normal_callable_semantic_package) enum TerminalFieldValueSour
     OwnedLocal(OwnedReadyFieldReadSourceV1),
 }
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn recheck_terminal_field_value_v1(&self, site: &OwnedExprSiteV1, row: &FieldRead) -> Result<(), String> {
+    pub(super) fn recheck_terminal_field_value_v1(&self, site: &OwnedExprSiteV1, row: &FieldRead,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
         let request = self.terminal_relation.values().find_map(|relation| match relation {
             TerminalRelationV1::I64Add(relation) => relation.field_requests().iter().find(|request| &request.site == site),
             TerminalRelationV1::I64Field(relation) if relation.field_read_site() == site => Some(relation.field_request()),
@@ -78,18 +87,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !Rc::ptr_eq(source.frame(), frame) || !source.matches_request(request.unwrap()) {
                     return Err(fault("owned-ready/terminal-source-drift"));
                 }
-                source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.field)?;
-                Err(fault("owned-ready/physical-consumer-pending"))
+                source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.field, context)
             }
             (TerminalFieldValueSourceV1::OwnedLocal(_), None) | (_, Some(_)) => Err(fault("owned-ready/terminal-source-missing")),
             (TerminalFieldValueSourceV1::Numeric(source), None) => self.recheck_integer_field_source_v1(source, site, row),
             (TerminalFieldValueSourceV1::Declared, None) => Ok(()),
         }
     }
-    pub(super) fn recheck_owned_local_read_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead) -> Result<(), String> {
+    pub(super) fn recheck_owned_local_read_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
         let source = row.source.owned_ready.as_ref().ok_or_else(|| fault("owned-ready/local-source-missing"))?;
-        source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.source.field())?;
-        Err(fault("owned-ready/physical-consumer-pending"))
+        let required = self.source_field_requirement_v1(site)?
+            .ok_or_else(|| fault("owned-ready/read-context-missing"))?;
+        if !source.matches_request(required.request()) || !required.prior_homes().contains(&row.home)
+            || row.numeric_source.is_some() { return Err(fault("owned-ready/read-context-drift")); }
+        source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.source.field(), context)
     }
 }
 impl LocalFieldReadSourceV1 {

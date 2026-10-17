@@ -294,6 +294,7 @@ impl super::PlanLowerer {
             }
             CoreEffectPlan::FieldGet {
                 source: _,
+                receiver_source: _,
                 dst,
                 base,
                 field,

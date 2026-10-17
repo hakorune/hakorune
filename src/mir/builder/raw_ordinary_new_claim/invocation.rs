@@ -127,15 +127,31 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         // A claimed `local x = recv.field` initializer reaches the same
         // raw FieldAccess dispatch — its staged row carries the sealed
         // declared-type classification that decides the destination type.
-        if let Some((base, source)) = ledger.take_local_field_read(&site, &resolve)? {
+        let checked = ledger.local_field_read_requires_checked_v1(&site);
+        let mut original_read = None;
+        let receiver_site = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver).expr();
+        if let Some((base, source)) = ledger.take_local_field_read(&site, |binding| {
+            if !checked { return resolve(binding); }
+            let read = state.borrow_mut().take_exact_lexical_read(owner, receiver_site.node(), binding)
+                .map_err(|issue| issue.to_string())?;
+            let value = read.value_for(owner, receiver_site.node(), binding).map_err(|issue| issue.to_string())?;
+            original_read = Some(std::rc::Rc::new(read));
+            Ok(value)
+        })? {
             let field = source.field();
+            let claim = if checked {
+                PreparedExactFieldReadClaimV1::CheckedLocal { source,
+                    read: original_read.ok_or("[freeze:contract][ordinary-field-read/checked-receiver-missing]")?,
+                    state: std::rc::Rc::clone(state) }
+            } else { PreparedExactFieldReadClaimV1::Local(source) };
             return Ok(Some(PreparedRawFieldReadV1::exact_object(
                 object,
                 base,
                 field,
                 site,
                 ledger.clone(),
-                PreparedExactFieldReadClaimV1::Local(source),
+                claim,
             )));
         }
         Ok(None)

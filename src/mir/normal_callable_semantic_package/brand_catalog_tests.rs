@@ -166,7 +166,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             assert!(std::rc::Rc::ptr_eq(local.source(), frame.source()));
             assert_eq!(frame.prior_homes(), &[local.root()]);
         }
-        assert_eq!(flow.lifecycle_prefixes(&[]).unwrap_err(), "lifecycle-prefix/owned-local-field-write-consumer-pending");
+        assert_eq!(flow.lifecycle_prefixes(&[]).unwrap().len(), flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count());
         let foreign = issue_with_brand_catalog(&source).unwrap();
         let foreign_rows = foreign.ordinary_new_claim_ledger.pending_claims_for_test();
         assert!(!std::rc::Rc::ptr_eq(retained,
@@ -218,7 +218,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             assert!(std::rc::Rc::ptr_eq(ready, latest), "retain latest original frame, including overwrite");
             assert_eq!(request.receiver, local.root());
         }
-        assert_eq!(flow.lifecycle_prefixes(&[]).unwrap_err(), "lifecycle-prefix/owned-local-field-write-consumer-pending");
+        assert_eq!(flow.lifecycle_prefixes(&[]).unwrap().len(), flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count());
     }
     for body in ["return pair.left", "pair.left = 10 return pair.right",
         "pair.left = 10 if true { pair.left = 20 } else {} return pair.left"] {

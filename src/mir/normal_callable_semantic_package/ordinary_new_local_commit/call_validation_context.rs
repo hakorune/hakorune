@@ -9,6 +9,25 @@ pub(in crate::mir) enum CallValidationContextV1<'a> {
     Finalized(&'a FinalizedRootSourceHandoffV1),
 }
 impl<'a> CallValidationContextV1<'a> {
+    /// Borrow the same source-owned write after the packet pool's affine move.
+    /// Membership is safe during read take; full RHS validation is a later phase.
+    pub(in crate::mir::normal_callable_semantic_package) fn with_original_field_write_v1<R>(
+        self, frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldWriteFrameV1>,
+        check: impl FnOnce(&EmittedBorrowedFieldWriteV1) -> Result<R, String>,
+    ) -> Result<R, String> {
+        self.with_local_call_groups_v1(frame.source().owner(), |groups| {
+            let mut found = None;
+            for group in groups {
+                let Some(packet) = group.borrowed_field_write() else { continue };
+                if !std::rc::Rc::ptr_eq(packet.source().frame(), frame) { continue; }
+                if group.site() != &packet.source().value_site() || found.replace(packet).is_some() {
+                    return Err(freeze("field-write/packet-membership"));
+                }
+                if matches!(self, Self::Finalized(_)) { group.require_sealed_condition_v1()?; }
+            }
+            check(found.ok_or_else(|| freeze("field-write/original-packet-missing"))?)
+        })
+    }
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
         match self { Self::Lowering(ledger) => ledger, Self::Finalized(source) => &source.ledger }
     }

@@ -83,19 +83,36 @@ impl CorePlanEffectEmissionPortV1<'_> {
             }
             Self::SourcePublication(ledger) => {
                 let source_ledger = ledger.borrow().ordinary_new_claim_ledger().cloned();
-                if let (Some(source_ledger), CoreEffectPlan::FieldGet { source: Some(site), dst, base, .. }) =
+                if let (Some(source_ledger), CoreEffectPlan::FieldGet { source: Some(site), receiver_source, dst, base, .. }) =
                     (source_ledger.as_ref(), effect) {
                     if ledger.borrow().owner() != site.owner() {
                         return Err("[freeze:contract][ordinary-field-read/plan-owner]".into());
                     }
-                    if let Some((expected, source)) = source_ledger.take_local_field_read(site, |binding|
-                        ledger.borrow().value_for_exact_binding(site.owner(), binding)
-                            .map_err(|error| format!("[freeze:contract][ordinary-field-read/receiver-binding] {error:?}")))? {
+                    let checked = source_ledger.local_field_read_requires_checked_v1(site);
+                    let mut original_read = None;
+                    let receiver_site = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
+                        .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver).expr();
+                    if let Some((expected, source)) = source_ledger.take_local_field_read(site, |binding| {
+                        if checked {
+                            let receiver = receiver_source.as_ref().ok_or("[freeze:contract][ordinary-field-read/plan-receiver-source-missing]")?;
+                            original_read = Some(receiver.exact_variable_read_v1(site.owner(), &receiver_site, binding)?);
+                            Ok(receiver.root_value())
+                        } else {
+                            ledger.borrow().value_for_exact_binding(site.owner(), binding)
+                                .map_err(|error| format!("[freeze:contract][ordinary-field-read/receiver-binding] {error:?}"))
+                        }
+                    })? {
                         if expected != *base {
                             return Err("[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into());
                         }
-                        builder.complete_exact_field_read_with_destination_v1(*base, source.field(), site,
-                            source_ledger, crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(source), Some(*dst))?;
+                        let field = source.field();
+                        let claim = if checked {
+                            crate::mir::builder::fields::PreparedExactFieldReadClaimV1::CheckedLocal { source,
+                                read: original_read.ok_or("[freeze:contract][ordinary-field-read/plan-exact-receiver-missing]")?,
+                                state: Rc::clone(ledger) }
+                        } else { crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(source) };
+                        builder.complete_exact_field_read_with_destination_v1(*base, field, site,
+                            source_ledger, claim, Some(*dst))?;
                         return Ok(());
                     }
                 }

@@ -1,5 +1,8 @@
 //! Exact source-owned write operands and guards in both independent scans.
 use super::*;
+#[path = "borrowed_call_uses_owned_field_write.rs"]
+mod owned;
+pub(super) use owned::{OwnedFieldWriteUse, entry as local_entry};
 
 pub(super) struct FieldWriteUse {
     instruction: MirInstruction,
@@ -43,6 +46,7 @@ pub(super) fn entry(state: &mut FunctionUses, source: &FinalizedRootSourceHandof
 pub(super) fn guards(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRefV1>,
     views: &ViewScan, indexed: &[(Coordinate, &MirInstruction)],
 ) -> Result<(), String> {
+    owned::guards(state, indexed)?;
     for write in state.field_writes.values() {
         for expected in [&write.null_compare, &write.branch].into_iter().chain(write.guard_dependencies.iter()) {
             if indexed.iter().filter(|(coordinate, row)| *coordinate == expected.1 && **row == expected.0.1).count() != 1 {
@@ -64,6 +68,7 @@ pub(super) fn observe(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingR
     coordinate: Coordinate, instruction: &MirInstruction, scan: &mut Scan,
     dominates: &dyn Fn(BasicBlockId, BasicBlockId) -> bool,
 ) -> Result<bool, String> {
+    if owned::observe(state, coordinate, instruction, scan, dominates)? { return Ok(true); }
     let Some(expected) = state.field_writes.get(&coordinate) else { return Ok(false) };
     if instruction != &expected.instruction { return Err(fault("borrowed-write/instruction")); }
     let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, base, value }, fault_frame, .. } = instruction
@@ -83,6 +88,7 @@ pub(super) fn observe(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingR
 }
 
 pub(super) fn coverage(state: &FunctionUses, scan: &Scan) -> Result<(), String> {
+    owned::coverage(state, scan)?;
     if state.field_writes.keys().copied().collect::<BTreeSet<_>>() != scan.field_writes {
         return Err(fault("borrowed-write/coverage"));
     }

@@ -381,6 +381,7 @@ mod tests {
             effects.as_slice(),
             [CoreEffectPlan::FieldGet {
                 source: _,
+                receiver_source: _,
                 dst,
                 base,
                 field,

@@ -601,6 +601,7 @@ impl OrdinaryNewClaimLedgerV1 {
         result.extend(self.borrowed_compare_bindings_v1(owner)?);
         result.extend(self.borrowed_mul_bindings_v1(owner)?);
         result.extend(self.scalar_operation_bindings_v1(owner)?);
+        result.extend(self.original_checked_field_bindings_v1(owner)?);
         for binding in self.terminal_i64_add_bindings_v1(owner)? {
             if !result.contains(&binding) { result.push(binding); }
         }

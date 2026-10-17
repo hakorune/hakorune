@@ -111,7 +111,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
         operations: operations.into_boxed_slice(), logical: logical.into_boxed_slice(), references, transferred_inputs: transferred,
     });
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
+        source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,
         print_frame: None, condition_frame: Some(frame), field_write: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };

@@ -218,6 +218,7 @@ fn lower_value_ast_accepts_me_field_access() {
         effects.as_slice(),
         [super::CoreEffectPlan::FieldGet {
             source: _,
+            receiver_source: _,
             dst,
             base,
             field,

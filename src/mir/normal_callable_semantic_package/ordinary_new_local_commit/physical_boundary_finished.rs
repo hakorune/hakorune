@@ -83,9 +83,9 @@ impl FinishedBindings {
             fault("relation-finished-producer"), function.signature.name))
     }
 
-    /// Non-dst effects require exact captured and final recorded membership.
-    /// Mapping an instruction alone never establishes either obligation.
-    pub(in super::super) fn required_effect_binding(
+    /// Before the source-owned boundary seal, check original capture and the
+    /// actual projected effect. This lends correspondence, not publication.
+    pub(in super::super) fn captured_effect_binding(
         &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
     ) -> Result<(BasicBlockId, MirInstruction), String> {
         if original.1.dst_value().is_some()
@@ -93,12 +93,30 @@ impl FinishedBindings {
             return Err(fault("effect-captured-membership"));
         }
         let mapped = self.binding(original.0, &original.1)?.ok_or_else(|| fault("effect-removed"))?;
-        if self.recorded.iter().filter(|row| **row == mapped).count() != 1
-            || function.blocks.get(&mapped.0).is_none_or(|block|
-                block.all_instructions().filter(|row| **row == mapped.1).count() != 1) {
+        if function.blocks.get(&mapped.0).is_none_or(|block|
+            block.all_instructions().filter(|row| **row == mapped.1).count() != 1) {
+            return Err(fault("effect-actual-membership"));
+        }
+        Ok(mapped)
+    }
+    /// Final effects additionally require the sealed source-owned census.
+    pub(in super::super) fn required_effect_binding(
+        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
+    ) -> Result<(BasicBlockId, MirInstruction), String> {
+        let mapped = self.captured_effect_binding(function, original)?;
+        if self.recorded.iter().filter(|row| **row == mapped).count() != 1 {
             return Err(fault("effect-finished-membership"));
         }
         Ok(mapped)
+    }
+
+    /// Lend the captured local producer through the same exact Copy contract.
+    pub(in super::super) fn source_local_copy_binding_v1(
+        &self, function: &MirFunction, local: ValueId, result: ValueId,
+    ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        if !self.check_source_local_copy(function, local, result)? { return Err(fault("source-copy-drift")); }
+        let (block, instruction) = self.source_copies.get(&local).ok_or_else(|| fault("source-copy-missing"))?;
+        Ok(Some((*block, instruction.clone())))
     }
 
     /// Check the source-issued local Copy against the same finished

@@ -67,7 +67,7 @@ pub(in crate::mir::builder) fn emit(
                     normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
                 let (value, pair) = builder.append_checked_received_field_read_v1(base, &descriptor,
                     fault_frame, normal, graph.acquisition_fault)?;
-                ledger.record_checked_local_field_read_v1(&site, &descriptor, None, pair[0].clone(), pair[1].clone())?;
+                ledger.record_enclosed_checked_local_field_read_v1(&site, &descriptor, None, pair[0].clone(), pair[1].clone())?;
                 bindings.extend(pair);
                 value
             } else {
@@ -104,8 +104,8 @@ pub(in crate::mir::builder) fn emit(
                         normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
                     let (value, pair) = builder.append_checked_received_field_read_v1(base, &source,
                         fault_frame, normal, graph.acquisition_fault)?;
-                    ledger.record_checked_local_field_read_v1(&site, &source,
-                        Some(original_read.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?), pair[0].clone(), pair[1].clone())?;
+                    ledger.record_enclosed_checked_local_field_read_v1(&site, &source,
+                        Some(Rc::new(original_read.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?)), pair[0].clone(), pair[1].clone())?;
                     bindings.extend(pair);
                     value
                 } else {

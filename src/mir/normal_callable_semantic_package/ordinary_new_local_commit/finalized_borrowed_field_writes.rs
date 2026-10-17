@@ -4,6 +4,8 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1;
 use std::collections::BTreeSet;
 use super::null_guard::{LocatedBinding, GuardBindings};
+#[path = "finalized_owned_field_writes.rs"]
+mod owned;
 
 impl FinalizedRootSourceHandoffV1 {
     /// Enumerate only original retained groups of this selected source entry.
@@ -23,8 +25,7 @@ impl FinalizedRootSourceHandoffV1 {
             for group in self.local_calls.get(&owner).into_iter().flatten() {
                 let Some(packet) = group.borrowed_field_write() else { continue };
                 group.require_sealed_condition_v1()?;
-                let source = packet.source().borrowed()
-                    .ok_or_else(|| freeze("owned-field-write/rhs-physical-consumer-pending"))?;
+                let Some(source) = packet.source().borrowed() else { continue };
                 if source.frame().source().owner() != owner || group.site() != source.value().2
                     || !sites.insert(group.site().clone())
                 { return Err(freeze("finished-borrowed-write/source-membership")); }

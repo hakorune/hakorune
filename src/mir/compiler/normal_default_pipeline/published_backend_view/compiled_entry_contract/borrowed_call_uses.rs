@@ -36,6 +36,7 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Default)]
 struct FunctionUses {
+    owned_field_writes: BTreeMap<Coordinate, field_write::OwnedFieldWriteUse>,
     field_writes: BTreeMap<Coordinate, field_write::FieldWriteUse>,
     array_sets: BTreeMap<Coordinate, array_set::ArraySetUse>,
     guarded_arguments: guarded_arguments::GuardedArguments,
@@ -74,6 +75,7 @@ struct FunctionUses {
 
 #[derive(Default)]
 struct Scan {
+    owned_field_writes: BTreeSet<Coordinate>,
     field_writes: BTreeSet<Coordinate>,
     array_sets: BTreeSet<Coordinate>,
     integer_returns: BTreeSet<Coordinate>,
@@ -120,6 +122,12 @@ pub(super) struct BorrowedCallUses {
 }
 
 impl BorrowedCallUses {
+    pub(super) fn local_field_writes_entry(&mut self, source: &FinalizedRootSourceHandoffV1,
+        owner: FunctionOwnerIdV1, function: &MirFunction,
+    ) -> Result<(), String> {
+        let state = self.functions.entry(function.signature.name.clone()).or_default();
+        field_write::local_entry(state, source, owner, function)
+    }
     pub(super) fn entry(
         &mut self,
         source: &FinalizedRootSourceHandoffV1,

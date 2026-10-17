@@ -7,9 +7,13 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
 type Binding = (BasicBlockId, MirInstruction);
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir) fn record_checked_local_field_read_v1(
+    pub(in crate::mir) fn local_field_read_requires_checked_v1(&self, site: &OwnedExprSiteV1) -> bool {
+        self.local_field_reads.borrow().get(site).is_some_and(|row| row.source.requires_checked_field_read_v1())
+    }
+    pub(super) fn record_checked_local_field_read_v1(
         &self, site: &OwnedExprSiteV1, source: &Rc<LocalFieldReadSourceV1>,
-        read: Option<ExactLexicalReadV1>, invoke: Binding, normal: Binding,
+        read: Option<Rc<ExactLexicalReadV1>>, invoke: Binding, normal: Binding,
+        cleanup: CheckedFieldReadCleanupV1,
     ) -> Result<(), String> {
         let mut rows = self.local_field_reads.borrow_mut();
         let row = rows.get_mut(site).ok_or_else(|| fault("received/read-missing"))?;
@@ -20,7 +24,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(fault("received/emission-source"));
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
-        row.progress = LocalReadProgress::CheckedEmitted { source: Rc::clone(source), invoke, normal, read };
+        row.progress = LocalReadProgress::CheckedEmitted { source: Rc::clone(source), invoke, normal, read, cleanup };
         drop(rows);
         self.checked_field_pair_v1(site, CallValidationContextV1::Lowering(self))?
             .ok_or_else(|| fault("received/emission-missing"))?;
@@ -35,7 +39,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(row) = rows.get(site) else { return Ok(None); };
         if !row.source.requires_checked_field_read_v1() { return Ok(None); }
         self.recheck_local_field_source_v1(site, row, context)?;
-        let LocalReadProgress::CheckedEmitted { source, invoke, normal, read } = &row.progress
+        let LocalReadProgress::CheckedEmitted { source, invoke, normal, read, .. } = &row.progress
             else { return Err(fault("received/unconsumed-read")); };
         if !Rc::ptr_eq(source, &row.source) { return Err(fault("received/descriptor-drift")); }
         let base = if let Some(path) = source.statement_path().filter(|path| path.requires_checked_scalar_v1()) {
@@ -85,7 +89,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| fault("expression-source-requirement-missing"))?;
         if !Rc::ptr_eq(required.plan(), plan) { return Err(fault("expression-source-plan")); }
         match self.checked_field_pair_v1(site, context)? {
-            Some(pair) => Ok(Vec::from(pair)),
+            Some(pair) => {
+                let mut rows = self.checked_field_normal_prefix_v1(site)?;
+                rows.extend(pair);
+                Ok(rows)
+            },
             None => self.expression_field_read_emission_v1(site, plan, context).map(|binding| vec![binding]),
         }
     }
@@ -142,6 +150,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|(site, _)| site.clone()).collect();
         let mut expected = Vec::new();
         for site in sites {
+            self.validate_checked_field_cleanup_v1(&site, function, context, &mut project)?;
             let pair = self.checked_field_pair_v1(&site, context)?.ok_or_else(|| fault("received/pair-missing"))?;
             for binding in pair {
                 let mapped = project(&binding)?.ok_or_else(|| fault("received/finished-binding-missing"))?;

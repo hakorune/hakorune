@@ -192,8 +192,32 @@ fn observe_scalar_expression_with_operation<E>(
     if required.is_some_and(|expected| expected != kind) {
         return Ok(None);
     }
+    // LOCAL readiness lends a field value, while this read's cleanup uses the
+    // current evaluation snapshot. Retain the whole original initializer even
+    // for Add, which does not have a Sub/Div operation loan.
+    let initializer_plan = if local_initializer_profile && requests.iter().any(|request| request.owned_ready.is_some()) {
+        let source = if let Some(plan) = &prepared_operation { std::rc::Rc::clone(plan.source()) } else {
+            let mut rows = input.function().expression_source().initializers()
+                .filter(|row| row.initializer_site() == Some(site));
+            let Some(initializer) = rows.next() else { return Ok(None) };
+            if rows.next().is_some() || !matches!(initializer.declaration_site(),
+                SourceBindingSiteV1::Local { statement: original, .. } if original == statement) { return Ok(None); }
+            let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+                &ledger, input.body_shape(), initializer) else { return Ok(None) };
+            source
+        };
+        let Some(plan) = HomeExpressionPlanV1::initializer_reads(source, homes, prepared_operation.take(), &requests)
+            else { return Ok(None) };
+        Some(plan)
+    } else { None };
+    let mut installation = initializer_plan.as_ref().map(|_| locals.expression_installation());
+    if let (Some(plan), Some(installation)) = (&initializer_plan, &mut installation) {
+        if !installation.approve(plan) { return Ok(None); }
+    }
     if !requests.is_empty() {
-        let Some(results) = local_field_read(&requests, LocalFieldReadDemandV1::Declared { scalar_only: true })? else {
+        let demand = initializer_plan.as_ref().map(|plan| LocalFieldReadDemandV1::SourceExpression {
+            plan: std::rc::Rc::clone(plan.source()) }).unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: true });
+        let Some(results) = local_field_read(&requests, demand)? else {
             return Ok(None);
         };
         if results.len() != requests.len()
@@ -209,6 +233,7 @@ fn observe_scalar_expression_with_operation<E>(
     for call in &calls {
         borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
     }
+    if let Some(installation) = installation { installation.commit(); }
     *operation = prepared_operation;
     Ok(Some((kind, calls)))
 }

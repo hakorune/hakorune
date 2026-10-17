@@ -601,7 +601,7 @@ pub(in crate::mir::builder) fn emit_terminal_map_get_return(
     )
 }
 
-fn cleanup_chain(
+pub(in crate::mir::builder) fn cleanup_chain(
     builder: &mut MirBuilder,
     frame: ValueId,
     operations: Vec<InvokeOperation>,

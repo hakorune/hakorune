@@ -709,7 +709,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 }
                 continue;
             } else if let Some(result) =
-                field_read::observe_local_field_read(input, site, locals, local_field_read)?
+                field_read::observe_local_field_read(input, site, locals, homes, local_field_read)?
             {
                 field_read::install_local_field_read_result(
                     input, site, binding, locals, unavailable, result,

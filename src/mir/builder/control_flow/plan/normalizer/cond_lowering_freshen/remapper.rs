@@ -243,6 +243,7 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
         }
         CoreEffectPlan::FieldGet {
             source: _,
+            receiver_source,
             dst,
             base,
             field: _,
@@ -250,6 +251,7 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
         } => {
             *dst = remap_value_id(value_map, *dst);
             *base = remap_value_id(value_map, *base);
+            if let Some(source) = receiver_source { source.remap(&super::FresheningValuesV1(value_map)); }
         }
         CoreEffectPlan::FieldSet {
             base,

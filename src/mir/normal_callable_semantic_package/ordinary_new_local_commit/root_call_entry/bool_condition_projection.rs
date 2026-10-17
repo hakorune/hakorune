@@ -207,7 +207,7 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings.extend(self.original_field_array_append_bindings_v1(owner)?);
         bindings.extend(self.original_borrowed_field_write_guard_bindings_v1(owner)?);
         bindings.extend(self.original_borrowed_array_set_bindings_v1(owner)?);
-        bindings.extend(self.original_borrowed_field_write_bindings_v1(owner)?);
+        bindings.extend(self.original_borrowed_field_write_bindings_v1(owner, false)?);
         Ok(bindings.into_iter()
             .filter(|row| matches!(row.1, MirInstruction::Phi { .. })).collect())
     }

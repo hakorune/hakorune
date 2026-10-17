@@ -15,7 +15,7 @@ pub(in crate::mir::builder) struct NormalizedSourceValueV1 {
 #[derive(Debug)]
 enum NormalizedSourceValueKindV1 {
     Literal(i64),
-    Variable(ExactLexicalReadV1),
+    Variable(Rc<ExactLexicalReadV1>),
     Add(Rc<NormalizedSourceValueV1>, Rc<NormalizedSourceValueV1>),
 }
 impl NormalizedSourceValueV1 {
@@ -24,7 +24,7 @@ impl NormalizedSourceValueV1 {
     }
     pub(super) fn variable(read: ExactLexicalReadV1) -> Rc<Self> {
         let (site, _, value) = read.source_value();
-        Rc::new(Self { site, value, kind: NormalizedSourceValueKindV1::Variable(read) })
+        Rc::new(Self { site, value, kind: NormalizedSourceValueKindV1::Variable(Rc::new(read)) })
     }
     pub(super) fn add(site: OwnedExprSiteV1, value: ValueId, lhs: Rc<Self>, rhs: Rc<Self>) -> Rc<Self> {
         Rc::new(Self { site, value, kind: NormalizedSourceValueKindV1::Add(lhs, rhs) })
@@ -69,6 +69,19 @@ impl SourceValueProjectionV1 {
         &mut self, map: &super::super::cond_lowering_freshen::FresheningValuesV1<'_>,
     ) {
         for value in self.values.values_mut() { *value = map.project(*value); }
+    }
+    pub(in crate::mir::builder) fn exact_variable_read_v1(
+        &self, owner: FunctionOwnerIdV1, site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+    ) -> Result<Rc<ExactLexicalReadV1>, String> {
+        let NormalizedSourceValueKindV1::Variable(read) = &self.original.kind else {
+            return Err("[freeze:contract][ordinary-field-read/plan-receiver-not-variable]".into());
+        };
+        if self.original.site.owner() != owner || self.original.site.site() != site
+            || read.value_for(owner, site.node(), binding).map_err(|issue| issue.to_string())? != self.original.value {
+            return Err("[freeze:contract][ordinary-field-read/plan-receiver-source-drift]".into());
+        }
+        Ok(Rc::clone(read))
     }
     pub(in crate::mir::builder) fn projected_values(&self) -> impl Iterator<Item = ValueId> + '_ {
         self.values.values().copied()

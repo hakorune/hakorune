@@ -97,6 +97,7 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
     FieldGet {
         /// Original source identity; never reconstructed from physical values.
         source: Option<crate::mir::resolved_semantics::OwnedExprSiteV1>,
+        receiver_source: Option<super::normalizer::helpers_value::SourceValueProjectionV1>,
         dst: ValueId,
         base: ValueId,
         field: String,

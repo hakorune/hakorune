@@ -4357,8 +4357,8 @@ node receipts retain exact source order, lexical reads, literal facts, field
 producers, internal LocalSSA relations and the SAME Sub/Div original append.
 Original cursor/Normal-scope census rejects unowned effects; finishing uses
 captured producer/effect membership, not stale cursor indices. The common graph
-can seal every retained operand relation. LOCAL FieldSet remains explicitly
-consumer-pending until lifecycle/New and both independent final scans connect.
+can seal every retained operand relation. LOCAL FieldSet uses that same graph
+and mandatory lifecycle frame; finishing retains the common source origin.
 
 LOCAL New execution borrows either the existing initialized construction plan or
 one sealed allocation-only lease, issued only by LOCAL candidate resolution. The
@@ -4373,3 +4373,32 @@ recipe via root_home_flow_ready_v1 before prepare. An unready/opaque suffix is a
 explicit refusal, never retained raw execution. This reuses the Home source walk's
 alias/rebind/readiness authority and does not require every field initialized.
 The singleton terminal_homes projection is not a whole-flow gate.
+
+LOCAL ready reads borrow the SAME emitted write from the current affine owner
+(Lowering ledger or Finalized handoff), never retrying pools. Take checks source
+membership only; physical completion proves store Normal dominates the exact
+read. Read receiver copies retain their original exact-read loan and per-read
+order. Pre-seal Phi repair borrows provisional source observations; final
+finishing liveness still demands sealed packet/completed relation evidence.
+
+Both final scans enumerate source-owned LOCAL functions including AppMain without
+inventing formal roots. The original New commit, captured local copy, whole RHS,
+operand relations, Normal/Fault writer graph, ready reads and Home uses lend exact
+coordinates. Each scan independently checks row/producer uniqueness, closed LOCAL
+handle uses, New/operand-before-store and store-Normal-before-read dominance.
+Formal entry/null/integer guards remain with their original visitor. Source
+membership comes from Completion frames even if packet and MIR were both erased.
+
+LOCAL ready-field initializer reads retain the whole original expression and
+read-time ordered Homes in the existing HomeExpressionPlan. Readiness from an
+earlier writer proves the field value; it does not supply the later cleanup
+snapshot. SourceExpression LOCAL reads retain that ready-source authority without
+issuing a borrowed-formal numeric loan. Mandatory source requirements survive
+physical-row removal. Raw and Plan keep the original exact receiver receipt through the common
+completion transaction. Checked progress distinguishes enclosing Print cleanup
+from source-Homes cleanup, retaining the complete Fault graph independently of
+Normal RHS dependencies. The common lifecycle boundary and DCE borrow these same
+rows. Both final scans validate the read graph plus other canonical lifecycle
+uses of the exact Home from the source-owned recorded inventory. Source/RHS
+pre-seal validation checks captured/actual effects; finalized context additionally
+requires sealed recorded membership. Missing capability never retries raw.

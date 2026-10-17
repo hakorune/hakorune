@@ -91,7 +91,10 @@ impl EmittedFieldWriteRhsV1 {
         let mut require = |row: &Binding, mandatory: bool| -> Result<(), String> {
             let mapped = match finishing {
                 Some(view) if row.1.dst_value().is_some() => view.relation_binding(function, row)?,
-                Some(view) => Some(view.required_effect_binding(function, row)?),
+                Some(view) => Some(match context {
+                    CallValidationContextV1::Lowering(_) => view.captured_effect_binding(function, row),
+                    CallValidationContextV1::Finalized(_) => view.required_effect_binding(function, row),
+                }.map_err(|error| format!("{error} rhs-original={row:?}"))?),
                 None => Some(row.clone()),
             };
             match mapped {

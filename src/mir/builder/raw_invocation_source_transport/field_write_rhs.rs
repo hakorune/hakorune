@@ -78,12 +78,20 @@ impl RawInvocationChildPortV1<'_, '_> {
             },
             Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) => {
                 let owned = OwnedExprSiteV1::new(source.owner(), site.clone());
+                let mut receiver = None;
                 let (base, read) = ledger.take_local_field_read(&owned, |binding| {
-                    state.borrow_mut().take_exact_lexical_read(source.owner(), object.node(), binding)
-                        .and_then(|read| read.value_for(source.owner(), object.node(), binding)).map_err(|issue| issue.to_string())
+                    let read = state.borrow_mut().take_exact_lexical_read(source.owner(), object.node(), binding)
+                        .map_err(|issue| issue.to_string())?;
+                    let value = read.value_for(source.owner(), object.node(), binding).map_err(|issue| issue.to_string())?;
+                    receiver = Some(Rc::new(read));
+                    Ok(value)
                 })?.ok_or("[freeze:contract][field-write-rhs/field-source]")?;
-                let (value, _) = builder.complete_exact_field_read_v1(base, read.field(), &owned, &ledger,
-                    crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(read))?;
+                let field = read.field();
+                let claim = if read.requires_checked_field_read_v1() {
+                    crate::mir::builder::fields::PreparedExactFieldReadClaimV1::CheckedLocal { source: read,
+                        read: receiver.ok_or("[freeze:contract][field-write-rhs/exact-receiver]")?, state: Rc::clone(&state) }
+                } else { crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(read) };
+                let (value, _) = builder.complete_exact_field_read_v1(base, field, &owned, &ledger, claim)?;
                 let rows = ledger.expression_field_read_bindings_v1(&owned, source,
                     crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger))?;
                 (value, Proof::Field(rows))

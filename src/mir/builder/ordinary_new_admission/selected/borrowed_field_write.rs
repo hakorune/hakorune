@@ -39,9 +39,6 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
         },
         _ => return Err(freeze("field-write/operand-origin")),
     };
-    if source.owned_rhs().is_some() {
-        return Err(freeze("owned-field-write/physical-consumer-pending"));
-    }
     let operations = ledger.prior_home_unwind_for(source.frame().prior_homes())?;
     let graph = super::checked_field_write::emit(builder, state, field, base, value_id, operations)?
         .with_operand_projection(prefix, relations);

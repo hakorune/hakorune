@@ -154,8 +154,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                     OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
             source = LocalFieldReadSourceV1::with_owned_ready(&source, ready).map_err(|issue|
                 OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
-            // Whole-expression LOCAL numeric provenance is not a borrowed-formal loan.
-            if matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) { return Ok(None); }
+            // LOCAL readiness is its original value authority; never mint a formal numeric loan.
         }
         if request.path.is_some() {
             let root = if parent.is_none() {
@@ -185,7 +184,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         }
         let numeric_source = match &demand {
             LocalFieldReadDemandV1::Declared { .. } => None,
-            LocalFieldReadDemandV1::SourceExpression { .. } if request.path.is_some() => None,
+            LocalFieldReadDemandV1::SourceExpression { .. } if request.path.is_some() || request.owned_ready.is_some() => None,
             LocalFieldReadDemandV1::SourceExpression { plan } => Some(
                 super::super::super::lexical_instance_call::ExpressionFieldSourceLoanV1::from_read(
                     results,

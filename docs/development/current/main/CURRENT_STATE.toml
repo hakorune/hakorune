@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "owned-field-write/physical-consumer-pending"
+current_blocker_token = "required-object-forward/remaining-acceptance"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -47,7 +47,9 @@ CLI180 Pair app186 RHS physical pending; mimalloc app187 native exact7/exit0 PAS
 V848 whole-RHS receipts/Normal-scope checks, rootD59 PASS; formal path preserved.
 V849 RootF74 PASS; explicit LOCAL New profile and unready-condition refusal.
 CLI182 app192 allocation-only native PASS; unchanged mimalloc app191 exact7/exit0.
-Pair app190 same FieldSet fence. Next lifecycle/both final scans/read dominance; S0 open.
+V850 connects LOCAL writes/read Fault cleanup and both final scans; focused77+15 PASS.
+CLI185 Pair app197 EXE/native Result30/exit30 PASS; mimalloc app198 exact7/exit0.
+Typed-newbox smoke migrated to canonical EXE and PASS; full S0 acceptance remains.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """

@@ -77,10 +77,12 @@ pub(crate) struct ExpressionFieldRequirementV1 {
     plan: Rc<ExpressionSourcePlanV1>,
     node: usize,
     request: LocalFieldReadRequestV1,
+    prior_homes: Rc<[crate::mir::resolved_semantics::BindingRefV1]>,
 }
 impl ExpressionFieldRequirementV1 {
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
     pub(crate) fn request(&self) -> &LocalFieldReadRequestV1 { &self.request }
+    pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
     fn is_consistent(&self) -> bool {
         self.request.site.owner() == self.plan.owner()
             && self.request.home.owner() == self.plan.owner()
@@ -98,6 +100,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
     field_write: Option<FieldWritePlanV1>,
+    initializer_homes: Option<Rc<[crate::mir::resolved_semantics::BindingRefV1]>>,
 }
 impl HomeExpressionPlanV1 {
     /// Called only after the original scalar preflight proves both Integer
@@ -137,8 +140,23 @@ impl HomeExpressionPlanV1 {
             source,
             scalar_operations: vec![loan],
             source_fields: Vec::new(),
-            print_frame: None, condition_frame: None, field_write: None,
+            print_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
         })
+    }
+    /// Whole initializer preflight supplies value-class proof separately. This
+    /// frame retains only original read requirements and evaluation-time Homes.
+    pub(super) fn initializer_reads(
+        source: Rc<ExpressionSourcePlanV1>, homes: &[crate::mir::resolved_semantics::BindingRefV1],
+        prepared: Option<Self>, requests: &[LocalFieldReadRequestV1],
+    ) -> Option<Self> {
+        if source.has_opaque_obligations() || source.root().initializer().is_none() { return None; }
+        let mut plan = prepared.unwrap_or_else(|| Self {
+            source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
+            print_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+        });
+        if !Rc::ptr_eq(&plan.source, &source) || plan.initializer_homes.is_some() { return None; }
+        plan.initializer_homes = Some(Rc::from(homes));
+        plan.with_source_field_requirements(requests)
     }
     /// Refine an already qualified whole root after its strict field batch.
     /// Existing declaration-only roots keep an empty requirement list. The
@@ -148,11 +166,15 @@ impl HomeExpressionPlanV1 {
     ) -> Option<Self> {
         if !self.source_fields.is_empty() { return None; }
         let mut seen = std::collections::BTreeSet::new();
+        let prior_homes: Rc<[_]> = self.initializer_homes.clone().unwrap_or_else(|| Rc::from(
+            self.print_frame().map(|frame| frame.prior_homes())
+                .or_else(|| self.condition_frame().map(|frame| frame.prior_homes()))
+                .or_else(|| self.field_write_frame().map(|frame| frame.prior_homes())).unwrap_or(&[])));
         let mut fields = Vec::with_capacity(requests.len());
         for request in requests {
             let node = request.node_in_plan(&self.source)?;
             let field = ExpressionFieldRequirementV1 {
-                plan: Rc::clone(&self.source), node, request: request.clone(),
+                plan: Rc::clone(&self.source), node, request: request.clone(), prior_homes: Rc::clone(&prior_homes),
             };
             if !field.is_consistent() || !seen.insert(node) { return None; }
             fields.push(field);
@@ -190,8 +212,11 @@ impl HomeExpressionPlanV1 {
     }
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
-        [self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some()]
+        [self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some(), self.initializer_homes.is_some()]
             .into_iter().filter(|present| *present).count() <= 1
+            && self.initializer_homes.as_ref().is_none_or(|homes| self.source.root().initializer().is_some()
+                && homes.iter().all(|home| home.owner() == self.source.owner())
+                && homes.iter().copied().collect::<std::collections::BTreeSet<_>>().len() == homes.len())
             && self.field_write.as_ref().is_none_or(|plan| Rc::ptr_eq(plan.frame.source(), &self.source)
                 && match (&plan.rhs, plan.frame.is_borrowed()) {
                     (None, true) => true,
@@ -224,6 +249,11 @@ impl super::RootHomeFlow {
         let Some(original) = self.expression_plans.iter_mut()
             .find(|old| std::rc::Rc::ptr_eq(old.source(), refined.source())) else { return false };
         if !refined.is_consistent() || !original.source_fields().is_empty()
+            || match (&original.initializer_homes, &refined.initializer_homes) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
+                _ => true,
+            }
             || match (original.print_frame(), refined.print_frame()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),

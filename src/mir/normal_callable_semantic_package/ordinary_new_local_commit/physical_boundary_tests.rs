@@ -753,15 +753,18 @@ fn required_effect_needs_captured_recorded_and_actual_membership() {
     let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
     let mut projection = boundary.project(&original).unwrap();
     assert!(projection.required_effect_binding(&original, &effect).is_err(), "unfinished boundary lends no effect");
+    assert_eq!(projection.captured_effect_binding(&original, &effect).unwrap(), effect);
     boundary.validate_complete(&original, &mut projection, &bindings).unwrap();
     assert_eq!(projection.required_effect_binding(&original, &effect).unwrap(), effect);
     let mut changed = original.clone();
     changed.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator =
         Some(MirInstruction::Return { value: Some(ValueId(2)) });
     assert!(projection.required_effect_binding(&changed, &effect).is_err());
+    assert!(projection.captured_effect_binding(&changed, &effect).is_err());
     projection.recorded.retain(|row| row != &effect);
     assert!(projection.required_effect_binding(&original, &effect).is_err());
     let foreign = (BasicBlockId(0), MirInstruction::ReturnFault { fault_frame: ValueId(1) });
     assert!(projection.required_effect_binding(&original, &foreign).is_err());
+    assert!(projection.captured_effect_binding(&original, &foreign).is_err());
     assert!(projection.required_effect_binding(&original, &bindings[0]).is_err(), "dst producer uses relation_binding");
 }

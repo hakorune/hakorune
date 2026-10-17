@@ -36,18 +36,34 @@ fn owned_rhs_projection_rejects_wrong_literal_and_unowned_effects() {
 }
 
 #[test]
-fn owned_rhs_original_recursive_writers_reach_the_explicit_consumer_fence() {
+fn owned_rhs_original_recursive_writers_reach_the_checked_writer() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
-        for rhs in ["7", "1 + 6", "9 - 2", "14 / 2", "1 * 7", "15 % 8", "7 % 0", "7 & 3", "7 | 3", "7 ^ 3", "1 << 2", "8 >> 1", "n + 2", "(1 + 6) - (8 / 2)"] {
-            let text = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local n = 5 local p = new Pair() p.left = {rhs} p.right = 20 return 0 }} }}");
-            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(&text,
-                crate::parser::ParserBuildConfig::default()).unwrap();
-            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
-                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source lost") };
-            let error = crate::mir::MirCompiler::with_options(false).compile_normal(
-                crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default())).unwrap_err();
-            assert!(error.contains("owned-field-write/physical-consumer-pending"), "{rhs}: {error}");
+        for (rhs, executable_publication) in [("7", true), ("1 + 6", true), ("9 - 2", true),
+            ("14 / 2", true), ("1 * 7", true), ("15 % 8", false), ("7 % 0", false),
+            ("7 & 3", false), ("7 | 3", false), ("7 ^ 3", false), ("1 << 2", false),
+            ("8 >> 1", false), ("n + 2", true), ("(1 + 6) - (8 / 2)", true)] {
+            let text = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local n = 5 local p = new Pair() p.left = {rhs} p.right = 20 return p.left + p.right }} }}");
+            let request = || {
+                let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(&text,
+                    crate::parser::ParserBuildConfig::default()).unwrap();
+                let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                    crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source lost") };
+                crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default())
+            };
+            let result = crate::mir::MirCompiler::with_options(false).compile_normal(request())
+                .unwrap_or_else(|error| panic!("{rhs}: {error}"));
+            assert!(result.verification_result.is_ok(), "{rhs}: {:?}", result.verification_result);
+            let published = crate::mir::MirCompiler::with_options(false).compile_normal_with_published(request(),
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok(), "{rhs}: {verification:?}");
+                    view.issue_lifecycle_physical_abi_input().map(|_| ())
+                });
+            if executable_publication { published.unwrap_or_else(|error| panic!("{rhs}: {error}")); }
+            else { match published {
+                Err(error) => assert!(error.contains("instruction-unsupported"), "{rhs}: {error}"),
+                Ok(_) => panic!("{rhs}: source class grants no unsupported execution"),
+            } }
         }
     });
 }
