@@ -11,6 +11,23 @@ canonical function AST
   -> VerifiedResolvedFunctionV1
 ```
 
+## Point-sensitive source reaching definitions
+
+`source_value_flow` records passive reaching-definition relations during the
+same shadow traversal and seals them once in `expression_source().value_flow()`.
+A read retains its original binding/site and entry or initializer/rebind source;
+Normal branch joins and Loop header/after predecessors remain explicit. Loop
+headers include entry, backedge and exact-target Continue; After includes the
+condition-false zero-iteration path and exact-target Break. Terminal paths never
+re-enter Normal. Assignment publishes after RHS, and declarations evaluate all
+initializers in the previous lexical environment. Short-circuit RHS is optional.
+Uninitialized and currently unsupported compound results remain Unknown;
+capture, asynchronous or sparse Script observation makes the flow unavailable.
+Canonicalization verifies owner, original site/read coverage and references.
+These relations confer no type, Home, Recipe, physical Loop or execution right.
+The source classifier/SUM owns value-domain inference; Prefix/Home and complete
+Loop Recipe/JoinSig retain their existing later obligations.
+
 ## Exact signed immediate source query
 
 `negative_integer_immediate` borrows the original unary operator and literal

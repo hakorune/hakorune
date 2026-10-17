@@ -117,7 +117,12 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 self.resolve_expr(
                     value,
                     &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentValue),
-                )
+                )?;
+                self.commit_source_assignment(
+                    &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget).expr(),
+                    Some(Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentValue).expr()),
+                );
+                Ok(())
             }
             ASTNode::CompoundAssignment { target, value, .. } => {
                 self.record_effect(
@@ -144,7 +149,11 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                         path,
                         ExprChildRoleV1::CompoundAssignmentValue,
                     ),
-                )
+                )?;
+                self.commit_source_assignment(
+                    &Self::stmt_expr_path(statement, path, ExprChildRoleV1::CompoundAssignmentTarget).expr(), None,
+                );
+                Ok(())
             }
             ASTNode::Print { expression, .. } => {
                 let value_path = Self::stmt_expr_path(statement, path, ExprChildRoleV1::PrintValue);
@@ -161,6 +170,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 expression,
                 ..
             } => {
+                self.expression_source.value_flow.unavailable();
                 self.resolve_expr(
                     expression,
                     &Self::stmt_expr_path(statement, path, ExprChildRoleV1::NowaitValue),
@@ -361,6 +371,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                         )
                         .expr()
                     });
+                self.expression_source.value_flow.initialize(binding, initializer_site.clone());
                 self.record_local_initializer_source(
                     origin,
                     binding,
@@ -470,6 +481,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             crate::mir::resolved_semantics::SourcePathSegmentV1::IfCondition,
             condition_path.expr(),
         );
+        let flow_entry = self.expression_source.value_flow.snapshot();
         let if_region = self.enter_control_region(ShadowRegionKindV0::If, path);
         let result = (|| {
             let then_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::IfThen);
@@ -483,6 +495,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             });
             self.leave_region_scope(then_region);
             then_result?;
+            let then_flow = self.expression_source.value_flow.snapshot();
+            self.expression_source.value_flow.restore(flow_entry.clone());
 
             if let Some(else_body) = else_body {
                 let else_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::IfElse);
@@ -497,6 +511,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 self.leave_region_scope(else_region);
                 else_result?;
             }
+            let else_flow = self.expression_source.value_flow.snapshot();
+            self.expression_source.value_flow.branch(path.expr(), &flow_entry, then_flow, else_flow);
             Ok(())
         })();
         self.leave_control_region(if_region);
@@ -510,6 +526,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
+        self.expression_source.value_flow.begin_loop(path.expr());
         self.resolve_expr(
             condition,
             &Self::stmt_expr_path(statement, path, ExprChildRoleV1::LoopCondition),
@@ -521,12 +538,14 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             path,
             &body_path,
         );
+        self.expression_source.value_flow.enter_loop_body(loop_region);
         self.push_loop(loop_region);
         let result = self.resolve_body(body, |index| {
             Self::stmt_body_item_path(statement, path, BodyChildRoleV1::LoopBody, index)
         });
         self.pop_loop(loop_region);
         self.leave_region_scope(loop_region);
+        self.expression_source.value_flow.finish_loop(loop_region);
         result
     }
 

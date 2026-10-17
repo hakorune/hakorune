@@ -58,17 +58,24 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 operand,
                 &Self::expr_child_path(expr, path, ExprChildRoleV1::UnaryOperand),
             ),
-            ASTNode::BinaryOp { left, right, .. } => {
+            ASTNode::BinaryOp { left, right, operator, .. } => {
                 self.resolve_expr(
                     left,
                     &Self::expr_child_path(expr, path, ExprChildRoleV1::BinaryLeft),
                 )?;
+                let entry = self.expression_source.value_flow.snapshot();
                 self.resolve_expr(
                     right,
                     &Self::expr_child_path(expr, path, ExprChildRoleV1::BinaryRight),
-                )
+                )?;
+                if matches!(operator, crate::ast::BinaryOperator::And | crate::ast::BinaryOperator::Or) {
+                    let rhs = self.expression_source.value_flow.snapshot();
+                    self.expression_source.value_flow.branch(path.expr(), &entry, rhs, entry.clone());
+                }
+                Ok(())
             }
             ASTNode::AwaitExpression { expression, .. } => {
+                self.expression_source.value_flow.unavailable();
                 self.record_effect(
                     path.expr(),
                     crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Await,
@@ -174,7 +181,12 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 self.resolve_named_assignment(
                     lhs,
                     &Self::expr_child_path(expr, path, ExprChildRoleV1::GroupedAssignmentTarget),
-                )
+                )?;
+                self.commit_source_assignment(
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::GroupedAssignmentTarget).expr(),
+                    Some(Self::expr_child_path(expr, path, ExprChildRoleV1::GroupedAssignmentValue).expr()),
+                );
+                Ok(())
             }
             ASTNode::MethodCall {
                 object,
@@ -657,8 +669,14 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             else_block_path.expr(),
         );
         self.resolve_expr(condition, &condition_path)?;
+        let entry = self.expression_source.value_flow.snapshot();
         self.resolve_expr(then_block, &then_block_path)?;
-        self.resolve_expr(else_block, &else_block_path)
+        let then_flow = self.expression_source.value_flow.snapshot();
+        self.expression_source.value_flow.restore(entry.clone());
+        self.resolve_expr(else_block, &else_block_path)?;
+        let else_flow = self.expression_source.value_flow.snapshot();
+        self.expression_source.value_flow.branch(path.expr(), &entry, then_flow, else_flow);
+        Ok(())
     }
 
     fn resolve_arguments(

@@ -93,6 +93,7 @@ mod source_path_policy;
 mod source_projection;
 mod source_site;
 mod source_site_inventory;
+pub(crate) mod source_value_flow;
 mod verifier;
 
 pub(crate) use assignment_source::{ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1};
@@ -387,3 +388,6 @@ mod source_projection_tests;
 mod source_site_inventory_tests;
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod source_value_flow_tests;

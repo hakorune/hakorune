@@ -215,6 +215,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 origin: None,
             },
         );
+        let mut expression_source = ShadowExpressionSourceDraftV1::default();
+        if matches!(traversal_profile, ShadowTraversalProfileV1::ScriptLexicalCoreV1 | ShadowTraversalProfileV1::ScriptLambdaLeafV1) {
+            expression_source.value_flow.unavailable();
+        }
         Self {
             function_scope,
             function_region,
@@ -262,7 +266,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             qmark_propagation_sites: BTreeSet::new(),
             match_control_sites: BTreeSet::new(),
             body_shape: ShadowBodyShapeDraftV0::default(),
-            expression_source: ShadowExpressionSourceDraftV1::default(),
+            expression_source,
         }
     }
 
@@ -347,6 +351,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 site: path.expr(),
             });
         }
+        self.expression_source.value_flow.unavailable();
         let mut visible_bindings = BTreeMap::new();
         for frame in &self.scope_stack {
             for (name, binding) in &frame.names {
@@ -394,6 +399,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         self.ancestor_names.contains(name)
     }
     pub(super) fn record_use(&mut self, site: SourceExprSiteV1, lexical_ref: ShadowLexicalRefV0) {
+        match &lexical_ref {
+            ShadowLexicalRefV0::Local(binding) => self.expression_source.value_flow.read(site.clone(), *binding),
+            ShadowLexicalRefV0::Ancestor(_) => self.expression_source.value_flow.unavailable(),
+        }
         self.variable_uses.insert(site, lexical_ref);
     }
 
@@ -476,6 +485,17 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         target: ShadowAssignmentTargetV0,
     ) {
         self.assignment_targets.insert(site, target);
+    }
+
+    pub(super) fn commit_source_assignment(
+        &mut self, target: &SourceExprSiteV1, value: Option<SourceExprSiteV1>,
+    ) {
+        match self.assignment_targets.get(target) {
+            Some(ShadowAssignmentTargetV0::BindingRebind(binding)) =>
+                self.expression_source.value_flow.initialize(*binding, value),
+            Some(ShadowAssignmentTargetV0::AncestorRebind(_)) => self.expression_source.value_flow.unavailable(),
+            _ => {}
+        }
     }
 
     pub(super) fn record_direct_call(
@@ -561,6 +581,11 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         if self.resolved_exits.insert(site.clone(), record).is_some() {
             return Err(ShadowResolveErrorV0::DuplicateExitSite { site });
         }
+        match transfer {
+            ShadowControlExitV0::Return { .. } => self.expression_source.value_flow.terminate(),
+            ShadowControlExitV0::Break { target_loop } => self.expression_source.value_flow.exit_loop(target_loop, site, false),
+            ShadowControlExitV0::Continue { target_loop } => self.expression_source.value_flow.exit_loop(target_loop, site, true),
+        }
         Ok(())
     }
 
@@ -586,6 +611,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 origin: origin.clone(),
             },
         );
+        self.expression_source.value_flow.declare(binding,
+            matches!(kind, ShadowBindingKindV0::Receiver | ShadowBindingKindV0::Parameter { .. }));
         self.declarations.insert(origin, binding);
         let scope = self.scopes.get_mut(&frame.id).expect("scope record exists");
         let mut declarations = scope.declarations.to_vec();
@@ -656,6 +683,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
 
     pub(super) fn leave_region_scope(&mut self, expected_region: ShadowRegionIdV0) {
         let scope = self.scope_stack.pop().expect("nested scope exists");
+        self.expression_source.value_flow.drop_bindings(scope.names.into_values());
         debug_assert_ne!(scope.id, self.function_scope);
         let region = self.region_stack.pop().expect("nested region exists");
         debug_assert_eq!(region, expected_region);

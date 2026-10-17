@@ -31,6 +31,33 @@ This confirms the prior app200 stop; it is not EXE acceptance.
 
 ## One Decision
 
+V861 previous turn PROGRESS:f839069d6b ordinary Core source/Static retention
+landed, app218 same first-stop and app219 native PASS. Two read-only workers
+confirmed an ordering dependency: original SUM precedes Prefix/Home scanning.
+Borrowing finished Prefix/After evidence here would cycle. Normalize passive
+read-to-reaching-definition relations during the SAME resolver shadow traversal;
+canonicalize them into the SAME expression-source inventory, with no type,
+Recipe/physical key or execution permission. No existing early source-only
+owner supplies these relations. Existing classifier/SUM will consume them;
+Loop physical/Home After still requires its complete existing Facts/Recipe gate.
+Paths: new source_value_flow owner/test child, expression_source,
+resolver_canonicalization, shadow resolver/stmt/expr/root_traversal, resolved mod/README and
+this card. Source observations cover entry, initialization/rebind, Normal branch
+joins, Loop head/backedge/continue, false/zero exit and exact break targets.
+Assignment visibility is after RHS; all multi-local initializers precede any
+new binding. Return/break/continue kill Normal; short-circuit RHS is conditional.
+Uninitialized/compound-unknown/capture/opaque flow stays explicit unavailable.
+No extra AST walk or type solver and no immutable-rule relaxation. Reuse
+resolver/source/control regression tests, add only independent new read-point
+boundary coverage. Worker review identified FullFunction sparse static-target
+observations that skip roots; both sparse dispatch branches explicitly make flow
+unavailable. Canonical value references carry owner, and foreign origin lookup
+is refused before a source consumer can be connected. Root861A compiled134.673204s
+and102 source/lexical/control tests PASS (5new+97existing); this is pre-strengthening
+evidence, not the final owner-branded/sparse observation result.
+This source-observation responsibility must close before
+the same classifier/graph can consume mutable definitions; full S0 stays open.
+
 V860 previous turn PROGRESS:b554b33626 conditional source proof landed; app216
 retains the same first-stop, unchanged native app217 PASS. Reuse the worker's
 full mapping below. Share ONE operand request for existing CatalogCore and
@@ -531,9 +558,11 @@ execution acceptance.
 
 Next common source responsibility, from the same top-down worker review:
 point-sensitive signed-I64 source loans into these operand dependencies.
-PrefixLocalFlow.observe(site), scalar-expression observation and the original
-signed IntegerBasis lend exact read-site/prefix evidence. Integer lane booleans
-also include usize and cannot become SignedI64. For mutable end, scan's
+V861 ordering review supersedes the initial proposal to borrow finished Prefix
+loans here: SUM precedes Prefix/Home. The SAME resolver source-flow inventory
+supplies reaching definitions to the existing classifier/SUM instead. Later
+Prefix/Home still supplies evaluation and physical state. Integer-lane evidence
+also includes usize and cannot become SignedI64. For mutable end, scan's later
 loop_i64_prestate -> complete After loan -> install_loop_i64_after is the seam,
 but its current verified After product only covers variable-bound Mul's2 carriers.
 Build the missing scan After evidence through existing Loop/Facts/Recipe/JoinSig
@@ -544,3 +573,73 @@ Execution additionally needs original receiver/bounds order, Normal/Fault and
 current Home snapshot in the existing expression/root-call/Fault-cleanup owners.
 Reuse checked scalar append for bounds, then Text result/End and both final
 scans. Remove the pending fence only after those same-series consumers close.
+
+### Resolver source reaching definitions (V861)
+
+The SAME resolver traversal now observes exact binding reads and their reaching
+entry/initializer/rebind definitions. Canonicalization seals them once in the
+same expression-source inventory, checking original expression/statement sites,
+local-read coverage, owner and references. Value references carry owner and
+foreign origin lookup refuses. No separate syntax pass or type solver exists.
+Branch joins exclude terminal paths; Loop headers retain entry/backedge/exact
+Continue, After retains condition false/zero iterations/exact Break. Short-circuit
+RHS is conditional, rebind commits after RHS, and all declaration initializers
+precede declaring their new locals. Uninitialized/compound results stay Unknown;
+capture/async/sparse Script observations cannot claim a complete flow. FullFunction
+sparse static-target observation is explicitly covered at dispatch too.
+
+Root861B build PASS130.555870s;300 distinct tests across21 reused nonempty filters
+yield288 PASS and SAME12 known baseline failure identities/messages versus
+f839069d6b. Only nondeterministic thread IDs/plugin Debug map order normalized.
+The6 new tests cover old-RHS/read-point order, foreign owner, terminal branch,
+zero/break/continue/nested targets, conditional assignment, uninitialized/compound
+Unknown and async incompleteness. Existing97 resolver/lexical/BlockExpr/If/Loop
+and36 Core/S6C/Array tests PASS. RootA's102 PASS are pre-strengthening evidence,
+not the final owner-branded/sparse result. Evidence: root-v861b build/source/
+focused records and v861-baseline-comparison.json under the existing /tmp owner.
+
+This is source-observation construction only. No production Text execution,
+entry/cleanup/publication, source SUM consumption or legacy retirement is claimed.
+The existing later Home/Loop/Recipe/JoinSig gates remain mandatory. Keep the source
+flow inventory as the canonical replacement for initializer-only reasoning when
+its selected consumers are connected; shared legacy source and physical owners
+remain for their unselected callers.
+
+Next same-series connection, confirmed by the two existing read-only workers:
+Core I64/Text operand premises use an explicit PointPremise mode in the SAME
+actual classifier. General incoming/object/receiver/provider seeds keep their
+existing mapping. Retain deferred owner+source-value refs instead of recursively
+expanding loop cycles into seed trees. A source_seeds-owned callback reborrows the
+original owner/input, and source_sum memoizes a node before expanding original
+Entry/Expression/Join/Unknown into the SAME graph, before formal validation/SCC.
+Original json also needs Text+Text `needle` construction, then `needle.length()`
+and signed `pos+length`. Use ONE original Binary transfer node in the SAME SCC
+solver, reusing pure binary_expression_class_v1 for exact I64 pairs and Text+Text
+Add. Do not OR independently failing candidate nodes or preseed a result atom.
+All operand pairs must be supported; an empty cyclic candidate is pending until
+fixedpoint, then unproved if still empty/unsupported. Transfer grounds only with
+independent external closed operands; a cycle with a spare literal cannot ground
+itself. General String*Dynamic remains unselected. Existing stable declared-i64
+Entry evidence may ground; usize is never SignedI64. Missing/
+incomplete/unknown source stays unproved with no legacy retry. This does not
+claim general point-sensitive incoming Call domains, operation range/nonFault,
+Home After or execution permission. Full S0 and finite objective remain open.
+
+V861 final frontier verification: CLI197 build PASS216.088065s; compiled-source
+manifest matches Root861B/current source exactly. CLI SHA
+cdb52eb6a13d0113f5a0c724f37c1033c5b8889539c022f10684e5da6e680cf0.
+Unchanged json app220 canonical direct EXE0.115033s exits1/no artifact at SAME
+compilation1/slot20/Body7/Value source-actual-unavailable. No frontier advance.
+Unchanged mimalloc app221 canonical EXE130.803889s, native0.001605s, original
+7-line stdout/exit0 exact, only original plugin-disabled stderr warning PASS.
+EXE SHA49215f936da37940651fe09070d3c702b642f370bd41cb11b0f5738d2f431c45.
+Exact commands inherit app218/219: canonical backend mir emit-exe, runtime808b,
+FFI831e, pure-first/no compat replay, plugins disabled and16MiB stack. No `.hako`
+changes. Root/layer/thin/pointer/diff guards PASS. Latest CI remains historical
+failed35681768498/d4168473d5; no current CI or whole-suite/performance claim.
+Retain Root861B/CLI197/app220-221 logs/source manifests/receipts and selected pins
+until same-series consumption/acceptance; superseded Root861A test-binary copy
+(262356472 bytes) removed, its logs/manifests retained. No parked adapter exists.
+Canonical source-flow product is permanent source authority, not a temporary
+execution adapter; selected initializer-only reasoning retires when its consumer
+switch and evidence close in this SAME series. Full Text and finite goal stay open.

@@ -5,6 +5,8 @@
 //! it does not assign value classes, effects, Recipe roles, or MIR identity.
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
+use super::source_value_flow::{SourceValueFlowDraftV1, VerifiedSourceValueFlowV1};
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 
@@ -244,6 +246,7 @@ impl ResolvedNewExpressionSourceV1 {
 
 #[derive(Debug, Default)]
 pub(crate) struct ResolvedExpressionSourceInventoryV1 {
+    pub(super) value_flow: Option<Arc<VerifiedSourceValueFlowV1>>,
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
     unaries: BTreeMap<SourceExprSiteV1, ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
@@ -253,6 +256,9 @@ pub(crate) struct ResolvedExpressionSourceInventoryV1 {
 }
 
 impl ResolvedExpressionSourceInventoryV1 {
+    pub(crate) fn value_flow(&self) -> Option<&Arc<VerifiedSourceValueFlowV1>> {
+        self.value_flow.as_ref()
+    }
     #[cfg(test)]
     pub(crate) fn from_parts_for_test(
         binaries: impl IntoIterator<Item = ResolvedBinaryExpressionSourceV1>,
@@ -260,6 +266,7 @@ impl ResolvedExpressionSourceInventoryV1 {
         literals: impl IntoIterator<Item = (SourceExprSiteV1, ResolvedLiteralSourceV1)>,
     ) -> Self {
         Self {
+            value_flow: None,
             binaries: binaries
                 .into_iter()
                 .map(|row| (row.site.clone(), row))
@@ -348,6 +355,7 @@ impl ResolvedExpressionSourceInventoryV1 {
 
 #[derive(Debug, Default, Clone)]
 pub(in crate::mir::resolved_semantics) struct ShadowExpressionSourceDraftV1 {
+    pub(super) value_flow: SourceValueFlowDraftV1,
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
     unaries: Vec<ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
@@ -518,6 +526,7 @@ pub(super) fn seal_shadow_expression_source_v1(
         }
     }
     Ok(ResolvedExpressionSourceInventoryV1 {
+        value_flow: None,
         binaries: draft.binaries,
         unaries,
         literals: draft.literals,

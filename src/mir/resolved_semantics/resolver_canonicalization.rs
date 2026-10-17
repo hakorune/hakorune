@@ -262,9 +262,13 @@ pub(super) fn canonicalize_draft(
             Ok((site.clone(), target))
         })
         .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?;
-    let expression_source =
+    let value_flow = std::mem::take(&mut draft.expression_source.value_flow)
+        .seal(owner, binding_ref, &draft.expression_sites, &draft.statement_sites, &variable_uses)
+        .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
+    let mut expression_source =
         seal_shadow_expression_source_v1(std::mem::take(&mut draft.expression_source), binding_ref)
             .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
+    expression_source.value_flow = Some(std::sync::Arc::new(value_flow));
     let resolved_exits = draft
         .resolved_exits
         .iter()

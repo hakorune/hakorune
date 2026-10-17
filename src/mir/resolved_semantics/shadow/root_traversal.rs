@@ -174,6 +174,9 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
         &self,
         resolver: &mut super::resolver::ShadowResolverV0<'ast, 'schema>,
     ) -> Result<(), super::product::ShadowResolveErrorV0> {
+        if matches!(&self.items, ShadowRootItemsV1::SparseScript { .. } | ShadowRootItemsV1::ScriptStaticTargetObservation { .. }) {
+            resolver.expression_source.value_flow.unavailable();
+        }
         match self.items {
             ShadowRootItemsV1::Dense {
                 body,
