@@ -17,7 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted, source WIP unlanded; CLI172/M190 app173 C unsupported-cohort.
+RequiredObjectForwardS0 unaccepted, Rust WIP unlanded; CLI173/M190 app174 C unsupported-cohort.
 First milestone PASS, re-pinned V801b/CLI149/app149: unchanged mimalloc-lite
 canonical direct EXE, run, exact existing stdout and exit0. No source landing.
 V801b whole-source compiled-entry/ABI/backend PASS both opts, including both
@@ -38,8 +38,8 @@ first stop is callable-main/lowering print-expression/source-unavailable.
 V810/811 field+Array→New→Birth and V812 non-Me source focused17 PASS; V813
 current packet received-read focused13 PASS, spent-vector helper removed.
 V815f source/final50 PASS. CLI162 unchanged M189 direct EXE/run/exact output PASS.
-C816 M189 repeats PASS; same-wire V2 validation180.644469s→20.985720s, iterator
-c3003843fd. V817e source/final78 and V818b source/domain81 PASS. CLI164 M190
+C816 M189 repeats PASS (c3003843fd). C830 shape a341e08cec: same M190 wire
+V2 951.529179s→7.596664s (same V4 refusal); no new cohort/EXE. V817e source/final78 and V818b source/domain81 PASS. CLI164 M190
 passes declared-object-class; Main Body7 field actual now refuses. Source unlanded.
 V806 source-observation test repairs are unaccepted: omitted Static identity and
 no checked marker, consumed Loop loans checked in preissued V2 product. Latest

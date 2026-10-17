@@ -963,31 +963,28 @@ terminator reverse edges, finish exclusion and original actual census preserved.
 Per-function lazy analysis and per-actual End batch replace repeated construction;
 source unlanded; CLI173/application evidence follows below.
 
-V830 Decision (separate BoxShape, read-only mapped C V2 physical traversal):
-Source authority + canonical issuer: original function JSON edges and existing
-V2 terminal/edge corroboration; per-query sorted block index and ordinal seen/queue
-replace repeated block lookup and queue membership scans.
-Non-authority: no new defs, opcode/schema, class or ownership admission; no cache.
-Fail-fast boundary: duplicate/missing defs, same-block order and Phi predecessor
-edge count stay with existing owners. Preserve def==use and unreachable-use
-behavior of the existing entry-to-use search avoiding def. Invalid edges refuse.
-Scope: dominance query plus block/definition census traversal. Native bounded
-probe confirms unique_block_ids hot; iterator pairs retain its exact comparison
-order. Definition count still includes terminal dst; availability still excludes
-it. Existing parser and differential graph/definition checks cover this shape.
-Non-claims: V4 refusal/EXE remains open; no performance claim before measurement.
+V830 BoxShape contract/source and full verification: **a341e08cec**. Original
+JSON edges, definition uniqueness/order, terminal-vs-row census, duplicate-ID
+pair order, Phi predecessor multiplicity and unreachable-use behavior preserved.
+Original linear lookup/BFS membership and indexed array walks replaced in their
+sole physical owner; no cache/new source, class or ownership admission.
 
 V829 CLI173 build194.762510s PASS, same Rust manifest as root829a. Canonical
-unchanged M190 app174 remains live on C816 (session48288/pid651409); no EXE claim.
+unchanged M190 app174 TERMINAL RED1179.635000s on C816, exit1/no artifact;
+Rust/Main/finishing pass, V4 unsupported-cohort (seed8, flow0), V2=951.529179s.
 Original wire captured228.411597s/1346391bytes, SHA707a1b47f6e66f899271f0779961fffed72ce53120be472d5449d76341ef5332.
 V4-only diagnostic0.302395s confirms seed8 main/value56 reads object1.field2 from
 value53, original allocateResult target12 Invoke697→Normal698. Parent Call identity
 is unavailable before later callee kind/owned-result indexing; not an End stop.
-V830c C shape lands separately; Rust/other C WIP stays unaccepted. FFI build7.800270s;
+V830c C shape landed **a341e08cec**; Rust/other C WIP stays unaccepted. FFI build7.800270s;
 current and isolated HEAD+only geometry patch parser PASS; worker review clear.
 Differential2570graphs (all ≤3-node graphs/entries +1000 seed830 sparse cyclic cases),
 112486 dominance and30840 definition queries incl terminal dst match original.
-Same original wire V2-only PASS10.729920s, FFI2eae7de6; canonical old run still live.
+Same original wire V2-only PASS10.729920s on FFI2eae7de6, versus C816951.529179s.
+Runs overlapped other diagnostics; this is V2 validation time, not full build/EXE.
+After old run ended, existing V4 driver replays identical unmodified wire: total
+7.948175s, V2=7.596664s/V4=0.254080s, same seed8 unsupported-cohort/no artifact.
+Header-driver replay is C-boundary evidence, not Rust/archive admission or EXE.
 a/b diagnostic probes explicitly superseded/terminated143 after native mapping;
 not timeout failure or acceptance. Keep original wire, pins, scripts/logs until
 Rust source landing/C closure; C shape changes alone grant no new accepted cohort.
