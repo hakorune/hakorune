@@ -219,6 +219,59 @@ This is the source target contract. The compiler's finite source issuance and
 runtime activation are tracked in the
 [construction workstream design](../../development/current/main/design/collection-literal-construction-ssot.md).
 
+### Named Array append-only object slot destination
+
+Decision (2026-10-13): an admitted builtin named Array provider may expose an
+owning object slot destination for ordered `push` and a borrowed nullable `get`.
+This bounded provider contract applies the existing Home law; it does not activate
+general container capability, `share`, or current compiler/backend coverage.
+The exact empty builtin construction and holder binding identify the provider.
+They do not prove its object-slot transfer, read or destruction capabilities.
+Those capabilities and each child's canonical End contract must be verified.
+User declarations shadowing the builtin supply no authority for this contract.
+
+Each original Push retains its receiver, argument evaluation, result producer
+and source order. A non-null fresh child result must provide exactly one available
+obligation through its original acquisition/result contract; a nullable class
+claim alone cannot provide that obligation. Exact null carries no child Home.
+Successful append commit transfers the available obligation into its slot once.
+An ordinary borrowed candidate cannot be inserted into this owning destination
+without a separately authorized acquisition; insertion never performs share.
+
+Before commit, child evaluation or append Fault transfers nothing: discharge the
+actual active child responsibilities, then established caller responsibilities
+under the existing scope rules. Already committed slots remain the holder's
+responsibility. A later Fault cannot restore a committed child to evaluation.
+Preserve the first Fault and completed observable effects.
+
+Get evaluates its original receiver and admitted Integer index once and lends a
+non-owning nullable handle supported by the live holder and committed slot state
+at that read. Missing/null remains nullable; reading creates no Home or retain.
+All original contributing stores must agree on the non-null source class, using
+their exact producer contracts. A future append cannot prove that an earlier
+read's slot exists or stays live. A callee's formal annotation, runtime handle
+bits, or boxed clone behavior cannot issue the class or loan. Keep the supporting
+holder live through the loan's last use; unsupported escape or mutation rejects.
+
+For this append-only provider, terminal End discharges live child obligations in
+reverse successful-install order, then releases the Array residence. Null slots
+have no child End. This order is an explicit provider contract, not an inferred
+general Array order. Detach/state transitions occur under storage synchronization;
+child End runs outside its locks, and terminal End cannot revive ownership.
+Preserve the first Fault and attempt remaining child and residence cleanup.
+Native residence release alone does not prove child obligation discharge.
+An ordinary method called with a borrowed element changes no slot ownership
+unless a separate verified contract explicitly authorizes that change.
+
+The selected family requires the sole unrebound, unaliased, nonescaping local
+holder, its complete original use inventory, admitted ordered Push/Get reads,
+and exact allocation/commit/read/End bindings through final publication.
+Unknown child capability, mixed classes, unavailable producer or cleanup contract,
+and unsupported Set/Insert/removal/clear or holder escape remain rejected.
+Source class preparation is distinct from execution permission: provider
+capability, full call/input/result Completion, cleanup and independent physical
+verification remain mandatory before the family can execute.
+
 ### Intrinsic Map slot destination target
 
 Decision (2026-09-09): an intrinsic Map literal's value slot is an owning
