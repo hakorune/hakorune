@@ -26,7 +26,12 @@ fn formal(package: &Package, class: &str, name: &str) -> BindingRefV1 {
     let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
         CanonicalSameModuleCallableKeyV1::static_box_method(class, name, 1),
     );
-    let slot = package.selected.batch_slot(&key).unwrap();
+    let slot = package.selected.batch_slot(&key).or_else(|| {
+        let crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) = &key else { return None; };
+        package.batch().declarations().find(|row|
+            package.source_backed_callable_catalog().omitted_closed_app_static_for_identity(row.identity()) == Some(key))
+            .map(|row| row.batch_slot())
+    }).unwrap();
     package
         .parameter_contracts
         .iter()
@@ -179,7 +184,53 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
         );
         assert!(source.contains_definition_for_test(p.owner()));
         assert_eq!(source.incoming.len(), 3);
+        use super::super::super::borrowed_formal_source::SourceValueAlternativeV1 as Value;
+        let expected = match actual { "true" => BTreeSet::from([Value::SignedI64, Value::Other]),
+            "null" => BTreeSet::from([Value::SignedI64, Value::Null]), _ => BTreeSet::from([Value::SignedI64]) };
+        assert_eq!(source.source_value_sum_v1(p).unwrap().alternatives(), &expected);
     }
+    // Omitted wrappers retain original Text/scalar/null/unknown and result
+    // dependencies without asking the old executable ABI to accept Text.
+    use super::super::super::borrowed_formal_source::SourceValueAlternativeV1 as Value;
+    for (setup, actual, expected) in [
+        ("", "\"text\"", Some(BTreeSet::from([Value::Text]))),
+        ("local value = \"text\"", "value", Some(BTreeSet::from([Value::Text]))),
+        ("local value = \"text\" value = 7", "value", None),
+        ("local value", "value", None),
+        ("local value = \"text\" local capture = fn() { return value }", "value", None),
+        ("", "Values.text()", Some(BTreeSet::from([Value::Text]))),
+        ("", "Values.identity(7)", Some(BTreeSet::from([Value::SignedI64]))),
+        ("", "Values.identity(true)", None),
+        ("", "Values.unknown()", None),
+    ] {
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} text() {{ return \"result\" }} identity(x) {{ return x }} unknown() {{ return null }} unused() {{ {setup} local n = Values.sink({actual}) return 0 }} }} static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let source = ingress(&package);
+        let formal = formal(&package, "Values", "sink");
+        assert_eq!(source.source_value_sum_v1(formal).map(|value| value.alternatives().clone()), expected, "{setup}; {actual}");
+        assert!(!source.contains_definition_for_test(formal.owner()), "source domain cannot select an entry");
+    }
+
+    for (body, incoming, closed) in [
+        ("local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", true),
+        ("local alias = q local n = Values.sink(alias) return 0", "local n = Values.chain(\"text\")", true),
+        ("q = 7 local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", false),
+        ("local capture = fn() { return q } local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", false),
+        ("local n = Values.sink(q) return 0", "", false),
+    ] {
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} chain(q) {{ {body} }} unused() {{ {incoming} return 0 }} }} static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let source = ingress(&package);
+        let p = formal(&package, "Values", "sink");
+        assert_eq!(source.source_value_sum_v1(p).map(|sum| sum.alternatives().clone()),
+            closed.then(|| BTreeSet::from([Value::Text])), "all original source-only Forward obligations: {body}/{incoming}");
+        assert!(!source.checked_static_input(p));
+    }
+
 }
 
 #[test]

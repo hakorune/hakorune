@@ -1,5 +1,9 @@
 //! Sole original actual classifier and its existing checked projections.
 use super::*;
+#[path = "ordinary_new_borrowed_actual_method_result.rs"]
+mod method_result;
+pub(super) use method_result::OriginalActualSourceContextV1;
+use method_result::OriginalMethodResultSeedV1;
 
 /// Original source classification retains a forward's declaration constraint
 /// without deciding transport membership. The same row can be projected later.
@@ -12,6 +16,13 @@ pub(super) enum OriginalFormalActualSeedV1 {
         anchor: Box<OriginalFormalActualSeedV1>,
     },
     Integer,
+    Text,
+    Other,
+    /// New source evidence cannot activate any old agreement or transport.
+    SourceOnly(Box<OriginalFormalActualSeedV1>),
+    /// Preserve the old projection while retaining unproved SUM stability.
+    SumUnknown(Box<OriginalFormalActualSeedV1>),
+    MethodResult(Box<OriginalMethodResultSeedV1>),
     ProviderStatic(std::rc::Rc<crate::mir::normal_callable_semantic_package::instance_constructor_semantic::provider_source::ProviderStaticArgumentSourceV1>),
     /// Exact usize declaration: Integer lane, without signed result permission.
     SourceInteger,
@@ -37,6 +48,7 @@ impl OriginalFormalActualSeedV1 {
     /// separate conjunct in the same domain fold, never an actual class seed.
     pub(super) fn project_source_object_v1(&self) -> FormalActualSeedV1 {
         match self {
+            Self::SumUnknown(legacy) => legacy.project_source_object_v1(),
             Self::Forward { origin, .. } => FormalActualSeedV1::Forward(*origin),
             Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
                 FormalActualSeedV1::Class(source.fresh_class().into()), anchor.project_source_object_v1(),
@@ -57,7 +69,8 @@ impl OriginalFormalActualSeedV1 {
             Self::SourceInteger => if current_i64 { FormalActualSeedV1::Conflict } else { FormalActualSeedV1::Integer },
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
-            Self::Conflict | Self::ProviderStatic(_) => FormalActualSeedV1::Conflict,
+            Self::SumUnknown(legacy) => legacy.project_source_integer_v1(current_i64),
+            Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
         }
     }
 
@@ -75,7 +88,8 @@ impl OriginalFormalActualSeedV1 {
             Self::Integer | Self::SourceInteger => FormalActualSeedV1::Integer,
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
-            Self::Conflict | Self::ProviderStatic(_) => FormalActualSeedV1::Conflict,
+            Self::SumUnknown(legacy) => legacy.project_selected_v1(caller, transport_owners),
+            Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
             Self::Forward { origin, declared_constraint } => {
                 let outside = transport_owners.is_some_and(|owners| !owners.contains(&caller));
                 match (outside, declared_constraint) {
@@ -105,7 +119,7 @@ pub(super) fn classify_actual_seed_in_scope(
 ) -> FormalActualSeedV1 {
     classify_original_actual_seed_in_scope(
         input, batch, selected, callable_result_classes, caller, candidates,
-        receiver, definitions, contracts, site, guarded, None,
+        receiver, definitions, contracts, site, guarded, None, None,
     ).project_selected_v1(caller, transport_owners)
 }
 
@@ -123,9 +137,10 @@ pub(super) fn classify_original_actual_seed_in_scope(
     site: &SourceExprSiteV1,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
     inventory: Option<&BorrowedIncomingInventoryV1>,
+    source_context: Option<&OriginalActualSourceContextV1<'_>>,
 ) -> OriginalFormalActualSeedV1 {
     classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
-        caller, candidates, receiver, definitions, contracts, site, guarded, inventory, &BTreeSet::new())
+        caller, candidates, receiver, definitions, contracts, site, guarded, inventory, source_context, &BTreeSet::new())
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -142,6 +157,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
     site: &SourceExprSiteV1,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
     inventory: Option<&BorrowedIncomingInventoryV1>,
+    source_context: Option<&OriginalActualSourceContextV1<'_>>,
     inherited: &BTreeSet<BindingRefV1>,
 ) -> OriginalFormalActualSeedV1 {
     if let Some((fact, call, ordinal)) = guarded {
@@ -159,7 +175,9 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_)) => {
             return OriginalFormalActualSeedV1::Integer;
         }
-        Some(_) => return OriginalFormalActualSeedV1::Conflict,
+        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => return OriginalFormalActualSeedV1::Text,
+        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::TypedInteger { .. }) => return OriginalFormalActualSeedV1::Conflict,
+        Some(_) => return OriginalFormalActualSeedV1::Other,
         None => {}
     }
     if function
@@ -168,6 +186,20 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         .is_some()
     {
         return OriginalFormalActualSeedV1::Integer;
+    }
+    if let Some(method) = function.method_call_source_v1(site) {
+        let proof = source_context.and_then(|context| context.proof(input, method, inventory));
+        let requirements = proof.as_ref().map(|proof| proof.callee_i64_ordinals()).unwrap_or(&[]);
+        let required_i64 = requirements.iter().map(|ordinal| {
+            match method.arguments().get(*ordinal as usize).filter(|argument| argument.ordinal() == *ordinal) {
+                Some(argument) => classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+                    caller, candidates, receiver, definitions, contracts, argument.site(), None, inventory, source_context, inherited),
+                None => OriginalFormalActualSeedV1::Conflict,
+            }
+        }).collect();
+        return OriginalFormalActualSeedV1::MethodResult(Box::new(OriginalMethodResultSeedV1 {
+            method: std::sync::Arc::clone(method), proof, required_i64,
+        }));
     }
     let Some(mut binding) = arg_site_binding(input, site) else {
         return OriginalFormalActualSeedV1::Conflict;
@@ -178,23 +210,23 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         { OriginalFormalActualSeedV1::Integer } else { OriginalFormalActualSeedV1::SourceInteger };
     }
     let mut visited = inherited.clone();
+    let mut sum_stable = true;
     loop {
         if binding.owner() != caller || !visited.insert(binding) {
             return OriginalFormalActualSeedV1::Conflict;
         }
+        sum_stable &= stable_source_binding_v1(input, binding);
         if let Some(candidate) = candidates
             .iter()
             .find(|candidate| candidate.destination == binding)
         {
-            return if candidate.construction.is_ok() {
+            return sum_checked(if candidate.construction.is_ok() {
                 OriginalFormalActualSeedV1::Class(candidate.class.clone())
-            } else {
-                OriginalFormalActualSeedV1::Conflict
-            };
+            } else { OriginalFormalActualSeedV1::Conflict }, sum_stable);
         }
         if let Some((root, row)) = receiver {
             if root == binding {
-                return OriginalFormalActualSeedV1::Class(row.name().into());
+                return sum_checked(OriginalFormalActualSeedV1::Class(row.name().into()), sum_stable);
             }
         }
         if let Some(class) =
@@ -207,13 +239,13 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 binding,
             )
         {
-            return OriginalFormalActualSeedV1::Class(class);
+            return sum_checked(OriginalFormalActualSeedV1::Class(class), sum_stable);
         }
         if let Some(inventory) = inventory {
             if let Some(seed) = source_seeds::classify_mixed_actual_seed_v1(input, batch, selected,
                 callable_result_classes, caller, candidates, receiver, definitions, contracts,
-                binding, inventory, &visited) {
-                return seed;
+                binding, inventory, &visited, source_context) {
+                return sum_checked(seed, sum_stable);
             }
         }
         if let Some(formal) = definitions
@@ -228,16 +260,55 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                     CallableParameterContractKindV1::DeclaredObject(class) => Some(class.clone()),
                     _ => None,
                 });
-            return OriginalFormalActualSeedV1::Forward {
-                origin: *formal,
-                declared_constraint,
-            };
+            return sum_checked(OriginalFormalActualSeedV1::Forward {
+                origin: *formal, declared_constraint,
+            }, sum_stable);
         }
         match alias_source_binding(input, binding) {
             Some(next) => binding = next,
-            None => return OriginalFormalActualSeedV1::Conflict,
+            None => {
+                if !sum_stable { return OriginalFormalActualSeedV1::Conflict; }
+                let mut owners = contracts.iter().filter(|row| row.owner == input.owner());
+                if let Some(contract) = owners.next().filter(|_| owners.next().is_none()) {
+                    if let Some(formal) = contract.parameters.iter().enumerate().find_map(|(ordinal, formal)|
+                        (formal.binding == binding && formal.ordinal as usize == ordinal
+                            && function.declaration_binding(&crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index: formal.ordinal }) == Some(binding)).then_some(formal)) {
+                        return OriginalFormalActualSeedV1::SourceOnly(Box::new(OriginalFormalActualSeedV1::Forward {
+                            origin: binding, declared_constraint: match &formal.kind {
+                                CallableParameterContractKindV1::DeclaredObject(class) => Some(class.clone()), _ => None,
+                            },
+                        }));
+                    }
+                }
+                let mut initializers = function.expression_source().initializers().filter(|row| row.binding() == binding);
+                if let Some(initializer) = initializers.next().filter(|_| initializers.next().is_none()) {
+                    if function.declaration_binding(initializer.declaration_site()) == Some(binding) {
+                        if let Some(site) = initializer.initializer_site() {
+                            let source = classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+                                caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, &visited);
+                            return OriginalFormalActualSeedV1::SourceOnly(Box::new(source));
+                        }
+                    }
+                }
+                return OriginalFormalActualSeedV1::Conflict;
+            }
         }
     }
+}
+
+fn sum_checked(seed: OriginalFormalActualSeedV1, stable: bool) -> OriginalFormalActualSeedV1 {
+    if stable { seed } else { OriginalFormalActualSeedV1::SumUnknown(Box::new(seed)) }
+}
+
+pub(super) fn stable_source_binding_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, binding: BindingRefV1,
+) -> bool {
+    use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1 as Target, ResolvedLexicalRefV1 as Reference};
+    binding.owner() == input.owner() && input.function().binding(binding).is_some()
+        && !input.function().assignment_targets().any(|(_, target)| matches!(target, Target::BindingRebind(actual) if *actual == binding))
+        && !input.forest().semantic_owners().any(|(_, function)|
+            function.assignment_targets().any(|(_, target)| matches!(target, Target::UpvarRebind(upvar) if upvar.source() == binding))
+                || function.variable_refs().any(|(_, reference)| matches!(reference, Reference::Upvar(upvar) if upvar.source() == binding)))
 }
 
 /// One alias hop for `local q = <binding>`: the initializer declaring

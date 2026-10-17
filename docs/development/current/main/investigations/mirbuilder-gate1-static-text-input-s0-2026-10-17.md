@@ -257,19 +257,11 @@ new adapter or duplicated classifier to retain. Full finite goal remains active.
 
 ### Verified classifier extraction (V856)
 
-Sole classifier and raw enum moved from source.rs to actual_seed.rs;
-source owner752->501 lines, child261. Mechanical comparison of moved bodies
-normalizes only module depth and parent visibility and is identical (no extra
-classifier or old definition remains). No test added or executable authority
-changed. Root856A build100.460903s,158 focused:146 PASS plus12 baseline failures.
-The previous11 remain unchanged; additional value_domain mixed/null/bool/local
-case fails source-not-i64 identically on parent Root855I (8 PASS/1 failed).
-CLI192 build181.498123s; SHA3dee7f0309cb9cf255cadc0a89d5dfdad3870820ddd9c16116474c465e31c32a.
-Unchanged json app213 canonical direct EXE0.112841s, exit1/no artifact, SAME
-compilation1/slot20/Body7/Value source-actual-unavailable. All stable guards PASS.
-No native/full-suite/current CI claim; unchanged mimalloc app212 remains prior
-runtime baseline. Keep Root856A/CLI192/app213 manifest/log/receipt and parent
-baseline evidence until the full Text series closes. No parked adapter.
+Implementation and durable validation:3c58e1fc8c. Sole classifier/raw enum moved
+without control-flow change; parent501 lines, child261. Root856A158:146 PASS,
+12 reproduced baseline failures. CLI192/app213 same json stop; all guards PASS.
+Keep that binary/manifest and earlier baseline receipts for current red-test
+classification. No new runtime or product claim.
 
 ### Worker-confirmed next source dependency mapping
 
@@ -299,3 +291,85 @@ that component or closed dependencies. Counterexample P=Text|Q, Q<->R seedless:
 P's own Text must not rescue Q/R. Old homogeneous fold and execution recursion
 admission remain unchanged. These are acceptance constraints, not a new feature
 or narrower replacement for full source-to-consumer Text series.
+
+## Source SUM construction (V857)
+
+Previous goal turn PROGRESS:3c58e1fc8c classifier extraction landed/pushed.
+Implement the existing worker-confirmed mapping, not a literal-only subset.
+Paths: actual_seed and new actual_method_result context owner; source_seeds and
+new source_sum projection owner; New seeds for a borrowed raw visitor sharing
+Birth correspondence validation; ingress_finish for original Main/omitted loans;
+qualified_static_call_claim for SAME call-result Arc loan; existing value-domain
+and static-source-domain tests, owner README and this card. Source-only literal,
+immutable local/formal, canonical Static/Core result and unresolved method keep
+one classifier; new evidence remains Conflict in all legacy projections. No
+Text runtime admission. Unknown/capture/rebind/cycles and full incoming/New
+obligations must survive into SUM. Native unchanged mimalloc regression will run
+if any semantic production effects appear, with json direct EXE first-stop.
+
+Root857A build PASS131.795136s; existing158 tests preserve146 PASS/12 baseline.
+Worker found and corrected two proof holes before acceptance: conditional
+P=f(P,7) cannot use its spare independently closed argument to justify its
+cyclic I64 premise; only an output whose ALL premises close externally can
+become a new ground. Context now retains/corroborates checked caller owner,
+so equal-site canonical methods from a foreign owner cannot borrow Core rows.
+Add2 independent uncovered boundary tests at those owners, plus SUM expectations
+in existing static/source-domain and value-domain New cases. Method result fields
+lend read-only views outside classifier construction. Paths also include the
+existing candidate_veto test adapter's added original context arguments. RootB
+reported only reexport visibility errors; no successful build/test claim for B.
+
+
+### Verified original source SUM (V857)
+
+One original classifier now retains Text/Other, immutable source-only locals and
+formals, SAME method Arc/result proof and explicit unknowns. OriginalMain/omitted/
+constructor caller identity is joined once at prepare, not inferred from the
+outer callee. Static result dependencies use exact callee ordinals; Core borrows
+only real catalog receiver/contract rows. Equal-site foreign Core owner refuses.
+Old projections preserve their previous Conflict/agreement and admit no Text.
+The SAME raw New visitor shares Birth correspondence with old projections,
+retaining missing/empty/unknown obligations; cached SUM keeps SAME New Rc.
+SCC condensation requires independent grounding and all exact I64 premises;
+P=Text|Q,Q<->R and P=f(P,7) cannot bootstrap a proof. Legacy homogeneous folds
+remain shared owners of their existing contracts, not a retry path.
+
+Root857E build60.221111s;160 distinct tests across10 nonempty reused filters:
+148 PASS plus SAME12 known baseline failures documented at V855/V856. Source-
+domain11/11, source-graph9/9, both new independent SCC/foreign-owner tests PASS.
+Existing New matrix covers hidden/nested/unconstructed/Birth/empty/cycle rows;
+source-only wrapper tests cover Text literal/local/alias/Forward, rebind/capture/
+empty refusal, Static String and conditional I64 results, unknown result refusal.
+No proof app, fixture or new guard added. Two new tests protect independent
+previously untested proof boundaries; all other cases extend existing owners.
+Intermediate compiler/test-setup failures are superseded, not counted as PASS.
+
+CLI193 build210.425384s; final test-only source manifest refresh CLI194 build
+0.289104s (cached production binary), SHA
+b48c9204a0d45316efe506836f94381bab79ee100f6ed58b065aa7043b81428b.
+The exact CLI194 canonical --backend mir --emit-exe/--emit-exe-nyrt route, same
+runtime/FFI pins and unmodified source hashes as V856/V855 yielded:
+- Json app214:0.113831s, exit1/no artifact, SAME compilation1/slot20/Body7/Value
+  ordinary-new/borrowed-static/source-actual-unavailable.
+- Mimalloc app215: EXE131.814693s, native0.001457s, exact7-line stdout and exit0,
+  only original plugin-disabled warning PASS. EXE SHA
+  3c4e5f6c0da14a40b0c416218f0d0f209cc6cd2e2c886c5598dfba93696cf735.
+All root/layer/thin/pointer/diff guards PASS. Final read-only worker review found
+no additional material hole. No performance, full-suite or current CI claim.
+
+Keep RootE/CLI194/app214-215 logs/manifests/receipts, backend pins and parent red
+classification evidence until full series acceptance. Superseded V857 A/C/D
+binary copies may retire; diagnostic logs/manifests remain. No parked adapter.
+This lands source evidence only: no Text ABI, runtime entry, owned temporary,
+cleanup, final scan or publication has been admitted; full series/goal stay open.
+
+Next common responsibility from the SAME top-down worker review is source-bound
+String operand/receiver qualification consuming SAME rawseed+SUM at the original
+method site. Existing source_call_target/core_method text_source_at and result
+expression proof know syntactic Text/local sources, but do not consume formal
+SUM. Connect canonical method Arc + existing Core contract issuer, not another
+catalog AST solver, fake S6C/Loop membership or an app214 leaf relaxation.
+Preserve line's Text provenance, start/end exact-site I64/Loop After dependencies,
+existing concat alternatives and terminating Null guard, int_to_str I64 incoming,
+and unresolved MapGet producers. Then close entry/result, ordered argument
+Normal/Fault cleanup and BOTH final publication consumers in this same series.

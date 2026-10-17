@@ -4466,3 +4466,11 @@ loss under an unchanged veto set. Legacy executable projections remain root-only
 classifier and owns its existing source/selected projections. Formal ingress
 retains those raw rows once; source domains and physical selection project them
 without rescanning source or sharing admission authority.
+
+The same raw seed product retains Text, known Other, original method-result
+Arcs, stable source-only forwarding and unknowns. Its source SUM is an orthogonal
+union; existing homogeneous and selected projections keep their old refusal for
+new evidence. SUM components close only with original complete incoming/New
+participation, grounded dependencies and exact conditional I64 requirements.
+Seedless cycles and unknown siblings cannot be rescued by upstream Text. A closed
+source SUM supplies no ABI, evaluation, cleanup or publication permission.

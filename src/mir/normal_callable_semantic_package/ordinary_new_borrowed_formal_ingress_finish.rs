@@ -76,6 +76,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let seeds = source_seeds::prepare_original_formal_seeds_v1(
         batch, selected, entry_home_loans, constructors, callable_result_classes,
         local_candidates, contracts, definitions, &inventory, guarded_actuals, static_claims, array_i64_fields,
+        app_main.map(|main| main.caller_source_ref_v1()), omitted,
     )?;
     Ok(source_seeds::OriginalBorrowedFormalSourceV1 { inventory, seeds, array_sources })
 }

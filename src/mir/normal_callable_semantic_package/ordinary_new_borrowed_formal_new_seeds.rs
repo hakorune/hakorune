@@ -47,6 +47,19 @@ struct OriginalNewCallSeedsV1 {
     array_reads: Box<[Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ArgumentFieldArrayReadSourceV1>>]>,
 }
 
+impl OriginalNewCallSeedsV1 {
+    fn corroborates_birth_v1(&self, constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1) -> bool {
+        let OriginalNewBirthV1::Birth { source, owner, formals } = &self.birth else { return false; };
+        let mut matching = constructors.rows().iter().filter(|ctor| ctor.source_id() == source);
+        let ctor = matching.next();
+        matching.next().is_none() && ctor.is_some_and(|ctor|
+            ctor.kind() == ConstructorSourceKindV1::Birth && ctor.box_name() == self.original.class()
+                && ctor.forest().roots() == [*owner]
+                && ctor.formal_contracts().iter().map(|formal| formal.binding()).eq(formals.iter().copied()))
+            && self.seeds.len() == self.original.arguments().len() && self.seeds.len() == formals.len()
+    }
+}
+
 #[derive(Debug, Default)]
 #[cfg_attr(test, derive(Clone))]
 pub(super) struct OriginalNewSeedsV1 {
@@ -200,6 +213,35 @@ impl OriginalNewSeedsV1 {
         })
     }
 
+    /// Lend SAME unprojected rows. Missing/invalid/empty participants are
+    /// explicit None obligations; no consumer may silently zip them away.
+    pub(super) fn visit_raw_source_seeds_v1(
+        &self, constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        mut visit: impl FnMut(BindingRefV1, Option<&OriginalFormalActualSeedV1>),
+    ) {
+        let mut observed = BTreeSet::new();
+        let mut vetoed_classes = BTreeSet::new();
+        for row in &self.rows {
+            match &row.birth {
+                OriginalNewBirthV1::Birth { formals, .. } if row.corroborates_birth_v1(constructors) => {
+                    for (formal, seed) in formals.iter().zip(&row.seeds) {
+                        observed.insert(*formal);
+                        visit(*formal, Some(seed));
+                    }
+                }
+                OriginalNewBirthV1::Birth { .. } | OriginalNewBirthV1::Unavailable => { vetoed_classes.insert(row.original.class()); }
+                OriginalNewBirthV1::NoBirth | OriginalNewBirthV1::OutsideOrdinary => {}
+            }
+        }
+        for ctor in constructors.rows().iter().filter(|row| row.kind() == ConstructorSourceKindV1::Birth) {
+            for formal in ctor.formal_contracts() {
+                if self.incomplete || vetoed_classes.contains(ctor.box_name()) || !observed.contains(&formal.binding()) {
+                    visit(formal.binding(), None);
+                }
+            }
+        }
+    }
+
     /// Join all original actuals, including failures, in the existing domain
     /// fold. No selected claim argument or birth_site_index is consulted.
     pub(super) fn append_source_seeds(
@@ -216,16 +258,8 @@ impl OriginalNewSeedsV1 {
         let mut vetoes = BTreeSet::new();
         for row in &self.rows {
             match &row.birth {
-                OriginalNewBirthV1::Birth { source, owner, formals } => {
-                    let mut matching = constructors.rows().iter().filter(|ctor| ctor.source_id() == source);
-                    let ctor = matching.next();
-                    let exact = matching.next().is_none() && ctor.is_some_and(|ctor|
-                        ctor.kind() == ConstructorSourceKindV1::Birth && ctor.box_name() == row.original.class()
-                        && ctor.forest().roots() == [*owner]
-                        && ctor.formal_contracts().iter().map(|formal| formal.binding()).eq(formals.iter().copied()));
-                    if !exact || row.seeds.len() != row.original.arguments().len()
-                        || row.seeds.len() != formals.len()
-                    { vetoes.insert(row.original.class()); continue; }
+                OriginalNewBirthV1::Birth { formals, .. } => {
+                    if !row.corroborates_birth_v1(constructors) { vetoes.insert(row.original.class()); continue; }
                     for (ordinal, (formal, seed)) in formals.iter().zip(row.seeds.iter()).enumerate() {
                         let seed = match seed {
                             OriginalFormalActualSeedV1::ProviderStatic(loan)

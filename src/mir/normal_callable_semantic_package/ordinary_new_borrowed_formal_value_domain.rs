@@ -210,6 +210,9 @@ mod tests {
             let capacity = ctor.formal_contracts()[0].binding();
             assert_eq!(ingress.candidate_integer_agreement(capacity), expected, "{main}/{other}");
             assert_eq!(ingress.candidate_i64_source_agreement(capacity), expected, "original signed New inputs: {main}/{other}");
+            assert_eq!(ingress.source_value_sum_v1(capacity).is_some_and(|sum|
+                sum.alternatives() == &BTreeSet::from([SourceValueAlternativeV1::SignedI64])), expected,
+                "SAME New census must retain nested, hidden and empty participants: {main}/{other}");
             assert!(!ingress.formal_integer_agreement(capacity), "source New proof grants no selected borrowed transport");
         }
         for scalar in ["i64", "usize"] {
@@ -222,6 +225,9 @@ mod tests {
             let capacity = ctor.formal_contracts()[0].binding();
             assert!(ingress.candidate_integer_agreement(capacity));
             assert_eq!(ingress.candidate_i64_source_agreement(capacity), scalar == "i64");
+            assert_eq!(ingress.source_value_sum_v1(capacity).unwrap().alternatives(),
+                &BTreeSet::from([if scalar == "i64" { SourceValueAlternativeV1::SignedI64 } else { SourceValueAlternativeV1::Other }]),
+                "declared source ABI is not a signed-i64 guess: {scalar}");
             let owner = package.parameter_contracts.iter().find(|row|
                 matches!(package.selected.key_for_batch_slot(row.batch_slot),
                     Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().owner;

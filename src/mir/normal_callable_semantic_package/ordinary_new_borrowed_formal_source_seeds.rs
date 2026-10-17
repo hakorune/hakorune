@@ -1,6 +1,9 @@
 //! Sole original actual classifier product; projections never revisit source.
 //! Source Integer evidence and selected transport share the same immutable rows.
 use super::*;
+#[path = "ordinary_new_borrowed_formal_source_sum.rs"]
+mod source_sum;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
 mod new_seeds;
 #[path = "ordinary_new_borrowed_object_producer_source.rs"]
@@ -47,6 +50,7 @@ pub(super) struct OriginalFormalSeedProductV1 {
     source_integers: Option<SourceIntegerDomainV1>,
     source_i64s: Option<SourceIntegerDomainV1>,
     source_objects: Option<Rc<SourceObjectDomainV1>>,
+    source_sums: Option<source_sum::OriginalSourceSumsV1>,
     new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
 }
 
@@ -147,6 +151,8 @@ pub(super) fn prepare_original_formal_seeds_v1(
     guarded: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
     static_claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
+    app_main: Option<AppMainSourceRefV1<'_>>,
+    omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
 ) -> Result<OriginalFormalSeedProductV1, String> {
     let mut rows = Vec::new();
     let mut seen = BTreeSet::new();
@@ -164,6 +170,8 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     || original.arity() != call.source.target().arity()
                     || original.arguments().iter().map(|argument| argument.site()).ne(call.source.argument_sites().iter())
                 { return Err(freeze("borrowed-view/original-call-identity")); }
+                let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
+                    static_claims, app_main, omitted)?;
                 let slot = context.declaration_slot();
                 let candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
                     .map(Vec::as_slice).unwrap_or(&[]);
@@ -183,7 +191,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     }
                     Ok(classify_original_actual_seed_in_scope(input, batch, selected, results, caller,
                         candidates, receiver, definitions, contracts, site,
-                        guarded.get(&(call.call.clone(), *ordinal)).map(|fact| (fact, &call.call, *ordinal)), Some(inventory)))
+                        guarded.get(&(call.call.clone(), *ordinal)).map(|fact| (fact, &call.call, *ordinal)), Some(inventory), source_context.as_ref()))
                 }).collect::<Result<Vec<_>, String>>()
             })??;
         rows.push(OriginalCallSeedsV1 { incoming: call.clone(), legacy, seeds: seeds.into_boxed_slice() });
@@ -200,11 +208,16 @@ pub(super) fn prepare_original_formal_seeds_v1(
         let observed = batch.with_lowering_input(slot, |root| {
             for (owner, _) in root.forest().semantic_owners() {
                 match batch.with_owner_lowering_input(slot, owner, |input| {
+                    let source_context = if owner == root_owner {
+                        OriginalActualSourceContextV1::checked(
+                            crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Declaration { batch_slot: slot },
+                            input, batch, selected, contracts, static_claims, app_main, omitted)?
+                    } else { None };
                     new_calls.observe(input, batch, constructors, static_claims, selected, array_i64_fields, |site| {
                         classify_original_actual_seed_in_scope(input, batch, selected, results, owner,
                             if owner == root_owner { local_candidates } else { &[] },
                             if owner == root_owner { receiver } else { None },
-                            definitions, contracts, site, None, Some(inventory))
+                            definitions, contracts, site, None, Some(inventory), source_context.as_ref())
                     })
                 }) {
                     Ok(result) => result?,
@@ -219,14 +232,21 @@ pub(super) fn prepare_original_formal_seeds_v1(
         for constructor in constructors.rows() {
             for (owner, _) in constructor.forest().semantic_owners() {
                 match constructor.lowering_input_for_owner(loan.program(), owner) {
-                    Ok(input) => new_calls.observe(input, batch, constructors, static_claims, selected, array_i64_fields, |site| {
+                    Ok(input) => {
+                    let source_context = if constructor.kind() == crate::parser::ConstructorSourceKindV1::Birth
+                        && constructor.forest().roots() == [owner] {
+                        OriginalActualSourceContextV1::checked(
+                            crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Constructor { row: constructor, input },
+                            input, batch, selected, contracts, static_claims, app_main, omitted)?
+                    } else { None };
+                    new_calls.observe(input, batch, constructors, static_claims, selected, array_i64_fields, |site| {
                         if let Some(origin) = new_seeds::stable_constructor_formal_v1(input, site, constructors) {
                             OriginalFormalActualSeedV1::Forward { origin, declared_constraint: None }
                         } else {
                             classify_original_actual_seed_in_scope(input, batch, selected, results, owner,
-                                &[], None, definitions, contracts, site, None, Some(inventory))
+                                &[], None, definitions, contracts, site, None, Some(inventory), source_context.as_ref())
                         }
-                    })?,
+                    })?; },
                     Err(_) => new_calls.missing_owner(),
                 }
             }
@@ -245,6 +265,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
         source_integers: None,
         source_i64s: None,
         source_objects: None,
+        source_sums: None,
         new_calls: Rc::new(new_calls),
     };
     product.source_integers = Some(SourceIntegerDomainV1 {
@@ -262,6 +283,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
             FormalDomainProjectionV1::SourceObject)?.0,
         new_calls: Rc::clone(&product.new_calls),
     }));
+    product.source_sums = Some(source_sum::resolve_original_source_sums_v1(&product, contracts, constructors));
     Ok(product)
 }
 
@@ -272,6 +294,7 @@ impl OriginalFormalSeedProductV1 {
         if self.source_integers.iter().chain(self.source_i64s.iter())
                 .any(|domain| !Rc::ptr_eq(&domain.new_calls, &self.new_calls))
             || self.source_objects.as_ref().is_some_and(|domain| !Rc::ptr_eq(&domain.new_calls, &self.new_calls))
+            || self.source_sums.as_ref().is_some_and(|domain| !Rc::ptr_eq(&domain.new_calls, &self.new_calls))
             || !self.new_calls.retained_provider_sources_match()
             || inventory.registered_owners_v1() != &self.owners
             || inventory.source_vetoed_owners_v1() != self.source_vetoes
@@ -291,6 +314,11 @@ impl OriginalFormalSeedProductV1 {
                 && call.source.same_original_source_v1(&row.incoming.source)
                 && row.seeds.len() == call.arguments.len()
         })
+    }
+
+    pub(super) fn source_value_sum_v1(&self, inventory: &BorrowedIncomingInventoryV1, formal: BindingRefV1) -> Option<&SourceValueSumV1> {
+        self.corroborate_original_v1(inventory).then_some(())?;
+        self.source_sums.as_ref()?.values.get(&formal)
     }
 
     pub(super) fn candidate_integer_agreement_v1(
@@ -458,6 +486,7 @@ pub(super) fn classify_mixed_actual_seed_v1(
     binding: BindingRefV1,
     inventory: &BorrowedIncomingInventoryV1,
     visited: &BTreeSet<BindingRefV1>,
+    source_context: Option<&OriginalActualSourceContextV1<'_>>,
 ) -> Option<OriginalFormalActualSeedV1> {
     let mut rows = inventory.exact_rows().filter_map(|row|
         row.source.instance().and_then(|source| source.mixed_local_source())
@@ -490,7 +519,7 @@ pub(super) fn classify_mixed_actual_seed_v1(
     }
     let anchor = classify_original_actual_seed_with_seen_v1(input, batch, selected, results,
         caller, candidates, receiver, definitions, contracts, argument.site(), None,
-        Some(inventory), visited);
+        Some(inventory), source_context, visited);
     Some(OriginalFormalActualSeedV1::Mixed { source: Box::new(source.clone()), anchor: Box::new(anchor) })
 }
 
@@ -566,5 +595,14 @@ impl PreparedBorrowedFormalIngressV1 {
             return Ok(Some(source));
         }
         Ok(None)
+    }
+}
+
+impl PreparedBorrowedFormalIngressV1 {
+    /// Complete source alternatives on Normal, never entry or execution permission.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_value_sum_v1(
+        &self, formal: BindingRefV1,
+    ) -> Option<&SourceValueSumV1> {
+        self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)
     }
 }

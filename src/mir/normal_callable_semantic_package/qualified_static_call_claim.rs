@@ -209,6 +209,13 @@ impl QualifiedStaticCallClaimIndexV1 {
         self.call_result_rows.get(&(caller.clone(), site.clone())).map(std::sync::Arc::as_ref)
     }
 
+    /// Borrow the SAME retained solver row, including original Core receiver fact.
+    pub(in crate::mir::normal_callable_semantic_package) fn call_result_source_arc_v1(
+        &self, caller: &CanonicalSameModuleCallableKeyV1, site: &SourceExprSiteV1,
+    ) -> Option<&std::sync::Arc<crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1>> {
+        self.call_result_rows.get(&(caller.clone(), site.clone()))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn result_for_key(
         &self,
         key: &CanonicalSameModuleCallableKeyV1,
