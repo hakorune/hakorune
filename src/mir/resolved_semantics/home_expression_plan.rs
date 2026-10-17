@@ -31,6 +31,11 @@ pub(crate) use field_write_expression::QualifiedFieldWriteRhsV1;
 #[path = "home_bool_condition.rs"]
 mod condition;
 pub(crate) use condition::{qualify_bool_condition_v1, CheckedBoolConditionFrameV1};
+#[path = "home_expression_operations.rs"]
+mod operations;
+#[path = "home_argument_expression.rs"]
+mod argument_expression;
+pub(crate) use argument_expression::{qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1};
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
 pub(crate) use evaluation::CheckedExpressionEvaluationV1;
@@ -101,6 +106,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     scalar_operations: Vec<Rc<ExpressionScalarOperationLoanV1>>,
     source_fields: Vec<ExpressionFieldRequirementV1>,
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
+    argument_frame: Option<Rc<CheckedArgumentExpressionFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
     field_write: Option<FieldWritePlanV1>,
     initializer_homes: Option<Rc<[crate::mir::resolved_semantics::BindingRefV1]>>,
@@ -143,7 +149,7 @@ impl HomeExpressionPlanV1 {
             source,
             scalar_operations: vec![loan],
             source_fields: Vec::new(),
-            print_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+            print_frame: None, argument_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
         })
     }
     /// Whole initializer preflight supplies value-class proof separately. This
@@ -155,7 +161,7 @@ impl HomeExpressionPlanV1 {
         if source.has_opaque_obligations() || source.root().initializer().is_none() { return None; }
         let mut plan = prepared.unwrap_or_else(|| Self {
             source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-            print_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+            print_frame: None, argument_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
         });
         if !Rc::ptr_eq(&plan.source, &source) || plan.initializer_homes.is_some() { return None; }
         plan.initializer_homes = Some(Rc::from(homes));
@@ -171,6 +177,7 @@ impl HomeExpressionPlanV1 {
         let mut seen = std::collections::BTreeSet::new();
         let prior_homes: Rc<[_]> = self.initializer_homes.clone().unwrap_or_else(|| Rc::from(
             self.print_frame().map(|frame| frame.prior_homes())
+                .or_else(|| self.argument_frame().map(|frame| frame.prior_homes()))
                 .or_else(|| self.condition_frame().map(|frame| frame.prior_homes()))
                 .or_else(|| self.field_write_frame().map(|frame| frame.prior_homes())).unwrap_or(&[])));
         let mut fields = Vec::with_capacity(requests.len());
@@ -184,7 +191,8 @@ impl HomeExpressionPlanV1 {
         }
         let original: std::collections::BTreeSet<_> = self.source.nodes().iter().enumerate()
             .filter(|(index, _)| self.print_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
-                && self.condition_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index)))
+                && self.condition_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
+                && self.argument_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index)))
             .filter_map(|(index, node)| matches!(node.source(), ExpressionNodeSourceV1::Shape(
                 crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })).then_some(index))
             .collect();
@@ -202,6 +210,7 @@ impl HomeExpressionPlanV1 {
     pub(crate) fn borrowed_field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> {
         self.field_write_frame().filter(|frame| frame.is_borrowed())
     }
+    pub(crate) fn argument_frame(&self) -> Option<&Rc<CheckedArgumentExpressionFrameV1>> { self.argument_frame.as_ref() }
     pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> { self.condition_frame.as_ref() }
     pub(crate) fn print_frame(&self) -> Option<&Rc<CheckedPrintExpressionFrameV1>> { self.print_frame.as_ref() }
     pub(crate) fn source_fields(&self) -> &[ExpressionFieldRequirementV1] { &self.source_fields }
@@ -215,7 +224,7 @@ impl HomeExpressionPlanV1 {
     }
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
-        [self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some(), self.initializer_homes.is_some()]
+        [self.argument_frame.is_some(), self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some(), self.initializer_homes.is_some()]
             .into_iter().filter(|present| *present).count() <= 1
             && self.initializer_homes.as_ref().is_none_or(|homes| self.source.root().initializer().is_some()
                 && homes.iter().all(|home| home.owner() == self.source.owner())
@@ -227,6 +236,7 @@ impl HomeExpressionPlanV1 {
                     _ => false,
                 })
             && self.condition_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.argument_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source) && Rc::ptr_eq(frame.core().plan(), &self.source))
             && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.source_fields.iter().all(|field| Rc::ptr_eq(&self.source, field.plan()) && field.is_consistent())
             && self.scalar_operations.iter().all(|loan| {
@@ -260,6 +270,11 @@ impl super::RootHomeFlow {
             || match (original.print_frame(), refined.print_frame()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
+                _ => true,
+            }
+            || match (original.argument_frame(), refined.argument_frame()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
                 _ => true,
             }
             || match (original.condition_frame(), refined.condition_frame()) {

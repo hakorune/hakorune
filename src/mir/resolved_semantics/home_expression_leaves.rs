@@ -9,7 +9,7 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition }
+pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument }
 
 pub(super) struct QualifiedExpressionLeavesV1 {
     pub(super) classes: Vec<Leaf>,
@@ -22,6 +22,7 @@ pub(super) struct QualifiedExpressionLeavesV1 {
 pub(super) fn qualify_expression_leaves_v1<E>(
     source: &Rc<ExpressionSourcePlanV1>,
     profile: ExpressionLeafProfileV1,
+    seeded: &BTreeMap<usize, Leaf>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
     prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
     order: &[usize],
@@ -30,6 +31,10 @@ pub(super) fn qualify_expression_leaves_v1<E>(
 ) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
     let statement = source.root().statement();
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
+    for (index, class) in seeded {
+        let Some(leaf) = leaves.get_mut(*index) else { return Ok(None) };
+        *leaf = *class;
+    }
     let mut transferred = BTreeSet::new();
     let mut calls = BTreeMap::new();
     let mut references = BTreeMap::new();
@@ -37,7 +42,7 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     // Those exact argument subtrees remain owned by the call/input recipe;
     // the enclosing frame must not emit them or acquire their owners twice.
     for (index, node) in source.nodes().iter().enumerate() {
-        if transferred.contains(&index) || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall) { continue; }
+        if transferred.contains(&index) || seeded.contains_key(&index) || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall) { continue; }
         let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
         let Some(call) = source_call(&site)? else { return Ok(None) };
         let Some(loan) = call.borrowed_scalar() else { return Ok(None) };
@@ -90,13 +95,13 @@ pub(super) fn qualify_expression_leaves_v1<E>(
         match node.source() {
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
-                if profile == ExpressionLeafProfileV1::Print => {},
+                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::Argument) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
                 if profile == ExpressionLeafProfileV1::BoolCondition => {},
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),
             ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {},
             ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
-                if profile == ExpressionLeafProfileV1::BoolCondition && leaves[index] != Leaf::Identity => {
+                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument) && leaves[index] == Leaf::Unresolved => {
                 let Some((original, kind)) = scalar_reference(node.site()) else { return Ok(None) };
                 if original != *binding || binding.owner() != source.owner() { return Ok(None); }
                 leaves[index] = Leaf::Value(match kind {

@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0
 
-Status: active; original-source preparation verified; full series unaccepted.
+Status: active; source and covered argument qualification verified; full series unaccepted.
 Date: 2026-10-17
 Scope: required Gate1 source Text generation -> ordinary static borrowed input,
 including original incoming/entry, arguments/results, cleanup and publication.
@@ -50,60 +50,55 @@ use their own owners; no fake Loop membership or alternate substring evaluator.
 Read-only worker is reusing the top-down consumer mapping below. Extend the
 bounded implementation path list before building the next physical connection.
 
-V865 verified source-purpose connection: existing actual Observe carries its SAME
-resolved input. The existing expression_plan builder issues CallArgument roots
-with canonical outer method Arc, ordinal, argument site and nearest REGISTERED
-statement ancestor from SourceSiteInventory paths (no AST or fabricated path).
-This is source topology only, including unobserved staging; no Prefix/Home/eval
-permission is inferred. Static core actual identity retains the resulting Rc
-plan beside its SAME ordinary Core receipt. First observation issues once;
-re-observation validates original source and reuses the previous Rc, preserving
-strict repeated-walk-drift. Static projection checks exact plan/Core membership
-before retaining the existing execution-pending fence. No new global registry.
-Paths: expression_plan and existing child/source tests; source_site_inventory;
-actual Observe port + existing Home sender sites; existing lexical actual callback,
-static_source_actuals + small source-plan child, its existing Core tests/reexports;
-resolved-value-profile and semantic-package READMEs because their source contracts
-change; resolved-semantics README also changes because Observe/source topology
-now exposes that contract; this card. Positive/negative source correspondence, missing/foreign/extra
-plan and repeated-observation cases extend existing owners. Source purpose is a
-required SAME-series dependency, not a replacement for the real covered Prefix
-argument frame, current signed Loop After, evaluation/entry/cleanup/publication.
+V865/V866 source preparation is now connected by V867 to the real covered Prefix.
+CallArgument roots retain the SAME canonical outer method Arc, exact ordinal/arg
+site and nearest REGISTERED statement (source topology, not Home authority).
+Original plan/Core Rc identity is retained through Observe/re-observation and
+one shared complete SourceStatic validator; equal reissues, map/ordinal drift
+and selected missing evidence refuse. Core cache is demand-derived, not all-Core.
 
-Next physical construction mapping, from the reused read-only source worker:
-the existing actual callback should lend ArgumentExpressionSource(ordinal) from
-pending SourceStatic as SAME argument-plan Rc plus ordinary-Core-receipt Rc.
-Recheck exact source/candidate/ordinal correspondence; a Core candidate with
-missing evidence is Refused, not None followed by an old route. No source plan
-is reissued by that lender. The covered Prefix producer demands this loan just
-after original actual observation, compares the real LocatedStmt and prefix_known,
-and uses current locals/Homes for shared leaf/body qualification -> existing
-HomeExpressionPlan atomic field batch/installation. Unobserved staging never
-issues this frame. Text source needs a current receiver/entry-read basis without
-inventing a Home; signed source SUM needs current bound evaluation proof. Mutable
-scan end requires its own Loop Facts/Recipe/JoinSig After, not Mul-only membership.
-Core receiver/bounds evaluate in the common postorder, never as fake scalar Call
-transferred inputs. Keep the pending fence until these frames, entry, ordered
-acquisition cleanup and both final publication consumers close in this series.
+V867 actual statement/Return and local-initializer Observe share one helper.
+Only the real LocatedStmt with prefix_known/current locals/Homes may qualify a
+complete argument-purpose Home wrapper. It retains SAME Core + shared V864 body,
+exact current scalar refs and required Text entry reads. Root Core receiver/bounds
+stay in original postorder, not fake scalar-Call transferred inputs. Each child
+needs its own original proof/current state. Existing Add envelope construction
+is shared with Print without changing Print's accepted operations or cleanup.
 
-V866 source-loan construction (focused verification passed): extract the existing full SourceStatic
-correspondence check once into its existing argument-source child, then lend the
-SAME original plan/Core Rc through ArgumentExpressionSource(ordinal). Private
-loan fields and Rc equality preserve identity without reconstructing a plan.
-No execution-fence catch/retry and no current read/entry rights. Reuse the
-existing Core actual matrix for exact loans/reloans, absent/error/ordinal cases,
-map drift, equal reissued Core receipt and candidate/integer-evidence drift.
-Paths: static_source_actuals/argument_source, existing Core test, existing actuals
-and lexical/coseal/package reexports, Home actual port and callback; existing
-Home local_call_flow/arguments explicitly reject source-loan responses in their
-scalar/Static consumers (no source-to-execution promotion); package
-README and this card. The already804-line actuals parent must also return below
-its800 hard limit: its guarded Instance revalidation function moves unchanged
-into its existing instance_input_finish owner, preserving its original reexport
-and callers. This is placement only, no Instance contract or route change.
-Immediate same-series successor is the real covered Prefix qualifier; this loan
-port is preparation and must not become another permanent unused source API.
-No full Text/evaluation/entry/cleanup/publication or product claim.
+Borrowed-formal-entry owner issues mandatory Text read requirements from SAME
+closed Text Core and original OpaqueHandle caller parameter. Requirements retain
+SAME source-plan Rc/read node/site and formal/declaration coordinates; Argument
+wrapper retains Core, keeping entry payload purpose-neutral. Plan alone is never
+Text proof. Prefix and qualifier both check exact current read/root. Declared
+objects remain0/3; ExactText/Map/unrelated handles do not become descriptor4.
+Scalar refs require original closed signed operand premise plus current Integer
+availability, not MIR Integer/usize or source class alone. Missing proof produces
+no partial frame. Only approve -> final strict field batch -> commit publishes
+into existing Home inventory; no second registry/walk or PreparedArgumentFrame.
+The frame's Core result is an acquisition TEMPLATE; only physical Normal owns it.
+
+Root867F239 cases227 PASS/SAME12 baseline versus43e8418b15; new callback test
+covers complete real Prefix and six negative boundaries. It exercises the actual
+production callback, reusing its existing test owner. Read-only source/current-
+entry workers confirmed child completeness and transaction behavior; they also
+found/closed the declared-object entry loophole and normalized the payload.
+Frame-held calls/acquisition still need mandatory lifecycle publication, entry,
+ordered Normal/Fault, both final scans and named JSON/C. Keep execution-pending.
+This is covered semantic qualification, not completed Text execution or series.
+
+Next REAL Prefix prerequisite is intField Body0 Text Add initializer, before
+Body6 scan Loop/After. Source trace found that initializer marks the prefix
+uncovered, so scan After alone cannot enable Body7's frame. Connect its original
+Text result/current local and lifetime through the same expression/evaluation
+owner, without object-Home disguise; then pos/start/n and the complete scan
+Loop/Facts/Recipe/JoinSig After. Mapping and negative exit obligations remain
+below. This does not reopen parked untyped storage/ExactText or change the goal.
+
+V867 paths: existing Home plan/leaves/purpose children + one argument-purpose
+child, existing statement/local Observe helper/scan + small covered connector,
+existing source port/callback/static argument child, entry owner + small Text
+requirement child/reexports, existing callback-port test, semantic/resolved owner
+READMEs and this card. No `.hako`, new fixture/proof directory, guard or test owner.
 
 Completed preparation decisions and their full evidence live in their commits:
 V8587b1f4f5f32 canonical Core Arc; V859b554b33626 conditional source premises;
@@ -626,67 +621,93 @@ records/pins and matching backend/baseline until full-series acceptance; A binar
 removed262,796,624 bytes, diagnostics retained, no adapter. No current CI/suite
 or full Text/goal acceptance.
 
-### Original argument source loan (V866, verified preparation)
+### Original argument source loan (V866)
 
-Existing SourceStatic projection and lender now share the same complete tuple
-validator, in the same order with the same diagnostics. The callback exposes a
-private-field loan of the SAME plan/Core Rc; it reissues neither source product.
-Invalid ordinal, absent observation, retained Err and all map/receipt/candidate/
-integer-evidence mutations refuse. Existing scalar/Static consumers explicitly
-reject this source response, retaining their previous absent-response behavior.
-No source-to-execution conversion, evaluation/current read/entry permission or
-execution-fence catch/retry. This source port has no covered Prefix producer yet;
-connect it in the immediate successor, not a permanent disconnected API.
+Durable implementation/validation:43e8418b15. Existing full SourceStatic check
+is one shared validator; callback loans SAME plan/Core Rc, private fields and
+identity equality, without an executable projection catch/retry. Missing/error/
+ordinal/map/reissued receipt/candidate/I64 identity boundaries covered. Oversized
+actuals parent moved its unchanged Instance revalidation to its existing owner.
+Root866C238 cases226 PASS/SAME12 baseline; CLI203/app231 SAME pending frontier;
+all guards PASS. That commit retains full commands/hashes/timings and A/B enum-
+consumer build corrections. Keep C/CLI203/app231 records/pins/backend/baseline
+until full-series acceptance. No adapter. V867 above now supplies the production
+covered Prefix requester; later lifetime/entry/publication still open.
 
-The already804-line actuals parent now reexports its unchanged guarded Instance
-revalidation from existing instance_input_finish (body byte parity PASS), moving
-that existing responsibility out of the oversized parent, now783 lines. All
-existing callers and Instance semantics stay the same. No new guard/test owner.
-Read-only worker found no new source-authority or projection-parity defect.
+### Covered argument qualification (V867, verified source/Home connection)
 
-Root866A51.569851s/B50.338260s failed only at the new enum response's three
-exhaustive consumers (A3 missing arms, B1 remaining); no successful A/B binary,
-no test claim for those builds. Root866C build PASS102.064440s. SAME25 nonempty
-filters238 distinct cases226 PASS/SAME12 failure identities and diagnostics
-versusfb8a780b5c, normalizing only thread IDs/unordered plugin Debug map order.
-Existing Core actual matrix now verifies exact loan/reloan, absent/error/ordinal,
-missing/extra maps, equal reissued Core receipt, candidate ordinal and false-I64
-identity boundaries; passive require_executable/projection refusals remain.
-Original source-result22, Print4/String1/projection4/installation1 and Core/Array
-regressions retain their prior results. No new fixture/proof directory/test owner.
+Existing real statement/local-initializer actual Observe now calls the argument
+qualifier from the same LocatedStmt/current locals/Homes, only when prefix_known.
+The final purpose wrapper retains the SAME Core loan and shared evaluation body,
+current scalar references and mandatory Text read requirements. Root Core does
+not transfer away receiver/bounds; all children remain original postorder.
+Print's existing Add-envelope loop is now one shared helper, with its old policy.
+Home inventory consistency/refinement/field census retain the new purpose's Rc.
 
-The reused top-down Prefix review selects Observe immediately followed by the
-ordinal source-loan request at the real LocatedStmt, current locals/Homes and
-prefix_known. Share this helper with the existing local-initializer Observe loop;
-do not add another walk/registry. Only a completed argument-purpose wrapper may
-enter existing HomeExpressionPlan approve -> field batch -> commit and shared
-V864 evaluation body. Do NOT create PreparedArgumentFrame or partially checked
-evaluation bodies. Text formal needs a genuine descriptor entry-read requirement;
-signed operands need SAME closed Core premise plus exact current availability,
-and mutable scan end needs real complete Loop After. Until those requirements
-close, keep the original source loan and existing execution-pending boundary.
-Full Text arguments/entry/result/cleanup/both publication consumers remain open.
+Text read requirement is in the existing entry owner and stores SAME source-plan
+Rc/read node/site plus original formal binding/ordinal/declaration coordinates.
+Its issuer still demands the SAME closed Core Text source and OpaqueHandle;
+Argument frame owns Core, so the entry payload does not depend on that purpose.
+Current Prefix root and exact read are checked before request AND by qualifier.
+This normalizes the base requirement for later initializer use without a proof
+enum or duplicate registry. Each future issuer must prove its own Text source.
+Read-only workers confirmed child completeness/atomicity and recommended this
+source/entry separation; DeclaredObject0/3 stays refused, never tag4 by class guess.
+No physical entry/read/descriptor/cleanup or execution-fence removal is claimed.
 
-CLI203 build PASS185.278099s; compiled source manifests match Root866C and
-current sources. CLI SHA2a3139b3a7da6006eefb48144251e08a6cc81c02e47651f1f3f61021ffecd02e.
-Unchanged json app231 canonical direct EXE0.114401s exits1/no artifact at SAME
+Root867A82.783563s failed only at six scope imports and one copied Parameter-index
+deref. B83.048258s failed at new test string escaping/scope names. C82.179290s had
+two new-test private inventory accesses; D55.108351s had one private executable
+checker use. These test adapters were corrected to use the actual callback and
+original resolver call site; private production visibility was not broadened.
+E build PASS110.115634s; new real covered-Prefix matrix1 PASS, seven variants:
+normal, uncovered, receiver/start unavailable, field-batch refusal, substituted
+formal root, and declared-object contract. Only normal publishes one frame;
+only normal/final-batch-refusal reach that batch; absent capability publishes no
+partial frame. Existing Core tests retain independent execution-pending checks.
+Final F normalizes the entry requirement payload as above. Root867F build PASS
+69.015448s,26 nonempty filters239 distinct cases227 PASS/SAME12 failure identities
+and diagnostics versus43e8418b15 (only thread IDs/plugin Debug map order normalized).
+Source-result22, Print4/String1/projection4/installation1, Core/Array/source/legacy
+families preserve their prior results; new real Prefix matrix PASS. Focused run
+8.302085s is separate from build. Superseded E binary removed263,517,528 bytes;
+E source/build/focused records remain, F pin retained. Root/layer/thin/pointer/
+diff guards PASS. CLI204 build PASS198.963163s; RootF/CLI/current compiled-source
+manifests match. CLI SHA6ec9b07aaa329ee4a1613d269448cca8a1197844be23db45943d62167ae90d7a.
+Unchanged json app232 canonical direct EXE0.114089s exits1/no artifact at SAME
 compilation1/slot20/Body7/Value core-expression-execution-pending; exact stderr
-matches app229. No frontier advance or executable Text/product claim. The source
-loan port still has no covered Prefix producer; next work must connect that real
-producer and current read/entry proof, rather than another source-only API.
-Canonical --grammar-profile canonical --backend mir --emit-exe OUT
---emit-exe-nyrt runtime808b SOURCE, FFI831e/runtime808b hashes unchanged,
+matches app231. Actual frontier does not advance: semantic frame availability
+now depends on genuine Prefix coverage, and Body0 Text initialization remains.
+Unchanged mimalloc app233 canonical EXE PASS136.965173s; native0.001660s,
+original7-line stdout EXACT/exit0 and only original plugin-disabled stderr warning
+matches app230. EXE SHA5991ac3562ffbb1da97a45e6e5e9fac8278da0be462c36358471d24d9a56e07c.
+Exact canonical --grammar-profile canonical --backend mir --emit-exe OUT
+--emit-exe-nyrt runtime808b SOURCE, matching FFI831e/runtime808b hashes,
 pure-first/no compat replay/plugins disabled/16MiB stack; no `.hako` changes.
-Focused execution8.315095s is separate from builds. Native mimalloc was not rerun:
-this preserves source projection behavior and adds no execution/entry admission;
-its latest unchanged native evidence remains fb8a780b5c/app230, not a current-run
-claim. Root/layer/thin/pointer/diff guards PASS after final compiled changes.
+No current full-suite/performance claim. GitHub query still has only historical
+failed35681768498/d4168473d5 as latest branch run, not current-head CI evidence.
+Keep Root867F/CLI204/app232-233 source/build/focused/native logs, manifests,
+receipts and pins plus matched backend/prior baseline until full-series acceptance.
+A-D have no successful binary; E weaker binary retired, all diagnostic records
+retained. No temporary adapter or new guard/test owner exists. Print's former
+inline Add loop is replaced by the shared owner. The previously disconnected
+V866 loan port now has the actual covered Prefix requester; shared transport/
+whole-entry/physical evaluator/cleanup/publication are not replaced by this Home
+qualification and stay explicitly unfinished. Full series and goal remain open.
 
-Keep Root866C/CLI203/app231 logs/manifests/receipts/pins and matched backend/prior
-baseline evidence until full-series acceptance. A/B diagnostics remain explanatory
-records only, with no successful binary or acceptance to retire. No temporary
-adapter exists. Old inline correspondence checks are replaced by the single
-shared validator in the existing argument-source owner; shared transport and
-its execution-pending refusal remain. V862/V865 completed history compressed to
-their implementation commits above. No current CI/full-suite/performance claim;
-goal and full Text evaluation/entry/lifetime/publication series stay active/open.
+Next real-source prerequisite CORRECTION from read-only original-source trace,
+not a fresh measured runtime observation: intField Body0 creates needle with
+`local needle = "\"" + key + "\":"`. The current scan has no Text Add initializer
+installation. Scalar preflight cannot classify Handle key as Integer, so the
+existing initializer tail installs inventoried/unknown and marks Body0 uncovered.
+Body6 scan Loop and Body7 argument therefore see an already unknown prefix;
+loop_prestate callback itself requires a covered prefix. Adding scan After alone
+cannot make this argument's Prefix covered. First connect original Text
+initializer/current local through SAME expression plan, existing selected Add
+envelopes and shared evaluator/lifetime owner; do not disguise Text as object
+Home. Subsequent pos/start/n require original Calls/StringLen and current scalar
+state. Then the real scan Loop must close entry/zero/false/backedge/break/update
+and substring temporary Normal/Fault, through retained Loop Facts/Recipe and
+JoinSig's root carrier closure, into complete After. Existing Mul two-carrier,
+NoExitArray no-break and S6C membership cannot be borrowed. This refines the same
+series, without selecting a parked lane or claiming a changed actual first-stop.

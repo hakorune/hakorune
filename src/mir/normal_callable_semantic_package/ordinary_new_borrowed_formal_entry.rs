@@ -787,3 +787,8 @@ mod incoming_kind_tests;
 mod static_packet_entry;
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use owner_view::original_borrowed_instance_input_completion_needed_v1;
+
+#[path = "ordinary_new_borrowed_text_entry_read.rs"]
+mod text_read;
+pub(crate) use text_read::BorrowedTextEntryReadRequirementV1;
+pub(in crate::mir::normal_callable_semantic_package) use text_read::issue_text_entry_read_requirement_v1;

@@ -2,10 +2,6 @@
 //! No physical IDs, runtime tokens or independent call inventory are issued.
 use super::*;
 use super::super::{LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1};
-use crate::mir::dynamic_operator_contract::{
-    issue_dynamic_operator_execution_envelope_v1, DynamicOperatorDomainV1,
-    DynamicOperatorFamilyV1, DynamicOperatorNormalResultV1, DynamicOperatorValueClassV1,
-};
 use crate::mir::resolved_value_profile::{
     expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
     expression_class::ExpressionValueClassV1,
@@ -63,40 +59,19 @@ pub(crate) fn qualify_print_expression_v1<E>(
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
 
     let Some(leaves) = super::leaves::qualify_expression_leaves_v1(
-        &source, super::leaves::ExpressionLeafProfileV1::Print, &mut |_| None,
+        &source, super::leaves::ExpressionLeafProfileV1::Print, &std::collections::BTreeMap::new(), &mut |_| None,
         prior_homes, &order, field_request, source_call,
     )? else { return Ok(None) };
     let super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, .. } = leaves;
     if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) { return Ok(None); }
-    let mut operations = Vec::new();
-    let mut owned_results = Vec::new();
-    let class_domain = |class| match class {
-        Leaf::Value(Class::I64) => Some(DynamicOperatorValueClassV1::NormalInteger),
-        Leaf::Value(Class::String) => Some(DynamicOperatorValueClassV1::String),
-        _ => None,
-    };
-    for &index in &order {
-        if transferred.contains(&index) { continue; }
-        let Some(binary) = source.nodes()[index].binary() else { continue };
-        let family = match binary.operator() {
-            ResolvedBinaryOperatorV1::Add => DynamicOperatorFamilyV1::Add,
-            _ => return Ok(None),
-        };
-        let operand = |site| source.nodes().iter().position(|node| node.site() == site)
-            .and_then(|index| class_domain(classes[index]));
-        let (Some(lhs), Some(rhs)) = (operand(binary.lhs()), operand(binary.rhs())) else { return Ok(None) };
-        let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(family, lhs, rhs))
-            else { return Ok(None) };
-        if envelope.normal_result() == DynamicOperatorNormalResultV1::OwnedStringValue { owned_results.push(index); }
-        operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, envelope }));
-    }
+    let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     let frame = Rc::new(CheckedPrintExpressionFrameV1 { evaluation: CheckedExpressionEvaluationV1 {
         source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(),
         calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
         owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred,
     } });
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None, print_frame: Some(frame), condition_frame: None, field_write: None,
+        source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None, argument_frame: None, print_frame: Some(frame), condition_frame: None, field_write: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }

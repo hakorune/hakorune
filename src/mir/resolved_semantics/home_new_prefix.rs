@@ -157,7 +157,7 @@ impl ResultNewHomePrefixV1 {
 
 #[path = "home_expression_plan.rs"]
 mod expression_plan;
-pub(crate) use expression_plan::{CheckedExpressionEvaluationV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
+pub(crate) use expression_plan::{qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
@@ -269,6 +269,10 @@ mod scan;
 mod mixed_call;
 #[path = "home_new_prefix_condition.rs"]
 mod condition;
+#[path = "home_new_prefix_argument_expression.rs"]
+mod argument_expression;
+#[cfg(test)]
+pub(crate) use argument_expression::observe_for_test as observe_argument_expression_for_test;
 #[path = "home_new_prefix_print.rs"]
 mod print;
 #[path = "home_new_prefix_search_loop.rs"]

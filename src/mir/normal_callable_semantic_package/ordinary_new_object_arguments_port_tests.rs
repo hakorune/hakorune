@@ -337,3 +337,74 @@ fn stored_nullable_source_branch_retains_exact_return_operand_and_root() {
             .unwrap();
     }
 }
+
+
+#[test]
+fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        r#"static box Values { sink(p) { return 0 } caller(line, spare, start: i64, end: i64) { return Values.sink(line.substring(start, end)) } seed() { return Values.caller("text", "other", 0, 1) } } static box Main { main() { return 0 } }"#,
+        crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+    ).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let source = ledger.borrowed_formal_source.as_ref().unwrap();
+    let ingress = source.as_ref().unwrap();
+    let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 4).unwrap();
+    package.batch().with_lowering_input(contract.batch_slot, |input| {
+        let body = input.source().root_body().unwrap();
+        let statement = input.source().body_stmt(&body, 0).unwrap();
+        let call_site = input.function().method_calls().find(|(_, call)| call.selector() == "sink")
+            .map(|(site, _)| OwnedExprSiteV1::new(input.owner(), site.clone())).unwrap();
+        for mutation in 0..7 {
+            let mut contracts = crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test(&package.parameter_contracts);
+            if mutation == 6 {
+                contracts.iter_mut().find(|row| row.owner == input.owner()).unwrap().parameters[0].kind =
+                    crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject("Token".into());
+            }
+            let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+            let mut pending = BTreeMap::new();
+            let mut batches = 0;
+            let mut source_requests = 0;
+            let result = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
+                input, &statement, parameters, mutation != 1,
+                match mutation { 2 => Some(contract.parameters[0].binding), 3 => Some(contract.parameters[2].binding), _ => None },
+                &mut |requests, _| -> Result<_, OrdinaryNewCoSealIssueV1> {
+                    batches += 1;
+                    assert!(requests.is_empty());
+                    Ok((mutation != 4).then(Vec::new))
+                },
+                &mut |site, request| {
+                    if matches!(request, BorrowedCallActualRequestV1::ArgumentExpressionSource(..)) { source_requests += 1; }
+                    let request = if let BorrowedCallActualRequestV1::ArgumentTextEntryRead { source, read, binding, root } = request {
+                        BorrowedCallActualRequestV1::ArgumentTextEntryRead { source, read, binding,
+                            root: if mutation == 5 { contract.parameters[1].binding } else { root } }
+                    } else { request };
+                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
+                        &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)
+                },
+            );
+            if mutation == 6 {
+                assert!(format!("{:?}", result.unwrap_err()).contains("borrowed-text-entry/source-identity"));
+                assert_eq!(batches, 0);
+                continue;
+            }
+            let frames = result.unwrap();
+            assert_eq!(frames.len(), usize::from(mutation == 0), "complete current frame only: {mutation}");
+            assert_eq!(batches, usize::from(mutation == 0 || mutation == 4), "no partial field commit: {mutation}");
+            if mutation == 1 { assert_eq!(source_requests, 0, "uncovered staging cannot request a current frame"); }
+            if let Some(plan) = frames.first() {
+                let frame = plan.argument_frame().unwrap();
+                assert!(Rc::ptr_eq(plan.source(), frame.core().plan()));
+                assert_eq!(frame.references().len(), 2);
+                assert_eq!(frame.text_reads().len(), 1);
+                assert_eq!(frame.text_reads()[0].formal(), (0, contract.parameters[0].binding));
+                assert_eq!(frame.evaluation().owned_result_nodes(), [0]);
+                assert_eq!(frame.evaluation().ordered_nodes().last(), Some(&0));
+                assert!(frame.evaluation().ordered_nodes().iter().all(|node| !frame.transfers_node(*node)), "Core receiver/bounds remain in source postorder");
+                let source_loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_argument_expression_source_v1(ingress, &pending, &call_site, 0).unwrap().unwrap();
+                assert_eq!(frame.core(), &source_loan);
+                // Existing Core actual tests retain the independent execution-pending checks.
+            }
+        }
+    }).unwrap();
+}

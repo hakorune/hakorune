@@ -84,6 +84,19 @@ impl PartialEq for ArgumentExpressionSourceLoanV1 {
 impl Eq for ArgumentExpressionSourceLoanV1 {}
 impl ArgumentExpressionSourceLoanV1 {
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
+    /// SAME closed operand premise at an exact original node. This is source
+    /// class evidence only and must be joined with current Prefix availability.
+    pub(crate) fn signed_operand_contains(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
+        self.plan.nodes().iter().any(|node| node.site() == site)
+            && self.resolver_source().source().arguments().iter().zip(self.resolver_source().target().parameters())
+                .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
+                    && site.node().segments().starts_with(arg.site().node().segments()))
+    }
+    pub(crate) fn text_operand_is(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
+        site == self.resolver_source().source().receiver_site()
+            || self.resolver_source().source().arguments().iter().zip(self.resolver_source().target().parameters())
+                .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
+    }
     pub(crate) fn resolver_source(&self) -> &crate::mir::resolved_semantics::VerifiedResolverOrdinaryCoreMethodSourceV1 {
         self.core.source()
     }
@@ -194,4 +207,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
     let core = identity.core_arguments.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
     let plan = identity.argument_sources.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
     Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), core: Rc::clone(core) }))
+}
+
+/// The covered observer may ask about any actual. Only the SAME closed original
+/// Text Core selects this responsibility; selected candidates then lend strictly.
+pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, prepared: &PreparedBorrowedFormalIngressV1,
+    pending: &PendingBorrowedFormalActualsV1, site: &OwnedExprSiteV1, ordinal: u32,
+) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
+    if input.owner() != site.owner() { return Err(freeze("borrowed-static/core-source-identity")); }
+    let Some(call) = input.function().method_call_source_v1(site.site()) else { return Ok(None) };
+    let Some(arg) = call.arguments().get(ordinal as usize).filter(|arg| arg.ordinal() == ordinal) else { return Ok(None) };
+    let Some(core) = prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(site.owner(), arg.site().clone())) else { return Ok(None) };
+    if core.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller { return Ok(None); }
+    if !input.function().method_call_source_v1(arg.site()).is_some_and(|method| std::sync::Arc::ptr_eq(method, core.source().source())) {
+        return Err(freeze("borrowed-static/core-source-identity"));
+    }
+    lend_argument_expression_source_v1(prepared, pending, site, ordinal)
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, pending: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1], site: &OwnedExprSiteV1,
+    loan: &ArgumentExpressionSourceLoanV1, read: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    binding: BindingRefV1, root: BindingRefV1,
+) -> Result<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1, String> {
+    let ExpressionPlanRootV1::CallArgument { ordinal, call, .. } = loan.plan().root() else {
+        return Err(freeze("borrowed-text-entry/source-identity"));
+    };
+    if call.site() != site.site() || loan.plan().owner() != site.owner()
+        || lend_argument_expression_source_v1(prepared, pending, site, *ordinal)?.as_ref() != Some(loan) {
+        return Err(freeze("borrowed-text-entry/source-identity"));
+    }
+    super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan, read, binding, root)
 }

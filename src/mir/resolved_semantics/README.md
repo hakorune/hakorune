@@ -1610,3 +1610,17 @@ Prefix is uncovered. SourceSiteInventory can lend the nearest registered
 statement ancestor for a member expression using its authoritative paths. This
 is source-purpose topology only: it does not supply a covered LocatedStmt,
 current locals/Homes, a Loop product or evaluation permission.
+
+### Covered ordinary argument expressions
+
+The real prefix observer now connects original argument-source loans after the
+same ordered actual Observe for Return/statement calls and local initializers.
+Uncovered staging never qualifies a frame. The argument purpose wraps the shared
+checked expression body in the existing Home inventory, retaining original Core,
+exact current scalar references and mandatory borrowed Text entry-read requirements.
+Core receiver/arguments stay in postorder rather than becoming transferred scalar
+call inputs. Whole-child source coverage, current roots/values, unique Homes,
+source/frame identity and the final field batch precede publication. Missing proof
+publishes no partial wrapper. Entry requirements do not supply physical descriptors
+or cleanup; the source execution fence remains until those owners and both final
+consumers close. Existing Print/condition purposes retain their prior restrictions.

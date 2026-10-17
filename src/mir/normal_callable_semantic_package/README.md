@@ -4550,3 +4550,36 @@ unselected by this source-only request. The lender does not call an executable
 projection and catch its execution-pending refusal. It issues no Prefix/current
 read, Text descriptor, signed-I64 evaluation or cleanup permission; those must
 come from the genuine covered Prefix and downstream physical owners.
+
+Covered argument qualification now consumes this source loan directly after the
+real statement/local-initializer actual Observe, before binding installation.
+The source callback selects only an original closed Text Core; unrelated actuals
+keep their existing owner. A selected source then lends strictly from pending
+identity, never from a reconstructed plan or a captured executable refusal.
+
+The existing borrowed-formal-entry owner issues mandatory Text entry-read
+requirements for original OpaqueHandle formals only. A requirement retains the
+same expression-plan Rc/read node, exact binding/formal/ordinal and original declaration
+batch/mode/kind. Prefix checks the current self-rooted Parameter value and the
+argument qualifier checks that tuple again. Declared objects remain object0/3;
+ExactText, Map, and unrelated handle contracts do not become borrowed Text.
+Requirements are source/current-state obligations, not installed descriptors,
+physical reads, ownership or End rights. Finished entry, all incoming/use rows,
+physical carrier/read and both final publication consumers must fulfil them.
+
+The complete argument-purpose Home wrapper shares the existing checked expression
+body. Core receiver/bounds remain in original postorder. Scalar leaves require
+both that closed Core's signed operand premise and exact current Integer local;
+unknown child calls/current values refuse the whole frame. Only an approved
+complete wrapper and successful final atomic field batch enter the existing
+inventory. No intermediate/pending frame or second registry exists. Text ABI,
+Core physical invocation, ordered acquisition cleanup, mandatory lifecycle calls
+and both final scans remain required before removing execution-pending.
+
+The Text entry requirement payload is purpose-neutral: it retains the source-plan
+Rc and original read/formal coordinates. Its current issuer still validates the
+argument Core's closed Text operand; a plan alone is never a Text proof. The
+argument frame retains that Core loan, and its qualifier joins the requirement's
+SAME plan Rc/node to the exact current root. Other expression purposes must prove
+their own Text source at issuance; no Core/argument-specific proof enum or second
+entry registry is needed.

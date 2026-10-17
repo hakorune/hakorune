@@ -6,7 +6,7 @@ use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafCla
 use std::collections::BTreeSet;
 
 /// Templates for source-node acquisitions, not already acquired runtime owners.
-/// Only checked Add Normal may acquire an owned String at one of these nodes.
+/// Only the matching checked operation Normal may acquire an owned String.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedExpressionEvaluationV1 {
     pub(super) source: Rc<ExpressionSourcePlanV1>,
