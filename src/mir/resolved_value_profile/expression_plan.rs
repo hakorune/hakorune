@@ -22,6 +22,11 @@ use crate::mir::resolved_semantics::{
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum ExpressionPlanRootV1 {
+    CallArgument {
+        statement: SourceStmtSiteV1,
+        call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+        ordinal: u32,
+    },
     LocalInitializer {
         statement: SourceStmtSiteV1,
         initializer: ResolvedInitializerRelationV1,
@@ -44,7 +49,7 @@ pub(crate) enum ExpressionPlanRootV1 {
 impl ExpressionPlanRootV1 {
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
-            Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }
+            Self::CallArgument { statement, .. } | Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }
             | Self::IfCondition { statement, .. } => {
                 statement
             }
@@ -54,7 +59,7 @@ impl ExpressionPlanRootV1 {
     pub(crate) fn initializer(&self) -> Option<&ResolvedInitializerRelationV1> {
         match self {
             Self::LocalInitializer { initializer, .. } => Some(initializer),
-            Self::Statement { .. } | Self::Assignment { .. } | Self::IfCondition { .. } => None,
+            Self::CallArgument { .. } | Self::Statement { .. } | Self::Assignment { .. } | Self::IfCondition { .. } => None,
         }
     }
 }
@@ -315,6 +320,32 @@ pub(crate) fn condition_expression_source_plan_v1(
     build_plan(&ledger, Some(shape), ExpressionPlanRootV1::IfCondition {
         statement: statement.clone(), condition: condition.clone(), bundle,
     }, &condition)
+}
+
+/// Source purpose for one exact original actual. The nearest registered
+/// statement is topology, never a claim that its Prefix is covered.
+pub(crate) fn call_argument_expression_source_plan_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    ordinal: u32,
+) -> Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+    use ExpressionChildIssueV1 as Issue;
+    let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| Issue::ForeignOwner)?;
+    let inventory = ledger.source_site_inventory();
+    if call.owner() != input.owner() || ledger.owner() != input.owner()
+        || !ledger.method_call_source_v1(call.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, call))
+        || !inventory.contains_expression(call.site())
+    { return Err(Issue::ChildIdentity); }
+    let argument = call.arguments().get(ordinal as usize).filter(|argument| argument.ordinal() == ordinal)
+        .ok_or(Issue::ChildIdentity)?;
+    let expected = SourcePathV1::from_node(call.site().node()).child(SourcePathSegmentV1::Argument(ordinal)).expr();
+    if argument.site() != &expected || !inventory.contains_expression(argument.site()) {
+        return Err(Issue::ChildIdentity);
+    }
+    let statement = inventory.containing_statement(call.site()).ok_or(Issue::MissingSource)?;
+    build_plan(&ledger, input.body_shape(), ExpressionPlanRootV1::CallArgument {
+        statement: statement.clone(), call: std::sync::Arc::clone(call), ordinal,
+    }, argument.site())
 }
 
 fn build_plan(

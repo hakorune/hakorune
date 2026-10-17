@@ -1604,3 +1604,9 @@ are consumed. Only Local/Handle/BoundValue bindings already in the original
 Home set move. Scalar or borrowed values do not acquire ownership from their
 kind. Returned-leaf corroboration compares the Normal projection with the same
 Completion exit, while physical Fault preparation keeps the prior projection.
+
+Borrowed actual Observe carries its original resolved input, including when the
+Prefix is uncovered. SourceSiteInventory can lend the nearest registered
+statement ancestor for a member expression using its authoritative paths. This
+is source-purpose topology only: it does not supply a covered LocatedStmt,
+current locals/Homes, a Loop product or evaluation permission.

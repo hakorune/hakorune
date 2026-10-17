@@ -444,7 +444,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             issue,
         });
     }
-    if let BorrowedCallActualRequestV1::Observe(actuals) = request {
+    if let BorrowedCallActualRequestV1::Observe(input, actuals) = request {
         let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
             source,
             contracts,
@@ -453,7 +453,10 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             candidates,
             receiver,
             nullable_class,
-        );
+        ).and_then(|mut rows| {
+            super::super::lexical_instance_call::bind_static_argument_sources_v1(input, site, pending.get(site), rows.as_mut())?;
+            Ok(rows)
+        });
         super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
             pending, site, prepared,
         );
@@ -563,7 +566,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         }
         BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
-        | BorrowedCallActualRequestV1::Observe(_)
+        | BorrowedCallActualRequestV1::Observe(..)
         | BorrowedCallActualRequestV1::ReceivedObjectArguments(_, _)
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(_)

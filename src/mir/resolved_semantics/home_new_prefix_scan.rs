@@ -409,7 +409,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
             ) {
                 // Preparation changes neither call coverage nor Home ownership.
-                borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+                borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
             }
             if mixed_call::observe(input, statement.site(), &owned, &declaration, binding,
                 homes, locals, local_calls, path_calls, unavailable, borrowed_actuals)? {

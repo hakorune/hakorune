@@ -102,7 +102,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     }
     if !claim.is_qualified_terminal() {
         for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, prefix_known, prior_homes) {
-            borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+            borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
         }
     }
     project_current_owner_i64_staged_value_call(

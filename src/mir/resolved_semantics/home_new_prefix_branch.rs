@@ -202,7 +202,7 @@ fn stage_subtree_call_actuals<E>(
         for (call_site, actuals) in
             local_call_flow::observe_borrowed_call_actuals(input, &owned, locals, prefix_known, homes)
         {
-            borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+            borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
         }
     }
     Ok(())

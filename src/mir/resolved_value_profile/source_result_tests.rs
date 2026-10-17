@@ -1,3 +1,5 @@
+#[path = "expression_argument_source_tests.rs"]
+mod expression_argument_source_tests;
 use super::source_result::{
     issue_source_result_product_v1, SourceCallDispositionV1, SourceResultClassV1,
     SourceResultProductErrorV1, SourceValueOperationV1, VerifiedSourceResultProductV1,

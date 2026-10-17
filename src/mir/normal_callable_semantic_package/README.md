@@ -4528,3 +4528,14 @@ source result classes only: catalog result representation remains independent
 of operand execution premises, and no checked operation, range/nonFault, Home,
 Loop Recipe, ABI, cleanup or publication permission follows. General
 String*Dynamic and mutable ordinary incoming domains are not selected here.
+
+Static Core actual observation now receives the SAME resolved input and retains
+an original CallArgument plan Rc beside its ordinary Core receipt in the existing
+Static source identity. These maps have exact ordinal correspondence. The source
+plan retains the canonical outer method Arc and actual root; a missing, extra or
+foreign plan cannot reach even the passive execution-pending projection. Original
+re-observation reuses the already retained plan Rc after receipt/candidate/source
+checks. Reissued equal content remains different at repeated-walk-drift; this
+boundary is unchanged. Source-only preparation without an observation is not a
+qualified argument frame. Current Prefix/Homes, signed Loop After, evaluation,
+entry, cleanup and final publication remain independent required connections.

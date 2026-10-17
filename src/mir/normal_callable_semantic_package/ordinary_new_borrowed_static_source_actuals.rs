@@ -7,11 +7,16 @@ use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
 use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 use std::rc::Rc;
 
+#[path = "ordinary_new_borrowed_static_argument_source.rs"]
+mod argument_source;
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::bind_static_argument_sources_v1;
+
 #[derive(Debug, Clone)]
 pub(super) struct StaticSourceActualIdentityV1 {
     pub(super) source: Rc<StaticIncomingSourceV1>,
     pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
     pub(super) integer_evidence: Box<[bool]>,
+    pub(super) argument_sources: BTreeMap<u32, Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>>,
     pub(super) core_arguments: BTreeMap<u32, Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
 }
 
@@ -20,6 +25,8 @@ impl PartialEq for StaticSourceActualIdentityV1 {
         Rc::ptr_eq(&self.source, &other.source)
             && self.candidates == other.candidates
             && self.integer_evidence == other.integer_evidence
+            && self.argument_sources.len() == other.argument_sources.len()
+            && self.argument_sources.iter().all(|(ordinal, plan)| other.argument_sources.get(ordinal).is_some_and(|other| Rc::ptr_eq(plan, other)))
             && self.core_arguments.len() == other.core_arguments.len()
             && self.core_arguments.iter().all(|(ordinal, receipt)| other.core_arguments.get(ordinal).is_some_and(|other| Rc::ptr_eq(receipt, other)))
     }
@@ -259,6 +266,7 @@ pub(super) fn prepare_static_source_actuals_v1(
             candidates: actuals.to_vec().into_boxed_slice(),
             integer_evidence: integer_evidence.into_boxed_slice(),
             core_arguments,
+            argument_sources: BTreeMap::new(),
         }),
     }))
 }
@@ -626,7 +634,9 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         match (&candidate.value, identity.core_arguments.get(&candidate.ordinal)) {
             (BorrowedCallActualValueV1::MethodCall(method), Some(receipt)) => {
                 let site = OwnedExprSiteV1::new(site.owner(), candidate.site.clone());
-                if !prepared.ordinary_core_source_v1(&site).is_some_and(|original| Rc::ptr_eq(original, receipt))
+                if !identity.argument_sources.get(&candidate.ordinal).is_some_and(|plan|
+                    argument_source::corroborates_argument_source_v1(plan, identity.source.as_ref(), candidate.ordinal, method))
+                    || !prepared.ordinary_core_source_v1(&site).is_some_and(|original| Rc::ptr_eq(original, receipt))
                     || !std::sync::Arc::ptr_eq(method, receipt.source().source())
                     || method.owner() != site.owner() || method.site() != site.site()
                     || identity.integer_evidence.get(index) != Some(&false)
@@ -659,7 +669,9 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
             return Err(freeze("borrowed-static/source-projection-identity"));
         }
     }
-    if identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) {
+    if identity.argument_sources.len() != identity.core_arguments.len()
+        || identity.argument_sources.keys().any(|ordinal| !identity.core_arguments.contains_key(ordinal))
+        || identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) {
         return Err(freeze("borrowed-static/core-source-identity"));
     }
     // Result/source closure does not evaluate the expression. Keep this phase

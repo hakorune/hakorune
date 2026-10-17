@@ -76,6 +76,14 @@ impl VerifiedResolvedSourceSiteInventoryV1 {
         self.expressions.contains(site)
     }
 
+    /// Passive source topology only; this supplies no current Prefix/Home state.
+    pub(crate) fn containing_statement(&self, site: &SourceExprSiteV1) -> Option<&SourceStmtSiteV1> {
+        if !self.contains_expression(site) { return None; }
+        self.statements.iter().filter(|statement|
+            site.node().segments().starts_with(statement.node().segments()))
+            .max_by_key(|statement| statement.node().segments().len())
+    }
+
     pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
         self.expressions.iter()
     }

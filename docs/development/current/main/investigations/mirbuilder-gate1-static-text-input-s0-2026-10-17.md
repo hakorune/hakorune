@@ -50,38 +50,41 @@ use their own owners; no fake Loop membership or alternate substring evaluator.
 Read-only worker is reusing the top-down consumer mapping below. Extend the
 bounded implementation path list before building the next physical connection.
 
-V864 verified BoxShape construction step: move the existing checked expression
-body data into home_expression_evaluation, retaining Print as the purpose wrapper
-and original issuer/atomic qualification. Extract selected/print_expression's
-whole node descent into one selected/expression_value evaluator which returns
-live acquired temporaries, original values/calls/path-read receipts, FaultFrame,
-entry and bindings. Print retains its terminal Invoke, Normal Ends, continuation,
-whole packet and commit. Purpose-specific call emission is lent as a callback to
-the same terminal_call writer, not inferred from the expression body. No second
-classifier, recursive evaluator, frame fabrication or argument admission.
-Paths: home_expression_plan/print_expression/new evaluation child + home_new_prefix
-export; selected.rs/print_expression/new expression_value child; resolved-semantics
-and Builder READMEs (their frame/writer contracts actually change), this card.
-Existing Print qualification/projection, checked-String Normal/Fault/escape and
-lexical argument projection tests supply positive/negative acceptance; reuse the
-source-domain baseline tests and unchanged canonical json frontier. No new test
-for identical extraction. Old Print-only data/descent is removed in this step;
-Text arguments, acquisition-prefix outer Call, entry and both publication scans
-remain required in this SAME full series. Local green is not product acceptance.
+V865 verified source-purpose connection: existing actual Observe carries its SAME
+resolved input. The existing expression_plan builder issues CallArgument roots
+with canonical outer method Arc, ordinal, argument site and nearest REGISTERED
+statement ancestor from SourceSiteInventory paths (no AST or fabricated path).
+This is source topology only, including unobserved staging; no Prefix/Home/eval
+permission is inferred. Static core actual identity retains the resulting Rc
+plan beside its SAME ordinary Core receipt. First observation issues once;
+re-observation validates original source and reuses the previous Rc, preserving
+strict repeated-walk-drift. Static projection checks exact plan/Core membership
+before retaining the existing execution-pending fence. No new global registry.
+Paths: expression_plan and existing child/source tests; source_site_inventory;
+actual Observe port + existing Home sender sites; existing lexical actual callback,
+static_source_actuals + small source-plan child, its existing Core tests/reexports;
+resolved-value-profile and semantic-package READMEs because their source contracts
+change; resolved-semantics README also changes because Observe/source topology
+now exposes that contract; this card. Positive/negative source correspondence, missing/foreign/extra
+plan and repeated-observation cases extend existing owners. Source purpose is a
+required SAME-series dependency, not a replacement for the real covered Prefix
+argument frame, current signed Loop After, evaluation/entry/cleanup/publication.
 
 Next physical construction mapping, from the reused read-only source worker:
-issue a real CallArgument root at expression_plan's existing build_plan owner,
-checking original statement, SAME outer method Arc, ordinal and argument site.
-Qualify its purpose frame at the covered Prefix actual-staging point with actual
-locals/prior Homes and existing atomic field batch. Source SUM preparation and
-stage_unobserved_statement_actuals cannot issue this frame. Reuse leaves/body
-order/reach/operator qualification; retain SAME ordinary Core receipt alongside
-the checked body. Core receiver/bounds must evaluate in the common postorder,
-not be transferred away as fake borrowed_scalar Call inputs. Existing source
-SUM proves alternatives, never the current mutable bound value. Build the actual
-scan Loop After via its own Facts/Recipe/JoinSig owners; Mul-only After is not a
-borrowable membership substitute. Entry/temporary cleanup/both final consumers
-remain the same full Text series, with the fence retained until they close.
+the existing actual callback should lend ArgumentExpressionSource(ordinal) from
+pending SourceStatic as SAME argument-plan Rc plus ordinary-Core-receipt Rc.
+Recheck exact source/candidate/ordinal correspondence; a Core candidate with
+missing evidence is Refused, not None followed by an old route. No source plan
+is reissued by that lender. The covered Prefix producer demands this loan just
+after original actual observation, compares the real LocatedStmt and prefix_known,
+and uses current locals/Homes for shared leaf/body qualification -> existing
+HomeExpressionPlan atomic field batch/installation. Unobserved staging never
+issues this frame. Text source needs a current receiver/entry-read basis without
+inventing a Home; signed source SUM needs current bound evaluation proof. Mutable
+scan end requires its own Loop Facts/Recipe/JoinSig After, not Mul-only membership.
+Core receiver/bounds evaluate in the common postorder, never as fake scalar Call
+transferred inputs. Keep the pending fence until these frames, entry, ordered
+acquisition cleanup and both final publication consumers close in this series.
 
 Completed preparation decisions and their full evidence live in their commits:
 V8587b1f4f5f32 canonical Core Arc; V859b554b33626 conditional source premises;
@@ -614,55 +617,63 @@ no current CI/full-suite/performance or full-goal claim.
 
 ### Shared checked expression evaluation (V864)
 
-The Print purpose wrapper now owns the SAME immutable checked expression body,
-retaining the original source Rc, ordered Homes, Call rows, operation loans,
-owned-result templates and transferred subtrees. Its original root/envelope/
-field/can-install checks and final atomic field batch are unchanged. The sole
-selected expression_value descent returns live acquisitions and all original
-receipts/bindings; Print keeps its terminal, Normal/Fault End suffixes, packet,
-dedup and commit. Existing purpose-checked Call emission is supplied by a callback
-that captures the original Print frame and uses the unchanged terminal writer.
-No duplicate traversal, body issuer or independent physical group was introduced.
-The former Print-only data/descent is physically replaced; the live producer
-caller is the existing production Print path. Arguments are NOT admitted here.
+Durable implementation/validation:41d10b7354. Print owns the SAME checked body,
+uses the sole shared ordered evaluator and keeps terminal/Normal-Fault cleanup/
+whole packet commit. Former Print-owned loop/data replaced in production. Source
+qualifier atomicity and per-node acquisition cleanup unchanged; no Text admission.
+Root864B216 cases204 PASS/SAME12 baseline, existing Print4/String1/projection4/
+installation1 PASS; guards PASS. Ordered body equal except purpose Call callback.
+CLI201/app227 SAME pending frontier; app228 unchanged mimalloc EXE/native exact7/
+exit0 PASS. That commit retains exact commands, hashes, timings and import-only
+RootA failure classification. Keep RootB/CLI201/app227-228 evidence/pins until
+series closeout; no A binary or parked adapter. Current CI remains unclaimed.
 
-Read-only worker confirms original identity, transferred/identity skip order,
-read-once path roots and all per-node acquired-prefix Fault cleanup remain.
-Direct old/new ordered-body comparison is byte-identical after replacing only
-the purpose Call invocation with its callback (normalized body SHA
-c2ccada90311539a2b949d97069a43eae5d4c99b4cc0e59c0c75a359f03dc721).
-Root864A failed82.278967s only for two moved LocalCallObservation import paths;
-corrected to their existing home_new_prefix export, no authority change. No A
-binary was produced. Root864B build PASS98.004265s;23 nonempty reused filters:
-216 distinct cases204 PASS/SAME12 baseline identities and diagnostics versus
-b92665faba (only thread IDs/plugin Debug ordering normalized). Existing Print4,
-String Normal/Fault/escape1, ordered projection4 and atomic installation1 all
-PASS. Source/Core/Array/legacy baseline families remain unchanged; no new test.
-Root/layer/thin/diff guards PASS. Full Text argument/entry/cleanup/publication and
-full finite objective stay open. Exact build/filter receipts/manifests/logs and
-body comparison remain in /tmp/mirbuilder-required-forward-resume until series
-acceptance; no temporary adapter or dedicated guard exists.
+### Original argument source-purpose connection (V865)
 
-CLI201 build PASS176.945013s; Root864B/CLI/current compiled-source manifests match.
-CLI SHA2e035f7048d009de517737c190e4a3cfd6277a6c50c7096a9acb8ed7c5b8fd2b.
-Unchanged json app227 canonical direct EXE0.114944s exits1/no artifact at SAME
-compilation1/slot20/Body7/Value core-expression-execution-pending. This BoxShape
-step changes the production expression owner, not the app acceptance frontier.
-Same unchanged source/backend/runtime/canonical argv/env as app225: FFI831e,
-runtime808b, canonical --backend mir --emit-exe/--emit-exe-nyrt, pure-first/no
-compat replay, plugins disabled,16MiB stack. App227 retains exact argv/env,
-source/backend/binary hashes and logs. Root filters execute7.604989s separately
-from build. No performance improvement or new Text execution is claimed.
+The existing expression-plan owner now issues CallArgument roots from the same
+canonical outer method Arc, exact ordinal/argument relation and nearest REGISTERED
+statement ancestor. SourceSiteInventory paths supply topology, not current Prefix
+coverage. The original argument subtree retains child order/conditional/opaque
+obligations through the SAME builder, without a second AST/classifier or registry.
+Existing actual Observe carries its resolved input, including unobserved staging.
+Static actual identity keeps original plan Rc beside the unchanged Core receipt;
+projection checks complete ordinal correspondence, owner/root/outer Arc/inner
+receipt before its existing execution fence. Re-observation checks original
+sources and reuses the old Rc; equal reissues and old-Err/new-Ok still fail at
+repeated-walk-drift. Only source-purpose preparation is built: Home frame, actual
+current signed values, physical evaluation/entry/cleanup/publication stay open.
+Read-only review confirms no source-to-execution authority leak.
 
-Unchanged mimalloc app228 canonical EXE PASS129.965221s; native0.001463s,
+Root865A build PASS83.686222s,217 cases205 PASS/SAME12 baseline. Final Root865B
+build PASS54.882701s adds the old-Err/new-Ok counterexample within the same test;
+25 nonempty reused filters238 distinct cases226 PASS/SAME12 failure identities
+and diagnostics versus41d10b7354 (only thread IDs/plugin Debug map order normalized).
+New1 source-plan test covers two original call arguments, nested nearest-statement
+membership, original Arc/site/order, invalid ordinal and foreign input. Existing
+Core test extends missing/extra plan, repeated Rc/reissued rejection and source
+refusal boundaries. Original source-result22, Print4, checked-String1, ordered
+projection4 and atomic installation1 PASS; source/Core/Array/legacy results
+preserve the baseline. No proof app, new fixture or dedicated guard exists.
+Root/layer/thin/diff guards PASS. Superseded A binary retired262,796,624 bytes;
+its build/source/focused receipts/logs remain. Keep B evidence/pin until complete
+series acceptance. Full goal stays active/open; no EXE/frontier improvement yet.
+
+CLI202 build PASS177.711566s; Root865B/CLI/current compiled-source manifests match.
+CLI SHAb7125e9176207365d585f1d950fe1202717edd30604174a82357300a24471e30.
+Unchanged json app229 canonical direct EXE0.117024s exits1/no artifact at SAME
+compilation1/slot20/Body7/Value core-expression-execution-pending. New original
+argument-plan checks therefore reach the existing consumer fence on the real
+full-import source, not only the focused fixture; no physical frontier advance.
+Unchanged mimalloc app230 canonical EXE PASS130.858089s; native0.001505s,
 original7-line stdout EXACT/exit0 and only original plugin-disabled stderr warning.
-EXE SHA909c7fb968c3e58d4fcf758d5c18da3d69399e4b5bc445feeaab12b416288cf2.
-Keep Root864B/CLI201/app227-228 source/build/focused/native receipts/manifests/
-logs and current pins, plus matched backend/baseline evidence until this full
-series closes. RootA produced no binary, so no superseded A pin exists to retain.
-No adapter is parked. Builder Print now calls the common evaluator exclusively;
-old Print-owned loop/body storage is removed, existing shared operation/Call/
-cleanup writers remain. Completed V863 history is compressed to its landed
-commit reference above. Latest CI checked remains historical failed35681768498/
-d4168473d5; no current CI/full-suite or complete-goal claim. The next actual
-argument-purpose/Prefix/Loop and physical consumer obligations remain above.
+EXE SHA0df03290136a266a726efa806b53e5f43dccedca8b627d407bcbb39c2f06906a.
+Both receipts retain unchanged source/backend/runtime hashes and exact canonical
+--backend mir --emit-exe/--emit-exe-nyrt argv/env (FFI831e/runtime808b,
+pure-first/no compat replay, plugins disabled,16MiB stack). Focused execution is
+7.505295s, separate from build. All stable root/layer/thin/pointer/diff guards PASS.
+Keep Root865B/CLI202/app229-230 logs/manifests/receipts/pins and matched backend/
+baseline evidence until full-series acceptance. A binary removed, A diagnostic
+records retained; no temporary adapter exists. Old Observe-without-input source
+port is replaced at every production sender; shared non-Core transport remains.
+V864 completed history compressed to41d10b7354. Latest checked CI is historical
+failed35681768498/d4168473d5; no current CI/full-suite/performance or full-goal claim.

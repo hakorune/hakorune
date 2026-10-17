@@ -282,7 +282,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
                 prefix_known,
                 prior_homes,
             ) {
-                port(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+                port(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
             }
         }
     Ok(())

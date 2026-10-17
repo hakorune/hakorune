@@ -7,7 +7,7 @@ use super::{
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement(super::BindingRefV1),
-    Observe(&'a [BorrowedCallActualCandidateV1]),
+    Observe(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, &'a [BorrowedCallActualCandidateV1]),
     ScalarArguments,
     I64ResultArguments,
     SourceScalarResultArguments,

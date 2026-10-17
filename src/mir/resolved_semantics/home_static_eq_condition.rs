@@ -151,6 +151,6 @@ pub(super) fn observe<E>(
     {
         return Ok(None);
     }
-    borrowed_actuals(rhs.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
+    borrowed_actuals(rhs.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
     Ok(Some(vec![lhs, rhs]))
 }

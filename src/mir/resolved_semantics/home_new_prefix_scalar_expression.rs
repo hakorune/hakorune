@@ -231,7 +231,7 @@ fn observe_scalar_expression_with_operation<E>(
     // Publish only after the whole original expression is proved. A rejected
     // right sibling or field batch never leaves a partial call observation.
     for call in &calls {
-        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
+        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
     }
     if let Some(installation) = installation { installation.commit(); }
     *operation = prepared_operation;
@@ -289,7 +289,7 @@ pub(super) fn observe_local_mul_return<E>(
     else {
         return Ok(GuardedMulReturnV1::Unavailable);
     };
-    borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
+    borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
     Ok(GuardedMulReturnV1::Observed(vec![call]))
 }
 
@@ -339,7 +339,7 @@ pub(super) fn observe_guarded_mul_return<E>(
         }
     }
     for call in &calls {
-        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
+        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
     }
     Ok(GuardedMulReturnV1::Observed(calls))
 }

@@ -267,3 +267,11 @@ not hide opaque or missing children. The original result-class API uses an empty
 transfer set and retains its existing laws. Node classes alone do not authorize
 a checked operation or ownership: the statement owner must supply producer facts,
 operator envelopes and the complete Normal/Fault/End frame correspondence.
+
+Call-argument expression plans use the same build_plan owner. Their root retains
+the canonical outer method Arc, argument ordinal and nearest registered statement
+ancestor from the SAME source-site inventory. The adapter checks owner, original
+Arc, call/argument membership and canonical Argument(ordinal) relation before
+building only that actual subtree. Statement ancestry is passive topology; it
+proves no current locals, Home state, Loop After, argument class or execution.
+No resolver-wide Rc registry or second expression classifier is introduced.
