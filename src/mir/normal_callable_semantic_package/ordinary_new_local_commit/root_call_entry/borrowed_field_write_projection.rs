@@ -1,6 +1,6 @@
 //! Original borrowed field write, its exact pins and checked Normal/Fault graph.
 use super::*;
-use crate::mir::normal_callable_semantic_package::{BorrowedFieldWriteSourceLoanV1, CallValidationContextV1};
+use crate::mir::normal_callable_semantic_package::{FieldWriteSourceLoanV1, CallValidationContextV1};
 use crate::mir::builder::{ExactLexicalReadV1, LocalSsaPhysicalRelationV1};
 use super::super::physical_boundary::FinishedBindings;
 use std::{rc::Rc, cell::OnceCell};
@@ -8,8 +8,8 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
 pub(crate) struct EmittedBorrowedFieldWriteV1 {
-    source: BorrowedFieldWriteSourceLoanV1,
-    reads: [Rc<ExactLexicalReadV1>; 2],
+    source: FieldWriteSourceLoanV1,
+    formal_reads: [Rc<ExactLexicalReadV1>; 2],
     graph: CheckedFieldWriteGraphV1,
 }
 #[path = "checked_field_write_graph.rs"]
@@ -17,7 +17,7 @@ mod checked_graph;
 pub(crate) use checked_graph::CheckedFieldWriteGraphV1;
 
 impl EmittedBorrowedFieldWriteV1 {
-    pub(crate) fn source(&self) -> &BorrowedFieldWriteSourceLoanV1 { &self.source }
+    pub(crate) fn source(&self) -> &FieldWriteSourceLoanV1 { &self.source }
     pub(crate) fn invoke_binding(&self) -> &Binding { self.graph.invoke_binding() }
     pub(in crate::mir) fn pins(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] { self.graph.pins() }
     pub(crate) fn bindings(&self) -> &[Binding] { self.graph.bindings() }
@@ -26,10 +26,10 @@ impl EmittedBorrowedFieldWriteV1 {
         self.graph.resolve_observed_binding_v1(original, completed)
     }
     pub(super) fn seal_bindings_v1(&self) -> Result<(), String> { self.graph.seal_bindings_v1() }
-    pub(crate) fn new(source: BorrowedFieldWriteSourceLoanV1, reads: [Rc<ExactLexicalReadV1>; 2],
+    pub(crate) fn new(source: FieldWriteSourceLoanV1, reads: [Rc<ExactLexicalReadV1>; 2],
         graph: CheckedFieldWriteGraphV1, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        let packet = Self { source, reads, graph };
+        let packet = Self { source, formal_reads: reads, graph };
         packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(packet)
     }
@@ -41,12 +41,14 @@ impl EmittedBorrowedFieldWriteV1 {
     ) -> Result<(), String> {
         let ledger = context.ledger();
         self.source.validate_source(ledger)?;
+        let formal = self.source.borrowed()
+            .ok_or_else(|| freeze("owned-field-write/rhs-physical-consumer-pending"))?;
         let owner = self.source.frame().source().owner();
-        for (index, (binding, _, site)) in [self.source.receiver(), self.source.value()].into_iter().enumerate() {
-            let value = self.reads[index].value_for(owner, site.site().node(), binding).map_err(|issue| issue.to_string())?;
+        for (index, (binding, _, site)) in [formal.receiver(), formal.value()].into_iter().enumerate() {
+            let value = self.formal_reads[index].value_for(owner, site.site().node(), binding).map_err(|issue| issue.to_string())?;
             self.graph.validate_operand(index, value, function, finishing)?;
         }
-        self.graph.validate_paths(ledger, function, finishing, self.source.field_source().field(),
+        self.graph.validate_paths(ledger, function, finishing, formal.field_source().field(),
             self.source.frame().prior_homes())
     }
 }
@@ -89,7 +91,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let Some(packet) = group.borrowed_field_write() else { continue };
             packet.require_sealed_v1()?;
             packet.source.validate_source(self)?;
-            if packet.source.frame().source().owner() != owner || group.site() != packet.source.value().2 {
+            if packet.source.frame().source().owner() != owner || group.site() != &packet.source.value_site() {
                 return Err(freeze("borrowed-field-write/retention-source"));
             }
             for row in packet.bindings() { if !rows.contains(row) { rows.push(row.clone()); } }

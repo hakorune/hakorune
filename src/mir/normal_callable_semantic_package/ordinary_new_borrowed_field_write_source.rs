@@ -161,3 +161,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(loan))
     }
 }
+
+#[path = "ordinary_new_common_field_write_source.rs"]
+mod common_source;
+pub(crate) use common_source::FieldWriteSourceLoanV1;

@@ -194,10 +194,10 @@ where
         children: [ValueId; 3], write: crate::mir::builder::CompletedArrayElementWriteV1,
     ) -> Result<(), String> { self.child.complete_borrowed_array_set_v1(builder, source, children, write) }
 
-    fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1>, String> {
+    fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1>, String> {
         self.child.prepare_borrowed_field_write_v1()
     }
-    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
         receiver: bool, input: Self::ExpressionInput,
     ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> {
         let child_source = self.next_expression()?;
@@ -205,7 +205,7 @@ where
             child.read_borrowed_field_write_operand_v1(source, receiver, input))
     }
     fn emit_borrowed_field_write_v1(&mut self, builder: &mut MirBuilder,
-        source: crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+        source: crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
         field: &str, reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
     ) -> Result<(), String> { self.child.emit_borrowed_field_write_v1(builder, source, field, reads) }
 

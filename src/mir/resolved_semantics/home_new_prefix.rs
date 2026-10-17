@@ -157,7 +157,7 @@ impl ResultNewHomePrefixV1 {
 
 #[path = "home_expression_plan.rs"]
 mod expression_plan;
-pub(crate) use expression_plan::{CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
+pub(crate) use expression_plan::{QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;

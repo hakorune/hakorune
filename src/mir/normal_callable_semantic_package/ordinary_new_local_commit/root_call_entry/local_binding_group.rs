@@ -165,7 +165,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     }
     pub(super) fn new_borrowed_field_write(packet: Rc<EmittedBorrowedFieldWriteV1>) -> Result<Self, String> {
         packet.validate_recorded(packet.bindings(), None)?;
-        Ok(Self { site: packet.source().value().2.clone(), bindings: packet.bindings().to_vec(),
+        Ok(Self { site: packet.source().value_site(), bindings: packet.bindings().to_vec(),
             proof: PrefixPhysicalProofV1::BorrowedFieldWrite(packet), projected: false })
     }
 

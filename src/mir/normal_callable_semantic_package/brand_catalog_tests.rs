@@ -123,9 +123,9 @@ fn ordinary_new_descriptor_errors_follow_candidate_source_order() {
 #[test]
 fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     use super::instance_construction::ConstructionUnavailableV1;
-    for (declaration, first, second) in [("box Pair { left: i64 right: i64 }", "left", "right"),
-        ("box Pair { east: i64 west: i64 }", "east", "west")] {
-        let source = format!("{declaration} static box Main {{ main() {{ local pair = new Pair() pair.{first} = 10 pair.{second} = 20 pair.{first} = 30 return 0 }} }}");
+    for (declaration, first, second, prefix, rhs) in [("box Pair { left: i64 right: i64 }", "left", "right", "", "10"),
+        ("box Pair { east: i64 west: i64 }", "east", "west", "local n = 5", "n + 5")] {
+        let source = format!("{declaration} static box Main {{ main() {{ local pair = new Pair() {prefix} pair.{first} = {rhs} pair.{second} = 20 pair.{first} = 30 return 0 }} }}");
         let package = issue_with_brand_catalog(&source).unwrap();
         let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claim = rows.values().next().unwrap();
@@ -145,6 +145,17 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert_eq!(writes.len(), 3, "preserve both stores and the overwrite");
         assert_eq!(writes.iter().map(|frame| frame.owned_local().unwrap().field().declaration_ordinal()).collect::<Vec<_>>(), [0, 1, 0]);
         for frame in &writes {
+            let plan = flow.expression_plans().iter().find(|plan| plan.field_write_frame()
+                .is_some_and(|original| std::rc::Rc::ptr_eq(original, frame))).unwrap();
+            let source = package.ordinary_new_claim_ledger.field_write_source_at_v1(frame.source().owner(), frame.source().root().statement())
+                .unwrap().expect("source-origin loan before physical activation");
+            source.validate_source(&package.ordinary_new_claim_ledger).unwrap();
+            assert!(source.borrowed().is_none());
+            let rhs = plan.field_write_rhs().expect("same qualified whole-RHS source");
+            assert!(std::rc::Rc::ptr_eq(source.owned_rhs().unwrap(), rhs));
+            assert!(rhs.is_consistent(frame.source()));
+            assert_eq!(rhs.ordered_nodes(), frame.source().ordered_postorder_v1().unwrap());
+            assert!(std::rc::Rc::ptr_eq(rhs.source(), frame.source()));
             let local = frame.owned_local().unwrap();
             assert_eq!(local.acquisition(), claim.site());
             assert_eq!(local.root(), claim.home_prefix().unwrap().destination());
@@ -157,6 +168,8 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         let foreign_rows = foreign.ordinary_new_claim_ledger.pending_claims_for_test();
         assert!(!std::rc::Rc::ptr_eq(retained,
             foreign_rows.values().next().unwrap().construction_source().as_ref().unwrap()));
+        let source = package.ordinary_new_claim_ledger.field_write_source_at_v1(writes[0].source().owner(), writes[0].source().root().statement()).unwrap().unwrap();
+        assert!(source.validate_source(&foreign.ordinary_new_claim_ledger).is_err());
     }
     for (declaration, initializer, allocation_only) in [
         ("box Pair { left: i64 right: i64 }", "new Pair()", true),

@@ -10,6 +10,47 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 use super::super::SourceScalarKind;
 
+/// Original whole-RHS source classes and evaluation order, never an execution
+/// permission. Modulo/Div/typed literal obligations stay with physical owners.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct QualifiedFieldWriteRhsV1 {
+    source: Rc<ExpressionSourcePlanV1>,
+    order: Box<[usize]>,
+    classes: Box<[Leaf]>,
+    references: BTreeMap<usize, (crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind)>,
+}
+impl QualifiedFieldWriteRhsV1 {
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
+    pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
+    pub(crate) fn node_class(&self, node: usize) -> Option<Leaf> { self.classes.get(node).copied() }
+    pub(crate) fn reference(&self, node: usize) -> Option<(crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind)> {
+        self.references.get(&node).copied()
+    }
+    pub(crate) fn is_consistent(&self, source: &Rc<ExpressionSourcePlanV1>) -> bool {
+        if !Rc::ptr_eq(source, self.source()) || self.classes.len() != source.nodes().len()
+            || self.node_class(0) != Some(Leaf::Value(Class::I64))
+            || source.ordered_postorder_v1().ok().as_deref() != Some(self.ordered_nodes()) {
+            return false;
+        }
+        let mut references = 0;
+        for (index, node) in source.nodes().iter().enumerate() {
+            if let ExpressionNodeSourceV1::Reference(binding) = node.source() {
+                if self.node_class(index) == Some(Leaf::Identity) { continue; }
+                let Some((original, kind)) = self.reference(index) else { return false };
+                if *binding != crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(original)
+                    || original.owner() != source.owner()
+                    || self.node_class(index) != Some(Leaf::Value(match kind {
+                        SourceScalarKind::Integer => Class::I64, SourceScalarKind::Bool => Class::Bool,
+                    })) { return false; }
+                references += 1;
+            }
+        }
+        references == self.references.len()
+            && project_expression_nodes_v1(source, &BTreeSet::new(), |index| self.classes[index])
+                .is_some_and(|classes| classes.as_slice() == self.classes.as_ref())
+    }
+}
+
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>,
     require_i64: bool,
@@ -27,6 +68,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         || frame.owned_local().is_none()) { return Ok(None); }
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
     let mut requests = Vec::new();
+    let mut references = BTreeMap::new();
+    let mut qualified_rhs = None;
     for (index, node) in source.nodes().iter().enumerate() {
         if matches!(node.source(), ExpressionNodeSourceV1::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
@@ -51,6 +94,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
             if leaves[index] == Leaf::Identity { continue; }
             if matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
                 let Some(kind) = scalar_reference(node.site()) else { return Ok(None) };
+                if let ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = node.source() {
+                    references.insert(index, (*binding, kind));
+                }
                 leaves[index] = Leaf::Value(match kind { SourceScalarKind::Integer => Class::I64,
                     SourceScalarKind::Bool => Class::Bool });
             }
@@ -74,9 +120,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
                 plan: Rc::clone(&source), node: index, positive_divisor,
             }));
         }
+        if frame.is_some() {
+            let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
+            let rhs = Rc::new(QualifiedFieldWriteRhsV1 { source: Rc::clone(&source),
+                order: order.into_boxed_slice(), classes: classes.into_boxed_slice(), references });
+            if !rhs.is_consistent(&source) { return Ok(None); }
+            qualified_rhs = Some(rhs);
+        }
     }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: operations,
-        source_fields: Vec::new(), print_frame: None, condition_frame: None, field_write: frame };
+        source_fields: Vec::new(), print_frame: None, condition_frame: None,
+        field_write: frame.map(|frame| FieldWritePlanV1 { frame, rhs: qualified_rhs }) };
     let Some(candidate) = candidate.with_source_field_requirements(&requests) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }
     if !field_batch(&requests, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? {

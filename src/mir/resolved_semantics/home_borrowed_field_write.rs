@@ -16,6 +16,11 @@ enum FieldWriteReceiverV1 {
     FormalBorrowed,
     OwnedLocal(crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1),
 }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct FieldWritePlanV1 {
+    pub(super) frame: Rc<CheckedFieldWriteFrameV1>,
+    pub(super) rhs: Option<Rc<QualifiedFieldWriteRhsV1>>,
+}
 impl CheckedFieldWriteFrameV1 {
     pub(crate) fn owned_local(&self) -> Option<&crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1> {
         match &self.receiver { FieldWriteReceiverV1::OwnedLocal(source) => Some(source), _ => None }
@@ -53,6 +58,6 @@ impl HomeExpressionPlanV1 {
             source: Rc::clone(&source), prior_homes: homes.into(), receiver: FieldWriteReceiverV1::FormalBorrowed,
         });
         Some(Self { source, scalar_operations: Vec::new(), source_fields: Vec::new(),
-            print_frame: None, condition_frame: None, field_write: Some(frame) })
+            print_frame: None, condition_frame: None, field_write: Some(FieldWritePlanV1 { frame, rhs: None }) })
     }
 }

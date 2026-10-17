@@ -16,14 +16,14 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.write_guard_observer_v1()
     }
 
-    fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1>, String> {
+    fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1>, String> {
         self.borrowed_field_write_source_v1()
     }
-    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
         receiver: bool, input: ASTNode,
     ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> { self.read_borrowed_field_write_source_v1(source, receiver, input) }
     fn emit_borrowed_field_write_v1(&mut self, builder: &mut MirBuilder,
-        source: crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1, field: &str, reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
+        source: crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1, field: &str, reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
     ) -> Result<(), String> { self.emit_borrowed_field_write_source_v1(builder, source, field, reads) }
 
     fn prepare_borrowed_array_set_v1(&mut self, method: &str, arity: usize)

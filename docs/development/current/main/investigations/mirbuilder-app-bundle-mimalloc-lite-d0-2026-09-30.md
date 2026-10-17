@@ -597,38 +597,66 @@ recheck uses the same common write-source validation, removing its duplicated
 construction/completion/frame check. Neither source origin lends physical value
 or Home permission. Same-frame/RHS and foreign-ledger refusals use existing tests.
 
-## Restart handoff — user requested stop, V847 remains WIP
+Initial V847 restart handoff is preserved at `0aea4d40a0`: rootA/B builds,
+focused50 PASS, original13 source WIP, temporary formal extraction and unused
+import were unfinished at that point. User resumed; current integration and
+evidence below supersede that stop. Earlier CLI179/native185 remain comparison
+pins, not the current source result.
 
-Stop at the completed root build/focused boundary. Do not start more source
-edits or CLI builds until user resumes. CURRENT_STATE retains fast for the same
-selected S0; this is a user restart stop, not design stop or series completion.
-Source WIP remains uncommitted in13 src paths including the new
-`ordinary_new_common_field_write_source.rs`; preserve all of them. Last pushed
-implementation is `c5a5be22ca` (V846 graph/writer BoxShape), not this WIP.
+V847 resumed after user authorization. Read-only packet-origin review confirms
+one common source/physical graph with origin-specific operand evidence. Extend
+this same scope through raw port forwarders, selected emitter, original packet,
+local binding group and finalized borrowed visitor. Remove raw formal extraction;
+retain formal exact reads as the only physical evidence until complete LOCAL RHS
+projection exists. Common source must survive to packet; final visitor must select
+formal origin before formal entry/null guards. No LOCAL execution/acceptance from
+this transport step. Existing Bool source/Print Normal-order validators identify
+reusable responsibilities, never permission to invent a Bool/Print frame.
 
-- RootA build101.688991s and RootB build79.126097s PASS.
-- RootB focused50 PASS: brand23, installation1, terminal22, field-batch2,
-  original source/frame refusal1, both-scan store guard/coverage1. Root total9213.
-- RootB binary `v847b-root.test-binary` SHA e6d25c2f58733f4db1f623b957acc0e3228846ca9c1caa46b6e6c3c982a3b9bf.
-  Build/source/focused logs and manifests remain under the evidence base.
-- One NEW warning: unused `FieldWriteSourceLoanV1` reexport in package `mod.rs`.
-  Retained as unfinished integration, not hidden or baseline-waived. Connect the
-  explicit common type in raw dispatch/common packet; do not add allow attributes.
-- No V847 CLI/native measurement. Latest actual Pair frontier is CLI179/app184
-  raw-field-read-reentry; latest mimalloc is CLI179/app185 native exact7/exit0.
-  V847 raw dispatch is changed and must be revalidated with a fresh CLI. It now
-  refuses owned source at `owned-field-write/rhs-physical-consumer-pending` rather
-  than generic setter fallback; that expected stop is NOT an observed result.
-- No physical LOCAL activation: RHS source recipe alone grants no execute/Normal
-  permission. Common packet RHS receipts, both final consumers/Normal dominance,
-  and original New allocation-only activation remain pending; fences stay closed.
-- No live Cargo/rustc after build/focused completion. No new CI-green claim.
+Implementation-ready continuation from the same worker review: attach an owned
+RHS observation scope to existing RawInvocationChildPort lower_expression, mutually
+exclusive with Bool scope; all child recursion stays on the original source
+transport/writers. Fan the same CompletedOrdinaryBinary observation into this scope.
+Retain original ordered node/cursor/value plus exact literal/reference/field/Binary
+proofs and LocalSSA relations. Sub/Div keep SAME OriginalScalarAppend Rc and existing
+finished scalar validation; TypedInteger keeps exact declared type/value, Const and
+exact_numeric_const_facts from the existing literal writer. Reuse/extract the
+existing Print Normal-order responsibility without creating a Print frame.
+Do not narrow source classes to Add/Sub/Div or infer non-Fault from I64.
+Empty borrowed visitor must keep its unconditional entry validation; reviewed and
+restored before final rootD. LOCAL physical admission and both final scans stay owed.
 
-Resume: inspect preserved diff and source manifests; finish common source origin
-and full RHS physical receipt transport using V846's sole graph/writer. Keep
-Sub/Div with existing scalar append/finishing owner. Fix the unused explicit type
-integration, run focused validation and fresh Pair/mimalloc canonical CLI with
-C831e/runtime808b before landing V847. Do not treat the source-class Modulo0 test
-as non-Fault execution evidence or narrow the accepted source operator set.
-Temporary rootA/B pins, current CLI179/native185 and backend/runtime are retained
-for this unfinished connection; do not delete the untracked common source file.
+V847 current transport verification: rootC66.796567s and final rootD54.461903s
+build PASS. Final rootD existing55 focused PASS across11 nonempty filters: brand23,
+installation1, terminal22, field-batch2, original-source refusal1, both-scan exact
+store roles/guards/coverage1 and five existing nullable/numeric/layout/store checks.
+No new test/fixture/guard; root test count9213. Warning identity delta vs V846E zero;
+unused common-source reexport is fixed by real typed callers, not an allow.
+Raw common-origin formal extraction is physically removed; source now reaches the
+existing packet unchanged, with explicit formal_reads and formal-only final checks.
+Owned-ready duplicate completion/construction/frame checks use the common issuer.
+
+Fresh CLI180 build176.898357s. RootD/CLI180 compiled sources match; their manifest
+only differs in owner README explaining adapter removal. CLI SHA
+5fd048c4f7b6efd859cdffeca40482266268e6d79cd241d069ef6755e4851bcc.
+Canonical unchanged Pair app186, same C831e/runtime808b/argv/env/sourceSHA as
+app184: .089961s/exit1/noEXE, observed stop now
+`owned-field-write/rhs-physical-consumer-pending`. This is the explicit earlier
+missing-RHS fence replacing generic raw reentry; no EXE/progress-to-native claim.
+RootD/CLI180 and source/focused/app186 manifests under the existing evidence base
+are retained for the same unfinished full-RHS/final-consumer connection.
+
+CLI180 unchanged mimalloc-lite app187: canonical direct --emit-exe, same pinned
+C831e/runtime808b/sourceSHA/argv/env as app185. EXE compile131.560043s/native
+.001288s, exact existing7 stdout lines/exit0 PASS; only expected plugin-disabled
+warning. Native EXE SHA
+3b18065a1ebd851429d5c473fc5a11d97cda66e7e3c95dd281f154859eed9561.
+RootD pin SHA a5219e500b0c890cb2ee67d35af7e878fbacc4d3ad2298c44bacf3d5f6a0117f.
+Root-route/layer/thin-shim/pointer/diff guards PASS. No fresh full-suite/current-CI
+green, LOCAL activation or performance gain is claimed; S0/full goal stay open.
+Evidence disposition: keep rootD/CLI180/native187/backend/runtime and source/focused/
+app186-187 receipts for pending whole-RHS/final-consumer work. Earlier rootA/B and
+CLI179/native185 remain comparison evidence until that connection closes. No
+backed-up adapter remains; the temporary raw extraction was removed in this
+series. Next implement scoped RHS observation using the mapping above, preserving
+all accepted source classes and existing scalar/literal physical owners.

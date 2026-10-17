@@ -4338,3 +4338,16 @@ The selected checked_field_write writer creates that same physical graph from
 already-proved operands, canonical field and Home unwind operations. Source
 packets validate their own operands and source before recording the graph; the
 writer does not classify AST, infer an origin or grant a source permission.
+
+Owned LOCAL field-write plans retain the same immutable whole-RHS source recipe:
+original node order/classes and exact lexical reference binding/scalar-kind pairs.
+The recipe stays beside the same frame and existing Sub/Div loans. Refinement
+cannot drop or replace its Rc. Source I64 classification, including Modulo and
+typed literals, grants no non-Fault or physical execution permission.
+
+FieldWriteSourceLoanV1 dispatches retained formal/LOCAL source origins. LOCAL keeps
+the same completion/frame/RHS Rc and original writer/New source across affine take.
+Raw ports and the shared packet retain this common source unchanged. The packet's
+formal exact-read evidence and final borrowed entry/null/numeric checks stay
+origin-specific; LOCAL stops explicitly at missing RHS physical support and never
+re-enters the generic setter. Owned-ready reads recheck this same source loan.

@@ -1,6 +1,6 @@
 //! The first original variable read transfers its receipt with its value.
 use super::*;
-use crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1 as Source;
+use crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1 as Source;
 use crate::mir::builder::ExactLexicalReadV1;
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 
@@ -8,11 +8,15 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(super) fn borrowed_field_write_source_v1(&self) -> Result<Option<Source>, String> {
         let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None) };
         let node = self.current_source_site_v1().ok_or("[freeze:contract][borrowed-field-write/statement-site]")?;
-        ledger.borrowed_field_write_source_at_v1(owner, &SourceStmtSiteV1::from_node(node))
+        let Some(source) = ledger.field_write_source_at_v1(owner, &SourceStmtSiteV1::from_node(node))? else { return Ok(None) };
+        source.validate_source(ledger)?;
+        Ok(Some(source))
     }
     pub(super) fn read_borrowed_field_write_source_v1(&self, source: &Source, receiver: bool, input: ASTNode,
     ) -> Result<Rc<ExactLexicalReadV1>, String> {
-        let (binding, _, site) = if receiver { source.receiver() } else { source.value() };
+        let formal = source.borrowed()
+            .ok_or("[freeze:contract][owned-field-write/rhs-physical-consumer-pending]")?;
+        let (binding, _, site) = if receiver { formal.receiver() } else { formal.value() };
         if !matches!(input, ASTNode::Variable { .. }) || self.callable_owner_v1() != Some(site.owner())
             || self.current_source_site_v1().as_ref() != Some(site.site().node())
         { return Err("[freeze:contract][borrowed-field-write/read-source]".into()); }

@@ -27,6 +27,7 @@ mod leaves;
 #[path = "home_field_write_expression.rs"]
 mod field_write_expression;
 pub(super) use field_write_expression::qualify_field_write_expression_v1;
+pub(crate) use field_write_expression::QualifiedFieldWriteRhsV1;
 #[path = "home_bool_condition.rs"]
 mod condition;
 pub(crate) use condition::{qualify_bool_condition_v1, CheckedBoolConditionFrameV1};
@@ -37,6 +38,7 @@ pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpre
 #[path = "home_borrowed_field_write.rs"]
 mod field_write;
 pub(crate) use field_write::CheckedFieldWriteFrameV1;
+use field_write::FieldWritePlanV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExpressionScalarOperationLoanV1 {
@@ -95,7 +97,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     source_fields: Vec<ExpressionFieldRequirementV1>,
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
-    field_write: Option<Rc<CheckedFieldWriteFrameV1>>,
+    field_write: Option<FieldWritePlanV1>,
 }
 impl HomeExpressionPlanV1 {
     /// Called only after the original scalar preflight proves both Integer
@@ -165,10 +167,15 @@ impl HomeExpressionPlanV1 {
         self.source_fields = fields;
         self.is_consistent().then_some(self)
     }
-    pub(crate) fn field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> { self.field_write.as_ref() }
+    pub(crate) fn field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> {
+        self.field_write.as_ref().map(|plan| &plan.frame)
+    }
+    pub(crate) fn field_write_rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> {
+        self.field_write.as_ref().and_then(|plan| plan.rhs.as_ref())
+    }
     /// Existing formal consumers cannot borrow a LOCAL permission.
     pub(crate) fn borrowed_field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> {
-        self.field_write.as_ref().filter(|frame| frame.is_borrowed())
+        self.field_write_frame().filter(|frame| frame.is_borrowed())
     }
     pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> { self.condition_frame.as_ref() }
     pub(crate) fn print_frame(&self) -> Option<&Rc<CheckedPrintExpressionFrameV1>> { self.print_frame.as_ref() }
@@ -185,7 +192,12 @@ impl HomeExpressionPlanV1 {
         let mut seen = std::collections::BTreeSet::new();
         [self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some()]
             .into_iter().filter(|present| *present).count() <= 1
-            && self.field_write.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.field_write.as_ref().is_none_or(|plan| Rc::ptr_eq(plan.frame.source(), &self.source)
+                && match (&plan.rhs, plan.frame.is_borrowed()) {
+                    (None, true) => true,
+                    (Some(rhs), false) => rhs.is_consistent(&self.source),
+                    _ => false,
+                })
             && self.condition_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.source_fields.iter().all(|field| Rc::ptr_eq(&self.source, field.plan()) && field.is_consistent())
@@ -223,6 +235,11 @@ impl super::RootHomeFlow {
                 _ => true,
             }
             || match (original.field_write_frame(), refined.field_write_frame()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
+                _ => true,
+            }
+            || match (original.field_write_rhs(), refined.field_write_rhs()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
                 _ => true,
@@ -336,6 +353,8 @@ mod installation_tests {
             ("n", false, false), ("true", false, false), ("\"7\"", false, false),
             ("\"text\" + 1", false, false), ("null", false, false),
             ("1 - 2", false, true), ("6 / 2", false, true), ("6 / 0", false, false),
+            ("2 * 3", false, true), ("6 % 2", false, true), ("6 % 0", false, true),
+            ("3 & 1", false, true), ("2 << 1", false, true),
         ] {
             for batch_succeeds in [false, true] {
                 let parsed = crate::parser::NyashParser::parse_from_string(&format!(

@@ -52,17 +52,10 @@ impl OwnedReadyFieldReadSourceV1 {
         if self.request.site != *site || self.request.receiver_site != *receiver_site
             || self.request.receiver != receiver || self.request.home != home || self.field != field
             || home != local.root() || receiver != home { return Err(fail()); }
-        ledger.field_write_claims.recheck_original_write_source_v1(local.original()).map_err(|_| fail())?;
-        ledger.with_local_new_source_v1(local.acquisition(), home, |source| {
-            if source.object != field.object() || !source.construction_source.as_ref()
-                .is_ok_and(|original| Rc::ptr_eq(original, local.construction())) { return Err(fail()); }
-            Ok(())
-        })?.ok_or_else(fail)?;
-        let completion = ledger.completion_for_owner(site.owner()).ok_or_else(fail)?;
-        let flow = completion.cleanup().root_flow().ok_or_else(fail)?;
-        let mut frames = flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame())
-            .filter(|frame| Rc::ptr_eq(frame, &self.frame));
-        if frames.next().is_none() || frames.next().is_some() { return Err(fail()); }
+        let source = ledger.field_write_source_at_v1(site.owner(), self.frame.source().root().statement())?
+            .ok_or_else(fail)?;
+        if !Rc::ptr_eq(source.frame(), &self.frame) || source.owned_rhs().is_none() { return Err(fail()); }
+        source.validate_source(ledger)?;
         Ok(())
     }
 }

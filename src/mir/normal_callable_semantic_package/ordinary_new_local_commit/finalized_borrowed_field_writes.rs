@@ -23,7 +23,8 @@ impl FinalizedRootSourceHandoffV1 {
             for group in self.local_calls.get(&owner).into_iter().flatten() {
                 let Some(packet) = group.borrowed_field_write() else { continue };
                 group.require_sealed_condition_v1()?;
-                let source = packet.source();
+                let source = packet.source().borrowed()
+                    .ok_or_else(|| freeze("owned-field-write/rhs-physical-consumer-pending"))?;
                 if source.frame().source().owner() != owner || group.site() != source.value().2
                     || !sites.insert(group.site().clone())
                 { return Err(freeze("finished-borrowed-write/source-membership")); }

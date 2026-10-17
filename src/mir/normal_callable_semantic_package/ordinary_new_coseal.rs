@@ -682,7 +682,7 @@ pub(in crate::mir) use local_commit::CallValidationContextV1;
 #[path = "ordinary_new_main_arguments.rs"]
 mod main_arguments;
 
-pub(crate) use lexical_instance_call::BorrowedFieldWriteSourceLoanV1;
+pub(crate) use lexical_instance_call::{BorrowedFieldWriteSourceLoanV1, FieldWriteSourceLoanV1};
 pub(in crate::mir) use lexical_instance_call::BorrowedArraySetSourceLoanV1;
 pub(crate) use lexical_instance_call::DeclaredArrayFieldReadSourceV1;
 

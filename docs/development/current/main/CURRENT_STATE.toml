@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-terminal-result/raw-field-read-reentry"
+current_blocker_token = "owned-field-write/rhs-physical-consumer-pending"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -41,10 +41,10 @@ V844 exact ready-frame retained through Return source; focused76 PASS on rootC.
 CLI178 app183 Pair now raw-field-read-reentry in lowering, noEXE.
 V846 common physical graph/writer landed c5a5be22ca; CLI179 Pair same raw reentry;
 unchanged mimalloc app185 native exact7/exit0 PASS.
-V847 WIP: full RHS source recipe/common origin dispatch, rootB50 focused PASS.
-One new unused common-type import; no fresh CLI;13 src paths uncommitted.
-User requested restart stop; resume V847 from active card, keep WIP/pins.
-Next common LOCAL packet/RHS receipts and both final consumers/C; S0 open.
+V847 full RHS source recipe/common origin reaches existing packet; rootD55 PASS.
+Raw formal extraction removed, unused import fixed; warning delta zero.
+CLI180 Pair app186 RHS physical pending; mimalloc app187 native exact7/exit0 PASS.
+Next complete RHS observation/receipts, both final consumers/C/New; S0 open.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """
