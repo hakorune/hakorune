@@ -5,22 +5,31 @@ use crate::mir::resolved_value_profile::expression_plan::{
     call_argument_expression_source_plan_v1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 
+/// Original outer Call and ordinal identity, independent of the value's class.
+fn corroborates_argument_plan_v1(
+    plan: &ExpressionSourcePlanV1, source: &StaticIncomingSourceV1,
+    ordinal: u32, site: &SourceExprSiteV1,
+) -> bool {
+    matches!(plan.root(), ExpressionPlanRootV1::CallArgument { call, ordinal: original, .. }
+        if *original == ordinal && std::sync::Arc::ptr_eq(call, source.method_source()))
+        && plan.owner() == source.call_site().owner()
+        && source.argument_sites().get(ordinal as usize) == Some(site)
+        && plan.nodes().first().is_some_and(|node| node.site() == site)
+}
+
 pub(super) fn corroborates_argument_source_v1(
     plan: &ExpressionSourcePlanV1,
     source: &StaticIncomingSourceV1,
     ordinal: u32,
     method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 ) -> bool {
-    matches!(plan.root(), ExpressionPlanRootV1::CallArgument { call, ordinal: original, .. }
-        if *original == ordinal && std::sync::Arc::ptr_eq(call, source.method_source()))
-        && plan.owner() == source.call_site().owner() && method.owner() == plan.owner()
-        && source.argument_sites().get(ordinal as usize) == Some(method.site())
-        && plan.nodes().first().is_some_and(|node| node.site() == method.site()
-            && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
+    corroborates_argument_plan_v1(plan, source, ordinal, method.site()) && method.owner() == plan.owner()
+        && plan.nodes().first().is_some_and(|node|
+            matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
 }
 
-/// Re-observation borrows the existing original Rc; structural equality cannot
-/// replace that loan or relax the existing repeated-walk-drift boundary.
+/// Re-observation borrows every original argument plan Rc. This is source
+/// coverage only: literal, local and Core inputs share no execution shortcut.
 pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sources_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
@@ -29,42 +38,55 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
 ) -> Result<(), String> {
     let Some(rows) = rows else { return Ok(()) };
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase else { return Ok(()) };
-    if identity.core_arguments.is_empty() { return Ok(()); }
     let reject = || freeze("borrowed-static/core-source-identity");
     let old = previous.map(|rows| {
-        // The new preparation is already Ok here. A preceding Err differs
-        // exactly as it did at the existing staging boundary; never replay it.
         let rows = rows.as_ref().map_err(|_| freeze("borrowed-actual/repeated-walk-drift"))?;
         let BorrowedCallActualEvidencePhaseV1::SourceStatic(old) = &rows.phase else { return Err(reject()) };
         if !Rc::ptr_eq(&old.source, &identity.source) || old.candidates != identity.candidates
+            || old.integer_evidence != identity.integer_evidence
             || old.core_arguments.len() != identity.core_arguments.len()
-            || old.argument_sources.len() != old.core_arguments.len()
+            || old.argument_sources.len() != identity.candidates.len()
         { return Err(reject()); }
         Ok(old)
     }).transpose()?;
     if input.owner() != site.owner() || identity.source.call_site() != site
+        || identity.candidates.len() != identity.source.argument_sites().len()
         || !input.function().method_call_source_v1(site.site()).is_some_and(|call|
             std::sync::Arc::ptr_eq(call, identity.source.method_source()))
     { return Err(reject()); }
     let mut plans = BTreeMap::new();
-    for (ordinal, receipt) in &identity.core_arguments {
-        let candidate = identity.candidates.get(*ordinal as usize).filter(|row| row.ordinal == *ordinal).ok_or_else(reject)?;
-        let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value else { return Err(reject()) };
-        if !std::sync::Arc::ptr_eq(method, receipt.source().source())
-            || !input.function().method_call_source_v1(method.site()).is_some_and(|call| std::sync::Arc::ptr_eq(call, method))
-        { return Err(reject()); }
-        let plan = if let Some(old) = old {
-            if !old.core_arguments.get(ordinal).is_some_and(|original| Rc::ptr_eq(original, receipt)) { return Err(reject()); }
-            Rc::clone(old.argument_sources.get(ordinal).ok_or_else(reject)?)
-        } else {
-            call_argument_expression_source_plan_v1(input, identity.source.method_source(), *ordinal)
-                .map_err(|_| reject())?
+    for (ordinal, candidate) in identity.candidates.iter().enumerate() {
+        let ordinal = ordinal as u32;
+        if candidate.ordinal != ordinal { return Err(reject()); }
+        // The binder checks spelling and binding identity, never the local's
+        // class, current value or ownership. Those remain separate demands.
+        let atom = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, &candidate.site);
+        let same = match (&candidate.value, atom.as_ref()) {
+            (BorrowedCallActualValueV1::Scalar(binding, _) | BorrowedCallActualValueV1::SelfRooted { binding, .. },
+                Some(BorrowedCallActualValueV1::Binding(original))) => binding == original,
+            (BorrowedCallActualValueV1::MethodCall(method), Some(BorrowedCallActualValueV1::MethodCall(original))) => std::sync::Arc::ptr_eq(method, original),
+            (expected, Some(original)) => expected == original,
+            _ => false,
         };
-        if !corroborates_argument_source_v1(&plan, &identity.source, *ordinal, method)
+        if !same { return Err(reject()); }
+        if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
+            let receipt = identity.core_arguments.get(&ordinal).ok_or_else(reject)?;
+            if !std::sync::Arc::ptr_eq(method, receipt.source().source())
+                || !input.function().method_call_source_v1(method.site()).is_some_and(|call| std::sync::Arc::ptr_eq(call, method))
+                || old.is_some_and(|old| !old.core_arguments.get(&ordinal).is_some_and(|original| Rc::ptr_eq(original, receipt)))
+            { return Err(reject()); }
+        } else if identity.core_arguments.contains_key(&ordinal) { return Err(reject()); }
+        let plan = if let Some(old) = old {
+            Rc::clone(old.argument_sources.get(&ordinal).ok_or_else(reject)?)
+        } else {
+            call_argument_expression_source_plan_v1(input, identity.source.method_source(), ordinal).map_err(|_| reject())?
+        };
+        if !corroborates_argument_plan_v1(&plan, &identity.source, candidate.ordinal, &candidate.site)
             || input.function().source_site_inventory().containing_statement(site.site()) != Some(plan.root().statement())
         { return Err(reject()); }
-        plans.insert(*ordinal, plan);
+        plans.insert(ordinal, plan);
     }
+    if identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) { return Err(reject()); }
     identity.argument_sources = plans;
     Ok(())
 }
@@ -113,11 +135,8 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));
     };
-    let has_core_source = !identity.core_arguments.is_empty() || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_)));
-    let retained = if has_core_source { original_core_static_source_v1(prepared, site)?
-        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))? }
-        else { prepared.source_incoming.static_observations().get(site)
-            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?.as_ref().map_err(Clone::clone)? };
+    let retained = original_static_source_v1(prepared, site)?
+        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
     if !Rc::ptr_eq(retained, &identity.source)
         || identity.source.call_site() != site
         || required_i64_arguments != identity.source.required_i64_arguments()
@@ -142,6 +161,18 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
             || identity.source.argument_sites().get(index) != Some(&candidate.site)
         {
             return Err(freeze("borrowed-static/source-projection-identity"));
+        }
+        let plan = identity.argument_sources.get(&candidate.ordinal)
+            .filter(|plan| corroborates_argument_plan_v1(plan, &identity.source, candidate.ordinal, &candidate.site))
+            .ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1 as Literal, ResolvedLexicalRefV1 as Ref};
+        match (&candidate.value, plan.nodes()[0].source()) {
+            (BorrowedCallActualValueV1::String(value), Node::Literal(Literal::String(original))) if value == original => {}
+            (BorrowedCallActualValueV1::String(_), _) => return Err(freeze("borrowed-static/argument-source-identity")),
+            (BorrowedCallActualValueV1::Binding(binding), Node::Reference(Ref::Local(original))) if binding == original => {}
+            (BorrowedCallActualValueV1::Binding(_), _) => return Err(freeze("borrowed-static/argument-source-identity")),
+            _ => {}
         }
         match (&candidate.value, identity.core_arguments.get(&candidate.ordinal)) {
             (BorrowedCallActualValueV1::MethodCall(method), Some(receipt)) => {
@@ -181,8 +212,8 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
             return Err(freeze("borrowed-static/source-projection-identity"));
         }
     }
-    if identity.argument_sources.len() != identity.core_arguments.len()
-        || identity.argument_sources.keys().any(|ordinal| !identity.core_arguments.contains_key(ordinal))
+    if identity.argument_sources.len() != identity.candidates.len()
+        || identity.argument_sources.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len())
         || identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) {
         return Err(freeze("borrowed-static/core-source-identity"));
     }

@@ -27,7 +27,7 @@ fn borrowed_source_atoms_preserve_literal_tags_signed_site_and_unsupported_spell
                 if call.selector() != "probe" { continue; }
                 checked += 1;
                 let atoms: Vec<_> = call.arguments().iter().map(|argument| borrowed_actual_source_atom_v1(input, argument.site())).collect();
-                assert_eq!(atoms, vec![Some(BorrowedCallActualValueV1::Integer(7)), Some(BorrowedCallActualValueV1::Bool(true)), Some(BorrowedCallActualValueV1::Null), Some(BorrowedCallActualValueV1::Integer(-7)), None, None, None]);
+                assert_eq!(atoms, vec![Some(BorrowedCallActualValueV1::Integer(7)), Some(BorrowedCallActualValueV1::Bool(true)), Some(BorrowedCallActualValueV1::Null), Some(BorrowedCallActualValueV1::Integer(-7)), Some(BorrowedCallActualValueV1::String("no".into())), None, None]);
                 assert!(borrowed_actual_source_atom_v1(input, call.receiver_site()).is_some_and(|atom| matches!(atom, BorrowedCallActualValueV1::Binding(binding) if binding.owner() == input.owner())));
             }
         }).unwrap();
@@ -40,6 +40,14 @@ fn borrowed_source_atoms_keep_parameter_identity_without_home_or_scalar_grant() 
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         "box Transport { probe(p): i64 { return 0 } forward(p) { local out = me.probe(p) return 0 } } static box Main { main() { local s = new Transport() local out = s.forward(7) return 0 } }"
     ).unwrap();
+    let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let mut instance_rows = 0;
+    for row in ingress.source_incoming.source_rows_v1().filter(|row| row.source.instance().is_some()) {
+        assert!(super::static_source::prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, &row.call, &[]).unwrap().is_none(),
+            "the Static lender leaves an original Instance call to its existing owner");
+        instance_rows += 1;
+    }
+    assert!(instance_rows > 0);
     let mut checked = 0;
     for contract in package.parameter_contracts.iter() {
         package

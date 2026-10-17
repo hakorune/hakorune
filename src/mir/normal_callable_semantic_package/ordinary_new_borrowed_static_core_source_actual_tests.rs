@@ -103,3 +103,74 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
     }
 }
 
+
+#[test]
+fn static_argument_plans_cover_literal_local_and_forward_without_execution_grant() {
+    for (prefix, argument, parameter) in [
+        ("", "\"bytes\"", ""),
+        ("local key = \"bytes\"", "key", ""),
+        ("local alias = key", "alias", "key"),
+    ] {
+        let text = format!("static box Values {{ sink(p,q) {{ return 0 }} caller({parameter}) {{ {prefix} local n = Values.sink({argument},7) return 0 }} }} static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let original = ingress.source_incoming.source_rows_v1().filter_map(|row| match &row.source {
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source)
+                if source.target().name() == "sink" => Some(source), _ => None,
+        }).next().unwrap();
+        let slot = package.batch().declarations().find(|row| row.owner() == original.call_site().owner()).unwrap().batch_slot();
+        package.batch().with_lowering_input(slot, |input| {
+            let candidates: Vec<_> = original.argument_sites().iter().enumerate().map(|(ordinal, site)| {
+                let value = if let Some(fact) = ingress.static_arguments.get(&(original.call_site().clone(), ordinal as u32)) {
+                    BorrowedCallActualValueV1::SelfRooted { binding: fact.binding(), root: fact.formal() }
+                } else { crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, site).unwrap() };
+                BorrowedCallActualCandidateV1 { ordinal: ordinal as u32, site: site.clone(), value }
+            }).collect();
+            let mut rows = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &candidates).unwrap().unwrap();
+            bind_static_argument_sources_v1(input, original.call_site(), None, Some(&mut rows)).unwrap();
+            let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { panic!("source only") };
+            assert_eq!(identity.argument_sources.len(), 2, "every ordered actual has its original plan");
+            assert!(identity.core_arguments.is_empty());
+            let first = Rc::clone(&identity.argument_sources[&0]);
+            let second = Rc::clone(&identity.argument_sources[&1]);
+            argument_source::validate_static_source_actuals_v1(ingress, &rows, original.call_site(), original.required_i64_arguments()).unwrap();
+            assert!(rows.require_executable_v1().is_err(), "source coverage cannot issue an executable actual");
+            if candidates.iter().any(|row| matches!(row.value, BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))) {
+                let pending = BTreeMap::from([(original.call_site().clone(), Ok(rows.clone()))]);
+                assert!(project_pending_static_source_arguments_for_route_v1(ingress, &pending, original.call_site(), original.required_i64_arguments(), false)
+                    .unwrap_err().contains("text-expression-execution-pending"), "even an unused formal cannot skip evaluation");
+            }
+            if matches!(candidates[0].value, BorrowedCallActualValueV1::String(_)) {
+                let mut forged = candidates.clone();
+                forged[0].value = BorrowedCallActualValueV1::String("forged".into());
+                let mut changed = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &forged).unwrap().unwrap();
+                assert!(bind_static_argument_sources_v1(input, original.call_site(), None, Some(&mut changed)).is_err(), "literal payload must be original");
+            }
+            let mut repeated = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &candidates).unwrap().unwrap();
+            bind_static_argument_sources_v1(input, original.call_site(), Some(&Ok(rows.clone())), Some(&mut repeated)).unwrap();
+            assert_eq!(rows, repeated, "re-observation retains every SAME plan Rc");
+            for mutation in 0..4 {
+                let mut changed = rows.clone();
+                let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut changed.phase else { unreachable!() };
+                match mutation {
+                    0 => { identity.argument_sources.remove(&1); }
+                    1 => { identity.argument_sources.insert(2, Rc::clone(&second)); }
+                    2 => { identity.argument_sources.insert(0, Rc::clone(&second)); }
+                    3 => { identity.argument_sources.insert(1, Rc::clone(&first)); }
+                    _ => unreachable!(),
+                }
+                assert!(argument_source::validate_static_source_actuals_v1(ingress, &changed, original.call_site(), original.required_i64_arguments()).is_err(), "full ordered coverage: {mutation}");
+            }
+            let reissued = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, original.method_source(), 0).unwrap();
+            assert!(!Rc::ptr_eq(&first, &reissued));
+            let mut changed = rows.clone();
+            let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut changed.phase else { unreachable!() };
+            identity.argument_sources.insert(0, reissued);
+            let mut staged = BTreeMap::from([(original.call_site().clone(), Ok(rows.clone()))]);
+            super::super::super::stage_borrowed_call_actuals_v1(&mut staged, original.call_site(), Ok(Some(changed)));
+            assert!(staged[original.call_site()].as_ref().unwrap_err().contains("repeated-walk-drift"));
+        }).unwrap();
+    }
+}

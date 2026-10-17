@@ -4529,9 +4529,14 @@ of operand execution premises, and no checked operation, range/nonFault, Home,
 Loop Recipe, ABI, cleanup or publication permission follows. General
 String*Dynamic and mutable ordinary incoming domains are not selected here.
 
-Static Core actual observation now receives the SAME resolved input and retains
-an original CallArgument plan Rc beside its ordinary Core receipt in the existing
-Static source identity. These maps have exact ordinal correspondence. The source
+Static actual observation receives the SAME resolved input and retains one
+original CallArgument plan Rc per ordered actual in the existing Static source
+identity. Core receipts are an exact subset with SAME method Arc correspondence.
+Literal, local/forward and Core inputs share this source-plan binder; a String
+literal is only a source atom, and local Binding remains unclassified. Preparation
+and projection borrow the same complete canonical Static census, corroborating
+any legacy observation without adding omitted callers to that projection.
+String/local source candidates remain execution-pending even for unused formals. The source
 plan retains the canonical outer method Arc and actual root; a missing, extra or
 foreign plan cannot reach even the passive execution-pending projection. Original
 re-observation reuses the already retained plan Rc after receipt/candidate/source

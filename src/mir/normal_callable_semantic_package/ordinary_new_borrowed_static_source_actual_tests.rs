@@ -241,17 +241,14 @@ fn static_source_port_checks_required_integer_and_exact_forward_identity() {
             "mutation {mutation}"
         );
     }
+    let slot = package.parameter_contracts.iter().find(|row| row.owner == fact.call().owner()).unwrap().batch_slot;
+    let rows = package.batch().with_lowering_input(slot, |input| {
+        let mut rows = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, fact.call(), &[actual]).unwrap().unwrap();
+        bind_static_argument_sources_v1(input, fact.call(), None, Some(&mut rows)).unwrap();
+        rows
+    }).unwrap();
     let mut pending = PendingBorrowedFormalActualsV1::new();
-    stage_borrowed_call_actuals_v1(
-        &mut pending,
-        fact.call(),
-        prepare_static_source_actuals_v1(
-            ingress,
-            &package.parameter_contracts,
-            fact.call(),
-            &[actual],
-        ),
-    );
+    stage_borrowed_call_actuals_v1(&mut pending, fact.call(), Ok(Some(rows)));
     assert!(project_pending_static_source_arguments_v1(
         ledger.borrowed_formal_source.as_ref().unwrap(),
         &pending,

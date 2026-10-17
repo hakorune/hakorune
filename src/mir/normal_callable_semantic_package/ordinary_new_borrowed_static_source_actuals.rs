@@ -39,16 +39,16 @@ impl PartialEq for StaticSourceActualIdentityV1 {
 }
 impl Eq for StaticSourceActualIdentityV1 {}
 
-/// The passive Core lane borrows the complete original source census. It must
+/// Passive argument plans borrow the complete original source census. They must
 /// not insert omitted callers into the legacy static-observation projection.
-fn original_core_static_source_v1<'a>(
+fn original_static_source_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1,
 ) -> Result<Option<&'a Rc<StaticIncomingSourceV1>>, String> {
     let mut rows = prepared.source_incoming.source_rows_v1().filter(|row| &row.call == call);
     let Some(row) = rows.next() else { return Ok(None); };
     if rows.next().is_some() { return Err(freeze("borrowed-static/core-source-identity")); }
     let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source) = &row.source
-        else { return Err(freeze("borrowed-static/core-source-identity")); };
+        else { return Ok(None); };
     if let Some(legacy) = prepared.source_incoming.static_observations().get(call) {
         if !Rc::ptr_eq(legacy.as_ref().map_err(Clone::clone)?, source) {
             return Err(freeze("borrowed-static/core-source-identity"));
@@ -126,22 +126,21 @@ pub(super) fn prepare_static_source_actuals_v1(
         prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone()))
             .is_some_and(|receipt| std::sync::Arc::ptr_eq(method, receipt.source().source()))
     });
-    let original = if core_source { original_core_static_source_v1(prepared, call)? }
-        else { prepared.source_incoming.static_observations().get(call).and_then(|row| row.as_ref().ok()) };
+    let source_expression = actuals.iter().any(|actual| matches!(actual.value,
+        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_)));
+    let original = original_static_source_v1(prepared, call)?;
     let original_source = original
         .is_some_and(|source| {
             source.is_zeroarg_i64_v1()
                 || source.is_current_owner_i64_source_v1()
                 || source.is_current_owner_bool_source_v1()
                 || prepared.is_static_terminal_source_v1(source)
-                || (source.is_qualified_i64_source_v1() && core_source)
+                || (source.is_qualified_i64_source_v1() && (core_source || source_expression))
         });
     if !opaque_source && !original_source {
         return Ok(None);
     }
-    let source = if core_source { original.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))? }
-        else { prepared.source_incoming.static_observations().get(call)
-            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?.as_ref().map_err(Clone::clone)? };
+    let source = original.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
     let mut matching = contracts
         .iter()
         .filter(|row| row.owner == source.callee_owner());
@@ -202,6 +201,9 @@ pub(super) fn prepare_static_source_actuals_v1(
         let integer = match &actual.value {
             BorrowedCallActualValueV1::Integer(_) => true,
             BorrowedCallActualValueV1::Bool(_) | BorrowedCallActualValueV1::Null => false,
+            BorrowedCallActualValueV1::String(_) if formal.kind.is_ordinary_borrowed_handle() => false,
+            BorrowedCallActualValueV1::Binding(binding)
+                if binding.owner() == call.owner() && formal.kind.is_ordinary_borrowed_handle() => false,
             BorrowedCallActualValueV1::Scalar(binding, kind) if binding.owner() == call.owner() => {
                 *kind == SourceScalarKind::Integer
             }
@@ -447,11 +449,10 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
                 super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified_i64_source_v1()
             )
     });
-    let has_core_source = pending.get(site).is_some_and(|rows| matches!(rows,
+    let has_expression_source = pending.get(site).is_some_and(|rows| matches!(rows,
         Ok(rows) if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(identity)
-            if !identity.core_arguments.is_empty() || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_))))));
-    let retained = if has_core_source { original_core_static_source_v1(prepared, site)? }
-        else { prepared.source_incoming.static_observations().get(site).and_then(|row| row.as_ref().ok()) };
+            if !identity.core_arguments.is_empty() || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
+    let retained = original_static_source_v1(prepared, site)?;
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
     let has_static_terminal_source = !current_owner
         && retained.is_some_and(|row| prepared.is_static_terminal_source_v1(row));
@@ -459,7 +460,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         && !has_final_static
         && !has_static_terminal_source
         && source_qualified.is_none()
-        && !has_core_source
+        && !has_expression_source
         && !(current_owner && has_current_owner_source)
     {
         return Ok(None);
@@ -500,7 +501,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         )
         .map(|arguments| Some(arguments.into()));
     }
-    if !has_source_fact && !current_owner && !has_static_terminal_source && source_qualified.is_none() && !has_core_source {
+    if !has_source_fact && !current_owner && !has_static_terminal_source && source_qualified.is_none() && !has_expression_source {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {
@@ -610,6 +611,10 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
     // passive even for a callee with no required-I64 arguments or unused input.
     if !identity.core_arguments.is_empty() {
         return Err(freeze("borrowed-static/core-expression-execution-pending"));
+    }
+    if identity.candidates.iter().any(|actual| matches!(actual.value,
+        BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))) {
+        return Err(freeze("borrowed-static/text-expression-execution-pending"));
     }
     if required_i64_arguments.iter().any(|ordinal| {
         if identity.integer_evidence.get(*ordinal as usize) == Some(&true) {

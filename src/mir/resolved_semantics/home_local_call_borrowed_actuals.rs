@@ -7,6 +7,8 @@ use crate::mir::resolved_semantics::BindingKindV1;
 pub(crate) enum BorrowedCallActualValueV1 {
     Integer(i64),
     Bool(bool),
+    /// Original literal only; no Text entry, residence or execution grant.
+    String(Box<str>),
     Null,
     Scalar(BindingRefV1, SourceScalarKind),
     ReceivedNullable(BindingRefV1),
@@ -53,6 +55,7 @@ pub(crate) fn borrowed_actual_source_atom_v1(
         }
         Some(ResolvedLiteralSourceV1::Bool(value)) => Some(BorrowedCallActualValueV1::Bool(*value)),
         Some(ResolvedLiteralSourceV1::Null) => Some(BorrowedCallActualValueV1::Null),
+        Some(ResolvedLiteralSourceV1::String(value)) => Some(BorrowedCallActualValueV1::String(value.clone())),
         _ => source
             .negative_integer_immediate(site)
             .map(BorrowedCallActualValueV1::Integer)
