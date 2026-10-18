@@ -302,7 +302,7 @@ fn object_view_for(
                 scalar_fields.insert(declaration.name.clone().into_boxed_str(),
                     crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1::from_declaration(
                         field, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar,
-                        ty.into()));
+                        Some(ty.into())));
             }
             Some(BorrowedFormalObjectViewV1 {
                 class: class.into(), object, scalar_fields: Rc::new(scalar_fields), declared: false,

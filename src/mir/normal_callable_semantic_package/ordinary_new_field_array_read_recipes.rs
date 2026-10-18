@@ -49,6 +49,33 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = self.field_array_read_sources_for_owner_v1(owner)?.into_iter().find(|source| source.call() == site);
         source.map(|source| self.field_array_read_recipe_from_source_v1(owner, source)).transpose()
     }
+    /// Same source-scoped resolver input and canonical field-class loan for each
+    /// Array receiver; operation admission remains with its read/write owner.
+    pub(crate) fn array_field_receiver_source_v1(&self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1, name: &str,
+    ) -> Result<Option<(BindingRefV1, Rc<super::field_write_claim::ObjectFieldClassSourceV1>)>, String> {
+        use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
+        if input.owner() != site.owner() { return Err(array_fault("receiver-source-owner")); }
+        let Some(shape) = input.body_shape() else { return Ok(None); };
+        let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(site.site()) else { return Ok(None); };
+        if field.as_ref() != name { return Err(array_fault("receiver-source-field")); }
+        let binding = match shape.expression_shape(object) {
+            Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. }) => *binding,
+            _ => return Ok(None),
+        };
+        if input.function().binding(binding).is_none_or(|row| row.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver) {
+            return Err(array_fault("receiver-source-binding"));
+        }
+        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| array_fault("read-original-catalog-missing"))?;
+        let mut contracts = catalog.iter().filter(|row| row.owner == input.owner());
+        let Some(contract) = contracts.next() else { return Ok(None); };
+        if contracts.next().is_some() { return Err(array_fault("read-original-contract-duplicate")); }
+        let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(contract.batch_slot) else { return Ok(None); };
+        if caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
+        Ok(self.field_write_claims.array_source(caller.owner(), name).map(|source| (binding, source)))
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn field_array_read_recipes_v1(&self) -> Result<Vec<Rc<FieldArrayReadRecipeV1>>, String> {
         let Some(catalog) = &self.original_parameter_contracts else { return Ok(Vec::new()) };
         let mut recipes = Vec::new();

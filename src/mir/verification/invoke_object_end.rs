@@ -49,7 +49,7 @@ pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step
         }
         match step {
             Step::ArrayField { .. } => {
-                if definition.declared_type_name.as_deref() != Some("ArrayBox")
+                if !module.canonical_array_field(field)
                     || !matches!(
                         disposition,
                         Destruction::OwnedArrayFieldsNoHook | Destruction::OwnedObjectFieldsNoHook

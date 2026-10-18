@@ -23,6 +23,7 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     fn prepare_terminal_field_read(
         &mut self,
         _object: crate::ast::ASTNode,
+        _field: &str,
     ) -> Result<Option<PreparedRawFieldReadV1>, String> {
         Ok(None)
     }

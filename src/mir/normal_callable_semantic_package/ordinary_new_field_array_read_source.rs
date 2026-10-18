@@ -159,7 +159,8 @@ fn exact_array_field_candidate(
     let Some((canonical, declared)) = super::terminal_home::source_declared_field(constructors, box_source,
         &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()), field)
         .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-result/field-authority")))? else { return Ok(None) };
-    Ok((declared.as_deref() == Some("ArrayBox")).then(|| (field.clone(), canonical)))
+    Ok(constructors.is_array_field(canonical).map_err(|_| freeze("array-read/field-source"))?
+        .then(|| (field.clone(), canonical)))
 }
 
 #[allow(clippy::too_many_arguments)]

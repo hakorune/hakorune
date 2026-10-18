@@ -837,8 +837,21 @@ sessions even if numeric indices match; wrong Birth arity is not NoBirthZero.
 The batch assigns one CanonicalObjectIdV1 per ordinary Box, including NoBirth;
 CanonicalFieldRefV1 carries object identity, not an unqualified field ordinal.
 The definition issuer separately owns bounded destruction disposition, independent
-of construction/runtime layout. Claims copy ID/disposition before transfer;
-post-transfer lookup cannot reissue them or prove empty cleanup.
+of construction/runtime layout. Before that seal, the original complete writer
+inventory can qualify a source-untyped, nonweak field as a fixed Array residence:
+exactly one Plain Birth writer stores an empty builtin Array provider without
+overrides, with the original constructor/source identity. Canonical definitions
+retain that qualification by exact field ref; original declaration type stays
+None. Source seal and membership reject foreign/out-of-order/duplicate/typed or
+weak qualification rows. This is neither generic untyped inference nor a proof
+of initialization. Construction consumes the same normalized declaration field
+order, including legacy init fields; its all-Normal store and completion checks
+remain mandatory. Claims copy ID/disposition before transfer; post-transfer
+lookup cannot reissue them or prove empty cleanup. Storage, field Array reads,
+residences and Invoke/End checks consult the same canonical Array predicate.
+Count additionally retains/rechecks its same original writer loan; Get still
+requires the separate integer element census. Read descriptors preserve original
+optional declaration spelling even when their semantic result is an Array.
 
 The private [co-seal issuer](ordinary_new_coseal_issue.rs) owns the source walk.
 [Source claim preparation/assembly](ordinary_new_coseal_issue_source.rs) keeps
@@ -912,7 +925,12 @@ there is no second census. Existing fixture projections clone only this Rc.
 Object-class `get` and owned-residence rules are unchanged. Unknown receivers and missing inventories
 remain vetoes in this same product; failed/non-object writers are never erased.
 Object-class consumers share the SAME immutable source map and original writer
-inventory. Typed path edges additionally retain the canonical declaration and
+inventory. The same map can retain canonical Array qualifications, but generic
+class lookup and user-object field accessors exclude builtin rows. A separate
+explicit Array accessor lends the same Rc only after canonical Array/source
+qualification; this grants no ordinary-object path or new Home permission.
+Original source-scoped resolver input validates each exact FieldAccess and Me
+receiver binding before that loan reaches the shared physical field emitter. Typed path edges additionally retain the canonical declaration and
 require its child class to agree with the all-writer class. Whole-Birth success
 is not a prerequisite. Intermediate object reads remain Identity, never numeric
 fields or independent Homes; numeric terminal leaves keep the existing closed

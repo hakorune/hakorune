@@ -164,13 +164,7 @@ pub(super) fn check_module_with_source(
                         // field must be a non-weak `ArrayBox` on an object
                         // whose teardown owns it.
                         InvokeOperation::OwnedFieldResidenceRelease { field, .. }
-                            if !(module.canonical_field_definition(*field).is_some_and(
-                                |definition| {
-                                    !definition.is_weak
-                                        && definition.declared_type_name.as_deref()
-                                            == Some("ArrayBox")
-                                },
-                            ) && module
+                            if !(module.canonical_array_field(*field) && module
                                 .canonical_object_definition(field.object())
                                 .is_some_and(|definition| {
                                     matches!(

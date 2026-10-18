@@ -822,64 +822,14 @@ JSON369 same source-not-i64 stop. Keep943C/281 and prior regression artifacts
 until fixed-residence connection. Diagnostic precedence for multiply invalid
 programs may differ; no source admission widened. Full results in landing commit.
 
-Next Phase C Decision (read-only final-consumer review): move the EXISTING selected
-map issuance immediately after batch resolution; it depends only catalog+batch.
-Move the sole complete writer observation before captured constructor final seal.
-Observe EVERY batch declaration (unselected owner_box=None keeps global veto),
-and EVERY captured constructor row through the same original program loan. Use
-only Cataloged/InstanceBoxMethod selected keys for ordinary owner attribution;
-AppMain stays unattributed, with its original identity/result-class checks later.
-Seal inventory once; pass the same Rc through issuer -> ordinary cohort ->
-prepare_source_claims. Remove that preparation's old field draft/ordinary and
-constructor observations/seal; retain its result-class observations and claims
-projection. Update existing common fixture with the same source capture and Rc,
-not a second census or test-only authority. No new test/case/checker/ledger.
-This is still BoxShape: fixed Array qualification and all final consumers remain
-a later same-series contract; do not waive None or declare the app accepted.
-
-Root944 Phase C implementation mapping: move the existing writer observation
-into OrdinaryNewFieldWriteClaimDraftV1::capture_sources in its current owner.
-Captured rows_for_batch lends source rows after exact coverage validation and is
-also used by final seal. Existing issuer -> cohort -> preparation carries one Rc;
-old preparation writer draft/traversal/seal removed, result/AppMain checks retained.
-Scope includes those production owners, constructor source accessor, owner README,
-and existing source-claims fixture/callers (signature/loan plumbing only). No new
-case, assertion, hook, test file, checker or adapter. Existing stored-child writer
-vetoes, constructor refusals, result-class fixture families and publication tests
-are acceptance. No fixed Array semantic permission or source admission yet.
-
-Root944 Phase C verified closeout: one complete capture now precedes final
-constructor seal, retaining the same original source authority. The existing
-selected map issues once before capture. Captured source input lending checks
-complete coverage and the original program/projection/root/body shape. Same Rc
-moves issuer -> cohort -> source preparation; later writer draft/traversal/seal
-removed. Result-class/AppMain checks stay in preparation. Existing fixture
-captures once and clones only the same Rc for repeated projections. Read-only
-actual-diff review confirms whole ordinary/constructor participation and unchanged
-nested required/opaque/unattributed/value-incomplete gates. No adapter, new
-case/assertion/hook/test file/checker. Production cohort file is800lines after
-its two necessary argument lines; no line-count compression/split was used.
-
-944A quick-test-fast no-run71.698s PASS; ten existing filters91PASS/1baselineFAIL.
-Result-class23PASS/1FAIL equals retained943C: child_relation_real_page_heap_pins_all_sites_and_retains_prefix_failures
-stops at borrowed-static/required-integer-source-unproved, owner18/Body0 Value.
-Constructor26/stored-child6/Array actual1/publication3/Core11/backend20/Loop1 PASS.
-Full9263 names and four issued Get/Count JSON inputs unchanged. Layer/CallTarget/
-diff PASS. CLI282 quick166.950s PASS, jobs4; root/CLI source manifests identical.
-Original app source hashes equal retained362/363. Direct canonical command:
---grammar-profile canonical --backend mir --emit-exe <output>
---emit-exe-nyrt <runtime894A> apps/{mimalloc-lite,json-stream-aggregator}/main.hako.
-FFI939A shared library/runtime894A archive are explicit predecessor artifacts;
-no all-three-current-source or release-speed claim. Unchanged mimalloc374 EXE
-143.588s PASS; run0.001744s exit0, stdout/stderr/exit exactly363. Compile stderr
-matches363 after measured *_ns normalization only. Unchanged JSON373:0.052791s
-exit1/noEXE, stderr exactly362, same owner32/Body10 nested source-not-i64 stop.
-Earlier selected/capture may change first-error priority on multiply-invalid
-programs; no source admission is widened. This completes preparation only,
-not FIELD-ARRAY-READ-S0, RequiredObjectForwardS0 or finite full goal. Keep944A/
-CLI282/native373/374 and required prior Loop/source baselines until fixed-field
-same-series regression; no adapter to archive. Results/conditions are in this
-landing record, not just /tmp paths; previous Phase B history is commit-referenced.
+Complete original writer capture Phase C landed atb23eddc7f3: whole ordinary/
+constructor observation moved before final seal; same Rc moves through cohort/
+preparation, old later observation removed. Existing91PASS/1baseline red,
+9263 names/four issued JSON inputs unchanged. CLI282 unchanged mimalloc374
+EXE/run/output/exit PASS; JSON373 same source-not-i64 stop. Full results and
+source authority/negative boundaries in that commit. Keep required artifacts
+until fixed-field regression; no adapter or new test/case/checker. This was
+preparation only; fixed field contract and source-to-final row stay open.
 
 Next fixed Array connection Decision (read-only Array/final-consumer review):
 canonical object definition owns a per-field semantic qualification alongside
@@ -900,3 +850,90 @@ ConstructionPlan/Birth/final checks remain mandatory. No generic None/scalar/Map
 provided Array or replacement permission. Other JSON untyped stats/scalar fields
 remain separate possible whole-object blockers after users qualifies. This is a
 next contract mapping, not implemented admission or completed source-to-final row.
+
+Root945 mapping: connect fixed source Array qualification in existing writer /
+canonical definition owners and every selected constructor/storage/read/residence/
+verification/final owner. Generic function types retain canonical field refs,
+not package source loans; source Count keeps SAME original writer Rc. Validate
+qualification object/order/range/None/nonweak at source seal and membership.
+Preserve original declaration spelling on local/entry read descriptors too.
+Production scope adds canonical definition/membership/layout, constructor provider,
+terminal/borrowed Array read, child inventory, Invoke/End verification and physical
+ABI residences. Existing raw definition/read fixtures receive empty qualifications/
+optional original spelling mechanically. Existing publication fixture's two Count
+cases now use source-untyped Array field; typed Count remains in checked-scalar
+case. No test name/file/case/checker/hook added; fixture change is necessary to
+exercise the newly selected independent source contract through final JSON.
+Other untyped scalar/Map fields stay unavailable; full row/goal remain open until
+source-to-final verification. This is BoxCount, separate from landed BoxShape.
+
+Root945 source-to-final fixed Array connection:
+- Canonical definition retains original None spelling and qualified canonical
+  field refs. Same complete source writer Rc proves the unique empty Array Birth
+  provider; constructor consumes the sole declaration owner's explicit+init order.
+  Whole-Normal initialization, actual store, parent Home and End remain required.
+- Local Array and direct Count/Set receivers share one physical FieldGet emitter
+  with the source-proven result type. Direct receivers borrow the original resolved
+  input, exact FieldAccess/Me binding, selected instance and SAME field-class Rc;
+  retain state.value_for_exact_binding and compare the actual descent base.
+  Generic field-class get()/field() keep builtin exclusion. The temporary Count-only
+  receiver lender and old private declaration-relookup emitter were removed.
+- Source/constructor/Home/layout/Invoke/End/publication consumers now use the same
+  qualification; no fabricated annotation, MIR authority, AST rewrite or fallback.
+  Existing Get cases remain typed; existing Count empty/one cases become untyped;
+  checked-scalar still covers typed Count. No test/case/file/checker/hook added.
+
+Validation at this landing (working diff over b23eddc7f3):945A/B/C/E/F/G builds
+78.851/67.725/60.849/67.674/85.793/61.448s PASS.945D25.049s compile failed on an
+existing exhaustive test match, then corrected without a new case. Intermediate
+failures exposed omitted init fields and raw receiver type loss; final945G closes
+both Count cases through publication. Mistaken verification::invoke_tests filter
+matched0 and is NOT evidence; corrected mir::verification::invoke:: executes42.
+945G13 filters:144PASS/1 pre-existing result-class failure (real_page_heap,
+borrowed-static/required-integer-source-unproved, owner18 Body0 Value), reproduced
+at943C before this change; no waiver/rebaseline. Selected tests:publication1,
+checked-scalar1, constructor26, stored-child6, Core11, backend20, layout4, Invoke42,
+result-class23PASS/1baseline, Loop1, post-success4, FastMem3, field-batch2.
+Root test names9263 unchanged. Rust matches CLI283 exactly; root945G manifest has
+only two later owner README differences. CLI283 quick build198.451s PASS.
+Existing C driver adapted in memory only: Get2 executions/3 malformed refusals
+PASS12.396s; Count empty/one2 executions/3 malformed refusals PASS39.119s.
+Current Get JSON is NOT byte-identical to941: exact binding reuse removes a self
+Copy and rekeys SSA values; Get/OOB final/C regressions pass. Do not claim unchanged
+physical JSON. No tracked driver/checker was introduced.
+
+Native commands use cli-v283.hakorune --grammar-profile canonical --backend mir
+--emit-exe <output> --emit-exe-nyrt <runtime-v894a> <source>, plugins disabled,
+pure-first/no compatibility replay, ffi-v939a. CLI is current source; runtime894A
+and FFI939A are explicit predecessor pins, NOT all-three-current-source evidence.
+- Count empty379 EXE131.299603s/run.001783s: stdout Result: 0, exit0 expected;
+  Count one380 EXE131.430902s/run.001760s: stdout Result: 1, exit1 expected.
+  Both stdout/stderr/exit match; sources are the two existing fixture inputs.
+- Unchanged mimalloc378 EXE168.371327s/run.001662s: stdout/stderr/exit match363.
+  Compile trace is NOT timing-only-identical: 2802->2799 rows,798->795 values,
+  770->767 flow/emitted rows,526->523 type lookups; functions30/blocks2032/layout
+  lookups2042 unchanged. Receiver binding reuse changes physical rows; no speed
+  improvement claim from these parallel native runs.
+- Unchanged JSON377 stops in.063452s, exit1/no EXE; stderr byte-identical362:
+  owner32 Body10 IfCondition/Lhs/Lhs/Lhs/Rhs/Lhs, borrowed-result/source-not-i64.
+  Thus fixed-profile final/native acceptance is real, but this application's
+  frontier, FIELD-ARRAY-READ-S0, retained Loop/Text/ObjectForward and full goal
+  remain open. Read-only worker audits the complete producer-to-final mapping
+  before another local patch; users Array alone proves no stats/scalar storage.
+Pointer/layer/CallTarget/diff guards PASS. Known manifest guard ordinary.rs
+allowlist red remains predecessor-classified; no new result-lookup caller.
+Keep945G/CLI283, app377-380, C driver receipts, original362/363 and backend pins
+under /tmp/mirbuilder-required-forward-resume until unfinished source acceptance
+has stronger same-role evidence. No saved adapter; two replaced private entries
+are removed. Commit owns the results above; paths/SHA alone are not acceptance.
+
+Original JSON follow-through audit (Root946, read-only): exact Main Body10 site
+is second summary conjunct agg.userCount()==3, left operand. userCount returns
+me.users.length(); sole users provider is original JsonStreamAggregator Birth,
+while statsFor pushes String user elements. Count must not require I64 elements.
+Its source issuer does not itself require whole constructor layout/destruction:
+no evidence yet that unrelated stats/scalar storage causes this first-stop.
+Next pin capture_exact_count candidate/provider outcome versus IngressVerified
+and ground_source_results participant closure, using original inputs. The raw
+receiver just connected is downstream of this source failure, not another patch
+candidate. Generic untyped storage remains a distinct parked contract.

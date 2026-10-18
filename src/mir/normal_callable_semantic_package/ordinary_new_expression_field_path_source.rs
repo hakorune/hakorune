@@ -315,7 +315,7 @@ mod tests {
         original.recheck(ledger).unwrap();
         let left = ledger.field_write_claims.object_sources().get(&("Parent".into(), "left".into())).unwrap();
         let declaration = LocalFieldReadSourceV1::from_declaration(left.field().unwrap(),
-            LocalFieldReadResultV1::Alias("Leaf".into()), "Leaf".into());
+            LocalFieldReadResultV1::Alias("Leaf".into()), Some("Leaf".into()));
         assert!(StatementFieldPathSourceV1::issue(&original.request, Rc::clone(&declaration), None,
             Some(Rc::clone(&original.root)), None, &ledger.borrowed_i64_results, ingress).is_err(), "a sibling name cannot qualify the original right path");
         let mut swapped = original.as_ref().clone();
@@ -326,7 +326,7 @@ mod tests {
         let terminal = ledger.local_field_reads.borrow().values().find_map(|row| row.source.statement_path()
             .filter(|path| !path.path().is_intermediate()).cloned()).unwrap();
         let foreign = ledger.field_write_claims.value_source("OtherLeaf", "n").unwrap().as_ref().unwrap();
-        let foreign_declaration = LocalFieldReadSourceV1::from_declaration(foreign.field(), LocalFieldReadResultV1::Scalar, "i64".into());
+        let foreign_declaration = LocalFieldReadSourceV1::from_declaration(foreign.field(), LocalFieldReadResultV1::Scalar, Some("i64".into()));
         assert!(StatementFieldPathSourceV1::issue(&terminal.request, Rc::clone(&foreign_declaration),
             terminal.parent.clone(), None, None, &ledger.borrowed_i64_results, ingress).is_err(),
             "same-name numeric field from another parent class cannot qualify the original path");

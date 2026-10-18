@@ -48,11 +48,17 @@ pub(crate) struct ObjectFieldClassSourceV1 {
     inventory: Rc<OriginalFieldWriterInventoryV1>,
     class: Box<str>,
     declaration: Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>,
+    array_qualified: bool,
 }
 impl ObjectFieldClassSourceV1 {
     pub(crate) fn class(&self) -> &str { &self.class }
+    pub(crate) fn array_field(&self) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
+        if self.class() != "ArrayBox" || !self.array_qualified
+            || self.inventory.opaque || self.inventory.value_incomplete { return None; }
+        self.declaration.as_ref().map(|(field, _)| *field)
+    }
     pub(crate) fn field(&self) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
-        if self.inventory.opaque || self.inventory.value_incomplete { return None; }
+        if self.inventory.opaque || self.inventory.value_incomplete || crate::box_trait::is_builtin_box(self.class()) { return None; }
         let (field, declared) = self.declaration.as_ref()?;
         (declared.as_deref() == Some(self.class())).then_some(*field)
     }
@@ -228,9 +234,14 @@ impl OrdinaryNewFieldWriteClaimsV1 {
         Ok(())
     }
     pub(crate) fn get(&self, key: &(Box<str>, Box<str>)) -> Option<&Box<str>> {
-        self.object_classes.get(key).map(|source| &source.class)
+        self.object_classes.get(key).filter(|source| !crate::box_trait::is_builtin_box(source.class())).map(|source| &source.class)
     }
     pub(crate) fn object_sources(&self) -> &ObjectFieldClassSourcesV1 { &self.object_classes }
+    pub(super) fn array_source(&self, owner_box: &str, name: &str) -> Option<Rc<ObjectFieldClassSourceV1>> {
+        let source = self.object_classes.get(&(owner_box.into(), name.into()))?;
+        source.array_field()?;
+        Some(Rc::clone(source))
+    }
     pub(crate) fn writes(&self) -> &[ObservedFieldWriteV1] {
         &self.writers.writes
     }
@@ -488,6 +499,39 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
 }
 
 impl OriginalFieldWriterInventoryV1 {
+    /// Qualify only the fixed original empty builtin Array provider profile.
+    pub(in crate::mir::normal_callable_semantic_package) fn qualify_fixed_array_fields_v1(
+        self: &Rc<Self>, object: hakorune_mir_defs::CanonicalObjectIdV1, owner_box: &str,
+        fields: &[crate::mir::function::UserBoxFieldDecl],
+        constructors: &[super::super::instance_constructor_semantic::InstanceConstructorSourceDataV1],
+        program: &crate::ast::ASTNode,
+    ) -> Result<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>, String> {
+        let mut qualified = Vec::new();
+        for (ordinal, field) in fields.iter().enumerate() {
+            if field.is_weak || field.declared_type_name.is_some()
+                || fields.iter().filter(|other| other.name == field.name).count() != 1 { continue; }
+            let Some((index, write)) = self.writes.iter().enumerate().find(|(_, write)|
+                write.owner_box() == Some(owner_box) && write.field() == field.name) else { continue; };
+            let mut rows = constructors.iter().filter(|row| row.box_name() == owner_box
+                && row.kind() == crate::parser::ConstructorSourceKindV1::Birth
+                && write.birth_source().is_some_and(|source| source.same_as(row.source_id())));
+            let Some(row) = rows.next() else { continue; };
+            if rows.next().is_some() { continue; }
+            let input = row.lowering_input(program)?;
+            let loan = OriginalFieldWriteSourceLoanV1 { inventory: Rc::clone(self), index };
+            let site = write.assignment().value_site();
+            if !loan.corroborates_sole_array_provider_v1(owner_box, &field.name, row.source_id(), site)
+                || input.owner() != write.owner()
+                || input.function().expression_source().construction(site).is_none_or(|new|
+                    new.class() != "ArrayBox" || !new.arguments().is_empty() || !new.field_initializers().is_empty()) {
+                continue;
+            }
+            qualified.push(hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
+                .ok_or("[freeze:contract][field-array/canonical-field-overflow]")?);
+        }
+        Ok(qualified.into_boxed_slice())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn project_claims(
         self: Rc<Self>,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
@@ -541,7 +585,7 @@ impl OriginalFieldWriterInventoryV1 {
                 continue;
             }
             let class = *unique.first().unwrap();
-            if ordinary_box_coverage
+            if class.as_ref() == "ArrayBox" || ordinary_box_coverage
                 .row_for(class)
                 .ok()
                 .flatten()
@@ -558,7 +602,9 @@ impl OriginalFieldWriterInventoryV1 {
                     .and_then(|write| super::source_declared_field(constructors, source,
                         &crate::mir::resolved_semantics::OwnedExprSiteV1::new(write.owner(), write.assignment().target_site().clone()),
                         &key.1).ok().flatten()));
-            (key, Rc::new(ObjectFieldClassSourceV1 { inventory: Rc::clone(&writers), class, declaration }))
+            let array_qualified = class.as_ref() == "ArrayBox" && declaration.as_ref()
+                .is_some_and(|(field, _)| constructors.is_array_field(*field).unwrap_or(false));
+            (key, Rc::new(ObjectFieldClassSourceV1 { inventory: Rc::clone(&writers), class, declaration, array_qualified }))
         }).collect());
         let mut claims = OrdinaryNewFieldWriteClaimsV1 {
             object_classes, writers, value_sources: BTreeMap::new(),

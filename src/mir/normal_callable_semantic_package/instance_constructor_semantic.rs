@@ -460,6 +460,7 @@ impl CapturedInstanceConstructorSourcesV1 {
         self,
         batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
         static_claims: &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+        field_writers: &std::rc::Rc<super::ordinary_new_coseal::OriginalFieldWriterInventoryV1>,
     ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1>
     {
         self.rows_for_batch(batch)?;
@@ -469,11 +470,6 @@ impl CapturedInstanceConstructorSourcesV1 {
             object_sources,
             declarations,
         } = self;
-        let object_definitions: Vec<_> = declarations
-            .into_vec()
-            .into_iter()
-            .map(object_definition::ObjectDeclarationSourceV1::seal)
-            .collect();
         let mut birth_rows = BTreeMap::<usize, std::collections::BTreeSet<u32>>::new();
         for row in &sources {
             if row.kind == ConstructorSourceKindV1::Birth {
@@ -484,6 +480,15 @@ impl CapturedInstanceConstructorSourcesV1 {
             }
         }
         batch.with_normal_program_source_loan(|loan| {
+            let mut object_definitions = Vec::with_capacity(declarations.len());
+            for (declaration, (parent, object)) in declarations.into_vec().into_iter().zip(&object_sources) {
+                let fixed = field_writers.qualify_fixed_array_fields_v1(*object, parent.name(), declaration.fields(), &sources, loan.program())
+                    .map_err(|_error| InstanceConstructorSemanticBatchIssueV1::SourceProjection { _error })?;
+                let definition = declaration.seal(fixed);
+                definition.validate_fixed_array_fields(*object)
+                    .map_err(|_error| InstanceConstructorSemanticBatchIssueV1::SourceProjection { _error })?;
+                object_definitions.push(definition);
+            }
             let mut no_birth_construction = Vec::new();
             for (parent, object) in &object_sources {
                 if sources.iter().any(|row| row.kind == ConstructorSourceKindV1::Birth

@@ -11,11 +11,16 @@
 use super::*;
 use crate::mir::compiler::published_backend_view::physical_program_json;
 
-fn array_page_source(body: &str) -> String {
+fn array_page_source(body: &str, declared_array: bool) -> String {
+    let (field, birth) = if declared_array {
+        ("free: ArrayBox = new ArrayBox()", "")
+    } else {
+        ("init { free }", "me.free = new ArrayBox()")
+    };
     format!(
         "box Handle {{ birth() {{ }} }} \
-         box Page {{ free: ArrayBox = new ArrayBox() top: i64 = 0 \
-         birth() {{ }} \
+         box Page {{ {field} top: i64 = 0 \
+         birth() {{ {birth} }} \
          probe(handle): i64 {{ {body} }} }} \
          static box Main {{ main() {{ local p = new Page() local h = new Handle() local r = p.probe(h) return r }} }}"
     )
@@ -24,7 +29,7 @@ fn array_page_source(body: &str) -> String {
 fn compile_normal(body: &str) -> Result<crate::mir::MirCompileResult, String> {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        MirCompiler::with_options(false).compile_normal(request(&array_page_source(body)))
+        MirCompiler::with_options(false).compile_normal(request(&array_page_source(body, true)))
     })
 }
 
@@ -72,7 +77,7 @@ fn array_i64_get_publishes_through_array_element_read() {
         crate::runtime::ring0::ensure_global_ring0_initialized();
         crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
             let result = MirCompiler::with_options(false).compile_normal_with_published(
-                request(&array_page_source(body)),
+                request(&array_page_source(body, !suffix.starts_with("count_"))),
                 |view, _verification| -> Result<(), String> {
                     let count = suffix.starts_with("count_");
                     let reads = view.array_element_reads();

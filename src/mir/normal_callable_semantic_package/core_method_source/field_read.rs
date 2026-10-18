@@ -80,7 +80,8 @@ impl EmittedFieldArrayReadV1 {
             .functions
             .get(symbol)
             .ok_or_else(|| fault("read-function-missing"))?;
-        if module.canonical_field_definition(self.recipe.field())
+        if !module.canonical_array_field(self.recipe.field())
+            || module.canonical_field_definition(self.recipe.field())
             .is_none_or(|row| row.name != self.recipe.source.field_name()) {
             return Err(fault("read-field-foreign"));
         }

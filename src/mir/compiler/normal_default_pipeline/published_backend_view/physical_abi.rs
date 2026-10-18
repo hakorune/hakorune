@@ -478,9 +478,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .fields()
                 .iter()
                 .enumerate()
-                .filter(|(_, field)| {
-                    field.declared_type_name.as_deref() == Some("ArrayBox")
-                })
+                .filter(|(ordinal, _)| definition.is_array_field(*ordinal))
                 .map(|(ordinal, _)| ordinal as u32)
                 .collect::<Vec<_>>()
                 .into_boxed_slice();

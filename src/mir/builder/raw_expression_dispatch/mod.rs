@@ -556,7 +556,7 @@ impl super::MirBuilder {
                 ref field,
                 ..
             } => {
-                let prepared = match port.prepare_terminal_field_read(object.as_ref().clone())? {
+                let prepared = match port.prepare_terminal_field_read(object.as_ref().clone(), field)? {
                     Some(prepared) => prepared,
                     None => PreparedRawFieldReadV1::prepare(
                         self,

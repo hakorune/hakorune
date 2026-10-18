@@ -72,9 +72,9 @@ impl LocalFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn from_declaration(
         field: CanonicalFieldRefV1,
         result: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
-        declared_type_name: Box<str>,
+        declared_type_name: Option<Box<str>>,
     ) -> Rc<Self> {
-        Rc::new(Self { field, result, declared_type_name: Some(declared_type_name), expression_path: None, received: None, returned: None, owned_ready: None })
+        Rc::new(Self { field, result, declared_type_name, expression_path: None, received: None, returned: None, owned_ready: None })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn with_received(
         original: &Rc<Self>, received: ReceivedFieldReadSourceV1,

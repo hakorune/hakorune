@@ -57,6 +57,7 @@ pub(crate) enum ObjectDestructionDispositionV1 {
 pub(crate) struct CanonicalObjectDefinitionV1 {
     diagnostic_name: Box<str>,
     fields: Box<[UserBoxFieldDecl]>,
+    fixed_array_fields: Box<[CanonicalFieldRefV1]>,
     local_layout: Result<(), ObjectLayoutUnavailableV1>,
     destruction: ObjectDestructionDispositionV1,
     runtime_layout: Option<CanonicalObjectLayoutV1>,
@@ -68,10 +69,12 @@ impl CanonicalObjectDefinitionV1 {
         fields: Box<[UserBoxFieldDecl]>,
         local_layout: Result<(), ObjectLayoutUnavailableV1>,
         destruction: ObjectDestructionDispositionV1,
+        fixed_array_fields: Box<[CanonicalFieldRefV1]>,
     ) -> Self {
         Self {
             diagnostic_name,
             fields,
+            fixed_array_fields,
             local_layout,
             destruction,
             runtime_layout: None,
@@ -83,6 +86,26 @@ impl CanonicalObjectDefinitionV1 {
     }
     pub(crate) fn fields(&self) -> &[UserBoxFieldDecl] {
         &self.fields
+    }
+
+    /// Source-qualified Array storage; original declaration spelling is unchanged.
+    pub(crate) fn is_array_field(&self, ordinal: usize) -> bool {
+        self.fields.get(ordinal).is_some_and(|field| !field.is_weak
+            && (field.declared_type_name.as_deref() == Some("ArrayBox")
+                || self.fixed_array_fields.iter().any(|field| field.declaration_ordinal() as usize == ordinal)))
+    }
+
+    pub(in crate::mir) fn validate_fixed_array_fields(&self, object: CanonicalObjectIdV1) -> Result<(), String> {
+        let mut prior = None;
+        for field in &self.fixed_array_fields {
+            let ordinal = field.declaration_ordinal();
+            if field.object() != object || prior.is_some_and(|old| old >= ordinal)
+                || self.fields.get(ordinal as usize).is_none_or(|decl| decl.is_weak || decl.declared_type_name.is_some()) {
+                return Err("[freeze:contract][mir/object-definition/fixed-array-source-drift]".into());
+            }
+            prior = Some(ordinal);
+        }
+        Ok(())
     }
 
     pub(crate) fn destruction_disposition(&self) -> ObjectDestructionDispositionV1 {
@@ -131,6 +154,11 @@ impl MirModule {
         self.canonical_object_definitions
             .as_deref()?
             .get(id.declaration_index() as usize)
+    }
+
+    pub(crate) fn canonical_array_field(&self, field: CanonicalFieldRefV1) -> bool {
+        self.canonical_object_definition(field.object()).is_some_and(|definition|
+            definition.is_array_field(field.declaration_ordinal() as usize))
     }
 
     pub(crate) fn canonical_field_definition(

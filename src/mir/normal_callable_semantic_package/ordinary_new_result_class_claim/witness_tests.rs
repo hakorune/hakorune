@@ -196,7 +196,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
     let writers = super::super::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
         &batch, &selected, &captured,
     ).unwrap();
-    let constructors = captured.seal(&batch, &static_claims).unwrap();
+    let constructors = captured.seal(&batch, &static_claims, &writers).unwrap();
     let main = super::super::lexical_instance_call::borrow_app_main_source_v1(
         &batch,
         catalog.catalog().source_backed_app_main(),

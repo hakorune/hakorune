@@ -33,6 +33,12 @@ pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
 }
 
 enum PreparedRawFieldReadRouteV1 {
+    SourceArray {
+        object: ASTNode,
+        expected_base: ValueId,
+        field: String,
+        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ObjectFieldClassSourceV1>,
+    },
     ResultPath {
         object: ASTNode,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -72,6 +78,9 @@ enum PreparedRawFieldReadRouteV1 {
 }
 
 impl PreparedRawFieldReadV1 {
+    pub(in crate::mir::builder) fn source_array(object: ASTNode, expected_base: ValueId, field: String,
+        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ObjectFieldClassSourceV1>,
+    ) -> Self { Self { route: PreparedRawFieldReadRouteV1::SourceArray { object, expected_base, field, source } } }
     pub(in crate::mir::builder) fn result_path(object: ASTNode,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -155,6 +164,7 @@ impl PreparedRawFieldReadV1 {
         matches!(
             self.route,
             PreparedRawFieldReadRouteV1::Dynamic { .. }
+                | PreparedRawFieldReadRouteV1::SourceArray { .. }
                 | PreparedRawFieldReadRouteV1::ResultPath { .. }
         ) || matches!(&self.route, PreparedRawFieldReadRouteV1::ExactObject { claim, .. }
             if !matches!(claim, PreparedExactFieldReadClaimV1::CheckedLocal { .. })
@@ -245,7 +255,7 @@ impl super::MirBuilder {
                     return Err("[freeze:contract][ordinary-field-read/array-source-drift]".into());
                 }
                 let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
-                let dst = self.build_field_access_from_value_with_destination_v1(base, field_name.to_owned(), destination)?;
+                let dst = self.emit_field_access_from_value_with_destination_v1(base, field_name.to_owned(), destination, Some(ty))?;
                 let mut emitted = self.function_state.current_function.as_ref().and_then(|f| f.blocks.get(&block))
                     .into_iter().flat_map(|b| b.all_instructions()).filter(|instruction|
                         matches!(instruction, crate::mir::MirInstruction::FieldGet { dst: actual, .. } if *actual == dst));
@@ -273,6 +283,13 @@ impl super::MirBuilder {
         Port: RawAstChildLoweringPortV1,
     {
         match prepared.route {
+            PreparedRawFieldReadRouteV1::SourceArray { object, expected_base, field, source } => {
+                if source.array_field().is_none() { return Err("[freeze:contract][ordinary-field-read/array-source-unavailable]".into()); }
+                let base = drive_legacy_expression_v1(self, port, object)?;
+                if base != expected_base { return Err("[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into()); }
+                self.emit_field_access_from_value_with_destination_v1(base,
+                    field, None, Some(crate::mir::MirType::Box(source.class().to_owned())))
+            }
             PreparedRawFieldReadRouteV1::ResultPath { object, site, ledger } => {
                 let base = drive_legacy_expression_v1(self, port, object)?;
                 let source = ledger.bind_result_path_receiver_v1(&site, base)?;
@@ -399,11 +416,13 @@ impl super::MirBuilder {
         object_value: ValueId,
         field: String,
     ) -> Result<ValueId, String> {
-        self.build_field_access_from_value_with_destination_v1(object_value, field, None)
+        let declared_type = self.declared_field_type_for_value(object_value, &field);
+        self.emit_field_access_from_value_with_destination_v1(object_value, field, None, declared_type)
     }
 
-    fn build_field_access_from_value_with_destination_v1(
+    fn emit_field_access_from_value_with_destination_v1(
         &mut self, object_value: ValueId, field: String, destination: Option<ValueId>,
+        declared_type: Option<crate::mir::MirType>,
     ) -> Result<ValueId, String> {
         let region = self.current_fastmem_region();
         let receiver_box_name = self
@@ -412,7 +431,6 @@ impl super::MirBuilder {
             .value_origin_newbox
             .get(&object_value)
             .cloned();
-        let declared_type = self.declared_field_type_for_value(object_value, &field);
         if let Some(region) = region {
             let field_result_origin = self.inferred_field_result_class(object_value, &field);
             let lifecycle =
@@ -519,6 +537,7 @@ mod tests {
             PreparedRawFieldReadRouteV1::RecordLiteral { .. } => "record-literal",
             PreparedRawFieldReadRouteV1::RecordUpdate { .. } => "record-update",
             PreparedRawFieldReadRouteV1::Dynamic { .. } => "dynamic",
+            PreparedRawFieldReadRouteV1::SourceArray { .. } => "source_array",
         }
     }
 

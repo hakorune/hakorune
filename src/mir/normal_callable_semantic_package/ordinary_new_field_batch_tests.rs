@@ -61,7 +61,7 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
             receiver: old.receiver,
             home: old.home,
             source: if metadata_drift {
-                LocalFieldReadSourceV1::from_declaration(old.source.field(), old.source.result().clone(), "usize".into())
+                LocalFieldReadSourceV1::from_declaration(old.source.field(), old.source.result().clone(), Some("usize".into()))
             } else { Rc::clone(&old.source) },
             numeric_source: None,
             progress: field_reads::LocalReadProgress::Pending,
@@ -193,13 +193,13 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
     ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().numeric_source = Some(original_loan.clone());
     let descriptor = Rc::clone(&ledger.local_field_reads.borrow()[&site].source);
     ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source =
-        LocalFieldReadSourceV1::from_declaration(descriptor.field(), descriptor.result().clone(), "usize".into());
+        LocalFieldReadSourceV1::from_declaration(descriptor.field(), descriptor.result().clone(), Some("usize".into()));
     assert!(ledger.take_local_field_read(&site, |_| panic!("source refused before base lookup"))
         .unwrap_err().contains("receiver-declaration"));
     ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = Rc::clone(&descriptor);
     let (base, descriptor) = ledger.take_local_field_read(&site, |_| Ok(crate::mir::ValueId(10))).unwrap().unwrap();
     let field = descriptor.field();
-    let wrong = LocalFieldReadSourceV1::from_declaration(field, descriptor.result().clone(), "usize".into());
+    let wrong = LocalFieldReadSourceV1::from_declaration(field, descriptor.result().clone(), Some("usize".into()));
     {
         let mut reads = ledger.local_field_reads.borrow_mut();
         let row = reads.get_mut(&site).unwrap();
@@ -250,9 +250,9 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
     // Consistent row/progress substitution must retain BOTH raw declaration
     // and Scalar result. Keeping "i64" while forging Alias is still refused.
     for replacement in [
-        LocalFieldReadSourceV1::from_declaration(field, descriptor.result().clone(), "usize".into()),
+        LocalFieldReadSourceV1::from_declaration(field, descriptor.result().clone(), Some("usize".into())),
         LocalFieldReadSourceV1::from_declaration(field,
-            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias("Counter".into()), "i64".into()),
+            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias("Counter".into()), Some("i64".into())),
     ] {
         {
             let mut reads = ledger.local_field_reads.borrow_mut();

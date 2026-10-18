@@ -37,7 +37,7 @@ fn layout(
             .as_deref()
             .and_then(exact_numeric_storage_for_declared_type)
             .or_else(|| {
-                (field.declared_type_name.as_deref() == Some("ArrayBox"))
+                definition.is_array_field(ordinal)
                     .then_some(TypedObjectFieldStorage::Handle)
             })
             .or_else(|| {
@@ -158,7 +158,7 @@ mod tests {
                 "Empty".into(),
                 Box::new([]),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
             ),
             CanonicalObjectDefinitionV1::from_source_declaration(
                 "Inherited".into(),
@@ -168,13 +168,13 @@ mod tests {
                     crate::mir::function::ObjectDestructionUnavailableV1::Declaration(
                         ObjectLayoutUnavailableV1::Inheritance,
                     ),
-                ),
+                ), Box::new([]),
             ),
             CanonicalObjectDefinitionV1::from_source_declaration(
                 "Pair".into(),
                 vec![field("left"), field("right")].into_boxed_slice(),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
             ),
         ];
         for definition in &definitions {
@@ -308,7 +308,7 @@ mod tests {
             Ok(()),
             crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
                 crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
-            ),
+            ), Box::new([]),
         );
         assert_eq!(
             layout(&definition, 1, None).unwrap(),
@@ -325,7 +325,7 @@ mod tests {
             Ok(()),
             crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
                 crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
-            ),
+            ), Box::new([]),
         );
         assert_eq!(
             layout(&integer_box, 1, None).unwrap(),
@@ -339,7 +339,7 @@ mod tests {
             Ok(()),
             crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
                 crate::mir::function::ObjectDestructionUnavailableV1::WeakField,
-            ),
+            ), Box::new([]),
         );
         assert_eq!(
             layout(&definition, 1, None).unwrap(),
@@ -367,7 +367,7 @@ mod tests {
                 }]
                 .into_boxed_slice(),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
+                crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook, Box::new([]),
             )
         };
         let member = owner("Pair");

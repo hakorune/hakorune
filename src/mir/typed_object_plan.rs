@@ -66,7 +66,17 @@ fn typed_object_field_storage_map(module: &MirModule) -> TypedObjectFieldStorage
 
 fn typed_object_array_field_set(module: &MirModule) -> TypedObjectArrayFieldSet {
     let mut fields = BTreeSet::new();
+    if let Some(definitions) = module.canonical_object_definitions() {
+        for definition in definitions {
+            for (ordinal, field) in definition.fields().iter().enumerate() {
+                if definition.is_array_field(ordinal) {
+                    fields.insert((definition.diagnostic_name().to_owned(), field.name.clone()));
+                }
+            }
+        }
+    }
     for (box_name, decls) in &module.metadata.user_box_field_decls {
+        if module.metadata.canonical_object_membership.as_ref().is_some_and(|members| members.contains_key(box_name)) { continue; }
         for decl in decls {
             if decl.declared_type_name.as_deref() == Some("ArrayBox") {
                 fields.insert((box_name.clone(), decl.name.clone()));

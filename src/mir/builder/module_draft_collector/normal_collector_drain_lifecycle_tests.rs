@@ -171,7 +171,7 @@ fn object_definitions_move_once_with_drafts_and_reject_partial_publication() {
             }]
             .into_boxed_slice(),
             Ok(()),
-            crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+            crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
         )]
         .into_boxed_slice()
     };

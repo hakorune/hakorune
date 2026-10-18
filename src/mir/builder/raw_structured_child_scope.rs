@@ -523,8 +523,9 @@ where
     fn prepare_terminal_field_read(
         &mut self,
         object: ASTNode,
+        field: &str,
     ) -> Result<Option<super::fields::PreparedRawFieldReadV1>, String> {
-        self.child.prepare_terminal_field_read(object)
+        self.child.prepare_terminal_field_read(object, field)
     }
     fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
         self.child.prepare_root_home_exit(builder)

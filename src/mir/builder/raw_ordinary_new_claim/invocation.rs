@@ -81,6 +81,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
     fn prepare_terminal_field_read(
         &mut self,
         object: crate::ast::ASTNode,
+        field: &str,
     ) -> Result<Option<PreparedRawFieldReadV1>, String> {
         let Some(ledger) = &self.ordinary_new_claim_ledger else {
             return Ok(None);
@@ -154,6 +155,11 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
                 ledger.clone(),
                 claim,
             )));
+        }
+        if let Some(input) = self.source_input {
+            if let Some((binding, source)) = ledger.array_field_receiver_source_v1(input, &site, field)? {
+                return Ok(Some(PreparedRawFieldReadV1::source_array(object, resolve(binding)?, field.to_owned(), source)));
+            }
         }
         Ok(None)
     }

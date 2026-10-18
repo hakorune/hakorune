@@ -4,7 +4,7 @@ This directory keeps TypedObjectPlan storage inference split by responsibility.
 
 - `../storage_inference.rs`: sole allocation orchestration and compatibility
   inference; source-issued canonical membership is excluded from field inference.
-- `canonical_layout.rs`: declaration-only canonical layouts. Every definition
+- `canonical_layout.rs`: source-contract canonical layouts. Every definition
   reserves a checked ID position, even when unavailable. Compatibility IDs follow
   that prefix; repeated refresh validates canonical allocations without replacing
   them. The canonical definition owns its layout; metadata is a one-way legacy
@@ -15,8 +15,10 @@ This directory keeps TypedObjectPlan storage inference split by responsibility.
 
 Refresh returns errors through compiler/Raw postprocess/backend boundaries.
 Preparation is whole-module: no layout or projection is installed on failure.
-The initial canonical field subset is explicit exact numeric (`i64` is the
-current live scalar). `IntegerBox` is not a canonical i64 alias, and
+Canonical field storage comes from explicit exact numeric declarations, declared
+Array/user-object contracts, or the definition's source-issued fixed Array field
+qualification. Fixed Array storage is Handle while original declaration metadata
+remains None. `IntegerBox` is not a canonical i64 alias, and
 weak/unresolved fields stay explicitly unavailable, never MIR-inferred. The
 fixed-point value analysis belongs to the legacy compatibility planner only;
 it cannot issue canonical storage for source-backed definitions.

@@ -18,6 +18,7 @@ impl MirModule {
         for (index, definition) in definitions.iter().enumerate() {
             let id = CanonicalObjectIdV1::from_declaration_index(index)
                 .ok_or_else(|| fault("id-overflow"))?;
+            definition.validate_fixed_array_fields(id)?;
             let name = definition.diagnostic_name();
             let expected_names: Vec<_> = definition
                 .fields()

@@ -264,6 +264,20 @@ pub(super) fn issue_construction_source_v1(
     {
         return Err(U::FieldContractUnsupported);
     }
+    let canonical = definitions.get(object_id.declaration_index() as usize)
+        .ok_or(U::SourceRelationMissing)?;
+    let canonical_fields = canonical.local_fields_for_layout().map_err(|_| U::FieldContractUnsupported)?;
+    if canonical.diagnostic_name() != source.name()
+        || canonical_fields.len() < field_decls.len()
+        || canonical_fields.iter().zip(field_decls).any(|(own, syntax)|
+            own.name != syntax.name || own.declared_type_name != syntax.declared_type_name || own.is_weak != syntax.is_weak) {
+        return Err(U::SourceRelationMissing);
+    }
+    // The sole declaration owner already normalized explicit and init fields.
+    // Construction consumes that same order; it does not build another census.
+    let field_names: Vec<_> = canonical_fields.iter().map(|field| field.name.clone()).collect();
+    let fields = &field_names;
+    let field_decls = canonical_fields;
     let names: BTreeSet<_> = fields.iter().collect();
     if names.len() != fields.len() {
         return Err(U::SourceRelationMissing);

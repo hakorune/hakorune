@@ -95,7 +95,8 @@ pub(super) fn issue_provider_rhs_v1(
             return Err(U::FieldContractUnsupported);
         };
         for (ordinal, field) in child_definition.ok_or(U::SourceRelationMissing)?.fields().iter().enumerate() {
-            let declared = field.declared_type_name.as_deref().ok_or(U::FieldContractUnsupported)?;
+            let array = child_definition.ok_or(U::SourceRelationMissing)?.is_array_field(ordinal);
+            let declared = if array { "ArrayBox" } else { field.declared_type_name.as_deref().ok_or(U::FieldContractUnsupported)? };
             if crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type(declared).is_some() {
                 continue;
             }

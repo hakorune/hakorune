@@ -463,6 +463,16 @@ Borrowed field-resident Array aliases lend the same original named-Array
 requirement to the selected Home walk. They acquire no Home. Their source-selected
 read reuses the existing typed Array `FieldGet` emitter with the exact previously
 resolved base and source field name; the ledger retains the actual instruction.
+The shared physical emitter takes the prepared result type explicitly: sealed
+Array reads pass their original semantic result, while raw reads pass their
+existing declaration lookup. It does not recover an Array type from an absent
+source annotation. Source declarations/read descriptors can remain None while
+the proven physical FieldGet carries Box(ArrayBox).
+Direct Array receivers use the source-scoped original resolver input and the
+same field-class loan, including the exact Me binding and canonical Array
+qualification. Prepared descent checks its base against that binding's existing
+state value before emission. Set/Get/Count share this receiver proof; their
+operation owners still decide writes, element types, reads and final coverage.
 Ordinary-object `ObjectFieldGet` remains unavailable for Array residence. Source
 Rc identity, recorded base/name/type and final read census remain checked. This
 connection alone does not authorize an entire source loop or complete Unit/Birth C ABI.

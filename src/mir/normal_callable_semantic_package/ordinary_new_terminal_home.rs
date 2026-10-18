@@ -202,9 +202,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn receiver_array_field(
     home: BindingRefV1,
     field: &str,
 ) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
-    entry_receiver_field(constructors, receiver, site, home, field, |name| {
-        name == Some("ArrayBox")
-    })
+    let Some(field_ref) = entry_receiver_field(constructors, receiver, site, home, field, |_| true)? else { return Ok(None); };
+    Ok(constructors.is_array_field(field_ref).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?.then_some(field_ref))
 }
 
 /// Shared declared-field lookup on one proven box source row: the field
@@ -346,7 +345,7 @@ pub(super) fn local_read_field(
         _ => return Ok(None),
     };
     Ok(Some(LocalFieldReadSourceV1::from_declaration(
-        field_ref, result, declared.expect("classified declared field type").into_boxed_str(),
+        field_ref, result, Some(declared.expect("classified declared field type").into_boxed_str()),
     )))
 }
 
@@ -384,9 +383,7 @@ pub(super) fn receiver_container_field(
     home: BindingRefV1,
     field: &str,
 ) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
-    entry_receiver_field(constructors, receiver, site, home, field, |name| {
-        name == Some("ArrayBox")
-    })
+    receiver_array_field(constructors, receiver, site, home, field)
 }
 
 /// Receiver-side element-integer `ArrayBox` field proof for `me.<field>`
@@ -402,9 +399,7 @@ pub(super) fn receiver_array_i64_field(
     field: &str,
     proven: &std::collections::BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
 ) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
-    let Some(field_ref) = entry_receiver_field(constructors, receiver, site, home, field, |name| {
-        name == Some("ArrayBox")
-    })?
+    let Some(field_ref) = receiver_array_field(constructors, receiver, site, home, field)?
     else {
         return Ok(None);
     };

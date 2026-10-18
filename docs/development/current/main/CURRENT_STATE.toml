@@ -17,14 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-FIELD-ARRAY-READ-S0 complete source writer capture now precedes constructor final
-seal; one inventory Rc moves through cohort/preparation, old later observation
-removed.944A91PASS/1existing baseline red, names/four GetCount JSON unchanged.
-CLI282 unchanged mimalloc374 EXE/run/output/exit PASS; JSON373 same source-not-i64
-stop. No source admission, new test/case/checker or completed app frontier.
-Next issue canonical fixed Array field qualification from SAME original writer
-loan before one final seal; keep syntax None, whole-Normal init and all final
-consumer obligations. Full finite goal and FIELD-ARRAY-READ-S0 remain open.
+FIELD-ARRAY-READ-S0 fixed untyped Array qualification now connects SAME original
+writer Rc through canonical definition/constructor/Home/layout/FieldGet/End/final.
+Source declaration None retained.945G144PASS/1pre-existing baseline red;9263 names
+unchanged, no test/case/checker added. CLI283 Count empty/one379/380 EXE+run PASS;
+unchanged mimalloc378 output/exit PASS. Runtime894A/FFI939A explicit predecessors.
+Original JSON377 remains exact362 source-not-i64 first-stop; local final/native
+success does not complete app/row/full goal. Worker audits original producer-to-
+final participant closure before next patch; generic Map/scalar D0 stays parked.
 """
 next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

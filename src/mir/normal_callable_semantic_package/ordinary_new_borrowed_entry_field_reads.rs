@@ -50,7 +50,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let source = LocalFieldReadSourceV1::from_declaration(original.field(),
             crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(Rc::clone(original)),
-            "ArrayBox".into());
+            original.declared_type_name().map(Into::into));
         reads.insert(original.site().clone(), LocalFieldRead {
             local: None, receiver_site: original.receiver().site().clone(),
             receiver: original.binding(), home: original.binding(), source: Rc::clone(&source),

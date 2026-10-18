@@ -317,7 +317,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     let field_writers = super::ordinary_new_coseal::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
         &batch, &selected, &captured_constructors,
     ).map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
-    let mut instance_constructors = captured_constructors.seal(&batch, &static_claim_index)
+    let mut instance_constructors = captured_constructors.seal(&batch, &static_claim_index, &field_writers)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error })?;
     let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;

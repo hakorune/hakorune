@@ -14,9 +14,10 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     fn prepare_terminal_field_read(
         &mut self,
         object: crate::ast::ASTNode,
+        field: &str,
     ) -> Result<Option<crate::mir::builder::fields::PreparedRawFieldReadV1>, String> {
         self.check_new_ledger_identity()?;
-        self.inner.prepare_terminal_field_read(object)
+        self.inner.prepare_terminal_field_read(object, field)
     }
     fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
         self.check_new_ledger_identity()?;

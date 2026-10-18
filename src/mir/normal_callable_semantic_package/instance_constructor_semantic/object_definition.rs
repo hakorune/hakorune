@@ -133,7 +133,9 @@ pub(super) fn capture_declaration(
 }
 
 impl ObjectDeclarationSourceV1 {
-    pub(super) fn seal(self) -> CanonicalObjectDefinitionV1 {
+    pub(super) fn fields(&self) -> &[UserBoxFieldDecl] { &self.fields }
+
+    pub(super) fn seal(self, fixed_array_fields: Box<[hakorune_mir_defs::CanonicalFieldRefV1]>) -> CanonicalObjectDefinitionV1 {
         let Self {
             name,
             fields: projected_fields,
@@ -144,8 +146,9 @@ impl ObjectDeclarationSourceV1 {
             Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
         } else if projected_fields.iter().any(|field| field.is_weak) {
             Destruction::Unavailable(DestructionUnavailable::WeakField)
-        } else if projected_fields.iter().any(|field| {
-            field.declared_type_name.as_deref() != Some("ArrayBox")
+        } else if projected_fields.iter().enumerate().any(|(ordinal, field)| {
+            !fixed_array_fields.iter().any(|field| field.declaration_ordinal() as usize == ordinal)
+                && field.declared_type_name.as_deref() != Some("ArrayBox")
                 && field
                     .declared_type_name
                     .as_deref()
@@ -160,7 +163,7 @@ impl ObjectDeclarationSourceV1 {
             Destruction::Unavailable(DestructionUnavailable::MemberRole)
         } else if projected_fields.iter().any(is_user_object_field) {
             Destruction::OwnedObjectFieldsNoHook
-        } else if projected_fields
+        } else if !fixed_array_fields.is_empty() || projected_fields
             .iter()
             .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"))
         {
@@ -173,6 +176,7 @@ impl ObjectDeclarationSourceV1 {
             projected_fields,
             declaration_shape,
             destruction,
+            fixed_array_fields,
         )
     }
 }
@@ -220,13 +224,13 @@ mod tests {
             assert_eq!(
                 capture_declaration(&declaration(text))
                     .unwrap()
-                    .seal()
+                    .seal(Box::new([]))
                     .destruction_disposition(),
                 Destruction::PlainI64NoHook
             );
         }
         for text in ["box Plain { value }", "box Plain { value: StringBox }"] {
-            let definition = capture_declaration(&declaration(text)).unwrap().seal();
+            let definition = capture_declaration(&declaration(text)).unwrap().seal(Box::new([]));
             assert!(definition.local_fields_for_layout().is_ok());
             assert_eq!(
                 definition.destruction_disposition(),
@@ -241,7 +245,7 @@ mod tests {
         assert_eq!(
             capture_declaration(&node)
                 .unwrap()
-                .seal()
+                .seal(Box::new([]))
                 .destruction_disposition(),
             Destruction::Unavailable(DestructionUnavailable::WeakField)
         );
@@ -255,7 +259,7 @@ mod tests {
             "box Plain { value: i64 = 1 }",
             "box Plain { value: i64\nbirth(x) { me.value = x } }",
         ] {
-            let definition = capture_declaration(&declaration(text)).unwrap().seal();
+            let definition = capture_declaration(&declaration(text)).unwrap().seal(Box::new([]));
             assert_eq!(definition.diagnostic_name(), "Plain");
             assert_eq!(
                 definition.local_fields_for_layout().unwrap(),
@@ -270,7 +274,7 @@ mod tests {
             "box Holder { explicit: i64\ninit { count, items, explicit, count } }",
         ))
         .unwrap()
-        .seal();
+        .seal(Box::new([]));
         let fields = definition.fields();
         assert_eq!(
             fields
@@ -296,7 +300,7 @@ mod tests {
             unreachable!()
         };
         weak_fields.push("handle".into());
-        let definition = capture_declaration(&node).unwrap().seal();
+        let definition = capture_declaration(&node).unwrap().seal(Box::new([]));
         assert_eq!(definition.fields().len(), 1);
         assert!(definition.fields()[0].is_weak);
         assert_eq!(
@@ -348,7 +352,7 @@ mod tests {
                 Unavailable::Contracts => invariants.push(declaration("box Contract {}")),
                 Unavailable::StaticInitialization => *static_init = Some(Vec::new()),
             }
-            let definition = capture_declaration(&node).unwrap().seal();
+            let definition = capture_declaration(&node).unwrap().seal(Box::new([]));
             assert_eq!(definition.local_fields_for_layout(), Err(reason));
             assert_eq!(
                 definition.destruction_disposition(),
@@ -389,6 +393,28 @@ mod tests {
 
 // Same-source definition loans remain in the declaration owner after transfer.
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn field_declared_type_name(
+        &self, field: hakorune_mir_defs::CanonicalFieldRefV1,
+    ) -> Result<Option<Box<str>>, InstanceConstructorBirthLookupErrorV1> {
+        let definitions = self.object_definitions.borrow();
+        let definition = definitions.as_ref().ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)?
+            .get(field.object().declaration_index() as usize)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)?;
+        Ok(definition.fields().get(field.declaration_ordinal() as usize)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)?
+            .declared_type_name.clone().map(String::into_boxed_str))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn is_array_field(
+        &self, field: hakorune_mir_defs::CanonicalFieldRefV1,
+    ) -> Result<bool, InstanceConstructorBirthLookupErrorV1> {
+        let definitions = self.object_definitions.borrow();
+        let definition = definitions.as_ref().ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)?
+            .get(field.object().declaration_index() as usize)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)?;
+        Ok(definition.is_array_field(field.declaration_ordinal() as usize))
+    }
+
     /// One-way projection while co-sealing New claims, before collector transfer.
     /// `object_for` deliberately remains usable after the payload has moved.
     pub(in crate::mir::normal_callable_semantic_package) fn destruction_for(

@@ -110,7 +110,7 @@ pub(super) fn capture_child_call_source_v1(
     receiver: BindingRefV1,
     object: CanonicalObjectIdV1,
     fields: &[String],
-    declarations: &[crate::ast::FieldDecl],
+    declarations: &[crate::mir::function::UserBoxFieldDecl],
     objects: &[(crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)],
     stores: &[ConstructionStoreV1],
     statement: &SourceStmtSiteV1,

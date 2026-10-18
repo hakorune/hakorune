@@ -327,7 +327,7 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
         // Same field and class, but replacing the declaration descriptor
         // after emission must fail the independent source correspondence.
         let replacement = LocalFieldReadSourceV1::from_declaration(
-            field, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar, "i32".into(),
+            field, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar, Some("i32".into()),
         );
         ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = replacement;
         assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err()
@@ -480,7 +480,7 @@ fn returned_field_argument_descriptor_retains_exact_use_and_refuses_source_loss(
         "source reconstruction cannot reset affine progress");
     ledger.local_field_reads.borrow_mut().get_mut(loan.read()).unwrap().source =
         LocalFieldReadSourceV1::from_declaration(loan.field(),
-            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias("Token".into()), "Token".into());
+            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias("Token".into()), Some("Token".into()));
     assert!(ledger.retained_returned_field_read_source_v1(&call, ordinal, loan.parent(), loan.acquisition()).is_err(),
         "erasing original argument metadata cannot select generic declaration proof");
     ledger.local_field_reads.borrow_mut().get_mut(loan.read()).unwrap().source = source;

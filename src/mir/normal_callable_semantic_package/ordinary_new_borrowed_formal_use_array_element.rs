@@ -85,6 +85,8 @@ pub(super) fn array_element_value_kind(
                 site: OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
                 receiver: OwnedExprSiteV1::new(input.owner(), object.clone()),
                 binding: me, field: receiver_field, name: field.clone(),
+                declared_type_name: constructors.field_declared_type_name(receiver_field)
+                    .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?,
             }));
     }
     let dominated = guards
@@ -193,6 +195,7 @@ pub(crate) struct DeclaredArrayFieldReadSourceV1 {
     binding: BindingRefV1,
     field: hakorune_mir_defs::CanonicalFieldRefV1,
     name: Box<str>,
+    declared_type_name: Option<Box<str>>,
 }
 impl DeclaredArrayFieldReadSourceV1 {
     pub(in crate::mir) fn call(&self) -> &OwnedExprSiteV1 { &self.call }
@@ -201,6 +204,7 @@ impl DeclaredArrayFieldReadSourceV1 {
     pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(in crate::mir) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
     pub(in crate::mir) fn name(&self) -> &str { &self.name }
+    pub(in crate::mir) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
 }
 
 /// Original source requirement only: no field class, physical value or entry grant.

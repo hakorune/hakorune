@@ -273,8 +273,8 @@ fn borrow_array_field_source(
     let Some(original) = original else { return Ok(None); };
     let Some((field, declared)) = terminal_home::local_read_field_declaration(constructors,
         candidates, coverage, receiver_proof, &request.site, request.home, alias_class, &request.field)? else { return Ok(None); };
-    if field != original.field() || declared.as_deref() != Some("ArrayBox") { return Ok(None); }
+    if field != original.field() || !constructors.is_array_field(field).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)? { return Ok(None); }
     Ok(Some(LocalFieldReadSourceV1::from_declaration(field,
         LocalFieldReadResultV1::BorrowedArray(BorrowedArrayFieldSourceV1 { requirement: original }),
-        declared.expect("checked source Array field").into_boxed_str())))
+        declared.map(String::into_boxed_str))))
 }

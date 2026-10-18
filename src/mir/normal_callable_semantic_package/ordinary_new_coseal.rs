@@ -92,7 +92,7 @@ mod field_reads;
 pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
-pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1};
+pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, ObjectFieldClassSourceV1};
 pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1};
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::no_birth_constructor_disposition;

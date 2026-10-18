@@ -271,3 +271,5 @@ pub(in crate::mir) use ordinary_new_coseal::{EmittedFieldWriteRhsV1, FieldWriteV
 pub(crate) use ordinary_new_coseal::{ArgumentExpressionSourceLoanV1, InitializerTextEntryReadV1};
 
 pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
+
+pub(crate) use ordinary_new_coseal::ObjectFieldClassSourceV1;

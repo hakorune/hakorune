@@ -322,7 +322,7 @@ pub(crate) fn coverage_unique_i64_field_source(
             { return None; }
             found = Some(super::LocalFieldReadSourceV1::from_declaration(
                 canonical?, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar,
-                declared?.into_boxed_str(),
+                Some(declared?.into_boxed_str()),
             ));
         }
     }
@@ -530,7 +530,7 @@ pub(crate) fn issue_array_i64_fields_v1(
                     continue;
                 };
                 match declaration.declared_type_name.as_deref() {
-                    Some("ArrayBox") if !declaration.is_weak => {
+                    _ if definition.is_array_field(ordinal) => {
                         fields.insert(declaration.name.clone().into_boxed_str());
                         canonical.insert(declaration.name.clone().into_boxed_str(), field);
                     }

@@ -108,7 +108,7 @@ pub(super) fn owned_field_children_of(
                 // The sole birth write must store the declared class
                 // exactly — a proven residence of a different class does
                 // not satisfy the typed field.
-                if declared != Some(class) {
+                if declared != Some(class) && !(class == "ArrayBox" && definition.is_array_field(ordinal)) {
                     visiting.remove(&object);
                     return None;
                 }
