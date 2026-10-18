@@ -9,6 +9,23 @@
 use super::*;
 
 impl CallableSemanticLoweringState {
+    /// Names locate an already selected source binding in the emission cache.
+    /// They never classify a binding as a carrier or recover its identity.
+    pub(in crate::mir::builder) fn source_loop_binding_name<'a>(
+        &'a self,
+        binding: BindingRefV1,
+        physical: &BTreeMap<String, ValueId>,
+    ) -> Result<&'a str, String> {
+        let value = self.value_for_exact_binding(self.owner, binding)
+            .map_err(|error| error.to_string())?;
+        let name = self.binding_names.get(&binding)
+            .ok_or_else(|| freeze("loop-carrier-binding-name-missing"))?;
+        if physical.get(name.as_ref()) != Some(&value) {
+            return Err(freeze("loop-carrier-binding-value-drift"));
+        }
+        Ok(name)
+    }
+
     pub(in crate::mir::builder) fn publish_source_loop_final_value(
         &mut self,
         binding: BindingRefV1,

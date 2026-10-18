@@ -189,3 +189,28 @@ fn source_core_method_take_rejects_duplicate_exact_site() {
         .expect_err("duplicate take must freeze");
     assert!(duplicate.contains("duplicate-core-method-call-consumption"));
 }
+
+#[test]
+fn source_loop_binding_locator_requires_original_materialized_binding_and_cache_value() {
+    for mutation in 0..7 {
+        let (mut state, _) = core_method_fixture();
+        let binding = state.parameters[0];
+        let name = state.binding_names[&binding].to_string();
+        let value = state.values.get(&binding).copied().unwrap();
+        let mut physical = BTreeMap::from([(name.clone(), value)]);
+        let selected = match mutation {
+            1 => { state.entry_installed = false; binding }
+            2 => { state.values.remove(&binding); binding }
+            3 => { state.binding_names.remove(&binding); binding }
+            4 => { physical.remove(&name); binding }
+            5 => { physical.insert(name.clone(), ValueId(999)); binding }
+            6 => core_method_fixture().0.parameters[0],
+            _ => binding,
+        };
+        let result = state.source_loop_binding_name(selected, &physical);
+        if mutation == 0 { assert_eq!(result.unwrap(), name); }
+        else { assert!(result.is_err(), "mutation {mutation} must reject"); }
+        // A locator is observational: it never consumes a source read.
+        assert!(state.consumed_variables.is_empty());
+    }
+}

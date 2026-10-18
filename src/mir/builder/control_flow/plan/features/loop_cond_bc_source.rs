@@ -3,8 +3,8 @@
 //! This entry consumes the already co-sealed `SourceLoopCondPhysicalInputV1`
 //! end to end: the issued Facts/Recipe stay the semantic authority while the
 //! located source port supplies the condition expression and body statement
-//! carriers. Carrier collection still observes the co-sealed condition/body
-//! AST (it collects names only, issuing no authority), and the body items run
+//! carriers. The original binding schedule selects carrier roles; names only
+//! locate those exact bindings in the emission cache. The body items run
 //! through `lower_loop_cond_source_item` — never through the raw
 //! `lower_loop_cond_item` or `LoopRouteContext`.
 //!
@@ -13,11 +13,9 @@
 
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
-use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc::{
-    collect_carrier_vars_from_condition, extend_unique_carriers, pin_accept_kind_contract,
-    LOOP_COND_ERR,
+    pin_accept_kind_contract, LOOP_COND_ERR,
 };
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_cleanup::apply_loop_cond_break_continue_cleanup;
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_phi_materializer::LoopCondBreakContinuePhiMaterializer;
@@ -53,6 +51,11 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     let facts = input.loop_cond_facts()?;
     pin_accept_kind_contract(facts.accept_kind);
 
+    // Complete the source-to-emission crosswalk before allocating any blocks
+    // or Phis. Readonly operands retain their original producer/provenance.
+    let carrier_bindings = input.carrier_bindings(&builder.function_state.variable_ctx.variable_map)?;
+    let carrier_vars: Vec<_> = carrier_bindings.keys().cloned().collect();
+
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {
         preheader_bb,
@@ -62,14 +65,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
         after_bb,
     } = blocks;
 
-    // Item 5: carrier discovery still observes the co-sealed condition/body
-    // AST; it collects names only and issues no authority.
-    let carrier_sets = carriers::collect_outer_from_body(builder, input.body());
-    let mut carrier_vars = carrier_sets.vars;
-    extend_unique_carriers(
-        &mut carrier_vars,
-        collect_carrier_vars_from_condition(builder, input.condition()),
-    );
     let continue_branch_has_prelude_effect = facts
         .continue_branches
         .iter()
@@ -95,7 +90,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
     for (name, value_id) in phi_materializer.phi_bindings() {
         current_bindings.insert(name.clone(), value_id);
-        port.publish_loop_carrier_value(&name, value_id)
+        port.publish_source_carrier(carrier_bindings[&name], value_id)
             .map_err(|error| format!("{LOOP_COND_ERR}/carrier-header-publish: {error}"))?;
     }
 
@@ -223,7 +218,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     let continue_target = phi_materializer.continue_target();
 
     for (name, value_id) in phi_closure.final_values() {
-        port.publish_loop_carrier_value(name, *value_id)
+        port.publish_source_carrier(carrier_bindings[name], *value_id)
             .map_err(|error| format!("{LOOP_COND_ERR}/carrier-final-publish: {error}"))?;
     }
 

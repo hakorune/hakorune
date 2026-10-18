@@ -319,22 +319,27 @@ struct ArmedLoopCondEdge {
 }
 
 fn armed_loop_cond_edge() -> ArmedLoopCondEdge {
-    crate::runtime::ring0::ensure_global_ring0_initialized();
-    let program = crate::parser::NyashParser::parse_from_string(
-        r#"
-static function caller(flag: i64, text: String): i64 {
-    loop(flag < text.length()) {
-        local piece = text.substring(0, 1)
-        if text.starts_with("a", 0) == 1 {
-            flag = flag + 1
-        } else {
-            break
-        }
-    }
-    return flag
+    armed_loop_cond_edge_with_body_only(false)
 }
-"#,
-    )
+
+fn armed_loop_cond_edge_with_body_only(body_only: bool) -> ArmedLoopCondEdge {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let extra_parameter = if body_only { ", total: i64" } else { "" };
+    let extra_write = if body_only { "total = total + 1" } else { "" };
+    let program = crate::parser::NyashParser::parse_from_string(&format!(r#"
+static function caller(flag: i64, text: String{extra_parameter}): i64 {{
+    loop(flag < text.length()) {{
+        local piece = text.substring(0, 1)
+        {extra_write}
+        if text.starts_with("a", 0) == 1 {{
+            flag = flag + 1
+        }} else {{
+            break
+        }}
+    }}
+    return flag
+}}
+"#))
     .expect("loop-cond fixture parses");
     let ASTNode::Program { statements, .. } = program else {
         panic!("fixture is a program")
@@ -443,11 +448,14 @@ fn armed_loop_cond_builder(
     >,
 ) -> MirBuilder {
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("caller/2".to_owned());
-    for (name, ty) in [
-        ("flag", crate::mir::MirType::Integer),
-        ("text", crate::mir::MirType::String),
-    ] {
+    let disposition = ledger.borrow().loop_binding_source_projection()
+        .project_disposition(crate::mir::resolved_semantics::SourcePathV1::root_body(0).node()).unwrap();
+    let has_body_only = matches!(disposition, CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(_));
+    let mut parameters = vec![("flag", crate::mir::MirType::Integer), ("text", crate::mir::MirType::String)];
+    if has_body_only { parameters.push(("total", crate::mir::MirType::Integer)); }
+    let arity = parameters.len();
+    builder.enter_function_for_test(format!("caller/{arity}"));
+    for (name, ty) in parameters {
         let parameter = builder.alloc_typed(ty);
         builder
             .function_state
@@ -462,7 +470,7 @@ fn armed_loop_cond_builder(
             .variable_map
             .insert(name.to_owned(), parameter);
     }
-    let entry = crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1::static_function(&builder, 2)
+    let entry = crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1::static_function(&builder, arity)
         .expect("static entry values");
     ledger
         .borrow_mut()
@@ -480,52 +488,85 @@ fn armed_loop_cond_builder(
 /// publication installation stays a later bounded slice.
 #[test]
 fn armed_loop_cond_edge_lowers_through_the_source_port() {
-    let edge = armed_loop_cond_edge();
-    let disposition = edge
-        .ledger
-        .borrow()
-        .loop_binding_source_projection()
-        .project_disposition(edge.loop_site.clone())
-        .expect("loop binding disposition");
-    let (_, root) = RawInvocationSourceContextV1::from_transport(
-        crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
-            (),
-            RawInvocationRootLineageV1::ScriptRoot,
-        ),
-    );
-    let (_, parent_source) = RawInvocationSourceContextV1::from_transport(
-        root.body_statement(edge.loop_node.clone(), edge.loop_index),
-    );
-    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
-        &parent_source,
-        edge.loop_node,
-        Some(disposition),
-    )
-    .expect("located loop-cond entry");
-    let mut builder = armed_loop_cond_builder(&edge.ledger);
-    let mut scope =
-        crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
+    use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBindingClassV1;
+    for (body_only, mutation) in [(false, 0), (false, 1), (false, 2), (true, 0), (true, 1), (true, 2)] {
+        let edge = armed_loop_cond_edge_with_body_only(body_only);
+        let disposition = edge
+            .ledger
+            .borrow()
+            .loop_binding_source_projection()
+            .project_disposition(edge.loop_site.clone())
+            .expect("loop binding disposition");
+        let readonly = match &disposition {
+            CallableLoopBindingProjectionDispositionV1::Ready(schedule) => schedule.rows().iter()
+                .find(|row| row.class() == CallableLoopReadyBindingClassV1::ReadOnlyOperand).map(|row| row.binding()),
+            CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(_) => None,
+            _ => panic!("armed source schedule"),
+        };
+        let (_, root) = RawInvocationSourceContextV1::from_transport(
+            crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
+                (),
+                RawInvocationRootLineageV1::ScriptRoot,
+            ),
         );
-    crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
-        prepared
-            .lower_v1_with_root_scope_and_callable_ledger(
-                &mut builder,
-                "caller",
-                false,
-                false,
-                LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
-                &mut scope,
-                &edge.ledger,
-                None,
-                None,
-                crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
-                    vec![armed_source_target(edge.call_site)].into_boxed_slice(),
-                    Box::new([]),
+        let (_, parent_source) = RawInvocationSourceContextV1::from_transport(
+            root.body_statement(edge.loop_node.clone(), edge.loop_index),
+        );
+        let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+            &parent_source,
+            edge.loop_node,
+            Some(disposition),
+        )
+        .expect("located loop-cond entry");
+        let mut builder = armed_loop_cond_builder(&edge.ledger);
+        let text = builder.function_state.variable_ctx.variable_map["text"];
+        let previous = readonly.map(|binding| edge.ledger.borrow().value_for_exact_binding(binding.owner(), binding).unwrap());
+        match mutation {
+            1 => { builder.function_state.variable_ctx.variable_map.remove("flag"); }
+            2 => { builder.function_state.variable_ctx.variable_map.insert("flag".into(), text); }
+            _ => {}
+        }
+        let before = format!("{:?}", builder.function_state.current_function);
+        let mut scope =
+            crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
+            );
+        let result = crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
+            prepared
+                .lower_v1_with_root_scope_and_callable_ledger(
+                    &mut builder,
+                    "caller",
                     false,
-                ),
-            )
-            .expect("armed loop-cond edge must lower through the source port");
-    });
+                    false,
+                    LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                    &mut scope,
+                    &edge.ledger,
+                    None,
+                    None,
+                    crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
+                        vec![armed_source_target(edge.call_site)].into_boxed_slice(),
+                        Box::new([]),
+                        false,
+                    ),
+                )
+        });
+        if mutation != 0 {
+            assert!(result.unwrap_err().contains("loop-carrier-binding-value-drift"));
+            assert_eq!(format!("{:?}", builder.function_state.current_function), before,
+                "source/cache mismatch must reject before physical allocation");
+        } else {
+            result.expect("armed loop-cond edge must lower through the source port");
+            let function = builder.function_state.current_function.as_ref().unwrap();
+            let phis: Vec<_> = function.blocks.values().flat_map(|block| block.all_instructions())
+                .filter_map(|row| match row { crate::mir::MirInstruction::Phi { dst, .. } => Some(*dst), _ => None }).collect();
+            assert_eq!(phis.len(), if body_only { 6 } else { 3 }, "only actual external writes get Header/Step/After Phis");
+            assert!(phis.iter().all(|dst| builder.function_state.type_ctx.get_type(*dst) == Some(&crate::mir::MirType::Integer)),
+                "readonly Text must not become a Phi");
+            assert_eq!(builder.function_state.variable_ctx.variable_map["text"], text);
+            if let Some(binding) = readonly {
+                assert_eq!(Some(edge.ledger.borrow().value_for_exact_binding(binding.owner(), binding).unwrap()), previous);
+            }
+        }
+    }
 }
 
 /// The same armed edge must still stop at the named `SourceTargetUnselected`

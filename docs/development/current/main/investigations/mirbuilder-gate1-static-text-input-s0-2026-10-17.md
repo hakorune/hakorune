@@ -881,6 +881,16 @@ Current Decision (same original Loop series, source/physical workers reviewed):
 - Existing loop_prestate callback lends SourcePlan observation capability, not
   Home permission. LoopI64PreStateRequest remains a specialized I64 view;
   generic observation borrows actual scalar/Text/entry proofs from SAME Prefix.
+  Current request already snapshots any resolver Loop, so keep callback signatures.
+  Normalize SAME retained SourcePlan row to shared ownership and lend its existing
+  scoped loop_cond_source view (original body + Facts/Recipe/projection) through
+  SourceObservation after issuer map borrow ends. Remove Array-only gating for
+  this source observation while retaining all specialized verified loan contracts.
+  The observer must run the integrated scanner; merely continuing is forbidden.
+  The generic checked-frame producer belongs in loop_recipe_contract, reusing
+  V2 verification and sole-root/collection JoinSig issuance, not fabricated S6C
+  project_operation rows. Pending Header typing must close entry/all updates/
+  exits before whole After; source-only observation grants none of that.
 - Readonly source joins normalize at the sole value-flow owner only after
   proving ALL original LoopFrame predecessor snapshots (not a selected incoming).
   Prove in finish_loop; substitute reads/incoming at complete seal, preserving
@@ -942,3 +952,36 @@ JSON318 .395848s still Body7 pending/no artifact. Official fixed11 5PASS/6FAIL
 CLI256 baseline chain. FFI897A/kernel894A remain predecessor pins with explicit
 compiler-only deltas. Preserve V909 manifests/native/baseline/failed-build receipts
 until Text/Loop closure; no adapter added. No whole-series/current-CI acceptance.
+
+V910 construction in the SAME integrated Loop unit (read-only worker review):
+remove the selected LoopCond physical owner's AST/name carrier reclassification.
+Borrow Carrier rows plus nonlocal BodyOnlyRebind rows from SAME pre-effect
+schedule; retain ReadOnlyOperand producers and IterationLocal scope separately.
+Use existing resolver binding_names only to locate exact already-materialized
+BindingRefs in Builder's map; drift/duplicate/missing values fail before allocation.
+Publish Header/After via the selected BindingRef, not a reverse name lookup.
+Existing source-port final-MIR regression checks readonly Text stays its original
+entry producer and gains no Phi. Shared raw/other source routes keep their owner.
+This is the physical leg, not integrated Header/Home/rebind/cleanup completion;
+the scalar-rebind mapping above remains required, with no initializer disguise
+or second root packet pool. Scope: source input/port, physical source LoopCond,
+existing value-publication owner/tests, owner README and this card.
+
+V910 validation (same source manifest for Root and CLI): Root910A build73.586s,
+52 focused PASS/0FAIL, stable4/diff PASS. Existing source-port fixture now covers
+normal/outer-body-only writes (3/6 Integer Phis, original readonly Text retained)
+and missing/drift rejection before physical allocation. Existing state tests
+cover entry/owner/materialization/name/value refusal. Worker final review found
+no must-fix. CLI260 build180.197s, SHA
+`b294d5f5d71661728c3405c42bce760d34542a5a34866bbfaa8e5357db48f99f`.
+Unchanged JSON320 .399842s is EXACT JSON318 diagnostic/no artifact at Body7;
+no source-frontier advance. Unchanged mimalloc321 EXE156.348608s/run.001596s,
+exit0 and exact mimalloc319 stdout/stderr/exit; source SHA unchanged. FFI897A /
+kernel894A remain predecessor pins with explicit compiler-only deltas.
+Keep V910 Root/CLI/native/suite source manifests and comparison receipts in
+`/tmp/mirbuilder-required-forward-resume` until integrated Text/Loop closure;
+no temporary adapter was added. Full Home/Header/rebind/exit/After and all goal
+acceptance remain required. Official fixed11 finished 5PASS/6FAIL in439.787695s (driver437.513658s).
+All five full MIR diagnostics and the untyped-field panic exactly match CLI259;
+classification retains the independent CLI256 baseline chain. These six failures
+remain goal debts; no full-suite/current-CI acceptance.

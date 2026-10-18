@@ -64,6 +64,19 @@ pub(super) struct CallableLoopSourceExpressionPortV1<'ledger> {
 }
 
 impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
+    pub(super) fn source_carrier_name(
+        &self, binding: crate::mir::resolved_semantics::BindingRefV1,
+        physical: &BTreeMap<String, ValueId>,
+    ) -> Result<String, String> {
+        self.ledger.borrow().source_loop_binding_name(binding, physical).map(str::to_owned)
+    }
+
+    pub(super) fn publish_source_carrier(
+        &self, binding: crate::mir::resolved_semantics::BindingRefV1, value: ValueId,
+    ) -> Result<(), String> {
+        self.ledger.borrow_mut().publish_source_loop_final_value(binding, value)
+    }
+
     pub(super) const fn new(
         ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
         declared_instance_locator: Option<DeclaredInstanceCallLocatorScopeV1<'ledger>>,

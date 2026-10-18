@@ -2127,3 +2127,13 @@ instruction and exact predecessor set, retaining the same rows for both final
 physical consumers. The outer source wrapper cannot grant a role by matching
 destinations alone. This physical completion grants no Home/type/source-point
 read permission; those remain obligations of the original Loop source product.
+
+The selected source LoopCond physical owner uses the original pre-effect binding
+schedule for Phi roles. Only `Carrier` plus nonlocal `BodyOnlyRebind` bindings
+reach the existing materializer; readonly operands retain their original producer
+and provenance, and iteration locals retain their scope. Resolver names locate
+those exact materialized bindings in Builder's cache, with owner/value/duplicate
+checks before allocation. Header/After publication uses the selected BindingRef
+directly. AST condition-name collection no longer selects source LoopCond Phis.
+This physical connection does not supply typed Header/Home/rebind/cleanup proofs;
+the complete integrated Loop series still requires those original-source gates.

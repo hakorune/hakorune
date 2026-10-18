@@ -54,6 +54,32 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledge
 }
 
 impl SourceLoopCondPhysicalInputV1<'_, '_> {
+    /// Borrow the original source roles. Body-only outer writes also need an
+    /// After carrier; declarations inside this Loop remain iteration locals.
+    /// This map is an invocation-local locator, not a new role authority.
+    pub(in crate::mir::builder) fn carrier_bindings(
+        &self, physical: &std::collections::BTreeMap<String, crate::mir::ValueId>,
+    ) -> Result<std::collections::BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>, String> {
+        use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBindingClassV1;
+        let bindings = self.pre_effect.rows().iter()
+            .filter(|row| row.class() == CallableLoopReadyBindingClassV1::Carrier)
+            .map(|row| row.binding())
+            .chain(self.pre_effect.body_only_rows().iter().map(|row| row.binding())
+                .filter(|binding| !self.pre_effect.local_declarations().contains_key(binding)));
+        let mut carriers = std::collections::BTreeMap::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for binding in bindings {
+            if binding.owner() != self.owner || !seen.insert(binding) {
+                return Err("[freeze:contract][callable-loop/loop-cond/carrier-binding-duplicate-or-owner]".into());
+            }
+            let name = self.source_port.source_carrier_name(binding, physical)?;
+            if carriers.insert(name, binding).is_some() {
+                return Err("[freeze:contract][callable-loop/loop-cond/carrier-name-collision]".into());
+            }
+        }
+        Ok(carriers)
+    }
+
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
