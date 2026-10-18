@@ -112,28 +112,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             match (node.source(), value) {
                 (Node::Literal(Literal::String(text)), Some(Operand::StaticText { utf8 }))
                     if utf8.as_str() == text.as_ref() => {}
-                (Node::Reference(_), Some(Operand::StaticText { utf8 })) => {
-                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::StaticText(original)) = self.frame.references().get(&index) else {
-                        return Err(freeze("expression/reference-source-kind"));
-                    };
+                (Node::Reference(_), Some(value)) => {
                     let observed = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
-                    let read = observed.read();
-                    let producer = observed.definition().ok_or_else(|| freeze("expression/reference-static-producer"))?;
-                    read.value_for(source.owner(), node.site().node(), original.binding()).map_err(|error| error.to_string())?;
-                    let (initializer, _) = read.loan_local_initializer_v1(original.definition_binding())?;
-                    if utf8 != original.utf8() || !matches!(&producer.1,
-                        MirInstruction::Const { dst, value: crate::mir::ConstValue::String(text) }
-                            if *dst == initializer && text == original.utf8()) {
-                        return Err(freeze("expression/reference-static-value"));
+                    if &observed.operand(self.frame, index, context)? != value {
+                        return Err(freeze("expression/reference-source-value"));
                     }
-                }
-                (Node::Reference(_), Some(Operand::NormalInteger(value))) => {
-                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(source)) = self.frame.references().get(&index) else {
-                        return Err(freeze("expression/reference-scalar-source"));
-                    };
-                    let source = source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?;
-                    let observed = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
-                    if observed.validate_scalar_source(source, context)? != *value { return Err(freeze("expression/reference-scalar-value")); }
                 }
                 (Node::Literal(Literal::Integer(expected)), Some(Operand::NormalInteger(dst))) => {
                     self.require_unique(|row| matches!(row, MirInstruction::Const { dst: actual, value: crate::mir::ConstValue::Integer(value) }
@@ -250,9 +233,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     ) -> Result<(), String> {
         self.validate_source(context)?;
         for (&node, observed) in self.reference_reads {
-            if let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(original)) = self.frame.references().get(&node) {
-                observed.validate_scalar_layout(original.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, context, function)?;
-            }
+            observed.validate_layout(self.frame, node, context, function)?;
         }
         if let (Some(projection), CallValidationContextV1::Finalized(_)) = (finishing, context) {
             return self.validate_finished_reference_dependencies(function, projection);

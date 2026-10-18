@@ -296,7 +296,8 @@ mod tests {
                             let expected = physical_rows(builder.function_state.current_function.as_ref().unwrap());
                             let rejected = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
                                 &mut |_, _, _, _, _, _| Err("unexpected ordinary Call".to_owned())).err().unwrap();
-                            assert!(rejected.contains("static-"), "{rejected}");
+                            let reason = if mutation < 2 { "reference-dependency-identity" } else { "reference-static-value" };
+                            assert!(rejected.contains(reason), "{rejected}");
                             assert_eq!(physical_rows(builder.function_state.current_function.as_ref().unwrap()), expected);
                             for original in frame.static_reads() {
                                 state.prepare_exact_lexical_read(input.owner(), original.read().node(), original.binding()).unwrap();
@@ -341,7 +342,13 @@ mod tests {
                         &mut |_, _, _, _, _, _| Err("unexpected ordinary Call".to_owned()));
                     if !frame.residence_reads().is_empty() || !frame.text_reads().is_empty() {
                         let error = result.err().unwrap();
-                        assert!(error.contains("reference-execution-pending") || error.contains("domain-not-text-only"), "{error}");
+                        if !frame.residence_reads().is_empty() {
+                            // This source-only shell has not installed the original
+                            // initializer/Home. The real compiler test owns execution.
+                            assert!(error.contains("lexical-call-prior-home-unavailable"), "{error}");
+                        } else {
+                            assert!(error.contains("reference-execution-pending") || error.contains("domain-not-text-only"), "{error}");
+                        }
                         for requirement in frame.text_reads() {
                             state.prepare_exact_lexical_read(input.owner(), requirement.read().node(), requirement.binding()).unwrap();
                         }

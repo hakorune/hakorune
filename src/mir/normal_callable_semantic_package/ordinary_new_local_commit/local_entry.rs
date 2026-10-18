@@ -271,3 +271,22 @@ impl LocalCommitV1 {
         }
     }
 }
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Exact aliases of these opaque installed Homes preserve their physical
+    /// identity. This grants no new Home and does not admit arbitrary handles.
+    pub(crate) fn permits_installed_opaque_alias_v1(&self, binding: BindingRefV1, value: ValueId) -> Result<bool, String> {
+        let rows = self.local_commits.borrow();
+        for row in rows.values() {
+            match row {
+                LocalCommitV1::Map(map) if map.binding == Some(binding) && map.local() == Some(value) => return Ok(true),
+                LocalCommitV1::TextResidence(packet) if packet.frame().binding() == binding && packet.local_value() == value => {
+                    self.validate_text_initializer_home_v1(packet, CallValidationContextV1::Lowering(self))?;
+                    return Ok(true);
+                }
+                _ => {}
+            }
+        }
+        Ok(false)
+    }
+}

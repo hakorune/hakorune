@@ -492,6 +492,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("source-copy-local-unavailable"))?;
             result.push((local, *emitted));
         }
+        // Scalar expression locals use the same completed source receipt and
+        // the same boundary law as ordinary local Copies; Text reuse has none.
+        for packet in self.root_local_call_bindings.borrow().get(&owner).into_iter().flatten()
+            .filter_map(|group| group.initializer()) {
+            if packet.receipt_copy_binding_v1().is_some() {
+                result.push((packet.local_value(), packet.value()));
+            }
+        }
         Ok(result)
     }
 

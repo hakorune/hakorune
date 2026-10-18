@@ -62,7 +62,7 @@ impl CallableSemanticLoweringState {
             {
                 return Err(freeze("placement-alias-unconsumed-or-value-drift"));
             }
-            self.map_alias_origin(*reference, value, ledger)?
+            self.opaque_alias_origin(*reference, value, ledger)?
         } else {
             false
         };
@@ -100,7 +100,7 @@ impl CallableSemanticLoweringState {
         }
         Ok(relation)
     }
-    fn map_alias_origin(
+    fn opaque_alias_origin(
         &self,
         mut binding: BindingRefV1,
         value: ValueId,
@@ -114,7 +114,7 @@ impl CallableSemanticLoweringState {
             if self.values.get(&binding) != Some(&value) {
                 return Ok(false);
             }
-            if ledger.is_installed_map_binding(binding, value) {
+            if ledger.permits_installed_opaque_alias_v1(binding, value)? {
                 return Ok(true);
             }
             let mut rows = self

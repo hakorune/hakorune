@@ -78,18 +78,9 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         initial.push((requirement.node(), CheckedExpressionReferenceV1::InitializerEntry { read: read.clone(), exclusion }));
     }
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
-    let Some(mut reference_proofs) = super::evaluation::seed_expression_references_v1(&mut prepared, initial, &reference_order,
-        &mut |node, site| {
-            let proof = if let Some(read) = static_reference(site) {
-                CheckedExpressionReferenceV1::StaticText(read)
-            } else if let Some((binding, root, acquisition)) = residence_reference(site) {
-                CheckedExpressionReferenceV1::Residence(TextResidenceReadV1::new(node, binding, root, acquisition))
-            } else if let Some(read) = scalar_reference(site) {
-                if read.kind() != SourceScalarKind::Integer { return Err(()); }
-                CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read))
-            } else { return Ok(None) };
-            Ok(Some(proof))
-        }) else { return Ok(None) };
+    let Some(mut reference_proofs) = super::evaluation::seed_current_expression_references_v1(
+        &mut prepared, initial, &reference_order, static_reference, residence_reference, scalar_reference,
+    ) else { return Ok(None) };
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared,
             &mut |_| None, &order, field_request)? else { return Ok(None) };

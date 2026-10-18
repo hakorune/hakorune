@@ -3,6 +3,8 @@ use super::*;
 use crate::mir::builder::ExactLexicalReadV1;
 use crate::mir::resolved_semantics::home_new_prefix::{CurrentScalarReadV1, CurrentScalarProducerV1 as Producer};
 use crate::mir::{ValueId, ConstValue};
+use crate::mir::instruction::StringInvokeOperand as Operand;
+use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1 as Reference};
 
 #[derive(Debug)]
 enum ReferenceProducerV1 { Definition(Binding), Entry(ValueId) }
@@ -18,17 +20,58 @@ impl PreparedExpressionReferenceReadV1 {
     }
 }
 impl ExpressionReferenceReadV1 {
-    pub(in crate::mir) fn prepare_definition(binding: Binding) -> PreparedExpressionReferenceReadV1 {
-        PreparedExpressionReferenceReadV1 { producer: ReferenceProducerV1::Definition(binding) }
+    /// Prepare before the existing exact-read batch commits. Source proof stays
+    /// in the shared evaluation, not in another reference/operand registry.
+    pub(in crate::mir) fn prepare(
+        frame: &CheckedExpressionEvaluationV1, node: usize, read: &ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<PreparedExpressionReferenceReadV1, String> {
+        let source = original_reference(frame, node)?;
+        let producer = match source {
+            Reference::Scalar(source) => return Self::prepare_scalar(
+                source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, context, function),
+            Reference::StaticText(original) => {
+                let value = read.loan_local_initializer_v1(original.definition_binding())?.0;
+                let mut rows = function.blocks.iter().flat_map(|(block, body)| body.all_instructions()
+                    .map(move |row| (*block, row))).filter(|(_, row)| row.dst_value() == Some(value));
+                let (block, row) = rows.next().ok_or_else(|| freeze("expression/static-initializer-missing"))?;
+                if rows.next().is_some() { return Err(freeze("expression/static-initializer-producer")); }
+                ReferenceProducerV1::Definition((block, row.clone()))
+            }
+            Reference::Residence(original) => {
+                let binding = context.with_original_initializer_v1(original.acquisition(), |packet| {
+                    context.ledger().validate_text_initializer_home_v1(packet, context)?;
+                    Ok(packet.root_acquisition_binding_v1()?.clone())
+                })?;
+                ReferenceProducerV1::Definition(binding)
+            }
+            _ => return Err(freeze("expression/reference-execution-pending")),
+        };
+        reference_operand(frame, node, read, &producer, context)?;
+        validate_dependencies(read, &producer, function)?;
+        Ok(PreparedExpressionReferenceReadV1 { producer })
     }
-    pub(in crate::mir) fn read(&self) -> &ExactLexicalReadV1 { &self.read }
+    pub(in crate::mir) fn operand(&self, frame: &CheckedExpressionEvaluationV1, node: usize,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Operand, String> {
+        reference_operand(frame, node, &self.read, &self.producer, context)
+    }
+    pub(super) fn validate_layout(&self, frame: &CheckedExpressionEvaluationV1, node: usize,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<(), String> {
+        if let Reference::Scalar(source) = original_reference(frame, node)? {
+            validate_entry_layout(source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?,
+                &self.producer, context, function)?;
+        }
+        Ok(())
+    }
     pub(in crate::mir) fn definition(&self) -> Option<&Binding> {
         match &self.producer { ReferenceProducerV1::Definition(binding) => Some(binding), _ => None }
     }
     pub(super) fn dependencies(&self) -> Result<impl Iterator<Item = &Binding>, String> {
         Ok(self.definition().into_iter().chain(self.read.original_copy_dependencies_v1()?))
     }
-    pub(in crate::mir) fn prepare_scalar(
+    fn prepare_scalar(
         source: &CurrentScalarReadV1, read: &ExactLexicalReadV1,
         context: CallValidationContextV1<'_>, function: &MirFunction,
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
@@ -52,13 +95,49 @@ impl ExpressionReferenceReadV1 {
         validate_dependencies(read, &producer, function)?;
         Ok(PreparedExpressionReferenceReadV1 { producer })
     }
-    pub(in crate::mir) fn validate_scalar_source(
-        &self, source: &CurrentScalarReadV1, context: CallValidationContextV1<'_>,
-    ) -> Result<ValueId, String> { validate_source(source, &self.read, &self.producer, context) }
-    pub(super) fn validate_scalar_layout(&self, source: &CurrentScalarReadV1, context: CallValidationContextV1<'_>, function: &MirFunction) -> Result<(), String> {
-        validate_entry_layout(source, &self.producer, context, function)
-    }
 
+}
+fn original_reference(frame: &CheckedExpressionEvaluationV1, node: usize) -> Result<&Reference, String> {
+    let reference = frame.references().get(&node).ok_or_else(|| freeze("expression/reference-source-missing"))?;
+    if !reference.matches_node(frame.source(), node) { return Err(freeze("expression/reference-source-node")); }
+    Ok(reference)
+}
+fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &ExactLexicalReadV1,
+    producer: &ReferenceProducerV1, context: CallValidationContextV1<'_>,
+) -> Result<Operand, String> {
+    let reference = original_reference(frame, node)?;
+    let site = &frame.source().nodes()[node];
+    read.value_for(frame.source().owner(), site.site().node(), reference.binding()).map_err(|error| error.to_string())?;
+    match reference {
+        Reference::StaticText(original) => {
+            let value = read.loan_local_initializer_v1(original.definition_binding())?.0;
+            if !matches!(producer, ReferenceProducerV1::Definition((_, MirInstruction::Const {
+                dst, value: ConstValue::String(text) })) if *dst == value && text == original.utf8()) {
+                return Err(freeze("expression/reference-static-value"));
+            }
+            Ok(Operand::StaticText { utf8: original.utf8().to_owned() })
+        }
+        Reference::Scalar(source) => Ok(Operand::NormalInteger(validate_source(
+            source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, producer, context)?)),
+        Reference::Residence(original) => {
+            if frame.prior_homes().iter().filter(|binding| **binding == original.root()).count() != 1
+                || original.root() != original.acquisition().binding() {
+                return Err(freeze("expression/residence-current-home"));
+            }
+            context.with_original_initializer_v1(original.acquisition(), |packet| {
+                context.ledger().validate_text_initializer_home_v1(packet, context)?;
+                let value = read.loan_local_initializer_v1(original.root())?.0;
+                if value != packet.value() || packet.local_value() != value
+                    || !matches!(producer, ReferenceProducerV1::Definition(binding) if binding == packet.root_acquisition_binding_v1()?) {
+                    return Err(freeze("expression/residence-original-pair"));
+                }
+                // Borrow the original pair: the alias observation proves its
+                // correspondence but creates no new acquisition or cleanup.
+                Ok(Operand::OwnedString(value))
+            })
+        }
+        _ => Err(freeze("expression/reference-execution-pending")),
+    }
 }
 fn signed_entry_ordinal(source: &CurrentScalarReadV1, formal: crate::mir::resolved_semantics::BindingRefV1,
     context: CallValidationContextV1<'_>,

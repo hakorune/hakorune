@@ -57,7 +57,7 @@ pub(super) fn emit(
             return Err(freeze("expression/reference-execution-pending/text-entry-string-consumer"));
         }
         if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
-            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_))) {
+            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_) | CheckedExpressionReferenceV1::Residence(_))) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
@@ -76,32 +76,9 @@ pub(super) fn emit(
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
         let site = OwnedExprSiteV1::new(owner, node.site().clone());
-        if let Some(CheckedExpressionReferenceV1::StaticText(original)) = frame.references().get(&index) {
+        if let Some(original) = frame.references().get(&index) {
             let read = state.prepare_exact_lexical_read(owner, node.site().node(), original.binding()).map_err(|error| error.to_string())?;
-            let (initializer, copies) = read.loan_local_initializer_v1(original.definition_binding())?;
-            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-            let mut definitions = function.blocks.iter().flat_map(|(block, body)|
-                body.all_instructions().map(move |row| (*block, row))).filter(|(_, row)| row.dst_value() == Some(initializer));
-            let (block, producer) = definitions.next().ok_or_else(|| freeze("expression/static-initializer-missing"))?;
-            if definitions.next().is_some() || !matches!(producer, MirInstruction::Const { value: crate::mir::ConstValue::String(text), .. } if text == original.utf8()) {
-                return Err(freeze("expression/static-initializer-producer"));
-            }
-            let producer = (block, producer.clone());
-            for (block, instruction) in std::iter::once(&producer).chain(copies) {
-                let dst = instruction.dst_value().ok_or_else(|| freeze("expression/static-dependency-dst"))?;
-                let mut definitions = function.blocks.iter().flat_map(|(block, body)|
-                    body.all_instructions().map(move |row| (*block, row))).filter(|(_, row)| row.dst_value() == Some(dst));
-                if function.params.contains(&dst) || definitions.next() != Some((*block, instruction)) || definitions.next().is_some() {
-                    return Err(freeze("expression/static-dependency-identity"));
-                }
-            }
-            reference_slots.insert(index, (pending.len(), ExpressionReferenceReadV1::prepare_definition(producer)));
-            pending.push(read);
-        }
-        if let Some(CheckedExpressionReferenceV1::Scalar(original)) = frame.references().get(&index) {
-            let original = original.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?;
-            let read = state.prepare_exact_lexical_read(owner, node.site().node(), original.binding()).map_err(|error| error.to_string())?;
-            let producer = ExpressionReferenceReadV1::prepare_scalar(original, read.observation_v1(), CallValidationContextV1::Lowering(ledger),
+            let producer = ExpressionReferenceReadV1::prepare(frame, index, read.observation_v1(), CallValidationContextV1::Lowering(ledger),
                 builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
             reference_slots.insert(index, (pending.len(), producer));
             pending.push(read);
@@ -224,12 +201,7 @@ pub(super) fn emit(
             }
             Node::Reference(_) => {
                 let observed = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
-                match frame.references().get(&index) {
-                    Some(CheckedExpressionReferenceV1::StaticText(original)) => Operand::StaticText { utf8: original.utf8().to_owned() },
-                    Some(CheckedExpressionReferenceV1::Scalar(source)) => Operand::NormalInteger(observed.validate_scalar_source(
-                        source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, CallValidationContextV1::Lowering(ledger))?),
-                    _ => return Err(freeze("expression/reference-execution-pending")),
-                }
+                observed.operand(frame, index, CallValidationContextV1::Lowering(ledger))?
             }
             Node::MethodCall if frame.cores().contains_key(&index) => {
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;

@@ -527,7 +527,8 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
             let source = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                 &source_ledger, shape, statement.site()).unwrap().unwrap();
             let plan = crate::mir::resolved_semantics::home_new_prefix::qualify_print_expression_v1::<()>(
-                source, &[], &mut |_| None, &mut |_| Ok(None), &mut |_| true,
+                source, &[],
+                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| Ok(None), &mut |_| true,
                 &mut |fields, _| { assert!(fields.is_empty()); Ok(true) }).unwrap().unwrap();
             Rc::clone(plan.print_frame().unwrap())
         }).unwrap();

@@ -456,8 +456,8 @@ bytes and retains the exact read plus original Const producer in its existing
 packet. These preceding dependencies stay outside expression operation order.
 Draft validation checks actual producers; finishing preparation checks original
 capture, and both final source consumers require the same sealed boundary's
-strict relation/omission evidence. Borrowed entry, residence, scalar and finite
-reference execution remain separate unfulfilled obligations.
+strict relation/omission evidence. Installed residence and original signed-scalar
+reads use the common reference owner below; borrowed finite entry remains pending.
 
 Borrowed Text entry-read preflight joins the original read/contract to the same
 canonical finite entry structure, requiring exactly Text. It checks the complete
@@ -504,5 +504,23 @@ child cleanup, while the existing root cleanup owner proves the retained Home's
 later End. Finalized physical admission borrows only the exact surviving Install
 from that same packet, Home and finished projection. Packet membership follows
 the current affine group owner, never a retry of the emptied lowering pool.
-Residence/finite-entry reads and complete Text argument closure remain separate
-obligations; the Local handoff does not grant them.
+Finite-entry reads and complete Text argument closure remain separate obligations;
+the Local handoff alone does not grant them. Residence loans use the common owner below.
+
+
+Expression reference preparation and final operand checks share one owner for
+Static literals, original signed scalars and installed Text residence loans.
+A residence loan retains the original acquisition packet's Normal projection,
+exact root/alias read provenance and current prior-Home membership. It borrows
+that same owned pair without a new acquisition, Install or Normal End. Exact
+opaque alias placement reuses the existing local identity; it never emits an
+owned-pair Copy or creates a second Home. Scalar initializer receipt Copies join
+the existing source-Copy boundary census and omission law; finalized consumers
+still require the sealed producer relation. Entry SUM/argument/use closure and
+Bool/Loop connections retain their distinct pending obligations.
+
+Print and Local initializer qualification share the current-reference seeder.
+Print retains the SAME Static/Residence/original-I64 proofs in its evaluation;
+its existing writer and final projection consume them. Home installation begins
+only after source qualification, preserving the atomic field-batch boundary.
+A borrowed residence gains neither another owner nor another Normal End.

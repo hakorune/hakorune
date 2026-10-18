@@ -164,3 +164,26 @@ fn seed_reference_v1(
     proofs.insert(node, proof);
     Some(())
 }
+
+/// Current Home references use the same original proof selection for every
+/// participating purpose. Purpose-specific entry loans remain with that issuer.
+pub(super) fn seed_current_expression_references_v1(
+    prepared: &mut super::leaves::PreparedExpressionCallsV1,
+    initial: Vec<(usize, CheckedExpressionReferenceV1)>, order: &[usize],
+    static_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
+    residence_reference: &mut impl FnMut(&super::super::SourceExprSiteV1)
+        -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+    scalar_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
+) -> Option<std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>> {
+    seed_expression_references_v1(prepared, initial, order, &mut |node, site| {
+        let proof = if let Some(read) = static_reference(site) {
+            CheckedExpressionReferenceV1::StaticText(read)
+        } else if let Some((binding, root, acquisition)) = residence_reference(site) {
+            CheckedExpressionReferenceV1::Residence(super::initializer_expression::TextResidenceReadV1::new(node, binding, root, acquisition))
+        } else if let Some(read) = scalar_reference(site) {
+            if read.kind() != super::super::SourceScalarKind::Integer { return Err(()); }
+            CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read))
+        } else { return Ok(None) };
+        Ok(Some(proof))
+    })
+}

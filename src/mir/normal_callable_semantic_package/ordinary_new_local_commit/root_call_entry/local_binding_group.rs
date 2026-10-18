@@ -101,6 +101,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
             let observed = match (self.projected, self.borrowed_field_write()) {
                 (false, Some(packet)) => packet.resolve_observed_binding_v1(&observed, false)?, _ => observed,
             };
+            if let (Some(packet), Some(boundary)) = (self.initializer(), finishing) {
+                if packet.validates_receipt_copy_v1(&observed, function, boundary, self.projected)? { continue; }
+            }
             if !super::super::physical_boundary::check_binding(function, finishing, observed.0, &observed.1)? {
                 return Err(format!("{} function={} site={:?} projected={} finishing={} binding={observed:?}",
                     freeze("local-call-binding-drift"), function.signature.name, self.site, self.projected, finishing.is_some()));

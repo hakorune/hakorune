@@ -387,6 +387,7 @@ mod installation_tests {
             let mut installation = flow.expression_installation();
             let mut batches = 0;
             let plan = qualify_print_expression_v1::<()>(Rc::clone(&source), &[],
+                &mut |_| None, &mut |_| None, &mut |_| None,
                 &mut |_| None, &mut |_| Ok(None), &mut |plan| installation.approve(plan),
                 &mut |fields, _| { assert!(fields.is_empty()); batches += 1; Ok(batch_succeeds) }).unwrap();
             assert_eq!(batches, 1);
@@ -419,7 +420,8 @@ mod installation_tests {
         }
         let mut installation = sibling.expression_installation();
         let mut batches = 0;
-        assert!(qualify_print_expression_v1::<()>(source, &[], &mut |_| None, &mut |_| Ok(None),
+        assert!(qualify_print_expression_v1::<()>(source, &[],
+                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| Ok(None),
             &mut |plan| installation.approve(plan),
             &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
         assert_eq!(batches, 0, "duplicate source slot rejects before a field batch");

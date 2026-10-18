@@ -511,12 +511,12 @@ fn map_result_local_call_installs_lease_and_releases_at_exit() {
                 == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
         })
         .expect("sealed map-result local call");
-    assert!(ledger.is_installed_map_binding(
+    assert!(ledger.permits_installed_opaque_alias_v1(
         call.local_binding()
             .expect("map result requires local binding")
             .1,
         map
-    ));
+    ).unwrap());
     crate::mir::verification::MirVerifier::new_strict()
         .verify_function(&function)
         .expect("map-receive CFG verifies");

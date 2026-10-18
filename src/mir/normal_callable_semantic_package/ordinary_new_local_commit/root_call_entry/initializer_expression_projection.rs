@@ -49,6 +49,26 @@ impl EmittedInitializerExpressionProjectionV1 {
             && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
                 MirInstruction::StringResidenceInstall { value } if *value == self.value))
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(&self) -> Result<&Binding, String> {
+        if !self.has_text_home() { return Err(freeze("initializer-expression/no-text-home")); }
+        self.expression().require_unique(|row| matches!(row,
+            MirInstruction::InvokeNormalResult { dst, .. } if *dst == self.value))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn receipt_copy_binding_v1(&self) -> Option<&Binding> { self.copy.as_ref() }
+    /// Only this completed receipt can borrow the existing source-Copy omission
+    /// law. Finalized validate_paths still requires sealed relation_binding.
+    pub(super) fn validates_receipt_copy_v1(&self, observed: &Binding, function: &MirFunction,
+        boundary: &super::super::physical_boundary::FinishedBindings, projected: bool,
+    ) -> Result<bool, String> {
+        let Some(copy) = &self.copy else { return Ok(false) };
+        let expected = if projected { boundary.binding(copy.0, &copy.1)? } else { Some(copy.clone()) };
+        if expected.as_ref() != Some(observed) { return Ok(false); }
+        if boundary.captured_definition(self.local)? != copy
+            || boundary.source_local_copy_binding_v1(function, self.local, self.value)?.as_ref() != Some(copy) {
+            return Err(freeze("initializer-expression/local-copy-correspondence"));
+        }
+        Ok(true)
+    }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedInitializerExpressionFrameV1>, value: ValueId, local: ValueId, copy: Option<Binding>,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,

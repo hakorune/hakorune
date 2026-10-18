@@ -548,10 +548,6 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(LocalCommitV1::CallReceived(row))
                 if row.binding == binding && row.initializer() == Some(value))
     }
-    pub(crate) fn is_installed_map_binding(&self, binding: BindingRefV1, value: ValueId) -> bool {
-        self.local_commits.borrow().values().any(|row|
-            matches!(row, LocalCommitV1::Map(map) if map.binding == Some(binding) && map.local() == Some(value)))
-    }
     fn installed_map_value_for_binding(&self, binding: BindingRefV1) -> Result<ValueId, String> {
         let rows = self.local_commits.borrow();
         let mut values = rows.values().filter_map(|row| match row {

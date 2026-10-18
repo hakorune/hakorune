@@ -120,15 +120,22 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
 #[test]
 fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
-    for (methods, prefix, initializer, selected) in [
-        ("", "", "\"hello\"", 0), ("", "", "\"he\" + \"llo\"", 1),
-        ("", "", "(\"h\" + \"e\") + \"llo\"", 1),
-        ("", "", "\"a\" + 12", 1),
-        ("", "local first = \"a\" + \"b\"", "\"c\" + \"d\"", 2),
-        ("static box Values { run(count: i64): i64 { local text = \"a\" + \"b\" return 0 } }", "", "Values.run(1)", 1),
+    for (methods, prefix, initializer, suffix, selected) in [
+        ("", "", "\"hello\"", "", 0), ("", "", "\"he\" + \"llo\"", "", 1),
+        ("", "", "(\"h\" + \"e\") + \"llo\"", "", 1),
+        ("", "", "\"a\" + 12", "", 1),
+        ("", "local first = \"a\" + \"b\"", "\"c\" + \"d\"", "", 2),
+        ("static box Values { run(count: i64): i64 { local text = \"a\" + \"b\" return 0 } }", "", "Values.run(1)", "", 1),
+        ("", "local first = \"a\" + \"b\"", "first.length()", "", 1),
+        ("", "local first = \"a\" + \"b\"", "first + \"!\"", "", 2),
+        ("", "local first = \"a\" + \"b\" local alias = first", "alias.length()", "", 1),
+        ("", "local first = \"a\" + \"b\" local alias = first local second = alias", "second + \"!\"", "", 2),
+        ("", "local first = \"a\" + \"b\"", "first.length()", "print(text)", 1),
+        ("", "local first = \"a\" + \"b\" local alias = first", "alias.length()", "print(text) print(alias)", 1),
+        ("", "local first = \"a\" + \"b\" local alias = first", "alias + \"!\"", "local n = text.length() print(n) print(text)", 2),
     ] {
         let parameters = if methods.is_empty() { "" } else { "args" };
-        let text = format!("{methods} static box Main {{ main({parameters}) {{ {prefix} local text = {initializer} return 0 }} }}");
+        let text = format!("{methods} static box Main {{ main({parameters}) {{ {prefix} local text = {initializer} {suffix} return 0 }} }}");
         for optimize in [false, true] {
         let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
             &text, crate::parser::ParserBuildConfig::default()).unwrap();
@@ -147,7 +154,7 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
                     let installs = root.finished_initializer_installs_v1(view.module(), function)?;
                     count += installs.len();
                     for (block, original) in installs {
-                        for mutation in ["missing", "duplicate", "foreign-root", "end"] {
+                        for mutation in ["missing", "duplicate", "foreign-root", "acquisition", "end"] {
                             let mut changed = view.module().clone();
                             let changed_function = changed.functions.get_mut(&function.signature.name).unwrap();
                             let body = changed_function.blocks.get_mut(&block).unwrap();
@@ -156,6 +163,13 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
                                 "missing" => { body.instructions.remove(index); }
                                 "duplicate" => body.instructions.push(original.clone()),
                                 "foreign-root" => body.instructions[index] = crate::mir::MirInstruction::StringResidenceInstall { value: crate::mir::ValueId(99999) },
+                                "acquisition" => {
+                                    let crate::mir::MirInstruction::StringResidenceInstall { value } = original else { unreachable!() };
+                                    let producer = changed_function.blocks.values_mut().flat_map(|body| body.instructions.iter_mut())
+                                        .find(|row| matches!(row, crate::mir::MirInstruction::InvokeNormalResult { dst, .. } if *dst == value)).unwrap();
+                                    let crate::mir::MirInstruction::InvokeNormalResult { invoke_block, .. } = producer else { unreachable!() };
+                                    *invoke_block = crate::mir::BasicBlockId(99999);
+                                }
                                 "end" => {
                                     let mut changed_end = false;
                                     for body in changed_function.blocks.values_mut() {

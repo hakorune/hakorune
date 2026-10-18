@@ -643,7 +643,7 @@ fn map_physical_preflight_rejects_foreign_site_and_pending_install() {
                 )
                 .unwrap_err()
                 .contains("local-initializer-mismatch"));
-            assert!(!ledger.is_installed_map_binding(relation.binding(), value));
+            assert!(!ledger.permits_installed_opaque_alias_v1(relation.binding(), value).unwrap());
             assert!(!ledger.map_demands_consumed());
         })
         .unwrap();
