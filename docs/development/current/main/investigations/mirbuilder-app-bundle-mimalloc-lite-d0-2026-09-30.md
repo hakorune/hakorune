@@ -728,29 +728,10 @@ brand or issue a target per Return. Multiple Return wrappers normalize original
 call identity first and retain one physical read source. `ArrayDynamicRead`
 Home-schema expansion is not required by this field-read path.
 
-Phase A BoxShape: replace MIR ArrayElementRead/index with ArrayRead/Element
-payload; delete old enum shape and switch all33 existing source/consumer files.
-Generic operand visitors/rewrite/remap delegate to the operation owner; operand
-iteration allocates no second Vec. Get-specific RMW/source/VM/printer/JSON and
-legacy published element rows explicitly match Element. Existing READ effect,
-optional dst, IDs, index order, runtime Get and both wire spellings remain.
-No Count constructor/admission is introduced by this phase. INSTRUCTION_SET is
-updated because it owns this MIR shape; language semantics/JSON schema unchanged.
-Existing owner README describes the same boundary. No test/checker/file added.
-939A syntax error from mechanical field wrapping was corrected before939B
-build146.181s PASS;939C iterator/RMW refinement build59.340s PASS. An attempted
-file-name test filter selected0 and is not a success; exact existing function
-filter is used below. Existing Get baseline938C three filters11PASS;939B source
-and core filters22PASS. Current939C focused results and final checks follow.
-This normalizes a shared physical responsibility; JSON first-stop/Count execution
-has NOT advanced and no native speedup or current-source EXE is claimed.
-939C7 existing focused filters46PASS (8MiB/one-thread), full test names9264
-unchanged from938C. Pointer/layer/CallTarget owner and final diff checks PASS.
-Retain939B/C source/binary/command receipts and root-v939-before until Count
-series acceptance; no adapter or new proof ledger. Before Count, operation-aware
-backend allowlists/legacy wire and source-gated final publication remain required;
-broad ArrayRead shape support is not Count permission. Prior native CLI279 and
-runtime894A/FFI897A remain historical/predecessor regression evidence only.
+Phase A normalization landed42aae0aca5: one ArrayRead/Element operand owner,
+unchanged Get wire/semantics;46 existing focused cases and owner checks passed.
+Detailed commands/results remain in that commit. Count connection and its
+remaining original-source boundary follow below.
 
 Root940 maintenance return: requested TR-5a/5b/6 in existing retirement card is
 verified;27ea1a2c6a/4a4575185b remove redundant Loop test control/duplicate compile
@@ -773,55 +754,19 @@ mul/dependency closure validation before lending original read Rc. Field recipes
 use that owner; no new census/map/receipt, generic scalar permission or source
 rewrite. Reuse current field/source/publication/drift tests, no added cases.
 
-Root941 verified typed field Count connection (whole row remains unfinished):
-- Original field-read source shares residence with Get; Count retains original
-  method Arc, canonical ArrayLen/0 ArrayCount/PureRead row and sole all-writer
-  provider loan. Scalar result lending now shares the full validator independently
-  of borrowed-scalar physical participation; that participant gate is unchanged.
-- Existing Read recipe/writer/collector/both final consumers now carry operation
-  rather than a fake index. Count publishes only the validated exact instruction
-  binding as array_length(array,dst); generic/native-single-root admission is not
-  widened. Independent C uses original live field/provider/residence checks and
-  existing slot_len_h. No new runtime ABI, Fault, acquisition, End or fallback.
-- Catalog normalization uses existing ArrayMethodId Length then opaque manifest
-  issuer; no new Core result-lookup consumer or guard allowlist. Original method
-  selector correspondence is rechecked. Existing source/result/physical fixtures
-  were extended only for Count's distinct no-index/empty/local-Return obligations;
-  no new test names/files/checkers. Test names remain9263 after TR-5b deletion.
-
-Evidence: root941A build68.067s PASS,941B59.903s PASS;941B nine existing focused
-filters48PASS,8MiB/one-thread (field publication, drift, source result, Core,
-backend ops, Loop, canonicalization, VM Get and RMW).941A/B issued JSON for
-ok/oob/count_empty/count_one is byte-identical. Existing C Get driver executed
-2 Get +2 Count inputs and3 malformed rows per operation; separate existing driver
-invocations reject object-as-array and wrong-field Count inputs before artifacts.
-No tracked C test/driver was added. FFI939A build6.933s has current shim hashes.
-
-CLI280 quick build238.593s PASS. Canonical direct --emit-exe, runtime894A and
-FFI939A: existing Rust fixture Count empty app367 EXE121.614s/run.005365s/exit0;
-Count one app368 EXE120.984s/run.001765s/exit1. Both exact expected Result line
-and standard plugin-disabled stderr. Unchanged mimalloc app366 EXE160.889s,
-run.002095s, stdout/stderr/exit exact app363; compiler stderr differs only *_ns
-metrics. Inputs ran concurrently; no compile-speed improvement claim. Unchanged
-JSON app365 remains exact app362 first-stop owner32 Body10, source-not-i64,
-.046978s/exit1/noEXE. Product source frontier has NOT advanced for that app.
-
-Provenance: CLI280 precedes the final catalog-only correction in
-ordinary_new_field_array_read_source.rs; this is the ONLY CLI280→941B source
-manifest delta.941B full focused acceptance and byte-identical four issued JSON
-files establish unchanged tested projection; native results above belong to
-CLI280, not a claim of rebuilt current-HEAD CLI. Root941A→CLI280 differs only
-owner README. Runtime894A is an explicit predecessor archive; FFI939A matches
-current shims. Do not claim all three source manifests equal. Retain source/build/
-focused/C/native receipts and binaries under /tmp/mirbuilder-required-forward-resume,
-including939/940 baselines and earlier unfinished-series pins until stronger
-same-role evidence replaces them. No temporary adapter added.
-
-Pointer/layer/CallTarget, generated manifest --check and diff PASS. Full manifest
-guard's14 codegen cases PASS then fails on existing ordinary.rs resolver-consumer
-allowlist error. Guard/ordinary.rs bytes and resolver/result-lookup caller sets
-are exact HEAD baseline; no new lookup consumer remains. No waiver, full-suite
-or CI-green claim.
+Typed field Count source-to-final connection landed5f12f37970. Its commit
+retains exact source/recipe/physical/C changes, commands, full validation and
+artifact provenance:941B48PASS, current-shim C positives/refusals, CLI280 Count
+empty/one canonical EXE and unchanged mimalloc output/exit. Four current issued
+JSON files are byte-identical across the final catalog normalization; CLI280 is
+explicitly a predecessor for that one source-file delta. No current-HEAD rebuilt
+CLI, full-suite/CI green or unchanged JSON progress claim. JSON365 remains exact
+JSON362 owner32 Body10 source-not-i64. Original typed Count adds no new test names/
+files/checkers, runtime ABI, Fault, Home or fallback. No legacy Count edge existed.
+Temporary939/940/941 and CLI280/backend pins stay until stronger same-role evidence
+replaces unfinished-series needs; there is no temporary adapter. Baseline manifest
+guard ordinary.rs allowlist red remains classified as in5f12f37970; caller sets
+are unchanged and no new Core result-lookup consumer was retained.
 
 Remaining same-row Decision brief — fixed residence at the original input:
 Actual JSON uses init{users} and unique Birth users=new ArrayBox, without declared
