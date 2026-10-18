@@ -573,343 +573,121 @@ native .001687s exact7/stdout+stderr+exit0, warnings/guards/commands/provenance 
 FFI876B until stronger same-role evidence or Text-series closure. Logs/manifests
 remain; no adapter, current CI/full-suite or new internal Prefix-position claim.
 
-V891 construction Decision (read-only worker reviews reused): connect canonical
-CurrentScalarRead to actual producer/Copy through SAME expression reference map,
-then common Local evaluation -> existing from-values receipt -> one lifecycle
-prefix packet -> module/published source consumers. RawLegacyLocalInput carries
-pending emissions by ordinal directly to CompletedLocalStatement; shared generic
-loop observation sink is NOT an affine packet owner. No reevaluation/raw AST
-fallback once initializer is selected. I64 normal cleanup releases all child Text
-temporaries while retaining scalar/prior Homes. Owned Text additionally requires
-source-aware root handoff; retain that fence until its source-use view closes.
-This is a physical construction step of the SAME full Text series, not a scalar-
-only replacement objective. Real entry/residence/actual/finite/null/Loop After,
-cleanup and both final scans remain required; no source-class permission patch.
-Paths: shared expression_projection and new expression_reference_read child;
-existing export chain root_call_entry/local_commit/coseal/package; selected
-expression_value/new initializer_expression, selected module export; Local descent,
-Raw callable port and normal_callable_binding_materialization; canonical scalar
-read source accessors only as needed; initializer_expression_projection,
-local_binding_group, call_validation_context, lifecycle_prefix, root validation
-and finalized_root_handoff; reuse existing initializer/selected arguments/local
-copy/finished projection tests. Owner READMEs/card only; source-size splits stay
-with their existing responsibility if needed. Text borrowed operands/entry final-
-use view/JSON+C are the next connected dependencies, not optional follow-up.
+### V891 source-bound I64 execution — landed df702c983c
 
-V891 WIP evidence and current obligations:
-- Root891A–L intermediate failures remain in /tmp/mirbuilder-required-forward-resume;
-  no intermediate compile/fixture is product acceptance. Actual trace identifies
-  the Static target-only bridge, correcting the initial generic Direct assumption.
-- SAME Static incoming Rc + expected-sites descent + sole unified writer receipt
-  now join the existing group, beside genuine Direct row/take-site proof. No
-  execution route or borrowed-cohort permission is inferred from the receipt.
-  Selected-publication and target-only arms retain their distinct authorities.
-- Genuine Main initializer demand uses checked_caller_key and SAME SUM context,
-  not fabricated incoming/formal membership. I64 Local Jump is infallible and no
-  longer manufactures a detached acquisition-Fault suffix. Both final consumers
-  recheck exact Local/entry producers, Copy, Jump correspondence and child End.
-- Control review rejected both a data-only cone and adding ancestors to DAG nodes.
-  Existing boundary projection now derives transient governing predecessors of
-  recorded scalar Calls after literal selection, retaining SAME sequences and
-  threading/destination laws. Nodes/DAG/Phi roles stay unchanged. Sealed omissions,
-  unique producers/parameter collisions, original entry and incoming signatures
-  are replayed by both final consumers. Condition-only, producer, duplicate,
-  parameter, entry and added-incoming mutations plus a control cycle pass their
-  existing-owner test. No control registry or second evaluator is introduced.
-- Root891R build55.043117s PASS. Focused455 distinct:440PASS,14 known baseline
-  failures,1 NEW unaccepted construction test (8-case compiler matrix). First5
-  original Main Core-I64 cases reach verified publication/JSON; retained-packet
-  cleanup/Jump/read mutation test PASS. Boundary22, scalar-liveness1, Direct
-  loan7/lifecycle38, argument descent5 and binding-group3 PASS. Matrix's final3
-  cases expose gaps below; this is not a green closeout. R baseline377/363PASS/
-  14identical messages matches Root890C. Required16MiB stack; script args=[].
-- Main driver for the child matrix is the existing main(args), Local call,
-  Return0 route. Direct Return-Call lacks root completion; arity0 qualified Main
-  bypasses Local receipt consumption. Those independent routes are not fixed.
+That commit owns all implementation paths, exact intermediate diagnostics,
+source/physical decisions and classified verification for the formerly retained
+WIP. It is verified I64 construction; full Text series remains unaccepted.
 
-Next source-to-final-consumer Decision (read-only integration reviews):
-1. Qualified Static methods have original target/header/result but no Direct
-   execution row: issuer_direct_call_loans only collects resolver Direct calls.
-   Generic Plain Call cannot enter lifecycle ABI by adding target names: it lacks
-   the original caller Fault/cleanup continuation. Normalize at source issuance,
-   before argument effects, into the EXISTING typed execution row/Invoke owner.
-   Preserve each source's own emission authority and Static key; retain original Static Rc and all
-   caller/callee/argument/entry/cleanup proof. Do not synthesize borrowed inputs,
-   rewrite MIR or invent a Plain Fault sidecar. Pure scalar protocol remains.
-   Require canonical non-Call lifecycle prefixes on caller/callee and finite
-   original ABI participation closure through helpers; preserve the all-pure
-   Scalar test. Selected Cataloged Static ports already reborrow SAME inventory.
-   Factor Main argument resource selection from its existing checked source loan,
-   reuse it during emission, and retain genuine entry/participant roots. Do not
-   seed source-only declarations or copy args-name interpretation into classifiers.
-   Last3 matrix errors:2 admission-function-not-birth,
-   1 normal-projection-exit PrefixNotCovered Body0; never mark these acceptance.
-2. count+1 actual is Unknown in original borrowed-actual source atom; exact-I64
-   Static columns only project Integer/Scalar, and argument frames require String.
-   Generalize SAME argument source/evaluation to typed String/I64 with original
-   plan/site/formal demand and CurrentScalarRead::Original. Reuse common writer/
-   reference map and original Call observation; no fictional Scalar(binding),
-   literal fixture substitution or result-type-only execution permission.
-3. Full Text: extend existing original_call_slots into ONE ephemeral original
-   final-use view over module; preserve it through BOTH function verifier passes.
-   Common expression projection lends operand/Local handoff uses including groups
-   without Calls. Formal use census closes inside its owner; entry/domain closes
-   only after BOTH final scans. No persistent verifier registry. Entry/residence/
-   actual/finite/null/Loop After, root handoff, JSON+C and cleanup remain required.
+Retained implementation contracts:
+- Common Core/I64 initializer uses sole expression writer, affine Local receipt,
+  source-issued lifecycle prefix and retained original producer/read map. Signed
+  entry, exact Integer, prior Call and prior initializer proofs remain distinct.
+  Normal retains scalar/prior Homes and Ends child Text temporaries; Fault retains
+  reverse acquisitions and original prior Home unwind. Exact numeric Local slot
+  annotations still need their typed write receipt; no fake Copy or AST rewrite.
+- Main argument source policy is issued once from checked original Main key,
+  declaration/owner/slot/parameter ordinals and binding identities. Same Rc feeds
+  entry, argv lookup and both final consumers. Empty runtime argv is not evidence
+  of no resource obligation; no fabricated Main/FreeStatic header for Values.
+- Finite owner context closure chooses existing ABI only, never module roots or
+  result types. Source Static emits from SAME original Rc, selected declaration,
+  exact-I64 formal/signature lanes, result/completion and physical signature Rc.
+  Pure components keep original Scalar; already-Lifecycle Direct rows are not
+  re-sealed. Local source membership is checked before selection; transferred
+  Instance/Birth/terminal subtrees keep their original owner.
+- Existing Static publication ingress is consumed once BEFORE arguments and
+  retained on SAME row through materializer/both scans. TargetOnly is not I64
+  evidence. Conservative effects retained. Canonical Ready with original Home
+  debt uses existing source-scoped body; Home query does not alter dedicated
+  DirectAccum/CallableSingleLoop/GenericG0 routes or relax is_empty.
+- Shared lexical argument checker ties original literal/scalar to actual value.
+  Each Scalar consumes exact read INSTEAD OF generic descent in its argument
+  scope; no batch pre-read or double consumption. Integer keeps normal descent
+  and checks unique original literal producer. Original alias Copy dependencies
+  are retained; capturing a current MIR cone alone is insufficient.
+- Expression marker retains original ordinal/site obligation, never type/value.
+  SAME existing Source/Qualified ordinal slot owns plan/frame. Original formal
+  supplies expected class; real Prefix retains CurrentScalarRead Original proofs
+  using lazy installation. Typed Static argument roots demand existing SUM
+  graph.seed only, not graph.actual/result dependencies/formal-domain membership.
+  Runtime requires SAME frame in accepted Home and exact original argument site;
+  same owner/ordinal cannot authorize another occurrence.
+- I64 Argument packet uses sole expression writer and scalar continuation shared
+  with initializer; every child Fault/End/structural binding moves into outer
+  DirectScalar Call group. Both scans use common expression source/reference/
+  operation/path/cleanup verification. No second evaluator, registry, standalone
+  argument group, proof app or per-step guard. Non-Core nested calls keep their
+  existing owner; generic Instance/borrowed packets refuse Direct-only proof.
+- Finishing preserves consumed branch/Phi/argument dependencies via existing
+  liveness roots and original control scope, not unrelated graph predecessors.
+  Both final scans recheck SSA entry ordinals, producer identity and finished
+  membership. Original mimalloc Phi dependency regression is corrected.
 
-Additional V891 paths: Direct loan/descent/build/emit_local, Static physical bridge
-and sole-writer receipt, canonical Static inventory lender/reexport; existing
-boundary/finished/threading plus small control-scope and test children. Existing
-owned scalar-emission API is removed after production moved to retained borrowing;
-legacy-flat groups remain only for shared unselected callers/tests.
-CLI235/app282 exposed a mimalloc regression: SizeClassBox.bin_size/1 captured
-Phi v53 backedge v54->v73 failed finished-sequence. Trace and failed receipt stay
-for regression provenance. The existing simplify_cfg producer-preservation path
-now receives consumed conditions/used Phi/argument dependencies from the SAME
-boundary via scalar_finishing_liveness/RequiredLivenessRoots. No final-value
-inference or parked remat receipts are activated. One dependency walker serves
-Call proof and preservation, including InvokeNormal's exact original Invoke.
-Added path: existing scalar_finishing_liveness and boundary value-dependency
-child, justified by the measured finishing-consumer mismatch. The regression
-fixture demonstrates substitution without roots, preservation with roots and
-removal of unrelated dead Const/BinOp. No all-dst retention or new registry.
-
-CLI236 build177.469779s PASS, SHA89f655394732235cf853d3899fd67d98c110cc5f09a521cc8deab0f6d90dc2cf.
-Unchanged app283 JSON SAME Body7 pending .120211s/no artifact. Unchanged app284
-mimalloc canonical direct EXE133.146681s/native .001501s PASS; exact7 stdout,
-stderr and exit0 independently match app280. EXE SHA5d893966674ccb5391c25fabade80334886a07b674895aff717c269d3daf6a1c.
-Commands/env/source/backend hashes: app-v283-json-stream-aggregator.json and
-app-v284-mimalloc-lite.{json,run.receipt.json} under the existing /tmp evidence
-root. Runtime877A/FFI876B bytes unchanged; no compat replay. At that verification, only noncompiled
-owner README differed after build; v891r-verified-wip.json records that delta and
-compiled-source equality. RootR/CLI236/app283-284 are pre-Main-factor WIP pins; retain
-accepted Root890C/CLI234/app280 until verified landing. New matrix remains red;
-no commit, adapter-retirement, current CI/full-suite or product-closeout claim.
-Pointer/reference-route/layer-dependency/inc-thin guards and diff-check PASS.
-
-V891 Main source normalization WIP (same series, no new execution permission):
-- MainArgumentsSourceV1 is issued only by the checked AppMain source loan and
-  original parameter contracts; one Rc retains identity/brand/key/owner/slot and
-  ordered parameter bindings/kinds. Frame selection, emit and argv lookup reuse
-  that policy; the duplicate parameter-name reader/classifiers are removed.
-  Emission retention and both final consumers require the identical source Rc.
-- Root891S import failure corrected; Root891T build140.737590s PASS. Source-policy
-  positive/foreign identity/brand/owner/slot/parameter drift/foreign-Rc negative
-  and existing runtime argv snapshot/allocation/cleanup/final JSON tests PASS.
-  Direct lifecycle38PASS; initializer3=2PASS/1 same unaccepted 8-case matrix red.
-  Baseline377/363PASS/14same identities/messages vs Root891R (one unordered debug
-  map normalized); v891t-baseline-comparison.json retains exact comparison.
-  A zero-test filter was rejected, not counted; correct initializer filter ran.
-- Guard4/diff PASS. v891t-verified-wip.json proves only an obsolete helper comment
-  removed after build; other manifest paths identical. No fresh CLI/native run.
-- Next: after input finish, borrow SAME canonical Static observation Rc through
-  its existing inventory owner; join selected Static/Main edges into the existing
-  Direct inventory. Use original Main resource/non-Call lifecycle seeds and a
-  finite ABI-context closure; pure components stay Scalar, omitted/SourceOnly
-  declarations gain no permission. Then typed I64 actual-expression connection.
-
-V891 Static execution normalization construction (unaccepted):
-- Existing affine row now retains source-specific emission: ResolverDirect keeps
-  its original canonical header; Static keeps SAME incoming Rc plus SAME physical
-  signature Rc. Main's FreeStatic index lacks Values headers, so no such header
-  is fabricated. Common lifecycle materialization preserves conservative effects.
-- Static issuer joins original exact-I64 formal kind/ordinal/binding, selected
-  declaration identity, receiver-free scalar lanes, result cohort and SAME
-  completion. Whole owner pairs form only a finite ABI-context closure; row
-  upgrades use exact eligible sites. Existing Lifecycle Direct rows are retained
-  without re-sealing or changing their failure timing. Pure components stay Scalar.
-- Main gates borrow actual Ready Static execution rows from the original Direct
-  inventory; borrowed zeroPacket exclusions remain unchanged. Shared ordered
-  descent consumes row before arguments and calls existing Invoke/Normal writer.
-  Shared final packet rechecks SAME Static and signature identities, not a second
-  receipt pool or initializer-only source query. Required Static rows cannot be
-  explained by a canonical-loop bypass.
-- RootU build88.380243s PASS; focused exposed missing Static header and4 Direct
-  regressions. RootV namespace-import failure; RootW build134.322371s PASS:
-  Direct36PASS/2 remaining regressions, matrix still red, new source-context test
-  red because Main Static source existed but Local observation was absent.
-- Original typed Static edges now demand caller/callee's SAME homes-aware source
-  completion BEFORE plain seeds. This issues no execution permission; absent Home
-  flow is never treated as empty cleanup. Main's separate plain-integer seed is
-  excluded by the same demand. RootX visibility failure corrected by a narrow
-  original-source iterator in the existing census owner; RootY verification next.
-- Added paths are direct_call_static_execution plus existing source walk triggers,
-  borrowed-formal source lender, Direct ports/descent, model/Main gates and final
-  Direct projection, required by the measured source/consumer gaps above.
-- Read-only final audit found an unclosed argument-value proof: exact sites and
-  captured dependency bindings alone do not tie original Integer(1) to Const1.
-  Reuse/factor existing lexical argument projections. Each Scalar must consume
-  its exact read IN PLACE of generic variable descent at that argument's scope;
-  no after-descent double read or batch pre-read. Integer keeps common descent
-  then checks original Const; CallResult/BorrowedActual keep their original
-  child/frame proof. This must close before any Static execution acceptance.
-
-V891Z current verification / remaining connection (uncommitted):
-- RootY63.888630s PASS, source context3-case matrix PASS and Direct lifecycle38
-  PASS, but baseline377/348PASS/29fail included15 NEW regressions. Cause was
-  Local selection stealing existing expression/terminal/Instance/Birth owners;
-  required source-only transferred subtrees were accidentally walked as Local.
-- RootZ61.081511s PASS restores baseline377/363PASS/14 SAME identities/messages
-  versus RootT; exact comparison in v891z-baseline-comparison.json. Trigger now
-  requires original Local initializer-root membership + checked Static/Main
-  caller; join also requires original Local binding. Both use the existing source
-  owner, before selection—not fallback after a failed selected row. Constructor
-  source rows outside ordinary batch declarations remain with their own owner.
-- Z context matrix PASS (pure stays Scalar; argv/read contexts issue original
-  rows), Direct lifecycle38PASS. The 8-case compiler matrix remains red:
-  zeroarg find -> IncompleteOrdinaryNewCoverage; count+1 -> completion-not-ready;
-  signed-entry read -> original StaticResultPublicationResidual. No native/CLI
-  rerun, commit/push, full-suite/CI green or product acceptance.
-- Next before arguments: consume existing Static result ingress once; retain
-  Selected/TargetOnly product on SAME row and corroborate original source in both
-  scans. TargetOnly is not I64 proof; unavailable/mismatch must refuse.
-- Pure find's canonical Ready consumer bypasses callable source ledger and leaves
-  Home exits + child literal producer/returned debt. Next path scope includes
-  normal_callable_semantic_loan_port/root_capture and existing completion lookup:
-  PRE-EFFECT Ready selection with original Home obligations must use the existing
-  source-scoped body consumer. Keep is_empty strict, preserve dedicated Loop/
-  DirectAccum consumers; no route rewriting, retry or assumed empty cleanup.
-- Then common lexical argument projections: Scalar exact-read replaces generic
-  variable descent at the SAME argument scope; literal keeps common descent and
-  original value comparison. Retain proofs in completed argument/row/final packet.
-  Do not reopen consumed reads or accept nested/borrowed args from site alone.
-- Z source manifest still matches compiled bytes; only owner README updated after
-  build (v891z-verified-wip.json). Preserve all prior accepted/native pins and this
-  unaccepted WIP. Guards/diff checked; full Text entry/use/cleanup/JSON+C still owed.
-
-V891AA–AE verified WIP argument/return connection (uncommitted):
-- Existing Static ingress consumed before arguments and retained on SAME Direct
-  row; materializer and final scans corroborate original source/signature and
-  conservative effects. Home requirement queried ONLY for canonical Ready;
-  DirectAccum/CallableSingleLoop/GenericG0 keep prior boundaries.
-- Shared lexical argument checker owns source-value agreement. Scalar exact read
-  replaces generic variable descent in SAME argument scope; Integer keeps normal
-  descent then checks unique original literal producer. Completed proofs move
-  with observations into SAME row. Final scans recheck original alias Copy
-  dependencies; captured current cone alone is insufficient. New wrong-initial-
-  literal negative uses existing real lexical fixture, no new proof app/guard.
-- Direct forwarding extracted to raw_structured_direct_call (parent725 lines).
-  Child scalar return filter retains I64Scalar for SAME typed Static source walk,
-  closing observed return-parameter source loss without new terminal authority.
-- AE build56.427471s PASS, compiler matrix9/10 reaches verified publication +
-  lifecycle ABI JSON + retained-root scan; signed-entry and alias-Copy positives
-  plus callee/result/argument/entry mutation negatives pass. ONLY count+1 stays
-  static-execution/completion-not-ready. Matrix as a whole remains RED.
-- AE first44 baseline377distinct/363PASS/14 SAME identities AND messages versus
-  RootZ (v891ae-baseline-comparison.json). Direct lifecycle38/source-context1(3
-  cases)/wrong-initial-literal1/boundary22/liveness1/final-initializer-negative1
-  PASS. v891ae-verified-wip.json proves all compiled bytes matched at closeout.
-- AB54.022159s failed only inference, fixed before AC110.871831s PASS. AC first44
-  same377/363/14 and matrix7/8; AD58.211438s PASS exposed two additional source-
-  retention gaps now fixed in AE. Receipts retain exact diagnostic provenance.
-  AC duplicate focused binary270,533,120 bytes replaced by relative symlink after
-  exact SHA equality; v891ac-identical-binary-dedup.json retains mapping.
-- Keep AE and prior accepted source/native/backend pins; WIP protected at
-  HEAD7814cd0eb3. No fresh CLI/native/app/suite/CI or full-series claim.
-
-V891AF typed argument normalization Decision (same series, unaccepted):
-- Previous goal turn is progress: original Integer/Scalar arguments and scalar
-  return now reach both scans. No Cargo/rustc at entry, pointer guard PASS.
-- Worker confirms source phase must precede qualification. Original binary
-  membership remains passive Expression candidate; LocalCallArgument Expression
-  retains only exact ordinal/site obligation, never class or runtime value.
-  SAME existing argument_sources Source/Qualified slot owns original plan/frame;
-  no second map, fake Scalar/BorrowedActual, AST rewrite or legacy retry.
-- Original formal supplies expected I64/Text root demand to SAME source loan.
-  Covered Prefix uses existing prepared Call scope + CurrentScalarRead Original
-  reference proofs (including prior source calls) in SAME evaluation map.
-  Projector requires qualified expected class/required-I64 fulfillment. Runtime
-  frame loan must corroborate SAME accepted Home membership before effects.
-- Paths: existing borrowed actual source/Static source argument owner, Home
-  Argument qualifier and observer/call stage threading, LocalCallArgument and
-  shared lexical argument physical projection/driver/port/final packet. Existing
-  unsupported terminal/borrowed/loop consumers remain fail-closed. Reuse sole
-  expression writer and shared physical source/path/cleanup verification.
-- Source preparation is underway; physical argument connection and final scans
-  still owed. Full Text final-use/entry/cleanup/named JSON+C and all mandatory
-  finite-product integration/retirement/later conditions remain unchanged.
-
-- AF97.879134s build PASS; old Text qualification3 focused filters PASS. Matrix
-  now reaches source-unobserved: new Expression candidate was missing from the
-  source-family eligibility arm. Added to SAME original source role before AG.
-- Worker identified RefCell collision for prior computed scalar producers;
-  Argument installation now borrows lazily at approve, matching initializer.
-- Physical I64 Argument purpose uses SAME expression writer and extracted scalar
-  continuation/structural-path helper shared with Local initializer. Full packet
-  original bindings/effects are folded into outer DirectScalar Call group;
-  source/class/reference/operation/cleanup proof stays on SAME row for both scans.
-  Default unsupported ports remain explicit refusals, no independent registry.
-- Added three meaningful source cases to existing matrix: owned Text child Core,
-  prior computed initializer read and direct I64 Core argument. No new fixture or
-  guard. AG verification next. Full Text root transfer remains unfinished.
-
-- AG36.884402s failed solely an exhaustive match; generic lexical packet now
-  explicitly refuses Direct-only Expression proof. AH91.400078s PASS; matrix
-  11/13 reaches final publication (count+1 + prior computed reads now PASS).
-  Missing direct/nested Length source demand traced by worker: Static result
-  proof intentionally does not descend result-independent actuals. AI adds
-  original typed argument roots to SAME SUM graph.seed, never graph.actual or
-  result dependency set. AI59.206239s PASS; matrix13/13 PASS, same source programs.
-- Worker found same-owner/ordinal cross-Call substitution gap; exact original
-  frame root site now mandatory in shared argument checker. AJ adds a negative
-  using two actual source-qualified frames, refusing before physical payload.
-  Existing compiler matrix also mutates original I64 Add and every child End.
-- AH first44 has original14 +2 reds: binary source atom expectation is stale
-  (Expression membership now explicit), and exact-I64 purpose incorrectly stole
-  non-Core me.word() from its existing owner. AJ updates the atom expectation
-  and limits MethodCall purpose to SAME original I64 Core receipt; binary
-  expression purpose remains original-source based, not a retry. AJ verification
-  next. Selected typed Static demand no longer relies only on borrowed owners.
-- No native/CLI/current suite/CI or full Text acceptance yet. Current bounded
-  I64 packet connection has positive evidence but awaits final regression audit.
-
-V891AJ current verified construction / runtime verification:
-- Build70.468494s PASS. Matrix13/13 reaches verified publication and lifecycle
-  ABI JSON; retained-root negatives reject callee/result/arguments/entry swap,
-  original I64 Add and every child String End mutation. Two-real-frame same-
-  owner/ordinal cross-Call substitution negative PASS before physical payload.
-- First44 baseline377distinct/363PASS/14 SAME identities AND messages versus AE
-  (v891aj-baseline-comparison.json). Direct38/source-context1/boundary22/liveness1/
-  wrong-initial-literal1/final-initializer-negative1 PASS, stable guards4/diff PASS.
-  Read-only final review found no further concrete issue in selected I64 path.
-- CURRENT_STATE summary claimed obsolete BoxShape/source-only work and old CLI186
-  evidence; replaced with thin scope/evidence pointer, keeping same row/card/mode.
-  Completed V869–875 history compressed to checked commit references; live Text
-  contracts and matched evidence retention remain above. CLI237 build running.
-- Next common Text responsibility: same entry/residence proof -> physical operand,
-  caller-owned actual/lifetime -> both scans/all incoming+use closure and JSON/C.
-  Full finite Text/I64/Null carrier, original terminating Null exclusion and BOTH
-  approved Add envelopes remain mandatory; no TextOnly-only substitute.
-
-V891 runtime closeout / retained successor:
-- CLI237 build221.384841s PASS; SHA d16c6c7f5260d34c33721cb59b0fae34b318d006d8eda8618ed443cde648b2c4.
-  Both RootAJ and CLI source manifests match every current source byte; doc-only
-  pointer/card corrections are outside compilation. No hidden source delta.
-- App285 unchanged JSON canonical direct EXE .121393s exits1/no artifact, SAME
-  slot20/Body7/Value core-expression-execution-pending. Source SHA remains
+Durable validation and current runtime evidence:
+- Root891AJ quick-test-fast --no-run build70.468494s PASS. Existing compiler matrix
+  13/13 source cases reaches verification/publication, lifecycle ABI JSON and
+  retained-root scan. Negatives reject callee/result/argument/entry swaps, I64
+  Add and every child String End mutation. Two-real-frame same-owner/ordinal
+  substitution and initially wrong literal producer negatives PASS.
+- First44 baseline377 distinct/363PASS/14 SAME identities AND messages versus AE
+  (v891aj-baseline-comparison.json; only panic coordinates/thread IDs and exact
+  parsed debug-map ordering normalized). Direct lifecycle38/source-context1(3
+  cases)/physical boundary22/liveness1/initializer final-negative1 PASS.
+  Stable pointer/reference-route/layer-dependency/thin-shim guards and staged
+  diff check PASS. No fresh full-suite/CI claim.
+- CLI237: `cargo build --profile quick --bin hakorune --message-format=json`,
+  jobs4/16MiB stack,221.384841s PASS. Binary SHA
+  d16c6c7f5260d34c33721cb59b0fae34b318d006d8eda8618ed443cde648b2c4.
+  RootAJ/CLI237 source manifests match landing code except one normalized blank
+  EOF line in raw_structured_direct_call.rs; non-whitespace bytes identical.
+  Original compiled copy and exact delta retained; no semantic rebuild needed.
+- Actual commands use CLI237 with `--grammar-profile canonical --backend mir
+  --emit-exe <artifact> --emit-exe-nyrt <runtime877A> <unchanged app main.hako>`,
+  pure-first/no compat replay, plugins disabled,16MiB stack. Original
+  runtime/backend manifests and kernel/FFI hashes corroborated before both runs.
+- App285 unchanged JSON .121393s exits1/no artifact at SAME original slot20/
+  Body7/Value core-expression-execution-pending. Source
   b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370.
-- App286 unchanged mimalloc canonical direct EXE132.611574s/native .001436s PASS;
-  original7-line stdout, stderr AND exit0 independently match app280, recorded in
-  v891-native-comparison.json. EXE c0d21eba9404121b6b1e243e0961d0dd1b5227acb41d24941f6a0623a87a3c01.
-  Source33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685,
-  runtime877A10511dadfa2462a1e7b1ea85d7450afc154dc75f7bdc9b0e9ca5a96d231f222f,
-  FFI876B1877c0b42d2a1197aec15d27e1986e0134f7f45d61938917f534b7e12091680f.
-  Same canonical/MIR direct --emit-exe --emit-exe-nyrt, pure-first/no compat replay,
-  plugins disabled/16MiB stack; matched runtime/backend manifests corroborated.
-- Preserve RootAJ/CLI237/app285-286 source/receipts/logs/binaries and matched
-  backend/runtime/baseline until full Text series acceptance, plus previously
-  required pins. No parked adapter introduced. Shared ResolverDirect and legacy
-  Plain Static consumers remain for unchanged callers; no caller-zero deletion
-  right is inferred. Common scalar cleanup and argument value proof are shared,
-  with no second evaluator/registry/new proof app or guard.
-- This is verified I64 construction, not full Text production replacement or
-  full finite goal closeout. Current suite/CI unmeasured; next continues SAME
-  original Text operand/entry/residence/actual/lifetime and both-scan closure.
+- App286 unchanged mimalloc direct EXE132.611574s/native .001436s PASS. Stdout,
+  stderr and exit0 independently equal app280 (v891-native-comparison.json).
+  Source33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685;
+  EXE c0d21eba9404121b6b1e243e0961d0dd1b5227acb41d24941f6a0623a87a3c01.
+  Observed original stdout:
 
-- Landing staged diff check additionally inspected new files and found one extra
-  blank EOF line in raw_structured_direct_call.rs (untracked files had not been
-  included by ordinary unstaged diff check). Removed only trailing whitespace;
-  all non-whitespace bytes exactly equal CLI237 compiled source, every other
-  source file still byte-identical. Original compiled copy and exact hash delta
-  retained in v891-landing-whitespace-delta.json. No semantic/source authority
-  change or unnecessary Cargo/native rerun. Staged diff check now required PASS.
+```text
+mimalloc-lite
+small_allocs=9 frees=3 reused=3 peak=6 free=2
+medium_allocs=4 frees=1 reused=1 peak=3 free=1
+requested_bytes=360
+outstanding=9
+summary=ok
+Result: 0
+```
+
+  Stderr is the original plugins-disabled warning. Runtime877A kernel
+  10511dadfa2462a1e7b1ea85d7450afc154dc75f7bdc9b0e9ca5a96d231f222f;
+  FFI876B1877c0b42d2a1197aec15d27e1986e0134f7f45d61938917f534b7e12091680f.
+
+Retention and unfinished successor:
+- Keep RootAJ/CLI237/app285-286 manifests/receipts/logs/binaries, matched runtime/
+  backend/baseline and previously required pins until full Text acceptance.
+  No parked adapter. Source EOF delta/original copy remains explanatory evidence.
+  Superseded AC duplicate copy is a relative symlink after exact SHA equality;
+  no accepted bytes or receipt path were lost.
+- Shared ResolverDirect and legacy Plain Static callers remain; their general
+  argument semantic correspondence was not retrofitted by this bounded path.
+  Preserve existing child CallResult/BorrowedActual owners. Retire only selected
+  exclusive edges with actual caller-zero/acceptance, never infer deletion rights
+  from this construction or delay eligible retirement until all apps pass.
+- Next: SAME source Text proof -> actual entry/residence operand -> original
+  Static actual/lifetime -> both final consumers/all incoming and use closure ->
+  named JSON/C. No TextOnly-only/literal-only substitute: original finite
+  Text/I64/Null carrier, terminating Null exclusion, read/branch dominance and
+  BOTH approved Add envelopes stay mandatory. Text Local root transfer needs
+  SAME initializer packet/Local publication/installed Home/End, never borrowed End.
+- JSON first-stop unchanged: I64 source-to-consumer progress is distinct from
+  full Text production replacement. Full finite goal retains all integration,
+  R6/R7/Loop/authority/parser/nondelegating selfcompile and mandatory acceptance.
+  CURRENT_STATE remains same fast row/card; its obsolete BoxShape/source-only
+  summary was corrected to a thin truthful pointer in df702c983c.
