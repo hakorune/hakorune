@@ -926,26 +926,13 @@ Next required connection (same Text series; worker top-down reviewed):
   and both Add envelopes. Both finalized consumers must use one complete
   Call+initializer+Print (Bool later) incoming/use image before entry activation.
 
-V901 first BoxShape phase landed at f495ea1ea1; full evidence in that commit:
-- Ordered argument preparation now precedes the enclosing Call Fault graph.
-  Common physical acquisition/Fault walk is separated from purpose-specific
-  Normal cleanup. Source, reference, effect, frame, coordinate and End checks
-  are unchanged. No Text/live-out/entry admission or execution fence changed.
-- Root901A56 focused PASS; CLI249 build PASS. app299 unchanged JSON remains
-  slot20 Body7 core-expression-execution-pending, exact app298 stderr. app300
-  unchanged mimalloc canonical/MIR EXE and native stdout/stderr/exit0 match app286.
-  Post-test import-only cleanup is explicitly recorded; CLI249 source is exact.
-- Keep Root901A/CLI249/app299–300, native comparison/manifests and explicit
-  predecessor FFI897A/kernel894A roles until Text closure. No temporary adapter
-  or superseded binary from this phase. Stable4 guards/diff PASS. V891 completed
-  validation history is compressed to df702c983c; contracts/pin obligations stay.
-  Old guarded-receiver baseline still owed; no full-suite/current-CI/Text claim.
-- Next same BoxShape series: bind earlier argument + outer expression acquisition
-  prefix to SAME source Call, retain argument live-out observations inside its
-  existing packet, and close their Normal/Fault lifetime at the enclosing Call.
-  Keep every terminal/effect/coordinate census; do not merely delete the scalar
-  finisher. Full Loop After, finite entry/Null guard, both Add envelopes and both
-  final Call+nonCall incoming/use consumers remain mandatory before activation.
+V901 f495ea1ea1 owns argument preparation before enclosing Fault construction
+and separation of the shared acquisition walk from Normal completion. No source
+fence or I64 timing changed. Full evidence remains in that commit:
+Root901A56 focused PASS, CLI249 PASS; app299 JSON same stop, app300 unchanged
+mimalloc EXE/native match app286. Keep Root901A/CLI249/app299–300 reports/pins
+and explicit FFI897A/kernel894A predecessor roles until Text closure. Stable4
+and diff PASS; known guarded-receiver red still owed, no full Text/CI claim.
 
 V902 BoxShape landed at85f687e8bb; full decisions and evidence in that commit:
 - SAME Expression argument packets now lend nested Calls/Copy dependencies to
@@ -972,3 +959,38 @@ V902 BoxShape landed at85f687e8bb; full decisions and evidence in that commit:
   row rewrite). Qualified Text frame alone is not SourceStatic execution permit.
   Full finite entry/Null/dual Add, Loop After and both final incoming/use scans
   remain mandatory; this preparatory phase does not complete the Text series.
+
+V903 Decision (same argument lifetime construction; read-only emitter/consumer review):
+- Move hierarchical argument validation to the actual enclosing Call position,
+  derive a borrowed transient prefix from SAME original Call and verified live
+  stack, and pass it through child operation/End Fault checks. No stored prefix
+  registry, copied ownership, or child/parent acquisition flattening.
+- Paths: shared expression_terminal_paths/projection, argument projection,
+  initializer/Print wrappers, existing argument/expression emitter and Call prefix;
+  existing test owners and src/mir README. SourceStatic/Text fences stay until
+  full actual/entry/incoming/use and enclosing Call lifetime closure.
+- Scope addition: sole acquisition-prefix checker moves from Builder into the
+  existing expression physical owner; existing re-export layers and its current
+  regression caller follow it. Delete old dedicated checker after caller switch.
+  SAME transient view supports emission before parent packet and final validation;
+  child construction must receive that view rather than validating an empty tail.
+- Scope includes existing package/root re-export layers and Call emitter exports;
+  they expose the SAME physical checker/view, not another source authority.
+V903 verified closeout (BoxShape preparation; no Text activation):
+- Root903C `cargo quick-test-fast --no-run --message-format=json` PASS69.564s;
+  68 focused PASS/1StableKnownRed in5.435s. Existing initializer/Core acquisition
+  mutations, Print, ordered/physical cleanup, source identity/nested Call,
+  lexical I64, preflight and object-return filters reused; no new test owner.
+  Named-array preflight remains fixture:583 field-array-append/loop-source-missing,
+  same Root902D/independent Root901A baseline. Guarded-receiver red still owed.
+- CLI251 `cargo build --profile quick --bin hakorune --message-format=json`
+  PASS169.002s. app303 unchanged JSON canonical/MIR emit-exe 0.395309s,
+  exit1/noEXE, exact app301 stderr and same slot20 Body7 source issue.
+- Shared checker is sole physical acquisition-prefix owner; old Builder checker
+  file/module and EvaluationCallPrefixV1 removed, old scoped callers=0.
+  Root wrappers pass empty inherited context; no nonempty Text argument program,
+  lexical Expression activation or retained-Text Normal/Fault completion claimed.
+- Keep Root903C/CLI251/app303 pins/reports until Text closure. No new adapter or
+  superseded pinned binary. Latest native evidence remains CLI250/app302, not251.
+- Stable4 guards/diff PASS; CI remains old35681768498 failure at d4168473d5b;
+  no current-CI/full-suite/finite entry/Loop After/both-consumer closure claim.

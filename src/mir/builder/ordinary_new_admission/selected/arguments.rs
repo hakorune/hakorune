@@ -462,7 +462,7 @@ mod tests {
                             4 => values[acquired[0].0] = Some(Operand::NormalInteger(acquired[0].1)),
                             _ => unreachable!(),
                         }
-                        assert!(super::super::expression_acquisition_prefix::validate(frame.evaluation(), None, &acquired, &values, &changed).is_err(),
+                        assert!(crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame.evaluation(), None, &acquired, &values, &changed).is_err(),
                             "source acquisition/physical producer mutation {mutation}");
                     }
                     let reads: Vec<_> = emitted.path_reads.into_values().collect();

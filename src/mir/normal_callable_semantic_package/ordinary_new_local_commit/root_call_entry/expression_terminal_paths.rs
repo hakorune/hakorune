@@ -1,10 +1,84 @@
 //! Common Normal/Fault temporary cleanup correspondence for expression purposes.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
+/// A synchronous loan of the parent's already checked live stack at one Call.
+/// It carries no source permission and never survives into a child packet.
+pub(in crate::mir) struct ExpressionCallTransientPrefixV1<'a> {
+    origin: TransientPrefixOriginV1<'a>,
+    parent: Option<&'a ExpressionCallTransientPrefixV1<'a>>,
+}
+enum TransientPrefixOriginV1<'a> {
+    Emitted { call: &'a EmittedLexicalCallProjectionV1, live: &'a [ValueId],
+        prior_homes: &'a [crate::mir::resolved_semantics::BindingRefV1] },
+    Evaluation { frame: &'a CheckedExpressionEvaluationV1,
+        call: &'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        acquired: &'a [(usize, ValueId)] },
+}
+impl<'a> ExpressionCallTransientPrefixV1<'a> {
+    pub(in crate::mir) fn from_evaluation(
+        frame: &'a CheckedExpressionEvaluationV1,
+        call: &'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        acquired: &'a [(usize, ValueId)], values: &[Option<Operand>], function: &MirFunction,
+        parent: Option<&'a Self>,
+    ) -> Result<Self, String> {
+        validate_expression_acquisition_prefix_v1(frame, Some(call), acquired, values, function)?;
+        if let Some(parent) = parent { parent.for_argument(frame)?; }
+        Ok(Self { origin: TransientPrefixOriginV1::Evaluation { frame, call, acquired }, parent })
+    }
+    fn contains(&self, site: &OwnedExprSiteV1) -> Result<bool, String> {
+        fn in_arguments(arguments: &[LocalCallArgumentV1], site: &OwnedExprSiteV1) -> bool {
+            arguments.iter().any(|argument| matches!(argument, LocalCallArgumentV1::CallResult(inner)
+                if inner.site() == site || in_arguments(inner.arguments(), site)))
+        }
+        Ok(match &self.origin {
+            TransientPrefixOriginV1::Emitted { call, .. } => call.retained_node_at_v1(site)?.is_some(),
+            TransientPrefixOriginV1::Evaluation { call, .. } => call.site() == site || in_arguments(call.arguments(), site),
+        })
+    }
+    fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] {
+        match &self.origin {
+            TransientPrefixOriginV1::Emitted { prior_homes, .. } => prior_homes,
+            TransientPrefixOriginV1::Evaluation { frame, .. } => frame.prior_homes(),
+        }
+    }
+    pub(in super::super) fn require_call(&self, call: &EmittedLexicalCallProjectionV1) -> Result<(), String> {
+        if !self.contains(call.call_site())? || matches!(&self.origin,
+            TransientPrefixOriginV1::Emitted { call: original, .. }
+                if !original.retained_node_at_v1(call.call_site())?.is_some_and(|packet| std::ptr::eq(packet, call))) {
+            return Err(freeze("argument-expression/transient-call"));
+        }
+        Ok(())
+    }
+    fn operations(&self) -> Vec<InvokeOperation> {
+        let end = |value| InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value });
+        let mut operations: Vec<_> = match &self.origin {
+            TransientPrefixOriginV1::Emitted { live, .. } => live.iter().rev().map(|value| end(*value)).collect(),
+            TransientPrefixOriginV1::Evaluation { acquired, .. } => acquired.iter().rev().map(|(_, value)| end(*value)).collect(),
+        };
+        if let Some(parent) = self.parent { operations.extend(parent.operations()); }
+        operations
+    }
+    pub(in crate::mir) fn unwind_for_call(&self, site: &OwnedExprSiteV1,
+        homes: &[crate::mir::resolved_semantics::BindingRefV1]) -> Result<Vec<InvokeOperation>, String> {
+        if self.prior_homes() != homes || !self.contains(site)? {
+            return Err(freeze("expression-call/context-drift"));
+        }
+        Ok(self.operations())
+    }
+    pub(in crate::mir) fn for_argument(&self, frame: &CheckedExpressionEvaluationV1)
+        -> Result<Vec<InvokeOperation>, String> {
+        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, .. } = frame.source().root()
+            else { return Err(freeze("argument-expression/transient-purpose")) };
+        self.unwind_for_call(&OwnedExprSiteV1::new(frame.source().owner(), call.site().clone()), frame.prior_homes())
+    }
+}
+
 impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in super::super) fn validate_paths_to_terminal(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         terminal: &Binding, continuation: &Binding, residence: Option<&Binding>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let ledger = context.ledger();
         use super::super::root_cleanup_graph::ordered_paths as paths;
@@ -75,17 +149,11 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         {
             return Err(freeze("print-expression/frame-mode"));
         }
-        let homes = ledger.prior_home_unwind_for(self.frame.prior_homes())?;
+        let mut homes = inherited.map(|prefix| prefix.for_argument(self.frame)).transpose()?.unwrap_or_default();
+        homes.extend(ledger.prior_home_unwind_for(self.frame.prior_homes())?);
         let (mut live, mut covered) = self.validate_acquisition_paths_v1(
-            function, &ordered, &homes, fault_frame,
+            context, function, finishing, &ordered, &homes, fault_frame, inherited,
         )?;
-        // Argument evaluations own their internal acquisition/Normal cleanup.
-        // Cover their effects hierarchically; never add their temporary values
-        // to this enclosing evaluation's live stack.
-        for call in self.calls() {
-            covered.extend(call.validate_expression_arguments_v1(context, function, finishing,
-                self.original, None)?);
-        }
         let installed = if let Some(original) = residence {
             let MirInstruction::StringResidenceInstall { value } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
             if self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {
@@ -161,8 +229,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     /// Shared physical operation/Fault correspondence. The purpose retains its
     /// terminal and Normal lifetime policy; this walk issues no source rights.
     fn validate_acquisition_paths_v1(
-        &self, function: &MirFunction, ordered: &[Binding], homes: &[InvokeOperation],
-        fault_frame: ValueId,
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        ordered: &[Binding], homes: &[InvokeOperation], fault_frame: ValueId,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<(Vec<ValueId>, std::collections::BTreeSet<BasicBlockId>), String> {
         use super::super::root_cleanup_graph::ordered_paths as paths;
         use std::collections::BTreeSet;
@@ -175,6 +245,15 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 .chain(homes.iter().cloned())
                 .collect::<Vec<_>>()
         };
+        let calls = self.calls().map(|call| {
+            let binding = call.invoke_binding();
+            let actual = match finishing {
+                Some(projection) => projection.binding(binding.0, &binding.1)?
+                    .ok_or_else(|| freeze("argument-expression/enclosing-invoke-removed"))?,
+                None => binding.clone(),
+            };
+            Ok((actual, call))
+        }).collect::<Result<Vec<_>, String>>()?;
         for (id, instruction) in ordered {
             let MirInstruction::Invoke {
                 operation,
@@ -195,6 +274,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 &end_sequence(&live),
                 Some(fault_frame),
             )?);
+            // Lend only the live prefix at this original Call, before its
+            // arguments are validated. Child acquisitions stay hierarchical.
+            for (_, call) in calls.iter().filter(|(binding, _)| binding == &(*id, instruction.clone())) {
+                let prefix = ExpressionCallTransientPrefixV1 { origin: TransientPrefixOriginV1::Emitted { call, live: &live, prior_homes: self.frame.prior_homes() }, parent: inherited };
+                covered.extend(call.validate_expression_arguments_with_prefix_v1(context, function,
+                    finishing, self.original, None, Some(&prefix))?);
+            }
             if matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result()) {
                 let value = ordered
                     .iter()
@@ -217,12 +303,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
 impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in crate::mir) fn validate_scalar_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_local_continuation_v1(context, function, finishing, entry, terminal, continuation, None)
+        self.validate_local_continuation_v1(context, function, finishing, entry, terminal, continuation, None, inherited)
     }
     pub(in crate::mir) fn validate_local_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
-        residence: Option<&Binding>,
+        residence: Option<&Binding>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         for original in [entry, terminal, continuation] {
             match finishing {
@@ -235,6 +322,6 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 }
             }
         }
-        self.validate_paths_to_terminal(context, function, finishing, terminal, continuation, residence)
+        self.validate_paths_to_terminal(context, function, finishing, terminal, continuation, residence, inherited)
     }
 }

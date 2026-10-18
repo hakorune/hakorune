@@ -16,8 +16,6 @@ pub(in crate::mir::builder) mod root_graph;
 pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
-#[path = "selected/expression_acquisition_prefix.rs"]
-mod expression_acquisition_prefix;
 #[path = "selected/initializer_expression.rs"]
 pub(in crate::mir::builder) mod initializer_expression;
 #[path = "selected/print_expression.rs"]

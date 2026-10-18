@@ -144,7 +144,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 }
             }
         }
-        self.expression().validate_local_continuation_v1(context, function, finishing, &self.entry, &self.terminal, &self.continuation, self.install.as_ref())
+        self.expression().validate_local_continuation_v1(context, function, finishing, &self.entry, &self.terminal, &self.continuation, self.install.as_ref(), None)
     }
 }
 impl OrdinaryNewClaimLedgerV1 {

@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
-use crate::mir::normal_callable_semantic_package::{EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1};
+use crate::mir::normal_callable_semantic_package::{EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1, ExpressionCallTransientPrefixV1};
 use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, LocalCallObservationV1};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedLiteralSourceV1 as Literal};
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
@@ -30,6 +30,20 @@ pub(super) fn emit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     frame: &CheckedExpressionEvaluationV1,
+    emit_call: &mut impl FnMut(
+        &mut MirBuilder, &mut CallableSemanticLoweringState,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>,
+    ) -> Result<EmittedLexicalCallProjectionV1, String>,
+) -> Result<EmittedExpressionValueV1, String> {
+    emit_with_prefix(builder, state, ledger, frame, None, emit_call)
+}
+
+pub(super) fn emit_with_prefix(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    frame: &CheckedExpressionEvaluationV1,
+    inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     emit_call: &mut impl FnMut(
         &mut MirBuilder, &mut CallableSemanticLoweringState,
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>,
@@ -74,7 +88,8 @@ pub(super) fn emit(
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
-    let homes = ledger.prior_home_unwind_for(frame.prior_homes())?;
+    let mut homes = inherited.map(|prefix| prefix.for_argument(frame)).transpose()?.unwrap_or_default();
+    homes.extend(ledger.prior_home_unwind_for(frame.prior_homes())?);
     let source = frame.source();
     let mut pending = Vec::new();
     let mut path_slots = std::collections::BTreeMap::new();
@@ -259,7 +274,7 @@ pub(super) fn emit(
         values[index] = Some(value);
     }
     let value = values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
-    super::expression_acquisition_prefix::validate(frame, None, &acquired, &values,
+    crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     Ok(EmittedExpressionValueV1 {
         value, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings,

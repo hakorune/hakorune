@@ -113,7 +113,7 @@ impl EmittedPrintExpressionProjectionV1 {
         &self, context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
-        self.expression().validate_paths_to_terminal(context, function, finishing, &self.print, &self.continuation, None)
+        self.expression().validate_paths_to_terminal(context, function, finishing, &self.print, &self.continuation, None, None)
     }
 
     pub(super) fn validate_recorded(

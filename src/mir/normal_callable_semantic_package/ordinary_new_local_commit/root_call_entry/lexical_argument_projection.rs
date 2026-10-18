@@ -1,6 +1,7 @@
 //! Tie an observed argument value to the original lexical argument meaning.
 use super::*;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
+use super::super::expression_projection::ExpressionCallTransientPrefixV1;
 
 impl LexicalCallArgumentProjectionV1 {
     pub(in crate::mir) fn value_for_source_v1(
@@ -163,6 +164,7 @@ impl EmittedArgumentExpressionProjectionV1 {
         context: CallValidationContextV1<'_>,
         function: &crate::mir::MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
         self.expression().validate_scalar_continuation_v1(
@@ -172,6 +174,7 @@ impl EmittedArgumentExpressionProjectionV1 {
             &self.entry,
             &self.terminal,
             &self.continuation,
+            inherited,
         )
     }
 }
@@ -193,6 +196,7 @@ impl LexicalCallArgumentProjectionV1 {
         original: Vec<Binding>,
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
         function: &crate::mir::MirFunction,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<Self, String> {
         let packet = EmittedArgumentExpressionProjectionV1 {
             frame,
@@ -206,7 +210,7 @@ impl LexicalCallArgumentProjectionV1 {
             original,
         };
         let context = CallValidationContextV1::Lowering(ledger);
-        let covered = packet.validate(context, function, None)?;
+        let covered = packet.validate(context, function, None, inherited)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
         ordered.push(packet.terminal.clone());
         packet.expression().validate_original_scope(
@@ -234,8 +238,15 @@ impl LexicalCallArgumentProjectionV1 {
         bindings: &[Binding],
         coordinates: Option<&super::super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        self.validate_expression_physical_with_prefix_v1(context, function, finishing, bindings, coordinates, None)
+    }
+    fn validate_expression_physical_with_prefix_v1(
+        &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
+        finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         if let Self::Expression(packet) = self {
-            let covered = packet.validate(context, function, finishing)?;
+            let covered = packet.validate(context, function, finishing, inherited)?;
             packet.expression().validate_recorded(bindings, coordinates)?;
             return Ok(covered);
         }
@@ -284,6 +295,14 @@ impl EmittedLexicalCallProjectionV1 {
         &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
         finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        self.validate_expression_arguments_with_prefix_v1(context, function, finishing, bindings, coordinates, None)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_expression_arguments_with_prefix_v1(
+        &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
+        finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        if let Some(prefix) = inherited { prefix.require_call(self)?; }
         let mut covered = std::collections::BTreeSet::new();
         for (ordinal, argument) in self.prepared.arguments.iter().enumerate() {
             if let LexicalCallArgumentProjectionV1::Expression(packet) = argument {
@@ -295,9 +314,9 @@ impl EmittedLexicalCallProjectionV1 {
                     return Err(freeze("argument-expression/enclosing-call"));
                 }
             }
-            covered.extend(argument.validate_expression_physical_v1(context, function, finishing, bindings, coordinates)?);
+            covered.extend(argument.validate_expression_physical_with_prefix_v1(context, function, finishing, bindings, coordinates, inherited)?);
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
-                covered.extend(inner.validate_expression_arguments_v1(context, function, finishing, bindings, coordinates)?);
+                covered.extend(inner.validate_expression_arguments_with_prefix_v1(context, function, finishing, bindings, coordinates, inherited)?);
             }
         }
         Ok(covered)

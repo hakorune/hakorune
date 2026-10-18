@@ -139,7 +139,7 @@ pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
 pub(crate) use local_commit::checked_expression_core_operation_v1;
-pub(in crate::mir) use local_commit::ExpressionReferenceReadV1;
+pub(in crate::mir) use local_commit::{ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, validate_expression_acquisition_prefix_v1};
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
 pub(crate) use local_commit::{ReadActualSourceLoanV1, EmittedReadArgumentV1};

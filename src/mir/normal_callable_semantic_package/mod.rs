@@ -248,7 +248,7 @@ pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayRea
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayGetSourceV1, ArgumentFieldArrayReadSourceV1};
 
 pub(crate) use ordinary_new_coseal::checked_expression_core_operation_v1;
-pub(in crate::mir) use ordinary_new_coseal::ExpressionReferenceReadV1;
+pub(in crate::mir) use ordinary_new_coseal::{ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, validate_expression_acquisition_prefix_v1};
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
 pub(crate) use ordinary_new_coseal::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};

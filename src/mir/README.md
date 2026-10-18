@@ -549,3 +549,10 @@ Direct scalar validation uses that same argument owner. Hierarchical coverage
 keeps child acquisition stacks outside the parent's live stack. Physical finish
 coordinates and recorded-group coordinates are distinct, preserving one mapping.
 This consumer connection does not authorize Text live-out or remove entry fences.
+
+Argument Fault correspondence borrows the live transient prefix at its original
+Call position. The same checked acquisition-prefix owner serves expression
+emission and final validation; argument construction validates that inherited
+view immediately. The view is synchronous and never stored as another packet
+inventory. Prior Homes are appended once; I64 child Ends remain before Call.
+This preparation adds no owned Text live-out or SourceStatic execution permit.
