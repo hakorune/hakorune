@@ -938,7 +938,7 @@ Next construction (read-only worker reviewed, same Loop responsibility):
   drifted proof fails. Existing Array artifact positive and final-PHI incoming
   mutation negatives remain consumer evidence. Source correspondence alone
   grants no type, Home, Header or execution permission.
-- Current into_planned drops the condition Rc. Typed source projection/conditional
+- Before V907, into_planned dropped the condition Rc. Typed source projection/conditional
   String control and Header/After read provenance remain open in this SAME series.
   Observe condition/body under SAME Header environment before atomically publishing
   complete After. Reuse Carrier/ReadOnlyOperand/IterationLocal roles: carrier exact
@@ -946,3 +946,48 @@ Next construction (read-only worker reviewed, same Loop responsibility):
   Complete port/class incoming closure lives in join_sig/port.rs. Never substitute
   initial start, fake If membership, infer types from physical Phi, duplicate an
   original Break, or eagerly execute conditional RHS.
+
+V907 construction scope (same source-to-physical responsibility):
+- Extend generic/planner + home_after, existing SourcePlan retention/ledger,
+  loop_cond physical input/condition consumer and existing owner docs. Original
+  owner/source/frame/condition become one shared component, replacing duplicated
+  Home identity fields. No new route, classifier, registry or typed permission.
+- Existing local-field source/affine test gains SAME component checks; existing
+  named-array artifact and loop physical-input/After negative families verify
+  real consumers. Preserve rejected non-SourcePlan/foreign/drifted boundaries.
+- Root907A build100.094s PASS. Review caught a new test's wrong two-read
+  assumption before execution: original fixture is i<4. Corrected to its one
+  real read and a distinct original binding for the negative, without app/fixture
+  rewrite. Root907B build62.243s PASS; focused69PASS/4baseline across original
+  source+affine1, named-array8/4, handoff10, raw-child11, After4, condition1,
+  source-result22, initializer7, JoinSig collection5. No zero filters.
+- The four named-array failures independently reproduce on pinned Root906B
+  (SHA/manifest verified), with EXACT diagnostics before the timing summary:
+  two prior field-array loop-source-missing expectations, foreign-provider
+  unsupported-shape expectation, owned-array release count1vs2. Actual provider
+  artifact positive PASS, including optimize on/off and append mutations.
+  These baseline obligations stay open; not full-suite green.
+- Final read-only review found no selected-source optional bypass. New census
+  mutation negatives exercise the validation method used by physical input;
+  existing raw-child/After families are regressions, not a fabricated selected-
+  component physical-negative fixture. No new guard, registry or adapter.
+- Next actual String guard connection reuses canonical STRING_COMPARISONS
+  envelopes, StringInvokeOperation::Compare and recursive logical-shortcircuit
+  owner/validator. They already define String comparisons and conditional RHS.
+  Missing common connections are Text leaf/current residence proofs, node-wise
+  String Invoke+Fault/cleanup execution and its final Bool source verification;
+  the eager whole-expression writer cannot replace recursive RHS evaluation.
+  V2 still owes checked condition-control projection, exact comparison operation
+  and Bool merge representation. Do not rename DynamicLess or split one Break.
+- Stable4/diff PASS; final source-size/route guard PASS after test correction.
+  CLI256 build190.334s PASS, SAME Root907B source manifest; binary
+  a403bd405fac89a447cc9937feb1a9c90c7c680bb9aac1bc74e2d7cdf8999cef.
+  app310 unchanged JSON0.427s exit1/no artifact, exact app309 Body7 stop.
+  General Text/Header/After and full series remain unaccepted.
+- CLI256/app311 unchanged mimalloc EXE141.475s/run.001527s exit0; exact
+  app306 stdout/stderr/exit (summary=ok, Result:0). Reused FFI897A/kernel894A
+  pins with explicit predecessor source deltas; no three-rebuild claim.
+  Original .hako unchanged. Shared source now survives actual physical
+  consumption; general Text/Loop After/frontier and full goal remain open.
+  Retain Root907A/B manifests, pinned B/baseline receipt, CLI256/app310/app311
+  artifacts until series closeout; no temporary adapter to retire.

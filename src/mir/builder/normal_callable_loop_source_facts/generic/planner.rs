@@ -28,12 +28,20 @@ impl PlannedSourceLoopV1 {
 /// Home permission or second planner call can be manufactured by this transport.
 #[derive(Debug)]
 pub(in crate::mir) struct PreissuedCallableLoopSourcePlanV1 {
+    source: Rc<RetainedCallableLoopSourceV1>,
+    policy: LoopFactsPolicyFrameV1,
+    planned: PlannedSourceLoopV1,
+}
+
+/// Original Loop source identity shared by Home and the affine planner consumer.
+/// Keeping it alive grants no value class, Home continuation or physical role.
+#[derive(Debug)]
+pub(in crate::mir) struct RetainedCallableLoopSourceV1 {
     owner: FunctionOwnerIdV1,
     source: VerifiedResolvedLoopSourceV1,
     frame: LoopExecutionFrameKeyV1,
     condition: Rc<ExpressionSourcePlanV1>,
-    policy: LoopFactsPolicyFrameV1,
-    planned: PlannedSourceLoopV1,
+    condition_reads: std::collections::BTreeSet<(SourceNodeSiteV1, crate::mir::resolved_semantics::BindingRefV1)>,
 }
 
 pub(in crate::mir) fn issue_preissued_callable_loop_source_plan_v1(
@@ -56,10 +64,20 @@ pub(in crate::mir) fn issue_preissued_callable_loop_source_plan_v1(
     let planned = PlannedSourceLoopV1::issue(condition.node(), body.statements(), policy,
         format!("source-owner:{:?}", input.owner()).into_boxed_str(), policy.debug_enabled())?;
     let (source, frame, _) = membership.into_parts();
-    Ok(PreissuedCallableLoopSourcePlanV1 { owner: input.owner(), source, frame, condition: condition_source, policy, planned })
+    // The original ledger includes reads inside opaque children too. Do not
+    // replace this complete passive census with only traversable plan leaves.
+    let condition_reads = input.function().variable_refs().filter_map(|(site, reference)| {
+        let crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) = reference else { return None; };
+        site.node().segments().starts_with(condition.site().node().segments())
+            .then(|| (site.node().clone(), *binding))
+    }).collect();
+    Ok(PreissuedCallableLoopSourcePlanV1 {
+        source: Rc::new(RetainedCallableLoopSourceV1 { owner: input.owner(), source, frame, condition: condition_source, condition_reads }),
+        policy, planned,
+    })
 }
 
-impl PreissuedCallableLoopSourcePlanV1 {
+impl RetainedCallableLoopSourceV1 {
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
     pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { self.source.site() }
     pub(in crate::mir) fn frame(&self) -> &LoopExecutionFrameKeyV1 { &self.frame }
@@ -76,13 +94,40 @@ impl PreissuedCallableLoopSourcePlanV1 {
             if self.condition.owner() == self.owner && statement == self.site() && frame.matches(&self.frame)
                 && self.condition.nodes().first().is_some_and(|root| root.site() == condition))
     }
+    pub(in crate::mir) fn matches_identity_v1(&self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1,
+        origin: crate::mir::resolved_semantics::FunctionOriginV1,
+        kind: crate::mir::resolved_semantics::SemanticOwnerSourceKindV1,
+    ) -> bool {
+        owner == self.owner && site == self.site().node()
+            && self.source.matches_identity(origin, kind, self.site())
+            && self.frame.matches(&self.source.frame_key()) && self.condition_matches_source_v1()
+    }
+    /// Exact source correspondence, including opaque/receiver reads. Duplicate,
+    /// missing or extra receipts cannot be hidden by a set conversion.
+    pub(in crate::mir) fn matches_condition_reads_v1(&self, condition: &SourceNodeSiteV1,
+        reads: impl IntoIterator<Item = (SourceNodeSiteV1, crate::mir::resolved_semantics::BindingRefV1)>,
+    ) -> bool {
+        if self.condition.nodes().first().is_none_or(|root| root.site().node() != condition) { return false; }
+        let mut observed = std::collections::BTreeSet::new();
+        for row in reads { if !observed.insert(row) { return false; } }
+        observed == self.condition_reads
+    }
+}
+
+impl PreissuedCallableLoopSourcePlanV1 {
+    pub(in crate::mir) fn original_source_v1(&self) -> &Rc<RetainedCallableLoopSourceV1> { &self.source }
+    pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 { self.source.owner() }
+    pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { self.source.site() }
+    pub(in crate::mir) fn frame(&self) -> &LoopExecutionFrameKeyV1 { self.source.frame() }
+    pub(in crate::mir) fn condition_source_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<&Rc<ExpressionSourcePlanV1>> {
+        self.source.condition_source_v1(input)
+    }
     pub(super) fn into_planned(self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1,
         origin: Option<crate::mir::resolved_semantics::FunctionOriginV1>,
         kind: Option<crate::mir::resolved_semantics::SemanticOwnerSourceKindV1>, policy: LoopFactsPolicyFrameV1,
     ) -> Result<PlannedSourceLoopV1, String> {
-        if owner != self.owner || site != self.site().node() || self.policy != policy
-            || origin != Some(self.source.function_origin()) || kind != Some(self.source.source_kind())
-            || !self.frame.matches(&self.source.frame_key()) || !self.condition_matches_source_v1() {
+        if self.policy != policy || !origin.zip(kind).is_some_and(|(origin, kind)|
+            self.source.matches_identity_v1(owner, site, origin, kind)) {
             return Err("[freeze:contract][preissued-loop/physical-source-drift]".into());
         }
         Ok(self.planned)
@@ -95,13 +140,12 @@ impl PreissuedCallableLoopSourcePlanV1 {
         &'plan self, input: ResolvedFunctionLoweringInputV1<'source>,
     ) -> Option<LoopCondRecipeSourceRefV1<'plan, 'source>> {
         self.condition_source_v1(input)?;
-        if input.owner() != self.owner || !self.source.matches_identity(input.function().function_origin(), input.function().source_kind(), self.site())
-            || self.planned.selection.as_ref()?.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) { return None; }
+        if self.planned.selection.as_ref()?.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) { return None; }
         let canonical = self.planned.outcome.facts.as_ref()?;
         let facts = canonical.facts.loop_cond_break_continue.as_ref()?;
         let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
         let membership = ledger.resolved_loop_source(self.site()).ok()?;
-        if !membership.source().frame_key().matches(&self.frame) { return None; }
+        if !membership.source().frame_key().matches(self.frame()) { return None; }
         let source = input.source();
         let statement = source.stmt_at(&membership).ok()?;
         let body = source.child_body_from_stmt(&statement, BodyChildRoleV1::LoopBody).ok()?;

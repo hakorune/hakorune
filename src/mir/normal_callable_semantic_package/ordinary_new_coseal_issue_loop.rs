@@ -40,6 +40,7 @@ pub(crate) enum SelectedLoopProductRowV1 {
 }
 #[derive(Debug)]
 pub(crate) struct RetainedSourceLoopProductV1 {
+    source: Option<std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>>,
     plan: std::cell::RefCell<Option<Result<crate::mir::builder::PreissuedCallableLoopSourcePlanV1, String>>>,
     home: std::cell::OnceCell<std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>>,
 }
@@ -146,8 +147,9 @@ pub(super) fn issue_selected_home_loop_loan_v1(
         match variable_rows.entry(key) {
             std::collections::btree_map::Entry::Vacant(slot) => {
                 let plan = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, prestate.site(), policy);
+                let source = plan.as_ref().ok().map(|plan| std::rc::Rc::clone(plan.original_source_v1()));
                 slot.insert(Ok(SelectedLoopProductRowV1::SourcePlan(RetainedSourceLoopProductV1 {
-                    plan: std::cell::RefCell::new(Some(plan)), home: std::cell::OnceCell::new(),
+                    source, plan: std::cell::RefCell::new(Some(plan)), home: std::cell::OnceCell::new(),
                 })));
             }
             std::collections::btree_map::Entry::Occupied(_) => {}
@@ -212,6 +214,23 @@ pub(super) fn retain_static_i64_search_early_return_v1(
 }
 
 impl super::OrdinaryNewClaimLedgerV1 {
+    /// The existing selected row retains original source after affine plan take.
+    /// A selected but missing/drifted source is an error, never an unselected row.
+    pub(in crate::mir) fn retained_loop_source_v1(
+        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+    ) -> Result<Option<&std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>>, String> {
+        match self.selected_loop_products.get(&(owner, site.clone())) {
+            Some(Ok(SelectedLoopProductRowV1::SourcePlan(row))) => {
+                let source = row.source.as_ref().ok_or("[freeze:contract][preissued-loop/retained-source-missing]")?;
+                if source.owner() != owner || source.site() != site {
+                    return Err("[freeze:contract][preissued-loop/retained-source-drift]".into());
+                }
+                Ok(Some(source))
+            }
+            _ => Ok(None),
+        }
+    }
+
     /// Borrow the SAME source/Home proof before or after affine Recipe take.
     pub(in crate::mir) fn no_exit_array_home_source_v1(
         &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,

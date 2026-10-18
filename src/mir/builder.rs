@@ -53,7 +53,7 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedStaticI64LoopSemanticV2,
 };
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
-pub(in crate::mir) use normal_callable_loop_source_facts::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
+pub(in crate::mir) use normal_callable_loop_source_facts::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1, VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress

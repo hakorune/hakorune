@@ -22,7 +22,7 @@ mod static_i64_v2;
 pub(in crate::mir) use composite::*;
 pub(in crate::mir::builder) use composite_physical::*;
 pub(in crate::mir::builder) use generic::*;
-pub(in crate::mir) use generic::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
+pub(in crate::mir) use generic::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1, VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 pub(in crate::mir) use loop_break::*;
 pub(in crate::mir::builder) use loop_cond::*;
 pub(in crate::mir) use static_i64_v2::*;

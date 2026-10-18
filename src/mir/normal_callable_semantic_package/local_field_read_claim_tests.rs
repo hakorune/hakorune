@@ -493,11 +493,33 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         assert!(!home.recheck_source(input, originals.values().skip(1).map(|row| row.contract())), "missing original Call refuses");
     }).unwrap();
     let plan = ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap().unwrap();
+    let original = std::rc::Rc::clone(ledger.retained_loop_source_v1(site.owner(), &loop_site).unwrap().unwrap());
+    assert!(std::rc::Rc::ptr_eq(&original, plan.original_source_v1()));
+    assert!(std::rc::Rc::ptr_eq(&original, home.original_source_v1()), "Home and affine plan share original source");
     assert!(std::rc::Rc::ptr_eq(&home, ledger.no_exit_array_home_source_v1(site.owner(), &loop_site).unwrap()),
         "affine Recipe take retains the SAME source/Home proof");
     package.batch().with_lowering_input(declaration.batch_slot(), |input| {
         assert_eq!(plan.flat_no_exit_statement_sites(input).unwrap().len(), 5);
         let condition = plan.condition_source_v1(input).unwrap();
+        let root = condition.nodes()[0].site().node();
+        let reads: Vec<_> = input.function().variable_refs().filter_map(|(site, reference)| {
+            let crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) = reference else { return None; };
+            site.node().segments().starts_with(root.segments()).then(|| (site.node().clone(), *binding))
+        }).collect();
+        assert_eq!(reads.len(), 1, "original carrier read; bound is a literal");
+        assert!(original.matches_condition_reads_v1(root, reads.clone()));
+        assert!(!original.matches_condition_reads_v1(root, reads.iter().skip(1).cloned()));
+        let other = input.function().variable_refs().find_map(|(_, reference)| match reference {
+            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) if *binding != reads[0].1 => Some(*binding),
+            _ => None,
+        }).expect("distinct original local binding");
+        let mut wrong_binding = reads.clone(); wrong_binding[0].1 = other;
+        assert!(!original.matches_condition_reads_v1(root, wrong_binding));
+        let mut duplicate = reads.clone(); duplicate.push(reads[0].clone());
+        assert!(!original.matches_condition_reads_v1(root, duplicate));
+        let mut extra = reads.clone(); extra.push((loop_site.node().clone(), reads[0].1));
+        assert!(!original.matches_condition_reads_v1(root, extra));
+        assert!(!original.matches_condition_reads_v1(loop_site.node(), reads));
         assert!(std::rc::Rc::ptr_eq(condition, plan.condition_source_v1(input).unwrap()), "one retained original condition plan");
         assert!(matches!(condition.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LoopCondition {
             statement, condition: original, bundle, frame,
@@ -514,6 +536,9 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
     }).unwrap();
     assert!(ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap_err().contains("already-taken"));
     ledger.validate_preissued_loop_consumption_v1(site.owner()).unwrap();
+    drop(plan);
+    assert!(std::rc::Rc::ptr_eq(&original, ledger.retained_loop_source_v1(site.owner(), &loop_site).unwrap().unwrap()),
+        "original source survives destruction of the consumed planner holder");
 
     // Same Recipe verification: repeated pushes retain distinct call sources;
     // zero iterations and unrelated live Homes preserve the same ownership law.

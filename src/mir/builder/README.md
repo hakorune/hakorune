@@ -1002,6 +1002,15 @@ site, and under-loop containment before the existing
 inventories keep `SourceItemsMissing`, and a hidden call can never mint
 CallFree.
 
+For a selected retained SourcePlan, the existing package row keeps one shared
+original Loop source component outside affine planner storage. The Home proof
+borrows its condition plan rather than retaining separate owner/site/frame
+copies. Physical input borrows that SAME component through the existing claim
+ledger, checks original origin/kind/site, and verifies exact condition Local-read
+sites/bindings against handoff ConditionRead receipts before allocation/lowering.
+A selected missing or drifted source is terminal. This correspondence grants
+no Header class, Home continuation or general Text Loop permission.
+
 Focused evidence: `loop_scope_tests` (flipped positive, two-carrier
 multiplication, per-shape grammar negatives, hidden-call pin) and
 `normal_callable_loop_source_route_call_free_tests` (route-level coverage

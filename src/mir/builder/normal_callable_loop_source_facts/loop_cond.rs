@@ -50,6 +50,7 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledge
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_coverage: CallableLoopSourceCallCoverageV1,
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
+    retained_source: Option<Rc<super::generic::RetainedCallableLoopSourceV1>>,
 }
 
 impl SourceLoopCondPhysicalInputV1<'_, '_> {
@@ -154,6 +155,17 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         let condition_site = self.condition_source.site().ok_or_else(|| {
             "[freeze:contract][callable-loop/cond/source-site-missing]".to_owned()
         })?;
+        if let Some(source) = &self.retained_source {
+            use crate::mir::builder::normal_callable_loop_handoff::CallableLoopBindingRoleV1;
+            let reads = self.pre_effect.rows().iter().flat_map(|row| row.receipts())
+                .chain(self.pre_effect.body_only_rows().iter().flat_map(|row| row.receipts()))
+                .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead)
+                .map(|receipt| (receipt.site().clone(), receipt.binding()));
+            if source.owner() != self.owner || source.site().node() != &self.parent_site
+                || !source.matches_condition_reads_v1(condition_site, reads) {
+                return Err("[freeze:contract][callable-loop/loop-cond/retained-condition-drift]".into());
+            }
+        }
         let body_site = self.body_source.site().ok_or_else(|| {
             "[freeze:contract][callable-loop/body/source-site-missing]".to_owned()
         })?;
@@ -570,6 +582,17 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             .map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-cond/pre-effect] {error}")
             })?;
+        let retained_source = {
+            let state = source_ledger.borrow();
+            let source = state.ordinary_new_claim_ledger()
+                .map(|ledger| ledger.retained_loop_source_v1(owner, &SourceStmtSiteV1::from_node(parent_site.clone())))
+                .transpose()?.flatten().cloned();
+            if source.as_ref().is_some_and(|source| !source.matches_identity_v1(
+                owner, &parent_site, state.function_origin(), state.source_kind())) {
+                return Err("[freeze:contract][callable-loop/loop-cond/retained-source-identity]".into());
+            }
+            source
+        };
         Ok(SourceLoopCondPhysicalInputV1 {
             owner,
             parent_site,
@@ -585,6 +608,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             source_items,
             source_coverage,
             source_port,
+            retained_source,
         })
     }
 }
