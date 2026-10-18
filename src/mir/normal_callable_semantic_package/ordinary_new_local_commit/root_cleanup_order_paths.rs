@@ -158,26 +158,31 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     function: &MirFunction, id: BasicBlockId, expected: &[InvokeOperation],
     frame: Option<crate::mir::ValueId>,
 ) -> Result<BTreeSet<BasicBlockId>, String> {
-    pending_operations_with_resolver_v2(function, id, expected, frame, &mut |_, operation| Ok(operation.clone()))
+    pending_operations_with_resolver_v2(function, id, expected, frame, None, &mut |_, operation| Ok(operation.clone()))
 }
 
 fn pending_operations_with_resolver_v2(
     function: &MirFunction, mut id: BasicBlockId, expected: &[InvokeOperation],
-    frame: Option<crate::mir::ValueId>,
+    frame: Option<crate::mir::ValueId>, stop: Option<BasicBlockId>,
     resolve: &mut impl FnMut(BasicBlockId, &InvokeOperation) -> Result<InvokeOperation, String>,
 ) -> Result<BTreeSet<BasicBlockId>, String> {
     let mut consumed = BTreeSet::new();
     for operation in expected {
-        id = skip(function, id)?;
+        id = skip_until(function, id, stop)?;
+        if Some(id) == stop { return Err(fault("ordered-path/fault-continuation")); }
         consumed.insert(id);
         let expected = resolve(id, operation)?;
         let (normal, fault_edge) = release(function, id, &expected, frame)?;
-        if skip(function, normal)? != skip(function, fault_edge)? {
+        let normal = skip_until(function, normal, stop)?;
+        let fault_edge = skip_until(function, fault_edge, stop)?;
+        if Some(normal) == stop || Some(fault_edge) == stop { return Err(fault("ordered-path/fault-continuation")); }
+        if normal != fault_edge {
             return Err(fault("ordered-path/fault-outcomes"));
         }
         id = normal;
     }
-    id = skip(function, id)?;
+    id = skip_until(function, id, stop)?;
+    if Some(id) == stop { return Err(fault("ordered-path/fault-continuation")); }
     if !matches!(terminal(function, id)?, MirInstruction::ReturnFault { fault_frame } if Some(*fault_frame) == frame)
     {
         return Err(fault("ordered-path/fault-terminal"));
@@ -199,7 +204,7 @@ fn normal_steps_with_resolver_v2(
         if Some(clean) == stop { return Err(fault("ordered-path/early-continuation")); }
         let operation = resolve(clean, expected)?;
         let (next, fault_edge) = release(function, clean, &operation, frame)?;
-        pending_operations_with_resolver_v2(function, fault_edge, residual, frame, resolve)?;
+        pending_operations_with_resolver_v2(function, fault_edge, residual, frame, stop, resolve)?;
         clean = next;
     }
     Ok(clean)

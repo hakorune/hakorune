@@ -122,6 +122,20 @@ fn root_ordered_paths_preserve_fault_only_obligation() {
             &normal, &residuals, Some(ValueId(9)), &mut resolve).is_err());
         assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(4),
             &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("early-continuation"));
+        // A matching ReturnFault beyond the caller continuation cannot discharge
+        // an obligation owned by this cleanup graph.
+        let mut crossed = loop_function.clone();
+        crossed.blocks.get_mut(&BasicBlockId(1)).unwrap().set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(20), edge_args: None });
+        let mut outside = BasicBlock::new(BasicBlockId(20));
+        outside.set_terminator(MirInstruction::ReturnFault { fault_frame: ValueId(9) });
+        crossed.add_block(outside);
+        let MirInstruction::Invoke { normal_landing, fault_landing, .. } = crossed.blocks
+            .get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut().unwrap() else { panic!("fault End"); };
+        *normal_landing = BasicBlockId(1);
+        *fault_landing = BasicBlockId(1);
+        assert!(ordered_paths::validate_to_continuation_v2(&crossed, BasicBlockId(0), BasicBlockId(1),
+            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("fault-continuation"));
         let MirInstruction::Invoke { operation, .. } = loop_function.blocks.get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut().unwrap()
             else { panic!("fault End"); };
         *operation = loans[&BasicBlockId(4)].1.clone();
@@ -205,6 +219,43 @@ fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
         crate::mir::instruction::InvokeCallResultKind::I64,
     )
     .unwrap();
+    // The same structural owner recognizes one explicit caller continuation,
+    // while all other outgoing edges and all unreachable owned nodes fail.
+    let loop_bindings = bindings.iter().filter(|(id, _)| *id != BasicBlockId(1)).cloned().collect::<Vec<_>>();
+    let validate = |function: &MirFunction, rows: &Vec<(BasicBlockId, MirInstruction)>, stop| {
+        super::super::super::super::root_cleanup_graph::ordered_structure::validate_to_continuation_v2(
+            function, rows, BasicBlockId(0), stop)
+    };
+    validate(&function, &loop_bindings, BasicBlockId(1)).unwrap();
+    for mutation in 0..6 {
+        let mut changed = function.clone();
+        let mut rows = loop_bindings.clone();
+        let stop = if mutation == 5 { BasicBlockId(4) } else { BasicBlockId(1) };
+        match mutation {
+            0 => {
+                let terminal = MirInstruction::ReturnFault { fault_frame: ValueId(9) };
+                let mut extra = BasicBlock::new(BasicBlockId(8));
+                extra.set_terminator(terminal.clone());
+                changed.add_block(extra);
+                rows.push((BasicBlockId(8), terminal));
+            },
+            1 | 3 => {
+                let terminal = rows.iter_mut().find(|(id, _)| *id == BasicBlockId(3)).unwrap();
+                let MirInstruction::Invoke { normal_landing, .. } = &mut terminal.1 else { panic!("fault End"); };
+                *normal_landing = BasicBlockId(if mutation == 1 { 9 } else { 3 });
+                changed.blocks.get_mut(&terminal.0).unwrap().set_terminator(terminal.1.clone());
+            },
+            2 => {
+                let mut extra = BasicBlock::new(BasicBlockId(8));
+                extra.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+                changed.add_block(extra);
+            },
+            4 => rows.push(bindings[0].clone()),
+            5 => {},
+            _ => unreachable!(),
+        }
+        assert!(validate(&changed, &rows, stop).is_err(), "mutation {mutation}");
+    }
     // The Plain entry is an original source continuation, unlike cleanup nodes.
     let phi = MirInstruction::Phi {
         dst: ValueId(30), inputs: vec![(BasicBlockId(10), ValueId(31))], type_hint: None,

@@ -166,9 +166,16 @@ fn topology(
     starts: Vec<BasicBlockId>,
     plain_entry: Option<BasicBlockId>,
 ) -> Result<(), String> {
+    topology_until(function, nodes, starts, plain_entry, None)
+}
+fn topology_until(
+    function: &MirFunction, nodes: &BTreeMap<BasicBlockId, &MirInstruction>,
+    starts: Vec<BasicBlockId>, plain_entry: Option<BasicBlockId>, stop: Option<BasicBlockId>,
+) -> Result<(), String> {
     let mut reached = BTreeSet::new();
     let mut work = starts;
     while let Some(id) = work.pop() {
+        if Some(id) == stop { continue; }
         if reached.insert(id) {
             let terminal = nodes
                 .get(&id)
@@ -196,4 +203,20 @@ fn topology(
         }
     }
     Ok(())
+}
+
+/// Exact owned terminals with one caller-owned continuation. Prefixes and
+/// source operation order are corroborated by their existing physical owners.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_to_continuation_v2(
+    function: &MirFunction, terminals: &Bindings, entry: BasicBlockId, continuation: BasicBlockId,
+) -> Result<(), String> {
+    if !function.blocks.contains_key(&continuation) { return Err(fault("ordered-structure/missing-stop")); }
+    let mut nodes = BTreeMap::new();
+    for (id, terminal) in terminals {
+        if matches!(terminal, MirInstruction::Return { .. }) { return Err(fault("ordered-structure/loop-return")); }
+        if nodes.insert(*id, terminal).is_some() { return Err(fault("ordered-structure/duplicate-node")); }
+        edges(terminal)?;
+    }
+    require_acyclic_until(&nodes, Some(continuation))?;
+    topology_until(function, &nodes, vec![entry], Some(entry), Some(continuation))
 }

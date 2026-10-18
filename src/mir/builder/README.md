@@ -2200,5 +2200,9 @@ role or execution permission.
 Normal/Fault cleanup paths share one ordered walker. Root exits retain their
 Return contract; a Loop caller may supply an explicit continuation boundary and
 per-origin operand projection. The Normal walk cannot cross that continuation
-while End operations remain. Exact owned-node coverage remains a separate check;
-path success alone never permits an unreachable extra End or seals a Loop.
+while End operations remain. Fault paths also stop at that boundary and reject
+crossing it, even if a matching ReturnFault exists beyond the caller-owned stop.
+The shared topology validator accepts only that explicit outward edge, rejects
+unreachable owned nodes, cycles and external ingress into internal cleanup nodes.
+Exact owned-node coverage remains separate from source End order; neither check
+alone seals a Loop.

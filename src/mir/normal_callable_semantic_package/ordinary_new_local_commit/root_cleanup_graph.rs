@@ -112,9 +112,14 @@ impl RootCleanupBoundary {
 // Reachability alone admits a release loop. The original emitted cleanup must
 // be a DAG, including the no-opt case where no deleted node is followed.
 fn require_acyclic(nodes: &BTreeMap<BasicBlockId, &MirInstruction>) -> Result<(), String> {
+    require_acyclic_until(nodes, None)
+}
+fn require_acyclic_until(nodes: &BTreeMap<BasicBlockId, &MirInstruction>, stop: Option<BasicBlockId>) -> Result<(), String> {
+    if stop.is_some_and(|id| nodes.contains_key(&id)) { return Err(fault("owned-stop")); }
     let mut incoming: BTreeMap<_, usize> = nodes.keys().map(|id| (*id, 0)).collect();
     for terminal in nodes.values() {
         for (_, target) in edges(terminal)? {
+            if Some(target) == stop { continue; }
             *incoming
                 .get_mut(&target)
                 .ok_or_else(|| fault("outward-edge"))? += 1;
@@ -128,6 +133,7 @@ fn require_acyclic(nodes: &BTreeMap<BasicBlockId, &MirInstruction>) -> Result<()
     while let Some(id) = ready.pop() {
         consumed += 1;
         for (_, target) in edges(nodes[&id])? {
+            if Some(target) == stop { continue; }
             let count = incoming.get_mut(&target).expect("checked internal target");
             *count -= 1;
             if *count == 0 {

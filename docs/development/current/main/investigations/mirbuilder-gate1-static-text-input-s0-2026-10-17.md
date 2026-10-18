@@ -869,30 +869,13 @@ Current integrated WIP (uncommitted; no whole-series acceptance):
   slot keeps SAME product once. Root lifecycle prefix is only outer Loop; scoped
   children are excluded by SAME Rc/tree membership. Root exit covers outer Loop
   only, not all child sites; flat child publication remains refused.
-- Root920 Bool OriginalReference reuses existing exact read prepare/commit/operand
-  and dependencies/FinishedBindings. Ordinary If keeps ObligationReference.
-  Dependency census/allowlist/liveness is shared; new Loop arm stays unexercised
-  until whole scoped execution. BuildC56.218s/10 regressionsPASS.
-- Root921 pairs SAME Recipe Rc with Preissued plan. Check original source/condition
-  identity before affine take; reject foreign/repeated attachment and absent/
-  overlapping/non-LoopCond selection before alternate routes. Both physical
-  consumers retain pending-product refusal. A76.453s/19PASS; B55.880s compile.
-- Root920 extra facade/scope guards are prior-input reds: ArrayReadSiteId absent
-  allowlist and missing declared_parameter_names_v1 pin; affected inputs match HEAD.
-- Broad source-publication local-result root-exit-source-missing reproduces on
-  920C/921B. Owned-result default-stack abort remains unclassified; optional16MiB
-  comparison cancelled/session99482 exit143, no baseline/PASS/restart claim.
-  Exact Loop completion filter2PASS. Never reuse broad ambiguous filter.
-- Root922 `5502985779` owns pending-token guard, foreign/repeat/unchanged-MIR/
-  rollback evidence, build56.326s/32PASS; no source execution or series closure.
-- Root923 `4952165da9` owns early Header/After definition, exact adoption, Step
-  definitions/shared patch/unused rollback and same abort through completion.
-  Same-input PhiTxn only; nested Loop cannot adopt parent. B65.945s/32PASS.
-  Invalid read-preconsume test injection refreshed its scoped reads; removed only
-  that test and restored all B hashes, no production relaxation. CLI266 source
-  matched B; mimalloc336 exact333, JSON335 same332. Retain B/CLI266/native/probe.
-  Main Loop probe positional recurrence refusal matches CLI265; not intField.
-  FFI897A/kernel894A are explicit predecessors, not fresh full-source agreement.
+- Root920–923 landed preparation and evidence are retained by `5502985779`,
+  `4952165da9` and ancestors: exact original-reference dependency readers, paired
+  source Recipe/plan identity, pending/foreign/repeat/abort and same PhiTxn laws.
+  None grants source execution. Retain CLI266/native/source pins until closure.
+  Historical facade/scope input guards and source-publication filter reds remain
+  classified as previously recorded; the old owned-result default-stack abort
+  remains unclassified (cancelled session99482), not a PASS/restart claim.
 
 Next physical Decision (both source/condition workers reviewed actual owners):
 - Connect one checked whole-Loop consumer inside PlanLowerer. Current source
@@ -987,14 +970,31 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   Graph/source and lexical snapshots, canonical arm values, per-origin cleanup,
   postcleanup predecessor, child-tree final lookup/copies/seals and Bool repair
   remain WIP. Header/After Phi evidence uses same recorded roles, no final grant.
-- Root933 Decision (`6c74b0ea6e` shared Phi verifier): SAME source edge/JoinSig/scalar observation/SSA and
-  postcleanup predecessor issue opaque Phi inputs; full Entry snapshot must equal
-  session's original. SAME txn patches all Header/After and shares exact physical
-  Phi closure. Stack prepared proof borrows session; all cleanup/frame/aggregate
-  checks precede consuming commit, which rechecks then MOVES original associations.
-  Input errors share abort; After publication still needs completed parent.
-  Shared Normal/Fault walker takes explicit stop/per-origin projection; root keeps Return.
-  Exact cleanup census/Fault-stop exclusion/immutable parent aggregate/both-final negatives and
-  sole terminal caller connection still owed; fences stay. A129.544s/B131.101s/
-  C74.337s/103PASS+2 prior/stable4; CLI276204.490s/Rust exact (README delta).
-  JSON355 exact353; mim356 EXE141.338s/run.001600s output/error/exit exact354; keep pins, full goal active.
+- Root933 Decision/evidence is retained by `6c74b0ea6e` and `bef9f69f13`:
+  exact source/JoinSig/Entry observations patch SAME txn; prepared proof borrows
+  session, then moves original Header/After association after whole checks.
+  Keep933C/CLI276/native355/356 pins until whole closure; no source admission.
+- Root934 WIP: cleanup now checks same original operation loans/per-origin SSA,
+  exact owned topology, prefixes/terminals and Fault-stop exclusion. Original and
+  finishing use existing effect/relation/control projection; no ValueId rename.
+  Same FaultFrame owner lends optional observation, permitting only its one new
+  entry insertion when checking original instruction prefixes and counting writes.
+  Driver retains SAME scheduled If arm entries/ends/outcomes/normal join, source
+  Exit port/predecessor, Body→Backedge cleanup entry and recursive block census.
+  Worker caught/fixed Header-vs-final-Bool-block confusion: retain pre-evaluation
+  entry; short-circuit materialization may end elsewhere. Must still tie this
+  entry to SAME Bool packet before any completion grant.
+  Whole immutable parent aggregate/frame proof, both-final revalidation/negatives,
+  After publication and sole terminal invocation connection remain owed; both
+  fences stay. New driver/control/cleanup APIs remain uncalled, not E2E evidence.
+  Next: SAME role Rc in parent/ledger owns moved PhiPoints and whole graph proof;
+  aggregate counts new writes once; children keep original external dependencies.
+  Scope owner must lend its actual KeepAlive receipt; Bool outer Branch is parent
+  owned, child sealed. Reuse original_loop_header fixture's actual Text Home on
+  Break/backedge through SAME dependency Raw port with original Loop root scope.
+  D44.268s compile;15 nonzero filters104PASS/2 prior with8MiB test stack. Default
+  stack abort also reproduces on933C; larger stack reveals same two prior errors.
+  CLI277169.990s/Rust exact(README delta); JSON357 exit1/noEXE/stderr exact355.
+  mim358 EXE141.696s/run.001569s exit0; output/error/exit exact356, compiler ns only.
+  Stable4/diff PASS; CI latest remains old d4168473d5 failure, no current green.
+  Keep934/CLI277/native pins until closure;894A/897A explicit predecessor backends.
