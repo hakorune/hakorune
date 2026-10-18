@@ -913,88 +913,55 @@ Remaining same-series construction (read-only worker mapping retained):
   General Text/Loop Header/After and the full source-to-consumer series remain
   unaccepted; all inherited Text/incoming/cleanup/full-goal obligations above stay.
 
-V908 common Bool/String connection (same Loop series dependency):
-- Read-only source/consumer workers mapped existing canonical String comparison,
-  recursive short-circuit descent and final If seal. Build the shared node/leaf
-  connection under real If permission; do not forge Loop Home or an If seal.
-- Scope: expression class/leaves/reference seeder, existing Home Bool qualifier
-  and installation; shared single-String-operation writer; raw Bool descent and
-  existing Bool source/control final checks. Existing Home/print/initializer/Bool
-  final-mutation families own tests; owner README describes new contract.
-- Text operands are exact literal/current static/residence leaves borrowed by
-  the original comparison proof, not fake ValueIds or owned acquisitions. Reject
-  mixed/Null/unproven domains and String Add/Core/Call operands in this connection.
-  Preserve recursive conditional RHS, exact Fault Home unwind and final reference
-  dependencies. General Loop Header/After and actual JSON frontier remain open.
-- C exposed a real missing caller connection: empty-Home callee had no Bool
-  verified-walk trigger and emitted zero canonical String Compare Invokes. Worker
-  traced Print/Text-init selection already wired in three completion choices.
-  Extend scope to existing condition source-request predicate, walk_triggers and
-  co-seal issue selection (exclude both plain shortcuts, select verified walk).
-  Reuse original If source morphology; no synthetic Home/terminal rights. Move
-  existing Print predicate to walk_triggers owner while touching the near-limit
-  orchestrator. Keep literal-return source receipts as the return authority.
-- Root908A compile84.592s failed on missing facade reexports/old cfg helper
-  references (test type errors cascaded from an unresolved fixture import).
-  B compile137.021s; original no-Home Main stopped at the independently
-  reproduced CLI256 plain-completion boundary. C compile56.037s exposed missing
-  callee walk request; D77.098s reached canonical comparisons and exposed the
-  test's false assumption that every Text alias emits a Copy. Fixed the source
-  entry and test targeting; no fabricated Home, Copy or terminal permission.
-- Root908E compile57.023s and all55 focused tests PASS: new actual Text condition1
-  (callee/Main empty Homes, static/residence aliases, scalar node/canonical Invoke
-  proof and exact mutations, simplify off/on), Home3, old short-circuit1, Print
-  final4, initializer final1, source-result22, value-profile22, Array/Home source1.
-  Zero filters in earlier commands were not PASS; corrected module filters all
-  nonempty. Stable4/diff PASS. No current native/suite/frontier claim yet.
+V908 landed dependency: `d10fc508e6` owns source-qualified String comparisons
+through the common Bool node writer, recursive short-circuit and final If source/
+control/reference/Fault checks; no Loop/If permission substitution. It also owns
+the empty-Home verified-walk trigger and shared conservative two-/multi-way join
+reuse, fixing the native owned-Text identical-Phi escape without relaxing String
+verification. Existing source/physical test owners hold positive and mutation
+coverage; strict Main verification and actual RHS-write carrier checks remain.
 
-- Native313 exposed `mir/invoke/string-owned-escape`: pinned CLI257 MIR shows
-  identical-input Text/alias Phis emitted at each short-circuit join; Compare
-  correctly borrows the original owned producer. This is an illegal physical
-  Phi, not missing permission. Read-only consumer worker mapped sole multi-merge
-  owner `builder/phi.rs` and existing two-way conservative reuse in `phi_merge.rs`.
-  Extend scope to sharing that exact complete/reachable/unique/dominating join
-  proof across both callers. Require equal unsanitized original inputs; retain
-  differing-write/result Phis and strict String verifier. Reuse existing merge
-  counterexamples, short-circuit tests and actual final proof/native probe.
-- Root908G build76.754s; focused88 PASS/1 independently verified scalar-claim
-  baseline (`static-mixed/home-missing`, exact E/907B diagnostics). Existing
-  two-way merge safety matrix now exercises multi too; short-circuit owner checks
-  both unchanged locals and actual RHS writes. Main fixtures pass independent
-  strict physical lifetime/SSA verification; document callee fixtures retain
-  their separate final source proof (declared-return carriers are not installed
-  by that fixture). Stable4/diff PASS. No String verifier permissions changed.
-- CLI257 fixed official11: 5 PASS/6 FAIL447.730s. All six full diagnostics match
-  pinned pre-V908 CLI256: JSON Body7 pending, binary-trees loop result source-not-
-  i64, boxtorrent receiver-unavailable, allocator NamedArray(TextSourceMissing),
-  mimalloc generic required-integer-source-unproved, untyped field ValueId15
-  return-type panic. Worker receipt `v908-fixedsuite-red-classification.json`
-  records exact commands/manifests/SHA per baseline; these remain goal debts.
-  Mimalloc suite stops at its generic negative before native; canonical grammar
-  on generic MIR gives the same stop. Do not weaken its required negative.
-- Separate CLI257/app314 unchanged mimalloc canonical direct EXE164.850s,
-  run.001666s exit0 and exact app311 stdout/stderr. CLI257/app312 unchanged JSON
-  .394851s exit1/no artifact remains original slot20 Body7 pending. These are
-  CLI257 observations before the multi-merge repair; CLI258 final native/suite
-  observations are still pending. Preserve binaries/source manifests/receipts
-  and failed313 probe until the Text/Loop series closes; no adapter introduced.
-- CLI258 build174.255s, exact Root908G source manifest; binary SHA256
-  `b7ce18f254ebae02a927a5e140299d5e814bf2e35686a7c3a278a20f7150c771`.
-  App316 same failed313 input now EXE128.466s/run.001443s exit0, `Result: 0`.
-  Reproduction: canonical `--backend mir --emit-exe OUT --emit-exe-nyrt NYRT`;
-  `static box Main { main() { local text = "" + "5" local alias = text
-  if (alias == "5") && (alias != "4") && (alias < "9") && (alias <= "5")
-  && (alias > "0") && (alias >= "5") { return 0 } return 1 } }`.
-  Pure-first/compat-none/llvm-c-api verified; reuse pinned FFI897A/kernel894A with
-  explicit compiler-only deltas, not three fresh source-matched builds.
-- App317 unchanged mimalloc EXE166.373s/run.001724s exit0 and exact app314
-  stdout/stderr/exit. App315 unchanged JSON .398653s exit1/no artifact, same Body7.
-  CLI258 fixed11: 5 PASS/6 FAIL450.341s, all full diagnostics/panic exactly
-  CLI257 and its independently reproduced CLI256 baseline. No full-suite/CI
-  or Loop closure claim. Official command: `bash tools/smokes/v2/run.sh
-  --profile integration --owner-profile integration --suite real-apps-exe-boundary
-  --timeout 1900`; same pinned CLI/FFI/runtime, pure-first/compat-none.
-- Additional trigger regression probes: pure-I64 less/equality emit MIR JSON;
-  branch-write probe refuses both before/after (CLI256 root-completion vs CLI258
-  explicit PrefixNotCovered); direct EXE confirms both refusals. No prior green
-  regressed in these probes; changed refusal is informational, not completion.
+`d10fc508e6` preserves commands, exact six-comparison source, build/runtime pins,
+initial failures and final validation: Root908G88PASS/1 independently reproduced
+scalar-claim baseline; stable4/diff PASS; CLI258 build174.255s. Same failed native
+input now EXE/run exit0; unchanged mimalloc317 EXE166.373s/run.001724s, exact prior
+stdout/stderr/exit. Unchanged JSON315 .398653s stays slot20/Body7 pending. Official
+fixed11 is5PASS/6FAIL450.341s, each full diagnostic/panic matches pinned pre-V908
+CLI256. These baseline failures remain goal debts; no full-suite/current-CI or
+Text/Loop series closure. Retain V908 test/CLI256-258/native/suite manifests,
+failed313 and baseline receipts until full Text/Loop closure; no adapter added.
+
+Current Decision (same original Loop series, source/physical workers reviewed):
+- Source authority + canonical issuer: SAME retained SourcePlan condition/body,
+  original value-flow frame/joins and CallableLoopSourceProjection disposition
+  roles. IntField's end is Carrier, start/n/line ReadOnlyOperand, ch IterationLocal;
+  ingest's start is Carrier. Source assignments/ports, never names, decide roles.
+- Existing loop_prestate callback lends SourcePlan observation capability, not
+  Home permission. LoopI64PreStateRequest remains a specialized I64 view;
+  generic observation borrows actual scalar/Text/entry proofs from SAME Prefix.
+- In existing scan_statement_flow, scoped Header context uses SAME mutable
+  PrefixLocalFlow and shared expression inventory; commit/drop each node's
+  installation before recursive scan. Reuse initializer/If/Call owners; route
+  original Break/Continue targets to SAME Loop exit summary, closing crossed
+  scope Homes, never into function Return rows. Install After only as a whole.
+- Normalize existing LocalProvenance root into Initializer vs exact LoopPoint,
+  sharing Copy checks while keeping initializer-only loans strict. Header carrier
+  dst is allocated before body, but Phi is closed/emitted later: only SAME pending
+  Loop owner may lend this staged producer during Lowering. General missing-
+  definition validation stays strict. Finalized requires actual exact Phi.
+- Sole physical owner loop_cond_bc_source selects Carrier/ReadOnlyOperand from
+  original source roles. Publish Header before condition/body reads, close SAME
+  phi_materializer role with complete Header/After incoming rows, and validate
+  block/dst/binding/all incoming in PlanLowerer before final After publication.
+  Existing raw child/ledger/boundary carry this role, no second operand registry.
+- Both final scans consume the same expression packet: exact source point/frame/
+  binding, unchanged readonly original producer, carrier Phi and FinishedBindings
+  Copy correspondence. Preserve conditional RHS and one original Break; V2 still
+  owes exact checked comparison/control/Bool-merge projection, not DynamicLess.
+- Smallest next slice is this integrated Header/body/exit/After/read closure to
+  original substring operands and unchanged JSON Body7 frontier, using existing
+  source-flow/JoinSig/physical-After/Copy tests and native acceptance. An After-
+  only patch or another retained condition receipt is not this unit's completion.
+- Non-authority/non-claims: raw I64/Phi/name lists, choosing LoopEntry as alias,
+  fake If seal, initializer permission for carriers, .hako rewrite and fallback
+  remain forbidden; full Text/incoming/cleanup/fixed-suite/full-goal debts stay.
