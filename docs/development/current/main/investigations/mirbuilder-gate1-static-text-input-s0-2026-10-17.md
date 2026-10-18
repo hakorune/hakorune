@@ -954,44 +954,26 @@ series closure or frontier advance. Fixed11 not rerun; latest CLI260 is5PASS/
 current acceptance. Next: SAME original Loop Header/body/exit product and complete
 V2/JoinSig/cleanup/After/final-read closure; do not replace it with more receipts.
 
-V913 verified scalar-rebind source-to-physical component (whole Loop remains open):
-- Running Home scanner proves old target available I64 and absent from Homes,
-  then qualifies original Plain RHS/target in shared inventory. Mandatory rebind
-  prefixes consume the existing evaluated-binding group (Initializer/Rebind),
-  common expression descent/cleanup and sole assignment completion, never a new
-  packet registry. Selected rebinds no longer recurse the whole raw Assignment;
-  unselected callers still require that shared owner, so it is not caller-zero.
-- Opaque scalar destination co-seals selected frame + current materialized target
-  before shared writer publication. Only that proof omits legacy strong release;
-  raw callers and contract algorithm remain. Local-contract result projection is
-  explicitly refused before RHS effects; no typed-result/Loop admission claim.
-- RHS child cleanup precedes assignment. Receipt/value/source Rc and tagged
-  provenance + complete Copy chain survive both final consumers. Self-assignment
-  may reuse Entry/Definition with zero new instructions; initializer loans stay
-  strict. Shared source-call prerequisites include rebind references.
-- Worker reviewed actual authorization/final pools; added exact delimiter census,
-  same-value/different-frame refusal, owned/unknown/noninteger destination refusal.
-  Raw completion's invalid no-block test fixture reproduces on independent
-  Root912B; repaired it to exercise actual legacy release in a real block.
-- Root913A import/visibility errors corrected; Root913B111.604s first final-scan
-  rebind PASS; C86.201s verifies neutral writer and reveals only that old fixture.
-  Final Root913D73.900s PASS: 24 focused/0FAIL, stable4/diff PASS. Same-source
-  CLI263204.248s PASS. Commands use quick-test-fast / quick CLI, jobs4; filters
-  cover source rebind3, final rebind1, initializer1/Print4, Copy2, raw receipt2,
-  existing raw Loop child11. No zero-filter success is counted.
-- JSON326 .406116s exit1/no artifact, stderr EXACT JSON324, unchanged Body7.
-  Separate signed-formal rebind probe328 stops at selected-header-missing before
-  body; CLI262 reproduces identical source/diagnostic (existing caller boundary).
-  Native Main probe/mimalloc and required fixed-suite results follow below.
-- Native mimalloc327 EXE149.722s/run.001636s exit0, stdout/stderr/exit EXACT325.
-  Main probe329 EXE114.830s/run.001315s exit0, output `0:2:2` and `Result: 0`:
-  x=0, before=x; x=x+("a"+"b").length(); middle=x; x=x; after=x;
-  print before/middle/after separated by colons. Both native builds overlapped;
-  these durations are not a speed comparison. Root/CLI/current source are exact.
-- Fixed11 CLI263 5PASS/6FAIL420.872s; full five MIR diagnostics + untyped Value15
-  panic EXACT CLI260->259->258->257->independent256. No new regressions; six debts
-  remain. CI query still only old d4168473 failure/8e7179 success, no current green.
-- Retain current source/build/focus/native/probe/baseline receipts and Root913D/
-  CLI263 with FFI897A/kernel894A until Text/Loop closure. Removed only superseded
-  Root913B/C test-binary copies (logs/manifests retained); no adapter introduced.
-  Whole Loop source observation/Header/exit/V2/After/read and full goal remain open.
+V913 `b7eaa2bde7` owns original scalar-rebind Home observation through the shared
+evaluated-binding group, sole assignment receipt and both final consumers.
+Opaque source/Home-neutral destination removes only selected scalar strong release;
+raw callers/contract algorithm remain. Exact rebind purpose and Copy chain retain
+self-assignment/aliases without fresh definitions; typed local-contract result
+projection still refuses before effects. Selected whole-Assignment recursion is
+replaced; shared unselected caller paths remain, not caller-zero/whole R7 closure.
+Commit owns source/commands/pins, worker review, corrected imports, independent
+Root912B invalid-fixture baseline and repaired real-block legacy-release test.
+Final Root913D73.900s/CLI263204.248s exact-source builds, focused24/0FAIL,
+stable4/diff PASS. Native mimalloc327 EXE149.722s/run.001636s exact325 output/exit0;
+Main rebind/Core-cleanup/alias probe329 EXE114.830s/run.001315s yields0:2:2/Result0.
+Native builds overlapped, no speed claim. Signed-formal probe328 stops at unchanged
+selected-header-missing, independently reproduced by CLI262; no new caller claim.
+JSON326 .406116s same Body7/no artifact. Fixed11 5PASS/6FAIL420.872s with all five
+MIR diagnostics and untyped Value15 panic EXACT CLI260->259->258->257->independent256.
+No current-CI green (old d4168473/8e7179 runs only). Keep Root913D/CLI263/native/
+probe/source/baseline receipts with FFI897A/kernel894A until closure. Superseded
+Root913B/C binary copies retired (550262824 bytes), logs retained; no adapter added.
+Next construction remains SAME original Loop Header/body/exit/V2/cleanup/After/read.
+Generic source classification must distinguish Mul unselected shape from rejected
+evidence before SourceObservation; never retry an Err(SourceShape). Whole Loop,
+Text and full finite goal stay open; this component is not Loop-carried acceptance.
