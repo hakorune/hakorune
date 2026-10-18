@@ -202,6 +202,9 @@ impl super::PlanLowerer {
         // SSOT: Delegated to loop_completion::emit_loop_frag()
         loop_completion::emit_loop_frag(builder, &mut session, &frag, &loop_plan, ctx)?;
 
+        port.completed_loop(&loop_plan, builder.function_state.current_function.as_ref()
+            .ok_or("[freeze:contract][loop-cond-after-role/function-missing]")?)?;
+
         // Steps 6-8: Finalize variables and return Void
         // Restore the outer lexical map before reapplying loop final_values.
         // Loop-body locals must not leak past after_bb just because their defs

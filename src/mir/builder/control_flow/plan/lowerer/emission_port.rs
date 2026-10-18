@@ -26,26 +26,41 @@ use std::rc::Rc;
 pub(in crate::mir::builder) enum CorePlanEffectEmissionPortV1<'plan> {
     Raw,
     Claimed(ClaimedCallableResultLoopBatchV1<'plan>),
-    SourcePublication(
-        Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
-    ),
+    SourcePublication {
+        ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+        loop_completion: Option<&'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1>,
+    },
 }
 
-impl CorePlanEffectEmissionPortV1<'_> {
+impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
     pub(super) const fn raw() -> Self {
         Self::Raw
     }
 
-    pub(in crate::mir::builder) fn claimed<'plan>(
-        claims: ClaimedCallableResultLoopBatchV1<'plan>,
-    ) -> CorePlanEffectEmissionPortV1<'plan> {
+    pub(in crate::mir::builder) fn claimed<'claims>(
+        claims: ClaimedCallableResultLoopBatchV1<'claims>,
+    ) -> CorePlanEffectEmissionPortV1<'claims> {
         CorePlanEffectEmissionPortV1::Claimed(claims)
     }
 
     pub(in crate::mir::builder) fn source_publication(
         ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
     ) -> Self {
-        Self::SourcePublication(ledger)
+        Self::SourcePublication { ledger, loop_completion: None }
+    }
+
+    pub(super) fn source_publication_with_loop_completion(
+        ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+        completion: &'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1,
+    ) -> Self { Self::SourcePublication { ledger, loop_completion: Some(completion) } }
+
+    pub(super) fn completed_loop(&self, plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
+        function: &crate::mir::MirFunction,
+    ) -> Result<(), String> {
+        if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
+            completion.observe_completed_loop(plan, function)?;
+        }
+        Ok(())
     }
 
     pub(super) fn emit_effect(
@@ -81,7 +96,7 @@ impl CorePlanEffectEmissionPortV1<'_> {
                     } => emit_selected_exact_i64(builder, effect, target, required_i64_arguments),
                 }
             }
-            Self::SourcePublication(ledger) => {
+            Self::SourcePublication { ledger, .. } => {
                 let source_ledger = ledger.borrow().ordinary_new_claim_ledger().cloned();
                 if let (Some(source_ledger), CoreEffectPlan::FieldGet { source: Some(site), receiver_source, dst, base, .. }) =
                     (source_ledger.as_ref(), effect) {
@@ -209,7 +224,8 @@ impl CorePlanEffectEmissionPortV1<'_> {
             Self::Claimed(claims) => claims.finish().map_err(|error| {
                 format!("[freeze:contract][callable_result/loop_claim_finish] {error:?}")
             }),
-            Self::SourcePublication(ledger) => {
+            Self::SourcePublication { ledger, loop_completion } => {
+                if let Some(completion) = loop_completion { completion.require_finished()?; }
                 if ledger
                     .borrow()
                     .has_pending_source_static_result_publications()

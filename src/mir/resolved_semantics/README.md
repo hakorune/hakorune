@@ -1698,3 +1698,14 @@ loans, not scalar ValueIds or new owners. The recursive physical condition
 consumer retains those original leaves on their comparison proof; conditional
 RHS reach and the If-only outer seal remain mandatory. Mixed, Null, unproven and
 effectful Text child expressions refuse before the Home installation batch.
+
+Source reaching definitions normalize readonly Loop Header/After values only
+from the original closed LoopFrame's complete reachable predecessor snapshots.
+Every Backedge/Continue and Break/condition-false value must be the same Header
+and have a unique pre-Loop anchor. Nested reductions reuse only prior proofs;
+carrier updates and alias assignments remain joins. Sealing rewrites passive
+read/incoming identities after every Loop closes. Strict alias queries keep
+rejecting joins; this issues no class, Home, Recipe or physical permission.
+This is port-value invariance, not a claim that all body paths are write-free:
+updates on a terminating Return path remain separate expression definitions.
+Physical Carrier/ReadOnly roles still come from the original role issuer.

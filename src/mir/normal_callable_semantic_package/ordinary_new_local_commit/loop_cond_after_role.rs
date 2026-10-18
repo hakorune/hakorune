@@ -41,12 +41,10 @@ impl OrdinaryNewClaimLedgerV1 {
             if !function.blocks.contains_key(&block) {
                 return Err(freeze("loop-cond-after-block-missing"));
             }
-            if recorded.contains(&block)
-                && allowed
-                    .insert(block, role.phi_prefix().to_vec().into_boxed_slice())
-                    .is_some()
-            {
-                return Err(freeze("loop-cond-after-block-duplicate"));
+            for (block, prefix) in role.loop_phis() {
+                if recorded.contains(block) && allowed.insert(*block, prefix.clone()).is_some() {
+                    return Err(freeze("loop-cond-after-block-duplicate"));
+                }
             }
         }
         Ok(allowed)

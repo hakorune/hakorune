@@ -299,3 +299,42 @@ fn source_value_flow_async_observation_never_claims_completeness() {
     };
     assert!(flow(&product).read(&site, binding).is_none());
 }
+
+#[test]
+fn source_value_flow_normalizes_only_complete_readonly_loop_equations() {
+    // The original traversal census includes targeted Continue/Break, nested
+    // loops and iteration-local shadow bindings. No literal/type guess is used.
+    for body in [
+        vec![var()],
+        vec![branch(vec![next()], vec![brk()])],
+        vec![repeat(vec![var(), brk()]), var()],
+        vec![local(Some(int(7))), var(), brk()],
+    ] {
+        let product = resolve(vec![repeat(body), ret(var())]);
+        let header = read(&product, &[P::Body(0), P::LoopCondition]);
+        let after = read(&product, &[P::Body(1), P::Value]);
+        assert_eq!(header, after, "complete readonly Header/After retain the same original entry");
+        assert!(matches!(flow(&product).origin(header), Some(O::Entry(_))));
+        assert!(flow(&product).alias_entry_origin(header, |site| product.variable_ref(site)).is_some());
+    }
+    for body in [
+        vec![set(int(1))],
+        vec![branch(vec![set(int(1)), next()], vec![brk()])],
+        vec![repeat(vec![set(int(1)), brk()])],
+        vec![set(var())], // Alias evaluation is a new source definition.
+    ] {
+        let product = resolve(vec![repeat(body), ret(var())]);
+        join(&product, read(&product, &[P::Body(0), P::LoopCondition]), K::LoopHeader);
+        join(&product, read(&product, &[P::Body(1), P::Value]), K::LoopAfter);
+    }
+    // Port invariance is not an assertion that every body path is write-free.
+    // A Return path does not contribute to a Header or After predecessor.
+    let returning = resolve(vec![repeat(vec![set(int(9)), ret(var())]), ret(var())]);
+    assert!(matches!(flow(&returning).origin(read(&returning, &[P::Body(1), P::Value])), Some(O::Entry(_))));
+    expression(&returning, read(&returning, &[P::Body(0), P::LoopBody(1), P::Value]),
+        &[P::Body(0), P::LoopBody(0), P::Value]);
+    let shadow = resolve(vec![repeat(vec![local(Some(int(7))), var(), brk()]), ret(var())]);
+    let inner = read(&shadow, &[P::Body(0), P::LoopBody(1)]);
+    expression(&shadow, inner, &[P::Body(0), P::LoopBody(0), P::Initializer(0)]);
+    assert!(flow(&shadow).alias_entry_origin(inner, |site| shadow.variable_ref(site)).is_none());
+}

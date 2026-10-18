@@ -880,32 +880,26 @@ Inherited remaining Text obligations:
 - Full Text and RequiredObjectForwardS0 are unaccepted; prior named-array,
   guarded-receiver and MapGet baseline obligations remain. No full-suite/CI claim.
 
-Verified preparation history: V905 `bbe376b06e` owns complete V2 After
-collection validation; V906 `64f7beaa33` owns exact original Loop condition
-relations/purpose/reach; V907 `4593eb7939` owns SAME shared source across Home,
-affine plan take and physical ConditionRead validation, removing copied Home
-owner/site/frame. Full mapping, commands, manifest/artifact pins and initial
-failures are retained in those commits (card compression `e8338ecd5c`).
-V907: focused69PASS/4 independently reproduced named-array baseline failures,
-Stable4/diff PASS. CLI256/app311 unchanged mimalloc EXE/run PASS, exact app306
-stdout/stderr/exit; app310 unchanged JSON remains Body7 pending. Preserve V907
-A/B/baseline and CLI256/app310/app311 artifacts until series closure. Older S6C7
-Facts baseline and absent completion_seed.rs physical-transfer guard failure stay
-open; no full-suite/CI, general Header/After or whole-series acceptance.
+Verified preparation history: `bbe376b06e` (V2 After collection), `64f7beaa33`
+(original Loop condition relations/purpose/reach), `4593eb7939` (SAME source
+across Home/affine take/physical condition read) preserve full mappings and
+validation, compressed at `e8338ecd5c`. Keep their source/baseline/artifact pins
+until Text/Loop closure. Older S6C7 Facts, named-array and absent completion_seed
+physical-transfer guard baselines remain open. No whole-series acceptance.
 
 Remaining same-series construction (read-only worker mapping retained):
-- begin_loop creates Header joins for ALL live bindings, including read-only n.
-  current_scalar_read rejects joins at alias_origin before producer matching;
-  an After-only patch cannot qualify the body. Do not choose LoopEntry as alias.
+- Original begin_loop records Header joins for every live binding. V909 proves
+  invariant Header/After identities from the whole original predecessor census
+  before final normalization. Nontrivial carriers still reject plain alias reads;
+  an After-only patch cannot qualify the body. No LoopEntry shortcut is allowed.
 - Observe condition/body under SAME Header environment before atomic complete
   After publication. Reuse Carrier/ReadOnlyOperand/IterationLocal roles: carrier
   exact Phi, read-only original producer, iteration-local original initializer.
   Complete port/class incoming closure already lives in join_sig/port.rs.
-- The actual String guard reuses canonical STRING_COMPARISONS envelopes,
-  StringInvokeOperation::Compare and recursive logical-shortcircuit owner and
-  validator. Missing common connections: Text leaf/current residence proof,
-  node-wise String Invoke+Fault/cleanup execution and final Bool source check.
-  Do not use the eager whole-expression writer for conditional RHS.
+- V908 supplies original Text leaves/residences, canonical String comparison,
+  recursive short-circuit, Fault unwind and final Bool proof for actual If.
+  Reuse these common nodes inside the genuine Loop scope; the outer Loop
+  condition still requires its own purpose/seal, never an invented If grant.
 - V2 still owes checked condition-control projection, exact comparison operation
   and Bool merge representation. Do not rename DynamicLess, fake If membership,
   substitute initial start, infer types from physical Phi, or split one Break.
@@ -939,7 +933,12 @@ Current Decision (same original Loop series, source/physical workers reviewed):
 - Existing loop_prestate callback lends SourcePlan observation capability, not
   Home permission. LoopI64PreStateRequest remains a specialized I64 view;
   generic observation borrows actual scalar/Text/entry proofs from SAME Prefix.
-- In existing scan_statement_flow, scoped Header context uses SAME mutable
+- Readonly source joins normalize at the sole value-flow owner only after
+  proving ALL original LoopFrame predecessor snapshots (not a selected incoming).
+  Prove in finish_loop; substitute reads/incoming at complete seal, preserving
+  strict alias APIs. Nested reductions require prior full proofs. Carrier joins
+  stay intact; this is no class/Home/physical grant and no LoopEntry shortcut.
+- In existing scan_statement_flow, carrier Header context uses SAME mutable
   PrefixLocalFlow and shared expression inventory; commit/drop each node's
   installation before recursive scan. Reuse initializer/If/Call owners; route
   original Break/Continue targets to SAME Loop exit summary, closing crossed
@@ -965,3 +964,32 @@ Current Decision (same original Loop series, source/physical workers reviewed):
 - Non-authority/non-claims: raw I64/Phi/name lists, choosing LoopEntry as alias,
   fake If seal, initializer permission for carriers, .hako rewrite and fallback
   remain forbidden; full Text/incoming/cleanup/fixed-suite/full-goal debts stay.
+
+V909 construction scope (same integrated Loop unit, not a new completion row):
+- Existing lowerer/emission_port + loop_cond_after_role first retain exact Phi
+  completion at the actual post-deferred-input/patch/CFG boundary. The earlier
+  materializer.close rows are provisional; destination-only wrapper capture
+  cannot grant Header/After provenance. Existing source-publication and physical
+  boundary tests own counterexamples. No new source or physical registry.
+- Then connect source loop value-flow/Prefix Header observation, existing scoped
+  Break/Continue cleanup, source-directed carrier publication and exact local
+  provenance through existing expression reference/final consumers. Source and
+  physical worker decisions above remain binding; full native JSON frontier,
+  fixed-suite and inherited Text conditions remain required and unaccepted.
+- Extend V909 paths to source_value_flow and existing source_value_flow_tests:
+  complete readonly normalization replaces per-consumer LoopPoint variants for
+  readonly scalar/static/entry reads. Physical source roles must still preserve
+  original producers; typed carrier/After and scoped cleanup remain required.
+- Root909A compiled90.859s; B21.316s failed on test module import, C78.860s
+  on moved condition snapshot. D fixes both and compiles135.829s; distinct focused
+  75 PASS/1 independently reproduced pre-change field-read baseline (exact except
+  allocated resolver epoch), including sourceflow7, final incoming/unique-def
+  mutations, physical boundary22 and real source-loop entry11. Stable4/diff PASS.
+  CLI259 builds223.868s from exact D sources; unchanged JSON318 .395848s remains
+  original Body7 pending, same stderr. Mimalloc319 EXE154.379s/run.001402s exit0,
+  exact app317 stdout/stderr/exit. Fixed11 5PASS/6FAIL438.959s; all full diagnostics
+  match classified CLI258/257 and independent CLI256 baselines. No suite green.
+  CLI259 SHA256 `26551d79b3727be0d388f38144a220466d61224d2ebf8f66498dfd850b33a646`.
+  FFI897A/kernel894A remain pinned with explicit compiler-only deltas. Retain all
+  V909 manifests/native/failed-build/baseline receipts until Text/Loop closure;
+  no temporary adapter added; destination-only outer capture was replaced.

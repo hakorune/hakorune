@@ -1,91 +1,115 @@
-//! Sealed LoopCond after-PHI receipt from the selected source publication path.
+//! Exact LoopCond Phi completion at the sole physical writer boundary.
 use super::PlanLowerer;
 use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
-use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::normal_callable_loop_source_facts::SourceLoopCondPhysicalInputV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
-use std::cell::RefCell;
+use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use std::cell::{OnceCell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
-/// Only the selected LoopCond source path can obtain this role. Physical
-/// capture reads it without reconstructing source authority from the MIR.
+/// Only the selected source entry can issue this exact completed physical role.
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedLoopCondAfterPhysicalRoleV1 {
     owner: FunctionOwnerIdV1,
     site: SourceStmtSiteV1,
     block: BasicBlockId,
     phi_prefix: Box<[MirInstruction]>,
+    loop_phis: BTreeMap<BasicBlockId, Box<[MirInstruction]>>,
+}
+impl VerifiedLoopCondAfterPhysicalRoleV1 {
+    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
+    pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { &self.site }
+    pub(in crate::mir) const fn block(&self) -> BasicBlockId { self.block }
+    pub(in crate::mir) fn loop_phis(&self) -> &BTreeMap<BasicBlockId, Box<[MirInstruction]>> { &self.loop_phis }
 }
 
-impl VerifiedLoopCondAfterPhysicalRoleV1 {
-    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
+/// One stack-scoped completion of the SAME selected plan. Nested plans cannot
+/// satisfy it, and a destination census alone cannot seal incoming values.
+#[derive(Debug)]
+pub(super) struct LoopCondPhysicalCompletionV1 {
+    owner: FunctionOwnerIdV1,
+    site: SourceStmtSiteV1,
+    header: BasicBlockId,
+    after: BasicBlockId,
+    destinations: BTreeSet<(BasicBlockId, ValueId)>,
+    finished: OnceCell<VerifiedLoopCondAfterPhysicalRoleV1>,
+}
+impl LoopCondPhysicalCompletionV1 {
+    pub(super) fn new(owner: FunctionOwnerIdV1, site: SourceStmtSiteV1, plan: &CoreLoopPlan) -> Result<Self, String> {
+        let destinations: BTreeSet<_> = plan.phis.iter().map(|phi| (phi.block, phi.dst)).collect();
+        let values: BTreeSet<_> = plan.phis.iter().map(|phi| phi.dst).collect();
+        if plan.header_bb == plan.after_bb || destinations.len() != plan.phis.len() || values.len() != plan.phis.len() {
+            return Err(freeze("plan-destination-duplicate"));
+        }
+        Ok(Self { owner, site, header: plan.header_bb, after: plan.after_bb, destinations, finished: OnceCell::new() })
     }
-    pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 {
-        &self.site
+    pub(super) fn observe_completed_loop(&self, plan: &CoreLoopPlan, function: &MirFunction) -> Result<(), String> {
+        // Recursive nested loops use the same effect port, but own other blocks.
+        if plan.header_bb != self.header && plan.after_bb != self.after { return Ok(()); }
+        if plan.header_bb != self.header || plan.after_bb != self.after || self.finished.get().is_some() {
+            return Err(freeze("completion-source-or-repeat"));
+        }
+        let actual: BTreeSet<_> = plan.phis.iter().map(|phi| (phi.block, phi.dst)).collect();
+        if actual != self.destinations || actual.len() != plan.phis.len() { return Err(freeze("plan-destination-drift")); }
+        let mut expected = BTreeMap::<_, Vec<_>>::new();
+        for phi in &plan.phis {
+            // The canonical lowerer can delete an unreferenced empty step Phi.
+            // Source LoopCond carriers always have a real predecessor payload.
+            if phi.inputs.is_empty() { return Err(freeze("plan-input-missing")); }
+            if !function.blocks.contains_key(&phi.block) { return Err(freeze("block-missing")); }
+            let rows: Vec<_> = function.blocks.iter().flat_map(|(id, block)|
+                block.all_instructions().filter(move |row| row.dst_value() == Some(phi.dst)).map(move |row| (*id, row))).collect();
+            let [(block, row)] = rows.as_slice() else { return Err(freeze("phi-definition-cardinality")); };
+            if *block != phi.block || function.params.contains(&phi.dst) { return Err(freeze("phi-definition-cardinality")); }
+            if !matches!(row, MirInstruction::Phi { dst, inputs, .. } if *dst == phi.dst && inputs == &phi.inputs) {
+                return Err(freeze("plan-phi-drift"));
+            }
+            let mut incoming = BTreeSet::new();
+            if phi.inputs.iter().any(|(pred, _)| !incoming.insert(*pred)) { return Err(freeze("duplicate-predecessor")); }
+            let predecessors: BTreeSet<_> = function.blocks.iter().filter_map(|(id, block)|
+                block.successors_from_terminator().contains(&phi.block).then_some(*id)).collect();
+            if incoming != predecessors { return Err(freeze("predecessor-coverage")); }
+            expected.entry(phi.block).or_default().push((**row).clone());
+        }
+        let mut loop_phis = BTreeMap::new();
+        for (block, rows) in expected {
+            let prefix: Vec<_> = function.blocks[&block].instructions.iter()
+                .take_while(|row| matches!(row, MirInstruction::Phi { .. })).cloned().collect();
+            if prefix != rows { return Err(freeze("phi-prefix-drift")); }
+            loop_phis.insert(block, rows.into_boxed_slice());
+        }
+        let phi_prefix = loop_phis.get(&self.after).cloned().unwrap_or_default();
+        self.finished.set(VerifiedLoopCondAfterPhysicalRoleV1 {
+            owner: self.owner, site: self.site.clone(), block: self.after, phi_prefix, loop_phis,
+        }).map_err(|_| freeze("completion-repeat"))
     }
-    pub(in crate::mir) const fn block(&self) -> BasicBlockId {
-        self.block
+    pub(super) fn require_finished(&self) -> Result<(), String> {
+        self.finished.get().map(|_| ()).ok_or_else(|| freeze("completion-missing"))
     }
-    pub(in crate::mir) fn phi_prefix(&self) -> &[MirInstruction] {
-        &self.phi_prefix
+    fn into_role(self) -> Result<Option<VerifiedLoopCondAfterPhysicalRoleV1>, String> {
+        let role = self.finished.into_inner().ok_or_else(|| freeze("completion-missing"))?;
+        Ok((!role.phi_prefix.is_empty()).then_some(role))
     }
 }
+fn freeze(reason: &str) -> String { format!("[freeze:contract][loop-cond-after-role/{reason}]") }
 
 impl PlanLowerer {
-    /// The ordinary Plan entry returns only a value. This selected source
-    /// entry also returns the exact after-PHI role after emission and source
-    /// publication both succeed; a failed lowering cannot issue a role.
     pub(in crate::mir::builder) fn lower_loop_cond_with_source_publication(
-        builder: &mut MirBuilder,
-        plan: LoweredRecipe,
-        ctx: &dyn PlanLoweringContext,
-        ledger: Rc<RefCell<CallableSemanticLoweringState>>,
-        source: &SourceLoopCondPhysicalInputV1<'_, '_>,
+        builder: &mut MirBuilder, plan: LoweredRecipe, ctx: &dyn PlanLoweringContext,
+        ledger: Rc<RefCell<CallableSemanticLoweringState>>, source: &SourceLoopCondPhysicalInputV1<'_, '_>,
     ) -> Result<(Option<ValueId>, Option<VerifiedLoopCondAfterPhysicalRoleV1>), String> {
-        let CorePlan::Loop(loop_plan) = &plan else {
-            return Err("[freeze:contract][loop-cond-after-role/non-loop-plan]".into());
-        };
+        let CorePlan::Loop(loop_plan) = &plan else { return Err(freeze("non-loop-plan")); };
+        let completion = LoopCondPhysicalCompletionV1::new(source.owner(),
+            SourceStmtSiteV1::from_node(source.parent_site().clone()), loop_plan)?;
         let after = loop_plan.after_bb;
-        let planned_dsts = loop_plan
-            .phis
-            .iter()
-            .filter(|phi| phi.block == after)
-            .map(|phi| phi.dst)
-            .collect::<Vec<_>>();
-        let result = Self::lower_with_source_publication(builder, plan, ctx, ledger)?;
-        if builder.function_state.current_block != Some(after) {
-            return Err("[freeze:contract][loop-cond-after-role/after-block-drift]".into());
-        }
-        let block = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .and_then(|function| function.blocks.get(&after))
-            .ok_or("[freeze:contract][loop-cond-after-role/after-block-missing]")?;
-        let prefix = block
-            .instructions
-            .iter()
-            .take_while(|row| matches!(row, MirInstruction::Phi { .. }))
-            .cloned()
-            .collect::<Vec<_>>();
-        if prefix.len() != planned_dsts.len()
-            || prefix
-                .iter()
-                .zip(planned_dsts)
-                .any(|(row, planned)| row.dst_value() != Some(planned))
-        {
-            return Err("[freeze:contract][loop-cond-after-role/plan-phi-drift]".into());
-        }
-        let role = (!prefix.is_empty()).then(|| VerifiedLoopCondAfterPhysicalRoleV1 {
-            owner: source.owner(),
-            site: SourceStmtSiteV1::from_node(source.parent_site().clone()),
-            block: after,
-            phi_prefix: prefix.into_boxed_slice(),
-        });
-        Ok((result, role))
+        let mut port = super::emission_port::CorePlanEffectEmissionPortV1::source_publication_with_loop_completion(ledger, &completion);
+        let result = Self::lower_with_emission_port(builder, plan, ctx, &mut port)?;
+        port.finish()?;
+        if builder.function_state.current_block != Some(after) { return Err(freeze("after-block-drift")); }
+        Ok((result, completion.into_role()?))
     }
 }

@@ -120,3 +120,78 @@ fn source_publication_set_preserves_original_reads_and_affine_completion() {
         assert_eq!(snapshot(&builder), before);
     }
 }
+
+#[test]
+fn source_loop_completion_requires_final_incoming_and_unique_physical_definitions() {
+    use super::super::loop_cond_after_role::LoopCondPhysicalCompletionV1;
+    use crate::mir::builder::control_flow::edgecfg::api::Frag;
+    use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePhiInfo, LoopStepMode};
+    use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourcePathV1};
+    use crate::mir::{BasicBlock, BasicBlockId as B, ConstValue, EffectMask, FunctionSignature, MirFunction, MirType, ValueId as V};
+    let owner = FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+    let site = SourcePathV1::root_body(0).stmt();
+    let plan = CoreLoopPlan {
+        preheader_bb: B(0), preheader_is_fresh: false, header_bb: B(1), body_bb: B(2),
+        step_bb: B(2), continue_target: B(1), after_bb: B(3), found_bb: B(3),
+        body: vec![], cond_loop: V(9), cond_match: V(9), block_effects: vec![],
+        phis: vec![
+            CorePhiInfo { block: B(1), dst: V(2), inputs: vec![(B(0), V(1)), (B(2), V(3))], tag: "header".into() },
+            CorePhiInfo { block: B(3), dst: V(4), inputs: vec![(B(1), V(2))], tag: "after".into() },
+        ],
+        frag: Frag { entry: B(1), block_params: BTreeMap::new(), exits: BTreeMap::new(), wires: vec![], branches: vec![] },
+        final_values: vec![("value".into(), V(4))].into(),
+        step_mode: LoopStepMode::InlineInBody, has_explicit_step: false,
+    };
+    let mut function = MirFunction::new(FunctionSignature {
+        name: "loop-completion".into(), params: vec![], return_type: MirType::Integer, effects: EffectMask::CONTROL,
+    }, B(0));
+    for id in 0..=3 { function.add_block(BasicBlock::new(B(id))); }
+    for (dst, value) in [(V(1), ConstValue::Integer(3)), (V(8), ConstValue::Integer(8)), (V(9), ConstValue::Bool(true))] {
+        function.blocks.get_mut(&B(0)).unwrap().add_instruction(MirInstruction::Const { dst, value });
+    }
+    function.blocks.get_mut(&B(0)).unwrap().set_terminator(MirInstruction::Jump { target: B(1), edge_args: None });
+    let mut completed = plan.clone();
+    // Actual Break incoming is added by the same lowerer AFTER preparation.
+    completed.phis[1].inputs.push((B(2), V(3)));
+    for phi in &completed.phis {
+        function.blocks.get_mut(&phi.block).unwrap().add_instruction(MirInstruction::Phi {
+            dst: phi.dst, inputs: phi.inputs.clone(), type_hint: Some(MirType::Integer),
+        });
+    }
+    function.blocks.get_mut(&B(1)).unwrap().set_terminator(MirInstruction::Branch {
+        condition: V(9), then_bb: B(2), else_bb: B(3), then_edge_args: None, else_edge_args: None,
+    });
+    function.blocks.get_mut(&B(2)).unwrap().add_instruction(MirInstruction::Const { dst: V(3), value: ConstValue::Integer(7) });
+    function.blocks.get_mut(&B(2)).unwrap().set_terminator(MirInstruction::Branch {
+        condition: V(9), then_bb: B(1), else_bb: B(3), then_edge_args: None, else_edge_args: None,
+    });
+    function.blocks.get_mut(&B(3)).unwrap().set_terminator(MirInstruction::Return { value: Some(V(4)) });
+    for mutation in ["none", "old-plan", "wrong-value", "wrong-block", "duplicate-definition",
+        "parameter", "missing-input", "extra-predecessor", "duplicate-destination", "extra-phi", "empty-input"] {
+        let mut changed = function.clone();
+        let mut final_plan = completed.clone();
+        match mutation {
+            "old-plan" => final_plan = plan.clone(),
+            "wrong-value" => if let MirInstruction::Phi { inputs, .. } = &mut changed.blocks.get_mut(&B(3)).unwrap().instructions[0] { inputs[1].1 = V(8); },
+            "wrong-block" => final_plan.phis[1].block = B(2),
+            "duplicate-definition" => changed.blocks.get_mut(&B(2)).unwrap().add_instruction(MirInstruction::Const { dst: V(4), value: ConstValue::Integer(7) }),
+            "parameter" => { changed.params.push(V(4)); changed.signature.params.push(MirType::Integer); },
+            "missing-input" => if let MirInstruction::Phi { inputs, .. } = &mut changed.blocks.get_mut(&B(3)).unwrap().instructions[0] { inputs.pop(); },
+            "extra-predecessor" => { let mut extra = BasicBlock::new(B(5)); extra.set_terminator(MirInstruction::Jump { target: B(3), edge_args: None }); changed.add_block(extra); },
+            "duplicate-destination" => final_plan.phis.push(final_plan.phis[0].clone()),
+            "extra-phi" => changed.blocks.get_mut(&B(3)).unwrap().instructions.insert(0, MirInstruction::Phi { dst: V(10), inputs: vec![(B(1), V(2)), (B(2), V(3))], type_hint: None }),
+            "empty-input" => final_plan.phis[1].inputs.clear(),
+            "none" => {}, _ => unreachable!(),
+        }
+        let completion = LoopCondPhysicalCompletionV1::new(owner, site.clone(), &plan).unwrap();
+        assert!(completion.require_finished().is_err());
+        let result = completion.observe_completed_loop(&final_plan, &changed);
+        assert_eq!(result.is_ok(), mutation == "none", "{mutation}: {result:?}");
+        if mutation == "none" {
+            completion.require_finished().unwrap();
+            assert!(completion.observe_completed_loop(&final_plan, &changed).is_err(), "one affine completion");
+            let mut nested = completed.clone(); nested.header_bb = B(20); nested.after_bb = B(21);
+            completion.observe_completed_loop(&nested, &changed).unwrap();
+        } else { assert!(completion.require_finished().is_err()); }
+    }
+}

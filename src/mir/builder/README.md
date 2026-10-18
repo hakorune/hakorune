@@ -2119,3 +2119,11 @@ checks exact source leaves and original reference/Copy dependencies separately
 from the new Invoke/projection prefix. Call and String operations share the same
 source Home Fault-unwind inventory, while each retains its original producer.
 The common node proof does not turn an If seal into Loop execution permission.
+
+The source LoopCond physical role is completed inside the common PlanLowerer
+only after deferred Break/Continue inputs, Phi patching and Frag CFG sealing.
+It compares every complete planned Header/Step/After Phi to its actual unique
+instruction and exact predecessor set, retaining the same rows for both final
+physical consumers. The outer source wrapper cannot grant a role by matching
+destinations alone. This physical completion grants no Home/type/source-point
+read permission; those remain obligations of the original Loop source product.

@@ -11,7 +11,7 @@ pub(crate) struct SourceValueRefV1 {
     owner: FunctionOwnerIdV1,
     slot: usize,
 }
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) struct SourceValueSlotV0(usize);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SourceValueJoinKindV1 {
@@ -126,6 +126,9 @@ pub(super) struct SourceValueFlowDraftV1 {
     reads: BTreeMap<SourceExprSiteV1, (Binding, SourceValueSlotV0)>,
     state: SourceFlowStateV0,
     loops: Vec<LoopFrame>,
+    // Source-owner-local trivial Phi reductions, proved from closed ORIGINAL
+    // predecessor snapshots. No type/Home/physical permission is stored here.
+    invariant_values: BTreeMap<SourceValueSlotV0, SourceValueSlotV0>,
     complete: bool,
 }
 impl Default for SourceValueFlowDraftV1 {
@@ -135,6 +138,7 @@ impl Default for SourceValueFlowDraftV1 {
             reads: BTreeMap::new(),
             state: Some(BTreeMap::new()),
             loops: Vec::new(),
+            invariant_values: BTreeMap::new(),
             complete: true,
         }
     }
@@ -305,6 +309,27 @@ impl SourceValueFlowDraftV1 {
     pub(super) fn terminate(&mut self) {
         self.state = None;
     }
+    /// Compare all original reachable Loop snapshots, not a filtered join
+    /// array. Nested readonly loops may lend only their already-proved reduction.
+    fn invariant_loop_bindings(&self, frame: &LoopFrame) -> Vec<(Binding, SourceValueSlotV0)> {
+        if !self.complete { return Vec::new(); }
+        frame.head.iter().filter_map(|(binding, header)| {
+            let SourceValueOriginV1::Join { binding: original, site, kind: SourceValueJoinKindV1::LoopHeader, incoming } = self.nodes.get(header.0)? else { return None; };
+            if original != binding || site != &frame.site { return None; }
+            let mut entries = incoming.iter().filter(|(edge, _)| *edge == SourceValueEdgeV1::LoopEntry);
+            let (_, entry) = entries.next()?;
+            if entries.next().is_some() || entry.0 >= header.0 { return None; }
+            let anchor = canonical_slot(&self.invariant_values, *entry)?;
+            let mut edges = Vec::new();
+            for (edge, state) in frame.continues.iter().chain(frame.exits.iter()) {
+                let Some(state) = state else { continue; };
+                if edges.contains(edge) || canonical_slot(&self.invariant_values, *state.get(binding)?)? != *header { return None; }
+                edges.push(edge.clone());
+            }
+            if edges.iter().filter(|edge| **edge == SourceValueEdgeV1::ConditionFalse).count() != 1 { return None; }
+            Some((*binding, anchor))
+        }).collect()
+    }
     pub(super) fn finish_loop(&mut self, region: ShadowRegionIdV0) {
         let mut frame = self.loops.pop().expect("source Loop header exists");
         if frame.region != Some(region) {
@@ -332,14 +357,25 @@ impl SourceValueFlowDraftV1 {
         }
         frame
             .exits
-            .push((SourceValueEdgeV1::ConditionFalse, frame.condition));
-        self.state = self.join(
+            .push((SourceValueEdgeV1::ConditionFalse, frame.condition.take()));
+        let invariant = self.invariant_loop_bindings(&frame);
+        let after = self.join(
             frame.site,
             SourceValueJoinKindV1::LoopAfter,
             frame.head.keys().copied(),
             &frame.exits,
         );
+        if let Some(after) = &after {
+            for (binding, anchor) in invariant {
+                // Both original port values share the same pre-Loop anchor.
+                // All active snapshots remain untouched until final sealing.
+                self.invariant_values.insert(frame.head[&binding], anchor);
+                self.invariant_values.insert(after[&binding], anchor);
+            }
+        }
+        self.state = after;
     }
+
     pub(super) fn seal(
         self,
         owner: FunctionOwnerIdV1,
@@ -351,6 +387,8 @@ impl SourceValueFlowDraftV1 {
         if !self.loops.is_empty() {
             return Err("source value flow has unfinished Loop");
         }
+        let invariant_values = if self.complete { self.invariant_values } else { BTreeMap::new() };
+        let canonical = |slot| canonical_slot(&invariant_values, slot).ok_or("cyclic source value reduction");
         let count = self.nodes.len();
         let value_ref = |slot: SourceValueSlotV0| SourceValueRefV1 {
             owner,
@@ -405,8 +443,8 @@ impl SourceValueFlowDraftV1 {
                             incoming: incoming
                                 .into_vec()
                                 .into_iter()
-                                .map(|(edge, value)| (edge, value_ref(value)))
-                                .collect(),
+                                .map(|(edge, value)| Ok((edge, value_ref(canonical(value)?))))
+                                .collect::<Result<_, &'static str>>()?,
                         }
                     }
                     SourceValueOriginV1::Unknown => SourceValueOriginV1::Unknown,
@@ -419,7 +457,7 @@ impl SourceValueFlowDraftV1 {
                 || !matches!(uses.get(&site), Some(ResolvedLexicalRefV1::Local(binding)) if *binding == original) {
                 return Err("invalid source value read");
             }
-            Ok((site, (original, value_ref(value))))
+            Ok((site, (original, value_ref(canonical(value)?))))
         }).collect::<Result<_, _>>()?;
         let reads: BTreeMap<_, _> = reads;
         if uses.iter().any(|(site, reference)| {
@@ -434,4 +472,16 @@ impl SourceValueFlowDraftV1 {
             reads,
         })
     }
+}
+
+/// Every recorded anchor predates its Header/After, so substitution chains
+/// strictly decrease. Corrupted cycles never silently select a predecessor.
+fn canonical_slot(values: &BTreeMap<SourceValueSlotV0, SourceValueSlotV0>,
+    mut value: SourceValueSlotV0,
+) -> Option<SourceValueSlotV0> {
+    while let Some(next) = values.get(&value) {
+        if next.0 >= value.0 { return None; }
+        value = *next;
+    }
+    Some(value)
 }
