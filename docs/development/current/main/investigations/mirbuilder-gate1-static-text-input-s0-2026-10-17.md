@@ -960,37 +960,25 @@ V902 BoxShape landed at85f687e8bb; full decisions and evidence in that commit:
   Full finite entry/Null/dual Add, Loop After and both final incoming/use scans
   remain mandatory; this preparatory phase does not complete the Text series.
 
-V903 Decision (same argument lifetime construction; read-only emitter/consumer review):
-- Move hierarchical argument validation to the actual enclosing Call position,
-  derive a borrowed transient prefix from SAME original Call and verified live
-  stack, and pass it through child operation/End Fault checks. No stored prefix
-  registry, copied ownership, or child/parent acquisition flattening.
-- Paths: shared expression_terminal_paths/projection, argument projection,
-  initializer/Print wrappers, existing argument/expression emitter and Call prefix;
-  existing test owners and src/mir README. SourceStatic/Text fences stay until
-  full actual/entry/incoming/use and enclosing Call lifetime closure.
-- Scope addition: sole acquisition-prefix checker moves from Builder into the
-  existing expression physical owner; existing re-export layers and its current
-  regression caller follow it. Delete old dedicated checker after caller switch.
-  SAME transient view supports emission before parent packet and final validation;
-  child construction must receive that view rather than validating an empty tail.
-- Scope includes existing package/root re-export layers and Call emitter exports;
-  they expose the SAME physical checker/view, not another source authority.
-V903 verified closeout (BoxShape preparation; no Text activation):
-- Root903C `cargo quick-test-fast --no-run --message-format=json` PASS69.564s;
-  68 focused PASS/1StableKnownRed in5.435s. Existing initializer/Core acquisition
-  mutations, Print, ordered/physical cleanup, source identity/nested Call,
-  lexical I64, preflight and object-return filters reused; no new test owner.
-  Named-array preflight remains fixture:583 field-array-append/loop-source-missing,
-  same Root902D/independent Root901A baseline. Guarded-receiver red still owed.
-- CLI251 `cargo build --profile quick --bin hakorune --message-format=json`
-  PASS169.002s. app303 unchanged JSON canonical/MIR emit-exe 0.395309s,
-  exit1/noEXE, exact app301 stderr and same slot20 Body7 source issue.
-- Shared checker is sole physical acquisition-prefix owner; old Builder checker
-  file/module and EvaluationCallPrefixV1 removed, old scoped callers=0.
-  Root wrappers pass empty inherited context; no nonempty Text argument program,
-  lexical Expression activation or retained-Text Normal/Fault completion claimed.
-- Keep Root903C/CLI251/app303 pins/reports until Text closure. No new adapter or
-  superseded pinned binary. Latest native evidence remains CLI250/app302, not251.
-- Stable4 guards/diff PASS; CI remains old35681768498 failure at d4168473d5b;
-  no current-CI/full-suite/finite entry/Loop After/both-consumer closure claim.
+V903 BoxShape landed at7f77d03941; full decisions/evidence in that commit:
+- One physical acquisition-prefix checker now serves Builder and final validation.
+  Old Builder checker/module and EvaluationCallPrefixV1 are physically removed;
+  old scoped callers=0. Existing regression caller switched to SAME owner.
+- A synchronous source-bound transient view composes local/ancestor acquisitions
+  without copied packet ownership. Shared child validation occurs at the actual
+  enclosing Call position; emission, nested Calls and child constructor use the
+  same inherited tail. Prior Homes append once; I64 child Ends stay before Call.
+- Root wrappers still pass empty context. No nonempty Text-argument program,
+  lexical Expression activation, SourceStatic permit, owned-Text live-out or
+  universal final incoming/use closure is claimed by this preparatory phase.
+- Root903C68 focused PASS/1StableKnownRed, CLI251 PASS. app303 unchanged JSON
+  canonical/MIR emit-exe remains same slot20 Body7 stop, exact app301 stderr.
+  Named-array preflight remains field-array-append/loop-source-missing (Root901A
+  baseline independently retained); old guarded-receiver red also remains owed.
+- Keep Root903C/CLI251/app303 pins/reports until full Text closure. Latest native
+  evidence remains CLI250/app302. No new adapter/superseded pin. Stable4/diff
+  PASS; old CI failure is not a current-CI/full-suite green claim.
+- Next: source Call/ordinal-bound earlier-argument retained stack and enclosing
+  Call Normal/Fault continuation, keeping I64 timing and borrowed roots owner-free.
+  Text source BorrowedActual, original finite entry/Null/dual Add, Loop After,
+  both complete final consumers and SourceStatic executable closure remain owed.
