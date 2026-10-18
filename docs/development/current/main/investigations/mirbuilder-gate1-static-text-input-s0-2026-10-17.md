@@ -906,85 +906,43 @@ Inherited remaining Text obligations:
 - Full Text and RequiredObjectForwardS0 are unaccepted; prior named-array,
   guarded-receiver and MapGet baseline obligations remain. No full-suite/CI claim.
 
-V905 logical preparation evidence (full source/Home/read connection is open):
-- Existing V2 transfer owner lends complete After collection and shares boundary/
-  branch validation with unchanged sole facade. Issuers take the SAME whole
-  closure, never separate After/signature arguments. No source/Home/physical
-  permission or new operation family is issued by this borrowed view.
-- A129.518s: new mixed fixture first exposed existing MissingFallthroughContinuation
-  rejection; retain that fence. B63.039s:51PASS/7baseline, no zero filters. Existing
-  collection test now covers Text/I64 carriers, predicate-false/zero-trip and two
-  distinct Break payloads, plus missing/duplicate/foreign-class After and branch
-  summary loss/wrong-role/duplicate-payload refusals. Existing source/compiler
-  initializer and selected Loop families pass. Additional existing Dynamic
-  semantic/physical-input12 and producer10 PASS independently exercise the
-  unchanged sole-carrier branch/exit view (total73PASS/7baseline).
-- The seven S6C tests stop before JoinSig at Facts RelationCoverage; same5+2 failures
-  independently reproduce with pinned Root904ZA (baseline receipts retained).
-  This is baseline evidence, not current view regression or full green; the
-  original goal rows retain their mandatory/parked disposition.
-- Stable4/diff PASS. Additional loop_physical_transfer_authority_guard fails on
-  absent completion_seed.rs, also absent in unchanged HEAD891bd7b528 with the
-  guard script unchanged. No authority-guard PASS claim or fabricated replacement.
-- Read-only review found no must-fix source/After-pairing or consumer-fan-out hole.
-  Modified paths are join_sig/v2, transfer_view_v2, existing collection tests and
-  their owner README only. No guard, registry, app or physical issuer added.
-- Keep A/B manifests, focused receipts and pinned B binary for baseline/next-source
-  integration comparison until full source-to-consumer closure. CLI254 build
-  197.908s/SAME B source manifest, binary 1a730cef8989692248cdcbbf7ce429ee2abe9592165770d163bc0fb50997487a;
-  app308 unchanged json 0.398195s exit1/no artifact, exact app307
-  first-stop. No current Loop Home/read or app advance; native success remains
-  CLI253/app306. No fresh native/full-suite/CI or whole-series claim.
-- Additional original-source check: begin_loop creates LoopHeader Join for ALL
-  live bindings, including read-only n. current_scalar_read rejects at alias_origin
-  before producer matching, so an After-only extension cannot qualify the body.
-  The common SourcePlan product must first observe condition/body under SAME
-  Header environment, then atomically publish complete After. Reuse existing
-  normal_callable_loop_handoff Carrier/ReadOnlyOperand/IterationLocal roles:
-  carrier -> exact Header/After Phi; read-only -> unchanged original producer;
-  iteration-local -> no invented Header carrier. Source port/class incoming
-  closure already lives in join_sig/port.rs. Never skip Join or choose LoopEntry
-  as an alias; source-point loans must preserve SAME flow/value/frame/binding.
+V905 logical preparation landed at `bbe376b06e`; that commit retains complete
+source/After collection validation and mixed-class/two-Break positive/negative
+coverage. Root905B: 73PASS/7 independently reproduced S6C Facts baseline reds.
+Stable4/diff PASS. Additional physical-transfer guard remains baseline FAIL on
+absent completion_seed.rs; do not claim authority-guard green. CLI254/app308
+preserve the unchanged JSON Body7 stop. Full source/Home/read connection open.
 
-V906 construction path (same Loop Header/After responsibility, workers reused):
-- The source expression owner has IfCondition only. Add original LoopCondition
-  purpose from exact resolver membership/frame/bundle and original LoopCondition
-  child relation, using the SAME source-plan builder and conditional reach.
-  Existing If constructor/qualifier keeps its exact If contract.
-- PreissuedCallableLoopSourcePlan retains that SAME condition Rc once. Original
-  source reborrow and affine physical take must corroborate owner/site/frame and
-  condition purpose; no fake If bundle or second planner invocation.
-- Touched paths: resolved_value_profile/expression_plan, existing generic/planner,
-  existing source/field-loop test families and owning MIR README. This source
-  connection issues no Header type, Home continuation, Bool frame or physical
-  permission. Complete typed source projection/conditional String control and
-  original Header/After read provenance remain in this SAME series.
-- Root906A build PASS (74.963s), but both original Loop-condition and existing
-  Array/Home Loop tests fail: the original resolve_loop traversal omitted the
-  canonical statement-to-LoopCondition child relation. Extend scope to
-  resolved_semantics/shadow/stmt.rs and its README to record it during the SAME
-  original traversal, as resolve_if already does. Preserve begin_loop ordering;
-  do not weaken source identity checks. A third, mistyped filter ran zero tests
-  and is not evidence; remaining filters were not executed.
-- Root906B build PASS (57.584s); 58 test executions / 57 distinct tests PASS:
-  original condition + existing Array/Home Loop, installation3, source-result22,
-  initializer7, selected-Loop1, JoinSig collection5, body-shape12, value-flow6.
-  All filters are nonempty; repeated condition test is counted once. Stable4
-  and diff PASS. Root906B/CLI255 source manifests match before CLI completion.
-- Read-only review found no further source-purpose defect. Next common owner:
-  factor original owner/source/frame/condition into a shared source component;
-  retain SAME Rc outside the existing SourcePlan row's affine plan slot, lend
-  it to Home proof and via the existing claim ledger/state to physical input.
-  Check exact condition Local references against ConditionRead receipts before
-  the existing condition lowerer. No new registry or payload fan-out across
-  every generic route. Existing Array artifact and final-PHI negative tests
-  provide consumer evidence. Currently into_planned drops condition; neither
-  Header typing nor physical retention nor complete JSON After is accepted.
-- CLI255 build PASS 179.204s, binary
-  98a6beed814bd6599d81a9285ec1e5105ff5141341c7510b29ea1b3f9239f0f2.
-  app309 unchanged JSON measurement complete, application FAIL: 0.400s exit1,
-  no artifact, exact app308 stderr/Body7 core-expression-execution-pending.
-  Reused FFI897A/kernel894A pins with explicit source deltas, not three rebuilt
-  artifacts. No application/series/full-suite/CI completion claim. Retain A/B
-  focused manifests/logs/pinned B, CLI255 and app309 receipts for comparison
-  until source/Home/physical series closes; no temporary adapter added.
+V906 original Loop-condition source preparation landed at `64f7beaa33`.
+That commit owns exact resolver child-relation repair, shared If/Loop source
+builder, retained condition Rc and original purpose/frame/conditional-reach
+checks. Root906B: 57 distinct focused tests PASS; build57.584s, Stable4/diff
+PASS. CLI255179.204s/app3090.400s exit1/no artifact, exact app308 Body7 stop.
+Initial A regressions and zero-filter mistake are fixed/classified in that
+commit; no app/series/full-suite/CI completion. Preserve A/B manifests/logs and
+pinned B, CLI255/app309 receipts until the source/Home/physical series closes.
+No temporary adapter added. Reused FFI897A/kernel894A pins have explicit source
+manifest deltas; not three rebuilt artifacts. Native success remains app306.
+
+Next construction (read-only worker reviewed, same Loop responsibility):
+- begin_loop creates Header joins for ALL live bindings, including read-only n.
+  current_scalar_read rejects joins at alias_origin before producer matching;
+  an After-only patch cannot qualify the body. Do not choose LoopEntry as alias.
+- Factor original owner/source/frame/condition into one shared source component;
+  existing SourcePlan row retains SAME Rc outside its affine plan slot. Home
+  proof and physical input borrow it through existing claim ledger/state, with
+  exact owner/site/frame/condition checks. No new registry or generic enum fan-out.
+- Home condition validation consumes that plan. Before physical condition lowering,
+  corroborate original Local reference sites/BindingRefs with ConditionRead
+  receipts. Non-SourcePlan callers keep existing boundaries; selected missing or
+  drifted proof fails. Existing Array artifact positive and final-PHI incoming
+  mutation negatives remain consumer evidence. Source correspondence alone
+  grants no type, Home, Header or execution permission.
+- Current into_planned drops the condition Rc. Typed source projection/conditional
+  String control and Header/After read provenance remain open in this SAME series.
+  Observe condition/body under SAME Header environment before atomically publishing
+  complete After. Reuse Carrier/ReadOnlyOperand/IterationLocal roles: carrier exact
+  Phi, read-only original producer, iteration-local original initializer.
+  Complete port/class incoming closure lives in join_sig/port.rs. Never substitute
+  initial start, fake If membership, infer types from physical Phi, duplicate an
+  original Break, or eagerly execute conditional RHS.

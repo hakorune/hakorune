@@ -279,6 +279,7 @@ No resolver-wide Rc registry or second expression classifier is introduced.
 If and Loop conditions share the source inventory/child builder while retaining
 distinct purposes. A Loop condition carries its exact resolver region bundle and
 execution frame, preserving the original conditional child reach. The retained
-callable Loop SourcePlan owns one condition Rc across source reborrows and its
-affine planner handoff. This is source correspondence only: the existing If Bool
+callable Loop SourcePlan owns one condition Rc across source reborrows until
+affine planner consumption. Retention by the later physical consumer remains
+a separate connection. This is source correspondence only: the existing If Bool
 qualifier cannot use it as an If bundle, Header proof or Home continuation.
