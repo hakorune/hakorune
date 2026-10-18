@@ -727,6 +727,11 @@ Decision (allocation_source_connection + reference_integration_review):
   not either specialized issuer. Canonical planner/Recipe support for this actual
   Loop is measured below; it does not yet issue Home authority. No alternate
   recognizer or direct AST-to-Home receipt is allowed.
+- The current checked Bool frame is Integer-only: its leaf references and
+  operation loans do not yet admit Text comparisons. Source guard preservation
+  therefore requires exact String comparison envelopes plus shared original
+  Text reference/residence and conditional reach, not reuse of an already
+  executable Text Bool product. Common V2 must retain Or as conditional control.
 - Text remains the same bounded series: finite Text/I64/Null entry with original
   terminating-null guard/read dominance; SAME initializer/Local/Home/End for
   residence; full two-envelope Add execution; original Static actual lifetime;
@@ -767,3 +772,45 @@ V893 source correspondence normalization (preparation, no Text activation):
   Stable4 guards/diff PASS. New tests/proof apps/guards0. Named JSON/C and native
   acceptance remain the previous matched receipts; this preparation changes no
   production route. Root893A evidence retained until successor matches its role.
+
+
+V893 checked String comparison authority (construction, execution still pending):
+- Same canonical dynamic_operator_contract now issues six exact String/String
+  comparison envelopes. Original operator family/domain, borrowed-no-escape,
+  TrivialBool, no result lifecycle, conservative MaySuspend and pre-result
+  TypeError laws remain attached. Original String Add, Integer and Dynamic
+  domains remain unchanged. Reference clarifies existing Unicode-scalar sequence
+  equality/lexicographic order with proper-prefix-first and no normalization or
+  locale collation; generic mixed-kind equality is unchanged.
+- Existing positive contract matrix now covers both Integer/String; existing
+  mixed-domain matrix retains exact refusals and independent Dynamic exceptions.
+  StringMul remains rejected and StringAdd remains accepted. No extra tests.
+  reference_integration_review checked actual diff/callers PASS; checked Bool
+  qualifier remains Integer-only, and source references/Loop/runtime execution
+  are not activated by a new operator envelope. The lossy compare_string_pair_hh
+  helper is not a checked Fault consumer and cannot be used for this bridge.
+- Root893B quick-test-fast build62.303243s PASS. Existing operator8/checked source5/
+  borrowed comparison15/scalar-expression2 PASS (30 total). whole_bool_condition
+  matched0 and was rejected by the harness; it contributes no success count.
+  Correct scalar_expression_tests filter was then measured on SAME pinned binary.
+  Stable4 guards/diff PASS. Original Loop/entry/residence/cleanup/After/final-scan
+  and actual JSON/C obligations remain; neither preparation closes this series.
+
+- CLI239: `cargo build --profile quick --bin hakorune --message-format=json`,
+  jobs4/16MiB stack164.214831s PASS; binary
+  b1a628c603b3c8959ae1493bc84f052718e135d3433498b96820bfbd90941041.
+  App288 runs unchanged json-stream-aggregator with the original app287 direct
+  canonical/MIR emit-exe command, pure-first/no replay/plugins disabled and
+  matched runtime877A/FFI876B. .120247s, exit1/no EXE; stderr byte-equal app287,
+  same slot20 Body7 Value core-expression-execution-pending. No execution gain
+  or native/full-suite/CI green claimed. Prior accepted CLI237/app286 unchanged
+  mimalloc remains the native role; it was not rerun for this preparation.
+- Root893B and CLI239 source manifest bytes match the landing payload exactly.
+  Runtime/backend/ABI source and binary hashes remain checked. The evidence
+  harness's compiler-only delta whitelist now includes dynamic_operator_contract
+  after corroborating every module reference is under src/mir (v893-dynamic-
+  operator-compiler-only-users.json), with all kernel/backend/export checks kept.
+  Keep Root893A/B, CLI239/app288, previous native bundle and V892 source/planner
+  observations until the full bridge supplies stronger same-role evidence. No
+  temporary source adapter/diagnostic remains. Retained snapshots and logs are
+  explanatory evidence; contracts/results/remaining obligations are recorded here.

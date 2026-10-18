@@ -61,6 +61,29 @@ contract nor cleanup. The String envelope does not activate a source, physical
 or runtime consumer. The compatibility String-concat route and opaque
 `DynamicAdd(Dynamic, I64)` remain separate execution contracts.
 
+## Checked String comparisons
+
+The same operator issuer provides `Equal`, `NotEqual`, `Less`, `Greater`,
+`LessEqual` and `GreaterEqual` for exact `String/String` operands. This is the
+checked projection of the existing String comparison semantics in
+[types.md](types.md), not a Dynamic or Integer operand view.
+Equality compares the exact Unicode scalar-value sequence. Ordering is
+lexicographic over those sequences: compare the first unequal scalar value by
+its numeric value, and place a proper prefix before the longer sequence.
+Neither operation normalizes text or uses locale-specific collation.
+
+Operands evaluate in source order and are borrowed without escape or mutation.
+Normal publishes a TrivialBool with no result lifecycle; TypeError precedes any
+result, mutation or rebind when the operand cannot satisfy this checked class.
+The envelope retains the existing synchronous, expression-bounded, observable,
+conservatively MaySuspend contract. It grants no Integer refinement and does
+not change generic mixed-kind equality. Mixed operand classes need their own
+execution envelope.
+
+This semantic envelope alone does not admit a Text read or activate Bool,
+Loop, ABI, runtime comparison or cleanup. Source correspondence, conditional
+RHS reach, exact Text lifetime and both final consumers remain required.
+
 ## Checked Integer comparisons
 
 Decision (2026-10-07): the same profile-neutral operator issuer provides

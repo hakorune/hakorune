@@ -183,6 +183,11 @@ fn unsupported_domains_fail_without_fallback() {
         ),
         (
             DynamicOperatorFamilyV1::Mul,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::String,
+        ),
+        (
+            DynamicOperatorFamilyV1::Mul,
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::I64,
         ),
@@ -269,20 +274,17 @@ fn module_contains_no_partial_or_physical_authority() {
 }
 
 #[test]
-fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract() {
-    for family in [
-        DynamicOperatorFamilyV1::Equal,
-        DynamicOperatorFamilyV1::NotEqual,
-        DynamicOperatorFamilyV1::Less,
-        DynamicOperatorFamilyV1::Greater,
-        DynamicOperatorFamilyV1::GreaterEqual,
-        DynamicOperatorFamilyV1::LessEqual,
-    ] {
-        let domain = DynamicOperatorDomainV1::new(
-            family,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        );
+fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
+    for domain in [DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::String]
+        .into_iter().flat_map(|class| [
+            DynamicOperatorFamilyV1::Equal,
+            DynamicOperatorFamilyV1::NotEqual,
+            DynamicOperatorFamilyV1::Less,
+            DynamicOperatorFamilyV1::Greater,
+            DynamicOperatorFamilyV1::GreaterEqual,
+            DynamicOperatorFamilyV1::LessEqual,
+        ].map(|family| DynamicOperatorDomainV1::new(family, class, class)))
+    {
         let envelope = issue_dynamic_operator_execution_envelope_v1(domain).unwrap();
         assert!(std::ptr::eq(
             envelope,
@@ -319,7 +321,7 @@ fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract(
 }
 
 #[test]
-fn checked_integer_comparisons_refuse_every_other_operand_domain() {
+fn checked_comparisons_refuse_every_other_operand_domain() {
     let classes = [
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::String,
@@ -337,7 +339,7 @@ fn checked_integer_comparisons_refuse_every_other_operand_domain() {
     ] {
         for left in classes {
             for right in classes {
-                if left == DynamicOperatorValueClassV1::NormalInteger && right == left {
+                if matches!(left, DynamicOperatorValueClassV1::NormalInteger | DynamicOperatorValueClassV1::String) && right == left {
                     continue;
                 }
                 // Retain the independently supported Dynamic domains. They

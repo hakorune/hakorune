@@ -450,7 +450,8 @@ is conformance evidence:
 
 - `Integer <=> Integer`
 - `Float <=> Float`
-- `String <=> String` (lexicographic)
+- `String <=> String` (lexicographic Unicode scalar-value order; proper prefixes
+  precede extensions, with no normalization or locale-specific collation)
 - Other combinations are `TypeError`.
 
 ### 4.3 `==` / `!=`

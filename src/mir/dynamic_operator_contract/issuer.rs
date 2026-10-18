@@ -42,6 +42,25 @@ const ADD_STRING_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
     );
 
+/// Exact immutable String operands use the existing language comparison law.
+/// The source class and family stay attached to the complete borrowed contract.
+const fn string_comparison(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(family, DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    )
+}
+const STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
+    string_comparison(DynamicOperatorFamilyV1::Equal),
+    string_comparison(DynamicOperatorFamilyV1::NotEqual),
+    string_comparison(DynamicOperatorFamilyV1::Less),
+    string_comparison(DynamicOperatorFamilyV1::Greater),
+    string_comparison(DynamicOperatorFamilyV1::GreaterEqual),
+    string_comparison(DynamicOperatorFamilyV1::LessEqual),
+];
+
 const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
         DynamicOperatorDomainV1::new(
@@ -197,6 +216,19 @@ pub(crate) enum DynamicOperatorEnvelopeIssueV1 {
 pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
     domain: DynamicOperatorDomainV1,
 ) -> Result<&'static VerifiedDynamicOperatorExecutionEnvelopeV1, DynamicOperatorEnvelopeIssueV1> {
+    if matches!((domain.left(), domain.right()),
+        (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String)) {
+        let index = match domain.family() {
+            DynamicOperatorFamilyV1::Equal => Some(0),
+            DynamicOperatorFamilyV1::NotEqual => Some(1),
+            DynamicOperatorFamilyV1::Less => Some(2),
+            DynamicOperatorFamilyV1::Greater => Some(3),
+            DynamicOperatorFamilyV1::GreaterEqual => Some(4),
+            DynamicOperatorFamilyV1::LessEqual => Some(5),
+            _ => None,
+        };
+        if let Some(index) = index { return Ok(&STRING_COMPARISONS[index]); }
+    }
     match (domain.family(), domain.left(), domain.right()) {
         (
             DynamicOperatorFamilyV1::Add,

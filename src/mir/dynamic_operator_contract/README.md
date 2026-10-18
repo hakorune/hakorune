@@ -30,3 +30,12 @@ Print borrows the resulting value. The expression scope owns temporary End on
 Normal and Fault; the envelope alone authorizes no String ABI or Home emission.
 Source representation proof, complete operand/call evaluation, source/physical
 correspondence and independent final cleanup validation remain required.
+
+Checked String/String comparisons use the same six comparison families and
+complete borrowed Normal/Fault envelope. They preserve exact Unicode scalar
+sequence equality and lexicographic order (proper prefix first), without
+normalization or locale collation. They produce TrivialBool, own no result,
+and grant no NormalInteger refinement. Mixed classes remain outside this view.
+Source Text read/residence, short-circuit reach, checked physical comparison,
+lifetime and final consumer correspondence are separate required connections;
+these envelopes alone do not select a Bool or Loop execution route.
