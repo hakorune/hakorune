@@ -79,7 +79,8 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     }
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
     let Some(mut reference_proofs) = super::evaluation::seed_current_expression_references_v1(
-        &mut prepared, initial, &reference_order, static_reference, residence_reference, scalar_reference,
+        &mut prepared, initial, &reference_order, static_reference, residence_reference,
+        &mut |site| scalar_reference(site).map(super::evaluation::CheckedScalarReferenceV1::Original),
     ) else { return Ok(None) };
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared,

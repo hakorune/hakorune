@@ -20,6 +20,38 @@ impl PreparedExpressionReferenceReadV1 {
     }
 }
 impl ExpressionReferenceReadV1 {
+    /// External initializer/Copy producers are dependencies, not newly emitted
+    /// expression instructions. Only the sealed finisher approves omissions.
+    pub(in crate::mir) fn validate_dependencies_v1(&self, frame: &CheckedExpressionEvaluationV1, node: usize,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_layout(frame, node, context, function)?;
+        if let (Some(projection), CallValidationContextV1::Finalized(_)) = (finishing, context) {
+            return self.validate_finished_dependencies_v1(function, projection);
+        }
+        for original in self.dependencies()? {
+            match (finishing, context) {
+                (Some(projection), CallValidationContextV1::Finalized(_)) => { projection.relation_binding(function, original)?; }
+                (Some(projection), CallValidationContextV1::Lowering(_)) => {
+                    let dst = original.1.dst_value().ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
+                    if projection.captured_definition(dst)? != original { return Err(freeze("expression/reference-captured-dependency")); }
+                }
+                (None, _) => {
+                    if !super::super::super::physical_boundary::check_binding(function, None, original.0, &original.1)? {
+                        return Err(freeze("expression/reference-dependency-missing"));
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    pub(in crate::mir) fn validate_finished_dependencies_v1(&self, function: &MirFunction,
+        projection: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings,
+    ) -> Result<(), String> {
+        for original in self.dependencies()? { projection.relation_binding(function, original)?; }
+        Ok(())
+    }
     /// Prepare before the existing exact-read batch commits. Source proof stays
     /// in the shared evaluation, not in another reference/operand registry.
     pub(in crate::mir) fn prepare(

@@ -258,7 +258,7 @@ pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgument
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use ordinary_new_coseal::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use ordinary_new_coseal::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 

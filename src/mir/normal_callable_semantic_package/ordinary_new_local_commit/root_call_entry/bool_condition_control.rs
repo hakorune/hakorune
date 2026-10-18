@@ -183,6 +183,23 @@ impl EmittedBoolConditionProjectionV1 {
                     allowed.extend_from_slice(completed.bindings());
                     for relation in conditions { relation.append_observed_bindings_v1(&mut allowed); }
                 },
+                Proof::TextComparison { operands, bindings } => {
+                    let (invoke, result) = self.text_comparison_producers_v1(node, operands, bindings)?;
+                    let MirInstruction::Invoke { fault_frame, fault_landing, .. } = &invoke.1 else { unreachable!() };
+                    let mut expected = vec![invoke.clone(), result.clone()];
+                    expected.extend(self.expected_fault_inventory_v1(ledger, function, fault_frame, fault_landing, wrapper_suffix)?);
+                    if bindings.iter().any(|row| !expected.contains(row)) || expected.iter().any(|row| !bindings.contains(row)) {
+                        return Err(freeze("bool-condition/text-operation-inventory"));
+                    }
+                    let entry = function.blocks.get(&node.entry.block).ok_or_else(|| freeze("bool-condition/text-entry"))?;
+                    let exit = function.blocks.get(&node.exit.block).ok_or_else(|| freeze("bool-condition/text-exit"))?;
+                    if node.entry.block != invoke.0 || node.entry.instruction != entry.instructions.len()
+                        || node.exit.block != result.0 || node.exit.instruction != 1
+                        || exit.instructions.first() != Some(&result.1) {
+                        return Err(freeze("bool-condition/text-evaluation-order"));
+                    }
+                    allowed.extend(expected);
+                },
                 Proof::Call { packet, bindings } => {
                     let mut producers = Vec::new();
                     let observation = self.frame.calls().iter().find(|call| call.site() == packet.call_site())
@@ -193,42 +210,7 @@ impl EmittedBoolConditionProjectionV1 {
                                 inner.has_producer_at(inner.call_site(), binding)).cloned());
                             let MirInstruction::Invoke { fault_frame, fault_landing, .. } = &inner.invoke_binding().1
                                 else { return Err(freeze("bool-condition/call-invoke")) };
-                            let expected = ledger.prior_home_unwind_for(self.frame.prior_homes())?;
-                            let operations = super::super::super::super::root_cleanup_graph::ordered_paths::pending_operations(
-                                function, *fault_landing, &expected, Some(*fault_frame))?;
-                            // Empty routing/ReturnFault nodes are structural; every
-                            // effectful Fault node must be in the source unwind.
-                            let mut pending = vec![*fault_landing];
-                            let mut seen = BTreeSet::new();
-                            while let Some(id) = pending.pop() {
-                                if !seen.insert(id) { continue; }
-                                let block = function.blocks.get(&id).ok_or_else(|| freeze("bool-condition/fault-block"))?;
-                                if block.instructions.iter().collect::<Vec<_>>() != wrapper_suffix.iter()
-                                    .filter(|(bound, _)| *bound == id).map(|(_, row)| row).collect::<Vec<_>>() {
-                                    return Err(freeze("bool-condition/fault-instruction"));
-                                }
-                                let terminal = block.terminator.as_ref().ok_or_else(|| freeze("bool-condition/fault-terminal"))?;
-                                match terminal {
-                                    MirInstruction::Jump { target, edge_args: None } => pending.push(*target),
-                                    MirInstruction::Invoke { normal_landing, fault_landing, .. } if operations.contains(&id) =>
-                                        pending.extend([*normal_landing, *fault_landing]),
-                                    MirInstruction::ReturnFault { fault_frame: actual } if actual == fault_frame => {},
-                                    _ => return Err(freeze("bool-condition/fault-source-escape")),
-                                }
-                                producers.push((id, terminal.clone()));
-                            }
-                            let mut frames = function.blocks.iter().flat_map(|(id, block)|
-                                block.instructions.iter().filter_map(move |row| matches!(row,
-                                    MirInstruction::FaultFrameEnter { dst, .. } if dst == fault_frame).then(|| (*id, row.clone()))));
-                            let frame = frames.next().ok_or_else(|| freeze("bool-condition/fault-frame"))?;
-                            if frames.next().is_some() { return Err(freeze("bool-condition/fault-frame-duplicate")); }
-                            let mode = if ledger.root_owner() == Some(self.frame.source().owner()) {
-                                crate::mir::instruction::FaultFrameMode::RootOwned
-                            } else { crate::mir::instruction::FaultFrameMode::Borrowed };
-                            if !matches!(frame.1, MirInstruction::FaultFrameEnter { mode: actual, .. } if actual == mode) {
-                                return Err(freeze("bool-condition/fault-frame-mode"));
-                            }
-                            producers.push(frame);
+                            producers.extend(self.expected_fault_inventory_v1(ledger, function, fault_frame, fault_landing, wrapper_suffix)?);
                             Ok(())
                         })?;
                     producers.extend(packet.copy_dependencies(ledger)?.into_iter().map(|(_, binding)| binding));
@@ -265,5 +247,52 @@ impl EmittedBoolConditionProjectionV1 {
             if !allowed.contains(binding) { return Err(freeze("bool-condition/unowned-prefix-binding")); }
         }
         Ok(allowed)
+    }
+}
+
+impl EmittedBoolConditionProjectionV1 {
+    /// One source Home unwind inventory for both Call and String operations.
+    fn expected_fault_inventory_v1(&self, ledger: &OrdinaryNewClaimLedgerV1,
+        function: &MirFunction, fault_frame: &ValueId, fault_landing: &BasicBlockId,
+        wrapper_suffix: &[Binding],
+    ) -> Result<Vec<Binding>, String> {
+        let mut producers = Vec::new();
+        let expected = ledger.prior_home_unwind_for(self.frame.prior_homes())?;
+        let operations = super::super::super::super::root_cleanup_graph::ordered_paths::pending_operations(
+            function, *fault_landing, &expected, Some(*fault_frame))?;
+        // Empty routing/ReturnFault nodes are structural; every
+        // effectful Fault node must be in the source unwind.
+        let mut pending = vec![*fault_landing];
+        let mut seen = BTreeSet::new();
+        while let Some(id) = pending.pop() {
+            if !seen.insert(id) { continue; }
+            let block = function.blocks.get(&id).ok_or_else(|| freeze("bool-condition/fault-block"))?;
+            if block.instructions.iter().collect::<Vec<_>>() != wrapper_suffix.iter()
+                .filter(|(bound, _)| *bound == id).map(|(_, row)| row).collect::<Vec<_>>() {
+                return Err(freeze("bool-condition/fault-instruction"));
+            }
+            let terminal = block.terminator.as_ref().ok_or_else(|| freeze("bool-condition/fault-terminal"))?;
+            match terminal {
+                MirInstruction::Jump { target, edge_args: None } => pending.push(*target),
+                MirInstruction::Invoke { normal_landing, fault_landing, .. } if operations.contains(&id) =>
+                    pending.extend([*normal_landing, *fault_landing]),
+                MirInstruction::ReturnFault { fault_frame: actual } if actual == fault_frame => {},
+                _ => return Err(freeze("bool-condition/fault-source-escape")),
+            }
+            producers.push((id, terminal.clone()));
+        }
+        let mut frames = function.blocks.iter().flat_map(|(id, block)|
+            block.instructions.iter().filter_map(move |row| matches!(row,
+                MirInstruction::FaultFrameEnter { dst, .. } if dst == fault_frame).then(|| (*id, row.clone()))));
+        let frame = frames.next().ok_or_else(|| freeze("bool-condition/fault-frame"))?;
+        if frames.next().is_some() { return Err(freeze("bool-condition/fault-frame-duplicate")); }
+        let mode = if ledger.root_owner() == Some(self.frame.source().owner()) {
+            crate::mir::instruction::FaultFrameMode::RootOwned
+        } else { crate::mir::instruction::FaultFrameMode::Borrowed };
+        if !matches!(frame.1, MirInstruction::FaultFrameEnter { mode: actual, .. } if actual == mode) {
+            return Err(freeze("bool-condition/fault-frame-mode"));
+        }
+        producers.push(frame);
+        Ok(producers)
     }
 }

@@ -56,6 +56,12 @@ impl RawInvocationChildPortV1<'_, '_> {
         let state = self.callable_ledger.clone().ok_or("[freeze:contract][bool-condition/no-state]")?;
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
         let (value, proof) = match source.nodes()[index].source() {
+            Node::Binary(_) if frame.text_comparison_children_v1(index).is_some() => {
+                let [left, right] = frame.text_comparison_children_v1(index).expect("checked source comparison");
+                let operands = [self.borrow_bool_text_operand_v1(builder, &frame, left)?,
+                    self.borrow_bool_text_operand_v1(builder, &frame, right)?];
+                physical::emit_text_comparison_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index, operands)?
+            },
             Node::Reference(_) => {
                 let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = frame.references().get(&index)
                     else { return Err("[freeze:contract][bool-condition/reference-kind]".into()); };
@@ -125,5 +131,33 @@ impl RawInvocationChildPortV1<'_, '_> {
         let exit = physical::cursor(builder)?;
         emission.borrow_mut().nodes.push(BoolConditionNodeProjectionV1 { node: index, entry, exit, value, proof });
         Ok(value)
+    }
+
+    fn borrow_bool_text_operand_v1(&self, builder: &MirBuilder,
+        frame: &CheckedBoolConditionFrameV1, node: usize,
+    ) -> Result<crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1, String> {
+        use crate::mir::normal_callable_semantic_package::{BoolConditionTextOperandV1, ExpressionReferenceReadV1, CallValidationContextV1};
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        let source = &frame.source().nodes()[node];
+        let (operand, reference) = match source.source() {
+            Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(text)) =>
+                (Operand::StaticText { utf8: text.to_string() }, None),
+            Node::Reference(_) => {
+                let original = frame.references().get(&node).ok_or("[freeze:contract][bool-condition/text-reference-source]")?;
+                let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][bool-condition/no-state]")?;
+                let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
+                let mut state = state.borrow_mut();
+                let prepared = state.prepare_exact_lexical_read(frame.source().owner(), source.site().node(), original.binding()).map_err(|e| e.to_string())?;
+                let producer = ExpressionReferenceReadV1::prepare(frame.evaluation(), node, prepared.observation_v1(),
+                    CallValidationContextV1::Lowering(ledger), builder.function_state.current_function.as_ref()
+                        .ok_or("[freeze:contract][bool-condition/no-function]")?)?;
+                let read = state.commit_exact_lexical_reads(vec![prepared]).map_err(|e| e.to_string())?.pop()
+                    .ok_or("[freeze:contract][bool-condition/text-reference-commit]")?;
+                let observed = producer.finish(read);
+                (observed.operand(frame.evaluation(), node, CallValidationContextV1::Lowering(ledger))?, Some(observed))
+            }
+            _ => return Err("[freeze:contract][bool-condition/text-operand-leaf]".into()),
+        };
+        Ok(BoolConditionTextOperandV1 { node, operand, reference })
     }
 }

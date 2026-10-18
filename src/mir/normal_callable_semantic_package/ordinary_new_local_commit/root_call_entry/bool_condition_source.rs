@@ -10,14 +10,17 @@ impl EmittedBoolConditionProjectionV1 {
     ) -> Result<(), String> {
         let ledger = context.ledger();
         let source = self.frame.source();
+        let text_leaves = self.frame.text_operand_nodes_v1();
         let expected: Vec<_> = self.frame.ordered_nodes().iter().copied().filter(|index|
-            !self.frame.transfers_node(*index) && self.frame.class(*index) != Some(
+            !text_leaves.contains(index) && !self.frame.transfers_node(*index) && self.frame.class(*index) != Some(
                 crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)).collect();
         if self.nodes.iter().map(|node| node.node).ne(expected)
             || self.node(0)?.value != self.materialization.values().0 {
             return Err(freeze("bool-condition/source-node-coverage"));
         }
         let mut observed_calls = Vec::new();
+        let mut observed_text = std::collections::BTreeSet::new();
+        let mut observed_references = std::collections::BTreeSet::new();
         for node in &self.nodes {
             let original = &source.nodes()[node.node];
             match (original.source(), &node.proof) {
@@ -33,6 +36,7 @@ impl EmittedBoolConditionProjectionV1 {
                     if mapped(binding, finishing)?.is_some() { require_binding(function, binding, finishing)?; }
                 },
                 (Node::Reference(_), BoolConditionValueProofV1::Reference { read, producer }) => {
+                    if !observed_references.insert(node.node) { return Err(freeze("bool-condition/reference-duplicate")); }
                     let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = self.frame.references().get(&node.node)
                         else { return Err(freeze("bool-condition/reference-source")); };
                     if reference.original_read().is_some() { return Err(freeze("bool-condition/reference-source")); }
@@ -104,8 +108,34 @@ impl EmittedBoolConditionProjectionV1 {
                 (Node::Binary(binary), BoolConditionValueProofV1::Logical { completed, conditions }) => {
                     self.validate_logical(node, binary, completed, conditions, function, finishing)?;
                 },
+                (Node::Binary(_), BoolConditionValueProofV1::TextComparison { operands, bindings }) => {
+                    self.text_comparison_producers_v1(node, operands, bindings)?;
+                    for operand in operands {
+                        if !observed_text.insert(operand.node) { return Err(freeze("bool-condition/text-leaf-duplicate")); }
+                        match (source.nodes()[operand.node].source(), &operand.operand, &operand.reference) {
+                            (Node::Literal(Literal::String(text)), crate::mir::instruction::StringInvokeOperand::StaticText { utf8 }, None)
+                                if text.as_ref() == utf8.as_str() => {},
+                            (Node::Reference(_), value, Some(read)) => {
+                                if !observed_references.insert(operand.node)
+                                    || &read.operand(self.frame.evaluation(), operand.node, context)? != value {
+                                    return Err(freeze("bool-condition/text-reference-source"));
+                                }
+                                read.validate_dependencies_v1(self.frame.evaluation(), operand.node, context, function, finishing)?;
+                            },
+                            _ => return Err(freeze("bool-condition/text-leaf-source")),
+                        }
+                    }
+                    for binding in bindings.iter() {
+                        if mapped(binding, finishing)?.is_none() && matches!(binding.1,
+                            MirInstruction::Jump { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }) { continue; }
+                        require_binding(function, binding, finishing)?;
+                    }
+                },
                 _ => return Err(freeze("bool-condition/source-proof-kind")),
             }
+        }
+        if observed_text != text_leaves || observed_references.iter().copied().ne(self.frame.references().keys().copied()) {
+            return Err(freeze("bool-condition/reference-leaf-coverage"));
         }
         if observed_calls.into_iter().ne(self.frame.calls().iter().map(|call| call.site())) {
             return Err(freeze("bool-condition/call-coverage"));
@@ -124,5 +154,21 @@ impl EmittedBoolConditionProjectionV1 {
         let index = self.frame.source().nodes().iter().position(|node| node.site() == site)
             .ok_or_else(|| freeze("bool-condition/child-source"))?;
         Ok(self.node(index)?.value)
+    }
+
+    pub(super) fn text_comparison_producers_v1<'a>(&self, node: &BoolConditionNodeProjectionV1,
+        operands: &[BoolConditionTextOperandV1; 2], bindings: &'a [Binding],
+    ) -> Result<(&'a Binding, &'a Binding), String> {
+        let operation = BoolConditionTextOperandV1::comparison_operation_v1(&self.frame, node.node, operands)?;
+        let mut invokes = bindings.iter().filter(|(_, row)| matches!(row,
+            MirInstruction::Invoke { operation: InvokeOperation::String(actual), .. } if actual == &operation));
+        let invoke = invokes.next().ok_or_else(|| freeze("bool-condition/text-compare-invoke"))?;
+        if invokes.next().is_some() { return Err(freeze("bool-condition/text-compare-duplicate")); }
+        let MirInstruction::Invoke { normal_landing, .. } = invoke.1 else { unreachable!() };
+        let mut results = bindings.iter().filter(|(id, row)| *id == normal_landing && matches!(row,
+            MirInstruction::InvokeNormalResult { invoke_block, dst } if *invoke_block == invoke.0 && *dst == node.value));
+        let result = results.next().ok_or_else(|| freeze("bool-condition/text-compare-projection"))?;
+        if results.next().is_some() || invoke.0 == result.0 { return Err(freeze("bool-condition/text-compare-projection-duplicate")); }
+        Ok((invoke, result))
     }
 }

@@ -12,6 +12,37 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 type Finished = super::super::super::physical_boundary::FinishedBindings;
 
+/// Exact original Text leaf borrowed by a scalar-producing comparison.
+#[derive(Debug)]
+pub(in crate::mir) struct BoolConditionTextOperandV1 {
+    pub(in crate::mir) node: usize,
+    pub(in crate::mir) operand: crate::mir::instruction::StringInvokeOperand,
+    pub(in crate::mir) reference: Option<super::expression_projection::ExpressionReferenceReadV1>,
+}
+impl BoolConditionTextOperandV1 {
+    pub(in crate::mir) fn comparison_operation_v1(frame: &CheckedBoolConditionFrameV1, node: usize,
+        operands: &[Self; 2],
+    ) -> Result<crate::mir::instruction::StringInvokeOperation, String> {
+        let children = frame.text_comparison_children_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+        if operands[0].node != children[0] || operands[1].node != children[1]
+            || operands.iter().any(|operand| !operand.operand.is_text()) {
+            return Err(freeze("bool-condition/text-operand-order"));
+        }
+        let op = match frame.source().nodes()[node].binary().map(|binary| binary.operator()) {
+            Some(ResolvedBinaryOperatorV1::Equal) => crate::mir::CompareOp::Eq,
+            Some(ResolvedBinaryOperatorV1::NotEqual) => crate::mir::CompareOp::Ne,
+            Some(ResolvedBinaryOperatorV1::Less) => crate::mir::CompareOp::Lt,
+            Some(ResolvedBinaryOperatorV1::LessEqual) => crate::mir::CompareOp::Le,
+            Some(ResolvedBinaryOperatorV1::Greater) => crate::mir::CompareOp::Gt,
+            Some(ResolvedBinaryOperatorV1::GreaterEqual) => crate::mir::CompareOp::Ge,
+            _ => return Err(freeze("bool-condition/text-operator")),
+        };
+        Ok(crate::mir::instruction::StringInvokeOperation::Compare {
+            op, left: operands[0].operand.clone(), right: operands[1].operand.clone(),
+        })
+    }
+}
+
 #[path = "bool_condition_source.rs"]
 mod source;
 #[path = "bool_condition_control.rs"]
@@ -31,6 +62,7 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     Field(Binding),
     Call { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
     Binary { append: Binding, operands: [Rc<LocalSsaPhysicalRelationV1>; 2] },
+    TextComparison { operands: [BoolConditionTextOperandV1; 2], bindings: Box<[Binding]> },
     Logical { completed: CompletedLogicalShortCircuitV1, conditions: [Rc<LocalSsaPhysicalRelationV1>; 2] },
 }
 #[derive(Debug)]

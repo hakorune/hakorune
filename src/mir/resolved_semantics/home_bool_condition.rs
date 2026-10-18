@@ -31,12 +31,30 @@ impl CheckedBoolConditionFrameV1 {
     pub(crate) fn references(&self) -> &BTreeMap<usize, CheckedExpressionReferenceV1> { self.evaluation.references() }
     pub(crate) fn class(&self, node: usize) -> Option<ExpressionLeafClassV1> { self.evaluation.classes.get(node).copied() }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
+    /// These original leaves are observations owned by one exact comparison,
+    /// not scalar-producing nodes and not separate Text acquisitions.
+    pub(crate) fn text_comparison_children_v1(&self, node: usize) -> Option<[usize; 2]> {
+        let loan = self.operations().iter().find(|loan| loan.node() == node)?;
+        let envelope = loan.single_envelope()?;
+        if envelope.domain().left() != DynamicOperatorValueClassV1::String
+            || envelope.domain().right() != DynamicOperatorValueClassV1::String
+            || envelope.normal_result() != crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::TrivialBool { return None; }
+        let binary = self.source().nodes().get(node)?.binary()?;
+        let index = |site| self.source().nodes().iter().position(|node| node.site() == site);
+        Some([index(binary.lhs())?, index(binary.rhs())?])
+    }
+    pub(crate) fn text_operand_nodes_v1(&self) -> BTreeSet<usize> {
+        self.ordered_nodes().iter().filter_map(|node| self.text_comparison_children_v1(*node)).flatten().collect()
+    }
 }
 
 /// Every source/operator/call/refusal check precedes the last strict field
 /// batch. Only a complete candidate may enter the existing Home inventory.
 pub(crate) fn qualify_bool_condition_v1<E>(
     source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
+    static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1)
+        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, SourceScalarKind)>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
@@ -55,9 +73,9 @@ pub(crate) fn qualify_bool_condition_v1<E>(
         ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(), prior_homes,
         &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))?
         else { return Ok(None) };
-    let Some(reference_proofs) = super::evaluation::seed_expression_references_v1(&mut prepared, Vec::new(), &order,
-        &mut |_, site| Ok(scalar_reference(site).map(|(binding, kind)|
-            CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Obligation { binding, kind }))))
+    let Some(reference_proofs) = super::evaluation::seed_current_expression_references_v1(&mut prepared, Vec::new(), &order,
+        static_reference, residence_reference,
+        &mut |site| scalar_reference(site).map(|(binding, kind)| CheckedScalarReferenceV1::Obligation { binding, kind }))
         else { return Ok(None) };
     let Some(QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references, .. }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
@@ -96,11 +114,23 @@ pub(crate) fn qualify_bool_condition_v1<E>(
             Op::Add => DynamicOperatorFamilyV1::Add,
             _ => return Ok(None),
         };
-        let integer = |site| source.nodes().iter().position(|node| node.site() == site)
-            .is_some_and(|index| classes[index] == Leaf::Value(Class::I64));
-        if !integer(lhs) || !integer(rhs) { return Ok(None); }
+        let child = |site| source.nodes().iter().position(|node| node.site() == site);
+        let (Some(left), Some(right)) = (child(lhs), child(rhs)) else { return Ok(None); };
+        let class = match (classes[left], classes[right]) {
+            (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => DynamicOperatorValueClassV1::NormalInteger,
+            (Leaf::Value(Class::String), Leaf::Value(Class::String)) if binary.operator() != Op::Add => {
+                // Text children are borrowed leaf observations of this comparison,
+                // never hidden effectful subtrees or ordinary scalar ValueIds.
+                if [left, right].into_iter().any(|index| !matches!(source.nodes()[index].source(),
+                    crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::String(_))
+                    | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_))
+                    || !matches!(source.nodes()[index].children(), ExpressionChildrenV1::Known(children) if children.is_empty())) { return Ok(None); }
+                DynamicOperatorValueClassV1::String
+            }
+            _ => return Ok(None),
+        };
         let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
-            family, DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::NormalInteger,
+            family, class, class,
         )) else { return Ok(None) };
         operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, envelopes: Box::new([envelope]) }));
     }

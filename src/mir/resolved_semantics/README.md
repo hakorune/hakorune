@@ -1691,3 +1691,10 @@ original proof shares the existing reference slot with old class obligations;
 only the original form can later be fulfilled as a physical operand.
 Existing initializer port tests live in ordinary_new_initializer_expression_tests
 under their original object-argument port fixture owner.
+
+The shared Bool condition frame accepts exact String/String comparisons through
+canonical operator envelopes. Text operands are original static/residence leaf
+loans, not scalar ValueIds or new owners. The recursive physical condition
+consumer retains those original leaves on their comparison proof; conditional
+RHS reach and the If-only outer seal remain mandatory. Mixed, Null, unproven and
+effectful Text child expressions refuse before the Home installation batch.

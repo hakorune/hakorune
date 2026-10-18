@@ -860,38 +860,12 @@ Complete commands, hashes, receipt conditions and earlier counterexamples are
 preserved in `496db633e6`. Keep ZA/CLI253/app306/app307/probe artifacts until
 full Text closure for source/baseline comparison; no temporary adapter added.
 
-V905 Decision (read-only source/physical workers reviewed):
-- Source authority: original Body6 loop membership/frame, sole retained
-  PreissuedCallableLoopSourcePlan/SourcePlan, exact located body/source projection;
-  original source flow LoopAfter ConditionFalse/Break inputs and source bindings.
-- Build one SourcePlan-owned complete After product through common Recipe/V2
-  JoinSig, original Text entry/residence/scalar proof and conditional control.
-  Extend the existing source-product slot/Home loan; do not add a registry.
-- First implementation path: existing join_sig/v2 + transfer_view_v2 + existing
-  v2_collection_tests; shared logical transfer validation lends ALL co-sealed
-  After rows. Preserve sole-carrier facade and reject partial collections.
-  This is prerequisite logical construction, not Home/physical permission.
-- Next paths: existing generic planner/source proof, prestate/Home scanner,
-  home_prefix_scalar, loop final-value publication/materialized values,
-  physical After role and exact lexical read, expression_reference_read and
-  both final consumers; their source-bound contracts must close in this series.
-- Complete closure includes predicate-false/zero-trip, every Break payload,
-  original carrier/binding correspondence, Continue/backedge consistency,
-  scoped Text cleanup and short-circuit String guards. All source classifier
-  arms and required incoming functions remain represented, never dropped.
-- The integer-only bounded LoopCond producer and Mul's fixed two-binding proof
-  cannot represent this source. V1 has no Text/CallSlot. V2 operation receipts
-  and conditional control must preserve exact String <, > and Or semantics.
-- Physical After role must retain original binding-to-Phi correspondence.
-  publish_source_loop_final_value must attach this After provenance to the SAME
-  materialized slot after exact emission validation. ExactLexicalRead loans it
-  through Copy/FinishedBindings validation; LoopAfter is not an initializer.
-- Reject missing zero-trip/Break input, wrong binding/class/loop/frame/Phi,
-  foreign/reissued proof, stale preloop provenance, changed Copy and rebind reuse.
-  Reuse source_value_flow Loop, JoinSig After/collection, phi materializer,
-  materialized-value/alias and existing real initializer/argument consumers.
-- No raw updated-binding/I64/physical Phi grant, fake covered prefix, AST rewrite,
-  app-name recognizer, `.hako` change, fallback or new guard/test registry.
+V905 Decision is preserved in `bbe376b06e`: original Loop source authority,
+complete co-sealed After collection and exact physical binding/Phi provenance.
+Its remaining construction and inherited acceptance are retained below. Preserve
+zero-trip/each Break, Continue/backedge, cleanup, all classifier/incoming arms;
+reject partial/wrong/stale/reissued proof and changed Copy/rebind reuse. No raw
+I64/Phi grant, fake prefix, AST rewrite, app recognizer, fallback or new registry.
 
 Inherited remaining Text obligations:
 - Full canonical Text|I64|Null entry/incoming/use images, original terminating
@@ -906,41 +880,18 @@ Inherited remaining Text obligations:
 - Full Text and RequiredObjectForwardS0 are unaccepted; prior named-array,
   guarded-receiver and MapGet baseline obligations remain. No full-suite/CI claim.
 
-V905 logical preparation landed at `bbe376b06e`; that commit retains complete
-source/After collection validation and mixed-class/two-Break positive/negative
-coverage. Root905B: 73PASS/7 independently reproduced S6C Facts baseline reds.
-Stable4/diff PASS. Additional physical-transfer guard remains baseline FAIL on
-absent completion_seed.rs; do not claim authority-guard green. CLI254/app308
-preserve the unchanged JSON Body7 stop. Full source/Home/read connection open.
-
-V906 original Loop-condition source preparation landed at `64f7beaa33`.
-That commit owns exact resolver child-relation repair, shared If/Loop source
-builder, retained condition Rc and original purpose/frame/conditional-reach
-checks. Root906B: 57 distinct focused tests PASS; build57.584s, Stable4/diff
-PASS. CLI255179.204s/app3090.400s exit1/no artifact, exact app308 Body7 stop.
-Initial A regressions and zero-filter mistake are fixed/classified in that
-commit; no app/series/full-suite/CI completion. Preserve A/B manifests/logs and
-pinned B, CLI255/app309 receipts until the source/Home/physical series closes.
-No temporary adapter added. Reused FFI897A/kernel894A pins have explicit source
-manifest deltas; not three rebuilt artifacts. Native success remains app306.
-
-V907 shared Loop source connection landed at `4593eb7939`; that commit owns
-complete mapping, tested paths, commands/conditions and source/artifact pins.
-Original owner/source/frame/condition now live in one shared component outside
-the affine SourcePlan slot. Home uses the SAME condition plan and no longer
-copies owner/site/frame; physical input checks original identity and exact
-complete ConditionRead census (including receiver/opaque reads) before lowering.
-No registry, generic payload fan-out, guard, app rewrite or adapter added.
-
-Root907B: 69PASS/4 baseline; all four named-array failures reproduce with EXACT
-diagnostics on SHA-verified pinned Root906B. Actual provider artifact positive,
-source identity/census mutations, handoff/raw-child/After regressions PASS.
-Existing child fixtures are not selected-component physical-negative evidence.
-Stable4/diff PASS. CLI256/app310 unchanged JSON still Body7 pending, exit1/no
-artifact. CLI256/app311 unchanged mimalloc EXE141.475s/run.001527s exit0, exact
-app306 stdout/stderr/exit (summary=ok, Result:0). Reused FFI897A/kernel894A pins
-have explicit predecessor source deltas, not three fresh builds. Keep A/B/pinned
-B baseline, CLI256/app310/app311 artifacts until series closure; no full-suite/CI.
+Verified preparation history: V905 `bbe376b06e` owns complete V2 After
+collection validation; V906 `64f7beaa33` owns exact original Loop condition
+relations/purpose/reach; V907 `4593eb7939` owns SAME shared source across Home,
+affine plan take and physical ConditionRead validation, removing copied Home
+owner/site/frame. Full mapping, commands, manifest/artifact pins and initial
+failures are retained in those commits (card compression `e8338ecd5c`).
+V907: focused69PASS/4 independently reproduced named-array baseline failures,
+Stable4/diff PASS. CLI256/app311 unchanged mimalloc EXE/run PASS, exact app306
+stdout/stderr/exit; app310 unchanged JSON remains Body7 pending. Preserve V907
+A/B/baseline and CLI256/app310/app311 artifacts until series closure. Older S6C7
+Facts baseline and absent completion_seed.rs physical-transfer guard failure stay
+open; no full-suite/CI, general Header/After or whole-series acceptance.
 
 Remaining same-series construction (read-only worker mapping retained):
 - begin_loop creates Header joins for ALL live bindings, including read-only n.
@@ -961,3 +912,89 @@ Remaining same-series construction (read-only worker mapping retained):
 - Shared source correspondence grants no type/Home/Header execution permission.
   General Text/Loop Header/After and the full source-to-consumer series remain
   unaccepted; all inherited Text/incoming/cleanup/full-goal obligations above stay.
+
+V908 common Bool/String connection (same Loop series dependency):
+- Read-only source/consumer workers mapped existing canonical String comparison,
+  recursive short-circuit descent and final If seal. Build the shared node/leaf
+  connection under real If permission; do not forge Loop Home or an If seal.
+- Scope: expression class/leaves/reference seeder, existing Home Bool qualifier
+  and installation; shared single-String-operation writer; raw Bool descent and
+  existing Bool source/control final checks. Existing Home/print/initializer/Bool
+  final-mutation families own tests; owner README describes new contract.
+- Text operands are exact literal/current static/residence leaves borrowed by
+  the original comparison proof, not fake ValueIds or owned acquisitions. Reject
+  mixed/Null/unproven domains and String Add/Core/Call operands in this connection.
+  Preserve recursive conditional RHS, exact Fault Home unwind and final reference
+  dependencies. General Loop Header/After and actual JSON frontier remain open.
+- C exposed a real missing caller connection: empty-Home callee had no Bool
+  verified-walk trigger and emitted zero canonical String Compare Invokes. Worker
+  traced Print/Text-init selection already wired in three completion choices.
+  Extend scope to existing condition source-request predicate, walk_triggers and
+  co-seal issue selection (exclude both plain shortcuts, select verified walk).
+  Reuse original If source morphology; no synthetic Home/terminal rights. Move
+  existing Print predicate to walk_triggers owner while touching the near-limit
+  orchestrator. Keep literal-return source receipts as the return authority.
+- Root908A compile84.592s failed on missing facade reexports/old cfg helper
+  references (test type errors cascaded from an unresolved fixture import).
+  B compile137.021s; original no-Home Main stopped at the independently
+  reproduced CLI256 plain-completion boundary. C compile56.037s exposed missing
+  callee walk request; D77.098s reached canonical comparisons and exposed the
+  test's false assumption that every Text alias emits a Copy. Fixed the source
+  entry and test targeting; no fabricated Home, Copy or terminal permission.
+- Root908E compile57.023s and all55 focused tests PASS: new actual Text condition1
+  (callee/Main empty Homes, static/residence aliases, scalar node/canonical Invoke
+  proof and exact mutations, simplify off/on), Home3, old short-circuit1, Print
+  final4, initializer final1, source-result22, value-profile22, Array/Home source1.
+  Zero filters in earlier commands were not PASS; corrected module filters all
+  nonempty. Stable4/diff PASS. No current native/suite/frontier claim yet.
+
+- Native313 exposed `mir/invoke/string-owned-escape`: pinned CLI257 MIR shows
+  identical-input Text/alias Phis emitted at each short-circuit join; Compare
+  correctly borrows the original owned producer. This is an illegal physical
+  Phi, not missing permission. Read-only consumer worker mapped sole multi-merge
+  owner `builder/phi.rs` and existing two-way conservative reuse in `phi_merge.rs`.
+  Extend scope to sharing that exact complete/reachable/unique/dominating join
+  proof across both callers. Require equal unsanitized original inputs; retain
+  differing-write/result Phis and strict String verifier. Reuse existing merge
+  counterexamples, short-circuit tests and actual final proof/native probe.
+- Root908G build76.754s; focused88 PASS/1 independently verified scalar-claim
+  baseline (`static-mixed/home-missing`, exact E/907B diagnostics). Existing
+  two-way merge safety matrix now exercises multi too; short-circuit owner checks
+  both unchanged locals and actual RHS writes. Main fixtures pass independent
+  strict physical lifetime/SSA verification; document callee fixtures retain
+  their separate final source proof (declared-return carriers are not installed
+  by that fixture). Stable4/diff PASS. No String verifier permissions changed.
+- CLI257 fixed official11: 5 PASS/6 FAIL447.730s. All six full diagnostics match
+  pinned pre-V908 CLI256: JSON Body7 pending, binary-trees loop result source-not-
+  i64, boxtorrent receiver-unavailable, allocator NamedArray(TextSourceMissing),
+  mimalloc generic required-integer-source-unproved, untyped field ValueId15
+  return-type panic. Worker receipt `v908-fixedsuite-red-classification.json`
+  records exact commands/manifests/SHA per baseline; these remain goal debts.
+  Mimalloc suite stops at its generic negative before native; canonical grammar
+  on generic MIR gives the same stop. Do not weaken its required negative.
+- Separate CLI257/app314 unchanged mimalloc canonical direct EXE164.850s,
+  run.001666s exit0 and exact app311 stdout/stderr. CLI257/app312 unchanged JSON
+  .394851s exit1/no artifact remains original slot20 Body7 pending. These are
+  CLI257 observations before the multi-merge repair; CLI258 final native/suite
+  observations are still pending. Preserve binaries/source manifests/receipts
+  and failed313 probe until the Text/Loop series closes; no adapter introduced.
+- CLI258 build174.255s, exact Root908G source manifest; binary SHA256
+  `b7ce18f254ebae02a927a5e140299d5e814bf2e35686a7c3a278a20f7150c771`.
+  App316 same failed313 input now EXE128.466s/run.001443s exit0, `Result: 0`.
+  Reproduction: canonical `--backend mir --emit-exe OUT --emit-exe-nyrt NYRT`;
+  `static box Main { main() { local text = "" + "5" local alias = text
+  if (alias == "5") && (alias != "4") && (alias < "9") && (alias <= "5")
+  && (alias > "0") && (alias >= "5") { return 0 } return 1 } }`.
+  Pure-first/compat-none/llvm-c-api verified; reuse pinned FFI897A/kernel894A with
+  explicit compiler-only deltas, not three fresh source-matched builds.
+- App317 unchanged mimalloc EXE166.373s/run.001724s exit0 and exact app314
+  stdout/stderr/exit. App315 unchanged JSON .398653s exit1/no artifact, same Body7.
+  CLI258 fixed11: 5 PASS/6 FAIL450.341s, all full diagnostics/panic exactly
+  CLI257 and its independently reproduced CLI256 baseline. No full-suite/CI
+  or Loop closure claim. Official command: `bash tools/smokes/v2/run.sh
+  --profile integration --owner-profile integration --suite real-apps-exe-boundary
+  --timeout 1900`; same pinned CLI/FFI/runtime, pure-first/compat-none.
+- Additional trigger regression probes: pure-I64 less/equality emit MIR JSON;
+  branch-write probe refuses both before/after (CLI256 root-completion vs CLI258
+  explicit PrefixNotCovered); direct EXE confirms both refusals. No prior green
+  regressed in these probes; changed refusal is informational, not completion.

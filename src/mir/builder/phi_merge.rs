@@ -9,6 +9,38 @@
 use super::{BasicBlockId, MirBuilder, ValueId};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+/// Existing values may cross a complete reachable join without a new Phi.
+/// This is physical correspondence only; it issues no type or source authority.
+pub(super) fn reusable_join_values(
+    function: &crate::mir::MirFunction,
+    merge: Option<BasicBlockId>,
+    exits: &[BasicBlockId],
+    defs: &HashMap<ValueId, BasicBlockId>,
+    dominance: &crate::mir::verification::utils::DominatorTree,
+) -> BTreeSet<ValueId> {
+    let Some(merge) = merge else { return BTreeSet::new() };
+    let expected: BTreeSet<_> = exits.iter().copied().collect();
+    let actual: Vec<_> = function.blocks.iter().flat_map(|(pred, body)|
+        body.out_edges().into_iter().filter_map(move |edge|
+            (edge.target == merge).then_some(*pred))).collect();
+    if exits.len() < 2 || expected.len() != exits.len() || actual.len() != exits.len()
+        || actual.into_iter().collect::<BTreeSet<_>>() != expected
+        || !dominance.is_reachable(merge)
+        || !expected.iter().all(|pred| dominance.is_reachable(*pred))
+    { return BTreeSet::new(); }
+    let mut counts: HashMap<ValueId, usize> = HashMap::new();
+    for param in &function.params { *counts.entry(*param).or_default() += 1; }
+    for body in function.blocks.values() {
+        for row in body.all_instructions() {
+            if let Some(dst) = row.dst_value() { *counts.entry(dst).or_default() += 1; }
+        }
+    }
+    defs.iter().filter_map(|(value, block)|
+        (counts.get(value) == Some(&1) && *block != merge
+            && dominance.is_reachable(*block)
+            && dominance.dominates(*block, merge)).then_some(*value)).collect()
+}
+
 /// PHI Merge Helper - 統一PHI挿入ロジック（Conservative戦略）
 ///
 /// # Purpose
@@ -183,32 +215,8 @@ impl<'a> PhiMergeHelper<'a> {
                 func.update_cfg();
                 let defs = crate::mir::verification::utils::compute_def_blocks(func);
                 let dominance = crate::mir::verification::utils::compute_dominators(func);
-                let mut reusable = BTreeSet::new();
-                if let (Some(merge), Some(then_exit), Some(else_exit)) =
-                    (merge, self.then_exit, self.else_exit)
-                {
-                    let actual: Vec<_> = func.blocks.iter().flat_map(|(pred, body)|
-                        body.out_edges().into_iter().filter_map(move |edge|
-                            (edge.target == merge).then_some(*pred))).collect();
-                    let expected = BTreeSet::from([then_exit, else_exit]);
-                    if expected.len() == 2 && actual.len() == 2
-                        && actual.into_iter().collect::<BTreeSet<_>>() == expected
-                        && dominance.is_reachable(merge)
-                        && expected.iter().all(|pred| dominance.is_reachable(*pred))
-                    {
-                        let mut counts: HashMap<ValueId, usize> = HashMap::new();
-                        for param in &func.params { *counts.entry(*param).or_default() += 1; }
-                        for body in func.blocks.values() {
-                            for row in body.all_instructions() {
-                                if let Some(dst) = row.dst_value() { *counts.entry(dst).or_default() += 1; }
-                            }
-                        }
-                        reusable.extend(defs.iter().filter_map(|(value, block)|
-                            (counts.get(value) == Some(&1) && *block != merge
-                                && dominance.is_reachable(*block)
-                                && dominance.dominates(*block, merge)).then_some(*value)));
-                    }
-                }
+                let exits: Vec<_> = self.then_exit.into_iter().chain(self.else_exit).collect();
+                let reusable = reusable_join_values(func, merge, &exits, &defs, &dominance);
                 (Some(defs), Some(dominance), reusable)
             } else {
                 (None, None, BTreeSet::new())

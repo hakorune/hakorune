@@ -351,10 +351,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites) || has_current_owner_i64_source;
                 // Print expressions need the same original Home scan even
                 // without constructions, borrowed calls or owned temporaries.
-                let has_print_expression = input.body_shape().is_some_and(|shape| {
-                    shape.statements().iter().any(|statement| matches!(statement,
-                        crate::mir::resolved_semantics::BodyStatementShapeV1::Print { .. }))
-                });
+                let has_print_expression = walk_triggers::has_print_expression_v1(input);
+                let has_condition_expression = walk_triggers::has_condition_expression_v1(input);
                 let has_text_initializer = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input));
                 let has_array_residence = source_core_calls.is_some_and(|rows| rows.values()
                     .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some()));
@@ -369,6 +367,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     && !has_field_scalar_walk
                     && !has_static_source_local && !has_typed_static_walk
                     && !has_print_expression
+                    && !has_condition_expression
                     && !has_text_initializer
                     && !has_array_residence
                     && !has_integer_return
@@ -380,7 +379,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let app_main_integer_result = walk_triggers::plain_main_integer_result_v1(
                     input,
                     is_app_main,
-                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_text_initializer && !has_typed_static_walk,
+                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_condition_expression && !has_text_initializer && !has_typed_static_walk,
                     !has_map && owner_loan.is_none(),
                     &static_source_sites,
                 );
@@ -395,7 +394,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     &mut root_terminal_relation,
                     &mut top_level_input,
                 )?;
-                let verified_walk = has_print_expression || has_typed_static_walk
+                let verified_walk = has_print_expression || has_condition_expression || has_typed_static_walk
                     || has_text_initializer
                     || has_array_residence
                     || owner_loan.is_some()

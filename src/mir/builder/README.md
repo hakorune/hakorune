@@ -2,14 +2,14 @@
 
 ## Conditional variable merge
 
-`phi_merge.rs::PhiMergeHelper::merge_all_vars` joins all branch variables,
-including pins, in deterministic order. Identical original values reuse their
-existing definition before Phi allocation only when the two reachable exits
-exactly cover the current join and one unique definition strictly dominates it.
-Sanitizer substitutions do not grant that reuse. Other inputs retain existing
-Phi completion; pins have no second merge writer. Captured source bindings and
-final consumer restrictions remain unchanged. BindingSSA and loop Phi roles
-keep their separate completion contracts.
+`phi_merge.rs::PhiMergeHelper::merge_all_vars` and
+`phi.rs::merge_modified_vars_multi` share the complete-join reuse proof. Identical
+original values reuse one unique dominating definition only when all reachable
+exits exactly cover the join. Sanitizer substitutions do not grant reuse.
+Readonly locals therefore acquire no synthetic Phi, including owned Text in a
+short-circuit expression. Different branch values and the Bool result retain
+their existing Phi completion. Pins have no second merge writer; source loans,
+String lifetime checks, BindingSSA and loop Phi contracts remain unchanged.
 
 ## Root Home graph writer boundary
 
@@ -2111,3 +2111,11 @@ Original field reservations keep source order, while nested receiver binding
 still follows actual ancestor field emission. The same committed receipts reach
 the existing field writers and final packets. This grants no Text class,
 descriptor transport, local residence or End permission.
+
+Bool conditions share the single-node String Invoke writer with initializer and
+Print expressions. A String comparison emits Bool without a new Text acquisition;
+existing recursive short-circuit descent controls when it runs. Its final proof
+checks exact source leaves and original reference/Copy dependencies separately
+from the new Invoke/projection prefix. Call and String operations share the same
+source Home Fault-unwind inventory, while each retains its original producer.
+The common node proof does not turn an If seal into Loop execution permission.

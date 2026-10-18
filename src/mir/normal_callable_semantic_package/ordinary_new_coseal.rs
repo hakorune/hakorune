@@ -683,7 +683,7 @@ pub(crate) use local_commit::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppend
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use local_commit::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use local_commit::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;
 

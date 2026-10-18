@@ -560,8 +560,10 @@ fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
     let bb = BasicBlockId::new;
     let value = ValueId::new(8);
     let other = ValueId::new(10);
+    for multi in [false, true] {
     for case in ["complete", "different", "duplicate_exit", "extra_pred",
         "unreachable", "duplicate_definition", "non_dominating", "sanitized", "self_phi"] {
+        if multi && case == "duplicate_exit" { continue; } // BTreeMap keys cannot duplicate.
         let mut builder = builder(&format!("if_merge_alias_{case}/1"));
         {
             let function = builder.function_state.current_function.as_mut().unwrap();
@@ -615,9 +617,15 @@ fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
         let mut otherwise = before.clone();
         if matches!(case, "different" | "sanitized") { otherwise.insert("kept".into(), other); }
         let else_exit = if case == "duplicate_exit" { bb(1) } else { bb(2) };
-        let result = crate::mir::builder::phi_merge::PhiMergeHelper::new(
-            &mut builder, Some(bb(1)), Some(else_exit),
-        ).merge_all_vars(&before, &before, &Some(otherwise), None);
+        let result = if multi {
+            builder.merge_modified_vars_multi(BTreeMap::from([
+                (bb(1), before.clone()), (else_exit, otherwise),
+            ]), &before, None)
+        } else {
+            crate::mir::builder::phi_merge::PhiMergeHelper::new(
+                &mut builder, Some(bb(1)), Some(else_exit),
+            ).merge_all_vars(&before, &before, &Some(otherwise), None)
+        };
         if case == "complete" {
             result.unwrap();
             assert_eq!(builder.function_state.variable_ctx.variable_map.get("kept"), Some(&value));
@@ -627,5 +635,6 @@ fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
             assert_ne!(builder.function_state.variable_ctx.variable_map.get("kept"), Some(&value),
                 "{case}: an unproven original value must not bypass the existing Phi path");
         }
+    }
     }
 }

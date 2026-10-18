@@ -292,6 +292,21 @@ fn emit_string_value(
     node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
     homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<Operand, String> {
+    let (value, result) = emit_string_operation_v1(builder, writer, operation, node, fault_frame, acquired, homes, bindings)?;
+    match result {
+        crate::mir::instruction::InvokeNormalResultKind::OwnedString => Ok(Operand::OwnedString(value)),
+        crate::mir::instruction::InvokeNormalResultKind::I64 => Ok(Operand::NormalInteger(value)),
+        _ => Err(freeze("expression/string-value-result")),
+    }
+}
+
+/// One canonical String operation writer, shared with recursive Bool descent.
+/// The enclosing purpose determines when this node is reached and owns cleanup.
+pub(super) fn emit_string_operation_v1(
+    builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
+    node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
+    homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
+) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind), String> {
     let owned = operation.owns_normal_result();
     let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
     let normal = writer.reserve_block(builder)?;
@@ -307,14 +322,15 @@ fn emit_string_value(
     let projection = MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value };
     writer.insert_projection(builder, normal, projection.clone())?;
     bindings.extend([invoke, (normal, projection)]);
-    let (kind, operand) = match result {
-        crate::mir::instruction::InvokeNormalResultKind::OwnedString => (MirType::String, Operand::OwnedString(value)),
-        crate::mir::instruction::InvokeNormalResultKind::I64 => (MirType::Integer, Operand::NormalInteger(value)),
+    let kind = match result {
+        crate::mir::instruction::InvokeNormalResultKind::OwnedString => MirType::String,
+        crate::mir::instruction::InvokeNormalResultKind::I64 => MirType::Integer,
+        crate::mir::instruction::InvokeNormalResultKind::Bool => MirType::Bool,
         _ => return Err(freeze("expression/string-result")),
     };
     builder.function_state.type_ctx.value_types.insert(value, kind);
     if owned { acquired.push((node, value)); }
-    Ok(operand)
+    Ok((value, result))
 }
 
 /// I64 purpose completion retains the scalar result and ends only its child

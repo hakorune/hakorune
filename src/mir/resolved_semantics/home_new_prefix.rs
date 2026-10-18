@@ -272,6 +272,7 @@ mod scan;
 mod mixed_call;
 #[path = "home_new_prefix_condition.rs"]
 mod condition;
+pub(crate) use condition::requires_condition_expression_walk_v1;
 #[path = "home_new_prefix_argument_expression.rs"]
 mod argument_expression;
 #[path = "home_new_prefix_initializer_expression.rs"]

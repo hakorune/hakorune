@@ -57,6 +57,7 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool { self.profile == ExpressionLeafProfileV1::LocalInitializer }
+    pub(super) fn is_bool_condition(&self) -> bool { self.profile == ExpressionLeafProfileV1::BoolCondition }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool { !self.cores.is_empty() }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(&self, node: usize) -> bool {
         !self.transferred.contains(&node) && self.leaves.get(node) == Some(&Leaf::Unresolved)
@@ -164,7 +165,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
         match node.source() {
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
-                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) => {},
+                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
                 if profile == ExpressionLeafProfileV1::BoolCondition => {},
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),

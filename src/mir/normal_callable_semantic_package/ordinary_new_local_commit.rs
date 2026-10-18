@@ -725,7 +725,7 @@ pub(crate) use root_home::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
 #[path = "ordinary_new_local_commit/root_return_construction_tests.rs"]
 mod root_return_construction_tests;
 
-pub(in crate::mir) use root_home::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use root_home::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
 
 pub(crate) use root_home::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use root_home::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};

@@ -234,42 +234,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     ) -> Result<(), String> {
         self.validate_source(context)?;
         for (&node, observed) in self.reference_reads {
-            observed.validate_layout(self.frame, node, context, function)?;
-        }
-        if let (Some(projection), CallValidationContextV1::Finalized(_)) = (finishing, context) {
-            return self.validate_finished_reference_dependencies(function, projection);
-        }
-        for observed in self.reference_reads.values() {
-            for original in observed.dependencies()? {
-                let actual = match (finishing, context) {
-                    (Some(_), CallValidationContextV1::Finalized(_)) => unreachable!("final dependencies handled above"),
-                    (Some(projection), CallValidationContextV1::Lowering(_)) => {
-                        // validate_complete seals omission permission later.
-                        // This phase proves capture only, never final survival.
-                        let dst = original.1.dst_value().ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
-                        if projection.captured_definition(dst)? != original { return Err(freeze("expression/reference-captured-dependency")); }
-                        continue;
-                    }
-                    (None, _) => Some(original.clone()),
-                };
-                if let Some((block, instruction)) = actual {
-                    if !super::super::physical_boundary::check_binding(function, None, block, &instruction)? {
-                        return Err(freeze("expression/reference-dependency-missing"));
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn validate_finished_reference_dependencies(
-        &self, function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
-    ) -> Result<(), String> {
-        for observed in self.reference_reads.values() {
-            for original in observed.dependencies()? {
-                // Only the existing sealed boundary can approve an omission.
-                projection.relation_binding(function, original)?;
-            }
+            observed.validate_dependencies_v1(self.frame, node, context, function, finishing)?;
         }
         Ok(())
     }
@@ -287,12 +252,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let boundary = super::super::physical_boundary::PhysicalBoundary::capture(&original, &bindings).unwrap();
         let mut projection = boundary.project(&original).unwrap();
         boundary.validate_complete(&original, &mut projection, &bindings).unwrap();
-        self.validate_finished_reference_dependencies(&original, &projection).unwrap();
+        self.reference_reads.values().try_for_each(|read| read.validate_finished_dependencies_v1(&original, &projection)).unwrap();
         for observed in self.reference_reads.values() {
             for dependency in observed.dependencies().unwrap() {
                 let mut changed = original.clone();
                 changed.blocks.get_mut(&dependency.0).unwrap().instructions.retain(|row| row != &dependency.1);
-                assert!(self.validate_finished_reference_dependencies(&changed, &projection).is_err(),
+                assert!(self.reference_reads.values().try_for_each(|read| read.validate_finished_dependencies_v1(&changed, &projection)).is_err(),
                     "unapproved dependency removal must fail the final consumer");
             }
         }

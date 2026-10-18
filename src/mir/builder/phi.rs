@@ -72,14 +72,17 @@ impl MirBuilder {
         pre_if_snapshot: &BTreeMap<String, ValueId>,
         skip_var: Option<&str>,
     ) -> Result<(), String> {
-        let (def_blocks, dominators) =
-            if let Some(func) = self.function_state.current_function.as_ref() {
-                (
-                    Some(crate::mir::verification::utils::compute_def_blocks(func)),
-                    Some(crate::mir::verification::utils::compute_dominators(func)),
-                )
+        let (def_blocks, dominators, reusable_values) =
+            if let Some(func) = self.function_state.current_function.as_mut() {
+                func.update_cfg();
+                let defs = crate::mir::verification::utils::compute_def_blocks(func);
+                let dominance = crate::mir::verification::utils::compute_dominators(func);
+                let predecessors: Vec<_> = exits.keys().copied().collect();
+                let reusable = super::phi_merge::reusable_join_values(
+                    func, self.function_state.current_block, &predecessors, &defs, &dominance);
+                (Some(defs), Some(dominance), reusable)
             } else {
-                (None, None)
+                (None, None, BTreeSet::new())
             };
 
         // 全変数を収集（決定的順序）
@@ -97,6 +100,7 @@ impl MirBuilder {
             let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
             let pre_val = pre_if_snapshot.get(&var).copied();
             let mut missing_outer_value = false;
+            let mut original_inputs = true;
             for (exit_bb, var_map) in &exits {
                 let candidate = var_map.get(&var).copied().or(pre_val);
                 let val = match (candidate, def_blocks.as_ref(), dominators.as_ref()) {
@@ -131,11 +135,18 @@ impl MirBuilder {
                         break;
                     }
                 };
+                original_inputs &= candidate == Some(val);
                 inputs.push((*exit_bb, val));
             }
             if missing_outer_value {
                 // Branch-local values that are absent from the pre-merge snapshot must not
                 // escape via a synthetic merge PHI. Outer scope has no stable binding for them.
+                continue;
+            }
+            if original_inputs && inputs.first().is_some_and(|(_, value)|
+                reusable_values.contains(value) && inputs.iter().all(|(_, other)| other == value))
+            {
+                self.function_state.variable_ctx.variable_map.insert(var, inputs[0].1);
                 continue;
             }
             match inputs.len() {

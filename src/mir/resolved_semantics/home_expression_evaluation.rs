@@ -173,16 +173,17 @@ pub(super) fn seed_current_expression_references_v1(
     static_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&super::super::SourceExprSiteV1)
         -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
-    scalar_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
+    scalar_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<CheckedScalarReferenceV1>,
 ) -> Option<std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>> {
+    let bool_condition = prepared.is_bool_condition();
     seed_expression_references_v1(prepared, initial, order, &mut |node, site| {
         let proof = if let Some(read) = static_reference(site) {
             CheckedExpressionReferenceV1::StaticText(read)
         } else if let Some((binding, root, acquisition)) = residence_reference(site) {
             CheckedExpressionReferenceV1::Residence(super::initializer_expression::TextResidenceReadV1::new(node, binding, root, acquisition))
         } else if let Some(read) = scalar_reference(site) {
-            if read.kind() != super::super::SourceScalarKind::Integer { return Err(()); }
-            CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read))
+            if read.kind() != super::super::SourceScalarKind::Integer && !bool_condition { return Err(()); }
+            CheckedExpressionReferenceV1::Scalar(read)
         } else { return Ok(None) };
         Ok(Some(proof))
     })

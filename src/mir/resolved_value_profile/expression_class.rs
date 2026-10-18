@@ -45,7 +45,8 @@ pub(crate) fn binary_expression_class_v1(
             Ok(Class::Bool)
         }
         Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
-            if lhs == Class::I64 && rhs == Class::I64 => Ok(Class::Bool),
+            if (lhs == Class::I64 && rhs == Class::I64)
+                || (lhs == Class::String && rhs == Class::String) => Ok(Class::Bool),
         Op::And | Op::Or if lhs == Class::Bool && rhs == Class::Bool => Ok(Class::Bool),
         _ => Err(ExpressionClassIssueV1::Unproven),
     }

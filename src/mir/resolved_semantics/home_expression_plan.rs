@@ -511,7 +511,9 @@ mod installation_tests {
         }
         // Bool roots share the transaction and source inventory, while their
         // conditional reach and primitive result laws stay a separate frame.
-        for expression in ["true && false", "false || true", "(1 == 1) && (2 < 3)", "(1 != 2) || (3 >= 4)"] {
+        for expression in ["true && false", "false || true", "(1 == 1) && (2 < 3)", "(1 != 2) || (3 >= 4)",
+            "(\"a\" == \"a\") && true", "(\"a\" != \"b\") || false", "(\"a\" < \"b\") && true",
+            "(\"a\" <= \"b\") && true", "(\"b\" > \"a\") || false", "(\"b\" >= \"a\") && true"] {
             let parsed = crate::parser::NyashParser::parse_from_string(&format!(
                 "function probe() {{ if {expression} {{ return 1 }} return 0 }}")).unwrap();
             let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
@@ -524,7 +526,7 @@ mod installation_tests {
             for succeeds in [false, true] {
                 let mut installation = flow.expression_installation();
                 let mut batches = 0;
-                let plan = qualify_bool_condition_v1::<()>(Rc::clone(&source), &[],
+                let plan = qualify_bool_condition_v1::<()>(Rc::clone(&source), &[], &mut |_| None, &mut |_| None,
                     &mut |_| None, &mut |_| None, &mut |_| Ok(None), &mut |plan| installation.approve(plan),
                     &mut |fields, _| { assert!(fields.is_empty()); batches += 1; Ok(succeeds) }).unwrap();
                 assert_eq!(batches, 1, "{expression}");
@@ -556,13 +558,15 @@ mod installation_tests {
             }
             let mut installation = sibling.expression_installation();
             let mut batches = 0;
-            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None,
+            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
                 &mut |_| Ok(None), &mut |plan| installation.approve(plan),
                 &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
             assert_eq!(batches, 0);
         }
         for (expression, selected, accepted) in [
             ("true && false", true, true),
+            ("\"a\" < \"b\"", true, true),
+            ("(\"a\" < \"b\") || (\"z\" > \"x\")", true, true),
             ("(1 == 1) && (2 < 3)", true, true),
             ("false && obj.missing()", true, false),
             ("1 && true", true, false),
@@ -595,7 +599,7 @@ mod installation_tests {
                 assert!(calls.is_empty() && path_calls.is_empty());
             }
         }
-        for expression in ["1 && true", "false && obj.missing()", "\"x\" == \"x\""] {
+        for expression in ["1 && true", "false && obj.missing()", "\"x\" == 1", "\"x\" < 1", "\"x\" == null", "(\"a\" + \"b\") == \"ab\""] {
             let parsed = crate::parser::NyashParser::parse_from_string(&format!(
                 "function probe(obj) {{ if {expression} {{ return 1 }} return 0 }}")).unwrap();
             let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
@@ -604,7 +608,7 @@ mod installation_tests {
             let source = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
                 input, input.function().if_region_sites().next().unwrap()).unwrap();
             let mut batches = 0;
-            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None,
+            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
                 &mut |_| Ok(None), &mut |_| { panic!("unproved condition cannot install") },
                 &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
             assert_eq!(batches, 0);
@@ -667,7 +671,7 @@ mod installation_tests {
             let if_site = input.function().if_region_sites().next().unwrap();
             assert!(loop_condition_expression_source_plan_v1(input, if_site).is_err());
             let mut batches = 0;
-            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None,
+            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
                 &mut |_| Ok(None), &mut |_| true, &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none(),
                 "source purpose cannot borrow If-only Home permission");
             assert_eq!(batches, 0);

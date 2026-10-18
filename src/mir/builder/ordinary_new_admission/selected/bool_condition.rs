@@ -73,6 +73,7 @@ impl IfFormPhysicalObserverV1 for LoweredBoolConditionV1 {
                     prefix.push(append.clone());
                     for relation in operands { relation.append_observed_bindings_v1(&mut prefix); }
                 },
+                Proof::TextComparison { bindings, .. } => prefix.extend_from_slice(bindings),
                 Proof::Logical { completed, conditions } => {
                     prefix.extend_from_slice(completed.bindings());
                     for relation in conditions { relation.append_observed_bindings_v1(&mut prefix); }
@@ -101,6 +102,26 @@ pub(in crate::mir::builder) fn cursor(builder: &MirBuilder) -> Result<Cursor, St
         .ok_or_else(|| freeze("bool-condition/no-function"))?;
     if body.terminator.is_some() { return Err(freeze("bool-condition/closed-expression-block")); }
     Ok(Cursor { block, instruction: body.instructions.len() })
+}
+
+/// The recursive source owner calls this only when the original comparison is
+/// reached. Borrowed operands acquire no Text result and no Normal End.
+pub(in crate::mir::builder) fn emit_text_comparison_v1(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedBoolConditionFrameV1, node: usize,
+    operands: [crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1; 2],
+) -> Result<(ValueId, Proof), String> {
+    let operation = crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1::comparison_operation_v1(frame, node, &operands)?;
+    let fault_frame = state.borrow_fault_frame(builder)?;
+    let mut bindings = vec![fault_frame_binding(builder, state, fault_frame)?];
+    let homes = ledger.prior_home_unwind_for(frame.prior_homes())?;
+    let mut acquired = Vec::new();
+    let (value, kind) = super::expression_value::emit_string_operation_v1(builder, &mut RawRootGraphWriterV1,
+        operation, node, fault_frame, &mut acquired, &homes, &mut bindings)?;
+    if kind != crate::mir::instruction::InvokeNormalResultKind::Bool || !acquired.is_empty() {
+        return Err(freeze("bool-condition/text-result"));
+    }
+    Ok((value, Proof::TextComparison { operands, bindings: bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {
     let mut definitions = function.blocks.iter().flat_map(|(id, block)| block.all_instructions()

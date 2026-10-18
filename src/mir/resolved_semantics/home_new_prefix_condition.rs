@@ -10,6 +10,17 @@ use std::rc::Rc;
 
 pub(super) enum ConditionInstallationV1 { Unselected, Refused, Installed }
 
+/// Request the original verified walk even with no existing Home. This passive
+/// morphology selects no operand class, frame, terminal or physical permission.
+pub(crate) fn requires_condition_expression_walk_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+    use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, SourcePathV1, SourcePathSegmentV1};
+    input.function().if_region_sites().any(|statement| {
+        let condition = SourcePathV1::from_node(statement.node()).child(SourcePathSegmentV1::IfCondition).expr();
+        input.function().expression_source().binary(&condition).is_some_and(|binary| matches!(binary.operator(),
+            Op::And | Op::Or | Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual))
+    })
+}
+
 /// Selection retains original local Home obligations even when a field has no
 /// ready frame. Formal and received receiver lanes keep their existing owners.
 fn contains_local_home_field(
@@ -32,7 +43,7 @@ fn contains_local_home_field(
 
 /// Calls and field receivers remain opaque to this morphology selector. Their
 /// exact original inputs are obligations of the shared leaf/Call/field owners.
-fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSourcePlanV1) -> bool {
+fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSourcePlanV1, locals: &PrefixLocalFlow<'_>) -> bool {
     use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, ResolvedLiteralSourceV1 as Literal};
     fn supported(source: &ExpressionSourcePlanV1, index: usize) -> bool {
         let node = &source.nodes()[index];
@@ -50,7 +61,7 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
                         receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(_), .. })));
         }
         matches!(node.source(), Node::MethodCall
-            | Node::Literal(Literal::Integer(_) | Literal::Bool(_))
+            | Node::Literal(Literal::Integer(_) | Literal::Bool(_) | Literal::String(_))
             | Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_)))
     }
     // Only direct expression Calls participate here. A Call owns its receiver
@@ -78,6 +89,9 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
     }
     let Some(binary) = source.nodes().first().and_then(|node| node.binary()) else { return false; };
     let selected = matches!(binary.operator(), Op::And | Op::Or)
+        || source.nodes_outside_calls().any(|(_, node)| matches!(node.source(), Node::Literal(Literal::String(_)))
+            || matches!(node.source(), Node::Reference(_))
+                && (locals.static_text_reference(node.site()).is_some() || locals.text_reference(node.site()).is_some()))
         || (matches!(binary.operator(), Op::Equal | Op::NotEqual | Op::Less | Op::Greater
             | Op::LessEqual | Op::GreaterEqual)
             && instance_calls(input, source, 0).is_some_and(|count| count > 0));
@@ -107,11 +121,12 @@ pub(super) fn observe<E>(
     let Ok(source) = condition_expression_source_plan_v1(input, statement)
         else { return Ok(ConditionInstallationV1::Refused) };
     if !contains_local_home_field(input, &source, locals)
-        && !(original_profile && selects(input, &source))
+        && !(original_profile && selects(input, &source, locals))
     { return Ok(ConditionInstallationV1::Unselected); }
     if !prefix_known { return Ok(ConditionInstallationV1::Refused); }
     let mut installation = locals.expression_installation();
     let plan = qualify_bool_condition_v1(Rc::clone(&source), homes,
+        &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| match locals.observe(site) {
             Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) => Some((binding, kind)),
             _ => None,

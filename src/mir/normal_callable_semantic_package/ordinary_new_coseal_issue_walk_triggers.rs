@@ -6,6 +6,15 @@ use super::{
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
+pub(super) fn has_print_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+    input.body_shape().is_some_and(|shape| shape.statements().iter().any(|statement|
+        matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Print { .. })))
+}
+
+pub(super) fn has_condition_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+    crate::mir::resolved_semantics::home_new_prefix::requires_condition_expression_walk_v1(input)
+}
+
 pub(super) fn has_map_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     has_map_formal: impl FnOnce() -> bool,

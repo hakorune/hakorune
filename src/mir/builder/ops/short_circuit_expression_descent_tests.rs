@@ -34,6 +34,7 @@ struct RecordingShortCircuitPortV1 {
     completed: Option<super::CompletedLogicalShortCircuitV1>,
     left_value: bool,
     right_value: bool,
+    write_carry: bool,
     fail_syntax: bool,
     fail_left_input: bool,
     fail_left_lower: bool,
@@ -48,6 +49,7 @@ impl RecordingShortCircuitPortV1 {
             completed: None,
             left_value,
             right_value,
+            write_carry: false,
             fail_syntax: false,
             fail_left_input: false,
             fail_left_lower: false,
@@ -107,6 +109,10 @@ impl RecursiveChildLoweringPortV1 for RecordingShortCircuitPortV1 {
                 self.events.borrow_mut().push(EventV1::LowerRight(block));
                 if self.fail_right_lower {
                     return Err("right-lower".to_string());
+                }
+                if self.write_carry {
+                    let value = crate::mir::builder::emission::constant::emit_integer(builder, 9)?;
+                    builder.function_state.variable_ctx.variable_map.insert("carry".into(), value);
                 }
                 crate::mir::builder::emission::constant::emit_bool(builder, self.right_value)
             }
@@ -205,11 +211,13 @@ fn logical_driver_requests_left_before_rhs_and_rhs_only_in_eval_block() {
 
 #[test]
 fn and_and_or_share_the_existing_short_circuit_completion() {
+    for write_carry in [false, true] {
     for operator in [BinaryOperator::And, BinaryOperator::Or] {
         let mut builder = builder(&format!("sc0_operator/{operator}"));
         let carry = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
         builder.function_state.variable_ctx.variable_map.insert("carry".to_owned(), carry);
         let mut port = RecordingShortCircuitPortV1::accepting(false, true);
+        port.write_carry = write_carry;
 
         let result = drive(&mut builder, &mut port, operator.clone()).unwrap();
 
@@ -222,8 +230,9 @@ fn and_and_or_share_the_existing_short_circuit_completion() {
                 .iter()
                 .filter(|instruction| matches!(instruction, MirInstruction::Phi { .. }))
                 .count(),
-            2
+            1 + usize::from(write_carry)
         );
+        assert_eq!(builder.function_state.variable_ctx.variable_map["carry"] == carry, !write_carry);
         let completed = port.completed.as_ref().expect("same sole writer completion");
         assert_eq!(completed.operator(), &operator);
         assert_eq!(completed.value(), result);
@@ -248,12 +257,13 @@ fn and_and_or_share_the_existing_short_circuit_completion() {
         assert!(matches!(&merge.instructions[0], MirInstruction::Phi { dst, inputs, .. }
             if *dst == result && inputs.iter().copied().eq(completed.paths().iter().copied())));
         assert_eq!(completed.bindings().iter().filter(|(id, row)| *id == completed.merge()
-            && matches!(row, MirInstruction::Phi { .. })).count(), 2,
+            && matches!(row, MirInstruction::Phi { .. })).count(), 1 + usize::from(write_carry),
             "retain result Phi and every actual variable-carrier Phi");
         // The LHS/RHS literal producers belong to the child expression owners.
         let operands = completed.operands();
         assert!(!completed.bindings().iter().any(|(_, row)|
             row.dst_value().is_some_and(|dst| dst == operands.0 || dst == operands.1)));
+    }
     }
 }
 
