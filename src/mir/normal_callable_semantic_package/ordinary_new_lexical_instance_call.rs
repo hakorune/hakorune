@@ -442,7 +442,7 @@ pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareIntegerLiteralMater
 pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareMaterializationV1;
 pub(crate) use borrowed_formal_entry::BorrowedCompareSourceLoanV1;
 pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
-pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
+pub(in crate::mir) use borrowed_formal_entry::{BorrowedOrdinaryEntrySourceRefV1, BorrowedFormalDomainV1};
 pub(crate) use borrowed_formal_entry::field_write_source::{BorrowedFieldWriteSourceLoanV1, FieldWriteSourceLoanV1};
 pub(in crate::mir) use borrowed_formal_entry::array_set_source::BorrowedArraySetSourceLoanV1;
 pub(crate) use borrowed_formal_uses::DeclaredArrayFieldReadSourceV1;

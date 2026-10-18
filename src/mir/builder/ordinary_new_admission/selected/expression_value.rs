@@ -333,6 +333,28 @@ pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression
     finish_continuation(builder, expression, Some(root))
 }
 
+/// An owned argument lends its entire remaining stack to the enclosing Call.
+/// The newest root prevents earlier children from ending before that Call.
+pub(super) fn finish_deferred_argument_continuation(
+    builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
+) -> Result<(Binding, Binding), String> {
+    let Operand::OwnedString(root) = expression.value else {
+        return Err(freeze("argument-expression/deferred-root"));
+    };
+    if expression.acquired.last() != Some(&(0, root)) {
+        return Err(freeze("argument-expression/deferred-acquisition-order"));
+    }
+    let mut writer = RawRootGraphWriterV1;
+    let next = writer.reserve_block(builder)?;
+    let clean = writer.reserve_block(builder)?;
+    let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
+    writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.bindings)?;
+    let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean, edge_args: None })?;
+    expression.bindings.push(terminal.clone());
+    builder.start_new_block(next)?;
+    Ok((terminal, continuation))
+}
+
 fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, residence: Option<ValueId>)
     -> Result<(Binding, Binding), String> {
     if residence.is_none() && !matches!(expression.value, Operand::NormalInteger(_)) {

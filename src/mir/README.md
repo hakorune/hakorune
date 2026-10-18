@@ -556,3 +556,60 @@ emission and final validation; argument construction validates that inherited
 view immediately. The view is synchronous and never stored as another packet
 inventory. Prior Homes are appended once; I64 child Ends remain before Call.
 This preparation adds no owned Text live-out or SourceStatic execution permit.
+
+Argument completion distinguishes a scalar completed before Call from newly
+owned Text deferred through Call. Deferred completion retains the whole checked
+acquisition stack, requires node zero to be the newest owned root, and emits no
+residence Install or End. Original frame qualification is a read-only loan; it
+never activates a borrowed actual, callee entry, ABI or publication by itself.
+The enclosing Call still owes the retained stack's Normal/Fault completion.
+
+Original Static expression inputs select the existing passive source owner before
+primitive executable actual construction. Qualification and complete incoming/use
+activation remain separate; a failed executable issuer is never retried there.
+Earlier-argument and ancestor acquisition stacks must be globally disjoint.
+
+A computed borrowed actual retains its qualified argument frame by Rc identity;
+source BorrowedActual and physical Expression remain distinct. The same-frame
+join preserves original Call/ordinal/site and owned root. A source loan never
+promotes its phase. Publication needs the same finalized descriptor observation;
+a tag-only encoding of a computed Text source must refuse before serialization.
+
+Static input completion has one protocol for zero and qualified inputs. Qualified
+completion prepares the entire original incoming cohort before atomic install,
+retains each passive source snapshot, canonical use source and complete per-formal
+source SUM by Rc identity,
+and demands every sibling already completed before lending executable actuals.
+Read-only source getters borrow that retained snapshot; they never requalify or
+repair a pending sibling. Computed Text uses OpaqueHandle parameters only;
+DeclaredObject retains its existing class checks. The final entry borrows those
+same domains after whole-cohort corroboration. Completion alone does not issue
+a text_view ABI marker or Call cleanup proof.
+
+The synchronous argument prefix borrows an original local or nested Call and
+its current ordinal. Final traversal lends the original nested node directly;
+it neither invents a local destination nor requires a separate inventory entry.
+Only the current CallResult subtree can borrow earlier retained acquisitions.
+Expression evaluation still demands the canonical current frame and ordinal.
+
+The lexical Call writer retains computed Text through the same Call packet and
+uses the root graph writer for reverse argument cleanup. Normal ends only the
+argument acquisitions; Call Fault and End Fault also unwind the inherited prefix
+and prior Homes. Captured ingress/continuation and original End observations
+prove this boundary, including nested Calls with no arguments. Original child
+scope boundaries are checked before capture, with final full-sequence replay.
+The entry loan also checks original formal/ValueId/carrier correspondence, so
+unused borrowed parameters cannot exchange positions in the lexical visitor.
+
+String verification separates structural role/lifetime from source permission.
+Function checks recognize live borrowed operands only in ordinary Invoke Call
+arguments, retaining ownership on both edges. Mandatory module verification
+requires the same finalized source image's exact coordinate/ordinal/ValueId;
+borrowed-slot membership alone cannot authorize Text. Source-less modules reject
+these arguments. The existing compiled Call witness retains the same operands;
+both final scans independently match every owned Text argument occurrence.
+Final parameter correspondence retains the canonical full domain loan. JSON
+emits text_view only for exact TextOnly ordinary-I64 parameters, and encodes
+computed arguments from the same owned descriptor. Missing descriptors and
+finite Text/I64/Null transport remain explicit refusals; this exactText path
+does not close the complete entry/use or terminal cleanup responsibility.

@@ -273,6 +273,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         ("local key = \"a\" + \"b\"", "key.substring(0,1)", "\"seed\"", true, 0, 1, 0, true),
         ("", "line.substring(0,1)", "\"seed\"", true, 0, 0, 1, true),
         ("", "\"aé界z\".substring(0,1)", "\"seed\"", true, 0, 0, 0, true),
+        ("", "\"abc\".substring(0,2).substring(0,1)", "\"seed\"", true, 0, 0, 0, true),
         ("", "\"aé界z\".substring(\"aé界z\".indexOf(\"é\"),\"aé界\".length())", "\"seed\"", true, 0, 0, 0, true),
         ("local key = \"bytes\" local needle = \"bytes\"", "key.substring(needle.length(),1)", "\"seed\"", true, 2, 0, 0, true),
         ("local key = \"bytes\"", "key.substring(key.indexOf(\"y\"),key.length())", "\"seed\"", true, 3, 0, 0, true),
@@ -313,6 +314,12 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     site: frame.source().nodes()[0].site().clone() }], "same source tuple across all Text roles");
                 assert!(Rc::ptr_eq(frame.source(), frame.source_loan().plan()));
                 assert!(frame.evaluation().reference_coverage_is_exact());
+                let actual_source = crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::retain_expression_frame_v1(Rc::clone(frame)).unwrap();
+                let crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(actual) = &actual_source else { unreachable!() };
+                assert!(Rc::ptr_eq(actual.frame(), frame));
+                assert_eq!(actual_source, crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::retain_expression_frame_v1(Rc::clone(frame)).unwrap());
+                assert_ne!(actual_source, crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::retain_expression_frame_v1(Rc::new(frame.as_ref().clone())).unwrap(),
+                    "an equal reissued frame is not the observed argument qualification");
                 assert_eq!(frame.evaluation().references().len(), static_reads + residence_reads + entry_reads + frame.references().len());
                 if entry_reads > 0 && !owned {
                     let mut unqualified = pending.clone();
@@ -330,8 +337,9 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 assert_eq!(frame.residence_reads().len(), residence_reads);
                 assert_eq!(frame.text_reads().len(), entry_reads);
                 assert_eq!(frame.evaluation().owned_result_nodes().contains(&0), owned);
+                if argument.matches(".substring(").count() == 2 { assert_eq!(frame.evaluation().owned_result_nodes().len(), 2); }
                 assert_eq!(frame.source_loan().resolver_source().is_some(), owned);
-                assert_eq!(frame.evaluation().cores().len(), if !owned { 0 } else if argument.contains("indexOf") { 3 } else if argument.contains("length") { 2 } else { 1 });
+                assert_eq!(frame.evaluation().cores().len(), if !owned { 0 } else if argument.contains("indexOf") { 3 } else if argument.contains("length") || argument.matches(".substring(").count() == 2 { 2 } else { 1 });
                 for (node, core) in frame.evaluation().cores() {
                     assert!(core.matches_plan(frame.source(), *node));
                     let original = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_expression_core_source_v1(
@@ -455,6 +463,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
             ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local computed = \"abc\".length() local first = Values.find(computed + 1) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
             ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local first = Values.find(\"abc\".length()) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
             ("static box Values { read(count: i64, other: i64): i64 { local n = count + \"d\".length() return 0 } }", "local out = Values.read(1, 2)", "0"),
+            ("static box Values { sink(p, q) { return 0 } run(): i64 { local out = Values.sink(\"abc\".substring(0,2).substring(0,1), \"xy\".substring(0,1)) return 0 } }", "local out = Values.run()", "0"),
         ] {
             // Declared Main args selects the existing ordinary body consumer;
             // arity-0 qualified Main has a distinct canonical trivial-body route.
@@ -470,7 +479,6 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
                 |view, verification| {
                     verification.as_ref().map_err(|errors| format!("{errors:?}"))?;
                     let input = view.issue_lifecycle_physical_abi_input()?;
-                    crate::mir::emit_lifecycle_physical_abi_json(&input)?;
                     let root = view.retained_root_source().ok_or_else(|| "missing original initializer source".to_owned())?;
                     root.visit_finalized_lexical_call_nodes_v1(view.module(), |_, _, _, _, _, _, _| Ok(()))?;
                     if methods.contains("find(") {
@@ -509,7 +517,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
                             assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
                         }
                     }
-                    if methods.contains("find(") {
+                    if methods.contains("find(") || methods.contains("sink(") {
                         let function = view.module().functions.values().find(|function| function.signature.name.contains("run")).unwrap();
                         for (block, body) in &function.blocks {
                             for (index, instruction) in body.instructions.iter().enumerate() {
@@ -534,6 +542,24 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
                         assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(),
                             "equal-I64 parameters cannot exchange their original ordinal/value identity");
                     }
+                    if methods.contains("sink(") {
+                        let function = view.module().functions.values().find(|function| function.signature.name.contains("run")).unwrap();
+                        let block = function.blocks.iter().find_map(|(block, body)| matches!(body.terminator,
+                            Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { .. }, .. })).then_some(*block)).unwrap();
+                        for mutation in ["argument-order", "argument-value", "call-fault"] {
+                            let mut changed = view.module().clone();
+                            let Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, normal_landing, fault_landing, .. }) =
+                                changed.functions.get_mut(&function.signature.name).unwrap().blocks.get_mut(&block).unwrap().terminator.as_mut() else { unreachable!() };
+                            match mutation {
+                                "argument-order" => call.args.swap(0, 1),
+                                "argument-value" => call.args[0] = crate::mir::ValueId(99999),
+                                "call-fault" => *fault_landing = *normal_landing,
+                                _ => unreachable!(),
+                            }
+                            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
+                        }
+                    }
+                    crate::mir::emit_lifecycle_physical_abi_json(&input)?;
                     consumed = true;
                     Ok(())
                 });

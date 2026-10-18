@@ -44,12 +44,8 @@ pub(super) fn encode_invoke(
             with_site(encoded, required_site(diagnostic_site, true)?)?
         }
         InvokeOperation::String(operation) => {
-            use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Op};
-            let operand = |operand: &Operand| match operand {
-                Operand::StaticText { utf8 } => json!({"kind":"static_text", "utf8":utf8}),
-                Operand::OwnedString(v) => json!({"kind":"owned_string", "value":value(v)}),
-                Operand::NormalInteger(v) => json!({"kind":"normal_integer", "value":value(v)}),
-            };
+            use crate::mir::instruction::StringInvokeOperation as Op;
+            let operand = encode_string_operand_v1;
             let encoded = match operation {
                 Op::Add { left, right } => json!({"kind":"string_add", "left":operand(left), "right":operand(right)}),
                 Op::Compare { op, left, right } => json!({"kind":"string_compare", "comparison":match op {
@@ -327,4 +323,14 @@ fn with_site(mut operation: Value, site: Option<u64>) -> Result<Value, String> {
             .insert("site".into(), json!(site));
     }
     Ok(operation)
+}
+
+/// Shared descriptor spelling; only the Call/source owners issue an operand.
+pub(super) fn encode_string_operand_v1(operand: &crate::mir::instruction::StringInvokeOperand) -> Value {
+    use crate::mir::instruction::StringInvokeOperand as Operand;
+    match operand {
+        Operand::StaticText { utf8 } => json!({"kind":"static_text", "utf8":utf8}),
+        Operand::OwnedString(v) => json!({"kind":"owned_string", "value":value(v)}),
+        Operand::NormalInteger(v) => json!({"kind":"normal_integer", "value":value(v)}),
+    }
 }

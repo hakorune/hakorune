@@ -18,9 +18,35 @@ pub(super) mod field_write_source;
 #[path = "ordinary_new_borrowed_array_set_source.rs"]
 pub(super) mod array_set_source;
 
+/// Complete canonical alternatives for one original borrowed formal. Equality
+/// includes source identity; equal reissued alternatives are not the same loan.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct BorrowedFormalDomainV1 {
+    ordinal: u32,
+    binding: BindingRefV1,
+    sum: Rc<super::borrowed_formal_source::SourceValueSumV1>,
+}
+impl BorrowedFormalDomainV1 {
+    pub(super) fn from_source_v1(ordinal: u32, binding: BindingRefV1, sum: Rc<super::borrowed_formal_source::SourceValueSumV1>) -> Self {
+        Self { ordinal, binding, sum }
+    }
+    pub(in crate::mir) fn ordinal(&self) -> u32 { self.ordinal }
+    pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(in crate::mir) fn text_only(&self) -> bool { self.sum.text_only() }
+    #[cfg(test)]
+    pub(super) fn source_sum_v1(&self) -> &Rc<super::borrowed_formal_source::SourceValueSumV1> { &self.sum }
+}
+impl PartialEq for BorrowedFormalDomainV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.ordinal == other.ordinal && self.binding == other.binding && Rc::ptr_eq(&self.sum, &other.sum)
+    }
+}
+impl Eq for BorrowedFormalDomainV1 {}
+
 #[derive(Debug)]
 pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
     owner: FunctionOwnerIdV1,
+    domains: Box<[BorrowedFormalDomainV1]>,
     formals: Box<[(u32, BindingRefV1)]>,
     source: &'ledger PreparedBorrowedFormalIngressV1,
     definition: &'ledger super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
@@ -34,6 +60,10 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     }
     pub(crate) fn formals(&self) -> &[(u32, BindingRefV1)] {
         &self.formals
+    }
+    pub(in crate::mir) fn formal_domain_v1(&self, ordinal: u32, binding: BindingRefV1) -> Result<Option<&BorrowedFormalDomainV1>, String> {
+        if !self.formals.contains(&(ordinal, binding)) { return Err(freeze("borrowed-entry/domain-formal")); }
+        Ok(self.domains.iter().find(|domain| domain.ordinal() == ordinal && domain.binding() == binding))
     }
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
         &self.definition.origins
@@ -280,6 +310,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner,
+            domains: self.checked_static_input_domains_for_owner_v1(owner)?,
             formals: values
                 .iter()
                 .map(|(ordinal, binding, _)| (*ordinal, *binding))

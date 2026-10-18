@@ -16,6 +16,11 @@ pub(crate) struct BorrowedTextEntryReadRequirementV1 {
     kind: CallableParameterContractKindV1,
 }
 impl BorrowedTextEntryReadRequirementV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn corroborates_original_uses_v1(
+        &self, uses: &Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
+    ) -> bool {
+        uses.lend_read(&self.read, self.binding, self.formal).as_ref() == Some(&self.original)
+    }
     pub(crate) fn source_plan(&self) -> &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1> { &self.source_plan }
     pub(crate) fn node(&self) -> usize { self.node }
     pub(crate) fn read(&self) -> &SourceExprSiteV1 { &self.read }

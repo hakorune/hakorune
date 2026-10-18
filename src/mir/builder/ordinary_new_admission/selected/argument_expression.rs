@@ -15,6 +15,9 @@ pub(in crate::mir::builder) fn emit(
         &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
     ) -> Result<(), String>,
 ) -> Result<(ValueId, Projection), String> {
+    // The direct caller completes scalar arguments before its Call. Owned Text
+    // must enter through the lifecycle caller that retains the ordered packet.
+    ledger.argument_expression_frame_v1(call, ordinal, site)?;
     emit_with_prefix(builder, state, ledger, call, ordinal, site, consume_receiver, None)
 }
 
@@ -30,7 +33,10 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     ) -> Result<(), String>,
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
 ) -> Result<(ValueId, Projection), String> {
-    let frame = ledger.argument_expression_frame_v1(call, ordinal, site)?;
+    let frame = ledger.qualified_argument_expression_frame_v1(call, ordinal, site)?;
+    if !frame.is_i64() && !frame.evaluation().owned_result_nodes().contains(&0) {
+        return Err(freeze("argument-expression/deferred-source-root"));
+    }
     if state.owner() != call.owner() {
         return Err(freeze("argument-expression/state-owner"));
     }
@@ -55,11 +61,17 @@ pub(in crate::mir::builder) fn emit_with_prefix(
             )
         },
     )?;
-    let Operand::NormalInteger(value) = expression.value else {
-        return Err(freeze("argument-expression/result"));
+    let (value, terminal, continuation) = match expression.value {
+        Operand::NormalInteger(value) if frame.is_i64() => {
+            let (terminal, continuation) = expression_value::finish_scalar_continuation(builder, &mut expression)?;
+            (value, terminal, continuation)
+        }
+        Operand::OwnedString(value) if !frame.is_i64() => {
+            let (terminal, continuation) = expression_value::finish_deferred_argument_continuation(builder, &mut expression)?;
+            (value, terminal, continuation)
+        }
+        _ => return Err(freeze("argument-expression/result")),
     };
-    let (terminal, continuation) =
-        expression_value::finish_scalar_continuation(builder, &mut expression)?;
     let projection = Projection::from_expression_v1(
         frame,
         expression.values,

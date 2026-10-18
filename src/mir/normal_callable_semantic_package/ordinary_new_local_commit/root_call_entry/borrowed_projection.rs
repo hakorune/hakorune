@@ -67,6 +67,8 @@ pub(super) fn value(
         return Err(freeze("lexical-i64/borrowed-source-identity"));
     }
     match projection {
+        LexicalCallArgumentProjectionV1::Expression(_) => projection.borrowed_expression_value_v1(
+            &actual.source, row.call_site(), ordinal, site, context),
         LexicalCallArgumentProjectionV1::BorrowedReadArgument { ordinal: observed, site: observed_site, formal, read }
             if *observed == ordinal && observed_site == site && *formal == actual.formal => {
             let Source::Read(original) = &actual.source else { return Err(freeze("owned-array/argument-source-drift")); };

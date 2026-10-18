@@ -52,6 +52,15 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
         }
     }
 
+    pub(in crate::mir) fn borrowed_text_argument_operand_v1(
+        self, ordinal: u32, context: CallValidationContextV1<'_>,
+    ) -> Result<Option<crate::mir::instruction::StringInvokeOperand>, String> {
+        match self {
+            Self::Lexical(packet) => packet.borrowed_text_argument_operand_v1(ordinal, context),
+            Self::LoopBody(_) | Self::ProviderArgument(_) => Ok(None),
+        }
+    }
+
     pub(in crate::mir) fn selects_borrowed_source(self, arguments: &[LocalCallArgumentV1]) -> bool {
         match self {
             Self::Lexical(_) => arguments

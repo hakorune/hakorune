@@ -34,9 +34,10 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         let row = ledger.take_lexical_instance_call(owner, site.site())?
             .ok_or("[freeze:contract][unit-call/disposition-unavailable]")?;
         self.consume_lexical_self_receiver_locator_v1(&row)?;
+        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][unit-call/state-missing]")?;
         crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_unit_discard(
-            builder, &mut state.borrow_mut(), ledger, row)?;
+            builder, &mut state.borrow_mut(), ledger, row, &consume_receiver)?;
         Ok(true)
     }
 

@@ -26,7 +26,7 @@ use object_field::path_dominates;
 use super::*;
 use crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program::PublishedLifecyclePhysicalFunctionV1;
 use crate::mir::normal_callable_semantic_package::{
-    BorrowedFormalActualSourceV1, FinalizedRootSourceHandoffV1, PreparedBorrowedFormalActualV1,
+    BorrowedFormalActualSourceV1, FinalizedRootSourceHandoffV1, PreparedBorrowedFormalActualV1, BorrowedFormalDomainV1,
 };
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{BasicBlockId, MirFunction};
@@ -36,6 +36,8 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Default)]
 struct FunctionUses {
+    domains: BTreeMap<ValueId, BorrowedFormalDomainV1>,
+    text_arguments: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
     owned_field_writes: BTreeMap<Coordinate, field_write::OwnedFieldWriteUse>,
     field_writes: BTreeMap<Coordinate, field_write::FieldWriteUse>,
     array_sets: BTreeMap<Coordinate, array_set::ArraySetUse>,
@@ -138,7 +140,13 @@ impl BorrowedCallUses {
             .functions
             .entry(function.signature.name.clone())
             .or_default();
-        for (_, formal, value) in source.borrowed_ordinary_entry_values_v1(owner)?.iter() {
+        let entry = source.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        for (ordinal, formal, value) in source.borrowed_ordinary_entry_values_v1(owner)?.iter() {
+            if let Some(domain) = entry.formal_domain_v1(*ordinal, *formal)? {
+                if state.domains.insert(*value, domain.clone()).is_some_and(|previous| previous != *domain) {
+                    return Err(fault("borrowed-use/conflicting-domain"));
+                }
+            }
             if function
                 .params
                 .iter()

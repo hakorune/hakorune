@@ -31,6 +31,7 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
     .into_boxed_slice();
     let entry = BorrowedOrdinaryEntrySourceRefV1 {
         owner,
+        domains: Box::new([]),
         formals: Box::new([]),
         source,
         definition: source.source_definition_for(owner).unwrap(),

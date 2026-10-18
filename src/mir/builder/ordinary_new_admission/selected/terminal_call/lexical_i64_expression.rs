@@ -23,7 +23,13 @@ enum ExpressionCallPrefixKindV1<'a> {
     Evaluation(ExpressionCallTransientPrefixV1<'a>),
     Bool { frame: &'a CheckedBoolConditionFrameV1, call: &'a LocalCallObservationV1 },
 }
-impl ExpressionCallPrefixV1<'_> {
+impl<'a> ExpressionCallPrefixV1<'a> {
+    pub(super) fn for_argument(prefix: ExpressionCallTransientPrefixV1<'a>, consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>) -> Self {
+        Self { kind: ExpressionCallPrefixKindV1::Evaluation(prefix), consume_receiver }
+    }
+    pub(super) fn transient(&self) -> Option<&ExpressionCallTransientPrefixV1<'_>> {
+        match &self.kind { ExpressionCallPrefixKindV1::Evaluation(prefix) => Some(prefix), _ => None }
+    }
     pub(super) fn consume_receiver(&self, row: &LexicalInstanceCallDispositionRowV1) -> Result<(), String> {
         (self.consume_receiver)(row)
     }
@@ -58,8 +64,8 @@ pub(in crate::mir::builder) fn emit_bool(
     let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver };
     let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
         .ok_or_else(|| freeze("bool-condition-call/disposition-missing"))?;
-    emit_lexical_i64_call(builder, state, ledger, call.owner(), call.prior_homes(), call.arguments(),
-        CallSource::instance(row), bindings, Some(&prefix))
+    emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::Local(call),
+        CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver))
 }
 
 /// This is the same real Call writer, returning its packet to the enclosing
@@ -98,6 +104,6 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     }
     let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
         .ok_or_else(|| freeze("expression-call/disposition-missing"))?;
-    emit_lexical_i64_call(builder, state, ledger, call.owner(), call.prior_homes(), call.arguments(),
-        CallSource::instance(row), bindings, Some(&prefix))
+    emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::Local(call),
+        CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver))
 }

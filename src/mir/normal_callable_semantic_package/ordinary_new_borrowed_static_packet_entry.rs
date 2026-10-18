@@ -569,6 +569,14 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        if let Some(rows) = self.checked_completed_static_expression_input_v1(original)? {
+            let observation = self.local_call_for_owner(original.call_site().owner(), original.call_site().site())
+                .ok_or_else(|| freeze("static-input/local-source-missing"))?;
+            if observation.arguments() != rows.ordered_arguments.as_ref() {
+                return Err(freeze("static-input/ordered-arguments-drift"));
+            }
+            return Ok(Some(rows.opaque_actuals.as_ref()));
+        }
         if let Some(rows) = self.checked_static_tagged_packet_actuals_v1(original)? {
             return Ok(Some(rows));
         }

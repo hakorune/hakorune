@@ -19,7 +19,7 @@ use super::super::physical_boundary::FinishedBindings;
 mod call_packet_source;
 #[path = "lexical_normal_projection.rs"]
 mod normal_projection;
-use normal_projection::NormalCallProjectionV1;
+use normal_projection::{NormalCallProjectionV1, ArgumentCallCleanupV1};
 pub(crate) use call_packet_source::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
 
@@ -121,6 +121,7 @@ pub(crate) struct EmittedLexicalCallProjectionV1 {
     prepared: PreparedLexicalCallProjectionV1,
     invoke: Binding,
     projection: NormalCallProjectionV1,
+    argument_cleanup: Option<ArgumentCallCleanupV1>,
 }
 
 /// A checked physical packet held inside the unfinished caller. Only the
@@ -195,6 +196,7 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
             },
             invoke,
             projection: NormalCallProjectionV1::Value(projection),
+            argument_cleanup: None,
         };
         packet.value_with_ledger(read.owner(), &source, ledger)?;
         Ok(Self { packet, fault })
@@ -221,7 +223,7 @@ impl PreparedLexicalCallProjectionV1 {
                     require_recorded(bindings, binding, finishing)?;
                 }
                 LexicalCallArgumentProjectionV1::Expression(_) => {
-                    return Err(freeze("lexical-i64/expression-disposition-owner-required"));
+                    argument.validate_expression_recorded_v1(bindings, finishing)?;
                 }
                 LexicalCallArgumentProjectionV1::BorrowedLiteral { binding, .. } => {
                     require_recorded(bindings, binding, finishing)?;
@@ -596,6 +598,7 @@ impl EmittedLexicalCallProjectionV1 {
             prepared,
             invoke,
             projection: NormalCallProjectionV1::Value(projection),
+            argument_cleanup: None,
         }
     }
 
@@ -610,6 +613,7 @@ impl EmittedLexicalCallProjectionV1 {
             prepared,
             invoke,
             projection: NormalCallProjectionV1::Value(projection),
+            argument_cleanup: None,
         }
     }
 
@@ -630,6 +634,7 @@ impl EmittedLexicalCallProjectionV1 {
             },
             invoke,
             projection: NormalCallProjectionV1::Value(projection),
+            argument_cleanup: None,
         };
         let CallPacketSourceLoanV1::Static { observation, .. } = packet.row.loan() else {
             unreachable!("static source constructor");

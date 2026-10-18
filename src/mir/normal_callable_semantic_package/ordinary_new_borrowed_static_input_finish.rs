@@ -1,4 +1,4 @@
-//! Zero-input Static closure uses the original inventory, signature and Completion.
+//! Whole Static input closure uses the original inventory, signature and Completion.
 //! Finished evidence stays in the existing actual row; no borrowed entry is issued.
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
@@ -11,26 +11,52 @@ use crate::mir::normal_callable_semantic_package::{
 use std::rc::Rc;
 
 #[derive(Debug, Clone)]
-pub(super) struct StaticZeroInputFinishV1 {
+pub(super) struct StaticInputFinishV1 {
     source: Rc<StaticIncomingSourceV1>,
     completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
+    evidence: StaticInputEvidenceV1,
 }
-impl PartialEq for StaticZeroInputFinishV1 {
+#[derive(Debug, Clone)]
+enum StaticInputEvidenceV1 {
+    Zero,
+    Qualified {
+        snapshot: Box<PreparedBorrowedCallActualsV1>,
+        uses: Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
+        domains: Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>,
+    },
+}
+impl PartialEq for StaticInputEvidenceV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.completion, &other.completion)
+        match (self, other) {
+            (Self::Zero, Self::Zero) => true,
+            (Self::Qualified { snapshot: a, uses: au, domains: ad }, Self::Qualified { snapshot: b, uses: bu, domains: bd }) =>
+                a == b && Rc::ptr_eq(au, bu) && ad == bd,
+            _ => false,
+        }
     }
 }
-impl Eq for StaticZeroInputFinishV1 {}
-impl StaticZeroInputFinishV1 {
+impl Eq for StaticInputEvidenceV1 {}
+impl PartialEq for StaticInputFinishV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.completion, &other.completion)
+            && self.evidence == other.evidence
+    }
+}
+impl Eq for StaticInputFinishV1 {}
+impl StaticInputFinishV1 {
     pub(super) fn corroborates_source_v1(&self, source: &Rc<StaticIncomingSourceV1>) -> bool {
         Rc::ptr_eq(&self.source, source)
+            && matches!(self.evidence, StaticInputEvidenceV1::Zero)
             && source.is_zeroarg_i64_v1()
             && self.completion.owner() == source.callee_owner()
+    }
+    pub(super) fn source_snapshot_v1(&self) -> Option<&PreparedBorrowedCallActualsV1> {
+        match &self.evidence { StaticInputEvidenceV1::Qualified { snapshot, .. } => Some(snapshot), _ => None }
     }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn finish_static_zero_input_actuals_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn finish_static_input_actuals_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -40,19 +66,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
             return Ok(());
         };
-        let owners: std::collections::BTreeSet<_> = source
-            .source_incoming
-            .exact_rows()
-            .filter_map(|call| match &call.source {
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if original.current_owner_source().is_some()
-                        && original.is_zeroarg_i64_v1() =>
-                {
-                    Some(call.callee)
-                }
-                _ => None,
-            })
-            .collect();
+        // Zero retains its original executable census. Qualified inputs use
+        // the full source census, including an unready source-only sibling.
+        let zero = source.source_incoming.exact_rows().filter_map(|call| match &call.source {
+            super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                if original.current_owner_source().is_some() && original.is_zeroarg_i64_v1() => Some(call.callee),
+            _ => None,
+        });
+        let qualified = source.source_incoming.source_rows_v1().filter(|call|
+            self.is_static_expression_input_owner_v1(source, call.callee)).map(|call| call.callee);
+        let owners: std::collections::BTreeSet<_> = zero.chain(qualified).collect();
         for owner in owners {
             let mut matching = contracts.iter().filter(|row| row.owner == owner);
             let contract = matching
@@ -61,14 +84,17 @@ impl OrdinaryNewClaimLedgerV1 {
             if matching.next().is_some() {
                 return Err(freeze("static-zero/contract-duplicate"));
             }
-            match self.prepare_static_zero_input_owner_v1(
-                source, selected, contract, signatures, results,
-            )? {
+            let prepared = if self.is_static_expression_input_owner_v1(source, owner) {
+                self.prepare_static_expression_input_owner_v1(source, selected, contract, signatures, results)?
+            } else {
+                self.prepare_static_zero_input_owner_v1(source, selected, contract, signatures, results)?
+            };
+            match prepared {
                 TypedInputClosureV1::Pending => {}
                 TypedInputClosureV1::Refused(issue) => {
                     for call in source
                         .source_incoming
-                        .exact_rows()
+                        .source_rows_v1()
                         .filter(|row| row.callee == owner)
                     {
                         if let Some(row) = self.borrowed_formal_actuals.get_mut(&call.call) {
@@ -163,7 +189,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             let actuals = actuals.as_ref().map_err(Clone::clone)?;
-            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(finish) = &actuals.phase
+            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) = &actuals.phase
             else {
                 missing = true;
                 continue;
@@ -195,6 +221,245 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         Ok(if missing { None } else { requested })
+    }
+
+    fn is_static_expression_input_owner_v1(&self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1) -> bool {
+        source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row|
+            matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                if original.parameters().iter().any(|formal| matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                    && source.source_value_sum_v1(formal.binding).is_some_and(|sum|
+                        sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))))
+            && self.borrowed_formal_actuals.get(&row.call).is_some_and(|rows|
+                rows.as_ref().is_ok_and(|rows| rows.source_static_snapshot_v1().is_some())))
+    }
+
+    /// One signature/result/Completion correspondence for both zero and
+    /// qualified source inputs. Specialized scalar/mixed owners remain separate.
+    fn verify_static_input_header_v1(
+        &self, selected: &VerifiedSelectedCallableBatchMapV1,
+        contract: &OwnedCallableParameterContractDeclarationV1,
+        signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &VerifiedCallableResultContractCohortV1,
+        completion: &Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>, tag: &str,
+    ) -> Result<bool, String> {
+        use crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1 as Role;
+        let fail = |suffix: &str| freeze(&format!("{tag}/{suffix}"));
+        let Some(SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(contract.batch_slot)
+            else { return Err(fail("selected-key")) };
+        if contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+            || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+            || key.arity() as usize != contract.parameters.len()
+            || contract.parameters.iter().enumerate().any(|(ordinal, formal)|
+                formal.ordinal as usize != ordinal || formal.binding.owner() != contract.owner
+                    || !(matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                        || matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))) {
+            return Err(fail("contract-identity"));
+        }
+        let Some(signature) = signatures.row(contract.batch_slot) else { return Ok(false) };
+        let identity = selected.identity_for_batch_slot(contract.batch_slot).ok_or_else(|| fail("signature-identity"))?;
+        let arity = contract.parameters.len() as u32;
+        if !signature.identity().same_as(identity) || signature.owner() != contract.owner
+            || signature.mode() != contract.mode || signature.source_logical_arity() != arity
+            || signature.receiver_lane_count() != 0 || signature.physical_formal_lane_count() != arity
+            || signature.physical_callable_lane_count() != arity || signature.lanes().len() != arity as usize
+            || signature.lanes().iter().zip(&contract.parameters).any(|(lane, formal)|
+                lane.index() != formal.ordinal || lane.logical_ordinal() != Some(formal.ordinal)
+                    || lane.binding() != formal.binding || lane.role() != Role::OrdinaryScalar) {
+            return Err(fail("signature-identity"));
+        }
+        let Some(result) = results.row(contract.batch_slot) else { return Ok(false) };
+        let result = result.borrow();
+        if result.owner() != contract.owner || !result.identity().same_as(identity)
+            || !result.declared_result_agrees_with_i64_source() || !completion.returns_value()
+            || completion.owner() != contract.owner || !std::ptr::eq(result.completion(), completion.as_ref()) {
+            return Err(fail("result-completion-identity"));
+        }
+        Ok(true)
+    }
+
+    fn static_input_domains_v1(
+        &self, source: &PreparedBorrowedFormalIngressV1, contract: &OwnedCallableParameterContractDeclarationV1,
+    ) -> Option<Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>> {
+        contract.parameters.iter().filter(|formal| formal.kind.is_ordinary_borrowed_handle())
+            .map(|formal| source.lend_source_value_sum_v1(formal.binding)
+                .filter(|sum| !sum.alternatives().is_empty())
+                .map(|sum| super::super::borrowed_formal_entry::BorrowedFormalDomainV1::from_source_v1(formal.ordinal, formal.binding, sum)))
+            .collect::<Option<Vec<_>>>().map(Vec::into_boxed_slice)
+    }
+
+    /// A final entry borrows completed domains; passive staging has none. Any
+    /// completed sibling demands the entire original cohort before this loan.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_static_input_domains_for_owner_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Result<Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>, String> {
+        let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else { return Ok(Box::new([])) };
+        for call in source.source_incoming.source_rows_v1().filter(|call| call.callee == owner) {
+            if !self.borrowed_formal_actuals.get(&call.call).is_some_and(|row| row.as_ref().is_ok_and(|row|
+                matches!(&row.phase, BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(StaticInputFinishV1 { evidence: StaticInputEvidenceV1::Qualified { .. }, .. })))) { continue; }
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source
+                else { return Err(freeze("static-input/domain-source")) };
+            let completed = self.checked_completed_static_expression_input_v1(original)?
+                .ok_or_else(|| freeze("static-input/domain-unfinished"))?;
+            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(proof) = &completed.phase else { unreachable!() };
+            let StaticInputEvidenceV1::Qualified { domains, .. } = &proof.evidence else { unreachable!() };
+            return Ok(domains.clone());
+        }
+        Ok(Box::new([]))
+    }
+
+    /// Demand the already completed whole cohort; unlike preparation this
+    /// never accepts a sibling that could merely be completed in a future pass.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_completed_static_expression_input_v1(
+        &self, requested: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<Option<&PreparedBorrowedCallActualsV1>, String> {
+        let Some(rows) = self.borrowed_formal_actuals.get(requested.call_site()) else { return Ok(None) };
+        let rows = rows.as_ref().map_err(Clone::clone)?;
+        if !matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(StaticInputFinishV1 {
+            evidence: StaticInputEvidenceV1::Qualified { .. }, .. })) { return Ok(None); }
+        let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("static-input/source-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let owner = requested.callee_owner();
+        if !source.source_incoming.source_registered_owners_v1().contains(&owner)
+            || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) {
+            return Err(freeze("static-input/source-cohort-veto"));
+        }
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("static-input/catalog-missing"))?;
+        let mut matching = catalog.iter().filter(|row| row.owner == owner);
+        let contract = matching.next().ok_or_else(|| freeze("static-input/contract-missing"))?;
+        if matching.next().is_some() { return Err(freeze("static-input/contract-duplicate")); }
+        let completion = self.completion_index.get(&owner).ok_or_else(|| freeze("static-input/completion-missing"))?
+            .as_ref().map_err(|error| format!("{}: {error:?}", freeze("static-input/callee-completion")))?;
+        let uses = self.checked_static_input_use_source_v1(contract)?
+            .ok_or_else(|| freeze("static-input/source-uses-unfinished"))?;
+        let domains = self.static_input_domains_v1(source, contract)
+            .ok_or_else(|| freeze("static-input/domain-unfinished"))?;
+        let mut seen = std::collections::BTreeSet::new();
+        let mut found = None;
+        for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
+            if !seen.insert(call.call.clone()) { return Err(freeze("static-input/original-row-duplicate")); }
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source
+                else { return Err(freeze("static-input/original-source-kind")) };
+            if original.target() != requested.target() || original.target_batch_slot() != contract.batch_slot
+                || original.callee_owner() != owner || original.call_site() != &call.call {
+                return Err(freeze("static-input/original-target"));
+            }
+            let actuals = self.borrowed_formal_actuals.get(&call.call).ok_or_else(|| freeze("static-input/cohort-missing"))?
+                .as_ref().map_err(Clone::clone)?;
+            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(proof) = &actuals.phase
+                else { return Err(freeze("static-input/cohort-unfinished")) };
+            let StaticInputEvidenceV1::Qualified { snapshot, uses: retained, domains: retained_domains } = &proof.evidence
+                else { return Err(freeze("static-input/evidence-kind")) };
+            if !Rc::ptr_eq(&proof.source, original) || !Rc::ptr_eq(&proof.completion, completion)
+                || !Rc::ptr_eq(retained, &uses) || retained_domains != &domains || !matches!(snapshot.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_))
+                || actuals.ordered_arguments != snapshot.ordered_arguments
+                || actuals.opaque_actuals.as_ref() != self.checked_static_expression_actuals_v1(source, call, snapshot)?.as_slice() {
+                return Err(freeze("static-input/completed-source-drift"));
+            }
+            actuals.ordered_arguments_for_v1(call)?;
+            if &call.call == requested.call_site() {
+                if !Rc::ptr_eq(original, requested) { return Err(freeze("static-input/requested-source-drift")); }
+                found = Some(actuals);
+            }
+        }
+        found.map(Some).ok_or_else(|| freeze("static-input/requested-incoming-missing"))
+    }
+
+    fn checked_static_expression_actuals_v1(
+        &self, source: &PreparedBorrowedFormalIngressV1,
+        call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+        snapshot: &PreparedBorrowedCallActualsV1,
+    ) -> Result<Vec<PreparedBorrowedFormalActualV1>, String> {
+        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source
+            else { return Err(freeze("static-input/original-source-kind")) };
+        let identity = super::static_source::validate_static_source_actuals_v1(
+            source, snapshot, &call.call, original.required_i64_arguments())?;
+        if !Rc::ptr_eq(&identity.source, original) { return Err(freeze("static-input/snapshot-source-drift")); }
+        super::static_source::validate_qualified_argument_sources_v1(
+            source, &self.borrowed_formal_actuals, &call.call, identity)?;
+        let mut actuals = Vec::new();
+        for (formal, candidate) in original.parameters().iter().zip(identity.candidates.iter()) {
+            if !formal.kind.is_ordinary_borrowed_handle() {
+                if matches!(snapshot.ordered_arguments.get(formal.ordinal as usize), Some(LocalCallArgumentV1::Expression { .. })) {
+                    self.argument_expression_frame_v1(&call.call, formal.ordinal, &candidate.site)?;
+                }
+                continue;
+            }
+            let actual = match &candidate.value {
+                BorrowedCallActualValueV1::Integer(value) => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Integer(*value) },
+                BorrowedCallActualValueV1::Bool(value) => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Bool(*value) },
+                BorrowedCallActualValueV1::Null => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Null },
+                BorrowedCallActualValueV1::Scalar(binding, kind) => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Scalar { binding: *binding, kind: *kind } },
+                _ => self.borrowed_expression_actual_source_v1(&call.call, formal.ordinal, &candidate.site)?,
+            };
+            actuals.push(actual);
+        }
+        if actuals.len() != call.arguments.len() || actuals.iter().zip(call.arguments.iter()).any(|(actual,(ordinal,site,formal))|
+            actual.ordinal != *ordinal || actual.site != *site || actual.formal != *formal) {
+            return Err(freeze("static-input/original-actuals"));
+        }
+        Ok(actuals)
+    }
+
+    fn prepare_static_expression_input_owner_v1(
+        &self, source: &PreparedBorrowedFormalIngressV1,
+        selected: &VerifiedSelectedCallableBatchMapV1, contract: &OwnedCallableParameterContractDeclarationV1,
+        signatures: &VerifiedCallablePhysicalSignatureCohortV1, results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<TypedInputClosureV1, String> {
+        let owner = contract.owner;
+        if !source.source_incoming.source_registered_owners_v1().contains(&owner)
+            || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) { return Ok(TypedInputClosureV1::Pending); }
+        let Some(completion) = self.completion_index.get(&owner) else { return Ok(TypedInputClosureV1::Pending) };
+        let completion = match completion {
+            Ok(completion) => completion,
+            Err(error) => return Ok(TypedInputClosureV1::Refused(format!("{}: {error:?}", freeze("static-input/callee-completion")))),
+        };
+        if !self.verify_static_input_header_v1(selected, contract, signatures, results, completion, "static-input")? {
+            return Ok(TypedInputClosureV1::Pending);
+        }
+        let Some(uses) = self.checked_static_input_use_source_v1(contract)? else { return Ok(TypedInputClosureV1::Pending) };
+        let Some(domains) = self.static_input_domains_v1(source, contract) else { return Ok(TypedInputClosureV1::Pending) };
+        let Some(SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(contract.batch_slot)
+            else { return Err(freeze("static-input/selected-key")) };
+        let mut seen = std::collections::BTreeSet::new();
+        let mut missing = false;
+        let mut replacements = Vec::new();
+        for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
+            if !seen.insert(call.call.clone()) { return Err(freeze("static-input/original-row-duplicate")); }
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source
+                else { return Err(freeze("static-input/original-source-kind")) };
+            if original.call_site() != &call.call || original.callee_owner() != owner
+                || original.target_batch_slot() != contract.batch_slot || original.target() != key
+                || original.parameters().len() != contract.parameters.len()
+                || original.parameters().iter().zip(&contract.parameters).any(|(a,b)| a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind)
+                || original.argument_sites().len() != contract.parameters.len() {
+                return Err(freeze("static-input/original-target"));
+            }
+            let Some(rows) = self.borrowed_formal_actuals.get(&call.call) else { missing = true; continue };
+            let rows = match rows { Ok(rows) => rows, Err(issue) => return Ok(TypedInputClosureV1::Refused(issue.clone())) };
+            let Some(snapshot) = rows.source_static_snapshot_v1() else { missing = true; continue };
+            let actuals = self.checked_static_expression_actuals_v1(source, call, snapshot)?;
+            match &rows.phase {
+                BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => {
+                    replacements.push((call.call.clone(), PreparedBorrowedCallActualsV1 {
+                        phase: BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(StaticInputFinishV1 {
+                            source: Rc::clone(original), completion: Rc::clone(completion),
+                            evidence: StaticInputEvidenceV1::Qualified { snapshot: Box::new(snapshot.clone()), uses: Rc::clone(&uses), domains: domains.clone() },
+                        }), opaque_actuals: actuals.into_boxed_slice(), ordered_arguments: snapshot.ordered_arguments.clone(),
+                    }));
+                }
+                BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(proof) => {
+                    let StaticInputEvidenceV1::Qualified { uses: retained, domains: retained_domains, .. } = &proof.evidence else { return Err(freeze("static-input/evidence-kind")) };
+                    if !Rc::ptr_eq(&proof.source, original) || !Rc::ptr_eq(&proof.completion, completion)
+                        || !Rc::ptr_eq(retained, &uses) || retained_domains != &domains || rows.opaque_actuals.as_ref() != actuals.as_slice()
+                        || rows.ordered_arguments != snapshot.ordered_arguments {
+                        return Err(freeze("static-input/completed-source-drift"));
+                    }
+                    rows.ordered_arguments_for_v1(call)?;
+                }
+                _ => return Err(freeze("static-input/actual-phase")),
+            }
+        }
+        Ok(if missing || seen.is_empty() { TypedInputClosureV1::Pending } else { TypedInputClosureV1::Ready(replacements) })
     }
 
     fn prepare_static_zero_input_owner_v1(
@@ -242,35 +507,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 )))
             }
         };
-        let Some(signature) = signatures.row(contract.batch_slot) else {
+        if !self.verify_static_input_header_v1(selected, contract, signatures, results, completion, "static-zero")? {
             return Ok(TypedInputClosureV1::Pending);
-        };
-        let identity = selected
-            .identity_for_batch_slot(contract.batch_slot)
-            .ok_or_else(|| freeze("static-zero/signature-identity"))?;
-        if !signature.identity().same_as(identity)
-            || signature.owner() != owner
-            || signature.mode() != contract.mode
-            || signature.source_logical_arity() != 0
-            || signature.receiver_lane_count() != 0
-            || signature.physical_formal_lane_count() != 0
-            || signature.physical_callable_lane_count() != 0
-            || !signature.lanes().is_empty()
-        {
-            return Err(freeze("static-zero/signature-identity"));
-        }
-        let Some(result) = results.row(contract.batch_slot) else {
-            return Ok(TypedInputClosureV1::Pending);
-        };
-        let result = result.borrow();
-        if result.owner() != owner
-            || !result.identity().same_as(identity)
-            || !result.declared_result_agrees_with_i64_source()
-            || !completion.returns_value()
-            || completion.owner() != owner
-            || !std::ptr::eq(result.completion(), completion.as_ref())
-        {
-            return Err(freeze("static-zero/result-completion-identity"));
         }
         let mut missing = false;
         let mut replacements = Vec::new();
@@ -321,9 +559,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     {
                         return Err(freeze("static-zero/original-actuals"));
                     }
-                    let finish = StaticZeroInputFinishV1 {
+                    let finish = StaticInputFinishV1 {
                         source: Rc::clone(original),
                         completion: Rc::clone(completion),
+                        evidence: StaticInputEvidenceV1::Zero,
                     };
                     let regenerated = construct_borrowed_call_actuals_v1(
                         source,
@@ -344,7 +583,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                     replacements.push((call.call.clone(), regenerated));
                 }
-                BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(finish) => {
+                BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) => {
                     if !finish.corroborates_source_v1(original)
                         || !Rc::ptr_eq(&finish.completion, completion)
                     {

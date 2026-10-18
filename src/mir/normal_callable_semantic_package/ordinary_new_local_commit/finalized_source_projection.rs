@@ -295,6 +295,21 @@ impl FinalizedRootSourceHandoffV1 {
     ) -> Result<super::super::lexical_instance_call::BorrowedOrdinaryEntrySourceRefV1<'_>, String>
     {
         let source = self.borrowed_ordinary_entry_source_v1(owner)?;
+        let values = self.borrowed_ordinary_entry_values_v1(owner)?;
+        let offset = usize::from(self.ledger.borrowed_ordinary_entry_receiver_required_v1(owner)?);
+        let carriers = function.metadata.physical_param_carriers.as_deref()
+            .ok_or_else(|| freeze("borrowed-entry/finished-carriers"))?;
+        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        if carriers.len() != function.params.len() || function.signature.params.len() != function.params.len()
+            || carriers.iter().filter(|carrier| **carrier == Carrier::BorrowedTaggedValue).count() != values.len()
+            || values.len() != source.formals().len()
+            || values.iter().any(|(ordinal, binding, value)| {
+                let slot = *ordinal as usize + offset;
+                !source.formals().contains(&(*ordinal, *binding)) || function.params.get(slot) != Some(value)
+                    || carriers.get(slot) != Some(&Carrier::BorrowedTaggedValue)
+            }) {
+            return Err(freeze("borrowed-entry/finished-parameter-correspondence"));
+        }
         self.ledger.with_finished_projection(owner, |symbol, _| {
             if function.signature.name != symbol {
                 return Err(freeze("borrowed-entry/finished-function"));

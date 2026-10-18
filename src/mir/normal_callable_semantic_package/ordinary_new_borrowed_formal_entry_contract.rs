@@ -20,6 +20,81 @@ enum EntryStructureEvidenceV1<'a> {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Source-use closure for the common Static input owner. Every original
+    /// read is accounted for by a qualified purpose or an exact entry alias;
+    /// physical entry/use correspondence remains a separate final obligation.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_static_input_use_source_v1(
+        &self, contract: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1,
+    ) -> Result<Option<Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
+        use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
+        let parameters: Vec<_> = contract.parameters.iter().map(|row|
+            (row.ordinal, row.binding, row.kind.clone())).collect();
+        let Some(structure) = self.borrowed_entry_structure_for_contract(contract.owner, &parameters)? else { return Ok(None) };
+        let uses = structure.source.original_formal_uses_v1(contract.owner)?;
+        if !uses.matches_contract(contract) || uses.roots().keys().copied().collect::<BTreeSet<_>>()
+            != structure.formals.iter().map(|(_, formal)| *formal).collect() {
+            return Err(freeze("static-input/original-use-contract"));
+        }
+        if let EntryStructureEvidenceV1::FiniteText { uses: retained, .. } = &structure.evidence {
+            if !Rc::ptr_eq(uses, retained) { return Err(freeze("static-input/original-use-identity")); }
+        }
+        // These remain explicit obligations until their own source/control
+        // owners can lend a complete proof; no empty-use draft substitutes.
+        if !uses.assignments().is_empty() || !uses.captures().is_empty() { return Ok(None); }
+        let mut origins = uses.roots().clone();
+        let mut covered = BTreeSet::new();
+        for initializer in uses.initializers() {
+            let Some(site) = initializer.initializer_site() else { continue };
+            let Some(binding) = uses.reads().find_map(|(at, reference)| match reference {
+                ResolvedLexicalRefV1::Local(binding) if at == site => Some(*binding), _ => None,
+            }) else { continue };
+            if let Some(formal) = uses.initializer_entry_alias_v1(initializer, Some(binding))
+                .map_err(|_| freeze("static-input/alias-source"))? {
+                if origins.insert(initializer.binding(), formal).is_some()
+                    || !covered.insert((site.clone(), binding)) {
+                    return Err(freeze("static-input/alias-duplicate"));
+                }
+            }
+        }
+        if let Some(flow) = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow()) {
+            for plan in flow.expression_plans() {
+                let evaluations = [plan.initializer_frame().map(|frame| frame.evaluation()),
+                    plan.argument_frame().map(|frame| frame.evaluation()),
+                    plan.print_frame().map(|frame| frame.evaluation()),
+                    plan.condition_frame().map(|frame| frame.evaluation())];
+                for evaluation in evaluations.into_iter().flatten() {
+                    if evaluation.source().owner() != contract.owner || !evaluation.reference_coverage_is_exact() {
+                        return Err(freeze("static-input/qualified-use-identity"));
+                    }
+                    for (&node, reference) in evaluation.references() {
+                        let entry = match reference {
+                            Reference::ArgumentEntry(read) => Some(read),
+                            Reference::InitializerEntry { read, .. } => Some(read.requirement()),
+                            _ => None,
+                        };
+                        if let Some(entry) = entry {
+                            if !entry.corroborates_original_uses_v1(uses)
+                                || origins.get(&entry.binding()) != Some(&entry.formal().1) {
+                                return Err(freeze("static-input/entry-read-source"));
+                            }
+                        } else if origins.contains_key(&reference.binding()) { return Ok(None); }
+                        let site = evaluation.source().nodes()[node].site();
+                        if !uses.reads().any(|(at, original)| at == site && *original == ResolvedLexicalRefV1::Local(reference.binding()))
+                            || !covered.insert((site.clone(), reference.binding())) {
+                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                        }
+                    }
+                }
+            }
+        }
+        if uses.reads().any(|(site, reference)| match reference {
+            ResolvedLexicalRefV1::Local(binding) => !covered.contains(&(site.clone(), *binding)),
+            _ => true,
+        }) { return Ok(None); }
+        Ok(Some(Rc::clone(uses)))
+    }
+
     pub(super) fn borrowed_entry_structure_for_contract(
         &self,
         owner: FunctionOwnerIdV1,
@@ -95,6 +170,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming = self.entry_actual_loans_v1(structure.source, structure.owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner: structure.owner, formals: structure.formals, source: structure.source,
+            domains: self.checked_static_input_domains_for_owner_v1(structure.owner)?,
             definition: view.definition, incoming_rows: view.incoming, incoming,
         })
     }

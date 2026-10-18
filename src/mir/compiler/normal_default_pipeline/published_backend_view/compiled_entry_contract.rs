@@ -7,7 +7,7 @@ use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     BirthFormalContractV1, BirthFormalPhysicalDispositionV1, FinalizedBirthActualsV1,
-    FinalizedRootResultAbiV1, PreparedBorrowedFormalActualV1,
+    FinalizedRootResultAbiV1, PreparedBorrowedFormalActualV1, BorrowedFormalDomainV1,
 };
 use crate::mir::{Callee, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
@@ -96,6 +96,18 @@ pub(crate) struct CompiledEntryBirthCallV1 {
     actual: FinalizedBirthActualsV1,
 }
 
+/// One incoming witness; descriptors are observations of its SAME final packet.
+#[derive(Debug, Clone, PartialEq)]
+pub(super) struct BorrowedCallIncomingV1<'module> {
+    pub(super) actuals: &'module [PreparedBorrowedFormalActualV1],
+    pub(super) text_operands: BTreeMap<u32, crate::mir::instruction::StringInvokeOperand>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct ClosedBorrowedEntryV1 {
+    pub(super) object_views: BTreeMap<u32, u32>,
+    pub(super) domains: BTreeMap<u32, BorrowedFormalDomainV1>,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct CompiledEntryOrdinaryCallV1<'module> {
     caller_function_index: u32,
@@ -104,12 +116,15 @@ pub(crate) struct CompiledEntryOrdinaryCallV1<'module> {
     function_index: u32,
     call: crate::mir::definitions::MirCall,
     result: InvokeCallResultKind,
-    borrowed_actuals: Option<&'module [PreparedBorrowedFormalActualV1]>,
+    borrowed_actuals: Option<BorrowedCallIncomingV1<'module>>,
 }
 
 impl<'module> CompiledEntryOrdinaryCallV1<'module> {
     pub(crate) fn borrowed_actuals(&self) -> Option<&'module [PreparedBorrowedFormalActualV1]> {
-        self.borrowed_actuals
+        self.borrowed_actuals.as_ref().map(|incoming| incoming.actuals)
+    }
+    pub(crate) fn borrowed_text_operand_v1(&self, ordinal: u32) -> Option<&crate::mir::instruction::StringInvokeOperand> {
+        self.borrowed_actuals.as_ref()?.text_operands.get(&ordinal)
     }
     pub(crate) const fn caller_block_id(&self) -> crate::mir::BasicBlockId {
         self.caller_block_id
@@ -234,7 +249,7 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     array_writes: Box<[CompiledEntryArrayWriteV1]>,
     /// Entries closed by the same borrowed-use verifier: function index ->
     /// formal object views. An empty inner map still retains entry admission.
-    borrowed_object_views: BTreeMap<u32, BTreeMap<u32, u32>>,
+    borrowed_entries: BTreeMap<u32, ClosedBorrowedEntryV1>,
 }
 
 impl<'module> CompiledEntryContractV1<'module> {
@@ -266,15 +281,16 @@ impl<'module> CompiledEntryContractV1<'module> {
     /// One formal's sealed canonical object view at a published param
     /// row; absent formals carry no `object_view` key.
     pub(crate) fn borrowed_object_view(&self, function: u32, param: u32) -> Option<u32> {
-        self.borrowed_object_views
-            .get(&function)
-            .and_then(|views| views.get(&param).copied())
+        self.borrowed_entries.get(&function).and_then(|entry| entry.object_views.get(&param).copied())
+    }
+    pub(crate) fn borrowed_formal_domain_v1(&self, function: u32, param: u32) -> Option<&BorrowedFormalDomainV1> {
+        self.borrowed_entries.get(&function)?.domains.get(&param)
     }
     pub(crate) fn has_borrowed_entry(&self, function: u32) -> bool {
-        self.borrowed_object_views.contains_key(&function)
+        self.borrowed_entries.contains_key(&function)
     }
     pub(crate) fn has_borrowed_entries(&self) -> bool {
-        !self.borrowed_object_views.is_empty()
+        !self.borrowed_entries.is_empty()
     }
 }
 
@@ -283,7 +299,7 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
-        let (mut borrowed_actuals, borrowed_object_views) =
+        let (mut borrowed_actuals, borrowed_entries) =
             verify_borrowed_call_incoming(&program, self.module)?;
         let (root_result, ordinary_calls, contract_births, birth_calls, cleanup) = {
             let [root, tail @ ..] = program.functions() else {
@@ -504,7 +520,7 @@ impl<'module> PublishedMirBackendView<'module> {
             cleanup: cleanup.into_boxed_slice(),
             array_claims: array_claims.into_boxed_slice(),
             array_writes: array_writes.into_boxed_slice(),
-            borrowed_object_views,
+            borrowed_entries,
         })
     }
 }

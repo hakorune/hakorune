@@ -170,12 +170,13 @@ impl ArgumentExpressionSourceLoanV1 {
 
 /// Shared by the passive projection and source lender. In particular this
 /// checks the complete original tuple, not just the requested ordinal.
-pub(super) fn validate_static_source_actuals_v1<'a>(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn validate_static_source_actuals_v1<'a>(
     prepared: &PreparedBorrowedFormalIngressV1,
     rows: &'a PreparedBorrowedCallActualsV1,
     site: &OwnedExprSiteV1,
     required_i64_arguments: &[u32],
 ) -> Result<&'a StaticSourceActualIdentityV1, String> {
+    let rows = rows.source_static_snapshot_v1().ok_or_else(|| freeze("borrowed-static/source-phase-required"))?;
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));
     };
@@ -277,7 +278,7 @@ pub(super) fn validate_static_source_actuals_v1<'a>(
 
 /// During Home scanning this lends only already-qualified source arguments.
 /// Accepted Home membership and executable payload belong to later activation.
-pub(super) fn validate_qualified_argument_sources_v1(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn validate_qualified_argument_sources_v1(
     prepared: &PreparedBorrowedFormalIngressV1, pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1, identity: &StaticSourceActualIdentityV1,
 ) -> Result<(), String> {
@@ -315,7 +316,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
     let rows = pending.get(site).ok_or_else(|| freeze("borrowed-static/source-unobserved"))?
         .as_ref().map_err(Clone::clone)?;
-    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { return Ok(None) };
+    let Some(rows) = rows.source_static_snapshot_v1() else { return Ok(None) };
+    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { unreachable!("source snapshot") };
     let identity = validate_static_source_actuals_v1(prepared, rows, site, identity.source.required_i64_arguments())?;
     let candidate = identity.candidates.get(ordinal as usize)
         .filter(|row| row.ordinal == ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
@@ -383,7 +385,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     // refusal; do not turn an Err into an absent loan and invite another route.
     let Some(original) = original_static_source_v1(prepared, site)? else { return Ok(None) };
     if !original.parameters().get(ordinal as usize).is_some_and(|formal|
-        formal.ordinal == ordinal && formal.kind.is_ordinary_borrowed_handle()) { return Ok(None); }
+        formal.ordinal == ordinal && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)) { return Ok(None); }
     if let Some(rows) = pending.get(site) {
         let rows = rows.as_ref().map_err(Clone::clone)?;
         if !matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_)) { return Ok(None); }
@@ -458,20 +460,51 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_expression_core_sou
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Retain the canonical source frame for a computed borrowed actual. This
+    /// source loan does not alter its passive phase or close the callee cohort.
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_expression_actual_source_v1(
+        &self, call: &OwnedExprSiteV1, ordinal: u32, site: &SourceExprSiteV1,
+    ) -> Result<PreparedBorrowedFormalActualV1, String> {
+        let frame = self.qualified_argument_expression_frame_v1(call, ordinal, site)?;
+        let rows = self.borrowed_formal_actuals.get(call)
+            .ok_or_else(|| freeze("argument-expression/observation-missing"))?.as_ref().map_err(Clone::clone)?;
+        let rows = rows.source_static_snapshot_v1().ok_or_else(|| freeze("argument-expression/source-phase"))?;
+        let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase
+            else { return Err(freeze("argument-expression/source-phase")) };
+        let formal = identity.source.parameters().get(ordinal as usize)
+            .filter(|formal| formal.ordinal == ordinal && formal.kind.is_ordinary_borrowed_handle())
+            .ok_or_else(|| freeze("borrowed-expression/source-formal"))?;
+        Ok(PreparedBorrowedFormalActualV1 {
+            ordinal, site: site.clone(), formal: formal.binding,
+            source: BorrowedFormalActualSourceV1::retain_expression_frame_v1(frame)?,
+        })
+    }
+
     pub(in crate::mir) fn argument_expression_frame_v1(&self, call: &OwnedExprSiteV1, ordinal: u32,
+        site: &SourceExprSiteV1,
+    ) -> Result<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>, String> {
+        let frame = self.qualified_argument_expression_frame_v1(call, ordinal, site)?;
+        if !frame.is_i64() { return Err(freeze("argument-expression/home-membership")); }
+        Ok(frame)
+    }
+
+    /// Borrow original qualification only. This issues no executable actual,
+    /// entry, ABI or publication permission; those keep their original owners.
+    pub(in crate::mir) fn qualified_argument_expression_frame_v1(&self, call: &OwnedExprSiteV1, ordinal: u32,
         site: &SourceExprSiteV1,
     ) -> Result<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>, String> {
         let prepared = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("argument-expression/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
         let rows = self.borrowed_formal_actuals.get(call).ok_or_else(|| freeze("argument-expression/observation-missing"))?
             .as_ref().map_err(Clone::clone)?;
+        let rows = rows.source_static_snapshot_v1().ok_or_else(|| freeze("argument-expression/source-phase"))?;
         let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { return Err(freeze("argument-expression/source-phase")) };
         let identity = validate_static_source_actuals_v1(prepared, rows, call, identity.source.required_i64_arguments())?;
         validate_qualified_argument_sources_v1(prepared, &self.borrowed_formal_actuals, call, identity)?;
         let Some(StaticArgumentExpressionV1::Qualified(frame)) = identity.argument_sources.get(&ordinal) else {
             return Err(freeze("argument-expression/frame-missing"));
         };
-        if !frame.is_i64() || identity.source.argument_sites().get(ordinal as usize) != Some(site)
+        if identity.source.argument_sites().get(ordinal as usize) != Some(site)
             || !self.completion_for_owner(call.owner()).and_then(|completion| completion.cleanup().root_flow())
                 .is_some_and(|flow| flow.expression_plans().iter().filter_map(|plan| plan.argument_frame())
                     .any(|original| Rc::ptr_eq(original, frame))) {

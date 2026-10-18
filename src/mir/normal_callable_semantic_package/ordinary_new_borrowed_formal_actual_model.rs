@@ -1,10 +1,35 @@
 //! Actual value representations and source/executable phase validation.
 use super::*;
 
+/// A computed actual keeps its original argument-purpose frame. Equality is
+/// identity of that qualification, never structural equality of a rebuilt plan.
+#[derive(Debug, Clone)]
+pub(crate) struct BorrowedExpressionActualSourceV1 {
+    frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+}
+impl PartialEq for BorrowedExpressionActualSourceV1 {
+    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.frame, &other.frame) }
+}
+impl Eq for BorrowedExpressionActualSourceV1 {}
+impl BorrowedExpressionActualSourceV1 {
+    pub(super) fn from_frame(frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>) -> Result<Self, String> {
+        use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
+            expression_projection::ExpressionLeafClassV1 as Leaf};
+        if frame.is_i64() || frame.evaluation().root_class() != Leaf::Value(Class::String) {
+            return Err(freeze("borrowed-expression/source-result"));
+        }
+        Ok(Self { frame })
+    }
+    pub(crate) fn frame(&self) -> &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1> { &self.frame }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedFormalActualSourceV1 {
     /// The exact original Get; no local destination or independent Home.
     Read(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1),
+    /// Borrow the computed Normal value; its enclosing Call owns the temporary
+    /// lifetime. This is not a forwarded formal, local alias or new Home.
+    Expression(BorrowedExpressionActualSourceV1),
     Integer(i64),
     Bool(bool),
     /// The exact `null` literal — tag `0` on the wire, never a zero
@@ -54,6 +79,14 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
 }
 
 impl BorrowedFormalActualSourceV1 {
+    /// Retaining a qualified source is not an executable-actual phase change.
+    /// The completed cohort must separately corroborate this exact frame.
+    pub(in crate::mir::normal_callable_semantic_package) fn retain_expression_frame_v1(
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+    ) -> Result<Self, String> {
+        BorrowedExpressionActualSourceV1::from_frame(frame).map(Self::Expression)
+    }
+
     /// Original caller formal identity, not permission to select a physical
     /// borrowed entry. Declared formals must also join that caller's sealed
     /// entry values; EntryReceiver and TypedHome are different source roots.
@@ -82,7 +115,7 @@ pub(super) enum BorrowedCallActualEvidencePhaseV1 {
     /// Reconstructed original input protocol; source identity remains demandable.
     ExecutableSourceObject(object_source::ObjectSourceActualIdentityV1),
     ExecutableSourceInstance(instance_source::InstanceSourceActualIdentityV1),
-    ExecutableStaticZero(static_input_finish::StaticZeroInputFinishV1),
+    ExecutableStaticInput(static_input_finish::StaticInputFinishV1),
     ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
     ExecutableStaticScalar(static_scalar_input_finish::StaticScalarInputFinishV1),
     ExecutableStaticMixed(static_mixed_input_finish::StaticMixedInputFinishV1),
@@ -103,6 +136,15 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    /// Original source observations survive completion in their sole input
+    /// proof. This immutable loan grants neither execution nor requalification.
+    pub(super) fn source_static_snapshot_v1(&self) -> Option<&Self> {
+        match &self.phase {
+            BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => Some(self),
+            BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) => finish.source_snapshot_v1(),
+            _ => None,
+        }
+    }
     /// Dispatch selection only. The source projection still validates the whole
     /// original tuple; this never grants executable actuals or Home completion.
     pub(in crate::mir::normal_callable_semantic_package) fn has_qualified_static_argument_source_v1(&self) -> bool {
@@ -139,7 +181,7 @@ impl PreparedBorrowedCallActualsV1 {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
             | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
-            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(_) => Ok(()),

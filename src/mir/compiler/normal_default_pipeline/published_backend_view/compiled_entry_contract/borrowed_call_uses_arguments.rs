@@ -38,3 +38,52 @@ impl BorrowedCallUses {
         Ok(())
     }
 }
+
+impl BorrowedCallUses {
+    pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view::compiled_entry_contract::borrowed_call_incoming) fn text_call(
+        &mut self, caller: &MirFunction, coordinate: Coordinate,
+        actuals: &[PreparedBorrowedFormalActualV1], operands: &BTreeMap<u32, crate::mir::instruction::StringInvokeOperand>,
+    ) -> Result<(), String> {
+        let required: BTreeSet<_> = actuals.iter().filter(|actual|
+            matches!(actual.source, BorrowedFormalActualSourceV1::Expression(_))).map(|actual| actual.ordinal).collect();
+        if required != operands.keys().copied().collect() { return Err(fault("borrowed-text/source-coverage")); }
+        let state = self.functions.entry(caller.signature.name.clone()).or_default();
+        for (ordinal, operand) in operands {
+            if state.text_arguments.insert((coordinate.0, coordinate.1, *ordinal as usize), operand.clone()).is_some() {
+                return Err(fault("borrowed-text/duplicate-occurrence"));
+            }
+        }
+        Ok(())
+    }
+}
+impl FunctionUses {
+    /// Both source consumers select physical Text occurrences independently;
+    /// only the SAME packet image can authorize any selected occurrence.
+    pub(super) fn verify_text_calls_v1(&self, indexed: &[(Coordinate, &MirInstruction)]) -> Result<(), String> {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        let owned: BTreeSet<_> = indexed.iter().filter_map(|(_, instruction)| match instruction {
+            MirInstruction::InvokeNormalResult { dst, invoke_block }
+                if indexed.iter().any(|(coordinate, instruction)| coordinate.0 == *invoke_block
+                    && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } if operation.owns_normal_result())) => Some(*dst),
+            _ => None,
+        }).collect();
+        let mut seen = BTreeSet::new();
+        for (coordinate, instruction) in indexed {
+            let call = match instruction {
+                MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } => call,
+                MirInstruction::Call(call) if call.args.iter().any(|value| owned.contains(value)) => return Err(fault("borrowed-text/plain-call")),
+                _ => continue,
+            };
+            for (ordinal, value) in call.args.iter().enumerate() {
+                let key = (coordinate.0, coordinate.1, ordinal);
+                if !owned.contains(value) && !self.text_arguments.contains_key(&key) { continue; }
+                if !matches!(self.text_arguments.get(&key), Some(Operand::OwnedString(original)) if original == value && owned.contains(value))
+                    || !seen.insert(key) {
+                    return Err(fault("borrowed-text/operand-correspondence"));
+                }
+            }
+        }
+        if seen != self.text_arguments.keys().copied().collect() { return Err(fault("borrowed-text/occurrence-coverage")); }
+        Ok(())
+    }
+}

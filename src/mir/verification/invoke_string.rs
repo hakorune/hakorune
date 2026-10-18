@@ -1,11 +1,46 @@
 //! Independent physical String lifetimes. No source admission or type inference.
-//! Owned pairs never escape the expression lane, and End reverses actual Normal
+//! Owned pairs may be lent only at source-proved Invoke argument slots; End reverses actual Normal
 //! acquisition order, including every later Fault prefix.
 use crate::mir::instruction::{
     InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Op,
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
+
+/// Structural role/lifetime checks are also used before the final source
+/// handoff. Module verification separately demands every exact Call occurrence.
+pub(super) fn check_source_uses(
+    function: &MirFunction,
+    original: impl Fn(BasicBlockId, usize, usize, ValueId) -> bool,
+) -> Result<(), &'static str> {
+    let owned: std::collections::BTreeSet<_> = function.blocks.values().flat_map(|block| block.all_instructions())
+        .filter_map(|row| match row {
+            MirInstruction::InvokeNormalResult { dst, invoke_block }
+                if function.blocks.get(invoke_block).and_then(|block| block.terminator.as_ref()).is_some_and(|row|
+                    matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } if operation.owns_normal_result())) => Some(*dst),
+            _ => None,
+        }).collect();
+    for (block, body) in &function.blocks {
+        for (index, row) in body.all_instructions().enumerate() {
+            let call = match row {
+                MirInstruction::Call(call) | MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } => call,
+                _ => continue,
+            };
+            for (ordinal, value) in call.args.iter().enumerate() {
+                if owned.contains(value) && !original(*block, index, ordinal, *value) {
+                    return Err("string-original-borrow-slot-missing");
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
+    matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }
+        if call.args.contains(&value) && call.callee.receiver() != Some(value)
+            && matches!(call.callee, crate::mir::Callee::Global(_) | crate::mir::Callee::SameModuleInstance { .. }))
+}
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     #[derive(Clone, Default, PartialEq, Eq)]
@@ -101,7 +136,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         || operation.operands().iter().any(|operand|
                             matches!(operand, Operand::OwnedString(owned) if *owned == value)));
                 let allowed = allowed || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed } if *installed == value);
-                if !allowed {
+                if !allowed && !is_call_argument(instruction, value) {
                     return Err("string-owned-escape");
                 }
             }
@@ -155,6 +190,13 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             if let Op::End { value } = operation {
                 if live.end() != Some(*value) {
                     return Err("string-end-order-or-not-live");
+                }
+            }
+        }
+        if let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = term {
+            for value in &call.args {
+                if results.contains_key(value) && (faulted || !live.contains(value)) {
+                    return Err("string-call-borrow-not-live");
                 }
             }
         }
@@ -330,6 +372,28 @@ mod tests {
         let verified = super::super::check_function(&good);
         assert!(verified.is_ok(), "{verified:?}");
         assert_eq!(check(&good), Ok(()));
+        // A function-level role check lends without transferring ownership.
+        // The mandatory module source gate separately checks each occurrence.
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method("Values", "sink", 1);
+        let call = crate::mir::definitions::MirCall::global(None, key.canonical_global_target_v1().unwrap(), vec![ValueId(3)]);
+        let mut borrowed = good.clone();
+        let call_index = borrowed.blocks[&BasicBlockId(2)].instructions.len();
+        let Some(MirInstruction::Invoke { operation, .. }) = borrowed.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator.as_mut() else { panic!("original Invoke") };
+        *operation = InvokeOperation::Call { call: call.clone(), result: crate::mir::instruction::InvokeCallResultKind::Unit };
+        assert_eq!(check(&borrowed), Ok(()));
+        assert_eq!(check_source_uses(&borrowed, |_, _, _, _| false), Err("string-original-borrow-slot-missing"));
+        let exact = |block, index, ordinal, value| block == BasicBlockId(2) && index == call_index && ordinal == 0 && value == ValueId(3);
+        assert_eq!(check_source_uses(&borrowed, exact), Ok(()));
+        let mut duplicated = borrowed.clone();
+        let Some(MirInstruction::Invoke { operation: InvokeOperation::Call { call: duplicated_call, .. }, .. }) = duplicated.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator.as_mut() else { panic!("Call") };
+        duplicated_call.args.push(ValueId(3));
+        assert_eq!(check_source_uses(&duplicated, exact), Err("string-original-borrow-slot-missing"));
+        let mut plain = borrowed.clone();
+        plain.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator = Some(MirInstruction::Call(call));
+        assert_eq!(check(&plain), Err("string-owned-escape"));
+        let mut after_end = borrowed.clone();
+        after_end.blocks.get_mut(&BasicBlockId(4)).unwrap().terminator = borrowed.blocks[&BasicBlockId(2)].terminator.clone();
+        assert_eq!(check(&after_end), Err("string-call-borrow-not-live"));
         // A source-backed lifecycle handoff preserves the pair, while moving
         // its cleanup to the Home domain behind remaining expression children.
         let mut installed = good.clone();

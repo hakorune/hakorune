@@ -13,7 +13,7 @@ mod reference_read;
 pub(in crate::mir) use reference_read::ExpressionReferenceReadV1;
 #[path = "expression_terminal_paths.rs"]
 mod terminal_paths;
-pub(in crate::mir) use terminal_paths::ExpressionCallTransientPrefixV1;
+pub(in crate::mir) use terminal_paths::{ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1};
 
 /// A view of the purpose's original observations, never a second packet pool.
 /// Successful correspondence grants no terminal, residence or cleanup rights.

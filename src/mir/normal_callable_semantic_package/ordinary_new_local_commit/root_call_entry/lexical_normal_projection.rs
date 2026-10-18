@@ -3,6 +3,15 @@
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 
+/// Physical delimiters and Normal End observations in the SAME Call packet.
+/// Ownership is always rederived from original argument frames, never stored here.
+#[derive(Debug)]
+pub(super) struct ArgumentCallCleanupV1 {
+    pub(super) ingress: Binding,
+    pub(super) continuation: Binding,
+    pub(super) normal: Vec<Binding>,
+}
+
 #[derive(Debug)]
 pub(super) enum NormalCallProjectionV1 {
     Value(Binding),
@@ -40,12 +49,33 @@ impl EmittedLexicalCallProjectionV1 {
             } if *actual == normal_landing && normal_landing != invoke.0
                 && *fault_landing != normal_landing && *fault_landing != invoke.0)
         { return Err(freeze("unit-call/normal-source-drift")); }
-        Ok(Self { row, prepared, invoke, projection: NormalCallProjectionV1::Unit { normal_landing } })
+        Ok(Self { row, prepared, invoke, projection: NormalCallProjectionV1::Unit { normal_landing }, argument_cleanup: None })
+    }
+
+    pub(in crate::mir) fn with_argument_cleanup_v1(
+        mut self, ingress: Binding, continuation: Binding, normal: Vec<Binding>,
+    ) -> Result<Self, String> {
+        if self.argument_cleanup.is_some() || normal.is_empty()
+            || !matches!(ingress.1, MirInstruction::Jump { edge_args: None, .. })
+            || !matches!(continuation.1, MirInstruction::Jump { edge_args: None, .. }) {
+            return Err(freeze("call-argument/cleanup-delimiters"));
+        }
+        self.argument_cleanup = Some(ArgumentCallCleanupV1 { ingress, continuation, normal });
+        Ok(self)
     }
 
     pub(super) fn validate_normal_recorded(
         &self, bindings: &[Binding], finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
+        if let Some(cleanup) = &self.argument_cleanup {
+            for original in std::iter::once(&cleanup.ingress).chain(&cleanup.normal).chain(std::iter::once(&cleanup.continuation)) {
+                match finishing {
+                    Some(boundary) if boundary.binding(original.0, &original.1)?.is_none()
+                        && matches!(original.1, MirInstruction::Jump { edge_args: None, .. }) => (),
+                    _ => require_recorded(bindings, original, finishing)?,
+                }
+            }
+        }
         match &self.projection {
             NormalCallProjectionV1::Value(binding) => require_recorded(bindings, binding, finishing),
             NormalCallProjectionV1::Unit { .. } => {
@@ -81,6 +111,7 @@ impl EmittedLexicalCallProjectionV1 {
         }
         ordered.push(self.invoke.clone());
         if let NormalCallProjectionV1::Value(result) = &self.projection { ordered.push(result.clone()); }
+        if let Some(cleanup) = &self.argument_cleanup { ordered.extend_from_slice(&cleanup.normal); }
         Ok(ordered)
     }
 

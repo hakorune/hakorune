@@ -9,6 +9,7 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
+pub(super) use argument_source::{validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_static_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::{complete_argument_expression_v1, stage_observed_call_actuals_v1};
@@ -143,18 +144,12 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
-pub(super) fn prepare_static_source_actuals_v1(
-    prepared: &PreparedBorrowedFormalIngressV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    call: &OwnedExprSiteV1,
+/// Select passive expression inputs before the primitive executable issuer.
+/// Original source membership and Core identity, never a failed-issuer retry.
+pub(super) fn selects_static_expression_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
-) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
-    // A zero-input CurrentOwner call retains the SAME original source without
-    // inventing an opaque-argument fact. It is still SourceStatic, not Ready.
-    let opaque_source = prepared
-        .static_arguments
-        .keys()
-        .any(|(site, _)| site == call);
+) -> Result<bool, String> {
     let core_source = actuals.iter().any(|actual| {
         let BorrowedCallActualValueV1::MethodCall(method) = &actual.value else { return false; };
         prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone()))
@@ -168,13 +163,42 @@ pub(super) fn prepare_static_source_actuals_v1(
         _ => false,
     });
     let original = original_static_source_v1(prepared, call)?;
+    let text_cohort = original.is_some_and(|source| source.parameters().iter().any(|formal|
+        matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) && prepared.source_value_sum_v1(formal.binding)
+            .is_some_and(|sum| sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))));
+    let sibling_source = text_cohort && actuals.iter().all(|actual|
+        !matches!(actual.value, BorrowedCallActualValueV1::MethodCall(_)) ||
+            prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone())).is_some());
+    Ok((core_source || source_expression || sibling_source) && original
+        .is_some_and(|source| source.is_qualified_i64_source_v1()
+            || source.is_current_owner_i64_source_v1()
+            || source.is_current_owner_bool_source_v1()
+            || prepared.is_static_terminal_source_v1(source)))
+}
+
+pub(super) fn prepare_static_source_actuals_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &OwnedExprSiteV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
+    // A zero-input CurrentOwner call retains the SAME original source without
+    // inventing an opaque-argument fact. It is still SourceStatic, not Ready.
+    let opaque_source = prepared
+        .static_arguments
+        .keys()
+        .any(|(site, _)| site == call);
+    let source_expression = selects_static_expression_source_v1(prepared, call, actuals)?;
+    let original_text_formal = |root| prepared.source_value_sum_v1(root).is_some_and(|sum|
+        sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+    let original = original_static_source_v1(prepared, call)?;
     let original_source = original
         .is_some_and(|source| {
             source.is_zeroarg_i64_v1()
                 || source.is_current_owner_i64_source_v1()
                 || source.is_current_owner_bool_source_v1()
                 || prepared.is_static_terminal_source_v1(source)
-                || (source.is_qualified_i64_source_v1() && (core_source || source_expression))
+                || source_expression
         });
     if !opaque_source && !original_source {
         return Ok(None);

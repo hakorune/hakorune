@@ -699,7 +699,7 @@ pub(crate) use call_entry::PreparedStaticTerminalPacketV1;
 pub(crate) use call_entry::RootLifecyclePrefixBindingGroupV1;
 pub(crate) use call_entry::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use call_entry::checked_expression_core_operation_v1;
-pub(in crate::mir) use call_entry::{ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, validate_expression_acquisition_prefix_v1};
+pub(in crate::mir) use call_entry::{ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1};
 #[cfg(test)]
 pub(in crate::mir) use call_entry::ExpressionPhysicalProjectionRefV1;
 pub(crate) use call_entry::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};

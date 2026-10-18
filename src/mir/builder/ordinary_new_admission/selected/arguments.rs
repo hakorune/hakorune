@@ -441,9 +441,9 @@ mod tests {
                         assert_eq!(after, before, "unconnected reference refuses before FaultFrame or MIR effects");
                         return Ok(());
                     }
-                    let emitted = result.unwrap();
+                    let mut emitted = result.unwrap();
                     assert!(matches!(emitted.value, Operand::OwnedString(_)));
-                    assert_eq!(emitted.acquired.len(), 1, "only substring acquires, scalar Core readers do not");
+                    assert_eq!(emitted.acquired.len(), frame.evaluation().owned_result_nodes().len(), "all substring acquisitions survive; scalar Core readers acquire none");
                     let function = builder.function_state.current_function.as_ref().unwrap();
                     for mutation in 0..5 {
                         let mut acquired = emitted.acquired.clone();
@@ -465,7 +465,7 @@ mod tests {
                         assert!(crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame.evaluation(), None, &acquired, &values, &changed).is_err(),
                             "source acquisition/physical producer mutation {mutation}");
                     }
-                    let reads: Vec<_> = emitted.path_reads.into_values().collect();
+                    let reads: Vec<_> = std::mem::take(&mut emitted.path_reads).into_values().collect();
                     let view = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &emitted.reference_reads, &emitted.bindings);
                     let context = CallValidationContextV1::Lowering(&ledger);
                     view.validate_source(context).unwrap();
@@ -512,6 +512,17 @@ mod tests {
                         let changed = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &emitted.reference_reads, &changed);
                         assert!(changed.validate_source(context).is_err(), "Core producer/projection mutation {mutation}");
                     }
+                    let retained = emitted.acquired.clone();
+                    let (terminal, continuation) = super::super::expression_value::finish_deferred_argument_continuation(
+                        &mut builder, &mut emitted).unwrap();
+                    assert_eq!(emitted.acquired, retained, "root and older children remain owned until Call");
+                    assert!(!emitted.bindings.iter().any(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })),
+                        "argument lifetime does not create a local Home");
+                    let deferred = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values,
+                        &emitted.calls, &reads, &emitted.reference_reads, &emitted.bindings);
+                    let function = builder.function_state.current_function.as_ref().unwrap();
+                    deferred.assert_original_deferred_argument_paths_for_test(context, function,
+                        &emitted.entry, &terminal, &continuation);
                     Ok(())
                 },
             ).unwrap();

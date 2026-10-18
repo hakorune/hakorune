@@ -62,6 +62,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
                 .as_ref()
                 .map_err(Clone::clone)?;
+            if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source {
+                self.checked_completed_static_expression_input_v1(original)?;
+            }
             if actuals.is_entry_only_static_bool_v1() {
                 self.checked_completed_static_bool_entry_v1(source, owner)?
                     .ok_or_else(|| freeze("borrowed-entry/bool-entry-proof-missing"))?;

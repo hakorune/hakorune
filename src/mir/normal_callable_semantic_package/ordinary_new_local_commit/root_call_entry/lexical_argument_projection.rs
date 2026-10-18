@@ -1,9 +1,29 @@
 //! Tie an observed argument value to the original lexical argument meaning.
 use super::*;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
-use super::super::expression_projection::ExpressionCallTransientPrefixV1;
+use super::super::expression_projection::{ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1};
 
 impl LexicalCallArgumentProjectionV1 {
+    pub(super) fn borrowed_expression_value_v1(
+        &self, actual: &crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1,
+        call: &OwnedExprSiteV1, ordinal: u32, site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<ValueId, String> {
+        let crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(original) = actual
+            else { return Err(freeze("argument-expression/borrowed-source-required")) };
+        let Self::Expression(packet) = self else { return Err(freeze("argument-expression/borrowed-packet-required")); };
+        let source = packet.frame.source();
+        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call: outer, ordinal: position, .. } = source.root()
+            else { return Err(freeze("argument-expression/source-purpose")) };
+        if !std::rc::Rc::ptr_eq(original.frame(), &packet.frame)
+            || packet.completion != ArgumentCompletionV1::OwnedTextDeferred
+            || source.owner() != call.owner() || outer.site() != call.site()
+            || *position != ordinal || source.nodes().first().map(|node| node.site()) != Some(site) {
+            return Err(freeze("argument-expression/borrowed-original-identity"));
+        }
+        packet.validate_source(context)
+    }
+
     pub(in crate::mir) fn value_for_source_v1(
         &self,
         source: &LocalCallArgumentV1,
@@ -59,7 +79,7 @@ impl LexicalCallArgumentProjectionV1 {
                     site: original,
                 },
             ) if original == site => {
-                if packet.ordinal()? != *ordinal
+                if packet.completion != ArgumentCompletionV1::ScalarCompleted || packet.ordinal()? != *ordinal
                     || packet.frame.source().owner() != owner
                     || packet
                         .frame
@@ -79,6 +99,9 @@ impl LexicalCallArgumentProjectionV1 {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ArgumentCompletionV1 { ScalarCompleted, OwnedTextDeferred }
+
 /// Observations remain within the enclosing Call packet, never a second pool.
 #[derive(Debug)]
 pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
@@ -96,6 +119,7 @@ pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
     terminal: Binding,
     continuation: Binding,
     original: Vec<Binding>,
+    completion: ArgumentCompletionV1,
 }
 impl EmittedArgumentExpressionProjectionV1 {
     fn ordinal(&self) -> Result<u32, String> {
@@ -124,7 +148,7 @@ impl EmittedArgumentExpressionProjectionV1 {
             .first()
             .ok_or_else(|| freeze("argument-expression/root-missing"))?
             .site();
-        let original = context.ledger().argument_expression_frame_v1(
+        let original = context.ledger().qualified_argument_expression_frame_v1(
             &crate::mir::resolved_semantics::OwnedExprSiteV1::new(
                 source.owner(),
                 call.site().clone(),
@@ -133,7 +157,6 @@ impl EmittedArgumentExpressionProjectionV1 {
             site,
         )?;
         if !std::rc::Rc::ptr_eq(&original, &self.frame)
-            || !self.frame.is_i64()
             || !matches!(
                 self.terminal.1,
                 MirInstruction::Jump {
@@ -151,13 +174,15 @@ impl EmittedArgumentExpressionProjectionV1 {
         {
             return Err(freeze("argument-expression/source-or-result"));
         }
-        let Some(Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value))) =
-            self.values.first()
-        else {
-            return Err(freeze("argument-expression/result"));
+        let value = match (self.completion, self.values.first()) {
+            (ArgumentCompletionV1::ScalarCompleted, Some(Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value))))
+                if self.frame.is_i64() => *value,
+            (ArgumentCompletionV1::OwnedTextDeferred, Some(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value))))
+                if !self.frame.is_i64() && self.frame.evaluation().owned_result_nodes().contains(&0) => *value,
+            _ => return Err(freeze("argument-expression/result")),
         };
         self.expression().validate_source(context)?;
-        Ok(*value)
+        Ok(value)
     }
     fn validate(
         &self,
@@ -167,15 +192,12 @@ impl EmittedArgumentExpressionProjectionV1 {
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
-        self.expression().validate_scalar_continuation_v1(
-            context,
-            function,
-            finishing,
-            &self.entry,
-            &self.terminal,
-            &self.continuation,
-            inherited,
-        )
+        match self.completion {
+            ArgumentCompletionV1::ScalarCompleted => self.expression().validate_scalar_continuation_v1(
+                context, function, finishing, &self.entry, &self.terminal, &self.continuation, inherited),
+            ArgumentCompletionV1::OwnedTextDeferred => self.expression().validate_deferred_argument_continuation_v1(
+                context, function, finishing, &self.entry, &self.terminal, &self.continuation, inherited),
+        }
     }
 }
 impl LexicalCallArgumentProjectionV1 {
@@ -198,7 +220,11 @@ impl LexicalCallArgumentProjectionV1 {
         function: &crate::mir::MirFunction,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<Self, String> {
+        let completion = if frame.is_i64() { ArgumentCompletionV1::ScalarCompleted }
+            else if frame.evaluation().owned_result_nodes().contains(&0) { ArgumentCompletionV1::OwnedTextDeferred }
+            else { return Err(freeze("argument-expression/deferred-source-root")); };
         let packet = EmittedArgumentExpressionProjectionV1 {
+            completion,
             frame,
             values,
             calls,
@@ -223,6 +249,51 @@ impl LexicalCallArgumentProjectionV1 {
             &ordered,
         )?;
         Ok(Self::Expression(Box::new(packet)))
+    }
+    /// Source-bound live-out observations, never a second acquisition inventory.
+    pub(in crate::mir) fn deferred_text_values_v1(
+        &self, context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<ValueId>, String> {
+        let Self::Expression(packet) = self else { return Ok(Vec::new()) };
+        let root = packet.validate_source(context)?;
+        if packet.completion == ArgumentCompletionV1::ScalarCompleted { return Ok(Vec::new()); }
+        let mut values = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for &node in packet.frame.evaluation().ordered_nodes() {
+            if !packet.frame.evaluation().owned_result_nodes().contains(&node) { continue; }
+            let Some(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value))) = packet.values.get(node) else {
+                return Err(freeze("argument-expression/deferred-value"));
+            };
+            if !seen.insert(*value) { return Err(freeze("argument-expression/deferred-duplicate")); }
+            values.push(*value);
+        }
+        if values.last() != Some(&root) {
+            return Err(freeze("argument-expression/deferred-root-order"));
+        }
+        Ok(values)
+    }
+    /// Ownership-prefix corroboration only. Non-expression arguments add no
+    /// retained stack; the enclosing materializer still checks every original
+    /// actual tuple, including its formal, site and ordinal.
+    pub(in crate::mir) fn require_argument_frame_position_v1(
+        &self, call: &OwnedExprSiteV1, ordinal: usize,
+        homes: &[crate::mir::resolved_semantics::BindingRefV1], context: CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
+        let Self::Expression(packet) = self else { return Ok(()) };
+        let source = packet.frame.source();
+        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call: original, ordinal: position, .. } = source.root()
+            else { return Err(freeze("argument-expression/source-purpose")) };
+        if source.owner() != call.owner() || original.site() != call.site() || *position as usize != ordinal
+            || packet.frame.prior_homes() != homes {
+            return Err(freeze("argument-expression/prefix-position"));
+        }
+        packet.validate_source(context).map(drop)
+    }
+    pub(super) fn validate_expression_recorded_v1(
+        &self, bindings: &[Binding], finishing: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
+        if let Self::Expression(packet) = self { packet.expression().validate_recorded(bindings, finishing)?; }
+        Ok(())
     }
     pub(in crate::mir) fn expression_bindings_v1(&self) -> &[Binding] {
         match self {
@@ -302,22 +373,158 @@ impl EmittedLexicalCallProjectionV1 {
         finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let original = context.ledger().local_call_for_owner(self.call_site().owner(), self.call_site().site())
+            .map(ExpressionCallArgumentSourceV1::Local);
+        self.validate_expression_arguments_at_source_v1(context, function, finishing, bindings, coordinates, inherited, original)
+    }
+    fn validate_expression_arguments_at_source_v1(
+        &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
+        finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+        original: Option<ExpressionCallArgumentSourceV1<'_>>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         if let Some(prefix) = inherited { prefix.require_call(self)?; }
+        if original.is_some_and(|source| source.site() != self.call_site()
+            || source.arguments().len() != self.prepared.arguments.len()) {
+            return Err(freeze("argument-expression/prefix-original-call"));
+        }
+        if finishing.is_none() { self.validate_original_argument_order_v1(function)?; }
         let mut covered = std::collections::BTreeSet::new();
         for (ordinal, argument) in self.prepared.arguments.iter().enumerate() {
             if let LexicalCallArgumentProjectionV1::Expression(packet) = argument {
-                let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal: original, .. } = packet.frame.source().root()
+                let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal: position, .. } = packet.frame.source().root()
                     else { return Err(freeze("argument-expression/source-purpose")) };
                 if packet.frame.source().owner() != self.call_site().owner()
-                    || call.site() != self.call_site().site() || *original as usize != ordinal
+                    || call.site() != self.call_site().site() || *position as usize != ordinal
                     || self.row.loan().argument_sites().get(ordinal) != packet.frame.source().nodes().first().map(|node| node.site()) {
                     return Err(freeze("argument-expression/enclosing-call"));
                 }
+                let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+                    original.ok_or_else(|| freeze("argument-expression/prefix-original-call"))?,
+                    ordinal, &self.prepared.arguments[..ordinal], context, inherited)?;
+                prefix.for_argument(packet.frame.evaluation())?;
+                covered.extend(argument.validate_expression_physical_with_prefix_v1(
+                    context, function, finishing, bindings, coordinates, Some(&prefix))?);
+                continue;
             }
             covered.extend(argument.validate_expression_physical_with_prefix_v1(context, function, finishing, bindings, coordinates, inherited)?);
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
-                covered.extend(inner.validate_expression_arguments_with_prefix_v1(context, function, finishing, bindings, coordinates, inherited)?);
+                let source = original.and_then(|source| match source.arguments().get(ordinal) {
+                    Some(LocalCallArgumentV1::CallResult(inner)) => Some(ExpressionCallArgumentSourceV1::Nested(inner)), _ => None,
+                });
+                let has_deferred = self.prepared.arguments[..ordinal].iter()
+                    .map(|argument| argument.deferred_text_values_v1(context))
+                    .collect::<Result<Vec<_>, _>>()?.iter().any(|values| !values.is_empty());
+                if has_deferred {
+                    let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+                        original.ok_or_else(|| freeze("argument-expression/prefix-original-call"))?,
+                        ordinal, &self.prepared.arguments[..ordinal], context, inherited)?;
+                    covered.extend(inner.validate_expression_arguments_at_source_v1(context, function, finishing,
+                        bindings, coordinates, Some(&prefix), source)?);
+                } else {
+                    covered.extend(inner.validate_expression_arguments_at_source_v1(context, function, finishing,
+                        bindings, coordinates, inherited, source)?);
+                }
             }
+        }
+        covered.extend(self.validate_argument_lifetime_v1(context, function, finishing, inherited, original)?);
+        Ok(covered)
+    }
+
+    /// Opaque children keep their own ownership checks. This only connects
+    /// their original evaluation boundaries in source order before capture.
+    pub(in crate::mir) fn validate_original_argument_order_v1(
+        &self, function: &crate::mir::MirFunction,
+    ) -> Result<(), String> {
+        let mut previous = None;
+        for argument in &self.prepared.arguments {
+            if let Some((entry, completion)) = argument.original_argument_boundaries_v1()? {
+                if let Some(previous) = previous { super::super::expression_projection::normal_order(function, &[previous, entry])?; }
+                previous = Some(completion);
+            }
+        }
+        if let Some(previous) = previous { super::super::expression_projection::normal_order(function, &[previous, self.invoke.clone()])?; }
+        Ok(())
+    }
+
+    /// Verify the complete Call boundary, including an argument-free nested
+    /// Call which still inherits earlier argument acquisitions.
+    fn validate_argument_lifetime_v1(
+        &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
+        finishing: Option<&FinishedBindings>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+        original: Option<ExpressionCallArgumentSourceV1<'_>>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        use super::super::super::root_cleanup_graph::ordered_paths as paths;
+        let ends = self.prepared.deferred_argument_ends_v1(context)?;
+        if ends.is_empty() && inherited.is_none() {
+            if self.argument_cleanup.is_some() { return Err(freeze("call-argument/unexpected-cleanup")); }
+            return Ok(Default::default());
+        }
+        if matches!(context, CallValidationContextV1::Finalized(_)) {
+            finishing.ok_or_else(|| freeze("call-argument/finished-boundary-missing"))?
+                .validate_finished_sequences_v1(function)?;
+        }
+        let source = original.ok_or_else(|| freeze("call-argument/original-source"))?;
+        let mut suffix = inherited.map(|prefix| prefix.unwind_for_call(self.call_site(), source.prior_homes()))
+            .transpose()?.unwrap_or_default();
+        suffix.extend(context.ledger().prior_home_unwind_for(source.prior_homes())?);
+        let operations: Vec<_> = ends.iter().chain(&suffix).cloned().collect();
+        let mut seen = std::collections::BTreeSet::new();
+        for operation in &operations {
+            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }) = operation {
+                if !seen.insert(*value) { return Err(freeze("call-argument/duplicate-acquisition")); }
+            }
+        }
+        let mapped = |binding: &Binding| match finishing {
+            Some(boundary) => boundary.binding(binding.0, &binding.1)?
+                .ok_or_else(|| freeze("call-argument/required-binding")),
+            None => Ok(binding.clone()),
+        };
+        let invoke = mapped(&self.invoke)?;
+        if !super::super::super::physical_boundary::check_binding(function, None, invoke.0, &invoke.1)? {
+            return Err(freeze("call-argument/invoke-missing"));
+        }
+        let MirInstruction::Invoke { fault_frame, normal_landing, fault_landing, .. } = invoke.1 else {
+            return Err(freeze("call-argument/invoke-shape"));
+        };
+        let mut covered = paths::pending_operations(function, fault_landing, &operations, Some(fault_frame))?;
+        covered.insert(invoke.0);
+        if ends.is_empty() {
+            if self.argument_cleanup.is_some() { return Err(freeze("call-argument/unexpected-cleanup")); }
+            return Ok(covered);
+        }
+        let cleanup = self.argument_cleanup.as_ref().ok_or_else(|| freeze("call-argument/cleanup-missing"))?;
+        if cleanup.normal.len() != ends.len()
+            || !matches!(&self.invoke.1, MirInstruction::Invoke { normal_landing, .. } if *normal_landing == cleanup.ingress.0) {
+            return Err(freeze("call-argument/cleanup-delimiters"));
+        }
+        for delimiter in [&cleanup.ingress, &cleanup.continuation] {
+            match finishing {
+                Some(boundary) => { boundary.structural_jump_binding(function, delimiter,
+                    matches!(context, CallValidationContextV1::Finalized(_)))?; }
+                None if function.blocks.get(&delimiter.0).and_then(|block| block.terminator.as_ref()) == Some(&delimiter.1) => (),
+                None => return Err(freeze("call-argument/cleanup-delimiters")),
+            }
+        }
+        let stop = match finishing {
+            Some(boundary) => boundary.destination(cleanup.continuation.0)
+                .ok_or_else(|| freeze("call-argument/continuation-removed"))?,
+            None => cleanup.continuation.0,
+        };
+        let mut normal = normal_landing;
+        for (index, operation) in ends.iter().enumerate() {
+            normal = paths::skip_until(function, normal, Some(stop))?;
+            let observed = mapped(&cleanup.normal[index])?;
+            if observed.0 != normal || !super::super::super::physical_boundary::check_binding(function, None, observed.0, &observed.1)? {
+                return Err(freeze("call-argument/normal-end-origin"));
+            }
+            let (next, fault) = paths::release(function, normal, operation, Some(fault_frame))?;
+            covered.insert(normal);
+            covered.extend(paths::pending_operations(function, fault, &operations[index + 1..], Some(fault_frame))?);
+            normal = next;
+        }
+        if paths::skip_until(function, normal, Some(stop))? != stop {
+            return Err(freeze("call-argument/normal-continuation"));
         }
         Ok(covered)
     }
@@ -341,15 +548,81 @@ mod tests {
         }
         assert_eq!(frames.len(), 2);
         assert_eq!(frames[0].source().owner(), frames[1].source().owner());
+        let context = CallValidationContextV1::Lowering(ledger);
+        let prefix = ExpressionCallTransientPrefixV1::for_prepared_argument(&frames[0], &[], context, None).unwrap();
+        assert!(prefix.for_argument(frames[0].evaluation()).unwrap().is_empty());
+        assert!(prefix.for_argument(frames[1].evaluation()).is_err(),
+            "same owner and ordinal must not widen a synchronous prefix to another original Call");
         let source = LocalCallArgumentV1::Expression { ordinal: 0, site: frames[1].source().nodes()[0].site().clone() };
         let projection = LexicalCallArgumentProjectionV1::Expression(Box::new(EmittedArgumentExpressionProjectionV1 {
             frame: std::rc::Rc::clone(&frames[0]), values: Vec::new(), calls: Vec::new(), path_reads: Vec::new(),
             reference_reads: Default::default(), entry: (BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None }),
             terminal: (BasicBlockId(2), MirInstruction::Jump { target: BasicBlockId(3), edge_args: None }),
             continuation: (BasicBlockId(3), MirInstruction::Jump { target: BasicBlockId(4), edge_args: None }), original: Vec::new(),
+            completion: ArgumentCompletionV1::ScalarCompleted,
         }));
         assert!(projection.value_for_source_v1(&source, frames[1].source().owner(), frames[1].source().nodes()[0].site(),
             None, Some(CallValidationContextV1::Lowering(ledger))).unwrap_err().contains("argument-expression/ordinal-owner"),
             "foreign occurrence must refuse before examining any physical payload");
+    }
+}
+
+impl PreparedLexicalCallProjectionV1 {
+    /// Derive retained ownership from the existing ordered original packets.
+    pub(in crate::mir) fn deferred_argument_ends_v1(
+        &self, context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let mut values = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for argument in &self.arguments {
+            for value in argument.deferred_text_values_v1(context)? {
+                if !seen.insert(value) { return Err(freeze("call-argument/duplicate-acquisition")); }
+                values.push(value);
+            }
+        }
+        Ok(values.into_iter().rev().map(|value| InvokeOperation::String(
+            crate::mir::instruction::StringInvokeOperation::End { value })).collect())
+    }
+}
+
+impl LexicalCallArgumentProjectionV1 {
+    fn original_argument_boundaries_v1(&self) -> Result<Option<(Binding, Binding)>, String> {
+        Ok(match self {
+            Self::Expression(packet) => Some((packet.entry.clone(), packet.continuation.clone())),
+            Self::CallResult(packet) => {
+                let mut entry = packet.invoke.clone();
+                for argument in &packet.prepared.arguments {
+                    if let Some((first, _)) = argument.original_argument_boundaries_v1()? { entry = first; break; }
+                }
+                let completion = match &packet.argument_cleanup {
+                    Some(cleanup) => cleanup.continuation.clone(),
+                    None => packet.projection.value()?.clone(),
+                };
+                Some((entry, completion))
+            }
+            _ => None,
+        })
+    }
+}
+
+impl EmittedLexicalCallProjectionV1 {
+    /// Lend the computed Text descriptor from the SAME original actual/frame
+    /// and verified Call packet. Physical SSA classification cannot issue it.
+    pub(in crate::mir) fn borrowed_text_argument_operand_v1(
+        &self, ordinal: u32, context: CallValidationContextV1<'_>,
+    ) -> Result<Option<crate::mir::instruction::StringInvokeOperand>, String> {
+        let actuals = match context {
+            CallValidationContextV1::Finalized(source) => source.borrowed_packet_actuals_v1(self)?,
+            CallValidationContextV1::Lowering(_) => self.row.loan().borrowed_actuals_in_context(context)?,
+        };
+        let Some(actuals) = actuals else { return Ok(None) };
+        let Some(actual) = actuals.iter().find(|actual| actual.ordinal == ordinal) else { return Ok(None) };
+        if !matches!(actual.source, crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(_)) {
+            return Ok(None);
+        }
+        let argument = self.prepared.arguments.get(ordinal as usize)
+            .ok_or_else(|| freeze("call-argument/text-ordinal"))?;
+        let value = argument.borrowed_expression_value_v1(&actual.source, self.call_site(), ordinal, &actual.site, context)?;
+        Ok(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)))
     }
 }

@@ -225,8 +225,9 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             .callable_ledger
             .as_ref()
             .ok_or_else(|| "[freeze:contract][borrowed-static/local-state-missing]".to_owned())?;
+        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_source(
-            builder, &mut state.borrow_mut(), &ledger, owner, &site, source,
+            builder, &mut state.borrow_mut(), &ledger, owner, &site, source, &consume_receiver,
         )?;
         Ok(Some(value))
     }
@@ -289,6 +290,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Err("[freeze:contract][lexical-instance-call/result-mismatch]".to_owned());
         }
         self.consume_lexical_self_receiver_locator_v1(&row)?;
+        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let state = self
             .callable_ledger
             .as_ref()
@@ -320,6 +322,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
                 owner,
                 &site,
                 row,
+                &consume_receiver,
             )?
         };
         Ok(Some(value))

@@ -141,6 +141,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     {
         return Ok(Some(rows));
     }
+    // Select the original expression owner before either primitive issuer.
+    // SourceStatic remains passive until whole-input completion.
+    if static_source::selects_static_expression_source_v1(prepared, call, actuals)? {
+        return static_source::prepare_static_source_actuals_v1(prepared, contracts, call, actuals);
+    }
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
     let Some(incoming_row) = incoming.next() else {
         if let Some(original) = prepared.scalar_qualified_source_call_v1(call)? {
@@ -200,7 +205,7 @@ fn construct_borrowed_call_actuals_v1(
     homes: object_source::ObjectActualHomeSourceV1<'_>,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
-    static_zero: Option<static_input_finish::StaticZeroInputFinishV1>,
+    static_zero: Option<static_input_finish::StaticInputFinishV1>,
     guarded_definition: Option<&super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
     array_read: &mut dyn FnMut(u32, &SourceExprSiteV1, BindingRefV1) -> Result<Option<crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1>, String>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
@@ -500,7 +505,7 @@ fn construct_borrowed_call_actuals_v1(
         .collect::<Result<Vec<_>, String>>()?;
     Ok(Some(PreparedBorrowedCallActualsV1 {
         phase: match static_zero {
-            Some(finish) => BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(finish),
+            Some(finish) => BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish),
             None => BorrowedCallActualEvidencePhaseV1::Executable,
         },
         opaque_actuals: rows.into_boxed_slice(),

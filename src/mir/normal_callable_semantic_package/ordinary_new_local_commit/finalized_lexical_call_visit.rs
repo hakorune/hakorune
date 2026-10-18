@@ -149,6 +149,15 @@ impl FinalizedRootSourceHandoffV1 {
                     };
                     copies.push((original, finished));
                 }
+                if self.borrowed_packet_actuals_v1(node)?
+                    .is_some_and(|actuals| !actuals.is_empty()) {
+                    let row = node.original_source();
+                    let symbol = module.canonical_callable_definition_symbol(row.target())
+                        .ok_or_else(|| freeze("final-call-visit/callee-definition"))?;
+                    let callee = module.functions.get(symbol)
+                        .ok_or_else(|| freeze("final-call-visit/callee-function"))?;
+                    self.borrowed_ordinary_entry_source_for_function_v1(row.callee_owner(), callee)?;
+                }
                 visit(owner, context, node, args, function, coordinate, &copies)
             })
         };

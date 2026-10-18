@@ -11,7 +11,7 @@ impl BorrowedCallUses {
         self,
         program: &PublishedLifecyclePhysicalProgramV1<'_>,
         module: &crate::mir::MirModule,
-    ) -> Result<BTreeMap<u32, BTreeMap<u32, u32>>, String> {
+    ) -> Result<BTreeMap<u32, ClosedBorrowedEntryV1>, String> {
         let mut object_views = BTreeMap::new();
         for (name, mut state) in self.functions {
             guarded_arguments::prepare(&mut state)?;
@@ -32,7 +32,9 @@ impl BorrowedCallUses {
                     .iter()
                     .position(|function| function.name() == name)
                     .ok_or_else(|| fault("borrowed-use/object-view-function"))?;
-                object_views.insert(index as u32, views);
+                object_views.insert(index as u32, ClosedBorrowedEntryV1 {
+                    object_views: views, domains: state.domains.iter().map(|(value, domain)| (value.0, domain.clone())).collect(),
+                });
             }
         }
         Ok(object_views)
@@ -68,6 +70,7 @@ impl FunctionUses {
                 indexed.push(((*block, index), instruction));
             }
         }
+        self.verify_text_calls_v1(&indexed)?;
         let views = self.scan_views(&tracked, &indexed)?;
         field_write::guards(self, tracked, &views, &indexed)?;
         array_set::guards(self, tracked, &views, &indexed)?;
@@ -137,6 +140,7 @@ impl FunctionUses {
                 return Err(fault("borrowed-use/published-compare-instruction"));
             }
         }
+        self.verify_text_calls_v1(&indexed)?;
         let views = self.scan_views(tracked, &indexed)?;
         field_write::guards(self, tracked, &views, &indexed)?;
         array_set::guards(self, tracked, &views, &indexed)?;

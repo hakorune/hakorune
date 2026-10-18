@@ -23,7 +23,10 @@ impl CompiledEntryContractV1<'_> {
             .ok_or_else(|| fault("borrowed-parameter/source-owner"))?;
         let source = self.program.handoff().root_source()
             .ok_or_else(|| fault("borrowed-parameter/source-missing"))?;
-        source.with_borrowed_parameter_declarations_v1(owner, function, requests, |value, object| {
+        source.with_borrowed_parameter_declarations_v1(owner, function, requests, |value, object, domain| {
+            if self.borrowed_formal_domain_v1(function_index, value.0) != domain {
+                return Err(fault("borrowed-parameter/closed-domain"));
+            }
             if let Some(object) = object {
                 // The closed use map is keyed by ValueId, never formal ordinal.
                 if self.borrowed_object_view(function_index, value.0) != Some(object.declaration_index()) {

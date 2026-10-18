@@ -3,18 +3,25 @@
 //! producer provenance, full use closure and the immutable module snapshot.
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
-use crate::mir::{BasicBlockId, MirModule};
+use crate::mir::{BasicBlockId, MirModule, ValueId, MirInstruction};
+use crate::mir::instruction::{InvokeOperation, StringInvokeOperand};
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use std::collections::{BTreeMap, BTreeSet};
 
 type CallSlots = BTreeMap<(String, BasicBlockId, usize), BTreeSet<usize>>;
+#[derive(Default)]
+pub(super) struct OriginalCallSourceImageV1 {
+    pub(super) slots: CallSlots,
+    pub(super) text: BTreeMap<(String, BasicBlockId, usize, usize), ValueId>,
+}
 
 pub(super) fn original_call_slots(
     module: &MirModule,
     root: Option<&FinalizedRootHandoffV1>,
-) -> Result<CallSlots, String> {
+) -> Result<OriginalCallSourceImageV1, String> {
     // Source-less verification retains its existing sealed scalar policy.
     let Some(root) = root else {
-        return Ok(BTreeMap::new());
+        return Ok(OriginalCallSourceImageV1::default());
     };
     let selected: BTreeSet<_> = module
         .functions
@@ -30,12 +37,12 @@ pub(super) fn original_call_slots(
         .collect();
     let Some(source) = root.root_source() else {
         return if selected.is_empty() {
-            Ok(BTreeMap::new())
+            Ok(OriginalCallSourceImageV1::default())
         } else {
             Err("borrowed-source-missing".into())
         };
     };
-    let mut loans = BTreeMap::new();
+    let mut image = OriginalCallSourceImageV1::default();
     let mut callees = BTreeSet::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();
@@ -110,7 +117,19 @@ pub(super) fn original_call_slots(
             if actual_slots != argument_slots || actual_slots.len() != actuals.len() {
                 return Err("borrowed-source-actual-coverage".into());
             }
-            if loans
+            for actual in actuals {
+                let Some(operand) = packet.borrowed_text_argument_operand_v1(actual.ordinal, CallValidationContextV1::Finalized(source))? else { continue };
+                let StringInvokeOperand::OwnedString(value) = operand else { return Err("borrowed-source-text-operand".into()) };
+                let instruction = caller.blocks.get(&coordinate.0).and_then(|block| block.all_instructions().nth(coordinate.1))
+                    .ok_or_else(|| "borrowed-source-text-coordinate".to_owned())?;
+                let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = instruction
+                    else { return Err("borrowed-source-text-call".into()) };
+                if call.args.get(actual.ordinal as usize) != Some(&value)
+                    || image.text.insert((caller.signature.name.clone(), coordinate.0, coordinate.1, actual.ordinal as usize), value).is_some() {
+                    return Err("borrowed-source-text-identity".into());
+                }
+            }
+            if image.slots
                 .insert(
                     (caller.signature.name.clone(), coordinate.0, coordinate.1),
                     actual_slots,
@@ -165,5 +184,5 @@ pub(super) fn original_call_slots(
             )).collect::<Vec<_>>(),
         ));
     }
-    Ok(loans)
+    Ok(image)
 }

@@ -35,7 +35,7 @@ pub(super) fn check_module_with_source(
     edge_policy: CatalogedCallEdgePolicyV1,
     root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
 ) -> Result<(), Vec<VerificationError>> {
-    let mut loans = borrowed_calls::original_call_slots(module, root).map_err(|reason| {
+    let image = borrowed_calls::original_call_slots(module, root).map_err(|reason| {
         vec![error(
             module
                 .functions
@@ -46,8 +46,13 @@ pub(super) fn check_module_with_source(
             &reason,
         )]
     })?;
+    let mut loans = image.slots;
     let mut errors = Vec::new();
     for function in module.functions.values() {
+        if let Err(reason) = string::check_source_uses(function, |block, row, ordinal, value| {
+            image.text.get(&(function.signature.name.clone(), block, row, ordinal)) == Some(&value)
+        }) { errors.push(error(function.entry_block, reason)); }
+
         if let Err(reason) = owned_array::check_source_uses(function, |block, row, ordinal| {
             loans.get(&(function.signature.name.clone(), block, row))
                 .is_some_and(|slots| slots.contains(&ordinal))

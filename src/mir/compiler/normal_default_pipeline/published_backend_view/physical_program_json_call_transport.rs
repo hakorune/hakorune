@@ -95,6 +95,12 @@ pub(super) fn encode_parameters(
                             row["object_view"] = json!(
                                 input.entry().borrowed_object_view(ordinal, param.0)
                             );
+                            if input.entry().borrowed_formal_domain_v1(ordinal, param.0).is_some_and(|domain| domain.text_only()) {
+                                if !matches!(function.role(), super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }) {
+                                    return Err(fault("borrowed-text/parameter-role"));
+                                }
+                                row["text_view"] = json!(true);
+                            }
                         }
                         Ok(row)
                     })
@@ -135,7 +141,7 @@ pub(super) fn encode_ordinary_call(
     let selected = callee
         .param_carriers()
         .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue));
-    let issued_actuals = if selected {
+    let issued_call = if selected {
         let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
         corroborate_function(caller, caller_function_index, input)?;
         corroborate_function(callee, *target, input)?;
@@ -154,13 +160,12 @@ pub(super) fn encode_ordinary_call(
         {
             return Err(fault("borrowed-carrier-call-drift"));
         }
-        Some(
-            row.borrowed_actuals()
-                .ok_or_else(|| fault("borrowed-carrier-source-missing"))?,
-        )
+        row.borrowed_actuals().ok_or_else(|| fault("borrowed-carrier-source-missing"))?;
+        Some(row)
     } else {
         None
     };
+    let issued_actuals = issued_call.and_then(|row| row.borrowed_actuals());
     let mut consumed = 0;
     let args = call.args.iter().enumerate().map(|(index, value)| {
         let carrier = callee.param_carriers().and_then(|rows| rows.get(index + offset));
@@ -170,6 +175,23 @@ pub(super) fn encode_ordinary_call(
         if carrier == Some(&Carrier::BorrowedTaggedValue) {
             let proof = proof.ok_or_else(|| fault("borrowed-carrier-ordinal-missing"))?;
             consumed += 1;
+            if matches!(proof.source, Source::Expression(_)) {
+                let issued = issued_call.ok_or_else(|| fault("borrowed-expression/call-missing"))?;
+                let operand = issued.borrowed_text_operand_v1(proof.ordinal)
+                    .ok_or_else(|| fault("borrowed-expression/descriptor-missing"))?;
+                if !matches!(operand, crate::mir::instruction::StringInvokeOperand::OwnedString(original) if original == value) {
+                    return Err(fault("borrowed-expression/operand-drift"));
+                }
+                let parameter = callee.params().get(index + offset).ok_or_else(|| fault("borrowed-expression/formal-missing"))?;
+                let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
+                if !input.entry().borrowed_formal_domain_v1(*target, parameter.0).is_some_and(|domain| domain.text_only() && domain.ordinal() as usize == index) {
+                    return Err(fault("borrowed-expression/finite-domain-transport-unconnected"));
+                }
+                return Ok(json!({"kind":"borrowed_text", "operand": super::operation::encode_string_operand_v1(operand)}));
+            }
+            if issued_call.and_then(|row| row.borrowed_text_operand_v1(proof.ordinal)).is_some() {
+                return Err(fault("borrowed-expression/unselected-descriptor"));
+            }
             let kind = encode_borrowed_call_actual_kind(
                 &proof.source, caller, caller_function_index,
                 abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?,
@@ -386,11 +408,14 @@ fn encode_borrowed_call_actual_kind(
             return Ok(json!("tagged"));
         }
     }
-    Ok(encode_borrowed_actual_kind(source))
+    encode_borrowed_actual_kind(source)
 }
 
-fn encode_borrowed_actual_kind(source: &Source) -> Value {
-    match source {
+fn encode_borrowed_actual_kind(source: &Source) -> Result<Value, String> {
+    Ok(match source {
+        // A computed Text needs the descriptor from this SAME finalized Call
+        // packet. Its source frame alone cannot manufacture a wire operand.
+        Source::Expression(_) => return Err(fault("borrowed-expression/descriptor-missing")),
         // The exact `null` literal spells tag 0; the `value` field still
         // names the exact `const_null` producer, never a zero payload.
         Source::Null => json!(0),
@@ -409,7 +434,7 @@ fn encode_borrowed_actual_kind(source: &Source) -> Value {
         | Source::DeclaredFormal { .. } => json!(3),
         Source::ReceivedNullable { .. } | Source::ReceivedMixed { .. } | Source::Read(_) => json!("nullable_typed_object"),
         Source::Forwarded { .. } => json!("tagged"),
-    }
+    })
 }
 
 #[cfg(test)]

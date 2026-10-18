@@ -80,7 +80,7 @@ fn original_borrowed_actuals_encode_integer_bool_scalar_and_typed_home() {
         let actuals = ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap();
         assert_eq!(actuals.len(), 1);
         assert_eq!(
-            encode_borrowed_actual_kind(&actuals[0].source),
+            encode_borrowed_actual_kind(&actuals[0].source).unwrap(),
             json!(expected)
         );
         // Reborrowing the same source owner never manufactures or clones a proof.
@@ -106,7 +106,7 @@ fn original_forwarded_actual_keeps_the_tagged_pair_spelling() {
     assert_eq!(actuals.len(), 1);
     assert!(matches!(actuals[0].source, Source::Forwarded { .. }));
     assert_eq!(
-        encode_borrowed_actual_kind(&actuals[0].source),
+        encode_borrowed_actual_kind(&actuals[0].source).unwrap(),
         json!("tagged")
     );
 }
