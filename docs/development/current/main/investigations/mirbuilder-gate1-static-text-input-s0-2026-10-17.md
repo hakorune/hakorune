@@ -933,56 +933,32 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   F110PASS+2 prior/8MiB; CLI277/native357/358 predate scope extraction.
   Preserve exact cleanup loans/SSA/topology/Fault-stop, same FaultFrame insertion,
   arm/Exit/block census and KeepAlive multiplicity; empty/terminated scopes None.
-- Root937 shared fixes retained by251014c895/9ec57f75e3/45850f5163:
-  KeepAlive metadata runtime classification, complete empty forwarding chains,
-  and exact indexed metadata omissions; actual String Copy/SSA/CFG gates remain.
-  Source Loop fixture reaches strict MIR and both original/optimized finishing
-  consumers;937I81.573s,19 filters141PASS+2 SAME known reds (field-array-append/
-  loop-source-missing;final-call-visit/callee-definition). No new test names.
-  CLI278205.005s;JSON359 still owner32 Body10 ordinary-new/borrowed-result/
-  source-not-i64;unchanged mimalloc360 EXE/run exact358 (141.535s/.0014s).
-  Runtime894A/FFI897A explicit predecessors, no all-three-source equality claim.
-  Direct canonical EXE for SAME existing Loop source361 fails101.032s at
-  published-lifecycle-program/instruction-unsupported:StringResidenceInstall.
-  Both-final local green is not EXE/series completion. Pins retained until closure.
-- Root938 Decision: prior response restated already-completed maintenance (no
-  product progress); resume actual source-to-final connection. Read-only worker
-  located flat packet scans in finalized_initializer_homes/finalized_root_cleanup.
-  Source authority: SAME completed Loop child initializer/Home and finished
-  projection, through existing Finalized.with_local_call_group_tree_v2. Normalize
-  ONLY packet/owner searches; keep instruction census on root aggregates to avoid
-  double-counting. No whitelist, new issuer, fallback or new test/checker.
-  Scope expands to these two finalized consumers and owning README because both
-  participate in the source-gated published install roster. Existing source Loop
-  fixture/final consumers and same direct EXE input are acceptance; full series
-  and goal remain unaccepted.937/935/936 and native pins remain required.
-  Worker review retained unique Header/After/uncompleted/abort authority negatives;
-  their existing test-only helpers are not replaced by a final positive alone.
-  Retire old plan-only test adapter after switching its two remaining test callers
-  to canonical handoff; consolidate duplicate source-walk invocation, preserving
-  pre/post After assertions. No new test/helper/checker or unrelated legacy removal.
-  938B build64.386s;938C adapter-retirement build92.067s. Final22 existing
-  filters157PASS+3 baseline reds: field-array-append/loop-source-missing,
-  final-call-visit/callee-definition and local-field parameter-receiver
-  borrowed-static/source-actual-unavailable (same938B; inherited V834b/V836).
-  8MiB stack/one thread; full test names9264 unchanged. Pointer/layer/CallTarget
-  owner/diff checks PASS. Existing authority negatives retained; no new tests.
-  CLI279 quick166.292s, SHA dc6faf56e338b8b672fe6053f8db0dc9c337f72e2350b69137136a945fdf9e31.
-  SAME fixture source SHA c063c621edb71ad23472d41bf23fb1f5a4c90bd90689c3c89b8b82b203c65a9a
-  via canonical --backend mir --emit-exe/--emit-exe-nyrt, pure-first/no replay,
-  plugins off,16MiB:app364 EXE122.218s PASS, run exit1/.0015s, stdout Result:1
-  and standard plugin-disabled warning. Raw361/364 empty-output expectation was
-  incorrect; raw receipts retained. Separate runtime-contract corroboration
-  checks original entry.rs/plugin source against894A manifest, then exact rerun.
-  app363 unchanged mimalloc EXE149.622s/run.0014s, stdout/stderr/exit0 exact360;
-  compiler stderr differs only *_ns timings. Runtime894A/FFI897A are explicit
-  predecessor artifacts; CLI predates only three reviewed test-only retirements
-  and later README updates. No current all-three-source or full-suite/CI claim.
-  app362 JSON.143s unchanged/noEXE. Worker traces owner32 Body10 condition to
-  agg.userCount→me.users.length: ArrayLen manifest is I64/PureRead but law
-  Unprojected, ordinary issuer String-only; field Array length result→Home→physical
-  publication is a separate missing responsibility. No selector-based I64 waiver
-  or element-I64 census reuse (users contains Text). Before next implementation,
-  select this actual owner/row and transfer remaining Loop/Text conditions.
-  Retained old fences serve non-product callers; not eligible for blanket delete.
-  Source Loop vertical verified; entire Text row, JSON and whole goal remain open.
+- Root937 shared fixes:251014c895/9ec57f75e3/45850f5163 retain exact metadata,
+  branch-threading and omission correspondence. Full source Loop construction,
+  worker Decisions, dependency closure and Root938 evidence now live at5da19f405d.
+  Whole source→SAME writer/Phi session→Home/cleanup→both finals→publication
+  vertical is verified for the unchanged existing source fixture. Text/JSON and
+  full finite goal remain open; no blanket retirement of non-product callers.
+  938C22 existing filters157PASS+3 unchanged baseline reds,9264 names unchanged.
+  Old plan-only adapter retired after canonical caller switch; redundant whole
+  source walk consolidated. Unique pending/abort/identity authority checks stay.
+  CLI279 canonical source Loop364 EXE/run PASS(exit1,Result:1,standard plugin
+  warning); initial scratch blank-output expectation was wrong, raw receipts
+  preserved and separately corroborated against original894A runtime sources.
+  Unchanged mimalloc363 EXE/run exact360;JSON362 still source-not-i64/noEXE.
+  See5da19f405d for exact commands/timings/hashes/known-red classification.
+  Root/CLI/native/build/review pins stay for unfinished Text and goal regression;
+  no parked adapter, disposable guard trees already removed. Runtime894A/FFI897A
+  are explicit predecessors; CLI predates only reviewed test-only retirement,
+  README changes and trailing-blank-line cleanup. No all-three-source/suite/CI claim.
+  Full staged check caught one extra EOF blank in newly tracked source_loop_v2;
+  removed at closeout with no code-token change; final diff rechecked.
+- Next Decision (read-only review, not implementation selection): real JSON
+  owner32 Body10 condition calls agg.userCount→me.users.length. Canonical ArrayLen
+  is I64/PureRead but semantic law Unprojected, ordinary source issuer String-only.
+  Missing responsibility is original Array field declaration+Birth provider →
+  exact ArrayLen observation → result cohort/Home → physical/ABI/publication.
+  Length must not inherit field Array.get's Integer-element census (users is Text).
+  Use existing field/provider authority; no selector-based scalar waiver or new
+  issuer by guesswork. Select actual owner/row before code and transfer retained
+  Loop/Text acceptance;RequiredObjectForwardS0 remains separately unaccepted.

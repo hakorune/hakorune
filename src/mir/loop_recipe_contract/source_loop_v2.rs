@@ -448,4 +448,3 @@ impl VerifiedSourceLoopRecipeProductV2 {
             validate_payload_value_v2(payload, binding, value, carrier.class, self.source.headers.len()))
     }
 }
-
