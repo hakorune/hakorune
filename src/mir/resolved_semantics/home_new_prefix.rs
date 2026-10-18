@@ -270,6 +270,8 @@ pub(crate) use named_array::NamedArrayHomeObservationV1;
 mod new_local;
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
+#[path = "home_new_prefix_local_statement.rs"]
+mod local_statement;
 #[path = "home_new_prefix_mixed_call.rs"]
 mod mixed_call;
 #[path = "home_new_prefix_condition.rs"]

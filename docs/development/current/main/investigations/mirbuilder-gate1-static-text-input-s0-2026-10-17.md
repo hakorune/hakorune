@@ -987,9 +987,8 @@ Retain Root914C/CLI264/source/native/corrected/baseline logs until Text/Loop clo
 no adapter added. Original generic source/Home and Header/body/exit/V2/cleanup/
 After/read closure remain owed. No frontier/whole-series/current-CI acceptance.
 
-Next integrated WIP (not staged with V914): compiler Mul observer now distinguishes
-unselected morphology from rejected resolver evidence in one attempt; strict adapter
-preserves current callers. Existing source test includes wrong-binding/conflict
-negatives. Read-only review PASS; Root915A build is running. Its compiler source,
-compiler README and borrowed-formal source test remain separate until verified and
-connected to original generic source/Header/body/exit/V2/cleanup/After/read closure.
+BoxShape Local scan extraction (functional Loop WIP remains separate): the exact
+Local algorithm moved to home_new_prefix_local_statement.rs; dedented body equality
+with the predecessor was checked. Source scanner only forwards its existing inputs.
+Root918D integrated-WIP source manifest/focused52PASS and stable4/diff evidence are
+retained; they do not claim this commit alone closes Loop/After or the full series.
