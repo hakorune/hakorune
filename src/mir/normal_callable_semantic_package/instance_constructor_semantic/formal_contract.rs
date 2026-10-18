@@ -12,7 +12,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::super::instance_construction::{ConstructionEligibilityV1, ConstructionStoreRhsV1};
-use super::VerifiedInstanceConstructorSemanticRowV1;
+use super::InstanceConstructorSourceDataV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum BirthFormalDeclarationClassV1 {
@@ -84,7 +84,8 @@ pub(crate) enum BirthFormalContractIssueV1 {
 
 pub(super) fn issue_birth_formal_contracts(
     declaration: &ASTNode,
-    row: &VerifiedInstanceConstructorSemanticRowV1,
+    row: &InstanceConstructorSourceDataV1,
+    construction: &ConstructionEligibilityV1,
 ) -> Result<Box<[BirthFormalContractV1]>, BirthFormalContractIssueV1> {
     let ASTNode::FunctionDeclaration {
         params,
@@ -133,7 +134,7 @@ pub(super) fn issue_birth_formal_contracts(
                 return Err(BirthFormalContractIssueV1::DuplicateBinding);
             }
             let declaration = classify_declaration(parameter);
-            let uses = classify_uses(row.construction(), binding);
+            let uses = classify_uses(construction, binding);
             Ok(BirthFormalContractV1 {
                 ordinal,
                 binding,

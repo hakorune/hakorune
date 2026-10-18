@@ -4,17 +4,19 @@ use crate::mir::function::CanonicalObjectDefinitionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use std::collections::BTreeMap;
 mod formal_contract;
+mod object_definition;
 #[path = "instance_construction_provider_source.rs"]
 pub(super) mod provider_source;
-mod object_definition;
+mod source;
 use super::instance_construction::{
-    issue_construction_source_v1, ConstructionEligibilityV1,
-    ConstructionPlanV1, ConstructionSourceEligibilityV1,
+    issue_construction_source_v1, ConstructionEligibilityV1, ConstructionPlanV1,
+    ConstructionSourceEligibilityV1,
 };
 pub(crate) use formal_contract::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
     BirthFormalUseCoverageV1,
 };
+pub(super) use source::capture_instance_constructor_sources_v1;
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
@@ -63,7 +65,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
 }
 
 #[derive(Debug)]
-pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
+pub(crate) struct InstanceConstructorSourceDataV1 {
     source_id: ConstructorSourceIdV1,
     box_source: ParserOrdinaryBoxSourceRowV1,
     object: CanonicalObjectIdV1,
@@ -78,10 +80,30 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
     birth_completion: Option<VerifiedFunctionCompletionV1>,
     birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
+}
+
+#[derive(Debug)]
+pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
+    source: InstanceConstructorSourceDataV1,
     construction: ConstructionEligibilityV1,
     construction_source: ConstructionSourceEligibilityV1,
     provider_static_arguments: Box<[std::rc::Rc<provider_source::ProviderStaticArgumentSourceV1>]>,
     formal_contracts: Box<[BirthFormalContractV1]>,
+}
+
+#[derive(Debug)]
+pub(super) struct CapturedInstanceConstructorSourcesV1 {
+    rows: Box<[InstanceConstructorSourceDataV1]>,
+    box_sources: ParserOrdinaryBoxSourceCoverageV1,
+    object_sources: Box<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
+    declarations: Box<[object_definition::ObjectDeclarationSourceV1]>,
+}
+
+impl std::ops::Deref for VerifiedInstanceConstructorSemanticRowV1 {
+    type Target = InstanceConstructorSourceDataV1;
+    fn deref(&self) -> &Self::Target {
+        &self.source
+    }
 }
 
 #[derive(Debug)]
@@ -109,7 +131,8 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
     pub(super) fn finish_ordered_unit_plans_v1(
-        &mut self, ledger: &mut super::OrdinaryNewClaimLedgerV1,
+        &mut self,
+        ledger: &mut super::OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
         for row in self.rows.iter_mut() {
             if row.kind != ConstructorSourceKindV1::Birth || row.source_arity != 0
@@ -118,9 +141,13 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
                     matches!(step, super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)))) {
                 continue;
             }
-            let qualified = ConstructionPlanV1::qualify_ordered_unit_calls_v1(&row.construction_source,
-                |source, site| ledger.constructor_unit_step_ready_v1(source, site))?;
-            let Ok(plan) = qualified else { continue; };
+            let qualified = ConstructionPlanV1::qualify_ordered_unit_calls_v1(
+                &row.construction_source,
+                |source, site| ledger.constructor_unit_step_ready_v1(source, site),
+            )?;
+            let Ok(plan) = qualified else {
+                continue;
+            };
             // Receiver selection already installed canonical provider End
             // inventory in the same ledger; never issue it again here.
             for store in plan.stores() {
@@ -242,8 +269,11 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         if let Some(row) = self.birth_for(parent, arity)? {
             return Ok(&row.construction_source);
         }
-        if arity != 0 { return Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch); }
-        self.no_birth_construction.iter()
+        if arity != 0 {
+            return Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch);
+        }
+        self.no_birth_construction
+            .iter()
             .find(|(own, _, _)| own.same_source_as(parent))
             .map(|(_, source, _)| source)
             .ok_or(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
@@ -266,12 +296,6 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticRowV1 {
-    pub(super) fn box_source_v1(&self) -> &ParserOrdinaryBoxSourceRowV1 { &self.box_source }
-
-    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
-        self.object
-    }
-
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         &self.construction
     }
@@ -281,6 +305,16 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
 
     pub(crate) fn formal_contracts(&self) -> &[BirthFormalContractV1] {
         &self.formal_contracts
+    }
+}
+
+impl InstanceConstructorSourceDataV1 {
+    pub(super) fn box_source_v1(&self) -> &ParserOrdinaryBoxSourceRowV1 {
+        &self.box_source
+    }
+
+    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
     }
 
     pub(crate) fn published_birth_key(
@@ -337,13 +371,17 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
     /// Borrow another original owner using the SAME constructor forest and
     /// retained shape. The ordinary root input still verifies Birth completion.
     pub(crate) fn lowering_input_for_owner<'a>(
-        &'a self, source: &'a ASTNode, owner: FunctionOwnerIdV1,
+        &'a self,
+        source: &'a ASTNode,
+        owner: FunctionOwnerIdV1,
     ) -> Result<ResolvedFunctionLoweringInputV1<'a>, String> {
         let root = self.lowering_input(source)?;
-        let shape = self.body_shapes.get(&owner).ok_or_else(||
-            "[freeze:contract][mir/instance-constructor-semantic/owner-shape]".to_owned())?;
-        root.for_owner(owner, shape).map_err(|error|
-            format!("[freeze:contract][mir/instance-constructor-semantic/owner-input] {error:?}"))
+        let shape = self.body_shapes.get(&owner).ok_or_else(|| {
+            "[freeze:contract][mir/instance-constructor-semantic/owner-shape]".to_owned()
+        })?;
+        root.for_owner(owner, shape).map_err(|error| {
+            format!("[freeze:contract][mir/instance-constructor-semantic/owner-input] {error:?}")
+        })
     }
 
     pub(crate) fn lowering_input<'a>(
@@ -407,295 +445,87 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
     }
 }
 
-pub(crate) fn issue_instance_constructor_semantic_batch_v1(
-    resolver: &mut FunctionSemanticResolverSessionV1,
-    source: &VerifiedFinalCallableProgramSourceV1,
-    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
-    static_claims: &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1> {
-    let mut object_sources = Vec::new();
-    let mut object_definitions = Vec::new();
-    for (index, parent) in source.ordinary_box_coverage().rows().iter().enumerate() {
-        let definition = source
-            .with_ordinary_box_syntax(parent, object_definition::issue)
-            .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)??;
-        if object_sources.iter().any(
-            |(own, _): &(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)| {
-                own.same_source_as(parent)
-            },
-        ) {
+impl CapturedInstanceConstructorSourcesV1 {
+    pub(super) fn seal(
+        self,
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        static_claims: &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+    ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1>
+    {
+        if &self.box_sources != batch.ordinary_box_coverage() {
             return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
         }
-        let id = CanonicalObjectIdV1::from_declaration_index(index)
-            .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
-        object_sources.push((parent.clone(), id));
-        object_definitions.push(definition);
-    }
-    source
-        .with_constructor_semantic_syntax(|loan| {
-            // Published Birth inventory keyed by final Box ordinal — the
-            // same membership `birth_for` consults, loaned to the plan
-            // issuer so provider children seal `BirthIndexed` vs
-            // `NoBirthZero` exactly once.
-            let mut birth_rows: std::collections::BTreeMap<
-                usize,
-                std::collections::BTreeSet<u32>,
-            > = std::collections::BTreeMap::new();
-            for row in loan.rows() {
-                if row.kind() == ConstructorSourceKindV1::Birth {
-                    birth_rows
-                        .entry(row.box_source().final_box_ordinal())
-                        .or_default()
-                        .insert(row.source_arity());
-                }
+        let Self {
+            rows: sources,
+            box_sources,
+            object_sources,
+            declarations,
+        } = self;
+        let object_definitions: Vec<_> = declarations
+            .into_vec()
+            .into_iter()
+            .map(object_definition::ObjectDeclarationSourceV1::seal)
+            .collect();
+        let mut birth_rows = BTreeMap::<usize, std::collections::BTreeSet<u32>>::new();
+        for row in &sources {
+            if row.kind == ConstructorSourceKindV1::Birth {
+                birth_rows
+                    .entry(row.box_source.final_box_ordinal())
+                    .or_default()
+                    .insert(row.source_arity);
             }
+        }
+        batch.with_normal_program_source_loan(|loan| {
             let mut no_birth_construction = Vec::new();
-            for (parent, object_id) in &object_sources {
-                if loan.rows().iter().any(|row| row.kind() == ConstructorSourceKindV1::Birth
-                    && row.box_source().same_source_as(parent)) {
-                    continue;
-                }
-                let construction_source = source.with_ordinary_box_syntax(parent, |declaration| {
-                    issue_construction_source_v1(
-                        *object_id,
-                        parent,
-                        declaration,
-                        None,
-                        None,
-                        &birth_rows,
-                        &object_sources,
-                        &object_definitions,
-                    )
-                }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
-                let plan = ConstructionPlanV1::without_child_calls(&construction_source);
-                no_birth_construction.push((parent.clone(), construction_source, plan));
+            for (parent, object) in &object_sources {
+                if sources.iter().any(|row| row.kind == ConstructorSourceKindV1::Birth
+                    && row.box_source.same_source_as(parent)) { continue; }
+                let source = batch.with_ordinary_box_syntax(parent, |declaration|
+                    issue_construction_source_v1(*object, parent, declaration, None, None,
+                        &birth_rows, &object_sources, &object_definitions))
+                    .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+                let plan = ConstructionPlanV1::without_child_calls(&source);
+                no_birth_construction.push((parent.clone(), source, plan));
             }
-            let mut candidates = Vec::with_capacity(loan.rows().len());
-            let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
-            for syntax in loan.rows() {
-                let ASTNode::FunctionDeclaration { params, body, .. } = syntax.declaration() else {
-                    return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
-                };
-                let view = FunctionSyntaxViewV1::from_borrowed_function_parts(
-                    params,
-                    body,
-                    ReceiverPolicyV1::DeclaredInstance,
-                );
-                candidates.push((
-                    syntax.source_id().clone(),
-                    syntax.box_source().clone(),
-                    syntax.final_box_ordinal(),
-                    Box::<str>::from(syntax.box_name()),
-                    Box::<str>::from(syntax.key()),
-                    syntax.kind(),
-                    syntax.source_arity(),
-                    syntax.declaration(),
-                    view,
-                ));
-                resolver_inputs.push(SelectedCallableResolverInputV1::constructor(
-                    syntax.source_id().clone(),
-                    syntax.box_name(),
-                    syntax.key(),
-                    view,
-                ));
-            }
-            let (forests, mut body_shapes) = match resolver
-                .resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
-                    &resolver_inputs,
-                    brand_catalog,
-                )
-                .map_err(InstanceConstructorSemanticBatchIssueV1::Resolver)?
-            {
-                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
-                    forests,
-                    body_shapes,
-                } => (forests, body_shapes),
-                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
-                    deferred,
-                ) => {
-                    return Err(InstanceConstructorSemanticBatchIssueV1::ResolverDeferred(
-                        deferred,
-                    ))
-                }
-            };
-            if forests.len() != candidates.len() {
-                return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
-            }
-            let mut rows = Vec::with_capacity(forests.len());
-            for (
-                (
-                    source_id,
-                    box_source,
-                    final_box_ordinal,
-                    box_name,
-                    key,
-                    kind,
-                    source_arity,
-                    declaration,
-                    view,
-                ),
-                forest,
-            ) in candidates.into_iter().zip(forests)
-            {
-                let [root] = forest.roots() else {
-                    return Err(InstanceConstructorSemanticBatchIssueV1::MissingRoot);
-                };
-                let function = forest
-                    .owner(*root)
-                    .ok_or(InstanceConstructorSemanticBatchIssueV1::MissingRoot)?;
-                if function.root_profile() != view.root_profile()
-                    || !matches!(
-                        function.root_profile(),
-                        SemanticOwnerRootProfileV1::DeclaredFunction {
-                            receiver_policy: ReceiverPolicyV1::DeclaredInstance
-                        }
-                    )
-                {
-                    return Err(InstanceConstructorSemanticBatchIssueV1::RootProfileMismatch);
-                }
-                let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
-                    declaration,
-                    &forest,
-                    view.root_profile(),
-                )
-                .map_err(|error| {
-                    InstanceConstructorSemanticBatchIssueV1::SourceProjection {
-                        _error: error.to_string(),
-                    }
-                })?;
-                let mut constructor_shapes = BTreeMap::new();
-                for (owner, product) in forest.owners() {
-                    let shape = body_shapes
-                        .remove(&owner)
-                        .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?;
-                    if shape.owner() != owner
-                        || shape.body_root() != &product.root_profile().body_root()
-                    {
-                        return Err(InstanceConstructorSemanticBatchIssueV1::BodyShapeOwnerMismatch);
-                    }
-                    constructor_shapes.insert(owner, shape);
-                }
-                let birth_completion = if kind == ConstructorSourceKindV1::Birth {
-                    let shape = constructor_shapes.get(root)
-                        .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?;
-                    super::instance_constructor_non_escape::verify_birth_receiver_non_escape_v1(
-                        function, shape, &forest,
-                    ).map_err(|_issue| InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape {
-                        _issue,
-                    })?;
-                    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
-                        declaration,
-                        &forest,
-                        &projection,
-                    )
-                    .map_err(|error| InstanceConstructorSemanticBatchIssueV1::SourceProjection {
-                        _error: format!("{error:?}"),
-                    })?;
-                    Some(verify_function_completion_v1(input).map_err(|_issue| {
-                        InstanceConstructorSemanticBatchIssueV1::Completion { _issue }
-                    })?)
-                } else {
-                    None
-                };
-                let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
-                    declaration, &forest, &projection,
-                ).map_err(|error| InstanceConstructorSemanticBatchIssueV1::SourceProjection {
-                    _error: format!("{error:?}"),
-                })?.with_body_shape(constructor_shapes.get(root)
-                    .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?);
-                let object = object_sources.iter()
-                        .find(|(own, _)| own.same_source_as(&box_source))
-                        .map(|(_, id)| *id)
-                        .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
-                let provider_static_arguments = if kind == ConstructorSourceKindV1::Birth {
-                    let caller = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
-                        &box_name, source_arity);
-                    source.with_ordinary_box_syntax(&box_source, |parent|
+            let mut rows = Vec::with_capacity(sources.len());
+            for source in sources.into_vec() {
+                let input = source.lowering_input(loan.program()).map_err(|error|
+                    InstanceConstructorSemanticBatchIssueV1::SourceProjection { _error: error })?;
+                let parent = source.box_source.clone();
+                let (construction_source, construction, provider_static_arguments, formal_contracts) = batch.with_ordinary_box_syntax(&parent, |declaration| -> Result<_, InstanceConstructorSemanticBatchIssueV1> {
+                    let provider_static_arguments = if source.kind == ConstructorSourceKindV1::Birth {
+                        let caller = source.published_birth_key.as_ref()
+                            .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                         provider_source::issue_provider_static_sources_v1(
-                            &source_id, object, parent, input, &caller, static_claims))
-                        .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
-                } else { Box::new([]) };
-                let construction_source = if kind == ConstructorSourceKindV1::Birth {
-                    let birth_key =
-                        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
-                            &box_name,
-                            source_arity,
-                        );
-                    source.with_ordinary_box_syntax(&box_source, |parent| {
-                        issue_construction_source_v1(
-                            object,
-                            &box_source,
-                            parent,
-                            Some((&source_id, input)),
-                            Some((&birth_key, provider_static_arguments.as_ref())),
-                            &birth_rows,
-                            &object_sources,
-                            &object_definitions,
-                        )
-                    }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
-                } else {
-                    Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
-                };
-                let construction = ConstructionPlanV1::without_child_calls(&construction_source);
-                let mut row = VerifiedInstanceConstructorSemanticRowV1 {
-                    construction,
-                    construction_source,
-                    provider_static_arguments,
-                    formal_contracts: Box::new([]),
-                    // Only the exact unannotated source contract is selected.
-                    // Explicit constructor contracts need their own admission;
-                    // never turn them into the implicit opaque default.
-                    birth_effect: match declaration {
-                        ASTNode::FunctionDeclaration { attrs, contracts, .. }
-                            if kind == ConstructorSourceKindV1::Birth
-                                && attrs.is_empty() && contracts.is_empty() =>
-                        {
-                            Some(DeclaredInstanceCallSemanticEffectV1::OpaqueObservable)
-                        }
-                        _ => None,
-                    },
-                    published_birth_key: (kind == ConstructorSourceKindV1::Birth).then(|| {
-                        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
-                            &box_name,
-                            source_arity,
-                        )
-                    }),
-                    source_id,
-                    box_source,
-                    object,
-                    final_box_ordinal,
-                    box_name,
-                    key,
-                    kind,
-                    source_arity,
-                    forest,
-                    projection,
-                    body_shapes: constructor_shapes,
-                    birth_completion,
-                };
-                row.formal_contracts = if kind == ConstructorSourceKindV1::Birth {
-                    formal_contract::issue_birth_formal_contracts(declaration, &row).map_err(
-                        |issue| InstanceConstructorSemanticBatchIssueV1::FormalContract {
-                            _issue: issue,
-                        },
-                    )?
-                } else {
-                    Box::new([])
-                };
-                rows.push(row);
-            }
-            if !body_shapes.is_empty() {
-                return Err(InstanceConstructorSemanticBatchIssueV1::BodyShapeResidual);
+                            &source.source_id, source.object, declaration, input, caller, static_claims)
+                    } else { Box::new([]) };
+                    let construction_source = if source.kind == ConstructorSourceKindV1::Birth {
+                        let caller = source.published_birth_key.as_ref()
+                            .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+                        issue_construction_source_v1(source.object, &source.box_source, declaration,
+                            Some((&source.source_id, input)), Some((caller, provider_static_arguments.as_ref())),
+                            &birth_rows, &object_sources, &object_definitions)
+                    } else {
+                        Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
+                    };
+                    let construction = ConstructionPlanV1::without_child_calls(&construction_source);
+                    let formal_contracts = if source.kind == ConstructorSourceKindV1::Birth {
+                        formal_contract::issue_birth_formal_contracts(input.source().root(), &source, &construction)
+                            .map_err(|issue| InstanceConstructorSemanticBatchIssueV1::FormalContract { _issue: issue })?
+                    } else { Box::new([]) };
+                    Ok((construction_source, construction, provider_static_arguments, formal_contracts))
+                }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)??;
+                rows.push(VerifiedInstanceConstructorSemanticRowV1 {
+                    source, construction_source, construction, provider_static_arguments, formal_contracts,
+                });
             }
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
-                rows: rows.into_boxed_slice(),
-                box_sources: source.ordinary_box_coverage().clone(),
-                object_sources: object_sources.into_boxed_slice(),
+                rows: rows.into_boxed_slice(), box_sources, object_sources,
                 object_definitions: std::cell::RefCell::new(Some(object_definitions.into_boxed_slice())),
                 no_birth_construction,
             })
-        })
-        .map_err(|_| InstanceConstructorSemanticBatchIssueV1::ParserSyntax)?
+        }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
+    }
 }
 
 #[cfg(test)]

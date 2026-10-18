@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "field-array/constructor-source-capture"
+current_blocker_token = "field-array/writer-inventory-before-final-seal"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,14 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-FIELD-ARRAY-READ-S0 source inventory BoxShape verified: sole seal_inventory and
-same-Rc project_claims, all4 callers switched and combined finish removed.
-942A40PASS, test names and four issued Get/Count JSON inputs unchanged. No new
-admission/tests/checkers; original JSON frontier still unaccepted.
-Next split constructor source capture from final construction/formal seal,
-preserve resolver order, then same inventory can qualify fixed field before seal.
-Typed Count5f12f37970 remains verified; full source-to-final row and finite
-integration/R6/R7/Loop/authority/parser/selfcompile gates remain open.
+FIELD-ARRAY-READ-S0 constructor source/final seal BoxShape verified: original
+source rows move once, resolver order retained, actual package/fixture switched,
+old monolithic issuer removed.943C selected71PASS; three broad witness reds
+reproduce942A. CLI281 unchanged mimalloc370 EXE/run/output/exit PASS; JSON369
+same source-not-i64 first-stop, no new admission/test/checker or app progress.
+Next move sole complete writer observation before final seal, passing same Rc
+through cohort/preparation; fixed Array qualification/final consumers still owed.
+Typed Count5f12f37970 retained; full finite goal and FIELD-ARRAY-READ-S0 open.
 """
 next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

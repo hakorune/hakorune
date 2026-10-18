@@ -52,7 +52,7 @@ use super::dynamic_admission::{
     DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
 };
 use super::instance_constructor_semantic::{
-    issue_instance_constructor_semantic_batch_v1, InstanceConstructorSemanticBatchIssueV1,
+    capture_instance_constructor_sources_v1, InstanceConstructorSemanticBatchIssueV1,
 };
 use super::loop_break_source::issue_loop_break_source_package_v1;
 use super::model::{
@@ -277,11 +277,10 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                 |error| NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error },
             )?;
     }
-    let mut instance_constructors = issue_instance_constructor_semantic_batch_v1(
+    let captured_constructors = capture_instance_constructor_sources_v1(
         resolver,
         source.source(),
         brand_catalog,
-        &static_claim_index,
     )
     .map_err(
         |error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error },
@@ -310,6 +309,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             Ok((batch, root_execution))
         })
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
+    let mut instance_constructors = captured_constructors.seal(&batch, &static_claim_index)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error })?;
     let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let selected = std::rc::Rc::new(

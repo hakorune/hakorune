@@ -173,11 +173,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
     .unwrap();
     let mut resolver =
         crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1::new(93).unwrap();
-    let constructors = instance_constructor_semantic::issue_instance_constructor_semantic_batch_v1(
+    let captured = instance_constructor_semantic::capture_instance_constructor_sources_v1(
         &mut resolver,
         source.source(),
         Some(&brands),
-        &static_claims,
     )
     .unwrap();
     let (batch, _) = source
@@ -190,6 +189,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
             .map(|batch| (batch, root))
         })
         .unwrap();
+    let constructors = captured.seal(&batch, &static_claims).unwrap();
     let selected =
         selected_mapping::issue_selected_callable_batch_map_v1(&catalog, &batch).unwrap();
     let main = super::super::lexical_instance_call::borrow_app_main_source_v1(

@@ -1,18 +1,28 @@
 //! Declaration projection inside the existing exact ordinary-Box syntax loan.
 //! No runtime layout, constructor-body analysis or name-based source lookup.
 
-use super::{ASTNode, CanonicalObjectDefinitionV1, InstanceConstructorSemanticBatchIssueV1,
-    VerifiedInstanceConstructorSemanticBatchV1, CanonicalObjectIdV1,
-    InstanceConstructorBirthLookupErrorV1, ParserOrdinaryBoxSourceRowV1};
+use super::{
+    ASTNode, CanonicalObjectDefinitionV1, CanonicalObjectIdV1,
+    InstanceConstructorBirthLookupErrorV1, InstanceConstructorSemanticBatchIssueV1,
+    ParserOrdinaryBoxSourceRowV1, VerifiedInstanceConstructorSemanticBatchV1,
+};
 use crate::mir::function::{
     ObjectDestructionDispositionV1 as Destruction,
     ObjectDestructionUnavailableV1 as DestructionUnavailable,
 };
 use crate::mir::function::{ObjectLayoutUnavailableV1 as Unavailable, UserBoxFieldDecl};
 
-pub(super) fn issue(
+#[derive(Debug)]
+pub(super) struct ObjectDeclarationSourceV1 {
+    name: Box<str>,
+    fields: Box<[UserBoxFieldDecl]>,
+    declaration_shape: Result<(), Unavailable>,
+    ordinary_members: bool,
+}
+
+pub(super) fn capture_declaration(
     declaration: &ASTNode,
-) -> Result<CanonicalObjectDefinitionV1, InstanceConstructorSemanticBatchIssueV1> {
+) -> Result<ObjectDeclarationSourceV1, InstanceConstructorSemanticBatchIssueV1> {
     let ASTNode::BoxDeclaration {
         name,
         fields,
@@ -103,55 +113,68 @@ pub(super) fn issue(
     } else {
         Ok(())
     };
-    // This is an explicit closed source profile, not a runtime-layout result.
-    // The exhaustive Box pattern above forces review when a hook/storage role
-    // is added to the AST. Method bodies do not issue destruction obligations.
-    let destruction = if let Err(reason) = declaration_shape {
-        Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
-    } else if projected_fields.iter().any(|field| field.is_weak) {
-        Destruction::Unavailable(DestructionUnavailable::WeakField)
-    } else if projected_fields.iter().any(|field| {
-        field.declared_type_name.as_deref() != Some("ArrayBox")
-            && field
-                .declared_type_name
-                .as_deref()
-                .and_then(
-                    crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
-                )
-                .is_none()
-            && !is_user_object_field(field)
-    }) {
-        Destruction::Unavailable(DestructionUnavailable::FieldType)
-    } else if methods.iter_selected_declaration_order().any(|entry| {
-        use crate::ast::{
-            BoxMethodGeneratedProvenanceV1 as Generated, BoxMethodProvenanceV1 as Provenance,
-        };
-        !matches!(
-            entry.provenance(),
-            Provenance::ExplicitSource { .. }
-                | Provenance::Generated(Generated::MacroOrImport { .. })
-        ) || !ordinary_member(entry.declaration(), Some(entry.name()))
-    }) || constructors
-        .values()
-        .any(|node| !ordinary_member(node, None))
-    {
-        Destruction::Unavailable(DestructionUnavailable::MemberRole)
-    } else if projected_fields.iter().any(is_user_object_field) {
-        Destruction::OwnedObjectFieldsNoHook
-    } else if projected_fields
-        .iter()
-        .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"))
-    {
-        Destruction::OwnedArrayFieldsNoHook
-    } else {
-        Destruction::PlainI64NoHook
-    };
-    Ok(CanonicalObjectDefinitionV1::from_source_declaration(
-        name.as_str().into(),
-        projected_fields.into_boxed_slice(),
+    Ok(ObjectDeclarationSourceV1 {
+        name: name.as_str().into(),
+        fields: projected_fields.into_boxed_slice(),
         declaration_shape,
-        destruction,
-    ))
+        ordinary_members: !(methods.iter_selected_declaration_order().any(|entry| {
+            use crate::ast::{
+                BoxMethodGeneratedProvenanceV1 as Generated, BoxMethodProvenanceV1 as Provenance,
+            };
+            !matches!(
+                entry.provenance(),
+                Provenance::ExplicitSource { .. }
+                    | Provenance::Generated(Generated::MacroOrImport { .. })
+            ) || !ordinary_member(entry.declaration(), Some(entry.name()))
+        }) || constructors
+            .values()
+            .any(|node| !ordinary_member(node, None))),
+    })
+}
+
+impl ObjectDeclarationSourceV1 {
+    pub(super) fn seal(self) -> CanonicalObjectDefinitionV1 {
+        let Self {
+            name,
+            fields: projected_fields,
+            declaration_shape,
+            ordinary_members,
+        } = self;
+        let destruction = if let Err(reason) = declaration_shape {
+            Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
+        } else if projected_fields.iter().any(|field| field.is_weak) {
+            Destruction::Unavailable(DestructionUnavailable::WeakField)
+        } else if projected_fields.iter().any(|field| {
+            field.declared_type_name.as_deref() != Some("ArrayBox")
+                && field
+                    .declared_type_name
+                    .as_deref()
+                    .and_then(
+                        crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
+                    )
+                    .is_none()
+                && !is_user_object_field(field)
+        }) {
+            Destruction::Unavailable(DestructionUnavailable::FieldType)
+        } else if !ordinary_members {
+            Destruction::Unavailable(DestructionUnavailable::MemberRole)
+        } else if projected_fields.iter().any(is_user_object_field) {
+            Destruction::OwnedObjectFieldsNoHook
+        } else if projected_fields
+            .iter()
+            .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"))
+        {
+            Destruction::OwnedArrayFieldsNoHook
+        } else {
+            Destruction::PlainI64NoHook
+        };
+        CanonicalObjectDefinitionV1::from_source_declaration(
+            name,
+            projected_fields,
+            declaration_shape,
+            destruction,
+        )
+    }
 }
 
 /// A non-builtin, non-scalar declared field type is a user-object class.
@@ -195,12 +218,15 @@ mod tests {
             "box Plain { value: u32\ncount: i8\nsize: isize }",
         ] {
             assert_eq!(
-                issue(&declaration(text)).unwrap().destruction_disposition(),
+                capture_declaration(&declaration(text))
+                    .unwrap()
+                    .seal()
+                    .destruction_disposition(),
                 Destruction::PlainI64NoHook
             );
         }
         for text in ["box Plain { value }", "box Plain { value: StringBox }"] {
-            let definition = issue(&declaration(text)).unwrap();
+            let definition = capture_declaration(&declaration(text)).unwrap().seal();
             assert!(definition.local_fields_for_layout().is_ok());
             assert_eq!(
                 definition.destruction_disposition(),
@@ -213,7 +239,10 @@ mod tests {
         };
         field_decls[0].is_weak = true;
         assert_eq!(
-            issue(&node).unwrap().destruction_disposition(),
+            capture_declaration(&node)
+                .unwrap()
+                .seal()
+                .destruction_disposition(),
             Destruction::Unavailable(DestructionUnavailable::WeakField)
         );
     }
@@ -226,7 +255,7 @@ mod tests {
             "box Plain { value: i64 = 1 }",
             "box Plain { value: i64\nbirth(x) { me.value = x } }",
         ] {
-            let definition = issue(&declaration(text)).unwrap();
+            let definition = capture_declaration(&declaration(text)).unwrap().seal();
             assert_eq!(definition.diagnostic_name(), "Plain");
             assert_eq!(
                 definition.local_fields_for_layout().unwrap(),
@@ -237,10 +266,11 @@ mod tests {
 
     #[test]
     fn legacy_init_fields_project_after_explicit_fields_once_in_source_order() {
-        let definition = issue(&declaration(
+        let definition = capture_declaration(&declaration(
             "box Holder { explicit: i64\ninit { count, items, explicit, count } }",
         ))
-        .unwrap();
+        .unwrap()
+        .seal();
         let fields = definition.fields();
         assert_eq!(
             fields
@@ -266,7 +296,7 @@ mod tests {
             unreachable!()
         };
         weak_fields.push("handle".into());
-        let definition = issue(&node).unwrap();
+        let definition = capture_declaration(&node).unwrap().seal();
         assert_eq!(definition.fields().len(), 1);
         assert!(definition.fields()[0].is_weak);
         assert_eq!(
@@ -318,7 +348,7 @@ mod tests {
                 Unavailable::Contracts => invariants.push(declaration("box Contract {}")),
                 Unavailable::StaticInitialization => *static_init = Some(Vec::new()),
             }
-            let definition = issue(&node).unwrap();
+            let definition = capture_declaration(&node).unwrap().seal();
             assert_eq!(definition.local_fields_for_layout(), Err(reason));
             assert_eq!(
                 definition.destruction_disposition(),
@@ -350,7 +380,7 @@ mod tests {
                 _ => fields.clear(),
             }
             assert!(matches!(
-                issue(&node),
+                capture_declaration(&node),
                 Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)
             ));
         }
@@ -392,11 +422,15 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         Ok(consume(object, definition))
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn has_pending_object_definitions(&self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn has_pending_object_definitions(
+        &self,
+    ) -> bool {
         self.object_definitions.borrow().is_some()
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn take_object_definitions(&self) -> Option<Box<[CanonicalObjectDefinitionV1]>> {
+    pub(in crate::mir::normal_callable_semantic_package) fn take_object_definitions(
+        &self,
+    ) -> Option<Box<[CanonicalObjectDefinitionV1]>> {
         self.object_definitions.borrow_mut().take()
     }
 

@@ -289,7 +289,7 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         let row = batch.birth_for(parent, 1).unwrap().unwrap();
         assert_eq!(
             plan.constructor(),
-            Some(&(row.source_id().clone(), row.forest.roots()[0]))
+            Some(&(row.source_id().clone(), row.source.forest.roots()[0]))
         );
     }
     let package =
@@ -501,7 +501,7 @@ fn constructor_lookup_rejects_foreign_or_mismatched_parent_not_as_no_birth() {
     let batch = &mut package.instance_constructors;
     let page = batch.box_sources.row_for("Page").unwrap().unwrap().clone();
     let other = batch.box_sources.row_for("Other").unwrap().unwrap().clone();
-    batch.rows[0].box_source = other;
+    batch.rows[0].source.box_source = other;
     assert!(matches!(
         batch.birth_for(&page, 0),
         Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
@@ -545,27 +545,27 @@ fn constructor_loan_rejects_lost_shape_and_completion() {
         let (first, rest) = package.instance_constructors.rows.split_at_mut(1);
         let row = &mut first[0];
         let foreign = &mut rest[0];
-        assert!(!row.birth_completion().unwrap().returns_value());
-        assert!(foreign.birth_completion().unwrap().returns_value());
+        assert!(!row.source.birth_completion().unwrap().returns_value());
+        assert!(foreign.source.birth_completion().unwrap().returns_value());
         let expected = match fault {
             "missing-shape" => {
-                row.body_shapes.clear();
+                row.source.body_shapes.clear();
                 "body-shape"
             }
             "foreign-shape" => {
-                let shape = foreign
+                let shape = foreign.source
                     .body_shapes
-                    .remove(&foreign.forest.roots()[0])
+                    .remove(&foreign.source.forest.roots()[0])
                     .unwrap();
-                row.body_shapes.insert(row.forest.roots()[0], shape);
+                row.source.body_shapes.insert(row.source.forest.roots()[0], shape);
                 "body-shape-owner"
             }
             "missing-completion" => {
-                row.birth_completion = None;
+                row.source.birth_completion = None;
                 "completion-owner"
             }
             "foreign-completion" => {
-                row.birth_completion = foreign.birth_completion.take();
+                row.source.birth_completion = foreign.source.birth_completion.take();
                 "completion-owner"
             }
             _ => unreachable!(),

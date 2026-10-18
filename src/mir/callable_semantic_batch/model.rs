@@ -129,6 +129,14 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         self.source.with_normal_program_source_loan(callback)
     }
 
+    pub(crate) fn with_ordinary_box_syntax<R>(
+        &self,
+        row: &crate::parser::ParserOrdinaryBoxSourceRowV1,
+        callback: impl for<'source> FnOnce(&'source crate::ast::ASTNode) -> R,
+    ) -> Result<R, crate::parser::FinalCallableProgramSourceRejectV1> {
+        self.source.with_ordinary_box_syntax(row, callback)
+    }
+
     /// Borrow the batch-owned BlockExpr expectation without reconstructing a
     /// count or opening another resolver traversal.
     pub(crate) fn block_expr_expectation(

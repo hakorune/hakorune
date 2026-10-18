@@ -779,10 +779,15 @@ it cannot omit the occurrence or retry through formal handling.
 parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals
 and normalized keys validate placement; work order or `(box name, key)` cannot
 issue occurrence identity. Before ordinary callable-batch consumption, the
-Brand-aware resolver issues complete forests for every constructor and nested
-lambda. Forests and body-shape products move through install; missing/changed
-syntax, deferred resolution, root/profile/cardinality drift or residual owners
-reject before Builder effects. Retention alone does not consume Brand relations
+Brand-aware resolver captures source-only rows for every constructor and nested
+lambda. Original IDs, forests, projections, body shapes and Completion move once
+into final rows after ordinary callable-batch resolution. Declaration structural
+preflight stays before resolver issuance; destruction, construction and physical
+formal contracts seal after the batch, before Core/ordinary admission. Captured
+parent coverage must equal the same batch coverage; parent syntax is lent by its
+parser-owned HRTB loan. No provisional Verified row or AST clone is issued.
+Missing/changed syntax, deferred resolution, root/profile/cardinality drift or
+residual owners reject before Builder effects. Retention alone does not consume Brand relations
 physically or retire raw `is_brand_declared` probes.
 `lowering_input_for_owner` lends a constructor's retained nested shape through
 compiler's SAME owner/source projection after the ordinary root checks. It
