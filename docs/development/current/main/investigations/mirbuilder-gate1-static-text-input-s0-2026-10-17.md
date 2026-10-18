@@ -960,32 +960,18 @@ Current integrated connection, worker-reviewed refinement:
 - Bool V2 must retain same checked comparison/short-circuit region and genuine
   outcome, not fake CallSlot, eager RHS, duplicated Break or DynamicLess rename.
 
-V912 required Recipe/JoinSig component (not production series completion):
-- SAME readonly DTO is class-parametric; V1/V2 relation verification now has one
-  owner (`read_only_inputs`), preserving V1 error order. V2 JoinView lends explicit
-  rows to existing neutral seed. Empty V2 wire stays byte-shape compatible;
-  selected static-I64/S6C/dynamic producers explicitly retain empty rows. No new
-  source authority, Home/physical permission, selector or fallback.
-- Read-only worker reviewed actual diff: no loss of V1 rejection semantics or
-  silent role inference. Existing collection fixture proves Header I64/Body Text
-  reads, zero readonly carrier/edge/port/After rows, absent relation refusal and
-  11 independent metadata/write/domain negatives. Existing V1 tests are reused.
-- Root912A28.300s failed solely on new test's collection accessor (field, not sole
-  facade method); corrected before Root912B85.554s PASS. Command:
-  `cargo quick-test-fast --no-run --message-format=json`, CARGO_BUILD_JOBS=4.
-  61 distinct focused PASS/0FAIL, execution .118s: V2 collection7, V1 readonly2,
-  typed V2 wire23/Text4/dynamic8/structure6, existing raw Loop child11. Stable4
-  (pointer/root-reference/layer-dependency/thin-shim) and diff PASS.
-- Source-matched CLI262179.103s PASS: `cargo build --profile quick --bin hakorune
-  --message-format=json`, jobs4. Test/CLI/current source snapshots exactly match.
-  Direct native command: CLI262 `--grammar-profile canonical --backend mir
-  --emit-exe OUT --emit-exe-nyrt runtime894 APP`, pure-first/compat-none/plugins
-  disabled, pinned FFI897A/kernel894A with explicit predecessor/compiler deltas.
-- Unchanged JSON324 .398646s exit1/no artifact, stderr EXACT JSON322: original
-  slot20/Body7 Value `core-expression-execution-pending`; no frontier advance.
-  Unchanged mimalloc325 EXE141.054s/run.001546s exit0, stdout/stderr/exit exactly
-  mimalloc323 (`summary=ok`, Result0); native output does not close Text/Loop.
-- Keep Root912A/B, CLI262, JSON324/mimalloc325 source/build/focus/native receipts
-  until full Text/Loop closure; no adapter introduced. Full suite not rerun (no
-  production cutover); latest fixed11 remains CLI260 5PASS/6 classified failures.
-  CI query still only old d4168473 failure/8e7179 success; no current-CI claim.
+V912 `0635cf23f0` owns required V2 readonly Recipe-to-neutral-JoinSig connection
+and shared V1/V2 class-parametric relation verification (one owner, no silent
+role inference, preserved V1 rejections and empty V2 wire). Selected production
+source constructors remain empty; source/Home/physical connections are still owed.
+That commit owns source/commands/pins, worker diff review, corrected Root912A
+collection test accessor failure and final Root912B85.554s/CLI262179.103s builds
+with exact source match. 61 focused PASS/0FAIL (.118s), stable4/diff PASS.
+Unchanged JSON324 .398646s exit1/no artifact remains EXACT prior Body7;
+mimalloc325 EXE141.054s/run.001546s exit0 and stdout/stderr/exit match323.
+FFI897A/kernel894A remain explicit predecessor pins. Retain Root912A/B/CLI262/
+native/source receipts until Text/Loop closure; no adapter added. No production
+series closure or frontier advance. Fixed11 not rerun; latest CLI260 is5PASS/
+6 classified failures. CI still only old d4168473 failure/8e7179 success, no
+current acceptance. Next: SAME original Loop Header/body/exit product and complete
+V2/JoinSig/cleanup/After/final-read closure; do not replace it with more receipts.
