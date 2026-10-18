@@ -12,7 +12,11 @@ Related: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml),
 
 ## Selection and actual source
 
-Selected row: `MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0`.
+Selected row: `MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0`.
+Inherited `MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0` remains unaccepted: the SAME
+Body7 Text argument needs Body6's complete Loop After and all downstream entry,
+finite-domain, ordering/cleanup/use/JSON/C obligations below. This selection
+moves to that prerequisite's actual owner; it does not close the prior row.
 This transfers the semantic owner from RequiredObjectForwardS0, which remains
 unaccepted with its independent acceptance/initialization/receiver obligations.
 It does not reopen parked untyped storage, scalar SCC, ExactText formal ABI,
@@ -841,152 +845,63 @@ V901f495ea1ea1/V90285f687e8bb/V9037f77d03941 retain completed contracts/evidence
 Latest JSON CLI251/app303 same slot20 Body7 stop; native CLI250/app302 matches app300.
 Keep pins/reports/FFI897A/kernel894A until Text closure. No Text/full-suite/current-CI claim.
 
-V904 Decision (same Text source-to-consumer series; read-only audits reused):
-- Existing argument packet distinguishes scalar-completed from owned-Text-deferred.
-  Derive acquisitions from SAME qualified frame/values/projections; node0 must be
-  newly owned and last. Retain whole stack through Call, no Install/root pop.
-  Borrowed Residence is never inferred owned from OwnedString. I64 child Ends
-  remain before Call; source Call/ordinal/formal and actual timing stay exact.
-- Earlier-argument prefix borrows original Local/Nested Call plus ordinal;
-  hierarchical final checks lend nested source directly, with no fake local
-  destination/standalone lookup. Only current CallResult subtree participates;
-  current Expression still demands SAME canonical frame. Duplicate acquisitions
-  refuse. Direct scalar emission stays I64; lifecycle Call owns Text retention.
-- Computed actual source retains SAME String frame with Rc-identity equality.
-  Source BorrowedActual and physical Expression remain distinct; original formal/
-  ordinal/site/Call/root join at physical value demand. Source retention alone
-  never activates input, entry or publication. Borrowed/static source frames
-  remain distinct from currently implemented owned-deferred physical matcher.
-- Normalize existing Static input finish rather than add a Text scheduler:
-  StaticInputFinish/ExecutableStaticInput has Zero or Qualified evidence.
-  Zero retains its original exact_rows census/arity law and shares signature/
-  result/Completion validation. Qualified uses full original source incoming,
-  original parameter contracts, current accepted Home frames and use source.
-- Original use closure retains SAME OriginalFormalUseSource Rc; every raw read
-  must match an active qualified reference or exact initializer entry alias.
-  Entry requirements compare SAME original read loan/source point. Uncovered
-  reads, all assignments/captures and unproved Print/Bool stay Pending. No fake
-  BorrowedFormalUsesDraft, unrelated Scalar/Residence/Static entry substitution,
-  class-only acceptance or omission of unknown/unselected incoming is permitted.
-- Qualified finish prepares every original row before atomic Ready install.
-  Original SourceStatic snapshot lives in the completed proof; immutable source
-  getters borrow it without pending-map rebuild/frame requalification. Mutation
-  remains SourceStatic-only. Regenerated actuals retain each exact frame.
-- Before exposing completed actual slices, the SAME whole-cohort lender demands
-  every sibling already Qualified-complete and corroborates source/Completion/
-  use Rc, original snapshot, ordered tuple and regenerated actuals. Pending,
-  refused, missing, foreign or changed siblings cannot pass by being finishable.
-  Packet and entry incoming consumers both demand this lender.
-- Computed Text source and this common input protocol require OpaqueHandle,
-  never DeclaredObject. Named-object input keeps its existing owner and class
-  checks; qualified I64 neighbors keep their scalar source/physical contract.
-- Physical construction now lends original Local/Nested Call/ordinal and real
-  source-scoped receiver locator through production ports. SAME Text frame emits
-  under BorrowedActual; argument results never replace source meaning.
-- SAME Call packet retains only physical Normal ingress/continuation and actual
-  End observations; ownership is rederived. Existing root graph writes reverse
-  retained argument Ends, then inherited temps/Homes on Fault. I64 stays early.
-  Final Call owner checks own Invoke Fault even with zero arguments, each End
-  Fault suffix and captured Normal delimiters. Expression owner delegates exact
-  original Call effects hierarchically; source order crosses only packet Ends.
-- Additional touched paths are existing raw/scoped Call ports (real receiver
-  locator loan), Call packet Normal owner and existing prefix reexports. Terminal
-  Call/root Home boundary, complete ABI and final all-use/incoming remain owed.
-- Encoder tag-only helper refuses computed Expression without SAME finalized
-  descriptor. The compiled incoming witness now retains exact owned operands;
-  final entry loans retain canonical full per-formal SUM Rc identity. Both final
-  scans independently corroborate owned Text occurrences with that SAME image.
-  JSON lends text_view only for exact TextOnly; finite domains remain refused.
-- Paths: existing source actual model/Static argument/source/input-finish owners,
-  issuer input-finish call, entry contract/read/incoming/packet consumers, shared
-  expression and argument writer/path/Call projection, compiled JSON transport,
-  existing source/atomic/transport regressions and src/mir README. No .hako,
-  fixture app, registry, guard owner, fallback or second expression evaluator.
-- B–T pins retain preparation/compile/counterexample history. T57.580s/114PASS2red
-  fixes RefCell locator capture; compiler reaches MIR string-owned-escape.
-- Argument scope order is now checked across previous completion/next entry/Call,
-  borrowing recursive CallResult boundaries, without flattening child ownership.
-- String verifier follows existing owned-array split: function-level role/live
-  checks retain ownership; mandatory module gate demands SAME original source
-  image's exact caller/coordinate/ordinal/ValueId descriptor. Source-less module
-  verification, raw Call, receiver, Copy/PHI/store/Return and dead/Fault borrows
-  remain rejected. Generic borrowed-slot membership alone is insufficient.
-- Additional paths: existing String/module/source-call owners, finalized packet,
-  source projection and lexical visitor. Entry loan checks original formal/
-  ValueId/carrier correspondence; lexical visitor demands it for borrowed callees.
-- U135.040s/127PASS2red reaches JSON borrowed-expression/descriptor-missing.
-  V62.261s exposes unused borrowed-parameter swap missed by lexical visitor;
-  W59.586s/127PASS2red closes it via common entry loan. Final source tests reject
-  argument swap/value/CallFault/End mutation before reaching SAME JSON stop.
-  Plain-completion remains baseline; desired JSON case remains new required red.
-  Stable4/diff PASS; only docs changed after W. No ABI/native/entry activation.
-- Known plain-completion test red at...formal_actual_tests:300 independently
-  reproduces on Root903C; logs root-v904e.plain-completion-baseline.log retained.
-  Prior named-array/guarded-receiver baseline obligations remain in full goal.
-- Y141.484s build PASS after X78.825s compile2err (method visibility and one
-  kind-only fixture missing domains). Y focused128PASS/1baseline: selected
-  two-owned-Text-argument compiler case now reaches final JSON. Existing atomic
-  test also rejects domain reorder/missing/equal-reissued Rc at both lenders.
-  Read-only consumer review found no must-fix authority/schema issue in this
-  exactText path. Finite SUM is retained, never reduced to TextOnly by class.
-- CLI252223.538s/app304 unchanged json .399883s exit1/no artifact, exact same
-  slot20/Body7 core-expression-execution-pending. Binary49bbf688b866dabe2eff7dd2fc15590781d1a9cfe95fd4298f0d774c1fdfffae;
-  source SHA remains b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370.
-  This is a local JSON connection, not actual app advancement.
-- Read-only actual-source revalidation: Body6 Loop still loses Home prefix;
-  Body7 argument stays unqualified. Canonical source flow already retains its
-  LoopAfter ConditionFalse/Break inputs, but common Home After publication and
-  CurrentScalarProducer::LoopAfter/read fulfillment are absent. Connect SAME
-  Recipe/JoinSig and exact After value through Home and both final consumers,
-  preserving zero-trip/Break payloads and scoped Text/conditional cleanup.
-  Do not substitute initial start, a MIR Phi/type guess, or Mul's fixed pair.
-  Construction owner: retained PreissuedCallableLoopSourcePlan/SourcePlan plus
-  common join_sig flow and complete root-carrier closure; preserve all original
-  After bindings and conditional source/control. The bounded integer-only
-  produce_loop_cond_break_continue_recipe cannot represent this actual loop.
-  Extend VerifiedLoopCondAfterPhysicalRole with original binding-to-Phi identity;
-  publish_source_loop_final_value must retain After provenance in the SAME
-  MaterializedValues slot. ExactLexicalRead/expression_reference_read must demand
-  that loan and original Phi/Copy dependencies, never fake initializer provenance.
-  Reuse source_value_flow Loop, join_sig After/collection, phi materializer and
-  initializer family tests for zero-trip/Break loss, swapped Phi and foreign proof.
-  This is the next actual frontier before downstream order/terminal work.
-- CLI252/app305 mimalloc regresses at selected-static-packet/canonical-entry-
-  required before artifact (10.549s). New generic source probe incorrectly
-  queries SelectedStaticLoop. Normalize final lexical entry/descriptor probes
-  through existing retained canonical packet lender, leaving generic rejection
-  intact. Z40.484s/128PASS2red exposed the second descriptor probe; ZA56.664s
-  fixes both. ZA focused129PASS/1known baseline, including the existing selected
-  Loop regression; additional compiled-entry31 and source-kind1 PASS. No zero
-  filters. Stable4/diff PASS; only owner docs changed after this Rust build.
-- CLI25361.260s, SAME ZA source manifest, binary
-  9de8ed08ff41a6df847fd929f9989dc6b1cdfb1a422acc525914707b76a9bf25.
-  App306 unchanged mimalloc canonical direct EXE141.712s/run.001468s exit0,
-  exact stdout/stderr/exit equal app302 (summary=ok, Result:0). Introduced
-  regression is resolved. Reused FFI897A/kernel894A retain their pinned hashes
-  and explicit predecessor source deltas; not three newly rebuilt artifacts.
-- App307 unchanged json .397097s exit1/no artifact, exact app304 same-stop.
-- probe-v904-owned-text-call: SAME selected compiler fixture, two owned Text
-  arguments into unused opaque formals; direct canonical EXE105.475s, C/LLVM
-  lifecycle-v4 trace3functions/39blocks, run.001222s exit0/Result:0. Source
-  dc274ec61b7302adcea7cbf24dc3df1d4201b070c0800e95b771a212f37e4a8c;
-  executable223d36a8ea72086501e3e48d314a7573cc407ef5d558bbb8642112621f77fb2f.
-  This proves only this exactText ABI/cleanup path; no full formal-use/app/finite
-  domain claim. Wire capture found no temporary JSON; no saved-wire claim.
-- Downstream (read-only builder reviewed): existing Call normal-order owner must lend
-  each SAME fully validated argument's opaque entry-to-continuation transition;
-  do not flatten raw packets/Fault blocks or skip arbitrary intervening Invoke.
-  Terminal Call shares argument cleanup before the separate root Home boundary;
-  preserve terminal source Call and independent argument/Home inventories.
-  Outer order still owes validated opaque Expression-argument transitions;
-  terminal Call cleanup precedes its separate Home boundary. SelectedDynamic/
-  document source-less gates stay closed until their own source connection;
-  finite SUM/Null/dual Add, Loop After, both complete Call+initializer+Print
-  (Bool later) incoming/use images and named JSON/C obligations all remain.
-- V904 exactText source-to-C checkpoint is verified; full Text series remains
-  unaccepted. Keep B–Y build/test manifests/logs and pinned
-  tested binaries and native receipts for source/baseline comparison until full
-  Text closure (including ZA/CLI253/probe artifacts); no
-  full-suite/current-CI/series claim. CLI253/app306 is latest unchanged native
-  success; app307 is latest JSON same-
-  stop. App305/Z red are retained resolved-regression evidence, not current red.
+V904 exactText checkpoint landed at `496db633e6`. That commit owns the complete
+source/cohort/frame/domain retention, argument lifetime graph and both final
+Call scans through exactText JSON/C. It also owns 161 focused PASS/one
+independently reproduced plain-completion baseline, stable4/diff PASS and the
+resolved SelectedStaticLoop regression. Generic admission remains rejected;
+final consumers use the existing retained canonical packet lender.
+CLI253/app306 unchanged mimalloc EXE141.712s/run.001468s exit0 and exact prior
+stdout/stderr confirm the first milestone. Limited two-owned-Text/unused-formal
+probe EXE105.475s/run.001222s exit0 proves only that ABI/cleanup path.
+CLI253/app307 unchanged json .397097s exit1/no artifact remains original
+slot20/Body7 `core-expression-execution-pending`; no actual app advance.
+Complete commands, hashes, receipt conditions and earlier counterexamples are
+preserved in `496db633e6`. Keep ZA/CLI253/app306/app307/probe artifacts until
+full Text closure for source/baseline comparison; no temporary adapter added.
+
+V905 Decision (read-only source/physical workers reviewed):
+- Source authority: original Body6 loop membership/frame, sole retained
+  PreissuedCallableLoopSourcePlan/SourcePlan, exact located body/source projection;
+  original source flow LoopAfter ConditionFalse/Break inputs and source bindings.
+- Build one SourcePlan-owned complete After product through common Recipe/V2
+  JoinSig, original Text entry/residence/scalar proof and conditional control.
+  Extend the existing source-product slot/Home loan; do not add a registry.
+- First implementation path: existing join_sig/v2 + transfer_view_v2 + existing
+  v2_collection_tests; shared logical transfer validation lends ALL co-sealed
+  After rows. Preserve sole-carrier facade and reject partial collections.
+  This is prerequisite logical construction, not Home/physical permission.
+- Next paths: existing generic planner/source proof, prestate/Home scanner,
+  home_prefix_scalar, loop final-value publication/materialized values,
+  physical After role and exact lexical read, expression_reference_read and
+  both final consumers; their source-bound contracts must close in this series.
+- Complete closure includes predicate-false/zero-trip, every Break payload,
+  original carrier/binding correspondence, Continue/backedge consistency,
+  scoped Text cleanup and short-circuit String guards. All source classifier
+  arms and required incoming functions remain represented, never dropped.
+- The integer-only bounded LoopCond producer and Mul's fixed two-binding proof
+  cannot represent this source. V1 has no Text/CallSlot. V2 operation receipts
+  and conditional control must preserve exact String <, > and Or semantics.
+- Physical After role must retain original binding-to-Phi correspondence.
+  publish_source_loop_final_value must attach this After provenance to the SAME
+  materialized slot after exact emission validation. ExactLexicalRead loans it
+  through Copy/FinishedBindings validation; LoopAfter is not an initializer.
+- Reject missing zero-trip/Break input, wrong binding/class/loop/frame/Phi,
+  foreign/reissued proof, stale preloop provenance, changed Copy and rebind reuse.
+  Reuse source_value_flow Loop, JoinSig After/collection, phi materializer,
+  materialized-value/alias and existing real initializer/argument consumers.
+- No raw updated-binding/I64/physical Phi grant, fake covered prefix, AST rewrite,
+  app-name recognizer, `.hako` change, fallback or new guard/test registry.
+
+Inherited remaining Text obligations:
+- Full canonical Text|I64|Null entry/incoming/use images, original terminating
+  Null guard and dual Add envelopes; exactText probe does not fulfill to_i64.
+- Complete Call+initializer+Print (Bool later) and both final consumer images.
+- Outer expression order must lend SAME validated argument entry/continuation
+  intervals; never flatten Fault blocks or skip arbitrary Invoke.
+- Terminal Call must end retained arguments before its separate root Home
+  boundary; keep inventories disjoint and terminal source Call unchanged.
+- SelectedDynamic/document source-less gates remain closed until their source
+  authority is connected; all named JSON/C and full-goal requirements remain.
+- Full Text and RequiredObjectForwardS0 are unaccepted; prior named-array,
+  guarded-receiver and MapGet baseline obligations remain. No full-suite/CI claim.

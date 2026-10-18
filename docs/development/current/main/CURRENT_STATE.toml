@@ -1,9 +1,9 @@
 date = "2026-10-17"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
+current_execution_row = "MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "static-text-input/source-to-consumer"
+current_blocker_token = "loop-after/source-to-text-read"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,18 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-Gate1 STATIC-TEXT-INPUT-S0 source-to-consumer construction remains selected;
-full Text series is unaccepted. Common initializer/Core-I64 execution and
-source-bound typed Static arguments now reach publication in focused evidence.
-Current build/app receipts and remaining entry/residence/whole-incoming/lifetime,
-both-scan and named JSON/C obligations belong only to the active card.
-RequiredObjectForwardS0 and parked untyped storage retain their prior conditions.
-Full finite goal retains integration, R6/R7/Loop/authority/parser/nondelegating
-selfcompile and every mandatory acceptance. No full-suite/CI green claim.
+Gate1 LOOP-AFTER-TEXT-READ-S0 is selected for the unchanged JSON Body6/Body7
+source frontier. Prior STATIC-TEXT-INPUT-S0 and full Text series stay unaccepted;
+496db633e6 retains verified exactText source-to-C and unchanged mimalloc evidence.
+Connect complete original Loop After through Recipe/JoinSig, Home and exact
+physical read provenance; preserve all remaining Text/incoming/cleanup gates.
+Active card owns current evidence and construction scope. RequiredObjectForwardS0
+and parked lanes retain their conditions. Full finite goal still includes all
+integration, R6/R7/Loop/authority/parser/nondelegating selfcompile requirements.
+No full-suite/CI green claim.
 """
-next_design_card = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
+next_design_card = "MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
-next_execution_card = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
+next_execution_card = "MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
