@@ -16,7 +16,7 @@ use super::{
 
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 
-fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
+pub(super) fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     final_source_with_config(source, ParserBuildConfig::default())
 }
 

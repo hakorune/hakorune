@@ -2,26 +2,9 @@ use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedNormalCallableKeyV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
-use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
+use super::tests::final_source;
 
 use super::{issue_normal_callable_semantic_package_v1, SelectedCallableSemanticRefV1};
-
-fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
-    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-        source,
-        ParserBuildConfig::default(),
-    )
-    .expect("normal callable source");
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
-            .expect("exact callable transform");
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-        else {
-            panic!("fixture must remain source-backed")
-        };
-        source
-    })
-}
 
 fn issue(
     source: &str,

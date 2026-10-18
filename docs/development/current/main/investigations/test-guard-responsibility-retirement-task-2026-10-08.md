@@ -196,3 +196,21 @@ macro-disable scope and SourceBacked refusal are identical; resolver sessions
 936A baseline:loop9PASS, header5PASS; shared-caller group20PASS/1 existing red
 (to be compared by exact failure before closeout). Unfinished Loop compiler WIP
 stays retained in its original card; no production connection/completion claim.
+
+TR-2 closeout: two duplicate parser helpers removed; test Rust net-34 lines,
+no new helpers/files/test cases.936B build61.539s PASS. Same 8MiB/one-thread
+filters:loop9PASS/header5PASS/shared20PASS+1 unchanged baseline failure,
+`top_level_and_dynamic_candidate_share_one_complete_package_batch`, same
+`ordinary-new/source-sum/caller-contract`. Full test-name inventory unchanged.
+This refactor does not fix that compiler-source contract red or claim suite green.
+Worker confirmed exact env/config/order equivalence. Evidence936A/B retained
+until maintenance closure; no new baseline, checker or safety waiver.
+
+TR-3 selected next: same facade owner receives existing four import checks;
+default preserves export→module→import order, registry retains import-only scope.
+Before change, facade exits1 at existing non-allowlisted ArrayReadSiteId (.039s);
+import hygiene PASS(.096s). Preserve this known red; do not expand the allowlist.
+For independent equivalence evidence use disposable tree fixtures, including a
+healthy facade and each original failure, without committing tests/guards.
+Update facade contract, live cleanup command/index/registry/quick callers and
+existing navigation tombstone; this expands docs only where owned facts change.
