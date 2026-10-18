@@ -932,56 +932,33 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   fake If seal, initializer permission for carriers, .hako rewrite and fallback
   remain forbidden; full Text/incoming/cleanup/fixed-suite/full-goal debts stay.
 
-V909 landed construction: `e3d050a785` owns original LoopFrame port-invariance
-normalization and exact source LoopCond Phi completion. All original reachable
-Backedge/Continue/Break/condition-false snapshots must agree before reducing
-Header/After; carrier/alias updates remain joins. Substitutions wait for complete
-seal; strict alias queries stay unchanged. This proves port-value identity, not
-absence of writes on terminating paths or a physical ReadOnly/type/Home grant.
-The physical source emission port completes SAME Header/Step/After rows only
-post-deferred-input/patch/CFG seal, checking global unique definitions, original
-destinations, all incoming and predecessor/prefix census. Existing final boundary
-consumes these exact rows. Destination-only outer role capture is retired.
+V909 landed `e3d050a785`: complete original LoopFrame port-invariance
+normalization and exact Header/Step/After physical Phi completion, with strict
+alias APIs, all incoming/prefix/predecessor checks and final-boundary consumption.
+That commit owns full source/commands/pins/corrections, 75 focused PASS/1 independently
+reproduced baseline, unchanged mimalloc319 native/output/exit, JSON318 unchanged
+Body7 and fixed11 5PASS/6 classified baseline failures. Retain its source/native/
+baseline manifests until Text/Loop closure; no adapter or whole-series acceptance.
 
-`e3d050a785` preserves source/commands/pins/build corrections and final evidence:
-Root909D75 distinct focused PASS/1 independent pre-change field-read baseline;
-stable4/diff PASS. CLI259 build223.868s with exact D source; unchanged mimalloc319
-EXE154.379s/run.001402s exit0 and exact previous stdout/stderr/exit. Unchanged
-JSON318 .395848s still Body7 pending/no artifact. Official fixed11 5PASS/6FAIL
-438.959s; all six full diagnoses/panic match classified CLI258/257 and independent
-CLI256 baseline chain. FFI897A/kernel894A remain predecessor pins with explicit
-compiler-only deltas. Preserve V909 manifests/native/baseline/failed-build receipts
-until Text/Loop closure; no adapter added. No whole-series/current-CI acceptance.
+V910 landed `eee9731d82`: selected source LoopCond now consumes canonical
+Carrier + nonlocal BodyOnlyRebind rows from SAME pre-effect schedule. Readonly
+producers/provenance and iteration-local scope are retained. The existing
+resolver name table locates exact materialized BindingRefs with cache-value/
+owner/duplicate checks before allocation; Header/After publish directly by that
+BindingRef. AST carrier reclassification and reverse-name publication edges
+are removed from this consumer; shared raw/other source owners retain callers.
 
-V910 construction in the SAME integrated Loop unit (read-only worker review):
-remove the selected LoopCond physical owner's AST/name carrier reclassification.
-Borrow Carrier rows plus nonlocal BodyOnlyRebind rows from SAME pre-effect
-schedule; retain ReadOnlyOperand producers and IterationLocal scope separately.
-Use existing resolver binding_names only to locate exact already-materialized
-BindingRefs in Builder's map; drift/duplicate/missing values fail before allocation.
-Publish Header/After via the selected BindingRef, not a reverse name lookup.
-Existing source-port final-MIR regression checks readonly Text stays its original
-entry producer and gains no Phi. Shared raw/other source routes keep their owner.
-This is the physical leg, not integrated Header/Home/rebind/cleanup completion;
-the scalar-rebind mapping above remains required, with no initializer disguise
-or second root packet pool. Scope: source input/port, physical source LoopCond,
-existing value-publication owner/tests, owner README and this card.
-
-V910 validation (same source manifest for Root and CLI): Root910A build73.586s,
-52 focused PASS/0FAIL, stable4/diff PASS. Existing source-port fixture now covers
-normal/outer-body-only writes (3/6 Integer Phis, original readonly Text retained)
-and missing/drift rejection before physical allocation. Existing state tests
-cover entry/owner/materialization/name/value refusal. Worker final review found
-no must-fix. CLI260 build180.197s, SHA
-`b294d5f5d71661728c3405c42bce760d34542a5a34866bbfaa8e5357db48f99f`.
-Unchanged JSON320 .399842s is EXACT JSON318 diagnostic/no artifact at Body7;
-no source-frontier advance. Unchanged mimalloc321 EXE156.348608s/run.001596s,
-exit0 and exact mimalloc319 stdout/stderr/exit; source SHA unchanged. FFI897A /
-kernel894A remain predecessor pins with explicit compiler-only deltas.
-Keep V910 Root/CLI/native/suite source manifests and comparison receipts in
-`/tmp/mirbuilder-required-forward-resume` until integrated Text/Loop closure;
-no temporary adapter was added. Full Home/Header/rebind/exit/After and all goal
-acceptance remain required. Official fixed11 finished 5PASS/6FAIL in439.787695s (driver437.513658s).
-All five full MIR diagnostics and the untyped-field panic exactly match CLI259;
-classification retains the independent CLI256 baseline chain. These six failures
-remain goal debts; no full-suite/current-CI acceptance.
+`eee9731d82` owns all implementation/owner-doc paths, original commands/source
+manifests and final evidence: Root910A build73.586s, 52 focused PASS/0FAIL;
+stable4/diff PASS. Existing source-port fixture checks 3/6 Integer Phis for
+normal/body-only external writes, unchanged readonly Text, and pre-allocation
+missing/drift rejection. Worker review found no must-fix. Matched CLI260
+build180.197s; unchanged mimalloc321 EXE156.349s/run.001596s exit0 and exact prior
+stdout/stderr/exit. Unchanged JSON320 .399842s is EXACT JSON318 Body7 diagnostic,
+no artifact/frontier advance. Fixed11 5PASS/6FAIL439.788s, all five full MIR errors
+and untyped panic exactly CLI259, retaining the independent CLI256 baseline chain.
+FFI897A/kernel894A remain predecessor pins with explicit compiler-only deltas.
+Retain V910 Root/CLI/native/suite manifests and comparisons under the existing
+/tmp evidence directory until integrated Text/Loop closure; no adapter added.
+Full Header/Home/rebind/exit/After connection and all goal acceptance remain
+required; no whole-series, fixed-suite or current-CI green claim.
