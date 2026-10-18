@@ -780,3 +780,57 @@ one source-backed fixed Array residence contract across these existing owners,
 using the SAME original complete sole-provider writer loan, before construction.
 Source-only success or typed fixture EXE does not complete this source-to-final
 row, RequiredObjectForwardS0, retained Loop/Text, or finite full goal.
+
+Root942 Decision — source qualification order and first normalization:
+The existing all-writer inventory is the canonical fixed-residence source owner,
+not the declaration spelling or MIR layout. Capture original declarations and
+resolved Birth source before executable construction; seal original complete
+writers; qualify the same canonical field from the SAME loan; then seal
+construction/formals/destruction/Home/layout once. Keep declared_type_name=None
+as syntax, not a fabricated ArrayBox annotation. Whole-Normal-path Birth
+initialization remains separately mandatory; sole-writer does not prove execution.
+Weak/duplicate fields, opaque or unattributed writers, replacement/null/nonPlain,
+foreign constructor/provider, Array arguments, missing initialization and escaped
+borrows remain refused. Generic untyped storage/Map/scalar inference are not
+selected; users alone cannot establish the JSON object's other field contracts.
+
+First safe BoxShape slice: split OrdinaryNewFieldWriteClaimDraftV1.finish into
+constructor-independent seal_inventory and same-Rc project_claims. Switch the
+sole production preparation caller and three existing test callers, then remove
+finish. No new receipt/map/census, no inventory clone/re-observation, no helper
+without caller. Preserve the existing opaque/value_incomplete gates exactly;
+this slice changes no source admission or source first-stop. Existing stored-child,
+field/source and Count publication/negative tests are the acceptance. No new tests
+or guard. Later constructor source-capture/final-seal separation and fixed field
+contract through all consumers remain required in this series, not product-done.
+This resolves the implementation mapping for the BoxShape slice only; it does
+not authorize a partial None predicate waiver or generic inference implementation.
+
+Root942 Phase A verified: seal_inventory moves original writes into the existing
+Rc once; project_claims consumes it and retains the same Rc in every derived
+class/value loan. Sole production and three existing test callers switched;
+old finish entry removed, no forwarding adapter. No source admission, writer
+gate, construction order, result class or storage permission changed.942A quick
+build105.099s PASS (jobs4). Existing stored-child baseline941B6PASS;942A six
+focused filters40PASS (8MiB/one-thread), including hidden/duplicate/nested writer
+negatives and source/Count/publication/drift/Core/backend checks. Full test list
+byte-identical9263; four Get/Count source-issued JSON inputs byte-identical941A.
+Pointer/layer/CallTarget and diff PASS. Owner README updated at its existing
+field-write paragraph; that doc is the only source-manifest delta after build.
+No new test/case/checker/file, native run or speedup claim. Current JSON frontier
+has not been remeasured; prior JSON365 remains the explicit unchanged-source
+baseline, not a claim of this revision's CLI result. Keep942A/941B receipts for
+same-role regression until fixed-residence acceptance. No temporary adapter.
+
+Next same-series BoxShape: split constructor source capture from final semantic
+seal. Raw rows retain canonical declaration/source identity, original forest,
+projection/body/Completion; they grant no construction or Home. Preserve resolver
+issuance order (constructor forests before callable batch). Final construction
+and formal use/disposition must seal once after qualification; formal declarations
+can be retained earlier, but classify_uses depends on final construction. The
+existing test-only constructor entry and actual package caller must share this
+one source capture and seal; do not add a second issuer or mutate a provisional
+Verified row. Inventory projection still needs final constructor source-store
+correspondence, so phase movement must borrow sealed inventory BEFORE that
+projection rather than calling it early. Remaining fixed field/source-to-final
+conditions above stay open; Phase A is preparation, not application progress.

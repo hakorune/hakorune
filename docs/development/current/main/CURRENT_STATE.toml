@@ -1,10 +1,10 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "field-array/untyped-fixed-residence"
-current_design_stop = "FixedArrayResidenceSourceContractMissing"
+current_blocker_token = "field-array/constructor-source-capture"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,19 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-FIELD-ARRAY-READ-S0 typed Count source/physical/both-final/publication verified:
-root941B48PASS, generated four JSON inputs unchanged, CLI280 Count0/1 EXE and
-unchanged mimalloc output/exit PASS with explicit predecessor backend provenance.
-Unchanged JSON365 still same owner32 Body10 source-not-i64: users has no declared
-field type. Resolve fixed source Array residence storage/Home/layout contract
-through existing owners; a source predicate relaxation grants none of these.
-Same row and all finite integration/R6/R7/Loop/authority/parser/selfcompile gates
-remain open. No full-suite/CI or current-HEAD rebuilt CLI claim.
+FIELD-ARRAY-READ-S0 source inventory BoxShape verified: sole seal_inventory and
+same-Rc project_claims, all4 callers switched and combined finish removed.
+942A40PASS, test names and four issued Get/Count JSON inputs unchanged. No new
+admission/tests/checkers; original JSON frontier still unaccepted.
+Next split constructor source capture from final construction/formal seal,
+preserve resolver order, then same inventory can qualify fixed field before seal.
+Typed Count5f12f37970 remains verified; full source-to-final row and finite
+integration/R6/R7/Loop/authority/parser/selfcompile gates remain open.
 """
 next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

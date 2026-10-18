@@ -71,7 +71,7 @@ pub(crate) struct OrdinaryNewFieldWriteClaimsV1 {
 
 /// One immutable original inventory shared by all of its derived field loans.
 #[derive(Debug, Default)]
-struct OriginalFieldWriterInventoryV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct OriginalFieldWriterInventoryV1 {
     writes: Box<[ObservedFieldWriteV1]>,
     unattributed_fields: BTreeSet<Box<str>>,
     opaque: bool,
@@ -433,11 +433,9 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// provider `new` or `Parameter` store, nothing else. A `Provided`
     /// residence carries no class — children sealing resolves the
     /// declared field type, and it never mints a stored-`new` claim.
-    pub(crate) fn finish(
+    pub(in crate::mir::normal_callable_semantic_package) fn seal_inventory(
         self,
-        ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
-        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
-    ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedFieldResidencesV1) {
+    ) -> Rc<OriginalFieldWriterInventoryV1> {
         let mut observed = BTreeMap::new();
         for write in &self.writes {
             *observed.entry((write.owner(), write.assignment().target_site().clone(),
@@ -451,6 +449,18 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
             .filter(|write| !write.is_attributed() || write.owner_box.is_none())
             .map(|write| write.field.clone())
             .collect();
+        Rc::new(OriginalFieldWriterInventoryV1 {
+            writes: self.writes.into_boxed_slice(), unattributed_fields, opaque: self.opaque, value_incomplete,
+        })
+    }
+}
+
+impl OriginalFieldWriterInventoryV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn project_claims(
+        self: Rc<Self>,
+        ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedFieldResidencesV1) {
         // Group references to the original observations, not a second scan of
         // source or an independent numeric classifier.
         let mut fields: BTreeMap<(Box<str>, Box<str>), Vec<&ObservedFieldWriteV1>> =
@@ -466,7 +476,7 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
         let mut residences = BTreeMap::new();
         let mut object_classes = BTreeMap::new();
         for ((owner_box, field), stores) in fields {
-            if self.opaque || unattributed_fields.contains(&field) {
+            if self.opaque || self.unattributed_fields.contains(&field) {
                 continue;
             }
             let key = (owner_box.clone(), field.clone());
@@ -508,9 +518,7 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 object_classes.insert((owner_box, field), class.clone());
             }
         }
-        let writers = Rc::new(OriginalFieldWriterInventoryV1 {
-            writes: self.writes.into_boxed_slice(), unattributed_fields, opaque: self.opaque, value_incomplete,
-        });
+        let writers = self;
         let object_classes = Rc::new(object_classes.into_iter().map(|(key, class)| {
             let declaration = ordinary_box_coverage.row_for(&key.0).ok().flatten()
                 .and_then(|source| writers.writes.iter()

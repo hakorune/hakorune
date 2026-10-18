@@ -891,10 +891,13 @@ unproven parent bindings remain unselected. This joins original receiver class
 and the same field-write claim only; scalar-family membership, live receiver
 root, inputs, cleanup and final correspondence remain independent obligations.
 
-The existing field-write claim product also retains every observed original
-assignment and its shared `resolved_value_profile` RHS plan (or explicit plan
-failure), owner, field and Birth role. Its object-class `get` projection and
-owned-residence rules are unchanged. Unknown receivers and missing inventories
+The field-write draft's `seal_inventory` settles observed/required writer
+completeness, unattributed/opaque vetoes and original RHS plans once, independently
+of constructors. The same immutable inventory Rc then owns `project_claims`,
+which uses canonical declarations/constructors for object classes, residences and
+value sources. All four callers use this split; the old combined finish entry is
+removed. Source loans retain that same inventory; there is no second census.
+Object-class `get` and owned-residence rules are unchanged. Unknown receivers and missing inventories
 remain vetoes in this same product; failed/non-object writers are never erased.
 Object-class consumers share the SAME immutable source map and original writer
 inventory. Typed path edges additionally retain the canonical declaration and

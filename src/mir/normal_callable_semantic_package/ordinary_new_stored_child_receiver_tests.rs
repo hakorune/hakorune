@@ -514,7 +514,7 @@ static box Main {
         let mut draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
         draft.observe_function(input, Some("Outer"), Some(birth.source_id()));
         draft.observe_function(without_shape, Some("Outer"), Some(birth.source_id()));
-        let (claims, residences) = draft.finish(package.batch().ordinary_box_coverage(), &package.instance_constructors);
+        let (claims, residences) = draft.seal_inventory().project_claims(package.batch().ordinary_box_coverage(), &package.instance_constructors);
         assert!(claims.has_hidden_writers());
         assert!(matches!(claims.value_source("Outer", "inner"),
             Some(Err(field_write_claim::FieldValueSourceIssueV1::HiddenWriters))));
@@ -527,7 +527,7 @@ static box Main {
         let mut duplicate = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
         duplicate.observe_function(input, Some("Outer"), Some(birth.source_id()));
         duplicate.observe_function(input, Some("Outer"), Some(birth.source_id()));
-        let (claims, _) = duplicate.finish(package.batch().ordinary_box_coverage(), &package.instance_constructors);
+        let (claims, _) = duplicate.seal_inventory().project_claims(package.batch().ordinary_box_coverage(), &package.instance_constructors);
         assert!(!claims.has_hidden_writers());
         assert_eq!(claims.get(&("Outer".into(), "inner".into())).map(|name| name.as_ref()), Some("Inner"));
         assert!(matches!(claims.value_source("Outer", "inner"),
@@ -551,7 +551,7 @@ static box Main {
         let mut nested = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
         nested.observe_function(input, Some("Outer"), Some(birth.source_id()));
         nested.observe_function(nested_input, Some("Outer"), None);
-        let (claims, _) = nested.finish(package.batch().ordinary_box_coverage(), &package.instance_constructors);
+        let (claims, _) = nested.seal_inventory().project_claims(package.batch().ordinary_box_coverage(), &package.instance_constructors);
         assert_eq!(claims.writes().len(), 2, "retain Birth and root write; nested write is absent");
         assert!(!claims.has_hidden_writers(), "root body shape is present");
         assert!(matches!(claims.value_source("Outer", "inner"),
