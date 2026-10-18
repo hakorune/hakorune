@@ -956,3 +956,34 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   exact338; compile stderr differs only ns. Runtime894A/FFI897A are explicit
   predecessor pins, not fresh all-three source equality. Source manifest checks
   and stable4/diffPASS; retain B/CLI268/native evidence until whole Loop closure.
+
+- Root926 BoxShape scope: extract existing IfForm cursor/append/SSA-loan issuer
+  to builder/condition_materialization.rs; existing If wrapper retains original
+  targets/merge and observer Rc, and deferred EdgeCFG still emits after arms.
+  Read-only condition worker reviewed actual extraction; no source reclassification
+  or early Branch. Finish checks captured/current/writer block agreement.
+  Only builder.rs module declaration, IfForm, shared issuer and builder README
+  belong to this extraction; older builder.rs source-role export stays WIP.
+  Existing If descent/whole Bool/borrowed-write guards verify the shared caller.
+  Checked Loop driver/typed purpose/physical completion remain next, not enabled.
+
+  Root926A84.546s compile;26 focusedPASS/1 independently reproduced prior925B
+  failure: if_driver_preserves_termination_and_variable_phi_shapes expects empty
+  merge predecessors where actual has surviving Else. Exact CFG/assertion matches
+  prior; unarmed path, no condition capture. Keep both binaries/logs until source
+  Loop closure. Wrong scalar-expression module filter yielded0, corrected to
+  normal_default_root_catalog_lifecycle::scalar_expression_tests (3PASS), never
+  counted zero as success. Existing armed observer, short-circuit finalization,
+  borrowed write/guard and If parity/raw pass. Stable4/diffPASS; no full green.
+
+  CLI269171.656s matches Root926A/current source. JSON341 .139s exit1/noEXE,
+  stderr exact339. Unchanged mimalloc342 EXE141.861s/run.001581s exit0, output/
+  stderr/exit exact340; compile stderr differs only ns. Same explicit predecessor
+  backend pins. Retain A/CLI269/prior925B/native/review evidence until Loop closes.
+- Next cleanup mapping (carrier worker, actual owners): reuse root_graph shared
+  suffix writer with caller-owned continuation, not Return-only emit_root_graph.
+  Same source port homes/normal_ends must resolve installed End plans (BindingRef,
+  release subject, operation); share cleanup-order residual-index policy. The
+  returned graph.clean is cleanup ENTRY: actual Loop predecessor is the retained
+  final continuation AFTER cleanup and SSA localization. Empty Normal End skips
+  helper/Fault frame. Prepare from same Loop packet; no root-exit registry/key.

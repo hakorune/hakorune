@@ -12,21 +12,17 @@ pub(in crate::mir::builder) enum IfBranchKindV1 {
 /// Source ownership and the later affine seal remain with its consumer.
 #[derive(Debug)]
 pub(in crate::mir) struct IfConditionMaterializationV1 {
-    original: ValueId,
-    condition: ValueId,
-    block: crate::mir::BasicBlockId,
+    materialization: std::rc::Rc<super::condition_materialization::ConditionMaterializationV1>,
     arms: (crate::mir::BasicBlockId, crate::mir::BasicBlockId),
     merge: crate::mir::BasicBlockId,
-    bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
-    relation: std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1>,
 }
 impl IfConditionMaterializationV1 {
-    pub(in crate::mir) fn values(&self) -> (ValueId, ValueId) { (self.original, self.condition) }
-    pub(in crate::mir) fn block(&self) -> crate::mir::BasicBlockId { self.block }
+    pub(in crate::mir) fn values(&self) -> (ValueId, ValueId) { self.materialization.values() }
+    pub(in crate::mir) fn block(&self) -> crate::mir::BasicBlockId { self.materialization.block() }
     pub(in crate::mir) fn arms(&self) -> (crate::mir::BasicBlockId, crate::mir::BasicBlockId) { self.arms }
     pub(in crate::mir) fn merge(&self) -> crate::mir::BasicBlockId { self.merge }
-    pub(in crate::mir) fn bindings(&self) -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] { &self.bindings }
-    pub(in crate::mir) fn relation(&self) -> &std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1> { &self.relation }
+    pub(in crate::mir) fn bindings(&self) -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] { self.materialization.bindings() }
+    pub(in crate::mir) fn relation(&self) -> &std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1> { self.materialization.relation() }
 }
 
 pub(in crate::mir::builder) trait IfFormPhysicalObserverV1 {
@@ -60,13 +56,8 @@ impl MirBuilder {
     where LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
     {
         // Unarmed callers keep the exact existing path and acquire no packet.
-        let original_condition = condition_val;
         let cursor = if observer.is_some() {
-            let id = self.current_block()?;
-            let block = self.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&id))
-                .ok_or_else(|| "[freeze:contract][if-form/condition-block]".to_owned())?;
-            if block.terminator.is_some() { return Err("[freeze:contract][if-form/closed-condition]".into()); }
-            Some((id, block.instructions.len()))
+            Some(super::condition_materialization::ConditionMaterializationCaptureV1::begin(self, condition_val)?)
         } else { None };
         // Reserve a deterministic join id for debug region labeling
         let join_id = self.debug_next_join_id();
@@ -119,22 +110,13 @@ impl MirBuilder {
         crate::mir::builder::ssa::local::finalize_branch_cond(self, &mut condition_val)?;
         // Phase 268 P0: emit_conditional() deleted (replaced by emit_conditional_edgecfg() at line 206)
 
-        let pending = if let Some((id, start)) = cursor {
-            if id != pre_branch_bb { return Err("[freeze:contract][if-form/condition-block-drift]".into()); }
+        let pending = if let Some(cursor) = cursor {
+            let materialization = cursor.finish(self, pre_branch_bb, condition_val)?;
+            let pending = std::rc::Rc::new(IfConditionMaterializationV1 {
+                materialization, arms: (then_block, else_block), merge: merge_block,
+            });
             let function = self.function_state.current_function.as_ref()
                 .ok_or_else(|| "[freeze:contract][if-form/function-missing]".to_owned())?;
-            let block = function.blocks.get(&id)
-                .ok_or_else(|| "[freeze:contract][if-form/condition-block]".to_owned())?;
-            let bindings = block.instructions.get(start..)
-                .ok_or_else(|| "[freeze:contract][if-form/condition-append]".to_owned())?
-                .iter().cloned().map(|row| (id, row)).collect();
-            let relation = self.function_state.local_ssa_correspondence.loan(function, original_condition, condition_val)
-                .ok_or_else(|| "[freeze:contract][if-form/condition-correspondence]".to_owned())?;
-            relation.verify(function)?;
-            let pending = std::rc::Rc::new(IfConditionMaterializationV1 {
-                original: original_condition, condition: condition_val, block: id,
-                arms: (then_block, else_block), merge: merge_block, bindings, relation,
-            });
             observer.as_deref_mut().expect("armed condition observer").before_branches(function, std::rc::Rc::clone(&pending))?;
             Some(pending)
         } else { None };

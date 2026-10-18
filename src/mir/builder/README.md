@@ -2152,3 +2152,13 @@ scalar destinations omit the old strong release. Mandatory evaluated-binding
 prefixes retain exact receipts/producers through both final consumers, including
 self-assignment and aliases with no new definition. Typed local-contract result
 projection and staged Loop Header/After consumers remain separate obligations.
+
+## Condition materialization
+
+`condition_materialization.rs` captures the existing normalization append and
+LocalSSA correspondence. It does not select source purpose or emit control flow.
+IfForm retains the same If-specific targets and affine observer around this
+shared record: capture precedes try_cond, finish follows finalize_branch_cond,
+and the actual deferred EdgeCFG Branch is observed only after both arms.
+Checked Loop execution must retain its original Loop purpose and use this shared
+physical correspondence; an If receipt cannot stand in for Loop completion.

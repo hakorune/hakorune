@@ -503,6 +503,7 @@ mod exprs_qmark; // ?-propagate
 mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split
+mod condition_materialization;
 mod if_form;
 pub(in crate::mir) use if_form::IfConditionMaterializationV1;
 mod indexing; // indexing expression/assignment lowering
