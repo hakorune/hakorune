@@ -178,10 +178,15 @@ fn exact_receiver_value_rejects_receiver_and_site_mismatches() {
 #[test]
 fn exact_receiver_read_is_affine_and_corroborates_original_relation() {
     let (mut state, owner, binding, other, site) = materialized_receiver_fixture();
+    let snapshot = state.observe_binding_value_v2(binding).unwrap();
+    assert_eq!(snapshot.binding_value(), (binding, ValueId::new(77)));
+    assert_eq!(snapshot.value_for(owner, other), Err(ExactReceiverValueErrorV1::SiteBindingMismatch));
+    assert!(!state.consumed_variables.contains(&site), "binding observation consumes no source read");
     let read = state
         .take_exact_receiver_read(owner, &site, binding)
         .unwrap();
     assert_eq!(read.value_for(owner, &site, binding), Ok(ValueId::new(77)));
+    assert_eq!(read.binding_observation_v2(), &snapshot, "exact read retains the same slot/provenance observation");
     assert_eq!(
         state.take_exact_lexical_read(owner, &site, binding),
         Err(ExactReceiverValueErrorV1::AlreadyTaken)

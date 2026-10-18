@@ -37,8 +37,15 @@ pub(in crate::mir) enum ExactReceiverValueErrorV1 {
 /// Only this state module can construct it; it issues no source meaning.
 #[derive(Debug, PartialEq)]
 pub(in crate::mir) struct ExactLexicalReadV1 {
-    owner: FunctionOwnerIdV1,
     site: crate::mir::resolved_semantics::SourceNodeSiteV1,
+    binding_value: BindingValueObservationV2,
+}
+
+/// An immutable observation of the existing value slot, without a source read
+/// site. It cannot consume a read or issue a source/physical Loop role.
+#[derive(Debug, Clone, PartialEq)]
+pub(in crate::mir) struct BindingValueObservationV2 {
+    owner: FunctionOwnerIdV1,
     binding: BindingRefV1,
     value: ValueId,
     provenance: Option<super::materialized_values::LocalProvenanceV1>,
@@ -66,7 +73,8 @@ impl PreparedExactLexicalReadV1 {
     }
 }
 
-impl ExactLexicalReadV1 {
+impl BindingValueObservationV2 {
+    pub(in crate::mir) fn binding_value(&self) -> (BindingRefV1, ValueId) { (self.binding, self.value) }
     pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         if root.owner() != self.owner { return Err("[freeze:contract][local-read/root-owner]".into()); }
@@ -87,11 +95,6 @@ impl ExactLexicalReadV1 {
             None => Ok(&[]),
         }
     }
-    pub(in crate::mir) fn source_value(&self) -> (crate::mir::resolved_semantics::OwnedExprSiteV1, BindingRefV1, ValueId) {
-        (crate::mir::resolved_semantics::OwnedExprSiteV1::new(self.owner,
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(self.site.clone())), self.binding, self.value)
-    }
-
     pub(in crate::mir) fn proves_forwarded_entry(
         &self,
         formal: BindingRefV1,
@@ -117,19 +120,47 @@ impl ExactLexicalReadV1 {
             .loan_copies(formal, value, self.value)
     }
 
-    pub(in crate::mir) fn value_for(
-        &self,
-        owner: FunctionOwnerIdV1,
-        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-        binding: BindingRefV1,
-    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
-        if self.owner != owner || binding.owner() != owner {
-            return Err(ExactReceiverValueErrorV1::OwnerMismatch);
-        }
-        if &self.site != site || self.binding != binding {
-            return Err(ExactReceiverValueErrorV1::SiteBindingMismatch);
-        }
+    pub(in crate::mir) fn value_for(&self, owner: FunctionOwnerIdV1, binding: BindingRefV1)
+        -> Result<ValueId, ExactReceiverValueErrorV1> {
+        if self.owner != owner || binding.owner() != owner { return Err(ExactReceiverValueErrorV1::OwnerMismatch); }
+        if self.binding != binding { return Err(ExactReceiverValueErrorV1::SiteBindingMismatch); }
         Ok(self.value)
+    }
+}
+
+impl ExactLexicalReadV1 {
+    pub(in crate::mir) fn binding_observation_v2(&self) -> &BindingValueObservationV2 { &self.binding_value }
+    pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
+        -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+        self.binding_value.loan_local_initializer_v1(root)
+    }
+    pub(in crate::mir) fn loan_checked_rebind_v1(&self,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
+    ) -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+        self.binding_value.loan_checked_rebind_v1(frame)
+    }
+    pub(in crate::mir) fn original_copy_dependencies_v1(&self)
+        -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+        self.binding_value.original_copy_dependencies_v1()
+    }
+    pub(in crate::mir) fn source_value(&self) -> (crate::mir::resolved_semantics::OwnedExprSiteV1, BindingRefV1, ValueId) {
+        (crate::mir::resolved_semantics::OwnedExprSiteV1::new(self.binding_value.owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(self.site.clone())), self.binding_value.binding, self.binding_value.value)
+    }
+    pub(in crate::mir) fn proves_forwarded_entry(&self, formal: BindingRefV1, value: ValueId) -> bool {
+        self.binding_value.proves_forwarded_entry(formal, value)
+    }
+    pub(in crate::mir) fn loan_forwarded_copies(&self, formal: BindingRefV1, value: ValueId)
+        -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+        self.binding_value.loan_forwarded_copies(formal, value)
+    }
+    pub(in crate::mir) fn value_for(&self, owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1, binding: BindingRefV1,
+    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        // Preserve owner-before-site diagnostic precedence.
+        self.binding_value.value_for(owner, binding)?;
+        if &self.site != site { return Err(ExactReceiverValueErrorV1::SiteBindingMismatch); }
+        Ok(self.binding_value.value)
     }
 }
 
@@ -176,8 +207,8 @@ impl CallableSemanticLoweringState {
     ) -> Result<ExactLexicalReadV1, String> {
         let binding = self.source_read_binding(site)?;
         let value = self.read_variable(site)?;
-        Ok(ExactLexicalReadV1 { owner: self.owner, site: site.clone(), binding, value,
-            provenance: self.values.provenance(&binding) })
+        Ok(ExactLexicalReadV1 { site: site.clone(), binding_value: BindingValueObservationV2 {
+            owner: self.owner, binding, value, provenance: self.values.provenance(&binding) } })
     }
 
     /// Read an already-materialized value by its owner-branded binding.
@@ -203,6 +234,14 @@ impl CallableSemanticLoweringState {
             .get(&expected_binding)
             .copied()
             .ok_or(ExactBindingValueErrorV1::ValueUnavailable)
+    }
+
+    /// Observe the existing binding slot without creating/consuming a read site.
+    pub(in crate::mir::builder) fn observe_binding_value_v2(&self, binding: BindingRefV1)
+        -> Result<BindingValueObservationV2, ExactBindingValueErrorV1> {
+        let value = self.value_for_exact_binding(self.owner, binding)?;
+        Ok(BindingValueObservationV2 { owner: self.owner, binding, value,
+            provenance: self.values.provenance(&binding) })
     }
 
     /// Consume one exact receiver source site and read its already-materialized
@@ -280,11 +319,9 @@ impl CallableSemanticLoweringState {
                 }
             })?;
         Ok(PreparedExactLexicalReadV1 { read: ExactLexicalReadV1 {
-            owner: expected_owner,
             site: source_site.clone(),
-            binding: expected_binding,
-            value,
-            provenance: self.values.provenance(&expected_binding),
+            binding_value: BindingValueObservationV2 { owner: expected_owner,
+                binding: expected_binding, value, provenance: self.values.provenance(&expected_binding) },
         } })
     }
 
@@ -299,7 +336,7 @@ impl CallableSemanticLoweringState {
             if !sites.insert(&read.site) {
                 return Err(ExactReceiverValueErrorV1::DuplicateReadSite);
             }
-            let current = self.prepare_exact_lexical_read(read.owner, &read.site, read.binding)?;
+            let current = self.prepare_exact_lexical_read(read.binding_value.owner, &read.site, read.binding_value.binding)?;
             if current.read != *read {
                 return Err(ExactReceiverValueErrorV1::ReadSnapshotChanged);
             }

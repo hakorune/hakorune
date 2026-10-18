@@ -2178,3 +2178,8 @@ initializer without creating a replacement receipt or publishing twice.
 The LocalSSA identity-Phi accessor lends the same indexed definition through
 pending, completed and rollback states. It rejects ordinary instruction/parameter
 relations and materialization chains; observing a definition grants no source role.
+
+A binding-value observation retains the existing slot and provenance without
+consuming a source read. Exact lexical reads embed the same observation and keep
+their owner/site/binding checks. Initializer, rebind and Copy loans share this
+observation; immutable snapshots alone grant no source meaning or Home ownership.

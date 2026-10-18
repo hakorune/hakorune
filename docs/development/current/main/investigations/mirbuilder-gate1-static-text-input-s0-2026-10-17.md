@@ -969,32 +969,32 @@ Next physical Decision (both source/condition workers reviewed actual owners):
 
 - `39b9e9649a`: SAME-port checks/wrapper removal/test-only bridge; WIP38PASS/1
   prior, isolated36PASS/2 prior; CLI271/JSON345 unchanged/mimalloc346 exact344; keep pins, check worktree removed, no grant.
-- `6b7baaa4ff` owns the sole Local receipt API/raw result wrapper and Root929
-  frame-bridge mapping/evidence. Bridge/strict Branch/selector Rc assertions stay
-  WIP: original exact_stmt/expr_at and SAME Raw port borrow existing Local/rebind/
-  whole Bool, actual ordinal/Branch. Root928 lineage preflight remains required.
-  A41PASS/3 prior928A/stable4; CLI272/JSON347 unchanged, mimalloc348 exact346.
-  Keep source/A/CLI272/native/reviews until closure. Whole driver has not called
-  these APIs; Header/After, exact targets/joins/incoming, cleanup/both finals stay
-  owed. No evaluator/registry, physical execution grant or series acceptance.
-- Root930 WIP: original Header/After + SAME indexed Phi/full Copy chain stay in
-  existing provenance; plain rebind invalidates it. No initializer loan, empty-Phi
-  snapshot, second registry/parent Rc. Common preparation/operand/dependency and
-  self-assignment share it. Header requires original product/frame/defined Phi;
-  After/both finals require completed parent/relation and FinishedBindings.
-  Bool prefix/expected inventory exclude only SAME-read borrowed parent Phi;
-  copies/inner/unrelated Phis/full dependencies stay. Membership checks FILTERED
-  inventory to refuse reinsertion. Existing fixtures cover definition/patch/abort,
-  alias/invalidation/missing parent/pending After; no new test function.
-  Both fences stay. Raw publication does not prove binding/role→dst; still owed:
-  Phi capture/liveness, targets/joins/all incoming/cleanup/scope/both finals and
-  swapped carrier/Header↔After negatives. No execution grant/series acceptance.
-  Next Decision (carrier worker): SAME session owns sole basis→Entry/Header/After
-  association, allocates/defines points and lends sealed capabilities to publisher;
-  MOVE completed association to existing packet completion, no pending mirror.
-  Entry needs nonconsuming SAME values/provenance against basis.entry_producer via
-  shared reference owner; pre-effect/name-cache alone do not prove physical Entry.
-  D114.074s build/51PASS/stable4/diffPASS; A/B/C fixed without wider private API.
-  CLI273206.010s/source=D; JSON349 .143s same347/exit1/noEXE; mimalloc350
-  EXE141.982s/run.001476s exit0/output+stderr+exit exact348; compile-only ns delta.
-  Keep D/CLI273/native pins;894A/897A predecessor backends, not parity.
+- `6b7baaa4ff`: sole Local receipt/raw result wrapper; Root929 bridge/strict Branch/
+  selector Rc stay WIP/uncalled. SAME source/port/ordinal/writers + Root928 lineage
+  required. Keep A41PASS/3 prior928A/stable4/CLI272/JSON347/mimalloc348 pins.
+- Root930 WIP: Header/After + SAME indexed Phi/full Copy chain stay in existing
+  provenance; rebind invalidates it. No initializer loan, empty-Phi snapshot,
+  second registry/parent Rc. Common readers/self-assignment share it. Header needs
+  original product/frame/defined Phi; After/both finals need completed parent/
+  relation/FinishedBindings. Bool inventories exclude only SAME borrowed parent
+  Phi, retaining copies/inner/unrelated Phis/full dependencies; filtered membership
+  refuses reinsertion. Existing fixtures cover define/patch/abort, aliases/rebind,
+  missing parent/pending After. Both fences stay. Whole driver owes Phi capture/
+  liveness, exact targets/joins/all incoming/cleanup/scope/both finals and swaps.
+  Decision (carrier worker): SAME session owns basis→Entry/Header/After, allocates/
+  defines points and lends sealed capabilities; MOVE final evidence to existing
+  packet completion, no pending mirror. Entry needs original producer + SAME
+  provenance; pre-effect/name-cache insufficient. Condition worker confirmed direct
+  Header/Body/After, no Step: JoinSig rejects both-normal arms with differing
+  bindings/available. SAME values/name-map snapshots select normal arms. Exact
+  Entry/Continue/Backedge→Header and false/Break→After require postcleanup preds.
+  `5113b20579` retains indexed-Phi/PhiTxn/D/CLI273/native evidence; keep pins and
+  explicit894A/897A predecessor provenance. No execution grant/series acceptance.
+- Root931: only common value-observation BoxShape lands; scalar/point integration
+  stays WIP. SAME session verifies Entry before allocating canonical Header/After;
+  only live Header capability publishes, never raw source/value. Existing fixture
+  checks wrong Entry/role/dst, readonly, repeat/abort; no new test function. After/
+  completion/whole driver pending, both fences stay. WIP B139.210s/51PASS/stable4/
+  diffPASS; A E0596 fixed. CLI274227.495s/source=B; JSON351 .140s exact349/noEXE.
+  mimalloc352 EXE141.676s/run.001605s output+stderr+exit exact350, compile-only ns.
+  Keep B/source/binary/CLI274/native/reviews to closure; predecessor backends above.
