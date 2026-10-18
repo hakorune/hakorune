@@ -1,9 +1,9 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5A"
+current_execution_row = "TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5B"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "test/loop-helper-duplicate-control"
+current_blocker_token = "test/field-array-duplicate-compile"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,16 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/test-gu
 latest_card = "test-guard-responsibility-retirement"
 latest_card_path = "docs/development/current/main/investigations/test-guard-responsibility-retirement-task-2026-10-08.md"
 latest_card_summary = """
-User-requested TR-5a maintenance selected at job-free handoff. Simplify existing
-Loop test helper control without new tests/hooks/files. Preserve source/Recipe/
-Home/identity negatives and unchanged production behavior. Count WIP retained in
-app-bundle card:939E build PASS; source Loop and result filters PASS, field-read
-publication filter red and unaccepted. Return to FIELD-ARRAY-READ-S0 after TR batch;
-all finite integration/R6/R7/Loop/authority/parser/selfcompile gates stay owed.
+User-requested TR-5b selected after TR-5a landed27ea1a2c6a. Remove the standalone
+field-get compile test duplicated by the first existing publication row; require
+Consumed callback completion. Preserve all Count WIP and existing distinct source/
+MIR/negative obligations. TR-6 follows, then return to FIELD-ARRAY-READ-S0.
+Count publication remains red; full finite goal and unfinished source gates stay owed.
 """
-next_design_card = "TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5A"
+next_design_card = "TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5B"
 next_design_card_path = "docs/development/current/main/investigations/test-guard-responsibility-retirement-task-2026-10-08.md"
-next_execution_card = "TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5A"
+next_execution_card = "TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5B"
 next_execution_card_path = "docs/development/current/main/investigations/test-guard-responsibility-retirement-task-2026-10-08.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

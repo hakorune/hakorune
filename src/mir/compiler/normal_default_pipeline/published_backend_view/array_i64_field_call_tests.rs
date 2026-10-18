@@ -28,16 +28,6 @@ fn compile_normal(body: &str) -> Result<crate::mir::MirCompileResult, String> {
     })
 }
 
-/// A proven field mints the i64 result: `local v = me.free.get(0)` then
-/// `return v` reaches a compiled module — before the arm the same source
-/// stopped at `source-not-i64`.
-#[test]
-fn array_i64_local_get_result_reaches_normal_compile() {
-    let result =
-        compile_normal("me.free.set(0, 7) local v = me.free.get(0) return v");
-    assert!(result.is_ok(), "proven field get result must compile: {result:?}");
-}
-
 /// A proven `me.<numeric field>` read indexes the get — `me.top` is a
 /// declared i64 field.
 #[test]
@@ -120,9 +110,11 @@ fn array_i64_get_publishes_through_array_element_read() {
                     Ok(())
                 },
             );
-            if let Err(error) = &result {
-                panic!("{suffix}: array read publication must complete: {error}");
-            }
+            let result = result.unwrap_or_else(|error|
+                panic!("{suffix}: array read publication must complete: {error}"));
+            assert!(matches!(result,
+                crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(())),
+                "{suffix}: publication callback must consume the selected module");
         });
     }
 }

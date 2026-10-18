@@ -335,9 +335,33 @@ and finishing consumers stay separate. Remove only the duplicate strict verifier
 on the unoptimized, unchanged MIR; optimized output still gets its own verifier.
 The two test-only re-exports remain because removing them would widen private
 modules or move private-field assertions, adding structure rather than reducing it.
-Test Rust net-3 lines; no new test/case/helper/file/checker.939E baseline Loop1PASS,
+Test Rust net-2 lines; no new test/case/helper/file/checker.939E baseline Loop1PASS,
 940A build57.706s PASS and same filter1PASS/.07s (8MiB, one thread). Exact full
 `--list` unchanged9264; source-result1PASS and Count publication1FAIL unchanged,
 with byte-equal `count_empty` unsupported Method Call diagnostic. This red belongs
 to preserved Count WIP, not TR-5a. Pointer/diff PASS; no speedup/native/full-suite
 claim. Keep939E/940A binary/source/results until Count acceptance and TR-5b.
+
+## TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5B selected Decision
+
+TR-5a landed27ea1a2c6a; only net-2 Rust lines (the earlier net-3 entry was an
+arithmetic error). TR-5b deletes the standalone field-get compile-success test:
+its source/options/Ring0/env are identical to the first `ok` publication row.
+The same normal pipeline's final verification/ABI/JSON retains that obligation.
+Require the existing publication result to be `Consumed(())`, not merely non-Err;
+otherwise compatibility could bypass the callback. No new test/fixture/hook.
+Keep compile_normal for other callers and all distinct index/veto/source/Count
+cases. Worker verified equivalence and no live exact-name filters.940A baseline
+standalone1PASS/.04s; Count publication red is retained and compared separately.
+
+TR-5b verified: standalone compile-only test removed; its exact `ok` source now
+has one retained compile/publication owner requiring `Consumed(())`. All helper
+callers and independent numeric-index/veto/source/drift cases remain.940B build
+61.995s PASS; focused numeric-index2PASS/veto1PASS/Loop1PASS/source-result1PASS.
+Publication still fails only on preserved WIP `count_empty`, exact same unsupported
+ArrayBox.length Method Call diagnostic; sequential preceding Get ok/oob rows
+passed the stricter Consumed check. Full names9264→9263, exact sole removed name
+is the standalone duplicate, no added names. Cleanup-only staged hunk excludes
+all Count additions in the same file; test code net-8 lines in this slice.
+No new checker/case/file/hook or performance/full-suite claim. Existing939E/940A/B
+pins remain for Count regression provenance; no temporary cleanup adapter.
