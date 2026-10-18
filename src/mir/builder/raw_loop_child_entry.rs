@@ -12,7 +12,6 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirBuilder, ValueId};
 
 use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1;
-use super::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
     CallableLoopReadyBodyOnlyProductV1,
@@ -42,6 +41,8 @@ pub(in crate::mir::builder) use syntax_boundary::classify_raw_loop_child_entry_v
 pub(in crate::mir::builder) mod test_route_observation;
 #[path = "raw_loop_child_entry/variable_accum.rs"]
 mod variable_accum;
+#[path = "raw_loop_child_entry/loop_cond.rs"]
+mod loop_cond;
 
 #[path = "raw_loop_child_entry/ledger_bridge.rs"]
 mod ledger_bridge;
@@ -204,7 +205,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         in_static_box: bool,
         policy: LoopFactsPolicyFrameV1,
     ) -> Result<ValueId, String> {
-        self.lower_v1_with_optional_root_scope(
+        self.lower_with_callable_source_v2(
             builder,
             function_name,
             debug,
@@ -218,37 +219,14 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         )
     }
 
-    pub(in crate::mir::builder) fn lower_v1_with_root_scope(
+    fn lower_with_callable_source_v2(
         self,
         builder: &mut MirBuilder,
         function_name: &str,
         debug: bool,
         in_static_box: bool,
         policy: LoopFactsPolicyFrameV1,
-        callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
-    ) -> Result<ValueId, String> {
-        self.lower_v1_with_optional_root_scope(
-            builder,
-            function_name,
-            debug,
-            in_static_box,
-            policy,
-            Some(callable_loop_root_scope),
-            None,
-            None,
-            None,
-            CallableLoopSourceTargetProbeV1::empty(),
-        )
-    }
-
-    fn lower_v1_with_optional_root_scope(
-        self,
-        builder: &mut MirBuilder,
-        function_name: &str,
-        debug: bool,
-        in_static_box: bool,
-        policy: LoopFactsPolicyFrameV1,
-        _callable_loop_root_scope: Option<&mut UnpublishedCallableLoopRootScopeV1>,
+        invocation: Option<&mut super::recursive_child_lowering::RawInvocationChildPortV1<'_, '_>>,
         callable_ledger: Option<
             &std::rc::Rc<
                 std::cell::RefCell<
@@ -532,38 +510,9 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 })?;
                 let physical_input =
                     source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
-                let result = (|| {
-                    physical_input.validate_for_source_port()?;
-                    physical_input.preflight_source_port()?;
-                    let plan = crate::mir::builder::control_flow::plan::features::loop_cond_bc_source::lower_loop_cond_break_continue_source(
-                        builder,
-                        &physical_input,
-                    )?;
-                    crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                        .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
-                    let context = crate::mir::builder::control_flow::plan::lowering_context::
-                        CallableLoopPlanLoweringContextV1::new(
-                            function_name,
-                            debug,
-                            in_static_box,
-                        );
-                    let (result, after_role) = crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_loop_cond_with_source_publication(
-                        builder,
-                        plan,
-                        &context,
-                        std::rc::Rc::clone(source_ledger),
-                        &physical_input,
-                    )
-                    .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?;
-                    let result = result.ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())?;
-                    if let Some(role) = after_role {
-                        if let Some(claims) = source_ledger.borrow().ordinary_new_claim_ledger() {
-                            claims.record_loop_cond_after_role(role)?;
-                        }
-                    }
-                    Ok(result)
-                })();
-                result.map_err(|error| physical_input.phi_session_v1().abort_error(builder, error))
+                let context = crate::mir::builder::control_flow::plan::lowering_context::
+                    CallableLoopPlanLoweringContextV1::new(function_name, debug, in_static_box);
+                loop_cond::lower(builder, &physical_input, &context, source_ledger, invocation)
             }
             CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts) => {
                 let source_ledger = callable_ledger.ok_or_else(|| {

@@ -912,18 +912,11 @@ Next physical Decision (both source/condition workers reviewed actual owners):
 - completed_loop checks all original source edges/producers, CFG predecessors,
   SSA loan(original,incoming), Step inputs and real Bool false edge. Record Exit
   AFTER cleanup/localization. Keep refusal until full group/reads/BOTH finals close.
-- Root924 WIP: pending scoped Loop collection/preflight/Home destination/tree
-  lookups connected; root census stays root-only, Finalized rejects pending Loop.
-  A85.053s module path fixed; B101.437s/38 focusedPASS; stable4/diffPASS. Source
-  fixture verifies open/duplicate/order/pending only; child commit unexercised.
-  CLI267178.001s matches current source (Root924B differs only later owner README).
-  JSON337 .137s same335/noEXE; mimalloc338 EXE141.145s/run.002162s exit0, exact336
-  runtime output/stderr/exit; compile stderr differs only ns. Explicit backend pins.
-  Keep B/CLI267/source/native/review evidence until full Loop closure. No new
-  test/app/guard/adapter or completion writer; all semantic WIP remains uncommitted.
-  Card compression recovery restored inherited Text/Loop contracts from Git and
-  current source/evidence; independent worker checked coverage. Old adapter/next
-  wording corrected; no compiled source or artifact changed during doc repair.
+- Root924 WIP evidence is retained by `4d3e9188e4` and ancestors: SAME scoped
+  Loop collection/Home destination/tree; root-only census, pending Finalized
+  refusal, no child execution/completion permission. B38PASS/stable4; CLI267
+  JSON337 unchanged/noEXE, mimalloc338 runtime exact336. Retain source/native/
+  review pins until full closure. Card recovery retained inherited Text/Loop laws.
 
 - Root925 WIP: SAME projector issues verified ordered frame/Recipe schedule;
   original Rc/purpose/result, exact block ranges, If bundle/children and Exit
@@ -932,11 +925,9 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   Worker found range transfer could move Bool operations into preceding Local:
   corrected SAME operation issuer to retain item→executing frame Rc, including
   imports/WriteBinding; exact operation census + containing-frame identity checked.
-  Existing fixture now rejects 13 mutated schedules, including boundary transfer;
-  no new test function/app/guard. Root925A100.822s compile; B81.397s compile +
-  38PASS across9 nonzero filters (RUST_MIN_STACK=16777216), stable4/diffPASS.
-  Keep source/test/review pins under root-v925b until full Loop closure; no physical
-  permission, real child commit, Header/After read or series completion claimed.
+  Existing fixture rejects 13 schedule mutations, including boundary transfer.
+  `4d3e9188e4` retains Root925A/B38PASS/stable4 and pin evidence; keep source/
+  test/review pins until full closure. No physical/child/read permission granted.
 - Concrete next writer mapping (condition worker, actual owners): initializer uses
   selected initializer emit→placement→existing Local receipt→publish; rebind uses
   selected rebind emit including state update/publication; Bool borrows SAME raw
@@ -950,9 +941,8 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   product/basis and actual Phi relation; Exit reports actual predecessor/payload
   AFTER cleanup. All these physical connections and both final consumers remain.
 
-- Root925 frontier evidence: `ae4a16e7c4` retains CLI268/current925B source
-  equality, JSON339 unchanged and mimalloc340 runtime exact338. Keep those pins
-  until whole Loop closure; backend artifacts remain explicit predecessors.
+- `ae4a16e7c4` retains Root925 CLI268/source equality, JSON339 unchanged and
+  mimalloc340 exact338. Keep pins until closure; backends explicit predecessors.
 
 - `d55780ec5c`: shared condition capture and actual IfForm switch retain targets,
   observer Rc/deferred EdgeCFG. 26PASS/1 prior925B If-shape failure; stable4.
@@ -966,34 +956,44 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   final continuation AFTER cleanup and SSA localization. Empty Normal End skips
   helper/Fault frame. Prepare from same Loop packet; no root-exit registry/key.
 
-- Root927 functional scope: shared Bool prefix consumer now distinguishes original
-  If invocation from genuine source Loop schedule context. Source context retains
-  SAME immutable product/frame index, common materialization Rc and actual targets;
-  never parent physical Rc. Preflight checks original pending group and Header vs
-  body-If purpose; existing Loop fixture covers missing group/wrong index/purpose.
-  Same affine lease checks actual Branch; If keeps exact If wrapper identity.
-  New source-Loop branch APIs are not yet called by whole physical driver, so
-  Header/After reads, source-edge cleanup closure and both finals stay owed;
-  both execution fences remain. No new app/test function/guard or Call pool.
-
-  Root927A79.905s failed only private product getter; widened within local-commit
-  owner, no mutable access. B132.498s compile;63PASS/1 exact prior925B If-shape
-  failure across14 nonzero filters; stable4/diffPASS. Same source manifest.
-  Worker confirms target distinct/actual Branch equality is not schedule-target
-  closure: whole Loop must still bind Header→body/After and If→original arms.
-  Preserve strict empty CarriersOnly edge args; plain emit_conditional is None
-  and cannot seal this packet. Do not weaken branch-shape checks.
-  Whole completion must require SAME product/index context on every Bool child.
-- Actual borrowed-writer seam (condition worker): production raw_loop_child_port
-  lower_loop holds active_source/root_scope field borrows. Common physical core's
-  _callable_loop_root_scope is UNUSED. Clone source/ledger and copy source input/
-  locator before taking SAME Raw port mutably; production entry lends this whole
-  port to PlanLowerer. Keep scope/locator/module inside it and use existing short
-  reborrow. Never take root scope, rebuild a port or add a second evaluator.
+- Root927 WIP (`4d3e9188e4` records evidence): common Bool prefix preserves If
+  wrapper Rc; source Loop context retains SAME immutable product/schedule frame,
+  shared materialization and targets, never parent physical Rc. Preflight verifies
+  pending group and Header/body-If purpose; same affine seal checks actual Branch.
+  These Loop APIs remain unexercised by whole driver; both fences stay. All reads,
+  source-edge/cleanup closure and both final consumers remain owed. Distinct targets
+  plus Branch equality do NOT prove Header→body/After or If→source arms. Whole
+  completion must require SAME product/index on every Bool child and strict empty
+  CarriersOnly edge args (plain emit_conditional has None; do not weaken checks).
+  B132.498s/63PASS/1 exact prior925B If-shape failure, stable4; A private getter
+  failure fixed within local-commit. Keep B/CLI270/native/reviews until closure;
+  no new app/test function/guard/Call pool or physical Loop permission.
+- Next borrowed-writer continuation (condition worker): LoopCond terminal lends
+  SAME Raw port to PlanLowerer by short reborrow. Never take scope, rebuild the
+  port or introduce a second evaluator; invocation has reached only the terminal.
   Next frame bridge: input.source().expr_at(original owned node0 site) lends Bool AST.
   Local relation lends ordinal/type/binding; binding diagnostic_name locates name.
   Share existing Local receipt→state→publish tail; no AST re-descent/fake ordinal.
-  CLI270204.963s matches Root927B/current source. JSON343 .145s same341/noEXE.
-  Unchanged mimalloc344 EXE141.466s/run.001462s exit0, output/stderr/exit exact342;
-  compile stderr differs only ns, explicit predecessor backends. Keep B/CLI270/
-  source/native/reviews until full Loop closure. New Loop branch APIs unexercised.
+  `4d3e9188e4` retains CLI270/JSON343/mimalloc344 exact342/source equality.
+  Backends are explicit predecessors; keep pins until closure. Loop APIs unexercised.
+
+- Root928 BoxShape: production lends SAME Raw invocation port through entry to
+  LoopCond terminal, retaining scope/module/locator/source. Source/ledger locals
+  shorten borrows; missing input precedes target probe and affine plan take.
+  LoopCond-only identity preflight checks root scope, ledger Rc, owner/site/lineage;
+  other route boundaries stay unchanged. Caller-zero root-only wrapper removed;
+  separate ledger bridge is test-only. No expression evaluator or physical grant.
+  Actual-patch and independent staged-source worker reviews PASS. Root928A
+  build59.838s;38PASS/1 prior across8 nonzero filters (16MiB), stable4/diffPASS.
+  Initial initializer filter0 excluded; corrected filter8PASS. Added raw-port test
+  reproduces prior927B SourceItemsMissing vs expected facts-absent (no test change).
+  CLI271159.234s; source equals A except later README; JSON345 .141s same343,
+  exit1/noEXE. Unchanged mimalloc346 EXE156.958s/run.001582s, exit0 and
+  stdout/stderr/exit exact344; compile stderr differs only ns. Backends894A/897A
+  remain explicit predecessors, not fresh all-three source agreement.
+  Isolated staged tree0f5f1f769a builds198.601s;36PASS/2 prior across8 filters.
+  Initializer stale rebind expectation reproduces pinned915B; raw-port red matches
+  927B. WIP's existing initializer correction stays unstaged. Keep A/index/CLI271/
+  native/review pins until closure; clean temporary check worktree retires now.
+  Whole driver still owes the original Local/Bool/Rebind, reads, source edges,
+  cleanup, exact incoming and both final consumers; both source fences remain.

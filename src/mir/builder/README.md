@@ -2162,3 +2162,10 @@ shared record: capture precedes try_cond, finish follows finalize_branch_cond,
 and the actual deferred EdgeCFG Branch is observed only after both arms.
 Checked Loop execution must retain its original Loop purpose and use this shared
 physical correspondence; an If receipt cannot stand in for Loop completion.
+
+The invocation Loop entry lends the same `RawInvocationChildPortV1` to the
+LoopCond terminal. The root scope, module port, source locator and source input
+stay on that port; cloned source/ledger handles only shorten field borrows.
+The terminal verifies ledger identity and original source owner/site/lineage.
+This transport does not authorize checked Loop execution or replace the existing
+source-product fences. The ledger-only entry remains available only to tests.

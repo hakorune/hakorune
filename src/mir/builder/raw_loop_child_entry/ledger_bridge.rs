@@ -1,15 +1,32 @@
 use super::PreparedLocatedRawLoopChildEntryV1;
 use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
+#[cfg(test)]
 use crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::MirBuilder;
+#[cfg(test)]
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::ValueId;
 use std::cell::RefCell;
 use std::rc::Rc;
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
+    pub(in crate::mir::builder) fn lower_with_invocation_port_v2(
+        self, builder: &mut MirBuilder, function_name: &str, debug: bool, in_static_box: bool,
+        policy: LoopFactsPolicyFrameV1,
+        invocation: &mut crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1<'_, '_>,
+        source_target_probe: CallableLoopSourceTargetProbeV1,
+    ) -> Result<ValueId, String> {
+        let ledger = invocation.callable_ledger.clone()
+            .ok_or("[freeze:contract][raw-loop-child-entry/callable-ledger-missing]")?;
+        let locator = invocation.declared_instance_locator;
+        let input = invocation.source_input.ok_or("[freeze:contract][raw-loop-child-entry/source-input-missing]")?;
+        self.lower_with_callable_source_v2(builder, function_name, debug, in_static_box, policy,
+            Some(invocation), Some(&ledger), locator, Some(input), source_target_probe)
+    }
+
+    #[cfg(test)]
     pub(in crate::mir::builder) fn lower_v1_with_root_scope_and_callable_ledger(
         self,
         builder: &mut MirBuilder,
@@ -17,7 +34,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         debug: bool,
         in_static_box: bool,
         policy: LoopFactsPolicyFrameV1,
-        callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
+        _callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
         callable_ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
         declared_instance_locator: Option<
             crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<'_>,
@@ -25,13 +42,13 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         source_input: Option<ResolvedFunctionLoweringInputV1<'_>>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<ValueId, String> {
-        self.lower_v1_with_optional_root_scope(
+        self.lower_with_callable_source_v2(
             builder,
             function_name,
             debug,
             in_static_box,
             policy,
-            Some(callable_loop_root_scope),
+            None,
             Some(callable_ledger),
             declared_instance_locator,
             source_input,

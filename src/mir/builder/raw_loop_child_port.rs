@@ -55,7 +55,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         loop_node: ASTNode,
     ) -> Result<ValueId, String> {
-        let source = self.active_source.as_ref().ok_or_else(|| {
+        let source = self.active_source.clone().ok_or_else(|| {
             "[freeze:contract][raw-loop-child-entry/missing-located-source]".to_owned()
         })?;
         let loop_condition = match &loop_node {
@@ -63,7 +63,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             _ => return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned()),
         };
         let callable_handoff = self.issue_callable_loop_binding_schedule_v1(loop_condition)?;
-        let admission_observation = self.generic_loop_diagnostic.issue_for_loop(source);
+        let admission_observation = self.generic_loop_diagnostic.issue_for_loop(&source);
         let function_name = builder
             .function_state
             .current_function
@@ -74,58 +74,33 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
         let in_static_box = builder.comp_ctx.current_static_box.is_some();
         let policy = LoopFactsPolicyFrameV1::from_environment();
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
-            source,
+            &source,
             loop_node,
             callable_handoff,
             self.generic_loop_diagnostic.method_source().cloned(),
             admission_observation,
         )?;
-        match self.callable_loop_root_scope.as_deref_mut() {
-            Some(root_scope) => {
-                let callable_ledger = self.callable_ledger.as_ref().ok_or_else(|| {
-                    "[freeze:contract][raw-loop-child-entry/callable-ledger-missing]".to_owned()
-                })?;
-                let consume_publication = source
-                    .site()
-                    .map(|site| {
-                        let state = callable_ledger.borrow();
-                        state.has_loop_break_composite_source_candidate(site)
-                            || state.source_loop_items(site).is_some()
-                    })
-                    .unwrap_or(false);
-                let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
-                let value = prepared.lower_v1_with_root_scope_and_callable_ledger(
-                    builder,
-                    &function_name,
-                    debug,
-                    in_static_box,
-                    policy,
-                    root_scope,
-                    callable_ledger,
-                    self.declared_instance_locator,
-                    Some(self.source_input.ok_or_else(|| {
-                        "[freeze:contract][raw-loop-child-entry/source-input-missing]".to_owned()
-                    })?),
-                    source_target_for_loop(
-                        self.module_port,
-                        declarations,
-                        source,
-                        callable_ledger,
-                        consume_publication,
-                    )?,
-                )?;
-                if callable_ledger
-                    .borrow()
-                    .has_pending_source_static_result_publications()
-                {
-                    return Err(
-                        "[freeze:contract][callable-loop/static-publication/residual-after-lower]"
-                            .to_owned(),
-                    );
-                }
-                Ok(value)
+        if self.callable_loop_root_scope.is_some() {
+            let callable_ledger = self.callable_ledger.clone().ok_or_else(|| {
+                "[freeze:contract][raw-loop-child-entry/callable-ledger-missing]".to_owned()
+            })?;
+            let consume_publication = source.site().map(|site| {
+                let state = callable_ledger.borrow();
+                state.has_loop_break_composite_source_candidate(site) || state.source_loop_items(site).is_some()
+            }).unwrap_or(false);
+            // Preserve the prior demand boundary: missing input refuses before
+            // the target probe consumes any selected publication handoff.
+            self.source_input.ok_or("[freeze:contract][raw-loop-child-entry/source-input-missing]")?;
+            let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
+            let target = source_target_for_loop(self.module_port, declarations, &source, &callable_ledger, consume_publication)?;
+            let value = prepared.lower_with_invocation_port_v2(builder, &function_name, debug,
+                in_static_box, policy, self, target)?;
+            if callable_ledger.borrow().has_pending_source_static_result_publications() {
+                return Err("[freeze:contract][callable-loop/static-publication/residual-after-lower]".to_owned());
             }
-            None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
+            Ok(value)
+        } else {
+            prepared.lower_v1(builder, &function_name, debug, in_static_box, policy)
         }
     }
 }

@@ -92,7 +92,7 @@ fn candidate_without_callable_ledger_is_terminal_before_builder_effects() {
 
     let mut builder = MirBuilder::new();
     let error = prepared
-        .lower_v1_with_optional_root_scope(
+        .lower_with_callable_source_v2(
             &mut builder,
             "Main.main",
             false,
