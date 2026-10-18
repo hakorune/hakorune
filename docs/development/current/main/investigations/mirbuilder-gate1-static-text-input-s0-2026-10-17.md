@@ -450,68 +450,16 @@ Temporary diagnostics retire after capture, before production commit.
 native exact7/stderr/exit0, timings, guards and1,221,299,848B pin retirement.
 Successor matched bundle owns current roles; historical logs remain.
 
-V887 landed23d15d37c0: existing SourceStatic+Qualified product now selects the
-canonical callback projection without old membership. Whole tuple/current frame/
-loan/root/I64 checks and executable refusal remain. Commit owns full diagnostic
-provenance and measured pos Integer / first-unavailable Body1->Body3 advance;
-external Body7 remains pending. All temporary source diagnostics retired.
-
-Next construction Decision (same worker): one generalized Local initializer
-product/selector over SAME evaluation, I64 scalar vs owned-Text residence policy.
-Canonical scalar read: SAME source_value_flow read+alias_origin+origin, current
-Prefix readiness, original signed Entry or unique Local initializer producer
-(Integer literal / retained I64 LocalCallObservation / SAME installed I64 frame).
-Reject Join/Unknown/cycles/foreign/reassigned origins lacking that producer; no
-Integer-class-only authority or new registry. Keep all active Core children,
-transfer only real ordinary Call inputs. Fulfill Scalar/residence/entry exact
-reads atomically in common writer/projection, publish existing Local receipt and
-completed-local provenance; BOTH final scans repeat producer/Copy/result checks.
-Normal releases temporaries but retains prior Homes/I64 result; Text transfers
-only root ownership. Loop end still requires genuine verified After separately.
-
-23d15d37c0 owns Root887A361PASS/14identical baseline, CLI232/app276 final
-JSON SAME and app277 unchanged mimalloc exact7/stderr/exit0, timings, stable guards
-and557,147,640B superseded pin retirement. Keep887A/CLI232/app277/runtime877A/
-FFI876B as current matched bundle; trace source snapshots/logs retain exact
-observations. Full Text series and fixed suite/CI acceptance remain unaccepted.
-
-V88873492f63e2 / V8895c620ea0b4 complete behavior-preserving2-commit
-normalization: sole consumed Call/Core scope and common initializer vocabulary.
-Those commits own Root361PASS/14identical baseline, CLI233/app278 byteexact JSON
-Body7 pending (.122847s), warnings/guards and537,646,440B pin retirement.
-No source execution grant, adapter or extra tests. Keep Root889B/CLI233 as current
-focused/frontier pins until stronger successors replace them; retain matched
-CLI232/app277/runtime877A/FFI876B native bundle (23d15d37c0 exact7/stderr/exit0).
-Logs/manifests remain historical; no current CI/full-suite green claim.
-
-V8907814cd0eb3 owns common initializer/Core-I64 source qualification and
-CurrentScalarRead: SAME flow/producer/current Prefix, nested Original/Obligation,
-prepared profile/Home snapshot and Local-only origins. Original Local demand
-roots join SAME SUM graph through seed only, never incoming/formal union.
-That commit retains paths, corrected intermediate failures and genuine-walk
-positive/negative evidence; no new source/runtime registry or physical grant.
-
-Physical continuation (owned_write_final_scan, reused top-down review):
-CallValidationContext.with_taken_packet_v1 borrows SAME original Call from the
-current Lowering/Finalized affine pool. Generalize existing reference_reads value
-to typed producer observation, keeping one map; exact Entry/Const/Call/previous
-initializer result plus Copy dependencies are mandatory before atomic read take.
-Borrow previous initializer by SAME frame Rc from existing Local binding groups,
-analogous to with_original_field_write_v1, never another packet registry.
-Publish one group only after existing from-values CompletedLocal receipt.
-LifecyclePrefixSource and finalized has_expression_source must include initializer
-sources even after effects erase; BOTH final scans require captured dependencies
-and sealed relation_binding permission for omissions. I64 ends all Text children;
-Text transfers exact root through source-aware handoff, not merely skipped End.
-Real n still needs Text entry, start needs residence, pos needs full Text actual;
-this physical construction is no replacement for the full selected Text series.
-
-V8907814cd0eb3 owns Root890C377/363PASS/14identical baseline, CLI234,
-app279 JSON SAME Body7 pending .122849s, unchanged app280 mimalloc EXE132.648918s /
-native .001687s exact7/stdout+stderr+exit0, warnings/guards/commands/provenance and
-954,374,280B superseded-pin retirement. Keep Root890C/CLI234/app279-280/runtime877A/
-FFI876B until stronger same-role evidence or Text-series closure. Logs/manifests
-remain; no adapter, current CI/full-suite or new internal Prefix-position claim.
+V887–V890 completed history: `23d15d37c0` selects the original qualified
+SourceStatic callback; `73492f63e2` / `5c620ea0b4` normalize the consumed Call/Core
+scope and initializer vocabulary without behavior change. `7814cd0eb3` owns
+common initializer/Core-I64 qualification and CurrentScalarRead; the physical
+continuation below was completed by `df702c983c` (V891). Those commits retain
+source/producer/current-Prefix contracts, full commands/timings, classified
+Root361–377 / 14 baseline results, CLI232–234 and unchanged JSON/mimalloc native
+comparisons. Historical bundles are superseded by the latest same-role evidence;
+retain original logs/manifests until Text/Loop closure. Temporary diagnostics
+retired; no adapter, source execution shortcut or full Text/suite/CI acceptance.
 
 ### V891 source-bound I64 execution — landed df702c983c
 
@@ -953,6 +901,15 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   phi_materializer role with complete Header/After incoming rows, and validate
   block/dst/binding/all incoming in PlanLowerer before final After publication.
   Existing raw child/ledger/boundary carry this role, no second operand registry.
+- Scalar rebind construction keeps the original Assignment-root source plan
+  and exact BindingRebind target/Plain row. Qualify via shared expression calls,
+  current references, leaves and exact I64 operations; require no owned result.
+  Keep a purpose-specific frame over CheckedExpressionEvaluation, not a fake
+  initializer/field frame. Same Loop product retains the rebind projection.
+  Physical entry lower_callable_binding_rebind reuses expression_value and sole
+  variable_assignment_completion, then records the exact target/value once.
+  V2 ReadBinding/ConstI64/BinaryI64/WriteBinding already exist; generic source
+  projection must connect them to SAME JoinSig and Header/After incoming.
 - Both final scans consume the same expression packet: exact source point/frame/
   binding, unchanged readonly original producer, carrier Phi and FinishedBindings
   Copy correspondence. Preserve conditional RHS and one original Break; V2 still
@@ -965,31 +922,23 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   fake If seal, initializer permission for carriers, .hako rewrite and fallback
   remain forbidden; full Text/incoming/cleanup/fixed-suite/full-goal debts stay.
 
-V909 construction scope (same integrated Loop unit, not a new completion row):
-- Existing lowerer/emission_port + loop_cond_after_role first retain exact Phi
-  completion at the actual post-deferred-input/patch/CFG boundary. The earlier
-  materializer.close rows are provisional; destination-only wrapper capture
-  cannot grant Header/After provenance. Existing source-publication and physical
-  boundary tests own counterexamples. No new source or physical registry.
-- Then connect source loop value-flow/Prefix Header observation, existing scoped
-  Break/Continue cleanup, source-directed carrier publication and exact local
-  provenance through existing expression reference/final consumers. Source and
-  physical worker decisions above remain binding; full native JSON frontier,
-  fixed-suite and inherited Text conditions remain required and unaccepted.
-- Extend V909 paths to source_value_flow and existing source_value_flow_tests:
-  complete readonly normalization replaces per-consumer LoopPoint variants for
-  readonly scalar/static/entry reads. Physical source roles must still preserve
-  original producers; typed carrier/After and scoped cleanup remain required.
-- Root909A compiled90.859s; B21.316s failed on test module import, C78.860s
-  on moved condition snapshot. D fixes both and compiles135.829s; distinct focused
-  75 PASS/1 independently reproduced pre-change field-read baseline (exact except
-  allocated resolver epoch), including sourceflow7, final incoming/unique-def
-  mutations, physical boundary22 and real source-loop entry11. Stable4/diff PASS.
-  CLI259 builds223.868s from exact D sources; unchanged JSON318 .395848s remains
-  original Body7 pending, same stderr. Mimalloc319 EXE154.379s/run.001402s exit0,
-  exact app317 stdout/stderr/exit. Fixed11 5PASS/6FAIL438.959s; all full diagnostics
-  match classified CLI258/257 and independent CLI256 baselines. No suite green.
-  CLI259 SHA256 `26551d79b3727be0d388f38144a220466d61224d2ebf8f66498dfd850b33a646`.
-  FFI897A/kernel894A remain pinned with explicit compiler-only deltas. Retain all
-  V909 manifests/native/failed-build/baseline receipts until Text/Loop closure;
-  no temporary adapter added; destination-only outer capture was replaced.
+V909 landed construction: `e3d050a785` owns original LoopFrame port-invariance
+normalization and exact source LoopCond Phi completion. All original reachable
+Backedge/Continue/Break/condition-false snapshots must agree before reducing
+Header/After; carrier/alias updates remain joins. Substitutions wait for complete
+seal; strict alias queries stay unchanged. This proves port-value identity, not
+absence of writes on terminating paths or a physical ReadOnly/type/Home grant.
+The physical source emission port completes SAME Header/Step/After rows only
+post-deferred-input/patch/CFG seal, checking global unique definitions, original
+destinations, all incoming and predecessor/prefix census. Existing final boundary
+consumes these exact rows. Destination-only outer role capture is retired.
+
+`e3d050a785` preserves source/commands/pins/build corrections and final evidence:
+Root909D75 distinct focused PASS/1 independent pre-change field-read baseline;
+stable4/diff PASS. CLI259 build223.868s with exact D source; unchanged mimalloc319
+EXE154.379s/run.001402s exit0 and exact previous stdout/stderr/exit. Unchanged
+JSON318 .395848s still Body7 pending/no artifact. Official fixed11 5PASS/6FAIL
+438.959s; all six full diagnoses/panic match classified CLI258/257 and independent
+CLI256 baseline chain. FFI897A/kernel894A remain predecessor pins with explicit
+compiler-only deltas. Preserve V909 manifests/native/baseline/failed-build receipts
+until Text/Loop closure; no adapter added. No whole-series/current-CI acceptance.
