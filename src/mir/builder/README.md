@@ -470,6 +470,11 @@ The existing selected Loop product now retains the same original planner result
 before Home, lending exact NoExitBody Recipe/effect/Integer/root proof and moving
 that same result once into the existing raw LoopCond physical owner. Captured
 policy, source membership, owner and frame must match; no replanning or fallback.
+The retained planner lends one immutable LoopCond source view pairing the same
+Recipe, source projection and located original body. Source correspondence is
+separate from the Array consumer's NoExitBody/flat-Stmt restrictions; that view
+alone grants no typed operation, portable JoinSig or Home After. Break and Core
+Text still need their complete operation/cleanup/After bridge.
 The original Mul product shares the existing enum/map. Final owner validation
 requires consumption. Source tests cover multiple pushes per alias, zero trips,
 preserved Homes and unsupported effects; these do not claim final app acceptance.

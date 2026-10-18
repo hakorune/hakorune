@@ -749,3 +749,21 @@ Decision (allocation_source_connection + reference_integration_review):
   permanent test/proof/guard. Retain root-v892a snapshots/build/focused receipt,
   v892-planner-observation.txt and source/retirement snapshots in existing evidence
   root until the bridge supersedes their role. No source implementation landed.
+
+
+V893 source correspondence normalization (preparation, no Text activation):
+- Existing retained source planner now lends one private immutable view pairing
+  SAME LoopCond Recipe/projection with original located body and source identity.
+  The existing Array NoExit consumer uses that view; owner/frame/sole-family and
+  body/condition corroboration remain mandatory. NoExitBody, full lengths,
+  indexed Stmt-only and no-scoped-child fences are unchanged. No second issuer,
+  permanent receipt/registry or Home/portable After permission was introduced.
+- allocation_source_connection reviewed actual diff PASS. Root893A quick-test-fast
+  build75.220723s PASS. Existing selected source/affine retention1, Loop route29,
+  source projection10 PASS; field_resident6PASS/1baseline. The failed published
+  field-resident Array test reports field-array-append/loop-source-missing with
+  the exact same identity/message in pinned Root892A (v893-field-resident-baseline
+  receipt/log); it is not a newly green final consumer or a new regression.
+  Stable4 guards/diff PASS. New tests/proof apps/guards0. Named JSON/C and native
+  acceptance remain the previous matched receipts; this preparation changes no
+  production route. Root893A evidence retained until successor matches its role.
