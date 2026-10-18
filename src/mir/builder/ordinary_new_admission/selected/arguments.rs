@@ -196,6 +196,90 @@ mod tests {
     }
 
     impl MirBuilder {
+        /// The original initializer's full finite domain reaches the same entry
+        /// checker without granting executable operands or a physical Null guard.
+        pub(in crate::mir) fn assert_finite_initializer_entry_for_test(
+            input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+            ledger: std::rc::Rc<OrdinaryNewClaimLedgerV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1,
+            formals: Vec<(u32, crate::mir::resolved_semantics::BindingRefV1)>,
+        ) {
+            use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+            let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
+            let mut names: Vec<_> = input.function().declaration_sites().filter_map(|site| match site {
+                crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index } => {
+                    let binding = input.function().declaration_binding(site).unwrap();
+                    Some((*index, input.function().binding(binding).unwrap().diagnostic_name().to_owned()))
+                }, _ => None,
+            }).collect();
+            names.sort_by_key(|row| row.0);
+            let names: Vec<_> = names.into_iter().map(|row| row.1).collect();
+            let mut builder = MirBuilder::new();
+            builder.create_function_skeleton("finite_entry".into(), &names, &[]).unwrap();
+            builder.setup_function_params(&names).unwrap();
+            builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers =
+                Some(vec![Carrier::ExistingCallableI64; names.len()].into_boxed_slice());
+            state.lend_ordinary_new_claim_ledger(std::rc::Rc::clone(&ledger));
+            state.stage_borrowed_entry_formals(input.owner(), Ok(Some(formals.into_boxed_slice()))).unwrap();
+            let entry = crate::mir::builder::normal_callable_binding_materialization_port::CallableEntryShapeV1::Static { parameter_count: names.len() }
+                .prepare_values(&builder).unwrap();
+            let (carriers, _) = state.prepare_borrowed_entry_carriers(&entry, &builder).unwrap().unwrap();
+            state.install_entry_values(&entry).unwrap();
+            builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers = Some(carriers);
+            crate::mir::builder::vars::lexical_scope::try_with_lexical_scope(&mut builder, |mut builder| -> Result<(), String> {
+                let mut originals: Vec<_> = input.function().expression_source().initializers().collect();
+                originals.sort_by_key(|row| row.declaration_site().clone());
+                for original in originals {
+                    let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, .. } = original.declaration_site() else { continue };
+                    if statement == frame.source().root().statement() { break; }
+                    let value = state.read_variable(original.initializer_site().unwrap().node()).unwrap();
+                    let mut completed = Vec::new();
+                    let value = crate::mir::builder::stmts::variable_stmt::build_local_statement_from_values_with_types_and_preclaims_with_receipt_v1(
+                        &mut builder, vec![input.function().binding(original.binding()).unwrap().diagnostic_name().to_owned()],
+                        vec![value], vec![None], vec![None], &mut completed,
+                        &[crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy]).unwrap();
+                    state.record_completed_local(statement.node(), &crate::mir::builder::stmts::CompletedLocalStatementV1::from_parts(value, completed)).unwrap();
+                }
+                for reference in frame.evaluation().references().values() {
+                    let crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::InitializerEntry { read, .. } = reference else { continue };
+                    let required = read.requirement();
+                    let prepared = state.prepare_exact_lexical_read(input.owner(), required.read().node(), required.binding()).unwrap();
+                    let function = builder.function_state.current_function.as_ref().unwrap();
+                    let (formal, current, domain) = ledger.validate_prepared_finite_entry_read_v1(required, function, prepared.observation_v1()).unwrap();
+                    assert_eq!(formal, function.params[required.formal().0 as usize]);
+                    assert_eq!(current, prepared.value_for(input.owner(), required.read().node(), required.binding()).unwrap());
+                    assert!(read.corroborates_finite_domain_v1(&domain));
+                    assert!(!read.corroborates_finite_domain_v1(&std::rc::Rc::new((*domain).clone())), "equal contents never replace original SUM authority");
+                    assert_eq!(domain.alternatives().len(), 3, "Text, signed I64 and Null all survive");
+                    assert!(ledger.validate_prepared_text_entry_read_v1(required, function, prepared.observation_v1()).unwrap_err().contains("domain-not-text-only"));
+                    for mutation in 0..3 {
+                        let mut changed = function.clone();
+                        match mutation {
+                            0 => changed.params.swap(0, 1),
+                            1 => changed.metadata.physical_param_carriers.as_mut().unwrap()[0] = Carrier::ExistingCallableI64,
+                            2 => changed.blocks.get_mut(&changed.entry_block).unwrap().add_instruction(MirInstruction::Const {
+                                dst: formal, value: crate::mir::ConstValue::Integer(0),
+                            }), _ => unreachable!(),
+                        }
+                        assert!(ledger.validate_prepared_finite_entry_read_v1(required, &changed, prepared.observation_v1()).is_err());
+                    }
+                }
+                let before = builder.function_state.current_function.as_ref().unwrap().clone();
+                let error = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
+                    &mut |_, _, _, _, _, _| Err("no ordinary Call".into())).err().unwrap();
+                assert!(error.contains("finite-envelope-execution-pending"), "{error}");
+                let rows = |function: &crate::mir::MirFunction| function.blocks.iter()
+                    .map(|(block, body)| (*block, body.all_instructions().cloned().collect::<Vec<_>>()))
+                    .collect::<std::collections::BTreeMap<_, _>>();
+                assert_eq!(rows(builder.function_state.current_function.as_ref().unwrap()), rows(&before));
+                for reference in frame.evaluation().references().values() {
+                    let required = match reference { crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::InitializerEntry { read, .. } => read.requirement(), _ => continue };
+                    state.prepare_exact_lexical_read(input.owner(), required.read().node(), required.binding()).unwrap();
+                }
+                Ok(())
+            }).unwrap();
+        }
+
         /// Exercise the sole writer from a genuinely qualified original frame.
         /// No fake Print purpose or executable ordinary input is issued here.
         pub(in crate::mir) fn assert_checked_expression_core_for_test(

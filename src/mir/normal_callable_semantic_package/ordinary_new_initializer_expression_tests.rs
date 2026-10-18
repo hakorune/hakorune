@@ -244,6 +244,12 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
             assert!(frame.owns_root());
             let selected = ledger.initializer_expression_frame_v1(contract.owner, frame.source().root().statement().node()).unwrap().unwrap();
             assert!(Rc::ptr_eq(frame, &selected), "the real production selector retains this SAME complete frame");
+            package.batch().with_lowering_input(contract.batch_slot, |input| {
+                let formals = contract.parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
+                    .map(|row| (row.ordinal, row.binding)).collect();
+                crate::mir::MirBuilder::assert_finite_initializer_entry_for_test(input,
+                    package.ordinary_new_claim_ledger_for_test(), frame, formals);
+            }).unwrap();
         }
     }
 }

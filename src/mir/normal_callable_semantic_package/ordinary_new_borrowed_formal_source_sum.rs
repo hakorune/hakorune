@@ -15,7 +15,7 @@ pub(super) enum SourcePointExpansionV1 {
 type PointExpander<'a> = dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+pub(in crate::mir)
 enum SourceValueAlternativeV1 {
     Text,
     SignedI64,
@@ -24,10 +24,10 @@ enum SourceValueAlternativeV1 {
     Object(Box<str>),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+pub(in crate::mir)
 struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
 impl SourceValueSumV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn alternatives(
+    pub(in crate::mir) fn alternatives(
         &self,
     ) -> &BTreeSet<SourceValueAlternativeV1> {
         &self.0
@@ -35,7 +35,7 @@ impl SourceValueSumV1 {
     fn signed_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::SignedI64)
     }
-    fn text_only(&self) -> bool {
+    pub(in crate::mir) fn text_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Text)
     }
     fn permits_object(&self, name: &str) -> bool {

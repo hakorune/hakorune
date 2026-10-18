@@ -44,17 +44,15 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-alias/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let definition = self
-            .checked_entry_owner_view_v1(source, owner)?
-            .map(|view| view.definition)
-            .ok_or_else(|| freeze("borrowed-alias/owner"))?;
         let binding = initializer.binding();
-        if binding.owner() != owner {
-            return Err(freeze("borrowed-alias/binding-owner"));
-        }
-        let Some(formal) = definition.origins.get(&binding).copied() else {
-            return Ok(None);
+        if binding.owner() != owner { return Err(freeze("borrowed-alias/binding-owner")); }
+        let formal = if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+            structure.finite_alias_formal_v1(initializer, source_binding)?
+        } else {
+            self.checked_entry_owner_view_v1(source, owner)?
+                .ok_or_else(|| freeze("borrowed-alias/owner"))?.definition.origins.get(&binding).copied()
         };
+        let Some(formal) = formal else { return Ok(None) };
         if binding == formal || binding.owner() != owner || formal.owner() != owner {
             return Err(freeze("borrowed-alias/binding"));
         }
@@ -113,6 +111,9 @@ impl OrdinaryNewClaimLedgerV1 {
         source_binding: BindingRefV1,
         formal: BindingRefV1,
     ) -> Result<(), String> {
+        if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+            return structure.check_finite_alias_source_v1(site, declaration, binding, source_binding, formal);
+        }
         let source = self
             .borrowed_formal_source
             .as_ref()

@@ -167,6 +167,29 @@ impl OriginalFormalUseSourceV1 {
     ) -> &[(OwnedExprSiteV1, BindingRefV1, bool)] {
         &self.captures
     }
+    /// Exact retained initializer and current source flow, not raw read membership.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn initializer_entry_alias_v1(
+        &self, initializer: &ResolvedInitializerRelationV1, source_binding: Option<BindingRefV1>,
+    ) -> Result<Option<BindingRefV1>, BorrowedFormalUseDraftErrorV1> {
+        let reject = || BorrowedFormalUseDraftErrorV1::SourceIdentity;
+        if initializer.binding().owner() != self.owner
+            || self.initializers.iter().filter(|row| *row == initializer).count() != 1 { return Err(reject()); }
+        let Some(source_binding) = source_binding else { return Ok(None) };
+        let SourceBindingSiteV1::Local { statement, ordinal } = initializer.declaration_site() else { return Err(reject()) };
+        let site = crate::mir::resolved_semantics::SourcePathV1::from_node(statement.node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Initializer(*ordinal)).expr();
+        if initializer.initializer_site() != Some(&site)
+            || source_binding.owner() != self.owner
+            || self.reads.iter().filter(|(at, reference)| *at == site
+                && *reference == ResolvedLexicalRefV1::Local(source_binding)).count() != 1 { return Err(reject()); }
+        let Some(flow) = &self.flow else { return Ok(None) };
+        let Some(point) = flow.read(&site, source_binding) else { return Ok(None) };
+        let Some(formal) = flow.alias_entry_origin(point, |site|
+            self.reads.iter().find(|(at, _)| at == site).map(|(_, reference)| *reference)) else { return Ok(None) };
+        if self.roots.get(&formal) != Some(&formal) { return Ok(None); }
+        if initializer.declared_type_name().is_some() || formal == initializer.binding() { return Err(reject()); }
+        Ok(Some(formal))
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_read(
         self: &Rc<Self>,
         site: &SourceExprSiteV1,

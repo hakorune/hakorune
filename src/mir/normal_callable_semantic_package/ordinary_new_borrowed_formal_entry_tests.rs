@@ -352,9 +352,12 @@ fn outside_profile_remains_unselected_before_entry() {
             let binding = contract.parameters[0].binding;
             let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
             let structure = ledger.finite_text_entry_for_owner_v1(owner).unwrap().expect("original finite structure");
-            let text_domain = structure.text_domain_for_formal_v1(0, binding);
-            assert_eq!(text_domain.is_ok(), text_only);
-            if !text_only { assert!(text_domain.unwrap_err().contains("domain-not-text-only")); }
+            let domain = structure.finite_domain_for_formal_v1(0, binding).unwrap();
+            assert_eq!(domain.text_only(), text_only);
+            let canonical = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
+                .lend_source_value_sum_v1(binding).unwrap();
+            assert!(Rc::ptr_eq(domain, &canonical));
+            assert_eq!(domain.alternatives().len(), if text_only { 1 } else { 3 });
             assert!(structure.check_finite_entry_values_v1(&[]).is_err());
             assert!(structure.check_finite_entry_values_v1(&[(1, binding, crate::mir::ValueId(72))]).is_err());
             if mutation != 0 {

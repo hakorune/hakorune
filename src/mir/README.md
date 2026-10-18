@@ -524,3 +524,15 @@ Print retains the SAME Static/Residence/original-I64 proofs in its evaluation;
 its existing writer and final projection consume them. Home installation begins
 only after source qualification, preserving the atomic field-batch boundary.
 A borrowed residence gains neither another owner nor another Normal End.
+
+Finite entry/read correspondence preserves the original formal ValueId, current
+read ValueId and SAME canonical source SUM through declaration, complete carrier
+and forwarded-Copy checks. Exact Text is a derived policy of that shared check.
+Initializer preflight corroborates its original SUM/flow/read before the finite
+execution fence. This correspondence grants no executable finite descriptor,
+physical Null guard, completed actual or whole incoming/use coverage.
+Finite entry aliases reuse the existing alias-materialization pool and physical
+Copy provenance. Their source owner validates the exact retained initializer and
+its reaching entry origin. This snapshot does not discharge later rebind/capture
+uses: original use/assignment/capture information remains required by the pending
+finite entry completion and final whole-use boundary.

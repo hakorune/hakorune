@@ -259,18 +259,39 @@ impl OrdinaryNewClaimLedgerV1 {
 
 impl BorrowedEntryStructureV1<'_> {
     /// This is a canonical source-domain loan, never completed actual/use proof.
-    pub(super) fn text_domain_for_formal_v1(&self, ordinal: u32, formal: BindingRefV1)
+    pub(super) fn finite_domain_for_formal_v1(&self, ordinal: u32, formal: BindingRefV1)
         -> Result<&Rc<super::super::borrowed_formal_source::SourceValueSumV1>, String> {
-        use super::super::borrowed_formal_source::SourceValueAlternativeV1 as Alternative;
         let EntryStructureEvidenceV1::FiniteText { domains, .. } = &self.evidence else {
             return Err(freeze("borrowed-text-entry/finite-structure-required"));
         };
         if !self.formals.contains(&(ordinal, formal)) { return Err(freeze("borrowed-text-entry/structural-formal")); }
-        let domain = domains.get(&formal).ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))?;
-        if domain.alternatives().len() != 1 || !domain.alternatives().contains(&Alternative::Text) {
-            return Err(freeze("borrowed-text-entry/domain-not-text-only"));
+        domains.get(&formal).ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))
+    }
+
+    pub(super) fn finite_alias_formal_v1(&self,
+        initializer: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+        source_binding: Option<BindingRefV1>,
+    ) -> Result<Option<BindingRefV1>, String> {
+        let EntryStructureEvidenceV1::FiniteText { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
+        let formal = uses.initializer_entry_alias_v1(initializer, source_binding)
+            .map_err(|_| freeze("borrowed-alias/source-identity"))?;
+        if formal.is_some_and(|formal| !self.formals.iter().any(|(_, root)| *root == formal)) {
+            return Err(freeze("borrowed-alias/entry-formal"));
         }
-        Ok(domain)
+        Ok(formal)
+    }
+    pub(super) fn check_finite_alias_source_v1(&self, site: &OwnedExprSiteV1,
+        declaration: &crate::mir::resolved_semantics::SourceBindingSiteV1,
+        binding: BindingRefV1, source_binding: BindingRefV1, formal: BindingRefV1,
+    ) -> Result<(), String> {
+        let EntryStructureEvidenceV1::FiniteText { uses, .. } = &self.evidence else { return Err(freeze("borrowed-alias/finite-structure-required")); };
+        let mut originals = uses.initializers().iter().filter(|row| row.binding() == binding && row.declaration_site() == declaration);
+        let original = originals.next().ok_or_else(|| freeze("borrowed-alias/source-copy-missing"))?;
+        if originals.next().is_some() || site.owner() != self.owner || original.initializer_site() != Some(site.site())
+            || self.finite_alias_formal_v1(original, Some(source_binding))? != Some(formal) {
+            return Err(freeze("borrowed-alias/source-identity"));
+        }
+        Ok(())
     }
 
     pub(super) fn check_finite_entry_values_v1(

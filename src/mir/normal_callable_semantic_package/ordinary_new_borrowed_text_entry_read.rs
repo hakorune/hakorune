@@ -57,6 +57,17 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, requirement: &BorrowedTextEntryReadRequirementV1,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<crate::mir::ValueId, String> {
+        let (_, value, domain) = self.validate_prepared_finite_entry_read_v1(requirement, function, read)?;
+        if !domain.text_only() { return Err(freeze("borrowed-text-entry/domain-not-text-only")); }
+        Ok(value)
+    }
+
+    /// Original finite domain is preserved independently of a purpose's view.
+    /// Keep formal and current values distinct: an alias may have a real Copy.
+    pub(in crate::mir) fn validate_prepared_finite_entry_read_v1(
+        &self, requirement: &BorrowedTextEntryReadRequirementV1,
+        function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
+    ) -> Result<(crate::mir::ValueId, crate::mir::ValueId, Rc<super::super::borrowed_formal_source::SourceValueSumV1>), String> {
         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
         let owner = requirement.source_plan.owner();
@@ -81,7 +92,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-text-entry/finite-structure-required"))?;
         let entries = self.borrowed_ordinary_entry_values_v1(owner)?;
         structure.check_finite_entry_values_v1(&entries)?;
-        let domain = structure.text_domain_for_formal_v1(requirement.ordinal, requirement.formal)?;
+        let domain = structure.finite_domain_for_formal_v1(requirement.ordinal, requirement.formal)?;
         let canonical = source.lend_source_value_sum_v1(requirement.formal)
             .ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))?;
         if !Rc::ptr_eq(domain, &canonical) { return Err(freeze("borrowed-text-entry/domain-source-drift")); }
@@ -114,6 +125,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("borrowed-text-entry/physical-copy"));
             }
         }
-        Ok(value)
+        Ok((entry_value, value, Rc::clone(domain)))
     }
 }

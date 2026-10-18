@@ -24,6 +24,10 @@ impl PartialEq for InitializerTextEntryReadV1 {
 impl Eq for InitializerTextEntryReadV1 {}
 impl InitializerTextEntryReadV1 {
     pub(crate) fn requirement(&self) -> &BorrowedTextEntryReadRequirementV1 { &self.requirement }
+    pub(in crate::mir) fn corroborates_finite_domain_v1(&self, domain: &Rc<SourceValueSumV1>) -> bool {
+        Rc::ptr_eq(&self.sum, domain)
+            && self.flow.read(self.requirement.read(), self.requirement.binding()) == Some(self.value)
+    }
     /// Finite original alternatives for this initializer read, not a runtime
     /// carrier. Null removal requires the SAME covered branch/entry proof.
     pub(crate) fn leaf_class(&self, exclusion: Option<&crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>)

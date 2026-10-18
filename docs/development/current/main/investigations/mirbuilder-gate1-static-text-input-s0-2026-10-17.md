@@ -939,3 +939,55 @@ Next construction details (read-only worker; integrate with mapping above):
   belongs the existing operand image, separate from TextOnly/object_views;
   never infer it from a carrier tag. Preserve structural-preemit/final-actual
   separation; do not demand completed actuals while constructing source reads.
+
+V900 Decision (same full finite Text responsibility; worker top-down reviewed):
+- Separate original finite entry/read correspondence from exact-Text policy.
+  Existing validator retains complete declaration/formal/carriers/Copy checks
+  and returns original formal value, current read value and SAME unfiltered SUM.
+  Initializer preflight corroborates SAME SUM/flow/read; execution stays fenced
+  pending physical Null guard, finite descriptor and all incoming/use closure.
+- Existing immutable SourceValueSum/Alternative visibility may reach MIR owners;
+  constructors/graph issuers stay private. No new receipt or domain inference.
+- Paths: ordinary_new_borrowed_formal_entry_contract.rs, borrowed_text_entry_read,
+  borrowed_initializer_text_source, borrowed_formal_source_sum, selected
+  expression_value.rs; existing formal-entry/initializer tests and src/mir README.
+  Existing full finite/alias fixtures exercise shared read correspondence,
+  strict Text-only refusal and malformed physical parameters without MIR effects.
+  No EXE/entry completion or whole-series claim follows this prerequisite.
+- Scope addition: existing selected/arguments.rs test helper installs genuine
+  source entry/alias receipts for initializer finite matrix; checks original Rc
+  vs equal clone, whole parameter mutations, nonconsuming preflight and retained
+  fence. Same matrix/test owner; no new standalone proof app or test function.
+- Root900A compile red: test formals Vec/Box mismatch fixed. Root900B focused
+  finite alias exposed borrowed-alias/owner: existing registration still requires
+  legacy use definition. Extend SAME original finite source responsibility into
+  existing alias materialization/use-original owners; retain same alias pool and
+  provenance/Copy checks, no alias-case removal. Worker reviewed source authority.
+  Broad entry test also exposes guarded_receiver_packet...:194 baseline red,
+  reproduced on retained Root899E; it is not introduced by V900.
+- Root900C compile red: use-original helper must return its own typed source
+  error, not alias-owner freeze helper. Corrected; scalar/unrelated entry aliases
+  return None before borrowed annotation policy. Root900D no-run PASS63.151859s;
+  focused65 PASS/1 verified baseline guarded-receiver red. New finite/alias
+  matrix passes, including SAME SUM vs clone, complete params, real Copy alias
+  and no MIR/read effects. Existing alias regression6 PASS. Alias proof is an
+  initializer snapshot only; original later assignment/capture census remains
+  mandatory at finite completion. No fence or final use obligation removed.
+
+V900 correspondence prerequisite closeout (not full finite execution):
+- Root900D65 PASS/1 StableKnownRed; the guarded-receiver :194 negative fails
+  identically on retained Root899E. Keep that baseline condition for full goal
+  verification. No unresolved introduced red remains. Source files match CLI248;
+  the only post-test source-manifest delta was owner README clarification.
+- CLI248 build PASS180.976352s; app298 unchanged JSON .393049s exit1/no EXE,
+  exact app297 stderr, slot20 Body7 core-expression-execution-pending. Explicit
+  predecessor FFI897A/kernel894A roles retained; no new native/full-suite/CI claim.
+- Keep Root900D/CLI248/app298, baseline log and source manifests until full Text
+  closure. Superseded Root900B test binary removed; logs/manifests retained.
+  No adapter or second registry created. Existing Text-only query removed after
+  caller switch; same SUM owns derived Text policy. Stable4 guards/diff PASS.
+- Next same responsibility: accepted Home qualification needs original Loop
+  After for JSON end. Existing Call argument packet must retain Text acquisitions
+  through Call; build Call Fault cleanup AFTER ordered arguments, and End only
+  argument-owned temporaries on Normal. Full finite operand/Null guard and both
+  final Call+nonCall incoming/use scans remain mandatory before execution.

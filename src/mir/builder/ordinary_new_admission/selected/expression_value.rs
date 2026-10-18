@@ -38,8 +38,21 @@ pub(super) fn emit(
     let owner = frame.source().owner();
     if state.owner() != owner { return Err(freeze("expression-value/state-owner")); }
     if !frame.reference_coverage_is_exact() { return Err(freeze("expression/reference-source-coverage")); }
-    // Reject unconnected carriers/finite selection before any read reservation,
+    // Reject unconnected carriers/finite selection before any committed read,
     // FaultFrame or MIR effect; a retained source class is not a physical value.
+    // Corroborate every original finite requirement before the retained
+    // multi-envelope execution fence. Preparation consumes no source read.
+    for original in frame.references().values() {
+        if let CheckedExpressionReferenceV1::InitializerEntry { read, exclusion } = original {
+            let prepared = state.prepare_exact_lexical_read(owner, read.requirement().read().node(), read.requirement().binding())
+                .map_err(|error| error.to_string())?;
+            let (_, _, domain) = ledger.validate_prepared_finite_entry_read_v1(read.requirement(),
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, prepared.observation_v1())?;
+            if !read.corroborates_finite_domain_v1(&domain) || read.leaf_class(exclusion.as_deref()).is_none() {
+                return Err(freeze("expression/reference-initializer-domain"));
+            }
+        }
+    }
     if frame.operations().iter().any(|operation| operation.single_envelope().is_none()) {
         return Err(freeze("expression/finite-envelope-execution-pending"));
     }
