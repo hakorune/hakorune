@@ -905,84 +905,37 @@ Next construction mapping (worker reuses full source responsibility; not accepta
   cleanup. to_i64 retains Null terminating branch plus both original Add domains.
   No new source permission, alternate evaluator, task row or parked lane follows.
 
-V899 construction Decision (same Text responsibility; worker reviewed top-down):
-- Fulfill Static/scalar/Residence through the existing ExpressionReferenceRead
-  owner and one preflight/commit read batch. Residence lends SAME packet root
-  Normal binding after Home identity, source read and priorHomes checks. It uses
-  the original root pair, never a newly acquired/copy-produced String value.
-- Normalize existing opaque alias placement walk to admit exact installed Text
-  Home aliases with ReuseInitializer. Preserve current value, source initializer,
-  consumed read, cycle and annotation checks; no ordinary owned-pair Copy.
-- Paths: selected/expression_value.rs, common expression_reference_read and
-  expression_projection, initializer packet root getter, local_entry installed
-  alias query, existing lowering-state/map_local.rs alias walk, existing
-  initializer test owners and src/mir/README.md. No new registry/guard/proof app.
-- Existing false/true initializer matrix will cover original residence/aliases,
-  borrowed use in Add/Core and final dependency mutations. Entry/finite SUM,
-  arguments, Bool short-circuit, all incoming/use scans and Loop After remain
-  mandatory. This connection does not bypass their execution fences or accept
-  full Text/unchanged JSON. Existing final boundary validates all dependencies.
+V899 landed connection (5514e2a314; full evidence/failed diagnoses in that commit):
+- Common original Static/scalar/installed Residence reference owner now reaches
+  initializer/Core and Print consumers. Exact root/alias provenance, SAME packet
+  and current Home are required; no additional acquisition/Install/Normal End.
+  Canonical initializer receipt Copies share the existing sealed omission law.
+  Initializer and Print reuse one current-reference seeder; Print installation
+  is lazy, preserving source reads and atomic field-batch publication.
+- Root899E47 focused PASS (13 source rows × both optimize modes), CLI247 build
+  PASS. Three canonical direct EXEs produce2/2/3 and exit0: length, two aliases,
+  borrowed Add followed by length/Print. app297 unchanged JSON still stops at
+  slot20 Body7 core-expression-execution-pending. This is real current-reference
+  result acceptance, not full Text/finite entry/arguments/Bool/Loop completion.
+- Obsolete duplicate reference paths and Map-only predicate removed. Keep matched
+  Root899E/CLI247/probe/app297 evidence and explicit predecessor FFI897A/kernel894A
+  roles until full Text closure. Superseded899A/B/C test binaries removed813MB;
+  logs/manifests kept. No temporary adapter remains. Full CI/suite not claimed.
 
-- Required path additions: existing source_local_copies census/root prefix Copy
-  checker, map.rs obsolete predicate removal and its two existing test callers,
-  plus selected/arguments.rs existing source-only negative fixture diagnostics.
-  Scalar Length result receipt now uses the same captured-source Copy law.
-- Root899A no-run PASS85.681062s; initializer family5 PASS/2 FAIL, scalar final1
-  and original Print/Bool1 PASS. New reds belong here: moved Static dependency
-  diagnostics and an optimized dead scalar receipt Copy absent from the old
-  Ordinary-only source-Copy census. Register SAME initializer receipt in the
-  existing census and delegate ONLY its exact Copy; finalized sealed relation
-  remains mandatory. Source-only Residence shell still lacks installed entry/
-  acquisition and must fail before MIR effects. Remove caller-zero helpers.
-
-- Root899B no-run PASS65.480255s;40 focused PASS/1 source-only fixture diagnostic
-  mismatch. Actual Residence/core/one+two aliases, both optimize modes and
-  acquisition/Install/Home-End mutations PASS. Missing physical prior Home is
-  rejected by canonical cleanup preflight before any read/MIR effects; fixture
-  now expects that exact boundary. Map regression3 and prior contract owners pass.
-
-- Root899C:41 focused PASS; CLI246 build PASS175.506551s. app296 unchanged
-  JSON remains slot20/Body7 core-expression-execution-pending, same as app295.
-  Native length/alias probes expose Print source-unavailable before backend.
-- Extend SAME Decision to source-to-result Print: move current Static/Residence/
-  Original-I64 seeding into existing home_expression_evaluation; initializer and
-  Print share it. Print retains exact references and existing writer/final scan.
-  Existing entry/Bool fences remain. Worker confirms lazy Home installation is
-  required so current scalar proof can read original initializer frames.
-- Additional paths: resolved_semantics/home_expression_evaluation.rs,
-  home_initializer_expression.rs, home_print_expression.rs, home_new_prefix_print.rs,
-  home_expression_plan.rs existing tests; ordinary_new_field_batch_tests.rs and
-  root_call_entry/print_expression_projection_tests.rs existing qualifier callers.
-  Existing initializer matrix adds real result Print with both optimize modes.
-
-- Root899D compile red: new Print preparation call missed existing seeded-map
-  argument; corrected before execution (no authority change). Root899E no-run
-  PASS78.256882s;47 distinct focused PASS: initializer7 (13 source rows in both
-  optimize modes), scalar-final1, boundary22, affine-prefix1, Print4, cleanup6,
-  Map3, atomic-install1 and field-batch2. The initial Print test filter selected
-  zero and is not evidence; actual print_expression_projection::tests selected4.
-  Worker reviewed actual diff with no remaining authority/transaction/lifetime
-  defect. Existing common writer preserves borrowed Residence and Fault cleanup.
-
-V899 source-to-consumer closeout (full Text series remains open):
-- CLI247 build PASS175.831179s. Default canonical/MIR direct --emit-exe with
-  plugins off, pure-first, compat-replay none; fresh CLI247 and FFI897A plus
-  explicit predecessor kernel894A (recorded role/source deltas, not a matched
-  three-rebuild claim). Source probes: first=("a"+"b"), n=first.length(),
-  print(n) =>2; two aliases then length/Print=>2; alias+"!" then length/Print=>3.
-  All three EXEs exit0 with exact numeric line plus `Result: 0`; runtime stderr
-  is the expected plugins-disabled warning. Build/link118.450336/118.363979/
-  105.041340s; run.009370/.008256/.007760s. Root899E47 focused PASS above includes
-  original Print/field/cleanup fail-fast tests, full source publication and both
-  optimization modes. No .hako app workaround or legacy retry was introduced.
-- app297 unchanged JSON .399728s exit1/no EXE, exact app296 stderr: slot20 Body7
-  core-expression-execution-pending. Full finite entry/arguments/use/Loop is owed.
-- Static/scalar reference duplication and obsolete Map-only alias predicate are
-  removed; original read provenance, canonical root packet and sealed Copy law
-  remain with existing owners. No adapter/new test owner/guard/registry added.
-- Keep Root899E/CLI247/native probes/app297 receipts, failed probes, source
-  manifests and required predecessor pins until full Text closure. Three
-  superseded Root899A/B/C test-binary copies removed:813,308,432 bytes, retaining
-  their logs/manifests. README-only correction after validation is explicitly
-  recorded; executable sources still match Root899E/CLI247. Stable4 guards and
-  diff PASS. This is current reference/result acceptance, not full Text/CI/suite.
+Next construction details (read-only worker; integrate with mapping above):
+- finite entry source/evidence and completed entry remain distinct in
+  ordinary_new_borrowed_formal_entry_contract; retain SAME uses Rc, incoming
+  Static rows and domains. Shared physical read check in
+  ordinary_new_borrowed_text_entry_read must preserve all carriers and Copy
+  provenance; exact Text is a derivative policy of the original finite domain.
+- Reuse borrowed_field_write_guards source observation and finalized null guard
+  correspondence for original initializer exclusion. Existing projection is
+  Eq/nonnull ELSE only: original != with terminating ELSE needs its matching
+  operator/surviving-arm capability, never blanket acceptance of that projection.
+- Existing finalized_lexical_call_visit/common final source lends all initializer
+  and Print references (Bool later), not only Calls. original_call_slots and
+  compiled_entry_contract/borrowed_call_incoming must consume the SAME ephemeral
+  source-use image with every original incoming/actual tuple. Full finite domain
+  belongs the existing operand image, separate from TextOnly/object_views;
+  never infer it from a carrier tag. Preserve structural-preemit/final-actual
+  separation; do not demand completed actuals while constructing source reads.
