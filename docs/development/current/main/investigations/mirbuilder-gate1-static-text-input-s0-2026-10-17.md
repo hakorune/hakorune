@@ -983,18 +983,17 @@ retained; they do not claim this commit alone closes Loop/After or the full seri
   initializer8/raw Loop11. This commit alone does not validate all WIP or grant
   Loop Header/After execution, production cutover, current suite or CI acceptance.
 
-- Root923 timing fix: same physical input owns PhiTxn from early Header/After
-  definitions through exact one-time adoption, Step definitions, shared patch,
-  unused-Step rollback, completion/finish and commit. Every error uses same abort.
-  Nested loops cannot adopt parent; no extra registry or source Recipe permission.
-  Integrated WIP Root923B build65.945s:32PASS (raw Loop11/completion2/Phi6/SSA5/
-  initializer8). Early definitions, partial-prepare abort, missing/extra census,
-  definition drift and repeat adoption/commit covered in existing fixtures.
-  CLI266 build189.834s matches Root923B source; unchanged mimalloc336 EXE141.381s/
-  run.001582s exit0, stdout/stderr/exit exact333 matched-env. FFI897A/kernel894A
-  are explicit predecessors, not fresh full-source matches. JSON335 .151s stays
-  exact332 source-not-i64/noEXE. Separate original Main Loop probe .022s reproduces
-  CLI265 exact positional recurrence refusal; not selected intField or regression.
-  Retain Root923B/CLI266/source/native/probe evidence until whole Loop closure;
-  no adapter added. Same-product source edges, scoped lifecycle group, Header/
-  After reads and both final consumers remain owed; no suite/cutover/CI claim.
+- Root923 timing landed/pushed `4952165da9`: exact32PASS, CLI266 source/build,
+  mimalloc336 exact333 native; JSON335 same332/noEXE. Keep Root923B/CLI266/source/
+  native/probe pins until full Loop closure; FFI897A/kernel894A are predecessors.
+  No source Recipe/suite/cutover/CI/whole-series acceptance.
+Next physical Decision (loop_condition_review + loop_carrier_owner_review):
+- Loan existing LocalSSA Phi relation at Header/After define; require completed
+  at BOTH finals. No second receipt/pool or pending snapshot permission.
+- SAME product's Loop group owns scoped children. Prepared publication targets
+  Root/Loop child with SAME Text Home map; shared recursive visitor serves BOTH
+  finals with short borrows. Child reads keep source/Phi relation, never parent Rc.
+- completed_loop checks source edge/producer, CFG and SSA loan(original,incoming).
+  Trace Step Phi inputs; genuine Bool owns false fanout. Record Break/Continue
+  AFTER cleanup/localization. Keep refusal until whole group/cleanup/reads/finals
+  close. Main positional probe is separate; source-only fixture is not acceptance.
