@@ -964,28 +964,12 @@ FFI897A/kernel894A and native/source/baseline receipts remain required until ful
 Text/Loop closure; superseded Root913B/C binary copies retired, no adapter added.
 No Loop-carried/full-series/full-goal/current-CI acceptance claim.
 
-V914 role transport (original Loop series still unaccepted): reuse `normal_callable_loop_handoff`
-projector over original resolver rows before Home scanning. Retain one immutable
-role payload in the SAME source-plan row for source observers; physical lowering
-takes the one affine schedule. Ready/BodyOnly/local declarations normalize in one
-view, with rebound iteration locals excluded from external carriers. Same-source
-Rc correspondence is checked at physical consumption; no reissuance after refusal.
-Worker found pending handoff missing from final consumption check; same existing
-validator now rejects plan-only consumption. Existing source/partition tests cover
-same-payload transport, repeat take and unread/branch locals. Root914A failed three
-API-visibility checks; Root914B compiled (138.154s), 21PASS/2 fixture failures:
-old source-only helper dropped required body shape. Corrected same resolver fixture;
-one requested test filter matched zero and is not PASS. Root914C56.210s compiled;
-24 focused PASS/1 independently reproduced Root913D baseline at dynamic prepare
-fixture line74 (no dynamic local source). Stable4/diff PASS. CLI264221.434s has
-exact Root914C source. JSON330 .444s same exact Body7/no artifact; unchanged
-mimalloc331 EXE143.986s/run.001686s exit0 and exact327 runtime output/stderr/exit.
-Compile stderr differs only LLVM ns timings; stable counters match. FFI897A and
-kernel894A remain explicit predecessor pins, not fresh all-three source matches.
-Fixed11 not rerun for role transport normalization; latest CLI263 is5PASS/6 baseline.
-Retain Root914C/CLI264/source/native/corrected/baseline logs until Text/Loop closure;
-no adapter added. Original generic source/Home and Header/body/exit/V2/cleanup/
-After/read closure remain owed. No frontier/whole-series/current-CI acceptance.
+V914 role transport landed at `d6a25d86b9`: exact original role Rc through
+one affine schedule, source identity and unconsumed-handoff refusal. That commit
+owns focused24PASS/known913D baseline, CLI264 JSON330 unchanged and mimalloc331
+exact327 evidence. Retain Root914C/CLI264/source/native/corrected/baseline logs
+until Text/Loop closure. Original generic source/Home and Header/body/exit/V2/
+cleanup/After/read remain owed; no whole-series/current-suite/CI acceptance.
 
 BoxShape Local scan extraction (functional Loop WIP remains separate): the exact
 Local algorithm moved to home_new_prefix_local_statement.rs; dedented body equality
@@ -998,3 +982,19 @@ retained; they do not claim this commit alone closes Loop/After or the full seri
   Integrated WIP build56.326s; focused32PASS: Phi6/SSA5/Loop completion2/
   initializer8/raw Loop11. This commit alone does not validate all WIP or grant
   Loop Header/After execution, production cutover, current suite or CI acceptance.
+
+- Root923 timing fix: same physical input owns PhiTxn from early Header/After
+  definitions through exact one-time adoption, Step definitions, shared patch,
+  unused-Step rollback, completion/finish and commit. Every error uses same abort.
+  Nested loops cannot adopt parent; no extra registry or source Recipe permission.
+  Integrated WIP Root923B build65.945s:32PASS (raw Loop11/completion2/Phi6/SSA5/
+  initializer8). Early definitions, partial-prepare abort, missing/extra census,
+  definition drift and repeat adoption/commit covered in existing fixtures.
+  CLI266 build189.834s matches Root923B source; unchanged mimalloc336 EXE141.381s/
+  run.001582s exit0, stdout/stderr/exit exact333 matched-env. FFI897A/kernel894A
+  are explicit predecessors, not fresh full-source matches. JSON335 .151s stays
+  exact332 source-not-i64/noEXE. Separate original Main Loop probe .022s reproduces
+  CLI265 exact positional recurrence refusal; not selected intField or regression.
+  Retain Root923B/CLI266/source/native/probe evidence until whole Loop closure;
+  no adapter added. Same-product source edges, scoped lifecycle group, Header/
+  After reads and both final consumers remain owed; no suite/cutover/CI claim.

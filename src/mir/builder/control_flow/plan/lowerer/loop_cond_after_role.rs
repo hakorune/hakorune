@@ -30,22 +30,29 @@ impl VerifiedLoopCondAfterPhysicalRoleV1 {
 /// One stack-scoped completion of the SAME selected plan. Nested plans cannot
 /// satisfy it, and a destination census alone cannot seal incoming values.
 #[derive(Debug)]
-pub(super) struct LoopCondPhysicalCompletionV1 {
+pub(super) struct LoopCondPhysicalCompletionV1<'phi> {
     owner: FunctionOwnerIdV1,
     site: SourceStmtSiteV1,
     header: BasicBlockId,
     after: BasicBlockId,
     destinations: BTreeSet<(BasicBlockId, ValueId)>,
     finished: OnceCell<VerifiedLoopCondAfterPhysicalRoleV1>,
+    phi_session: Option<&'phi crate::mir::builder::normal_callable_loop_source_facts::SourceLoopPhiSessionV1>,
 }
-impl LoopCondPhysicalCompletionV1 {
+impl<'phi> LoopCondPhysicalCompletionV1<'phi> {
     pub(super) fn new(owner: FunctionOwnerIdV1, site: SourceStmtSiteV1, plan: &CoreLoopPlan) -> Result<Self, String> {
         let destinations: BTreeSet<_> = plan.phis.iter().map(|phi| (phi.block, phi.dst)).collect();
         let values: BTreeSet<_> = plan.phis.iter().map(|phi| phi.dst).collect();
         if plan.header_bb == plan.after_bb || destinations.len() != plan.phis.len() || values.len() != plan.phis.len() {
             return Err(freeze("plan-destination-duplicate"));
         }
-        Ok(Self { owner, site, header: plan.header_bb, after: plan.after_bb, destinations, finished: OnceCell::new() })
+        Ok(Self { owner, site, header: plan.header_bb, after: plan.after_bb, destinations, finished: OnceCell::new(), phi_session: None })
+    }
+    pub(super) fn matching_phi_session(&self, plan: &CoreLoopPlan)
+        -> Result<Option<&crate::mir::builder::normal_callable_loop_source_facts::SourceLoopPhiSessionV1>, String> {
+        if plan.header_bb != self.header && plan.after_bb != self.after { return Ok(None); }
+        if plan.header_bb != self.header || plan.after_bb != self.after { return Err(freeze("phi-session-loop-drift")); }
+        Ok(self.phi_session)
     }
     pub(super) fn observe_completed_loop(&self, plan: &CoreLoopPlan, function: &MirFunction) -> Result<(), String> {
         // Recursive nested loops use the same effect port, but own other blocks.
@@ -102,14 +109,20 @@ impl PlanLowerer {
         builder: &mut MirBuilder, plan: LoweredRecipe, ctx: &dyn PlanLoweringContext,
         ledger: Rc<RefCell<CallableSemanticLoweringState>>, source: &SourceLoopCondPhysicalInputV1<'_, '_>,
     ) -> Result<(Option<ValueId>, Option<VerifiedLoopCondAfterPhysicalRoleV1>), String> {
-        let CorePlan::Loop(loop_plan) = &plan else { return Err(freeze("non-loop-plan")); };
-        let completion = LoopCondPhysicalCompletionV1::new(source.owner(),
-            SourceStmtSiteV1::from_node(source.parent_site().clone()), loop_plan)?;
-        let after = loop_plan.after_bb;
-        let mut port = super::emission_port::CorePlanEffectEmissionPortV1::source_publication_with_loop_completion(ledger, &completion);
-        let result = Self::lower_with_emission_port(builder, plan, ctx, &mut port)?;
-        port.finish()?;
-        if builder.function_state.current_block != Some(after) { return Err(freeze("after-block-drift")); }
-        Ok((result, completion.into_role()?))
+        let result = (|| {
+            let CorePlan::Loop(loop_plan) = &plan else { return Err(freeze("non-loop-plan")); };
+            let mut completion = LoopCondPhysicalCompletionV1::new(source.owner(),
+                SourceStmtSiteV1::from_node(source.parent_site().clone()), loop_plan)?;
+            completion.phi_session = Some(source.phi_session_v1());
+            let after = loop_plan.after_bb;
+            let mut port = super::emission_port::CorePlanEffectEmissionPortV1::source_publication_with_loop_completion(ledger, &completion);
+            let result = Self::lower_with_emission_port(builder, plan, ctx, &mut port)?;
+            port.finish()?;
+            if builder.function_state.current_block != Some(after) { return Err(freeze("after-block-drift")); }
+            let role = completion.into_role()?;
+            source.phi_session_v1().commit(builder)?;
+            Ok((result, role))
+        })();
+        result.map_err(|error| source.phi_session_v1().abort_error(builder, error))
     }
 }

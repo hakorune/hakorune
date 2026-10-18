@@ -47,6 +47,13 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     builder: &mut MirBuilder,
     input: &SourceLoopCondPhysicalInputV1<'_, '_>,
 ) -> Result<LoweredRecipe, String> {
+    let result = lower_loop_cond_source_inner(builder, input);
+    result.map_err(|error| input.phi_session_v1().abort_error(builder, error))
+}
+
+fn lower_loop_cond_source_inner(
+    builder: &mut MirBuilder, input: &SourceLoopCondPhysicalInputV1<'_, '_>,
+) -> Result<LoweredRecipe, String> {
     input.validate_for_source_port()?;
     let facts = input.loop_cond_facts()?;
     pin_accept_kind_contract(facts.accept_kind);
@@ -85,6 +92,8 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     let carrier_phis = phi_materializer.carrier_phis().clone();
     let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
     let break_phi_dsts = phi_materializer.break_phi_dsts().clone();
+    input.phi_session_v1().prepare(builder, header_bb, after_bb,
+        carrier_phis.values().copied(), break_phi_dsts.values().copied())?;
 
     let port = *input.source_port();
     let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();

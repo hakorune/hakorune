@@ -28,6 +28,9 @@ use crate::mir::resolved_semantics::{
 };
 use std::cell::RefCell;
 use std::rc::Rc;
+#[path = "loop_cond_phi_session.rs"]
+mod phi_session;
+pub(in crate::mir::builder) use phi_session::SourceLoopPhiSessionV1;
 
 /// One move-only source/physical transport for the selected LoopCond route.
 ///
@@ -51,9 +54,11 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledge
     source_coverage: CallableLoopSourceCallCoverageV1,
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
     retained_source: Option<Rc<super::generic::RetainedCallableLoopSourceV1>>,
+    phi_session: SourceLoopPhiSessionV1,
 }
 
 impl SourceLoopCondPhysicalInputV1<'_, '_> {
+    pub(in crate::mir::builder) fn phi_session_v1(&self) -> &SourceLoopPhiSessionV1 { &self.phi_session }
     /// Borrow the original source roles. Body-only outer writes also need an
     /// After carrier; declarations inside this Loop remain iteration locals.
     /// This map is an invocation-local locator, not a new role authority.
@@ -633,6 +638,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             source_coverage,
             source_port,
             retained_source,
+            phi_session: SourceLoopPhiSessionV1::default(),
         })
     }
 }

@@ -120,7 +120,12 @@ impl super::PlanLowerer {
         // This ensures PHI dsts are in def_blocks before body instructions are emitted.
         // Inputs will be patched in Step 4 after Step 3.5 merges deferred inputs.
         // SSOT: Delegated to loop_preparation::insert_provisional_phis()
-        let provisional_phis = loop_preparation::insert_provisional_phis(builder, &loop_plan)?;
+        let source_phis = port.prepare_source_loop_phis(builder, &loop_plan)?;
+        let source_transaction = source_phis.is_some();
+        let provisional_phis = match source_phis {
+            Some(phis) => phis,
+            None => loop_preparation::insert_provisional_phis(builder, &loop_plan)?,
+        };
 
         // Wrap Steps 2-4 in closure for error handling
         // If error occurs, we can detect unpatched provisional PHIs
@@ -171,8 +176,10 @@ impl super::PlanLowerer {
             // PHIs were inserted provisionally in Step 1.5 with empty inputs.
             // Now update them with the actual inputs merged in Step 3.5.
             // SSOT: Delegated to phi_processing::patch_all_phis()
-            phi_processing::patch_all_phis(builder, &loop_plan)?;
-            phi_processing::validate_no_unpatched_phis_after_patch(builder, &provisional_phis)?;
+            port.patch_loop_phis(builder, &loop_plan)?;
+            if !source_transaction {
+                phi_processing::validate_no_unpatched_phis_after_patch(builder, &provisional_phis)?;
+            }
 
             if debug {
                 trace_logger.debug(
@@ -186,7 +193,7 @@ impl super::PlanLowerer {
 
         // Check for unpatched provisional PHIs on error
         // SSOT: Delegated to phi_processing::validate_no_unpatched_phis()
-        if res.is_err() {
+        if res.is_err() && !source_transaction {
             let res_err = res
                 .as_ref()
                 .err()

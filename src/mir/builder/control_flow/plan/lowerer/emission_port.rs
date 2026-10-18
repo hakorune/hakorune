@@ -28,7 +28,7 @@ pub(in crate::mir::builder) enum CorePlanEffectEmissionPortV1<'plan> {
     Claimed(ClaimedCallableResultLoopBatchV1<'plan>),
     SourcePublication {
         ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
-        loop_completion: Option<&'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1>,
+        loop_completion: Option<&'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1<'plan>>,
     },
 }
 
@@ -51,9 +51,30 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
 
     pub(super) fn source_publication_with_loop_completion(
         ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
-        completion: &'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1,
+        completion: &'plan super::loop_cond_after_role::LoopCondPhysicalCompletionV1<'plan>,
     ) -> Self { Self::SourcePublication { ledger, loop_completion: Some(completion) } }
 
+    pub(super) fn prepare_source_loop_phis(&self, builder: &mut MirBuilder,
+        plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
+    ) -> Result<Option<Vec<(ValueId, crate::mir::BasicBlockId, String)>>, String> {
+        if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
+            if let Some(session) = completion.matching_phi_session(plan)? {
+                return session.adopt_and_define(builder, plan).map(Some);
+            }
+        }
+        Ok(None)
+    }
+    pub(super) fn patch_loop_phis(&self, builder: &mut MirBuilder,
+        plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
+    ) -> Result<(), String> {
+        if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
+            if let Some(session) = completion.matching_phi_session(plan)? {
+                session.with_transaction(|txn| super::phi_processing::patch_all_phis_with_transaction(builder, plan, Some(txn)))?;
+                return session.require_patched();
+            }
+        }
+        super::phi_processing::patch_all_phis(builder, plan)
+    }
     pub(super) fn completed_loop(&self, plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
         function: &crate::mir::MirFunction,
     ) -> Result<(), String> {

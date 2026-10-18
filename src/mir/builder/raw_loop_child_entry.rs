@@ -532,35 +532,38 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 })?;
                 let physical_input =
                     source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
-                physical_input.validate_for_source_port()?;
-                physical_input.preflight_source_port()?;
-                let plan = crate::mir::builder::control_flow::plan::features::loop_cond_bc_source::lower_loop_cond_break_continue_source(
-                    builder,
-                    &physical_input,
-                )?;
-                crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                    .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
-                let context = crate::mir::builder::control_flow::plan::lowering_context::
-                    CallableLoopPlanLoweringContextV1::new(
-                        function_name,
-                        debug,
-                        in_static_box,
-                    );
-                let (result, after_role) = crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_loop_cond_with_source_publication(
-                    builder,
-                    plan,
-                    &context,
-                    std::rc::Rc::clone(source_ledger),
-                    &physical_input,
-                )
-                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?;
-                let result = result.ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())?;
-                if let Some(role) = after_role {
-                    if let Some(claims) = source_ledger.borrow().ordinary_new_claim_ledger() {
-                        claims.record_loop_cond_after_role(role)?;
+                let result = (|| {
+                    physical_input.validate_for_source_port()?;
+                    physical_input.preflight_source_port()?;
+                    let plan = crate::mir::builder::control_flow::plan::features::loop_cond_bc_source::lower_loop_cond_break_continue_source(
+                        builder,
+                        &physical_input,
+                    )?;
+                    crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
+                        .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
+                    let context = crate::mir::builder::control_flow::plan::lowering_context::
+                        CallableLoopPlanLoweringContextV1::new(
+                            function_name,
+                            debug,
+                            in_static_box,
+                        );
+                    let (result, after_role) = crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_loop_cond_with_source_publication(
+                        builder,
+                        plan,
+                        &context,
+                        std::rc::Rc::clone(source_ledger),
+                        &physical_input,
+                    )
+                    .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?;
+                    let result = result.ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())?;
+                    if let Some(role) = after_role {
+                        if let Some(claims) = source_ledger.borrow().ordinary_new_claim_ledger() {
+                            claims.record_loop_cond_after_role(role)?;
+                        }
                     }
-                }
-                Ok(result)
+                    Ok(result)
+                })();
+                result.map_err(|error| physical_input.phi_session_v1().abort_error(builder, error))
             }
             CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts) => {
                 let source_ledger = callable_ledger.ok_or_else(|| {

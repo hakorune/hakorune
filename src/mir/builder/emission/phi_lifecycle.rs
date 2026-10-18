@@ -136,6 +136,11 @@ pub(in crate::mir::builder) struct PhiTxn {
 }
 
 impl PhiTxn {
+    /// Read-only census of tokens issued and still owned by this transaction.
+    pub(in crate::mir::builder) fn pending_tokens_v1(&self) -> impl Iterator<Item = (BasicBlockId, PhiToken)> + '_ {
+        self.pending.iter().copied().map(|token| (token.block, token))
+    }
+
     pub(in crate::mir::builder) fn begin(tag: impl Into<String>) -> Self {
         Self {
             tag: tag.into(),

@@ -1040,3 +1040,13 @@ Header/After physical publication must obey the shared Phi lifecycle's
 Define-before-Expose contract. `PhiTxn` rejects foreign or already patched tokens
 before mutation; Loop preparation must retain that same pending transaction
 through source lowering and the final physical patch/rollback boundary.
+
+The existing LoopCond physical input owns one `SourceLoopPhiSessionV1` and lends
+its `PhiTxn` to the existing physical completion. Header/After are defined before
+source publication; the lowerer adopts their exact destination set once and
+adds only Step definitions. Shared patch processing uses the same token owner
+for patch and unused-step rollback. Source lowering, Plan verification and the
+final physical completion/finish share its error cleanup; nested loops cannot
+adopt the parent's session. Commit follows completed physical role and finish.
+This changes definition timing, not the source Recipe's execution permission;
+new Loop Header/After references and whole lifecycle group remain unaccepted.

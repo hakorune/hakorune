@@ -158,6 +158,13 @@ pub fn merge_deferred_phi_inputs(
 /// PHIs were inserted provisionally in Step 1.5 with empty inputs.
 /// Now update them with the actual inputs merged in Step 3.5.
 pub fn patch_all_phis(builder: &mut MirBuilder, loop_plan: &CoreLoopPlan) -> Result<(), String> {
+    patch_all_phis_with_transaction(builder, loop_plan, None)
+}
+
+pub(super) fn patch_all_phis_with_transaction(
+    builder: &mut MirBuilder, loop_plan: &CoreLoopPlan,
+    mut transaction: Option<&mut phi_lifecycle::PhiTxn>,
+) -> Result<(), String> {
     for phi in &loop_plan.phis {
         let inputs = phi.inputs.clone();
 
@@ -173,23 +180,22 @@ pub fn patch_all_phis(builder: &mut MirBuilder, loop_plan: &CoreLoopPlan) -> Res
                     .iter()
                     .any(|(_, incoming)| *incoming == phi.dst)
             });
-        if is_unreferenced_empty_step_phi {
-            phi_lifecycle::rollback_provisional_phi(
-                builder,
-                phi.block,
-                phi.dst,
-                &format!("loop_lowerer:step4:drop_unused:{}", phi.tag),
-            )?;
-            continue;
+        if let Some(txn) = transaction.as_deref_mut() {
+            let token = txn.pending_tokens_v1().find_map(|(block, token)|
+                (block == phi.block && token.dst() == phi.dst).then_some(token))
+                .ok_or_else(|| "[freeze:contract][source-loop-phi/patch-token-missing]".to_owned())?;
+            if is_unreferenced_empty_step_phi {
+                txn.rollback_pending_phi(builder, token, &format!("loop_lowerer:step4:drop_unused:{}", phi.tag))?;
+            } else {
+                txn.patch_phi_inputs(builder, token, inputs, &format!("loop_lowerer:step4:{}", phi.tag))?;
+            }
+        } else if is_unreferenced_empty_step_phi {
+            phi_lifecycle::rollback_provisional_phi(builder, phi.block, phi.dst,
+                &format!("loop_lowerer:step4:drop_unused:{}", phi.tag))?;
+        } else {
+            phi_lifecycle::patch_phi_inputs(builder, phi.block, phi.dst, inputs,
+                &format!("loop_lowerer:step4:{}", phi.tag))?;
         }
-
-        phi_lifecycle::patch_phi_inputs(
-            builder,
-            phi.block,
-            phi.dst,
-            inputs,
-            &format!("loop_lowerer:step4:{}", phi.tag),
-        )?;
     }
 
     Ok(())
