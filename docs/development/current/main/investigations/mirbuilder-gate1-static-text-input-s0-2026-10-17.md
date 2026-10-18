@@ -947,54 +947,28 @@ V901 first BoxShape phase landed at f495ea1ea1; full evidence in that commit:
   finisher. Full Loop After, finite entry/Null guard, both Add envelopes and both
   final Call+nonCall incoming/use consumers remain mandatory before activation.
 
-V902 Decision (same Call argument lifetime; three read-only owner reviews):
-- I64 arguments retain scalar completion before Call. Owned Text must retain its
-  entire remaining LIFO acquisition stack; borrowed Residence/entry/static roots
-  add no owner. Do not classify ownership from OwnedString operand alone.
-- The common final Call tree currently omits Expression-contained child Calls;
-  ordinary Call groups validate only recorded membership, whereas DirectScalar
-  alone validates expression arguments. Close this existing consumer hole before
-  attaching Text live-outs: reuse SAME argument packet/source and physical path
-  checks, hierarchical child coverage, producer/Copy and original-node traversal.
-- Paths: root_call_entry lexical_argument_projection, lexical_projection,
-  lexical_normal_projection, direct_scalar_call, local_binding_group and shared
-  expression_terminal_paths; terminal validation/finalized cleanup as needed,
-  existing projection/compiler tests and src/mir README. No new source permission,
-  scalar lifetime extension, registry or blanket Expression membership exemption.
-- This does not complete owned Text live-out: parent prefix, Call cleanup, Loop
-  After, original finite/Null/dual Add and both full incoming/use scans remain.
-- Scope addition: finalized_root_cleanup and its three finalized callers pass
-  SAME Finalized source context for terminal argument checks; reference_read
-  lends its existing exact Copy dependencies to argument source traversal.
-  Finish coordinates and recorded-group coordinates remain separate, preventing
-  double projection. No generic recorded Expression refusal is removed here.
-- Root902A exposed three compile connection errors (private child iterator,
-  owned-outcome caller, and pre-handoff ledger caller). Cleanup now accepts the
-  existing CallValidationContext: Lowering before affine move, Finalized after.
-  Scope includes finalized_root_handoff/preflight and object outcomes/owned.
-  Worker confirms routing; field-selected Copy dependencies join the existing
-  argument Copy loan. No new registry/context variant or skipped preflight.
-  Initializer-install scan validates Text groups, not every independent Call;
-  universal both-consumer closure remains owed and is not claimed here.
-- Scope addition: call_packet_source structural retained-node lookup traverses
-  SAME Expression child packets, preserving duplicate rejection and avoiding
-  source/result re-entry. Otherwise later borrowed field/result support cannot
-  find the child packet despite visitor traversal. Root902C build PASS; final
-  focused evidence will use the build including this last tree-consumer fix.
-V902 verified closeout (BoxShape, full Text series still open):
-- Root902D `cargo quick-test-fast --no-run --message-format=json`: PASS57.200s.
-  Existing initializer/Print/cleanup/physical/ordered/argument identity/nested
-  Call/lexical I64/preflight/object-return filters: 68PASS in5.431s; 1StableKnownRed.
-  named_array_owner_and_coverage_are_checked_on_borrowed_original_rows fails at
-  lexical_call_projection_test_fixture:583 field-array-append/loop-source-missing;
-  SAME error reproduced on Root901A with RUST_MIN_STACK=16777216. Still owed.
-- CLI250 `cargo build --profile quick --bin hakorune --message-format=json`:
-  PASS173.530s; source manifest exact. Root902A/B failed then C/D passed.
-- app301 unchanged JSON canonical/MIR emit-exe: .409s exit1/noEXE, exact app299
-  stderr, same slot20 Body7 core-expression-execution-pending.
-- app302 unchanged mimalloc canonical/MIR emit-exe135.748s/native.001789s:
-  stdout/stderr/exit0 exactly app300 (summary=ok; Result:0).
-- Keep Root902D/CLI250/app301–302 reports+pins and predecessor FFI897A/kernel894A
-  roles until Text closure. No temporary adapter/superseded pinned binary added.
-- Stable4 guards/diff PASS. CI remains old35681768498 failure at d4168473d5b;
-  no current-CI/full-suite/owned-Text/Loop-After/both-scans global closure claim.
+V902 BoxShape landed at85f687e8bb; full decisions and evidence in that commit:
+- SAME Expression argument packets now lend nested Calls/Copy dependencies to
+  source visitors, producer lookup and structural retained-node lookup. Common
+  local/terminal validation checks child paths hierarchically, without adding
+  child acquisitions to parent live stacks or flattening source evaluation order.
+- Existing CallValidationContext routes preflight through Lowering and post-move
+  checks through Finalized; physical finish and recorded coordinates stay distinct.
+  No new registry, generic Expression exemption, Text admission or fence removal.
+- I64 child Text still Ends before Call. Owned Text must eventually retain the
+  entire remaining LIFO acquisition stack through Call; borrowed roots add none.
+  Initializer-install scan covers Text groups, not every independent Call globally.
+- Root902D68 focused PASS/1StableKnownRed; named-array preflight fails with
+  field-array-append/loop-source-missing, independently reproduced on Root901A.
+  CLI250 PASS; app301 unchanged JSON same slot20 Body7 stop; app302 unchanged
+  mimalloc canonical/MIR EXE/native stdout/stderr/exit0 exactly app300.
+  Keep Root902D/CLI250/app301–302 pins/reports and FFI897A/kernel894A predecessor
+  roles until Text closure. No temporary adapter/superseded pin. Stable4 guards
+  and diff PASS; old CI failure remains no current-CI/full-suite green claim.
+- Next same lifetime responsibility: extend the existing source-bound Call prefix
+  and argument packet, derive inherited unwind from SAME call/ordinal/frame and
+  earlier arguments; close owned-Text Normal/Fault at enclosing Call. Preserve
+  I64 timing and source BorrowedActual formal proof (Text is not an Expression
+  row rewrite). Qualified Text frame alone is not SourceStatic execution permit.
+  Full finite entry/Null/dual Add, Loop After and both final incoming/use scans
+  remain mandatory; this preparatory phase does not complete the Text series.
