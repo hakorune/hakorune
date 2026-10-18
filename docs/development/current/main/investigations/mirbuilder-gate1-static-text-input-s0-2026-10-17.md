@@ -938,12 +938,9 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   product/basis and actual Phi relation; Exit reports actual predecessor/payload
   AFTER cleanup. All these physical connections and both final consumers remain.
 
-- `ae4a16e7c4` retains Root925 CLI268/source equality, JSON339 unchanged and
-  mimalloc340 exact338. Keep pins until closure; backends explicit predecessors.
-- `d55780ec5c`: shared condition capture and actual IfForm switch retain targets,
-  observer Rc/deferred EdgeCFG. 26PASS/1 prior925B If-shape failure; stable4.
-  CLI269/JSON341 unchanged, mimalloc342 runtime exact340. Keep A/CLI269/prior
-  evidence until whole Loop closure; no checked Loop execution permission.
+- `ae4a16e7c4` retains Root925 evidence/pins; explicit predecessor backends, no whole closure.
+- `d55780ec5c` retains shared capture/actual IfForm switch, targets/observer Rc/
+  deferred EdgeCFG and Root926 evidence. Keep A/CLI269/prior pins; no Loop grant.
 - Next cleanup mapping (carrier worker, actual owners): reuse root_graph shared
   suffix writer with caller-owned continuation, not Return-only emit_root_graph.
   Same source port homes/normal_ends must resolve installed End plans (BindingRef,
@@ -965,11 +962,8 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   `4d3e9188e4` retains CLI270/JSON343/mimalloc344 exact342/source equality.
   Backends are explicit predecessors; keep pins until closure. Loop APIs unexercised.
 
-- `39b9e9649a`: SAME-port/wrapper/test bridge; WIP38PASS/1prior, isolated36PASS/2prior;
-  CLI271/JSON345 unchanged/mimalloc346 exact344; keep pins, check worktree removed, no grant.
-- `6b7baaa4ff`: sole Local receipt/raw result wrapper; Root929 bridge/strict Branch/
-  selector Rc stay WIP/uncalled. SAME source/port/ordinal/writers + Root928 lineage
-  required. Keep A41PASS/3 prior928A/stable4/CLI272/JSON347/mimalloc348 pins.
+- `39b9e9649a` retains SAME-port/wrapper/test bridge and Root928 evidence/pins; no grant.
+- `6b7baaa4ff` retains sole Local writer and Root929 evidence/pins; scoped frame bridge remains WIP/uncalled.
 - Root930 WIP: Header/After + SAME indexed Phi/full Copy chain stay in existing
   provenance; rebind invalidates it. No initializer loan, empty-Phi snapshot,
   second registry/parent Rc. Common readers/self-assignment share it. Header needs
@@ -987,14 +981,20 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   bindings/available. SAME values/name-map snapshots select normal arms. Exact
   Entry/Continue/Backedge→Header and false/Break→After require postcleanup preds.
   `5113b20579` retains observer/D/CLI273/native pins;894A/897A predecessors. No execution grant.
-- `f8355dbdf7` lands common binding observation only; Root931 scalar/session/cap
-  WIP keeps B139.210s/51PASS/stable4/CLI274/source equality/JSON351 unchanged/
-  mimalloc352 exact350 pins. After/completion/whole-driver acceptance still owed.
-- Root932 WIP graph keeps SAME schedule/writers/Phi and per-arm canonical values;
-  cleanup reuses Root subset/order/anchor/subject/residual policy, no detached
-  acquisition-Fault chain. Final lookup/Local copies/seals and Bool Phi repair now
-  use same child tree; root uses exact recorded Phi roles. Full graph/session
-  patch+MOVE/After publication/aggregate and both-final mutation tests still owed;
-  fences stay. E42.513s/103PASS+2 prior931B/C reds; CLI275181.906s/Rust exact
-  (README-only delta), JSON353 exact351; mimalloc354 EXE142.414s/run.001508s
-  output/error/exit exact352.894A/897A predecessors; keep pins until full closure.
+- `f8355dbdf7` retains Root931 observation/evidence/pins; scalar/session WIP still owes whole closure.
+- `74189f960b` retains Root932 shared cleanup policy and E103PASS+2 prior931B/C,
+  CLI275/README-only delta/JSON353 exact351/mimalloc354 exact352 evidence/pins.
+  Graph/source and lexical snapshots, canonical arm values, per-origin cleanup,
+  postcleanup predecessor, child-tree final lookup/copies/seals and Bool repair
+  remain WIP. Header/After Phi evidence uses same recorded roles, no final grant.
+- Root933 Decision: SAME source edge/JoinSig payload/scalar observation/SSA and
+  postcleanup predecessor issue opaque Phi inputs; full Entry snapshot must equal
+  session's original. SAME txn patches all Header/After and shares exact physical
+  Phi closure. Stack prepared proof borrows session; all cleanup/frame/aggregate
+  checks precede consuming commit, which rechecks then MOVES original associations.
+  Input errors share abort; After publication still needs completed parent.
+  Shared Normal/Fault walker takes explicit stop/per-origin projection; root keeps Return.
+  Exact cleanup census/Fault-stop exclusion/immutable parent aggregate/both-final negatives and
+  sole terminal caller connection still owed; fences stay. A129.544s/B131.101s/
+  C74.337s/103PASS+2 prior/stable4; CLI276204.490s/Rust exact (README delta).
+  JSON355 exact353; mim356 EXE141.338s/run.001600s output/error/exit exact354; keep pins, full goal active.

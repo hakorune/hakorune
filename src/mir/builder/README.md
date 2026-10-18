@@ -2190,3 +2190,9 @@ unique release subjects and Fault residual indices. The same source-only policy
 is available to Loop ports without inventing a Return identity. A Loop port's
 infallible entry must not generate an acquisition-Fault chain; Fault during Normal
 End still releases unattempted obligations, including retained outer Homes.
+
+Loop Phi closure uses one exact physical validator for unique destinations and
+definitions, original input values, full CFG predecessor coverage and leading Phi
+prefix. Existing CoreLoopPlan completion borrows it; source identity and payload
+meaning remain with their original issuers. The verifier grants no Loop source
+role or execution permission.

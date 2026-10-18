@@ -49,6 +49,8 @@ pub(in crate::mir::builder) mod emission_port;
 mod exit_lowering;
 mod loop_completion;
 mod loop_cond_after_role;
+mod loop_cond_phi_validation;
+pub(in crate::mir::builder) use loop_cond_phi_validation::{capture_exact_loop_phis_v2, LoopPhiInputRowsV2};
 mod loop_lowering;
 mod loop_preparation;
 mod loop_validation;

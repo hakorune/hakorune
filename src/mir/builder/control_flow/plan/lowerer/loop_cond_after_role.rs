@@ -62,33 +62,8 @@ impl<'phi> LoopCondPhysicalCompletionV1<'phi> {
         }
         let actual: BTreeSet<_> = plan.phis.iter().map(|phi| (phi.block, phi.dst)).collect();
         if actual != self.destinations || actual.len() != plan.phis.len() { return Err(freeze("plan-destination-drift")); }
-        let mut expected = BTreeMap::<_, Vec<_>>::new();
-        for phi in &plan.phis {
-            // The canonical lowerer can delete an unreferenced empty step Phi.
-            // Source LoopCond carriers always have a real predecessor payload.
-            if phi.inputs.is_empty() { return Err(freeze("plan-input-missing")); }
-            if !function.blocks.contains_key(&phi.block) { return Err(freeze("block-missing")); }
-            let rows: Vec<_> = function.blocks.iter().flat_map(|(id, block)|
-                block.all_instructions().filter(move |row| row.dst_value() == Some(phi.dst)).map(move |row| (*id, row))).collect();
-            let [(block, row)] = rows.as_slice() else { return Err(freeze("phi-definition-cardinality")); };
-            if *block != phi.block || function.params.contains(&phi.dst) { return Err(freeze("phi-definition-cardinality")); }
-            if !matches!(row, MirInstruction::Phi { dst, inputs, .. } if *dst == phi.dst && inputs == &phi.inputs) {
-                return Err(freeze("plan-phi-drift"));
-            }
-            let mut incoming = BTreeSet::new();
-            if phi.inputs.iter().any(|(pred, _)| !incoming.insert(*pred)) { return Err(freeze("duplicate-predecessor")); }
-            let predecessors: BTreeSet<_> = function.blocks.iter().filter_map(|(id, block)|
-                block.successors_from_terminator().contains(&phi.block).then_some(*id)).collect();
-            if incoming != predecessors { return Err(freeze("predecessor-coverage")); }
-            expected.entry(phi.block).or_default().push((**row).clone());
-        }
-        let mut loop_phis = BTreeMap::new();
-        for (block, rows) in expected {
-            let prefix: Vec<_> = function.blocks[&block].instructions.iter()
-                .take_while(|row| matches!(row, MirInstruction::Phi { .. })).cloned().collect();
-            if prefix != rows { return Err(freeze("phi-prefix-drift")); }
-            loop_phis.insert(block, rows.into_boxed_slice());
-        }
+        let rows: super::LoopPhiInputRowsV2 = plan.phis.iter().map(|phi| (phi.block, phi.dst, phi.inputs.clone())).collect();
+        let loop_phis = super::capture_exact_loop_phis_v2(function, &rows)?;
         let phi_prefix = loop_phis.get(&self.after).cloned().unwrap_or_default();
         self.finished.set(VerifiedLoopCondAfterPhysicalRoleV1 {
             owner: self.owner, site: self.site.clone(), block: self.after, phi_prefix, loop_phis,
@@ -102,7 +77,7 @@ impl<'phi> LoopCondPhysicalCompletionV1<'phi> {
         Ok((!role.phi_prefix.is_empty()).then_some(role))
     }
 }
-fn freeze(reason: &str) -> String { format!("[freeze:contract][loop-cond-after-role/{reason}]") }
+pub(super) fn freeze(reason: &str) -> String { format!("[freeze:contract][loop-cond-after-role/{reason}]") }
 
 impl PlanLowerer {
     pub(in crate::mir::builder) fn lower_loop_cond_with_source_publication(
