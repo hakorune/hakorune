@@ -940,7 +940,6 @@ Next physical Decision (both source/condition workers reviewed actual owners):
 
 - `ae4a16e7c4` retains Root925 CLI268/source equality, JSON339 unchanged and
   mimalloc340 exact338. Keep pins until closure; backends explicit predecessors.
-
 - `d55780ec5c`: shared condition capture and actual IfForm switch retain targets,
   observer Rc/deferred EdgeCFG. 26PASS/1 prior925B If-shape failure; stable4.
   CLI269/JSON341 unchanged, mimalloc342 runtime exact340. Keep A/CLI269/prior
@@ -952,7 +951,6 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   returned graph.clean is cleanup ENTRY: actual Loop predecessor is the retained
   final continuation AFTER cleanup and SSA localization. Empty Normal End skips
   helper/Fault frame. Prepare from same Loop packet; no root-exit registry/key.
-
 - `4d3e9188e4` records Root927 WIP: original If Rc versus SAME immutable Loop
   product/frame/common materialization; never parent physical Rc. Genuine Header/
   body-If and group required; actual Branch seal does not prove source targets.
@@ -967,8 +965,8 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   `4d3e9188e4` retains CLI270/JSON343/mimalloc344 exact342/source equality.
   Backends are explicit predecessors; keep pins until closure. Loop APIs unexercised.
 
-- `39b9e9649a`: SAME-port checks/wrapper removal/test-only bridge; WIP38PASS/1
-  prior, isolated36PASS/2 prior; CLI271/JSON345 unchanged/mimalloc346 exact344; keep pins, check worktree removed, no grant.
+- `39b9e9649a`: SAME-port/wrapper/test bridge; WIP38PASS/1prior, isolated36PASS/2prior;
+  CLI271/JSON345 unchanged/mimalloc346 exact344; keep pins, check worktree removed, no grant.
 - `6b7baaa4ff`: sole Local receipt/raw result wrapper; Root929 bridge/strict Branch/
   selector Rc stay WIP/uncalled. SAME source/port/ordinal/writers + Root928 lineage
   required. Keep A41PASS/3 prior928A/stable4/CLI272/JSON347/mimalloc348 pins.
@@ -988,13 +986,15 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   Header/Body/After, no Step: JoinSig rejects both-normal arms with differing
   bindings/available. SAME values/name-map snapshots select normal arms. Exact
   Entry/Continue/Backedge→Header and false/Break→After require postcleanup preds.
-  `5113b20579` retains indexed-Phi/PhiTxn/D/CLI273/native evidence; keep pins and
-  explicit894A/897A predecessor provenance. No execution grant/series acceptance.
-- Root931: only common value-observation BoxShape lands; scalar/point integration
-  stays WIP. SAME session verifies Entry before allocating canonical Header/After;
-  only live Header capability publishes, never raw source/value. Existing fixture
-  checks wrong Entry/role/dst, readonly, repeat/abort; no new test function. After/
-  completion/whole driver pending, both fences stay. WIP B139.210s/51PASS/stable4/
-  diffPASS; A E0596 fixed. CLI274227.495s/source=B; JSON351 .140s exact349/noEXE.
-  mimalloc352 EXE141.676s/run.001605s output+stderr+exit exact350, compile-only ns.
-  Keep B/source/binary/CLI274/native/reviews to closure; predecessor backends above.
+  `5113b20579` retains observer/D/CLI273/native pins;894A/897A predecessors. No execution grant.
+- `f8355dbdf7` lands common binding observation only; Root931 scalar/session/cap
+  WIP keeps B139.210s/51PASS/stable4/CLI274/source equality/JSON351 unchanged/
+  mimalloc352 exact350 pins. After/completion/whole-driver acceptance still owed.
+- Root932 WIP graph keeps SAME schedule/writers/Phi and per-arm canonical values;
+  cleanup reuses Root subset/order/anchor/subject/residual policy, no detached
+  acquisition-Fault chain. Final lookup/Local copies/seals and Bool Phi repair now
+  use same child tree; root uses exact recorded Phi roles. Full graph/session
+  patch+MOVE/After publication/aggregate and both-final mutation tests still owed;
+  fences stay. E42.513s/103PASS+2 prior931B/C reds; CLI275181.906s/Rust exact
+  (README-only delta), JSON353 exact351; mimalloc354 EXE142.414s/run.001508s
+  output/error/exit exact352.894A/897A predecessors; keep pins until full closure.

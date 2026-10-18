@@ -2183,3 +2183,10 @@ A binding-value observation retains the existing slot and provenance without
 consuming a source read. Exact lexical reads embed the same observation and keep
 their owner/site/binding checks. Initializer, rebind and Copy loans share this
 observation; immutable snapshots alone grant no source meaning or Home ownership.
+
+Installed Home cleanup selection belongs to the existing root cleanup policy:
+complete End-plan expansion, ordered Normal subset, retained child-anchor checks,
+unique release subjects and Fault residual indices. The same source-only policy
+is available to Loop ports without inventing a Return identity. A Loop port's
+infallible entry must not generate an acquisition-Fault chain; Fault during Normal
+End still releases unattempted obligations, including retained outer Homes.

@@ -187,6 +187,14 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         )
         .unwrap()
         .unwrap();
+        let (selected_full, selected_normal) = source_home_end_selection_v2(
+            &rows, projection.fault_homes(), projection.homes()).unwrap().unwrap();
+        assert_eq!(selected_full.iter().map(|(_, subject, operation)| (subject, operation)).collect::<Vec<_>>(),
+            order.full().iter().map(|origin| (origin.subject(), origin.operation())).collect::<Vec<_>>());
+        for step in 0..selected_normal.len() {
+            assert_eq!(fault_indices_after_normal_step_v2(selected_full.len(), &selected_normal, step).unwrap(),
+                order.fault_indices_after_normal_step(step).unwrap());
+        }
         let plan_len = if owned { 3 } else { 1 };
         assert_eq!(order.full().len(), 2 * plan_len);
         assert_eq!(order.normal().len(), plan_len);
@@ -259,6 +267,25 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             .unwrap()
             .0
             .clone();
+        // A retained child cannot outlive an anchor selected for Normal End.
+        // Both root exits and Loop ports use this same source-only selection.
+        let super::super::super::LocalCommitV1::CallReceived(child) =
+            rows.get_mut(&unavailable_site).unwrap() else { panic!("received"); };
+        let saved_parents = child.field_support_parents.replace(vec![full[1]].into_boxed_slice());
+        for normal in [vec![], vec![full[1]], full.to_vec()] {
+            let selected = source_home_end_selection_v2(&rows, full, &normal);
+            let root = RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, full, &normal);
+            if normal == vec![full[1]] {
+                assert!(selected.unwrap_err().contains("escaping-local-anchor"));
+                assert!(root.unwrap_err().contains("escaping-local-anchor"));
+            } else {
+                assert!(selected.unwrap().is_none(), "fixture has no retained physical Call packet");
+                assert!(root.unwrap().is_none());
+            }
+        }
+        let super::super::super::LocalCommitV1::CallReceived(child) =
+            rows.get_mut(&unavailable_site).unwrap() else { panic!("received"); };
+        child.field_support_parents = saved_parents;
         let super::super::super::LocalCommitV1::CallReceived(home) =
             rows.get_mut(&unavailable_site).unwrap()
         else {
