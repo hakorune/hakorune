@@ -61,6 +61,7 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::CopyOwned { .. } => "CopyOwned",
         MirInstruction::DestroyOwned { .. } => "DestroyOwned",
         MirInstruction::ArrayResidenceRelease { .. } => "ArrayResidenceRelease",
+        MirInstruction::StringResidenceInstall { .. } => "StringResidenceInstall",
         MirInstruction::LocalContractWrite { .. } => "LocalContractWrite",
         MirInstruction::RecordFieldContractCheck { .. } => "RecordFieldContractCheck",
         MirInstruction::RecordValuePublish { .. } => "RecordValuePublish",

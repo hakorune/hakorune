@@ -724,3 +724,10 @@ out-slot only on Normal. The independent borrowed-ingress execution family
 checks the real lifecycle archive, nonzero readback, null Fault, remaining Home
 cleanup, and malformed field/result/cleanup rejection. This physical support
 does not establish compiler source admission or finalized source correspondence.
+
+Physical-v2 `string_residence_install` has exactly `op` and `value` fields and
+emits no runtime instruction. Both indexed and native admission move only a live
+String temporary top into the newest installed-Home rank, preserving its pair.
+Normal and Fault End drain temporaries before Homes, each in reverse order;
+installation on Fault or installation of an already installed/foreign value
+refuses before artifact replacement. This wire event supplies no source grant.

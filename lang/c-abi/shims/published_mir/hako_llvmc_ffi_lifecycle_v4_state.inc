@@ -9,17 +9,34 @@ static hako_lv4_state lv4_map_transfer(int origin) {
   return LV4_TRANSFER_BASE + (uint32_t)origin;
 }
 
-static hako_lv4_state lv4_string_top(const hako_lv4_state* state, size_t count) {
-  hako_lv4_state top = LV4_STRING_RANK_BASE;
-  for (size_t i = 0; i < count; i++) if (state[i] > top) top = state[i];
+/* Temporary and installed-Home ranks are disjoint ordered domains. */
+#define LV4_STRING_HOME_BASE (UINT64_C(3) << 32)
+#define LV4_STRING_LIMIT (UINT64_C(4) << 32)
+static hako_lv4_state lv4_string_domain_top(const hako_lv4_state* state, size_t count,
+    hako_lv4_state base, hako_lv4_state limit) {
+  hako_lv4_state top = base;
+  for (size_t i = 0; i < count; i++) if (state[i] > top && state[i] < limit) top = state[i];
   return top;
 }
-
+static hako_lv4_state lv4_string_top(const hako_lv4_state* state, size_t count) {
+  hako_lv4_state top = lv4_string_domain_top(state, count, LV4_STRING_RANK_BASE, LV4_STRING_HOME_BASE);
+  return top > LV4_STRING_RANK_BASE ? top :
+      lv4_string_domain_top(state, count, LV4_STRING_HOME_BASE, LV4_STRING_LIMIT);
+}
 static int lv4_string_push(const hako_lv4_state* state, size_t count,
     hako_lv4_state* result) {
-  hako_lv4_state top = lv4_string_top(state, count);
-  if (top == UINT64_MAX) return 0;
+  hako_lv4_state top = lv4_string_domain_top(state, count, LV4_STRING_RANK_BASE, LV4_STRING_HOME_BASE);
+  if (top + 1 >= LV4_STRING_HOME_BASE) return 0;
   *result = top + 1;
+  return 1;
+}
+static int lv4_string_install(hako_lv4_state* state, size_t count, int origin) {
+  if (origin < 0 || (size_t)origin >= count || state[origin] <= LV4_STRING_RANK_BASE ||
+      state[origin] >= LV4_STRING_HOME_BASE || state[origin] !=
+      lv4_string_domain_top(state, count, LV4_STRING_RANK_BASE, LV4_STRING_HOME_BASE)) return 0;
+  hako_lv4_state top = lv4_string_domain_top(state, count, LV4_STRING_HOME_BASE, LV4_STRING_LIMIT);
+  if (top + 1 >= LV4_STRING_LIMIT) return 0;
+  state[origin] = top + 1;
   return 1;
 }
 

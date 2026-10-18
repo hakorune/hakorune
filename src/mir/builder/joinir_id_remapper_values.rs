@@ -180,7 +180,7 @@ impl JoinIrIdRemapper {
             Debug { value, .. } => vec![*value],
             // Phase 287: Lifecycle management collects all values
             KeepAlive { values } => values.clone(),
-            DestroyOwned { value } | ArrayResidenceRelease { value } => vec![*value],
+            DestroyOwned { value } | ArrayResidenceRelease { value } | StringResidenceInstall { value } => vec![*value],
             ReleaseStrong { values } => values.clone(),
             Throw { exception, .. } => vec![*exception],
             Catch {

@@ -311,7 +311,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
       strcmp(op, "const_f64_bits") && strcmp(op, "const_unit") &&
       strcmp(op, "copy") && strcmp(op, "fault_frame_enter") &&
       strcmp(op, "invoke") && strcmp(op, "invoke_normal_result") &&
-      strcmp(op, "array_residence_release") && strcmp(op, "branch") && strcmp(op, "jump") &&
+      strcmp(op, "array_residence_release") && strcmp(op, "string_residence_install") && strcmp(op, "branch") && strcmp(op, "jump") &&
       strcmp(op, "return") && strcmp(op, "return_fault")) return 0;
   if (terminal && strcmp(op, "invoke") && strcmp(op, "branch") && strcmp(op, "jump") && strcmp(op, "return") && strcmp(op, "return_fault")) return 0;
   if (!terminal && (!strcmp(op, "invoke") || !strcmp(op, "branch") || !strcmp(op, "jump") || !strcmp(op, "return") || !strcmp(op, "return_fault"))) return 0;
@@ -321,7 +321,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
         hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
         hako_physical_u64(yyjson_obj_get(instruction, "bits"), NULL);
   }
-  if (!strcmp(op, "array_residence_release"))
+  if (!strcmp(op, "array_residence_release") || !strcmp(op, "string_residence_install"))
     return hako_physical_exact_keys(instruction, ret, 2) &&
         hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) &&
         hako_physical_value_available_at(function, a, current_block, current_index);

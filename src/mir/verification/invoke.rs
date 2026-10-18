@@ -321,6 +321,7 @@ fn check_function_inner(
                     | MirInstruction::ReturnFault { .. }
                     | MirInstruction::FaultFrameEnter { .. }
                     | MirInstruction::ArrayResidenceRelease { .. }
+                    | MirInstruction::StringResidenceInstall { .. }
             )
         })
     });

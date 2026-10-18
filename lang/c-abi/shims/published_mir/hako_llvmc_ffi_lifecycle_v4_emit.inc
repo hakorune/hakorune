@@ -259,6 +259,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "const_f64_bits")) {
         fprintf(f, "  %%v%u = bitcast i64 %llu to double\n", dst,
             (unsigned long long)yyjson_get_uint(yyjson_obj_get(ins, "bits")));
+      } else if (lv4_is(ins, "op", "string_residence_install")) {
+        /* Validated lifecycle handoff preserves the existing handle/token pair. */
       } else if (lv4_is(ins, "op", "array_residence_release")) {
         fprintf(f, "  call void @nyrt_handle_release_h(i64 %%v%u)\n", lv4_u(ins, "value"));
       } else if (lv4_is(ins, "op", "copy")) {

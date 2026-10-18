@@ -487,3 +487,11 @@ actual Normal projections from String operations that own their result, using
 the instruction owner's classification for Add and Substring. Print retains its
 own source/terminal permission; the shared prefix does not grant argument, entry,
 cleanup or publication rights.
+
+`StringResidenceInstall { value }` is an infallible physical lifecycle event:
+it moves exactly the newest owned String temporary into the newest Home with
+unchanged SSA handle/token identity. It performs no runtime work and grants no
+source permission. String validation tracks temporary and Home stacks separately;
+End consumes temporary top first, then Home top. Fault-side, foreign, duplicate
+or out-of-order installation is rejected. All actual events require retained
+source lifecycle coverage; generic legacy/VM JSON routes remain fail-closed.

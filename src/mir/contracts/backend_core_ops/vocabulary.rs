@@ -46,6 +46,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::CopyOwned { .. } => "CopyOwned",
         MirInstruction::DestroyOwned { .. } => "DestroyOwned",
         MirInstruction::ArrayResidenceRelease { .. } => "ArrayResidenceRelease",
+        MirInstruction::StringResidenceInstall { .. } => "StringResidenceInstall",
         MirInstruction::LocalContractWrite { .. } => "LocalContractWrite",
         MirInstruction::RecordFieldContractCheck { .. } => "RecordFieldContractCheck",
         MirInstruction::RecordValuePublish { .. } => "RecordValuePublish",
@@ -93,6 +94,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "CopyOwned",
     "DestroyOwned",
     "ArrayResidenceRelease",
+    "StringResidenceInstall",
     "LocalContractWrite",
     "RecordFieldContractCheck",
     "RecordValuePublish",
@@ -183,6 +185,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::CopyOwned { .. }
         | MirInstruction::DestroyOwned { .. }
         | MirInstruction::ArrayResidenceRelease { .. }
+        | MirInstruction::StringResidenceInstall { .. }
         | MirInstruction::LocalContractWrite { .. }
         | MirInstruction::RecordFieldContractCheck { .. }
         | MirInstruction::RecordValuePublish { .. }

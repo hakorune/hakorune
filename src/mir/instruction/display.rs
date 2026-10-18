@@ -154,6 +154,9 @@ impl fmt::Display for MirInstruction {
             MirInstruction::CopyOwned { dst, src } => {
                 write!(f, "{} = copy_owned {}", dst, src)
             }
+            MirInstruction::StringResidenceInstall { value } => {
+                write!(f, "string_residence_install {}", value)
+            }
             MirInstruction::ArrayResidenceRelease { value } => {
                 write!(f, "array_residence_release {}", value)
             }

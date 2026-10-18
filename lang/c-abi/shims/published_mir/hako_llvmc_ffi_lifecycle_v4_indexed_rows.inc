@@ -30,6 +30,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "keep_alive")) {
       /* Schema proves every SSA operand available. No payload read or lease
          transition: even a released value may remain an optimizer hint. */
+    } else if (lv4_is(ins, "op", "string_residence_install")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "value"));
+      if (faulted || birth || !value || value->kind != LV4_OWNED_STRING ||
+          !lv4_string_install(state, yyjson_arr_size(hako_physical_blocks(fn->function)), value->origin)) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
       if (!root) {

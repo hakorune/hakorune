@@ -44,12 +44,22 @@ until the v2 frame and both C consumers are ready. See the
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=59
+DOC_SYNC_MIR_KEPT_COUNT=60
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=75
+DOC_SYNC_MIR_VOCABULARY_COUNT=76
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
+
+### Owned String Local handoff
+
+`StringResidenceInstall { value }` is an infallible WRITE lifecycle instruction
+with no result or runtime call. It moves the exact newest owned temporary pair
+into the newest Home, preserving SSA identity and its handle/token. Temporary
+End precedes Home End; both domains retain reverse order. Fault-side, foreign,
+duplicate, out-of-order and unreachable installs are rejected. Presence creates
+a source-validation obligation; this physical instruction does not authorize
+Local publication or widen generic VM/JSON backend admission.
 
 ### Selected Script Array lifecycle (MIR cutover; runtime execution pending)
 
@@ -341,7 +351,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（58）
+## Current Kept Vocabulary（60）
 
 This is the current kept vocabulary (backend admission is separate) from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -354,6 +364,8 @@ allowlists are being updated.
 - Copy
 - CopyOwned
 - DestroyOwned
+- ArrayResidenceRelease
+- StringResidenceInstall
 - ArrayElementWrite
 - ArrayElementRead
 - MapLiteralEntryWrite

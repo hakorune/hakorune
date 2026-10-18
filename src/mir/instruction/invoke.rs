@@ -38,6 +38,7 @@ impl crate::mir::MirInstruction {
                 | Self::ReturnFault { .. }
                 | Self::FaultFrameEnter { .. }
                 | Self::ArrayResidenceRelease { .. }
+                | Self::StringResidenceInstall { .. }
         ) || matches!(self, Self::Call(call)
                 if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
     }

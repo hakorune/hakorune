@@ -133,6 +133,38 @@ def checked_string_physical():
         execute(data, ["-DTEST_FAIL_STRING_PRINT"], 70, [1, 0], primary=9302)
         execute(data, ["-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9303)
         execute(data, ["-DTEST_FAIL_STRING_PRINT", "-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9302)
+        # Same physical pair moves from temporary top to installed Home. The
+        # remaining child ends first on Normal and on cleanup Fault paths.
+        installed = copy.deepcopy(data)
+        installed_rows = installed["functions"][0]["blocks"]
+        landing = next(b for b in installed_rows if b["id"] == 2)
+        landing["instructions"].append({"index":1,"instruction":{"op":"string_residence_install","value":3}})
+        landing["terminator"]["index"] = 2
+        for block_id, value in [(3,2),(4,3),(20,2),(21,3),(22,3)]:
+            next(b for b in installed_rows if b["id"] == block_id)["terminator"]["instruction"]["operation"]["value"] = value
+        execute(installed, endings=[0,1])
+        execute(installed, ["-DTEST_FAIL_STRING_PRINT"], 70, [0,1], primary=9302)
+        execute(installed, ["-DTEST_FAIL_STRING_END_AT=1"], 70, [0,1], primary=9303)
+        both_homes = copy.deepcopy(data)
+        for block_id,value in [(1,2),(2,3)]:
+            b = next(b for b in both_homes["functions"][0]["blocks"] if b["id"] == block_id)
+            b["instructions"].append({"index":1,"instruction":{"op":"string_residence_install","value":value}})
+            b["terminator"]["index"] = 2
+        execute(both_homes, endings=[1,0])
+        for block_id,value in [(2,2),(2,1),(2,3),(10,2)]:
+            bad = copy.deepcopy(installed)
+            b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == block_id)
+            event = {"index":0,"instruction":{"op":"string_residence_install","value":value}}
+            if block_id == 2 and value == 2: b["instructions"].insert(1,event)
+            else: b["instructions"].append(event)
+            for i,row in enumerate(b["instructions"]): row["index"] = i
+            b["terminator"]["index"] = len(b["instructions"])
+            compile_input(bad, False)
+        bad = copy.deepcopy(data)
+        b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)
+        b["instructions"].append({"index":1,"instruction":{"op":"string_residence_install","value":3}})
+        b["terminator"]["index"] = 2
+        compile_input(bad, False)  # Home cannot end before the remaining child.
         bare = copy.deepcopy(data)
         bare["functions"][0]["blocks"] = [block(0, inv("string_print", 1, 2, value=literal("猫\0")), entry),
             block(1, {"op": "return", "value": 4}, [{"op": "const_i64", "dst": 4, "value": 0}]), block(2, fault)]

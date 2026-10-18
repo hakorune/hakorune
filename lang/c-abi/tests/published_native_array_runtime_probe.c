@@ -113,7 +113,16 @@ uint32_t wrap_dispose(void* frame) {
 /* Observe the real paired ABI. Injection never creates or releases a fake
  * owner: Add Fault leaves out untouched; End Fault follows real consumption. */
 static NyrtOwnedStringV1 strings[16];
-static unsigned string_adds, string_ends;
+static unsigned string_adds, string_ends, string_issued;
+static unsigned char string_live[16];
+static void observe_string_acquisition(const NyrtOwnedStringV1* out) {
+  assert(string_issued < 16);
+  for (unsigned i=0; i<string_issued; ++i) if (string_live[i])
+    assert(strings[i].handle != out->handle && strings[i].token != out->token);
+  strings[string_issued] = *out;
+  string_live[string_issued++] = 1;
+  ++string_depth;
+}
 uint32_t real_string_add(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
     __asm__("__real_nyash.string.checked_add_v1");
 uint32_t wrap_string_add(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
@@ -127,10 +136,7 @@ uint32_t wrap_string_add(void* f, uint64_t s, const NyrtStringOperandV1* a,
 #endif
   uint32_t status = real_string_add(f,s,a,b,out);
   if (!status) {
-    assert(string_depth < 16);
-    if (string_depth) assert(strings[string_depth-1].handle != out->handle &&
-        strings[string_depth-1].token != out->token);
-    strings[string_depth++] = *out;
+    observe_string_acquisition(out);
   }
   printf("STRING_ADD %u %u\n", string_adds, status);
   return status;
@@ -146,10 +152,7 @@ uint32_t wrap_string_substring(void* f, uint64_t s, const NyrtStringOperandV1* v
 #else
   uint32_t status = real_string_substring(f, s, value, start, end, out);
   if (!status) {
-    assert(string_depth < 16);
-    if (string_depth) assert(strings[string_depth-1].handle != out->handle &&
-        strings[string_depth-1].token != out->token);
-    strings[string_depth++] = *out;
+    observe_string_acquisition(out);
   }
   return status;
 #endif
@@ -253,16 +256,18 @@ uint32_t real_string_end(void*, uint64_t, uint64_t, uint64_t)
 uint32_t wrap_string_end(void*, uint64_t, uint64_t, uint64_t)
     __asm__("__wrap_nyash.string.checked_end_v1");
 uint32_t wrap_string_end(void* f, uint64_t s, uint64_t handle, uint64_t token) {
-  assert(string_depth && strings[string_depth-1].handle == handle &&
-      strings[string_depth-1].token == token);
+  unsigned ordinal = 0;
+  while (ordinal < string_issued && !(string_live[ordinal] &&
+      strings[ordinal].handle == handle && strings[ordinal].token == token)) ++ordinal;
+  assert(string_depth && ordinal < string_issued);
   uint32_t status = real_string_end(f,s,handle,token);
-  assert(status == 0); --string_depth; ++string_ends;
+  assert(status == 0); string_live[ordinal] = 0; --string_depth; ++string_ends;
   NyrtStringOperandV1 expired = {.kind=NYRT_STRING_OWNED_TEXT_V1, .handle=handle, .token=token};
   NyrtStringOperandV1 empty = {.kind=NYRT_STRING_STATIC_TEXT_V1};
   int64_t unchanged = 999;
   assert(real_string_compare(f,s,NYRT_STRING_COMPARE_EQ_V1,&expired,&empty,&unchanged) == NYRT_FAULT_INVALID_CONTRACT_V1);
   assert(unchanged == 999);
-  printf("STRING_END %u\n", string_depth);
+  printf("STRING_END %u\n", ordinal);
 #ifdef TEST_FAIL_STRING_END_AT
   if (string_ends == TEST_FAIL_STRING_END_AT)
     return nyrt_fault_record_static_v1(f, 9303, s, string_ends, 0);

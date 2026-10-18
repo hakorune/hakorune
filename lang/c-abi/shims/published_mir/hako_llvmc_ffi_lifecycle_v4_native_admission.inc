@@ -65,6 +65,10 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
               ? state[origin] <= LV4_STRING_RANK_BASE : state[origin] != 1)) return 0;
       int result_kind = lv4_type(fn, lv4_u(ins, "dst"), budget);
       if (result_kind == LV4_I64 || result_kind == LV4_BOOL) state[origin] = 0;
+    } else if (lv4_is(ins, "op", "string_residence_install")) {
+      uint32_t value = lv4_u(ins, "value");
+      if (faulted || lv4_type(fn, value, budget) != LV4_OWNED_STRING ||
+          !lv4_string_install(state, count, lv4_native_origin(fn, value, budget))) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       int origin = lv4_native_origin(fn, lv4_u(ins, "value"), budget);
       if (origin < 0 || !state[origin] ||
