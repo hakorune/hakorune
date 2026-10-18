@@ -113,11 +113,9 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
                 return Err(freeze("unconsumed-iteration-local"));
             }
         }
-        Ok(Self {
-            owner,
-            loop_site,
-            rows: rows.into_boxed_slice(),
-            local_declarations,
-        })
+        Ok(Self { source: Rc::new(CallableLoopBindingSourceV1 {
+            owner, loop_site, rows: rows.into_boxed_slice(), local_declarations,
+            body_only_rows: Box::new([]),
+        }) })
     }
 }

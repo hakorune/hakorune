@@ -21,6 +21,15 @@ impl RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][callable-loop-handoff/missing-loop-source]".to_owned()
             })?;
         let state = ledger.borrow();
+        if let Some(claims) = state.ordinary_new_claim_ledger() {
+            let statement = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(loop_site.clone());
+            if let Some(source) = claims.retained_loop_source_v1(state.owner(), &statement)? {
+                if !source.matches_identity_v1(state.owner(), &loop_site, state.function_origin(), state.source_kind()) {
+                    return Err("[freeze:contract][preissued-loop/binding-source-drift]".into());
+                }
+                return source.take_binding_handoff_v1().map(Some);
+            }
+        }
         let projection = state.loop_binding_source_projection();
         let disposition = if matches!(
             condition,

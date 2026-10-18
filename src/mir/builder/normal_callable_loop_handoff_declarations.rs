@@ -66,6 +66,6 @@ impl CallableSemanticLoopHandoffPreEffectReceiptV1 {
     pub(in crate::mir::builder) fn local_declarations(
         &self,
     ) -> &BTreeMap<BindingRefV1, SourceBindingSiteV1> {
-        &self.local_declarations
+        &self.source.local_declarations
     }
 }

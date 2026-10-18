@@ -259,6 +259,11 @@ impl super::OrdinaryNewClaimLedgerV1 {
             && matches!(row, Ok(SelectedLoopProductRowV1::SourcePlan(slot)) if slot.plan.borrow().is_some())) {
             return Err("[freeze:contract][preissued-loop/unconsumed]".into());
         }
+        if self.selected_loop_products.iter().any(|((source_owner, _), row)| *source_owner == owner
+            && matches!(row, Ok(SelectedLoopProductRowV1::SourcePlan(slot))
+                if slot.source.as_ref().is_some_and(|source| source.binding_handoff_pending_v1()))) {
+            return Err("[freeze:contract][preissued-loop/binding-handoff-unconsumed]".into());
+        }
         Ok(())
     }
 }

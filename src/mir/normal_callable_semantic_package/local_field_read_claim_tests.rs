@@ -495,6 +495,9 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
     let plan = ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap().unwrap();
     let original = std::rc::Rc::clone(ledger.retained_loop_source_v1(site.owner(), &loop_site).unwrap().unwrap());
     assert!(std::rc::Rc::ptr_eq(&original, plan.original_source_v1()));
+    let roles = std::rc::Rc::clone(original.bindings());
+    assert_eq!(roles.owner(), site.owner());
+    assert_eq!(roles.loop_site(), loop_site.node());
     assert!(std::rc::Rc::ptr_eq(&original, home.original_source_v1()), "Home and affine plan share original source");
     assert!(std::rc::Rc::ptr_eq(&home, ledger.no_exit_array_home_source_v1(site.owner(), &loop_site).unwrap()),
         "affine Recipe take retains the SAME source/Home proof");
@@ -535,7 +538,8 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         assert!(plan.flat_no_exit_statement_sites(input).is_none(), "foreign source cannot borrow this Recipe");
     }).unwrap();
     assert!(ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap_err().contains("already-taken"));
-    ledger.validate_preissued_loop_consumption_v1(site.owner()).unwrap();
+    assert!(ledger.validate_preissued_loop_consumption_v1(site.owner()).unwrap_err()
+        .contains("binding-handoff-unconsumed"), "taking only the planner does not consume its affine binding handoff");
     drop(plan);
     assert!(std::rc::Rc::ptr_eq(&original, ledger.retained_loop_source_v1(site.owner(), &loop_site).unwrap().unwrap()),
         "original source survives destruction of the consumed planner holder");

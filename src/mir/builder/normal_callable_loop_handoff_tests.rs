@@ -547,8 +547,9 @@ fn source_pre_effect(
     let function = parsed_method(source, "Probe", "run");
     let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function).unwrap();
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
-        .resolve_selected_callable_forests(&[syntax.function()])
+    let crate::mir::resolved_semantics::ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+        forests, body_shapes,
+    } = resolver.resolve_selected_callable_forests_with_body_shapes(&[syntax.function()])
         .unwrap()
     else {
         panic!("declaration fixture must resolve")
@@ -566,26 +567,40 @@ fn source_pre_effect(
         &projection,
     )
     .unwrap();
+    let input = input.with_body_shape(body_shapes.get(&input.owner()).unwrap());
     let state = super::super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(input).unwrap();
     let path = SourcePathV1::root_body(loop_index);
-    let product = match state
-        .loop_binding_source_projection()
-        .project_disposition(path.node())
-        .unwrap()
-    {
+    let physical = state.loop_binding_source_projection().project_disposition(path.node()).unwrap();
+    let original = CallableLoopBindingProjectionDispositionV1::from_resolved_input(input, &path.stmt(), false).unwrap();
+    assert_eq!(original, physical, "original resolver adapter preserves the sole projector's complete disposition");
+    let policy = crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1::from_values(
+        false, false, false, false, false, true);
+    let retained = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, &path.stmt(), policy).unwrap();
+    let retained_source = Rc::clone(retained.original_source_v1());
+    let source = Rc::clone(retained_source.bindings());
+    assert!(retained_source.binding_handoff_pending_v1());
+    let handoff = retained_source.take_binding_handoff_v1().unwrap();
+    assert_eq!(handoff, original);
+    assert!(Rc::ptr_eq(handoff.source().unwrap(), &source));
+    assert!(!retained_source.binding_handoff_pending_v1());
+    assert!(retained_source.take_binding_handoff_v1().unwrap_err().contains("already-taken"));
+    drop(retained);
+    let product = match handoff {
         CallableLoopBindingProjectionDispositionV1::Ready(ready) => {
             CallableLoopReadyBodyOnlyProductV1::without_body_only(ready)
         }
         CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product) => product,
         other => panic!("unexpected source disposition: {other:?}"),
     };
-    product
+    let receipt = product
         .consume_pre_effect(
             &path.node(),
             &path.child(SourcePathSegmentV1::LoopCondition).node(),
             &path.child(SourcePathSegmentV1::LoopBodyRoot).node(),
         )
-        .unwrap()
+        .unwrap();
+    assert!(Rc::ptr_eq(&source, receipt.source()), "pre-effect consumes the SAME source data");
+    receipt
 }
 
 #[test]
@@ -641,6 +656,13 @@ static box Probe {
         expected
     );
     assert_eq!(receipt.body_only_rows().len(), 3);
+    use CallableLoopSourceBindingClassV1 as Class;
+    let roles: Vec<_> = receipt.source().bindings().collect();
+    assert_eq!(roles.iter().filter(|(_, role)| *role == Class::Carrier).count(), 2);
+    assert_eq!(roles.iter().filter(|(_, role)| *role == Class::IterationLocal).count(), 2);
+    assert_eq!(roles.iter().filter(|(_, role)| *role == Class::ReadOnlyOperand).count(), 1);
+    assert_eq!(receipt.source().local_declarations(), receipt.local_declarations());
+
     // Two rebound locals keep their exact declarations; the pre-loop sum does
     // not become a local, and unread `unused` does not become a carrier row.
     assert_eq!(

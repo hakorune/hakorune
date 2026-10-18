@@ -60,12 +60,9 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
     pub(in crate::mir::builder) fn carrier_bindings(
         &self, physical: &std::collections::BTreeMap<String, crate::mir::ValueId>,
     ) -> Result<std::collections::BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>, String> {
-        use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBindingClassV1;
-        let bindings = self.pre_effect.rows().iter()
-            .filter(|row| row.class() == CallableLoopReadyBindingClassV1::Carrier)
-            .map(|row| row.binding())
-            .chain(self.pre_effect.body_only_rows().iter().map(|row| row.binding())
-                .filter(|binding| !self.pre_effect.local_declarations().contains_key(binding)));
+        use crate::mir::builder::normal_callable_loop_handoff::CallableLoopSourceBindingClassV1;
+        let bindings = self.pre_effect.source().bindings()
+            .filter_map(|(binding, class)| (class == CallableLoopSourceBindingClassV1::Carrier).then_some(binding));
         let mut carriers = std::collections::BTreeMap::new();
         let mut seen = std::collections::BTreeSet::new();
         for binding in bindings {
@@ -188,6 +185,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead)
                 .map(|receipt| (receipt.site().clone(), receipt.binding()));
             if source.owner() != self.owner || source.site().node() != &self.parent_site
+                || !Rc::ptr_eq(source.bindings(), self.pre_effect.source())
                 || !source.matches_condition_reads_v1(condition_site, reads) {
                 return Err("[freeze:contract][callable-loop/loop-cond/retained-condition-drift]".into());
             }

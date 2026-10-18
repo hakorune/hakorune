@@ -954,26 +954,42 @@ series closure or frontier advance. Fixed11 not rerun; latest CLI260 is5PASS/
 current acceptance. Next: SAME original Loop Header/body/exit product and complete
 V2/JoinSig/cleanup/After/final-read closure; do not replace it with more receipts.
 
-V913 `b7eaa2bde7` owns original scalar-rebind Home observation through the shared
-evaluated-binding group, sole assignment receipt and both final consumers.
-Opaque source/Home-neutral destination removes only selected scalar strong release;
-raw callers/contract algorithm remain. Exact rebind purpose and Copy chain retain
-self-assignment/aliases without fresh definitions; typed local-contract result
-projection still refuses before effects. Selected whole-Assignment recursion is
-replaced; shared unselected caller paths remain, not caller-zero/whole R7 closure.
-Commit owns source/commands/pins, worker review, corrected imports, independent
-Root912B invalid-fixture baseline and repaired real-block legacy-release test.
-Final Root913D73.900s/CLI263204.248s exact-source builds, focused24/0FAIL,
-stable4/diff PASS. Native mimalloc327 EXE149.722s/run.001636s exact325 output/exit0;
-Main rebind/Core-cleanup/alias probe329 EXE114.830s/run.001315s yields0:2:2/Result0.
-Native builds overlapped, no speed claim. Signed-formal probe328 stops at unchanged
-selected-header-missing, independently reproduced by CLI262; no new caller claim.
-JSON326 .406116s same Body7/no artifact. Fixed11 5PASS/6FAIL420.872s with all five
-MIR diagnostics and untyped Value15 panic EXACT CLI260->259->258->257->independent256.
-No current-CI green (old d4168473/8e7179 runs only). Keep Root913D/CLI263/native/
-probe/source/baseline receipts with FFI897A/kernel894A until closure. Superseded
-Root913B/C binary copies retired (550262824 bytes), logs retained; no adapter added.
-Next construction remains SAME original Loop Header/body/exit/V2/cleanup/After/read.
-Generic source classification must distinguish Mul unselected shape from rejected
-evidence before SourceObservation; never retry an Err(SourceShape). Whole Loop,
-Text and full finite goal stay open; this component is not Loop-carried acceptance.
+V913 `b7eaa2bde7` (history compressed at `4f28b2c1d6`) owns scalar-rebind
+source/Home-to-sole-assignment/both-final-consumer connection and full commands,
+source pins, corrected fixture/import evidence and retention decisions. Focused
+24PASS, stable4/diff PASS, native mimalloc327 matches325, alias/Core probe329
+prints0:2:2/Result0. JSON326 stays Body7; fixed11 5PASS/6 exact baseline failures.
+Signed-formal328 header refusal independently matches CLI262. Root913D/CLI263,
+FFI897A/kernel894A and native/source/baseline receipts remain required until full
+Text/Loop closure; superseded Root913B/C binary copies retired, no adapter added.
+No Loop-carried/full-series/full-goal/current-CI acceptance claim.
+
+V914 role transport (original Loop series still unaccepted): reuse `normal_callable_loop_handoff`
+projector over original resolver rows before Home scanning. Retain one immutable
+role payload in the SAME source-plan row for source observers; physical lowering
+takes the one affine schedule. Ready/BodyOnly/local declarations normalize in one
+view, with rebound iteration locals excluded from external carriers. Same-source
+Rc correspondence is checked at physical consumption; no reissuance after refusal.
+Worker found pending handoff missing from final consumption check; same existing
+validator now rejects plan-only consumption. Existing source/partition tests cover
+same-payload transport, repeat take and unread/branch locals. Root914A failed three
+API-visibility checks; Root914B compiled (138.154s), 21PASS/2 fixture failures:
+old source-only helper dropped required body shape. Corrected same resolver fixture;
+one requested test filter matched zero and is not PASS. Root914C56.210s compiled;
+24 focused PASS/1 independently reproduced Root913D baseline at dynamic prepare
+fixture line74 (no dynamic local source). Stable4/diff PASS. CLI264221.434s has
+exact Root914C source. JSON330 .444s same exact Body7/no artifact; unchanged
+mimalloc331 EXE143.986s/run.001686s exit0 and exact327 runtime output/stderr/exit.
+Compile stderr differs only LLVM ns timings; stable counters match. FFI897A and
+kernel894A remain explicit predecessor pins, not fresh all-three source matches.
+Fixed11 not rerun for role transport normalization; latest CLI263 is5PASS/6 baseline.
+Retain Root914C/CLI264/source/native/corrected/baseline logs until Text/Loop closure;
+no adapter added. Original generic source/Home and Header/body/exit/V2/cleanup/
+After/read closure remain owed. No frontier/whole-series/current-CI acceptance.
+
+Next integrated WIP (not staged with V914): compiler Mul observer now distinguishes
+unselected morphology from rejected resolver evidence in one attempt; strict adapter
+preserves current callers. Existing source test includes wrong-binding/conflict
+negatives. Read-only review PASS; Root915A build is running. Its compiler source,
+compiler README and borrowed-formal source test remain separate until verified and
+connected to original generic source/Header/body/exit/V2/cleanup/After/read closure.

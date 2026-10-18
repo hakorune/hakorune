@@ -5,6 +5,7 @@
 //! only.  It never reads/writes a ValueId and it never owns physical lowering.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
@@ -17,6 +18,9 @@ mod validation;
 use validation::*;
 #[path = "normal_callable_loop_handoff_declarations.rs"]
 mod declarations;
+#[path = "normal_callable_loop_handoff_source.rs"]
+mod source;
+pub(in crate::mir) use source::{CallableLoopBindingSourceV1, CallableLoopSourceBindingClassV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CallableLoopBindingRoleV1 {
@@ -57,10 +61,6 @@ impl CallableLoopOutsideReasonV1 {
 
     pub(super) fn rows(&self) -> &[CallableLoopOutsideRowV1] {
         &self.rows
-    }
-
-    pub(super) fn into_rows(self) -> Box<[CallableLoopOutsideRowV1]> {
-        self.rows
     }
 
     pub(super) fn into_terminal_error(self) -> String {
@@ -182,10 +182,7 @@ impl CallableLoopBindingReceiptV1 {
 /// capability and does not publish physical values.
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct VerifiedCallableSemanticLoopBindingScheduleV1 {
-    owner: FunctionOwnerIdV1,
-    loop_site: SourceNodeSiteV1,
-    rows: Box<[CallableLoopReadyBindingRowV1]>,
-    local_declarations: BTreeMap<BindingRefV1, SourceBindingSiteV1>,
+    source: Rc<CallableLoopBindingSourceV1>,
 }
 
 /// One affine source product for the first callable-loop body-only cohort.
@@ -195,17 +192,12 @@ pub(super) struct VerifiedCallableSemanticLoopBindingScheduleV1 {
 /// resolver or semantic authority is introduced for the deferred rows.
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct CallableLoopReadyBodyOnlyProductV1 {
-    ready: VerifiedCallableSemanticLoopBindingScheduleV1,
-    body_only: CallableLoopOutsideReasonV1,
+    source: Rc<CallableLoopBindingSourceV1>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct CallableSemanticLoopHandoffPreEffectReceiptV1 {
-    owner: FunctionOwnerIdV1,
-    loop_site: SourceNodeSiteV1,
-    rows: Box<[CallableLoopReadyBindingRowV1]>,
-    body_only_rows: Box<[CallableLoopOutsideRowV1]>,
-    local_declarations: BTreeMap<BindingRefV1, SourceBindingSiteV1>,
+    source: Rc<CallableLoopBindingSourceV1>,
 }
 
 /// Immutable source-only view used by the projector.
@@ -341,14 +333,7 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
                 .into_boxed_slice();
             return Ok(
                 CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(
-                    CallableLoopReadyBodyOnlyProductV1 {
-                        ready,
-                        body_only: CallableLoopOutsideReasonV1 {
-                            owner: self.owner,
-                            loop_site,
-                            rows,
-                        },
-                    },
+                    CallableLoopReadyBodyOnlyProductV1::with_body_only(ready, rows)?,
                 ),
             );
         }
@@ -364,49 +349,32 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
 }
 
 impl CallableSemanticLoopHandoffPreEffectReceiptV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
-        &self.loop_site
-    }
-
-    pub(super) fn rows(&self) -> &[CallableLoopReadyBindingRowV1] {
-        &self.rows
-    }
-
-    pub(super) fn body_only_rows(&self) -> &[CallableLoopOutsideRowV1] {
-        &self.body_only_rows
-    }
+    pub(super) fn owner(&self) -> FunctionOwnerIdV1 { self.source.owner() }
+    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 { self.source.loop_site() }
+    pub(super) fn rows(&self) -> &[CallableLoopReadyBindingRowV1] { &self.source.rows }
+    pub(super) fn body_only_rows(&self) -> &[CallableLoopOutsideRowV1] { &self.source.body_only_rows }
+    pub(super) fn source(&self) -> &Rc<CallableLoopBindingSourceV1> { &self.source }
 }
 
 impl CallableLoopReadyBodyOnlyProductV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.ready.owner()
+    pub(super) fn owner(&self) -> FunctionOwnerIdV1 { self.source.owner() }
+    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 { self.source.loop_site() }
+    pub(super) fn body_only_rows(&self) -> &[CallableLoopOutsideRowV1] { &self.source.body_only_rows }
+
+    fn with_body_only(
+        ready: VerifiedCallableSemanticLoopBindingScheduleV1,
+        rows: Box<[CallableLoopOutsideRowV1]>,
+    ) -> Result<Self, String> {
+        // No observer exists during issuance. Move the same ready rows into
+        // their complete source product before lending it to any consumer.
+        let mut source = Rc::try_unwrap(ready.source)
+            .map_err(|_| freeze("premature-binding-source-loan"))?;
+        source.body_only_rows = rows;
+        Ok(Self { source: Rc::new(source) })
     }
 
-    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
-        self.ready.loop_site()
-    }
-
-    pub(super) fn body_only_rows(&self) -> &[CallableLoopOutsideRowV1] {
-        self.body_only.rows()
-    }
-
-    pub(super) fn without_body_only(
-        schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
-    ) -> Self {
-        let owner = schedule.owner();
-        let loop_site = schedule.loop_site().clone();
-        Self {
-            ready: schedule,
-            body_only: CallableLoopOutsideReasonV1 {
-                owner,
-                loop_site,
-                rows: Box::new([]),
-            },
-        }
+    pub(super) fn without_body_only(schedule: VerifiedCallableSemanticLoopBindingScheduleV1) -> Self {
+        Self { source: schedule.source }
     }
 
     pub(super) fn consume_pre_effect(
@@ -415,25 +383,13 @@ impl CallableLoopReadyBodyOnlyProductV1 {
         condition_site: &SourceNodeSiteV1,
         body_site: &SourceNodeSiteV1,
     ) -> Result<CallableSemanticLoopHandoffPreEffectReceiptV1, String> {
-        if self.body_only.owner() != self.owner() || self.body_only.loop_site() != self.loop_site()
-        {
-            return Err(freeze("body-only-owner-site-mismatch"));
-        }
-        let body_only_rows = self.body_only.into_rows();
-        let receipt = self
-            .ready
-            .consume_pre_effect(parent_site, condition_site, body_site)?;
-        Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 {
-            body_only_rows,
-            ..receipt
-        })
+        self.source.validate_pre_effect(parent_site, condition_site, body_site)?;
+        Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 { source: self.source })
     }
 }
 
 impl VerifiedCallableSemanticLoopBindingScheduleV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
+    pub(super) fn owner(&self) -> FunctionOwnerIdV1 { self.source.owner() }
 
     pub(super) fn seal(
         owner: FunctionOwnerIdV1,
@@ -448,12 +404,9 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
             &local_declarations,
         )?;
         let rows = build_callable_loop_ready_rows(owner, &loop_site, receipts, iteration_locals)?;
-        Ok(Self {
-            owner,
-            loop_site,
-            rows,
-            local_declarations,
-        })
+        Ok(Self { source: Rc::new(CallableLoopBindingSourceV1 {
+            owner, loop_site, rows, local_declarations, body_only_rows: Box::new([]),
+        }) })
     }
 
     pub(super) fn consume_pre_effect(
@@ -462,42 +415,22 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         condition_site: &SourceNodeSiteV1,
         body_site: &SourceNodeSiteV1,
     ) -> Result<CallableSemanticLoopHandoffPreEffectReceiptV1, String> {
-        if parent_site != &self.loop_site {
-            return Err(freeze("loop-owner-site-mismatch"));
-        }
-        if !is_direct_child(
-            parent_site,
-            condition_site,
-            SourcePathSegmentV1::LoopCondition,
-        ) {
-            return Err(freeze("condition-source-mismatch"));
-        }
-        if !is_direct_child(parent_site, body_site, SourcePathSegmentV1::LoopBodyRoot) {
-            return Err(freeze("body-source-mismatch"));
-        }
-        Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 {
-            owner: self.owner,
-            loop_site: self.loop_site,
-            rows: self.rows,
-            body_only_rows: Box::new([]),
-            local_declarations: self.local_declarations,
-        })
+        self.source.validate_pre_effect(parent_site, condition_site, body_site)?;
+        Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 { source: self.source })
     }
 
-    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
-        &self.loop_site
-    }
+    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 { self.source.loop_site() }
 
     pub(super) fn receipt_count(&self) -> usize {
-        self.rows.iter().map(|row| row.receipts().len()).sum()
+        self.source.rows.iter().map(|row| row.receipts().len()).sum()
     }
 
     pub(super) fn receipts(&self) -> impl Iterator<Item = &CallableLoopBindingReceiptV1> {
-        self.rows.iter().flat_map(|row| row.receipts())
+        self.source.rows.iter().flat_map(|row| row.receipts())
     }
 
     pub(super) fn rows(&self) -> &[CallableLoopReadyBindingRowV1] {
-        &self.rows
+        &self.source.rows
     }
 }
 

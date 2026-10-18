@@ -821,7 +821,12 @@ by their existing boundaries.
 `normal_callable_loop_handoff.rs` owns the L0-R0 source-coverage projection.
 Its declaration transport retains each loop-local resolver binding with its exact
 `SourceBindingSiteV1::Local` statement and ordinal across the Ready/body-only
-partition and into pre-effect. Branch locals and unread locals retain scope;
+partition and into pre-effect. `normal_callable_loop_handoff_source.rs` adapts
+original resolver rows to that same projector. A retained source plan shares
+one immutable role payload with its affine binding handoff; selected physical
+consumption takes it once, checks identity, and never reissues on failure.
+The shared role view includes external body-only carriers and keeps rebound
+iteration locals local. Branch locals and unread locals retain scope;
 unread locals do not acquire use rows or carriers. The shared LoopTrue schedule
 carries the same declarations without changing route selection. Source path/row
 validation lives in `normal_callable_loop_handoff_validation.rs`; declaration

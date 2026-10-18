@@ -8,6 +8,9 @@ use crate::mir::resolved_value_profile::expression_plan::{
     loop_condition_expression_source_plan_v1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 use std::rc::Rc;
+use crate::mir::builder::normal_callable_loop_handoff::{
+    CallableLoopBindingProjectionDispositionV1, CallableLoopBindingSourceV1,
+};
 
 #[derive(Debug)]
 pub(super) struct PlannedSourceLoopV1 {
@@ -41,6 +44,8 @@ pub(in crate::mir) struct RetainedCallableLoopSourceV1 {
     source: VerifiedResolvedLoopSourceV1,
     frame: LoopExecutionFrameKeyV1,
     condition: Rc<ExpressionSourcePlanV1>,
+    bindings: Rc<CallableLoopBindingSourceV1>,
+    binding_handoff: std::cell::RefCell<Option<CallableLoopBindingProjectionDispositionV1>>,
     condition_reads: std::collections::BTreeSet<(SourceNodeSiteV1, crate::mir::resolved_semantics::BindingRefV1)>,
 }
 
@@ -61,6 +66,11 @@ pub(in crate::mir) fn issue_preissued_callable_loop_source_plan_v1(
     if condition_source.nodes().first().is_none_or(|root| root.site() != condition.site()) {
         return Err("[freeze:contract][preissued-loop/condition-source]".into());
     }
+    let handoff = CallableLoopBindingProjectionDispositionV1::from_resolved_input(input, site,
+        matches!(condition.node(), crate::ast::ASTNode::Literal {
+            value: crate::ast::LiteralValue::Bool(true), ..
+        }))?;
+    let bindings = Rc::clone(handoff.source()?);
     let planned = PlannedSourceLoopV1::issue(condition.node(), body.statements(), policy,
         format!("source-owner:{:?}", input.owner()).into_boxed_str(), policy.debug_enabled())?;
     let (source, frame, _) = membership.into_parts();
@@ -72,12 +82,26 @@ pub(in crate::mir) fn issue_preissued_callable_loop_source_plan_v1(
             .then(|| (site.node().clone(), *binding))
     }).collect();
     Ok(PreissuedCallableLoopSourcePlanV1 {
-        source: Rc::new(RetainedCallableLoopSourceV1 { owner: input.owner(), source, frame, condition: condition_source, condition_reads }),
+        source: Rc::new(RetainedCallableLoopSourceV1 { owner: input.owner(), source, frame, condition: condition_source, bindings,
+            binding_handoff: std::cell::RefCell::new(Some(handoff)), condition_reads }),
         policy, planned,
     })
 }
 
 impl RetainedCallableLoopSourceV1 {
+    pub(in crate::mir) fn bindings(&self) -> &Rc<CallableLoopBindingSourceV1> { &self.bindings }
+    pub(in crate::mir) fn binding_handoff_pending_v1(&self) -> bool { self.binding_handoff.borrow().is_some() }
+
+    pub(in crate::mir::builder) fn take_binding_handoff_v1(&self)
+        -> Result<CallableLoopBindingProjectionDispositionV1, String> {
+        let handoff = self.binding_handoff.borrow_mut().take()
+            .ok_or("[freeze:contract][preissued-loop/binding-handoff-already-taken]")?;
+        if !Rc::ptr_eq(handoff.source()?, &self.bindings) {
+            return Err("[freeze:contract][preissued-loop/binding-source-drift]".into());
+        }
+        Ok(handoff)
+    }
+
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
     pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { self.source.site() }
     pub(in crate::mir) fn frame(&self) -> &LoopExecutionFrameKeyV1 { &self.frame }
