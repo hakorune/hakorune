@@ -14,6 +14,9 @@ use super::schema::{LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1};
 
 pub(crate) const LOOP_RECIPE_SCHEMA_VERSION_V2: u16 = 2;
 
+/// Same readonly relation as V1, with the explicit V2 value class.
+pub(crate) type LoopRecipeReadOnlyInputV2 = super::schema::LoopRecipeReadOnlyInputV1<LoopValueClassV2>;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopRecipeArtifactV2 {
@@ -49,6 +52,9 @@ pub(crate) struct LoopRecipeV2 {
     pub(crate) values: Vec<LoopRecipeValueV2>,
     pub(crate) inputs: Vec<LoopValueKeyV1>,
     pub(crate) carriers: Vec<LoopRecipeCarrierV2>,
+    /// Immutable root bindings; never Header/Step/After carriers.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(crate) read_only_inputs: Vec<LoopRecipeReadOnlyInputV2>,
     pub(crate) exits: Vec<LoopRecipeExitV2>,
 }
 

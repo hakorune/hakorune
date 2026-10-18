@@ -465,67 +465,17 @@ fn check_carriers(
 }
 
 fn check_read_only_inputs(recipe: &LoopRecipeV1) -> Result<(), Reject> {
-    let mut bindings = BTreeSet::new();
-    let mut values = BTreeSet::new();
-    for row in &recipe.read_only_inputs {
-        if row.owner_loop != recipe.root_loop {
-            return Err(Reject::ReadOnlyInputNotRoot {
-                binding: row.binding,
-            });
-        }
-        if !bindings.insert(row.binding) {
-            return Err(Reject::DuplicateReadOnlyInput {
-                binding: row.binding,
-            });
-        }
-        if !values.insert(row.entry_value) {
-            return Err(Reject::DuplicateReadOnlyValue {
-                value: row.entry_value,
-            });
-        }
-        if !recipe.inputs.contains(&row.entry_value) {
-            return Err(Reject::ReadOnlyInputNotDeclared {
-                value: row.entry_value,
-            });
-        }
-        if recipe
-            .carriers
-            .iter()
-            .any(|carrier| carrier.binding == row.binding || carrier.entry_value == row.entry_value)
-        {
-            return Err(Reject::ReadOnlyInputCarrierOverlap {
-                binding: row.binding,
-            });
-        }
-        if binding_class(recipe, row.binding)? != row.class {
-            return Err(Reject::ValueClassMismatch {
-                key: row.entry_value,
-            });
-        }
-        expect_value_class(recipe, row.entry_value, row.class)?;
-        let mut read = false;
-        for item in &recipe.items {
-            match &item.item {
-                LoopRecipeItemV1::Operation {
-                    operation: LoopOperationV1::ReadBinding { binding, .. },
-                } if *binding == row.binding => read = true,
-                LoopRecipeItemV1::Operation {
-                    operation: LoopOperationV1::WriteBinding { binding, .. },
-                } if *binding == row.binding => {
-                    return Err(Reject::ReadOnlyInputWritten {
-                        binding: row.binding,
-                    });
-                }
-                _ => {}
-            }
-        }
-        if !read {
-            return Err(Reject::ReadOnlyInputUnused {
-                binding: row.binding,
-            });
-        }
-    }
-    Ok(())
+    super::read_only_inputs::check(
+        recipe.root_loop, &recipe.read_only_inputs, &recipe.inputs,
+        recipe.carriers.iter().map(|row| (row.binding, row.entry_value)),
+        |key| binding_class(recipe, key),
+        |key, class| expect_value_class(recipe, key, class),
+        recipe.items.iter().filter_map(|row| match &row.item {
+            LoopRecipeItemV1::Operation { operation: LoopOperationV1::ReadBinding { binding, .. } } => Some((*binding, false)),
+            LoopRecipeItemV1::Operation { operation: LoopOperationV1::WriteBinding { binding, .. } } => Some((*binding, true)),
+            _ => None,
+        }),
+    )
 }
 
 fn check_recursive_preorder(recipe: &LoopRecipeV1) -> Result<(), Reject> {

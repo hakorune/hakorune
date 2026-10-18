@@ -8,6 +8,7 @@ fn recipe(text: &str) -> LoopRecipeV2 {
     let root = LoopNodeKeyV1::new(0);
     let binding = LoopBindingKeyV1::new(0);
     LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: root,
         loops: vec![LoopNodeV2 {
             key: root,

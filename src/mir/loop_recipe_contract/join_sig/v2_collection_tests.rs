@@ -8,6 +8,7 @@ fn recipe() -> LoopRecipeV2 {
     let root = LoopNodeKeyV1::new(0);
     let classes = [LoopValueClassV2::I64, LoopValueClassV2::Text];
     LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: root,
         loops: vec![LoopNodeV2 {
             key: root,
@@ -57,6 +58,135 @@ fn recipe() -> LoopRecipeV2 {
             })
             .collect(),
         exits: vec![],
+    }
+}
+
+/// Same collection fixture, with real readonly reads in Header and Body.
+/// The imported values have explicit binding relations, never spare carriers.
+fn recipe_with_readonly_inputs() -> LoopRecipeV2 {
+    let mut input = recipe();
+    for (binding, entry, class) in [
+        (2, 3, LoopValueClassV2::Text), (3, 4, LoopValueClassV2::I64),
+    ] {
+        input.bindings.push(LoopRecipeBindingV2 {
+            key: LoopBindingKeyV1::new(binding), label: "same".into(), class,
+        });
+        input.values.push(LoopRecipeValueV2 { key: LoopValueKeyV1::new(entry), class });
+        input.inputs.push(LoopValueKeyV1::new(entry));
+        input.read_only_inputs.push(LoopRecipeReadOnlyInputV2 {
+            owner_loop: input.root_loop, binding: LoopBindingKeyV1::new(binding),
+            class, entry_value: LoopValueKeyV1::new(entry),
+        });
+    }
+    for (key, class) in [(5, LoopValueClassV2::I64), (6, LoopValueClassV2::Bool), (7, LoopValueClassV2::Text)] {
+        input.values.push(LoopRecipeValueV2 { key: LoopValueKeyV1::new(key), class });
+    }
+    input.loops[0].condition = LoopConditionV2::Predicate {
+        block: LoopBlockKeyV1::new(0), value: LoopValueKeyV1::new(6),
+    };
+    input.blocks[0].items = (0..2).map(LoopItemKeyV1::new).collect();
+    input.blocks[1].items = vec![LoopItemKeyV1::new(2)];
+    input.items = [
+        LoopOperationV2::ReadBinding { binding: LoopBindingKeyV1::new(3), result: LoopValueKeyV1::new(5) },
+        LoopOperationV2::CompareI64 { op: LoopCompareI64OpV2::Less, left: LoopValueKeyV1::new(0),
+            right: LoopValueKeyV1::new(5), result: LoopValueKeyV1::new(6) },
+        LoopOperationV2::ReadBinding { binding: LoopBindingKeyV1::new(2), result: LoopValueKeyV1::new(7) },
+    ].into_iter().enumerate().map(|(index, operation)| LoopRecipeItemRowV2 {
+        key: LoopItemKeyV1::new(index as u32), item: LoopRecipeItemV2::Operation { operation },
+    }).collect();
+    input
+}
+
+#[test]
+fn readonly_text_and_integer_seed_header_and_body_without_after_payloads() {
+    let input = recipe_with_readonly_inputs();
+    let wire = serde_json::to_string(&input).unwrap();
+    let decoded: LoopRecipeV2 = serde_json::from_str(&wire).unwrap();
+    assert_eq!(decoded, input);
+    let verified = LoopRecipeVerifierV2::verify(decoded).expect("typed immutable imports");
+    let closure = issue_root_carrier_join_closure_v2(&verified).expect("reads in Header and Body");
+    assert_eq!(closure.after.len(), 2);
+    assert!(closure.after.iter().all(|row| row.binding().raw() < 2));
+    let signature = closure.join_sig.as_sig();
+    assert_eq!(signature.loops[0].carriers.len(), 2);
+    assert!(signature.port_bindings.iter().all(|row| row.binding.raw() < 2));
+    for edge in &signature.loops[0].edges {
+        assert_eq!(edge.payload.len(), 2);
+        assert!(edge.payload.iter().all(|row| row.binding.raw() < 2));
+    }
+    // An ordinary input alone never supplies a binding relation.
+    let mut missing = input;
+    missing.read_only_inputs.clear();
+    let verified = LoopRecipeVerifierV2::verify(missing).unwrap();
+    assert!(issue_root_carrier_join_closure_v2(&verified).is_err());
+    // Existing V2 wires retain their exact empty-field representation.
+    let empty = serde_json::to_string(&recipe()).unwrap();
+    assert!(!empty.contains("read_only_inputs"));
+    assert_eq!(serde_json::from_str::<LoopRecipeV2>(&empty).unwrap(), recipe());
+}
+
+#[test]
+fn readonly_inputs_reject_drift_writes_and_implicit_carrier_permissions() {
+    use crate::mir::loop_recipe_contract::error::LoopRecipeRejectReasonV1 as Reject;
+    use crate::mir::loop_recipe_contract::typed_schema_v2::LoopRecipeV2RejectReason;
+    for case in 0..11 {
+        let mut input = recipe_with_readonly_inputs();
+        let expected = match case {
+            0 => {
+                input.read_only_inputs.push(input.read_only_inputs[0]);
+                Reject::DuplicateReadOnlyInput { binding: LoopBindingKeyV1::new(2) }
+            }
+            1 => {
+                input.read_only_inputs[1].entry_value = LoopValueKeyV1::new(3);
+                Reject::DuplicateReadOnlyValue { value: LoopValueKeyV1::new(3) }
+            }
+            2 => {
+                input.read_only_inputs[0].owner_loop = LoopNodeKeyV1::new(1);
+                Reject::ReadOnlyInputNotRoot { binding: LoopBindingKeyV1::new(2) }
+            }
+            3 => {
+                input.read_only_inputs[0].entry_value = LoopValueKeyV1::new(7);
+                Reject::ReadOnlyInputNotDeclared { value: LoopValueKeyV1::new(7) }
+            }
+            4 => {
+                input.read_only_inputs[0].binding = LoopBindingKeyV1::new(0);
+                Reject::ReadOnlyInputCarrierOverlap { binding: LoopBindingKeyV1::new(0) }
+            }
+            5 => {
+                input.read_only_inputs[0].entry_value = LoopValueKeyV1::new(0);
+                Reject::ReadOnlyInputCarrierOverlap { binding: LoopBindingKeyV1::new(2) }
+            }
+            6 => {
+                input.read_only_inputs[0].class = LoopValueClassV2::Bool;
+                Reject::ValueClassMismatch { key: LoopValueKeyV1::new(3) }
+            }
+            7 => {
+                input.read_only_inputs[0].entry_value = LoopValueKeyV1::new(4);
+                Reject::ValueClassMismatch { key: LoopValueKeyV1::new(4) }
+            }
+            8 => {
+                input.items.push(LoopRecipeItemRowV2 {
+                    key: LoopItemKeyV1::new(3), item: LoopRecipeItemV2::Operation {
+                        operation: LoopOperationV2::WriteBinding { binding: LoopBindingKeyV1::new(2), value: LoopValueKeyV1::new(7) },
+                    },
+                });
+                input.blocks[1].items.push(LoopItemKeyV1::new(3));
+                Reject::ReadOnlyInputWritten { binding: LoopBindingKeyV1::new(2) }
+            }
+            9 => {
+                input.items[2].item = LoopRecipeItemV2::Operation {
+                    operation: LoopOperationV2::ConstText { result: LoopValueKeyV1::new(7), value: "literal".into() },
+                };
+                Reject::ReadOnlyInputUnused { binding: LoopBindingKeyV1::new(2) }
+            }
+            10 => {
+                input.read_only_inputs[0].binding = LoopBindingKeyV1::new(99);
+                Reject::DanglingBinding { key: LoopBindingKeyV1::new(99) }
+            }
+            _ => unreachable!(),
+        };
+        assert_eq!(LoopRecipeVerifierV2::verify(input).unwrap_err(),
+            LoopRecipeV2RejectReason::ReadOnlyInput(expected), "case {case}");
     }
 }
 

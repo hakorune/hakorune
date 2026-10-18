@@ -161,6 +161,13 @@ The common set co-seals declaration (including its statement site), initializer,
 carrier or root read-only input and Core binding relation. The two input roles
 are disjoint: carriers require an After payload; read-only inputs seed a
 `ReadBinding` at Loop entry and may not be written or exported as After ports.
+The explicit V2 wire now carries this same class-parametric readonly relation.
+V1 and V2 share `read_only_inputs` verification and the neutral JoinSig seed;
+V2 Text/I64 reads therefore need no invented carrier or After row. The relation
+must name an immutable root binding with a unique declared input of the same
+class, disjoint from all carrier bindings and entry values, and actually read.
+Existing V2 source producers retain empty rows until their source-role mapping
+is connected. Wire/JoinSig verification alone grants no Home or physical loan.
 It exposes the complete row slice only; no
 first/filter/ordinal reconstruction API exists. Empty, duplicate, foreign-owner,
 missing-input-role, class, declaration, and binding mismatches fail before Builder

@@ -11,6 +11,7 @@ use crate::mir::loop_recipe_contract::{
 pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
     let binding = LoopBindingKeyV1::new(0);
     LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: LoopNodeKeyV1::new(0),
         loops: vec![LoopNodeV2 {
             key: LoopNodeKeyV1::new(0),

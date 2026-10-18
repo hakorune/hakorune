@@ -102,6 +102,7 @@ fn root_recipe() -> LoopRecipeV1 {
 
 fn verified_root_recipe_v2() -> crate::mir::loop_recipe_contract::VerifiedLoopRecipeV2 {
     LoopRecipeVerifierV2::verify(LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0),
         loops: vec![LoopNodeV2 {
             key: crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0),

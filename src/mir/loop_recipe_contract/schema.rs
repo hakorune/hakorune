@@ -275,10 +275,10 @@ pub(crate) struct LoopRecipeCarrierV1 {
 /// Root input whose binding is readable but never carried or written.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) struct LoopRecipeReadOnlyInputV1 {
+pub(crate) struct LoopRecipeReadOnlyInputV1<Class = LoopValueClassV1> {
     pub(crate) owner_loop: LoopNodeKeyV1,
     pub(crate) binding: LoopBindingKeyV1,
-    pub(crate) class: LoopValueClassV1,
+    pub(crate) class: Class,
     pub(crate) entry_value: LoopValueKeyV1,
 }
 

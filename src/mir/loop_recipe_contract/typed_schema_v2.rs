@@ -136,6 +136,7 @@ pub(crate) enum LoopRecipeV2RejectReason {
         item: LoopItemKeyV1,
     },
     SourceBinding(super::error::LoopRecipeRejectReasonV1),
+    ReadOnlyInput(super::error::LoopRecipeRejectReasonV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -223,6 +224,7 @@ impl LoopRecipeVerifierV2 {
         check_exits(&recipe)?;
         let definitions = check_blocks_and_items(&recipe, &bindings, &values)?;
         check_carriers(&recipe, &bindings, &values, &definitions)?;
+        check_read_only_inputs(&recipe, &bindings, &values)?;
         super::typed_schema_v2_structure::check_control_structure(&recipe)?;
         Ok(VerifiedLoopRecipeV2(recipe))
     }
@@ -550,4 +552,30 @@ pub(super) fn expect_defined_value(
         return Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition { item, key });
     }
     Ok(class)
+}
+
+/// Reuse the V1 relation verifier; typed operations and ordinary V2 domains
+/// have already been checked. This grants no source/Home/physical permission.
+fn check_read_only_inputs(
+    recipe: &LoopRecipeV2,
+    bindings: &BTreeMap<LoopBindingKeyV1, LoopValueClassV2>,
+    values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
+) -> Result<(), LoopRecipeV2RejectReason> {
+    use super::error::LoopRecipeRejectReasonV1 as Reject;
+    use super::schema_v2::LoopOperationV2 as Op;
+    super::read_only_inputs::check(
+        recipe.root_loop, &recipe.read_only_inputs, &recipe.inputs,
+        recipe.carriers.iter().map(|row| (row.binding, row.entry_value)),
+        |key| bindings.get(&key).copied().ok_or(Reject::DanglingBinding { key }),
+        |key, class| match values.get(&key) {
+            None => Err(Reject::DanglingValue { key }),
+            Some(actual) if *actual != class => Err(Reject::ValueClassMismatch { key }),
+            _ => Ok(()),
+        },
+        recipe.items.iter().filter_map(|row| match &row.item {
+            LoopRecipeItemV2::Operation { operation: Op::ReadBinding { binding, .. } } => Some((*binding, false)),
+            LoopRecipeItemV2::Operation { operation: Op::WriteBinding { binding, .. } } => Some((*binding, true)),
+            _ => None,
+        }),
+    ).map_err(LoopRecipeV2RejectReason::ReadOnlyInput)
 }

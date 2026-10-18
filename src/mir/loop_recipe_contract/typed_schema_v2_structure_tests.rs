@@ -18,6 +18,7 @@ fn control_artifact() -> LoopRecipeArtifactV2 {
         LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::CallableSingleLoopV1),
         source_binding(),
         LoopRecipeV2 {
+            read_only_inputs: Vec::new(),
             root_loop: LoopNodeKeyV1::new(0),
             loops: vec![LoopNodeV2 {
                 key: LoopNodeKeyV1::new(0),

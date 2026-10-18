@@ -87,6 +87,7 @@ mod typed_schema_v2_structure;
 mod variable_accum_recurrence_producer;
 mod variable_bound_mul_producer;
 mod verify;
+mod read_only_inputs;
 
 #[cfg(test)]
 #[path = "direct_accum_producer_tests.rs"]

@@ -793,20 +793,12 @@ V901f495ea1ea1/V90285f687e8bb/V9037f77d03941 retain completed contracts/evidence
 Latest JSON CLI251/app303 same slot20 Body7 stop; native CLI250/app302 matches app300.
 Keep pins/reports/FFI897A/kernel894A until Text closure. No Text/full-suite/current-CI claim.
 
-V904 exactText checkpoint landed at `496db633e6`. That commit owns the complete
-source/cohort/frame/domain retention, argument lifetime graph and both final
-Call scans through exactText JSON/C. It also owns 161 focused PASS/one
-independently reproduced plain-completion baseline, stable4/diff PASS and the
-resolved SelectedStaticLoop regression. Generic admission remains rejected;
-final consumers use the existing retained canonical packet lender.
-CLI253/app306 unchanged mimalloc EXE141.712s/run.001468s exit0 and exact prior
-stdout/stderr confirm the first milestone. Limited two-owned-Text/unused-formal
-probe EXE105.475s/run.001222s exit0 proves only that ABI/cleanup path.
-CLI253/app307 unchanged json .397097s exit1/no artifact remains original
-slot20/Body7 `core-expression-execution-pending`; no actual app advance.
-Complete commands, hashes, receipt conditions and earlier counterexamples are
-preserved in `496db633e6`. Keep ZA/CLI253/app306/app307/probe artifacts until
-full Text closure for source/baseline comparison; no temporary adapter added.
+V904 `496db633e6` owns exactText source/cohort/frame/domain, argument lifetimes
+and both final Call scans, 161 focused PASS/1 independently reproduced baseline,
+stable4/diff and corrected SelectedStaticLoop regression. CLI253/mimalloc306 and
+two-owned-Text probe match native output/exit; JSON307 remains Body7. This does
+not fulfill to_i64 or generic admission. Retain ZA/CLI253/native/source/baseline
+artifacts with FFI897A/kernel894A until Text closure; no adapter/series closure.
 
 V905 Decision is preserved in `bbe376b06e`: original Loop source authority,
 complete co-sealed After collection and exact physical binding/Phi provenance.
@@ -855,13 +847,10 @@ Remaining same-series construction (read-only worker mapping retained):
   General Text/Loop Header/After and the full source-to-consumer series remain
   unaccepted; all inherited Text/incoming/cleanup/full-goal obligations above stay.
 
-V908 landed `d10fc508e6`: same-source String comparisons in Bool conditions,
-empty-Home verified walk and conservative identical-value joins, with strict
-Main/String/final-boundary checks. That commit owns full source/commands/pins,
-88 focused PASS/1 independent baseline, unchanged mimalloc317/native output and
-JSON315 Body7 unchanged, fixed11 5PASS/6 classified CLI256-baseline failures.
-Retain its manifests/failed313/baseline receipts until Text/Loop closure; no
-adapter or whole-series/current-CI acceptance.
+V908 `d10fc508e6` owns genuine String Bool comparisons, empty-Home walk and
+conservative identical-value joins; 88 focused PASS/1 independent baseline,
+mimalloc317 match, JSON315 unchanged Body7, fixed11 5PASS/6 classified CLI256
+baseline failures. Retain failed313/source/native/baseline pins until closure.
 
 Current Decision (same original Loop series, source/physical workers reviewed):
 - Source authority + canonical issuer: SAME retained SourcePlan condition/body,
@@ -928,42 +917,75 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   fake If seal, initializer permission for carriers, .hako rewrite and fallback
   remain forbidden; full Text/incoming/cleanup/fixed-suite/full-goal debts stay.
 
-V909 landed `e3d050a785`: complete original LoopFrame port-invariance
-normalization and exact Header/Step/After physical Phi completion, with strict
-alias APIs, all incoming/prefix/predecessor checks and final-boundary consumption.
-That commit owns full source/commands/pins/corrections, 75 focused PASS/1 independently
-reproduced baseline, unchanged mimalloc319 native/output/exit, JSON318 unchanged
-Body7 and fixed11 5PASS/6 classified baseline failures. Retain its source/native/
-baseline manifests until Text/Loop closure; no adapter or whole-series acceptance.
+Completed internal history (full commands/source pins/corrections in commits):
+- `e3d050a785`: all-original-port invariance and exact physical Phi completion;
+  75 focused PASS/1 independently reproduced baseline, mimalloc319 native match,
+  JSON318 same Body7, fixed11 5PASS/6 classified baseline failures.
+- `eee9731d82`: canonical source Carrier/BodyOnlyRebind selection and BindingRef
+  publication; selected AST reclassification deleted, shared callers retained.
+  52 focused PASS, mimalloc321 native match, JSON320 same Body7, fixed11
+  5PASS/6FAIL439.788s exactly prior baseline chain. `3f4a8186d2` compresses history.
+- `a24760b72a`: original Plain BindingRebind checked frame and alias-boundary
+  retention, including aliases before/after self-assignment; physical initializer
+  loans refuse rebind. 24 focused PASS, stable4/diff PASS, Root911C41.313s and
+  source-matched CLI261203.545s. Mimalloc323 EXE139.138s/run.001432s exit0,
+  exact prior stdout/stderr/exit; JSON322 .383902s same Body7/no artifact.
+  FFI897A/kernel894A are predecessor pins with explicit compiler-only deltas.
+  No physical caller switch or execution retirement. `5811ba55ab` compresses this.
+All source/native/failed/corrected/baseline manifests remain required until full
+Text/Loop closure; no temporary adapter added. Last fixed11 is CLI260, not current
+HEAD. Source target Home-neutrality, pending Header, complete V2/JoinSig/body/
+exit/cleanup/After and final physical consumers remain required; no series/full
+suite/current-CI/full-goal acceptance claim.
 
-V910 landed `eee9731d82`: source LoopCond consumes canonical Carrier + nonlocal
-BodyOnlyRebind roles, retaining readonly producer/provenance and local scope.
-Exact materialized BindingRef/cache crosswalk precedes allocation; Header/After
-publish by BindingRef. Selected AST carrier reclassification/reverse-name edges
-are deleted; shared other-source/raw owners retain callers. Commit owns source,
-commands/pins, 52 focused PASS/0FAIL, stable4/diff, Root910A73.586s/CLI260180.197s,
-unchanged mimalloc321 EXE156.349s/run.001596s/output+exit0, JSON320 same Body7,
-fixed11 5PASS/6FAIL439.788s with full diagnostics exactly prior independent chain.
-Keep manifests/native/baseline receipts until Text/Loop closure; no adapter,
-whole-series/fixed-suite/current-CI green claim.
+Current integrated connection, worker-reviewed refinement:
+- V2 must carry actual readonly root binding relations through the SAME neutral
+  JoinSig seed as V1; external Text/I64 reads must not fabricate carrier/After
+  rows. Normalize the class-parametric readonly wire/relation verifier, preserving
+  V1 rejection order and V2 empty-wire representation. Existing V2 producers
+  retain empty explicit rows until original source roles are connected.
+- This required Recipe-to-JoinSig component does not itself issue a source/Home
+  capability, stage a Header, or claim physical Phi elimination. Reuse existing
+  V2 collection and V1 readonly tests; include Header I64 and Body Text reads,
+  absent relation, write/overlap/duplicate/root/class/unused/unknown negatives.
+- Header basis is immutable original source/flow/binding/Header/Entry/producer;
+  body frames never own mutable exit collectors. Reuse the original condition
+  slot in the shared expression inventory for the completed Loop attachment;
+  product must not own the inventory or its own completed slot (no Rc cycle).
+- Break/Continue intercept original resolver target before function terminal
+  handling. Record context-free exit snapshots; verify every row's availability
+  even when both branches terminate. Cross exact scopes through LoopBody inclusive;
+  existing Home unwind + sole root cleanup writer handle iteration Normal and
+  whole live Fault suffixes. No fake Return or If-only scope proof.
+- Bool V2 must retain same checked comparison/short-circuit region and genuine
+  outcome, not fake CallSlot, eager RHS, duplicated Break or DynamicLess rename.
 
-V911 source construction landed `a24760b72a`: original Plain BindingRebind
-purpose wraps SAME checked evaluation, source/target/reference census and I64
-root; shared Call/Core/leaves/Add/field-batch/inventory owners remain sole.
-Source scalar reads retain the first exact rebind boundary along the whole
-alias chain, including aliases before/after self-assignment. The common source
-alias walker preserves original strict alias APIs and refuses join/foreign
-shortcuts. Physical initializer loans explicitly reject rebind producers.
-
-`a24760b72a` owns source paths/owner docs, worker counterexample/correction,
-initial import/fixture/zero-filter errors and final evidence: Root911C41.313s,
-24 focused PASS/0FAIL, stable4/diff PASS; matched CLI261203.545s. Unchanged
-mimalloc323 EXE139.138s/run.001432s exit0 and exact prior stdout/stderr/exit;
-unchanged JSON322 .383902s EXACT prior Body7/no artifact, no frontier advance.
-FFI897A/kernel894A remain predecessor pins with explicit compiler-only deltas.
-Retain V911 source/failed/corrected/native manifests until Loop/Text closure;
-no adapter added. This is source construction, not a physical caller switch,
-old execution retirement or series closure. Target Home-neutrality, pending
-Header, complete V2/JoinSig/body/exit/cleanup/After and final physical consumers
-remain required. Fixed11 was not rerun; last classified CLI260 is5PASS/6FAIL
-at eee9731d82. No current fixed-suite/CI/full-goal acceptance claim.
+V912 required Recipe/JoinSig component (not production series completion):
+- SAME readonly DTO is class-parametric; V1/V2 relation verification now has one
+  owner (`read_only_inputs`), preserving V1 error order. V2 JoinView lends explicit
+  rows to existing neutral seed. Empty V2 wire stays byte-shape compatible;
+  selected static-I64/S6C/dynamic producers explicitly retain empty rows. No new
+  source authority, Home/physical permission, selector or fallback.
+- Read-only worker reviewed actual diff: no loss of V1 rejection semantics or
+  silent role inference. Existing collection fixture proves Header I64/Body Text
+  reads, zero readonly carrier/edge/port/After rows, absent relation refusal and
+  11 independent metadata/write/domain negatives. Existing V1 tests are reused.
+- Root912A28.300s failed solely on new test's collection accessor (field, not sole
+  facade method); corrected before Root912B85.554s PASS. Command:
+  `cargo quick-test-fast --no-run --message-format=json`, CARGO_BUILD_JOBS=4.
+  61 distinct focused PASS/0FAIL, execution .118s: V2 collection7, V1 readonly2,
+  typed V2 wire23/Text4/dynamic8/structure6, existing raw Loop child11. Stable4
+  (pointer/root-reference/layer-dependency/thin-shim) and diff PASS.
+- Source-matched CLI262179.103s PASS: `cargo build --profile quick --bin hakorune
+  --message-format=json`, jobs4. Test/CLI/current source snapshots exactly match.
+  Direct native command: CLI262 `--grammar-profile canonical --backend mir
+  --emit-exe OUT --emit-exe-nyrt runtime894 APP`, pure-first/compat-none/plugins
+  disabled, pinned FFI897A/kernel894A with explicit predecessor/compiler deltas.
+- Unchanged JSON324 .398646s exit1/no artifact, stderr EXACT JSON322: original
+  slot20/Body7 Value `core-expression-execution-pending`; no frontier advance.
+  Unchanged mimalloc325 EXE141.054s/run.001546s exit0, stdout/stderr/exit exactly
+  mimalloc323 (`summary=ok`, Result0); native output does not close Text/Loop.
+- Keep Root912A/B, CLI262, JSON324/mimalloc325 source/build/focus/native receipts
+  until full Text/Loop closure; no adapter introduced. Full suite not rerun (no
+  production cutover); latest fixed11 remains CLI260 5PASS/6 classified failures.
+  CI query still only old d4168473 failure/8e7179 success; no current-CI claim.

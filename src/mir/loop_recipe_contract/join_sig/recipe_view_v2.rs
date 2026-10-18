@@ -15,7 +15,7 @@ use super::model::LoopJoinBranchExitTargetV2;
 use super::recipe_view::{
     LoopJoinBlockView, LoopJoinCarrierView, LoopJoinConditionView, LoopJoinExitView,
     LoopJoinItemView, LoopJoinLoopView, LoopJoinOperationFamily, LoopJoinOperationView,
-    LoopJoinRecipeView, LoopJoinValueUses,
+    LoopJoinRecipeView, LoopJoinValueUses, LoopJoinReadOnlyInputView,
 };
 
 pub(super) struct LoopRecipeV2JoinView<'a> {
@@ -99,6 +99,15 @@ impl LoopJoinRecipeView for LoopRecipeV2JoinView<'_> {
             binding: row.binding,
             class: row.class,
             entry_value: row.entry_value,
+        })
+    }
+
+    fn read_only_input_count(&self) -> usize { self.recipe.read_only_inputs.len() }
+
+    fn read_only_input_at(&self, index: usize) -> Option<LoopJoinReadOnlyInputView> {
+        let row = self.recipe.read_only_inputs.get(index)?;
+        Some(LoopJoinReadOnlyInputView {
+            owner_loop: row.owner_loop, binding: row.binding, entry_value: row.entry_value,
         })
     }
 

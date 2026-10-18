@@ -21,6 +21,7 @@ fn minimal_typed_recipe() -> LoopRecipeArtifactV2 {
     let call_value = LoopValueKeyV1::new(2);
     let equal = LoopValueKeyV1::new(3);
     let recipe = LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: LoopNodeKeyV1::new(0),
         loops: vec![super::schema_v2::LoopNodeV2 {
             key: LoopNodeKeyV1::new(0),
@@ -98,6 +99,7 @@ fn minimal_dynamic_recipe() -> LoopRecipeArtifactV2 {
     let call_result = LoopValueKeyV1::new(2);
     let binding = LoopBindingKeyV1::new(0);
     let recipe = LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: LoopNodeKeyV1::new(0),
         loops: vec![super::schema_v2::LoopNodeV2 {
             key: LoopNodeKeyV1::new(0),

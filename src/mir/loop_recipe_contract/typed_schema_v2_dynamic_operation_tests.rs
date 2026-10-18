@@ -31,6 +31,7 @@ fn operation(key: u32, operation: LoopOperationV2) -> LoopRecipeItemRowV2 {
 fn dynamic_operation_recipe() -> LoopRecipeArtifactV2 {
     let binding = LoopBindingKeyV1::new(0);
     let recipe = LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: LoopNodeKeyV1::new(0),
         loops: vec![super::schema_v2::LoopNodeV2 {
             key: LoopNodeKeyV1::new(0),

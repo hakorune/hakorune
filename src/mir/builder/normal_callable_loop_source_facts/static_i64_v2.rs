@@ -507,6 +507,7 @@ fn build_recipe(label: &str) -> LoopRecipeV2 {
         items: items.iter().copied().map(i).collect(),
     };
     LoopRecipeV2 {
+        read_only_inputs: Vec::new(),
         root_loop: LoopNodeKeyV1::new(0),
         loops: vec![LoopNodeV2 {
             key: LoopNodeKeyV1::new(0),
