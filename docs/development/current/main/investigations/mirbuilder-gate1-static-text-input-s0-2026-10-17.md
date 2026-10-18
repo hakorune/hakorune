@@ -903,7 +903,9 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   block/dst/binding/all incoming in PlanLowerer before final After publication.
   Existing raw child/ledger/boundary carry this role, no second operand registry.
 - Scalar rebind construction keeps the original Assignment-root source plan
-  and exact BindingRebind target/Plain row. Qualify via shared expression calls,
+  and exact BindingRebind target/Plain row. The scanner separately proves old
+  target scalar/Home-neutrality; an RHS frame cannot authorize overwriting a Home.
+  Qualify via shared expression calls,
   current references, leaves and exact I64 operations; require no owned result.
   Keep a purpose-specific frame over CheckedExpressionEvaluation, not a fake
   initializer/field frame. Same Loop product retains the rebind projection.
@@ -945,42 +947,23 @@ fixed11 5PASS/6FAIL439.788s with full diagnostics exactly prior independent chai
 Keep manifests/native/baseline receipts until Text/Loop closure; no adapter,
 whole-series/fixed-suite/current-CI green claim.
 
-V911 source construction in SAME integrated Loop series: qualify the original Plain
-BindingRebind into a purpose-specific CheckedExpressionEvaluation wrapper.
-Reuse calls/current-reference/leaves/Add owners and existing shared expression
-inventory; source/frame identity, target binding, exact reference census and
-I64 root are mandatory. Owned Text children keep the common scalar cleanup;
-there is no owned root transfer, fake initializer or second root packet pool.
-Scope: expression plan/leaves/evaluation-purpose wrappers, current scalar producer,
-existing initializer-source exhaustive consumer/test, sole source-flow alias walk
-and existing flow/new purpose qualification tests, resolved-semantics owner README and this card. The physical
-initializer loan explicitly rejects rebind producers; it grants no substitute
-receipt. Source-plan/Loop producer wiring and all physical connections are WIP. The Loop
-product/physical assignment receipt/final-consumer connections remain required;
-source qualification alone does not admit or complete the Loop.
+V911 source construction landed `a24760b72a`: original Plain BindingRebind
+purpose wraps SAME checked evaluation, source/target/reference census and I64
+root; shared Call/Core/leaves/Add/field-batch/inventory owners remain sole.
+Source scalar reads retain the first exact rebind boundary along the whole
+alias chain, including aliases before/after self-assignment. The common source
+alias walker preserves original strict alias APIs and refuses join/foreign
+shortcuts. Physical initializer loans explicitly reject rebind producers.
 
-V911 worker review caught an intermediate-alias boundary: after x=x, a new y=x
-must retain that latest Assignment producer, not cross it to the prior x+1.
-The sole source-flow alias walker now optionally preserves original expression
-boundaries; legacy alias_origin/alias_entry_origin retain their strict behavior,
-including join/cycle/foreign refusal. Rebind lookup uses that same walk, and
-source tests cover aliases both before and after self-assignment. This is source
-provenance, never a LoopEntry shortcut or an initializer receipt. Future scanner
-must prove old target scalar/Home-neutrality separately from RHS qualification.
-
-V911 verification: Root911A84.410s failed on enum imports; corrected imports in
-Root911B112.113s build PASS. B's new negative fixture was rejected by resolver
-(unresolved name), and one test filter matched zero: neither counted as PASS.
-Corrected declared-untyped negative and actual module filter; Root911C41.313s,
-24 distinct focused PASS/0FAIL including source purpose/alias/selfassignment,
-existing flow/installation, real initializer and initializer/Print final consumers.
-Stable4/diff PASS. Matched CLI261203.545s, SHA
-`ecbb620c6f1de1dec6c034de8e4d885965d410ec3437d58287eaf9a68bf28c70`.
-Unchanged JSON322 .383902s is EXACT JSON320 Body7/no artifact, no frontier move.
-Unchanged mimalloc323 EXE139.138405s/run.001432s exit0 and exact prior stdout/
-stderr/exit. FFI897A/kernel894A remain predecessor pins, explicit compiler-only
-deltas. Retain V911 manifests, corrected/failed test and native receipts until
-integrated Loop/Text closure; no adapter added. This is new source construction,
-not a physical caller switch, old execution retirement or Loop-series completion.
-Fixed11 was not rerun for this source preparation; last classified CLI260 remains
-5PASS/6FAIL at eee9731d82. No current fixed-suite/CI/full-goal acceptance claim.
+`a24760b72a` owns source paths/owner docs, worker counterexample/correction,
+initial import/fixture/zero-filter errors and final evidence: Root911C41.313s,
+24 focused PASS/0FAIL, stable4/diff PASS; matched CLI261203.545s. Unchanged
+mimalloc323 EXE139.138s/run.001432s exit0 and exact prior stdout/stderr/exit;
+unchanged JSON322 .383902s EXACT prior Body7/no artifact, no frontier advance.
+FFI897A/kernel894A remain predecessor pins with explicit compiler-only deltas.
+Retain V911 source/failed/corrected/native manifests until Loop/Text closure;
+no adapter added. This is source construction, not a physical caller switch,
+old execution retirement or series closure. Target Home-neutrality, pending
+Header, complete V2/JoinSig/body/exit/cleanup/After and final physical consumers
+remain required. Fixed11 was not rerun; last classified CLI260 is5PASS/6FAIL
+at eee9731d82. No current fixed-suite/CI/full-goal acceptance claim.
