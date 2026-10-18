@@ -2565,11 +2565,14 @@ ordinary typed-formal returns; per-Return borrowed permission remains exact.
 Final entry lends the original formal/alias value independently of the original
 Plain exit's Return binding, then uses the SAME FinishedBindings and original
 Compare materialization. Missing, removed, duplicate or unrecorded bindings refuse.
-The SAME finishing owner certifies a deleted original empty Jump(None) only
-through its original Branch arm into an independently validated, PHI-free original
-successor. It shares exact arm argument omission with full sequence and boundary
-edge checks; final Return search, nonempty/value-carrying intermediates and an
-unvalidated destination grant no correspondence.
+The SAME finishing owner certifies deleted original empty Jump(None) chains
+through their original Branch roots into an independently validated, PHI-free
+original successor. Deleted empty predecessors may join only the SAME destination
+component; live Jump/Invoke roots, cycles, nonempty/value-carrying intermediates
+and unvalidated destinations refuse. All external roots retain exact validated
+sequence, unique Branch and arm checks before atomic component publication.
+The same arm argument omission feeds full sequence and boundary edge checks;
+final Return search grants no correspondence.
 Both independent physical scans require exact Return coordinates/operand coverage,
 that original Compare's instruction and dominance, and the tracked source alias.
 A new Copy, a different alias of the same formal, or another comparison is not
