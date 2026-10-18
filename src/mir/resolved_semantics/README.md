@@ -563,6 +563,13 @@ or Home. The same scalar preflight retains ordered call observations and the
 statement's original priorHomes, publishing only after the whole expression
 and field batch are proved. Conditions select this extension only through the
 same bounded claim; Bool/Text/unknown calls retain their original profile.
+Whole Bool condition frames retain the same `CheckedExpressionEvaluationV1`
+source, ordered nodes, call/operator loans and exact reference proof map used
+by initializer, argument and Print purposes. The Bool wrapper adds logical
+nodes; the original short-circuit writer preserves conditional RHS reach.
+Scalar references remain explicit obligations in this path, checked by the
+exact lexical reader and independent final source verifier; the shared proof
+representation alone does not admit Text or Original scalar references here.
 For an If condition that is an exact checked `Greater` or `LessEqual`, the
 scalar preflight may borrow the prepared formal-use `CompareOperand` at its
 original operand and binary sites. This proves an Integer operand only for

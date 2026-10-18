@@ -745,60 +745,14 @@ core-expression-execution-pending. No native/full-suite/CI claim. Retain its
 matched build/app receipts plus Root893A/B until stronger same-role evidence;
 CLI237/app286 with runtime877A/FFI876B retains the accepted mimalloc native role.
 
-V894 construction Decision (reference_integration_review, existing Text series):
-- Implement the common checked String Compare physical consumer in the existing
-  Invoke/String/lease owner, with exact existing CompareOp family and Bool result.
-  Both operands borrow Text; Normal owns nothing. Descriptor/token/opcode failures
-  are InvalidContract and preserve out; they are not lossy empty-string fallback
-  or language TypeError results. Same String lifetime verifier enforces live
-  original operands/End. C result indexing must retain Bool, never infer I64
-  from its out-word representation. Existing physical/native tests cover this
-  substrate only, not source admission or full app acceptance.
-- Rust operation/JSON, C schema/index/native+indexed flow/emitter, checked kernel
-  and public header are one physical responsibility. No physical permission is
-  inferred from the new enum or generic carrier. Existing lossy helpers remain
-  only for their unselected callers; no replacement/caller-zero claim is made.
-- Source Bool must subsequently wrap SAME CheckedExpressionEvaluation and shared
-  reference proof while retaining its existing conditional RHS/control writer;
-  current eager postorder value writer cannot execute Or unchanged. Whole finite
-  entry/Null exclusion, Local residence/Home/End, Loop After and both final scans
-  remain mandatory. No literal-only .hako success substitutes for this series.
-
-
-V894 validation and source integration handoff:
-- Root894A quick-test-fast no-run PASS 88.387116s; serialization1,
-  physical-boundary22, original Print1, initializer/Core-I641 (13 actual source
-  cases), operator8: 33 PASS. Root894B fresh build .287587s returns the identical
-  test executable; reuse those executions by exact artifact equality.
-- Runtime894A quick lifecycle-kernel build PASS 233.316684s; CLI240 quick
-  hakorune build PASS 197.280138s. Kernel, CLI and focused Rust source is
-  unchanged by the later C schema fix and two native test consolidation edits.
-- FFI894C cc shared build with -Werror=format PASS 6.077384s. Native whitelist
-  now admits branch through the existing complete branch schema; native flow
-  separately enforces Bool condition and preserves both successor states.
-  Workers reviewed parser/index/type/flow/emitter and found no remaining issue.
-- Native894A was deliberately terminated for redundant-link consolidation, not
-  PASS. Native894B exit1 exposed the native parser whitelist omission above;
-  classify as this change's defect, fixed in C. Native894C is the required final
-  rerun: exit0 PASS 311.678832s (compile/link/execution total). Both indexed and
-  native profiles passed all six comparisons with both Bool outcomes, Unicode
-  scalar/prefix/NUL/no-normalization semantics, mixed static/owned aliases,
-  injected Fault cleanup, malformed wire/type and stale-token negatives.
-  This is physical ABI evidence, not original source Bool/Loop activation.
-- app290 uses unchanged JSON source, CLI240, runtime894A and exact FFI894C:
-  canonical --backend mir --emit-exe, pure-first/no compatibility replay,
-  plugins off; .430929s exit1/no EXE. Stderr byte-equal app289: slot20 Body7
-  Value core-expression-execution-pending. Runtime/CLI compiled sources match;
-  FFI has the explicit C whitelist delta and native tests only. This physical
-  construction has not advanced the original source first-stop.
-- Final C pin SHA 74b4eb594d9f5a1f6fe481b6f6c7f07e88ced05f0920277f458291b0d428c9c9.
-  Its build reused and overwrote the old FFI894B output path before copying to
-  ffi-v894c; B hashes/receipts are historical evidence, not a currently retained
-  B library. Use C pin for new runs. Runtime894A and CLI240 pins remain intact.
-- Retain source manifests/receipts, failed B diagnostic and final C evidence
-  under the existing artifact root until full Text acceptance. No temporary
-  adapter introduced. Existing lossy String helper has other unselected callers;
-  no selected exclusive source edge has been replaced or become caller-zero.
+V894 physical String Compare landed in 7939b6dc5e. The commit owns the
+Rust/JSON/C/checked-kernel Bool contract, Root33 PASS, FFI/runtime/CLI build
+provenance, failed native whitelist counterexample and correction, final indexed
+and native real-ABI PASS (311.678832s), stable guards and app290's unchanged
+source first-stop (.430929s). No source Bool/Loop activation, full-suite or CI
+claim. Retain C pin and matched receipts/manifests until full Text acceptance;
+old FFI894B was overwritten by C and its old hashes remain historical only.
+Shared lossy helper callers remain unselected; no exclusive source edge retired.
 
 Next common source Decision (allocation_source_connection):
 - Normalize CheckedBoolConditionFrameV1 to SAME CheckedExpressionEvaluationV1
@@ -816,8 +770,56 @@ Next common source Decision (allocation_source_connection):
   outer carriers reach verified After. Current end reads must retain that After
   producer. Do not substitute initial start, arbitrary Phi or a special Text loop.
 
-V894 closeout: stable pointer/reference-route/layer/thin-shim guards and
-`git diff --check` PASS. Native C gate used the exact final source snapshot;
-no extra test/proof app/guard function was introduced. No full-suite, CI or new
-mimalloc execution claim; CLI237/app286 retains that accepted native role.
-The original Text series and the full finite goal remain active and incomplete.
+V895 construction (behavior-preserving normalization, same worker Decision):
+- Bool purpose now owns only the shared CheckedExpressionEvaluation and logical
+  nodes. Existing scalar tuple obligations become the SAME Scalar Obligation
+  reference variant; common exact coverage excludes identity/transferred nodes.
+- Both original recursive writer and independent source verifier explicitly
+  accept only Scalar Obligation in this slice. Original/Text proof variants
+  remain refused here; their connection follows in the same Text series.
+  No conditional execution, operator domain or owned-acquisition change.
+- Existing final-field-batch, scalar-expression-claim and original Print/Bool
+  final-consumer tests are the focused regression gates. No new test or guard.
+
+V895 focused evidence:
+- Root895A quick-test-fast no-run PASS 78.411613s. Existing final-field-batch
+  transaction1 and original Print/Bool final-consumer1 PASS; scalar-expression
+  claims15 PASS/1 baseline red. The same failing test
+  static_current_owner_eq_home_rejects_incomplete_or_reordered_pair fails in
+  pinned Root894A with the exact same static-mixed/home-missing diagnostic at
+  scalar_expression_claim_tests.rs:55. No new regression is inferred or hidden.
+- allocation_source_connection actual three-file diff review PASS: empty Core/
+  acquisition sets preserve Ordinary-only Bool call profile, exact common
+  reference coverage matches prior identity/transfer exclusions, source/order/
+  logical reach unchanged. This is shared responsibility normalization, not new
+  source execution or a change in the original JSON first-stop.
+
+- CLI241 quick build PASS 179.102846s; new binary
+  5b3834cdd6e5d590ddb98b54a64b92fde70213a2c14f056bdedc68e42e79703a.
+  app291 unchanged JSON direct canonical/MIR emit-exe, pure-first/no replay/
+  plugins off: .395044s exit1/no EXE, stderr byte-equal app290, same slot20 Body7
+  Value core-expression-execution-pending. Exact current compiler source was
+  checked; pinned predecessor runtime894A/FFI894C used with explicit source
+  deltas (compiler-only normalization/README, and historical C/test deltas for
+  the runtime). This pre-backend rejection does not claim current runtime build.
+- Stable pointer/reference-route/layer/thin-shim guards and diff check PASS.
+  No new test/guard. Duplicate Bool frame storage and scalar tuple map are
+  removed; common evaluation is the sole retained body. No source execution
+  edge was switched or became caller-zero. Retain matched Root895A/CLI241,
+  app291 and exact baseline-failure evidence until full Text acceptance.
+
+Next source integration detail (same Decision, worker follow-up):
+- Extract initializer's seed-reference loop into the existing evaluation owner,
+  used by initializer and Bool after Call/Core preparation and before leaf
+  projection. Check the same original source/node/binding, static read,
+  residence acquisition/live Home, entry flow and terminating Null exclusion.
+- Existing entry lender is LocalInitializer-root-specific. Generalize its
+  existing source issuer to validate each original expression purpose/bundle;
+  preserve the SAME finite Text/I64/Null SUM and original read, never infer a
+  second condition SUM. Condition caller already has input/locals/homes/calls/
+  actuals for static_text_reference, text_reference, current_scalar_read_v1 and
+  entry_null_exclusion. Bool references keep Obligation when no Original scalar
+  proof exists (current original read supports I64 only).
+- Source qualification alone cannot activate Text. Both physical reader and
+  independent final consumers must fulfill SAME entry/residence/reference proof
+  and cleanup before admission. Existing short-circuit reach remains authoritative.

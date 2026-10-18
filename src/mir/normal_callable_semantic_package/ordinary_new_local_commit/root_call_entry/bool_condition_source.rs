@@ -33,8 +33,10 @@ impl EmittedBoolConditionProjectionV1 {
                     if mapped(binding, finishing)?.is_some() { require_binding(function, binding, finishing)?; }
                 },
                 (Node::Reference(_), BoolConditionValueProofV1::Reference { read, producer }) => {
-                    let &(binding, _) = self.frame.references().get(&node.node)
-                        .ok_or_else(|| freeze("bool-condition/reference-source"))?;
+                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = self.frame.references().get(&node.node)
+                        else { return Err(freeze("bool-condition/reference-source")); };
+                    if reference.original_read().is_some() { return Err(freeze("bool-condition/reference-source")); }
+                    let binding = reference.binding();
                     if read.value_for(source.owner(), original.site().node(), binding)
                         .map_err(|error| error.to_string())? != node.value {
                         return Err(freeze("bool-condition/reference-value"));

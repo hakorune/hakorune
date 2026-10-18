@@ -57,7 +57,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
         let (value, proof) = match source.nodes()[index].source() {
             Node::Reference(_) => {
-                let &(binding, _) = frame.references().get(&index).ok_or("[freeze:contract][bool-condition/reference-kind]")?;
+                let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = frame.references().get(&index)
+                    else { return Err("[freeze:contract][bool-condition/reference-kind]".into()); };
+                if reference.original_read().is_some() { return Err("[freeze:contract][bool-condition/reference-kind]".into()); }
+                let binding = reference.binding();
                 let read = state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding)
                     .map_err(|error| error.to_string())?;
                 let value = read.value_for(source.owner(), site.node(), binding).map_err(|error| error.to_string())?;

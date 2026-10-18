@@ -17,26 +17,20 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedBoolConditionFrameV1 {
-    source: Rc<ExpressionSourcePlanV1>,
-    prior_homes: Box<[BindingRefV1]>,
-    order: Box<[usize]>,
-    classes: Box<[ExpressionLeafClassV1]>,
-    calls: Box<[LocalCallObservationV1]>,
-    operations: Box<[Rc<CheckedExpressionOperationLoanV1>]>,
+    evaluation: CheckedExpressionEvaluationV1,
     logical: Box<[usize]>,
-    references: BTreeMap<usize, (BindingRefV1, SourceScalarKind)>,
-    transferred_inputs: BTreeSet<usize>,
 }
 impl CheckedBoolConditionFrameV1 {
-    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { &self.prior_homes }
-    pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
-    pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { &self.calls }
-    pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { &self.operations }
+    pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
+    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
+    pub(crate) fn ordered_nodes(&self) -> &[usize] { self.evaluation.ordered_nodes() }
+    pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { self.evaluation.calls() }
+    pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { self.evaluation.operations() }
     pub(crate) fn logical_nodes(&self) -> &[usize] { &self.logical }
-    pub(crate) fn references(&self) -> &BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { &self.references }
-    pub(crate) fn class(&self, node: usize) -> Option<ExpressionLeafClassV1> { self.classes.get(node).copied() }
-    pub(crate) fn transfers_node(&self, node: usize) -> bool { self.transferred_inputs.contains(&node) }
+    pub(crate) fn references(&self) -> &BTreeMap<usize, CheckedExpressionReferenceV1> { self.evaluation.references() }
+    pub(crate) fn class(&self, node: usize) -> Option<ExpressionLeafClassV1> { self.evaluation.classes.get(node).copied() }
+    pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
 }
 
 /// Every source/operator/call/refusal check precedes the last strict field
@@ -106,10 +100,17 @@ pub(crate) fn qualify_bool_condition_v1<E>(
         return Ok(None);
     }
     let frame = Rc::new(CheckedBoolConditionFrameV1 {
-        source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
-        classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-        operations: operations.into_boxed_slice(), logical: logical.into_boxed_slice(), references, transferred_inputs: transferred,
+        evaluation: CheckedExpressionEvaluationV1 {
+            source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
+            classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
+            operations: operations.into_boxed_slice(), references: references.into_iter().map(|(node, (binding, kind))|
+                (node, CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Obligation { binding, kind }))).collect(),
+            cores: BTreeMap::new(), owned_results: Box::new([]), transferred_inputs: transferred,
+        },
+        logical: logical.into_boxed_slice(),
     });
+    if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
+
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,
         argument_frame: None, initializer_frame: None, print_frame: None, condition_frame: Some(frame), field_write: None,
