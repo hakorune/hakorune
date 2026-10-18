@@ -195,15 +195,6 @@ fn emit_lexical_i64_call(
     let outward = builder.next_block_id();
     let result = (kind != InvokeCallResultKind::Unit).then(|| builder.next_value_id());
     bindings.push(fault_frame_binding(builder, state, frame)?);
-    append_block(
-        builder,
-        outward,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        bindings,
-    )?;
-    // The call's fault path unwinds the prior Homes exactly like the
-    // Handle lane does — the receiver Home can never leak past a fault.
-    let fault_landing = cleanup_chain(builder, frame, unwind, outward, bindings)?;
     let mut prepared = prepare_arguments_with_prefix(
         builder,
         state,
@@ -215,6 +206,18 @@ fn emit_lexical_i64_call(
         bindings,
         expression,
     )?;
+    // The enclosing Call's Fault graph belongs after ordered argument
+    // evaluation. Argument acquisitions will join this same lifetime boundary;
+    // source target admission still precedes every argument effect above.
+    append_block(
+        builder,
+        outward,
+        MirInstruction::ReturnFault { fault_frame: frame },
+        bindings,
+    )?;
+    // The call's fault path unwinds the prior Homes exactly like the
+    // Handle lane does — the receiver Home can never leak past a fault.
+    let fault_landing = cleanup_chain(builder, frame, unwind, outward, bindings)?;
     if let Some(read) = stored_read { prepared = prepared.with_stored_receiver(read)?; }
     let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
     if let Some(result) = result {

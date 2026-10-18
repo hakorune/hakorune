@@ -536,3 +536,8 @@ Copy provenance. Their source owner validates the exact retained initializer and
 its reaching entry origin. This snapshot does not discharge later rebind/capture
 uses: original use/assignment/capture information remains required by the pending
 finite entry completion and final whole-use boundary.
+
+Call argument preparation precedes construction of that Call's Fault graph.
+The shared expression projection separately checks ordered acquisitions and
+operation Fault unwinds; purpose wrappers retain Normal cleanup and terminal
+validation. This separation adds no live-out or Text argument permission.

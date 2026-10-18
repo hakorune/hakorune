@@ -624,50 +624,14 @@ Retained implementation contracts:
   Both final scans recheck SSA entry ordinals, producer identity and finished
   membership. Original mimalloc Phi dependency regression is corrected.
 
-Durable validation and current runtime evidence:
-- Root891AJ quick-test-fast --no-run build70.468494s PASS. Existing compiler matrix
-  13/13 source cases reaches verification/publication, lifecycle ABI JSON and
-  retained-root scan. Negatives reject callee/result/argument/entry swaps, I64
-  Add and every child String End mutation. Two-real-frame same-owner/ordinal
-  substitution and initially wrong literal producer negatives PASS.
-- First44 baseline377 distinct/363PASS/14 SAME identities AND messages versus AE
-  (v891aj-baseline-comparison.json; only panic coordinates/thread IDs and exact
-  parsed debug-map ordering normalized). Direct lifecycle38/source-context1(3
-  cases)/physical boundary22/liveness1/initializer final-negative1 PASS.
-  Stable pointer/reference-route/layer-dependency/thin-shim guards and staged
-  diff check PASS. No fresh full-suite/CI claim.
-- CLI237: `cargo build --profile quick --bin hakorune --message-format=json`,
-  jobs4/16MiB stack,221.384841s PASS. Binary SHA
-  d16c6c7f5260d34c33721cb59b0fae34b318d006d8eda8618ed443cde648b2c4.
-  RootAJ/CLI237 source manifests match landing code except one normalized blank
-  EOF line in raw_structured_direct_call.rs; non-whitespace bytes identical.
-  Original compiled copy and exact delta retained; no semantic rebuild needed.
-- Actual commands use CLI237 with `--grammar-profile canonical --backend mir
-  --emit-exe <artifact> --emit-exe-nyrt <runtime877A> <unchanged app main.hako>`,
-  pure-first/no compat replay, plugins disabled,16MiB stack. Original
-  runtime/backend manifests and kernel/FFI hashes corroborated before both runs.
-- App285 unchanged JSON .121393s exits1/no artifact at SAME original slot20/
-  Body7/Value core-expression-execution-pending. Source
-  b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370.
-- App286 unchanged mimalloc direct EXE132.611574s/native .001436s PASS. Stdout,
-  stderr and exit0 independently equal app280 (v891-native-comparison.json).
-  Source33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685;
-  EXE c0d21eba9404121b6b1e243e0961d0dd1b5227acb41d24941f6a0623a87a3c01.
-  Observed original stdout:
-
-```text
-mimalloc-lite
-small_allocs=9 frees=3 reused=3 peak=6 free=2
-medium_allocs=4 frees=1 reused=1 peak=3 free=1
-requested_bytes=360
-outstanding=9
-summary=ok
-Result: 0
-```
-
-  Stderr is the original plugins-disabled warning. Runtime877A kernel
-  10511dadfa2462a1e7b1ea85d7450afc154dc75f7bdc9b0e9ca5a96d231f222f;
-  FFI876B1877c0b42d2a1197aec15d27e1986e0134f7f45d61938917f534b7e12091680f.
+Durable validation: df702c983c owns Root891AJ/CLI237/app285–286 commands,
+exact revisions/hashes/timings, baseline comparison, original stdout/stderr/exit,
+source EOF delta and artifact disposition. RootAJ13/13 source matrix and literal/
+entry/argument/Add/End/substitution negatives PASS; First44 363PASS/14 SAME
+baseline; Direct/source-context/boundary/liveness/final negatives PASS. CLI237
+canonical direct JSON stays slot20 Body7 core-expression-execution-pending;
+unchanged mimalloc native matches app280 stdout/stderr/exit0. No Text/full-suite/
+CI acceptance follows. Retained implementation contracts above are unchanged.
 
 Retention and unfinished successor:
 - Keep RootAJ/CLI237/app285-286 manifests/receipts/logs/binaries, matched runtime/
@@ -905,22 +869,13 @@ Next construction mapping (worker reuses full source responsibility; not accepta
   cleanup. to_i64 retains Null terminating branch plus both original Add domains.
   No new source permission, alternate evaluator, task row or parked lane follows.
 
-V899 landed connection (5514e2a314; full evidence/failed diagnoses in that commit):
-- Common original Static/scalar/installed Residence reference owner now reaches
-  initializer/Core and Print consumers. Exact root/alias provenance, SAME packet
-  and current Home are required; no additional acquisition/Install/Normal End.
-  Canonical initializer receipt Copies share the existing sealed omission law.
-  Initializer and Print reuse one current-reference seeder; Print installation
-  is lazy, preserving source reads and atomic field-batch publication.
-- Root899E47 focused PASS (13 source rows × both optimize modes), CLI247 build
-  PASS. Three canonical direct EXEs produce2/2/3 and exit0: length, two aliases,
-  borrowed Add followed by length/Print. app297 unchanged JSON still stops at
-  slot20 Body7 core-expression-execution-pending. This is real current-reference
-  result acceptance, not full Text/finite entry/arguments/Bool/Loop completion.
-- Obsolete duplicate reference paths and Map-only predicate removed. Keep matched
-  Root899E/CLI247/probe/app297 evidence and explicit predecessor FFI897A/kernel894A
-  roles until full Text closure. Superseded899A/B/C test binaries removed813MB;
-  logs/manifests kept. No temporary adapter remains. Full CI/suite not claimed.
+V899 landed5514e2a314 owns shared current Static/scalar/Residence references,
+exact packet/alias/receipt-Copy law and common initializer/Print seeding.
+Root899E47 focused PASS; CLI247 three direct EXEs print2/2/3 and exit0.
+Full evidence/failed diagnoses/813MB pin retirement live in that commit.
+Keep Root899E/CLI247/probe/app297 evidence and FFI897A/kernel894A roles until
+full Text closure. app297 JSON still stops slot20 Body7 execution-pending;
+entry/finite/arguments/Bool/Loop remain required; no full-series/CI/suite claim.
 
 Next construction details (read-only worker; integrate with mapping above):
 - finite entry source/evidence and completed entry remain distinct in
@@ -970,3 +925,32 @@ Next required connection (same Text series; worker top-down reviewed):
 - Physical finite operands retain SAME domain, original terminating Null guard
   and both Add envelopes. Both finalized consumers must use one complete
   Call+initializer+Print (Bool later) incoming/use image before entry activation.
+
+V901 construction Decision (same Call argument/lifetime responsibility):
+- Normalize existing physical acquisition/Fault walk within the common expression
+  projection and defer Call Fault graph construction until ordered arguments have
+  been prepared. Keep current purpose-specific Normal cleanup and every final
+  effect/coordinate census; no source/admission/fence change in this first phase.
+- Paths: selected/terminal_call/lexical_i64.rs and common root_call_entry/
+  expression_terminal_paths.rs, owner src/mir README and existing card. Existing
+  expression/argument/cleanup positive+mutation tests verify this BoxShape phase.
+- Follow with same packet's live-out acquisition/parent-prefix integration;
+  retain full Text/finite entry, Loop After, all incoming/use and consumer work.
+
+V901 first-phase verification (behavior-preserving; full connection remains open):
+- Root901A quick-test-fast no-run PASS67.120740s;56 existing focused PASS:
+  initializer7, Print4, cleanup6, boundary22, ordered-projection4, frame-identity1,
+  nested-local2, finalized-nested1, lexical-I64-call9. All filters nonzero.
+  Only post-test source delta removes compiler-proven unused function-local
+  import; exact before/after receipt retained. CLI249 matches current sources.
+- CLI249 build PASS156.299118s. app299 unchanged JSON .397322s exit1/no EXE,
+  exact app298 stderr at slot20 Body7 core-expression-execution-pending.
+  app300 unchanged mimalloc canonical/MIR direct EXE133.805695s/run.001627s
+  PASS; stdout/stderr/exit0 independently equal app286. Explicit predecessor
+  FFI897A/kernel894A roles/deltas retained; no three-rebuild or speed claim.
+- Keep Root901A/CLI249/app299–300, native comparison, manifests and required
+  predecessor pins until Text closure. No adapter or superseded binary from
+  this phase. V891 completed commands/output history compressed to df702c983c;
+  source contracts, unfinished obligations and retained pin names unchanged.
+  Stable4 guards/diff PASS. Old guarded-receiver baseline still owed by full
+  goal; no current CI/full-suite/Text execution or series-completion claim.

@@ -8,7 +8,6 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let ledger = context.ledger();
         use super::super::root_cleanup_graph::ordered_paths as paths;
-        use std::collections::BTreeSet;
         self.validate_source(context)?;
         self.validate_reference_dependencies(context, function, finishing)?;
         let mapped = |original: &Binding| match finishing {
@@ -77,50 +76,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             return Err(freeze("print-expression/frame-mode"));
         }
         let homes = ledger.prior_home_unwind_for(self.frame.prior_homes())?;
-        let mut live = Vec::new();
-        let mut covered = BTreeSet::new();
-        let end_sequence = |live: &[ValueId]| {
-            live.iter()
-                .rev()
-                .map(|value| InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: *value }))
-                .chain(homes.iter().cloned())
-                .collect::<Vec<_>>()
-        };
-        for (id, instruction) in &ordered {
-            let MirInstruction::Invoke {
-                operation,
-                fault_frame: actual,
-                fault_landing,
-                ..
-            } = instruction
-            else {
-                continue;
-            };
-            if *actual != fault_frame {
-                return Err(freeze("print-expression/frame-drift"));
-            }
-            covered.insert(*id);
-            covered.extend(paths::pending_operations(
-                function,
-                *fault_landing,
-                &end_sequence(&live),
-                Some(fault_frame),
-            )?);
-            if matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result()) {
-                let value = ordered
-                    .iter()
-                    .find_map(|(_, row)| match row {
-                        MirInstruction::InvokeNormalResult { invoke_block, dst }
-                            if invoke_block == id =>
-                        {
-                            Some(*dst)
-                        }
-                        _ => None,
-                    })
-                    .ok_or_else(|| freeze("print-expression/add-result"))?;
-                live.push(value);
-            }
-        }
+        let (mut live, mut covered) = self.validate_acquisition_paths_v1(
+            function, &ordered, &homes, fault_frame,
+        )?;
         let installed = if let Some(original) = residence {
             let MirInstruction::StringResidenceInstall { value } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
             if self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {
@@ -190,6 +148,63 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         normal_order(function, &ordered)?;
         Ok(covered)
         }
+}
+
+impl ExpressionPhysicalProjectionRefV1<'_> {
+    /// Shared physical operation/Fault correspondence. The purpose retains its
+    /// terminal and Normal lifetime policy; this walk issues no source rights.
+    fn validate_acquisition_paths_v1(
+        &self, function: &MirFunction, ordered: &[Binding], homes: &[InvokeOperation],
+        fault_frame: ValueId,
+    ) -> Result<(Vec<ValueId>, std::collections::BTreeSet<BasicBlockId>), String> {
+        use super::super::root_cleanup_graph::ordered_paths as paths;
+        use std::collections::BTreeSet;
+        let mut live = Vec::new();
+        let mut covered = BTreeSet::new();
+        let end_sequence = |live: &[ValueId]| {
+            live.iter()
+                .rev()
+                .map(|value| InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: *value }))
+                .chain(homes.iter().cloned())
+                .collect::<Vec<_>>()
+        };
+        for (id, instruction) in ordered {
+            let MirInstruction::Invoke {
+                operation,
+                fault_frame: actual,
+                fault_landing,
+                ..
+            } = instruction
+            else {
+                continue;
+            };
+            if *actual != fault_frame {
+                return Err(freeze("print-expression/frame-drift"));
+            }
+            covered.insert(*id);
+            covered.extend(paths::pending_operations(
+                function,
+                *fault_landing,
+                &end_sequence(&live),
+                Some(fault_frame),
+            )?);
+            if matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result()) {
+                let value = ordered
+                    .iter()
+                    .find_map(|(_, row)| match row {
+                        MirInstruction::InvokeNormalResult { invoke_block, dst }
+                            if invoke_block == id =>
+                        {
+                            Some(*dst)
+                        }
+                        _ => None,
+                    })
+                    .ok_or_else(|| freeze("print-expression/add-result"))?;
+                live.push(value);
+            }
+        }
+        Ok((live, covered))
+    }
 }
 
 impl ExpressionPhysicalProjectionRefV1<'_> {
