@@ -691,3 +691,61 @@ Retention and unfinished successor:
   R6/R7/Loop/authority/parser/nondelegating selfcompile and mandatory acceptance.
   CURRENT_STATE remains same fast row/card; its obsolete BoxShape/source-only
   summary was corrected to a thin truthful pointer in df702c983c.
+
+
+V892 actual full-walk observation (base f0587a6f1e, diagnostic only):
+- Genuine canonical CLI/module expansion of unchanged JSON source now observes
+  slot20 intField with Prefix available at Body0,1,2,3,4,5,6 (and the terminating
+  Body2 IfThen). Body7 first observes PrefixNotCovered(Body6). Thus the original
+  start=pos+needle.length() initializer is covered after V891; the earliest
+  remaining Prefix loss is the original scanning Loop, not Body3. The external
+  Body7 core-expression-execution-pending error remains unchanged/no EXE.
+- CLI238 quick build jobs4/16MiB stack152.495154s PASS. Binary
+  2756333f9ba0cac48e123643f18eb324556113193c7bf4dbbd1fda3e4dd9253b.
+  Same app285 command/source/runtime877A/FFI876B; ungated app287 exits1 in
+  .120480s, gated diagnostic .050753s. Source-only four-line observation at
+  statement entry is controlled by HAKO_TRACE_HOME_PREFIX=1; no admission or
+  semantic change. The harness deliberately clears HAKO variables, so the gated
+  observation was run separately with its exact environment retained. Both
+  source snapshots, build/app/trace receipts and diagnostic retirement receipt
+  remain in the existing evidence root as cli-v238.*, app-v287-*, and
+  v892-prefix-observation*. Instrumentation is removed; source restored byte
+  exactly to HEAD. CLI238 is diagnostic evidence, not a production replacement
+  for the accepted CLI237/app286 bundle. No native/full-suite/CI rerun claimed.
+
+Decision (allocation_source_connection + reference_integration_review):
+- The missing common source responsibility is complete Loop After publication.
+  Existing selected source-plan row must retain the sole original planner/
+  Recipe, source binding relation and complete JoinSig After set. PredicateFalse
+  (including zero-trip) and every Break payload must close before Home advances.
+  CurrentScalarRead then retains SAME LoopAfter producer; physical reference
+  verification joins original Loop publication/After Phi to exact lexical read,
+  original dependencies/liveness and both final consumers. Class-only permission,
+  an arbitrary MIR Phi or substituting initial start for final end is forbidden.
+- Mul's fixed two-carrier After and NoExitArray's append/no-exit proof are not
+  capabilities for this Break/Text Loop. Reuse the common JoinSig verifier,
+  not either specialized issuer. Canonical planner/Recipe support for this actual
+  Loop is measured below; it does not yet issue Home authority. No alternate
+  recognizer or direct AST-to-Home receipt is allowed.
+- Text remains the same bounded series: finite Text/I64/Null entry with original
+  terminating-null guard/read dominance; SAME initializer/Local/Home/End for
+  residence; full two-envelope Add execution; original Static actual lifetime;
+  immutable full-module source-use view over Call AND non-Call expression groups
+  lent to both scans. Existing guard observation and reference proof owners are
+  the integration points. This does not close Text or change the selected row.
+
+- Follow-up planner observation uses exact unchanged file parse, original
+  JsonLine.intField Body6 condition/body, existing sole source planner and normal
+  policy (strict/dev/debug/planner-required flags false; allow_var_step true).
+  Actual matched set is exactly [LoopCondBreakContinue]; accept kind ExitIf,
+  body items Stmt(local substring), ExitIf(guarded Break), Stmt(end update).
+  Root892A quick-test-fast build62.426552s PASS; diagnostic filter1/1 PASS (.01s).
+  This proves the canonical planner candidate, not selected source membership,
+  verified portable Recipe/JoinSig, executable Text effects or Home After.
+  SourcePlan retains an AST-backed Recipe; the verified complete After bridge
+  remains required before advancing Home. Existing flat_no_exit_statement_sites
+  explicitly refuses ExitIf and cannot be widened by merely deleting its fence.
+  Diagnostic test removed and original module restored byte exactly; no new
+  permanent test/proof/guard. Retain root-v892a snapshots/build/focused receipt,
+  v892-planner-observation.txt and source/retirement snapshots in existing evidence
+  root until the bridge supersedes their role. No source implementation landed.
