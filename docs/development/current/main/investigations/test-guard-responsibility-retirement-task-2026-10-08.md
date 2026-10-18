@@ -1,5 +1,5 @@
 Task: TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0
-Status: selected TR-1..TR-4 maintenance batch verified; wider inventory unselected
+Status: TR-1..TR-4 verified; TR-5..TR-6 requested next, before further compiler construction
 Date: 2026-10-19
 Scope: ordered duplicate-test retirement, one fixture family, then existing guard consolidation
 Exception: explicit user-requested tooling task, separate from the active compiler semantic slice
@@ -12,15 +12,14 @@ Related:
 
 # Test and guard responsibility retirement
 
-The user requested task organization after observing accumulated tests and row
-guards. Start with one live family and close an actual consolidation/retirement.
-The unfinished MirBuilder Loop series keeps its WIP and acceptance. The user
-requested this maintenance next on 2026-10-19: execute TR-1 first when consultation
-ends, before resuming compiler construction; then one family at a time in the
-order below. This is not parked or dependent on MirBuilder convergence. Do not
-resume Cargo or compiler work during the consultation stop. At execution, switch
-the current row/card to this task and retain the unfinished Loop handoff. This
-documentation request does not itself resume the paused implementation goal.
+The user requested another bounded cleanup on 2026-10-19. TR-1..TR-4 below
+are already landed; do not redo them or treat their old consultation stop as
+current. The active compiler Count WIP remains unfinished and must be preserved.
+The no-growth rule applies now. At the next safe handoff, select TR-5 in
+CURRENT_STATE before further compiler construction; TR-6 follows. This is a
+user-requested maintenance interruption, not a dependency on MirBuilder convergence.
+Do not start a new compiler series first. Implementation of these new tasks is
+not claimed by this documentation update.
 
 The quoted approximately 9,900 test locations / 2,990 guard files / 300,000 lines
 are external snapshot observations, not a current executable inventory or timing
@@ -146,8 +145,8 @@ landed; parked guard-family/quick-latency lanes retain their own selection rules
 
 ## Selected-area candidate from the 2026-10-17 audit follow-up
 
-Status: TR-1 is the first user-requested execution task after consultation;
-compiler implementation remains paused and its pointer retained until that switch.
+Historical status before TR-1 execution: it was the first requested maintenance
+task after consultation. The current selection is described at the top and below.
 `src/mir/global_call_route_plan/tests` has54 Rust files at `93129de754`.
 The reported four contract families are a review grouping, not yet a verified
 coverage-equivalence partition or approved delete set. Start with an exact
@@ -264,3 +263,81 @@ b446 alone is not a usable closeout revision (caller update followed immediately
 Return CURRENT_STATE to the retained Loop/Text row after this commit. Full goal
 remains active and all unfinished source-to-final gates remain owed.936A/B and
 935D pins stay for compiler baseline reuse; disposable guard scratch was removed.
+
+## Next requested batch: TR-5 / TR-6
+
+Owner: MIR test/guard maintenance. Use this existing card; do not create another
+inventory, checker, proof app or permanent reporting script. Switch the current
+row/card here when execution begins and retain the unfinished FIELD-ARRAY-READ-S0
+handoff in the app-bundle card. Return to that exact unfinished row after cleanup.
+
+| Order | Bounded scope | Required actual result |
+|---|---|---|
+| TR-5a | `src/mir/resolved_semantics/home_prefix_source_loop_tests.rs`, its test-only re-exports and existing caller in `ordinary_new_initializer_expression_tests.rs` | Check the asserted source/Recipe obligations against the existing end-to-end Loop case. Consolidate genuinely duplicated assertions/setup; narrow unnecessary test-only re-export chains and retire a helper only when its necessary obligations are retained. Do not delete authority/identity/cleanup checks solely because they are internal. No replacement hook/test file. |
+| TR-5b | Current field-array read family: `src/mir/compiler/normal_default_pipeline/published_backend_view/array_i64_field_call_tests.rs` and `src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_result_pending_tests.rs` | Review current added cases against existing source/result/publication evidence; consolidate a proven equivalent case or fixture and remove its redundant setup/assertions/helper. Preserve independent source-authority, final-MIR and external execution boundaries, Get element/index proof and Count empty/nonempty behavior. No new test names/files/hooks. |
+| TR-6 | Existing `tools/checks/k2_wide_phase296x_array_slot_nativedirect_lowering_readiness_inventory_guard.sh` and `tools/checks/k2_wide_phase296x_array_slot_nativedirect_lowering_readiness_refresh_after_constructor_guard.sh` | Check their real gate/registry/manual callers and contract content. Merge only equivalent enduring checks into an existing owner; delete an obsolete completed-row pin/entry and switch its actual callers. If not equivalent or still required, record that finding and select one adjacent obsolete entry, rather than weaken coverage or add a wrapper. |
+
+For each task inspect only this family. Record a short removed→retained mapping
+and scoped before/after diff in this card, including test code/parameter rows
+rather than only `#[test]` counts. No blanket deletion target and no duplicate
+negative cases added to prove the deletion. Existing focused tests and actual
+entrypoint execution are sufficient evidence; build/link and execution costs
+remain separate. Known failures retain their original classification.
+
+The audit's helper counts are historical leads. A current narrow search found
+no `fn integer` / `fn variable` definitions in NCSP test-named Rust files; do not
+create a shared AST framework merely to satisfy that stale candidate. Prefer
+actual duplicated setup in TR-5, and delete a hook/helper with its last caller.
+
+Completion requires a real consolidation/removal and retained necessary coverage;
+this task registration is not cleanup completion or a build-speed improvement.
+
+### Follow-up on the Loop helper and milestone checks
+
+Current source inspection: `home_prefix_source_loop_tests.rs` is included only
+under `cfg(test)` in `home_prefix_source_loop_ports.rs`. It defines the assertion
+helper, reached from one call site in `ordinary_new_initializer_expression_tests.rs`
+through test-only re-exports in `home_prefix_source_loop.rs` and `home_new_prefix.rs`.
+This is not evidence of a new production callable API. Its substantial internal
+assertions and re-export chain still make it the first TR-5a cleanup target;
+pre-policy creation does not exempt it from review. No deletion/equivalence is
+claimed before mapping its source, Recipe and ownership obligations.
+
+At each maintenance-batch or series closeout, use existing scoped searches/diff
+and a compatible built binary's `--list` to compare test registrations, fixture
+parameter additions, test-code changes and checker entries. An unchanged test
+count alone is insufficient. Do not rebuild just to count, add periodic automation,
+or establish a new inventory service. Record the short result in this card.
+
+## TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR5A selected Decision
+
+Previous goal turn made documentation progress; this turn begins the requested
+maintenance at a confirmed job-free handoff. Count WIP is preserved unchanged.
+939E build PASS (142.845s); existing Loop source/final test1PASS and field-result
+test1PASS, publication test1FAIL. Its compiler gap remains unaccepted in the
+app-bundle row, not a cleanup regression. No full-suite green claim.
+
+Source authority: existing original Loop fixture and its current source/Recipe/
+Home tests. Worker found the helper's `check_after` branch always returns for a
+successful walk, making the existing malformed-backedge tail unreachable after
+the prior single-call consolidation. Remove that redundant boolean/branch;
+perform the existing After checks, release their actual retained locals/loan,
+then consume the sole remaining product for the existing mutation/refusal check.
+No new assertion API, source walk, production Clone or fixture. Rc identity and
+weak-lifetime checks remain because they enforce affine ownership/no-cycle laws.
+Acceptance: reuse the existing exact Loop filter, preserve all test names and
+compare unchanged Count publication failure; one rebuild for code verification.
+
+TR-5a verified: existing helper loses `check_after` argument/branch/early return;
+After ownership release now recovers the sole product via `Rc::try_unwrap` and
+executes the previously unreachable malformed-backedge refusal. Existing original
+and finishing consumers stay separate. Remove only the duplicate strict verifier
+on the unoptimized, unchanged MIR; optimized output still gets its own verifier.
+The two test-only re-exports remain because removing them would widen private
+modules or move private-field assertions, adding structure rather than reducing it.
+Test Rust net-3 lines; no new test/case/helper/file/checker.939E baseline Loop1PASS,
+940A build57.706s PASS and same filter1PASS/.07s (8MiB, one thread). Exact full
+`--list` unchanged9264; source-result1PASS and Count publication1FAIL unchanged,
+with byte-equal `count_empty` unsupported Method Call diagnostic. This red belongs
+to preserved Count WIP, not TR-5a. Pointer/diff PASS; no speedup/native/full-suite
+claim. Keep939E/940A binary/source/results until Count acceptance and TR-5b.

@@ -619,10 +619,11 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
         if optimize {
             let roots = physical.ordinary_new_claim_ledger.scalar_finishing_liveness_v1(&module, "Main.main/0").unwrap();
             crate::mir::optimizer::MirOptimizer::new().optimize_module_with_required_roots(&mut module, &roots);
+            let finished = &module.functions["Main.main/0"];
+            crate::mir::verification::MirVerifier::new_strict().verify_function(finished)
+                .unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}\n{}", crate::mir::MirPrinter::new().print_function(finished)));
         }
         let finished = &module.functions["Main.main/0"];
-        crate::mir::verification::MirVerifier::new_strict().verify_function(finished)
-            .unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}\n{}", crate::mir::MirPrinter::new().print_function(finished)));
         physical.ordinary_new_claim_ledger.validate_artifact_after_compiler_finishing(finished)
             .unwrap_or_else(|error| panic!("whole Loop finishing consumer optimize={optimize}: {error}\n{}", crate::mir::MirPrinter::new().print_function(finished)));
     }
@@ -748,7 +749,7 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
                 "a refused logical product never grants an affine physical handoff");
         }
         let mut pending = ledger.borrowed_formal_actuals.clone();
-        crate::mir::resolved_semantics::home_new_prefix::assert_original_loop_source_walk_for_test(input, expected_control, expected_control,
+        crate::mir::resolved_semantics::home_new_prefix::assert_original_loop_source_walk_for_test(input, expected_control,
             &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
                 &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                 &ledger.borrowed_i64_results, &mut |_| None, site, request,

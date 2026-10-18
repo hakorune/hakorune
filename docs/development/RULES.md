@@ -85,17 +85,17 @@ Non-claims:
 
 ## 6. テストと計算資源
 
-- test/fixture/guardは原則増やさない。証拠は既存test・既存acceptance実行を優先し、次に既存ケースの拡張・共通fixture/パラメータ化を使う。新規testは既存では守れない独立した意味・失敗境界がある場合だけとし、既存cardに不足と追加理由を短く記す。positive/negativeの証拠要求を新規test追加の要求へ読み替えない。
-- 新規testファイル・checker実行入口はfamily内の統合・削除と組にして原則純増ゼロにする。独立した契約で純増が必要なら、既存ownerへ置けない理由・利用caller・既存証拠との差を同じcardに記す。帳尻のために異なる安全性検証を消さず、この規則を検査する新checker/台帳も作らない。
+- test/fixture/guardは原則増やさない。証拠は既存test・既存acceptance実行を優先し、次に既存ケースの拡張・共通fixture/パラメータ化を使う。新規testは既存では守れない独立した意味・失敗境界がある場合だけとし、既存cardに不足と追加理由を短く記す。positive/negativeの証拠要求を新規test追加の要求へ読み替えない。既存ケースへの行・分岐・パラメータ追加も増加として扱い、test名/ファイル数が同じという理由で無条件に足さない。
+- 新規testファイル・checker実行入口はfamily内の統合・削除と組にして原則純増ゼロにする。独立した契約で純増が必要なら、既存ownerへ置けない理由・利用caller・既存証拠との差を同じcardに記す。追加前に置換/統合できる既存ケースを確認し、例外は不足する契約に必要な最小差分に限る。毎sliceの一定割合のtest追加や、名前を減らすだけの巨大testへの詰め込みで代替しない。帳尻のために異なる安全性検証を消さず、この規則を検査する新checker/台帳も作らない。
 - 同じ契約の等価ケースは共通fixtureやパラメータでまとめる。異なる失敗境界の診断と必要な独立実行・filter選択を保ち、source意味・独立した最終MIR・外部入力/実行検証を重複扱いで削らない。
 - 挙動不変の整理は既存回帰検証を使い、実装を写すtest・専用`_for_test`フック・内部配置/エラー全文の固定を追加しない。source入力→MIR/実行結果/構造化refusalを優先する。Rc同一性等はそれ自体が所有・権限契約で外から検証できない場合に限定し、理由を同じcardへ記す。重複ASTヘルパーは既存test-supportへ寄せ、巨大な汎用fixture基盤を新設しない。docs-onlyはリンク・pointer・契約を確認し、Cargoを起動しない。
-- guardは既存family ownerを再利用し、作業rowの完了・一時的なコード配置・過去の選択pointerを守る専用guardを増やさない。新規guardは既存ownerで守れない継続的な契約と利用callerがある場合に限る。
+- checker/guardはshell・Python等の言語や配置を問わず同じ増加規則を適用する。既存family ownerを再利用し、作業rowの完了・一時的なコード配置・過去の選択pointerを守る専用guardを増やさない。新規guardは既存ownerで守れない継続的な契約と利用callerがある場合に限る。
 - 一時的test/guard/adapter/proofには、owner・正本の置換先・`retire_when`・削除に必要な証拠を既存card/metadataへ記す。条件を満たした専有物は第4節に従い同じbounded seriesで統合・物理退役する。
   永続的な意味・安全性検証を一時負債に含めず、履歴はGitへ残す。退役を証明する新guard・台帳や、一律のtest数上限・全repo棚卸しを着手条件にしない。
 - 必要な検証がgreenなら、関連変更・失敗・未解決の懸念・要求gateがない限り再実行や拡張をしない。同じbuildをfilter実行で再利用し、結果は対象revision・実行条件に対応させる。
 - 選択production frontierは、変更前後の実sourceのfirst-stopと結果を比較する。first-stopが不変なら、局所契約の改善と実アプリ未達を分けて記す。計測にはsource revision、実行binaryの出所、command、build/link/実行時間を記し、未計測や古い結果を現HEADの進捗・速度として扱わない。
 - 固定acceptance suiteは、要求されたproduction cutover・goal closeout、またはsuite対象へ広く影響する変更で実行する。途中のsliceは選択frontierのfocused probeを使い、一律の時間間隔や毎sliceの全suite再実行を課さない。
-- 時間を測る際はbuild/link、test実行、shell guard、gateの重複実行を分ける。test名/ファイル数の削減だけで高速化を主張しない。
+- 時間を測る際はbuild/link、test実行、shell guard、gateの重複実行を分ける。test名/ファイル数の削減だけで高速化を主張しない。整理batch/seriesの着地では既存検索・差分・互換な既存binaryの`--list`で増減を確認する。数え直すだけのCargo build・定期checker・新台帳は作らない。
 - 同じcheckoutでtop-level Cargoを同時に複数起動しない。`nyash-rust --lib`の日常focused testは`cargo quick-test-fast`（quick、root testのみopt-level=0）を使う。他package・最適化状態の検証とCLI buildは従来のquick設定を使い、`CARGO_BUILD_JOBS=4`を上限目安にする。
 - Cargoを中断した後は、既存の`cargo`/`rustc` processが終了したことを確かめてから次を起動する。
 - `--release`、`--nocapture`、`RUSTFLAGS=-Awarnings`はactive cardが必要とする場合だけ使う。warningを隠すために再実行しない。
@@ -127,7 +127,7 @@ Non-claims:
 
 ## 9. 完了の定義
 
-- **slice closeout:** 選択ownerのpositive/negative evidence（既存test・acceptance実行で可）、要求された既存guard、赤の分類、owner docsが揃う。新規test/guardは完了条件ではない。対象familyの重複・一時物は統合/削除し、残す未完条件と追加資産の純増理由を同じcardへ記す。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
+- **slice closeout:** 選択ownerのpositive/negative evidence（既存test・acceptance実行で可）、要求された既存guard、赤の分類、owner docsが揃う。新規test/guardは完了条件ではない。対象familyの重複・一時物は統合/削除し、残す未完条件と追加資産の純増理由を同じcardへ記す。検証コード/ケース/入口の追加がなければ「追加なし」でよく、新しい集計表や報告ファイルは不要。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
 - 着地時に`/tmp`の証拠と退避adapterの保持・退避・廃棄を判定する。必要な検証条件・結果を着地commitへ残し、cardの完了履歴はそのcommit参照へ圧縮する。`/tmp`のpathとSHAだけを完了証拠にせず、未完の条件と必要な一時物は保持理由・退役条件を残す。
 - **MirBuilder migration complete:** 必須workstream rowが全て閉じ、実sourceからcanonical Facts/Recipe/verification、sole physical owner、publicationまで到達する。選択production callerが切替済みで、選択旧edgeが退役し、要求されたend-to-end acceptanceが記録されている。
 - 削除予定をtaskboardに残しただけではmigration完了にしない。

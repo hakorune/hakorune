@@ -19,7 +19,6 @@ fn absent_integer_field<E>(
 pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     expected_control: bool,
-    check_after: bool,
     port: &mut impl FnMut(&OwnedExprSiteV1, super::super::super::super::BorrowedCallActualRequestV1<'_>)
         -> Result<Option<super::super::super::super::BorrowedCallArgumentsV1>, E>,
 ) {
@@ -227,25 +226,23 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
     }
     assert!(product.execution.iter().all(|evaluation| evaluation.normal_temporary_ends.is_empty()),
         "only substring root transfers to ch, which ends at the real Loop ports");
-    if check_after {
-        let product = Rc::new(product);
-        let after_site = SourcePathV1::root_body(4).child(P::Value).expr();
-        let binding = *product.source.headers.keys().next().unwrap();
-        assert!(!locals.apply_source_loop_after_v2(Rc::clone(&product), &[binding]),
-            "wrong entry Home snapshot cannot publish even one carrier");
-        assert!(locals.current_scalar_read_v1(&after_site, &calls).is_none());
-        assert!(locals.apply_source_loop_after_v2(Rc::clone(&product), &homes));
-        assert!(!locals.apply_source_loop_after_v2(Rc::clone(&product), &homes), "one original slot attaches once");
-        let read = locals.current_scalar_read_v1(&after_site, &calls).expect("original source After read");
-        assert!(matches!(read.producer(), Producer::LoopAfter { product: actual, binding: actual_binding }
-            if Rc::ptr_eq(actual, &product) && *actual_binding == binding));
-        let weak = Rc::downgrade(&product);
-        drop(read);
-        drop(product);
-        drop(locals);
-        assert!(weak.upgrade().is_none(), "completed product must not own its own inventory slot");
-        return;
-    }
+    let product = Rc::new(product);
+    let after_site = SourcePathV1::root_body(4).child(P::Value).expr();
+    let binding = *product.source.headers.keys().next().unwrap();
+    assert!(!locals.apply_source_loop_after_v2(Rc::clone(&product), &[binding]),
+        "wrong entry Home snapshot cannot publish even one carrier");
+    assert!(locals.current_scalar_read_v1(&after_site, &calls).is_none());
+    assert!(locals.apply_source_loop_after_v2(Rc::clone(&product), &homes));
+    assert!(!locals.apply_source_loop_after_v2(Rc::clone(&product), &homes), "one original slot attaches once");
+    let read = locals.current_scalar_read_v1(&after_site, &calls).expect("original source After read");
+    assert!(matches!(read.producer(), Producer::LoopAfter { product: actual, binding: actual_binding }
+        if Rc::ptr_eq(actual, &product) && *actual_binding == binding));
+    let weak = Rc::downgrade(&product);
+    drop(read);
+    drop(locals);
+    let product = Rc::try_unwrap(product)
+        .expect("completed product must not own its own inventory slot");
+    assert!(weak.upgrade().is_none(), "completed product must not own its own inventory slot");
     // A pre-loop source producer cannot stand in for the actual backedge update.
     let mut candidate = product.source;
     let row = &mut candidate.incoming.as_mut().unwrap()[0];
