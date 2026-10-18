@@ -813,53 +813,14 @@ pointer/layer/CallTarget/diff PASS. No new admission/test/checker/native claim.
 Keep942A/941B receipts for same-role regression until fixed-residence acceptance.
 No temporary adapter. Original JSON365 remains the explicit source baseline.
 
-Next same-series BoxShape: split constructor source capture from final semantic
-seal. Raw rows retain canonical declaration/source identity, original forest,
-projection/body/Completion; they grant no construction or Home. Preserve resolver
-issuance order (constructor forests before callable batch). Final construction
-and formal use/disposition must seal once after qualification; formal declarations
-can be retained earlier, but classify_uses depends on final construction. The
-existing test-only constructor entry and actual package caller must share this
-one source capture and seal; do not add a second issuer or mutate a provisional
-Verified row. Inventory projection still needs final constructor source-store
-correspondence, so phase movement must borrow sealed inventory BEFORE that
-projection rather than calling it early. Remaining fixed field/source-to-final
-conditions above stay open; Phase A is preparation, not application progress.
-
-Root943 Phase B implementation mapping (read-only worker reviewed): capture
-owned constructor SourceData once (original IDs/forest/projection/body/Completion),
-then resolve the callable batch in the same resolver order, then consume captured
-sources into one final constructor seal before Core/ordinary admission. Final row
-owns SourceData by move; physical getters stay on final row. No AST clone, source
-reissue, provisional Verified row or empty formal contract. Formal issuer borrows
-SourceData + final construction explicitly. Parent syntax uses a thin forwarding
-of the existing parser-owned HRTB box loan in callable_semantic_batch/model.rs;
-no parent lookup by name/ordinal is introduced. Preserve declaration structural
-preflight before resolver by capturing owned declaration facts; classification of
-destruction is deferred to final seal, never failed then retried. Constructor
-source capture moves into one private source module to keep the existing parent
-below800 lines; this is a source/semantic responsibility cut, no test-file split.
-Switch actual package + existing witness caller and remove the monolithic entry.
-Existing constructor/identity/Completion/typed field tests are acceptance; no new
-cases or checker. Fixed-residence source admission remains later in this series.
-
-Root943 intermediate verification:943C quick-test-fast no-run PASS137.403s,
-jobs4. Existing constructor26, stored-child6, publication/drift/result3,
-Core11/backend20 and selected result-class witness5 PASS (71 selected cases).
-Broad witness_tests also selected unrelated temporal/lineage tests:23PASS3FAIL;
-all three failures reproduced on retained942A binary with the same assertions,
-so baseline reds, not fixed or waived. Pointer/layer/CallTarget/diff PASS.
-No new tests/cases/checkers.943A syntax and943B compile failures were corrected
-before943C; this is intermediate verification, not commit/native closeout.
-Current source capture split remains WIP; no current CLI/app frontier claim.
-
-Root943 source split read-only closeout review found no remaining correctness
-issue after complete coverage preflight. All constructor source/identity/Completion
-boundaries stay required. Diagnostic precedence is not byte-equivalent for
-multiply invalid programs: callable-batch failure or later-constructor Completion
-may now precede earlier-constructor FormalContract failure. No successful-source
-admission is widened. Root943C vs CLI281 manifests differ only in owner README;
-9263 test names and all four source-issued Get/Count JSON inputs are identical.
+Constructor source/final seal Phase B landed at0e8322f98d: old monolithic
+issuer removed; actual package/fixture share capture -> same batch -> one final
+seal. Source IDs/forest/projection/body/Completion move once. Existing selected
+71PASS,9263 test names/four issued Get/Count JSON inputs unchanged; three broad
+witness reds reproduce942A. CLI281 unchanged mimalloc370 EXE/run/output/exit PASS;
+JSON369 same source-not-i64 stop. Keep943C/281 and prior regression artifacts
+until fixed-residence connection. Diagnostic precedence for multiply invalid
+programs may differ; no source admission widened. Full results in landing commit.
 
 Next Phase C Decision (read-only final-consumer review): move the EXISTING selected
 map issuance immediately after batch resolution; it depends only catalog+batch.
@@ -876,27 +837,66 @@ not a second census or test-only authority. No new test/case/checker/ledger.
 This is still BoxShape: fixed Array qualification and all final consumers remain
 a later same-series contract; do not waive None or declare the app accepted.
 
-Root943 Phase B verified closeout: monolithic constructor issuer removed (zero
-src callers); actual package and existing witness fixture use capture -> same
-batch -> final seal. No compatibility adapter, cloned AST, new test/case/checker.
-Source parent535lines + source capture213lines are one responsibility split;
-final source data is owned once. Focused selected71PASS; broad witness23PASS3
-baseline failures reproduced with942A as above. Full names9263 unchanged; four
-issued Get/Count JSON inputs unchanged.943A failed syntax2.906s and943B failed
-compile84.677s; corrected943C test build137.403s PASS, CLI281212.878s PASS,
-all jobs4. Owner README is the sole root-test/CLI source-manifest difference.
+Root944 Phase C implementation mapping: move the existing writer observation
+into OrdinaryNewFieldWriteClaimDraftV1::capture_sources in its current owner.
+Captured rows_for_batch lends source rows after exact coverage validation and is
+also used by final seal. Existing issuer -> cohort -> preparation carries one Rc;
+old preparation writer draft/traversal/seal removed, result/AppMain checks retained.
+Scope includes those production owners, constructor source accessor, owner README,
+and existing source-claims fixture/callers (signature/loan plumbing only). No new
+case, assertion, hook, test file, checker or adapter. Existing stored-child writer
+vetoes, constructor refusals, result-class fixture families and publication tests
+are acceptance. No fixed Array semantic permission or source admission yet.
 
-Original app source hashes equal the retained363/362 baselines. CLI281 direct
-command: --grammar-profile canonical --backend mir --emit-exe <output>
+Root944 Phase C verified closeout: one complete capture now precedes final
+constructor seal, retaining the same original source authority. The existing
+selected map issues once before capture. Captured source input lending checks
+complete coverage and the original program/projection/root/body shape. Same Rc
+moves issuer -> cohort -> source preparation; later writer draft/traversal/seal
+removed. Result-class/AppMain checks stay in preparation. Existing fixture
+captures once and clones only the same Rc for repeated projections. Read-only
+actual-diff review confirms whole ordinary/constructor participation and unchanged
+nested required/opaque/unattributed/value-incomplete gates. No adapter, new
+case/assertion/hook/test file/checker. Production cohort file is800lines after
+its two necessary argument lines; no line-count compression/split was used.
+
+944A quick-test-fast no-run71.698s PASS; ten existing filters91PASS/1baselineFAIL.
+Result-class23PASS/1FAIL equals retained943C: child_relation_real_page_heap_pins_all_sites_and_retains_prefix_failures
+stops at borrowed-static/required-integer-source-unproved, owner18/Body0 Value.
+Constructor26/stored-child6/Array actual1/publication3/Core11/backend20/Loop1 PASS.
+Full9263 names and four issued Get/Count JSON inputs unchanged. Layer/CallTarget/
+diff PASS. CLI282 quick166.950s PASS, jobs4; root/CLI source manifests identical.
+Original app source hashes equal retained362/363. Direct canonical command:
+--grammar-profile canonical --backend mir --emit-exe <output>
 --emit-exe-nyrt <runtime894A> apps/{mimalloc-lite,json-stream-aggregator}/main.hako.
-Explicit predecessor artifacts: runtime894A archive and FFI939A shared library;
-no all-three-current-source or release-speed claim. Unchanged mimalloc370:
-EXE142.634s PASS, run0.005549s exit0; stdout/stderr/exit exactly363. Compile stderr
-matches363 after replacing measured *_ns values only. Unchanged JSON369:
-0.053517s exit1/noEXE, stderr exactly362, same owner32/Body10 nested condition
-[ordinary-new/borrowed-result/source-not-i64]. This preparation advances no JSON
-frontier and closes neither FIELD-ARRAY-READ-S0 nor the finite full goal.
-Keep943C test/CLI281 pins,369/370 native receipts and prior942/941/Loop baselines
-until same-series fixed-residence/source-to-final regression is established.
-There is no retired adapter to archive; /tmp evidence is retained for that open
-regression, while conditions/results are recorded here for the landing commit.
+FFI939A shared library/runtime894A archive are explicit predecessor artifacts;
+no all-three-current-source or release-speed claim. Unchanged mimalloc374 EXE
+143.588s PASS; run0.001744s exit0, stdout/stderr/exit exactly363. Compile stderr
+matches363 after measured *_ns normalization only. Unchanged JSON373:0.052791s
+exit1/noEXE, stderr exactly362, same owner32/Body10 nested source-not-i64 stop.
+Earlier selected/capture may change first-error priority on multiply-invalid
+programs; no source admission is widened. This completes preparation only,
+not FIELD-ARRAY-READ-S0, RequiredObjectForwardS0 or finite full goal. Keep944A/
+CLI282/native373/374 and required prior Loop/source baselines until fixed-field
+same-series regression; no adapter to archive. Results/conditions are in this
+landing record, not just /tmp paths; previous Phase B history is commit-referenced.
+
+Next fixed Array connection Decision (read-only Array/final-consumer review):
+canonical object definition owns a per-field semantic qualification alongside
+original declarations; declared_type_name=None stays unchanged. Do not introduce
+a separate inferred-type map or function->normal-package dependency. The existing
+field-write owner qualifies an exact canonical field from the SAME inventory Rc,
+sole original Birth writer/source ID and empty builtin Array provider profile;
+pass the result into captured final seal once, before destruction/construction.
+Canonical storage/destruction/constructor/Home/FieldGet/owned-residence consumers
+consult this one field contract. Count retains and rechecks its original writer
+loan and canonical field; integer Get still needs its separate element-writer
+census. Final/JSON/C retain actual store, parent lifetime and End correspondence.
+Required declared-only guards include field_array_read_source, source_field_batch,
+array_i64_fields, canonical_layout/typed_object_plan and physical_abi residences;
+provider child-field classification also must consume the same qualification.
+Fixed profile proves unique source shape, not all-Normal initialization; existing
+ConstructionPlan/Birth/final checks remain mandatory. No generic None/scalar/Map,
+provided Array or replacement permission. Other JSON untyped stats/scalar fields
+remain separate possible whole-object blockers after users qualifies. This is a
+next contract mapping, not implemented admission or completed source-to-final row.

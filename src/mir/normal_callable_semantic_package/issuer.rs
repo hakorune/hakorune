@@ -309,15 +309,18 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             Ok((batch, root_execution))
         })
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
-    let mut instance_constructors = captured_constructors.seal(&batch, &static_claim_index)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error })?;
-    let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let selected = std::rc::Rc::new(
         issue_selected_callable_batch_map_v1(&catalog, &batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error }
         })?,
     );
+    let field_writers = super::ordinary_new_coseal::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
+        &batch, &selected, &captured_constructors,
+    ).map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
+    let mut instance_constructors = captured_constructors.seal(&batch, &static_claim_index)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error })?;
+    let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let (source_core_method_calls, named_array_field_providers) = match brand_catalog {
         Some(brands) => issue_source_core_method_calls_with_named_arrays_v1(
             &catalog,
@@ -504,6 +507,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &static_claim_index,
         &source_core_method_calls,
         loop_policy,
+        field_writers,
     )
     .map_err(|error| match error {
         OrdinaryNewCoSealIssueV1::CompletionSeed(error) => {

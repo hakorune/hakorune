@@ -363,7 +363,7 @@ mod tests {
 
     #[test]
     fn nullable_local_lender_uses_callee_roots_without_caller_return_outcome() {
-        with_source_claims_fixture(SOURCE, |batch, selected, constructors, parameters, main| {
+        with_source_claims_fixture(SOURCE, |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, facts, _) =
                 super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -371,6 +371,7 @@ mod tests {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             for name in ["probe", "storedProbe"] {
@@ -449,6 +450,7 @@ mod tests {
                         main,
                         constructors,
                         parameters,
+                        std::rc::Rc::clone(writers),
                     )
                     .unwrap();
                 assert!(
@@ -493,7 +495,7 @@ mod tests {
 
     #[test]
     fn nullable_local_lender_refuses_alias_rebind_and_keeps_fresh_result_separate() {
-        with_source_claims_fixture(SOURCE, |batch, selected, constructors, parameters, main| {
+        with_source_claims_fixture(SOURCE, |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, facts, _) =
                 super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -501,6 +503,7 @@ mod tests {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             for (name, arity) in [("alias", 1), ("replaced", 1), ("allocated", 0)] {

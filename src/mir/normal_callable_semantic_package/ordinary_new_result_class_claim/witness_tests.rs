@@ -119,13 +119,14 @@ fn source_witness_rejects_formal_ordinal_disagreement() {
 pub(in crate::mir::normal_callable_semantic_package) fn source_result_facts_for_test(
     source: &str,
 ) -> OrdinaryNewResultClassClaimsV1 {
-    with_source_claims_fixture(source, |batch, selected, constructors, parameters, main| {
+    with_source_claims_fixture(source, |batch, selected, constructors, parameters, main, writers| {
         let (_, _, result, _) = super::super::coseal_issue::source_claims::prepare_source_claims(
             batch,
             selected,
             main,
             constructors,
             parameters,
+            std::rc::Rc::clone(writers),
         )
         .unwrap();
         result
@@ -140,6 +141,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
         &crate::mir::normal_callable_semantic_package::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
         &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
         Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
+        &std::rc::Rc<super::super::OriginalFieldWriterInventoryV1>,
     ) -> R,
 ) -> R {
     use crate::mir::builder::{
@@ -189,9 +191,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
             .map(|batch| (batch, root))
         })
         .unwrap();
-    let constructors = captured.seal(&batch, &static_claims).unwrap();
     let selected =
         selected_mapping::issue_selected_callable_batch_map_v1(&catalog, &batch).unwrap();
+    let writers = super::super::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
+        &batch, &selected, &captured,
+    ).unwrap();
+    let constructors = captured.seal(&batch, &static_claims).unwrap();
     let main = super::super::lexical_instance_call::borrow_app_main_source_v1(
         &batch,
         catalog.catalog().source_backed_app_main(),
@@ -217,7 +222,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
                 .collect(),
         })
         .collect();
-    test(&batch, &selected, &constructors, &parameters, main.as_ref())
+    test(&batch, &selected, &constructors, &parameters, main.as_ref(), &writers)
 }
 
 #[path = "main_source_tests.rs"]

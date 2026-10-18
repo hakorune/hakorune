@@ -4,8 +4,8 @@
 //! `FieldAccess`/`Me` body shapes, `FieldWrite` assignment targets, and
 //! `constructions()` — the same passive facts the birth-site index walks.
 //! Canonical issuer: this module's draft, driven from
-//! `issue_ordinary_source_cohort_v1` where `instance_constructors` and the
-//! selected-key map are already in scope.
+//! package issuance before constructor final sealing, with captured original
+//! constructor sources and the same selected-key map.
 //!
 //! A field carries a class claim only when every `FieldWrite` in the
 //! package resolves to an attributed `me.` write inside a function of the
@@ -324,6 +324,38 @@ pub(crate) struct OrdinaryNewFieldWriteClaimDraftV1 {
 }
 
 impl OrdinaryNewFieldWriteClaimDraftV1 {
+    /// Observe the complete original package before constructor final sealing.
+    pub(in crate::mir::normal_callable_semantic_package) fn capture_sources(
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        constructors: &super::super::instance_constructor_semantic::CapturedInstanceConstructorSourcesV1,
+    ) -> Result<Rc<OriginalFieldWriterInventoryV1>, super::OrdinaryNewCoSealIssueV1> {
+        use crate::mir::builder::SelectedNormalCallableKeyV1;
+        use hakorune_mir_defs::SameModuleCallableNamespaceV1;
+        let rows = constructors.rows_for_batch(batch)
+            .map_err(|_| super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
+        let mut draft = Self::new();
+        for declaration in batch.declarations() {
+            let owner_box = match selected.key_for_batch_slot(declaration.batch_slot()) {
+                Some(SelectedNormalCallableKeyV1::Cataloged(key))
+                    if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod => Some(key.owner()),
+                _ => None,
+            };
+            batch.with_lowering_input(declaration.batch_slot(), |input|
+                draft.observe_function(input, owner_box, None))
+                .map_err(|_| super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
+        }
+        batch.with_normal_program_source_loan(|loan| {
+            for row in rows {
+                let input = row.lowering_input(loan.program())
+                    .map_err(|_| super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
+                draft.observe_function(input, Some(row.box_name()), Some(row.source_id()));
+            }
+            Ok::<_, super::OrdinaryNewCoSealIssueV1>(())
+        }).map_err(|_| super::OrdinaryNewCoSealIssueV1::BatchLoan)??;
+        Ok(draft.seal_inventory())
+    }
+
     pub(crate) fn new() -> Self {
         Self::default()
     }

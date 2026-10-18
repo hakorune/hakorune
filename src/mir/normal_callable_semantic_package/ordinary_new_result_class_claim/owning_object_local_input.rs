@@ -98,9 +98,9 @@ mod tests {
                     drive(size: i64) { local builder = new Maker() return me.relay(builder, size) } }
                 static box Main { main() { return 0 } }"),
         ] {
-            super::super::with_source_claims_fixture(text, |batch, selected, constructors, parameters, main| {
+            super::super::with_source_claims_fixture(text, |batch, selected, constructors, parameters, main, writers| {
                 let (fields, _, facts, _) = super::super::super::coseal_issue::source_claims::prepare_source_claims(
-                    batch, selected, main, constructors, parameters).unwrap();
+                    batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
                 let key = CanonicalSameModuleCallableKeyV1::instance_box_method(caller, "relay", if caller == "Maker" { 1 } else { 2 });
                 let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
                 let (call, destination) = batch.with_lowering_input(slot, |input| {

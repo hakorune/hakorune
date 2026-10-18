@@ -177,7 +177,7 @@ mod tests {
         let text = "box Token { value: i64 birth(v) { me.value = v } } box Door { make(flag) { if flag == 0 { return null } return new Token(1) } observe(flag) { me.make(flag) return 0 } } static box Main { main() { return 0 } }";
         super::super::witness_tests::with_source_claims_fixture(
             text,
-            |batch, selected, constructors, parameters, main| {
+            |batch, selected, constructors, parameters, main, writers| {
                 let (fields, _, classes, _) =
                     super::super::super::coseal_issue::source_claims::prepare_source_claims(
                         batch,
@@ -185,6 +185,7 @@ mod tests {
                         main,
                         constructors,
                         parameters,
+                        std::rc::Rc::clone(writers),
                     )
                     .unwrap();
                 let names: Vec<Box<str>> = batch

@@ -81,6 +81,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     static_call_claims: &super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     source_core_method_calls: &BTreeMap<SelectedNormalCallableKeyV1, super::super::core_method_source::SourceCoreMethodCallRowsV1>,
     loop_policy: crate::mir::builder::LoopFactsPolicyFrameV1,
+    field_writers: Rc<super::OriginalFieldWriterInventoryV1>,
 ) -> Result<
     (
         OrdinaryNewClaimLedgerV1,
@@ -113,6 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             app_main.as_ref(),
             instance_constructors,
             parameter_contracts,
+            field_writers,
         )?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {

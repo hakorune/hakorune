@@ -9,6 +9,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    field_writers: Rc<field_write_claim::OriginalFieldWriterInventoryV1>,
 ) -> Result<
     (
         field_write_claim::OrdinaryNewFieldWriteClaimsV1,
@@ -18,12 +19,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
     ),
     OrdinaryNewCoSealIssueV1,
 > {
-    // Field-write claims and callable result-class claims compose
-    // without any Home evidence — seal both before the verified walk so
-    // that walk can mint claim-faithful `me.m(..)` observations in the
-    // same sweep. Constructor (birth) rows join through the
-    // program-source loan, where `lowering_input` needs the program.
-    let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
+    // Writer observation was sealed once before constructor finalization.
+    // Result-class claims retain their original AppMain/source checks here.
     let mut result_class_draft = result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
     for declaration in batch.declarations() {
         let main = app_main.filter(|main| main.batch_slot() == declaration.batch_slot());
@@ -48,21 +45,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
                 })
                 .next()
         };
-        // Field-write claims belong to instance boxes; the result-class
-        // claim admits any cataloged key — a static-box sibling returning
-        // `return new <class>` names the class for the direct-call
-        // handle-result edge too.
-        let owner_box = source_key
-            .as_ref()
-            .filter(|key| key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
-            .map(|key| key.owner());
         batch
             .with_lowering_input(declaration.batch_slot(), |input| {
-                field_write_draft.observe_function(
-                    input,
-                    owner_box,
-                    None,
-                );
                 if let Some(key) = &source_key {
                     if main.is_some_and(|main| {
                         !main.matches_function(input.owner(), declaration.batch_slot(), key)
@@ -75,23 +59,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     }
-    batch
-        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
-            for row in instance_constructors.rows() {
-                let input = row
-                    .lowering_input(loan.program())
-                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
-                field_write_draft.observe_function(
-                    input,
-                    Some(row.box_name()),
-                    Some(row.source_id()),
-                );
-            }
-            Ok(())
-        })
-        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let (field_write_claims, field_residences) =
-        field_write_draft.seal_inventory().project_claims(batch.ordinary_box_coverage(), instance_constructors);
+        field_writers.project_claims(batch.ordinary_box_coverage(), instance_constructors);
     // A provider `new` mints no `local`-bound claim, so its child's
     // owned-field inventory would never reach the ledger through a claim.
     // Seal it here against the same residences; unproven children stay

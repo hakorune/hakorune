@@ -127,7 +127,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
     );
     super::super::with_source_claims_fixture(
         &source,
-        |batch, selected, constructors, parameters, main| {
+        |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, facts, _) =
                 super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -135,6 +135,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             assert_eq!(facts.construction_child_relations().count(), 8);
@@ -278,6 +279,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             assert!(
@@ -325,7 +327,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
     );
     super::super::with_source_claims_fixture(
         &source,
-        |batch, selected, constructors, parameters, main| {
+        |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, facts, _) =
                 super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -333,6 +335,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             let (_, _, foreign, _) =
@@ -342,6 +345,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             let main = main.unwrap();
@@ -475,7 +479,7 @@ fn child_relation_foreign_constructor_source_cannot_issue_same_spelling_field() 
     let source = include_str!("../../../../lang/src/hako_alloc/memory/page_heap_box.hako");
     super::super::with_source_claims_fixture(
         source,
-        |batch, selected, constructors, parameters, main| {
+        |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, mut scratch, _) =
                 super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -483,10 +487,11 @@ fn child_relation_foreign_constructor_source_cannot_issue_same_spelling_field() 
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             assert_eq!(scratch.construction_child_relations().count(), 8);
-            super::super::with_source_claims_fixture(source, |_, _, foreign, _, _| {
+            super::super::with_source_claims_fixture(source, |_, _, foreign, _, _, _| {
                 attach_source_child_relations_v1(
                     &mut scratch,
                     batch,
@@ -506,7 +511,7 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
     let source = include_str!("../../../../lang/src/hako_alloc/memory/page_heap_box.hako");
     super::super::with_source_claims_fixture(
         source,
-        |batch, selected, constructors, parameters, main| {
+        |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, mut scratch, _) =
                 super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -514,6 +519,7 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             assert_eq!(scratch.construction_child_relations().count(), 8);
@@ -581,9 +587,9 @@ fn returned_field_source_closes_original_initializer_dag_and_refuses_incomplete_
                 probe() {{ local a = me.seed(1) {rebind} local b = me.wrap(a.child)
                     local c = me.wrap(b.child) me.consume(c.{field}) return 0 }} }}
             static box Main {{ main() {{ return 0 }} }}");
-        super::super::with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main| {
+        super::super::with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, facts, _) = super::super::super::coseal_issue::source_claims::prepare_source_claims(
-                batch, selected, main, constructors, parameters).unwrap();
+                batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
             let names: Vec<Box<str>> = batch.ordinary_box_coverage().rows().iter()
                 .map(|row| row.name().into()).collect();
             let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
@@ -628,7 +634,7 @@ fn returned_field_source_closes_original_initializer_dag_and_refuses_incomplete_
                     &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1::default(), &mut lookup).is_err());
                 assert!(foreign.recheck_returned_field_source_v1(batch, selected, constructors, &fields, &loan, &mut lookup).is_err(),
                     "foreign source outcomes cannot replace SAME roots");
-                super::super::with_source_claims_fixture(&text, |_, _, foreign_constructors, _, _| {
+                super::super::with_source_claims_fixture(&text, |_, _, foreign_constructors, _, _, _| {
                     assert!(facts.recheck_returned_field_source_v1(batch, selected, foreign_constructors,
                         &fields, &loan, &mut lookup).is_err(), "foreign constructor issuance is not source authority");
                 });

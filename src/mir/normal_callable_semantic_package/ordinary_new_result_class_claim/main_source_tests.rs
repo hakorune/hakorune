@@ -26,7 +26,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
                 let text = source(formal, actual, received, nullable);
                 with_source_claims_fixture(
                     &text,
-                    |batch, selected, constructors, parameters, main| {
+                    |batch, selected, constructors, parameters, main, writers| {
                         let main = main.expect("original Main co-seal");
                         assert!(selected
                             .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(
@@ -39,6 +39,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
                             Some(main),
                             constructors,
                             parameters,
+                            std::rc::Rc::clone(writers),
                         )
                         .unwrap();
                         let root = facts
@@ -104,17 +105,17 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
 #[test]
 fn main_observer_missing_or_foreign_loan_cannot_issue_root_facts() {
     let text = source("size: i64", "7", false, false);
-    with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main| {
+    with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
         let main = main.unwrap();
         let (_, _, facts, _) =
-            prepare_source_claims(batch, selected, None, constructors, parameters).unwrap();
+            prepare_source_claims(batch, selected, None, constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
         assert!(facts.outcomes(main.catalog_key()).is_none());
         assert!(
             facts.contains_key(&CanonicalSameModuleCallableKeyV1::instance_box_method(
                 "Maker", "make", 1
             ))
         );
-        with_source_claims_fixture(&text, |_, _, _, _, foreign_main| {
+        with_source_claims_fixture(&text, |_, _, _, _, foreign_main, _| {
             let foreign_main = foreign_main.unwrap();
             assert_eq!(foreign_main.catalog_key(), main.catalog_key());
             assert_eq!(foreign_main.batch_slot(), main.batch_slot());
@@ -125,6 +126,7 @@ fn main_observer_missing_or_foreign_loan_cannot_issue_root_facts() {
                     Some(foreign_main),
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 ),
                 Err(super::super::super::OrdinaryNewCoSealIssueV1::AppMainIdentityMissing)
             ));
@@ -135,10 +137,10 @@ fn main_observer_missing_or_foreign_loan_cannot_issue_root_facts() {
 #[test]
 fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
     let text = source("size", "7", true, false);
-    with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main| {
+    with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
         let main = main.unwrap();
         let (fields, _, _, _) =
-            prepare_source_claims(batch, selected, Some(main), constructors, parameters).unwrap();
+            prepare_source_claims(batch, selected, Some(main), constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
         let draft = || {
             let mut draft = OrdinaryNewResultClassClaimDraftV1::new();
             for row in batch.declarations() {
@@ -189,7 +191,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
         );
         assert!(missing.outcomes(main.catalog_key()).is_none());
         assert!(missing.contains_key(&callee));
-        with_source_claims_fixture(&text, |foreign_batch, _, _, _, foreign_main| {
+        with_source_claims_fixture(&text, |foreign_batch, _, _, _, foreign_main, _| {
             let foreign_main = foreign_main.unwrap();
             assert_eq!(foreign_main.catalog_key(), main.catalog_key());
             let foreign_owner = foreign_batch

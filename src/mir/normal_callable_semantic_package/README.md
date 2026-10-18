@@ -900,8 +900,15 @@ The field-write draft's `seal_inventory` settles observed/required writer
 completeness, unattributed/opaque vetoes and original RHS plans once, independently
 of constructors. The same immutable inventory Rc then owns `project_claims`,
 which uses canonical declarations/constructors for object classes, residences and
-value sources. All four callers use this split; the old combined finish entry is
-removed. Source loans retain that same inventory; there is no second census.
+value sources. Package issuance captures every ordinary declaration (including
+unselected vetoes), then every original constructor row, before final constructor
+sealing. Constructor inputs retain the same coverage, program, projection, root
+identity and body shape. The selected map is issued once before this capture;
+only cataloged instance-method keys attribute an ordinary writer to a box.
+The inventory Rc moves through cohort issuance into source preparation, which
+projects claims without observing writers again. AppMain identity and result-class
+observations remain in that preparation. Source loans retain the same inventory;
+there is no second census. Existing fixture projections clone only this Rc.
 Object-class `get` and owned-residence rules are unchanged. Unknown receivers and missing inventories
 remain vetoes in this same product; failed/non-object writers are never erased.
 Object-class consumers share the SAME immutable source map and original writer

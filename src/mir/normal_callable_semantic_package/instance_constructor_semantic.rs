@@ -446,15 +446,23 @@ impl InstanceConstructorSourceDataV1 {
 }
 
 impl CapturedInstanceConstructorSourcesV1 {
+    pub(super) fn rows_for_batch(
+        &self,
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    ) -> Result<&[InstanceConstructorSourceDataV1], InstanceConstructorSemanticBatchIssueV1> {
+        if &self.box_sources != batch.ordinary_box_coverage() {
+            return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
+        }
+        Ok(&self.rows)
+    }
+
     pub(super) fn seal(
         self,
         batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
         static_claims: &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1>
     {
-        if &self.box_sources != batch.ordinary_box_coverage() {
-            return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
-        }
+        self.rows_for_batch(batch)?;
         let Self {
             rows: sources,
             box_sources,

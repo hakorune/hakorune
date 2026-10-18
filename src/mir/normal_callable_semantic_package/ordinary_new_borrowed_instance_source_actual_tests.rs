@@ -142,7 +142,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
     let text = "box Token { value: i64 birth(v) { me.value = v } } box Door { make(flag) { if flag == 0 { return null } return new Token(1) } consume(token) { if token == null { return 0 } return 1 } consumeBad(token) { if token == null { return 0 } return 1 } collect(flag) { if flag == 0 { return 0 } local bad = new ArrayBox() bad.push(0) me.consumeBad(bad.get(0)) local refused = new ArrayBox() refused.push(me.consumeBad(null)) me.consumeBad(refused.get(0)) local arr = new ArrayBox() arr.push(me.make(flag)) me.consume(arr.get(0)) arr.push(me.make(2)) me.consume(arr.get(1)) return 0 } inspect(flag) { local good = me.make(flag) me.consumeBad(good) return 0 } forward(token: Token) { me.consume(token) return 0 } } static box Main { main() { return 0 } }";
     super::super::super::super::result_class_claim::with_source_claims_fixture(
         text,
-        |batch, selected, constructors, parameters, main| {
+        |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, classes, _) =
                 super::super::super::super::coseal_issue::source_claims::prepare_source_claims(
                     batch,
@@ -150,6 +150,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
                     main,
                     constructors,
                     parameters,
+                    std::rc::Rc::clone(writers),
                 )
                 .unwrap();
             let names: Vec<Box<str>> = batch
