@@ -469,6 +469,12 @@ fn issue_function_with_module<'module>(
         }
         _ => Vec::new(),
     };
+    let initializer_installs = match (module, selected_view.and_then(|view| view.retained_root_source())) {
+        (Some(module), Some(source)) => source.finished_initializer_installs_v1(module, function)?,
+        _ => Vec::new(),
+    };
+    let source_initializer_install = |block, instruction: &MirInstruction| initializer_installs
+        .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
     let end_bindings = object_end::bindings(module, function, selected_view)?;
     let source_end_binding = |block, instruction: &MirInstruction| end_bindings
         .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
@@ -552,7 +558,7 @@ fn issue_function_with_module<'module>(
                 }
             }
             let field_ref = prepare_field_ref(module, function, block.id, index, instruction, &source_field_reads)?;
-            if !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
+            if !source_initializer_install(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
                 .iter()
                 .any(|(bound_block, bound)| *bound_block == id && bound == instruction)
             {

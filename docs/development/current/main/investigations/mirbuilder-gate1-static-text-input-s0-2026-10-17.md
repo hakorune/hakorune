@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0
 
-Status: active; common Core/I64 initializer and typed Static argument execution verified; full Text series unaccepted.
+Status: active; owned Text Local handoff and Core/I64 execution verified; full Text series unaccepted.
 Date: 2026-10-17
 Scope: required Gate1 source Text generation -> ordinary static borrowed input,
 including original incoming/entry, arguments/results, cleanup and publication.
@@ -852,78 +852,135 @@ Next physical Decision (reference_integration_review, same Text series):
   remain required. No source admission or EXE success follows from this Decision.
 
 
-V897 construction (physical handoff, same full Text responsibility):
-- Add explicit install operand/effects/use/remap and lifecycle obligations to
-  MIR core; keep generic backend/VM JSON unsupported. Marker-only functions
-  select validation. Existing String verifier and both C machines use ordered
-  temporary/Home domains; the existing lease ABI is unchanged.
-- Add exact private physical wire instruction + no-op emission. Rust published
-  generic instruction allowlist remains closed until SAME initializer source
-  packet lends its exact final Install coordinate; do not grant source from IR.
-- Existing String verifier and native physical test owners gain handoff Normal,
-  print Fault, child-End Fault, two-Home order, older/duplicate/nonowned/Fault-side
-  install and premature Home End cases. No new test/proof app/guard owner.
-- Current bounded edits are MIR core use/effect/rewriting/printing diagnostics,
-  physical JSON instruction encoder, existing String verifier, C state/schema/
-  native+indexed rows/emitter, two owner READMEs and this card. These are required
-  physical consumers, not an unrelated cleanup campaign. Source packet/Local
-  atomic publication and both full source scans remain inside the selected
-  unfinished Text series, not claimed by this physical construction.
+V897 physical handoff is landed at `1eab404acc` (construction, failed/interrupted
+attempts, corrected evidence and artifact disposition are preserved there).
+Root897C:45 distinct focused PASS; native897B both indexed/native String Home
+Normal/Fault and rejection cases PASS. CLI243/app293 unchanged JSON still exits1
+at slot20 Body7 Value core-expression-execution-pending; no Text acceptance.
+Retain matched Root897C/CLI243/FFI897A/native897B/app293 receipts and pins, failed
+and interrupted logs, formatting provenance and predecessor runtime894A until
+full source handoff acceptance. No temporary adapter or compatibility retry.
 
+V898 source construction, same selected responsibility (Local handoff verified; full Text series unaccepted):
+- Use the existing expression writer once. Root OwnedString is installed after
+  acquisition; remaining child temporaries End in reverse. Fault after install
+  unwinds remaining temporaries, new Home, then prior Homes. Existing common
+  source/path validator checks this graph; scalar callers retain their policy.
+- Completed Local receipt uses ReuseInitializer for owned Text, with no pair
+  Copy. One SAME Rc packet is published to the prefix and LocalCommit Home maps
+  in the existing prepared commit. All checks precede both mutations. Text Home
+  has no independent construction/reclassification or pre-receipt install path.
+- Finalized exact Install lender borrows all original owner groups from their
+  current affine pool and the sole finished projection. Require SAME Home packet,
+  one retained and actual coordinate, original source/paths and no duplicate.
+  Physical admission borrows these coordinates; generic allowlist stays closed.
+- Worker found/fixed stale lowering-pool lookup after affine finalization and
+  missing non-Birth Text arms. Existing initializer test now checks real published
+  ABI JSON plus missing/duplicate/foreign Install and End mutations through both
+  finalized source visitor and exact lender. No new test/proof/guard owner.
+- Additional required paths are finalized_initializer_homes.rs and the existing
+  published physical_program.rs, plus existing LocalCommit emission/Birth census
+  consumers and initializer test. New initializer_home_publication.rs holds only
+  the existing prepared transaction plus identity validation; root_call_entry.rs
+  stays below800 lines. These paths connect this source handoff, not a cleanup
+  campaign. Entry/residence reads, finite/null/Add envelopes, both full source
+  scans, Loop After and named JSON/C remain unfinished.
+- Root898A/B build failures belong to this WIP (two missing non-Birth match arms,
+  then a test assertion trying to Debug a non-Debug success value); corrected,
+  not baseline. Root898C no-run PASS82.383367s; existing scalar final-consumer
+  and real compiler tests PASS (2), new owned-Text test FAIL at raw root graph
+  current-unsupported. Install is an infallible instruction, so emit it through
+  the existing builder instruction writer rather than widening the CFG-edge-only
+  port. Retain failing logs; final rebuilt source still requires verification.
+- Worker confirms normal emission validation precedes affine group take, while
+  finalized checks use the moved pool. It also found that packet cleanup ends at
+  Local continuation: exact lender now reuses finalized root cleanup to require
+  the later Home End. This preserves the existing cleanup owner, not a new scan.
+- Root898D no-run PASS65.421126s; scalar regressions2 PASS, owned-Text test
+  FAIL at root-cleanup-graph/terminal-vocabulary. Existing Home cleanup edge
+  classifier lacked String End. Add exactly that existing release operation;
+  worker checked shared shape/ordered-path consumers and found no other cleanup
+  whitelist to widen. String producers/Install remain excluded as terminators.
+  Existing test additionally covers nested acquisition, two Homes and a nonroot
+  static function; End mutation targets the installed Home, not child cleanup.
+- Root898E no-run PASS63.653148s; initializer family6 PASS/owned-Text1 FAIL,
+  scalar final-consumer1 and physical-boundary22 PASS. The Home-specific End
+  negative exposed a final cleanup participation gap: nonroot plain-scalar exits
+  were skipped. Require cleanup revalidation for owners retaining original Text
+  initializer groups, using the same finished cleanup entry validator. This
+  extends finalized_root_cleanup.rs participation only for the selected source
+  Home responsibility; no new source/ABI acceptance or generic inference.
+- Root898F no-run PASS63.761626s; selected initializer7/scalar-final1/physical22
+  PASS. Root898G additionally checks SAME Home before selecting Text participants
+  and original completion explicit/implicit exit presence. No-run PASS64.601154s;
+  initializer7 + scalar-final1 + physical22 + String-lifetime1 + original Print/
+  Bool1 + cleanup-graph6 =38 distinct PASS, nonzero filters, matched pinned binary.
+  Worker final actual-diff review found no remaining concrete blocker.
 
-V897 evidence:
-- Root897A build PASS119.590269s before worker's unreachable-marker correction;
-  not final lifetime evidence. Native897A exit1/43.234679s: old probe asserted
-  global LIFO on legitimate child-before-Home End. Probe now records original
-  acquisition ordinal plus exact pair/live bits; real End consumption and
-  zero-live report/dispose checks remain. Worker re-review PASS.
-- Root897B deliberately stopped (own verified process group, exit143, no elapsed
-  measurement) to align a negative-test diagnostic with new structural rejection.
-  This was not an observation timeout. Cargo/rustc absence checked before edits.
-- Final Root897C quick-test-fast no-run PASS69.968130s. Existing String lifetime1
-  (including marker-only, disconnected owned/foreign marker and both domains),
-  physical-boundary22, original Print/Bool1, initializer/Core-I641 and backend
-  core ops20: 45 distinct PASS after correcting MIR vocabulary doc-sync60 kept/
-  76 total. The first doc-sync failure belonged to this addition, not baseline;
-  only that test reran after the authoritative table update. No new test owner.
-- Required owner doc scope includes docs/reference/mir/INSTRUCTION_SET.md because
-  that machine-readable MIR vocabulary owns the added instruction. Core-26 and
-  MIR14 profiles are unchanged. No language feature was added.
-- Three later Rust edits only align leading indentation of match alternatives;
-  archived before/after lines prove no other byte changes on those lines. Reuse
-  Root897C executions with explicit formatting-only provenance, not a false
-  whole-source-byte equality claim. CLI243 compiles the formatted source.
-- FFI897A cc -Werror=format shared build PASS6.621027s; SHA
-  d46e0aa29685742b0a050aa6e9ba9ac44db416526cfcf811583aad0697bce605.
-  All240 captured FFI C/header inputs remain byte-exact; subsequent probe and
-  Rust changes are outside that compiled C source subset. Kernel894A remains
-  the pinned predecessor real lease ABI (unchanged kernel source); no current
-  kernel rebuild is claimed. Final native gate compiles the current probe.
-- CLI243 quick build PASS217.555428s; SHA
-  f6cddb8dbdc7331a974418839726b1067709adc8deba61fbc2909ecaf161da90.
-  app293 unchanged JSON direct canonical/MIR emit-exe, pure-first/no replay,
-  plugins off, current CLI+FFI897A+selected runtime894A: .433733s exit1/no EXE,
-  stderr byte-equal app292; same slot20 Body7 Value core-expression-execution-
-  pending. Compiler source exact; pinned predecessor runtime and FFI source
-  subset/deltas explicit in receipt. This pre-backend stop is not Text success.
-- Stable pointer/reference-route/layer/thin-shim and diff checks PASS. Generic
-  published source admission remains closed. No production caller switch,
-  source Text Home publication or old-source edge retirement is claimed.
+- CLI244 build PASS183.120859s. app294 unchanged JSON canonical/MIR direct EXE,
+  pure-first/no replay, plugins off, current CLI+FFI897A+predecessor runtime894A:
+  .394064s exit1/no EXE, stderr byte-equal app293; same slot20 Body7 stop.
+- CLI244 nested Text initializer reaches EXE/run: build+link105.481713s, run
+  .008076s exit0, standard kernel launcher `Result: 0`. Initial scratch driver
+  wrongly expected empty stdout; corrected against kernel entry/launcher contract
+  and reused the captured successful receipt, without rebuilding that program.
+  This is pre-final evidence, not full Text or unchanged-app acceptance.
+- CLI244 two-Home source exposed optimized compilation failure before backend
+  (exit1/.020593s local-call-binding-drift). Root898H build PASS56.837127s;
+  existing Text test now runs both optimize modes and reproduces at simple Add:
+  original retained ReturnFault was disconnected and legitimately deleted.
+  Common continuation now emits no cleanup graph when it has no child End;
+  no new fallible operation means no new Fault ingress. Prior acquisition Fault
+  and later Home End remain with existing owners. Worker confirmed this mapping;
+  no omission permission, optimizer disablement or flat-census bypass is added.
 
-- Native897B final --checked-string gate PASS exit0/461.461955s aggregate driver/
-  object compilation, archive linking, execution and malformed-input checks;
-  individual link/run split was not measured and no speed claim is made. Both
-  indexed/native profiles pass unchanged String cases and new installed-Home
-  Normal/print-Fault/child-End-Fault/two-Home cases plus forbidden install/order
-  negatives. Current probe/FFI inputs byte-exact; full snapshot differs only by
-  the three archived leading-indent Rust corrections above.
-- CI read at closeout: latest portability run35681768498 failed at OLD
-  d4168473d5b57178068d9574a48fd9758bbb9328, not this source snapshot. No current
-  CI/full-suite claim and no new mimalloc run; CLI237/app286 retains its accepted
-  milestone role. Entire finite goal and full Text series remain incomplete.
-- Retain final Root897C/CLI243/FFI897A/native897B/app293 receipts/manifests/pins,
-  failed probe and interrupted-build diagnostics, formatting provenance and
-  selected predecessor kernel until full source handoff acceptance. No adapter
-  parked. Old single-domain Rust/C String policy and old global-depth probe
-  assumption were replaced in place, with no compatibility retry or second
-  state registry. Source packet/Home publication is the next unfinished edge.
+V898 final source handoff evidence and disposition:
+- Root898I no-run PASS58.285970s;38 distinct focused PASS. Existing Text matrix
+  covers six source cases in BOTH optimize modes with Install/Home-End mutations
+  checked by both exact lender and finalized source visitor. Existing scalar,
+  String lifetime, Print/Bool, physical boundary and cleanup graph owners pass.
+- CLI245 quick build PASS158.388663s, SHA
+  2cefc86982ebabd10bf20bc83bee986c5bcded5a4e76e6eded1b060d50e51daf.
+  app295 unchanged JSON direct canonical/MIR EXE .399899s exit1/no EXE,
+  stderr byte-equal app294: same slot20 Body7 execution-pending. No app advance.
+- Default optimized CLI245 source EXEs PASS: two Homes emit-exe118.739811s /
+  run.009205s; nested acquisition118.775819s / .008448s; child-function Home
+  105.132129s / .007902s. All exit0, exact standard `Result: 0` stdout.
+  First two emit-exe commands ran concurrently; durations aggregate compile/
+  backend/archive/link, not a separate linker measurement or speed comparison.
+- Same pinned FFI897A and explicitly predecessor runtime894A were used; compiler
+  snapshot is exact, predecessor source deltas/current-only paths are explicit
+  in app295 and source-v898i receipts. No current-runtime rebuild or full-source
+  three-artifact equality claim. C source subset unchanged; prior native897B
+  keeps its independent both-profile lifetime/negative role.
+- Worker actual-diff review and final stable four guards/diff checks PASS. Latest
+  CI read remains old d4168473d5b failure35681768498, not this source; no current
+  CI/full-suite/mimalloc rerun claim.22 staged source/doc paths match CLI245 and
+  Root898I manifests. No adapter or duplicated emitter/cleanup algorithm remains.
+- Retain final Root898I/CLI245/source EXE/app295 manifests, pins, logs, failed
+  intermediate diagnostics and predecessor artifact provenance until full Text
+  closure. Remove seven superseded Root898C-H test-binary copies:1,898,265,096
+  bytes; keep their logs/manifests. No preceding required pin was removed. Source
+  Local handoff is verified; reference/entry/incoming/use/Loop/full Text and the
+  entire finite goal remain open. Next mapping below is unchanged by local green.
+
+Next construction mapping (worker reuses full source responsibility; not acceptance):
+- Normalize reference preflight/fulfillment/validation in the existing common
+  ExpressionReferenceRead owner, retaining one exact-read batch and the original
+  frame slots. Residence must borrow SAME initializer Rc+Home+root/alias Copies
+  and current priorHomes; no second acquisition or Normal End for the loan.
+- Shared original entry/finite structure + full parameter/carrier/Copy proof is
+  distinct from TextOnly policy. InitializerEntry retains SAME Text|I64|Null SUM
+  and original terminating-null exclusion. Both String/String and String/I64 Add
+  envelopes need source-selected tag descriptors, not deletion of single-envelope
+  fence or classification of every future operand as Text.
+- Connect same qualified Text argument frame to actual Call packets. Complete
+  final use image includes Call AND initializer/Print/Bool references; join all
+  original incoming/uses and compiled entry domain. Preemit source entry does not
+  demand completed actuals; final closure does. Keep these fences until connected.
+- Real JSON dependency is key entry -> needle Home -> find(line,needle,0) -> pos
+  -> start; line entry also supplies length/substring. intField end requires real
+  Loop Recipe/JoinSig After, unlike stringField's ordinary find result. Loop ch
+  Home comparisons use existing short-circuit control and Break/backedge/Fault
+  cleanup. to_i64 retains Null terminating branch plus both original Add domains.
+  No new source permission, alternate evaluator, task row or parked lane follows.

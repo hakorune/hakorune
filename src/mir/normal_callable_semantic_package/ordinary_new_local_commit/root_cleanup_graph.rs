@@ -202,6 +202,7 @@ fn edges(terminal: &MirInstruction) -> Result<Vec<(usize, BasicBlockId)>, String
                 | InvokeOperation::ObjectEndIfOwned { .. }
                 | InvokeOperation::OwnedFieldResidenceRelease { .. }
                 | InvokeOperation::OwnedObjectFieldRelease { .. }
+                | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { .. })
                 | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { .. })
                 | InvokeOperation::OwnedArray(crate::mir::instruction::OwnedArrayInvokeOperation::End { .. }),
             normal_landing,

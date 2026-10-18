@@ -118,21 +118,67 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
 }
 
 #[test]
-fn owned_text_initializer_refuses_execution_until_the_same_physical_consumer_is_complete() {
+fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
-    for (initializer, selected) in [("\"hello\"", false), ("\"he\" + \"llo\"", true)] {
-        let text = format!("static box Main {{ main() {{ local text = {initializer} return 0 }} }}");
+    for (methods, prefix, initializer, selected) in [
+        ("", "", "\"hello\"", 0), ("", "", "\"he\" + \"llo\"", 1),
+        ("", "", "(\"h\" + \"e\") + \"llo\"", 1),
+        ("", "", "\"a\" + 12", 1),
+        ("", "local first = \"a\" + \"b\"", "\"c\" + \"d\"", 2),
+        ("static box Values { run(count: i64): i64 { local text = \"a\" + \"b\" return 0 } }", "", "Values.run(1)", 1),
+    ] {
+        let parameters = if methods.is_empty() { "" } else { "args" };
+        let text = format!("{methods} static box Main {{ main({parameters}) {{ {prefix} local text = {initializer} return 0 }} }}");
+        for optimize in [false, true] {
         let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
             &text, crate::parser::ParserBuildConfig::default()).unwrap();
         let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
             crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source") };
-        let result = crate::mir::MirCompiler::with_options(false).compile_normal(
-            crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()));
-        if selected {
-            let issue = result.unwrap_err().to_string();
-            assert!(issue.contains("text-initializer/execution-pending"), "{issue}");
-        } else {
-            assert!(result.is_ok(), "existing non-owning literal initializer stays with its owner: {result:?}");
+        let result = crate::mir::MirCompiler::with_options(optimize).compile_normal_with_published(
+            crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()).for_closed_app_executable(),
+            |view, verification| {
+                verification.as_ref().map_err(|errors| format!("{errors:?}"))?;
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                crate::mir::emit_lifecycle_physical_abi_json(&input)?;
+                let root = view.retained_root_source().ok_or_else(|| "missing initializer source".to_owned())?;
+                root.visit_finalized_lexical_call_nodes_v1(view.module(), |_, _, _, _, _, _, _| Ok(()))?;
+                let mut count = 0;
+                for function in view.module().functions.values() {
+                    let installs = root.finished_initializer_installs_v1(view.module(), function)?;
+                    count += installs.len();
+                    for (block, original) in installs {
+                        for mutation in ["missing", "duplicate", "foreign-root", "end"] {
+                            let mut changed = view.module().clone();
+                            let changed_function = changed.functions.get_mut(&function.signature.name).unwrap();
+                            let body = changed_function.blocks.get_mut(&block).unwrap();
+                            let index = body.instructions.iter().position(|row| row == &original).unwrap();
+                            match mutation {
+                                "missing" => { body.instructions.remove(index); }
+                                "duplicate" => body.instructions.push(original.clone()),
+                                "foreign-root" => body.instructions[index] = crate::mir::MirInstruction::StringResidenceInstall { value: crate::mir::ValueId(99999) },
+                                "end" => {
+                                    let mut changed_end = false;
+                                    for body in changed_function.blocks.values_mut() {
+                                        if let Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::String(
+                                            crate::mir::instruction::StringInvokeOperation::End { value }), .. }) = &mut body.terminator {
+                                            if matches!(original, crate::mir::MirInstruction::StringResidenceInstall { value: root } if root == *value) {
+                                                *value = crate::mir::ValueId(99999); changed_end = true;
+                                            }
+                                        }
+                                    }
+                                    assert!(changed_end);
+                                }
+                                _ => unreachable!(),
+                            }
+                            assert!(root.finished_initializer_installs_v1(&changed, changed.get_function(&function.signature.name).unwrap()).is_err(), "{methods} {prefix} {initializer} / {} / {mutation}", function.signature.name);
+                            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
+                        }
+                    }
+                }
+                assert_eq!(count, selected);
+                Ok(())
+            });
+        result.unwrap_or_else(|error| panic!("optimize={optimize} {initializer}: {error}"));
         }
     }
 }

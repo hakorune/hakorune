@@ -48,28 +48,11 @@ impl PreparedRootLexicalCallBindingGroupV1<'_> {
 
 impl PreparedLifecyclePrefixBindingGroupV1<'_> {
     pub(crate) fn commit(self) -> Result<(), String> {
-        let expected = self.ledger.expected_local_call_binding_sources(self.owner)?;
-        if expected.get(self.preceding_sites.len()).is_none_or(|source| !self.group.matches_source(source)) {
-            return Err(freeze("local-call-binding-preflight-stale"));
-        }
-        let mut rows = self.ledger.root_local_call_bindings.borrow_mut();
-        let groups = rows.get(&self.owner).map(Vec::as_slice).unwrap_or(&[]);
-        if groups.len() != self.preceding_sites.len()
-            || groups
-                .iter()
-                .map(|recorded| recorded.site())
-                .ne(self.preceding_sites.iter())
-            || groups
-                .iter()
-                .any(|recorded| recorded.site() == self.group.site())
-        {
-            return Err(freeze("local-call-binding-preflight-stale"));
-        }
-        rows.entry(self.owner).or_default().push(self.group);
-        Ok(())
+        publication::commit(self)
     }
 
     fn commit_after_collected(self) {
+        assert!(self.group.initializer_rc().is_none(), "initializer publication requires its prepared transaction");
         self.ledger
             .root_local_call_bindings
             .borrow_mut()
@@ -798,3 +781,6 @@ pub(in crate::mir) use borrowed_field_write_projection::{EmittedFieldWriteRhsV1,
 
 #[path = "root_call_entry/initializer_expression_projection.rs"]
 mod initializer_expression_projection;
+
+#[path = "root_call_entry/initializer_home_publication.rs"]
+mod publication;

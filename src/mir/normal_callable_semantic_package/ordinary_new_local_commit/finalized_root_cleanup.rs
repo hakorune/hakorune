@@ -116,7 +116,30 @@ impl FinalizedRootSourceHandoffV1 {
             let root = module.functions.get(symbol).ok_or_else(|| freeze("main-arguments/root-missing"))?;
             self.main_arguments_bindings_v1(module, root).map(|_| ())
         })?;
+        let text_home_owners = self.local_calls.iter().filter_map(|(owner, groups)|
+            groups.iter().any(|group| group.initializer()
+                .is_some_and(|packet| packet.frame().is_text_residence())).then_some(*owner))
+            .collect::<std::collections::BTreeSet<_>>();
+        for owner in &text_home_owners {
+            for packet in self.local_calls[owner].iter().filter_map(|group| group.initializer())
+                .filter(|packet| packet.frame().is_text_residence()) {
+                self.ledger.validate_text_initializer_home_v1(packet, CallValidationContextV1::Finalized(self))?;
+            }
+        }
         let exits = self.ledger.root_exits.borrow();
+        // A published Home owes every original exit, not just rows that happen
+        // to remain in the physical ledger. Source-only declarations add none.
+        for owner in &text_home_owners {
+            let completion = self.ledger.completion_for_owner(*owner)
+                .ok_or_else(|| freeze("final-cleanup/initializer-completion-missing"))?;
+            for exit in completion.explicit_sites().iter().cloned().map(RootHomeExitKeyV1::Explicit)
+                .chain(completion.implicit_body_end().map(|_| RootHomeExitKeyV1::ImplicitBodyEnd)) {
+                if !matches!(exits.get(&(*owner, exit.clone())), Some(RootHomeExitProgress::Emitted { .. }))
+                    && !matches!(exits.get(&(*owner, exit)), Some(RootHomeExitProgress::Finalized(_)) if *owner == self.owner) {
+                    return Err(freeze("final-cleanup/initializer-exit-missing"));
+                }
+            }
+        }
         for exit in self.call_entries.keys() {
             if !matches!(
                 exits.get(&(self.owner, exit.clone().into())),
@@ -173,7 +196,10 @@ impl FinalizedRootSourceHandoffV1 {
                     entry,
                     ..
                 } => {
-                    if *owner != self.owner && !matches!(entry, RootHomeExitEntry::Call { .. }) {
+                    // An original initializer Home is a cleanup participant
+                    // even when this child returns a plain scalar, not a Call.
+                    if *owner != self.owner && !matches!(entry, RootHomeExitEntry::Call { .. })
+                        && !text_home_owners.contains(owner) {
                         continue;
                     }
                     self.ledger

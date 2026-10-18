@@ -548,6 +548,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|r| r.owner() == owner)
         {
             let bindings = match row {
+                LocalCommitV1::TextResidence(_) => continue,
                 LocalCommitV1::Map(map) => map.checked_bindings()?,
                 LocalCommitV1::OwnedArray(row) => row.checked_bindings()?,
                 LocalCommitV1::CallReceived(row) => row.checked_bindings()?,

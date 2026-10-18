@@ -21,6 +21,9 @@ mod main_arguments;
 #[path = "finalized_array_field_reads.rs"]
 mod array_field_reads;
 
+#[path = "finalized_initializer_homes.rs"]
+mod initializer_homes;
+
 #[path = "finalized_borrowed_field_writes.rs"]
 mod borrowed_field_writes;
 #[path = "finalized_null_guard_projection.rs"]

@@ -321,20 +321,49 @@ fn emit_string_value(
 /// Text acquisitions. Prior Homes remain live on Normal and unwind on Fault.
 pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
-    if !matches!(expression.value, Operand::NormalInteger(_)) { return Err(freeze("expression/scalar-continuation-result")); }
+    finish_continuation(builder, expression, None)
+}
+
+/// The destination's original initializer frame is the sole issuer of this
+/// transfer. Child temporaries remain inside this expression's cleanup scope.
+pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
+    -> Result<(Binding, Binding), String> {
+    let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
+    if expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+    finish_continuation(builder, expression, Some(root))
+}
+
+fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, residence: Option<ValueId>)
+    -> Result<(Binding, Binding), String> {
+    if residence.is_none() && !matches!(expression.value, Operand::NormalInteger(_)) {
+        return Err(freeze("expression/scalar-continuation-result"));
+    }
     let mut writer = RawRootGraphWriterV1;
+    if let Some(value) = residence {
+        let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+        let install = MirInstruction::StringResidenceInstall { value };
+        builder.emit_instruction(install.clone())?;
+        expression.bindings.push((block, install));
+        expression.acquired.pop();
+    }
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.bindings)?;
     let normal: Vec<_> = expression.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
-    let fault = pending_operations(&expression.acquired, &expression.homes);
+    let mut homes = expression.homes.clone();
+    if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
+    let fault = pending_operations(&expression.acquired, &homes);
     let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
     // The Local terminal is an infallible Jump. Its child acquisitions already
     // own their Fault paths; do not emit a detached terminal-acquisition suffix.
-    let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, expression.fault_frame, clean,
-        &normal, &fault, &after, &[], &mut expression.bindings)?;
-    let terminal = writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?;
+    // Without child cleanup, there is no new fallible operation and no Fault
+    // suffix consumer. Do not retain a detached ReturnFault for finishing to drop.
+    let clean_entry = if normal.is_empty() { clean } else {
+        root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, expression.fault_frame, clean,
+            &normal, &fault, &after, &[], &mut expression.bindings)?.clean
+    };
+    let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean_entry, edge_args: None })?;
     expression.bindings.push(terminal.clone());
     builder.start_new_block(next)?;
     let mut unique = Vec::new();

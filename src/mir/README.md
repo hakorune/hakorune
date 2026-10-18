@@ -495,3 +495,14 @@ source permission. String validation tracks temporary and Home stacks separately
 End consumes temporary top first, then Home top. Fault-side, foreign, duplicate
 or out-of-order installation is rejected. All actual events require retained
 source lifecycle coverage; generic legacy/VM JSON routes remain fail-closed.
+
+Owned Text Local initializers reuse the acquired result without Copy. Their
+original initializer packet records the exact Install and is atomically published
+with the completed Local Home after its receipt; no second packet or provisional
+Home is issued. The common expression validator proves acquisition faults and
+child cleanup, while the existing root cleanup owner proves the retained Home's
+later End. Finalized physical admission borrows only the exact surviving Install
+from that same packet, Home and finished projection. Packet membership follows
+the current affine group owner, never a retry of the emptied lowering pool.
+Residence/finite-entry reads and complete Text argument closure remain separate
+obligations; the Local handoff does not grant them.

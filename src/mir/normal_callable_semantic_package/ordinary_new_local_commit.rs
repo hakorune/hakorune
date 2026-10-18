@@ -576,7 +576,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let emission = match row {
                 LocalCommitV1::Ordinary(row) => Some(&row.emission),
                 LocalCommitV1::Result(row) => Some(&row.emission),
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) => None,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) => None,
             };
             emission.is_some_and(|emission| {
                 matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })

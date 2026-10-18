@@ -4,7 +4,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in super::super) fn validate_paths_to_terminal(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        terminal: &Binding, continuation: &Binding,
+        terminal: &Binding, continuation: &Binding, residence: Option<&Binding>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let ledger = context.ledger();
         use super::super::root_cleanup_graph::ordered_paths as paths;
@@ -62,6 +62,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             }
             _ => return Err(freeze("expression/terminal-shape")),
         };
+        if let Some(install) = residence { original_order.push(install.clone()); }
         let ordered = original_order.iter().map(mapped).collect::<Result<Vec<_>, _>>()?;
         let frame = self.require_unique(
             |row| matches!(row, MirInstruction::FaultFrameEnter { dst, .. } if *dst == fault_frame),
@@ -120,6 +121,22 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 live.push(value);
             }
         }
+        let installed = if let Some(original) = residence {
+            let MirInstruction::StringResidenceInstall { value } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
+            if self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {
+                return Err(freeze("expression/residence-original-root"));
+            }
+            let actual = mapped(original)?;
+            if !super::super::physical_boundary::check_binding(function, None, actual.0, &actual.1)? {
+                return Err(freeze("expression/residence-install-missing"));
+            }
+            Some(value)
+        } else { None };
+        let end_sequence = |live: &[ValueId]| {
+            live.iter().rev().copied().chain(installed).map(|value|
+                InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }))
+                .chain(homes.iter().cloned()).collect::<Vec<_>>()
+        };
         let stop = match finishing {
             Some(projection) => projection
                 .destination(continuation.0)
@@ -179,6 +196,12 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     pub(in crate::mir) fn validate_scalar_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        self.validate_local_continuation_v1(context, function, finishing, entry, terminal, continuation, None)
+    }
+    pub(in crate::mir) fn validate_local_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
+        residence: Option<&Binding>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         for original in [entry, terminal, continuation] {
             match finishing {
                 Some(boundary) => { boundary.structural_jump_binding(function, original,
@@ -190,6 +213,6 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 }
             }
         }
-        self.validate_paths_to_terminal(context, function, finishing, terminal, continuation)
+        self.validate_paths_to_terminal(context, function, finishing, terminal, continuation, residence)
     }
 }

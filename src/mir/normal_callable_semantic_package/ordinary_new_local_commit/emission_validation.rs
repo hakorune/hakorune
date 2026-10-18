@@ -47,6 +47,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(_, row)| row.owner() == owner)
         {
             match row {
+                LocalCommitV1::TextResidence(packet) => {
+                    self.validate_text_initializer_home_v1(packet, CallValidationContextV1::Lowering(self))?;
+                    packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
+                    continue;
+                }
                 LocalCommitV1::OwnedArray(_) => {
                     self.validate_owned_array_construction(site, function, projection)?;
                     continue;
@@ -303,6 +308,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
                     LocalCommitV1::Map(other) => other.emitted_bindings(),
                     LocalCommitV1::OwnedArray(other) => other.emitted_bindings(),
+                    LocalCommitV1::TextResidence(_) => &[],
                 })
                 .filter(|(_, instruction)| {
                     matches!(

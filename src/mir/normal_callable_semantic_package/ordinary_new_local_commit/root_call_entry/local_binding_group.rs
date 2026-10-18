@@ -102,7 +102,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 (false, Some(packet)) => packet.resolve_observed_binding_v1(&observed, false)?, _ => observed,
             };
             if !super::super::physical_boundary::check_binding(function, finishing, observed.0, &observed.1)? {
-                return Err(freeze("local-call-binding-drift"));
+                return Err(format!("{} function={} site={:?} projected={} finishing={} binding={observed:?}",
+                    freeze("local-call-binding-drift"), function.signature.name, self.site, self.projected, finishing.is_some()));
             }
         }
         Ok(())
@@ -148,6 +149,10 @@ impl RootLifecyclePrefixBindingGroupV1 {
             .chain(self.initializer().into_iter().flat_map(|packet| packet.calls()))
             .chain(self.bool_condition().into_iter().flat_map(|packet| packet.calls()))
             .chain(self.owned_array_append().and_then(|packet| packet.candidate_packet()))
+    }
+
+    pub(super) fn initializer_rc(&self) -> Option<&Rc<EmittedInitializerExpressionProjectionV1>> {
+        match &self.proof { PrefixPhysicalProofV1::InitializerExpression(packet) => Some(packet), _ => None }
     }
 
     pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
@@ -235,6 +240,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         let coordinates = if self.projected { finishing } else { None };
         match &self.proof {
             PrefixPhysicalProofV1::InitializerExpression(packet) => {
+                context.ledger().validate_text_initializer_home_v1(packet, context)?;
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing).map(drop)
             }

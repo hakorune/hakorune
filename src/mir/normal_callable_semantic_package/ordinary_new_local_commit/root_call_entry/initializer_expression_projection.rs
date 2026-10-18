@@ -29,6 +29,7 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     value: ValueId,
     local: ValueId,
     copy: Option<Binding>,
+    install: Option<Binding>,
     values: Box<[Option<Operand>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
     path_reads: Box<[crate::mir::builder::ExactLexicalReadV1]>,
@@ -41,6 +42,13 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
 impl EmittedInitializerExpressionProjectionV1 {
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.value }
+    pub(in crate::mir::normal_callable_semantic_package) fn local_value(&self) -> ValueId { self.local }
+    pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&Binding> { self.install.as_ref() }
+    pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
+        self.frame.is_text_residence() && self.value == self.local && self.copy.is_none()
+            && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
+                MirInstruction::StringResidenceInstall { value } if *value == self.value))
+    }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedInitializerExpressionFrameV1>, value: ValueId, local: ValueId, copy: Option<Binding>,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
@@ -49,11 +57,13 @@ impl EmittedInitializerExpressionProjectionV1 {
         entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        let packet = Self { frame, value, local, copy, values: values.into_boxed_slice(), calls: calls.into_boxed_slice(),
+        let install = original.iter().find(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).cloned();
+        let packet = Self { frame, value, local, copy, install, values: values.into_boxed_slice(), calls: calls.into_boxed_slice(),
             path_reads: path_reads.into_boxed_slice(), reference_reads, entry, terminal, continuation, original };
         packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
         let covered = packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(CallValidationContextV1::Lowering(ledger))?;
+        if let Some(install) = &packet.install { ordered.push(install.clone()); }
         ordered.push(packet.terminal.clone());
         packet.expression().validate_original_scope(ledger, function, &covered, &packet.entry, &packet.terminal,
             &packet.continuation, &ordered)?;
@@ -66,13 +76,17 @@ impl EmittedInitializerExpressionProjectionV1 {
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let selected = context.ledger().initializer_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?
             .ok_or_else(|| freeze("initializer-expression/source-missing"))?;
-        if !Rc::ptr_eq(&selected, &self.frame) || !self.frame.is_i64()
-            || self.values.first() != Some(&Some(Operand::NormalInteger(self.value)))
+        let expected = if self.frame.is_i64() { Operand::NormalInteger(self.value) }
+            else if self.has_text_home() { Operand::OwnedString(self.value) }
+            else { return Err(freeze("initializer-expression/source-or-result")); };
+        if !Rc::ptr_eq(&selected, &self.frame) || self.values.first() != Some(&Some(expected))
             || !matches!(self.terminal.1, MirInstruction::Jump { edge_args: None, .. })
             || !matches!(self.continuation.1, MirInstruction::Jump { edge_args: None, .. }) {
             return Err(freeze("initializer-expression/source-or-result"));
         }
-        if self.copy.as_ref().is_none_or(|(_, row)| !matches!(row, MirInstruction::Copy { dst, src }
+        let installs = self.original.iter().filter(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).count();
+        if installs != usize::from(self.has_text_home()) { return Err(freeze("initializer-expression/install-census")); }
+        if self.frame.is_i64() && self.copy.as_ref().is_none_or(|(_, row)| !matches!(row, MirInstruction::Copy { dst, src }
             if *dst == self.local && *src == self.value)) { return Err(freeze("initializer-expression/local-copy-receipt")); }
         self.expression().validate_source(context)
     }
@@ -86,7 +100,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         Ok(())
     }
-    pub(super) fn validate_paths(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_paths(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
@@ -110,7 +124,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 }
             }
         }
-        self.expression().validate_scalar_continuation_v1(context, function, finishing, &self.entry, &self.terminal, &self.continuation)
+        self.expression().validate_local_continuation_v1(context, function, finishing, &self.entry, &self.terminal, &self.continuation, self.install.as_ref())
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
