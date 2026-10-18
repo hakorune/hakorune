@@ -169,6 +169,18 @@ impl RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         input: ASTNode,
     ) -> Result<ValueId, String> {
+        self.lower_callable_local_with_receipt_v2(builder, input)
+            .map(|completed| completed.result())
+    }
+
+    /// The sole Local writer and publication tail return their real receipt.
+    /// Checked initializer leases have been consumed before the caller observes
+    /// it; source-scheduled callers must not recreate or republish those leases.
+    pub(in crate::mir::builder) fn lower_callable_local_with_receipt_v2(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: ASTNode,
+    ) -> Result<crate::mir::builder::stmts::CompletedLocalStatementV1, String> {
         let ledger = self
             .callable_ledger
             .clone()
@@ -205,7 +217,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 emission.publish(receipt, claims, builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
             }
         } else if !pending.is_empty() { return Err(freeze("initializer-expression/claim-ledger-missing")); }
-        Ok(completed.result())
+        Ok(completed)
     }
 
     pub(super) fn lower_callable_map_v1(

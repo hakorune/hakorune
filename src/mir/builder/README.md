@@ -2169,3 +2169,8 @@ stay on that port; cloned source/ledger handles only shorten field borrows.
 The terminal verifies ledger identity and original source owner/site/lineage.
 This transport does not authorize checked Loop execution or replace the existing
 source-product fences. The ledger-only entry remains available only to tests.
+
+The Local owner can return its real `CompletedLocalStatementV1` after the same
+state, ordinary-new and checked initializer publication tail. Its raw result
+wrapper borrows `result()`; scheduled callers can borrow the original ordinal's
+initializer without creating a replacement receipt or publishing twice.
