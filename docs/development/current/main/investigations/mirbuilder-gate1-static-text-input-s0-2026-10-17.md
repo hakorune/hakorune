@@ -905,3 +905,43 @@ Inherited remaining Text obligations:
   authority is connected; all named JSON/C and full-goal requirements remain.
 - Full Text and RequiredObjectForwardS0 are unaccepted; prior named-array,
   guarded-receiver and MapGet baseline obligations remain. No full-suite/CI claim.
+
+V905 logical preparation evidence (full source/Home/read connection is open):
+- Existing V2 transfer owner lends complete After collection and shares boundary/
+  branch validation with unchanged sole facade. Issuers take the SAME whole
+  closure, never separate After/signature arguments. No source/Home/physical
+  permission or new operation family is issued by this borrowed view.
+- A129.518s: new mixed fixture first exposed existing MissingFallthroughContinuation
+  rejection; retain that fence. B63.039s:51PASS/7baseline, no zero filters. Existing
+  collection test now covers Text/I64 carriers, predicate-false/zero-trip and two
+  distinct Break payloads, plus missing/duplicate/foreign-class After and branch
+  summary loss/wrong-role/duplicate-payload refusals. Existing source/compiler
+  initializer and selected Loop families pass. Additional existing Dynamic
+  semantic/physical-input12 and producer10 PASS independently exercise the
+  unchanged sole-carrier branch/exit view (total73PASS/7baseline).
+- The seven S6C tests stop before JoinSig at Facts RelationCoverage; same5+2 failures
+  independently reproduce with pinned Root904ZA (baseline receipts retained).
+  This is baseline evidence, not current view regression or full green; the
+  original goal rows retain their mandatory/parked disposition.
+- Stable4/diff PASS. Additional loop_physical_transfer_authority_guard fails on
+  absent completion_seed.rs, also absent in unchanged HEAD891bd7b528 with the
+  guard script unchanged. No authority-guard PASS claim or fabricated replacement.
+- Read-only review found no must-fix source/After-pairing or consumer-fan-out hole.
+  Modified paths are join_sig/v2, transfer_view_v2, existing collection tests and
+  their owner README only. No guard, registry, app or physical issuer added.
+- Keep A/B manifests, focused receipts and pinned B binary for baseline/next-source
+  integration comparison until full source-to-consumer closure. CLI254 build
+  197.908s/SAME B source manifest, binary 1a730cef8989692248cdcbbf7ce429ee2abe9592165770d163bc0fb50997487a;
+  app308 unchanged json 0.398195s exit1/no artifact, exact app307
+  first-stop. No current Loop Home/read or app advance; native success remains
+  CLI253/app306. No fresh native/full-suite/CI or whole-series claim.
+- Additional original-source check: begin_loop creates LoopHeader Join for ALL
+  live bindings, including read-only n. current_scalar_read rejects at alias_origin
+  before producer matching, so an After-only extension cannot qualify the body.
+  The common SourcePlan product must first observe condition/body under SAME
+  Header environment, then atomically publish complete After. Reuse existing
+  normal_callable_loop_handoff Carrier/ReadOnlyOperand/IterationLocal roles:
+  carrier -> exact Header/After Phi; read-only -> unchanged original producer;
+  iteration-local -> no invented Header carrier. Source port/class incoming
+  closure already lives in join_sig/port.rs. Never skip Join or choose LoopEntry
+  as an alias; source-point loans must preserve SAME flow/value/frame/binding.

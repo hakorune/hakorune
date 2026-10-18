@@ -29,8 +29,8 @@ pub(crate) enum LoopJoinClosureRejectV2 {
 /// callers can only retain or borrow the same-Recipe logical control proof.
 #[derive(Debug)]
 pub(crate) struct VerifiedLoopJoinClosureV2<A = VerifiedLoopAfterBinding<LoopValueClassV2>> {
-    join_sig: VerifiedLoopJoinSigV2,
-    after: A,
+    pub(super) join_sig: VerifiedLoopJoinSigV2,
+    pub(super) after: A,
 }
 
 impl VerifiedLoopJoinClosureV2 {
@@ -42,7 +42,7 @@ impl VerifiedLoopJoinClosureV2 {
         super::transfer_view_v2::LoopJoinLogicalTransferViewV2<'_>,
         super::transfer_view_v2::LoopJoinLogicalTransferRejectV2,
     > {
-        super::transfer_view_v2::issue(self, &self.join_sig)
+        super::transfer_view_v2::issue(self)
     }
 
     pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV2 {
@@ -59,6 +59,19 @@ impl VerifiedLoopJoinClosureV2 {
 
     pub(crate) fn after_class(&self) -> LoopValueClassV2 {
         self.after.class()
+    }
+}
+
+impl VerifiedLoopJoinClosureV2<Box<[VerifiedLoopAfterBinding<LoopValueClassV2>]>> {
+    /// Borrow every co-sealed After row through the same logical transfer owner.
+    /// Source/Home and physical correspondence remain separate obligations.
+    pub(in crate::mir::loop_recipe_contract) fn logical_transfer_view(
+        &self,
+    ) -> Result<
+        super::transfer_view_v2::LoopJoinLogicalTransferCollectionViewV2<'_>,
+        super::transfer_view_v2::LoopJoinLogicalTransferRejectV2,
+    > {
+        super::transfer_view_v2::issue_collection(self)
     }
 }
 

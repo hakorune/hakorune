@@ -13,6 +13,13 @@ JoinSig subtree issues one borrowed
 branch item and arm disposition, plus the already co-sealed After. It does not
 issue Recipe blocks, item placement, Exit kind/value, or physical IDs.
 
+The same transfer owner can also lend the complete V2 root After collection.
+Its collection view keeps every co-sealed binding/class and shares the sole
+view's boundary/branch validation. Missing, duplicate or mismatched After rows
+refuse before a view is exposed. The existing sole-carrier facade remains
+cardinality-checked. Collection borrowing is logical preparation for the
+source-bound Loop After connection; it grants no Home or physical admission.
+
 The Dynamic semantic-program owner now co-seals that logical view with verified
 Recipe control and placement. The final package-held
 `VerifiedDynamicExitTransactionCoSealV1`, not a raw inner semantic program,

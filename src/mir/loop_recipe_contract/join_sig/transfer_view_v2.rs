@@ -8,7 +8,7 @@ use super::super::ids::{LoopBindingKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValu
 use super::super::schema_v2::LoopValueClassV2;
 use super::model::{
     LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinNextItemV1,
-    LoopJoinPayloadV2, LoopJoinPortV1,
+    LoopJoinPayloadV2, LoopJoinPortV1, VerifiedLoopAfterBinding,
 };
 use super::v2::VerifiedLoopJoinClosureV2;
 
@@ -62,34 +62,38 @@ pub(crate) struct LoopJoinBranchTransferRefV2<'program> {
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct LoopJoinAfterRefV2<'program> {
-    closure: &'program VerifiedLoopJoinClosureV2,
+    row: &'program VerifiedLoopAfterBinding<LoopValueClassV2>,
 }
 
 impl LoopJoinAfterRefV2<'_> {
     pub(crate) fn loop_key(self) -> LoopNodeKeyV1 {
-        self.closure.after_loop_key()
+        self.row.loop_key()
     }
 
     pub(crate) fn binding(self) -> LoopBindingKeyV1 {
-        self.closure.after_binding()
+        self.row.binding()
     }
 
     pub(crate) fn class(self) -> LoopValueClassV2 {
-        self.closure.after_class()
+        self.row.class()
     }
 }
 
 /// One borrowed logical transfer product. It is not Clone and has no raw
 /// JoinSig/After parts API; callers receive only the exact rows below.
 #[derive(Debug)]
-pub(crate) struct LoopJoinLogicalTransferViewV2<'program> {
+pub(crate) struct LoopJoinLogicalTransferViewV2<'program, A = LoopJoinAfterRefV2<'program>> {
     boundaries: Box<[LoopJoinBoundaryTransferRefV2<'program>]>,
     summaries: Box<[LoopJoinSummaryTransferRefV2<'program>]>,
     branches: Box<[LoopJoinBranchTransferRefV2<'program>]>,
-    after: LoopJoinAfterRefV2<'program>,
+    after: A,
 }
 
-impl LoopJoinLogicalTransferViewV2<'_> {
+/// The complete co-sealed After collection, never a selected first carrier.
+pub(crate) type LoopJoinLogicalTransferCollectionViewV2<'program> =
+    LoopJoinLogicalTransferViewV2<'program, Box<[LoopJoinAfterRefV2<'program>]>>;
+
+impl<A> LoopJoinLogicalTransferViewV2<'_, A> {
     pub(crate) fn boundaries(&self) -> &[LoopJoinBoundaryTransferRefV2<'_>] {
         &self.boundaries
     }
@@ -101,14 +105,23 @@ impl LoopJoinLogicalTransferViewV2<'_> {
     pub(crate) fn branches(&self) -> &[LoopJoinBranchTransferRefV2<'_>] {
         &self.branches
     }
+}
 
+impl LoopJoinLogicalTransferViewV2<'_> {
     pub(crate) fn after(&self) -> LoopJoinAfterRefV2<'_> {
         self.after
     }
 }
 
+impl<'program> LoopJoinLogicalTransferCollectionViewV2<'program> {
+    pub(crate) fn afters(&self) -> &[LoopJoinAfterRefV2<'program>] {
+        &self.after
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopJoinLogicalTransferRejectV2 {
+    AfterCollectionCoverage,
     SummaryCountMismatch {
         summaries: usize,
         branch_exits: usize,
@@ -118,8 +131,64 @@ pub(crate) enum LoopJoinLogicalTransferRejectV2 {
 
 pub(super) fn issue<'program>(
     closure: &'program VerifiedLoopJoinClosureV2,
-    signature: &'program super::model::VerifiedLoopJoinSigV2,
 ) -> Result<LoopJoinLogicalTransferViewV2<'program>, LoopJoinLogicalTransferRejectV2> {
+    issue_view(
+        LoopJoinAfterRefV2 {
+            row: &closure.after,
+        },
+        &closure.join_sig,
+    )
+}
+
+pub(super) fn issue_collection<'program>(
+    closure: &'program VerifiedLoopJoinClosureV2<Box<[VerifiedLoopAfterBinding<LoopValueClassV2>]>>,
+) -> Result<LoopJoinLogicalTransferCollectionViewV2<'program>, LoopJoinLogicalTransferRejectV2> {
+    let mut roots = closure
+        .join_sig
+        .as_sig()
+        .loops
+        .iter()
+        .filter(|row| row.parent.is_none());
+    let root = roots
+        .next()
+        .ok_or(LoopJoinLogicalTransferRejectV2::AfterCollectionCoverage)?;
+    if roots.next().is_some()
+        || closure.after.is_empty()
+        || closure.after.len() != root.carriers.len()
+        || closure.after.iter().enumerate().any(|(index, after)| {
+            after.loop_key() != root.key
+                || closure.after[..index]
+                    .iter()
+                    .any(|previous| previous.binding() == after.binding())
+                || root
+                    .carriers
+                    .iter()
+                    .filter(|carrier| {
+                        carrier.binding == after.binding() && carrier.class == after.class()
+                    })
+                    .count()
+                    != 1
+        })
+    {
+        return Err(LoopJoinLogicalTransferRejectV2::AfterCollectionCoverage);
+    }
+    issue_view(
+        closure
+            .after
+            .iter()
+            .map(|row| LoopJoinAfterRefV2 { row })
+            .collect::<Vec<_>>()
+            .into_boxed_slice(),
+        &closure.join_sig,
+    )
+}
+
+/// Sole and collection callers share the same boundary/branch correspondence.
+/// Only their already co-sealed After payload differs.
+fn issue_view<'program, A>(
+    after: A,
+    signature: &'program super::model::VerifiedLoopJoinSigV2,
+) -> Result<LoopJoinLogicalTransferViewV2<'program, A>, LoopJoinLogicalTransferRejectV2> {
     let signature = signature.as_sig();
     let mut boundaries = Vec::new();
     let mut summaries = Vec::new();
@@ -211,7 +280,7 @@ pub(super) fn issue<'program>(
         boundaries: boundaries.into_boxed_slice(),
         summaries: summaries.into_boxed_slice(),
         branches: branches.into_boxed_slice(),
-        after: LoopJoinAfterRefV2 { closure },
+        after,
     })
 }
 
