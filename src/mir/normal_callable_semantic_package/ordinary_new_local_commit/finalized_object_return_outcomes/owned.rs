@@ -51,7 +51,7 @@ impl FinalizedRootSourceHandoffV1 {
                         return Err(freeze("owned-return/original-exit"));
                     };
                 super::super::super::finalized_root_cleanup::validate_finished_cleanup_entry(
-                    &self.ledger, owner, exit, function, projection, order, entry, bindings, Some(projection),
+                    CallValidationContextV1::Finalized(self), owner, exit, function, projection, order, entry, bindings, Some(projection),
                 )?;
                 let mut returns = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Return { .. }));
                 let original = returns.next().ok_or_else(|| freeze("owned-return/return-missing"))?;

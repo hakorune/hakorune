@@ -442,7 +442,13 @@ impl EmittedLexicalCallProjectionV1 {
                 .map(|copy| (self.row.loan().call_site().clone(), copy.clone())));
         }
         for argument in &self.prepared.arguments {
-            if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+            if let LexicalCallArgumentProjectionV1::Expression(_) = argument {
+                dependencies.extend(argument.expression_copy_dependencies_v1(context)?.into_iter()
+                    .map(|copy| (self.call_site().clone(), copy)));
+                for call in argument.expression_calls_v1() {
+                    dependencies.extend(call.copy_dependencies_in_context(context)?);
+                }
+            } else if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
                 dependencies.extend(inner.copy_dependencies_in_context(context)?);
             } else {
                 for copy in borrowed_projection::copies_in_context(
@@ -509,6 +515,7 @@ impl EmittedLexicalCallProjectionV1 {
     ) -> Result<(), String> {
         self.call_in_context(owner, source, context)?;
         for (argument, original) in self.prepared.arguments.iter().zip(source) {
+            argument.visit_expression_calls_v1(owner, context, visit)?;
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
                 let LocalCallArgumentV1::CallResult(original) = original else {
                     return Err(freeze("lexical-i64/nested-source-missing"));
@@ -544,6 +551,7 @@ impl EmittedLexicalCallProjectionV1 {
         self.prepared.arguments.iter().any(|argument| {
             matches!(argument, LexicalCallArgumentProjectionV1::CallResult(inner)
                 if inner.has_producer_at(site, binding))
+                || argument.expression_calls_v1().any(|call| call.has_producer_at(site, binding))
         })
     }
 

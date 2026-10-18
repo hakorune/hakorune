@@ -335,9 +335,15 @@ impl EmittedLexicalCallProjectionV1 {
     ) -> Result<Option<&Self>, String> {
         let mut found = (self.call_site() == site).then_some(self);
         for argument in &self.prepared.arguments {
-            if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+            let nested = match argument {
+                LexicalCallArgumentProjectionV1::CallResult(inner) => Some(inner.as_ref()),
+                _ => None,
+            };
+            for inner in nested.into_iter().chain(argument.expression_calls_v1()) {
                 if let Some(packet) = inner.retained_node_at_v1(site)? {
-                    if found.replace(packet).is_some() { return Err(freeze("call-validation/duplicate-source-node")); }
+                    if found.replace(packet).is_some() {
+                        return Err(freeze("call-validation/duplicate-source-node"));
+                    }
                 }
             }
         }

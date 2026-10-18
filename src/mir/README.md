@@ -541,3 +541,11 @@ Call argument preparation precedes construction of that Call's Fault graph.
 The shared expression projection separately checks ordered acquisitions and
 operation Fault unwinds; purpose wrappers retain Normal cleanup and terminal
 validation. This separation adds no live-out or Text argument permission.
+
+Expression arguments lend their original nested Call packets and exact Copy
+chains into the enclosing Call tree. Common local and terminal validation checks
+argument evaluation physically against the same function and finished boundary;
+Direct scalar validation uses that same argument owner. Hierarchical coverage
+keeps child acquisition stacks outside the parent's live stack. Physical finish
+coordinates and recorded-group coordinates are distinct, preserving one mapping.
+This consumer connection does not authorize Text live-out or remove entry fences.

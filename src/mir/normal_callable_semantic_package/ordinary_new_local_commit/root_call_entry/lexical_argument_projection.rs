@@ -1,5 +1,6 @@
 //! Tie an observed argument value to the original lexical argument meaning.
 use super::*;
+use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
 impl LexicalCallArgumentProjectionV1 {
     pub(in crate::mir) fn value_for_source_v1(
@@ -231,12 +232,75 @@ impl LexicalCallArgumentProjectionV1 {
         function: &crate::mir::MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
         bindings: &[Binding],
+        coordinates: Option<&super::super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        if let Self::Expression(packet) = self {
+            let covered = packet.validate(context, function, finishing)?;
+            packet.expression().validate_recorded(bindings, coordinates)?;
+            return Ok(covered);
+        }
+        Ok(Default::default())
+    }
+
+    pub(super) fn expression_copy_dependencies_v1(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
+        let mut copies = Vec::new();
+        if let Self::Expression(packet) = self {
+            packet.validate_source(context)?;
+            for read in &packet.path_reads { copies.extend_from_slice(read.original_copy_dependencies_v1()?); }
+            for read in packet.reference_reads.values() { copies.extend_from_slice(read.original_copy_dependencies_v1()?); }
+            for node in packet.frame.source().nodes() {
+                copies.extend(context.ledger().checked_field_copy_dependencies_v1(
+                    &OwnedExprSiteV1::new(packet.frame.source().owner(), node.site().clone()), context)?);
+            }
+        }
+        Ok(copies)
+    }
+
+    /// Child packets remain borrowed from their original evaluation, never
+    /// reconstructed from the flattened MIR or promoted to another pool.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expression_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        match self { Self::Expression(packet) => Some(packet.as_ref()), _ => None }
+            .into_iter().flat_map(|packet| packet.calls.iter().map(std::rc::Rc::as_ref))
+    }
+
+    pub(super) fn visit_expression_calls_v1(
+        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>,
+        visit: &mut impl FnMut(&EmittedLexicalCallProjectionV1, &[LocalCallArgumentV1]) -> Result<(), String>,
     ) -> Result<(), String> {
         if let Self::Expression(packet) = self {
-            packet.validate(context, function, finishing)?;
-            packet.expression().validate_recorded(bindings, finishing)?;
+            packet.validate_source(context)?;
+            for (source, call) in packet.frame.evaluation().calls().iter().zip(&packet.calls) {
+                call.visit_original_nodes_in_context_v1(owner, source.arguments(), context, visit)?;
+            }
         }
         Ok(())
+    }
+}
+
+impl EmittedLexicalCallProjectionV1 {
+    /// The enclosing Call is the common consumer of its source-bound argument
+    /// evaluations. Completed scalar children stay outside its live-temp stack.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_expression_arguments_v1(
+        &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
+        finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let mut covered = std::collections::BTreeSet::new();
+        for (ordinal, argument) in self.prepared.arguments.iter().enumerate() {
+            if let LexicalCallArgumentProjectionV1::Expression(packet) = argument {
+                let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal: original, .. } = packet.frame.source().root()
+                    else { return Err(freeze("argument-expression/source-purpose")) };
+                if packet.frame.source().owner() != self.call_site().owner()
+                    || call.site() != self.call_site().site() || *original as usize != ordinal
+                    || self.row.loan().argument_sites().get(ordinal) != packet.frame.source().nodes().first().map(|node| node.site()) {
+                    return Err(freeze("argument-expression/enclosing-call"));
+                }
+            }
+            covered.extend(argument.validate_expression_physical_v1(context, function, finishing, bindings, coordinates)?);
+            if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+                covered.extend(inner.validate_expression_arguments_v1(context, function, finishing, bindings, coordinates)?);
+            }
+        }
+        Ok(covered)
     }
 }
 

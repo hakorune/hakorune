@@ -148,7 +148,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
             PrefixPhysicalProofV1::PrintExpression(packet) => Some(packet),
             _ => None,
         };
-        self.lexical().into_iter().chain(print.into_iter().flat_map(|packet| packet.calls()))
+        let direct = match &self.proof { PrefixPhysicalProofV1::DirectScalar(packet) => Some(packet), _ => None };
+        self.lexical().into_iter().chain(direct.into_iter().flat_map(|packet| packet.argument_calls_v1()))
+            .chain(print.into_iter().flat_map(|packet| packet.calls()))
             .chain(self.initializer().into_iter().flat_map(|packet| packet.calls()))
             .chain(self.bool_condition().into_iter().flat_map(|packet| packet.calls()))
             .chain(self.owned_array_append().and_then(|packet| packet.candidate_packet()))
@@ -251,7 +253,10 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing)
             },
-            PrefixPhysicalProofV1::Call(Some(packet)) => packet.validate_recorded_projected(&self.bindings, coordinates),
+            PrefixPhysicalProofV1::Call(Some(packet)) => {
+                packet.validate_recorded_projected(&self.bindings, coordinates)?;
+                packet.validate_expression_arguments_v1(context, function, finishing, &self.bindings, coordinates).map(drop)
+            },
             PrefixPhysicalProofV1::Call(None) => Ok(()),
             PrefixPhysicalProofV1::DirectScalar(packet) => packet.validate(context, function, finishing, &self.bindings, coordinates),
             PrefixPhysicalProofV1::BoolCondition(packet) =>

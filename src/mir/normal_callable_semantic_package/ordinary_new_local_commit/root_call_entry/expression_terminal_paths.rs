@@ -79,6 +79,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         let (mut live, mut covered) = self.validate_acquisition_paths_v1(
             function, &ordered, &homes, fault_frame,
         )?;
+        // Argument evaluations own their internal acquisition/Normal cleanup.
+        // Cover their effects hierarchically; never add their temporary values
+        // to this enclosing evaluation's live stack.
+        for call in self.calls() {
+            covered.extend(call.validate_expression_arguments_v1(context, function, finishing,
+                self.original, None)?);
+        }
         let installed = if let Some(original) = residence {
             let MirInstruction::StringResidenceInstall { value } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
             if self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {

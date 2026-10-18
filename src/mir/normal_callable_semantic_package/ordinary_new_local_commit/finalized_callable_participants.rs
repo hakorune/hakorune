@@ -329,7 +329,7 @@ impl FinalizedRootSourceHandoffV1 {
                             }
                         }
                         super::finalized_root_cleanup::validate_finished_cleanup_entry(
-                            &self.ledger,
+                            CallValidationContextV1::Finalized(self),
                             owner,
                             exit,
                             function,

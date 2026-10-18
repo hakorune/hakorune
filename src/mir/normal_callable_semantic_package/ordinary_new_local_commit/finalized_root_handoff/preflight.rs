@@ -149,7 +149,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 self.validate_call_entry(owner, exit, function, Some(projection), entry, bindings)?;
             }
             super::super::finalized_root_cleanup::validate_finished_cleanup_entry(
-                self,
+                CallValidationContextV1::Lowering(self),
                 owner,
                 exit,
                 function,

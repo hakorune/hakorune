@@ -218,7 +218,7 @@ impl FinalizedRootSourceHandoffV1 {
                         return Err(freeze("borrowed-return/original-exit"));
                     };
                 super::super::finalized_root_cleanup::validate_finished_cleanup_entry(
-                    &self.ledger, owner, exit, function, projection, order, entry, bindings, Some(projection),
+                    CallValidationContextV1::Finalized(self), owner, exit, function, projection, order, entry, bindings, Some(projection),
                 )?;
                 let mut returns = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Return { .. }));
                 let original = returns.next().ok_or_else(|| freeze("borrowed-return/return-missing"))?;
@@ -340,7 +340,7 @@ impl FinalizedRootSourceHandoffV1 {
                         return Err(freeze("mixed-return/original-exit"));
                     };
                 super::super::finalized_root_cleanup::validate_finished_cleanup_entry(
-                    &self.ledger, owner, exit, function, projection, order, entry, bindings, Some(projection),
+                    CallValidationContextV1::Finalized(self), owner, exit, function, projection, order, entry, bindings, Some(projection),
                 )?;
                 let mut returns = bindings.iter().filter(|(_, instruction)| matches!(instruction, MirInstruction::Return { .. }));
                 let original = returns.next().ok_or_else(|| freeze("mixed-return/return-missing"))?;

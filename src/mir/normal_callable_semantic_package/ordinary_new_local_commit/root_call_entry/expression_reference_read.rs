@@ -68,6 +68,9 @@ impl ExpressionReferenceReadV1 {
     pub(in crate::mir) fn definition(&self) -> Option<&Binding> {
         match &self.producer { ReferenceProducerV1::Definition(binding) => Some(binding), _ => None }
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn original_copy_dependencies_v1(&self) -> Result<&[Binding], String> {
+        self.read.original_copy_dependencies_v1()
+    }
     pub(super) fn dependencies(&self) -> Result<impl Iterator<Item = &Binding>, String> {
         Ok(self.definition().into_iter().chain(self.read.original_copy_dependencies_v1()?))
     }

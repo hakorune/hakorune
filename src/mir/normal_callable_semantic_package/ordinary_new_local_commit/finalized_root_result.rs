@@ -81,7 +81,7 @@ impl FinalizedRootSourceHandoffV1 {
                             _ => return Err(freeze("root-result/source-unsupported")),
                         }
                         super::finalized_root_cleanup::validate_finished_cleanup_entry(
-                            &self.ledger,
+                            CallValidationContextV1::Finalized(self),
                             self.owner,
                             exit,
                             function,

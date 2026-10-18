@@ -58,7 +58,7 @@ impl FinalizedRootSourceHandoffV1 {
                 }
                 let finishing = original.then_some(projection);
                 if let Some(site) = exit.explicit_site() {
-                    validate_finished_cleanup_entry(&self.ledger, *owner, site, function,
+                    validate_finished_cleanup_entry(CallValidationContextV1::Finalized(self), *owner, site, function,
                         projection, order, entry, bindings, finishing)?;
                 } else {
                     let RootHomeExitProgress::Emitted { origins, .. } = progress else {
@@ -178,7 +178,7 @@ impl FinalizedRootSourceHandoffV1 {
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
                             validate_finished_cleanup_entry(
-                                &self.ledger,
+                                CallValidationContextV1::Finalized(self),
                                 *owner,
                                 exit,
                                 function,
@@ -210,7 +210,7 @@ impl FinalizedRootSourceHandoffV1 {
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
                             validate_finished_cleanup_entry(
-                                &self.ledger,
+                                CallValidationContextV1::Finalized(self),
                                 *owner,
                                 exit,
                                 function,
@@ -234,7 +234,7 @@ impl FinalizedRootSourceHandoffV1 {
 /// exit. `finishing` maps original storage; finalized Call storage is already
 /// rebound by its existing owner and supplies `None`.
 pub(super) fn validate_finished_cleanup_entry(
-    ledger: &OrdinaryNewClaimLedgerV1,
+    context: CallValidationContextV1<'_>,
     owner: FunctionOwnerIdV1,
     exit: &SourceStmtSiteV1,
     function: &MirFunction,
@@ -244,6 +244,13 @@ pub(super) fn validate_finished_cleanup_entry(
     bindings: &[(BasicBlockId, MirInstruction)],
     finishing: Option<&physical_boundary::FinishedBindings>,
 ) -> Result<(), String> {
+    let ledger = context.ledger();
+    if let RootHomeExitEntry::Call { row: super::super::RootCallDispositionV1::Lexical(packet), arguments, invoke, projection: result, frame, .. } = entry {
+        let mut recorded = arguments.clone();
+        recorded.extend([invoke.clone(), result.clone(), frame.clone()]);
+        packet.validate_expression_arguments_v1(context, function,
+            Some(projection), &recorded, finishing.is_none().then_some(projection))?;
+    }
     let mut mandatory = match finishing {
         Some(finishing) => finishing.bindings(bindings)?,
         None => bindings.to_vec(),

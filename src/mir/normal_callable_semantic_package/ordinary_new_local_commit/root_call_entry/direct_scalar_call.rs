@@ -108,6 +108,13 @@ impl DirectScalarCallProjectionV1 {
             }
         }
     }
+    pub(super) fn argument_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        let projections = match &self.origin {
+            ScalarCallSourceV1::Direct(row) => row.argument_projections_v1().unwrap_or(&[]),
+            ScalarCallSourceV1::Static { .. } => &[],
+        };
+        projections.iter().flat_map(|argument| argument.expression_calls_v1())
+    }
     pub(super) fn value(&self, source: &LocalCallObservationV1, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
         if source != &self.source { return Err(freeze("direct-scalar/foreign-observation")); }
         self.validate_source(context)
@@ -129,7 +136,7 @@ impl DirectScalarCallProjectionV1 {
         if expected.as_slice() != bindings { return Err(freeze("direct-scalar/recorded-membership")); }
         if let ScalarCallSourceV1::Direct(row) = &self.origin {
             for argument in row.argument_projections_v1().unwrap_or(&[]) {
-                argument.validate_expression_physical_v1(context, function, finishing, bindings)?;
+                argument.validate_expression_physical_v1(context, function, finishing, bindings, coordinates)?;
             }
         }
         for original in self.original.iter().chain(&self.dependencies) {
