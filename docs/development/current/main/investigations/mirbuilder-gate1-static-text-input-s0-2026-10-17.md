@@ -770,43 +770,14 @@ Next common source Decision (allocation_source_connection):
   outer carriers reach verified After. Current end reads must retain that After
   producer. Do not substitute initial start, arbitrary Phi or a special Text loop.
 
-V895 construction (behavior-preserving normalization, same worker Decision):
-- Bool purpose now owns only the shared CheckedExpressionEvaluation and logical
-  nodes. Existing scalar tuple obligations become the SAME Scalar Obligation
-  reference variant; common exact coverage excludes identity/transferred nodes.
-- Both original recursive writer and independent source verifier explicitly
-  accept only Scalar Obligation in this slice. Original/Text proof variants
-  remain refused here; their connection follows in the same Text series.
-  No conditional execution, operator domain or owned-acquisition change.
-- Existing final-field-batch, scalar-expression-claim and original Print/Bool
-  final-consumer tests are the focused regression gates. No new test or guard.
-
-V895 focused evidence:
-- Root895A quick-test-fast no-run PASS 78.411613s. Existing final-field-batch
-  transaction1 and original Print/Bool final-consumer1 PASS; scalar-expression
-  claims15 PASS/1 baseline red. The same failing test
-  static_current_owner_eq_home_rejects_incomplete_or_reordered_pair fails in
-  pinned Root894A with the exact same static-mixed/home-missing diagnostic at
-  scalar_expression_claim_tests.rs:55. No new regression is inferred or hidden.
-- allocation_source_connection actual three-file diff review PASS: empty Core/
-  acquisition sets preserve Ordinary-only Bool call profile, exact common
-  reference coverage matches prior identity/transfer exclusions, source/order/
-  logical reach unchanged. This is shared responsibility normalization, not new
-  source execution or a change in the original JSON first-stop.
-
-- CLI241 quick build PASS 179.102846s; new binary
-  5b3834cdd6e5d590ddb98b54a64b92fde70213a2c14f056bdedc68e42e79703a.
-  app291 unchanged JSON direct canonical/MIR emit-exe, pure-first/no replay/
-  plugins off: .395044s exit1/no EXE, stderr byte-equal app290, same slot20 Body7
-  Value core-expression-execution-pending. Exact current compiler source was
-  checked; pinned predecessor runtime894A/FFI894C used with explicit source
-  deltas (compiler-only normalization/README, and historical C/test deltas for
-  the runtime). This pre-backend rejection does not claim current runtime build.
-- Stable pointer/reference-route/layer/thin-shim guards and diff check PASS.
-  No new test/guard. Duplicate Bool frame storage and scalar tuple map are
-  removed; common evaluation is the sole retained body. No source execution
-  edge was switched or became caller-zero. Retain matched Root895A/CLI241,
-  app291 and exact baseline-failure evidence until full Text acceptance.
+V895 Bool-purpose/evaluation normalization landed in b29a35fb86. That commit
+owns original field-batch/short-circuit/final-consumer17 PASS, one pinned
+Root894A-equivalent scalar baseline failure, CLI241/app291 (.395044s unchanged
+slot20 Body7 source first-stop), worker review and stable guards. Bool stores
+only SAME checked evaluation plus logical-purpose nodes; original writer and
+independent source verifier still admit Scalar Obligation only. No source
+execution switch, new test/guard or retired physical edge. Retain its matched
+build/app/baseline receipts until full Text acceptance.
 
 Next source integration detail (same Decision, worker follow-up):
 - Extract initializer's seed-reference loop into the existing evaluation owner,
@@ -823,3 +794,66 @@ Next source integration detail (same Decision, worker follow-up):
 - Source qualification alone cannot activate Text. Both physical reader and
   independent final consumers must fulfill SAME entry/residence/reference proof
   and cleanup before admission. Existing short-circuit reach remains authoritative.
+
+
+V896 construction Decision (behavior-preserving, same Text series):
+- Put reference seeding in the existing checked evaluation owner. Initializer
+  and Bool retain their existing candidate issuers; common source-node/proof
+  matching, proof-derived leaf class, live residence, unique entry loan and seed
+  installation are checked once. Missing candidate stays unresolved; malformed
+  Some rejects the whole frame. Finite entry class still comes from original
+  SUM plus original Null exclusion, never an unconditional Text class.
+- Keep initial entry loans as a list until duplicate validation, not a map that
+  silently drops duplicates. Preserve initializer preorder and Bool postorder
+  candidate traversal. Initializer offers Original I64 only; Bool offers Scalar
+  Obligation only. No String literal/relational/source execution widening here.
+- Active-reference role excludes the exact source FieldAccess.object site;
+  this does not create Identity or permission. Sole field_request/node_in_plan
+  validation still supplies receiver Identity during leaf completion. Ordinary
+  Call-owned inputs stay transferred. Worker reviewed all four actual files.
+- Paths: home_expression_evaluation/leaves/initializer_expression/bool_condition,
+  resolved-semantics README and this card. Existing initializer source/entry/
+  residence, final-field-batch, scalar-expression and Print/Bool final-consumer
+  tests cover the change; no new test/guard/proof app. Entry issuer generalization
+  and physical source reference fulfillment remain next, not silently enabled.
+
+V896 verification/retention:
+- Root896A quick-test-fast no-run PASS 71.912962s. Existing initializer family7,
+  final-field-batch1, scalar claims15 and original Print/Bool both-consumer1:
+  24 PASS/1 same baseline. Failing static_current_owner_eq_home_rejects_incomplete_
+  or_reordered_pair retains the exact Root894A/V895 static-mixed/home-missing
+  error and source line55. The first mistaken module filter matched0 and was
+  excluded; corrected initializer_expression_tests:: actually executed7 tests.
+- CLI242 quick build PASS 176.798151s, SHA
+  48c532eaa313f138b9b6a165ffb500ffaf78ada11e007a00d0ec799e460016c3.
+  app292 unchanged JSON direct canonical/MIR emit-exe with pure-first/no replay/
+  plugins off: .394872s exit1/no EXE; stderr byte-equal app291, same slot20 Body7
+  Value core-expression-execution-pending. Current compiler manifest exact;
+  runtime894A/FFI894C predecessor pins and explicit compiler-only/C/test source
+  deltas recorded, not a claim all three artifacts were rebuilt at this revision.
+- Stable pointer/reference-route/layer/thin-shim and diff checks PASS. Worker
+  reviewed exact role exclusion and duplicate/malformed/residence/entry bounds.
+  Keep matched Root896A/CLI242/app292 receipts plus existing native/source roles
+  until full Text acceptance. No temporary adapter or additional test/guard;
+  initializer-private reference seeding is now removed in favor of common owner.
+
+Next physical Decision (reference_integration_review, same Text series):
+- Reuse SAME ExpressionReferenceReadV1 for original read/producer/Copy dependencies
+  in expression and Bool final validators; move duplicate Static preparation/
+  source checks into that owner. Residence requires SAME initializer frame to
+  real packet value plus exact Copy/liveness; entry retains original finite SUM,
+  exclusion and full descriptor/carrier/ordinal proof, never Text-only inference.
+- Bool recursive writer must call the common checked String Invoke primitive
+  after original ordered children; do not call the eager whole-value evaluator
+  for Or. Separate raw Invoke (result kind,ValueId) from String operand building:
+  adding Bool to StringInvokeOperand would incorrectly make is_text accept Bool.
+  Checked comparison proof carries Invoke/Normal/cleanup and original envelope;
+  existing cursors/short-circuit completion/outer Branch seal retain control.
+- Text Local publication first needs a real temporary-to-Home handoff, using SAME
+  initializer packet/CompletedLocalBinding identity (existing ReuseInitializer,
+  no owned pair Copy), existing local_commits/installed_home/unwind/end_plan.
+  Root is last acquired: simply dropping its End from scalar continuation would
+  end earlier children while root remains live and violate the common LIFO law.
+  Join the source-backed handoff with the common lifetime verifier before child
+  cleanup; Fault must end root, remaining temporaries and priorHomes exactly once.
+  A new enum arm or weakened LIFO alone cannot authorize ownership transfer.

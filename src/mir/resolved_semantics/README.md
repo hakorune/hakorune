@@ -567,6 +567,11 @@ Whole Bool condition frames retain the same `CheckedExpressionEvaluationV1`
 source, ordered nodes, call/operator loans and exact reference proof map used
 by initializer, argument and Print purposes. The Bool wrapper adds logical
 nodes; the original short-circuit writer preserves conditional RHS reach.
+Initializer and Bool reference candidates use the same proof-derived seeding
+owner before leaf projection: original node/binding, finite entry class with
+Null exclusion, residence acquisition/live Home and duplicate reads are checked
+there. A field receiver is excluded from value seeding by its exact object site;
+only the existing checked field request can later establish its Identity role.
 Scalar references remain explicit obligations in this path, checked by the
 exact lexical reader and independent final source verifier; the shared proof
 representation alone does not admit Text or Original scalar references here.

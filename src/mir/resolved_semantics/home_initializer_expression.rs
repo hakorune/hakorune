@@ -70,41 +70,26 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
-    let mut reference_proofs = BTreeMap::new();
+    let mut initial = Vec::new();
     for read in entry_reads {
         let requirement = read.requirement();
-        let refinement = entry_refinement(requirement.read(), requirement.binding(), requirement.formal().1);
-        let Some(class) = read.leaf_class(refinement.as_deref()) else { return Ok(None) };
-        if !Rc::ptr_eq(requirement.source_plan(), &source)
-            || entry_reference(requirement.read()) != Some((requirement.binding(), requirement.formal().1))
-            || source.nodes().get(requirement.node()).is_none_or(|node| node.site() != requirement.read()
-                || !matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == requirement.binding()))
-            || !prepared.seed_reference(requirement.node(), class)
-            || reference_proofs.insert(requirement.node(), CheckedExpressionReferenceV1::InitializerEntry {
-                read: read.clone(), exclusion: refinement,
-            }).is_some() { return Ok(None); }
+        if entry_reference(requirement.read()) != Some((requirement.binding(), requirement.formal().1)) { return Ok(None); }
+        let exclusion = entry_refinement(requirement.read(), requirement.binding(), requirement.formal().1);
+        initial.push((requirement.node(), CheckedExpressionReferenceV1::InitializerEntry { read: read.clone(), exclusion }));
     }
-    for (node, original) in source.nodes().iter().enumerate() {
-        if !prepared.is_active_reference(node) { continue; }
-        let ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = original.source() else { continue };
-        let proof = if let Some(read) = static_reference(original.site()) {
-            CheckedExpressionReferenceV1::StaticText(read)
-        } else if let Some((current, root, acquisition)) = residence_reference(original.site()) {
-            if current != *binding || root != acquisition.binding() || acquisition.source().owner() != source.owner()
-                || !acquisition.is_text_residence() || !homes.contains(&root) { return Ok(None); }
-            CheckedExpressionReferenceV1::Residence(TextResidenceReadV1 { node, binding: current, root, acquisition })
-        } else if let Some(read) = scalar_reference(original.site()) {
-            CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read))
-        } else { continue };
-        let class = match &proof {
-            CheckedExpressionReferenceV1::Scalar(read) => match read.kind() {
-                SourceScalarKind::Integer => Class::I64, SourceScalarKind::Bool => return Ok(None),
-            },
-            _ => Class::String,
-        };
-        if !proof.matches_node(&source, node) || !prepared.seed_reference(node, Leaf::Value(class))
-            || reference_proofs.insert(node, proof).is_some() { return Ok(None); }
-    }
+    let reference_order: Vec<_> = (0..source.nodes().len()).collect();
+    let Some(mut reference_proofs) = super::evaluation::seed_expression_references_v1(&mut prepared, initial, &reference_order,
+        &mut |node, site| {
+            let proof = if let Some(read) = static_reference(site) {
+                CheckedExpressionReferenceV1::StaticText(read)
+            } else if let Some((binding, root, acquisition)) = residence_reference(site) {
+                CheckedExpressionReferenceV1::Residence(TextResidenceReadV1::new(node, binding, root, acquisition))
+            } else if let Some(read) = scalar_reference(site) {
+                if read.kind() != SourceScalarKind::Integer { return Err(()); }
+                CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read))
+            } else { return Ok(None) };
+            Ok(Some(proof))
+        }) else { return Ok(None) };
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared,
             &mut |_| None, &order, field_request)? else { return Ok(None) };

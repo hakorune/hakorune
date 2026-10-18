@@ -60,7 +60,10 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool { !self.cores.is_empty() }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(&self, node: usize) -> bool {
         !self.transferred.contains(&node) && self.leaves.get(node) == Some(&Leaf::Unresolved)
-            && self.source.nodes().get(node).is_some_and(|node| matches!(node.source(), ExpressionNodeSourceV1::Reference(_)))
+            && self.source.nodes().get(node).is_some_and(|node| matches!(node.source(), ExpressionNodeSourceV1::Reference(_))
+                && !self.source.nodes().iter().any(|parent| matches!(parent.source(),
+                    ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
+                        if object == node.site())))
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn seed_reference(&mut self, node: usize, class: Leaf) -> bool {
         if !self.is_active_reference(node) || class.value_classes().is_none() { return false; }

@@ -51,9 +51,18 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     let ExpressionPlanRootV1::IfCondition { condition, .. } = source.root() else { return Ok(None) };
     if source.nodes().first().is_none_or(|node| node.site() != condition) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
+    let Some(mut prepared) = super::leaves::prepare_expression_calls_v1(&source,
+        ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(), prior_homes,
+        &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))?
+        else { return Ok(None) };
+    let Some(reference_proofs) = super::evaluation::seed_expression_references_v1(&mut prepared, Vec::new(), &order,
+        &mut |_, site| Ok(scalar_reference(site).map(|(binding, kind)|
+            CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Obligation { binding, kind }))))
+        else { return Ok(None) };
     let Some(QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references, .. }) =
-        super::leaves::qualify_expression_leaves_v1(&source, ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(),
-            scalar_reference, prior_homes, &order, field_request, &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))? else { return Ok(None) };
+        super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
+        else { return Ok(None) };
+    if !references.is_empty() { return Ok(None); }
     if classes[0] != Leaf::Value(Class::Bool) { return Ok(None); }
     let mut operations = Vec::new();
     let mut logical = Vec::new();
@@ -103,8 +112,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
         evaluation: CheckedExpressionEvaluationV1 {
             source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-            operations: operations.into_boxed_slice(), references: references.into_iter().map(|(node, (binding, kind))|
-                (node, CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Obligation { binding, kind }))).collect(),
+            operations: operations.into_boxed_slice(), references: reference_proofs,
             cores: BTreeMap::new(), owned_results: Box::new([]), transferred_inputs: transferred,
         },
         logical: logical.into_boxed_slice(),

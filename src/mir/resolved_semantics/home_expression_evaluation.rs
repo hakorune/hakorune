@@ -114,3 +114,53 @@ impl CheckedScalarReferenceV1 {
         match self { Self::Original(read) => Some(read), Self::Obligation { .. } => None }
     }
 }
+
+/// Seed original references once before leaf projection. Candidate selection is
+/// purpose-owned; a missing candidate remains unresolved, while a malformed
+/// candidate rejects the whole expression. No runtime owner is acquired here.
+pub(super) fn seed_expression_references_v1(
+    prepared: &mut super::leaves::PreparedExpressionCallsV1,
+    initial: Vec<(usize, CheckedExpressionReferenceV1)>, order: &[usize],
+    candidate: &mut impl FnMut(usize, &crate::mir::resolved_semantics::SourceExprSiteV1)
+        -> Result<Option<CheckedExpressionReferenceV1>, ()>,
+) -> Option<std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>> {
+    let source = Rc::clone(prepared.source());
+    let mut proofs = std::collections::BTreeMap::new();
+    // Initial loans are a list: duplicate source reads must reject, even after
+    // the first loan has resolved its node and made it inactive.
+    for (node, proof) in initial {
+        seed_reference_v1(prepared, &source, node, proof, &mut proofs)?;
+    }
+    for &node in order {
+        if !prepared.is_active_reference(node) { continue; }
+        let original = source.nodes().get(node)?;
+        let Some(proof) = candidate(node, original.site()).ok()? else { continue };
+        seed_reference_v1(prepared, &source, node, proof, &mut proofs)?;
+    }
+    Some(proofs)
+}
+
+fn seed_reference_v1(
+    prepared: &mut super::leaves::PreparedExpressionCallsV1,
+    source: &Rc<ExpressionSourcePlanV1>, node: usize, proof: CheckedExpressionReferenceV1,
+    proofs: &mut std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>,
+) -> Option<()> {
+    use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
+        expression_projection::ExpressionLeafClassV1 as Leaf};
+    if proofs.contains_key(&node) || !proof.matches_node(source, node) { return None; }
+    let class = match &proof {
+        CheckedExpressionReferenceV1::Scalar(read) => Leaf::Value(match read.kind() {
+            super::super::SourceScalarKind::Integer => Class::I64,
+            super::super::SourceScalarKind::Bool => Class::Bool,
+        }),
+        CheckedExpressionReferenceV1::InitializerEntry { read, exclusion } => read.leaf_class(exclusion.as_deref())?,
+        CheckedExpressionReferenceV1::Residence(read) => {
+            if !read.acquisition().is_text_residence() || !prepared.prior_homes().contains(&read.root()) { return None; }
+            Leaf::Value(Class::String)
+        },
+        CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::ArgumentEntry(_) => Leaf::Value(Class::String),
+    };
+    if !prepared.seed_reference(node, class) { return None; }
+    proofs.insert(node, proof);
+    Some(())
+}
