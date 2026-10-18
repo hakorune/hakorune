@@ -28,6 +28,20 @@ impl<'a> CallValidationContextV1<'a> {
             check(found.ok_or_else(|| freeze("field-write/original-packet-missing"))?)
         })
     }
+    pub(in crate::mir) fn with_original_rebind_v1<R>(self,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
+        check: impl FnOnce(&EmittedBindingRebindProjectionV1) -> Result<R, String>,
+    ) -> Result<R, String> {
+        self.with_local_call_groups_v1(frame.source().owner(), |groups| {
+            let mut found = None;
+            for group in groups {
+                let Some(packet) = group.rebind() else { continue };
+                if !std::rc::Rc::ptr_eq(packet.frame(), frame) { continue; }
+                if found.replace(packet).is_some() { return Err(freeze("rebind-expression/packet-duplicate")); }
+            }
+            check(found.ok_or_else(|| freeze("rebind-expression/packet-missing"))?)
+        })
+    }
     pub(in crate::mir) fn with_original_initializer_v1<R>(self,
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1>,
         check: impl FnOnce(&EmittedInitializerExpressionProjectionV1) -> Result<R, String>,

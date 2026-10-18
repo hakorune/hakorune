@@ -6,8 +6,8 @@ use crate::mir::{ValueId, ConstValue};
 use crate::mir::instruction::StringInvokeOperand as Operand;
 use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1 as Reference};
 
-#[derive(Debug)]
-enum ReferenceProducerV1 { Definition(Binding), Entry(ValueId) }
+#[derive(Debug, Clone, PartialEq)]
+pub(in crate::mir) enum ReferenceProducerV1 { Definition(Binding), Entry(ValueId) }
 #[derive(Debug)]
 pub(in crate::mir) struct ExpressionReferenceReadV1 {
     read: ExactLexicalReadV1,
@@ -106,11 +106,29 @@ impl ExpressionReferenceReadV1 {
     pub(super) fn dependencies(&self) -> Result<impl Iterator<Item = &Binding>, String> {
         Ok(self.definition().into_iter().chain(self.read.original_copy_dependencies_v1()?))
     }
+    /// Reuse the RHS's already checked producer. An alias Copy is itself the
+    /// result definition; self-assignment of an entry has no new instruction.
+    pub(in crate::mir) fn result_producer_v1(&self, value: ValueId) -> Result<ReferenceProducerV1, String> {
+        if self.read.source_value().2 != value { return Err(freeze("rebind-expression/rhs-read-value")); }
+        if let Some(copy) = self.read.original_copy_dependencies_v1()?.last() {
+            if copy.1.dst_value() == Some(value) { return Ok(ReferenceProducerV1::Definition(copy.clone())); }
+        }
+        match &self.producer {
+            ReferenceProducerV1::Definition(binding) if binding.1.dst_value() == Some(value) => Ok(self.producer.clone()),
+            ReferenceProducerV1::Entry(entry) if *entry == value => Ok(self.producer.clone()),
+            _ => Err(freeze("rebind-expression/rhs-producer")),
+        }
+    }
     fn prepare_scalar(
         source: &CurrentScalarReadV1, read: &ExactLexicalReadV1,
         context: CallValidationContextV1<'_>, function: &MirFunction,
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         let producer = match source.producer() {
+            Producer::BindingRebind(frame) => context.with_original_rebind_v1(frame, |packet| {
+                let value = read.loan_checked_rebind_v1(frame)?.0;
+                if packet.value() != value { return Err(freeze("expression/rebind-assigned-value")); }
+                Ok(packet.root_producer().clone())
+            })?,
             Producer::SignedEntry(formal) => {
                 let ordinal = signed_entry_ordinal(source, *formal, context)?;
                 let value = *function.params.get(ordinal).ok_or_else(|| freeze("expression/scalar-entry-param"))?;
@@ -209,6 +227,15 @@ fn validate_source(source: &CurrentScalarReadV1, read: &ExactLexicalReadV1, prod
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
     let value = read.value_for(source.binding().owner(), source.read().node(), source.binding()).map_err(|error| error.to_string())?;
+    if let Producer::BindingRebind(frame) = source.producer() {
+        return context.with_original_rebind_v1(frame, |packet| {
+            let assigned = read.loan_checked_rebind_v1(frame)?.0;
+            if assigned != packet.value() || producer != packet.root_producer() {
+                return Err(freeze("expression/rebind-original-producer"));
+            }
+            Ok(value)
+        });
+    }
     match (source.producer(), producer) {
         (Producer::SignedEntry(formal), ReferenceProducerV1::Entry(entry)) => {
             signed_entry_ordinal(source, *formal, context)?;

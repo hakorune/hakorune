@@ -122,7 +122,7 @@ pub(in crate::mir::builder) use variable_assignment_descent::{
     drive_variable_assignment_v1, RawLegacyVariableAssignmentInputV1,
     VariableAssignmentDescentPortV1,
 };
-mod variable_assignment_completion;
+pub(in crate::mir) mod variable_assignment_completion;
 pub(super) mod variable_stmt;
 
 #[cfg(test)]

@@ -585,6 +585,7 @@ mod ssa; // LocalSSA helpers (in-block materialization)
 pub(in crate::mir) use ssa::local::{LocalSsaPhysicalIndexV1, LocalSsaPhysicalRelationV1};
 mod static_scalar_facts; // Narrow verified static-scalar method fact surface
 mod stmts;
+pub(in crate::mir) use stmts::variable_assignment_completion::CompletedVariableAssignmentV1;
 mod type_context; // Phase 136 follow-up: TypeContext extraction
 mod type_facts; // Phase 136 follow-up: Type inference facts box
 pub(crate) mod type_registry;

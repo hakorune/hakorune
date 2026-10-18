@@ -3,8 +3,23 @@ use super::*;
 use crate::mir::builder::stmts::CompletedLocalBindingV1;
 use crate::mir::{BasicBlockId, MirInstruction};
 
+#[derive(Debug, Clone)]
+enum LocalProducerPurposeV1 {
+    Initializer,
+    BindingRebind(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>),
+}
+impl PartialEq for LocalProducerPurposeV1 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Initializer, Self::Initializer) => true,
+            (Self::BindingRebind(a), Self::BindingRebind(b)) => std::rc::Rc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub(in crate::mir) struct LocalProvenanceV1 {
+    purpose: LocalProducerPurposeV1,
     root: BindingRefV1,
     root_value: ValueId,
     copies: Vec<(BasicBlockId, MirInstruction)>,
@@ -19,8 +34,19 @@ impl LocalProvenanceV1 {
     /// The caller still owes the original source initializer and actual producer.
     pub(in crate::mir) fn loan_initializer_v1(&self, root: BindingRefV1, result: ValueId)
         -> Result<(ValueId, &[(BasicBlockId, MirInstruction)]), String> {
+        if !matches!(self.purpose, LocalProducerPurposeV1::Initializer) {
+            return Err("[freeze:contract][local-read/rebind-not-initializer]".into());
+        }
         let copies = self.loan_copies(root, self.root_value, result)?;
         Ok((self.root_value, copies))
+    }
+    pub(in crate::mir) fn loan_checked_rebind_v1(&self,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>, result: ValueId,
+    ) -> Result<(ValueId, &[(BasicBlockId, MirInstruction)]), String> {
+        if !matches!(&self.purpose, LocalProducerPurposeV1::BindingRebind(original) if std::rc::Rc::ptr_eq(original, frame)) {
+            return Err("[freeze:contract][local-read/rebind-purpose]".into());
+        }
+        Ok((self.root_value, self.loan_copies(frame.target(), self.root_value, result)?))
     }
     pub(super) fn matches(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.root == binding && self.root_value == value
@@ -101,6 +127,7 @@ impl MaterializedValuesV1 {
             return None;
         }
         let proof = entry.provenance.clone().unwrap_or(LocalProvenanceV1 {
+            purpose: LocalProducerPurposeV1::Initializer,
             root: source,
             root_value: entry.value,
             copies: Vec::new(),
@@ -111,7 +138,7 @@ impl MaterializedValuesV1 {
     pub(super) fn initializer_provenance(
         binding: BindingRefV1, row: &CompletedLocalBindingV1,
     ) -> Option<LocalProvenanceV1> {
-        Self::append_local_copy(LocalProvenanceV1 { root: binding,
+        Self::append_local_copy(LocalProvenanceV1 { purpose: LocalProducerPurposeV1::Initializer, root: binding,
             root_value: row.initializer(), copies: Vec::new() }, row)
     }
 
@@ -122,6 +149,15 @@ impl MaterializedValuesV1 {
             None => return None,
         }
         Some(proof)
+    }
+
+    pub(super) fn attach_checked_rebind(&mut self,
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>, value: ValueId,
+    ) {
+        let binding = frame.target();
+        self.attach_provenance(binding, Some(LocalProvenanceV1 {
+            purpose: LocalProducerPurposeV1::BindingRebind(frame), root: binding, root_value: value, copies: Vec::new(),
+        }));
     }
 
     pub(super) fn attach_provenance(
@@ -160,6 +196,7 @@ mod copy_loan_tests {
             .issue()
             .unwrap();
         LocalProvenanceV1 {
+            purpose: LocalProducerPurposeV1::Initializer,
             root: BindingRefV1::new(owner, BindingId::new(1)),
             root_value: ValueId(77),
             copies: vec![
@@ -236,5 +273,20 @@ mod copy_loan_tests {
         assert!(original
             .loan_copies(foreign.root, ValueId(77), ValueId(79))
             .is_err());
+    }
+}
+
+impl CallableSemanticLoweringState {
+    pub(in crate::mir::builder) fn record_checked_rebind_v1(&mut self,
+        target: &SourceNodeSiteV1,
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
+        value: ValueId,
+    ) -> Result<(), String> {
+        if self.assignments.get(target) != Some(&frame.target()) || frame.source().owner() != self.owner {
+            return Err(freeze("checked-rebind/source-target"));
+        }
+        self.rebind(target, value)?;
+        self.values.attach_checked_rebind(frame, value);
+        Ok(())
     }
 }

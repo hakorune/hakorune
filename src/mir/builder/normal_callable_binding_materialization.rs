@@ -112,6 +112,15 @@ impl RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         input: ASTNode,
     ) -> Result<ValueId, String> {
+        if let (Some(claims), Some(state)) = (&self.ordinary_new_claim_ledger, &self.callable_ledger) {
+            let site = self.current_callable_site_v1("rebind-expression/statement-site")?;
+            let frame = claims.rebind_expression_frame_v1(state.borrow().owner(), &site)?;
+            if let Some(frame) = frame {
+                let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+                return super::ordinary_new_admission::selected::binding_rebind_expression::emit(
+                    builder, &mut state.borrow_mut(), claims, frame, &consume);
+            }
+        }
         let role = match &input {
             ASTNode::Assignment { target, .. }
                 if matches!(target.as_ref(), ASTNode::Variable { .. }) =>

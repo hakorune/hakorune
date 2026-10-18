@@ -1718,6 +1718,13 @@ installation in the existing expression inventory. I64 roots retain no owned
 root; any Text child acquisition still requires the common scalar continuation.
 A source read keeps the exact rebind producer before alias following, including
 self-assignment and later local aliases. It cannot borrow an initializer receipt.
-The source frame grants no physical assignment, provisional Header or After;
-the same Loop product still owes original entry/all updates/exits, V2/JoinSig,
-sole assignment completion, scoped cleanup and both final physical consumers.
+The production walk separately proves the old target is an available I64 and
+owns no Home before installing the rebind. Its mandatory lifecycle prefix uses
+the existing evaluated-binding group. The sole assignment owner accepts an opaque
+source/Home-neutral destination, preserves its completion receipt and omits the
+old scalar's irrelevant strong release. RHS child cleanup precedes publication.
+The materialized value slot retains the exact rebind purpose and shared Copy
+chain; initializer-only loans refuse it. Both final consumers check the same
+expression and destination receipt, including self-assignment with no fresh
+instruction. A provisional Header or complete Loop After is still not granted;
+the same Loop product owes original entry/all updates/exits and V2/JoinSig.

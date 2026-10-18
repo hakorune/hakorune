@@ -2137,3 +2137,13 @@ checks before allocation. Header/After publication uses the selected BindingRef
 directly. AST condition-name collection no longer selects source LoopCond Phis.
 This physical connection does not supply typed Header/Home/rebind/cleanup proofs;
 the complete integrated Loop series still requires those original-source gates.
+
+Checked scalar rebinding uses `selected/binding_rebind_expression`: the original
+Home walk independently proves a neutral destination; an opaque input joins that
+exact frame to the current materialized binding before the shared assignment
+owner runs. Evaluation and child cleanup finish before publication. The existing
+assignment algorithm preserves raw callers and contract behavior; only verified
+scalar destinations omit the old strong release. Mandatory evaluated-binding
+prefixes retain exact receipts/producers through both final consumers, including
+self-assignment and aliases with no new definition. Typed local-contract result
+projection and staged Loop Header/After consumers remain separate obligations.

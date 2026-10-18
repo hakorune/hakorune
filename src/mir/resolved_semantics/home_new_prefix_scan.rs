@@ -215,6 +215,8 @@ pub(super) fn scan_statement_flow<'a, E>(
             ..
         } = statement.node()
         else {
+            if super::binding_rebind::observe(input, &statement, locals, homes, unavailable.is_none(),
+                local_calls, path_calls, local_field_read, borrowed_actuals)? { continue; }
             if super::named_array::observe_append(
                 input,
                 &statement,

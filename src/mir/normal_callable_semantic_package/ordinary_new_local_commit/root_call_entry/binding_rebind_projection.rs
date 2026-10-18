@@ -1,0 +1,149 @@
+//! Rebind purpose of the existing evaluated-binding prefix group.
+//! Expression evaluation/cleanup is shared; only the assignment receipt differs.
+use super::*;
+use std::{collections::BTreeMap, rc::Rc};
+use crate::mir::instruction::StringInvokeOperand as Operand;
+use crate::mir::builder::CompletedVariableAssignmentV1;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
+use crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1;
+use super::expression_projection::{ExpressionReferenceReadV1, ReferenceProducerV1};
+type Binding = (BasicBlockId, MirInstruction);
+
+#[derive(Debug)]
+pub(crate) struct EmittedBindingRebindProjectionV1 {
+    frame: Rc<CheckedBindingRebindFrameV1>,
+    receipt: CompletedVariableAssignmentV1,
+    root: ReferenceProducerV1,
+    values: Vec<Option<Operand>>,
+    calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+    path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
+    reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
+    entry: Binding,
+    terminal: Binding,
+    continuation: Binding,
+    original: Vec<Binding>,
+}
+impl EmittedBindingRebindProjectionV1 {
+    pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> { &self.frame }
+    pub(crate) fn value(&self) -> ValueId { self.receipt.assigned() }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(&self) -> &ReferenceProducerV1 { &self.root }
+    pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
+    pub(in crate::mir) fn new(frame: Rc<CheckedBindingRebindFrameV1>, receipt: CompletedVariableAssignmentV1,
+        values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+        path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>, reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
+        entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
+        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<Self, String> {
+        if receipt.rhs() != receipt.assigned() || values.first() != Some(&Some(Operand::NormalInteger(receipt.rhs()))) {
+            return Err(freeze("rebind-expression/assignment-result"));
+        }
+        let root = if let Some(reference) = reference_reads.get(&0) {
+            reference.result_producer_v1(receipt.rhs())?
+        } else {
+            let mut definitions = original.iter().filter(|(_, row)| row.dst_value() == Some(receipt.rhs()));
+            let root = definitions.next().ok_or_else(|| freeze("rebind-expression/result-definition"))?;
+            if definitions.next().is_some() || function.params.contains(&receipt.rhs()) { return Err(freeze("rebind-expression/result-unique")); }
+            ReferenceProducerV1::Definition(root.clone())
+        };
+        let packet = Self { frame, receipt, root, values, calls, path_reads, reference_reads,
+            entry, terminal, continuation, original };
+        let context = CallValidationContextV1::Lowering(ledger);
+        let covered = packet.validate_paths(context, function, None)?;
+        let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
+        ordered.push(packet.terminal.clone());
+        packet.expression().validate_original_scope(ledger, function, &covered, &packet.entry,
+            &packet.terminal, &packet.continuation, &ordered)?;
+        Ok(packet)
+    }
+    fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
+        super::expression_projection::ExpressionPhysicalProjectionRefV1::new(self.frame.evaluation(), &self.values,
+            &self.calls, &self.path_reads, &self.reference_reads, &self.original)
+    }
+    pub(super) fn validate_recorded(&self, bindings: &[Binding], finishing: Option<&super::super::physical_boundary::FinishedBindings>) -> Result<(), String> {
+        self.expression().validate_recorded(bindings, finishing)?;
+        if [&self.entry, &self.terminal, &self.continuation].iter().any(|row| !self.original.contains(row)) {
+            return Err(freeze("rebind-expression/structural-membership"));
+        }
+        Ok(())
+    }
+    pub(super) fn validate_paths(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let selected = context.ledger().rebind_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?
+            .ok_or_else(|| freeze("rebind-expression/source-missing"))?;
+        if !Rc::ptr_eq(&selected, &self.frame) || self.receipt.rhs() != self.receipt.assigned()
+            || self.values.first() != Some(&Some(Operand::NormalInteger(self.value()))) {
+            return Err(freeze("rebind-expression/source-or-value"));
+        }
+        if !self.receipt.matches_scalar_frame_v1(&self.frame) { return Err(freeze("rebind-expression/target-name")); }
+        self.expression().validate_source(context)?;
+        let covered = self.expression().validate_scalar_continuation_v1(context, function, finishing,
+            &self.entry, &self.terminal, &self.continuation, None)?;
+        Ok(covered)
+    }
+}
+impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn rebind_expression_frame_v1(&self, owner: FunctionOwnerIdV1,
+        statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<Option<Rc<CheckedBindingRebindFrameV1>>, String> {
+        let Some(flow) = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow()) else { return Ok(None) };
+        let mut frames = flow.expression_plans().iter().filter_map(|plan| plan.rebind_frame())
+            .filter(|frame| frame.source().root().statement().node() == statement);
+        let frame = frames.next().cloned();
+        if frames.next().is_some() || frame.as_ref().is_some_and(|frame| frame.source().owner() != owner) {
+            return Err(freeze("rebind-expression/source-duplicate-or-owner"));
+        }
+        Ok(frame)
+    }
+    pub(crate) fn validate_rebind_expression_source_v1(&self, frame: &Rc<CheckedBindingRebindFrameV1>) -> Result<(), String> {
+        let sources = self.expected_local_call_binding_sources(frame.source().owner())?;
+        let count = self.root_local_call_bindings.borrow().get(&frame.source().owner()).map_or(0, Vec::len);
+        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::BindingRebind { frame: original, .. }) if Rc::ptr_eq(original, frame)) {
+            return Err(freeze("rebind-expression/source-prefix-order"));
+        }
+        Ok(())
+    }
+    pub(crate) fn prepare_rebind_expression_bindings(&self, packet: Rc<EmittedBindingRebindProjectionV1>, bindings: Vec<Binding>)
+        -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
+        self.prepare_local_call_binding_group(packet.frame.source().owner(), RootLifecyclePrefixBindingGroupV1::new_rebind(packet, bindings)?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+#[test]
+fn scalar_rebind_keeps_assignment_and_alias_provenance_through_both_final_consumers() {
+    for rhs in ["x", "x + 1", "7", "(\"a\" + \"b\").length()"] {
+        let text = format!("static box Main {{ main() {{ local x = 0 local before = x
+            x = {rhs} local alias = x x = x local after = x
+            local text = \"\" + before + alias + after print(text) return 0 }} }}");
+        let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(&text);
+        let (key, module, same, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
+        assert!(Rc::ptr_eq(&same, &ledger));
+        let handoff = ledger.seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort, Vec::new()).unwrap();
+        let root = handoff.root_source().unwrap();
+        root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(())).unwrap();
+        let packets: Vec<_> = root.local_calls.get(&root.owner()).unwrap().iter().filter_map(|group| group.rebind()).collect();
+        assert_eq!(packets.len(), 2, "both original rebinds remain mandatory: {rhs}");
+        assert_ne!(packets[0].frame().source().root().statement(), packets[1].frame().source().root().statement());
+        assert!(!packets[0].receipt.matches_scalar_frame_v1(packets[1].frame()));
+        assert!(!packets[1].receipt.matches_scalar_frame_v1(packets[0].frame()));
+        assert_eq!(packets[0].value(), packets[1].value(), "self-assignment reuses RHS, never a fresh definition");
+        assert!(!module.functions.get(&key).unwrap().blocks.values().flat_map(|block| block.all_instructions())
+            .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })), "a scalar rebind owns no Home to release");
+        let mut changed = module.clone();
+        let mut count = 0;
+        for block in changed.functions.get_mut(&key).unwrap().blocks.values_mut() {
+            for row in &mut block.instructions {
+                if let MirInstruction::Const { value: crate::mir::ConstValue::Integer(value), .. } = row {
+                    *value += 1; count += 1;
+                }
+            }
+        }
+        assert!(count > 0);
+        assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "changed producer: {rhs}");
+    }
+}
+
+}

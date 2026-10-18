@@ -1,6 +1,7 @@
 //! Original Local initialization must remain mandatory through final publication.
 use super::*;
 
+
 #[test]
 fn initializer_core_i64_final_consumer_rechecks_jumps_reads_local_and_cleanup() {
     let text = "static box Main { main() { local start = 1 local alias = start

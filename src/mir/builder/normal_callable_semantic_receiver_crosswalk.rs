@@ -73,6 +73,13 @@ impl ExactLexicalReadV1 {
         self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan_initializer_v1(root, self.value)
     }
+    pub(in crate::mir) fn loan_checked_rebind_v1(&self,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
+    ) -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+        if frame.target().owner() != self.owner { return Err("[freeze:contract][local-read/rebind-owner]".into()); }
+        self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/rebind-missing]".to_owned())?
+            .loan_checked_rebind_v1(frame, self.value)
+    }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self)
         -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         match &self.provenance {

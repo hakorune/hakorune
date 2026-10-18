@@ -138,36 +138,14 @@ point bounds must be built. Unknown int_to_str/MapGet-derived input to to_i64
 stays an explicit unmet dependency until its producer proof closes; the Text
 transport does not resolve its domain. No overall json-stream success is claimed.
 
-## Original method-source retention (BoxShape, verified preparation)
+## Original method-source retention (completed preparation)
 
-Preserve the resolver's method relation once behind Arc, keeping its !Clone row
-and existing borrowed accessors. The source actual's MethodCall case carries
-that SAME row rather than a marker. NamedArray read source and the nested Array
-actual issuer retain/corroborate the original row and outer owner/site/ordinal.
-Repeat corroboration in passive/reconstruction consumers, not only phase equality.
-This grants no Text class, result, Home, entry or execution; existing String
-refusal and all original affine Array/source evidence remain unchanged.
-
-Paths: resolved_semantics product/resolver canonicalization/source ledger,
-home_local_call_borrowed_actuals and named_array_append_only_source;
-ordinary_new_borrowed_array_source, existing read argument source bridge,
-ordinary_new_borrowed_formal_actuals/instance_source_actuals and their existing
-tests, plus the semantic-package owner README. Resolver owner README is also
-updated because its canonical retained-row contract now exposes a same-Arc loan. No source-app changes.
-
-Verification: reuse array_actual_retains_original_shared_loan_and_refuses_executable_upgrade
-and static_source_port_rejects_substituted_candidate_and_corrupted_ordered_view;
-add only original receiver/order/owner/site/ordinal/reissued-row mutations there.
-Same original Arc must survive repeated observation. Existing resolver method-
-source and named-array tests cover the issuer; stable root-route/layer/thin-shim/
-pointer/diff guards and unchanged json-stream direct EXE compare the actual stop.
-Build once with quick-test-fast and reuse nonempty filters. Native mimalloc is
-regression evidence if source effects change; no calendar-only whole-suite rerun.
-
-Retirement: remove lossy MethodCall-marker construction and its consumers in
-this slice. Keep shared Array/String/Loop issuers and independent safety tests.
-Later Text admission replaces only selected refusal edges after original source
-and both consumers close; no parallel interpreter/emitter or temporary adapter.
+`2f9911800a` preserves the full original-method retention history, source/physical
+path map, focused24 and native evidence. The shared original resolver method Arc
+is retained through Array/Static actuals; lossy marker construction was replaced.
+This grants no Text/Loop execution or Home permission. Shared issuers and safety
+tests remain; current unmet source/domain/cleanup/publication conditions below
+still govern the whole series.
 
 ## Unfinished acceptance / retained evidence
 
@@ -975,3 +953,45 @@ series closure or frontier advance. Fixed11 not rerun; latest CLI260 is5PASS/
 6 classified failures. CI still only old d4168473 failure/8e7179 success, no
 current acceptance. Next: SAME original Loop Header/body/exit product and complete
 V2/JoinSig/cleanup/After/final-read closure; do not replace it with more receipts.
+
+V913 verified scalar-rebind source-to-physical component (whole Loop remains open):
+- Running Home scanner proves old target available I64 and absent from Homes,
+  then qualifies original Plain RHS/target in shared inventory. Mandatory rebind
+  prefixes consume the existing evaluated-binding group (Initializer/Rebind),
+  common expression descent/cleanup and sole assignment completion, never a new
+  packet registry. Selected rebinds no longer recurse the whole raw Assignment;
+  unselected callers still require that shared owner, so it is not caller-zero.
+- Opaque scalar destination co-seals selected frame + current materialized target
+  before shared writer publication. Only that proof omits legacy strong release;
+  raw callers and contract algorithm remain. Local-contract result projection is
+  explicitly refused before RHS effects; no typed-result/Loop admission claim.
+- RHS child cleanup precedes assignment. Receipt/value/source Rc and tagged
+  provenance + complete Copy chain survive both final consumers. Self-assignment
+  may reuse Entry/Definition with zero new instructions; initializer loans stay
+  strict. Shared source-call prerequisites include rebind references.
+- Worker reviewed actual authorization/final pools; added exact delimiter census,
+  same-value/different-frame refusal, owned/unknown/noninteger destination refusal.
+  Raw completion's invalid no-block test fixture reproduces on independent
+  Root912B; repaired it to exercise actual legacy release in a real block.
+- Root913A import/visibility errors corrected; Root913B111.604s first final-scan
+  rebind PASS; C86.201s verifies neutral writer and reveals only that old fixture.
+  Final Root913D73.900s PASS: 24 focused/0FAIL, stable4/diff PASS. Same-source
+  CLI263204.248s PASS. Commands use quick-test-fast / quick CLI, jobs4; filters
+  cover source rebind3, final rebind1, initializer1/Print4, Copy2, raw receipt2,
+  existing raw Loop child11. No zero-filter success is counted.
+- JSON326 .406116s exit1/no artifact, stderr EXACT JSON324, unchanged Body7.
+  Separate signed-formal rebind probe328 stops at selected-header-missing before
+  body; CLI262 reproduces identical source/diagnostic (existing caller boundary).
+  Native Main probe/mimalloc and required fixed-suite results follow below.
+- Native mimalloc327 EXE149.722s/run.001636s exit0, stdout/stderr/exit EXACT325.
+  Main probe329 EXE114.830s/run.001315s exit0, output `0:2:2` and `Result: 0`:
+  x=0, before=x; x=x+("a"+"b").length(); middle=x; x=x; after=x;
+  print before/middle/after separated by colons. Both native builds overlapped;
+  these durations are not a speed comparison. Root/CLI/current source are exact.
+- Fixed11 CLI263 5PASS/6FAIL420.872s; full five MIR diagnostics + untyped Value15
+  panic EXACT CLI260->259->258->257->independent256. No new regressions; six debts
+  remain. CI query still only old d4168473 failure/8e7179 success, no current green.
+- Retain current source/build/focus/native/probe/baseline receipts and Root913D/
+  CLI263 with FFI897A/kernel894A until Text/Loop closure. Removed only superseded
+  Root913B/C test-binary copies (logs/manifests retained); no adapter introduced.
+  Whole Loop source observation/Header/exit/V2/After/read and full goal remain open.

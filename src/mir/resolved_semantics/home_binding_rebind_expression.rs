@@ -89,6 +89,38 @@ mod tests {
     use crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1;
 
     #[test]
+    fn production_rebind_walk_refuses_owned_unknown_and_noninteger_destinations() {
+        for case in 0..7 {
+            let program = crate::parser::NyashParser::parse_from_string(
+                "function probe() { local x = 0 x = x + 1 return 0 }").unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = program else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let initializer = input.function().expression_source().initializers().next().unwrap();
+            let binding = initializer.binding();
+            let mut locals = PrefixLocalFlow::new(input);
+            use super::super::super::local_flow::OrdinaryObservation as Observation;
+            match case {
+                0 | 1 | 6 => locals.install_observed(binding, Observation::Integer(0)),
+                2 => locals.install_observed(binding, Observation::Bool(false)),
+                3 => locals.install_observed(binding, Observation::Null),
+                4 => locals.install_uninitialized(binding),
+                5 => locals.install_observed(binding, Observation::Handle(binding)),
+                _ => unreachable!(),
+            }
+            let homes = if case == 1 { vec![binding] } else { vec![] };
+            let body = input.source().root_body().unwrap();
+            let statement = input.source().body_stmt(&body, 1).unwrap();
+            let mut calls = Vec::new(); let mut paths = Default::default();
+            let accepted = super::super::super::binding_rebind::observe::<()>(input, &statement, &mut locals, &homes,
+                case != 6, &mut calls, &mut paths, &mut |fields, _| { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
+                &mut |_, _| panic!("fixture has no calls")).unwrap();
+            assert_eq!(accepted, case == 0, "destination case {case}");
+            assert_eq!(locals.expression_plans().len(), usize::from(case == 0));
+        }
+    }
+
+    #[test]
     fn rebind_qualification_preserves_assignment_purpose_and_atomic_source_installation() {
         for (assignment, eligible) in [
             ("x = 1", true), ("x = 1 + 2", true), ("x = x + 1", true),

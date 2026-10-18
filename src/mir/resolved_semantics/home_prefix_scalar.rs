@@ -48,6 +48,10 @@ impl CurrentScalarReadV1 {
     pub(crate) fn producer(&self) -> &CurrentScalarProducerV1 { &self.producer }
 }
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn can_rebind_integer_v1(&self, binding: BindingRefV1, homes: &[BindingRefV1]) -> bool {
+        binding.owner() == self.input.owner() && !homes.contains(&binding)
+            && matches!(self.locals.get(&binding), Some(StoredLocal::Trivial(Some(SourceScalarKind::Integer))))
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn current_scalar_read_v1(
         &self, site: &SourceExprSiteV1, calls: &[LocalCallObservationV1],
     ) -> Option<CurrentScalarReadV1> {

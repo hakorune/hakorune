@@ -784,3 +784,7 @@ mod initializer_expression_projection;
 
 #[path = "root_call_entry/initializer_home_publication.rs"]
 mod publication;
+
+#[path = "root_call_entry/binding_rebind_projection.rs"]
+mod binding_rebind_projection;
+pub(crate) use binding_rebind_projection::EmittedBindingRebindProjectionV1;

@@ -13,6 +13,20 @@ impl MirBuilder {
         var_name: String,
         value_id: ValueId,
     ) -> Result<ValueId, String> {
+        self.build_assignment_from_value_with_destination(var_name, value_id, None)
+    }
+
+    pub(in crate::mir::builder) fn build_assignment_from_value_for_scalar_v1(
+        &mut self, var_name: String, value_id: ValueId,
+        destination: &super::stmts::variable_assignment_completion::ScalarRebindDestinationV1,
+    ) -> Result<ValueId, String> {
+        self.build_assignment_from_value_with_destination(var_name, value_id, Some(destination))
+    }
+
+    fn build_assignment_from_value_with_destination(&mut self, var_name: String, value_id: ValueId,
+        scalar: Option<&super::stmts::variable_assignment_completion::ScalarRebindDestinationV1>,
+    ) -> Result<ValueId, String> {
+        if let Some(destination) = scalar { destination.validate(self, &var_name)?; }
         vars::assignment_resolver::AssignmentResolverBox::ensure_declared(self, &var_name)?;
 
         if !var_name.starts_with("__pin$") {
@@ -86,7 +100,7 @@ impl MirBuilder {
                 };
 
             // Release the previous strong reference before updating variable_map.
-            if !self.is_current_block_terminated() {
+            if scalar.is_none() && !self.is_current_block_terminated() {
                 if let Some(prev) = self
                     .function_state
                     .variable_ctx
