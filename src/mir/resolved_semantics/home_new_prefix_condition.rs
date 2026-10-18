@@ -124,23 +124,60 @@ pub(super) fn observe<E>(
         && !(original_profile && selects(input, &source, locals))
     { return Ok(ConditionInstallationV1::Unselected); }
     if !prefix_known { return Ok(ConditionInstallationV1::Refused); }
-    let mut installation = locals.expression_installation();
-    let plan = qualify_bool_condition_v1(Rc::clone(&source), homes,
+    Ok(if install_source(input, source, locals, homes, local_calls, path_calls, fields, actuals)?.is_some() {
+        ConditionInstallationV1::Installed
+    } else { ConditionInstallationV1::Refused })
+}
+
+pub(super) fn observe_loop<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, source: &Rc<crate::mir::builder::RetainedCallableLoopSourceV1>,
+    locals: &PrefixLocalFlow<'_>, homes: &[BindingRefV1],
+    local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
+    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
+        -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, E> {
+    if !locals.in_source_loop_v1() { return Ok(None); }
+    let Some(condition) = source.condition_source_v1(input) else { return Ok(None); };
+    install_source(input, Rc::clone(condition), locals, homes, local_calls, path_calls, fields, actuals)
+}
+
+fn install_source<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, source: Rc<ExpressionSourcePlanV1>,
+    locals: &PrefixLocalFlow<'_>, homes: &[BindingRefV1],
+    local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
+    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
+        -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, E> {
+    use super::expression_plan::CheckedScalarReferenceV1 as Scalar;
+    let mut installation = None;
+    let plan = qualify_condition_expression_v1(Rc::clone(&source), homes,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
-        &mut |site| match locals.observe(site) {
-            Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) => Some((binding, kind)),
-            _ => None,
+        &mut |site| {
+            let Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) = locals.observe(site) else { return None; };
+            if locals.in_source_loop_v1() {
+                locals.current_scalar_read_v1(site, local_calls).map(Scalar::Original)
+            } else { Some(Scalar::Obligation { binding, kind }) }
         },
         &mut |site| super::field_read::field_read_request(input, site, locals),
         &mut |site| local_call_flow::issue_source_scalar_frame_call_v1(input, &source, site,
             homes, &mut |binding| locals.field_alias_call_path(binding), actuals),
-        &mut |plan| installation.approve(plan),
+        &mut |plan| {
+            let mut candidate = locals.expression_installation();
+            if !candidate.approve(plan) { return false; }
+            installation = Some(candidate);
+            true
+        },
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some_and(|results|
             results.len() == requests.len() && results.iter().all(|result| *result == LocalFieldReadResultV1::Scalar))))?;
-    let Some(plan) = plan else { return Ok(ConditionInstallationV1::Refused) };
-    let calls = plan.condition_frame().expect("Bool qualifier retains its frame").calls();
-    installation.commit();
-    path_calls.extend(calls.iter().map(|call| call.site().clone()));
-    local_calls.extend_from_slice(calls);
-    Ok(ConditionInstallationV1::Installed)
+    let Some(plan) = plan else { return Ok(None) };
+    let frame = Rc::clone(plan.condition_frame().expect("Bool qualifier retains its frame"));
+    installation.take().expect("approved condition installation").commit();
+    drop(installation);
+    path_calls.extend(frame.calls().iter().map(|call| call.site().clone()));
+    local_calls.extend_from_slice(frame.calls());
+    Ok(Some(frame))
 }

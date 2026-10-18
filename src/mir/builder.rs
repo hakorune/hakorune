@@ -39,6 +39,7 @@ mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop oper
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
+pub(in crate::mir) use normal_callable_loop_handoff::CallableLoopSourceBindingClassV1;
 mod normal_callable_loop_source_facts; // callable source-aware Facts Ready issuer
 #[cfg(test)]
 pub(in crate::mir) use normal_callable_loop_source_facts::issue_composite_source_candidate_v1;
@@ -454,7 +455,10 @@ mod static_result_publication_ingress;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
-pub(in crate::mir) use control_flow::plan::lowerer::VerifiedLoopCondAfterPhysicalRoleV1;
+pub(in crate::mir) use emission::constant::CompletedConstV1;
+pub(in crate::mir) use control_flow::plan::lowerer::{VerifiedLoopCondAfterPhysicalRoleV1, EmittedSourceLoopGraphV2, capture_exact_loop_phis_v2};
+pub(in crate::mir) use normal_callable_loop_source_facts::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};
+pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::{EmittedSourceLoopCleanupV2, CleanupOperationLoanV2};
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();
@@ -504,6 +508,7 @@ mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split
 mod condition_materialization;
+pub(in crate::mir) use condition_materialization::ConditionMaterializationV1;
 mod if_form;
 pub(in crate::mir) use if_form::IfConditionMaterializationV1;
 mod indexing; // indexing expression/assignment lowering

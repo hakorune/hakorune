@@ -8,7 +8,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn record_loop_cond_after_role(
         &self,
         role: VerifiedLoopCondAfterPhysicalRoleV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<VerifiedLoopCondAfterPhysicalRoleV1>, String> {
         let owner = role.owner();
         if self.completion_for_owner(owner).is_none() {
             return Err(freeze("loop-cond-after-owner-missing"));
@@ -18,8 +18,15 @@ impl OrdinaryNewClaimLedgerV1 {
         if roles.contains_key(&key) {
             return Err(freeze("duplicate-loop-cond-after-role"));
         }
-        roles.insert(key, role);
-        Ok(())
+        let role = std::rc::Rc::new(role);
+        roles.insert(key, std::rc::Rc::clone(&role));
+        Ok(role)
+    }
+
+    pub(super) fn recorded_source_loop_roles_v2(&self, owner: FunctionOwnerIdV1)
+        -> Vec<std::rc::Rc<VerifiedLoopCondAfterPhysicalRoleV1>> {
+        self.loop_cond_after_roles.borrow().iter().filter(|((actual, _), role)| *actual == owner && role.source_proof_v2().is_some())
+            .map(|(_, role)| std::rc::Rc::clone(role)).collect()
     }
 
     pub(super) fn recorded_loop_cond_after_blocks(

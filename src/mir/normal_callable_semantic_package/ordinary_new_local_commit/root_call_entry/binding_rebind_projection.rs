@@ -24,6 +24,13 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     original: Vec<Binding>,
 }
 impl EmittedBindingRebindProjectionV1 {
+    pub(super) fn corroborate_loop_frame_v2(&self, entry: BasicBlockId, end: BasicBlockId, value: ValueId) -> Result<(), String> {
+        if self.entry.0 != entry || self.value() != value
+            || !matches!(self.continuation.1, MirInstruction::Jump { target, edge_args: None } if target == end) {
+            return Err(freeze("source-loop/binding-frame-correspondence"));
+        }
+        Ok(())
+    }
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.receipt.assigned() }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(&self) -> &ReferenceProducerV1 { &self.root }
@@ -96,9 +103,9 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(frame)
     }
     pub(crate) fn validate_rebind_expression_source_v1(&self, frame: &Rc<CheckedBindingRebindFrameV1>) -> Result<(), String> {
-        let sources = self.expected_local_call_binding_sources(frame.source().owner())?;
-        let count = self.root_local_call_bindings.borrow().get(&frame.source().owner()).map_or(0, Vec::len);
-        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::BindingRebind { frame: original, .. }) if Rc::ptr_eq(original, frame)) {
+        let site = OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
+        let source = self.next_prefix_source_v2(frame.source().owner(), &site)?;
+        if !matches!(source.as_ref(), Some(LifecyclePrefixSourceV1::BindingRebind { frame: original, .. }) if Rc::ptr_eq(original, frame)) {
             return Err(freeze("rebind-expression/source-prefix-order"));
         }
         Ok(())

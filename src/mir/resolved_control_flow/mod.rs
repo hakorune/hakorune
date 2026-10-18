@@ -21,7 +21,7 @@ mod source_coverage_tests;
 pub(crate) use function_control::SealedFunctionExitContractV1;
 pub(crate) use function_control::{
     issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1,
-    issue_loop_call_fault_continuation_v1, LoopCallFaultContinuationV1,
+    issue_loop_call_fault_continuation_v1, LoopCallFaultContinuationV1, issue_loop_expression_fault_continuation_v1, LoopExpressionFaultContinuationV1,
     verify_function_completion_v1,
     verify_function_completion_with_new_homes_and_argument_observations_v1,
     DeclaredFunctionResultContractV1, FunctionCompletionVerificationErrorV1,

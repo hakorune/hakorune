@@ -16,7 +16,8 @@ mod terminal_literal_storage_tests;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn seal_physical_observations_v1(&self, owner: FunctionOwnerIdV1) -> Result<(), String> {
-        for group in self.root_local_call_bindings.borrow().get(&owner).into_iter().flatten() {
+        let roots = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+        for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&roots) {
             group.seal_physical_observations_v1()?;
         }
         Ok(())
@@ -46,8 +47,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let bindings = self.lifecycle_bindings(owner)?;
         let copies = self.source_local_copies(owner)?;
         let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
-        let boundary = super::physical_boundary::PhysicalBoundary::capture_with_source_copies(
-            function, &bindings, &copies, &aliases,
+        let source_phi_roles = self.recorded_loop_cond_after_blocks(owner, function, &bindings)?
+            .into_iter().map(|(block, phis)| (block, (phis, None))).collect();
+        let boundary = super::physical_boundary::PhysicalBoundary::capture_with_source_loop_roles_v2(
+            function, &bindings, &copies, &aliases, &source_phi_roles, None, &self.recorded_source_loop_roles_v2(owner),
         )?;
         *state = RootNewValidation::Checked(owner, boundary);
         Ok(observation)
@@ -494,8 +497,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         // Scalar expression locals use the same completed source receipt and
         // the same boundary law as ordinary local Copies; Text reuse has none.
-        for packet in self.root_local_call_bindings.borrow().get(&owner).into_iter().flatten()
-            .filter_map(|group| group.initializer()) {
+        let roots = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+        let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&roots);
+        for packet in groups.iter().filter_map(|group| group.initializer()) {
             if packet.receipt_copy_binding_v1().is_some() {
                 result.push((packet.local_value(), packet.value()));
             }

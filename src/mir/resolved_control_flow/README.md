@@ -128,3 +128,11 @@ For a selected Loop profile, `loop_owned_if.rs` verifies that every exact If
 region is structurally inside that exact resolver-inventoried Loop before the
 outer If ledger may be closed empty. The Loop owner must later consume those
 rows; foreign outer If control rejects rather than disappearing.
+
+
+`loop_call_fault.rs` keeps the direct MethodCall statement façade strict and
+shares outward lexical ancestry with genuine nested Loop expressions. The
+expression issuer checks the original expression inventory, Loop/frame identity,
+branch scopes, Loop scope and function target. Its continuation is control only:
+source Home discharge and physical cleanup remain obligations of the same Loop
+product. Initializer/Bool expressions never masquerade as direct call statements.

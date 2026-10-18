@@ -68,6 +68,27 @@ impl VerifiedSourceValueFlowV1 {
             .filter(|(original, _)| *original == binding)
             .map(|(_, value)| *value)
     }
+    /// Original Loop join and its complete predecessor census. Readonly
+    /// normalization may redirect reads while retaining this original node.
+    /// This passive query never picks an incoming or grants a value class.
+    pub(crate) fn loop_join(
+        &self, statement: &SourceStmtSiteV1, binding: BindingRefV1, kind: SourceValueJoinKindV1,
+    ) -> Option<(SourceValueRefV1, &[(SourceValueEdgeV1, SourceValueRefV1)])> {
+        if !self.complete || binding.owner() != self.owner
+            || !matches!(kind, SourceValueJoinKindV1::LoopHeader | SourceValueJoinKindV1::LoopAfter) {
+            return None;
+        }
+        let site = SourceExprSiteV1::from_node(statement.node().clone());
+        let mut matching = self.nodes.iter().enumerate().filter_map(|(slot, origin)| match origin {
+            SourceValueOriginV1::Join { binding: original, site: original_site, kind: original_kind, incoming }
+                if *original == binding && original_site == &site && *original_kind == kind =>
+                    Some((SourceValueRefV1 { owner: self.owner, slot }, incoming.as_ref())),
+            _ => None,
+        });
+        let result = matching.next()?;
+        matching.next().is_none().then_some(result)
+    }
+
     /// Exact alias provenance only. Computed definitions, joins, unknowns and
     /// cycles cannot claim an entry origin from a convenient predecessor.
     pub(crate) fn alias_entry_origin(
@@ -91,6 +112,18 @@ impl VerifiedSourceValueFlowV1 {
     /// This remains an alias-only walk: no join predecessor can be selected,
     /// and an expression identity alone grants no type/Home/physical evidence.
     pub(crate) fn alias_origin_with_expression_boundary(
+        &self, value: SourceValueRefV1,
+        reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+        preserve: impl FnMut(&SourceExprSiteV1) -> bool,
+    ) -> Option<SourceValueRefV1> {
+        let terminal = self.alias_terminal_with_expression_boundary(value, reference, preserve)?;
+        matches!(self.origin(terminal)?, SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_))
+            .then_some(terminal)
+    }
+
+    /// A join itself is an exact passive terminal, never a selected incoming.
+    /// Consumers must independently prove its complete entry/update/exit law.
+    pub(crate) fn alias_terminal_with_expression_boundary(
         &self, mut value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
         mut preserve: impl FnMut(&SourceExprSiteV1) -> bool,
@@ -98,7 +131,7 @@ impl VerifiedSourceValueFlowV1 {
         let mut seen = BTreeSet::new();
         while seen.insert(value) {
             match self.origin(value)? {
-                SourceValueOriginV1::Entry(_) => return Some(value),
+                SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Join { .. } => return Some(value),
                 SourceValueOriginV1::Expression(site) => {
                     if preserve(site) { return Some(value); }
                     match reference(site) {

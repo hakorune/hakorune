@@ -5,7 +5,7 @@ use crate::mir::{BasicBlockId, ValueId, MirInstruction, MirFunction};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(in crate::mir::builder) type LoopPhiInputRowsV2 = Vec<(BasicBlockId, ValueId, Vec<(BasicBlockId, ValueId)>)>;
-pub(in crate::mir::builder) fn capture_exact_loop_phis_v2(function: &MirFunction,
+pub(in crate::mir) fn capture_exact_loop_phis_v2(function: &MirFunction,
     rows: &[(BasicBlockId, ValueId, Vec<(BasicBlockId, ValueId)>)],
 ) -> Result<BTreeMap<BasicBlockId, Box<[MirInstruction]>>, String> {
     let coordinates: BTreeSet<_> = rows.iter().map(|row| (row.0, row.1)).collect();

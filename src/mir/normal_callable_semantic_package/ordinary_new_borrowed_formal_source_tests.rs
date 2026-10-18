@@ -3,33 +3,39 @@ use super::*;
 #[test]
 fn real_bin_size_variable_bound_mul_source_is_exact_and_stays_untyped() {
     use crate::mir::compiler::variable_bound_mul_recurrence_source::{
-        observe_variable_bound_mul_source_v1, VariableBoundMulSourceRejectV1,
+        attempt_variable_bound_mul_source_v1,
+        VariableBoundMulSourceAttemptV1, VariableBoundMulSourceRejectV1,
     };
     use crate::mir::resolved_semantics::{
         SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
     };
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
     let cases = [
-        (original.to_string(), None),
+        (original.to_string(), None, false),
         (
             original.replacen("loop(i < shift_count)", "loop(i <= shift_count)", 1),
             Some(VariableBoundMulSourceRejectV1::Condition),
+            true,
         ),
         (
             original.replacen("loop(i < shift_count)", "loop(i < 4)", 1),
             Some(VariableBoundMulSourceRejectV1::Condition),
+            true,
         ),
         (
             original.replacen("scale = scale * 2", "scale = scale + 2", 1),
             Some(VariableBoundMulSourceRejectV1::Update),
+            true,
         ),
         (
             original.replacen("i = i + 1", "i = i + 2", 1),
             Some(VariableBoundMulSourceRejectV1::Step),
+            true,
         ),
         (
             original.replacen("i = i + 1", "i = i + 1\n      scale = scale * 2", 1),
             Some(VariableBoundMulSourceRejectV1::Body),
+            true,
         ),
         (
             original.replacen(
@@ -38,9 +44,14 @@ fn real_bin_size_variable_bound_mul_source_is_exact_and_stays_untyped() {
                 1,
             ),
             Some(VariableBoundMulSourceRejectV1::Update),
+            true,
         ),
-    ];
-    for (source, expected_error) in cases {
+    ].into_iter().chain([
+        (original.replacen("scale = scale * 2", "scale = i * 2", 1), Some(VariableBoundMulSourceRejectV1::Update), false),
+        (original.replacen("i = i + 1", "scale = i + 1", 1), Some(VariableBoundMulSourceRejectV1::Step), false),
+        (original.replacen("loop(i < shift_count)", "loop(i < i)", 1), Some(VariableBoundMulSourceRejectV1::BindingConflict), false),
+    ]);
+    for (source, expected_error, unselected) in cases {
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
             .expect("selected real source package");
         let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
@@ -62,8 +73,24 @@ fn real_bin_size_variable_bound_mul_source_is_exact_and_stays_untyped() {
                 let site = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
                     Segment::Body(9),
                 ]));
-                let membership = ledger.resolved_loop_source(&site).expect("exact loop");
-                let result = observe_variable_bound_mul_source_v1(input, &ledger, membership);
+                let attempt = attempt_variable_bound_mul_source_v1(input, &ledger,
+                    ledger.resolved_loop_source(&site).expect("exact loop"));
+                let result = match attempt {
+                    Ok(VariableBoundMulSourceAttemptV1::Unselected(reason)) => {
+                        assert!(unselected, "selected evidence cannot become an unselected shape: {source}");
+                        assert_eq!(Some(reason), expected_error);
+                        Err(reason)
+                    }
+                    Ok(VariableBoundMulSourceAttemptV1::Selected(observed)) => {
+                        assert!(expected_error.is_none());
+                        Ok(observed)
+                    },
+                    Err(reason) => {
+                        assert!(!unselected, "morphology mismatch should be typed unselected: {source}");
+                        assert_eq!(Some(reason), expected_error);
+                        Err(reason)
+                    }
+                };
                 if let Some(expected) = expected_error {
                     assert_eq!(result.err(), Some(expected), "{source}");
                 } else {
@@ -87,27 +114,27 @@ fn real_bin_size_loop_product_requires_current_home_integer_classes() {
         SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
     };
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
-    for (source, expected_error) in [
-        (original.to_string(), None),
+    for (source, expected_error, generic) in [
+        (original.to_string(), None, false),
         (
             original.replacen(
                 "local shift_count = bit_group - 2",
                 "local shift_count = true",
                 1,
             ),
-            Some(LoopProductUnavailableV1::InputClass),
+            Some(LoopProductUnavailableV1::InputClass), false,
         ),
         (
             original.replacen("scale = scale * 2", "scale = scale + 2", 1),
-            Some(LoopProductUnavailableV1::SourceShape),
+            None, true,
         ),
         (
             original.replacen("i = i + 1", "i = i + 2", 1),
-            Some(LoopProductUnavailableV1::SourceShape),
+            None, true,
         ),
         (
             original.replacen("i = i + 1", "i = i + 1\n      scale = scale * 2", 1),
-            Some(LoopProductUnavailableV1::SourceShape),
+            None, true,
         ),
         (
             original.replacen(
@@ -115,8 +142,10 @@ fn real_bin_size_loop_product_requires_current_home_integer_classes() {
                 "i = i + 1\n      scale = scale * 2",
                 1,
             ),
-            Some(LoopProductUnavailableV1::SourceShape),
+            None, true,
         ),
+        (original.replacen("scale = scale * 2", "scale = i * 2", 1), Some(LoopProductUnavailableV1::SourceShape), false),
+        (original.replacen("i = i + 1", "scale = i + 1", 1), Some(LoopProductUnavailableV1::SourceShape), false),
     ] {
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
             .expect("selected real source package");
@@ -141,6 +170,8 @@ fn real_bin_size_loop_product_requires_current_home_integer_classes() {
                     .get(&(input.owner(), site.clone()));
                 let row = row.expect("Loop request must retain an exact disposition");
                 assert_eq!(row.as_ref().err(), expected_error.as_ref(), "{source}");
+                assert_eq!(matches!(row, Ok(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::SelectedLoopProductRowV1::SourcePlan(_))), generic,
+                    "only unselected morphology issues a generic source plan: {source}");
                 if let Ok(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::SelectedLoopProductRowV1::VariableBoundMul(product)) = row {
                     assert_eq!(product.owner(), input.owner());
                     assert_eq!(product.site(), &site);

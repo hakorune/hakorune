@@ -17,6 +17,7 @@ pub(in crate::mir) struct IfConditionMaterializationV1 {
     merge: crate::mir::BasicBlockId,
 }
 impl IfConditionMaterializationV1 {
+    pub(in crate::mir) fn materialization(&self) -> &std::rc::Rc<super::condition_materialization::ConditionMaterializationV1> { &self.materialization }
     pub(in crate::mir) fn values(&self) -> (ValueId, ValueId) { self.materialization.values() }
     pub(in crate::mir) fn block(&self) -> crate::mir::BasicBlockId { self.materialization.block() }
     pub(in crate::mir) fn arms(&self) -> (crate::mir::BasicBlockId, crate::mir::BasicBlockId) { self.arms }

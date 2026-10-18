@@ -901,69 +901,24 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   JSON337 unchanged/noEXE, mimalloc338 runtime exact336. Retain source/native/
   review pins until full closure. Card recovery retained inherited Text/Loop laws.
 
-- Root925 WIP: SAME projector co-seals original Rc/purpose/result and ordered
-  frame/item ranges, If bundle/children and Exit record/cleanup port. Collector
-  uses that schedule, including zero-width aliases. SAME operation issuer owns
-  each item→executing frame Rc (ReadBinding/WriteBinding included), preventing
-  boundary transfer into a preceding Local. `4d3e9188e4` retains13 mutations,
-  B38PASS/stable4 and source/test/review pins; keep until full closure. No physical,
-  child or Header/After read permission is granted by this verified schedule.
-- Concrete next writer mapping (condition worker, actual owners): initializer uses
-  selected initializer emit→placement→existing Local receipt→publish; rebind uses
-  selected rebind emit including state update/publication; Bool borrows SAME raw
-  recursive child writer/state/locator. No second expression evaluator.
-  Extract shared condition cursor→try_cond/finalize→append slice/SSA relation
-  issuer from IfForm; retain genuine If bundle vs Loop purpose and actual targets.
-  IfForm still emits deferred EdgeCFG after arms; shared preparation emits no
-  early Branch. Actual sole Branch writer must seal the SAME affine Bool lease.
-  Current PlanLowerer lower_if has NO materialization receipt; do not assume one.
-  Driver snapshots/restores existing source state at arms; Header/After use same
-  product/basis and actual Phi relation; Exit reports actual predecessor/payload
-  AFTER cleanup. All these physical connections and both final consumers remain.
+- Root925–929 preparation and exact historical evidence retained at
+  `ae4a16e7c4`/`d55780ec5c`/`4d3e9188e4`/`39b9e9649a`/`6b7baaa4ff`.
+  Original projector owns source/frame/item schedule and exact branch/Exit sites;
+  physical writers borrow SAME Raw port and original initializer/rebind/Bool
+  receipts. Shared cleanup returns entry; actual predecessor follows cleanup
+  and SSA localization. No second evaluator, fake ordinal, root-exit key or
+  physical parent Rc. Deferred If EdgeCFG and Loop-purpose/CarriersOnly/whole
+  completion gates remain. Current driver/final/native evidence is below.
+  Keep retained925–929 source/review/build/CLI269–270/native pins until closure;
+  historical preparation itself granted no Loop execution.
 
-- `ae4a16e7c4` retains Root925 evidence/pins; explicit predecessor backends, no whole closure.
-- `d55780ec5c` retains shared capture/actual IfForm switch, targets/observer Rc/
-  deferred EdgeCFG and Root926 evidence. Keep A/CLI269/prior pins; no Loop grant.
-- Next cleanup mapping (carrier worker, actual owners): reuse root_graph shared
-  suffix writer with caller-owned continuation, not Return-only emit_root_graph.
-  Same source port homes/normal_ends must resolve installed End plans (BindingRef,
-  release subject, operation); share cleanup-order residual-index policy. The
-  returned graph.clean is cleanup ENTRY: actual Loop predecessor is the retained
-  final continuation AFTER cleanup and SSA localization. Empty Normal End skips
-  helper/Fault frame. Prepare from same Loop packet; no root-exit registry/key.
-- `4d3e9188e4` records Root927 WIP: original If Rc versus SAME immutable Loop
-  product/frame/common materialization; never parent physical Rc. Genuine Header/
-  body-If and group required; actual Branch seal does not prove source targets.
-  Whole completion must check every Bool product/index and strict CarriersOnly.
-  Keep B63PASS/1 prior925B/stable4/CLI270/native pins; APIs unexercised by driver.
-- Next borrowed-writer continuation (condition worker): LoopCond terminal lends
-  SAME Raw port to PlanLowerer by short reborrow. Never take scope, rebuild the
-  port or introduce a second evaluator; invocation has reached only the terminal.
-  Next frame bridge: input.source().expr_at(original owned node0 site) lends Bool AST.
-  Local relation lends ordinal/type/binding; binding diagnostic_name locates name.
-  Share existing Local receipt→state→publish tail; no AST re-descent/fake ordinal.
-  `4d3e9188e4` retains CLI270/JSON343/mimalloc344 exact342/source equality.
-  Backends are explicit predecessors; keep pins until closure. Loop APIs unexercised.
-
-- `39b9e9649a` retains SAME-port/wrapper/test bridge and Root928 evidence/pins; no grant.
-- `6b7baaa4ff` retains sole Local writer and Root929 evidence/pins; scoped frame bridge remains WIP/uncalled.
-- Root930 WIP: Header/After + SAME indexed Phi/full Copy chain stay in existing
-  provenance; rebind invalidates it. No initializer loan, empty-Phi snapshot,
-  second registry/parent Rc. Common readers/self-assignment share it. Header needs
-  original product/frame/defined Phi; After/both finals need completed parent/
-  relation/FinishedBindings. Bool inventories exclude only SAME borrowed parent
-  Phi, retaining copies/inner/unrelated Phis/full dependencies; filtered membership
-  refuses reinsertion. Existing fixtures cover define/patch/abort, aliases/rebind,
-  missing parent/pending After. Both fences stay. Whole driver owes Phi capture/
-  liveness, exact targets/joins/all incoming/cleanup/scope/both finals and swaps.
-  Decision (carrier worker): SAME session owns basis→Entry/Header/After, allocates/
-  defines points and lends sealed capabilities; MOVE final evidence to existing
-  packet completion, no pending mirror. Entry needs original producer + SAME
-  provenance; pre-effect/name-cache insufficient. Condition worker confirmed direct
-  Header/Body/After, no Step: JoinSig rejects both-normal arms with differing
-  bindings/available. SAME values/name-map snapshots select normal arms. Exact
-  Entry/Continue/Backedge→Header and false/Break→After require postcleanup preds.
-  `5113b20579` retains observer/D/CLI273/native pins;894A/897A predecessors. No execution grant.
+- Root930 source observation/provenance contracts and evidence retained at
+  `5113b20579`. SAME session owns basis→Entry/Header/After; Entry requires original
+  producer/provenance, After requires completed parent/FinishedBindings. No empty
+  Phi grant, second map/registry or parent Rc. Rebind invalidates provenance.
+  SAME value/name-map arm snapshots, strict Bool product/targets, complete
+  postcleanup Entry/Continue/Backedge→Header and false/Break→After remain required.
+  Original source fences stay; keep D/CLI273/native pins until whole closure.
 - `f8355dbdf7` retains Root931 observation/evidence/pins; scalar/session WIP still owes whole closure.
 - `74189f960b` retains Root932 shared cleanup policy and E103PASS+2 prior931B/C,
   CLI275/README-only delta/JSON353 exact351/mimalloc354 exact352 evidence/pins.
@@ -974,27 +929,60 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   exact source/JoinSig/Entry observations patch SAME txn; prepared proof borrows
   session, then moves original Header/After association after whole checks.
   Keep933C/CLI276/native355/356 pins until whole closure; no source admission.
-- Root934 WIP: cleanup now checks same original operation loans/per-origin SSA,
-  exact owned topology, prefixes/terminals and Fault-stop exclusion. Original and
-  finishing use existing effect/relation/control projection; no ValueId rename.
-  Same FaultFrame owner lends optional observation, permitting only its one new
-  entry insertion when checking original instruction prefixes and counting writes.
-  Driver retains SAME scheduled If arm entries/ends/outcomes/normal join, source
-  Exit port/predecessor, Body→Backedge cleanup entry and recursive block census.
-  Worker caught/fixed Header-vs-final-Bool-block confusion: retain pre-evaluation
-  entry; short-circuit materialization may end elsewhere. Must still tie this
-  entry to SAME Bool packet before any completion grant.
-  Whole immutable parent aggregate/frame proof, both-final revalidation/negatives,
-  After publication and sole terminal invocation connection remain owed; both
-  fences stay. New driver/control/cleanup APIs remain uncalled, not E2E evidence.
-  Next: SAME role Rc in parent/ledger owns moved PhiPoints and whole graph proof;
-  aggregate counts new writes once; children keep original external dependencies.
-  Scope owner must lend its actual KeepAlive receipt; Bool outer Branch is parent
-  owned, child sealed. Reuse original_loop_header fixture's actual Text Home on
-  Break/backedge through SAME dependency Raw port with original Loop root scope.
-  D44.268s compile;15 nonzero filters104PASS/2 prior with8MiB test stack. Default
-  stack abort also reproduces on933C; larger stack reveals same two prior errors.
-  CLI277169.990s/Rust exact(README delta); JSON357 exit1/noEXE/stderr exact355.
-  mim358 EXE141.696s/run.001569s exit0; output/error/exit exact356, compiler ns only.
-  Stable4/diff PASS; CI latest remains old d4168473d5 failure, no current green.
-  Keep934/CLI277/native pins until closure;894A/897A explicit predecessor backends.
+- Root934 evidence/contracts retained at9f9b873da0; keep934E/F/prior pins.
+  F110PASS+2 prior/8MiB; CLI277/native357/358 predate scope extraction.
+  Preserve exact cleanup loans/SSA/topology/Fault-stop, same FaultFrame insertion,
+  arm/Exit/block census and KeepAlive multiplicity; empty/terminated scopes None.
+- Root937 shared fixes retained by251014c895/9ec57f75e3/45850f5163:
+  KeepAlive metadata runtime classification, complete empty forwarding chains,
+  and exact indexed metadata omissions; actual String Copy/SSA/CFG gates remain.
+  Source Loop fixture reaches strict MIR and both original/optimized finishing
+  consumers;937I81.573s,19 filters141PASS+2 SAME known reds (field-array-append/
+  loop-source-missing;final-call-visit/callee-definition). No new test names.
+  CLI278205.005s;JSON359 still owner32 Body10 ordinary-new/borrowed-result/
+  source-not-i64;unchanged mimalloc360 EXE/run exact358 (141.535s/.0014s).
+  Runtime894A/FFI897A explicit predecessors, no all-three-source equality claim.
+  Direct canonical EXE for SAME existing Loop source361 fails101.032s at
+  published-lifecycle-program/instruction-unsupported:StringResidenceInstall.
+  Both-final local green is not EXE/series completion. Pins retained until closure.
+- Root938 Decision: prior response restated already-completed maintenance (no
+  product progress); resume actual source-to-final connection. Read-only worker
+  located flat packet scans in finalized_initializer_homes/finalized_root_cleanup.
+  Source authority: SAME completed Loop child initializer/Home and finished
+  projection, through existing Finalized.with_local_call_group_tree_v2. Normalize
+  ONLY packet/owner searches; keep instruction census on root aggregates to avoid
+  double-counting. No whitelist, new issuer, fallback or new test/checker.
+  Scope expands to these two finalized consumers and owning README because both
+  participate in the source-gated published install roster. Existing source Loop
+  fixture/final consumers and same direct EXE input are acceptance; full series
+  and goal remain unaccepted.937/935/936 and native pins remain required.
+  Worker review retained unique Header/After/uncompleted/abort authority negatives;
+  their existing test-only helpers are not replaced by a final positive alone.
+  Retire old plan-only test adapter after switching its two remaining test callers
+  to canonical handoff; consolidate duplicate source-walk invocation, preserving
+  pre/post After assertions. No new test/helper/checker or unrelated legacy removal.
+  938B build64.386s;938C adapter-retirement build92.067s. Final22 existing
+  filters157PASS+3 baseline reds: field-array-append/loop-source-missing,
+  final-call-visit/callee-definition and local-field parameter-receiver
+  borrowed-static/source-actual-unavailable (same938B; inherited V834b/V836).
+  8MiB stack/one thread; full test names9264 unchanged. Pointer/layer/CallTarget
+  owner/diff checks PASS. Existing authority negatives retained; no new tests.
+  CLI279 quick166.292s, SHA dc6faf56e338b8b672fe6053f8db0dc9c337f72e2350b69137136a945fdf9e31.
+  SAME fixture source SHA c063c621edb71ad23472d41bf23fb1f5a4c90bd90689c3c89b8b82b203c65a9a
+  via canonical --backend mir --emit-exe/--emit-exe-nyrt, pure-first/no replay,
+  plugins off,16MiB:app364 EXE122.218s PASS, run exit1/.0015s, stdout Result:1
+  and standard plugin-disabled warning. Raw361/364 empty-output expectation was
+  incorrect; raw receipts retained. Separate runtime-contract corroboration
+  checks original entry.rs/plugin source against894A manifest, then exact rerun.
+  app363 unchanged mimalloc EXE149.622s/run.0014s, stdout/stderr/exit0 exact360;
+  compiler stderr differs only *_ns timings. Runtime894A/FFI897A are explicit
+  predecessor artifacts; CLI predates only three reviewed test-only retirements
+  and later README updates. No current all-three-source or full-suite/CI claim.
+  app362 JSON.143s unchanged/noEXE. Worker traces owner32 Body10 condition to
+  agg.userCount→me.users.length: ArrayLen manifest is I64/PureRead but law
+  Unprojected, ordinary issuer String-only; field Array length result→Home→physical
+  publication is a separate missing responsibility. No selector-based I64 waiver
+  or element-I64 census reuse (users contains Text). Before next implementation,
+  select this actual owner/row and transfer remaining Loop/Text conditions.
+  Retained old fences serve non-product callers; not eligible for blanket delete.
+  Source Loop vertical verified; entire Text row, JSON and whole goal remain open.

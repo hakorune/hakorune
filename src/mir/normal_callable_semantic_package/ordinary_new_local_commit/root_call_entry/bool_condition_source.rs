@@ -8,6 +8,7 @@ impl EmittedBoolConditionProjectionV1 {
     pub(super) fn validate_source(&self, context: CallValidationContextV1<'_>,
         function: &MirFunction, finishing: Option<&Finished>,
     ) -> Result<(), String> {
+        self.materialization.validate_source(&self.frame, context)?;
         let ledger = context.ledger();
         let source = self.frame.source();
         let text_leaves = self.frame.text_operand_nodes_v1();
@@ -15,7 +16,7 @@ impl EmittedBoolConditionProjectionV1 {
             !text_leaves.contains(index) && !self.frame.transfers_node(*index) && self.frame.class(*index) != Some(
                 crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)).collect();
         if self.nodes.iter().map(|node| node.node).ne(expected)
-            || self.node(0)?.value != self.materialization.values().0 {
+            || self.node(0)?.value != self.materialization.physical().values().0 {
             return Err(freeze("bool-condition/source-node-coverage"));
         }
         let mut observed_calls = Vec::new();
@@ -51,6 +52,17 @@ impl EmittedBoolConditionProjectionV1 {
                     } else if !function.params.contains(&node.value) {
                         return Err(freeze("bool-condition/reference-parameter"));
                     }
+                },
+                (Node::Reference(_), BoolConditionValueProofV1::OriginalReference(read)) => {
+                    if !observed_references.insert(node.node) { return Err(freeze("bool-condition/reference-duplicate")); }
+                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = self.frame.references().get(&node.node)
+                        else { return Err(freeze("bool-condition/reference-source")); };
+                    if reference.original_read().is_none()
+                        || read.operand(self.frame.evaluation(), node.node, context)?
+                            != crate::mir::instruction::StringInvokeOperand::NormalInteger(node.value) {
+                        return Err(freeze("bool-condition/original-reference-value"));
+                    }
+                    read.validate_dependencies_v1(self.frame.evaluation(), node.node, context, function, finishing)?;
                 },
                 (Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }),
                     BoolConditionValueProofV1::Field(binding)) => {
@@ -140,8 +152,8 @@ impl EmittedBoolConditionProjectionV1 {
         if observed_calls.into_iter().ne(self.frame.calls().iter().map(|call| call.site())) {
             return Err(freeze("bool-condition/call-coverage"));
         }
-        self.materialization.relation().verify_projected(function, &mut |binding| mapped(binding, finishing))?;
-        for binding in self.materialization.bindings() {
+        self.materialization.physical().relation().verify_projected(function, &mut |binding| mapped(binding, finishing))?;
+        for binding in self.materialization.physical().bindings() {
             match mapped(binding, finishing)? {
                 Some(_) => require_binding(function, binding, finishing)?,
                 None if matches!(binding.1, MirInstruction::Const { .. } | MirInstruction::Copy { .. }) => {},

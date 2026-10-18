@@ -118,14 +118,24 @@ pub(super) fn scan_statement_flow<'a, E>(
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<bool, E> {
     let function = input.function();
+    locals.begin_source_loop_body_v1(body);
     for index in 0..body.statements().len() {
         let Ok(statement) = input.source().body_stmt(body, index) else {
             *unavailable = Some(HomePrefixUnavailableV1::SourceMismatch);
             return Ok(false);
         };
         covered_statements.push(statement.site().clone());
+        locals.visit_source_loop_statement_v1(body, statement.site(), index);
         local_call_flow::stage_statement_actuals(input, &statement, locals,
             unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
+
+        if let Some(available) = locals.observe_source_loop_exit_v1(statement.site(), homes,
+            covered_statements, path_calls, unavailable) {
+            if !available { unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); }
+            locals.note_source_loop_availability_v1(available && unavailable.is_none());
+            locals.end_source_loop_body_v1(body, true);
+            return Ok(true);
+        }
 
         if exit_sites.contains(statement.site()) {
             super::terminal::observe_terminal_statement(
@@ -155,6 +165,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_calls,
                 local_static_call,
             )?;
+            locals.note_source_loop_availability_v1(unavailable.is_none());
+            locals.end_source_loop_body_v1(body, true);
             return Ok(true);
         }
         if matches!(statement.node(), ASTNode::If { .. }) {
@@ -198,6 +210,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 object_return,
             )?;
             if terminated {
+                locals.end_source_loop_body_v1(body, true);
                 return Ok(true);
             }
             continue;
@@ -206,17 +219,18 @@ pub(super) fn scan_statement_flow<'a, E>(
             if !super::print::observe(input, &statement, locals, homes, unavailable.is_none(),
                 local_calls, path_calls, local_field_read, borrowed_actuals)? {
                 unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+            } else {
+                locals.record_source_loop_expression_v1(statement.site());
             }
             continue;
         }
-        let ASTNode::Local {
-            variables,
-            initial_values,
-            ..
-        } = statement.node()
+        let ASTNode::Local { .. } = statement.node()
         else {
             if super::binding_rebind::observe(input, &statement, locals, homes, unavailable.is_none(),
-                local_calls, path_calls, local_field_read, borrowed_actuals)? { continue; }
+                local_calls, path_calls, local_field_read, borrowed_actuals)? {
+                locals.record_source_loop_expression_v1(statement.site());
+                continue;
+            }
             if super::named_array::observe_append(
                 input,
                 &statement,
@@ -341,6 +355,71 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 }
                             }
                         }
+                        Some(SelectedLoopHomeLoanV1::SourceObservation(row)) => {
+                            let Some(source) = row.observation_source_v1(input) else {
+                                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+                                continue;
+                            };
+                            let summary = super::source_loop::observe(
+                                input,
+                                &statement,
+                                &source,
+                                exit_sites,
+                                selected,
+                                result_sites,
+                                results,
+                                exit_homes,
+                                maps,
+                                local_calls,
+                                path_calls,
+                                terminal_relations,
+                                argument_observations,
+                                result_prefixes,
+                                locals,
+                                homes,
+                                covered_statements,
+                                selected_seen,
+                                unavailable,
+                                field_is_integer,
+                                map_compatible,
+                                terminal_call,
+                                local_map_call,
+                                local_handle_call,
+                                local_lexical_i64_call,
+                                local_lexical_nullable_call,
+                                local_nullable_call,
+                                local_static_call,
+                                argument_i64_field,
+                                scalar_field,
+                                container_field,
+                                array_i64_field,
+                                formal_i64_field,
+                                local_field_read,
+                                borrowed_actuals,
+                                view_use,
+                                loop_prestate,
+                                object_return,
+                            )?;
+                            if let Some(summary) = summary {
+                                // Retain the exact whole-source logical product; no retry or
+                                // second scan is permitted after selected failure.
+                                if let Ok(product) = row.retain_source_recipe_v2(input, summary) {
+                                    if locals.apply_source_loop_after_v2(product, homes) {
+                                        // This is source Home continuation only. The same row's
+                                        // product must still be fulfilled by the physical owner.
+                                        continue;
+                                    }
+                                    unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                                }
+                            }
+                            // WIP: the complete V2/JoinSig + physical product
+                            // must consume this summary before granting After.
+                            // A selected source walk never retries or stages
+                            // its interior again using the pre-loop snapshot.
+                            unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+                            locals.note_source_loop_availability_v1(false);
+                            continue;
+                        }
                         None => {}
                     }
                 }
@@ -402,6 +481,8 @@ pub(super) fn scan_statement_flow<'a, E>(
             borrowed_actuals,
             view_use,
         )?;
+        locals.record_source_loop_expression_v1(statement.site());
     }
+    locals.end_source_loop_body_v1(body, false);
     Ok(false)
 }

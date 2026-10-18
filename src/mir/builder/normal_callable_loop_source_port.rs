@@ -64,6 +64,15 @@ pub(super) struct CallableLoopSourceExpressionPortV1<'ledger> {
 }
 
 impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
+    pub(super) fn prepare_checked_phis_v2(&self,
+        session: &super::normal_callable_loop_source_facts::SourceLoopPhiSessionV1,
+        builder: &mut super::MirBuilder,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        header: crate::mir::BasicBlockId, after: crate::mir::BasicBlockId,
+    ) -> Result<(), String> {
+        session.prepare_checked(builder, product, &self.ledger.borrow(), header, after)
+    }
+
     pub(super) fn source_carrier_name(
         &self, binding: crate::mir::resolved_semantics::BindingRefV1,
         physical: &BTreeMap<String, ValueId>,

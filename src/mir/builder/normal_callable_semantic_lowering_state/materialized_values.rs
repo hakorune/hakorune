@@ -5,6 +5,7 @@ use crate::mir::{BasicBlockId, MirInstruction};
 
 #[derive(Debug, Clone)]
 enum LocalProducerPurposeV1 {
+    LoopPoint(Rc<LoopPointValueV1>),
     Initializer,
     BindingRebind(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>),
 }
@@ -12,11 +13,49 @@ impl PartialEq for LocalProducerPurposeV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Initializer, Self::Initializer) => true,
+            (Self::LoopPoint(a), Self::LoopPoint(b)) => Rc::ptr_eq(a, b),
             (Self::BindingRebind(a), Self::BindingRebind(b)) => std::rc::Rc::ptr_eq(a, b),
             _ => false,
         }
     }
 }
+/// An immutable source coordinate borrows the SAME indexed physical Phi.
+/// This is a value purpose, not a second loop registry or a completion grant.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct LoopPointValueV1 {
+    source: crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+    relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+}
+impl PartialEq for LoopPointValueV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.source == other.source && Rc::ptr_eq(&self.relation, &other.relation)
+    }
+}
+impl LoopPointValueV1 {
+    pub(in crate::mir::builder) fn new(
+        source: crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+        relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+        function: &crate::mir::MirFunction,
+    ) -> Result<Rc<Self>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+        if !matches!(source, Producer::LoopHeader(_) | Producer::LoopAfter { .. }) {
+            return Err("[freeze:contract][local-read/loop-point-source-kind]".into());
+        }
+        relation.identity_phi_binding_v1()?;
+        if matches!(source, Producer::LoopAfter { .. }) { relation.require_completed_v1()?; }
+        relation.verify(function)?;
+        Ok(Rc::new(Self { source, relation }))
+    }
+    pub(in crate::mir) fn binding(&self) -> BindingRefV1 {
+        use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+        match &self.source { Producer::LoopHeader(basis) => basis.binding(),
+            Producer::LoopAfter { binding, .. } => *binding, _ => unreachable!("constructor checked Loop purpose") }
+    }
+    pub(in crate::mir) fn value(&self) -> ValueId { self.relation.values().0 }
+    pub(in crate::mir) fn source(&self) -> &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 { &self.source }
+    pub(in crate::mir) fn relation(&self) -> &Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1> { &self.relation }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(in crate::mir) struct LocalProvenanceV1 {
     purpose: LocalProducerPurposeV1,
@@ -26,6 +65,17 @@ pub(in crate::mir) struct LocalProvenanceV1 {
 }
 
 impl LocalProvenanceV1 {
+    pub(in crate::mir) fn loan_loop_point_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+        result: ValueId,
+    ) -> Result<&Rc<LoopPointValueV1>, String> {
+        let LocalProducerPurposeV1::LoopPoint(point) = &self.purpose else {
+            return Err("[freeze:contract][local-read/loop-point-purpose]".into());
+        };
+        if point.source() != source { return Err("[freeze:contract][local-read/loop-point-source]".into()); }
+        self.loan_copies(point.binding(), point.value(), result)?;
+        Ok(point)
+    }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self, result: ValueId)
         -> Result<&[(BasicBlockId, MirInstruction)], String> {
         self.loan_copies(self.root, self.root_value, result)
@@ -149,6 +199,18 @@ impl MaterializedValuesV1 {
             None => return None,
         }
         Some(proof)
+    }
+
+    pub(super) fn attach_loop_point_v1(&mut self, point: Rc<LoopPointValueV1>) -> Result<(), String> {
+        let binding = point.binding();
+        if self.get(&binding) != Some(&point.value()) {
+            return Err("[freeze:contract][local-read/loop-point-publication]".into());
+        }
+        self.attach_provenance(binding, Some(LocalProvenanceV1 {
+            root: binding, root_value: point.value(), copies: Vec::new(),
+            purpose: LocalProducerPurposeV1::LoopPoint(point),
+        }));
+        Ok(())
     }
 
     pub(super) fn attach_checked_rebind(&mut self,
@@ -288,5 +350,66 @@ impl CallableSemanticLoweringState {
         self.rebind(target, value)?;
         self.values.attach_checked_rebind(frame, value);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+impl LocalProvenanceV1 {
+    pub(in crate::mir) fn assert_indexed_phi_loan_for_test(
+        source: crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+    ) {
+        use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+        use crate::mir::builder::MirBuilder;
+        use crate::mir::{MirType, ConstValue};
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("loop_point_loan/0".into());
+        let entry = builder.function_state.current_block.unwrap();
+        let initial = builder.alloc_typed(MirType::Integer);
+        builder.emit_instruction(MirInstruction::Const { dst: initial, value: ConstValue::Integer(0) }).unwrap();
+        let header = builder.next_block_id();
+        builder.ensure_block_exists(header).unwrap();
+        crate::mir::builder::emission::branch::emit_jump(&mut builder, header).unwrap();
+        let dst = builder.alloc_typed(MirType::Integer);
+        let mut txn = PhiTxn::begin("loop-point-original-phi");
+        let token = txn.define_provisional_phi(&mut builder, header, dst, "header").unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let relation = builder.function_state.local_ssa_correspondence.loan(function, dst, dst).unwrap();
+        let point = LoopPointValueV1::new(source.clone(), Rc::clone(&relation), function).unwrap();
+        let ordinary = builder.function_state.local_ssa_correspondence.loan(function, initial, initial).unwrap();
+        assert!(LoopPointValueV1::new(source.clone(), ordinary, function).is_err(), "ordinary definitions cannot become Phi purposes");
+        let mut values = MaterializedValuesV1::default();
+        values.insert(point.binding(), dst);
+        values.attach_loop_point_v1(Rc::clone(&point)).unwrap();
+        let proof = values.provenance(&point.binding()).unwrap();
+        assert!(Rc::ptr_eq(proof.loan_loop_point_v1(&source, dst).unwrap(), &point));
+        assert!(proof.loan_initializer_v1(point.binding(), dst).is_err(), "a Header is not its pre-loop initializer");
+        assert!(proof.loan_loop_point_v1(&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::SignedEntry(point.binding()), dst).is_err());
+        assert!(relation.require_completed_v1().is_err(), "defined is not completed");
+        builder.start_new_block(header).unwrap();
+        let copied = builder.alloc_typed(MirType::Integer);
+        let copy = MirInstruction::Copy { dst: copied, src: dst };
+        builder.emit_instruction(copy.clone()).unwrap();
+        let receipt = CompletedLocalBindingV1::new(0, dst, copied).with_copy(Some((header, copy))).unwrap();
+        let alias = values.local_provenance(point.binding(), &receipt).unwrap();
+        assert!(Rc::ptr_eq(alias.loan_loop_point_v1(&source, copied).unwrap(), &point));
+        assert!(alias.loan_loop_point_v1(&source, dst).is_err(), "complete Copy chain is mandatory");
+        txn.patch_phi_inputs(&mut builder, token, vec![(entry, initial)], "complete-original").unwrap();
+        txn.commit(&mut builder).unwrap();
+        relation.require_completed_v1().unwrap();
+        relation.verify(builder.function_state.current_function.as_ref().unwrap()).unwrap();
+        assert!(matches!(relation.identity_phi_binding_v1().unwrap().1, MirInstruction::Phi { ref inputs, .. } if inputs == &vec![(entry, initial)]));
+        values.insert(point.binding(), initial);
+        assert!(values.provenance(&point.binding()).is_none(), "ordinary rebind invalidates source point purpose");
+        let foreign = builder.next_block_id();
+        builder.ensure_block_exists(foreign).unwrap();
+        let doomed = builder.alloc_typed(MirType::Integer);
+        let mut txn = PhiTxn::begin("loop-point-abort");
+        txn.define_provisional_phi(&mut builder, foreign, doomed, "pending").unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let aborted = builder.function_state.local_ssa_correspondence.loan(function, doomed, doomed).unwrap();
+        let _point = LoopPointValueV1::new(source, Rc::clone(&aborted), function).unwrap();
+        assert!(txn.abort_on_err(&mut builder, "expected abort".into()).cleanup_failures().is_empty());
+        assert!(aborted.identity_phi_binding_v1().is_err(), "a rolled-back observation cannot be used");
     }
 }

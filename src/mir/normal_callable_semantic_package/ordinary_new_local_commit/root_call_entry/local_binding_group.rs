@@ -17,6 +17,7 @@ pub(crate) struct RootLifecyclePrefixBindingGroupV1 {
 
 #[derive(Debug, Clone)]
 enum PrefixPhysicalProofV1 {
+    Loop(Rc<source_loop_projection::EmittedSourceLoopProjectionV2>),
     Call(Option<Rc<EmittedLexicalCallProjectionV1>>),
     DirectScalar(Rc<DirectScalarCallProjectionV1>),
     EvaluatedBinding(EvaluatedBindingProjectionV1),
@@ -36,6 +37,18 @@ enum EvaluatedBindingProjectionV1 {
 }
 
 impl RootLifecyclePrefixBindingGroupV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn snapshot_tree_v2(roots: &[Self]) -> Vec<Self> {
+        source_loop_projection::snapshot_group_tree_v2(roots)
+    }
+    pub(super) fn new_loop_pending(packet: Rc<source_loop_projection::EmittedSourceLoopProjectionV2>) -> Self {
+        let source = packet.product().source.condition.source();
+        Self { site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
+            bindings: Vec::new(), proof: PrefixPhysicalProofV1::Loop(packet), projected: false }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_loop_rc(&self) -> Option<&Rc<source_loop_projection::EmittedSourceLoopProjectionV2>> {
+        match &self.proof { PrefixPhysicalProofV1::Loop(packet) => Some(packet), _ => None }
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn new(
         site: OwnedExprSiteV1,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
@@ -83,6 +96,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     }
     pub(crate) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
         if !self.projected {
+            if let Some(packet) = self.source_loop_rc() { return packet.bindings(); }
             if let Some(packet) = self.field_array_append() { return packet.bindings(); }
             if let Some(packet) = self.borrowed_field_write() { return packet.bindings(); }
         }
@@ -101,6 +115,18 @@ impl RootLifecyclePrefixBindingGroupV1 {
         &self, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
+        if let (Some(packet), Some(projection)) = (self.source_loop_rc(), finishing) {
+            for original in packet.bindings() {
+                if let Some(dst) = original.1.dst_value() {
+                    if projection.captured_definition(dst)? != original { return Err(freeze("source-loop/captured-write")); }
+                } else if matches!(original.1, MirInstruction::KeepAlive { .. }) {
+                    projection.validate_metadata_correspondence_v2(function, original, false)?;
+                } else if !super::super::physical_boundary::check_binding(function, Some(projection), original.0, &original.1)? {
+                    return Err(freeze("source-loop/projected-effect"));
+                }
+            }
+            return Ok(());
+        }
         for original in self.bindings() {
             let observed = match (self.projected, self.field_array_append()) {
                 (false, Some(packet)) => packet.resolve_observed_binding_v1(original, false)?,
@@ -133,7 +159,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn lexical(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.proof {
             PrefixPhysicalProofV1::Call(packet) => packet.as_deref(),
-            PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::EvaluatedBinding(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
+            PrefixPhysicalProofV1::Loop(_) | PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::EvaluatedBinding(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
         }
     }
 
@@ -191,6 +217,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         match &self.proof { PrefixPhysicalProofV1::BoolCondition(packet) => Some(packet), _ => None }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn require_sealed_condition_v1(&self) -> Result<(), String> {
+        if let Some(packet) = self.source_loop_rc() { packet.require_completed()?; }
         if let Some(packet) = self.bool_condition() { packet.require_sealed()?; }
         if let Some(packet) = self.field_array_append() { packet.require_sealed_v1()?; }
         if let Some(packet) = self.borrowed_field_write() { packet.require_sealed_v1()?; }
@@ -233,6 +260,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn matches_source(&self, source: &LifecyclePrefixSourceV1) -> bool {
         if self.site() != source.site() { return false; }
         match (&self.proof, source) {
+            (PrefixPhysicalProofV1::Loop(packet), LifecyclePrefixSourceV1::Loop { product, .. }) => Rc::ptr_eq(packet.product(), product),
             (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)), LifecyclePrefixSourceV1::InitializerExpression { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
             (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)), LifecyclePrefixSourceV1::BindingRebind { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
             (PrefixPhysicalProofV1::BorrowedFieldWrite(packet), LifecyclePrefixSourceV1::BorrowedFieldWrite { frame, .. }) =>
@@ -263,6 +291,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
     ) -> Result<(), String> {
         let coordinates = if self.projected { finishing } else { None };
         match &self.proof {
+            PrefixPhysicalProofV1::Loop(packet) =>
+                packet.validate_completion_v2(context, function, self.bindings(), coordinates, finishing),
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing).map(drop)

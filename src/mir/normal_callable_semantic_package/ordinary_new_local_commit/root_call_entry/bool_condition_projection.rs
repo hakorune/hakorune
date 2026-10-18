@@ -3,7 +3,7 @@
 //! same affine outer-Branch seal. No semantic permission is inferred from CFG.
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
-use crate::mir::builder::{IfConditionMaterializationV1, ExactLexicalReadV1, LocalSsaPhysicalRelationV1};
+use crate::mir::builder::{IfConditionMaterializationV1, ConditionMaterializationV1, ExactLexicalReadV1, LocalSsaPhysicalRelationV1};
 use crate::mir::builder::ops::CompletedLogicalShortCircuitV1;
 use crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1;
 use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
@@ -59,6 +59,7 @@ pub(in crate::mir) struct BoolConditionCursorV1 {
 pub(in crate::mir) enum BoolConditionValueProofV1 {
     Literal(Binding),
     Reference { read: ExactLexicalReadV1, producer: Option<Binding> },
+    OriginalReference(super::expression_projection::ExpressionReferenceReadV1),
     Field(Binding),
     Call { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
     Binary { append: Binding, operands: [Rc<LocalSsaPhysicalRelationV1>; 2] },
@@ -73,13 +74,44 @@ pub(in crate::mir) struct BoolConditionNodeProjectionV1 {
     pub(in crate::mir) value: ValueId,
     pub(in crate::mir) proof: BoolConditionValueProofV1,
 }
+/// Physical correspondence has one source purpose. The Loop arm retains only
+/// immutable source identity, so scoped children cannot cycle to their parent.
+#[derive(Debug)]
+enum BoolConditionOuterV2 {
+    If(Rc<IfConditionMaterializationV1>),
+    SourceLoop {
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        frame: usize,
+        materialization: Rc<ConditionMaterializationV1>,
+        targets: (BasicBlockId, BasicBlockId),
+    },
+}
+impl BoolConditionOuterV2 {
+    fn physical(&self) -> &Rc<ConditionMaterializationV1> {
+        match self { Self::If(pending) => pending.materialization(), Self::SourceLoop { materialization, .. } => materialization }
+    }
+    fn arms(&self) -> (BasicBlockId, BasicBlockId) {
+        match self { Self::If(pending) => pending.arms(), Self::SourceLoop { targets, .. } => *targets }
+    }
+    fn validate_source(&self, frame: &Rc<CheckedBoolConditionFrameV1>, context: CallValidationContextV1<'_>) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
+        match self {
+            Self::If(_) if matches!(frame.source().root(), Root::IfCondition { .. }) => Ok(()),
+            Self::SourceLoop { product, frame: index, targets, .. } => {
+                if targets.0 == targets.1 { return Err(freeze("bool-condition/loop-branch-targets")); }
+                context.validate_source_loop_bool_frame_v2(product, *index, frame)
+            }
+            _ => Err(freeze("bool-condition/if-source-purpose")),
+        }
+    }
+}
 #[derive(Debug)]
 pub(in crate::mir) struct EmittedBoolConditionProjectionV1 {
     frame: Rc<CheckedBoolConditionFrameV1>,
     nodes: Box<[BoolConditionNodeProjectionV1]>,
     entry: Binding,
     prefix: Vec<Binding>,
-    materialization: Rc<IfConditionMaterializationV1>,
+    materialization: BoolConditionOuterV2,
     outer: RefCell<Option<Binding>>,
 }
 
@@ -92,18 +124,45 @@ impl BoolConditionSealV1 {
     pub(in crate::mir) fn seal(self, function: &MirFunction,
         materialization: &Rc<IfConditionMaterializationV1>, branch: Binding,
     ) -> Result<(), String> {
-        if !Rc::ptr_eq(materialization, &self.packet.materialization)
+        if !matches!(&self.packet.materialization, BoolConditionOuterV2::If(original) if Rc::ptr_eq(materialization, original))
             || self.packet.outer.borrow().is_some()
         { return Err(freeze("bool-condition/outer-seal-identity")); }
         self.packet.verify_outer(function, &branch, None)?;
         *self.packet.outer.borrow_mut() = Some(branch);
         Ok(())
     }
+    pub(in crate::mir) fn seal_source_loop_v2(self, function: &MirFunction,
+        materialization: &Rc<ConditionMaterializationV1>, branch: Binding,
+    ) -> Result<(), String> {
+        if !matches!(&self.packet.materialization, BoolConditionOuterV2::SourceLoop { materialization: original, .. }
+            if Rc::ptr_eq(materialization, original)) || self.packet.outer.borrow().is_some() {
+            return Err(freeze("bool-condition/loop-outer-seal-identity"));
+        }
+        self.packet.verify_outer(function, &branch, None)?;
+        *self.packet.outer.borrow_mut() = Some(branch);
+        Ok(())
+    }
+
 }
 impl EmittedBoolConditionProjectionV1 {
     pub(in crate::mir) fn prepare(
         frame: Rc<CheckedBoolConditionFrameV1>, nodes: Vec<BoolConditionNodeProjectionV1>,
         entry: Binding, prefix: Vec<Binding>, materialization: Rc<IfConditionMaterializationV1>,
+        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<(Rc<Self>, BoolConditionSealV1), String> {
+        Self::prepare_outer(frame, nodes, entry, prefix, BoolConditionOuterV2::If(materialization), ledger, function)
+    }
+    pub(in crate::mir) fn prepare_source_loop_v2(
+        frame: Rc<CheckedBoolConditionFrameV1>, nodes: Vec<BoolConditionNodeProjectionV1>,
+        entry: Binding, prefix: Vec<Binding>, materialization: Rc<ConditionMaterializationV1>,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        index: usize, targets: (BasicBlockId, BasicBlockId), ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<(Rc<Self>, BoolConditionSealV1), String> {
+        Self::prepare_outer(frame, nodes, entry, prefix,
+            BoolConditionOuterV2::SourceLoop { product, frame: index, materialization, targets }, ledger, function)
+    }
+    fn prepare_outer(frame: Rc<CheckedBoolConditionFrameV1>, nodes: Vec<BoolConditionNodeProjectionV1>,
+        entry: Binding, prefix: Vec<Binding>, materialization: BoolConditionOuterV2,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<(Rc<Self>, BoolConditionSealV1), String> {
         let packet = Rc::new(Self { frame, nodes: nodes.into_boxed_slice(), entry, prefix,
@@ -113,6 +172,18 @@ impl EmittedBoolConditionProjectionV1 {
         packet.validate_original_scope(ledger, function)?;
         let lease = BoolConditionSealV1 { packet: Rc::clone(&packet) };
         Ok((packet, lease))
+    }
+    pub(super) fn corroborate_loop_frame_v2(&self,
+        product: &Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, index: usize,
+        entry: BasicBlockId, end: BasicBlockId, value: ValueId,
+        materialization: &Rc<ConditionMaterializationV1>, targets: (BasicBlockId, BasicBlockId),
+    ) -> Result<(), String> {
+        if self.entry.0 != entry || materialization.block() != end || materialization.values().0 != value
+            || !matches!(&self.materialization, BoolConditionOuterV2::SourceLoop { product: original, frame, materialization: actual, targets: arms }
+                if Rc::ptr_eq(original, product) && *frame == index && Rc::ptr_eq(actual, materialization) && *arms == targets) {
+            return Err(freeze("source-loop/bool-frame-correspondence"));
+        }
+        self.require_sealed()
     }
     pub(in crate::mir) fn frame(&self) -> &Rc<CheckedBoolConditionFrameV1> { &self.frame }
     pub(in crate::mir) fn prefix(&self) -> &[Binding] { &self.prefix }
@@ -167,10 +238,10 @@ impl EmittedBoolConditionProjectionV1 {
         finishing: Option<&Finished>,
     ) -> Result<(), String> {
         let (then_bb, else_bb) = self.materialization.arms();
-        if original.0 != self.materialization.block()
+        if original.0 != self.materialization.physical().block()
             || !matches!(&original.1, MirInstruction::Branch { condition, then_bb: actual_then, else_bb: actual_else,
                 then_edge_args: Some(a), else_edge_args: Some(b) }
-                if *condition == self.materialization.values().1 && (*actual_then, *actual_else) == (then_bb, else_bb)
+                if *condition == self.materialization.physical().values().1 && (*actual_then, *actual_else) == (then_bb, else_bb)
                     && a.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly && a.values.is_empty()
                     && b.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly && b.values.is_empty())
         { return Err(freeze("bool-condition/outer-branch-source")); }
@@ -202,10 +273,9 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     pub(in crate::mir) fn validate_bool_condition_source_v1(&self, frame: &Rc<CheckedBoolConditionFrameV1>) -> Result<(), String> {
         let owner = frame.source().owner();
-        let sources = self.expected_local_call_binding_sources(owner)?;
-        let groups = self.root_local_call_bindings.borrow();
-        let count = groups.get(&owner).map_or(0, Vec::len);
-        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::BoolCondition { frame: expected, .. })
+        let site = OwnedExprSiteV1::new(owner, frame.source().nodes()[0].site().clone());
+        let source = self.next_prefix_source_v2(owner, &site)?;
+        if !matches!(source.as_ref(), Some(LifecyclePrefixSourceV1::BoolCondition { frame: expected, .. })
             if Rc::ptr_eq(frame, expected)) { return Err(freeze("bool-condition/source-prefix-order")); }
         Ok(())
     }
@@ -249,14 +319,21 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn original_condition_bindings_v1(
         &self, owner: FunctionOwnerIdV1,
     ) -> Result<Vec<Binding>, String> {
-        let groups = self.root_local_call_bindings.borrow();
+        let roots = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+        let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&roots);
         let mut bindings = Vec::new();
-        for group in groups.get(&owner).into_iter().flatten() {
+        for group in &groups {
             let Some(packet) = group.bool_condition() else { continue };
             packet.require_sealed()?;
-            let frame = self.bool_condition_frame_v1(owner, packet.frame.source().root().statement())?
-                .ok_or_else(|| freeze("bool-condition/repair-source-missing"))?;
-            if !Rc::ptr_eq(&frame, &packet.frame) { return Err(freeze("bool-condition/repair-source-foreign")); }
+            match &packet.materialization {
+                BoolConditionOuterV2::If(_) => {
+                    let frame = self.bool_condition_frame_v1(owner, packet.frame.source().root().statement())?
+                        .ok_or_else(|| freeze("bool-condition/repair-source-missing"))?;
+                    if !Rc::ptr_eq(&frame, &packet.frame) { return Err(freeze("bool-condition/repair-source-foreign")); }
+                }
+                BoolConditionOuterV2::SourceLoop { .. } => packet.materialization
+                    .validate_source(&packet.frame, CallValidationContextV1::Lowering(self))?,
+            }
             for row in &packet.prefix {
                 if !bindings.contains(row) { bindings.push(row.clone()); }
             }

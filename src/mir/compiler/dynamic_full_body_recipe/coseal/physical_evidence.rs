@@ -613,7 +613,7 @@ fn issue_operation_sources(
         };
         let (source_role, source_site) = source_anchor(source, coverage, placement.item)?;
         let (effect, call_role) = match operation {
-            LoopOperationV2::ConstText { .. } => {
+            LoopOperationV2::ConstText { .. } | LoopOperationV2::BoolExpression { .. } => {
                 return Err(DynamicFullLoopPhysicalEvidenceRejectV2::OperationSourceCardinality);
             }
             LoopOperationV2::ReadBinding { .. } => {

@@ -313,15 +313,44 @@ impl VerifiedCallableLoopCallFreeCoverageV1 {
 pub(in crate::mir::builder) enum CallableLoopSourceCallCoverageV1 {
     CallFree(VerifiedCallableLoopCallFreeCoverageV1),
     WithCalls(CallableLoopSourceTargetRelationV1),
+    CheckedRecipe(std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>),
 }
 
 impl CallableLoopSourceCallCoverageV1 {
+    pub(in crate::mir::builder) fn validate_checked_recipe_v2(
+        product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2,
+        owner: FunctionOwnerIdV1, parent: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        items: &[CallableLoopSourceItemBindingV1],
+    ) -> Result<(), CallableLoopSourceRouteRejectV1> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
+        if product.source.source.owner() != owner {
+            return Err(CallableLoopSourceRouteRejectV1::SourceCoverageForeign);
+        }
+        if product.source.source.site().node() != parent {
+            return Err(CallableLoopSourceRouteRejectV1::SourceCoverageSiteMismatch);
+        }
+        let mut expected = std::collections::BTreeSet::new();
+        for node in product.schedule().frames().iter().flat_map(|frame| frame.source().nodes()) {
+            if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) && !expected.insert(node.site()) {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: node.site().clone() });
+            }
+        }
+        let mut observed = std::collections::BTreeSet::new();
+        for item in items {
+            if !observed.insert(item.call_site()) {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: item.call_site().clone() });
+            }
+        }
+        if expected != observed { return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign); }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) const fn as_with_calls(
         &self,
     ) -> Option<&CallableLoopSourceTargetRelationV1> {
         match self {
             Self::WithCalls(relation) => Some(relation),
-            Self::CallFree(_) => None,
+            Self::CallFree(_) | Self::CheckedRecipe(_) => None,
         }
     }
 
@@ -330,7 +359,7 @@ impl CallableLoopSourceCallCoverageV1 {
     ) -> Option<&VerifiedCallableLoopCallFreeCoverageV1> {
         match self {
             Self::CallFree(coverage) => Some(coverage),
-            Self::WithCalls(_) => None,
+            Self::WithCalls(_) | Self::CheckedRecipe(_) => None,
         }
     }
 }
@@ -440,6 +469,23 @@ impl CallableLoopSourceTargetProbeV1 {
             core_methods,
             instance_methods,
         }
+    }
+
+    pub(in crate::mir::builder) fn consume_for_checked_recipe_v2(
+        self, items: &[CallableLoopSourceItemBindingV1],
+    ) -> Result<(), CallableLoopSourceRouteRejectV1> {
+        if self.requirement_mismatch { return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch); }
+        if !self.uncovered.is_empty() { return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected { call_sites: self.uncovered }); }
+        if !self.selected.is_empty() || !self.instance_methods.is_empty() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
+        }
+        let mut seen = std::collections::BTreeSet::new();
+        for item in &self.core_methods {
+            if !items.contains(item) || !seen.insert(item.call_site()) {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
+            }
+        }
+        Ok(())
     }
 
     /// Any classified evidence still carried by this probe. A CallFree loop

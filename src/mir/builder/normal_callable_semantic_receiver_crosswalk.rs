@@ -75,6 +75,14 @@ impl PreparedExactLexicalReadV1 {
 
 impl BindingValueObservationV2 {
     pub(in crate::mir) fn binding_value(&self) -> (BindingRefV1, ValueId) { (self.binding, self.value) }
+    pub(in crate::mir) fn loan_loop_point_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+    ) -> Result<&std::rc::Rc<super::materialized_values::LoopPointValueV1>, String> {
+        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/loop-point-missing]")?
+            .loan_loop_point_v1(source, self.value)?;
+        if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/loop-point-owner]".into()); }
+        Ok(point)
+    }
     pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         if root.owner() != self.owner { return Err("[freeze:contract][local-read/root-owner]".into()); }
@@ -130,6 +138,11 @@ impl BindingValueObservationV2 {
 
 impl ExactLexicalReadV1 {
     pub(in crate::mir) fn binding_observation_v2(&self) -> &BindingValueObservationV2 { &self.binding_value }
+    pub(in crate::mir) fn loan_loop_point_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+    ) -> Result<&std::rc::Rc<super::materialized_values::LoopPointValueV1>, String> {
+        self.binding_value.loan_loop_point_v1(source)
+    }
     pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         self.binding_value.loan_local_initializer_v1(root)
@@ -365,3 +378,35 @@ impl CallableSemanticLoweringState {
 #[cfg(test)]
 #[path = "normal_callable_semantic_receiver_crosswalk_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+impl BindingValueObservationV2 {
+    pub(in crate::mir) fn assert_checked_loop_points_for_test(
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        claims: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+        product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) {
+        use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+        use crate::mir::{MirInstruction, MirType, ConstValue};
+        use crate::mir::builder::stmts::CompletedLocalBindingV1;
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let mut builder = crate::mir::builder::MirBuilder::new();
+        builder.enter_function_for_test("checked_source_points/0".into());
+        let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
+        state.entry_installed = true;
+        state.lend_ordinary_new_claim_ledger(claims);
+        for (&binding, basis) in &product.source.headers {
+            let Producer::Integer { value, .. } = basis.entry_producer() else { panic!("fixture has literal Entry"); };
+            let value_id = builder.alloc_typed(MirType::Integer);
+            builder.emit_instruction(MirInstruction::Const { dst: value_id, value: ConstValue::Integer(*value) }).unwrap();
+            state.values.insert(binding, value_id);
+            let local = CompletedLocalBindingV1::new(0, value_id, value_id);
+            let proof = super::materialized_values::MaterializedValuesV1::initializer_provenance(binding, &local);
+            state.values.attach_provenance(binding, proof);
+            let name = state.binding_names[&binding].to_string();
+            builder.function_state.variable_ctx.variable_map.insert(name, value_id);
+        }
+        crate::mir::builder::normal_callable_loop_source_facts::SourceLoopPhiSessionV1::assert_checked_points_for_test(
+            &mut builder, &mut state, product);
+    }
+}

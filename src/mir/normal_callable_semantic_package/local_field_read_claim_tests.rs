@@ -492,7 +492,7 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         assert!(home.recheck_source(input, originals.values().map(|row| row.contract())));
         assert!(!home.recheck_source(input, originals.values().skip(1).map(|row| row.contract())), "missing original Call refuses");
     }).unwrap();
-    let plan = ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap().unwrap();
+    let plan = ledger.take_preissued_loop_source_handoff_v2(site.owner(), &loop_site).unwrap().unwrap();
     let original = std::rc::Rc::clone(ledger.retained_loop_source_v1(site.owner(), &loop_site).unwrap().unwrap());
     assert!(std::rc::Rc::ptr_eq(&original, plan.original_source_v1()));
     let roles = std::rc::Rc::clone(original.bindings());
@@ -537,7 +537,7 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         assert!(plan.condition_source_v1(input).is_none(), "foreign function cannot borrow the retained condition");
         assert!(plan.flat_no_exit_statement_sites(input).is_none(), "foreign source cannot borrow this Recipe");
     }).unwrap();
-    assert!(ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap_err().contains("already-taken"));
+    assert!(ledger.take_preissued_loop_source_handoff_v2(site.owner(), &loop_site).unwrap_err().contains("already-taken"));
     assert!(ledger.validate_preissued_loop_consumption_v1(site.owner()).unwrap_err()
         .contains("binding-handoff-unconsumed"), "taking only the planner does not consume its affine binding handoff");
     drop(plan);

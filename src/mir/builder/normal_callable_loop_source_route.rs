@@ -263,6 +263,22 @@ impl CallableLoopSourceRouteTokenV1 {
         })
     }
 
+    pub(in crate::mir::builder) fn with_checked_recipe_v2(
+        mut self,
+        product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        items: Box<[CallableLoopSourceItemBindingV1]>, probe: CallableLoopSourceTargetProbeV1,
+        call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
+    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
+        if call_free.is_some() || self.source_coverage.is_some() || !self.source_items.is_empty() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
+        }
+        CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(&product, self.owner, &self.parent_site, &items)?;
+        probe.consume_for_checked_recipe_v2(&items)?;
+        self.source_items = items;
+        self.source_coverage = Some(CallableLoopSourceCallCoverageV1::CheckedRecipe(product));
+        Ok(self)
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(in crate::mir::builder) fn issue_with_source_relations(
         owner: FunctionOwnerIdV1,
@@ -427,6 +443,9 @@ impl CallableLoopSourceRouteTokenV1 {
                 if coverage.owner() != owner || coverage.loop_site().node() != &parent_site {
                     return Err(CallableLoopSourceRouteRejectV1::SourceCoverageForeign);
                 }
+            }
+            CallableLoopSourceCallCoverageV1::CheckedRecipe(product) => {
+                CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(product, owner, &parent_site, &source_items)?;
             }
             CallableLoopSourceCallCoverageV1::WithCalls(_) => {
                 if source_items.is_empty() {

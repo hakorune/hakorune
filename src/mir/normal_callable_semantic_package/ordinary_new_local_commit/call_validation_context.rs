@@ -9,13 +9,68 @@ pub(in crate::mir) enum CallValidationContextV1<'a> {
     Finalized(&'a FinalizedRootSourceHandoffV1),
 }
 impl<'a> CallValidationContextV1<'a> {
+    /// Source preflight only: no physical execution or completion permission.
+    pub(in crate::mir) fn validate_source_loop_bool_frame_v2(self,
+        product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, index: usize,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
+        use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1 as Prefix;
+        let original = product.schedule().frames().get(index).ok_or_else(|| freeze("bool-condition/loop-frame-index"))?;
+        if !matches!(original.prefix(), Prefix::BoolCondition { frame: source, .. } if std::rc::Rc::ptr_eq(source, frame))
+            || if index == 0 { !matches!(frame.source().root(), Root::LoopCondition { .. })
+                || !std::rc::Rc::ptr_eq(frame, &product.source.condition) }
+                else { !matches!(frame.source().root(), Root::IfCondition { .. }) } {
+            return Err(freeze("bool-condition/loop-source-purpose"));
+        }
+        self.require_original_source_loop_v2(product)
+    }
+    /// The same Loop remains in its existing affine group tree. A child may
+    /// retain the immutable product, never an Rc back to its physical parent.
+    pub(super) fn require_original_source_loop_v2(self,
+        product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) -> Result<(), String> {
+        self.require_source_loop_parent_v2(product, false)
+    }
+    /// Borrow the immutable source coordinate through its current affine parent.
+    /// Header publication may precede completion; After and all final users may not.
+    pub(in crate::mir) fn source_loop_point_product_v2(self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
+    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+        let (product, after) = match source {
+            Producer::LoopHeader(basis) => {
+                let product = self.ledger().retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
+                    .ok_or_else(|| freeze("source-loop/header-product-missing"))?;
+                if !std::rc::Rc::ptr_eq(&product.source.source, basis.source())
+                    || product.source.headers.get(&basis.binding()).is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis)) {
+                    return Err(freeze("source-loop/header-basis-drift"));
+                }
+                (std::rc::Rc::clone(product), false)
+            }
+            Producer::LoopAfter { product, binding } => {
+                let original = self.ledger().retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
+                    .ok_or_else(|| freeze("source-loop/after-product-missing"))?;
+                if !std::rc::Rc::ptr_eq(original, product)
+                    || product.source.incoming.as_ref().map_err(|_| freeze("source-loop/after-incoming"))?
+                        .iter().filter(|row| row.basis.binding() == *binding).count() != 1 {
+                    return Err(freeze("source-loop/after-source-drift"));
+                }
+                (std::rc::Rc::clone(product), true)
+            }
+            _ => return Err(freeze("source-loop/point-purpose")),
+        };
+        self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
+        Ok(product)
+    }
+
     /// Borrow the same source-owned write after the packet pool's affine move.
     /// Membership is safe during read take; full RHS validation is a later phase.
     pub(in crate::mir::normal_callable_semantic_package) fn with_original_field_write_v1<R>(
         self, frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldWriteFrameV1>,
         check: impl FnOnce(&EmittedBorrowedFieldWriteV1) -> Result<R, String>,
     ) -> Result<R, String> {
-        self.with_local_call_groups_v1(frame.source().owner(), |groups| {
+        self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;
             for group in groups {
                 let Some(packet) = group.borrowed_field_write() else { continue };
@@ -32,7 +87,7 @@ impl<'a> CallValidationContextV1<'a> {
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
         check: impl FnOnce(&EmittedBindingRebindProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
-        self.with_local_call_groups_v1(frame.source().owner(), |groups| {
+        self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;
             for group in groups {
                 let Some(packet) = group.rebind() else { continue };
@@ -46,7 +101,7 @@ impl<'a> CallValidationContextV1<'a> {
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1>,
         check: impl FnOnce(&EmittedInitializerExpressionProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
-        self.with_local_call_groups_v1(frame.source().owner(), |groups| {
+        self.with_local_call_group_tree_v2(frame.source().owner(), |groups| {
             let mut found = None;
             for group in groups {
                 let Some(packet) = group.initializer() else { continue };
@@ -85,12 +140,27 @@ impl<'a> CallValidationContextV1<'a> {
         self, owner: FunctionOwnerIdV1,
         read: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> Result<R, String>,
     ) -> Result<R, String> {
-        match self {
-            Self::Lowering(ledger) => read(ledger.root_local_call_bindings.borrow()
-                .get(&owner).map(Vec::as_slice).unwrap_or(&[])),
-            Self::Finalized(source) => read(source.local_calls.get(&owner)
-                .map(Vec::as_slice).unwrap_or(&[])),
-        }
+        let roots = match self {
+            Self::Lowering(ledger) => ledger.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default(),
+            Self::Finalized(source) => source.local_calls.get(&owner).cloned().unwrap_or_default(),
+        };
+        read(&roots)
+    }
+
+    /// Packet lookup traverses nested groups. Instruction-owner censuses keep
+    /// using the root groups, whose completed aggregate owns each binding once.
+    pub(super) fn with_local_call_group_tree_v2<R>(self, owner: FunctionOwnerIdV1,
+        read: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> Result<R, String>,
+    ) -> Result<R, String> {
+        self.with_local_call_groups_v1(owner, |roots| {
+            let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots);
+            if matches!(self, Self::Finalized(_)) {
+                for group in &groups {
+                    if group.source_loop_rc().is_some() { group.require_sealed_condition_v1()?; }
+                }
+            }
+            read(&groups)
+        })
     }
 
     /// Exit bindings move to the finalized root handoff exactly once.
@@ -129,7 +199,7 @@ impl<'a> CallValidationContextV1<'a> {
         if self.ledger().lexical_i64_call_source(source.site()) != Some(source) {
             return Err(freeze("scalar-call/original-source"));
         }
-        self.with_local_call_groups_v1(source.owner(), |groups| {
+        self.with_local_call_group_tree_v2(source.owner(), |groups| {
             let mut matching = groups.iter().filter(|group| group.site() == source.site());
             let group = matching.next().ok_or_else(|| freeze("scalar-call/group-missing"))?;
             if matching.next().is_some() { return Err(freeze("scalar-call/group-duplicate")); }
@@ -141,7 +211,7 @@ impl<'a> CallValidationContextV1<'a> {
         self, site: &OwnedExprSiteV1,
         check: impl FnOnce(&EmittedLexicalCallProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
-        self.with_local_call_groups_v1(site.owner(), |groups| {
+        self.with_local_call_group_tree_v2(site.owner(), |groups| {
             let mut found = None;
             for group in groups {
                 for packet in group.lexical_packets() {

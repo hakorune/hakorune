@@ -1036,6 +1036,58 @@ carrier-backed. This row owns no Builder route, production caller, retry,
 fallback, or legacy deletion; the Main0 canonical-root handoff remains a
 later explicit slice.
 
+
+## Original recursive source Loop V2 projection
+
+`source_loop_bool.rs` projects the same checked Loop/If frame into one closed
+`BoolExpression`. Its typed tree preserves original left/right order, And/Or
+conditional reach and comparison domains. Only genuine scalar/Text references
+become imports; Calls, fields, opaque/transferred subtrees and owning results
+are refused. Wire verification checks exact import coverage, canonical postorder,
+unique parents and a Bool root. Text comparison retains potential Fault before
+its normal result. Internal Bool merges never create source If/Exit rows.
+
+`source_loop_v2.rs` consumes the existing recursive source walk's whole summary
+and exact statement/If/Exit tree. It issues canonical logical keys once, uses
+original Carrier/ReadOnlyOperand/IterationLocal roles, projects the same checked
+I64 operations and Core source loans, then invokes the existing typed verifier
+and all-carrier JoinSig issuer. Body locals retain initializer SSA results;
+Residence reads use the same acquisition frame rather than fabricated carriers.
+Every source Header/After incoming producer must match its exact JoinSig edge
+payload and original source-node result. A logical carrier Header token grants
+no substitution of the entry runtime value for a physical Header Phi.
+
+The consuming result is retained once in the same selected source-plan row and
+original condition slot. `source_loop_execution.rs` co-seals canonical Core
+law/domain/result/ownership, genuine expression-Fault ancestry, prior acquisition
+prefixes, reverse Normal temporaries and every port's End-to-entry Home relation.
+The running Prefix may then atomically publish analysis-only Integer After for
+all original carriers. Original After reads retain the same product/value-flow;
+body-local Homes never escape. This grants no runtime acquisition or physical
+publication. Header/After physical readers still require the actual producer. The old affine plan cannot be consumed
+alone when this product exists; both physical consumers and the original condition
+slot must ultimately share the same completed product. Fixed Dynamic/S6C profiles
+do not admit the new operations by implication.
+
+The attached Loop owns one root lifecycle prefix. Its checked condition/body
+frames and call sites are excluded from flat root prefixes by original Rc/tree
+membership. Root exit coverage names only the outer Loop statement; conditional
+children require the same Loop packet's scoped physical fulfilment. Until that
+packet and both final consumers are connected, old plan-only consumption and
+unmatched flat child publication remain fail-fast.
+
+The selected generic Loop's existing affine `PreissuedCallableLoopSourcePlanV1`
+now carries its same source Recipe Rc to the sole LoopCond physical input.
+Before taking the planner slot, the ledger checks the retained result and exact
+source/condition identity; reissued equal sources and repeated takes refuse.
+The issuer rejects absent/overlapping/non-LoopCond selection before any other
+family path when the product is present. The physical input rechecks its source
+against the original binding/condition handoff. Transport alone grants no
+execution: the raw LoopCond entry selects the same-port source graph driver and
+requires whole lifecycle completion. A checked failure never retries the old
+plan. The old plan-only accessor and its test adapter are removed; source and
+affine-take tests consume the same canonical handoff as production.
+
 Header/After physical publication must obey the shared Phi lifecycle's
 Define-before-Expose contract. `PhiTxn` rejects foreign or already patched tokens
 before mutation; Loop preparation must retain that same pending transaction
@@ -1050,3 +1102,30 @@ final physical completion/finish share its error cleanup; nested loops cannot
 adopt the parent's session. Commit follows completed physical role and finish.
 This changes definition timing, not the source Recipe's execution permission;
 new Loop Header/After references and whole lifecycle group remain unaccepted.
+
+The selected raw Loop entry opens one pending lifecycle group for the SAME
+source product. Its original checked execution order locates Bool, initializer
+and rebind children; it never proves their runtime reach. Existing prepared
+publication targets either the root or that Loop's children, atomically with the
+same Text Home map and a parent-identity recheck. Packet lookup traverses short
+snapshots in both affine owners; instruction census stays root-only to avoid
+counting a parent's eventual aggregate and its children twice. Finalized lookup
+refuses pending Loop ancestors. Collection has no physical-completion writer:
+genuine condition/child execution, source-edge and cleanup correspondence,
+Header/After read provenance and both final consumers are still required.
+
+The SAME source projector also records the execution schedule while issuing
+Recipe keys. Each original Bool/initializer/rebind frame owns an exact Recipe
+block item range and node-zero result; rebind owns its final WriteBinding.
+The same operation issuer retains each item’s original execution-frame Rc,
+including imports and WriteBinding; verification rejects moving an operation
+across frame boundaries even when both results would remain available.
+An alias may own a zero-width range, but still has an explicit ordered Local
+step and publication obligation. If/Exit retain original resolver bundle/record,
+Recipe item/child blocks/exit key and original cleanup port. Co-sealing checks
+ordered complete block/item/frame/control coverage and pathwise result
+availability before a schedule can be borrowed. The pending Loop collector now
+uses that same schedule's original prefix frames, rather than locating another
+frame list. This grants no physical permission by itself: the checked whole-Loop driver,
+actual acquisitions/branches/cleanup and both final consumers must corroborate
+the same completed parent before publication.

@@ -18,6 +18,8 @@ pub(crate) enum CurrentScalarProducerV1 {
     Call(LocalCallObservationV1),
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
     BindingRebind(Rc<CheckedBindingRebindFrameV1>),
+    LoopHeader(Rc<super::source_loop::LoopHeaderScalarBasisV1>),
+    LoopAfter { product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, binding: BindingRefV1 },
 }
 /// A source read, not a physical operand or permission inferred from an I64 class.
 #[derive(Debug, Clone)]
@@ -59,6 +61,21 @@ impl PrefixLocalFlow<'_> {
         let function = self.input.function();
         let flow = function.expression_source().value_flow()?;
         let value = flow.read(site, binding)?;
+        let (origin, producer) = self.scalar_producer_for_value_v1(binding, value, calls)?;
+        Some(CurrentScalarReadV1 { read: site.clone(), binding, value, origin, flow: Arc::clone(flow), producer })
+    }
+
+    /// Resolve a proved current scalar's exact original value without inventing
+    /// a read site. The Loop Header entry uses this same producer owner.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn scalar_producer_for_value_v1(
+        &self, binding: BindingRefV1, value: SourceValueRefV1, calls: &[LocalCallObservationV1],
+    ) -> Option<(SourceValueRefV1, CurrentScalarProducerV1)> {
+        if binding.owner() != self.input.owner()
+            || !matches!(self.locals.get(&binding), Some(StoredLocal::Trivial(Some(SourceScalarKind::Integer)))) {
+            return None;
+        }
+        let function = self.input.function();
+        let flow = function.expression_source().value_flow()?;
         // A completed source rebind is its own producer, including `x = x`.
         // Preserve it before following aliases; it is never an initializer.
         let rebind = |original: &SourceExprSiteV1| {
@@ -70,12 +87,16 @@ impl PrefixLocalFlow<'_> {
             if frames.next().is_some() { return None; }
             Some(CurrentScalarProducerV1::BindingRebind(Rc::clone(frame)))
         };
-        let origin = flow.alias_origin_with_expression_boundary(value, |site| function.variable_ref(site),
+        let origin = flow.alias_terminal_with_expression_boundary(value, |site| function.variable_ref(site),
             |site| rebind(site).is_some())?;
         let producer = if let SourceValueOriginV1::Expression(site) = flow.origin(origin)? {
             rebind(site)
         } else { None };
         let producer = if let Some(rebind) = producer { rebind } else { match flow.origin(origin)? {
+            SourceValueOriginV1::Join { .. } => match self.source_loop.as_ref().and_then(|active| active.header_for_value(flow, origin)) {
+                Some(basis) => CurrentScalarProducerV1::LoopHeader(Rc::clone(basis)),
+                None => self.source_loop_after_for_value_v2(flow, origin)?,
+            },
             SourceValueOriginV1::Entry(root) if self.signed_formals.contains(root) => CurrentScalarProducerV1::SignedEntry(*root),
             SourceValueOriginV1::Expression(original) => {
                 let mut definitions = function.expression_source().initializers().filter(|row| row.initializer_site() == Some(original));
@@ -104,6 +125,6 @@ impl PrefixLocalFlow<'_> {
             }
             _ => return None,
         } };
-        Some(CurrentScalarReadV1 { read: site.clone(), binding, value, origin, flow: Arc::clone(flow), producer })
+        Some((origin, producer))
     }
 }

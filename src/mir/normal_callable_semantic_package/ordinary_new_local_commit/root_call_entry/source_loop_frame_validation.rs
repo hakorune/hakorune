@@ -1,0 +1,38 @@
+//! Corroborate SAME child packets against the source writer's ordered frames.
+use super::*;
+use crate::mir::builder::EmittedSourceLoopGraphV2;
+
+impl EmittedSourceLoopProjectionV2 {
+    pub(super) fn validate_frames_v2(&self, graph: &EmittedSourceLoopGraphV2,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings>,
+    ) -> Result<Vec<RootLifecyclePrefixBindingGroupV1>, String> {
+        let children = self.snapshot();
+        if !Rc::ptr_eq(self.product(), &graph.product) || children.len() != self.expected.len()
+            || children.len() != graph.frames.len() { return Err(freeze("source-loop/frame-census")); }
+        for (index, ((child, expected), observed)) in children.iter().zip(&self.expected).zip(&graph.frames).enumerate() {
+            if index != observed.index || !child.matches_source(expected) { return Err(freeze("source-loop/frame-source")); }
+            match expected {
+                LifecyclePrefixSourceV1::InitializerExpression { .. } => {
+                    child.initializer().ok_or_else(|| freeze("source-loop/initializer-packet"))?
+                        .corroborate_loop_frame_v2(observed.entry, observed.end, observed.value)?;
+                }
+                LifecyclePrefixSourceV1::BindingRebind { .. } => {
+                    child.rebind().ok_or_else(|| freeze("source-loop/rebind-packet"))?
+                        .corroborate_loop_frame_v2(observed.entry, observed.end, observed.value)?;
+                }
+                LifecyclePrefixSourceV1::BoolCondition { .. } => {
+                    let materialization = observed.condition.as_ref().ok_or_else(|| freeze("source-loop/condition-materialization"))?;
+                    let targets = observed.targets.ok_or_else(|| freeze("source-loop/condition-targets"))?;
+                    child.bool_condition().ok_or_else(|| freeze("source-loop/condition-packet"))?
+                        .corroborate_loop_frame_v2(&graph.product, index, observed.entry, observed.end, observed.value, materialization, targets)?;
+                }
+                _ => return Err(freeze("source-loop/frame-purpose")),
+            }
+            child.require_sealed_condition_v1()?;
+            child.check_physical_bindings_v1(function, finishing)?;
+            child.validate_recorded_in_context(context, function, finishing)?;
+        }
+        Ok(children)
+    }
+}

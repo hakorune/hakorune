@@ -2163,6 +2163,15 @@ and the actual deferred EdgeCFG Branch is observed only after both arms.
 Checked Loop execution must retain its original Loop purpose and use this shared
 physical correspondence; an If receipt cannot stand in for Loop completion.
 
+Whole Bool observations share prefix construction for ordinary If and checked
+source Loop conditions. If retains its original IfForm Rc. A Loop condition
+retains the immutable original product, verified schedule frame and actual
+physical targets; its child never owns the parent physical packet. The affine
+seal checks the exact shared materialization and emitted Branch. Source preflight
+checks group membership and genuine Header/If purpose before execution; it is
+not whole-Loop completion. The source Loop execution fences remain until all
+children, source incoming edges, cleanup and both final consumers are connected.
+
 The invocation Loop entry lends the same `RawInvocationChildPortV1` to the
 LoopCond terminal. The root scope, module port, source locator and source input
 stay on that port; cloned source/ledger handles only shorten field borrows.
@@ -2174,15 +2183,53 @@ The Local owner can return its real `CompletedLocalStatementV1` after the same
 state, ordinary-new and checked initializer publication tail. Its raw result
 wrapper borrows `result()`; scheduled callers can borrow the original ordinal's
 initializer without creating a replacement receipt or publishing twice.
+The pending Loop frame bridge uses the same invocation, original source view and
+selector frame Rc. It lends Local/rebind/whole Bool execution to their existing
+owners; its branch uses the shared EdgeCFG session with strict empty carrier
+arguments. These frame APIs do not complete the whole Loop or lift its fences.
 
 The LocalSSA identity-Phi accessor lends the same indexed definition through
 pending, completed and rollback states. It rejects ordinary instruction/parameter
 relations and materialization chains; observing a definition grants no source role.
+The pending source Loop read path retains an original Header/After coordinate and
+that same relation in the existing value provenance. Ordinary rebind invalidates
+it. Header can borrow a defined Phi inside its source product; After and both
+final consumers require completed parent/relation. Child Bool inventories exclude
+only the exact borrowed parent Phi, retaining complete dependency validation.
+The exact binding/role-to-destination map, parent aggregate capture, incoming and
+cleanup closure remain required; neither metadata nor this accessor lifts fences.
 
-A binding-value observation retains the existing slot and provenance without
-consuming a source read. Exact lexical reads embed the same observation and keep
-their owner/site/binding checks. Initializer, rebind and Copy loans share this
-observation; immutable snapshots alone grant no source meaning or Home ownership.
+The existing binding-value observation is shared by exact lexical reads and
+nonconsuming Loop Entry inspection. Source-site consumption stays on the exact
+read; its initializer/rebind/Loop/Copy loans use the same immutable slot snapshot.
+The common scalar producer verifier compares the original Entry producer with
+that snapshot before the sole Phi session allocates any checked destinations.
+Only this session issues checked Header capabilities; publication validates the
+same live association, and cannot accept an arbitrary source/value pair. After
+publication still requires completed parent/cleanup/both-final closure. The Phi
+session lends one stack-local prepared completion after patch; whole-graph checks
+must precede commit and the move of the original associations to completed proof.
+
+The checked source Loop graph driver executes the SAME verified schedule through
+existing Local/rebind/whole Bool writers. Its route coverage retains the SAME
+product Rc and matches the complete duplicate-free MethodCall census over all
+frames, Header included. Original forest/family/source-port checks remain;
+static/instance handoff residues refuse, exact Core classifications may agree.
+Call-free inputs keep their existing CallFree proof. Header/Body/After needs no Step.
+Logical keys retain their dominating physical producer; repeated zero-width alias
+results must corroborate it through LocalSSA rather than replace it with an arm
+Copy. Both-normal joins use equal logical maps, not observation Rc equality.
+Branch/Loop scopes reuse the lexical owner and source-value snapshots.
+Loop port cleanup borrows original installed (binding, subject, End) plans in
+reverse acquisition order. Normal selects complete original Home plans; Fault
+residuals omit attempted Normal operations while retaining outer Homes. The same
+suffix writer localizes scalar operands at each actual Invoke origin. String End
+retains its original owned pair with an identity correspondence, never a scalar
+Copy. Empty Normal skips the
+helper/frame. Payload localization and the actual Jump follow cleanup at the
+retained continuation; that continuation is the Phi predecessor.
+This graph is not a completed Loop: exact source/JoinSig/incoming, aggregate Phi
+capture and both final consumers must still close before production fences lift.
 
 Installed Home cleanup selection belongs to the existing root cleanup policy:
 complete End-plan expansion, ordered Normal subset, retained child-anchor checks,
@@ -2190,6 +2237,13 @@ unique release subjects and Fault residual indices. The same source-only policy
 is available to Loop ports without inventing a Return identity. A Loop port's
 infallible entry must not generate an acquisition-Fault chain; Fault during Normal
 End still releases unattempted obligations, including retained outer Homes.
+
+Both final consumers locate original child producers and Copies through the same
+Loop group tree, while the root instruction census remains aggregate-only. Root
+and child physical boundaries consume the same exact recorded Loop Phi roles.
+Child Bool prefixes lend their original short-circuit Phis to the shared draft
+repair/finishing liveness source after the same seal and source-frame checks.
+These connections still require whole-Loop completion and aggregate acceptance.
 
 Loop Phi closure uses one exact physical validator for unique destinations and
 definitions, original input values, full CFG predecessor coverage and leading Phi
@@ -2206,3 +2260,8 @@ The shared topology validator accepts only that explicit outward edge, rejects
 unreachable owned nodes, cycles and external ingress into internal cleanup nodes.
 Exact owned-node coverage remains separate from source End order; neither check
 alone seals a Loop.
+
+The lexical scope close writer can lend its actual KeepAlive append occurrence;
+ordinary callers discard that receipt through the same restoration/error/panic
+path. Source Loop block observations retain this occurrence, rather than inferring
+scope writes from the restored name cache. It grants no Home or lifetime meaning.

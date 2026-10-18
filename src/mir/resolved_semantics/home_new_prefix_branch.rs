@@ -469,6 +469,8 @@ pub(super) fn observe_if_statement<'a, E>(
         }
     }
     let then_body = then_body.unwrap();
+    let then_control_body = then_body.site().clone();
+    let else_control_body = else_body.as_ref().ok().map(|body| body.site().clone());
 
     let base_covered = covered_statements.len();
     let base_selected = selected_seen.len();
@@ -597,6 +599,8 @@ pub(super) fn observe_if_statement<'a, E>(
     };
 
     let both_paths_available = then_path.unavailable.is_none() && else_path.unavailable.is_none();
+    locals.record_source_loop_if_v1(statement.site(), *bundle, then_control_body, else_control_body,
+        then_path.terminated, else_path.terminated, both_paths_available);
     if then_path.terminated && else_path.terminated {
         // Every path exits inside this `If` — the enclosing path ends here.
         return Ok(true);

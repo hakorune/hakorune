@@ -22,6 +22,11 @@ impl CallableSemanticLoweringState {
             .materialize(builder)
     }
 
+    pub(in crate::mir::builder) fn observed_fault_frame_binding_v2(&self, function: &MirFunction)
+        -> Result<Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>, String> {
+        self.fault_frame.as_ref().ok_or_else(|| freeze("state-transferred"))?.observed_binding_v2(function)
+    }
+
     pub(in crate::mir::builder) fn fault_frame_binding(
         &self, function: &MirFunction,
     ) -> Result<(crate::mir::BasicBlockId, crate::mir::MirInstruction), String> {

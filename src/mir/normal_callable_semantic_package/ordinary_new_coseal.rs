@@ -97,6 +97,7 @@ pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFie
 use coseal_helpers::no_birth_constructor_disposition;
 #[path = "ordinary_new_coseal_issue.rs"]
 mod coseal_issue;
+pub(crate) use coseal_issue::RetainedSourceLoopProductV1;
 pub(super) use coseal_issue::issue_ordinary_source_cohort_v1;
 #[path = "ordinary_new_terminal_result.rs"]
 mod terminal_result;
@@ -378,7 +379,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     loop_cond_after_roles: RefCell<
         BTreeMap<
             (FunctionOwnerIdV1, SourceStmtSiteV1),
-            crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1,
+            std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>,
         >,
     >,
     // The local-call sites `co_seal_lifecycle` routed through the lifecycle
@@ -683,7 +684,7 @@ pub(crate) use local_commit::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppend
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use local_commit::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
+pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;
 

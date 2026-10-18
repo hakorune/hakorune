@@ -48,3 +48,8 @@ pub(super) use port::port_bindings;
 #[cfg(test)]
 pub(super) use visibility::visible_payloads;
 pub(super) use visibility::visible_payloads_from_view;
+
+pub(super) use model::VerifiedLoopAfterBinding;
+pub(super) use v2::issue_root_carrier_join_closure_v2;
+
+pub(super) use recipe_view_v2::operation_result_v2;

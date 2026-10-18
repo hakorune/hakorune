@@ -34,6 +34,7 @@ pub(in crate::mir) struct PreissuedCallableLoopSourcePlanV1 {
     source: Rc<RetainedCallableLoopSourceV1>,
     policy: LoopFactsPolicyFrameV1,
     planned: PlannedSourceLoopV1,
+    source_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
 }
 
 /// Original Loop source identity shared by Home and the affine planner consumer.
@@ -84,7 +85,7 @@ pub(in crate::mir) fn issue_preissued_callable_loop_source_plan_v1(
     Ok(PreissuedCallableLoopSourcePlanV1 {
         source: Rc::new(RetainedCallableLoopSourceV1 { owner: input.owner(), source, frame, condition: condition_source, bindings,
             binding_handoff: std::cell::RefCell::new(Some(handoff)), condition_reads }),
-        policy, planned,
+        policy, planned, source_recipe: None,
     })
 }
 
@@ -139,6 +140,27 @@ impl RetainedCallableLoopSourceV1 {
 }
 
 impl PreissuedCallableLoopSourcePlanV1 {
+    /// Validate the SAME retained source and condition before the ledger takes
+    /// this affine plan. Sharing logical evidence grants no physical execution.
+    pub(in crate::mir) fn validate_source_recipe_attachment_v2(&self,
+        product: &Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) -> Result<(), String> {
+        if self.source_recipe.is_some() || !Rc::ptr_eq(&self.source, &product.source.source)
+            || !Rc::ptr_eq(&self.source.condition, product.source.condition.source()) {
+            return Err("[freeze:contract][source-loop/plan-product-identity]".into());
+        }
+        Ok(())
+    }
+    pub(in crate::mir) fn attach_source_recipe_v2(&mut self,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) -> Result<(), String> {
+        self.validate_source_recipe_attachment_v2(&product)?;
+        self.source_recipe = Some(product);
+        Ok(())
+    }
+    #[cfg(test)]
+    pub(in crate::mir) fn source_recipe_for_test_v2(&self)
+        -> Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>> { self.source_recipe.as_ref() }
     pub(in crate::mir) fn original_source_v1(&self) -> &Rc<RetainedCallableLoopSourceV1> { &self.source }
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 { self.source.owner() }
     pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { self.source.site() }
@@ -149,12 +171,12 @@ impl PreissuedCallableLoopSourcePlanV1 {
     pub(super) fn into_planned(self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1,
         origin: Option<crate::mir::resolved_semantics::FunctionOriginV1>,
         kind: Option<crate::mir::resolved_semantics::SemanticOwnerSourceKindV1>, policy: LoopFactsPolicyFrameV1,
-    ) -> Result<PlannedSourceLoopV1, String> {
+    ) -> Result<(PlannedSourceLoopV1, Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>), String> {
         if self.policy != policy || !origin.zip(kind).is_some_and(|(origin, kind)|
             self.source.matches_identity_v1(owner, site, origin, kind)) {
             return Err("[freeze:contract][preissued-loop/physical-source-drift]".into());
         }
-        Ok(self.planned)
+        Ok((self.planned, self.source_recipe))
     }
 
     /// Borrow the original selected LoopCond Recipe with its located body and
@@ -176,6 +198,14 @@ impl PreissuedCallableLoopSourcePlanV1 {
         let condition = source.child_expr_from_stmt(&statement, ExprChildRoleV1::LoopCondition).ok()?;
         if !corroborate_loop_cond_recipe_source(facts, condition.node(), body.statements()) { return None; }
         Some(LoopCondRecipeSourceRefV1 { input, facts, body, projection: canonical.facts.source_projection() })
+    }
+
+    /// Drop the borrowed planner/body view before recursively scanning the
+    /// original body. The shared source is observation only, never Home After.
+    pub(in crate::mir) fn source_observation_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>)
+        -> Option<Rc<RetainedCallableLoopSourceV1>> {
+        self.loop_cond_source(input)?;
+        Some(Rc::clone(&self.source))
     }
 
     /// The existing Array Home consumer requires the complete flat NoExitBody;

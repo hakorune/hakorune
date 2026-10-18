@@ -24,6 +24,8 @@ pub(in crate::mir::builder) mod initializer_expression;
 pub(in crate::mir::builder) mod print_expression;
 #[path = "selected/terminal_call.rs"]
 pub(in crate::mir::builder) mod terminal_call;
+#[path = "selected/source_loop_cleanup.rs"]
+pub(in crate::mir::builder) mod source_loop_cleanup;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::instruction::InvokeOperation;

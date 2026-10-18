@@ -383,6 +383,7 @@ impl<'program> DynamicV2RecipeOperationCursorV1<'program> {
                 self.saw_write = true;
             }
             LoopOperationV2::ConstText { .. }
+            | LoopOperationV2::BoolExpression { .. }
             | LoopOperationV2::DynamicAdd { .. }
             | LoopOperationV2::DynamicLess { .. }
             | LoopOperationV2::TextEq { .. } => {

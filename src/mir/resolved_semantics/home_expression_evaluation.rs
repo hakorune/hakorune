@@ -39,6 +39,7 @@ impl CheckedExpressionEvaluationV1 {
     }
     pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { &self.operations }
     pub(crate) fn owned_result_nodes(&self) -> &[usize] { &self.owned_results }
+    pub(crate) fn class(&self, node: usize) -> Option<ExpressionLeafClassV1> { self.classes.get(node).copied() }
     pub(crate) fn root_class(&self) -> ExpressionLeafClassV1 { self.classes[0] }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.transferred_inputs.contains(&node) }
     pub(crate) fn node_is_identity(&self, node: usize) -> bool {

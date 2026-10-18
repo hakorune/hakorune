@@ -54,6 +54,14 @@ impl FunctionFaultFrameV1 {
 }
 
 impl FunctionFaultFrameV1 {
+    /// Observe this owner's exact materialization, including verified absence.
+    /// No caller may recover a role by scanning for a FaultFrameEnter opcode.
+    pub(in crate::mir::builder) fn observed_binding_v2(&self, function: &MirFunction)
+        -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        self.validate(function)?;
+        self.value.map(|_| self.binding(function)).transpose()
+    }
+
     pub(in crate::mir::builder) fn binding(
         &self,
         function: &MirFunction,

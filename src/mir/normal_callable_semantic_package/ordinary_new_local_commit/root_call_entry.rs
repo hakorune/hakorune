@@ -12,6 +12,7 @@ pub(crate) struct PreparedLifecyclePrefixBindingGroupV1<'ledger> {
     owner: FunctionOwnerIdV1,
     group: RootLifecyclePrefixBindingGroupV1,
     preceding_sites: Vec<OwnedExprSiteV1>,
+    destination: source_loop_projection::LifecyclePrefixDestinationV2,
 }
 
 /// Keep the original emitted packet and its pending group in one owner.
@@ -52,6 +53,7 @@ impl PreparedLifecyclePrefixBindingGroupV1<'_> {
     }
 
     fn commit_after_collected(self) {
+        assert!(matches!(self.destination, source_loop_projection::LifecyclePrefixDestinationV2::Root), "scoped publication requires its prepared transaction");
         assert!(self.group.initializer_rc().is_none(), "initializer publication requires its prepared transaction");
         self.ledger
             .root_local_call_bindings
@@ -250,31 +252,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         group: RootLifecyclePrefixBindingGroupV1,
     ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
-        let site = group.site().clone();
-        if site.owner() != owner {
-            return Err(freeze("local-call-binding-owner-drift"));
-        }
-        let expected = self.expected_local_call_binding_sources(owner)?;
-        let rows = self.root_local_call_bindings.borrow();
-        let groups = rows.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
-        if groups.iter().any(|recorded| recorded.site() == &site) {
-            return Err(freeze("duplicate-local-call-bindings"));
-        }
-        if groups.len() >= expected.len() {
-            return Err(freeze("local-call-bindings-overflow"));
-        }
-        if expected.get(groups.len()).is_none_or(|source| !group.matches_source(source)) {
-            return Err(freeze("local-call-binding-site-order"));
-        }
-        Ok(PreparedLifecyclePrefixBindingGroupV1 {
-            ledger: self,
-            owner,
-            group,
-            preceding_sites: groups
-                .iter()
-                .map(|recorded| recorded.site().clone())
-                .collect(),
-        })
+        self.prepare_prefix_at_destination_v2(owner, group)
     }
 
     /// `co_seal_lifecycle` is the routing authority: it marks exactly the
@@ -788,3 +766,7 @@ mod publication;
 #[path = "root_call_entry/binding_rebind_projection.rs"]
 mod binding_rebind_projection;
 pub(crate) use binding_rebind_projection::EmittedBindingRebindProjectionV1;
+
+#[path = "root_call_entry/source_loop_projection.rs"]
+mod source_loop_projection;
+pub(in crate::mir) use source_loop_projection::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2};

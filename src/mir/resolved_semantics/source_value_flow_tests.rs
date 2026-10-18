@@ -5,7 +5,7 @@ use super::source_value_flow::{
 };
 use super::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ResolvedLexicalRefV1,
-    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1 as P, VerifiedResolvedFunctionV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1, SourcePathSegmentV1 as P, VerifiedResolvedFunctionV1,
 };
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use std::sync::Arc;
@@ -112,10 +112,19 @@ fn join(
 ) -> &[(E, SourceValueRefV1)] {
     assert!(flow(product).alias_origin(value, |site| product.variable_ref(site)).is_none(),
         "an alias query cannot select one incoming predecessor");
-    let Some(O::Join { kind, incoming, .. }) = flow(product).origin(value) else {
+    assert_eq!(flow(product).alias_terminal_with_expression_boundary(value,
+        |site| product.variable_ref(site), |_| false), Some(value), "passive terminal is the join itself");
+    let Some(O::Join { binding, site, kind, incoming }) = flow(product).origin(value) else {
         panic!("not a join: {:?}", flow(product).origin(value));
     };
     assert_eq!(*kind, expected);
+    let original = flow(product).loop_join(&SourceStmtSiteV1::from_node(site.node().clone()), *binding, expected);
+    if expected == K::BranchNormal { assert!(original.is_none(), "Loop query cannot borrow a branch join"); }
+    else {
+        let (queried, all_incoming) = original.expect("unique exact original Loop join");
+        assert_eq!(queried, value);
+        assert!(std::ptr::eq(all_incoming, incoming.as_ref()), "query borrows the whole original census");
+    }
     incoming
 }
 
@@ -323,6 +332,16 @@ fn source_value_flow_normalizes_only_complete_readonly_loop_equations() {
         assert_eq!(header, after, "complete readonly Header/After retain the same original entry");
         assert!(matches!(flow(&product).origin(header), Some(O::Entry(_))));
         assert!(flow(&product).alias_entry_origin(header, |site| product.variable_ref(site)).is_some());
+        let Some(O::Entry(binding)) = flow(&product).origin(header) else { panic!() };
+        let loop_site = SourceStmtSiteV1::from_node(site(&[P::Body(0)]).node().clone());
+        let (original_header, _) = flow(&product).loop_join(&loop_site, *binding, K::LoopHeader).unwrap();
+        let (original_after, _) = flow(&product).loop_join(&loop_site, *binding, K::LoopAfter).unwrap();
+        assert_ne!(original_header, header, "passive original Header is not permission to replace its readonly entry");
+        assert_ne!(original_after, after);
+        assert!(flow(&product).alias_origin(original_header, |site| product.variable_ref(site)).is_none());
+        let wrong_site = SourceStmtSiteV1::from_node(site(&[P::Body(99)]).node().clone());
+        assert!(flow(&product).loop_join(&wrong_site, *binding, K::LoopHeader).is_none());
+
     }
     for body in [
         vec![set(int(1))],

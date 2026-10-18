@@ -10,10 +10,10 @@ use std::{cell::RefCell, rc::Rc};
 
 pub(super) fn lower(builder: &mut MirBuilder, source: &SourceLoopCondPhysicalInputV1<'_, '_>,
     context: &dyn PlanLoweringContext, ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
-    invocation: Option<&mut RawInvocationChildPortV1<'_, '_>>,
+    mut invocation: Option<&mut RawInvocationChildPortV1<'_, '_>>,
 ) -> Result<ValueId, String> {
     let result = (|| {
-        if let Some(port) = invocation {
+        if let Some(port) = invocation.as_deref_mut() {
             if port.callable_loop_root_scope.is_none()
                 || port.callable_ledger.as_ref().is_none_or(|actual| !Rc::ptr_eq(actual, ledger))
                 || port.source_input.is_none_or(|input| input.owner() != source.owner())
@@ -24,6 +24,14 @@ pub(super) fn lower(builder: &mut MirBuilder, source: &SourceLoopCondPhysicalInp
         }
         source.validate_for_source_port()?;
         source.preflight_source_port()?;
+        if source.checked_source_recipe_v2().is_some() {
+            let port = invocation.as_deref_mut().ok_or_else(|| "[freeze:contract][source-loop/invocation-port-missing]".to_owned())?;
+            let claims = ledger.borrow().ordinary_new_claim_ledger().cloned();
+            source.open_source_lifecycle_prefix_v2(claims.as_deref())?;
+            return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_checked_source_loop_v2(builder, source, port, ledger);
+        }
+        let claims = ledger.borrow().ordinary_new_claim_ledger().cloned();
+        source.open_source_lifecycle_prefix_v2(claims.as_deref())?;
         let plan = crate::mir::builder::control_flow::plan::features::loop_cond_bc_source::lower_loop_cond_break_continue_source(builder, source)?;
         crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
             .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;

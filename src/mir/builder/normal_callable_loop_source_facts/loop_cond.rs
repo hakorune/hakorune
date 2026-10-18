@@ -30,7 +30,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 #[path = "loop_cond_phi_session.rs"]
 mod phi_session;
-pub(in crate::mir::builder) use phi_session::SourceLoopPhiSessionV1;
+pub(in crate::mir::builder) use phi_session::{SourceLoopPhiSessionV1, SourceLoopPointCapabilityV2};
+pub(in crate::mir) use phi_session::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};
 
 /// One move-only source/physical transport for the selected LoopCond route.
 ///
@@ -55,10 +56,40 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledge
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
     retained_source: Option<Rc<super::generic::RetainedCallableLoopSourceV1>>,
     phi_session: SourceLoopPhiSessionV1,
+    source_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
 }
 
 impl SourceLoopCondPhysicalInputV1<'_, '_> {
+    pub(in crate::mir::builder) fn checked_source_recipe_v2(&self)
+        -> Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>> { self.source_recipe.as_ref() }
     pub(in crate::mir::builder) fn phi_session_v1(&self) -> &SourceLoopPhiSessionV1 { &self.phi_session }
+    pub(in crate::mir::builder) fn prepare_checked_phis_v2(&self, builder: &mut crate::mir::builder::MirBuilder,
+        header: crate::mir::BasicBlockId, after: crate::mir::BasicBlockId,
+    ) -> Result<(), String> {
+        self.validate_for_source_port()?;
+        let product = self.source_recipe.as_ref().ok_or("[freeze:contract][source-loop/source-product-missing]")?;
+        self.source_port.prepare_checked_phis_v2(&self.phi_session, builder, Rc::clone(product), header, after)
+    }
+    pub(in crate::mir::builder) fn checked_header_point_v2(&self, binding: crate::mir::resolved_semantics::BindingRefV1)
+        -> Result<SourceLoopPointCapabilityV2<'_>, String> {
+        let product = self.source_recipe.as_ref().ok_or("[freeze:contract][source-loop/source-product-missing]")?;
+        self.phi_session.header_point(product, binding)
+    }
+    pub(in crate::mir::builder) fn open_source_lifecycle_prefix_v2(&self,
+        claims: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    ) -> Result<(), String> {
+        if let Some(product) = &self.source_recipe {
+            claims.ok_or("[freeze:contract][source-loop/claim-ledger-missing]")?
+                .open_source_loop_prefix_v2(Rc::clone(product))?;
+        }
+        Ok(())
+    }
+    pub(in crate::mir::builder) fn require_source_lifecycle_writer_v2(&self) -> Result<(), String> {
+        if self.source_recipe.is_some() {
+            return Err("[freeze:contract][source-loop/logical-product-physical-pending]".into());
+        }
+        Ok(())
+    }
     /// Borrow the original source roles. Body-only outer writes also need an
     /// After carrier; declarations inside this Loop remain iteration locals.
     /// This map is an invocation-local locator, not a new role authority.
@@ -195,6 +226,12 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 return Err("[freeze:contract][callable-loop/loop-cond/retained-condition-drift]".into());
             }
         }
+        if let Some(product) = &self.source_recipe {
+            if self.retained_source.as_ref().is_none_or(|source| !Rc::ptr_eq(source, &product.source.source))
+                || product.source.condition.source().nodes().first().is_none_or(|node| node.site().node() != condition_site) {
+                return Err("[freeze:contract][source-loop/physical-input-product-drift]".into());
+            }
+        }
         let body_site = self.body_source.site().ok_or_else(|| {
             "[freeze:contract][callable-loop/body/source-site-missing]".to_owned()
         })?;
@@ -215,6 +252,13 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             );
         }
         match &self.source_coverage {
+            CallableLoopSourceCallCoverageV1::CheckedRecipe(product) => {
+                if self.source_recipe.as_ref().is_none_or(|same| !Rc::ptr_eq(same, product)) {
+                    return Err("[freeze:contract][source-loop/coverage-product-drift]".into());
+                }
+                CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(product, self.owner, &self.parent_site, &self.source_items)
+                    .map_err(|error| format!("[freeze:contract][source-loop/call-coverage] {error:?}"))?;
+            }
             CallableLoopSourceCallCoverageV1::CallFree(coverage) => {
                 if coverage.owner() != self.owner
                     || coverage.loop_site().node() != &self.parent_site
@@ -539,6 +583,7 @@ pub(in crate::mir::builder) struct CallableLoopCondSourceFactsV1<'source> {
     _body: Vec<ASTNode>,
     _binding_product: CallableLoopReadyBodyOnlyProductV1,
     route_token: CallableLoopSourceRouteTokenV1,
+    source_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
 }
 
 impl<'source> CallableLoopCondSourceFactsV1<'source> {
@@ -563,6 +608,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             _body,
             _binding_product,
             route_token,
+            source_recipe,
         } = self;
         let (owner, parent_site, outcome, selection, projection, source_items, source_coverage) =
             route_token.into_physical_parts().map_err(|error| {
@@ -639,6 +685,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             source_port,
             retained_source,
             phi_session: SourceLoopPhiSessionV1::default(),
+            source_recipe,
         })
     }
 }
@@ -660,6 +707,7 @@ pub(super) fn issue<'source>(
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target_probe: CallableLoopSourceTargetProbeV1,
     call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
+    source_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
 ) -> Result<CallableLoopCondSourceFactsV1<'source>, CallableGenericLoopSourceFactsRouteErrorV1> {
     let function_origin = function_origin.ok_or_else(|| {
         CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected(
@@ -676,7 +724,11 @@ pub(super) fn issue<'source>(
             CallableLoopSourceRouteRejectV1::SourceParentMissing,
         )
     })?;
-    let route_token = CallableLoopSourceRouteTokenV1::issue_with_source_relations(
+    let route_token = if let Some(product) = source_recipe.as_ref().filter(|_| !source_items.is_empty()) {
+        CallableLoopSourceRouteTokenV1::issue(owner, parent_site, function_origin, source_kind,
+            outcome, selection, projection)
+            .and_then(|token| token.with_checked_recipe_v2(Rc::clone(product), source_items, source_target_probe, call_free))
+    } else { CallableLoopSourceRouteTokenV1::issue_with_source_relations(
         owner,
         parent_site,
         function_origin,
@@ -687,7 +739,7 @@ pub(super) fn issue<'source>(
         source_items,
         source_target_probe,
         call_free,
-    )
+    ) }
     .map_err(CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected)?;
     Ok(CallableLoopCondSourceFactsV1 {
         _owner: owner,
@@ -698,5 +750,6 @@ pub(super) fn issue<'source>(
         _body: body,
         _binding_product: binding_product,
         route_token,
+        source_recipe,
     })
 }

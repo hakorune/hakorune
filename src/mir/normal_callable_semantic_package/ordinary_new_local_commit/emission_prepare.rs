@@ -445,13 +445,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        let boundary = physical_boundary::PhysicalBoundary::capture_with_source_phi_roles(
+        let boundary = physical_boundary::PhysicalBoundary::capture_with_source_loop_roles_v2(
             function,
             &bindings,
             &copies,
             &aliases,
             &source_phi_roles,
             selected_body_block,
+            &self.recorded_source_loop_roles_v2(owner),
         )?;
         Ok(PendingChildPhysicalValidationV1 {
             ledger: self,

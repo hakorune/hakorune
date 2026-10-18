@@ -35,7 +35,7 @@ pub(super) use field_write_expression::qualify_field_write_expression_v1;
 pub(crate) use field_write_expression::QualifiedFieldWriteRhsV1;
 #[path = "home_bool_condition.rs"]
 mod condition;
-pub(crate) use condition::{qualify_bool_condition_v1, CheckedBoolConditionFrameV1};
+pub(crate) use condition::{qualify_bool_condition_v1, qualify_condition_expression_v1, CheckedBoolConditionFrameV1};
 #[path = "home_expression_operations.rs"]
 mod operations;
 #[path = "home_argument_expression.rs"]
@@ -121,6 +121,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     initializer_frame: Option<Rc<CheckedInitializerExpressionFrameV1>>,
     rebind_frame: Option<Rc<CheckedBindingRebindFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
+    loop_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     field_write: Option<FieldWritePlanV1>,
     initializer_homes: Option<Rc<[crate::mir::resolved_semantics::BindingRefV1]>>,
 }
@@ -162,7 +163,7 @@ impl HomeExpressionPlanV1 {
             source,
             scalar_operations: vec![loan],
             source_fields: Vec::new(),
-            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None, condition_frame: None, loop_recipe: None, field_write: None, initializer_homes: None,
         })
     }
     /// Whole initializer preflight supplies value-class proof separately. This
@@ -174,7 +175,7 @@ impl HomeExpressionPlanV1 {
         if source.has_opaque_obligations() || source.root().initializer().is_none() { return None; }
         let mut plan = prepared.unwrap_or_else(|| Self {
             source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None, condition_frame: None, loop_recipe: None, field_write: None, initializer_homes: None,
         });
         if !Rc::ptr_eq(&plan.source, &source) || plan.initializer_homes.is_some() { return None; }
         plan.initializer_homes = Some(Rc::from(homes));
@@ -231,6 +232,25 @@ impl HomeExpressionPlanV1 {
     pub(crate) fn rebind_frame(&self) -> Option<&Rc<CheckedBindingRebindFrameV1>> { self.rebind_frame.as_ref() }
     pub(crate) fn argument_frame(&self) -> Option<&Rc<CheckedArgumentExpressionFrameV1>> { self.argument_frame.as_ref() }
     pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> { self.condition_frame.as_ref() }
+    pub(crate) fn loop_recipe_v2(&self) -> Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>> {
+        self.loop_recipe.as_ref()
+    }
+    /// Refine only the original installed Loop condition; no second slot or
+    /// equal-frame reconstruction is allowed. This is no Home After grant.
+    pub(super) fn attach_loop_recipe_v2(&mut self,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) -> bool {
+        if self.loop_recipe.is_some() || !self.matches_loop_recipe_v2(&product) { return false; }
+        self.loop_recipe = Some(product);
+        true
+    }
+    fn matches_loop_recipe_v2(&self, product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2) -> bool {
+        matches!(self.source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LoopCondition { .. })
+            && Rc::ptr_eq(&self.source, product.source.condition.source())
+            && self.condition_frame.as_ref().is_some_and(|frame| Rc::ptr_eq(frame, &product.source.condition))
+            && product.source.source.site() == self.source.root().statement()
+            && product.source.source.owner() == self.source.owner()
+    }
     pub(crate) fn print_frame(&self) -> Option<&Rc<CheckedPrintExpressionFrameV1>> { self.print_frame.as_ref() }
     pub(crate) fn source_fields(&self) -> &[ExpressionFieldRequirementV1] { &self.source_fields }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
@@ -254,6 +274,7 @@ impl HomeExpressionPlanV1 {
                     (Some(rhs), false) => rhs.is_consistent(&self.source),
                     _ => false,
                 })
+            && self.loop_recipe.as_ref().is_none_or(|product| self.matches_loop_recipe_v2(product))
             && self.condition_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.argument_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source) && Rc::ptr_eq(frame.source_loan().plan(), &self.source))
             && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
@@ -311,6 +332,11 @@ impl super::RootHomeFlow {
             || match (original.condition_frame(), refined.condition_frame()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
+                _ => true,
+            }
+            || match (original.loop_recipe_v2(), refined.loop_recipe_v2()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
                 _ => true,
             }
             || match (original.field_write_frame(), refined.field_write_frame()) {
@@ -550,6 +576,10 @@ mod installation_tests {
                     assert!(Rc::ptr_eq(original.source(), &source));
                     assert_eq!(original.logical_nodes().len(), 1);
                     assert!(original.calls().is_empty());
+                    let portable = crate::mir::loop_recipe_contract::project_source_loop_bool_v1(Rc::clone(&original)).unwrap();
+                    assert!(portable.matches_frame(&original));
+                    assert!(portable.imports().is_empty());
+                    assert_eq!(portable.region().may_fault(), expression.contains('"'));
                     installation.commit();
                     let installed = sibling.expression_plans();
                     assert_eq!(installed.len(), 1);

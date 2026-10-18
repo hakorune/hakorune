@@ -1314,6 +1314,13 @@ No edge, mismatched result or missing original source still grants no admission.
 
 The selected variable-bound multiply Loop source observer consumes resolver
 membership and checks the complete ordered condition/update/step source shape.
+Its single source attempt distinguishes morphology `Unselected` from selected
+resolver-evidence rejection. The complete shape is checked before binding
+verification; navigation, missing evidence, binding conflicts and input-source
+failures are terminal. Only Unselected issues the original generic source plan;
+selected evidence/Facts/Recipe rejection never retries. The old strict facade
+has no remaining production caller and is removed. Source observation still
+requires whole Header/body/exit/Recipe/After/physical closure before execution.
 It retains owner, frame, region, lexical bindings and exact sites, but issues
 no scalar-class proof. The package Home walk must supply pre-loop Integer
 classes before this observation can become Facts, Recipe or Loop After.

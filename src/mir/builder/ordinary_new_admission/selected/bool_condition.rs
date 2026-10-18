@@ -55,14 +55,18 @@ impl LoweredBoolConditionV1 {
     pub(in crate::mir::builder) fn value(&self) -> ValueId { self.value }
     pub(in crate::mir::builder) fn observer(&mut self) -> &mut dyn IfFormPhysicalObserverV1 { self }
 }
-impl IfFormPhysicalObserverV1 for LoweredBoolConditionV1 {
-    fn before_branches(&mut self, function: &MirFunction, pending: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+impl LoweredBoolConditionV1 {
+    fn take_projection_v2(&mut self, function: &MirFunction,
+        physical: &crate::mir::builder::ConditionMaterializationV1,
+    ) -> Result<(Vec<Node>, Vec<Binding>), String> {
         let nodes = self.nodes.take().ok_or_else(|| freeze("bool-condition/duplicate-condition-materialization"))?;
         let mut prefix = vec![self.entry.clone()];
         for node in &nodes {
             match &node.proof {
                 Proof::Literal(binding) | Proof::Field(binding) => prefix.push(binding.clone()),
                 Proof::Reference { producer, .. } => prefix.extend(producer.iter().cloned()),
+                // Retain the shared producer/Copy dependency census without reissuing it.
+                Proof::OriginalReference(read) => prefix.extend(read.dependencies()?),
                 Proof::Call { packet, bindings } => {
                     prefix.extend(bindings.iter().cloned());
                     let MirInstruction::Invoke { fault_frame, .. } = packet.invoke_binding().1
@@ -80,15 +84,41 @@ impl IfFormPhysicalObserverV1 for LoweredBoolConditionV1 {
                 },
             }
         }
-        prefix.extend_from_slice(pending.bindings());
-        pending.relation().append_observed_bindings_v1(&mut prefix);
+        prefix.extend_from_slice(physical.bindings());
+        physical.relation().append_observed_bindings_v1(&mut prefix);
+        let prefix = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
+            prefix, nodes.iter().filter_map(|node| match &node.proof { Proof::OriginalReference(read) => Some(read), _ => None }))?;
         let mut unique = Vec::new();
         for binding in prefix { if !unique.contains(&binding) { unique.push(binding); } }
-        let (packet, seal) = EmittedBoolConditionProjectionV1::prepare(Rc::clone(&self.frame), nodes,
-            self.entry.clone(), unique, pending, &self.ledger, function)?;
+        Ok((nodes, unique))
+    }
+    fn publish_projection_v2(&mut self, packet: Rc<EmittedBoolConditionProjectionV1>, seal: BoolConditionSealV1) -> Result<(), String> {
         self.ledger.prepare_bool_condition_bindings_v1(packet)?.commit()?;
         self.seal = Some(seal);
         Ok(())
+    }
+    pub(in crate::mir::builder) fn prepare_source_loop_branch_v2(&mut self, function: &MirFunction,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, index: usize,
+        materialization: Rc<crate::mir::builder::ConditionMaterializationV1>, targets: (BasicBlockId, BasicBlockId),
+    ) -> Result<(), String> {
+        let (nodes, prefix) = self.take_projection_v2(function, &materialization)?;
+        let (packet, seal) = EmittedBoolConditionProjectionV1::prepare_source_loop_v2(Rc::clone(&self.frame), nodes,
+            self.entry.clone(), prefix, materialization, product, index, targets, &self.ledger, function)?;
+        self.publish_projection_v2(packet, seal)
+    }
+    pub(in crate::mir::builder) fn seal_source_loop_branch_v2(&mut self, function: &MirFunction,
+        materialization: &Rc<crate::mir::builder::ConditionMaterializationV1>, branch: Binding,
+    ) -> Result<(), String> {
+        self.seal.take().ok_or_else(|| freeze("bool-condition/outer-writer-lease-missing"))?
+            .seal_source_loop_v2(function, materialization, branch)
+    }
+}
+impl IfFormPhysicalObserverV1 for LoweredBoolConditionV1 {
+    fn before_branches(&mut self, function: &MirFunction, pending: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+        let (nodes, prefix) = self.take_projection_v2(function, pending.materialization())?;
+        let (packet, seal) = EmittedBoolConditionProjectionV1::prepare(Rc::clone(&self.frame), nodes,
+            self.entry.clone(), prefix, pending, &self.ledger, function)?;
+        self.publish_projection_v2(packet, seal)
     }
     fn emitted_branch(&mut self, function: &MirFunction, pending: &Rc<IfConditionMaterializationV1>, branch: Binding) -> Result<(), String> {
         self.seal.take().ok_or_else(|| freeze("bool-condition/outer-writer-lease-missing"))?

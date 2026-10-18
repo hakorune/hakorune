@@ -116,15 +116,19 @@ impl FinalizedRootSourceHandoffV1 {
             let root = module.functions.get(symbol).ok_or_else(|| freeze("main-arguments/root-missing"))?;
             self.main_arguments_bindings_v1(module, root).map(|_| ())
         })?;
-        let text_home_owners = self.local_calls.iter().filter_map(|(owner, groups)|
-            groups.iter().any(|group| group.initializer()
-                .is_some_and(|packet| packet.frame().is_text_residence())).then_some(*owner))
-            .collect::<std::collections::BTreeSet<_>>();
+        let context = CallValidationContextV1::Finalized(self);
+        let text_home_owners = self.local_calls.iter().filter_map(|(owner, roots)|
+            RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()
+                .any(|group| group.initializer().is_some_and(|packet| packet.frame().is_text_residence()))
+                .then_some(*owner)).collect::<std::collections::BTreeSet<_>>();
         for owner in &text_home_owners {
-            for packet in self.local_calls[owner].iter().filter_map(|group| group.initializer())
-                .filter(|packet| packet.frame().is_text_residence()) {
-                self.ledger.validate_text_initializer_home_v1(packet, CallValidationContextV1::Finalized(self))?;
-            }
+            context.with_local_call_group_tree_v2(*owner, |groups| {
+                for packet in groups.iter().filter_map(|group| group.initializer())
+                    .filter(|packet| packet.frame().is_text_residence()) {
+                    self.ledger.validate_text_initializer_home_v1(packet, context)?;
+                }
+                Ok(())
+            })?;
         }
         let exits = self.ledger.root_exits.borrow();
         // A published Home owes every original exit, not just rows that happen

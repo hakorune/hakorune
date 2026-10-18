@@ -163,12 +163,19 @@ pub(crate) enum LoopOperationV2 {
         right: LoopValueKeyV1,
         result: LoopValueKeyV1,
     },
+    /// One closed expression with genuine conditional RHS reach and no binding writes.
+    BoolExpression {
+        inputs: Vec<LoopValueKeyV1>,
+        region: super::bool_region::LoopBoolRegionV1,
+        result: LoopValueKeyV1,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopOperationFaultFamilyV2 {
     DynamicAdd,
     DynamicLess,
+    BoolExpression,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -188,7 +195,7 @@ impl LoopOperationV2 {
     ///
     /// Adding an operation variant must update this match. Runtime/provider
     /// behavior is never consulted here.
-    pub(crate) const fn execution_class_v2(&self) -> LoopOperationExecutionClassV2 {
+    pub(crate) fn execution_class_v2(&self) -> LoopOperationExecutionClassV2 {
         match self {
             Self::ReadBinding { .. }
             | Self::ConstI64 { .. }
@@ -214,6 +221,11 @@ impl LoopOperationV2 {
                     normal_result: *result,
                 }
             }
+            Self::BoolExpression { region, result, .. } if region.may_fault() =>
+                LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                    family: LoopOperationFaultFamilyV2::BoolExpression, normal_result: *result,
+                },
+            Self::BoolExpression { .. } => LoopOperationExecutionClassV2::NonFaulting,
         }
     }
 }

@@ -23,6 +23,7 @@ pub(crate) enum SelectedLoopHomeLoanV1 {
     VariableAccumAfter(VerifiedLoopHomeAfterLoanV1),
     NoExitArrayAfter(std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>),
     StaticI64Search(crate::mir::builder::VerifiedStaticI64LoopHomeSourceV2),
+    SourceObservation(std::rc::Rc<crate::mir::normal_callable_semantic_package::RetainedSourceLoopProductV1>),
 }
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 use crate::mir::resolved_control_flow::{
@@ -159,10 +160,11 @@ impl ResultNewHomePrefixV1 {
 mod expression_plan;
 #[path = "home_new_prefix_binding_rebind.rs"]
 mod binding_rebind;
-pub(crate) use expression_plan::{qualify_binding_rebind_expression_v1, CheckedBindingRebindFrameV1, ExpressionCallSourceV1, qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1, qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
+pub(crate) use expression_plan::{qualify_binding_rebind_expression_v1, CheckedBindingRebindFrameV1, ExpressionCallSourceV1, qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1, qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, qualify_condition_expression_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
+pub(crate) use local_flow::source_loop::{SourceLoopScanSummaryV1, SourceLoopPortKindV1, CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1};
 pub(crate) use local_flow::{CurrentScalarReadV1, CurrentScalarProducerV1, StaticTextReadV1, FieldAliasPathV1, LoopI64PreStateRequestV1, SourceScalarKind};
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[cfg(test)]
@@ -272,6 +274,8 @@ mod new_local;
 mod scan;
 #[path = "home_new_prefix_local_statement.rs"]
 mod local_statement;
+#[path = "home_new_prefix_source_loop.rs"]
+mod source_loop;
 #[path = "home_new_prefix_mixed_call.rs"]
 mod mixed_call;
 #[path = "home_new_prefix_condition.rs"]
@@ -568,3 +572,6 @@ pub(crate) use borrowed_call_port::{
 
 #[cfg(test)]
 pub(crate) use local_call_flow::issue_static_source_local_for_test;
+
+#[cfg(test)]
+pub(crate) use local_flow::source_loop::assert_original_loop_source_walk_for_test;

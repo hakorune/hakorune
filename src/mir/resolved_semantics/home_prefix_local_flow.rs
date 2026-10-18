@@ -21,6 +21,9 @@ mod field_alias;
 mod field_readiness;
 #[path = "home_prefix_scalar.rs"]
 mod scalar;
+#[path = "home_prefix_source_loop.rs"]
+pub(super) mod source_loop;
+pub(crate) use source_loop::LoopHeaderScalarBasisV1;
 pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, SourceScalarKind};
 #[path = "home_prefix_text.rs"]
 mod text;
@@ -220,6 +223,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 pub(super) struct PrefixLocalFlow<'source> {
     entry_null_exclusions: BTreeMap<BindingRefV1, std::rc::Rc<super::EntryNullExclusionV1>>,
     signed_formals: BTreeSet<BindingRefV1>,
+    source_loop: Option<std::rc::Rc<source_loop::SourceLoopHeaderEnvironmentV1>>,
     named_arrays:
         std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
     input: ResolvedFunctionLoweringInputV1<'source>,
@@ -291,6 +295,7 @@ impl<'source> PrefixLocalFlow<'source> {
         Self {
             entry_null_exclusions: Default::default(),
             signed_formals: Default::default(),
+            source_loop: None,
             named_arrays: Default::default(),
             input,
             locals: BTreeMap::new(),
@@ -381,6 +386,7 @@ impl<'source> PrefixLocalFlow<'source> {
     /// `Uninitialized`, which keeps `observe` and every `is_*` probe
     /// fail-closed if a future shape ever does resolve it.
     pub(super) fn join_branch(&mut self, other: &Self) -> bool {
+        if !source_loop::same_context(&self.source_loop, &other.source_loop) { return false; }
         for (binding, value) in &other.locals {
             if let Some(own) = self.locals.get(binding) {
                 if !stored_local_same(own, value) {

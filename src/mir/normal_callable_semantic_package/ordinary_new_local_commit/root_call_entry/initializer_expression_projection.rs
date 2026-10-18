@@ -40,6 +40,13 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     original: Vec<Binding>,
 }
 impl EmittedInitializerExpressionProjectionV1 {
+    pub(super) fn corroborate_loop_frame_v2(&self, entry: BasicBlockId, end: BasicBlockId, value: ValueId) -> Result<(), String> {
+        if self.entry.0 != entry || self.value() != value
+            || !matches!(self.continuation.1, MirInstruction::Jump { target, edge_args: None } if target == end) {
+            return Err(freeze("source-loop/binding-frame-correspondence"));
+        }
+        Ok(())
+    }
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.value }
     pub(in crate::mir::normal_callable_semantic_package) fn local_value(&self) -> ValueId { self.local }
@@ -157,9 +164,9 @@ impl OrdinaryNewClaimLedgerV1 {
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn validate_initializer_expression_source_v1(&self, frame: &Rc<CheckedInitializerExpressionFrameV1>) -> Result<(), String> {
-        let sources = self.expected_local_call_binding_sources(frame.source().owner())?;
-        let count = self.root_local_call_bindings.borrow().get(&frame.source().owner()).map_or(0, Vec::len);
-        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::InitializerExpression { frame: original, .. }) if Rc::ptr_eq(original, frame)) {
+        let site = OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
+        let source = self.next_prefix_source_v2(frame.source().owner(), &site)?;
+        if !matches!(source.as_ref(), Some(LifecyclePrefixSourceV1::InitializerExpression { frame: original, .. }) if Rc::ptr_eq(original, frame)) {
             return Err(freeze("initializer-expression/source-prefix-order"));
         }
         Ok(())

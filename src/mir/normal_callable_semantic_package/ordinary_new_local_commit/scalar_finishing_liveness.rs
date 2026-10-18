@@ -69,6 +69,12 @@ impl OrdinaryNewClaimLedgerV1 {
             self.original_checked_field_bindings_v1(owner)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
             boundary.control_producer_bindings_v1(function)?, true)?);
+        let mut loop_dependencies = Vec::new();
+        for role in self.recorded_source_loop_roles_v2(owner) {
+            let proof = role.source_proof_v2().ok_or_else(|| freeze("scalar-liveness/source-loop-role"))?;
+            loop_dependencies.extend(proof.source_dependency_bindings_v2()?);
+        }
+        required.extend(validated_roots_with_auxiliary(function, boundary, loop_dependencies, true)?);
         roots.insert(symbol.to_owned(), required);
         Ok(())
     }

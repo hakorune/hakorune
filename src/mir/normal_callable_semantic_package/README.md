@@ -4081,6 +4081,11 @@ Call validation borrows the current owner of the same original packet pool.
 Lowering uses the ledger; finalized consumers use the retained root handoff,
 including Normal results, nested arguments, copy dependencies and mixed-result
 corroboration. Structural packet lookup never starts result validation itself.
+Finalized Text initializer-install and cleanup packet lookups use the same
+completed group tree, including Loop children and its sealed-parent checks.
+Each install still requires the original Home, cleanup and unique finished
+binding correspondence. Instruction censuses remain on root aggregates so
+nested packet lookup never double-counts their physical instructions.
 Owner/site uniqueness, the original row/loan and the same Completion Rc are
 rechecked after Take. Missing packets do not trigger lookup in another pool,
 source resealing or registry reconstruction.

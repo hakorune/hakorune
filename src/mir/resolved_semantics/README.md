@@ -27,6 +27,26 @@ Canonicalization verifies owner, original site/read coverage and references.
 These relations confer no type, Home, Recipe, physical Loop or execution right.
 The source classifier/SUM owns value-domain inference; Prefix/Home and complete
 Loop Recipe/JoinSig retain their existing later obligations.
+`loop_join` borrows a unique original Header/After node and every original
+incoming, even when readonly normalization redirects its active reads. The
+passive alias-terminal query may stop at that join itself; strict alias APIs
+continue to reject every join and never select a convenient predecessor.
+Current scalar producer lookup is shared between an actual read and a supplied
+original value identity; it still requires the covered scalar Prefix. These
+queries alone do not stage a Header or publish an After.
+
+The selected original Loop walk lends a scoped immutable Header basis from the
+same retained source and canonical binding roles. The existing recursive scanner
+qualifies its genuine Loop condition and body; Break/Continue keep exact resolver
+targets and iteration scope cleanup, separately from function Return. Context-free
+port snapshots retain no Prefix, mutable collector or expression inventory.
+Incoming verification matches the entire canonical Carrier set and every original
+Header/After predecessor, value and covered producer. ConditionFalse retains the
+Header; it never borrows Entry as an alias. All body expression roots keep their
+original Rc frames, including substring and If conditions without carrier writes;
+the Loop's own inventory slot is excluded. This source summary grants no After
+or physical Header. Full V2/JoinSig/control/cleanup and physical provenance must
+close before the selected scanner may continue after the Loop.
 
 ## Exact signed immediate source query
 
@@ -575,9 +595,13 @@ owner before leaf projection: original node/binding, finite entry class with
 Null exclusion, residence acquisition/live Home and duplicate reads are checked
 there. A field receiver is excluded from value seeding by its exact object site;
 only the existing checked field request can later establish its Identity role.
-Scalar references remain explicit obligations in this path, checked by the
-exact lexical reader and independent final source verifier; the shared proof
-representation alone does not admit Text or Original scalar references here.
+Bool scalar obligations retain the exact lexical reader and final source
+verifier. Original scalar reads use the same `ExpressionReferenceReadV1`
+prepare/commit, operand and dependency validation as other expression purposes.
+Their producers and Copy chains are dependencies, not newly owned condition
+instructions. Lowering and finalized consumers both validate the same source
+frame/node and physical correspondence. Loop Header/After remain refused by
+that shared reader until their actual Loop-point proof is installed.
 For an If condition that is an exact checked `Greater` or `LessEqual`, the
 scalar preflight may borrow the prepared formal-use `CompareOperand` at its
 original operand and binary sites. This proves an Integer operand only for
@@ -1728,3 +1752,16 @@ chain; initializer-only loans refuse it. Both final consumers check the same
 expression and destination receipt, including self-assignment with no fresh
 instruction. A provisional Header or complete Loop After is still not granted;
 the same Loop product owes original entry/all updates/exits and V2/JoinSig.
+
+
+The same recursive Loop walk also retains exact checked statement order, resolver
+If arms/outcomes and targeted Break/Continue snapshots before branch joins or
+termination. Whole-summary validation rejects missing execution roots, Bool
+frames, exit ports or incoming proofs; it rechecks the original Loop target.
+This immutable tree is the source input to the common V2 Recipe projector. It
+owns no Prefix, mutable inventory or exit collector. The selected row retains
+its consuming logical result after rechecking the original planner source loan;
+Canonical execution and pathwise cleanup templates now permit analysis-only
+After for all original carried Integers after exact entry/prestate checks. Its
+original read retains the same product and source-flow After. Physical Header/
+After operands still refuse until the corresponding physical product is closed. No second transitional Recipe visitor reconstructs this source tree.

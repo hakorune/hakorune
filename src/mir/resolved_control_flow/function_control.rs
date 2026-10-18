@@ -12,7 +12,7 @@ use super::cleanup::ResolvedCleanupObligationsV1;
 
 #[path = "loop_call_fault.rs"]
 mod loop_call_fault;
-pub(crate) use loop_call_fault::{issue_loop_call_fault_continuation_v1, LoopCallFaultContinuationV1};
+pub(crate) use loop_call_fault::{issue_loop_call_fault_continuation_v1, LoopCallFaultContinuationV1, issue_loop_expression_fault_continuation_v1, LoopExpressionFaultContinuationV1};
 
 /// Conditional outward propagation from an exact direct-local New. This is
 /// neither a Normal Return nor an empty cleanup contract: evaluation-frame

@@ -65,10 +65,28 @@ pub(super) fn take_preissued_source_plan_v1(
 ) -> Result<Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>, String> {
     match (ledger, site) {
         (Some(ledger), Some(site)) => match ledger.borrow().ordinary_new_claim_ledger() {
-            Some(claims) => claims.take_preissued_loop_source_plan_v1(owner,
+            Some(claims) => claims.take_preissued_loop_source_handoff_v2(owner,
                 &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone())),
             None => Ok(None),
         },
         _ => Ok(None),
     }
+}
+
+/// Respect a prior positive canonical selection before unrelated legacy probes.
+/// The paired handoff is still consumed exactly once by the existing issuer.
+pub(super) fn has_checked_source_selection_v2(
+    ledger: Option<&Rc<RefCell<CallableSemanticLoweringState>>>,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    site: Option<&crate::mir::resolved_semantics::SourceNodeSiteV1>,
+) -> Result<bool, String> {
+    let (Some(ledger), Some(site)) = (ledger, site) else { return Ok(false) };
+    let state = ledger.borrow();
+    let selected = match state.ordinary_new_claim_ledger() {
+        Some(claims) => claims.retained_source_loop_recipe_v2(owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()))?.is_some(),
+        None => false,
+    };
+    if selected && state.owner() != owner { return Err("[freeze:contract][callable-loop/selected-source-owner]".into()); }
+    Ok(selected)
 }

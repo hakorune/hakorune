@@ -147,3 +147,25 @@ pub fn emit_conditional_edgecfg(
 
     Ok(())
 }
+
+/// Emit one source-owned branch through the existing EdgeCFG session. The
+/// caller supplies genuine targets; this helper adds no If/Loop semantics.
+pub(in crate::mir::builder) fn emit_carriers_only_conditional_v2(
+    builder: &mut MirBuilder,
+    from: BasicBlockId,
+    condition: crate::mir::ValueId,
+    targets: (BasicBlockId, BasicBlockId),
+) -> Result<(), String> {
+    use crate::mir::builder::control_flow::edgecfg::api::{BranchStub, Frag};
+    let empty = || crate::mir::EdgeArgs {
+        layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
+        values: Vec::new(),
+    };
+    let mut frag = Frag::new(from);
+    frag.branches.push(BranchStub::new(from, condition, targets.0, empty(), targets.1, empty()));
+    let function = builder.function_state.current_function.as_mut()
+        .ok_or("[freeze:contract][source-branch/function-missing]")?;
+    builder.function_state.frag_emit_session.emit_and_seal(function, &frag)?;
+    crate::mir::builder::ssa::local::checked_compare::observe_branch(
+        builder, from, condition, targets.0, targets.1)
+}

@@ -9,6 +9,25 @@
 use super::*;
 
 impl CallableSemanticLoweringState {
+    /// Publish the source point only after its actual indexed Phi definition.
+    /// This adds provenance to the same value slot; ordinary publication still
+    /// invalidates it and there is no second value/loop registry.
+    pub(in crate::mir::builder) fn publish_source_loop_point_v2(
+        &mut self, builder: &mut crate::mir::builder::MirBuilder,
+        issued: &crate::mir::builder::normal_callable_loop_source_facts::SourceLoopPointCapabilityV2<'_>,
+    ) -> Result<(), String> {
+        issued.require_live_v2()?;
+        let source = issued.source().clone();
+        let relation = Rc::clone(issued.relation());
+        let value = relation.values().0;
+        let claims = self.ordinary_new_claim_ledger().ok_or_else(|| freeze("loop-point-claims-missing"))?;
+        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims)
+            .source_loop_point_product_v2(&source)?;
+        let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("loop-point-function-missing"))?;
+        let point = super::materialized_values::LoopPointValueV1::new(source, relation, function)?;
+        self.publish_source_loop_final_value(point.binding(), value)?;
+        self.values.attach_loop_point_v1(point)
+    }
     /// Names locate an already selected source binding in the emission cache.
     /// They never classify a binding as a carrier or recover its identity.
     pub(in crate::mir::builder) fn source_loop_binding_name<'a>(

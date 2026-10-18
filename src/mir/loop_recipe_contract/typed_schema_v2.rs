@@ -79,6 +79,10 @@ pub(crate) enum LoopRecipeV2RejectReason {
     InvalidOperationDomain {
         item: LoopItemKeyV1,
     },
+    InvalidBoolRegion {
+        item: LoopItemKeyV1,
+        reason: super::bool_region::LoopBoolRegionRejectV1,
+    },
     InvalidLoopCondition {
         loop_key: LoopNodeKeyV1,
     },

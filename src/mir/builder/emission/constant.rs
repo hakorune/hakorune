@@ -143,7 +143,10 @@ pub fn emit_null(b: &mut MirBuilder) -> Result<ValueId, String> {
 
 #[inline]
 pub fn emit_void(b: &mut MirBuilder) -> Result<ValueId, String> {
-    emit_exact_const(b, ConstValue::Void)
+    emit_void_recorded(b).map(|completed| completed.value())
+}
+pub(in crate::mir) fn emit_void_recorded(b: &mut MirBuilder) -> Result<CompletedConstV1, String> {
+    emit_exact_const_at_recorded(b, None, ConstValue::Void)
 }
 
 #[cfg(test)]

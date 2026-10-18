@@ -604,6 +604,9 @@ fn process_operation<'a>(
         LoopJoinOperationView::Define { uses, result, .. } => {
             match uses {
                 LoopJoinValueUses::None => {}
+                LoopJoinValueUses::Many(values) => {
+                    for value in values { require(*value)?; }
+                }
                 LoopJoinValueUses::Two(left, right) => {
                     require(left)?;
                     require(right)?;

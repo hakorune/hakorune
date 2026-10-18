@@ -75,6 +75,21 @@ impl<E: fmt::Display> fmt::Display for LexicalScopeTransactionErrorV1<E> {
     }
 }
 
+/// Only the lexical close writer issues this physical observation. It grants
+/// no Home/lifetime meaning and cannot be reconstructed from a variable cache.
+#[derive(Debug)]
+pub(in crate::mir) struct LexicalScopeCloseReceiptV2 {
+    keepalive: Option<(usize, (crate::mir::BasicBlockId, crate::mir::MirInstruction))>,
+}
+impl LexicalScopeCloseReceiptV2 {
+    pub(in crate::mir) fn binding(&self) -> Option<&(crate::mir::BasicBlockId, crate::mir::MirInstruction)> {
+        self.keepalive.as_ref().map(|(_, binding)| binding)
+    }
+    pub(in crate::mir) fn occurrence(&self) -> Option<(usize, &(crate::mir::BasicBlockId, crate::mir::MirInstruction))> {
+        self.keepalive.as_ref().map(|(index, binding)| (*index, binding))
+    }
+}
+
 /// Run one body while the lexical scope is open, then close it exactly once.
 ///
 /// The callback owns the only mutable builder borrow.  This prevents a scope
@@ -88,6 +103,14 @@ pub(in crate::mir::builder) fn try_with_lexical_scope<T, E, F>(
 where
     F: FnOnce(&mut super::super::MirBuilder) -> Result<T, E>,
 {
+    try_with_lexical_scope_with_receipt_v2(builder, body).map(|(value, _)| value)
+}
+
+pub(in crate::mir::builder) fn try_with_lexical_scope_with_receipt_v2<T, E, F>(
+    builder: &mut super::super::MirBuilder, body: F,
+) -> Result<(T, LexicalScopeCloseReceiptV2), LexicalScopeTransactionErrorV1<E>>
+where F: FnOnce(&mut super::super::MirBuilder) -> Result<T, E>,
+{
     builder.push_lexical_scope();
     let body_result = catch_unwind(AssertUnwindSafe(|| body(builder)));
     match body_result {
@@ -96,12 +119,12 @@ where
             resume_unwind(payload)
         }
         Ok(body_result) => {
-            let close_result = catch_unwind(AssertUnwindSafe(|| builder.close_lexical_scope()));
+            let close_result = catch_unwind(AssertUnwindSafe(|| builder.close_lexical_scope_with_receipt_v2()));
             match close_result {
                 Err(payload) => resume_unwind(payload),
                 Ok(close_result) => match (body_result, close_result) {
-                    (Ok(value), Ok(())) => Ok(value),
-                    (Err(body), Ok(())) => Err(LexicalScopeTransactionErrorV1::Body(body)),
+                    (Ok(value), Ok(receipt)) => Ok((value, receipt)),
+                    (Err(body), Ok(_)) => Err(LexicalScopeTransactionErrorV1::Body(body)),
                     (Ok(_), Err(close)) => Err(LexicalScopeTransactionErrorV1::Close(close)),
                     (Err(body), Err(close)) => {
                         Err(LexicalScopeTransactionErrorV1::BodyAndClose { body, close })
@@ -143,6 +166,10 @@ impl super::super::MirBuilder {
     }
 
     fn close_lexical_scope(&mut self) -> Result<(), LexicalScopeCloseErrorV1> {
+        self.close_lexical_scope_with_receipt_v2().map(drop)
+    }
+
+    fn close_lexical_scope_with_receipt_v2(&mut self) -> Result<LexicalScopeCloseReceiptV2, LexicalScopeCloseErrorV1> {
         // Phase 2-4: scope_ctx is the lexical-scope stack SSOT.
         let Some(frame) = self.function_state.scope.pop_lexical_scope() else {
             let depth = self.function_state.scope.lexical_scope_stack.len();
@@ -172,12 +199,15 @@ impl super::super::MirBuilder {
                 .collect();
 
             if keepalive_values.is_empty() {
-                Ok(())
+                Ok(LexicalScopeCloseReceiptV2 { keepalive: None })
             } else {
                 match catch_unwind(AssertUnwindSafe(|| {
-                    self.emit_instruction(crate::mir::MirInstruction::KeepAlive {
-                        values: keepalive_values,
-                    })
+                    let instruction = crate::mir::MirInstruction::KeepAlive { values: keepalive_values };
+                    let block = self.function_state.current_block.ok_or_else(|| "lexical scope current block missing".to_owned())?;
+                    let index = self.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&block))
+                        .map(|block| block.instructions.len()).ok_or_else(|| "lexical scope block missing".to_owned())?;
+                    self.emit_instruction(instruction.clone())?;
+                    Ok(LexicalScopeCloseReceiptV2 { keepalive: Some((index, (block, instruction))) })
                 })) {
                     Ok(result) => result.map_err(LexicalScopeCloseErrorV1::KeepAlive),
                     Err(payload) => {
@@ -187,7 +217,7 @@ impl super::super::MirBuilder {
                 }
             }
         } else {
-            Ok(())
+            Ok(LexicalScopeCloseReceiptV2 { keepalive: None })
         };
 
         self.restore_lexical_scope_frame(frame);
@@ -371,12 +401,28 @@ mod tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("lexical_scope_success/0".to_owned());
 
-        let result = try_with_lexical_scope(&mut builder, |builder| -> Result<ValueId, String> {
+        let result = try_with_lexical_scope_with_receipt_v2(&mut builder, |builder| -> Result<ValueId, String> {
             builder.declare_local_in_current_scope("x", ValueId::new(7))?;
             Ok(ValueId::new(7))
         });
 
-        assert_eq!(result.expect("scope success"), ValueId::new(7));
+        let (value, receipt) = result.expect("scope success");
+        assert_eq!(value, ValueId::new(7));
+        let (issued_block, instruction) = receipt.binding().expect("actual close append");
+        assert_eq!(Some(*issued_block), builder.function_state.current_block);
+        assert_eq!(instruction, &crate::mir::MirInstruction::KeepAlive { values: vec![value] });
+        let (index, original) = receipt.occurrence().unwrap();
+        assert_eq!(original, &(*issued_block, instruction.clone()));
+        assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[issued_block].instructions.get(index), Some(instruction));
+        let (_, empty) = try_with_lexical_scope_with_receipt_v2(&mut builder, |_| Ok::<_, String>(())).unwrap();
+        assert!(empty.binding().is_none(), "empty scope issues no physical write");
+        let (_, terminated) = try_with_lexical_scope_with_receipt_v2(&mut builder, |builder| {
+            builder.declare_local_in_current_scope("z", ValueId::new(8))?;
+            builder.function_state.current_function.as_mut().unwrap().blocks.get_mut(issued_block).unwrap()
+                .set_terminator(crate::mir::MirInstruction::Return { value: None });
+            Ok::<_, String>(())
+        }).unwrap();
+        assert!(terminated.binding().is_none(), "terminated scope issues no KeepAlive");
         assert_eq!(scope_depth(&builder), 0);
         assert!(!builder.function_state.binding_ctx.contains("x"));
         assert!(!builder

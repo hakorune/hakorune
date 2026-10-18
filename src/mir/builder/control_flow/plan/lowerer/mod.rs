@@ -50,13 +50,21 @@ mod exit_lowering;
 mod loop_completion;
 mod loop_cond_after_role;
 mod loop_cond_phi_validation;
-pub(in crate::mir::builder) use loop_cond_phi_validation::{capture_exact_loop_phis_v2, LoopPhiInputRowsV2};
+pub(in crate::mir) use loop_cond_phi_validation::capture_exact_loop_phis_v2;
+pub(in crate::mir::builder) use loop_cond_phi_validation::LoopPhiInputRowsV2;
 mod loop_lowering;
 mod loop_preparation;
 mod loop_validation;
 mod phi_processing;
 mod plan_lowering;
 mod span_fmt;
+mod source_loop_frames;
+mod source_loop_driver;
+pub(in crate::mir) use source_loop_driver::EmittedSourceLoopGraphV2;
+mod source_loop_control;
+mod source_loop_completion;
+mod source_loop_phi_inputs;
+pub(in crate::mir::builder) use source_loop_phi_inputs::VerifiedSourceLoopPhiInputsV2;
 
 // Re-export LoopFrame for internal use
 pub(super) use core::LoopFrame;

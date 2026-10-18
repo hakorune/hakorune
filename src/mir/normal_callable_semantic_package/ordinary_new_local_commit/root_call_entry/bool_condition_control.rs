@@ -105,10 +105,10 @@ impl EmittedBoolConditionProjectionV1 {
             if !self.prefix.contains(required) { return Err(freeze("bool-condition/required-prefix-binding-missing")); }
         }
         let root_exit = self.node(0)?.exit;
-        let block = function.blocks.get(&self.materialization.block()).ok_or_else(|| freeze("bool-condition/materialization-block"))?;
-        if root_exit.block != self.materialization.block()
+        let block = function.blocks.get(&self.materialization.physical().block()).ok_or_else(|| freeze("bool-condition/materialization-block"))?;
+        if root_exit.block != self.materialization.physical().block()
             || block.instructions.get(root_exit.instruction..).is_none_or(|rows|
-                rows.iter().cloned().map(|row| (root_exit.block, row)).ne(self.materialization.bindings().iter().cloned())) {
+                rows.iter().cloned().map(|row| (root_exit.block, row)).ne(self.materialization.physical().bindings().iter().cloned())) {
             return Err(freeze("bool-condition/root-materialization-order"));
         }
         if let Some(outer) = self.outer.borrow().as_ref() { allowed.push(outer.clone()); }
@@ -122,7 +122,7 @@ impl EmittedBoolConditionProjectionV1 {
                     return Err(format!("{} block={id:?} instruction={row:?}", freeze("bool-condition/unowned-instruction")));
                 }
             }
-            if id == self.materialization.block() {
+            if id == self.materialization.physical().block() {
                 if let Some(outer) = self.outer.borrow().as_ref() {
                     if block.terminator.as_ref() != Some(&outer.1) { return Err(freeze("bool-condition/outer-current")); }
                 } else if block.terminator.is_some() { return Err(freeze("bool-condition/pending-terminal")); }
@@ -136,7 +136,7 @@ impl EmittedBoolConditionProjectionV1 {
                 _ => return Err(freeze("bool-condition/scope-escape")),
             }
         }
-        if !scope.contains(&self.materialization.block()) { return Err(freeze("bool-condition/scope-disconnected")); }
+        if !scope.contains(&self.materialization.physical().block()) { return Err(freeze("bool-condition/scope-disconnected")); }
         for (id, block) in &function.blocks {
             if scope.contains(id) { continue; }
             for edge in block.out_edges() {
@@ -165,6 +165,8 @@ impl EmittedBoolConditionProjectionV1 {
             match &node.proof {
                 Proof::Literal(row) | Proof::Field(row) => allowed.push(row.clone()),
                 Proof::Reference { producer, .. } => allowed.extend(producer.iter().cloned()),
+                // Retain the shared producer/Copy dependency census without reissuing it.
+                Proof::OriginalReference(read) => allowed.extend(read.dependencies()?),
                 Proof::Binary { append, operands } => {
                     allowed.push(append.clone());
                     for relation in operands { relation.append_observed_bindings_v1(&mut allowed); }
@@ -241,8 +243,10 @@ impl EmittedBoolConditionProjectionV1 {
                 },
             }
         }
-        self.materialization.relation().append_observed_bindings_v1(&mut allowed);
-        allowed.extend_from_slice(self.materialization.bindings());
+        self.materialization.physical().relation().append_observed_bindings_v1(&mut allowed);
+        allowed.extend_from_slice(self.materialization.physical().bindings());
+        let allowed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
+            allowed, self.nodes.iter().filter_map(|node| match &node.proof { Proof::OriginalReference(read) => Some(read), _ => None }))?;
         for binding in &self.prefix {
             if !allowed.contains(binding) { return Err(freeze("bool-condition/unowned-prefix-binding")); }
         }

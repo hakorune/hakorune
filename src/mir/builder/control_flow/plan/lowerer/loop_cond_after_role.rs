@@ -17,14 +17,27 @@ pub(in crate::mir) struct VerifiedLoopCondAfterPhysicalRoleV1 {
     owner: FunctionOwnerIdV1,
     site: SourceStmtSiteV1,
     block: BasicBlockId,
-    phi_prefix: Box<[MirInstruction]>,
-    loop_phis: BTreeMap<BasicBlockId, Box<[MirInstruction]>>,
+    phis: LoopRolePhisV2,
+}
+#[derive(Debug)]
+enum LoopRolePhisV2 {
+    Legacy(BTreeMap<BasicBlockId, Box<[MirInstruction]>>),
+    Source(Rc<crate::mir::normal_callable_semantic_package::SourceLoopPhysicalProofV2>),
 }
 impl VerifiedLoopCondAfterPhysicalRoleV1 {
     pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
     pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { &self.site }
     pub(in crate::mir) const fn block(&self) -> BasicBlockId { self.block }
-    pub(in crate::mir) fn loop_phis(&self) -> &BTreeMap<BasicBlockId, Box<[MirInstruction]>> { &self.loop_phis }
+    pub(in crate::mir) fn loop_phis(&self) -> &BTreeMap<BasicBlockId, Box<[MirInstruction]>> {
+        match &self.phis { LoopRolePhisV2::Legacy(rows) => rows, LoopRolePhisV2::Source(proof) => proof.points().phis() }
+    }
+    pub(in crate::mir) fn source_proof_v2(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::SourceLoopPhysicalProofV2>> {
+        match &self.phis { LoopRolePhisV2::Source(proof) => Some(proof), _ => None }
+    }
+    pub(in crate::mir) fn from_source_v2(proof: Rc<crate::mir::normal_callable_semantic_package::SourceLoopPhysicalProofV2>) -> Self {
+        Self { owner: proof.product().source.source.owner(), site: proof.product().source.source.site().clone(),
+            block: proof.after(), phis: LoopRolePhisV2::Source(proof) }
+    }
 }
 
 /// One stack-scoped completion of the SAME selected plan. Nested plans cannot
@@ -64,9 +77,8 @@ impl<'phi> LoopCondPhysicalCompletionV1<'phi> {
         if actual != self.destinations || actual.len() != plan.phis.len() { return Err(freeze("plan-destination-drift")); }
         let rows: super::LoopPhiInputRowsV2 = plan.phis.iter().map(|phi| (phi.block, phi.dst, phi.inputs.clone())).collect();
         let loop_phis = super::capture_exact_loop_phis_v2(function, &rows)?;
-        let phi_prefix = loop_phis.get(&self.after).cloned().unwrap_or_default();
         self.finished.set(VerifiedLoopCondAfterPhysicalRoleV1 {
-            owner: self.owner, site: self.site.clone(), block: self.after, phi_prefix, loop_phis,
+            owner: self.owner, site: self.site.clone(), block: self.after, phis: LoopRolePhisV2::Legacy(loop_phis),
         }).map_err(|_| freeze("completion-repeat"))
     }
     pub(super) fn require_finished(&self) -> Result<(), String> {
@@ -74,7 +86,7 @@ impl<'phi> LoopCondPhysicalCompletionV1<'phi> {
     }
     fn into_role(self) -> Result<Option<VerifiedLoopCondAfterPhysicalRoleV1>, String> {
         let role = self.finished.into_inner().ok_or_else(|| freeze("completion-missing"))?;
-        Ok((!role.phi_prefix.is_empty()).then_some(role))
+        Ok(role.loop_phis().get(&role.block()).is_some_and(|rows| !rows.is_empty()).then_some(role))
     }
 }
 pub(super) fn freeze(reason: &str) -> String { format!("[freeze:contract][loop-cond-after-role/{reason}]") }
@@ -85,6 +97,7 @@ impl PlanLowerer {
         ledger: Rc<RefCell<CallableSemanticLoweringState>>, source: &SourceLoopCondPhysicalInputV1<'_, '_>,
     ) -> Result<(Option<ValueId>, Option<VerifiedLoopCondAfterPhysicalRoleV1>), String> {
         let result = (|| {
+            source.require_source_lifecycle_writer_v2()?;
             let CorePlan::Loop(loop_plan) = &plan else { return Err(freeze("non-loop-plan")); };
             let mut completion = LoopCondPhysicalCompletionV1::new(source.owner(),
                 SourceStmtSiteV1::from_node(source.parent_site().clone()), loop_plan)?;

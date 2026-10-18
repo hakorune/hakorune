@@ -45,12 +45,20 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         let planned = match retained {
             Some(retained) => parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
                 .and_then(|site| retained.into_planned(owner, site, function_origin, source_kind, policy)),
-            None => PlannedSourceLoopV1::issue(&condition, &body, policy, function_name, debug),
+            None => PlannedSourceLoopV1::issue(&condition, &body, policy, function_name, debug).map(|plan| (plan, None)),
         };
-        let PlannedSourceLoopV1 { outcome, selection } = match planned {
+        let (PlannedSourceLoopV1 { outcome, selection }, source_recipe) = match planned {
             Ok(planned) => planned,
             Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
         };
+        // A retained verified source product cannot be dropped into another
+        // family, absent selection or the unretained planner/accumulation path.
+        if source_recipe.is_some() && (variable_accum_recurrence.is_some()
+            || selection.as_ref().and_then(|selection| selection.sole_family())
+                != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)) {
+            return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(
+                "[freeze:contract][source-loop/product-route-drift]".into());
+        }
         let Some(selection) = selection else {
             return match variable_accum_recurrence {
                 Some(product) => CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product),
@@ -86,6 +94,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 source_items,
                 source_target_probe,
                 call_free,
+                source_recipe,
             ) {
                 Ok(source_facts) => {
                     CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)

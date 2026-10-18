@@ -69,24 +69,21 @@ impl FinalizedRootSourceHandoffV1 {
         if group_site.owner() != owner || node_site.owner() != owner {
             return Err(freeze("finished-local-call/owner"));
         }
-        let mut groups = self
-            .local_calls
-            .get(&owner)
-            .into_iter()
-            .flatten()
-            .filter(|group| group.site() == group_site);
-        let group = groups
-            .next()
-            .ok_or_else(|| freeze("finished-local-call/group-missing"))?;
-        if groups.next().is_some() {
-            return Err(freeze("finished-local-call/group-duplicate"));
-        }
-        let mut packets = group.lexical_packets().filter(|packet| packet.has_producer_at(node_site, original));
-        if packets.next().is_none() || packets.next().is_some() {
-            return Err(freeze("finished-local-call/original-producer"));
-        }
-        let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
-        find_finished_producer(&symbol, &finished, function)
+        CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(owner, |groups| {
+            let mut groups = groups.iter().filter(|group| group.site() == group_site);
+            let group = groups
+                .next()
+                .ok_or_else(|| freeze("finished-local-call/group-missing"))?;
+            if groups.next().is_some() {
+                return Err(freeze("finished-local-call/group-duplicate"));
+            }
+            let mut packets = group.lexical_packets().filter(|packet| packet.has_producer_at(node_site, original));
+            if packets.next().is_none() || packets.next().is_some() {
+                return Err(freeze("finished-local-call/original-producer"));
+            }
+            let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
+            find_finished_producer(&symbol, &finished, function)
+        })
     }
 
     /// Read the original Return packet without copying an affine row or issuing source.
@@ -155,24 +152,21 @@ impl FinalizedRootSourceHandoffV1 {
         if group_site.owner() != owner || node_site.owner() != owner {
             return Err(freeze("finished-copy/owner"));
         }
-        let mut groups = self
-            .local_calls
-            .get(&owner)
-            .into_iter()
-            .flatten()
-            .filter(|group| group.site() == group_site);
-        let group = groups.next().ok_or_else(|| freeze("finished-copy/group"))?;
-        if groups.next().is_some() {
-            return Err(freeze("finished-copy/group-duplicate"));
-        }
-        let mut found = None;
-        for packet in group.lexical_packets() {
-            if packet.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?.iter()
-                .any(|(node, copy)| node == node_site && copy == original) {
-                if found.replace(packet).is_some() { return Err(freeze("finished-copy/packet-duplicate")); }
+        CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(owner, |groups| {
+            let mut groups = groups.iter().filter(|group| group.site() == group_site);
+            let group = groups.next().ok_or_else(|| freeze("finished-copy/group"))?;
+            if groups.next().is_some() {
+                return Err(freeze("finished-copy/group-duplicate"));
             }
-        }
-        self.finished_packet_copy(owner, found.ok_or_else(|| freeze("finished-copy/packet"))?, node_site, original, function)
+            let mut found = None;
+            for packet in group.lexical_packets() {
+                if packet.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?.iter()
+                    .any(|(node, copy)| node == node_site && copy == original) {
+                    if found.replace(packet).is_some() { return Err(freeze("finished-copy/packet-duplicate")); }
+                }
+            }
+            self.finished_packet_copy(owner, found.ok_or_else(|| freeze("finished-copy/packet"))?, node_site, original, function)
+        })
     }
 
     pub(in crate::mir) fn finished_terminal_call_copy_v1(

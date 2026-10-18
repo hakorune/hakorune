@@ -55,6 +55,7 @@ fn lower_loop_cond_source_inner(
     builder: &mut MirBuilder, input: &SourceLoopCondPhysicalInputV1<'_, '_>,
 ) -> Result<LoweredRecipe, String> {
     input.validate_for_source_port()?;
+    input.require_source_lifecycle_writer_v2()?;
     let facts = input.loop_cond_facts()?;
     pin_accept_kind_contract(facts.accept_kind);
 

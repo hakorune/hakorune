@@ -24,6 +24,7 @@ fn frame_is_issued_once_and_root_selection_precedes_materialization() {
         );
         function.add_block(BasicBlock::new(entry));
         builder.function_state.current_function = Some(function);
+        assert_eq!(state.observed_binding_v2(builder.function_state.current_function.as_ref().unwrap()).unwrap(), None);
         let value = state.materialize(&mut builder).unwrap();
         assert_eq!(state.materialize(&mut builder).unwrap(), value);
         assert!(state.select_root().is_err());
@@ -36,6 +37,7 @@ fn frame_is_issued_once_and_root_selection_precedes_materialization() {
                 MirInstruction::FaultFrameEnter { dst, mode: actual }
                 if dst == value && actual == mode));
         state.validate(function).unwrap();
+        assert_eq!(state.observed_binding_v2(function).unwrap(), Some((entry, block.instructions[0].clone())));
         let mut duplicate = function.clone();
         let extra = BasicBlockId::new(9);
         let mut block = BasicBlock::new(extra);
@@ -45,6 +47,8 @@ fn frame_is_issued_once_and_root_selection_precedes_materialization() {
             .validate(&duplicate)
             .unwrap_err()
             .contains("definition-count-drift"));
+        assert!(state.observed_binding_v2(&duplicate).unwrap_err().contains("definition-count-drift"));
+        assert!(FunctionFaultFrameV1::borrowed().observed_binding_v2(function).is_err(), "another owner cannot borrow an existing frame");
         assert!(FunctionFaultFrameV1::borrowed()
             .validate(function)
             .unwrap_err()

@@ -60,7 +60,9 @@ impl MirBuilder {
         let mut invocation =
             ModuleLoweringInvocationV1::with_collector(self, ModuleDraftCollectorV1::default());
         invocation.with_module_port(|builder, port| {
-            let mut inner = RawInvocationChildPortV1::new(port);
+            let mut loop_scope = crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test();
+            let mut inner = RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
+                port, crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(), &mut loop_scope);
             inner.direct_call_loans = loans;
             super::source_scope::with_callable_source_scope(
                 &mut inner,

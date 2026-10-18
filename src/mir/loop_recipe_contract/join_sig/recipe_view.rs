@@ -87,6 +87,7 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationFamily {
     DynamicLess,
     CallSlot,
     TextEq,
+    BoolExpression,
 }
 
 pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationView<'a> {
@@ -107,6 +108,7 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationView<'a> {
 
 pub(in crate::mir::loop_recipe_contract) enum LoopJoinValueUses<'a> {
     None,
+    Many(&'a [LoopValueKeyV1]),
     Two(LoopValueKeyV1, LoopValueKeyV1),
     Call {
         receiver: Option<LoopValueKeyV1>,

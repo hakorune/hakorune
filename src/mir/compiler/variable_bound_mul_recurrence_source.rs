@@ -30,6 +30,14 @@ pub(crate) enum VariableBoundMulSourceRejectV1 {
     InputSource,
 }
 
+/// Only a morphology mismatch is unselected. Once the whole source shape is
+/// selected, missing or contradictory resolver evidence is a terminal error.
+#[derive(Debug)]
+pub(crate) enum VariableBoundMulSourceAttemptV1 {
+    Selected(ObservedVariableBoundMulSourceV1),
+    Unselected(VariableBoundMulSourceRejectV1),
+}
+
 /// A non-Clone membership and its complete ordered source sites. This cannot
 /// be substituted for a typed Facts product or a verified Loop After state.
 #[derive(Debug)]
@@ -115,11 +123,12 @@ impl ObservedVariableBoundMulSourceV1 {
     }
 }
 
-pub(crate) fn observe_variable_bound_mul_source_v1(
+pub(crate) fn attempt_variable_bound_mul_source_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     ledger: &CallableSemanticSourceLedgerView<'_>,
     membership: VerifiedCallableLoopMembershipV1,
-) -> Result<ObservedVariableBoundMulSourceV1, VariableBoundMulSourceRejectV1> {
+) -> Result<VariableBoundMulSourceAttemptV1, VariableBoundMulSourceRejectV1> {
+    use VariableBoundMulSourceAttemptV1 as Attempt;
     use VariableBoundMulSourceRejectV1 as Reject;
     if input.owner() != ledger.owner() || membership.scope_region().scope().owner() != input.owner()
     {
@@ -146,7 +155,7 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
             ..
         }
     ) {
-        return Err(Reject::Condition);
+        return Ok(Attempt::Unselected(Reject::Condition));
     }
     let lhs = source
         .child_expr_from_expr(&condition, ExprChildRoleV1::BinaryLeft)
@@ -154,14 +163,15 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
     let rhs = source
         .child_expr_from_expr(&condition, ExprChildRoleV1::BinaryRight)
         .map_err(|_| Reject::SourceNavigation)?;
-    let induction = local(input, lhs.site(), lhs.node(), Reject::Condition)?;
-    let bound = local(input, rhs.site(), rhs.node(), Reject::Condition)?;
+    if !matches!(lhs.node(), ASTNode::Variable { .. }) || !matches!(rhs.node(), ASTNode::Variable { .. }) {
+        return Ok(Attempt::Unselected(Reject::Condition));
+    }
 
     let body = source
         .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
         .map_err(|_| Reject::SourceNavigation)?;
     if body.statements().len() != 2 {
-        return Err(Reject::Body);
+        return Ok(Attempt::Unselected(Reject::Body));
     }
     let update = source
         .body_stmt(&body, 0)
@@ -169,21 +179,27 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
     let step = source
         .body_stmt(&body, 1)
         .map_err(|_| Reject::SourceNavigation)?;
-    let (update_target, update_value, update_lhs, update_rhs) =
-        assignment_parts(&source, &update, BinaryOperator::Multiply, Reject::Update)?;
+    let Some((update_target, update_value, update_lhs, update_rhs)) =
+        assignment_parts(&source, &update, BinaryOperator::Multiply)? else {
+            return Ok(Attempt::Unselected(Reject::Update));
+        };
+    if !integer(update_rhs.node(), 2) { return Ok(Attempt::Unselected(Reject::Update)); }
+    let Some((step_target, step_value, step_lhs, step_rhs)) =
+        assignment_parts(&source, &step, BinaryOperator::Add)? else {
+            return Ok(Attempt::Unselected(Reject::Step));
+        };
+    if !integer(step_rhs.node(), 1) { return Ok(Attempt::Unselected(Reject::Step)); }
+
+    // Complete morphology before asking for binding evidence. A later shape
+    // mismatch cannot conceal missing/contradictory evidence on a selected row.
+    let induction = local(input, lhs.site(), lhs.node(), Reject::Condition)?;
+    let bound = local(input, rhs.site(), rhs.node(), Reject::Condition)?;
     let scale = rebound(input, update_target.site(), Reject::Update)?;
-    if local(input, update_lhs.site(), update_lhs.node(), Reject::Update)? != scale
-        || !integer(update_rhs.node(), 2)
-    {
+    if local(input, update_lhs.site(), update_lhs.node(), Reject::Update)? != scale {
         return Err(Reject::Update);
     }
-
-    let (step_target, step_value, step_lhs, step_rhs) =
-        assignment_parts(&source, &step, BinaryOperator::Add, Reject::Step)?;
     if rebound(input, step_target.site(), Reject::Step)? != induction
-        || local(input, step_lhs.site(), step_lhs.node(), Reject::Step)? != induction
-        || !integer(step_rhs.node(), 1)
-    {
+        || local(input, step_lhs.site(), step_lhs.node(), Reject::Step)? != induction {
         return Err(Reject::Step);
     }
     if scale == induction || scale == bound || induction == bound {
@@ -195,7 +211,7 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
         input_source(input, bound)?,
     ];
     let (loop_source, frame, scope_region) = membership.into_parts();
-    Ok(ObservedVariableBoundMulSourceV1 {
+    Ok(Attempt::Selected(ObservedVariableBoundMulSourceV1 {
         owner: input.owner(),
         loop_source,
         frame,
@@ -222,7 +238,7 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
         induction,
         bound,
         inputs,
-    })
+    }))
 }
 
 fn input_source(
@@ -249,35 +265,37 @@ fn assignment_parts<'a>(
     source: &FunctionSourceViewV1<'a>,
     statement: &LocatedStmtV1<'a>,
     operator: BinaryOperator,
-    reject: VariableBoundMulSourceRejectV1,
 ) -> Result<
-    (
+    Option<(
         super::located::LocatedExprV1<'a>,
         super::located::LocatedExprV1<'a>,
         super::located::LocatedExprV1<'a>,
         super::located::LocatedExprV1<'a>,
-    ),
+    )>,
     VariableBoundMulSourceRejectV1,
 > {
     if !matches!(statement.node(), ASTNode::Assignment { .. }) {
-        return Err(reject);
+        return Ok(None);
     }
     let target = source
         .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentTarget)
-        .map_err(|_| reject)?;
+        .map_err(|_| VariableBoundMulSourceRejectV1::SourceNavigation)?;
     let value = source
         .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentValue)
-        .map_err(|_| reject)?;
+        .map_err(|_| VariableBoundMulSourceRejectV1::SourceNavigation)?;
     if !matches!(value.node(), ASTNode::BinaryOp { operator: found, .. } if *found == operator) {
-        return Err(reject);
+        return Ok(None);
     }
     let lhs = source
         .child_expr_from_expr(&value, ExprChildRoleV1::BinaryLeft)
-        .map_err(|_| reject)?;
+        .map_err(|_| VariableBoundMulSourceRejectV1::SourceNavigation)?;
     let rhs = source
         .child_expr_from_expr(&value, ExprChildRoleV1::BinaryRight)
-        .map_err(|_| reject)?;
-    Ok((target, value, lhs, rhs))
+        .map_err(|_| VariableBoundMulSourceRejectV1::SourceNavigation)?;
+    if !matches!(target.node(), ASTNode::Variable { .. }) || !matches!(lhs.node(), ASTNode::Variable { .. }) {
+        return Ok(None);
+    }
+    Ok(Some((target, value, lhs, rhs)))
 }
 
 fn local(

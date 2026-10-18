@@ -112,6 +112,15 @@ impl PhysicalBoundary {
         source_phi_roles: &phi_policy::SourcePhiRoles,
         single_predecessor_phi_body: Option<BasicBlockId>,
     ) -> Result<Self, String> {
+        Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies,
+            source_phi_roles, single_predecessor_phi_body, &[])
+    }
+
+    fn capture_with_phi_policy_and_source_loops(
+        function: &MirFunction, bindings: &Bindings, copies: &[(ValueId, ValueId)], borrowed_copies: &Bindings,
+        source_phi_roles: &phi_policy::SourcePhiRoles, single_predecessor_phi_body: Option<BasicBlockId>,
+        source_loops: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>],
+    ) -> Result<Self, String> {
         let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies)?;
         let used = used_values(function);
         let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
@@ -160,7 +169,7 @@ impl PhysicalBoundary {
                 };
                 if let Some(dst) = candidate {
                     if !used.contains(&dst)
-                        && !recorded.contains(&dst)
+                        && (!recorded.contains(&dst) || phi_policy::is_source_loop_auxiliary_const_v2(source_loops, function, *id, instruction))
                         && definitions.get(&dst) == Some(&1)
                     {
                         match instruction {
@@ -193,9 +202,11 @@ impl PhysicalBoundary {
                 return Err(fault("original-binding"));
             }
         }
+        let feedback = phi_policy::source_loop_feedback_v2(function, &nodes, source_loops)?;
         let mut counts: BTreeMap<_, usize> = ids.iter().map(|id| (*id, 0)).collect();
-        for node in nodes.values() {
+        for (id, node) in &nodes {
             for target in &node.edges {
+                if feedback.contains(&(*id, *target)) { continue; }
                 if let Some(count) = counts.get_mut(target) {
                     *count += 1;
                 }
@@ -209,6 +220,7 @@ impl PhysicalBoundary {
         while let Some(id) = ready.pop() {
             consumed += 1;
             for target in &nodes[&id].edges {
+                if feedback.contains(&(id, *target)) { continue; }
                 if let Some(count) = counts.get_mut(target) {
                     *count -= 1;
                     if *count == 0 {

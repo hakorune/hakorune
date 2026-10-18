@@ -86,3 +86,45 @@ pub(super) fn validate_recorded_phi(
     }
     Ok(())
 }
+
+impl PhysicalBoundary {
+    pub(in super::super) fn capture_with_source_loop_roles_v2(
+        function: &MirFunction, bindings: &Bindings, copies: &[(ValueId, ValueId)], borrowed_copies: &Bindings,
+        phi_roles: &SourcePhiRoles, selected_body: Option<BasicBlockId>,
+        roles: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>],
+    ) -> Result<Self, String> {
+        Self::capture_with_phi_policy_and_source_loops(function, bindings, copies, borrowed_copies, phi_roles, selected_body, roles)
+    }
+}
+pub(super) fn source_loop_feedback_v2(function: &MirFunction, nodes: &BTreeMap<BasicBlockId, Node>,
+    roles: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>],
+) -> Result<BTreeSet<(BasicBlockId, BasicBlockId)>, String> {
+    let mut feedback = BTreeSet::new();
+    for role in roles {
+        let Some(proof) = role.source_proof_v2() else { continue };
+        if role.owner() != proof.product().source.source.owner() || role.site() != proof.product().source.source.site()
+            || role.loop_phis().get(&proof.header()).is_none_or(|rows| rows.is_empty()) {
+            return Err(fault("source-loop-feedback-role"));
+        }
+        for (from, to) in proof.feedback_edges_v2() {
+            // A partial boundary does not cut an edge beyond its own scope.
+            if !nodes.contains_key(&from) || !nodes.contains_key(&to) { continue; }
+            let expected = MirInstruction::Jump { target: to, edge_args: None };
+            if to != proof.header() || nodes[&from].terminal != expected
+                || function.blocks.get(&from).and_then(|block| block.terminator.as_ref()) != Some(&expected)
+                || !feedback.insert((from, to)) { return Err(fault("source-loop-feedback-edge")); }
+        }
+    }
+    Ok(feedback)
+}
+pub(super) fn is_source_loop_auxiliary_const_v2(
+    roles: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>], function: &MirFunction,
+    id: BasicBlockId, row: &MirInstruction,
+) -> bool {
+    let MirInstruction::Const { dst, value: crate::mir::ConstValue::Void } = row else { return false };
+    !function.params.contains(dst) && function.blocks.values().all(|block|
+        block.all_instructions().all(|row| !row.used_values().contains(dst))
+            && block.return_env.as_ref().is_none_or(|values| !values.contains(dst)))
+        && roles.iter().filter_map(|role| role.source_proof_v2())
+            .any(|proof| proof.result_binding() == &(id, row.clone()))
+}

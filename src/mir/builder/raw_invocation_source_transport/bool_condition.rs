@@ -65,13 +65,30 @@ impl RawInvocationChildPortV1<'_, '_> {
             Node::Reference(_) => {
                 let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = frame.references().get(&index)
                     else { return Err("[freeze:contract][bool-condition/reference-kind]".into()); };
-                if reference.original_read().is_some() { return Err("[freeze:contract][bool-condition/reference-kind]".into()); }
-                let binding = reference.binding();
-                let read = state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding)
-                    .map_err(|error| error.to_string())?;
-                let value = read.value_for(source.owner(), site.node(), binding).map_err(|error| error.to_string())?;
-                let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][bool-condition/no-function]")?;
-                (value, Proof::Reference { read, producer: physical::definition(function, value)? })
+                if reference.original_read().is_some() {
+                    use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
+                    let mut state = state.borrow_mut();
+                    let prepared = state.prepare_exact_lexical_read(source.owner(), site.node(), reference.binding())
+                        .map_err(|error| error.to_string())?;
+                    let function = builder.function_state.current_function.as_ref()
+                        .ok_or("[freeze:contract][bool-condition/no-function]")?;
+                    let producer = ExpressionReferenceReadV1::prepare(frame.evaluation(), index,
+                        prepared.observation_v1(), CallValidationContextV1::Lowering(&ledger), function)?;
+                    let read = state.commit_exact_lexical_reads(vec![prepared]).map_err(|error| error.to_string())?
+                        .pop().ok_or("[freeze:contract][bool-condition/reference-commit]")?;
+                    let observed = producer.finish(read);
+                    let crate::mir::instruction::StringInvokeOperand::NormalInteger(value) = observed.operand(
+                        frame.evaluation(), index, CallValidationContextV1::Lowering(&ledger))?
+                        else { return Err("[freeze:contract][bool-condition/reference-class]".into()); };
+                    (value, Proof::OriginalReference(observed))
+                } else {
+                    let binding = reference.binding();
+                    let read = state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding)
+                        .map_err(|error| error.to_string())?;
+                    let value = read.value_for(source.owner(), site.node(), binding).map_err(|error| error.to_string())?;
+                    let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][bool-condition/no-function]")?;
+                    (value, Proof::Reference { read, producer: physical::definition(function, value)? })
+                }
             },
             Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) => {
                 let owned = OwnedExprSiteV1::new(source.owner(), site.clone());

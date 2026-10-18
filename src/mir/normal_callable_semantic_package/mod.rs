@@ -54,6 +54,7 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
+pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
 pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1};
 mod physical_header;
@@ -258,7 +259,7 @@ pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgument
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use ordinary_new_coseal::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
+pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 

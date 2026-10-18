@@ -295,6 +295,7 @@ fn operation_result(operation: &LoopOperationV2) -> Option<LoopValueKeyV1> {
         LoopOperationV2::ReadBinding { result, .. }
         | LoopOperationV2::ConstI64 { result, .. }
         | LoopOperationV2::ConstText { result, .. }
+        | LoopOperationV2::BoolExpression { result, .. }
         | LoopOperationV2::BinaryI64 { result, .. }
         | LoopOperationV2::CompareI64 { result, .. }
         | LoopOperationV2::DynamicAdd { result, .. }
@@ -308,7 +309,7 @@ fn operation_result(operation: &LoopOperationV2) -> Option<LoopValueKeyV1> {
 fn operation_row<'a>(operation: &'a LoopOperationV2) -> Option<S6CRecipeOperationRowRefV2<'a>> {
     Some(match operation {
         // Outside the fixed S6C role seal; do not widen physical admission.
-        LoopOperationV2::ConstText { .. } => return None,
+        LoopOperationV2::ConstText { .. } | LoopOperationV2::BoolExpression { .. } => return None,
         LoopOperationV2::ReadBinding { binding, result } => {
             S6CRecipeOperationRowRefV2::ReadBinding {
                 binding: *binding,

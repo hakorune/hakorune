@@ -61,12 +61,34 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
+    if !matches!(source.root(), ExpressionPlanRootV1::IfCondition { .. }) { return Ok(None); }
+    qualify_condition_expression_v1(source, prior_homes, static_reference, residence_reference,
+        &mut |site| scalar_reference(site).map(|(binding, kind)| CheckedScalarReferenceV1::Obligation { binding, kind }),
+        field_request, source_call, can_install, field_batch)
+}
+
+/// Preserve the genuine If/Loop purpose and exact original scalar proofs.
+/// This shares qualification only; it grants no outer control-flow completion.
+pub(crate) fn qualify_condition_expression_v1<E>(
+    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
+    static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1)
+        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<CheckedScalarReferenceV1>,
+    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
+    can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
+    field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
+) -> Result<Option<HomeExpressionPlanV1>, E> {
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
     use ResolvedBinaryOperatorV1 as Op;
     let mut homes = BTreeSet::new();
     if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(*home)) { return Ok(None); }
-    let ExpressionPlanRootV1::IfCondition { condition, .. } = source.root() else { return Ok(None) };
+    let condition = match source.root() {
+        ExpressionPlanRootV1::IfCondition { condition, .. } | ExpressionPlanRootV1::LoopCondition { condition, .. } => condition,
+        _ => return Ok(None),
+    };
     if source.nodes().first().is_none_or(|node| node.site() != condition) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     let Some(mut prepared) = super::leaves::prepare_expression_calls_v1(&source,
@@ -75,7 +97,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
         else { return Ok(None) };
     let Some(reference_proofs) = super::evaluation::seed_current_expression_references_v1(&mut prepared, Vec::new(), &order,
         static_reference, residence_reference,
-        &mut |site| scalar_reference(site).map(|(binding, kind)| CheckedScalarReferenceV1::Obligation { binding, kind }))
+        scalar_reference)
         else { return Ok(None) };
     let Some(QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references, .. }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
@@ -151,7 +173,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
 
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,
-        argument_frame: None, initializer_frame: None, rebind_frame: None, print_frame: None, condition_frame: Some(frame), field_write: None,
+        argument_frame: None, initializer_frame: None, rebind_frame: None, print_frame: None, condition_frame: Some(frame), loop_recipe: None, field_write: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }

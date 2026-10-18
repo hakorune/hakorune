@@ -285,7 +285,12 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 )?;
             }
         }
+        let checked_source_selected = ledger_bridge::has_checked_source_selection_v2(callable_ledger, owner, parent_source.site())?;
+        if checked_source_selected && source_input.is_none_or(|input| input.owner() != owner) {
+            return Err("[freeze:contract][callable-loop/selected-source-input-owner]".into());
+        }
         let variable_accum_recurrence = match source_input {
+            Some(_) if checked_source_selected => None,
             Some(input) => issue_callable_variable_accum_recurrence(input, owner, parent_source)
                 .map_err(|error| {
                     format!("[freeze:contract][callable-loop/variable-accum-recurrence] {error:?}")
