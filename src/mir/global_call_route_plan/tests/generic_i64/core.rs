@@ -6,8 +6,6 @@ mod env_get;
 mod hako_mem;
 #[path = "null_sentinel.rs"]
 mod null_sentinel;
-#[path = "typed_object.rs"]
-mod typed_object;
 #[path = "void_sentinel.rs"]
 mod void_sentinel;
 #[path = "wrapper.rs"]

@@ -1,5 +1,5 @@
 Task: TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0
-Status: user-requested next maintenance task; execution waits for consultation to end
+Status: active; TR-1 selected after explicit user goal resume
 Date: 2026-10-19
 Scope: ordered duplicate-test retirement, one fixture family, then existing guard consolidation
 Exception: explicit user-requested tooling task, separate from the active compiler semantic slice
@@ -28,6 +28,19 @@ baseline. Record current scoped evidence when this task is selected. Separate
 Rust build/link time, test execution, shell checks and repeated gate invocations.
 The existing 511-test receipt runs in 0.26s; this does not prove either build-time
 causality or speedup from removing tests. No repository-wide ledger is required.
+
+## Current Decision
+
+TR-1 is selected after explicit goal resume. Source authority is the SAME
+`generic_i64/typed_object.rs` compiled twice through identical inherited helpers.
+The direct module remains owner; delete only the nested two-line registration.
+Existing immutable known-red inventory lists both old names as a historical
+full-suite receipt; do not silently rewrite its hashes/results from a focused run.
+The current compiler WIP already differs from that historical full inventory.
+Unfinished return: `MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0`, source-to-final
+Loop graph and both-final acceptance in `mirbuilder-gate1-static-text-input-s0-2026-10-17.md`.
+No compiler code or test semantics change in TR-1. Reuse source-equal935D as
+baseline (34/34 PASS,0.02s), then one rebuilt family run and exact name delta.
 
 ## Ordered execution and completion contract (2026-10-19)
 
@@ -162,3 +175,24 @@ Historical registration checks passed: current-state pointer guard, `git diff --
 required metadata/parent link/card cap and protected seven-file hash comparison.
 Read-only operation_design review corroborated callers, preserved obligations,
 scope and the compatibility/tombstone boundary.
+
+## TR-1 closeout / TR-2 selection
+
+TR-1 removed only the two-line nested registration; direct three tests and all
+unique obligations remain. Source-equal935D baseline:34PASS/0.02s. Root936A
+`cargo quick-test-fast --no-run --message-format=json`, jobs4:61.828s PASS;
+8MiB stack, one thread, family31PASS/0.02s. Exact full `--list` difference is
+only the three nested duplicate names (9267→9264); no added names. No speedup
+claim. Worker independently confirmed module/helper equivalence and no live
+filter callers; historical full-suite red snapshot is preserved, not rebased.
+Evidence936A/935D remains under /tmp/mirbuilder-required-forward-resume until
+this maintenance closes; commands/results above remain in Git after cleanup.
+
+TR-2 selected: reuse existing `tests::final_source` in loop_break_source_tests
+and physical_header_tests; delete their two byte-identical16-line helpers and
+unused parser imports. New tests/helpers/files:0. Default parser config,
+macro-disable scope and SourceBacked refusal are identical; resolver sessions
+93/194 remain local. Existing tests:: group is the shared helper's other caller.
+936A baseline:loop9PASS, header5PASS; shared-caller group20PASS/1 existing red
+(to be compared by exact failure before closeout). Unfinished Loop compiler WIP
+stays retained in its original card; no production connection/completion claim.
