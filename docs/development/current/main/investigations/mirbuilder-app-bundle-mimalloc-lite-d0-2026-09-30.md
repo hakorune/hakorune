@@ -751,3 +751,15 @@ series acceptance; no adapter or new proof ledger. Before Count, operation-aware
 backend allowlists/legacy wire and source-gated final publication remain required;
 broad ArrayRead shape support is not Count permission. Prior native CLI279 and
 runtime894A/FFI897A remain historical/predecessor regression evidence only.
+
+Root940 maintenance return: requested TR-5a/5b/6 in existing retirement card is
+verified;27ea1a2c6a/4a4575185b remove redundant Loop test control/duplicate compile
+case, two obsolete guard entries retired. No Count WIP discarded.939E build
+142.845s and940B build61.995s PASS. Source result and Loop existing cases PASS;
+publication Count remains unaccepted: `count_empty`, Page.probe/1 ordinary_i64,
+block10 instruction3 emits Method ArrayBox.length Call, rejected by lifecycle
+instruction-unsupported. Same exact diagnostic939E→940B. Source proof alone is
+not physical connection. Next: map selected member route/source recipe to actual
+Count emitter, no legacy Call permission or test removal to hide this red.
+Keep939E/940A/B and prior native/backend pins until same-role Count acceptance.
+No current-source native/JSON-progress/CI/full-suite claim.

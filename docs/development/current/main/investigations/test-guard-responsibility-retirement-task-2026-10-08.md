@@ -1,5 +1,5 @@
 Task: TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0
-Status: TR-1..TR-4 verified; TR-5..TR-6 requested next, before further compiler construction
+Status: selected TR-1..TR-6 batches verified; wider inventory unselected
 Date: 2026-10-19
 Scope: ordered duplicate-test retirement, one fixture family, then existing guard consolidation
 Exception: explicit user-requested tooling task, separate from the active compiler semantic slice
@@ -365,3 +365,38 @@ is the standalone duplicate, no added names. Cleanup-only staged hunk excludes
 all Count additions in the same file; test code net-8 lines in this slice.
 No new checker/case/file/hook or performance/full-suite claim. Existing939E/940A/B
 pins remain for Count regression provenance; no temporary cleanup adapter.
+
+## TEST-GUARD-RESPONSIBILITY-RETIREMENT-TR6 selected Decision
+
+Worker confirms both named readiness shell entries have zero executable gate,
+registry and CI callers. Their document paths are obsolete after archive moves;
+refresh also pins past CURRENT_STATE row367. Delete only these111 shell lines.
+Keep allocator readiness inventory tool and its two live semantic-smoke callers;
+it can launch release Cargo even with --mir-json, so do not run it for cleanup.
+Constructor public/default/direct lane behavior remains in existing six Python
+cases. System Python lacks llvmlite and .venv interpreter requires unavailable
+GLIBC_2.38; system Python plus existing .venv site-packages runs all6PASS/.002s.
+No package install, env-file mutation, new tests or release build.
+
+Frozen index names stay byte-stable. Add two entries to existing tombstones:
+current pointer guard succeeds historical selection navigation only; constructor
+semantics stay in Python tests and optional measurement stays with allocator tool.
+Do not claim pointer guard implements those meanings. No successor shell wrapper,
+caller switch or new validator. Full inventory baseline has44 existing unrelated
+unmapped hako_alloc closeout wrapper errors; compare exact errors, no waiver.
+
+TR-6 closeout: two scripts physically removed (-111 shell lines), no replacement
+entry/test/tool. Two existing-format tombstones (+18 metadata lines) preserve the
+frozen compatibility names and explain navigation-only successor. Existing tool
+and its two live direct callers retained unchanged. Constructor6PASS; pointer,
+diff and navigation PASS (0 dangling). Comparative registry vs4a4575185b PASS:
+0 new unmapped/0 mapping loss, eligible2746→2744. Full inventory retains exact
+same44 unrelated baseline errors; no rebaseline/waiver. Entire public index is
+byte-unchanged. No Cargo/release measurement was run for guard cleanup.
+
+TR-5a/5b are27ea1a2c6a/4a4575185b; selected TR-6 batch now complete, not full
+repository hygiene or MirBuilder completion. Return to preserved
+MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0 with unchanged Count WIP, root939E/940A/B
+receipts retained for that unfinished series. Batch adds zero tests/checkers/
+helpers/files; removes one duplicate test registration (9264→9263), net-10 Rust
+test lines and two shell entries. No compile-speed improvement claimed.

@@ -44,3 +44,21 @@ reason = "import checks share the existing facade owner; registry retains import
 observed_revision = "961d7dd0ef"
 successor = "tools/checks/mir_root_facade_guard.sh"
 reopen_trigger = "Only a distinct owner-reviewed import contract that cannot use the shared facade owner may reopen this name."
+
+[[tombstones]]
+path = "tools/checks/k2_wide_phase296x_array_slot_nativedirect_lowering_readiness_inventory_guard.sh"
+owner = "docs/development/current/main/investigations/test-guard-responsibility-retirement-task-2026-10-08.md#test-guard-responsibility-retirement-tr6-selected-decision"
+disposition = "superseded"
+reason = "Caller-free completed readiness row no longer selects current work; constructor tests and allocator measurement tool retain their distinct responsibilities."
+observed_revision = "4a4575185b"
+successor = "tools/checks/current_state_pointer_guard.sh"
+reopen_trigger = "Only a newly selected owner contract with a distinct live consumer may reopen this historical readiness entry."
+
+[[tombstones]]
+path = "tools/checks/k2_wide_phase296x_array_slot_nativedirect_lowering_readiness_refresh_after_constructor_guard.sh"
+owner = "docs/development/current/main/investigations/test-guard-responsibility-retirement-task-2026-10-08.md#test-guard-responsibility-retirement-tr6-selected-decision"
+disposition = "superseded"
+reason = "Caller-free completed readiness row no longer selects current work; constructor tests and allocator measurement tool retain their distinct responsibilities."
+observed_revision = "4a4575185b"
+successor = "tools/checks/current_state_pointer_guard.sh"
+reopen_trigger = "Only a newly selected owner contract with a distinct live consumer may reopen this historical readiness entry."
