@@ -131,6 +131,23 @@ impl FinishedBindings {
         Ok(mapped)
     }
 
+    /// Metadata may disappear during finishing, but only the same sealed
+    /// ordered sequence decides surviving occurrences at the final consumer.
+    pub(in super::super) fn validate_metadata_correspondence_v2(
+        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction), finalized: bool,
+    ) -> Result<(), String> {
+        if !matches!(original.1, MirInstruction::KeepAlive { .. }) || !self.captured.contains(original) {
+            return Err(fault("metadata-captured-membership"));
+        }
+        let mapped = self.binding(original.0, &original.1)?.ok_or_else(|| fault("metadata-destination"))?;
+        if self.sequences.get(&mapped.0).is_none_or(|(rows, _)|
+            !rows.iter().any(|row| self.instruction(row.clone()) == mapped.1)) {
+            return Err(fault("metadata-sequence-membership"));
+        }
+        if finalized { self.validate_finished_sequences_v1(function)?; }
+        Ok(())
+    }
+
     /// Final effects additionally require the sealed source-owned census.
     pub(in super::super) fn required_effect_binding(
         &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),

@@ -3921,7 +3921,11 @@ shared legacy KeepAlive writer has no selected root-end work. Nested lexical
 scopes may still retain optimizer-only KeepAlive hints. The physical/JSON/C
 transport checks their SSA availability and emits no runtime instruction; these
 hints grant no Home, lease or runtime lifetime and do not count as executable
-borrowed payload uses. The finalizer
+borrowed payload uses. The shared finishing boundary may omit captured KeepAlive
+annotations. It seals each omission by expected sequence occurrence, preserving
+surviving order and multiplicity; final consumers replay that SAME seal. Pending
+capture membership grants no publication, and effects/End are never metadata.
+The finalizer
 validates the same recorded exit and Fault frame; it refuses missing consumption
 instead of issuing a late End after scope close. ConstVoid stays outside the graph's terminator bindings. Final checks
 corroborate original body/end, exact producer/Return value, complete source End

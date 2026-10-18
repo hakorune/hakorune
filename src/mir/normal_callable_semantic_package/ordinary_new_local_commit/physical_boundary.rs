@@ -71,6 +71,7 @@ pub(super) struct FinishedBindings {
     entry: BasicBlockId,
     captured: Vec<(BasicBlockId, MirInstruction)>,
     validated_sequence_omissions: Vec<(BasicBlockId, MirInstruction)>,
+    metadata_omissions: BTreeSet<(BasicBlockId, usize)>,
     sealed_incoming: Option<Incoming>,
     destinations: BTreeMap<BasicBlockId, BasicBlockId>,
     recorded: Vec<(BasicBlockId, MirInstruction)>,
@@ -429,6 +430,7 @@ impl PhysicalBoundary {
                 })
                 .collect(),
             validated_sequence_omissions: Vec::new(),
+            metadata_omissions: BTreeSet::new(),
             sealed_incoming: None,
             destinations,
             recorded: Vec::new(),
@@ -464,6 +466,7 @@ impl PhysicalBoundary {
             return Err(fault("unused-constant-became-used"));
         }
         let mut auxiliary_omissions = Vec::new();
+        let mut metadata_omissions = BTreeSet::new();
         for (id, (instructions, terminal)) in &projection.sequences {
             let actual = &function.blocks[id];
             let instructions: Vec<_> = instructions
@@ -472,9 +475,11 @@ impl PhysicalBoundary {
                 .map(|i| projection.instruction(i))
                 .collect();
             let mut remaining = actual.instructions.iter().peekable();
-            for expected in &instructions {
+            for (index, expected) in instructions.iter().enumerate() {
                 if remaining.peek().is_some_and(|actual| *actual == expected) {
                     remaining.next();
+                } else if matches!(expected, MirInstruction::KeepAlive { .. }) {
+                    metadata_omissions.insert((*id, index));
                 } else if projection
                     .literal_controls
                     .accepts_omission(expected, &self.recorded_dsts)?
@@ -619,6 +624,7 @@ impl PhysicalBoundary {
             )));
         }
         projection.validated_sequence_omissions = auxiliary_omissions;
+        projection.metadata_omissions = metadata_omissions;
         for binding in projection.bindings(bindings)? {
             if !projection.recorded.contains(&binding) {
                 projection.recorded.push(binding);

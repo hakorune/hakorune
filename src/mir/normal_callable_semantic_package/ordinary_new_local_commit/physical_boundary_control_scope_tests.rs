@@ -64,6 +64,24 @@ fn recorded_scalar_call_rechecks_external_branch_and_condition_producer() {
                 boundary.validate_complete(&changed, &mut projected, &bindings)).is_err(), "{mutation}");
         }
     }
+    // Identical metadata occurrences can be removed independently; the final
+    // consumer replays the sealed count, never tuple-wide omission membership.
+    for omitted in 0..=2 {
+        let (mut original, mut bindings) = scalar_control_fixture(false);
+        let hint = MirInstruction::KeepAlive { values: vec![ValueId(1)] };
+        original.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions.extend([hint.clone(), hint.clone()]);
+        bindings.extend([(BasicBlockId(1), hint.clone()), (BasicBlockId(1), hint.clone())]);
+        let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+        let mut finished = original.clone();
+        finished.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions.truncate(3 - omitted);
+        let mut projection = boundary.project(&finished).unwrap();
+        assert!(projection.validate_metadata_correspondence_v2(&finished, &(BasicBlockId(1), hint.clone()), true).is_err());
+        boundary.validate_complete(&finished, &mut projection, &bindings).unwrap();
+        projection.validate_metadata_correspondence_v2(&finished, &(BasicBlockId(1), hint.clone()), true).unwrap();
+        let mut extra = finished.clone();
+        extra.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions.push(hint.clone());
+        assert!(projection.validate_finished_sequences_v1(&extra).is_err());
+    }
 }
 
 #[test]

@@ -56,7 +56,9 @@ impl FinishedBindings {
         }
         for (id, (instructions, terminal)) in &self.sequences {
             let actual = function.blocks.get(id).ok_or_else(|| fault("control-sequence-block"))?;
-            let expected: Vec<_> = instructions.iter().cloned().map(|row| self.instruction(row))
+            let expected: Vec<_> = instructions.iter().enumerate()
+                .filter(|(index, _)| !self.metadata_omissions.contains(&(*id, *index)))
+                .map(|(_, row)| self.instruction(row.clone()))
                 .filter(|row| !self.validated_sequence_omissions.contains(&(*id, row.clone()))).collect();
             for row in &expected {
                 if let Some(dst) = row.dst_value() {
@@ -67,6 +69,11 @@ impl FinishedBindings {
             }
             if actual.instructions != expected || actual.terminator.as_ref() != Some(&self.instruction(terminal.clone())) {
                 return Err(fault("control-finished-sequence"));
+            }
+        }
+        for (id, index) in &self.metadata_omissions {
+            if !matches!(self.sequences.get(id).and_then(|(rows, _)| rows.get(*index)), Some(MirInstruction::KeepAlive { .. })) {
+                return Err(fault("control-metadata-omission"));
             }
         }
         for (_, row) in &self.validated_sequence_omissions {
