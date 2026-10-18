@@ -115,6 +115,13 @@ fn a_fully_patched_transaction_commits_once_without_rollback() {
     let token = txn
         .define_provisional_phi(&mut builder, block(1), ValueId::new(10), "define")
         .unwrap();
+    let mut foreign = PhiTxn::begin("foreign");
+    foreign.define_provisional_phi(&mut builder, block(2), ValueId::new(11), "foreign-define").unwrap();
+    let before = builder.function_state.current_function.as_ref().unwrap().blocks[&block(1)].instructions.clone();
+    assert!(foreign.patch_phi_inputs(&mut builder, token, vec![(block(0), ValueId::new(99))], "foreign-patch")
+        .unwrap_err().contains("patch_not_pending"));
+    assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[&block(1)].instructions, before,
+        "foreign transaction cannot mutate another pending Phi");
     txn.patch_phi_inputs(
         &mut builder,
         token,
@@ -122,7 +129,13 @@ fn a_fully_patched_transaction_commits_once_without_rollback() {
         "patch",
     )
     .unwrap();
-
+    let completed = builder.function_state.current_function.as_ref().unwrap().blocks[&block(1)].instructions.clone();
+    assert!(txn.patch_phi_inputs(&mut builder, token, vec![(block(0), ValueId::new(99))], "repeat-patch")
+        .unwrap_err().contains("patch_not_pending"));
+    assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[&block(1)].instructions, completed,
+        "completed token cannot rewrite a finalized Phi");
+    assert!(foreign.abort_on_err(&mut builder, "test cleanup".into()).cleanup_failures().is_empty());
+    assert!(!has_phi(&builder, block(2), ValueId::new(11)));
     txn.commit(&mut builder).unwrap();
     assert!(has_phi(&builder, block(1), ValueId::new(10)));
 }

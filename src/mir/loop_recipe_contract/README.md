@@ -1035,3 +1035,8 @@ loop-available carrier because JoinSig requires loop-body reads to be
 carrier-backed. This row owns no Builder route, production caller, retry,
 fallback, or legacy deletion; the Main0 canonical-root handoff remains a
 later explicit slice.
+
+Header/After physical publication must obey the shared Phi lifecycle's
+Define-before-Expose contract. `PhiTxn` rejects foreign or already patched tokens
+before mutation; Loop preparation must retain that same pending transaction
+through source lowering and the final physical patch/rollback boundary.

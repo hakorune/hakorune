@@ -992,3 +992,9 @@ Local algorithm moved to home_new_prefix_local_statement.rs; dedented body equal
 with the predecessor was checked. Source scanner only forwards its existing inputs.
 Root918D integrated-WIP source manifest/focused52PASS and stable4/diff evidence are
 retained; they do not claim this commit alone closes Loop/After or the full series.
+
+- Root922: PhiTxn rejects nonpending patches before mutation. Existing transaction
+  test checks foreign/repeated token rejection, unchanged MIR and rollback.
+  Integrated WIP build56.326s; focused32PASS: Phi6/SSA5/Loop completion2/
+  initializer8/raw Loop11. This commit alone does not validate all WIP or grant
+  Loop Header/After execution, production cutover, current suite or CI acceptance.

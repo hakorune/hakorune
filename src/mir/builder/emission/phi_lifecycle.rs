@@ -156,6 +156,7 @@ impl PhiTxn {
         Ok(token)
     }
 
+    /// Reject foreign or already completed tokens before touching MIR.
     pub(in crate::mir::builder) fn patch_phi_inputs(
         &mut self,
         builder: &mut MirBuilder,
@@ -163,6 +164,12 @@ impl PhiTxn {
         inputs: Vec<(BasicBlockId, ValueId)>,
         tag: &str,
     ) -> Result<(), String> {
+        if !self.pending.contains(&token) {
+            return Err(format!(
+                "[freeze:contract][phi_lifecycle/patch_not_pending] tag={} bb={:?} dst=%{}",
+                tag, token.block, token.dst.0,
+            ));
+        }
         patch_phi_inputs(builder, token.block, token.dst, inputs, tag)?;
         self.pending
             .retain(|pending| pending.block != token.block || pending.dst != token.dst);
