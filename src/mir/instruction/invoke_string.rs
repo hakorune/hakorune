@@ -34,6 +34,8 @@ pub enum StringInvokeOperation {
         left: StringInvokeOperand,
         right: StringInvokeOperand,
     },
+    /// Borrow exact Text operands and publish one Bool, with no owned result.
+    Compare { op: crate::mir::CompareOp, left: StringInvokeOperand, right: StringInvokeOperand },
     /// Fixed CodePoint operations; the source issuer retains the exact Core law.
     Length { value: StringInvokeOperand },
     Substring { value: StringInvokeOperand, start: ValueId, end: ValueId },
@@ -48,13 +50,14 @@ impl StringInvokeOperation {
         match self {
             Self::Add { .. } | Self::Substring { .. } => Some(InvokeNormalResultKind::OwnedString),
             Self::Length { .. } | Self::IndexOf { .. } => Some(InvokeNormalResultKind::I64),
+            Self::Compare { .. } => Some(InvokeNormalResultKind::Bool),
             Self::Print { .. } | Self::End { .. } => None,
         }
     }
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::Add { .. } | Self::Substring { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
-            Self::Length { .. } | Self::IndexOf { .. } => EffectMask::READ.add(Effect::Control),
+            Self::Length { .. } | Self::IndexOf { .. } | Self::Compare { .. } => EffectMask::READ.add(Effect::Control),
             // Runtime output preparation may allocate; End consumes residence.
             Self::Print { .. } => EffectMask::IO.add(Effect::Alloc).add(Effect::Control),
             Self::End { .. } => EffectMask::WRITE.add(Effect::Control),
@@ -62,7 +65,7 @@ impl StringInvokeOperation {
     }
     pub fn operands(&self) -> Vec<&StringInvokeOperand> {
         match self {
-            Self::Add { left, right } => vec![left, right],
+            Self::Add { left, right } | Self::Compare { left, right, .. } => vec![left, right],
             Self::IndexOf { value, needle } => vec![value, needle],
             Self::Length { value } | Self::Substring { value, .. } | Self::Print { value } => vec![value],
             Self::End { .. } => vec![],
@@ -77,7 +80,7 @@ impl StringInvokeOperation {
     }
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
-            Self::Add { left, right } => {
+            Self::Add { left, right } | Self::Compare { left, right, .. } => {
                 left.rewrite_value(&mut rewrite);
                 right.rewrite_value(rewrite);
             }
@@ -93,6 +96,7 @@ impl StringInvokeOperation {
     pub fn valid_operand_domains(&self) -> bool {
         match self {
             Self::Add { left, .. } => left.is_text(),
+            Self::Compare { left, right, .. } => left.is_text() && right.is_text(),
             Self::Length { value } | Self::Substring { value, .. } => value.is_text(),
             Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
             Self::Print { .. } | Self::End { .. } => true,

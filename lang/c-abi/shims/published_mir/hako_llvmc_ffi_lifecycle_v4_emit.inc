@@ -364,7 +364,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
               "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
               dst, producer_id, dst, producer_id, dst, dst);
-        } else if (kind == LV4_I64 && hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == 2)
+        } else if ((kind == LV4_I64 || kind == LV4_BOOL) &&
+            hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == (kind == LV4_BOOL ? 3 : 2))
           fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_ARRAY_BORROW)
           fprintf(f, "  %%v%u = load i64, ptr %%owned_get%u, align 8\n", dst, lv4_u(ins, "invoke_block"));

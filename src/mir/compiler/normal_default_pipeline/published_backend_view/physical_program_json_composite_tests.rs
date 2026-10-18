@@ -355,6 +355,14 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
         json!({"kind":"string_print", "site":42, "value":{"kind":"owned_string", "value":9}}));
     assert_eq!(encode(Op::End { value:ValueId(9) }),
         json!({"kind":"string_end", "site":42, "value":9}));
+    for (op, comparison) in [(crate::mir::CompareOp::Eq, "eq"), (crate::mir::CompareOp::Ne, "ne"),
+        (crate::mir::CompareOp::Lt, "lt"), (crate::mir::CompareOp::Le, "le"),
+        (crate::mir::CompareOp::Gt, "gt"), (crate::mir::CompareOp::Ge, "ge")] {
+        assert_eq!(encode(Op::Compare { op, left: Operand::OwnedString(ValueId(9)),
+            right: Operand::StaticText { utf8: "界".into() } }),
+            json!({"kind":"string_compare", "site":42, "comparison":comparison,
+                "left":{"kind":"owned_string", "value":9}, "right":{"kind":"static_text", "utf8":"界"}}));
+    }
     assert_eq!(encode(Op::Length { value: Operand::OwnedString(ValueId(9)) }),
         json!({"kind":"string_length", "site":42, "value":{"kind":"owned_string", "value":9}}));
     assert_eq!(encode(Op::Substring { value: Operand::OwnedString(ValueId(9)), start: ValueId(1), end: ValueId(2) }),

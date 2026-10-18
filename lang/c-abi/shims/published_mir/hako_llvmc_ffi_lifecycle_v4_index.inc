@@ -89,7 +89,7 @@ static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "field_get")) return LV4_I64;
   if (lv4_is(op, "kind", "array_owned_get")) return LV4_ARRAY_BORROW;
   int string_result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind")));
-  if (string_result) return string_result == 1 ? LV4_OWNED_STRING : LV4_I64;
+  if (string_result) return string_result == 1 ? LV4_OWNED_STRING : string_result == 3 ? LV4_BOOL : LV4_I64;
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new") || lv4_is(op, "kind", "script_arguments_new")) return LV4_HANDLE;
   if (lv4_is(op, "kind", "ordinary_call"))
     /* A nullable call result occupies a handle lease slot: it carries a

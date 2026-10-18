@@ -203,7 +203,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       }
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
-      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 2) normal[bi] = LV4_LIVE;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2) normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "string_end")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       if (birth || !value || value->kind != LV4_OWNED_STRING || value->origin < 0 ||

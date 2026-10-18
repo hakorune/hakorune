@@ -72,7 +72,8 @@ def checked_string_physical():
     def block(id, term, rows=()):
         edges = ([{"target": term[k], "args": None} for k in ["normal", "fault"]]
                  if term["op"] == "invoke" else
-                 [{"target": term["target"], "args": None}] if term["op"] == "jump" else [])
+                 [{"target": term["target"], "args": None}] if term["op"] == "jump" else
+                 [{"target": term[k], "args": None} for k in ["then", "else"]] if term["op"] == "branch" else [])
         return {"id": id, "instructions": [{"index": i, "instruction": r} for i, r in enumerate(rows)],
                 "terminator": {"index": len(rows), "instruction": term}, "edges": edges}
     entry = [{"op": "fault_frame_enter", "dst": 0, "mode": "root_owned"},
@@ -105,7 +106,7 @@ def checked_string_physical():
              "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
              "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",
              "nyash.string.checked_add_v1", "nyash.string.checked_print_v1", "nyash.string.checked_end_v1",
-             "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_index_of_v1",
+             "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_index_of_v1", "nyash.string.checked_compare_v1",
              "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
     def execute(data, defines=(), status=0, endings=(), payload=None, primary=None):
         compile_input(data, True)
@@ -213,6 +214,70 @@ def checked_string_physical():
             elif mutation == "end_scalar": first(bad, "string_end")["operation"]["value"] = 7
             else: first(bad, "string_print")["operation"]["value"] = {"kind":"normal_integer", "value":3}
             compile_input(bad, False)
+        # Independent Bool consumers: exact Unicode scalar order and proper
+        # prefixes, both Normal outcomes, live paired borrows and Fault cleanup.
+        for comparison, predicate in [
+            ("eq", lambda a,b: a == b), ("ne", lambda a,b: a != b),
+            ("lt", lambda a,b: a < b), ("le", lambda a,b: a <= b),
+            ("gt", lambda a,b: a > b), ("ge", lambda a,b: a >= b),
+        ]:
+            pairs = ([("é", "é"), ("é", "e\u0301")] if comparison in ["eq", "ne"] else
+                     [("\ue000", "\U00010000"), ("\U00010000", "\ue000")] if comparison == "lt" else
+                     [("a", "aa"), ("aa", "a")] if comparison == "le" else
+                     [("a\0z", "a\0y"), ("a\0y", "a\0z")])
+            for case, (left, right) in enumerate(pairs):
+                expected = predicate(left, right)
+                compare_rows = [
+                    block(0, inv("string_add",1,90,left=literal(left),right=literal("")),
+                          [entry[0], {"op":"const_i64","dst":4,"value":0}, {"op":"const_i64","dst":5,"value":1}]),
+                    block(1, inv("string_compare",2,10,comparison=comparison,left=owned(2) if not case else literal(left),right=literal(right)), [projection(0,2)]),
+                    block(2, {"op":"branch","condition":3,"then":3 if expected else 4,"else":4 if expected else 3,
+                              "then_args":None,"else_args":None}, [projection(1,3)]),
+                    block(3, end(2,5,90)), block(4, end(2,6,90)),
+                    block(5, {"op":"return","value":4}), block(6, {"op":"return","value":5}),
+                    block(10, end(2,90,91)), block(90,fault), block(91,fault),
+                ]
+                for b in list(compare_rows):
+                    term = b["terminator"]["instruction"]
+                    if term["op"] == "invoke" and term["operation"]["kind"] == "string_end":
+                        target = term["normal"]; landing = 1000+b["id"]; term["normal"] = landing
+                        b["edges"][0]["target"] = landing
+                        compare_rows.append(block(landing,{"op":"jump","target":target,"args":None}))
+                for i,b in enumerate(compare_rows):
+                    if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 300+i
+                compared = copy.deepcopy(data); compared["functions"][0]["blocks"] = compare_rows
+                execute(compared, endings=[0])
+            if comparison == "eq":
+                for text_operands in ["static_owned", "same_owned"]:
+                    variant = copy.deepcopy(compared)
+                    operation = first(variant,"string_compare")["operation"]
+                    operation["left"] = literal(left) if text_operands == "static_owned" else owned(2)
+                    operation["right"] = owned(2)
+                    branch = next(b for b in variant["functions"][0]["blocks"] if b["id"] == 2)
+                    branch["terminator"]["instruction"].update(then=3, **{"else":4})
+                    branch["edges"] = [{"target":3,"args":None},{"target":4,"args":None}]
+                    execute(variant, endings=[0])
+            if comparison != "lt": continue
+            execute(compared, ["-DTEST_FAIL_STRING_COMPARE"], 70, [0], primary=9306)
+            for mutation in ["unknown", "nul_suffix", "numeric", "missing", "extra", "integer_condition", "integer_left", "integer_right", "bool_as_text", "bool_as_i64"]:
+                bad = copy.deepcopy(compared); operation = first(bad,"string_compare")["operation"]
+                if mutation == "unknown": operation["comparison"] = "slt"
+                elif mutation == "nul_suffix": operation["comparison"] = "lt\0suffix"
+                elif mutation == "numeric": operation["comparison"] = 2
+                elif mutation == "integer_condition":
+                    next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)["terminator"]["instruction"]["condition"] = 4
+                elif mutation == "missing": del operation["comparison"]
+                elif mutation == "extra": operation["extra"] = 0
+                elif mutation in ["integer_left","integer_right"]:
+                    operation[mutation[8:]] = {"kind":"normal_integer","value":4}
+                else:
+                    normal = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)
+                    branch = normal["terminator"]["instruction"]
+                    term = inv("string_print",1002,10,value={"kind":"owned_string" if mutation == "bool_as_text" else "normal_integer","value":3}); term["operation"]["site"] = 999
+                    normal["terminator"]["instruction"] = term
+                    normal["edges"] = [{"target":1002,"args":None},{"target":10,"args":None}]
+                    bad["functions"][0]["blocks"].append(block(1002,branch))
+                compile_input(bad,False)
     print("checked String: indexed/native real ABI, literal NUL, MIN Integer, Normal/Fault LIFO End and malformed input refusal")
 
 

@@ -693,25 +693,15 @@ Retention and unfinished successor:
   summary was corrected to a thin truthful pointer in df702c983c.
 
 
-V892 actual full-walk observation (base f0587a6f1e, diagnostic only):
-- Genuine canonical CLI/module expansion of unchanged JSON source now observes
-  slot20 intField with Prefix available at Body0,1,2,3,4,5,6 (and the terminating
-  Body2 IfThen). Body7 first observes PrefixNotCovered(Body6). Thus the original
-  start=pos+needle.length() initializer is covered after V891; the earliest
-  remaining Prefix loss is the original scanning Loop, not Body3. The external
-  Body7 core-expression-execution-pending error remains unchanged/no EXE.
-- CLI238 quick build jobs4/16MiB stack152.495154s PASS. Binary
-  2756333f9ba0cac48e123643f18eb324556113193c7bf4dbbd1fda3e4dd9253b.
-  Same app285 command/source/runtime877A/FFI876B; ungated app287 exits1 in
-  .120480s, gated diagnostic .050753s. Source-only four-line observation at
-  statement entry is controlled by HAKO_TRACE_HOME_PREFIX=1; no admission or
-  semantic change. The harness deliberately clears HAKO variables, so the gated
-  observation was run separately with its exact environment retained. Both
-  source snapshots, build/app/trace receipts and diagnostic retirement receipt
-  remain in the existing evidence root as cli-v238.*, app-v287-*, and
-  v892-prefix-observation*. Instrumentation is removed; source restored byte
-  exactly to HEAD. CLI238 is diagnostic evidence, not a production replacement
-  for the accepted CLI237/app286 bundle. No native/full-suite/CI rerun claimed.
+V892 actual full-walk and sole-planner observation landed in 8126e849fb.
+Unchanged intField has available Prefix at Body0..6; Body7 first observes
+PrefixNotCovered(Body6). V891 therefore covers start=pos+needle.length(); the
+remaining first Prefix loss is the actual scan Loop. The existing planner on
+the original Body6 yields exactly LoopCondBreakContinue/ExitIf with local
+substring, guarded Break and end update. That candidate is not a verified
+portable Recipe/JoinSig or Home After. The commit owns original commands,
+source/binary manifests, timings, exact outputs and byte-exact removal of both
+temporary diagnostics. Keep V892 observations until the bridge replaces them.
 
 Decision (allocation_source_connection + reference_integration_review):
 - The missing common source responsibility is complete Loop After publication.
@@ -725,7 +715,7 @@ Decision (allocation_source_connection + reference_integration_review):
 - Mul's fixed two-carrier After and NoExitArray's append/no-exit proof are not
   capabilities for this Break/Text Loop. Reuse the common JoinSig verifier,
   not either specialized issuer. Canonical planner/Recipe support for this actual
-  Loop is measured below; it does not yet issue Home authority. No alternate
+  Loop candidate is measured in 8126e849fb; it does not issue Home authority. No alternate
   recognizer or direct AST-to-Home receipt is allowed.
 - The current checked Bool frame is Integer-only: its leaf references and
   operation loans do not yet admit Text comparisons. Source guard preservation
@@ -739,78 +729,95 @@ Decision (allocation_source_connection + reference_integration_review):
   lent to both scans. Existing guard observation and reference proof owners are
   the integration points. This does not close Text or change the selected row.
 
-- Follow-up planner observation uses exact unchanged file parse, original
-  JsonLine.intField Body6 condition/body, existing sole source planner and normal
-  policy (strict/dev/debug/planner-required flags false; allow_var_step true).
-  Actual matched set is exactly [LoopCondBreakContinue]; accept kind ExitIf,
-  body items Stmt(local substring), ExitIf(guarded Break), Stmt(end update).
-  Root892A quick-test-fast build62.426552s PASS; diagnostic filter1/1 PASS (.01s).
-  This proves the canonical planner candidate, not selected source membership,
-  verified portable Recipe/JoinSig, executable Text effects or Home After.
-  SourcePlan retains an AST-backed Recipe; the verified complete After bridge
-  remains required before advancing Home. Existing flat_no_exit_statement_sites
-  explicitly refuses ExitIf and cannot be widened by merely deleting its fence.
-  Diagnostic test removed and original module restored byte exactly; no new
-  permanent test/proof/guard. Retain root-v892a snapshots/build/focused receipt,
-  v892-planner-observation.txt and source/retirement snapshots in existing evidence
-  root until the bridge supersedes their role. No source implementation landed.
+V893 preparation landed in 255298c594 and eb297e1c53:
+- One private immutable retained LoopCond Recipe/projection/original-body loan
+  feeds the existing Array consumer with identical NoExitBody/flat-Stmt fences.
+- The canonical operator owner issues six exact String/String comparisons with
+  original family, borrowed inputs, Bool/no lifecycle and conservative Fault law.
+  Bool/source/reference/Loop/runtime activation remains unaccepted.
+Those commits own Root893A source/affine1+route29+source10 PASS, field-resident
+6PASS/1 same pinned Root892A baseline (field-array-append/loop-source-missing),
+Root893B operator/source/comparison/scalar30 PASS, zero-filter correction,
+source manifests, worker reviews and stable guards. No test/proof/guard growth.
+CLI239/app288 remains the pre-V894 frontier: direct canonical/MIR emit-exe of
+unchanged JSON, .120247s exit1/no EXE, byte-equal slot20 Body7 Value
+core-expression-execution-pending. No native/full-suite/CI claim. Retain its
+matched build/app receipts plus Root893A/B until stronger same-role evidence;
+CLI237/app286 with runtime877A/FFI876B retains the accepted mimalloc native role.
+
+V894 construction Decision (reference_integration_review, existing Text series):
+- Implement the common checked String Compare physical consumer in the existing
+  Invoke/String/lease owner, with exact existing CompareOp family and Bool result.
+  Both operands borrow Text; Normal owns nothing. Descriptor/token/opcode failures
+  are InvalidContract and preserve out; they are not lossy empty-string fallback
+  or language TypeError results. Same String lifetime verifier enforces live
+  original operands/End. C result indexing must retain Bool, never infer I64
+  from its out-word representation. Existing physical/native tests cover this
+  substrate only, not source admission or full app acceptance.
+- Rust operation/JSON, C schema/index/native+indexed flow/emitter, checked kernel
+  and public header are one physical responsibility. No physical permission is
+  inferred from the new enum or generic carrier. Existing lossy helpers remain
+  only for their unselected callers; no replacement/caller-zero claim is made.
+- Source Bool must subsequently wrap SAME CheckedExpressionEvaluation and shared
+  reference proof while retaining its existing conditional RHS/control writer;
+  current eager postorder value writer cannot execute Or unchanged. Whole finite
+  entry/Null exclusion, Local residence/Home/End, Loop After and both final scans
+  remain mandatory. No literal-only .hako success substitutes for this series.
 
 
-V893 source correspondence normalization (preparation, no Text activation):
-- Existing retained source planner now lends one private immutable view pairing
-  SAME LoopCond Recipe/projection with original located body and source identity.
-  The existing Array NoExit consumer uses that view; owner/frame/sole-family and
-  body/condition corroboration remain mandatory. NoExitBody, full lengths,
-  indexed Stmt-only and no-scoped-child fences are unchanged. No second issuer,
-  permanent receipt/registry or Home/portable After permission was introduced.
-- allocation_source_connection reviewed actual diff PASS. Root893A quick-test-fast
-  build75.220723s PASS. Existing selected source/affine retention1, Loop route29,
-  source projection10 PASS; field_resident6PASS/1baseline. The failed published
-  field-resident Array test reports field-array-append/loop-source-missing with
-  the exact same identity/message in pinned Root892A (v893-field-resident-baseline
-  receipt/log); it is not a newly green final consumer or a new regression.
-  Stable4 guards/diff PASS. New tests/proof apps/guards0. Named JSON/C and native
-  acceptance remain the previous matched receipts; this preparation changes no
-  production route. Root893A evidence retained until successor matches its role.
+V894 validation and source integration handoff:
+- Root894A quick-test-fast no-run PASS 88.387116s; serialization1,
+  physical-boundary22, original Print1, initializer/Core-I641 (13 actual source
+  cases), operator8: 33 PASS. Root894B fresh build .287587s returns the identical
+  test executable; reuse those executions by exact artifact equality.
+- Runtime894A quick lifecycle-kernel build PASS 233.316684s; CLI240 quick
+  hakorune build PASS 197.280138s. Kernel, CLI and focused Rust source is
+  unchanged by the later C schema fix and two native test consolidation edits.
+- FFI894C cc shared build with -Werror=format PASS 6.077384s. Native whitelist
+  now admits branch through the existing complete branch schema; native flow
+  separately enforces Bool condition and preserves both successor states.
+  Workers reviewed parser/index/type/flow/emitter and found no remaining issue.
+- Native894A was deliberately terminated for redundant-link consolidation, not
+  PASS. Native894B exit1 exposed the native parser whitelist omission above;
+  classify as this change's defect, fixed in C. Native894C is the required final
+  rerun: exit0 PASS 311.678832s (compile/link/execution total). Both indexed and
+  native profiles passed all six comparisons with both Bool outcomes, Unicode
+  scalar/prefix/NUL/no-normalization semantics, mixed static/owned aliases,
+  injected Fault cleanup, malformed wire/type and stale-token negatives.
+  This is physical ABI evidence, not original source Bool/Loop activation.
+- app290 uses unchanged JSON source, CLI240, runtime894A and exact FFI894C:
+  canonical --backend mir --emit-exe, pure-first/no compatibility replay,
+  plugins off; .430929s exit1/no EXE. Stderr byte-equal app289: slot20 Body7
+  Value core-expression-execution-pending. Runtime/CLI compiled sources match;
+  FFI has the explicit C whitelist delta and native tests only. This physical
+  construction has not advanced the original source first-stop.
+- Final C pin SHA 74b4eb594d9f5a1f6fe481b6f6c7f07e88ced05f0920277f458291b0d428c9c9.
+  Its build reused and overwrote the old FFI894B output path before copying to
+  ffi-v894c; B hashes/receipts are historical evidence, not a currently retained
+  B library. Use C pin for new runs. Runtime894A and CLI240 pins remain intact.
+- Retain source manifests/receipts, failed B diagnostic and final C evidence
+  under the existing artifact root until full Text acceptance. No temporary
+  adapter introduced. Existing lossy String helper has other unselected callers;
+  no selected exclusive source edge has been replaced or become caller-zero.
 
+Next common source Decision (allocation_source_connection):
+- Normalize CheckedBoolConditionFrameV1 to SAME CheckedExpressionEvaluationV1
+  plus logical-purpose nodes. Remove duplicate source/order/classes/calls/
+  operation/reference storage; reuse existing reference proof variants. Keep
+  conditional reach and the existing completed short-circuit writer. The eager
+  postorder value writer cannot execute conditional RHS ahead of its branch.
+- After behavior-preserving normalization, connect String morphology, Bool leaf
+  qualification, relational class transfer and exact operator envelopes together.
+  Do not admit literal-only comparisons as a substitute for original entry,
+  static Text, residence or Original scalar proof. Acquisitions remain templates
+  until the matching Normal edge; conditional templates are not installed Homes.
+- The original retained Loop Recipe must consume the SAME initializer/Bool
+  proofs. Iteration substring ch residence ends on Break/backedge/Fault; only
+  outer carriers reach verified After. Current end reads must retain that After
+  producer. Do not substitute initial start, arbitrary Phi or a special Text loop.
 
-V893 checked String comparison authority (construction, execution still pending):
-- Same canonical dynamic_operator_contract now issues six exact String/String
-  comparison envelopes. Original operator family/domain, borrowed-no-escape,
-  TrivialBool, no result lifecycle, conservative MaySuspend and pre-result
-  TypeError laws remain attached. Original String Add, Integer and Dynamic
-  domains remain unchanged. Reference clarifies existing Unicode-scalar sequence
-  equality/lexicographic order with proper-prefix-first and no normalization or
-  locale collation; generic mixed-kind equality is unchanged.
-- Existing positive contract matrix now covers both Integer/String; existing
-  mixed-domain matrix retains exact refusals and independent Dynamic exceptions.
-  StringMul remains rejected and StringAdd remains accepted. No extra tests.
-  reference_integration_review checked actual diff/callers PASS; checked Bool
-  qualifier remains Integer-only, and source references/Loop/runtime execution
-  are not activated by a new operator envelope. The lossy compare_string_pair_hh
-  helper is not a checked Fault consumer and cannot be used for this bridge.
-- Root893B quick-test-fast build62.303243s PASS. Existing operator8/checked source5/
-  borrowed comparison15/scalar-expression2 PASS (30 total). whole_bool_condition
-  matched0 and was rejected by the harness; it contributes no success count.
-  Correct scalar_expression_tests filter was then measured on SAME pinned binary.
-  Stable4 guards/diff PASS. Original Loop/entry/residence/cleanup/After/final-scan
-  and actual JSON/C obligations remain; neither preparation closes this series.
-
-- CLI239: `cargo build --profile quick --bin hakorune --message-format=json`,
-  jobs4/16MiB stack164.214831s PASS; binary
-  b1a628c603b3c8959ae1493bc84f052718e135d3433498b96820bfbd90941041.
-  App288 runs unchanged json-stream-aggregator with the original app287 direct
-  canonical/MIR emit-exe command, pure-first/no replay/plugins disabled and
-  matched runtime877A/FFI876B. .120247s, exit1/no EXE; stderr byte-equal app287,
-  same slot20 Body7 Value core-expression-execution-pending. No execution gain
-  or native/full-suite/CI green claimed. Prior accepted CLI237/app286 unchanged
-  mimalloc remains the native role; it was not rerun for this preparation.
-- Root893B and CLI239 source manifest bytes match the landing payload exactly.
-  Runtime/backend/ABI source and binary hashes remain checked. The evidence
-  harness's compiler-only delta whitelist now includes dynamic_operator_contract
-  after corroborating every module reference is under src/mir (v893-dynamic-
-  operator-compiler-only-users.json), with all kernel/backend/export checks kept.
-  Keep Root893A/B, CLI239/app288, previous native bundle and V892 source/planner
-  observations until the full bridge supplies stronger same-role evidence. No
-  temporary source adapter/diagnostic remains. Retained snapshots and logs are
-  explanatory evidence; contracts/results/remaining obligations are recorded here.
+V894 closeout: stable pointer/reference-route/layer/thin-shim guards and
+`git diff --check` PASS. Native C gate used the exact final source snapshot;
+no extra test/proof app/guard function was introduced. No full-suite, CI or new
+mimalloc execution claim; CLI237/app286 retains that accepted native role.
+The original Text series and the full finite goal remain active and incomplete.

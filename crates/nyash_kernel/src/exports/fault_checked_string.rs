@@ -108,6 +108,25 @@ unsafe fn publish(frame: &mut FaultFrame, site: u64, result: String, out: *mut O
     Status::Normal as u32
 }
 
+/// Exact Text comparison. The wire opcode preserves the original comparison;
+/// malformed descriptors/opcodes never publish a result or consume a lease.
+#[export_name = "nyash.string.checked_compare_v1"]
+pub unsafe extern "C" fn compare(storage: *mut c_void, _site: u64, op: u32,
+    left: *const Operand, right: *const Operand, out: *mut i64) -> u32 {
+    if out.is_null() || !out.is_aligned() || op > 5 { return Status::InvalidContract as u32; }
+    if let Err(s) = unsafe { frame(storage) } { return s as u32; }
+    let left = match unsafe { text_operand(left) } { Ok(v) => v, Err(s) => return s as u32 };
+    let right = match unsafe { text_operand(right) } { Ok(v) => v, Err(s) => return s as u32 };
+    let order = left.chars().cmp(right.chars());
+    let result = match op {
+        0 => order.is_eq(), 1 => !order.is_eq(), 2 => order.is_lt(),
+        3 => !order.is_gt(), 4 => order.is_gt(), 5 => !order.is_lt(),
+        _ => unreachable!("validated comparison opcode"),
+    };
+    unsafe { out.write(i64::from(result)) };
+    Status::Normal as u32
+}
+
 /// Fixed CodePoint contract. No legacy indexing toggle or handle dispatch.
 #[export_name = "nyash.string.checked_length_v1"]
 pub unsafe extern "C" fn length(storage: *mut c_void, _site: u64, value: *const Operand, out: *mut i64) -> u32 {

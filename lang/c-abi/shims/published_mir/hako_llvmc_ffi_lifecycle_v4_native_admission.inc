@@ -63,7 +63,8 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
       if (faulted || origin < 0 || ri != 0 ||
           (lv4_type(fn, lv4_u(ins, "dst"), budget) == LV4_OWNED_STRING
               ? state[origin] <= LV4_STRING_RANK_BASE : state[origin] != 1)) return 0;
-      if (lv4_type(fn, lv4_u(ins, "dst"), budget) == LV4_I64) state[origin] = 0;
+      int result_kind = lv4_type(fn, lv4_u(ins, "dst"), budget);
+      if (result_kind == LV4_I64 || result_kind == LV4_BOOL) state[origin] = 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       int origin = lv4_native_origin(fn, lv4_u(ins, "value"), budget);
       if (origin < 0 || !state[origin] ||
@@ -99,7 +100,7 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
           (lv4_type(fn, lv4_u(op, "start"), budget) != LV4_I64 || lv4_type(fn, lv4_u(op, "end"), budget) != LV4_I64)) return 0;
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
-      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 2) normal[bi] = 1;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2) normal[bi] = 1;
     } else if (lv4_is(op, "kind", "array_new")) {
       if (state[bi]) return 0;
       normal[bi] = 1;
@@ -115,6 +116,8 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
         if (state[origin] != 2 || lv4_type(fn, lv4_u(op, "value"), budget) != expected) return 0;
       } else return 0;
     }
+  } else if (lv4_is(term, "op", "branch")) {
+    if (lv4_type(fn, lv4_u(term, "condition"), budget) != LV4_BOOL) return 0;
   } else if (!lv4_is(term, "op", "jump")) return 0;
   yyjson_val* edges = yyjson_obj_get(block, "edges");
   for (size_t ei = 0; ei < yyjson_arr_size(edges); ei++) {

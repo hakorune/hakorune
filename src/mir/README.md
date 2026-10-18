@@ -402,6 +402,11 @@ publication and both C cohorts must retain the same result/operand/lifetime law.
 These physical operations do not issue source admission: exact Core contracts,
 selected CP profile where required, entry/current read proofs and both source
 final consumers are still required before execution fences can be removed.
+Checked String Compare borrows two exact Text operands and publishes Bool with
+no ownership acquisition. The six existing CompareOp identities survive JSON
+and checked C/kernel emission; Bool never becomes an Integer view merely because
+its out slot is 64 bits. Original source references, residence, short-circuit
+control and final source correspondence remain separate admission requirements.
 
 
 Checked expression Core nodes retain the original source loan in the same Home

@@ -323,6 +323,14 @@ allocator termination remains fatal. Compiler callers must End actual Normal
 acquisitions in reverse order after Print or a later Fault. These exports do not
 activate source lowering or prove compiler/native frame correspondence.
 
+Checked Compare uses the same descriptor/token validation for both Text borrows
+and rejects NormalInteger operands. Six exact comparison opcodes preserve
+Unicode scalar sequence equality and lexicographic order without normalization.
+Only Normal writes a Bool word (0/1); malformed opcode/UTF-8/descriptor, stale
+or mismatched lease, and invalid out storage are InvalidContract and leave out
+and valid leases unchanged. Compare acquires no result and never uses the lossy
+handle-only comparison helpers. Source/Loop permission remains compiler-owned.
+
 ### Checked Main argument snapshot
 
 `nyash.array.checked_script_arguments_new_v1` accepts immutable UTF-8 slices

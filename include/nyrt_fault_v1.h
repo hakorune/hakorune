@@ -126,6 +126,19 @@ uint32_t nyrt_string_checked_end_v1(void *, uint64_t, uint64_t, uint64_t)
  * Substring clamps each endpoint independently; start>=end yields empty.
  * Full/empty slices still publish a fresh pair; inputs stay borrowed/live.
  * Only Normal writes out. Integer-kind Text operands are InvalidContract. */
+/* String comparison is exact scalar-sequence equality / lexicographic order,
+ * proper prefix first, without Unicode normalization or locale collation.
+ * Both operands are Text-only borrows. Normal writes one Bool word (0 or 1);
+ * InvalidContract preserves out and every owned pair. No result lease. */
+#define NYRT_STRING_COMPARE_EQ_V1 0u
+#define NYRT_STRING_COMPARE_NE_V1 1u
+#define NYRT_STRING_COMPARE_LT_V1 2u
+#define NYRT_STRING_COMPARE_LE_V1 3u
+#define NYRT_STRING_COMPARE_GT_V1 4u
+#define NYRT_STRING_COMPARE_GE_V1 5u
+uint32_t nyrt_string_checked_compare_v1(void *, uint64_t, uint32_t,
+    const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
+    __asm__("nyash.string.checked_compare_v1");
 uint32_t nyrt_string_checked_length_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.string.checked_length_v1");
 uint32_t nyrt_string_checked_substring_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t, int64_t, NyrtOwnedStringV1 *)

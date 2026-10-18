@@ -4,6 +4,7 @@ static int hako_physical_string_result(const char* kind) {
   if (!kind) return 0;
   if (!strcmp(kind, "string_add") || !strcmp(kind, "string_substring")) return 1;
   if (!strcmp(kind, "string_length") || !strcmp(kind, "string_index_of")) return 2;
+  if (!strcmp(kind, "string_compare")) return 3; /* Bool, never I64 */
   return 0;
 }
 static int hako_physical_string_kind(const char* kind) {
@@ -12,12 +13,20 @@ static int hako_physical_string_kind(const char* kind) {
 static size_t hako_physical_string_operand_count(yyjson_val* op) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end")) return 0;
-  return !strcmp(kind, "string_add") || !strcmp(kind, "string_index_of") ? 2 : 1;
+  return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") || !strcmp(kind, "string_index_of") ? 2 : 1;
 }
 static yyjson_val* hako_physical_string_operand_at(yyjson_val* op, size_t ordinal) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
-  const char* field = kind && !strcmp(kind, "string_add") ? (ordinal ? "right" : "left") : (ordinal ? "needle" : "value");
+  const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : (ordinal ? "needle" : "value");
   return yyjson_obj_get(op, field);
+}
+/* One comparison spelling/opcode table shared by validation and emission. */
+static int hako_physical_string_comparison(yyjson_val* operation) {
+  yyjson_val* value = yyjson_obj_get(operation, "comparison");
+  const char* comparison = yyjson_is_str(value) && yyjson_get_len(value) == 2 ? yyjson_get_str(value) : NULL;
+  static const char* const names[] = {"eq", "ne", "lt", "le", "gt", "ge"};
+  if (comparison) for (int i = 0; i < 6; i++) if (!strcmp(comparison, names[i])) return i;
+  return -1;
 }
 static int hako_physical_string_operand(yyjson_val* function, yyjson_val* operand,
     uint32_t block, uint32_t index, int text_only) {
@@ -78,6 +87,13 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   const char* kind = operation ? yyjson_get_str(yyjson_obj_get(operation, "kind")) : NULL;
   uint32_t object_id, ordinal, value;
   if (!kind) return 0;
+  if (!strcmp(kind, "string_compare")) {
+    static const char* const keys[] = {"kind", "comparison", "left", "right", "site"};
+    return hako_physical_exact_keys(operation, keys, 5) && hako_physical_string_comparison(operation) >= 0 &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1) &&
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 1);
+  }
   if (!strcmp(kind, "string_add")) {
     static const char* const keys[] = {"kind", "left", "right", "site"};
     return hako_physical_exact_keys(operation, keys, 4) &&
@@ -295,7 +311,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
       strcmp(op, "const_f64_bits") && strcmp(op, "const_unit") &&
       strcmp(op, "copy") && strcmp(op, "fault_frame_enter") &&
       strcmp(op, "invoke") && strcmp(op, "invoke_normal_result") &&
-      strcmp(op, "array_residence_release") && strcmp(op, "jump") &&
+      strcmp(op, "array_residence_release") && strcmp(op, "branch") && strcmp(op, "jump") &&
       strcmp(op, "return") && strcmp(op, "return_fault")) return 0;
   if (terminal && strcmp(op, "invoke") && strcmp(op, "branch") && strcmp(op, "jump") && strcmp(op, "return") && strcmp(op, "return_fault")) return 0;
   if (!terminal && (!strcmp(op, "invoke") || !strcmp(op, "branch") || !strcmp(op, "jump") || !strcmp(op, "return") || !strcmp(op, "return_fault"))) return 0;

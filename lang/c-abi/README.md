@@ -663,6 +663,13 @@ second resource table. Static byte globals and ABI declarations precede native
 module emission. The physical runtime test owner supports `--checked-string`
 with `HAKO_TEST_LIFECYCLE_ARCHIVE` selecting the actual archive. This is physical
 ABI evidence only; source frame activation/final correspondence remain required.
+`string_compare` carries exact `comparison` spelling (`eq/ne/lt/le/gt/ge`) and
+two Text-only operands. Shared result classification retains Bool separately
+from I64 through both admission/flow cohorts and Normal output loading. The
+checked kernel validates descriptors/generation tokens and publishes 0/1 only
+on Normal. Source admission is unchanged; the physical test owner also checks
+Unicode scalar ordering, conditional Bool use, invalid wire/type combinations,
+InvalidContract out preservation and original paired End on comparison Fault.
 
 
 Checked owned-object Array uses the existing indexed V4 consumer only:

@@ -154,6 +154,66 @@ uint32_t wrap_string_substring(void* f, uint64_t s, const NyrtStringOperandV1* v
   return status;
 #endif
 }
+uint32_t real_string_compare(void*, uint64_t, uint32_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, int64_t*)
+    __asm__("__real_nyash.string.checked_compare_v1");
+uint32_t wrap_string_compare(void*, uint64_t, uint32_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, int64_t*)
+    __asm__("__wrap_nyash.string.checked_compare_v1");
+uint32_t wrap_string_compare(void* f, uint64_t s, uint32_t op,
+    const NyrtStringOperandV1* left, const NyrtStringOperandV1* right, int64_t* out) {
+#ifdef TEST_FAIL_STRING_COMPARE
+  return nyrt_fault_record_static_v1(f, 9306, s, 0, 0);
+#else
+  const struct {
+    const char *left, *right;
+    size_t left_len, right_len;
+    int64_t expected[6];
+  } vectors[] = {
+      {"", "", 0, 0, {1,0,0,1,0,1}},
+      {"a", "aa", 1, 2, {0,1,1,1,0,0}},
+      {"a\0z", "a\0y", 3, 3, {0,1,0,0,1,1}},
+      {"\xEE\x80\x80", "\xF0\x90\x80\x80", 3, 4, {0,1,1,1,0,0}},
+      {"\xC3\xA9", "e\xCC\x81", 2, 3, {0,1,0,0,1,1}},
+  };
+  for (unsigned i = 0; i < sizeof(vectors)/sizeof(*vectors); i++) {
+    NyrtStringOperandV1 a = {.kind=NYRT_STRING_STATIC_TEXT_V1, .bytes=(const uint8_t*)vectors[i].left, .len=vectors[i].left_len};
+    NyrtStringOperandV1 b = {.kind=NYRT_STRING_STATIC_TEXT_V1, .bytes=(const uint8_t*)vectors[i].right, .len=vectors[i].right_len};
+    for (uint32_t comparison = 0; comparison < 6; comparison++) {
+      int64_t value = 999;
+      assert(real_string_compare(f,s,comparison,&a,&b,&value) == NYRT_FAULT_NORMAL_V1);
+      assert(value == vectors[i].expected[comparison]);
+    }
+  }
+  int64_t sentinel = 999;
+  assert(real_string_compare(f, s, 99, left, right, &sentinel) == NYRT_FAULT_INVALID_CONTRACT_V1);
+  assert(sentinel == 999);
+  assert(real_string_compare(f, s, op, left, right, NULL) == NYRT_FAULT_INVALID_CONTRACT_V1);
+  assert(real_string_compare(NULL, s, op, left, right, &sentinel) == NYRT_FAULT_INVALID_CONTRACT_V1);
+  assert(sentinel == 999);
+  const uint8_t invalid_utf8[] = {0xff};
+  NyrtStringOperandV1 malformed[] = {
+      {.kind=NYRT_STRING_NORMAL_INTEGER_V1, .integer=0},
+      {.kind=NYRT_STRING_STATIC_TEXT_V1, .bytes=invalid_utf8, .len=1},
+      {.kind=NYRT_STRING_STATIC_TEXT_V1, .reserved=1},
+      {.kind=NYRT_STRING_OWNED_TEXT_V1, .handle=0, .token=0},
+  };
+  for (unsigned i = 0; i < sizeof(malformed)/sizeof(*malformed); i++) {
+    assert(real_string_compare(f,s,op,&malformed[i],right,&sentinel) == NYRT_FAULT_INVALID_CONTRACT_V1);
+    assert(real_string_compare(f,s,op,left,&malformed[i],&sentinel) == NYRT_FAULT_INVALID_CONTRACT_V1);
+    assert(sentinel == 999);
+  }
+  for (unsigned side = 0; side < 2; side++) {
+    NyrtStringOperandV1 bad = *(side ? right : left);
+    if (bad.kind == NYRT_STRING_OWNED_TEXT_V1) {
+      bad.token ^= UINT64_C(0x8000000000000000);
+      assert(real_string_compare(f,s,op,side ? left : &bad,side ? &bad : right,&sentinel) == NYRT_FAULT_INVALID_CONTRACT_V1);
+      assert(sentinel == 999);
+    }
+  }
+  uint32_t status = real_string_compare(f,s,op,left,right,out);
+  assert(status == NYRT_FAULT_NORMAL_V1 && (*out == 0 || *out == 1));
+  return status;
+#endif
+}
 static unsigned string_reads;
 uint32_t real_string_length(void*, uint64_t, const NyrtStringOperandV1*, int64_t*)
     __asm__("__real_nyash.string.checked_length_v1");
@@ -197,6 +257,11 @@ uint32_t wrap_string_end(void* f, uint64_t s, uint64_t handle, uint64_t token) {
       strings[string_depth-1].token == token);
   uint32_t status = real_string_end(f,s,handle,token);
   assert(status == 0); --string_depth; ++string_ends;
+  NyrtStringOperandV1 expired = {.kind=NYRT_STRING_OWNED_TEXT_V1, .handle=handle, .token=token};
+  NyrtStringOperandV1 empty = {.kind=NYRT_STRING_STATIC_TEXT_V1};
+  int64_t unchanged = 999;
+  assert(real_string_compare(f,s,NYRT_STRING_COMPARE_EQ_V1,&expired,&empty,&unchanged) == NYRT_FAULT_INVALID_CONTRACT_V1);
+  assert(unchanged == 999);
   printf("STRING_END %u\n", string_depth);
 #ifdef TEST_FAIL_STRING_END_AT
   if (string_ends == TEST_FAIL_STRING_END_AT)
