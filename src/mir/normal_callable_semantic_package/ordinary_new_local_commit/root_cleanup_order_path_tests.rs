@@ -90,6 +90,44 @@ fn root_ordered_paths_preserve_fault_only_obligation() {
         None,
     )
     .unwrap();
+    // The same path owner also stops at an explicit Loop continuation instead
+    // of requiring the root Return. Localized operands vary by actual origin.
+    let normal = order.normal().iter().map(|row| row.operation().clone()).collect::<Vec<_>>();
+    let residuals = vec![order.fault_after_normal_step(0).unwrap().iter()
+        .map(|row| row.operation().clone()).collect::<Vec<_>>()];
+    for localized in [false, true] {
+        let mut loop_function = function.clone();
+        loop_function.blocks.get_mut(&BasicBlockId(1)).unwrap().set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(10), edge_args: None });
+        let mut loans = std::collections::BTreeMap::new();
+        for (id, source) in [(BasicBlockId(4), normal[0].clone()), (BasicBlockId(3), residuals[0][0].clone())] {
+            let actual = if localized {
+                let crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map }) = &source
+                    else { panic!("source End"); };
+                crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map: ValueId(map.0 + 100) })
+            } else { source.clone() };
+            let MirInstruction::Invoke { operation, .. } = loop_function.blocks.get_mut(&id).unwrap().terminator.as_mut().unwrap()
+                else { panic!("Invoke"); };
+            *operation = actual.clone();
+            loans.insert(id, (source, actual));
+        }
+        let mut resolve = |id, source: &crate::mir::instruction::InvokeOperation| {
+            let (original, actual) = loans.get(&id).ok_or_else(|| "foreign origin".to_owned())?;
+            if original != source { return Err("foreign source End".to_owned()); }
+            Ok(actual.clone())
+        };
+        ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(1),
+            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap();
+        assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(9),
+            &normal, &residuals, Some(ValueId(9)), &mut resolve).is_err());
+        assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(4),
+            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("early-continuation"));
+        let MirInstruction::Invoke { operation, .. } = loop_function.blocks.get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut().unwrap()
+            else { panic!("fault End"); };
+        *operation = loans[&BasicBlockId(4)].1.clone();
+        assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(1),
+            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("ordered-path/operation"));
+    }
 }
 #[test]
 fn root_ordered_paths_reject_joint_record_and_mir_fault_omission() {

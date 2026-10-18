@@ -85,17 +85,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     if let Some(acquisition) = acquisition {
         pending(function, acquisition, &order.acquisition_fault(), frame)?;
     }
-    for (index, expected) in order.normal().iter().enumerate() {
-        clean = skip(function, clean)?;
-        let (normal, fault_edge) = release(function, clean, expected.operation(), frame)?;
-        pending(
-            function,
-            fault_edge,
-            &order.fault_after_normal_step(index)?,
-            frame,
-        )?;
-        clean = normal;
-    }
+    let normal: Vec<_> = order.normal().iter().map(|origin| origin.operation().clone()).collect();
+    let residuals = (0..normal.len()).map(|step| order.fault_after_normal_step(step)
+        .map(|rows| rows.into_iter().map(|origin| origin.operation().clone()).collect()))
+        .collect::<Result<Vec<Vec<_>>, _>>()?;
+    clean = normal_steps_with_resolver_v2(function, clean, &normal, &residuals, frame, None,
+        &mut |_, operation| Ok(operation.clone()))?;
     clean = skip(function, clean)?;
     if terminal(function, clean)? != &(MirInstruction::Return { value: result }) {
         return Err(fault("ordered-path/normal-terminal"));
@@ -160,14 +155,23 @@ fn pending(
 /// Reused by body-expression prefixes, whose source includes String End before
 /// the same prior-Home unwind. Expected operations never come from MIR census.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn pending_operations(
+    function: &MirFunction, id: BasicBlockId, expected: &[InvokeOperation],
+    frame: Option<crate::mir::ValueId>,
+) -> Result<BTreeSet<BasicBlockId>, String> {
+    pending_operations_with_resolver_v2(function, id, expected, frame, &mut |_, operation| Ok(operation.clone()))
+}
+
+fn pending_operations_with_resolver_v2(
     function: &MirFunction, mut id: BasicBlockId, expected: &[InvokeOperation],
     frame: Option<crate::mir::ValueId>,
+    resolve: &mut impl FnMut(BasicBlockId, &InvokeOperation) -> Result<InvokeOperation, String>,
 ) -> Result<BTreeSet<BasicBlockId>, String> {
     let mut consumed = BTreeSet::new();
     for operation in expected {
         id = skip(function, id)?;
         consumed.insert(id);
-        let (normal, fault_edge) = release(function, id, operation, frame)?;
+        let expected = resolve(id, operation)?;
+        let (normal, fault_edge) = release(function, id, &expected, frame)?;
         if skip(function, normal)? != skip(function, fault_edge)? {
             return Err(fault("ordered-path/fault-outcomes"));
         }
@@ -179,4 +183,37 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         return Err(fault("ordered-path/fault-terminal"));
     }
     Ok(consumed)
+}
+
+/// One Normal/Fault walk for root exits and infallible Loop continuations.
+/// The callback lends an original operation's exact per-origin SSA projection;
+/// it never selects the expected source operation by inspecting MIR.
+fn normal_steps_with_resolver_v2(
+    function: &MirFunction, mut clean: BasicBlockId, normal: &[InvokeOperation],
+    residuals: &[Vec<InvokeOperation>], frame: Option<crate::mir::ValueId>, stop: Option<BasicBlockId>,
+    resolve: &mut impl FnMut(BasicBlockId, &InvokeOperation) -> Result<InvokeOperation, String>,
+) -> Result<BasicBlockId, String> {
+    if normal.len() != residuals.len() { return Err(fault("ordered-path/residual-census")); }
+    for (expected, residual) in normal.iter().zip(residuals) {
+        clean = skip_until(function, clean, stop)?;
+        if Some(clean) == stop { return Err(fault("ordered-path/early-continuation")); }
+        let operation = resolve(clean, expected)?;
+        let (next, fault_edge) = release(function, clean, &operation, frame)?;
+        pending_operations_with_resolver_v2(function, fault_edge, residual, frame, resolve)?;
+        clean = next;
+    }
+    Ok(clean)
+}
+
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_to_continuation_v2(
+    function: &MirFunction, entry: BasicBlockId, continuation: BasicBlockId,
+    normal: &[InvokeOperation], residuals: &[Vec<InvokeOperation>],
+    frame: Option<crate::mir::ValueId>,
+    resolve: &mut impl FnMut(BasicBlockId, &InvokeOperation) -> Result<InvokeOperation, String>,
+) -> Result<(), String> {
+    let clean = normal_steps_with_resolver_v2(function, entry, normal, residuals, frame, Some(continuation), resolve)?;
+    if skip_until(function, clean, Some(continuation))? != continuation {
+        return Err(fault("ordered-path/normal-continuation"));
+    }
+    Ok(())
 }

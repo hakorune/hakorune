@@ -987,7 +987,7 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   Graph/source and lexical snapshots, canonical arm values, per-origin cleanup,
   postcleanup predecessor, child-tree final lookup/copies/seals and Bool repair
   remain WIP. Header/After Phi evidence uses same recorded roles, no final grant.
-- Root933 Decision: SAME source edge/JoinSig payload/scalar observation/SSA and
+- Root933 Decision (`6c74b0ea6e` shared Phi verifier): SAME source edge/JoinSig/scalar observation/SSA and
   postcleanup predecessor issue opaque Phi inputs; full Entry snapshot must equal
   session's original. SAME txn patches all Header/After and shares exact physical
   Phi closure. Stack prepared proof borrows session; all cleanup/frame/aggregate

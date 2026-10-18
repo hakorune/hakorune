@@ -2196,3 +2196,9 @@ definitions, original input values, full CFG predecessor coverage and leading Ph
 prefix. Existing CoreLoopPlan completion borrows it; source identity and payload
 meaning remain with their original issuers. The verifier grants no Loop source
 role or execution permission.
+
+Normal/Fault cleanup paths share one ordered walker. Root exits retain their
+Return contract; a Loop caller may supply an explicit continuation boundary and
+per-origin operand projection. The Normal walk cannot cross that continuation
+while End operations remain. Exact owned-node coverage remains a separate check;
+path success alone never permits an unreachable extra End or seals a Loop.
