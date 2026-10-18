@@ -180,11 +180,11 @@ pub fn format_instruction(
             )
         }
 
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             site_id,
             dst,
             receiver,
-            index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
         } => {
             let dst = dst
                 .map(|dst| format!("{} ", format_dst(&dst, types)))

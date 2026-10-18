@@ -263,7 +263,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
         MirInstruction::LegacyCallV0 { .. } => "mir_call",
-        MirInstruction::ArrayElementRead { .. } => "array_read",
+        MirInstruction::ArrayRead { .. } => "array_read",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
         MirInstruction::Return { .. } => "ret",
@@ -318,7 +318,9 @@ fn method_call_is(
 /// Canonical `ArrayBox.get/1` read — the sole physical read owner now
 /// occupies the slot the seed's final gets used to mint as `mir_call`.
 fn array_read_is(inst: &MirInstruction) -> bool {
-    matches!(inst, MirInstruction::ArrayElementRead { dst: Some(_), .. })
+    matches!(inst, MirInstruction::ArrayRead {
+        dst: Some(_), operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. }, ..
+    })
 }
 
 fn method_call_is_with_receiver_arg(
@@ -559,11 +561,11 @@ mod tests {
     }
 
     fn array_read(dst: u32, receiver: u32, index: ValueId) -> MirInstruction {
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             site_id: crate::mir::ArrayReadSiteId::new(1),
             dst: Some(ValueId::new(dst)),
             receiver: ValueId::new(receiver),
-            index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
         }
     }
 

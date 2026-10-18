@@ -82,9 +82,13 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             values.push(*value);
             values
         }
-        MirInstruction::ArrayElementRead {
-            receiver, index, ..
-        } => vec![*receiver, *index],
+        MirInstruction::ArrayRead {
+            receiver, operation, ..
+        } => {
+            let mut values = vec![*receiver];
+            values.extend(operation.used_values());
+            values
+        },
         MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
         MirInstruction::UnaryOp { operand, .. }
         | MirInstruction::Load { ptr: operand, .. }

@@ -46,16 +46,16 @@ impl JoinIrIdRemapper {
                 vals.push(*value);
                 vals
             }
-            ArrayElementRead {
+            ArrayRead {
                 dst,
                 receiver,
-                index,
+                operation,
                 ..
             } => {
                 let mut vals = Vec::new();
                 vals.extend(dst.iter().copied());
                 vals.push(*receiver);
-                vals.push(*index);
+                vals.extend(operation.used_values());
                 vals
             }
             ArrayStateContractClaim { array, .. } => vec![*array],

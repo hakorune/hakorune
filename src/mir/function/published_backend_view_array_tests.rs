@@ -204,7 +204,7 @@ fn published_array_element_writes_compile_object_without_void_result_leak() {
 }
 
 /// `ArrayBox.get` reaches the real production entry: a compiler-produced
-/// module whose sole read owner is `ArrayElementRead` compiles to a
+/// module whose sole read owner is `ArrayRead` compiles to a
 /// native object through the same `try_compile_published_static_method_object`
 /// the `ny-llvmc-obj` lane invokes — and, when the FFI library and the
 /// canonical legacy-entry runtime archive exist, to a runnable executable
@@ -247,7 +247,7 @@ static box Main {
         .values()
         .flat_map(|function| function.blocks.values())
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, MirInstruction::ArrayElementRead { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::ArrayRead { .. }))
         .count();
     assert_eq!(read_count, 1, "expected one sole physical read owner");
 

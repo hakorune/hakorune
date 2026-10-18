@@ -135,11 +135,11 @@ impl MirBuilder {
         index: ValueId,
     ) -> Result<ArrayReadSiteId, String> {
         let site_id = self.next_array_read_site_id();
-        self.emit_instruction(MirInstruction::ArrayElementRead {
+        self.emit_instruction(MirInstruction::ArrayRead {
             site_id,
             dst,
             receiver,
-            index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
         })?;
         if let Some(dst) = dst {
             self.function_state
@@ -181,7 +181,7 @@ impl MirBuilder {
             .flat_map(|function| function.blocks.values())
             .flat_map(|block| block.all_instructions())
             .filter_map(|instruction| match instruction {
-                MirInstruction::ArrayElementRead { site_id, .. } => Some(site_id.0),
+                MirInstruction::ArrayRead { site_id, .. } => Some(site_id.0),
                 _ => None,
             })
             .max()

@@ -48,11 +48,11 @@ fn vm_array_element_read_delegates_to_array_surface() {
         dst: ValueId::new(2),
         value: ConstValue::Integer(0),
     });
-    block.add_instruction(MirInstruction::ArrayElementRead {
+    block.add_instruction(MirInstruction::ArrayRead {
         site_id: ArrayReadSiteId::new(0),
         dst: Some(ValueId::new(3)),
         receiver: ValueId::new(0),
-        index: ValueId::new(2),
+        operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId::new(2) },
     });
     block.add_instruction(MirInstruction::Return {
         value: Some(ValueId::new(3)),

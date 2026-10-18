@@ -1,15 +1,15 @@
 # MirBuilder app bundle — mimalloc-lite completion D0
 
-Status: active; Required Object Forward S0 unaccepted; source-to-C connection landed.
-Date: 2026-10-17
-Scope: existing mimalloc-lite source-to-final-consumer series; no new lane.
+Status: active; field Array read S0 selected; Required Object Forward S0 unaccepted.
+Date: 2026-10-19
+Scope: required app source-to-final-consumer integration, currently field Array observation.
 Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
 [final pipeline](../design/mirbuilder-final-pipeline-ssot.md),
 [workstream](../workstreams/mirbuilder-inplace-replacement-current.md).
 
 ## Current position and history
 
-Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`.
+Retained unfinished row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`.
 Mode: fast for remaining required integration/fixed acceptance; bounded LOCAL connection below.
 Full prior card, decisions, original-source contracts, red classifications,
 commands, pins and preparation evidence are preserved in this path at
@@ -670,3 +670,84 @@ Its required independent acceptance/initialization and receiver/cleanup/publicat
 conditions remain here. The new card owns the distinct static Text source, entry,
 argument lifetime and ABI/JSON/C series and its one Decision. Do not accumulate
 that owner's implementation history in this card.
+
+## Selected field Array observation — Root939 Decision
+
+Selected row: `MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0`; fast construction.
+Previous turn made product progress:5da19f405d/36fcdd9e10 connect the original
+source Loop through both final consumers and canonical EXE. The unfinished
+Loop/Text series remains in `mirbuilder-gate1-static-text-input-s0-2026-10-17.md`;
+this owner switch does not accept JSON, RequiredObjectForwardS0 or the full goal.
+Actual unchanged JSON362/CLI279 first-stop:owner32 Body10 IfCondition nested
+operand, borrowed-result/source-not-i64. Original call agg.userCount returns
+me.users.length. No app rewrite or source-site/name permission is allowed.
+
+Source authority + canonical issuer: original method/receiver inventory, own-Me
+canonical declared nonweak Array field, original all-writer inventory and unique
+Plain Birth Array provider. Reuse OrdinaryNewFieldWriteClaimsV1 and the existing
+field-read source/recipe/collector. ArrayLen/0 manifest is I64Value/PureRead/
+WarmDirectAbi; Count must have its own canonical law, not String CP permission.
+Get retains exact Integer index and whole-Box Integer element census. Count
+requires neither index nor Integer elements; shared field validity still rejects
+opaque/incomplete/unattributed/replacement/null writers. Do not create a second
+AST census or broaden ordinary-object class admission to builtin ArrayBox.
+
+Mapping: original source → shared field residence + operation-specific read
+proof → existing result/Return/Home/recipe → sole Array read writer → original
+source/FinishedBindings and named-array collector → published JSON → independent
+C field/provider/lifetime validation → existing nyash.array.slot_len_h transport.
+The runtime helper's invalid-handle zero is never proof. C's existing
+lv4_field_array_readable validates the live canonical provider before any count.
+No new acquisition/End/Fault; enclosing expression cleanup remains mandatory.
+
+Read-only source/physical workers reviewed the complete participating owners.
+Normalize Get/Count within the existing Read family, not another top-level
+packet variant. Separate behavior-preserving normalization from new admission.
+Start with the source/physical read representation and its existing Get callers;
+then connect Count and its law through ALL above consumers in the same series.
+Pure additive admission has no competing legacy Count edge to delete. Remove
+only replaced duplicate field/provider/read handling after callers switch;
+keep element census, Map-specific ArrayLength and nonselected callers.
+
+Non-authority: selector/class spelling alone, MIR Integer tag, Birth-only field
+search, runtime bits, fabricated index or convenient Integer-element assumption.
+Fail-fast: absent/foreign/ambiguous source/provider, unsealed result/receiver,
+missing physical/finished correspondence or unavailable backend capability.
+Acceptance: reuse existing field-read/result/source/MIR/refusal cases; extend
+existing inputs only for unique Count boundaries. No new test/checker/file.
+Rebuild focused once and reuse filters; then source-corresponding canonical EXE,
+unchanged JSON first-stop and mimalloc output/exit regression. Existing baseline
+reds remain visible. Fixed suite/CI/full goal are not claimed by local green.
+This active card owns bounded evidence, exact paths and temporary pin retention.
+
+Root939 construction scope refinement from the same source/physical reviews:
+Count belongs directly to the existing field-read issuer. Its canonical ArrayLen
+manifest row/new ArrayCount law, original method Arc and original all-writer
+residence loan suffice; do not add a second String ordinary-Core cache/target
+brand or issue a target per Return. Multiple Return wrappers normalize original
+call identity first and retain one physical read source. `ArrayDynamicRead`
+Home-schema expansion is not required by this field-read path.
+
+Phase A BoxShape: replace MIR ArrayElementRead/index with ArrayRead/Element
+payload; delete old enum shape and switch all33 existing source/consumer files.
+Generic operand visitors/rewrite/remap delegate to the operation owner; operand
+iteration allocates no second Vec. Get-specific RMW/source/VM/printer/JSON and
+legacy published element rows explicitly match Element. Existing READ effect,
+optional dst, IDs, index order, runtime Get and both wire spellings remain.
+No Count constructor/admission is introduced by this phase. INSTRUCTION_SET is
+updated because it owns this MIR shape; language semantics/JSON schema unchanged.
+Existing owner README describes the same boundary. No test/checker/file added.
+939A syntax error from mechanical field wrapping was corrected before939B
+build146.181s PASS;939C iterator/RMW refinement build59.340s PASS. An attempted
+file-name test filter selected0 and is not a success; exact existing function
+filter is used below. Existing Get baseline938C three filters11PASS;939B source
+and core filters22PASS. Current939C focused results and final checks follow.
+This normalizes a shared physical responsibility; JSON first-stop/Count execution
+has NOT advanced and no native speedup or current-source EXE is claimed.
+939C7 existing focused filters46PASS (8MiB/one-thread), full test names9264
+unchanged from938C. Pointer/layer/CallTarget owner and final diff checks PASS.
+Retain939B/C source/binary/command receipts and root-v939-before until Count
+series acceptance; no adapter or new proof ledger. Before Count, operation-aware
+backend allowlists/legacy wire and source-gated final publication remain required;
+broad ArrayRead shape support is not Count permission. Prior native CLI279 and
+runtime894A/FFI897A remain historical/predecessor regression evidence only.

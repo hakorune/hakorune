@@ -461,7 +461,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                     for block in changed.blocks.values_mut() {
                         for row in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
                             match row {
-                                MirInstruction::ArrayElementRead { index, .. } if drift == 0 => { *index = crate::mir::ValueId(99991); mutations += 1; },
+                                MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { index }, .. } if drift == 0 => { *index = crate::mir::ValueId(99991); mutations += 1; },
                                 MirInstruction::Copy { dst, src } if drift == 1 && *dst == argument.value() => { *src = crate::mir::ValueId(99992); mutations += 1; },
                                 MirInstruction::FieldGet { field, .. } if drift == 2 && field == "free_stack" => { *field = "foreign".into(); mutations += 1; },
                                 MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. }

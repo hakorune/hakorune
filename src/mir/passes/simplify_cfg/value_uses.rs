@@ -107,11 +107,11 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             }
             rewrite_value_use(value, from, to);
         }
-        MirInstruction::ArrayElementRead {
-            receiver, index, ..
+        MirInstruction::ArrayRead {
+            receiver, operation, ..
         } => {
             rewrite_value_use(receiver, from, to);
-            rewrite_value_use(index, from, to);
+            operation.rewrite_values(|value| rewrite_value_use(value, from, to));
         }
         MirInstruction::ArrayStateContractClaim { array, .. } => {
             rewrite_value_use(array, from, to);

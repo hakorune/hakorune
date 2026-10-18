@@ -20,7 +20,7 @@
 //!   authority calls to the Stage1 extern helper.
 //! - Proven `Call` + `Callee::Method { ArrayBox, get }` residuals (Known
 //!   certainty, or Union with receiver origin proving `ArrayBox`)
-//!   canonicalize to `ArrayElementRead`, the sole physical read owner.
+//!   canonicalize to `ArrayRead`, the sole physical read owner.
 //!   Unproven `Union` rows keep their dynamic-facade meaning untouched.
 
 #[path = "callsite_canonicalize/array_read.rs"]

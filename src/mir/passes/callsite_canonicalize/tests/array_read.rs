@@ -61,11 +61,11 @@ fn proven_known_array_get_canonicalizes_to_array_element_read() {
     assert_eq!(rewritten, 1);
     assert!(matches!(
         &block0(&module).instructions[1],
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             site_id,
             dst: Some(ValueId(2)),
             receiver: ValueId(10),
-            index: ValueId(1),
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId(1) },
         } if site_id.0 == 0
     ));
 }
@@ -102,10 +102,10 @@ fn union_receiver_with_arraybox_origin_canonicalizes() {
     assert_eq!(rewritten, 1);
     assert!(matches!(
         &block0(&module).instructions[2],
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             dst: Some(ValueId(2)),
             receiver: ValueId(10),
-            index: ValueId(1),
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId(1) },
             ..
         }
     ));
@@ -271,9 +271,9 @@ fn receiver_duplicated_arg_surface_uses_the_real_index() {
     assert_eq!(rewritten, 1);
     assert!(matches!(
         &block0(&module).instructions[1],
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             receiver: ValueId(10),
-            index: ValueId(1),
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId(1) },
             ..
         }
     ));
@@ -317,11 +317,11 @@ fn site_id_continues_above_existing_read_sites() {
     let mut module = MirModule::new("array_read_site".to_string());
     let mut func = new_test_function();
     let block = entry_block(&mut func);
-    block.instructions.push(MirInstruction::ArrayElementRead {
+    block.instructions.push(MirInstruction::ArrayRead {
         site_id: crate::mir::ArrayReadSiteId::new(5),
         dst: Some(ValueId(20)),
         receiver: ValueId(11),
-        index: ValueId(12),
+        operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId(12) },
     });
     block.instruction_spans.push(Span::unknown());
     block.instructions.push(MirInstruction::Const {
@@ -345,9 +345,9 @@ fn site_id_continues_above_existing_read_sites() {
     assert_eq!(rewritten, 1);
     assert!(matches!(
         &block0(&module).instructions[2],
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             site_id,
-            index: ValueId(1),
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId(1) },
             ..
         } if site_id.0 == 6
     ));

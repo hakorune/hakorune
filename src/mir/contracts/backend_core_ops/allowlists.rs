@@ -42,7 +42,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::DestroyOwned { .. }
             | MirInstruction::MapLiteralEntryWrite { .. }
             | MirInstruction::ArrayElementWrite { .. }
-            | MirInstruction::ArrayElementRead { .. }
+            | MirInstruction::ArrayRead { .. }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
@@ -107,7 +107,7 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
         inst,
         MirInstruction::Const { .. }
             | MirInstruction::ArrayElementWrite { .. }
-            | MirInstruction::ArrayElementRead { .. }
+            | MirInstruction::ArrayRead { .. }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::BinOp { .. }
@@ -166,7 +166,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
         MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
-        MirInstruction::ArrayElementRead { .. } => &["array_element_read"],
+        MirInstruction::ArrayRead { .. } => &["array_element_read"],
         MirInstruction::MapLiteralEntryWrite { .. } => &[],
         MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],

@@ -84,9 +84,13 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 values.push(*value);
                 values
             }
-            ArrayElementRead {
-                receiver, index, ..
-            } => vec![*receiver, *index],
+            ArrayRead {
+                receiver, operation, ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(operation.used_values());
+                values
+            },
             ArrayStateContractClaim { array, .. } => vec![*array],
             UnaryOp { operand, .. } => vec![*operand],
             BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } => {
@@ -182,7 +186,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | MemOp { dst: Some(dst), .. }
             | PinnedTextOp { dst, .. }
             | ArrayElementWrite { dst: Some(dst), .. }
-            | ArrayElementRead { dst: Some(dst), .. }
+            | ArrayRead { dst: Some(dst), .. }
             | Phi { dst, .. }
             | NewBox { dst, .. }
             | RefNew { dst, .. }

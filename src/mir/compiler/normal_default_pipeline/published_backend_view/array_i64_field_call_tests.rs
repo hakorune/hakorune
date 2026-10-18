@@ -5,7 +5,7 @@
 //! `get/1` result may claim i64; the existing local-result lane then
 //! installs the binding as `Trivial`, so `return v` and downstream i64
 //! consumers complete. The emitted `ArrayBox.get/1` site lowers to
-//! `MirInstruction::ArrayElementRead` — the sole physical read owner —
+//! `MirInstruction::ArrayRead` — the sole physical read owner —
 //! which the published view collects as an `array_element_reads` row and
 //! transports as `PublishedCallKindV1::ArrayGet`.
 use super::*;
@@ -64,7 +64,7 @@ fn array_i64_vetoed_field_keeps_dynamic_result() {
 }
 
 /// Positive publication evidence: the `ArrayBox.get/1` site lowers to
-/// `ArrayElementRead`, the published view collects exactly one read row
+/// `ArrayRead`, the published view collects exactly one read row
 /// for `probe`, and the lifecycle physical ABI input issues cleanly.
 /// Each fixture dumps its physical-program JSON for the v4 execution
 /// driver (`published_lifecycle_v4_get_view_execution_test.py`).
@@ -156,8 +156,8 @@ fn array_i64_checked_scalar_read_publishes_and_rejects_physical_drift() {
                         match mutation {
                             0..=2 => {
                                 let read = function.blocks.values_mut().flat_map(|b| b.instructions.iter_mut()).find(|instruction|
-                                    matches!(instruction, crate::mir::MirInstruction::ArrayElementRead { site_id, .. } if *site_id == marker.read)).unwrap();
-                                let crate::mir::MirInstruction::ArrayElementRead { dst, receiver, index, .. } = read else { unreachable!() };
+                                    matches!(instruction, crate::mir::MirInstruction::ArrayRead { site_id, .. } if *site_id == marker.read)).unwrap();
+                                let crate::mir::MirInstruction::ArrayRead { dst, receiver, operation: crate::mir::instruction::ArrayReadOperationV1::Element { index }, .. } = read else { unreachable!() };
                                 match mutation {
                                     0 => *dst = Some(marker.receiver),
                                     1 => *receiver = marker.index,

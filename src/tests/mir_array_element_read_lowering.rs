@@ -33,7 +33,7 @@ static box Main {
         .flat_map(|block| block.instructions.iter())
     {
         match instruction {
-            MirInstruction::ArrayElementRead { .. } => reads += 1,
+            MirInstruction::ArrayRead { .. } => reads += 1,
             MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {

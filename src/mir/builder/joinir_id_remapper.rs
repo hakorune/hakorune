@@ -184,16 +184,16 @@ impl JoinIrIdRemapper {
                 index: index.map(|value| remap(value)),
                 value: remap(*value),
             },
-            ArrayElementRead {
+            ArrayRead {
                 site_id,
                 dst,
                 receiver,
-                index,
-            } => ArrayElementRead {
+                operation,
+            } => ArrayRead {
                 site_id: *site_id,
                 dst: dst.map(|value| remap(value)),
                 receiver: remap(*receiver),
-                index: remap(*index),
+                operation: operation.remapped(|value| remap(value)),
             },
             ArrayStateContractClaim { contract_id, array } => ArrayStateContractClaim {
                 contract_id: contract_id.clone(),

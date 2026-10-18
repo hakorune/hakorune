@@ -43,10 +43,10 @@ pub(crate) fn same_value_root(
 
 pub(crate) fn match_array_get_call(inst: &MirInstruction) -> Option<ArrayGetCall<'_>> {
     match inst {
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             dst: Some(dst),
             receiver,
-            index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
             ..
         } => Some(ArrayGetCall {
             array_value: *receiver,

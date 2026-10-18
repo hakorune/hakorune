@@ -32,7 +32,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::MapLiteralEntryWrite { .. } => "MapLiteralEntryWrite",
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
-        MirInstruction::ArrayElementRead { .. } => "ArrayElementRead",
+        MirInstruction::ArrayRead { .. } => "ArrayRead",
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",

@@ -109,11 +109,11 @@ impl EmittedFieldArrayReadV1 {
             .flat_map(|block| block.all_instructions())
         {
             match instruction {
-                MirInstruction::ArrayElementRead {
+                MirInstruction::ArrayRead {
                     site_id,
                     dst,
                     receiver,
-                    index,
+                    operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
                 } if *site_id == self.read => {
                     if *dst != Some(self.dst) || *receiver != self.receiver || *index != self.index
                     {

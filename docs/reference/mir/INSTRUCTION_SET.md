@@ -71,12 +71,17 @@ Neither Unit operation embeds a destination or emits `InvokeNormalResult`.
 This cohort uses only LiteralAppend/Literal/no-index writes; existing shared
 write-kind vocabulary is not source acceptance permission.
 
-`ArrayElementRead { site_id, dst, receiver, index }` is the sole physical
+`ArrayRead { site_id, dst, receiver, operation: Element { index } }` is the sole physical
 owner of a `Callee::Method{ArrayBox, get}` site whose resolved receiver box
 is `ArrayBox` — a pure `READ` surface call carried on a canonical instruction
 (runtime delegation is the same `ArrayBox.get/1` surface; OOB keeps the
 existing Null/strict-string behavior, no fault edge). Sites whose receiver
 is not proven `ArrayBox` keep `call_method` and are unaffected.
+Operation operands belong to `ArrayReadOperationV1`; generic use/rewrite/remap
+visitors borrow its operand API. Only Element is currently constructed. The
+`array_element_read` JSON-v0 and lifecycle `array_get` wire forms retain their
+existing receiver/index fields and semantics. New observation operations require
+their own source proof and selected backend admission.
 
 `ArrayResidenceRelease { value }` is an ordinary non-pure WRITE instruction,
 without result, FaultFrame operand or source-Fault successor. It consumes the
@@ -367,7 +372,7 @@ allowlists are being updated.
 - ArrayResidenceRelease
 - StringResidenceInstall
 - ArrayElementWrite
-- ArrayElementRead
+- ArrayRead
 - MapLiteralEntryWrite
 - LocalContractWrite
 - RecordFieldContractCheck

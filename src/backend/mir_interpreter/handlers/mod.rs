@@ -88,10 +88,10 @@ impl MirInterpreter {
                 value,
                 ..
             } => self.execute_array_element_write(*dst, *kind, *receiver, *index, *value)?,
-            MirInstruction::ArrayElementRead {
+            MirInstruction::ArrayRead {
                 dst,
                 receiver,
-                index,
+                operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
                 ..
             } => self.execute_array_element_read(*dst, *receiver, *index)?,
             MirInstruction::FieldGet {

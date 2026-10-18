@@ -2202,7 +2202,13 @@ Callable scalar demand rechecks current census and Return membership. The same
 sealed source facts lend exact field-array Return coverage to both Home walks
 before Completion exists; this never consults the later execution loan. The
 source-to-physical hook retains the exact read and argument site; the sole checked
-ArrayElementRead writer types only that result. Generic reads retain Unknown.
+ArrayRead writer types only that result. Generic reads retain Unknown.
+The MIR read envelope carries operation-specific operands. Generic SSA/value-use
+and remapping visitors borrow the operation's operand API, preserving receiver
+then index order without a second operand allocation. Element-specific source,
+RMW, legacy published rows, VM and JSON consumers retain explicit Element
+membership. This normalization changes no Get admission, wire op or runtime law;
+Count requires its own source and final consumer connection before construction.
 The existing named-array collector retains real Write/Read observations and
 rechecks its exact source expected set before final cohort retention. Independent
 final validation checks physical read operands/types/markers, receiver field,

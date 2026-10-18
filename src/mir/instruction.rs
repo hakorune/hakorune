@@ -282,6 +282,24 @@ impl MemOpKind {
     }
 }
 
+/// Operation-specific Array read operands. Generic visitors borrow the operand
+/// API; source and backend consumers remain responsible for operation admission.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArrayReadOperationV1 {
+    Element { index: ValueId },
+}
+impl ArrayReadOperationV1 {
+    pub fn used_values(self) -> impl Iterator<Item = ValueId> {
+        match self { Self::Element { index } => Some(index) }.into_iter()
+    }
+    pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
+        match self { Self::Element { index } => rewrite(index) }
+    }
+    pub fn remapped(self, mut remap: impl FnMut(ValueId) -> ValueId) -> Self {
+        match self { Self::Element { index } => Self::Element { index: remap(index) } }
+    }
+}
+
 /// MIR instruction types (full enum; backend allowlists are contract-driven)
 #[derive(Debug, Clone, PartialEq)]
 pub enum MirInstruction {
@@ -362,11 +380,11 @@ pub enum MirInstruction {
     /// a `Callee::Method{ArrayBox, get}` site whose receiver is proven
     /// `ArrayBox`. A pure read: no fault edge and no lifecycle row, the
     /// same surface `call_method` executed before it.
-    ArrayElementRead {
+    ArrayRead {
         site_id: ArrayReadSiteId,
         dst: Option<ValueId>,
         receiver: ValueId,
-        index: ValueId,
+        operation: ArrayReadOperationV1,
     },
 
     /// Publication boundary that monotonically claims an Array state contract.

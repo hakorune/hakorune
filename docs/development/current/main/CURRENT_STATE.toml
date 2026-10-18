@@ -1,9 +1,9 @@
-date = "2026-10-17"
+date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0"
+current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "loop-after/source-to-text-read"
+current_blocker_token = "field-array/source-to-count"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,24 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
-latest_card = "mirbuilder-gate1-static-text-input-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Gate1 LOOP-AFTER-TEXT-READ-S0 is selected for the unchanged JSON Body6/Body7
-source frontier. Prior STATIC-TEXT-INPUT-S0 and full Text series stay unaccepted;
-496db633e6 retains verified exactText source-to-C and unchanged mimalloc evidence.
-Connect complete original Loop After through Recipe/JoinSig, Home and exact
-physical read provenance; preserve all remaining Text/incoming/cleanup gates.
-Active card owns current evidence and construction scope. RequiredObjectForwardS0
-and parked lanes retain their conditions. Full finite goal still includes all
-integration, R6/R7/Loop/authority/parser/nondelegating selfcompile requirements.
+Gate1 FIELD-ARRAY-READ-S0 is selected for unchanged JSON owner32 Body10:
+agg.userCount -> me.users.length lacks source-to-publication Count observation.
+Normalize common field/provider read authority; Get keeps Integer element/index
+proof, Count keeps ArrayLen PureRead law without element assumptions. Connect
+result/Home, physical read, both finals and JSON/C through existing owners.
+5da19f405d/36fcdd9e10 retain verified source Loop EXE and unchanged mimalloc.
+Prior Loop/Text and RequiredObjectForwardS0 remain separately unaccepted;
+all finite integration/R6/R7/Loop/authority/parser/selfcompile gates stay owed.
 No full-suite/CI green claim.
 """
-next_design_card = "MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
-next_execution_card = "MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
+next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

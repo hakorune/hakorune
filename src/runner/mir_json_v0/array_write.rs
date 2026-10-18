@@ -12,11 +12,11 @@ pub(super) fn parse_array_element_read(inst: &Value) -> Result<MirInstruction, S
         .get("dst")
         .and_then(Value::as_u64)
         .map(|value| ValueId::new(value as u32));
-    Ok(MirInstruction::ArrayElementRead {
+    Ok(MirInstruction::ArrayRead {
         site_id: ArrayReadSiteId::new(site_id),
         dst,
         receiver: value_id(inst, "receiver")?,
-        index: value_id(inst, "index")?,
+        operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: value_id(inst, "index")? },
     })
 }
 

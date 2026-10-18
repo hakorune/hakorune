@@ -12,7 +12,9 @@ Related: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml),
 
 ## Selection and actual source
 
-Selected row: `MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0`.
+Retained unfinished row: `MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0`.
+Current selection moved to FIELD-ARRAY-READ-S0 in the existing app-bundle card;
+5da19f405d verifies the source Loop vertical, not all Text/JSON acceptance.
 Inherited `MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0` remains unaccepted: the SAME
 Body7 Text argument needs Body6's complete Loop After and all downstream entry,
 finite-domain, ordering/cleanup/use/JSON/C obligations below. This selection

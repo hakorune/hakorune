@@ -3,7 +3,7 @@
 //!
 //! A canonical `Call` whose receiver class is either `TypeCertainty::Known`
 //! or independently proven `ArrayBox` by receiver origin carries the same
-//! meaning as `ArrayElementRead` — the producer already proved the
+//! meaning as `ArrayRead` — the producer already proved the
 //! receiver, so rewriting is a representation fix, not a new proof.
 //! `Union` rows without origin proof keep their dynamic-facade meaning and
 //! pass through untouched: this arm is deliberately not a second resolver.
@@ -29,7 +29,7 @@ fn get_index(args: &[ValueId], receiver: ValueId) -> Option<ValueId> {
 }
 
 /// Rewrite proven `Call` + `Callee::Method { ArrayBox, get }` rows to
-/// `ArrayElementRead`. Returns the number of rewritten instructions.
+/// `ArrayRead`. Returns the number of rewritten instructions.
 pub(super) fn canonicalize_proven_array_method_reads(function: &mut MirFunction) -> usize {
     let mut candidates = Vec::new();
     let mut needs_origin_proof = false;
@@ -72,7 +72,7 @@ pub(super) fn canonicalize_proven_array_method_reads(function: &mut MirFunction)
         .values()
         .flat_map(|block| block.all_instructions())
         .filter_map(|inst| match inst {
-            MirInstruction::ArrayElementRead { site_id, .. } => Some(site_id.0),
+            MirInstruction::ArrayRead { site_id, .. } => Some(site_id.0),
             _ => None,
         })
         .max()
@@ -108,11 +108,11 @@ pub(super) fn canonicalize_proven_array_method_reads(function: &mut MirFunction)
             .blocks
             .get_mut(&block_id)
             .expect("candidate block exists");
-        block.instructions[index] = MirInstruction::ArrayElementRead {
+        block.instructions[index] = MirInstruction::ArrayRead {
             site_id: ArrayReadSiteId::new(next_site),
             dst,
             receiver,
-            index: element_index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: element_index },
         };
         next_site += 1;
         if let Some(dst) = dst {

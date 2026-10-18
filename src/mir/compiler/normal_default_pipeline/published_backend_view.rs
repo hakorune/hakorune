@@ -283,11 +283,11 @@ impl<'module> PublishedMirBackendView<'module> {
                         });
                         continue;
                     }
-                    if let MirInstruction::ArrayElementRead {
+                    if let MirInstruction::ArrayRead {
                         site_id,
                         dst,
                         receiver,
-                        index,
+                        operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
                     } = instruction
                     {
                         array_element_reads.push(PublishedArrayElementReadRef {

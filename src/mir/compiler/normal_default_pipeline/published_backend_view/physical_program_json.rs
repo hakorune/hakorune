@@ -368,10 +368,10 @@ fn encode_instruction(
             json!({ "op": "array_set", "array": value(receiver),
                 "index": value(index), "value": value(stored), "site": site })
         }
-        MirInstruction::ArrayElementRead {
+        MirInstruction::ArrayRead {
             dst,
             receiver,
-            index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
             ..
         } => {
             json!({ "op": "array_get", "array": value(receiver),

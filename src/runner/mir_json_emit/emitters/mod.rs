@@ -373,11 +373,11 @@ fn emit_instruction(
         } => Ok(array_write::emit(
             *site_id, *dst, *kind, *producer, *receiver, *index, *value,
         )),
-        I::ArrayElementRead {
+        I::ArrayRead {
             site_id,
             dst,
             receiver,
-            index,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
         } => Ok(serde_json::json!({
             "op": "array_element_read",
             "site_id": site_id.0,
