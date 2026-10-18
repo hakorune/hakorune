@@ -950,36 +950,14 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   product/basis and actual Phi relation; Exit reports actual predecessor/payload
   AFTER cleanup. All these physical connections and both final consumers remain.
 
-- Root925 selected frontier: CLI268195.686s matches all Root925B source hashes.
-  JSON339 .140s exit1/noEXE, stderr byte-exact337 (borrowed-result/source-not-i64).
-  Unchanged mimalloc340 EXE143.722s/run.001451s exit0, runtime output/stderr/exit
-  exact338; compile stderr differs only ns. Runtime894A/FFI897A are explicit
-  predecessor pins, not fresh all-three source equality. Source manifest checks
-  and stable4/diffPASS; retain B/CLI268/native evidence until whole Loop closure.
+- Root925 frontier evidence: `ae4a16e7c4` retains CLI268/current925B source
+  equality, JSON339 unchanged and mimalloc340 runtime exact338. Keep those pins
+  until whole Loop closure; backend artifacts remain explicit predecessors.
 
-- Root926 BoxShape scope: extract existing IfForm cursor/append/SSA-loan issuer
-  to builder/condition_materialization.rs; existing If wrapper retains original
-  targets/merge and observer Rc, and deferred EdgeCFG still emits after arms.
-  Read-only condition worker reviewed actual extraction; no source reclassification
-  or early Branch. Finish checks captured/current/writer block agreement.
-  Only builder.rs module declaration, IfForm, shared issuer and builder README
-  belong to this extraction; older builder.rs source-role export stays WIP.
-  Existing If descent/whole Bool/borrowed-write guards verify the shared caller.
-  Checked Loop driver/typed purpose/physical completion remain next, not enabled.
-
-  Root926A84.546s compile;26 focusedPASS/1 independently reproduced prior925B
-  failure: if_driver_preserves_termination_and_variable_phi_shapes expects empty
-  merge predecessors where actual has surviving Else. Exact CFG/assertion matches
-  prior; unarmed path, no condition capture. Keep both binaries/logs until source
-  Loop closure. Wrong scalar-expression module filter yielded0, corrected to
-  normal_default_root_catalog_lifecycle::scalar_expression_tests (3PASS), never
-  counted zero as success. Existing armed observer, short-circuit finalization,
-  borrowed write/guard and If parity/raw pass. Stable4/diffPASS; no full green.
-
-  CLI269171.656s matches Root926A/current source. JSON341 .139s exit1/noEXE,
-  stderr exact339. Unchanged mimalloc342 EXE141.861s/run.001581s exit0, output/
-  stderr/exit exact340; compile stderr differs only ns. Same explicit predecessor
-  backend pins. Retain A/CLI269/prior925B/native/review evidence until Loop closes.
+- `d55780ec5c`: shared condition capture and actual IfForm switch retain targets,
+  observer Rc/deferred EdgeCFG. 26PASS/1 prior925B If-shape failure; stable4.
+  CLI269/JSON341 unchanged, mimalloc342 runtime exact340. Keep A/CLI269/prior
+  evidence until whole Loop closure; no checked Loop execution permission.
 - Next cleanup mapping (carrier worker, actual owners): reuse root_graph shared
   suffix writer with caller-owned continuation, not Return-only emit_root_graph.
   Same source port homes/normal_ends must resolve installed End plans (BindingRef,
@@ -987,3 +965,35 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   returned graph.clean is cleanup ENTRY: actual Loop predecessor is the retained
   final continuation AFTER cleanup and SSA localization. Empty Normal End skips
   helper/Fault frame. Prepare from same Loop packet; no root-exit registry/key.
+
+- Root927 functional scope: shared Bool prefix consumer now distinguishes original
+  If invocation from genuine source Loop schedule context. Source context retains
+  SAME immutable product/frame index, common materialization Rc and actual targets;
+  never parent physical Rc. Preflight checks original pending group and Header vs
+  body-If purpose; existing Loop fixture covers missing group/wrong index/purpose.
+  Same affine lease checks actual Branch; If keeps exact If wrapper identity.
+  New source-Loop branch APIs are not yet called by whole physical driver, so
+  Header/After reads, source-edge cleanup closure and both finals stay owed;
+  both execution fences remain. No new app/test function/guard or Call pool.
+
+  Root927A79.905s failed only private product getter; widened within local-commit
+  owner, no mutable access. B132.498s compile;63PASS/1 exact prior925B If-shape
+  failure across14 nonzero filters; stable4/diffPASS. Same source manifest.
+  Worker confirms target distinct/actual Branch equality is not schedule-target
+  closure: whole Loop must still bind Header→body/After and If→original arms.
+  Preserve strict empty CarriersOnly edge args; plain emit_conditional is None
+  and cannot seal this packet. Do not weaken branch-shape checks.
+  Whole completion must require SAME product/index context on every Bool child.
+- Actual borrowed-writer seam (condition worker): production raw_loop_child_port
+  lower_loop holds active_source/root_scope field borrows. Common physical core's
+  _callable_loop_root_scope is UNUSED. Clone source/ledger and copy source input/
+  locator before taking SAME Raw port mutably; production entry lends this whole
+  port to PlanLowerer. Keep scope/locator/module inside it and use existing short
+  reborrow. Never take root scope, rebuild a port or add a second evaluator.
+  Next frame bridge: input.source().expr_at(original owned node0 site) lends Bool AST.
+  Local relation lends ordinal/type/binding; binding diagnostic_name locates name.
+  Share existing Local receipt→state→publish tail; no AST re-descent/fake ordinal.
+  CLI270204.963s matches Root927B/current source. JSON343 .145s same341/noEXE.
+  Unchanged mimalloc344 EXE141.466s/run.001462s exit0, output/stderr/exit exact342;
+  compile stderr differs only ns, explicit predecessor backends. Keep B/CLI270/
+  source/native/reviews until full Loop closure. New Loop branch APIs unexercised.
