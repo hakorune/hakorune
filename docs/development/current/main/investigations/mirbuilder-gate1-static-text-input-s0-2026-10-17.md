@@ -849,11 +849,37 @@ Next physical Decision (reference_integration_review, same Text series):
   adding Bool to StringInvokeOperand would incorrectly make is_text accept Bool.
   Checked comparison proof carries Invoke/Normal/cleanup and original envelope;
   existing cursors/short-circuit completion/outer Branch seal retain control.
-- Text Local publication first needs a real temporary-to-Home handoff, using SAME
-  initializer packet/CompletedLocalBinding identity (existing ReuseInitializer,
-  no owned pair Copy), existing local_commits/installed_home/unwind/end_plan.
-  Root is last acquired: simply dropping its End from scalar continuation would
-  end earlier children while root remains live and violate the common LIFO law.
-  Join the source-backed handoff with the common lifetime verifier before child
-  cleanup; Fault must end root, remaining temporaries and priorHomes exactly once.
-  A new enum arm or weakened LIFO alone cannot authorize ownership transfer.
+- Text Local publication will use explicit infallible MIR lifecycle handoff
+  `StringResidenceInstall { value }`, carrying the SAME acquired root SSA pair,
+  no destination/token mutation/runtime call/refcount increase. The packet keeps
+  original source acquisition, Install binding and CompletedLocalBinding with
+  existing ReuseInitializer identity. The marker never grants source permission.
+  A source-only invisible event cannot reach both independent physical machines.
+- Existing String lifetime state gains two ordered domains. Install pops EXACT
+  temporary top into newest Home; foreign/duplicate/already-Home/Fault-side
+  installation refuses. Borrow checks either live domain. End requires temporary
+  top first, or newest Home only when no temporary remains. No arbitrary End or
+  weakening of the existing source/Fault law. Kernel token End already supports
+  this identity-preserving move without a runtime operation.
+- Normal: Install root, End nonroot temporaries in reverse, then continue with
+  root as Home. Fault before Install: temporary reverse then priorHomes. Fault
+  during cleanup after Install: remaining temporary reverse, new root Home then
+  priorHomes. SAME packet/source validator proves exact graph on both final scans.
+- Physical construction paths: MIR instruction + use/rewriting/display/effect
+  consumers, invoke_string verifier, existing physical JSON instruction owner,
+  C schema/index/native+indexed rows/emitter and state-domain helpers. Use the
+  existing common temporary/Home lifetime owners, not a second registry.
+- Source construction paths: selected initializer writer and projection/path
+  validator, local_entry/installed_home/unwind/end_plan and sole receipt callback.
+  Preflight BOTH lifecycle prefix and Home entry, then atomically publish in the
+  existing prepared commit. Never publish prefix before a fallible Home insert.
+  Both final visitors require SAME packet/Install/acquisition/receipt/End census.
+- Replaced private responsibilities: scalar-only initializer value/placement/
+  Copy/continuation policy, and single expression-temporary lifetime state.
+  Retain unaffected scalar/Static users and root graph/field cleanup owners.
+  Existing initializer, String physical/native Normal/Fault and final-consumer
+  mutation owners supply the acceptance; no new proof app or guard per slice.
+- This construction is selected next inside the same Text series; finite entry
+  execution, owned residence reads, conditional String comparisons, complete
+  module Call AND non-Call source view, Loop After and named app/C acceptance
+  remain required. No source admission or EXE success follows from this Decision.
