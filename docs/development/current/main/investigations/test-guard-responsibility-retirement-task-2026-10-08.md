@@ -1,5 +1,5 @@
 Task: TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0
-Status: active; TR-1/TR-2/TR-3 verified, TR-4 bounded selection pending
+Status: selected TR-1..TR-4 maintenance batch verified; wider inventory unselected
 Date: 2026-10-19
 Scope: ordered duplicate-test retirement, one fixture family, then existing guard consolidation
 Exception: explicit user-requested tooling task, separate from the active compiler semantic slice
@@ -238,3 +238,29 @@ Full inventory guard has44 errors for unmapped hako_alloc closeout wrappers;
 exact same44 errors reproduced from archived961d7dd0ef. No rebaseline/waiver.
 Pointer, bash syntax and diff checks PASS. Disposable scratch trees removed;
 936A/B evidence kept until TR-4 decision and maintenance closeout.
+
+## TR-4 selected retirement and batch closeout
+
+Read-only review found no completed-row guard with live gate callers in the
+current source family. Do not delete enduring gate checks to satisfy that shape.
+Select instead the completed manual split entry
+`raw_invocation_source_transport_classifier_split_guard.sh`: owner card landed,
+no executable callers, index-only public entry. It pins an obsolete parent `.rs`
+path (current owner is a directory) and duplicates existing classifier execution.
+Source classification remains owned by the same Rust classifier; retained
+existing classifier6 and transport13 tests PASS on source-equal936B,8MiB/one
+thread. Remove only this47-line shell entry and index row;
+keep all Rust tests, classifier and directory owner. No successor shell wrapper.
+General size hygiene stays in RULES. Historical landed card stays historical.
+Unlike TR-3, this name is absent from the frozen compatibility index. Existing
+navigation validation rejects a tombstone for such a name, so no tombstone or
+new compatibility entry is added. Retained Rust tests are the semantic successor.
+
+Selected batch TR-1..TR-4 is complete after physical deletion and navigation
+checks; this is not a full repository cleanup or whole-goal completion. Commits
+6449fadb6f (duplicate registration) and961d7dd0ef (fixture consolidation) retain
+Rust evidence. TR-3 removal b446ed7a3a and integration db797b1d04 are one series;
+b446 alone is not a usable closeout revision (caller update followed immediately).
+Return CURRENT_STATE to the retained Loop/Text row after this commit. Full goal
+remains active and all unfinished source-to-final gates remain owed.936A/B and
+935D pins stay for compiler baseline reuse; disposable guard scratch was removed.
