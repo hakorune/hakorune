@@ -142,7 +142,7 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
       strcmp(op, "borrowed_null_compare") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||
       strcmp(op, "object_field_get") == 0 || strcmp(op, "invoke_normal_result") == 0 ||
-      strcmp(op, "array_get") == 0 ||
+      strcmp(op, "array_get") == 0 || strcmp(op, "array_length") == 0 ||
       strcmp(op, "fault_frame_enter") == 0)
     return yyjson_obj_get(instruction, "dst");
   if (strcmp(op, "birth_call") != 0) return NULL;

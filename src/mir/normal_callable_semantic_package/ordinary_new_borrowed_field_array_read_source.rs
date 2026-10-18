@@ -4,16 +4,16 @@ use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedFieldArrayReadSourceV1 {
-    read: Rc<super::super::super::super::CheckedFieldArrayGetSourceV1>,
+    read: Rc<super::super::super::super::CheckedFieldArrayAccessSourceV1>,
     return_sites: Box<[OwnedExprSiteV1]>,
     local_origin: Option<(BindingRefV1, SourceBindingSiteV1)>,
 }
 impl CheckedFieldArrayReadSourceV1 {
-    pub(crate) fn read(&self) -> &Rc<super::super::super::super::CheckedFieldArrayGetSourceV1> { &self.read }
+    pub(crate) fn read(&self) -> &Rc<super::super::super::super::CheckedFieldArrayAccessSourceV1> { &self.read }
     pub(crate) fn return_sites(&self) -> &[OwnedExprSiteV1] { &self.return_sites }
 }
 impl std::ops::Deref for CheckedFieldArrayReadSourceV1 {
-    type Target = super::super::super::super::CheckedFieldArrayGetSourceV1;
+    type Target = super::super::super::super::CheckedFieldArrayAccessSourceV1;
     fn deref(&self) -> &Self::Target { &self.read }
 }
 impl CheckedFieldArrayReadSourceV1 {
@@ -62,7 +62,7 @@ pub(super) fn normalize_reads(
 }
 
 #[allow(clippy::too_many_arguments)]
-pub(super) fn capture_field_array_get(
+pub(super) fn capture_field_array_read(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
     site: &SourceExprSiteV1,
@@ -71,6 +71,7 @@ pub(super) fn capture_field_array_get(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     proven_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     original: Option<&super::super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
+    writers: &super::super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Result<Option<Rc<CheckedFieldArrayReadSourceV1>>, String> {
     let function = input.function();
     // The return source is either the `get` itself or a local bound by a
@@ -94,8 +95,12 @@ pub(super) fn capture_field_array_get(
         &OwnedExprSiteV1::new(input.owner(), call_site.clone()))).transpose()?.flatten();
     let read = match held {
         Some(read) => Some(read),
-        None => super::super::super::super::field_array_read_source::capture_exact_get(
-            input, caller, &call_site, selected, batch, constructors, proven_fields)?,
+        None => match super::super::super::super::field_array_read_source::capture_exact_get(
+            input, caller, &call_site, selected, batch, constructors, proven_fields)? {
+            Some(read) => Some(read),
+            None => super::super::super::super::field_array_read_source::capture_exact_count(
+                input, caller, &call_site, selected, batch, constructors, writers)?,
+        },
     };
     let Some(read) = read else { return Ok(None) };
     Ok(Some(Rc::new(CheckedFieldArrayReadSourceV1 {

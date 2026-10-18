@@ -287,17 +287,7 @@ impl MemOpKind {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayReadOperationV1 {
     Element { index: ValueId },
-}
-impl ArrayReadOperationV1 {
-    pub fn used_values(self) -> impl Iterator<Item = ValueId> {
-        match self { Self::Element { index } => Some(index) }.into_iter()
-    }
-    pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
-        match self { Self::Element { index } => rewrite(index) }
-    }
-    pub fn remapped(self, mut remap: impl FnMut(ValueId) -> ValueId) -> Self {
-        match self { Self::Element { index } => Self::Element { index: remap(index) } }
-    }
+    Count,
 }
 
 /// MIR instruction types (full enum; backend allowlists are contract-driven)

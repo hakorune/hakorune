@@ -134,11 +134,12 @@ impl MirBuilder {
         };
         if let Some(recipe) = recipe {
             let receiver = lower_method_call_receiver_v1(self, port, input)?;
-            let values = AssociatedMethodCallArgumentsV1::new(port, input).lower_all_with_expected_sites(self, &[recipe.index_site().clone()])?;
-            let [index] = values.as_slice() else { return Err(crate::mir::named_array_obligation::fault("read-argument-cardinality")) };
+            let expected: Vec<_> = recipe.index_site().into_iter().cloned().collect();
+            let values = AssociatedMethodCallArgumentsV1::new(port, input).lower_all_with_expected_sites(self, &expected)?;
+            let operation = recipe.physical_operation(&values)?;
             let dst = self.next_value_id();
-            let read = self.emit_checked_field_array_read_v1(&recipe, receiver, *index, dst)?;
-            port.complete_field_array_read_v1(recipe, read, receiver, *index, dst)?;
+            let read = self.emit_checked_field_array_read_v1(&recipe, receiver, operation, dst)?;
+            port.complete_field_array_read_v1(recipe, read, receiver, operation, dst)?;
             return Ok(dst);
         }
         let route_plan = {

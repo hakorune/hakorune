@@ -192,7 +192,7 @@ pub(crate) use result_class_claim::{
 };
 #[path = "ordinary_new_field_array_read_source.rs"]
 mod field_array_read_source;
-pub(crate) use field_array_read_source::CheckedFieldArrayGetSourceV1;
+pub(crate) use field_array_read_source::CheckedFieldArrayAccessSourceV1;
 
 #[path = "array_i64_fields.rs"]
 mod array_i64_fields;

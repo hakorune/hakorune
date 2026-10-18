@@ -33,7 +33,7 @@ pub(crate) struct NamedArrayReadMarkerV1 {
     pub(crate) owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     pub(crate) read: crate::mir::ArrayReadSiteId,
     pub(crate) receiver: ValueId,
-    pub(crate) index: ValueId,
+    pub(crate) operation: crate::mir::instruction::ArrayReadOperationV1,
     pub(crate) dst: ValueId,
 }
 

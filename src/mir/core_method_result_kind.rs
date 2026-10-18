@@ -59,6 +59,7 @@ impl CoreMethodResultKindV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodSemanticLawV2 {
     Unprojected,
+    ArrayCount,
     CodePointCount,
     CodePointHalfOpenClamped,
     CodePointSearchFromZero,
@@ -69,6 +70,7 @@ impl CoreMethodSemanticLawV2 {
     pub(crate) fn as_manifest_name(self) -> &'static str {
         match self {
             Self::Unprojected => "Unprojected",
+            Self::ArrayCount => "ArrayCount",
             Self::CodePointCount => "CodePointCount",
             Self::CodePointHalfOpenClamped => "CodePointHalfOpenClamped",
             Self::CodePointSearchFromZero => "CodePointSearchFromZero",

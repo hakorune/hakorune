@@ -91,9 +91,9 @@ impl MirInterpreter {
             MirInstruction::ArrayRead {
                 dst,
                 receiver,
-                operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
+                operation,
                 ..
-            } => self.execute_array_element_read(*dst, *receiver, *index)?,
+            } => self.execute_array_read(*dst, *receiver, *operation)?,
             MirInstruction::FieldGet {
                 dst, base, field, ..
             } => {

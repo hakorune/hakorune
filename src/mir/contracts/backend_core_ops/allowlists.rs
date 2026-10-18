@@ -42,7 +42,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::DestroyOwned { .. }
             | MirInstruction::MapLiteralEntryWrite { .. }
             | MirInstruction::ArrayElementWrite { .. }
-            | MirInstruction::ArrayRead { .. }
+            | MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. }, .. }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
@@ -166,7 +166,8 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
         MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
-        MirInstruction::ArrayRead { .. } => &["array_element_read"],
+        MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. }, .. } => &["array_element_read"],
+        MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. } => &[],
         MirInstruction::MapLiteralEntryWrite { .. } => &[],
         MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],

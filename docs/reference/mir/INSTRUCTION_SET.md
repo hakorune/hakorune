@@ -78,10 +78,15 @@ is `ArrayBox` — a pure `READ` surface call carried on a canonical instruction
 existing Null/strict-string behavior, no fault edge). Sites whose receiver
 is not proven `ArrayBox` keep `call_method` and are unaffected.
 Operation operands belong to `ArrayReadOperationV1`; generic use/rewrite/remap
-visitors borrow its operand API. Only Element is currently constructed. The
-`array_element_read` JSON-v0 and lifecycle `array_get` wire forms retain their
-existing receiver/index fields and semantics. New observation operations require
-their own source proof and selected backend admission.
+visitors borrow its operand API. Element keeps the `array_element_read` JSON-v0
+and lifecycle `array_get` wire forms and receiver/index semantics.
+`ArrayRead { operation: Count }` has no index and yields i64 under canonical
+ArrayLen/0 ArrayCount/PureRead law. Its checked field source retains the original
+method and unique all-writer Birth provider loan. Lifecycle publication requires
+the exact validated named-array read binding, then emits `array_length` with
+`array,dst`; independent C validates the live field/provider before calling the
+existing `nyash.array.slot_len_h`. Count adds no Home, End or Fault. It is not a
+generic JSON-v0 instruction or native single-root whitelist admission.
 
 `ArrayResidenceRelease { value }` is an ordinary non-pure WRITE instruction,
 without result, FaultFrame operand or source-Fault successor. It consumes the

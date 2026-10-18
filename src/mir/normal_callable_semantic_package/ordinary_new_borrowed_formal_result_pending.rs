@@ -20,7 +20,7 @@ pub(super) mod mul_result;
 
 #[path = "ordinary_new_borrowed_field_array_read_source.rs"]
 pub(super) mod field_array_read;
-use field_array_read::{capture_field_array_get, CheckedFieldArrayReadSourceV1};
+use field_array_read::{capture_field_array_read, CheckedFieldArrayReadSourceV1};
 
 #[derive(Debug)]
 pub(super) enum BorrowedResultSourcePhaseV1 {
@@ -243,6 +243,7 @@ fn source_result_pending(
     field_candidates: &Rc<composition::FieldCandidatesV1>,
     original: Option<&super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
     original_return: Option<&original::OriginalReturnSourceLoanV1>,
+    field_claims: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<BorrowedI64ResultSourceV1, String> {
     let mut matches = contracts.iter().filter(|row| row.owner == owner);
@@ -293,8 +294,8 @@ fn source_result_pending(
                 fields.push(field); BorrowedResultClassV1::I64
             } else if let Some(call) = capture_call(input, site, needs)? {
                 calls.push(call); BorrowedResultClassV1::UnresolvedScalar
-            } else if let Some(read) = capture_field_array_get(
-                input, contract, site, selected, batch, constructors, proven_fields, original,
+            } else if let Some(read) = capture_field_array_read(
+                input, contract, site, selected, batch, constructors, proven_fields, original, field_claims,
             )? { field_array_reads.push(read); BorrowedResultClassV1::I64 }
             else if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Bool(_))) { BorrowedResultClassV1::Bool }
             else if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Null))
@@ -385,7 +386,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 needs,
                 constructors,
                 proven_fields,
-                &field_candidates, original.as_ref().ok(), request.as_ref(),
+                &field_candidates, original.as_ref().ok(), request.as_ref(), field_claims,
                 *owner,
             ))
             .and_then(|mut proof| {

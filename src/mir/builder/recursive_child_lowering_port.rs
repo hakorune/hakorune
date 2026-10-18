@@ -130,7 +130,7 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     ) -> Result<(), String> { Err("[freeze:contract][borrowed-set/completion-unavailable]".into()) }
 
     fn prepare_field_array_read_v1(&mut self, _method: &str, _arity: usize) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>>, String> { Ok(None) }
-    fn complete_field_array_read_v1(&mut self, _recipe: std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, _read: crate::mir::ArrayReadSiteId, _receiver: ValueId, _index: ValueId, _dst: ValueId) -> Result<(), String> {
+    fn complete_field_array_read_v1(&mut self, _recipe: std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, _read: crate::mir::ArrayReadSiteId, _receiver: ValueId, _operation: crate::mir::instruction::ArrayReadOperationV1, _dst: ValueId) -> Result<(), String> {
         Err("[freeze:contract][named-array/read-consumer-unavailable]".into())
     }
 

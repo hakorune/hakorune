@@ -1,16 +1,19 @@
 # Field Array read source and physical owner
 
 Status: active owner; local/Birth connection under construction.
-Scope: checked Integer Get source, its original uses and sole physical emission.
+Scope: checked field Array Get/Count source, original uses and sole physical emission.
 Related: [source issuer](../ordinary_new_field_array_read_source.rs),
 [Return use](../ordinary_new_borrowed_field_array_read_source.rs),
 [physical read](field_read.rs), [collector](collector.rs).
 
-The whole-Box Integer store census, exact self field, Integer index and original
-Birth provider establish one immutable CheckedFieldArrayGetSourceV1. ArrayBox's
-name or the runtime Get payload cannot establish this source law. The issuer
-requires the original instance method's owner, selected canonical key and batch
-membership. Missing census, foreign receiver/index or provider refuses issuance.
+One immutable CheckedFieldArrayAccessSourceV1 retains the exact self field,
+original instance method, selected canonical key, batch membership and Birth
+provider. Get additionally requires the whole-Box Integer store census and exact
+Integer index. Count retains the original method Arc, canonical ArrayLen/0
+ArrayCount law and original all-writer loan proving the unique Plain Birth Array
+provider; it requires no index or Integer elements. Incomplete, opaque, foreign,
+replacement or null writer evidence cannot establish that residence. The class
+name or runtime payload alone proves neither operation.
 
 Return use is a separate wrapper retaining all original Return sites and any
 original local initializer relation. It still requires the original scalar
@@ -18,9 +21,19 @@ result/Completion law. The physical read recipe borrows the same inner read Rc;
 changing Return membership never manufactures a different read or a new Home.
 Normalization preserves every Return use while sharing that same read loan.
 
-The raw source hook and existing checked Get writer remain the only physical
-owner. The original named-array collector checks source identity, exact Get,
-receiver/index/destination, declared field/provider and physical marker census.
+Field-return reads borrow the shared full scalar source validator without
+requiring a borrowed-scalar physical Call participant. That participant's own
+anchor gate remains unchanged. Original Return/Completion, declaration, grounding,
+dependency closure and census validation precede lending the retained read Rc.
+
+The raw source hook and existing ArrayRead writer remain the sole physical
+owner. Element carries one index; Count carries none. The original named-array
+collector checks source identity, operation/operands/destination, declared
+field/provider and physical marker census. Count publication borrows only this
+validated exact instruction binding; generic ArrayRead admission stays Element
+only. Lifecycle JSON uses array_length with array/dst, and independent C validates
+the live field residence/provider before existing nyash.array.slot_len_h. No new
+Home or Fault is issued. Native single-root admission remains separate.
 Local-to-Birth support must retain the original initializer/binding and checked
 read, original local/Copy transport and exact Birth actual. It must pass the
 existing finishing and independent final consumers. Changing Unknown to Integer

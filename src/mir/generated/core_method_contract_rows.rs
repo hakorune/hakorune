@@ -34,7 +34,7 @@ pub(crate) const CORE_METHOD_CONTRACT_ROWS_V2: &[CoreMethodContractRowV2] = &[
         canonical: "length",
         aliases: &["len", "size"],
         arities: &[0],
-        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::ArrayCount)],
         op: CoreMethodOp::ArrayLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,

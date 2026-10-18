@@ -180,19 +180,14 @@ pub fn format_instruction(
             )
         }
 
-        MirInstruction::ArrayRead {
-            site_id,
-            dst,
-            receiver,
-            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
-        } => {
-            let dst = dst
-                .map(|dst| format!("{} ", format_dst(&dst, types)))
-                .unwrap_or_default();
-            format!(
-                "{}array.read #{} get receiver={} index={}",
-                dst, site_id.0, receiver, index
-            )
+        MirInstruction::ArrayRead { site_id, dst, receiver, operation } => {
+            let dst = dst.map(|dst| format!("{} ", format_dst(&dst, types))).unwrap_or_default();
+            match operation {
+                crate::mir::instruction::ArrayReadOperationV1::Element { index } =>
+                    format!("{}array.read #{} get receiver={} index={}", dst, site_id.0, receiver, index),
+                crate::mir::instruction::ArrayReadOperationV1::Count =>
+                    format!("{}array.read #{} count receiver={}", dst, site_id.0, receiver),
+            }
         }
 
         MirInstruction::ArrayStateContractClaim { contract_id, array } => {

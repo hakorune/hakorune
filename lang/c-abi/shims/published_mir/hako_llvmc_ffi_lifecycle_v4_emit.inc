@@ -443,6 +443,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%aset%u_%zu = call i32 @\"nyash.array.checked_set_i64_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%v%u, i64 %%v%u)\n"
             "  switch i32 %%aset%u_%zu, label %%invalid [ i32 0, label %%asd%u_%zu i32 1, label %%fault ]\nasd%u_%zu:\n",
             b, ri, site, sarray, sindex, svalue, b, ri, b, ri, b, ri);
+      } else if (lv4_is(ins, "op", "array_length")) {
+        fprintf(f, "  %%v%u = call i64 @\"nyash.array.slot_len_h\"(i64 %%v%u)\n",
+            lv4_u(ins, "dst"), lv4_u(ins, "array"));
       } else if (lv4_is(ins, "op", "array_get")) {
         /* Same surface as the generic lane's `call_method` get lowering:
            the i64-or-handle carrier, miss → the lane's null sentinel 0.
@@ -745,6 +748,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.array.checked_append_f64_v1\"(ptr, i64, i64, double)\n"
       "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"
       "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n"
+      "declare i64 @\"nyash.array.slot_len_h\"(i64)\n"
       "declare void @nyrt_handle_release_h(i64)\n");
   if (in->native) return lv4_emit_function(f, in, abi, 0);
   fprintf(f,

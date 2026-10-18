@@ -377,6 +377,9 @@ fn encode_instruction(
             json!({ "op": "array_get", "array": value(receiver),
                 "index": value(index), "dst": dst.map(|value| value.0) })
         }
+        MirInstruction::ArrayRead { dst, receiver,
+            operation: crate::mir::instruction::ArrayReadOperationV1::Count, ..
+        } => json!({ "op": "array_length", "array": value(receiver), "dst": dst.map(|value| value.0) }),
         MirInstruction::StringResidenceInstall { value: installed } => {
             let input = abi_input.ok_or_else(|| fault("string-residence-input-missing"))?;
             let (_, caller, _) = call_context.ok_or_else(|| fault("string-residence-caller-missing"))?;

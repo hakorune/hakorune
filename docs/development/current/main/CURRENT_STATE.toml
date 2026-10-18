@@ -1,10 +1,10 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "field-array/count-physical-route"
-current_design_stop = "none"
+current_blocker_token = "field-array/untyped-fixed-residence"
+current_design_stop = "FixedArrayResidenceSourceContractMissing"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,18 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-FIELD-ARRAY-READ-S0 resumed after requested TR-5a/5b/6 maintenance. Count WIP
-source-result passes; publication still emits ArrayBox.length Method Call rather
-than source-checked ArrayRead Count, root939E/940B exact same diagnostic.
-Connect the existing source/recipe through the sole physical route and both finals;
-then unchanged JSON frontier, canonical EXE and mimalloc regression remain owed.
-Maintenance removed one duplicate test and two obsolete shell entries, no new ones.
-All finite integration/R6/R7/Loop/authority/parser/selfcompile gates remain owed.
+FIELD-ARRAY-READ-S0 typed Count source/physical/both-final/publication verified:
+root941B48PASS, generated four JSON inputs unchanged, CLI280 Count0/1 EXE and
+unchanged mimalloc output/exit PASS with explicit predecessor backend provenance.
+Unchanged JSON365 still same owner32 Body10 source-not-i64: users has no declared
+field type. Resolve fixed source Array residence storage/Home/layout contract
+through existing owners; a source predicate relaxation grants none of these.
+Same row and all finite integration/R6/R7/Loop/authority/parser/selfcompile gates
+remain open. No full-suite/CI or current-HEAD rebuilt CLI claim.
 """
 next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

@@ -118,13 +118,16 @@ impl MirBuilder {
         Ok(Some(completed))
     }
 
-    pub(in crate::mir::builder) fn emit_checked_field_array_read_v1(&mut self, recipe: &crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1, receiver: ValueId, index: ValueId, dst: ValueId) -> Result<ArrayReadSiteId, String> {
-        if self.function_state.type_ctx.value_types.get(&index) != Some(&MirType::Integer) { return Err(crate::mir::named_array_obligation::fault("read-index-type")); }
-        let read = self.emit_array_element_read(Some(dst), receiver, index)?;
+    pub(in crate::mir::builder) fn emit_checked_field_array_read_v1(&mut self, recipe: &crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1, receiver: ValueId, operation: crate::mir::instruction::ArrayReadOperationV1, dst: ValueId) -> Result<ArrayReadSiteId, String> {
+        if !recipe.accepts_operation(operation) || operation.used_values().any(|index|
+            self.function_state.type_ctx.value_types.get(&index) != Some(&MirType::Integer)) {
+            return Err(crate::mir::named_array_obligation::fault("read-index-type"));
+        }
+        let read = self.emit_array_read(Some(dst), receiver, operation)?;
         self.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
         let function = self.function_state.current_function.as_mut().ok_or_else(|| crate::mir::named_array_obligation::fault("read-function-missing"))?;
         function.metadata.value_types.insert(dst, MirType::Integer);
-        function.metadata.named_array_read_obligations.push(crate::mir::named_array_obligation::NamedArrayReadMarkerV1 { owner: recipe.owner(), read, receiver, index, dst });
+        function.metadata.named_array_read_obligations.push(crate::mir::named_array_obligation::NamedArrayReadMarkerV1 { owner: recipe.owner(), read, receiver, operation, dst });
         Ok(read)
     }
 
@@ -134,12 +137,18 @@ impl MirBuilder {
         receiver: ValueId,
         index: ValueId,
     ) -> Result<ArrayReadSiteId, String> {
+        self.emit_array_read(dst, receiver, crate::mir::instruction::ArrayReadOperationV1::Element { index })
+    }
+
+    fn emit_array_read(&mut self, dst: Option<ValueId>, receiver: ValueId,
+        operation: crate::mir::instruction::ArrayReadOperationV1,
+    ) -> Result<ArrayReadSiteId, String> {
         let site_id = self.next_array_read_site_id();
         self.emit_instruction(MirInstruction::ArrayRead {
             site_id,
             dst,
             receiver,
-            operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
+            operation,
         })?;
         if let Some(dst) = dst {
             self.function_state

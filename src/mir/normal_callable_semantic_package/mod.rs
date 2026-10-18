@@ -246,7 +246,7 @@ pub(crate) use ordinary_new_coseal::{BorrowedScalarResultSourceLoanV1, CallableS
 pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
 
 pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
-pub(crate) use ordinary_new_coseal::{CheckedFieldArrayGetSourceV1, ArgumentFieldArrayReadSourceV1};
+pub(crate) use ordinary_new_coseal::{CheckedFieldArrayAccessSourceV1, ArgumentFieldArrayReadSourceV1};
 
 pub(crate) use ordinary_new_coseal::checked_expression_core_operation_v1;
 pub(in crate::mir) use ordinary_new_coseal::{ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1};

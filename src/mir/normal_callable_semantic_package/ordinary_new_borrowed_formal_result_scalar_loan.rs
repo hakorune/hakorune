@@ -456,6 +456,24 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> Result<Option<CallableScalarResultSourceLoanV1>, String> {
         if !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }
+        self.checked_callable_scalar_result_source_v1(owner).map(Some)
+    }
+
+    /// Field reads retain their own source responsibility even when no borrowed
+    /// scalar Call anchor selects the enclosing method as a physical participant.
+    pub(in crate::mir::normal_callable_semantic_package) fn field_array_return_reads_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<Rc<pending::field_array_read::CheckedFieldArrayReadSourceV1>>, String> {
+        let selected = self.borrowed_i64_results.get(&owner).and_then(|row| row.as_ref().ok())
+            .is_some_and(|proof| !proof.field_array_reads.is_empty());
+        if !selected { return Ok(Vec::new()); }
+        let source = self.checked_callable_scalar_result_source_v1(owner)?;
+        Ok(source.field_array_reads().to_vec())
+    }
+
+    fn checked_callable_scalar_result_source_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> Result<CallableScalarResultSourceLoanV1, String> {
         let proof = self.borrowed_i64_results.get(&owner)
             .ok_or_else(|| freeze("callable-scalar/result-missing"))?
             .as_ref().map_err(Clone::clone)?;
@@ -514,9 +532,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 pending.push((dependency.callee_owner(), (role == SourceDependencyRoleV1::ForwardReturn).then_some(current_proof.class)));
             }
         }
-        Ok(Some(CallableScalarResultSourceLoanV1 {
+        Ok(CallableScalarResultSourceLoanV1 {
             owner, facts: Rc::clone(&proof.source_facts),
             completion: Rc::clone(self.completion_source_for_owner_v1(owner).unwrap()),
-        }))
+        })
     }
 }

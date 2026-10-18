@@ -46,6 +46,7 @@ static box CoreMethodContractBox {
   result_dynamic() { return "Dynamic" }
 
   semantic_law_unprojected() { return "Unprojected" }
+  semantic_law_array_count() { return "ArrayCount" }
   semantic_law_code_point_count() { return "CodePointCount" }
   semantic_law_code_point_half_open_clamped() { return "CodePointHalfOpenClamped" }
   semantic_law_code_point_search_from_zero() { return "CodePointSearchFromZero" }
@@ -122,7 +123,7 @@ static box CoreMethodContractBox {
       "length",
       me._aliases2("len", "size"),
       "0",
-      me._law0(me.semantic_law_unprojected()),
+      me._law0(me.semantic_law_array_count()),
       me.effect_pure_read(),
       me.op_array_len(),
       me.result_i64_value(),

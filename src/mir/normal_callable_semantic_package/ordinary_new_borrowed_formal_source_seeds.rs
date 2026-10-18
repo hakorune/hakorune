@@ -635,7 +635,7 @@ impl OriginalBorrowedFormalSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn original_new_array_get_v1(
         &self, call: &OwnedExprSiteV1,
-    ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayGetSourceV1>>, String> {
+    ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, String> {
         if !self.seeds.corroborate_original_v1(&self.inventory) { return Err(freeze("array-read/original-seed-drift")); }
         self.seeds.new_calls.array_get_at_v1(call)
     }

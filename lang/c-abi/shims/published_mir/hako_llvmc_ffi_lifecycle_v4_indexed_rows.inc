@@ -125,6 +125,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id")) ||
           !index || index->kind != LV4_I64 ||
           !value || (value->kind != LV4_I64 && !(value->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, value)))) return 0;
+    } else if (lv4_is(ins, "op", "array_length")) {
+      hako_lv4_value* array = lv4_index_value(fn, lv4_u(ins, "array"));
+      if (faulted || birth || !array ||
+          !lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id"))) return 0;
     } else if (lv4_is(ins, "op", "array_get")) {
       /* A routed `.get` element read: the array operand is the same
          slot-loaded handle lane and the index a committed i64 — the read

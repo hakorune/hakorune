@@ -3,9 +3,9 @@ use super::*;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 impl CallableSemanticLoweringState {
-    pub(in crate::mir::builder) fn record_field_array_read_v1(&mut self, recipe: Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, read: crate::mir::ArrayReadSiteId, receiver: ValueId, index: ValueId, dst: ValueId) -> Result<(), String> {
+    pub(in crate::mir::builder) fn record_field_array_read_v1(&mut self, recipe: Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, read: crate::mir::ArrayReadSiteId, receiver: ValueId, operation: crate::mir::instruction::ArrayReadOperationV1, dst: ValueId) -> Result<(), String> {
         if recipe.owner() != self.owner || self.named_array_reads.iter().any(|row| row.call_site() == recipe.call_site()) { return Err(freeze("read-duplicate-source")); }
-        self.named_array_reads.push(crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::Read(crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadV1::new(recipe, read, receiver, index, dst)));
+        self.named_array_reads.push(crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::Read(crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadV1::new(recipe, read, receiver, operation, dst)));
         Ok(())
     }
 

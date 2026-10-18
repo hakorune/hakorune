@@ -195,6 +195,8 @@ fn selected_stored_result_retains_foreign_actual_ingress_failure() {
 fn field_array_result_retains_one_read_and_all_original_returns() {
     for (body, expected_returns) in [
         ("return me.values.get(0)", 1),
+        ("return me.values.length()", 1),
+        ("local v = me.values.length() if handle <= 0 { return v } return v", 2),
         ("local v = me.values.get(0) if handle <= 0 { return v } return v", 2),
         ("local v = me.values.get(0) local h = new Handle(v) local peer = new Handle(v) return v", 1),
     ] {
@@ -216,7 +218,8 @@ fn field_array_result_retains_one_read_and_all_original_returns() {
         }
         assert_eq!(read.call().owner(), contract.owner);
         assert_eq!(read.receiver().owner(), contract.owner);
-        assert_eq!(read.index().owner(), contract.owner);
+        if let Some(index) = read.index() { assert_eq!(index.owner(), contract.owner); }
+        assert_eq!(read.is_count(), body.contains("length()"));
         assert_eq!(read.provider().owner(), "Page");
         if body.contains("new Handle") {
             let claims = ledger.claims.borrow();
@@ -253,7 +256,7 @@ fn field_array_result_retains_one_read_and_all_original_returns() {
             }
         }
         read.recheck_census(contract.owner, &proof.returns, &ledger.array_i64_fields).unwrap();
-        assert!(read.recheck_census(contract.owner, &proof.returns, &BTreeMap::new()).is_err());
+        assert_eq!(read.recheck_census(contract.owner, &proof.returns, &BTreeMap::new()).is_ok(), read.is_count());
         assert!(read.recheck_census(contract.owner, &[], &ledger.array_i64_fields).is_err());
     }
 }
@@ -276,7 +279,7 @@ fn parameterless_result_source_requires_original_parameter_census() {
             &package.ordinary_new_claim_ledger.field_write_claims, &package.instance_constructors,
             Err(&"test/no-original-source".to_owned()), &BTreeMap::new(), &package.parameter_contracts, &[]);
         let result = source_result_pending(package.batch(), &package.selected, &[proposed],
-            &BTreeMap::new(), &[], &package.instance_constructors, &BTreeMap::new(), &fields, None, None, contract.owner);
+            &BTreeMap::new(), &[], &package.instance_constructors, &BTreeMap::new(), &fields, None, None, &package.ordinary_new_claim_ledger.field_write_claims, contract.owner);
         if arity == 0 {
             let result = result.unwrap();
             assert_eq!(result.class, BorrowedResultClassV1::Bool);

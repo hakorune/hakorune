@@ -46,15 +46,16 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         let Some(node) = self.current_source_site_v1() else { return Ok(None) };
         let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
         let recipe = ledger.field_array_read_recipe_v1(owner, &site)?;
-        if recipe.is_some() && crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity) != Some(crate::boxes::array::ArrayMethodId::Get) {
+        if recipe.as_ref().is_some_and(|recipe| crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
+            != Some(if recipe.is_count() { crate::boxes::array::ArrayMethodId::Length } else { crate::boxes::array::ArrayMethodId::Get })) {
             return Err("[freeze:contract][named-array/read-call-shape]".into());
         }
         Ok(recipe)
     }
-    fn complete_field_array_read_v1(&mut self, recipe: std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, read: crate::mir::ArrayReadSiteId, receiver: ValueId, index: ValueId, dst: ValueId) -> Result<(), String> {
+    fn complete_field_array_read_v1(&mut self, recipe: std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, read: crate::mir::ArrayReadSiteId, receiver: ValueId, operation: crate::mir::instruction::ArrayReadOperationV1, dst: ValueId) -> Result<(), String> {
         let node = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][named-array/read-source-missing]".to_owned())?;
         if self.callable_owner_v1() != Some(recipe.owner()) || recipe.call_site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node) { return Err("[freeze:contract][named-array/read-source-drift]".into()); }
-        self.callable_ledger.as_ref().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?.borrow_mut().record_field_array_read_v1(recipe, read, receiver, index, dst)
+        self.callable_ledger.as_ref().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?.borrow_mut().record_field_array_read_v1(recipe, read, receiver, operation, dst)
     }
 
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {

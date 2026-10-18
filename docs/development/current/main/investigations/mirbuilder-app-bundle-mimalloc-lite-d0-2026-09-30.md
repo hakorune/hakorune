@@ -763,3 +763,75 @@ not physical connection. Next: map selected member route/source recipe to actual
 Count emitter, no legacy Call permission or test removal to hide this red.
 Keep939E/940A/B and prior native/backend pins until same-role Count acceptance.
 No current-source native/JSON-progress/CI/full-suite claim.
+
+Root941 same Decision refinement after read-only review: field read lending was
+coupled to borrowed-scalar physical participation. Extract its existing full
+source validator unchanged; borrowed-scalar entry keeps its original anchor gate.
+Field-return lending selects only retained nonempty read facts, then runs that
+same sealed class/grounding/Completion/declaration/parameterless/Return/census/
+mul/dependency closure validation before lending original read Rc. Field recipes
+use that owner; no new census/map/receipt, generic scalar permission or source
+rewrite. Reuse current field/source/publication/drift tests, no added cases.
+
+Root941 verified typed field Count connection (whole row remains unfinished):
+- Original field-read source shares residence with Get; Count retains original
+  method Arc, canonical ArrayLen/0 ArrayCount/PureRead row and sole all-writer
+  provider loan. Scalar result lending now shares the full validator independently
+  of borrowed-scalar physical participation; that participant gate is unchanged.
+- Existing Read recipe/writer/collector/both final consumers now carry operation
+  rather than a fake index. Count publishes only the validated exact instruction
+  binding as array_length(array,dst); generic/native-single-root admission is not
+  widened. Independent C uses original live field/provider/residence checks and
+  existing slot_len_h. No new runtime ABI, Fault, acquisition, End or fallback.
+- Catalog normalization uses existing ArrayMethodId Length then opaque manifest
+  issuer; no new Core result-lookup consumer or guard allowlist. Original method
+  selector correspondence is rechecked. Existing source/result/physical fixtures
+  were extended only for Count's distinct no-index/empty/local-Return obligations;
+  no new test names/files/checkers. Test names remain9263 after TR-5b deletion.
+
+Evidence: root941A build68.067s PASS,941B59.903s PASS;941B nine existing focused
+filters48PASS,8MiB/one-thread (field publication, drift, source result, Core,
+backend ops, Loop, canonicalization, VM Get and RMW).941A/B issued JSON for
+ok/oob/count_empty/count_one is byte-identical. Existing C Get driver executed
+2 Get +2 Count inputs and3 malformed rows per operation; separate existing driver
+invocations reject object-as-array and wrong-field Count inputs before artifacts.
+No tracked C test/driver was added. FFI939A build6.933s has current shim hashes.
+
+CLI280 quick build238.593s PASS. Canonical direct --emit-exe, runtime894A and
+FFI939A: existing Rust fixture Count empty app367 EXE121.614s/run.005365s/exit0;
+Count one app368 EXE120.984s/run.001765s/exit1. Both exact expected Result line
+and standard plugin-disabled stderr. Unchanged mimalloc app366 EXE160.889s,
+run.002095s, stdout/stderr/exit exact app363; compiler stderr differs only *_ns
+metrics. Inputs ran concurrently; no compile-speed improvement claim. Unchanged
+JSON app365 remains exact app362 first-stop owner32 Body10, source-not-i64,
+.046978s/exit1/noEXE. Product source frontier has NOT advanced for that app.
+
+Provenance: CLI280 precedes the final catalog-only correction in
+ordinary_new_field_array_read_source.rs; this is the ONLY CLI280→941B source
+manifest delta.941B full focused acceptance and byte-identical four issued JSON
+files establish unchanged tested projection; native results above belong to
+CLI280, not a claim of rebuilt current-HEAD CLI. Root941A→CLI280 differs only
+owner README. Runtime894A is an explicit predecessor archive; FFI939A matches
+current shims. Do not claim all three source manifests equal. Retain source/build/
+focused/C/native receipts and binaries under /tmp/mirbuilder-required-forward-resume,
+including939/940 baselines and earlier unfinished-series pins until stronger
+same-role evidence replaces them. No temporary adapter added.
+
+Pointer/layer/CallTarget, generated manifest --check and diff PASS. Full manifest
+guard's14 codegen cases PASS then fails on existing ordinary.rs resolver-consumer
+allowlist error. Guard/ordinary.rs bytes and resolver/result-lookup caller sets
+are exact HEAD baseline; no new lookup consumer remains. No waiver, full-suite
+or CI-green claim.
+
+Remaining same-row Decision brief — fixed residence at the original input:
+Actual JSON uses init{users} and unique Birth users=new ArrayBox, without declared
+field type. Typed Count connection cannot establish that storage/Home/layout.
+Worker traced separate declared-class requirements in object definition,
+construction/provider, owned-field cleanup, FieldGet typing, owned_residences
+publication and C live-residence validation. Do not merely permit declared=None
+in Count capture: it grants none of those other contracts. Generic untyped-storage
+D0 stays parked and NamedArray is outside that D0's accepted scope. Next resolve
+one source-backed fixed Array residence contract across these existing owners,
+using the SAME original complete sole-provider writer loan, before construction.
+Source-only success or typed fixture EXE does not complete this source-to-final
+row, RequiredObjectForwardS0, retained Loop/Text, or finite full goal.

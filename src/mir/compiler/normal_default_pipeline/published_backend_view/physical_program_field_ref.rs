@@ -16,6 +16,22 @@ pub(super) fn source_array_reads(
     source.finished_array_field_reads_v1(owner, module, function, view.validated_named_arrays()?)
 }
 
+pub(super) fn source_array_counts(
+    module: Option<&MirModule>, function: &MirFunction,
+    view: Option<&super::PublishedMirBackendView<'_>>,
+) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+    let Some(view) = view else { return Ok(Vec::new()) };
+    let module = module.ok_or_else(|| fault("array-count/module-missing"))?;
+    if !std::ptr::eq(module, view.module()) { return Err(fault("array-count/view-membership")); }
+    let mut result = Vec::new();
+    for row in view.validated_named_arrays()? {
+        if let crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::Read(read) = row {
+            if let Some(binding) = read.count_binding_v1(module, function)? { result.push(binding); }
+        }
+    }
+    Ok(result)
+}
+
 /// Same source membership for checked received reads, independently of opcode.
 pub(super) fn source_received_reads(
     module: Option<&MirModule>, function: &MirFunction,

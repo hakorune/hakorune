@@ -5,18 +5,16 @@ use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::named_array_obligation::fault as array_fault;
 impl OrdinaryNewClaimLedgerV1 {
     fn field_array_read_sources_for_owner_v1(&self, owner: FunctionOwnerIdV1)
-        -> Result<Vec<Rc<super::super::CheckedFieldArrayGetSourceV1>>, String> {
-        let mut sources = BTreeMap::<OwnedExprSiteV1, Rc<super::super::CheckedFieldArrayGetSourceV1>>::new();
-        let mut insert = |source: &Rc<super::super::CheckedFieldArrayGetSourceV1>| -> Result<(), String> {
+        -> Result<Vec<Rc<super::super::CheckedFieldArrayAccessSourceV1>>, String> {
+        let mut sources = BTreeMap::<OwnedExprSiteV1, Rc<super::super::CheckedFieldArrayAccessSourceV1>>::new();
+        let mut insert = |source: &Rc<super::super::CheckedFieldArrayAccessSourceV1>| -> Result<(), String> {
             source.recheck_census(owner, &self.array_i64_fields)?;
             if let Some(original) = sources.get(source.call()) {
                 if !Rc::ptr_eq(original, source) { return Err(array_fault("read-source-conflict")); }
             } else { sources.insert(source.call().clone(), Rc::clone(source)); }
             Ok(())
         };
-        if let Some(scalar) = self.callable_scalar_result_source_v1(owner)? {
-            for read in scalar.field_array_reads() { insert(read.read())?; }
-        }
+        for read in self.field_array_return_reads_v1(owner)? { insert(read.read())?; }
         let mut arguments = |rows: &[OrdinaryNewTrivialArgumentV1]| -> Result<(), String> {
             for row in rows.iter().filter(|row| row.owner() == owner) {
                 if let Some(source) = row.field_array_read() { insert(source.read())?; }
@@ -35,7 +33,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(sources.into_values().collect())
     }
     fn field_array_read_recipe_from_source_v1(&self, owner: FunctionOwnerIdV1,
-        source: Rc<super::super::CheckedFieldArrayGetSourceV1>,
+        source: Rc<super::super::CheckedFieldArrayAccessSourceV1>,
     ) -> Result<Rc<FieldArrayReadRecipeV1>, String> {
         let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
         let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| array_fault("read-original-catalog-missing"))?;
@@ -72,7 +70,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut staged = BTreeMap::new();
         for recipe in recipes {
             let Some((binding, receiver_site, source)) = recipe.index_field() else { continue };
-            let site = OwnedExprSiteV1::new(recipe.owner(), recipe.index_site().clone());
+            let site = OwnedExprSiteV1::new(recipe.owner(), recipe.index_site().ok_or_else(|| array_fault("index-field-site"))?.clone());
             if binding.owner() != recipe.owner() { return Err(array_fault("index-field-owner")); }
             if let Some(existing) = reads.get(&site) {
                 if existing.receiver != *binding || existing.home != *binding || existing.source.as_ref() != source.as_ref()

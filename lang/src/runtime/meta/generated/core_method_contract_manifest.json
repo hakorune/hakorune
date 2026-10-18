@@ -27,7 +27,7 @@
       ],
       "arity": "0",
       "semantic_law": {
-        "0": "Unprojected"
+        "0": "ArrayCount"
       },
       "effect": "pure_read",
       "core_op": "ArrayLen",

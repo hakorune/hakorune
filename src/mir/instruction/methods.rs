@@ -7,7 +7,7 @@
 
 use super::super::{Effect, EffectMask, ValueId};
 use crate::mir::definitions::{Callee, MirCall};
-use crate::mir::instruction::MirInstruction;
+use crate::mir::instruction::{MirInstruction, ArrayReadOperationV1};
 use crate::mir::instruction_kinds as inst_meta;
 use crate::mir::types::{BarrierOp, WeakRefOp};
 
@@ -433,5 +433,17 @@ impl MirInstruction {
             MirInstruction::MemOp { operands, .. } => operands.clone(),
             MirInstruction::PinnedTextOp { kind, .. } => kind.used_values(),
         }
+    }
+}
+
+impl ArrayReadOperationV1 {
+    pub fn used_values(self) -> impl Iterator<Item = ValueId> {
+        match self { Self::Element { index } => Some(index), Self::Count => None }.into_iter()
+    }
+    pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
+        match self { Self::Element { index } => rewrite(index), Self::Count => {} }
+    }
+    pub fn remapped(self, mut remap: impl FnMut(ValueId) -> ValueId) -> Self {
+        match self { Self::Element { index } => Self::Element { index: remap(index) }, Self::Count => Self::Count }
     }
 }

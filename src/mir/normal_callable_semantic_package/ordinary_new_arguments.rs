@@ -134,16 +134,16 @@ impl OrdinaryNewTrivialArgumentV1 {
 /// on the containing argument. This is source meaning, never a physical value.
 #[derive(Debug)]
 pub(crate) struct ArgumentFieldArrayReadSourceV1 {
-    read: Rc<super::CheckedFieldArrayGetSourceV1>,
+    read: Rc<super::CheckedFieldArrayAccessSourceV1>,
     binding: BindingRefV1,
     declaration: crate::mir::resolved_semantics::SourceBindingSiteV1,
 }
 impl ArgumentFieldArrayReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn new(
-        read: Rc<super::CheckedFieldArrayGetSourceV1>, binding: BindingRefV1,
+        read: Rc<super::CheckedFieldArrayAccessSourceV1>, binding: BindingRefV1,
         declaration: crate::mir::resolved_semantics::SourceBindingSiteV1,
     ) -> Self { Self { read, binding, declaration } }
-    pub(crate) fn read(&self) -> &Rc<super::CheckedFieldArrayGetSourceV1> { &self.read }
+    pub(crate) fn read(&self) -> &Rc<super::CheckedFieldArrayAccessSourceV1> { &self.read }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn declaration(&self) -> &crate::mir::resolved_semantics::SourceBindingSiteV1 { &self.declaration }
 }

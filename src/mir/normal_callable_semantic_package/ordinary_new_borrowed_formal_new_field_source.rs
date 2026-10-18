@@ -98,7 +98,7 @@ impl OriginalNewI64InputsLoanV1 {
 impl OriginalNewSeedsV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn array_get_at_v1(
         &self, call: &OwnedExprSiteV1,
-    ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayGetSourceV1>>, String> {
+    ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, String> {
         let mut original = None;
         for read in self.rows.iter().flat_map(|row| row.array_reads.iter()).flatten()
             .filter(|read| read.read().call() == call) {

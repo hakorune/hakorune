@@ -174,7 +174,37 @@ impl OriginalFieldWriteSourceLoanV1 {
         writers.next().is_some_and(|(index, _)| index == self.index) && writers.next().is_none()
     }
 }
+impl OriginalFieldWriteSourceLoanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_sole_array_provider_v1(
+        &self, owner_box: &str, field: &str,
+        constructor: &ConstructorSourceIdV1, provider_site: &SourceExprSiteV1,
+    ) -> bool {
+        let write = self.write();
+        if self.inventory.opaque || self.inventory.value_incomplete
+            || self.inventory.unattributed_fields.contains(field)
+            || !write.is_attributed() || write.owner_box() != Some(owner_box)
+            || write.field() != field || write.assignment().value_site() != provider_site
+            || write.assignment().form() != crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+            || !write.birth_source().is_some_and(|source| source.same_as(constructor))
+            || !matches!(&write.object_store, ObservedFieldStoreV1::Construction(class) if class.as_ref() == "ArrayBox")
+            || write.source().is_err() { return false; }
+        let mut writers = self.inventory.writes.iter().enumerate().filter(|(_, row)|
+            row.owner_box() == Some(owner_box) && row.field() == field);
+        writers.next().is_some_and(|(index, _)| index == self.index) && writers.next().is_none()
+    }
+}
+
 impl OrdinaryNewFieldWriteClaimsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn array_provider_source_v1(
+        &self, owner_box: &str, field: &str,
+        constructor: &ConstructorSourceIdV1, provider_site: &SourceExprSiteV1,
+    ) -> Option<OriginalFieldWriteSourceLoanV1> {
+        let (index, _) = self.writers.writes.iter().enumerate().find(|(_, row)|
+            row.owner_box() == Some(owner_box) && row.field() == field)?;
+        let loan = OriginalFieldWriteSourceLoanV1 { inventory: Rc::clone(&self.writers), index };
+        loan.corroborates_sole_array_provider_v1(owner_box, field, constructor, provider_site).then_some(loan)
+    }
+
     pub(crate) fn original_write_source_v1(
         &self,
         owner: FunctionOwnerIdV1,

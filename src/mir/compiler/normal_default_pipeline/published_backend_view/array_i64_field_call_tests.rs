@@ -66,20 +66,25 @@ fn array_i64_get_publishes_through_array_element_read() {
         // index 5 misses the single-slot array: `slot_load_hi` reads the
         // lane's null sentinel 0, matching `ArrayBox.get` Null-on-miss.
         ("me.free.set(0, 7) local v = me.free.get(5) return v", "oob"),
+        ("return me.free.length()", "count_empty"),
+        ("me.free.set(0, 7) return me.free.length()", "count_one"),
     ] {
         crate::runtime::ring0::ensure_global_ring0_initialized();
         crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
             let result = MirCompiler::with_options(false).compile_normal_with_published(
                 request(&array_page_source(body)),
                 |view, _verification| -> Result<(), String> {
+                    let count = suffix.starts_with("count_");
                     let reads = view.array_element_reads();
                     assert_eq!(
                         reads.len(),
-                        1,
-                        "expected exactly one published array read, got {reads:?}"
+                        usize::from(!count),
+                        "legacy element rows cannot stand in for Count, got {reads:?}"
                     );
-                    assert_eq!(reads[0].function_name(), "Page.probe/1");
-                    assert!(reads[0].dst().is_some(), "get read must carry a dst");
+                    if !count {
+                        assert_eq!(reads[0].function_name(), "Page.probe/1");
+                        assert!(reads[0].dst().is_some(), "get read must carry a dst");
+                    }
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -94,12 +99,13 @@ fn array_i64_get_publishes_through_array_element_read() {
                         .unwrap()
                         .iter()
                         .flat_map(|b| b["instructions"].as_array().unwrap())
-                        .filter(|row| row["instruction"]["op"] == "array_get")
+                        .filter(|row| row["instruction"]["op"] == if count { "array_length" } else { "array_get" })
                         .collect();
                     assert_eq!(gets.len(), 1, "exactly one routed element read");
                     let get = &gets[0]["instruction"];
                     assert!(get["array"].is_u64(), "array operand must be a slot value");
-                    assert!(get["index"].is_u64(), "index operand must be a slot value");
+                    if count { assert!(get.get("index").is_none(), "Count has no index"); }
+                    else { assert!(get["index"].is_u64(), "index operand must be a slot value"); }
                     assert!(get["dst"].is_u64(), "get read must carry a dst");
                     assert!(get.get("site").is_none(), "pure read carries no site");
                     std::fs::write(
@@ -125,6 +131,7 @@ fn array_i64_get_publishes_through_array_element_read() {
 fn array_i64_checked_scalar_read_publishes_and_rejects_physical_drift() {
     for body in [
         "return me.values.get(handle.block_id)",
+        "return me.values.length()",
         "local v = me.values.get(handle.block_id) if handle == null { return v } return v",
     ] {
         let text = format!("box Handle {{ block_id: i64 birth() {{ me.block_id = 0 }} }} box Page {{ values: ArrayBox = new ArrayBox() birth() {{ }} probe(handle): i64 {{ if handle == null {{ return 0 }} me.values.set(0, 7) {body} }} }} box Heap {{ page: Page birth() {{ me.page = new Page() }} relay(handle: Handle): i64 {{ if handle == null {{ return 0 }} return me.page.probe(handle) }} qualified(): i64 {{ local h = new Handle() return me.relay(h) }} }} static box Main {{ main() {{ return 0 }} }}");
@@ -137,9 +144,14 @@ fn array_i64_checked_scalar_read_publishes_and_rejects_physical_drift() {
                     let function = &view.module().functions["Page.probe/1"];
                     assert_eq!(function.metadata.named_array_read_obligations.len(), 1);
                     let marker = function.metadata.named_array_read_obligations[0].clone();
+                    let marker_index = match marker.operation {
+                        crate::mir::instruction::ArrayReadOperationV1::Element { index } => Some(index),
+                        crate::mir::instruction::ArrayReadOperationV1::Count => None,
+                    };
+                    let foreign = marker_index.unwrap_or(marker.dst);
                     assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
                     assert_eq!(function.metadata.value_types.get(&marker.dst), Some(&crate::mir::MirType::Integer));
-                    assert_eq!(view.array_element_reads().len(), 1);
+                    assert_eq!(view.array_element_reads().len(), usize::from(marker_index.is_some()));
                     handoff.validate_named_arrays(view.module())?;
                     view.issue_lifecycle_physical_abi_input()?;
                     for mutation in 0..8 {
@@ -149,22 +161,25 @@ fn array_i64_checked_scalar_read_publishes_and_rejects_physical_drift() {
                             0..=2 => {
                                 let read = function.blocks.values_mut().flat_map(|b| b.instructions.iter_mut()).find(|instruction|
                                     matches!(instruction, crate::mir::MirInstruction::ArrayRead { site_id, .. } if *site_id == marker.read)).unwrap();
-                                let crate::mir::MirInstruction::ArrayRead { dst, receiver, operation: crate::mir::instruction::ArrayReadOperationV1::Element { index }, .. } = read else { unreachable!() };
+                                let crate::mir::MirInstruction::ArrayRead { dst, receiver, operation, .. } = read else { unreachable!() };
                                 match mutation {
                                     0 => *dst = Some(marker.receiver),
-                                    1 => *receiver = marker.index,
-                                    _ => *index = marker.receiver,
+                                    1 => *receiver = foreign,
+                                    _ => *operation = crate::mir::instruction::ArrayReadOperationV1::Element { index: marker.receiver },
                                 }
                             }
                             3 => { function.metadata.value_types.insert(marker.dst, crate::mir::MirType::Unknown); }
-                            4 => { function.metadata.value_types.insert(marker.index, crate::mir::MirType::Unknown); }
+                            4 => {
+                                if let Some(index) = marker_index { function.metadata.value_types.insert(index, crate::mir::MirType::Unknown); }
+                                else { function.metadata.named_array_read_obligations[0].operation = crate::mir::instruction::ArrayReadOperationV1::Element { index: marker.receiver }; }
+                            }
                             5 => function.metadata.named_array_read_obligations.clear(),
                             6 => function.metadata.named_array_read_obligations.push(marker.clone()),
                             _ => {
                                 let producer = function.blocks.values_mut().flat_map(|b| b.instructions.iter_mut()).find(|instruction|
                                     matches!(instruction, crate::mir::MirInstruction::FieldGet { dst, .. } | crate::mir::MirInstruction::ObjectFieldGet { dst, .. } if *dst == marker.receiver)).unwrap();
                                 match producer {
-                                    crate::mir::MirInstruction::FieldGet { base, .. } | crate::mir::MirInstruction::ObjectFieldGet { base, .. } => *base = marker.index,
+                                    crate::mir::MirInstruction::FieldGet { base, .. } | crate::mir::MirInstruction::ObjectFieldGet { base, .. } => *base = foreign,
                                     _ => unreachable!(),
                                 }
                             }

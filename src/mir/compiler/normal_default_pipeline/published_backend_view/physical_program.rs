@@ -498,6 +498,9 @@ fn issue_function_with_module<'module>(
             }
         }
     }
+    let array_counts = field_ref::source_array_counts(module, function, selected_view)?;
+    let source_count_binding = |block: BasicBlockId, instruction: &MirInstruction| array_counts
+        .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
     let source_array_binding = |block: BasicBlockId, instruction: &MirInstruction| {
         field_appends.iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction)
             || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(_), .. }
@@ -558,7 +561,7 @@ fn issue_function_with_module<'module>(
                 }
             }
             let field_ref = prepare_field_ref(module, function, block.id, index, instruction, &source_field_reads)?;
-            if !source_initializer_install(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
+            if !source_count_binding(id, instruction) && !source_initializer_install(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
                 .iter()
                 .any(|(bound_block, bound)| *bound_block == id && bound == instruction)
             {
@@ -744,7 +747,7 @@ fn validate_instruction_with_context(
                     index: Some(_),
                     ..
                 }
-                | MirInstruction::ArrayRead { .. }
+                | MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. }, .. }
                 | MirInstruction::ReturnFault { .. }
                 | MirInstruction::FaultFrameEnter { .. }
                 | MirInstruction::Branch { .. }
