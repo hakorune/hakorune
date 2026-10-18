@@ -117,6 +117,12 @@ fn a_fully_patched_transaction_commits_once_without_rollback() {
         .unwrap();
     let mut foreign = PhiTxn::begin("foreign");
     foreign.define_provisional_phi(&mut builder, block(2), ValueId::new(11), "foreign-define").unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let relation = builder.function_state.local_ssa_correspondence.loan(function, ValueId::new(10), ValueId::new(10)).unwrap();
+    let aborted_relation = builder.function_state.local_ssa_correspondence.loan(function, ValueId::new(11), ValueId::new(11)).unwrap();
+    assert!(matches!(&relation.identity_phi_binding_v1().unwrap().1, MirInstruction::Phi { dst, inputs, .. }
+        if *dst == ValueId::new(10) && inputs.is_empty()));
+    assert!(relation.require_completed_v1().is_err(), "a genuine pending definition is not completed");
     let before = builder.function_state.current_function.as_ref().unwrap().blocks[&block(1)].instructions.clone();
     assert!(foreign.patch_phi_inputs(&mut builder, token, vec![(block(0), ValueId::new(99))], "foreign-patch")
         .unwrap_err().contains("patch_not_pending"));
@@ -137,6 +143,11 @@ fn a_fully_patched_transaction_commits_once_without_rollback() {
     assert!(foreign.abort_on_err(&mut builder, "test cleanup".into()).cleanup_failures().is_empty());
     assert!(!has_phi(&builder, block(2), ValueId::new(11)));
     txn.commit(&mut builder).unwrap();
+    relation.require_completed_v1().unwrap();
+    relation.verify(builder.function_state.current_function.as_ref().unwrap()).unwrap();
+    assert!(matches!(&relation.identity_phi_binding_v1().unwrap().1, MirInstruction::Phi { dst, inputs, .. }
+        if *dst == ValueId::new(10) && inputs == &vec![(block(0), ValueId::new(1))]));
+    assert!(aborted_relation.identity_phi_binding_v1().is_err(), "rolled-back observations stay unusable");
     assert!(has_phi(&builder, block(1), ValueId::new(10)));
 }
 

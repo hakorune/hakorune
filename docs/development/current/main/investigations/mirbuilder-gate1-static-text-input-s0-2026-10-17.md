@@ -953,15 +953,11 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   final continuation AFTER cleanup and SSA localization. Empty Normal End skips
   helper/Fault frame. Prepare from same Loop packet; no root-exit registry/key.
 
-- Root927 WIP evidence lives in `4d3e9188e4`: shared Bool prefix retains If Rc;
-  Loop keeps SAME immutable product/frame, common materialization and targets,
-  never parent physical Rc. Preflight checks Header/body-If purpose and group;
-  affine seal checks actual Branch. APIs remain whole-driver-unexercised. All
-  reads/source-edge/cleanup/both-final closure remains owed. Distinct targets and
-  Branch equality do not prove original Header/If target mapping. Completion
-  must check SAME product/index for every Bool and strict empty CarriersOnly;
-  plain emit_conditional's None cannot pass. B63PASS/1 prior925B/stable4;
-  keep source/B/CLI270/native/review pins until closure. No new execution grant.
+- `4d3e9188e4` records Root927 WIP: original If Rc versus SAME immutable Loop
+  product/frame/common materialization; never parent physical Rc. Genuine Header/
+  body-If and group required; actual Branch seal does not prove source targets.
+  Whole completion must check every Bool product/index and strict CarriersOnly.
+  Keep B63PASS/1 prior925B/stable4/CLI270/native pins; APIs unexercised by driver.
 - Next borrowed-writer continuation (condition worker): LoopCond terminal lends
   SAME Raw port to PlanLowerer by short reborrow. Never take scope, rebuild the
   port or introduce a second evaluator; invocation has reached only the terminal.
@@ -971,30 +967,34 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   `4d3e9188e4` retains CLI270/JSON343/mimalloc344 exact342/source equality.
   Backends are explicit predecessors; keep pins until closure. Loop APIs unexercised.
 
-- `39b9e9649a` owns Root928 SAME-port transport/identity checks and caller-zero
-  scope-only wrapper removal; ledger-only bridge is test-only. Full WIP38PASS/1
-  prior927B raw-port diagnostic; isolated staged36PASS/2 prior (initializer915B).
-  CLI271/JSON345 unchanged; mimalloc346 output/stderr/exit exact344. Keep evidence
-  until Loop closure. Temporary check worktree removed; no execution grant.
-
-- Root929 scope: share the sole Local drive/state/Home/publication path's real
-  CompletedLocalStatement with the schedule driver; old raw result wrapper stays.
-  A thin PlanLowerer frame bridge validates SAME original product/owner/ledger/
-  source (under Root928 original-lineage preflight), same frame/selector Rc, then opens
-  exact_stmt/expr_at on SAME port. No new frame registry or expression evaluator.
-  Local borrows actual ordinal initializer after completed checked publication;
-  rebind shares sole assignment; Bool shares whole recursive writer/capture and
-  seals actual strict EdgeCFG Branch at the post-short-circuit block.
-  Production selector/source inventory identity is checked in the existing Loop
-  fixture. Workers confirmed shared Rc inventory already contains body frames;
-  no speculative selector rewrite. New frame APIs are not called by whole driver
-  yet; both fences, Header/After reads, joins/incoming, cleanup and both finals
-  remain owed. Root929A77.347s builds;41PASS/3 prior across10 nonzero filters,
-  stable4/diffPASS. EdgeCFG undefined-input/Ring0 and raw-port reds exactly match
-  pinned928A (timings ignored); no relaxed tests. CLI272189.686s; JSON347 .139s
-  same345/exit1/noEXE. Source equals A; later README only. mimalloc348 EXE140.439s/
-  run.001472s exit0, stdout/stderr/exit exact346; compile stderr only ns.894A/897A
-  are predecessor backends. Keep A/CLI272/native/review pins; receipt API alone lands.
-  Next shared owner: existing materialized-value provenance/exact read lends SAME
-  Header/After source coordinate + LocalSSA relation, never empty-Phi Definition;
-  After and both final consumers require parent completion and completed relation.
+- `39b9e9649a`: SAME-port checks/wrapper removal/test-only bridge; WIP38PASS/1
+  prior, isolated36PASS/2 prior; CLI271/JSON345 unchanged/mimalloc346 exact344; keep pins, check worktree removed, no grant.
+- `6b7baaa4ff` owns the sole Local receipt API/raw result wrapper and Root929
+  frame-bridge mapping/evidence. Bridge/strict Branch/selector Rc assertions stay
+  WIP: original exact_stmt/expr_at and SAME Raw port borrow existing Local/rebind/
+  whole Bool, actual ordinal/Branch. Root928 lineage preflight remains required.
+  A41PASS/3 prior928A/stable4; CLI272/JSON347 unchanged, mimalloc348 exact346.
+  Keep source/A/CLI272/native/reviews until closure. Whole driver has not called
+  these APIs; Header/After, exact targets/joins/incoming, cleanup/both finals stay
+  owed. No evaluator/registry, physical execution grant or series acceptance.
+- Root930 WIP: original Header/After + SAME indexed Phi/full Copy chain stay in
+  existing provenance; plain rebind invalidates it. No initializer loan, empty-Phi
+  snapshot, second registry/parent Rc. Common preparation/operand/dependency and
+  self-assignment share it. Header requires original product/frame/defined Phi;
+  After/both finals require completed parent/relation and FinishedBindings.
+  Bool prefix/expected inventory exclude only SAME-read borrowed parent Phi;
+  copies/inner/unrelated Phis/full dependencies stay. Membership checks FILTERED
+  inventory to refuse reinsertion. Existing fixtures cover definition/patch/abort,
+  alias/invalidation/missing parent/pending After; no new test function.
+  Both fences stay. Raw publication does not prove binding/role→dst; still owed:
+  Phi capture/liveness, targets/joins/all incoming/cleanup/scope/both finals and
+  swapped carrier/Header↔After negatives. No execution grant/series acceptance.
+  Next Decision (carrier worker): SAME session owns sole basis→Entry/Header/After
+  association, allocates/defines points and lends sealed capabilities to publisher;
+  MOVE completed association to existing packet completion, no pending mirror.
+  Entry needs nonconsuming SAME values/provenance against basis.entry_producer via
+  shared reference owner; pre-effect/name-cache alone do not prove physical Entry.
+  D114.074s build/51PASS/stable4/diffPASS; A/B/C fixed without wider private API.
+  CLI273206.010s/source=D; JSON349 .143s same347/exit1/noEXE; mimalloc350
+  EXE141.982s/run.001476s exit0/output+stderr+exit exact348; compile-only ns delta.
+  Keep D/CLI273/native pins;894A/897A predecessor backends, not parity.

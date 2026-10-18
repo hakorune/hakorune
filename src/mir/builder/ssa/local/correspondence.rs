@@ -47,6 +47,17 @@ pub(in crate::mir) struct LocalSsaPhysicalRelationV1 {
 }
 
 impl LocalSsaPhysicalRelationV1 {
+    /// Lend only a real indexed Phi definition, retaining its writer-owned
+    /// pending/completed/rollback state instead of cloning a provisional row.
+    pub(in crate::mir) fn identity_phi_binding_v1(&self) -> Result<&PhysicalBinding, String> {
+        if self.from != self.to || self.target.is_some() || !matches!(self.step, Step::Identity) {
+            return Err(reject("not-identity-phi"));
+        }
+        match &self.source {
+            Definition::Phi(phi) => phi.current(),
+            _ => Err(reject("not-indexed-phi")),
+        }
+    }
     pub(in crate::mir) fn require_completed_v1(&self) -> Result<(), String> {
         if let Definition::Phi(phi) = &self.source { phi.require_completed()?; }
         if let Step::Append(children) = &self.step {

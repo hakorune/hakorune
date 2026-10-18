@@ -2174,3 +2174,7 @@ The Local owner can return its real `CompletedLocalStatementV1` after the same
 state, ordinary-new and checked initializer publication tail. Its raw result
 wrapper borrows `result()`; scheduled callers can borrow the original ordinal's
 initializer without creating a replacement receipt or publishing twice.
+
+The LocalSSA identity-Phi accessor lends the same indexed definition through
+pending, completed and rollback states. It rejects ordinary instruction/parameter
+relations and materialization chains; observing a definition grants no source role.
