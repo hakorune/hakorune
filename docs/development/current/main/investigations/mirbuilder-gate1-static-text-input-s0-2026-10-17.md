@@ -244,24 +244,16 @@ unresolved MapGet remain within the original series obligations.
 
 ### Verified source/evaluation connections (V861–V868)
 
-Durable implementation, commands, hashes, timing, classified tests and retention
-choices belong to the following commits; the current Decision retains the active
-source contracts and unfinished physical obligations:
-- V86137934abe54: SAME resolver reaching-definition inventory, terminal-aware
-  branch/Loop/short-circuit flow, exact source references; no second type solver.
-- V862be368415ca: Core point premises use that SAME flow and existing SCC/law;
-  all reachable alternatives and independent grounding remain mandatory.
-- V863b92665faba: original Instance inputs registered independently of transport;
-  exact declaration/Parameter identity and mixed/Unknown inputs retained. Unchanged
-  json first-stop advanced to core-expression-execution-pending, not execution.
-- V86441d10b7354: Print moved to SAME checked body and sole ordered evaluator;
-  terminal cleanup and atomic whole packet commit retained, no Text admission.
-- V865fb8a780b5c / V86643e8418b15: CallArgument purpose retains original outer
-  Arc/ordinal/site/registered statement and SAME plan/Core Rc. One shared complete
-  SourceStatic validator replaces duplicate checks; no executable retry.
-- V867ac35be25de / V8686bc04b37f4: real covered Prefix requests SAME argument
-  frame; initializer lender retains SAME SUM/flow/read/plan and uses shared entry
-  issuer, preserving Core's independent Text check.
+Completed source/evaluation decisions and their full commands/validation:
+- V86137934abe54: SAME resolver reaching-definition/terminal-aware source flow.
+- V862be368415ca: point premises share that flow, SCC and independent grounding.
+- V863b92665faba: complete original Instance inputs/declaration/Parameter census;
+  json reached pending execution only, never a source-only acceptance.
+- V86441d10b7354: Print shares checked body/evaluator/terminal cleanup transaction.
+- V865fb8a780b5c / V86643e8418b15: original CallArgument owner/Arc/ordinal/site,
+  one complete SourceStatic validator, no retry or equal reissued Core identity.
+- V867ac35be25de / V8686bc04b37f4: real covered Prefix lends original SUM/flow/
+  read/plan and common entry issuer; independent Core Text premise remains.
 
 All eight commits record their then-current focused positives/negatives, same12
 baseline classification and guards. Native checks belong to their exact revisions,
@@ -490,21 +482,15 @@ Retained implementation contracts:
   Both final scans recheck SSA entry ordinals, producer identity and finished
   membership. Original mimalloc Phi dependency regression is corrected.
 
-Durable validation: df702c983c owns Root891AJ/CLI237/app285–286 commands,
-exact revisions/hashes/timings, baseline comparison, original stdout/stderr/exit,
-source EOF delta and artifact disposition. RootAJ13/13 source matrix and literal/
-entry/argument/Add/End/substitution negatives PASS; First44 363PASS/14 SAME
-baseline; Direct/source-context/boundary/liveness/final negatives PASS. CLI237
-canonical direct JSON stays slot20 Body7 core-expression-execution-pending;
-unchanged mimalloc native matches app280 stdout/stderr/exit0. No Text/full-suite/
-CI acceptance follows. Retained implementation contracts above are unchanged.
+Durable validation is in df702c983c: Root891AJ/CLI237/app285–286 source,
+negative matrices/First44 baselines, native output/exit, commands/hashes/timings
+and artifact disposition. JSON remained Body7 pending; mimalloc matched app280.
+No Text/full-suite/CI acceptance follows; implementation contracts remain above.
 
 Retention and unfinished successor:
-- Keep RootAJ/CLI237/app285-286 manifests/receipts/logs/binaries, matched runtime/
-  backend/baseline and previously required pins until full Text acceptance.
-  No parked adapter. Source EOF delta/original copy remains explanatory evidence.
-  Superseded AC duplicate copy is a relative symlink after exact SHA equality;
-  no accepted bytes or receipt path were lost.
+- Keep RootAJ/CLI237/app285-286 pins and matched runtime/backend/baseline until
+  full Text acceptance; no adapter. EOF delta remains explanatory evidence.
+  Exact-equal superseded AC binary is a relative symlink; receipts remain.
 - Shared ResolverDirect and legacy Plain Static callers remain; their general
   argument semantic correspondence was not retrofitted by this bounded path.
   Preserve existing child CallResult/BorrowedActual owners. Retire only selected
@@ -523,15 +509,10 @@ Retention and unfinished successor:
   summary was corrected to a thin truthful pointer in df702c983c.
 
 
-V892 actual full-walk and sole-planner observation landed in 8126e849fb.
-Unchanged intField has available Prefix at Body0..6; Body7 first observes
-PrefixNotCovered(Body6). V891 therefore covers start=pos+needle.length(); the
-remaining first Prefix loss is the actual scan Loop. The existing planner on
-the original Body6 yields exactly LoopCondBreakContinue/ExitIf with local
-substring, guarded Break and end update. That candidate is not a verified
-portable Recipe/JoinSig or Home After. The commit owns original commands,
-source/binary manifests, timings, exact outputs and byte-exact removal of both
-temporary diagnostics. Keep V892 observations until the bridge replaces them.
+V892 full-walk/sole-planner evidence is in8126e849fb: intField Prefix is
+available Body0..6; first loss is Body6 LoopCondBreakContinue/ExitIf before Body7.
+This is observation only, not portable Recipe/JoinSig/Home permission. Keep its
+pins until replacement; commit owns commands/manifests/timings and probe removal.
 
 Decision (allocation_source_connection + reference_integration_review):
 - The missing common source responsibility is complete Loop After publication.
@@ -559,72 +540,31 @@ Decision (allocation_source_connection + reference_integration_review):
   lent to both scans. Existing guard observation and reference proof owners are
   the integration points. This does not close Text or change the selected row.
 
-V893 preparation landed in 255298c594 and eb297e1c53:
-- One private immutable retained LoopCond Recipe/projection/original-body loan
-  feeds the existing Array consumer with identical NoExitBody/flat-Stmt fences.
-- The canonical operator owner issues six exact String/String comparisons with
-  original family, borrowed inputs, Bool/no lifecycle and conservative Fault law.
-  Bool/source/reference/Loop/runtime activation remains unaccepted.
-Those commits own Root893A source/affine1+route29+source10 PASS, field-resident
-6PASS/1 same pinned Root892A baseline (field-array-append/loop-source-missing),
-Root893B operator/source/comparison/scalar30 PASS, zero-filter correction,
-source manifests, worker reviews and stable guards. No test/proof/guard growth.
-CLI239/app288 remains the pre-V894 frontier: direct canonical/MIR emit-exe of
-unchanged JSON, .120247s exit1/no EXE, byte-equal slot20 Body7 Value
-core-expression-execution-pending. No native/full-suite/CI claim. Retain its
-matched build/app receipts plus Root893A/B until stronger same-role evidence;
-CLI237/app286 with runtime877A/FFI876B retains the accepted mimalloc native role.
+V893 `255298c594`/`eb297e1c53` retain Array Loop loan/String operator preparation,
+Root893A/B source/route/operator evidence and classified Root892A baseline. V894
+`7939b6dc5e` retains String Compare Rust/JSON/C/kernel ABI, corrected native
+whitelist evidence and app290 unchanged Body7 first-stop. These are bounded
+predecessor contracts, not source Bool/Loop/full-series acceptance. Keep matched
+Root893A/B/CLI239/app288, V894 C/native/app290 pins/manifests and historical
+CLI237/app286 runtime877A/FFI876B native role until stronger same-role evidence.
+FFI894B was overwritten by C; its hashes are historical only. Shared lossy callers
+remain unselected, no source edge retired. Detailed commands/corrections belong
+to those commits; no native/full-suite/current-CI green is implied.
 
-V894 physical String Compare landed in 7939b6dc5e. The commit owns the
-Rust/JSON/C/checked-kernel Bool contract, Root33 PASS, FFI/runtime/CLI build
-provenance, failed native whitelist counterexample and correction, final indexed
-and native real-ABI PASS (311.678832s), stable guards and app290's unchanged
-source first-stop (.430929s). No source Bool/Loop activation, full-suite or CI
-claim. Retain C pin and matched receipts/manifests until full Text acceptance;
-old FFI894B was overwritten by C and its old hashes remain historical only.
-Shared lossy helper callers remain unselected; no exclusive source edge retired.
+Completed Bool evaluation/source-normalization decision is retained in V895–V896
+below. Current Loop/conditional ownership obligations belong to Current Decision;
+its eager-RHS/fake-If/LoopEntry prohibitions remain mandatory.
 
-Next common source Decision (allocation_source_connection):
-- Normalize CheckedBoolConditionFrameV1 to SAME CheckedExpressionEvaluationV1
-  plus logical-purpose nodes. Remove duplicate source/order/classes/calls/
-  operation/reference storage; reuse existing reference proof variants. Keep
-  conditional reach and the existing completed short-circuit writer. The eager
-  postorder value writer cannot execute conditional RHS ahead of its branch.
-- After behavior-preserving normalization, connect String morphology, Bool leaf
-  qualification, relational class transfer and exact operator envelopes together.
-  Do not admit literal-only comparisons as a substitute for original entry,
-  static Text, residence or Original scalar proof. Acquisitions remain templates
-  until the matching Normal edge; conditional templates are not installed Homes.
-- The original retained Loop Recipe must consume the SAME initializer/Bool
-  proofs. Iteration substring ch residence ends on Break/backedge/Fault; only
-  outer carriers reach verified After. Current end reads must retain that After
-  producer. Do not substitute initial start, arbitrary Phi or a special Text loop.
+V895 `b29a35fb86` owns Bool-purpose/shared-evaluation normalization and its
+17 focused PASS/Root894A-equivalent scalar baseline, CLI241/app291 unchanged
+Body7 evidence. Keep matched receipts/pins until Text closure. Later source
+integration below supersedes its Obligation-only limitation; this commit alone
+claims no source switch or retired physical edge.
 
-V895 Bool-purpose/evaluation normalization landed in b29a35fb86. That commit
-owns original field-batch/short-circuit/final-consumer17 PASS, one pinned
-Root894A-equivalent scalar baseline failure, CLI241/app291 (.395044s unchanged
-slot20 Body7 source first-stop), worker review and stable guards. Bool stores
-only SAME checked evaluation plus logical-purpose nodes; original writer and
-independent source verifier still admit Scalar Obligation only. No source
-execution switch, new test/guard or retired physical edge. Retain its matched
-build/app/baseline receipts until full Text acceptance.
-
-Next source integration detail (same Decision, worker follow-up):
-- Extract initializer's seed-reference loop into the existing evaluation owner,
-  used by initializer and Bool after Call/Core preparation and before leaf
-  projection. Check the same original source/node/binding, static read,
-  residence acquisition/live Home, entry flow and terminating Null exclusion.
-- Existing entry lender is LocalInitializer-root-specific. Generalize its
-  existing source issuer to validate each original expression purpose/bundle;
-  preserve the SAME finite Text/I64/Null SUM and original read, never infer a
-  second condition SUM. Condition caller already has input/locals/homes/calls/
-  actuals for static_text_reference, text_reference, current_scalar_read_v1 and
-  entry_null_exclusion. Bool references keep Obligation when no Original scalar
-  proof exists (current original read supports I64 only).
-- Source qualification alone cannot activate Text. Both physical reader and
-  independent final consumers must fulfill SAME entry/residence/reference proof
-  and cleanup before admission. Existing short-circuit reach remains authoritative.
-
+Completed reference-seeding/source-use construction history is retained in
+`eac3439b21` and the later finite/argument/Loop commits below. Current obligations
+are full finite domain, original conditional reach and same-product consumers;
+completed slice receipts do not constitute whole Text/Loop acceptance.
 
 V896 common reference seeding landed in eac3439b21. It owns the existing
 initializer/Bool candidate scopes, one proof-derived seed validator, exact field
@@ -634,7 +574,7 @@ and stable guards. No source Text execution/caller switch or new test/guard.
 Retain matched manifests/build/app/baseline evidence until full Text acceptance.
 The next handoff contract and all consumer requirements were fixed in 4e9053cb43.
 
-Next physical Decision (reference_integration_review, same Text series):
+Landed physical handoff contract (reference_integration_review; V897/V898):
 - Reuse SAME ExpressionReferenceReadV1 for original read/producer/Copy dependencies
   in expression and Bool final validators; move duplicate Static preparation/
   source checks into that owner. Residence requires SAME initializer frame to
@@ -676,31 +616,17 @@ Next physical Decision (reference_integration_review, same Text series):
   Retain unaffected scalar/Static users and root graph/field cleanup owners.
   Existing initializer, String physical/native Normal/Fault and final-consumer
   mutation owners supply the acceptance; no new proof app or guard per slice.
-- This construction is selected next inside the same Text series; finite entry
-  execution, owned residence reads, conditional String comparisons, complete
+- This landed handoff does not close the Text series; finite entry execution,
+  owned residence reads, conditional String comparisons, complete
   module Call AND non-Call source view, Loop After and named app/C acceptance
   remain required. No source admission or EXE success follows from this Decision.
 
 
-V897 physical handoff is landed at `1eab404acc` (construction, failed/interrupted
-attempts, corrected evidence and artifact disposition are preserved there).
-Root897C:45 distinct focused PASS; native897B both indexed/native String Home
-Normal/Fault and rejection cases PASS. CLI243/app293 unchanged JSON still exits1
-at slot20 Body7 Value core-expression-execution-pending; no Text acceptance.
-Retain matched Root897C/CLI243/FFI897A/native897B/app293 receipts and pins, failed
-and interrupted logs, formatting provenance and predecessor runtime894A until
-full source handoff acceptance. No temporary adapter or compatibility retry.
+V897 `1eab404acc` / V898 `b997ea9ba1` own physical Install/Home and Text Local
+source/Normal/Fault/native evidence. Retain Root897C/898I, CLI243/245, app293/295,
+FFI897A/kernel894A and failed/corrected/source/native receipts until Text closure.
 
-V898b997ea9ba1 owns accepted Text Local handoff (shared writer, SAME initializer
-Rc/Home, final Install and Normal/Fault correspondence); full contracts, commands,
-failed diagnoses and artifact disposition remain in that commit. Root898I38PASS;
-CLI245 optimized nested/two-Home/child EXEs exit0/Result0. app295 JSON same stop
-as app294, not full Text. Keep Root898I/CLI245/source-v898i/app295 receipts/pins
-and FFI897A/runtime894A provenance until Text closure. Seven intermediate binary
-copies1,898,265,096 bytes retired, logs retained. Stable guards PASS; no new
-mimalloc/full-suite/current-CI claim; full finite goal/entry/Loop obligations open.
-
-Next construction mapping (worker reuses full source responsibility; not acceptance):
+Retained source-to-consumer mapping (not whole-series acceptance):
 - Normalize reference preflight/fulfillment/validation in the existing common
   ExpressionReferenceRead owner, retaining one exact-read batch and the original
   frame slots. Residence must borrow SAME initializer Rc+Home+root/alias Copies
@@ -721,15 +647,10 @@ Next construction mapping (worker reuses full source responsibility; not accepta
   cleanup. to_i64 retains Null terminating branch plus both original Add domains.
   No new source permission, alternate evaluator, task row or parked lane follows.
 
-V899 landed5514e2a314 owns shared current Static/scalar/Residence references,
-exact packet/alias/receipt-Copy law and common initializer/Print seeding.
-Root899E47 focused PASS; CLI247 three direct EXEs print2/2/3 and exit0.
-Full evidence/failed diagnoses/813MB pin retirement live in that commit.
-Keep Root899E/CLI247/probe/app297 evidence and FFI897A/kernel894A roles until
-full Text closure. app297 JSON still stops slot20 Body7 execution-pending;
-entry/finite/arguments/Bool/Loop remain required; no full-series/CI/suite claim.
+V899 `5514e2a314` owns common original references/alias/Copy/native evidence.
+Keep Root899E/CLI247/app297/source/native pins until full Text closure.
 
-Next construction details (read-only worker; integrate with mapping above):
+Retained consumer constraints (read-only worker mapping):
 - finite entry source/evidence and completed entry remain distinct in
   ordinary_new_borrowed_formal_entry_contract; retain SAME uses Rc, incoming
   Static rows and domains. Shared physical read check in
@@ -747,16 +668,10 @@ Next construction details (read-only worker; integrate with mapping above):
   never infer it from a carrier tag. Preserve structural-preemit/final-actual
   separation; do not demand completed actuals while constructing source reads.
 
-V900750351ec86 owns original finite entry/read+alias correspondence; full
-contracts/evidence are retained in that commit. The SAME complete SUM, reaching
-flow and Copy remain mandatory; initializer snapshots do not close later writes/
-captures. Root900D65PASS/1guarded-receiver red (Root899E baseline), CLI248 PASS;
-app298 JSON same slot20 Body7 stop/exact app297 stderr. Keep pins/logs/manifests
-and FFI897A/kernel894A roles until Text closure. Root900B binary271,483,968 bytes
-retired with logs retained; old Text-only query removed. Stable4/diff PASS;
-no finite EXE, new adapter/test owner, native/full-suite/current-CI claim.
+V900 `750351ec86` owns finite entry/read correspondence and classified baseline.
+Keep Root900D/CLI248/app298 and original SUM/Copy/source/native pins to closure.
 
-Next required connection (same Text series; worker top-down reviewed):
+Remaining Text connection obligations (worker top-down reviewed):
 - JSON end needs original Loop After before its accepted Home qualification.
   SourceStatic executable fence cannot be replaced by physical permission.
 - Extend existing Call argument packet/common expression writer beyond I64,
@@ -771,12 +686,8 @@ V901f495ea1ea1/V90285f687e8bb/V9037f77d03941 retain completed contracts/evidence
 Latest JSON CLI251/app303 same slot20 Body7 stop; native CLI250/app302 matches app300.
 Keep pins/reports/FFI897A/kernel894A until Text closure. No Text/full-suite/current-CI claim.
 
-V904 `496db633e6` owns exactText source/cohort/frame/domain, argument lifetimes
-and both final Call scans, 161 focused PASS/1 independently reproduced baseline,
-stable4/diff and corrected SelectedStaticLoop regression. CLI253/mimalloc306 and
-two-owned-Text probe match native output/exit; JSON307 remains Body7. This does
-not fulfill to_i64 or generic admission. Retain ZA/CLI253/native/source/baseline
-artifacts with FFI897A/kernel894A until Text closure; no adapter/series closure.
+V904 `496db633e6` owns exactText argument/lifetime/both-final evidence and its
+independent baseline. Keep ZA/CLI253/native/source pins; to_i64 remains unfulfilled.
 
 V905 Decision is preserved in `bbe376b06e`: original Loop source authority,
 complete co-sealed After collection and exact physical binding/Phi provenance.
@@ -818,19 +729,27 @@ Remaining same-series construction (read-only worker mapping retained):
   recursive short-circuit, Fault unwind and final Bool proof for actual If.
   Reuse these common nodes inside the genuine Loop scope; the outer Loop
   condition still requires its own purpose/seal, never an invented If grant.
-- V2 still owes checked condition-control projection, exact comparison operation
-  and Bool merge representation. Do not rename DynamicLess, fake If membership,
-  substitute initial start, infer types from physical Phi, or split one Break.
+- V2 retains checked source control and closed Bool region; physical condition/
+  control execution remains owed. Never rename DynamicLess, fake If membership,
+  substitute initial start, infer types from Phi, or split one Break.
 - Shared source correspondence grants no type/Home/Header execution permission.
   General Text/Loop Header/After and the full source-to-consumer series remain
   unaccepted; all inherited Text/incoming/cleanup/full-goal obligations above stay.
 
-V908 `d10fc508e6` owns genuine String Bool comparisons, empty-Home walk and
-conservative identical-value joins; 88 focused PASS/1 independent baseline,
-mimalloc317 match, JSON315 unchanged Body7, fixed11 5PASS/6 classified CLI256
-baseline failures. Retain failed313/source/native/baseline pins until closure.
+V908 `d10fc508e6` owns Bool/source/native/fixed11/classified baseline evidence;
+keep failed313/source/native/baseline pins until full Text/Loop closure.
 
 Current Decision (same original Loop series, source/physical workers reviewed):
+- SAME canonical Core law/domain/result/ownership and pathwise Normal/Fault Home
+  discharge close source execution templates and analysis-only After. Runtime
+  acquisitions/cleanup/Phi fulfilment remain mandatory. Nested expression Fault
+  uses original ancestry, not a fabricated direct-call or If-only scope proof.
+- One Loop lifecycle prefix owns SAME product and scoped children; flat root
+  prefixes never assert conditional/zero-iteration execution. Original tree/Rc
+  membership and both final visitors must check child packets/liveness/seals.
+- Retain checked control before branch joins/exits in SAME recursive scanner;
+  no second transitional Recipe visitor. Source V2/all-carrier JoinSig producer
+  is integrated; same-row result alone grants no physical/Core/Home permission.
 - Source authority + canonical issuer: SAME retained SourcePlan condition/body,
   original value-flow frame/joins and CallableLoopSourceProjection disposition
   roles. IntField's end is Carrier, start/n/line ReadOnlyOperand, ch IterationLocal;
@@ -858,17 +777,17 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   installation before recursive scan. Reuse initializer/If/Call owners; route
   original Break/Continue targets to SAME Loop exit summary, closing crossed
   scope Homes, never into function Return rows. Install After only as a whole.
-- Normalize existing LocalProvenance root into Initializer, original Rebind or
-  exact LoopPoint,
-  sharing Copy checks while keeping initializer-only loans strict. Header carrier
-  dst is allocated before body, but Phi is closed/emitted later: only SAME pending
-  Loop owner may lend this staged producer during Lowering. General missing-
-  definition validation stays strict. Finalized requires actual exact Phi.
-- Sole physical owner loop_cond_bc_source selects Carrier/ReadOnlyOperand from
-  original source roles. Publish Header before condition/body reads, close SAME
-  phi_materializer role with complete Header/After incoming rows, and validate
-  block/dst/binding/all incoming in PlanLowerer before final After publication.
-  Existing raw child/ledger/boundary carry this role, no second operand registry.
+- Normalize LocalProvenance as Initializer, original Rebind or exact LoopPoint;
+  share Copy checks without widening initializer-only loans. Header/After must
+  have real provisional Phi definitions BEFORE exposure, owned by SAME PhiTxn
+  through source errors/verification/patch/completion. Only that owner lends the
+  staged physical producer; general missing-definition checks remain strict.
+  Finalized requires completed exact Phi and original-source correspondence.
+- Physical preparation retains original Carrier/ReadOnlyOperand locators and
+  SAME Phi core: define Header before condition/body reads, close all Header/After
+  incoming, and validate block/dst/binding in PlanLowerer before publication.
+  Checked whole-Loop consumption follows the final Decision below; the old source
+  adapter is not mandatory. Reuse existing ledger/boundary, no second registry.
 - Scalar rebind construction keeps the original Assignment-root source plan
   and exact BindingRebind target/Plain row. The scanner separately proves old
   target scalar/Home-neutrality; an RHS frame cannot authorize overwriting a Home.
@@ -885,8 +804,8 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   dependencies, never fabricate an initializer or fresh physical producer.
 - Both final scans consume the same expression packet: exact source point/frame/
   binding, unchanged readonly original producer, carrier Phi and FinishedBindings
-  Copy correspondence. Preserve conditional RHS and one original Break; V2 still
-  owes exact checked comparison/control/Bool-merge projection, not DynamicLess.
+  Copy correspondence. Preserve conditional RHS and one original Break; V2 now
+  retains exact checked comparison/control/Bool projection; physical use is owed.
 - Smallest next slice is this integrated Header/body/exit/After/read closure to
   original substring operands and unchanged JSON Body7 frontier, using existing
   source-flow/JoinSig/physical-After/Copy tests and native acceptance. An After-
@@ -895,105 +814,145 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   fake If seal, initializer permission for carriers, .hako rewrite and fallback
   remain forbidden; full Text/incoming/cleanup/fixed-suite/full-goal debts stay.
 
-Completed internal history (full commands/source pins/corrections in commits):
-- `e3d050a785`: all-original-port invariance and exact physical Phi completion;
-  75 focused PASS/1 independently reproduced baseline, mimalloc319 native match,
-  JSON318 same Body7, fixed11 5PASS/6 classified baseline failures.
-- `eee9731d82`: canonical source Carrier/BodyOnlyRebind selection and BindingRef
-  publication; selected AST reclassification deleted, shared callers retained.
-  52 focused PASS, mimalloc321 native match, JSON320 same Body7, fixed11
-  5PASS/6FAIL439.788s exactly prior baseline chain. `3f4a8186d2` compresses history.
-- `a24760b72a`: original Plain BindingRebind checked frame and alias-boundary
-  retention, including aliases before/after self-assignment; physical initializer
-  loans refuse rebind. 24 focused PASS, stable4/diff PASS, Root911C41.313s and
-  source-matched CLI261203.545s. Mimalloc323 EXE139.138s/run.001432s exit0,
-  exact prior stdout/stderr/exit; JSON322 .383902s same Body7/no artifact.
-  FFI897A/kernel894A are predecessor pins with explicit compiler-only deltas.
-  No physical caller switch or execution retirement. `5811ba55ab` compresses this.
-All source/native/failed/corrected/baseline manifests remain required until full
-Text/Loop closure; no temporary adapter added. Last fixed11 is CLI260, not current
-HEAD. Source target Home-neutrality, pending Header, complete V2/JoinSig/body/
-exit/cleanup/After and final physical consumers remain required; no series/full
-suite/current-CI/full-goal acceptance claim.
+Completed bounded connections (full contracts/commands/evidence in commits):
+- `e3d050a785`: all-original-port invariance/exact physical Phi completion.
+- `eee9731d82` / `3f4a8186d2`: canonical source Carrier/BodyOnlyRebind publication;
+  AST reclassification deleted; shared callers retain their own obligations.
+- `a24760b72a` / `5811ba55ab`, `b7eaa2bde7` / `4f28b2c1d6`: original rebind
+  frame/alias/assignment and both final consumers; no initializer grant for rebind.
+- `0635cf23f0`: class-parametric readonly Recipe/neutral-JoinSig verification;
+  original readonly relation/empty-wire/rejection order remain mandatory.
+- `d6a25d86b9`: SAME immutable roles/affine physical handoff and identity checks.
+  Keep Root912B/914C, CLI262/264, source/native/corrected/baseline evidence until
+  full Text/Loop closure. Latest fixed11 is CLI2635PASS/6 baseline, not WIP/CI.
+- `2dc3262986`: exact Local scan extraction, functional WIP stays separate.
+  Superseded917/918 binary copies retired; source/test/baseline logs retained.
+Shared current constraints: readonly never becomes carrier/After; immutable Header
+basis retains SAME source/flow/binding/entry/producer, never mutable collector or
+its own inventory/condition slot. Break/Continue retain resolver target, scopes
+through LoopBody, reverse Normal Homes and complete live Fault suffix. No adapter.
 
-Current integrated connection, worker-reviewed refinement:
-- V2 must carry actual readonly root binding relations through the SAME neutral
-  JoinSig seed as V1; external Text/I64 reads must not fabricate carrier/After
-  rows. Normalize the class-parametric readonly wire/relation verifier, preserving
-  V1 rejection order and V2 empty-wire representation. Existing V2 producers
-  retain empty explicit rows until original source roles are connected.
-- This required Recipe-to-JoinSig component does not itself issue a source/Home
-  capability, stage a Header, or claim physical Phi elimination. Reuse existing
-  V2 collection and V1 readonly tests; include Header I64 and Body Text reads,
-  absent relation, write/overlap/duplicate/root/class/unused/unknown negatives.
-- Header basis is immutable original source/flow/binding/Header/Entry/producer;
-  body frames never own mutable exit collectors. Reuse the original condition
-  slot in the shared expression inventory for the completed Loop attachment;
-  product must not own the inventory or its own completed slot (no Rc cycle).
-- Break/Continue intercept original resolver target before function terminal
-  handling. Record context-free exit snapshots; verify every row's availability
-  even when both branches terminate. Cross exact scopes through LoopBody inclusive;
-  existing Home unwind + sole root cleanup writer handle iteration Normal and
-  whole live Fault suffixes. No fake Return or If-only scope proof.
-- Bool V2 must retain same checked comparison/short-circuit region and genuine
-  outcome, not fake CallSlot, eager RHS, duplicated Break or DynamicLess rename.
+Current integrated WIP (uncommitted; no whole-series acceptance):
+- Same retained SourcePlan Rc lends source observation. Only genuine Mul
+  morphology Unselected reaches generic planning; selected source/Facts/Recipe
+  refusal is terminal. Caller-zero strict Mul facade removed in WIP.
+- Scoped immutable Header basis keeps original role/source/flow, Header/unique
+  Entry/existing scalar producer. Loop/If qualification preserves purpose/read
+  proof; each installation borrow drops before recursive body descent.
+- SAME scanner retains original body expressions/control/If/Exit tree before
+  joins. Context-free snapshots retain exact crossed scopes through LoopBody,
+  reverse iteration Normal ends, live Fault Homes, statements and path Calls.
+  Original Break/Continue remain distinct from function Return; no Prefix cycle.
+- Complete Carrier census: Header={unique Entry+all Backedge/Continue}; After=
+  {unique ConditionFalse+all Break}. Verify source values/classes/producers and
+  path coverage. ConditionFalse is SAME Header, never pre-loop Entry.
+- Every body expression root, including non-carrier substring/If, retains original
+  Rc; exclude own condition slot and shared inventory. Product cannot own itself.
+- Root916G73.914s:50PASS/1 independent dynamic baseline; H66.779s body-retention
+  19PASS. Initializer stale fixture confirmed915B/corrected; dynamic panic913D.
+  Keep prior source/build/failed/corrected/baseline pins until full closure.
+- Root917 closes BoolExpression wire: canonical ordered tree, exact imports,
+  one root/parent, same And/Or reach and comparison domain. No Call/field/opaque/
+  transferred/owning import. String comparison Fault precedes Normal. Internal
+  Bool merge never fabricates source If/Exit or execution permission.
+- Root918 projects SAME checked tree once to typed V2/all-carrier JoinSig. Original
+  value/node/result and source control keys match original incoming payloads.
+  I64/readonly Text imports retain roles; iteration Local results keep original
+  initializer SSA. Existing canonical Core loans project CallSlot without new
+  source permission. Root918D52PASS; source/Loop physical execution still pending.
+- Root919 co-seals execution templates: exact Core law/operand/result/ownership,
+  original expression-Fault ancestry/prior acquisitions, reverse Normal temporary
+  ends and each port's scope/Home closure. Same Prefix atomically publishes only
+  analysis I64 After with original product/flow; body-local Homes cannot escape.
+  No runtime acquisition, Header/After read, or physical publication permission.
+- Same selected source row owns Recipe OnceCell and affine plan; original condition
+  slot keeps SAME product once. Root lifecycle prefix is only outer Loop; scoped
+  children are excluded by SAME Rc/tree membership. Root exit covers outer Loop
+  only, not all child sites; flat child publication remains refused.
+- Root920 Bool OriginalReference reuses existing exact read prepare/commit/operand
+  and dependencies/FinishedBindings. Ordinary If keeps ObligationReference.
+  Dependency census/allowlist/liveness is shared; new Loop arm stays unexercised
+  until whole scoped execution. BuildC56.218s/10 regressionsPASS.
+- Root921 pairs SAME Recipe Rc with Preissued plan. Check original source/condition
+  identity before affine take; reject foreign/repeated attachment and absent/
+  overlapping/non-LoopCond selection before alternate routes. Both physical
+  consumers retain pending-product refusal. A76.453s/19PASS; B55.880s compile.
+- Root920 extra facade/scope guards are prior-input reds: ArrayReadSiteId absent
+  allowlist and missing declared_parameter_names_v1 pin; affected inputs match HEAD.
+- Broad source-publication local-result root-exit-source-missing reproduces on
+  920C/921B. Owned-result default-stack abort remains unclassified; optional16MiB
+  comparison cancelled/session99482 exit143, no baseline/PASS/restart claim.
+  Exact Loop completion filter2PASS. Never reuse broad ambiguous filter.
+- Root922 `5502985779` owns pending-token guard, foreign/repeat/unchanged-MIR/
+  rollback evidence, build56.326s/32PASS; no source execution or series closure.
+- Root923 `4952165da9` owns early Header/After definition, exact adoption, Step
+  definitions/shared patch/unused rollback and same abort through completion.
+  Same-input PhiTxn only; nested Loop cannot adopt parent. B65.945s/32PASS.
+  Invalid read-preconsume test injection refreshed its scoped reads; removed only
+  that test and restored all B hashes, no production relaxation. CLI266 source
+  matched B; mimalloc336 exact333, JSON335 same332. Retain B/CLI266/native/probe.
+  Main Loop probe positional recurrence refusal matches CLI265; not intField.
+  FFI897A/kernel894A are explicit predecessors, not fresh full-source agreement.
 
-V912 `0635cf23f0` owns required V2 readonly Recipe-to-neutral-JoinSig connection
-and shared V1/V2 class-parametric relation verification (one owner, no silent
-role inference, preserved V1 rejections and empty V2 wire). Selected production
-source constructors remain empty; source/Home/physical connections are still owed.
-That commit owns source/commands/pins, worker diff review, corrected Root912A
-collection test accessor failure and final Root912B85.554s/CLI262179.103s builds
-with exact source match. 61 focused PASS/0FAIL (.118s), stable4/diff PASS.
-Unchanged JSON324 .398646s exit1/no artifact remains EXACT prior Body7;
-mimalloc325 EXE141.054s/run.001546s exit0 and stdout/stderr/exit match323.
-FFI897A/kernel894A remain explicit predecessor pins. Retain Root912A/B/CLI262/
-native/source receipts until Text/Loop closure; no adapter added. No production
-series closure or frontier advance. Fixed11 not rerun; latest CLI260 is5PASS/
-6 classified failures. CI still only old d4168473 failure/8e7179 success, no
-current acceptance. Next: SAME original Loop Header/body/exit product and complete
-V2/JoinSig/cleanup/After/final-read closure; do not replace it with more receipts.
+Next physical Decision (both source/condition workers reviewed actual owners):
+- Connect one checked whole-Loop consumer inside PlanLowerer. Current source
+  Local/rebind use raw effects, body If Or clones Break, no generic V2 physical
+  consumer exists: Header-only callback or another retained receipt cannot close.
+- SAME source_loop_v2 producer must bind each frame to exact Recipe item range;
+  If to item/condition/child blocks, Exit to item/exit/target. Check complete ordered
+  bijection BEFORE effects; driver consumes only this verified schedule, no AST
+  classifier or independent source-control authority. Borrow existing checked
+  initializer/rebind/whole Bool writers at actual emission, preserving Local/Home.
+- Share CFG/terminator/condition-receipt core, NOT whole IfForm's all-name Phi
+  materialization/raw-only state restore. Use exact BindingRef state/verified joins.
+  Genuine Header AND body If need whole Bool and actual-Branch seal; one Break.
+- Existing LocalSSA Phi relation follows Header/After define→completed/BOTH finals;
+  no second receipt/pool/pending snapshot grant. Child reads never own parent Rc.
+  SAME Loop group owns scoped children; atomic Home destination Root/Loop child.
+- completed_loop checks all original source edges/producers, CFG predecessors,
+  SSA loan(original,incoming), Step inputs and real Bool false edge. Record Exit
+  AFTER cleanup/localization. Keep refusal until full group/reads/BOTH finals close.
+- Root924 WIP: pending scoped Loop collection/preflight/Home destination/tree
+  lookups connected; root census stays root-only, Finalized rejects pending Loop.
+  A85.053s module path fixed; B101.437s/38 focusedPASS; stable4/diffPASS. Source
+  fixture verifies open/duplicate/order/pending only; child commit unexercised.
+  CLI267178.001s matches current source (Root924B differs only later owner README).
+  JSON337 .137s same335/noEXE; mimalloc338 EXE141.145s/run.002162s exit0, exact336
+  runtime output/stderr/exit; compile stderr differs only ns. Explicit backend pins.
+  Keep B/CLI267/source/native/review evidence until full Loop closure. No new
+  test/app/guard/adapter or completion writer; all semantic WIP remains uncommitted.
+  Card compression recovery restored inherited Text/Loop contracts from Git and
+  current source/evidence; independent worker checked coverage. Old adapter/next
+  wording corrected; no compiled source or artifact changed during doc repair.
 
-V913 `b7eaa2bde7` (history compressed at `4f28b2c1d6`) owns scalar-rebind
-source/Home-to-sole-assignment/both-final-consumer connection and full commands,
-source pins, corrected fixture/import evidence and retention decisions. Focused
-24PASS, stable4/diff PASS, native mimalloc327 matches325, alias/Core probe329
-prints0:2:2/Result0. JSON326 stays Body7; fixed11 5PASS/6 exact baseline failures.
-Signed-formal328 header refusal independently matches CLI262. Root913D/CLI263,
-FFI897A/kernel894A and native/source/baseline receipts remain required until full
-Text/Loop closure; superseded Root913B/C binary copies retired, no adapter added.
-No Loop-carried/full-series/full-goal/current-CI acceptance claim.
+- Root925 WIP: SAME projector issues verified ordered frame/Recipe schedule;
+  original Rc/purpose/result, exact block ranges, If bundle/children and Exit
+  record/cleanup port are co-sealed before effects. Scoped prefix collector uses
+  this schedule instead of a second frame lookup. Zero-width aliases stay explicit.
+  Worker found range transfer could move Bool operations into preceding Local:
+  corrected SAME operation issuer to retain item→executing frame Rc, including
+  imports/WriteBinding; exact operation census + containing-frame identity checked.
+  Existing fixture now rejects 13 mutated schedules, including boundary transfer;
+  no new test function/app/guard. Root925A100.822s compile; B81.397s compile +
+  38PASS across9 nonzero filters (RUST_MIN_STACK=16777216), stable4/diffPASS.
+  Keep source/test/review pins under root-v925b until full Loop closure; no physical
+  permission, real child commit, Header/After read or series completion claimed.
+- Concrete next writer mapping (condition worker, actual owners): initializer uses
+  selected initializer emit→placement→existing Local receipt→publish; rebind uses
+  selected rebind emit including state update/publication; Bool borrows SAME raw
+  recursive child writer/state/locator. No second expression evaluator.
+  Extract shared condition cursor→try_cond/finalize→append slice/SSA relation
+  issuer from IfForm; retain genuine If bundle vs Loop purpose and actual targets.
+  IfForm still emits deferred EdgeCFG after arms; shared preparation emits no
+  early Branch. Actual sole Branch writer must seal the SAME affine Bool lease.
+  Current PlanLowerer lower_if has NO materialization receipt; do not assume one.
+  Driver snapshots/restores existing source state at arms; Header/After use same
+  product/basis and actual Phi relation; Exit reports actual predecessor/payload
+  AFTER cleanup. All these physical connections and both final consumers remain.
 
-V914 role transport landed at `d6a25d86b9`: exact original role Rc through
-one affine schedule, source identity and unconsumed-handoff refusal. That commit
-owns focused24PASS/known913D baseline, CLI264 JSON330 unchanged and mimalloc331
-exact327 evidence. Retain Root914C/CLI264/source/native/corrected/baseline logs
-until Text/Loop closure. Original generic source/Home and Header/body/exit/V2/
-cleanup/After/read remain owed; no whole-series/current-suite/CI acceptance.
-
-BoxShape Local scan extraction (functional Loop WIP remains separate): the exact
-Local algorithm moved to home_new_prefix_local_statement.rs; dedented body equality
-with the predecessor was checked. Source scanner only forwards its existing inputs.
-Root918D integrated-WIP source manifest/focused52PASS and stable4/diff evidence are
-retained; they do not claim this commit alone closes Loop/After or the full series.
-
-- Root922: PhiTxn rejects nonpending patches before mutation. Existing transaction
-  test checks foreign/repeated token rejection, unchanged MIR and rollback.
-  Integrated WIP build56.326s; focused32PASS: Phi6/SSA5/Loop completion2/
-  initializer8/raw Loop11. This commit alone does not validate all WIP or grant
-  Loop Header/After execution, production cutover, current suite or CI acceptance.
-
-- Root923 timing landed/pushed `4952165da9`: exact32PASS, CLI266 source/build,
-  mimalloc336 exact333 native; JSON335 same332/noEXE. Keep Root923B/CLI266/source/
-  native/probe pins until full Loop closure; FFI897A/kernel894A are predecessors.
-  No source Recipe/suite/cutover/CI/whole-series acceptance.
-Next physical Decision (loop_condition_review + loop_carrier_owner_review):
-- Loan existing LocalSSA Phi relation at Header/After define; require completed
-  at BOTH finals. No second receipt/pool or pending snapshot permission.
-- SAME product's Loop group owns scoped children. Prepared publication targets
-  Root/Loop child with SAME Text Home map; shared recursive visitor serves BOTH
-  finals with short borrows. Child reads keep source/Phi relation, never parent Rc.
-- completed_loop checks source edge/producer, CFG and SSA loan(original,incoming).
-  Trace Step Phi inputs; genuine Bool owns false fanout. Record Break/Continue
-  AFTER cleanup/localization. Keep refusal until whole group/cleanup/reads/finals
-  close. Main positional probe is separate; source-only fixture is not acceptance.
+- Root925 selected frontier: CLI268195.686s matches all Root925B source hashes.
+  JSON339 .140s exit1/noEXE, stderr byte-exact337 (borrowed-result/source-not-i64).
+  Unchanged mimalloc340 EXE143.722s/run.001451s exit0, runtime output/stderr/exit
+  exact338; compile stderr differs only ns. Runtime894A/FFI897A are explicit
+  predecessor pins, not fresh all-three source equality. Source manifest checks
+  and stable4/diffPASS; retain B/CLI268/native evidence until whole Loop closure.
