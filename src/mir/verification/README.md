@@ -14,6 +14,15 @@ This directory owns MIR verifier checks that run from
 | `builder/control_flow/verify` | CorePlan verifier | verifies CorePlan before lowering | always-on for verified plan paths |
 | `tools/hako_check` | tooling | observation/report checks | read-only, not semantic truth |
 
+## String pair liveness annotations
+
+`KeepAlive` is optimizer-only metadata, including for an owned String pair.
+Shared SSA/dominance checks still validate its operands; it performs no runtime
+read, ownership transfer or lifetime extension. String escape checks exclude
+this annotation while retaining Copy/return/store restrictions and all actual
+Normal/Fault acquisition, Home, End-order and join checks. Cleanup String End
+borrows the original pair producer; scalar localization cannot copy that pair.
+
 ## Invoke Call result contract
 
 Instance `BorrowedNullableHandle` and `MixedHandle` structurally require the

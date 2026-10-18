@@ -135,7 +135,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     if matches!(operation, Op::End { value: end } if *end == value)
                         || operation.operands().iter().any(|operand|
                             matches!(operand, Operand::OwnedString(owned) if *owned == value)));
-                let allowed = allowed || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed } if *installed == value);
+                // KeepAlive is optimizer metadata, checked for SSA availability
+                // by the shared verifier; it performs no runtime pair access.
+                let allowed = allowed || matches!(instruction, MirInstruction::KeepAlive { .. })
+                    || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed } if *installed == value);
                 if !allowed && !is_call_argument(instruction, value) {
                     return Err("string-owned-escape");
                 }
@@ -368,7 +371,9 @@ mod tests {
     }
     #[test]
     fn checked_string_normal_fault_prefixes_are_affine_and_do_not_escape() {
-        let good = graph();
+        let mut good = graph();
+        good.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
+            MirInstruction::KeepAlive { values: vec![ValueId(3)] });
         let verified = super::super::check_function(&good);
         assert!(verified.is_ok(), "{verified:?}");
         assert_eq!(check(&good), Ok(()));
