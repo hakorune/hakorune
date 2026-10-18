@@ -926,31 +926,23 @@ Next required connection (same Text series; worker top-down reviewed):
   and both Add envelopes. Both finalized consumers must use one complete
   Call+initializer+Print (Bool later) incoming/use image before entry activation.
 
-V901 construction Decision (same Call argument/lifetime responsibility):
-- Normalize existing physical acquisition/Fault walk within the common expression
-  projection and defer Call Fault graph construction until ordered arguments have
-  been prepared. Keep current purpose-specific Normal cleanup and every final
-  effect/coordinate census; no source/admission/fence change in this first phase.
-- Paths: selected/terminal_call/lexical_i64.rs and common root_call_entry/
-  expression_terminal_paths.rs, owner src/mir README and existing card. Existing
-  expression/argument/cleanup positive+mutation tests verify this BoxShape phase.
-- Follow with same packet's live-out acquisition/parent-prefix integration;
-  retain full Text/finite entry, Loop After, all incoming/use and consumer work.
-
-V901 first-phase verification (behavior-preserving; full connection remains open):
-- Root901A quick-test-fast no-run PASS67.120740s;56 existing focused PASS:
-  initializer7, Print4, cleanup6, boundary22, ordered-projection4, frame-identity1,
-  nested-local2, finalized-nested1, lexical-I64-call9. All filters nonzero.
-  Only post-test source delta removes compiler-proven unused function-local
-  import; exact before/after receipt retained. CLI249 matches current sources.
-- CLI249 build PASS156.299118s. app299 unchanged JSON .397322s exit1/no EXE,
-  exact app298 stderr at slot20 Body7 core-expression-execution-pending.
-  app300 unchanged mimalloc canonical/MIR direct EXE133.805695s/run.001627s
-  PASS; stdout/stderr/exit0 independently equal app286. Explicit predecessor
-  FFI897A/kernel894A roles/deltas retained; no three-rebuild or speed claim.
-- Keep Root901A/CLI249/app299–300, native comparison, manifests and required
-  predecessor pins until Text closure. No adapter or superseded binary from
-  this phase. V891 completed commands/output history compressed to df702c983c;
-  source contracts, unfinished obligations and retained pin names unchanged.
-  Stable4 guards/diff PASS. Old guarded-receiver baseline still owed by full
-  goal; no current CI/full-suite/Text execution or series-completion claim.
+V901 first BoxShape phase landed at f495ea1ea1; full evidence in that commit:
+- Ordered argument preparation now precedes the enclosing Call Fault graph.
+  Common physical acquisition/Fault walk is separated from purpose-specific
+  Normal cleanup. Source, reference, effect, frame, coordinate and End checks
+  are unchanged. No Text/live-out/entry admission or execution fence changed.
+- Root901A56 focused PASS; CLI249 build PASS. app299 unchanged JSON remains
+  slot20 Body7 core-expression-execution-pending, exact app298 stderr. app300
+  unchanged mimalloc canonical/MIR EXE and native stdout/stderr/exit0 match app286.
+  Post-test import-only cleanup is explicitly recorded; CLI249 source is exact.
+- Keep Root901A/CLI249/app299–300, native comparison/manifests and explicit
+  predecessor FFI897A/kernel894A roles until Text closure. No temporary adapter
+  or superseded binary from this phase. Stable4 guards/diff PASS. V891 completed
+  validation history is compressed to df702c983c; contracts/pin obligations stay.
+  Old guarded-receiver baseline still owed; no full-suite/current-CI/Text claim.
+- Next same BoxShape series: bind earlier argument + outer expression acquisition
+  prefix to SAME source Call, retain argument live-out observations inside its
+  existing packet, and close their Normal/Fault lifetime at the enclosing Call.
+  Keep every terminal/effect/coordinate census; do not merely delete the scalar
+  finisher. Full Loop After, finite entry/Null guard, both Add envelopes and both
+  final Call+nonCall incoming/use consumers remain mandatory before activation.
