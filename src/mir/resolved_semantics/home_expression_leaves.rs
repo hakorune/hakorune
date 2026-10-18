@@ -9,7 +9,7 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, LocalInitializer }
+pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, LocalInitializer, BindingRebind }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ExpressionCallSourceV1 {
@@ -57,6 +57,7 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool { self.profile == ExpressionLeafProfileV1::LocalInitializer }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_binding_rebind(&self) -> bool { self.profile == ExpressionLeafProfileV1::BindingRebind }
     pub(super) fn is_bool_condition(&self) -> bool { self.profile == ExpressionLeafProfileV1::BoolCondition }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool { !self.cores.is_empty() }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(&self, node: usize) -> bool {
@@ -165,13 +166,13 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
         match node.source() {
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
-                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) => {},
+                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer | ExpressionLeafProfileV1::BindingRebind) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
                 if profile == ExpressionLeafProfileV1::BoolCondition => {},
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),
             ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {},
             ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
-                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) && leaves[index] == Leaf::Unresolved => {
+                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer | ExpressionLeafProfileV1::BindingRebind) && leaves[index] == Leaf::Unresolved => {
                 let Some((original, kind)) = scalar_reference(node.site()) else { return Ok(None) };
                 if original != *binding || binding.owner() != source.owner() { return Ok(None); }
                 leaves[index] = Leaf::Value(match kind {

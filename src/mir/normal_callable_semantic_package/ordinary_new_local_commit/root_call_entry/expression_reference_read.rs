@@ -199,6 +199,7 @@ fn initializer_value(source: &CurrentScalarReadV1, read: &ExactLexicalReadV1, co
         }
         Producer::Initializer(frame) => (frame.binding(), Some(context.with_original_initializer_v1(frame, |packet| Ok(packet.value()))?)),
         Producer::SignedEntry(_) => return Err(freeze("expression/scalar-entry-not-initializer")),
+        Producer::BindingRebind(_) => return Err(freeze("expression/scalar-rebind-not-initializer")),
     };
     let value = read.loan_local_initializer_v1(binding)?.0;
     if expected.is_some_and(|expected| expected != value) { return Err(freeze("expression/scalar-original-result")); }

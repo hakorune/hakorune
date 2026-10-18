@@ -1,0 +1,216 @@
+//! Original Plain binding-rebind purpose over the shared expression body.
+//! Qualification neither assigns a physical value nor closes a Loop Header.
+use super::*;
+use super::super::{BindingRefV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::{ResolvedAssignmentFormV1, ResolvedAssignmentTargetV1};
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_value_profile::{
+    expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
+    expression_class::ExpressionValueClassV1 as Class,
+    expression_plan::ExpressionPlanRootV1,
+    expression_projection::ExpressionLeafClassV1 as Leaf,
+};
+use std::collections::BTreeSet;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CheckedBindingRebindFrameV1 {
+    evaluation: CheckedExpressionEvaluationV1,
+    target: BindingRefV1,
+}
+impl CheckedBindingRebindFrameV1 {
+    pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
+    pub(crate) fn target(&self) -> BindingRefV1 { self.target }
+}
+
+pub(crate) fn qualify_binding_rebind_expression_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    mut prepared: super::leaves::PreparedExpressionCallsV1,
+    static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1)
+        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
+    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
+    can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
+    field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
+) -> Result<Option<HomeExpressionPlanV1>, E> {
+    if !prepared.is_binding_rebind() { return Ok(None); }
+    let source = Rc::clone(prepared.source());
+    let ExpressionPlanRootV1::Assignment { assignment } = source.root() else { return Ok(None) };
+    let Some(ResolvedAssignmentTargetV1::BindingRebind(target)) = input.function().assignment_target(assignment.target_site())
+        else { return Ok(None) };
+    if input.owner() != source.owner() || target.owner() != source.owner()
+        || assignment.form() != ResolvedAssignmentFormV1::Plain
+        || source.nodes().first().is_none_or(|root| root.site() != assignment.value_site())
+        || input.body_shape().is_none_or(|shape| shape.assignment_sources().iter().filter(|row|
+            row.statement_site() == assignment.statement_site()).ne(std::iter::once(assignment)))
+    { return Ok(None); }
+    let prior_homes = prepared.prior_homes().to_vec();
+    let mut unique_homes = BTreeSet::new();
+    if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(*home)) { return Ok(None); }
+    let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
+    if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
+        if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
+    let reference_order: Vec<_> = (0..source.nodes().len()).collect();
+    let Some(mut reference_proofs) = super::evaluation::seed_current_expression_references_v1(
+        &mut prepared, Vec::new(), &reference_order, static_reference, residence_reference,
+        &mut |site| scalar_reference(site).map(super::evaluation::CheckedScalarReferenceV1::Original),
+    ) else { return Ok(None) };
+    let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
+        super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
+        else { return Ok(None) };
+    if !references.is_empty() || transferred.contains(&0) || classes[0] != Leaf::Value(Class::I64) { return Ok(None); }
+    let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred)
+        else { return Ok(None) };
+    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores);
+    if owned_results.contains(&0) { return Ok(None); }
+    reference_proofs.retain(|node, _| !transferred.contains(node));
+    let frame = Rc::new(CheckedBindingRebindFrameV1 { target: *target,
+        evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(),
+            order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(), references: reference_proofs,
+            calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
+            owned_results, cores, transferred_inputs: transferred },
+    });
+    if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
+    let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
+        initializer_homes: None, argument_frame: None, initializer_frame: None, rebind_frame: Some(frame),
+        print_frame: None, condition_frame: None, field_write: None };
+    let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
+    if !can_install(&candidate) { return Ok(None); }
+    if !field_batch(&fields, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? { return Ok(None); }
+    Ok(Some(candidate))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::resolved_semantics::home_new_prefix::local_flow::PrefixLocalFlow;
+    use crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1;
+
+    #[test]
+    fn rebind_qualification_preserves_assignment_purpose_and_atomic_source_installation() {
+        for (assignment, eligible) in [
+            ("x = 1", true), ("x = 1 + 2", true), ("x = x + 1", true),
+            ("x = x", true), ("x += 1", false), ("p.value = 1", false),
+            ("x = true", false), ("x = \"a\" + \"b\"", false),
+            ("x = 1 == 1", false), ("x = p", false),
+        ] {
+            let program = crate::parser::NyashParser::parse_from_string(&format!(
+                "function probe(p) {{ local x = 0 {assignment} return x }}")).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = program else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+            let row = &input.body_shape().unwrap().assignment_sources()[0];
+            let source = assignment_expression_source_plan_v1(&ledger, input.body_shape().unwrap(), row).unwrap();
+            let initializer = input.function().expression_source().initializers().next().unwrap();
+            for (profile, known, batch_ok) in [
+                (leaves::ExpressionLeafProfileV1::BindingRebind, true, false),
+                (leaves::ExpressionLeafProfileV1::BindingRebind, true, true),
+                (leaves::ExpressionLeafProfileV1::BindingRebind, false, true),
+                (leaves::ExpressionLeafProfileV1::LocalInitializer, true, true),
+            ] {
+                let mut locals = PrefixLocalFlow::new(input);
+                let observed = locals.observe(initializer.initializer_site().unwrap()).unwrap();
+                locals.install_observed(initializer.binding(), observed);
+                if !known { locals.install_uninitialized(initializer.binding()); }
+                let sibling = locals.clone();
+                let prepared = leaves::prepare_expression_calls_v1::<()>(&source, profile,
+                    &Default::default(), &[], &mut |_| panic!("no Call in fixture")).unwrap().unwrap();
+                let mut installation = None;
+                let mut batches = 0;
+                let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared,
+                    &mut |_| None, &mut |_| None, &mut |site| locals.current_scalar_read_v1(site, &[]),
+                    &mut |_| None, &mut |plan| {
+                        let mut pending = locals.expression_installation();
+                        if !pending.approve(plan) { return false; }
+                        installation = Some(pending); true
+                    },
+                    &mut |requests, demand| {
+                        assert!(requests.is_empty());
+                        assert!(matches!(demand, super::super::super::LocalFieldReadDemandV1::SourceExpression { plan }
+                            if Rc::ptr_eq(&plan, &source)));
+                        batches += 1; Ok(batch_ok)
+                    }).unwrap();
+                let reference = source.nodes().iter().any(|node| matches!(node.source(), ExpressionNodeSourceV1::Reference(_)));
+                let qualifies = eligible && (known || !reference) && profile == leaves::ExpressionLeafProfileV1::BindingRebind;
+                assert_eq!(plan.is_some(), qualifies && batch_ok, "{assignment}, known={known}");
+                assert_eq!(batches, usize::from(qualifies), "{assignment}");
+                if let Some(plan) = plan {
+                    let frame = Rc::clone(plan.rebind_frame().unwrap());
+                    assert!(Rc::ptr_eq(frame.source(), &source));
+                    assert_eq!(frame.target(), initializer.binding());
+                    assert_eq!(frame.evaluation().root_class(), Leaf::Value(Class::I64));
+                    assert!(frame.evaluation().owned_result_nodes().is_empty());
+                    assert!(plan.initializer_frame().is_none() && plan.field_write_frame().is_none());
+                    assert!(plan.scalar_operations().next().is_none());
+                    installation.take().unwrap().commit();
+                    let installed = sibling.expression_plans();
+                    assert!(Rc::ptr_eq(installed[0].rebind_frame().unwrap(), &frame));
+                    let mut duplicate = sibling.expression_installation();
+                    assert!(!duplicate.approve(&plan));
+                } else {
+                    drop(installation);
+                    assert!(sibling.expression_plans().is_empty(), "failed batch must not publish a frame");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn source_scalar_reads_keep_rebind_producers_before_following_aliases() {
+        let program = crate::parser::NyashParser::parse_from_string(
+            "function probe() { local x = 0 x = x + 1 local y = x x = x local z = x return y + z + x }").unwrap();
+        let crate::ast::ASTNode::Program { mut statements, .. } = program else { panic!("Program") };
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+        let initializers: Vec<_> = input.function().expression_source().initializers().collect();
+        let mut locals = PrefixLocalFlow::new(input);
+        let observed = locals.observe(initializers[0].initializer_site().unwrap()).unwrap();
+        locals.install_observed(initializers[0].binding(), observed);
+        let mut frames = Vec::new();
+        for (index, assignment) in input.body_shape().unwrap().assignment_sources().iter().enumerate() {
+            let source = assignment_expression_source_plan_v1(&ledger, input.body_shape().unwrap(), assignment).unwrap();
+            let prepared = leaves::prepare_expression_calls_v1::<()>(&source, leaves::ExpressionLeafProfileV1::BindingRebind,
+                &Default::default(), &[], &mut |_| panic!("no Call")).unwrap().unwrap();
+            let mut installation = None;
+            let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared,
+                &mut |_| None, &mut |_| None, &mut |site| locals.current_scalar_read_v1(site, &[]),
+                &mut |_| None, &mut |plan| {
+                    let mut pending = locals.expression_installation();
+                    if !pending.approve(plan) { return false; }
+                    installation = Some(pending); true
+                }, &mut |_, _| Ok(true)).unwrap().unwrap();
+            let frame = Rc::clone(plan.rebind_frame().unwrap());
+            if index == 1 {
+                assert!(frame.evaluation().references().values().any(|read| matches!(read,
+                    CheckedExpressionReferenceV1::Scalar(read) if read.original_read().is_some_and(|read|
+                        matches!(read.producer(), crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BindingRebind(original)
+                            if Rc::ptr_eq(original, &frames[0]))))));
+            }
+            installation.take().unwrap().commit();
+            drop(installation);
+            frames.push(frame);
+            if index == 0 {
+                let observed = locals.observe(initializers[1].initializer_site().unwrap()).unwrap();
+                locals.install_observed(initializers[1].binding(), observed);
+            }
+        }
+        let observed = locals.observe(initializers[2].initializer_site().unwrap()).unwrap();
+        locals.install_observed(initializers[2].binding(), observed);
+        let returned = input.function().variable_refs().filter(|(site, _)|
+            site.node().segments().first() == Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Body(5)));
+        let mut count = 0;
+        for (site, _) in returned {
+            let read = locals.current_scalar_read_v1(site, &[]).unwrap();
+            let crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BindingRebind(frame) = read.producer()
+                else { panic!("an assignment is not an initializer/entry") };
+            let expected = if read.binding() == initializers[1].binding() { &frames[0] } else { &frames[1] };
+            assert!(Rc::ptr_eq(frame, expected));
+            count += 1;
+        }
+        assert_eq!(count, 3);
+    }
+}

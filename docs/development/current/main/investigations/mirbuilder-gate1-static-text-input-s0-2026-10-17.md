@@ -855,23 +855,13 @@ Remaining same-series construction (read-only worker mapping retained):
   General Text/Loop Header/After and the full source-to-consumer series remain
   unaccepted; all inherited Text/incoming/cleanup/full-goal obligations above stay.
 
-V908 landed dependency: `d10fc508e6` owns source-qualified String comparisons
-through the common Bool node writer, recursive short-circuit and final If source/
-control/reference/Fault checks; no Loop/If permission substitution. It also owns
-the empty-Home verified-walk trigger and shared conservative two-/multi-way join
-reuse, fixing the native owned-Text identical-Phi escape without relaxing String
-verification. Existing source/physical test owners hold positive and mutation
-coverage; strict Main verification and actual RHS-write carrier checks remain.
-
-`d10fc508e6` preserves commands, exact six-comparison source, build/runtime pins,
-initial failures and final validation: Root908G88PASS/1 independently reproduced
-scalar-claim baseline; stable4/diff PASS; CLI258 build174.255s. Same failed native
-input now EXE/run exit0; unchanged mimalloc317 EXE166.373s/run.001724s, exact prior
-stdout/stderr/exit. Unchanged JSON315 .398653s stays slot20/Body7 pending. Official
-fixed11 is5PASS/6FAIL450.341s, each full diagnostic/panic matches pinned pre-V908
-CLI256. These baseline failures remain goal debts; no full-suite/current-CI or
-Text/Loop series closure. Retain V908 test/CLI256-258/native/suite manifests,
-failed313 and baseline receipts until full Text/Loop closure; no adapter added.
+V908 landed `d10fc508e6`: same-source String comparisons in Bool conditions,
+empty-Home verified walk and conservative identical-value joins, with strict
+Main/String/final-boundary checks. That commit owns full source/commands/pins,
+88 focused PASS/1 independent baseline, unchanged mimalloc317/native output and
+JSON315 Body7 unchanged, fixed11 5PASS/6 classified CLI256-baseline failures.
+Retain its manifests/failed313/baseline receipts until Text/Loop closure; no
+adapter or whole-series/current-CI acceptance.
 
 Current Decision (same original Loop series, source/physical workers reviewed):
 - Source authority + canonical issuer: SAME retained SourcePlan condition/body,
@@ -901,7 +891,8 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   installation before recursive scan. Reuse initializer/If/Call owners; route
   original Break/Continue targets to SAME Loop exit summary, closing crossed
   scope Homes, never into function Return rows. Install After only as a whole.
-- Normalize existing LocalProvenance root into Initializer vs exact LoopPoint,
+- Normalize existing LocalProvenance root into Initializer, original Rebind or
+  exact LoopPoint,
   sharing Copy checks while keeping initializer-only loans strict. Header carrier
   dst is allocated before body, but Phi is closed/emitted later: only SAME pending
   Loop owner may lend this staged producer during Lowering. General missing-
@@ -920,6 +911,9 @@ Current Decision (same original Loop series, source/physical workers reviewed):
   variable_assignment_completion, then records the exact target/value once.
   V2 ReadBinding/ConstI64/BinaryI64/WriteBinding already exist; generic source
   projection must connect them to SAME JoinSig and Header/After incoming.
+  Rebind completion may reuse its RHS/parameter (self-assignment has no new
+  defining instruction); retain exact assignment receipt + evaluation/read/Copy
+  dependencies, never fabricate an initializer or fresh physical producer.
 - Both final scans consume the same expression packet: exact source point/frame/
   binding, unchanged readonly original producer, carrier Phi and FinishedBindings
   Copy correspondence. Preserve conditional RHS and one original Break; V2 still
@@ -940,25 +934,53 @@ reproduced baseline, unchanged mimalloc319 native/output/exit, JSON318 unchanged
 Body7 and fixed11 5PASS/6 classified baseline failures. Retain its source/native/
 baseline manifests until Text/Loop closure; no adapter or whole-series acceptance.
 
-V910 landed `eee9731d82`: selected source LoopCond now consumes canonical
-Carrier + nonlocal BodyOnlyRebind rows from SAME pre-effect schedule. Readonly
-producers/provenance and iteration-local scope are retained. The existing
-resolver name table locates exact materialized BindingRefs with cache-value/
-owner/duplicate checks before allocation; Header/After publish directly by that
-BindingRef. AST carrier reclassification and reverse-name publication edges
-are removed from this consumer; shared raw/other source owners retain callers.
+V910 landed `eee9731d82`: source LoopCond consumes canonical Carrier + nonlocal
+BodyOnlyRebind roles, retaining readonly producer/provenance and local scope.
+Exact materialized BindingRef/cache crosswalk precedes allocation; Header/After
+publish by BindingRef. Selected AST carrier reclassification/reverse-name edges
+are deleted; shared other-source/raw owners retain callers. Commit owns source,
+commands/pins, 52 focused PASS/0FAIL, stable4/diff, Root910A73.586s/CLI260180.197s,
+unchanged mimalloc321 EXE156.349s/run.001596s/output+exit0, JSON320 same Body7,
+fixed11 5PASS/6FAIL439.788s with full diagnostics exactly prior independent chain.
+Keep manifests/native/baseline receipts until Text/Loop closure; no adapter,
+whole-series/fixed-suite/current-CI green claim.
 
-`eee9731d82` owns all implementation/owner-doc paths, original commands/source
-manifests and final evidence: Root910A build73.586s, 52 focused PASS/0FAIL;
-stable4/diff PASS. Existing source-port fixture checks 3/6 Integer Phis for
-normal/body-only external writes, unchanged readonly Text, and pre-allocation
-missing/drift rejection. Worker review found no must-fix. Matched CLI260
-build180.197s; unchanged mimalloc321 EXE156.349s/run.001596s exit0 and exact prior
-stdout/stderr/exit. Unchanged JSON320 .399842s is EXACT JSON318 Body7 diagnostic,
-no artifact/frontier advance. Fixed11 5PASS/6FAIL439.788s, all five full MIR errors
-and untyped panic exactly CLI259, retaining the independent CLI256 baseline chain.
-FFI897A/kernel894A remain predecessor pins with explicit compiler-only deltas.
-Retain V910 Root/CLI/native/suite manifests and comparisons under the existing
-/tmp evidence directory until integrated Text/Loop closure; no adapter added.
-Full Header/Home/rebind/exit/After connection and all goal acceptance remain
-required; no whole-series, fixed-suite or current-CI green claim.
+V911 source construction in SAME integrated Loop series: qualify the original Plain
+BindingRebind into a purpose-specific CheckedExpressionEvaluation wrapper.
+Reuse calls/current-reference/leaves/Add owners and existing shared expression
+inventory; source/frame identity, target binding, exact reference census and
+I64 root are mandatory. Owned Text children keep the common scalar cleanup;
+there is no owned root transfer, fake initializer or second root packet pool.
+Scope: expression plan/leaves/evaluation-purpose wrappers, current scalar producer,
+existing initializer-source exhaustive consumer/test, sole source-flow alias walk
+and existing flow/new purpose qualification tests, resolved-semantics owner README and this card. The physical
+initializer loan explicitly rejects rebind producers; it grants no substitute
+receipt. Source-plan/Loop producer wiring and all physical connections are WIP. The Loop
+product/physical assignment receipt/final-consumer connections remain required;
+source qualification alone does not admit or complete the Loop.
+
+V911 worker review caught an intermediate-alias boundary: after x=x, a new y=x
+must retain that latest Assignment producer, not cross it to the prior x+1.
+The sole source-flow alias walker now optionally preserves original expression
+boundaries; legacy alias_origin/alias_entry_origin retain their strict behavior,
+including join/cycle/foreign refusal. Rebind lookup uses that same walk, and
+source tests cover aliases both before and after self-assignment. This is source
+provenance, never a LoopEntry shortcut or an initializer receipt. Future scanner
+must prove old target scalar/Home-neutrality separately from RHS qualification.
+
+V911 verification: Root911A84.410s failed on enum imports; corrected imports in
+Root911B112.113s build PASS. B's new negative fixture was rejected by resolver
+(unresolved name), and one test filter matched zero: neither counted as PASS.
+Corrected declared-untyped negative and actual module filter; Root911C41.313s,
+24 distinct focused PASS/0FAIL including source purpose/alias/selfassignment,
+existing flow/installation, real initializer and initializer/Print final consumers.
+Stable4/diff PASS. Matched CLI261203.545s, SHA
+`ecbb620c6f1de1dec6c034de8e4d885965d410ec3437d58287eaf9a68bf28c70`.
+Unchanged JSON322 .383902s is EXACT JSON320 Body7/no artifact, no frontier move.
+Unchanged mimalloc323 EXE139.138405s/run.001432s exit0 and exact prior stdout/
+stderr/exit. FFI897A/kernel894A remain predecessor pins, explicit compiler-only
+deltas. Retain V911 manifests, corrected/failed test and native receipts until
+integrated Loop/Text closure; no adapter added. This is new source construction,
+not a physical caller switch, old execution retirement or Loop-series completion.
+Fixed11 was not rerun for this source preparation; last classified CLI260 remains
+5PASS/6FAIL at eee9731d82. No current fixed-suite/CI/full-goal acceptance claim.

@@ -1709,3 +1709,15 @@ rejecting joins; this issues no class, Home, Recipe or physical permission.
 This is port-value invariance, not a claim that all body paths are write-free:
 updates on a terminating Return path remain separate expression definitions.
 Physical Carrier/ReadOnly roles still come from the original role issuer.
+
+Original binding rebinds have their own checked expression purpose. The qualifier
+retains the exact resolver Plain Assignment root and BindingRebind target over
+`CheckedExpressionEvaluationV1`; it reuses Call/Core classification, original
+current references, complete leaf/operation qualification and atomic field batch
+installation in the existing expression inventory. I64 roots retain no owned
+root; any Text child acquisition still requires the common scalar continuation.
+A source read keeps the exact rebind producer before alias following, including
+self-assignment and later local aliases. It cannot borrow an initializer receipt.
+The source frame grants no physical assignment, provisional Header or After;
+the same Loop product still owes original entry/all updates/exits, V2/JoinSig,
+sole assignment completion, scoped cleanup and both final physical consumers.

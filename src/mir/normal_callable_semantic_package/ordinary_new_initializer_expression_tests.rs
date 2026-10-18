@@ -424,6 +424,7 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
             let producer = reads[0].producer();
             let actual = match producer {
                 Producer::SignedEntry(root) => { assert_eq!(*root, contract.parameters[1].binding); "entry" }
+                Producer::BindingRebind(_) => panic!("initializer fixture must retain its original producer"),
                 Producer::Integer { value, .. } => { assert_eq!(*value, 1); "literal" }
                 Producer::Call(call) => {
                     assert!(flow.unwrap().local_calls().contains(call));

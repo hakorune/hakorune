@@ -82,14 +82,25 @@ impl VerifiedSourceValueFlowV1 {
     /// Follow only exact lexical aliases. Terminal expression identity is
     /// retained; branches, unknowns and cycles never select a predecessor.
     pub(crate) fn alias_origin(
+        &self, value: SourceValueRefV1,
+        reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+    ) -> Option<SourceValueRefV1> {
+        self.alias_origin_with_expression_boundary(value, reference, |_| false)
+    }
+    /// Retain an original expression boundary selected by its source consumer.
+    /// This remains an alias-only walk: no join predecessor can be selected,
+    /// and an expression identity alone grants no type/Home/physical evidence.
+    pub(crate) fn alias_origin_with_expression_boundary(
         &self, mut value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+        mut preserve: impl FnMut(&SourceExprSiteV1) -> bool,
     ) -> Option<SourceValueRefV1> {
         let mut seen = BTreeSet::new();
         while seen.insert(value) {
             match self.origin(value)? {
                 SourceValueOriginV1::Entry(_) => return Some(value),
                 SourceValueOriginV1::Expression(site) => {
+                    if preserve(site) { return Some(value); }
                     match reference(site) {
                         Some(ResolvedLexicalRefV1::Local(binding)) => value = self.read(site, binding)?,
                         None => return Some(value),

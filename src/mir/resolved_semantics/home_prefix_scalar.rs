@@ -1,6 +1,6 @@
 //! Current scalar reads join original reaching definitions to the covered Prefix.
 use super::*;
-use super::super::{CheckedInitializerExpressionFrameV1, LocalCallObservationV1, LocalCallResultClassV1};
+use super::super::{CheckedBindingRebindFrameV1, CheckedInitializerExpressionFrameV1, LocalCallObservationV1, LocalCallResultClassV1};
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
 use std::{rc::Rc, sync::Arc};
 
@@ -17,6 +17,7 @@ pub(crate) enum CurrentScalarProducerV1 {
     Integer { site: SourceExprSiteV1, binding: BindingRefV1, value: i64 },
     Call(LocalCallObservationV1),
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
+    BindingRebind(Rc<CheckedBindingRebindFrameV1>),
 }
 /// A source read, not a physical operand or permission inferred from an I64 class.
 #[derive(Debug, Clone)]
@@ -34,6 +35,7 @@ impl PartialEq for CurrentScalarReadV1 {
             && self.origin == other.origin && Arc::ptr_eq(&self.flow, &other.flow)
             && match (&self.producer, &other.producer) {
                 (CurrentScalarProducerV1::Initializer(a), CurrentScalarProducerV1::Initializer(b)) => Rc::ptr_eq(a, b),
+                (CurrentScalarProducerV1::BindingRebind(a), CurrentScalarProducerV1::BindingRebind(b)) => Rc::ptr_eq(a, b),
                 (a, b) => a == b,
             }
     }
@@ -53,8 +55,23 @@ impl PrefixLocalFlow<'_> {
         let function = self.input.function();
         let flow = function.expression_source().value_flow()?;
         let value = flow.read(site, binding)?;
-        let origin = flow.alias_origin(value, |site| function.variable_ref(site))?;
-        let producer = match flow.origin(origin)? {
+        // A completed source rebind is its own producer, including `x = x`.
+        // Preserve it before following aliases; it is never an initializer.
+        let rebind = |original: &SourceExprSiteV1| {
+            let plans = self.expression_plans.borrow();
+            let mut frames = plans.iter().filter_map(|plan| plan.rebind_frame()).filter(|frame|
+                frame.target().owner() == binding.owner()
+                    && frame.source().nodes().first().is_some_and(|node| node.site() == original));
+            let frame = frames.next()?;
+            if frames.next().is_some() { return None; }
+            Some(CurrentScalarProducerV1::BindingRebind(Rc::clone(frame)))
+        };
+        let origin = flow.alias_origin_with_expression_boundary(value, |site| function.variable_ref(site),
+            |site| rebind(site).is_some())?;
+        let producer = if let SourceValueOriginV1::Expression(site) = flow.origin(origin)? {
+            rebind(site)
+        } else { None };
+        let producer = if let Some(rebind) = producer { rebind } else { match flow.origin(origin)? {
             SourceValueOriginV1::Entry(root) if self.signed_formals.contains(root) => CurrentScalarProducerV1::SignedEntry(*root),
             SourceValueOriginV1::Expression(original) => {
                 let mut definitions = function.expression_source().initializers().filter(|row| row.initializer_site() == Some(original));
@@ -82,7 +99,7 @@ impl PrefixLocalFlow<'_> {
                 }
             }
             _ => return None,
-        };
+        } };
         Some(CurrentScalarReadV1 { read: site.clone(), binding, value, origin, flow: Arc::clone(flow), producer })
     }
 }

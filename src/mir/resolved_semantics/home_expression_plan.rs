@@ -44,6 +44,9 @@ pub(crate) use argument_expression::{qualify_argument_expression_v1, CheckedArgu
 #[path = "home_initializer_expression.rs"]
 mod initializer_expression;
 pub(crate) use initializer_expression::{qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1};
+#[path = "home_binding_rebind_expression.rs"]
+mod binding_rebind_expression;
+pub(crate) use binding_rebind_expression::{qualify_binding_rebind_expression_v1, CheckedBindingRebindFrameV1};
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
 pub(crate) use evaluation::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, CheckedScalarReferenceV1};
@@ -116,6 +119,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     argument_frame: Option<Rc<CheckedArgumentExpressionFrameV1>>,
     initializer_frame: Option<Rc<CheckedInitializerExpressionFrameV1>>,
+    rebind_frame: Option<Rc<CheckedBindingRebindFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
     field_write: Option<FieldWritePlanV1>,
     initializer_homes: Option<Rc<[crate::mir::resolved_semantics::BindingRefV1]>>,
@@ -158,7 +162,7 @@ impl HomeExpressionPlanV1 {
             source,
             scalar_operations: vec![loan],
             source_fields: Vec::new(),
-            print_frame: None, argument_frame: None, initializer_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
         })
     }
     /// Whole initializer preflight supplies value-class proof separately. This
@@ -170,7 +174,7 @@ impl HomeExpressionPlanV1 {
         if source.has_opaque_obligations() || source.root().initializer().is_none() { return None; }
         let mut plan = prepared.unwrap_or_else(|| Self {
             source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-            print_frame: None, argument_frame: None, initializer_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
+            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None, condition_frame: None, field_write: None, initializer_homes: None,
         });
         if !Rc::ptr_eq(&plan.source, &source) || plan.initializer_homes.is_some() { return None; }
         plan.initializer_homes = Some(Rc::from(homes));
@@ -188,6 +192,7 @@ impl HomeExpressionPlanV1 {
             self.print_frame().map(|frame| frame.prior_homes())
                 .or_else(|| self.argument_frame().map(|frame| frame.prior_homes()))
                 .or_else(|| self.initializer_frame().map(|frame| frame.prior_homes()))
+                .or_else(|| self.rebind_frame().map(|frame| frame.evaluation().prior_homes()))
                 .or_else(|| self.condition_frame().map(|frame| frame.prior_homes()))
                 .or_else(|| self.field_write_frame().map(|frame| frame.prior_homes())).unwrap_or(&[])));
         let mut fields = Vec::with_capacity(requests.len());
@@ -203,7 +208,8 @@ impl HomeExpressionPlanV1 {
             .filter(|(index, _)| self.print_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
                 && self.condition_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
                 && self.argument_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
-                && self.initializer_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index)))
+                && self.initializer_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
+                && self.rebind_frame.as_ref().is_none_or(|frame| !frame.evaluation().transfers_node(*index)))
             .filter_map(|(index, node)| matches!(node.source(), ExpressionNodeSourceV1::Shape(
                 crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })).then_some(index))
             .collect();
@@ -222,6 +228,7 @@ impl HomeExpressionPlanV1 {
         self.field_write_frame().filter(|frame| frame.is_borrowed())
     }
     pub(crate) fn initializer_frame(&self) -> Option<&Rc<CheckedInitializerExpressionFrameV1>> { self.initializer_frame.as_ref() }
+    pub(crate) fn rebind_frame(&self) -> Option<&Rc<CheckedBindingRebindFrameV1>> { self.rebind_frame.as_ref() }
     pub(crate) fn argument_frame(&self) -> Option<&Rc<CheckedArgumentExpressionFrameV1>> { self.argument_frame.as_ref() }
     pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> { self.condition_frame.as_ref() }
     pub(crate) fn print_frame(&self) -> Option<&Rc<CheckedPrintExpressionFrameV1>> { self.print_frame.as_ref() }
@@ -236,7 +243,7 @@ impl HomeExpressionPlanV1 {
     }
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
-        [self.initializer_frame.is_some(), self.argument_frame.is_some(), self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some(), self.initializer_homes.is_some()]
+        [self.initializer_frame.is_some(), self.rebind_frame.is_some(), self.argument_frame.is_some(), self.print_frame.is_some(), self.condition_frame.is_some(), self.field_write.is_some(), self.initializer_homes.is_some()]
             .into_iter().filter(|present| *present).count() <= 1
             && self.initializer_homes.as_ref().is_none_or(|homes| self.source.root().initializer().is_some()
                 && homes.iter().all(|home| home.owner() == self.source.owner())
@@ -251,6 +258,7 @@ impl HomeExpressionPlanV1 {
             && self.argument_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source) && Rc::ptr_eq(frame.source_loan().plan(), &self.source))
             && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.initializer_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.rebind_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
             && self.source_fields.iter().all(|field| Rc::ptr_eq(&self.source, field.plan()) && field.is_consistent())
             && self.scalar_operations.iter().all(|loan| {
             Rc::ptr_eq(&self.source, loan.plan())
@@ -286,6 +294,11 @@ impl super::RootHomeFlow {
                 _ => true,
             }
             || match (original.initializer_frame(), refined.initializer_frame()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
+                _ => true,
+            }
+            || match (original.rebind_frame(), refined.rebind_frame()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
                 _ => true,

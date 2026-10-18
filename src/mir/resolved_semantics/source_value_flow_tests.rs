@@ -126,6 +126,9 @@ fn source_value_flow_rebind_reads_old_value_then_publishes_rhs_and_checks_owner(
     assert!(matches!(flow(&product).origin(first), Some(O::Entry(_))));
     assert_eq!(flow(&product).alias_origin(read(&product, &[P::Body(1), P::Value]),
         |site| product.variable_ref(site)), Some(first));
+    let assigned = read(&product, &[P::Body(1), P::Value]);
+    assert_eq!(flow(&product).alias_origin_with_expression_boundary(assigned,
+        |site| product.variable_ref(site), |original| original == &site(&[P::Body(0), P::Value])), Some(assigned));
     expression(
         &product,
         read(&product, &[P::Body(1), P::Value]),
@@ -143,6 +146,8 @@ fn source_value_flow_rebind_reads_old_value_then_publishes_rhs_and_checks_owner(
         .is_none());
     assert!(flow(&other).origin(first).is_none());
     assert!(flow(&other).alias_origin(first, |site| other.variable_ref(site)).is_none());
+    assert!(flow(&other).alias_origin_with_expression_boundary(first,
+        |site| other.variable_ref(site), |_| true).is_none());
     let literal = resolve(vec![local(Some(int(7))), ret(var())]);
     let value = read(&literal, &[P::Body(1), P::Value]);
     assert_eq!(flow(&literal).alias_origin(value, |site| literal.variable_ref(site)), Some(value));
@@ -179,6 +184,8 @@ fn source_value_flow_loop_keeps_zero_break_continue_and_nested_targets() {
         ret(var()),
     ]);
     let header = read(&product, &[P::Body(0), P::LoopCondition]);
+    assert!(flow(&product).alias_origin_with_expression_boundary(header,
+        |site| product.variable_ref(site), |_| true).is_none(), "an expression boundary cannot choose a Loop predecessor");
     let head = join(&product, header, K::LoopHeader);
     assert_eq!(head.len(), 2); // entry + targeted continue, no unreachable backedge
     assert!(head.iter().any(|(edge, _)| *edge == E::LoopEntry));
