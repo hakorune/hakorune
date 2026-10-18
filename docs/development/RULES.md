@@ -1,7 +1,7 @@
 # Hakorune 開発ルール
 
 Status: SSOT
-Date: 2026-10-12
+Date: 2026-10-19
 Scope: task selection, implementation, validation, production cutover, retirement, and restart routing.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -85,9 +85,10 @@ Non-claims:
 
 ## 6. テストと計算資源
 
-- 追加前に対象familyの既存test・fixture・guardを確認し、守る意味と失敗境界を指定する。既存ownerへケースを足し、独立した未被覆条件だけ新規testにする。毎sliceの新規test追加は義務にしない。
+- test/fixture/guardは原則増やさない。証拠は既存test・既存acceptance実行を優先し、次に既存ケースの拡張・共通fixture/パラメータ化を使う。新規testは既存では守れない独立した意味・失敗境界がある場合だけとし、既存cardに不足と追加理由を短く記す。positive/negativeの証拠要求を新規test追加の要求へ読み替えない。
+- 新規testファイル・checker実行入口はfamily内の統合・削除と組にして原則純増ゼロにする。独立した契約で純増が必要なら、既存ownerへ置けない理由・利用caller・既存証拠との差を同じcardに記す。帳尻のために異なる安全性検証を消さず、この規則を検査する新checker/台帳も作らない。
 - 同じ契約の等価ケースは共通fixtureやパラメータでまとめる。異なる失敗境界の診断と必要な独立実行・filter選択を保ち、source意味・独立した最終MIR・外部入力/実行検証を重複扱いで削らない。
-- 挙動不変の整理は既存回帰検証を使い、実装を写すだけのtestを足さない。docs-onlyは対象文書のリンク・pointer・契約を検証し、不要なCargo起動をしない。
+- 挙動不変の整理は既存回帰検証を使い、実装を写すtest・専用`_for_test`フック・内部配置/エラー全文の固定を追加しない。source入力→MIR/実行結果/構造化refusalを優先する。Rc同一性等はそれ自体が所有・権限契約で外から検証できない場合に限定し、理由を同じcardへ記す。重複ASTヘルパーは既存test-supportへ寄せ、巨大な汎用fixture基盤を新設しない。docs-onlyはリンク・pointer・契約を確認し、Cargoを起動しない。
 - guardは既存family ownerを再利用し、作業rowの完了・一時的なコード配置・過去の選択pointerを守る専用guardを増やさない。新規guardは既存ownerで守れない継続的な契約と利用callerがある場合に限る。
 - 一時的test/guard/adapter/proofには、owner・正本の置換先・`retire_when`・削除に必要な証拠を既存card/metadataへ記す。条件を満たした専有物は第4節に従い同じbounded seriesで統合・物理退役する。
   永続的な意味・安全性検証を一時負債に含めず、履歴はGitへ残す。退役を証明する新guard・台帳や、一律のtest数上限・全repo棚卸しを着手条件にしない。
@@ -119,14 +120,14 @@ Non-claims:
 
 ## 8. コードの衛生
 
-- source fileは760行で分割を考え、800行をhard stopとする。圧縮で逃げない。
+- production source fileは760行で分割を考え、800行をhard stopとする。圧縮で逃げない。test専用ファイルは行数だけで分割せず、familyの契約境界で整理する。混在ファイルのproduction部分をtestで例外化しない。
 - `allow(dead_code)`は限定owner・理由・再確認期限を記録する。V1/V2の並立には統合条件を持たせる。
 - debug logは既定OFF。無条件`eprintln!`は禁止。
 - 挙動不変のrefactorは2〜5 commitsにまとめ、受理形の拡張と混ぜない。
 
 ## 9. 完了の定義
 
-- **slice closeout:** 選択ownerのpositive/negative evidence、要求guard、赤の分類、owner docsが揃う。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
+- **slice closeout:** 選択ownerのpositive/negative evidence（既存test・acceptance実行で可）、要求された既存guard、赤の分類、owner docsが揃う。新規test/guardは完了条件ではない。対象familyの重複・一時物は統合/削除し、残す未完条件と追加資産の純増理由を同じcardへ記す。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
 - 着地時に`/tmp`の証拠と退避adapterの保持・退避・廃棄を判定する。必要な検証条件・結果を着地commitへ残し、cardの完了履歴はそのcommit参照へ圧縮する。`/tmp`のpathとSHAだけを完了証拠にせず、未完の条件と必要な一時物は保持理由・退役条件を残す。
 - **MirBuilder migration complete:** 必須workstream rowが全て閉じ、実sourceからcanonical Facts/Recipe/verification、sole physical owner、publicationまで到達する。選択production callerが切替済みで、選択旧edgeが退役し、要求されたend-to-end acceptanceが記録されている。
 - 削除予定をtaskboardに残しただけではmigration完了にしない。
