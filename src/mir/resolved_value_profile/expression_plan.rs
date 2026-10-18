@@ -39,6 +39,12 @@ pub(crate) enum ExpressionPlanRootV1 {
         condition: SourceExprSiteV1,
         bundle: crate::mir::resolved_semantics::ResolvedIfRegionBundleV1,
     },
+    LoopCondition {
+        statement: SourceStmtSiteV1,
+        condition: SourceExprSiteV1,
+        bundle: crate::mir::resolved_semantics::ResolvedLoopRegionBundleV1,
+        frame: crate::mir::resolved_semantics::LoopExecutionFrameKeyV1,
+    },
     Statement {
         statement: SourceStmtSiteV1,
         role: StatementExpressionRoleV1,
@@ -50,7 +56,7 @@ impl ExpressionPlanRootV1 {
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
             Self::CallArgument { statement, .. } | Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }
-            | Self::IfCondition { statement, .. } => {
+            | Self::IfCondition { statement, .. } | Self::LoopCondition { statement, .. } => {
                 statement
             }
             Self::Assignment { assignment } => assignment.statement_site(),
@@ -59,7 +65,8 @@ impl ExpressionPlanRootV1 {
     pub(crate) fn initializer(&self) -> Option<&ResolvedInitializerRelationV1> {
         match self {
             Self::LocalInitializer { initializer, .. } => Some(initializer),
-            Self::CallArgument { .. } | Self::Statement { .. } | Self::Assignment { .. } | Self::IfCondition { .. } => None,
+            Self::CallArgument { .. } | Self::Statement { .. } | Self::Assignment { .. }
+            | Self::IfCondition { .. } | Self::LoopCondition { .. } => None,
         }
     }
 }
@@ -311,9 +318,41 @@ pub(crate) fn condition_expression_source_plan_v1(
         .child(SourcePathSegmentV1::IfCondition).expr();
     let exact = input.function().with_if_region_for_condition(&condition, |row|
         row.site() == statement && row.bundle() == bundle).map_err(|_| Issue::MissingSource)?;
+    if !exact { return Err(Issue::ForeignOwner); }
+    build_condition_source_plan_v1(input, statement, condition.clone(), SourcePathSegmentV1::IfCondition,
+        ExpressionPlanRootV1::IfCondition { statement: statement.clone(), condition, bundle })
+}
+
+/// Original Loop condition purpose. Membership owns its frame and region;
+/// keeping source children never grants Header, Home or execution permission.
+pub(crate) fn loop_condition_expression_source_plan_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+) -> Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+    use ExpressionChildIssueV1 as Issue;
+    let bundle = *input.function().loop_region_bundle(statement).map_err(|_| Issue::MissingSource)?;
+    let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| Issue::ForeignOwner)?;
+    let membership = ledger.resolved_loop_source(statement).map_err(|_| Issue::MissingSource)?;
+    if !membership.source().matches_identity(input.function().function_origin(), input.function().source_kind(), statement)
+        || membership.scope_region() != bundle.loop_pair() {
+        return Err(Issue::ForeignOwner);
+    }
+    let condition = SourcePathV1::from_node(statement.node()).child(SourcePathSegmentV1::LoopCondition).expr();
+    let frame = membership.frame().clone();
+    build_condition_source_plan_v1(input, statement, condition.clone(), SourcePathSegmentV1::LoopCondition,
+        ExpressionPlanRootV1::LoopCondition { statement: statement.clone(), condition, bundle, frame })
+}
+
+/// One source inventory and exact child-relation check for both condition kinds.
+fn build_condition_source_plan_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1, condition: SourceExprSiteV1, role: SourcePathSegmentV1,
+    root: ExpressionPlanRootV1,
+) -> Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+    use ExpressionChildIssueV1 as Issue;
     let shape = input.body_shape().ok_or(Issue::MissingSource)?;
     let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| Issue::ForeignOwner)?;
-    if !exact || shape.owner() != input.owner() || ledger.owner() != input.owner() {
+    if shape.owner() != input.owner() || ledger.owner() != input.owner() {
         return Err(Issue::ForeignOwner);
     }
     let inventory = ledger.source_site_inventory();
@@ -321,13 +360,11 @@ pub(crate) fn condition_expression_source_plan_v1(
         return Err(Issue::MissingSource);
     }
     let mut relations = shape.relations().iter().filter(|row|
-        row.parent() == statement.node() && row.role() == &SourcePathSegmentV1::IfCondition);
+        row.parent() == statement.node() && row.role() == &role);
     if relations.next().is_none_or(|row| row.child() != &condition) || relations.next().is_some() {
         return Err(Issue::ChildIdentity);
     }
-    build_plan(&ledger, Some(shape), ExpressionPlanRootV1::IfCondition {
-        statement: statement.clone(), condition: condition.clone(), bundle,
-    }, &condition)
+    build_plan(&ledger, Some(shape), root, &condition)
 }
 
 /// Source purpose for one exact original actual. The nearest registered

@@ -636,4 +636,41 @@ mod installation_tests {
             if let Some(plan) = frame { assert_eq!(plan.initializer_frame().unwrap().prior_homes(), homes); }
         }
     }
+
+    #[test]
+    fn original_loop_condition_keeps_frame_and_conditional_reach_without_if_permission() {
+        use crate::mir::resolved_value_profile::{expression_plan::{
+            loop_condition_expression_source_plan_v1, condition_expression_source_plan_v1,
+            ExpressionPlanRootV1,
+        }, expression_children::{ExpressionChildrenV1, ExpressionChildReachV1}};
+        for (operator, truth) in [("&&", true), ("||", false)] {
+            let parsed = crate::parser::NyashParser::parse_from_string(&format!(
+                "function probe(flag) {{ loop(flag {operator} true) {{ break }} if true {{ return 1 }} return 0 }}")).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let site = input.function().only_loop_site().unwrap();
+            let source = loop_condition_expression_source_plan_v1(input, &site).unwrap();
+            let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+            let membership = ledger.resolved_loop_source(&site).unwrap();
+            assert!(matches!(source.root(), ExpressionPlanRootV1::LoopCondition { statement, condition, bundle, frame }
+                if statement == &site && condition == source.nodes()[0].site()
+                    && Some(bundle) == input.function().loop_region_bundle(&site).ok()
+                    && frame.matches(membership.frame())));
+            assert_eq!(source.root().statement(), &site);
+            assert!(source.root().initializer().is_none());
+            assert_eq!(source.ordered_postorder_v1().unwrap(), vec![1, 2, 0]);
+            let ExpressionChildrenV1::Known(children) = source.nodes()[0].children() else { panic!("original children") };
+            assert_eq!(children[0].reach, ExpressionChildReachV1::Always);
+            assert_eq!(children[1].reach, ExpressionChildReachV1::When { condition: children[0].site.clone(), value: truth });
+            assert!(condition_expression_source_plan_v1(input, &site).is_err());
+            let if_site = input.function().if_region_sites().next().unwrap();
+            assert!(loop_condition_expression_source_plan_v1(input, if_site).is_err());
+            let mut batches = 0;
+            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None,
+                &mut |_| Ok(None), &mut |_| true, &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none(),
+                "source purpose cannot borrow If-only Home permission");
+            assert_eq!(batches, 0);
+        }
+    }
 }

@@ -497,10 +497,19 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         "affine Recipe take retains the SAME source/Home proof");
     package.batch().with_lowering_input(declaration.batch_slot(), |input| {
         assert_eq!(plan.flat_no_exit_statement_sites(input).unwrap().len(), 5);
+        let condition = plan.condition_source_v1(input).unwrap();
+        assert!(std::rc::Rc::ptr_eq(condition, plan.condition_source_v1(input).unwrap()), "one retained original condition plan");
+        assert!(matches!(condition.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LoopCondition {
+            statement, condition: original, bundle, frame,
+        } if statement == &loop_site && original == condition.nodes()[0].site()
+            && Some(bundle) == input.function().loop_region_bundle(&loop_site).ok()
+            && frame.matches(plan.frame())));
+        assert!(crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(input, &loop_site).is_err(), "Loop is not an If purpose");
         assert!(home.recheck_source(input, originals.values().map(|row| row.contract())), "source proof survives Recipe take");
     }).unwrap();
     let main = package.batch().declarations().find(|row| row.owner() != site.owner()).unwrap();
     package.batch().with_lowering_input(main.batch_slot(), |input| {
+        assert!(plan.condition_source_v1(input).is_none(), "foreign function cannot borrow the retained condition");
         assert!(plan.flat_no_exit_statement_sites(input).is_none(), "foreign source cannot borrow this Recipe");
     }).unwrap();
     assert!(ledger.take_preissued_loop_source_plan_v1(site.owner(), &loop_site).unwrap_err().contains("already-taken"));

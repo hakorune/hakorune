@@ -362,6 +362,9 @@ separate Generic function-effect projection issuer.
 The same passive statement inventory retains Print and Return value roots.
 The original shadow traversal records each exact statement-to-Value relation;
 Print's identity grants no Query, Home, effect, result-class or execution proof.
+The same traversal records exact IfCondition and LoopCondition child relations.
+Loop conditions retain the original loop-header value-flow environment; these
+passive relations grant no Bool, Home or execution permission.
 
 ## Resolver callable-contract I0
 

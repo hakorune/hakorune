@@ -527,10 +527,13 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         self.expression_source.value_flow.begin_loop(path.expr());
-        self.resolve_expr(
-            condition,
-            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::LoopCondition),
-        )?;
+        let condition_path = Self::stmt_expr_path(statement, path, ExprChildRoleV1::LoopCondition);
+        self.resolve_expr(condition, &condition_path)?;
+        self.record_relation(
+            path.node(),
+            crate::mir::resolved_semantics::SourcePathSegmentV1::LoopCondition,
+            condition_path.expr(),
+        );
         let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::LoopBody);
         let (loop_region, _) = self.enter_region_scope_with_origins(
             ShadowRegionKindV0::Loop,

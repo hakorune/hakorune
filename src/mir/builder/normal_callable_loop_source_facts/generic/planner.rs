@@ -4,6 +4,10 @@ use crate::mir::builder::control_flow::plan::{LoopFactsPolicyFrameV1, PlanBuildO
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, LoopExecutionFrameKeyV1,
     SourceStmtSiteV1, VerifiedResolvedLoopSourceV1};
+use crate::mir::resolved_value_profile::expression_plan::{
+    loop_condition_expression_source_plan_v1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
+};
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub(super) struct PlannedSourceLoopV1 {
@@ -27,6 +31,7 @@ pub(in crate::mir) struct PreissuedCallableLoopSourcePlanV1 {
     owner: FunctionOwnerIdV1,
     source: VerifiedResolvedLoopSourceV1,
     frame: LoopExecutionFrameKeyV1,
+    condition: Rc<ExpressionSourcePlanV1>,
     policy: LoopFactsPolicyFrameV1,
     planned: PlannedSourceLoopV1,
 }
@@ -44,23 +49,40 @@ pub(in crate::mir) fn issue_preissued_callable_loop_source_plan_v1(
     }
     let condition = source.child_expr_from_stmt(&statement, ExprChildRoleV1::LoopCondition).map_err(|e| format!("{e:?}"))?;
     let body = source.child_body_from_stmt(&statement, BodyChildRoleV1::LoopBody).map_err(|e| format!("{e:?}"))?;
+    let condition_source = loop_condition_expression_source_plan_v1(input, site).map_err(|e| format!("{e:?}"))?;
+    if condition_source.nodes().first().is_none_or(|root| root.site() != condition.site()) {
+        return Err("[freeze:contract][preissued-loop/condition-source]".into());
+    }
     let planned = PlannedSourceLoopV1::issue(condition.node(), body.statements(), policy,
         format!("source-owner:{:?}", input.owner()).into_boxed_str(), policy.debug_enabled())?;
     let (source, frame, _) = membership.into_parts();
-    Ok(PreissuedCallableLoopSourcePlanV1 { owner: input.owner(), source, frame, policy, planned })
+    Ok(PreissuedCallableLoopSourcePlanV1 { owner: input.owner(), source, frame, condition: condition_source, policy, planned })
 }
 
 impl PreissuedCallableLoopSourcePlanV1 {
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
     pub(in crate::mir) fn site(&self) -> &SourceStmtSiteV1 { self.source.site() }
     pub(in crate::mir) fn frame(&self) -> &LoopExecutionFrameKeyV1 { &self.frame }
+    /// Reborrow one canonical condition plan, including its original purpose.
+    /// This source loan cannot promote an uncovered Home prefix.
+    pub(in crate::mir) fn condition_source_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<&Rc<ExpressionSourcePlanV1>> {
+        if input.owner() != self.owner || !self.source.matches_identity(input.function().function_origin(), input.function().source_kind(), self.site())
+            || !self.condition_matches_source_v1() { return None; }
+        let ExpressionPlanRootV1::LoopCondition { bundle, .. } = self.condition.root() else { return None };
+        (input.function().loop_region_bundle(self.site()).ok() == Some(bundle)).then_some(&self.condition)
+    }
+    fn condition_matches_source_v1(&self) -> bool {
+        matches!(self.condition.root(), ExpressionPlanRootV1::LoopCondition { statement, condition, frame, .. }
+            if self.condition.owner() == self.owner && statement == self.site() && frame.matches(&self.frame)
+                && self.condition.nodes().first().is_some_and(|root| root.site() == condition))
+    }
     pub(super) fn into_planned(self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1,
         origin: Option<crate::mir::resolved_semantics::FunctionOriginV1>,
         kind: Option<crate::mir::resolved_semantics::SemanticOwnerSourceKindV1>, policy: LoopFactsPolicyFrameV1,
     ) -> Result<PlannedSourceLoopV1, String> {
         if owner != self.owner || site != self.site().node() || self.policy != policy
             || origin != Some(self.source.function_origin()) || kind != Some(self.source.source_kind())
-            || !self.frame.matches(&self.source.frame_key()) {
+            || !self.frame.matches(&self.source.frame_key()) || !self.condition_matches_source_v1() {
             return Err("[freeze:contract][preissued-loop/physical-source-drift]".into());
         }
         Ok(self.planned)
@@ -72,6 +94,7 @@ impl PreissuedCallableLoopSourcePlanV1 {
     fn loop_cond_source<'plan, 'source>(
         &'plan self, input: ResolvedFunctionLoweringInputV1<'source>,
     ) -> Option<LoopCondRecipeSourceRefV1<'plan, 'source>> {
+        self.condition_source_v1(input)?;
         if input.owner() != self.owner || !self.source.matches_identity(input.function().function_origin(), input.function().source_kind(), self.site())
             || self.planned.selection.as_ref()?.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) { return None; }
         let canonical = self.planned.outcome.facts.as_ref()?;
