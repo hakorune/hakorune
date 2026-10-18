@@ -948,7 +948,6 @@ semantic checker:
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/mir_root_facade_guard.sh
-bash tools/checks/mir_root_import_hygiene_guard.sh
 python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
 git diff --check
 ```

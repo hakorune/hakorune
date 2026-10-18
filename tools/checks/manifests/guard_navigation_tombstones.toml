@@ -35,3 +35,12 @@ reason = "obsolete token-only Hako facade retired after bounded-body snapshot pa
 observed_revision = "13ca2339a3d51dd0d4316913a522b81536449066"
 successor = "tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh"
 reopen_trigger = "Only a new explicit authority decision for planner adoption or another distinct Fact consumer may reopen this name."
+
+[[tombstones]]
+path = "tools/checks/mir_root_import_hygiene_guard.sh"
+owner = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
+disposition = "superseded"
+reason = "import checks share the existing facade owner; registry retains imports-only scope"
+observed_revision = "961d7dd0ef"
+successor = "tools/checks/mir_root_facade_guard.sh"
+reopen_trigger = "Only a distinct owner-reviewed import contract that cannot use the shared facade owner may reopen this name."

@@ -10,6 +10,62 @@ ALLOWLIST="$ROOT_DIR/tools/checks/mir_root_facade_allowlist.txt"
 MODULE_MANIFEST="$ROOT_DIR/tools/checks/mir_root_module_manifest.txt"
 CONTRACT="$ROOT_DIR/docs/development/current/main/design/mir-root-facade-contract-ssot.md"
 
+check_import_hygiene() {
+  local TAG="mir-root-import-hygiene-guard"
+  cd "$ROOT_DIR"
+  guard_require_command "$TAG" rg
+  guard_require_files "$TAG" "$CONTRACT"
+
+  echo "[$TAG] checking MIR root import hygiene"
+
+  bad_wildcards="$(
+    rg -n '^\s*use\s+crate::mir::(\*|\{[^}]*\*[^}]*\})\s*;' src tests -g '*.rs' || true
+  )"
+  if [ -n "$bad_wildcards" ]; then
+    echo "[$TAG] ERROR: MIR root wildcard import found" >&2
+    printf '%s\n' "$bad_wildcards" >&2
+    exit 1
+  fi
+
+  bad_root_vocab="$(
+    rg -n 'crate::mir::(StringCorridor|SumPlacement|ThinEntry|PlacementEffect|StorageClass|ValueConsumer)' \
+      src/mir src/runner -g '*.rs' || true
+  )"
+  if [ -n "$bad_root_vocab" ]; then
+    echo "[$TAG] ERROR: semantic metadata vocabulary imported through MIR root" >&2
+    printf '%s\n' "$bad_root_vocab" >&2
+    exit 1
+  fi
+
+  bad_root_detect_callers="$(
+    rg -n 'crate::mir::detect_(skip_whitespace_shape|read_digits_loop_true_shape|continue_shape|parse_number_shape|parse_string_shape|escape_skip_shape)' \
+      src/mir -g '*.rs' || true
+  )"
+  if [ -n "$bad_root_detect_callers" ]; then
+    echo "[$TAG] ERROR: loop-canonicalizer detection helper imported through MIR root" >&2
+    printf '%s\n' "$bad_root_detect_callers" >&2
+    exit 1
+  fi
+
+  bad_root_detect_bridge="$(
+    rg -n 'pub\(crate\)\s+use\s+builder::detect_(skip_whitespace_shape|read_digits_loop_true_shape|continue_shape|parse_number_shape|parse_string_shape|escape_skip_shape)' \
+      src/mir/mod.rs || true
+  )"
+  if [ -n "$bad_root_detect_bridge" ]; then
+    echo "[$TAG] ERROR: crate-internal detection bridge reintroduced in MIR root" >&2
+    printf '%s\n' "$bad_root_detect_bridge" >&2
+    exit 1
+  fi
+
+  echo "[$TAG] ok"
+}
+
+if [[ $# -gt 0 ]]; then
+  [[ $# -eq 1 && "$1" == "--imports-only" ]] || { echo "usage: $0 [--imports-only]" >&2; exit 2; }
+  check_import_hygiene
+  exit
+fi
+
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$MIR_ROOT" "$ALLOWLIST" "$MODULE_MANIFEST" "$CONTRACT"
 
@@ -234,3 +290,5 @@ if set(actual) != set(manifest) or mismatched:
 
 print(f"[{tag}] ok modules={len(actual)}")
 PY
+
+check_import_hygiene

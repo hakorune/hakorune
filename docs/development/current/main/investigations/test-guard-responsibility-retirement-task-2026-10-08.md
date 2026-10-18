@@ -1,5 +1,5 @@
 Task: TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0
-Status: active; TR-1 selected after explicit user goal resume
+Status: active; TR-1/TR-2/TR-3 verified, TR-4 bounded selection pending
 Date: 2026-10-19
 Scope: ordered duplicate-test retirement, one fixture family, then existing guard consolidation
 Exception: explicit user-requested tooling task, separate from the active compiler semantic slice
@@ -29,7 +29,7 @@ Rust build/link time, test execution, shell checks and repeated gate invocations
 The existing 511-test receipt runs in 0.26s; this does not prove either build-time
 causality or speedup from removing tests. No repository-wide ledger is required.
 
-## Current Decision
+## Initial selected Decision (TR-1; now verified)
 
 TR-1 is selected after explicit goal resume. Source authority is the SAME
 `generic_i64/typed_object.rs` compiled twice through identical inherited helpers.
@@ -120,7 +120,9 @@ from executable caller-zero under that existing navigation-tombstone contract.
 Retain shared allowlists, module manifests, runner helpers and other families.
 
 Close the family only after the required checks pass, old executable callers
-are zero, the old script is deleted, and scoped script count/LOC actually falls.
+are zero, the old script is deleted, and scoped script count actually falls.
+Report LOC separately, including any small shared-dispatch overhead; do not add
+wrappers or weaken checks to meet a numeric deletion target.
 Record before/after costs without promising a speedup or lower step count before
 measurement. Use the existing row runner and gates; a new deletion-proof guard
 is not part of this task.
@@ -214,3 +216,25 @@ For independent equivalence evidence use disposable tree fixtures, including a
 healthy facade and each original failure, without committing tests/guards.
 Update facade contract, live cleanup command/index/registry/quick callers and
 existing navigation tombstone; this expands docs only where owned facts change.
+
+## TR-3 closeout
+
+Old import script physically deleted; same facade owner now holds all checks.
+Quick calls one combined entry (two before); registry retains its row ID/profiles
+with `--imports-only`. No new executable/test/support file. Shell scripts2→1;
+combined owner shell LOC291→294 (+3 for shared mode dispatch), quick step file
+net-1 line. This reduces entries/duplicate invocations, not measured Rust build
+cost. No LOC or speedup improvement claim for this guard slice.
+
+Disposable fixtures: exact import stdout/stderr/exit match old owner for healthy
+and each of four refusals; combined default accepts healthy and rejects distinct
+export/module mutations. Real import-only and actual registry quick-static row
+PASS. Real default retains original ArrayReadSiteId allowlist failure unchanged.
+`guard-surface-inventory --check` PASS after staging deletion (its git-files view
+cannot inspect a removed unstaged file). Registry L0 vs961d7dd0ef PASS:0 new
+unmapped/0 mapping loss/0 dangling navigation; frozen index compatibility block
+unchanged, old name retained only as historical navigation/tombstone.
+Full inventory guard has44 errors for unmapped hako_alloc closeout wrappers;
+exact same44 errors reproduced from archived961d7dd0ef. No rebaseline/waiver.
+Pointer, bash syntax and diff checks PASS. Disposable scratch trees removed;
+936A/B evidence kept until TR-4 decision and maintenance closeout.

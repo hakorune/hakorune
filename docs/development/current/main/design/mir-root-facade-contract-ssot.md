@@ -8,7 +8,6 @@ Related:
   - src/mir/README.md
   - tools/checks/mir_root_facade_guard.sh
   - tools/checks/mir_root_facade_allowlist.txt
-  - tools/checks/mir_root_import_hygiene_guard.sh
   - docs/development/current/main/phases/phase-291x/291x-523-semantic-metadata-root-export-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-537-mir-root-facade-contract-card.md
   - docs/development/current/main/phases/phase-296x/archive/296x-976-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001.md
@@ -98,11 +97,16 @@ constructs semantic metadata, import that metadata from its owner module.
 
 ## Review Commands
 
+The existing facade guard owns exports, module declarations and import hygiene.
+Default execution checks them in that order; `--imports-only` preserves the
+registry profiles' narrower scope and requires neither Python nor facade manifests.
+The former import script is retired; quick invokes the combined owner once.
+
 Use these during cleanup cards:
 
 ```bash
 bash tools/checks/mir_root_facade_guard.sh
-bash tools/checks/mir_root_import_hygiene_guard.sh
+bash tools/checks/mir_root_facade_guard.sh --imports-only
 rg -n "use crate::mir::\\*;" src
 rg -n "crate::mir::(StringCorridor|SumPlacement|ThinEntry|PlacementEffect|StorageClass|ValueConsumer)" src/mir src/runner -g'*.rs'
 rg -n "pub use .*\\{[^}]*(Fact|Plan|Route|Candidate|Selection|Layout|Contract|Policy|Proof|State|Kind|Surface|Demand|Carrier|Reason|Provenance)" src/mir/mod.rs
@@ -114,7 +118,7 @@ Expected shape:
 - owner modules expose their own vocabulary
 - root keeps refresh entry points and core MIR surfaces
 - `tools/checks/mir_root_facade_guard.sh` reports the allowlisted export count
-- `tools/checks/mir_root_import_hygiene_guard.sh` reports `ok`, including no
+- `tools/checks/mir_root_facade_guard.sh --imports-only` reports `ok`, including no
   root-path loop-canonicalizer detection bridge
 
 ## Current State

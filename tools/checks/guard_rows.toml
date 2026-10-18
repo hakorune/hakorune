@@ -31,7 +31,7 @@ cmd = ["bash", "tools/checks/stage0_shape_inventory_guard.sh"]
 id = "mir-root-import-hygiene"
 label = "MIR root import hygiene guard"
 profiles = ["pilot", "quick-static"]
-cmd = ["bash", "tools/checks/mir_root_import_hygiene_guard.sh"]
+cmd = ["bash", "tools/checks/mir_root_facade_guard.sh", "--imports-only"]
 
 [[rows]]
 id = "current-state-pointer"

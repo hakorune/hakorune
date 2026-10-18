@@ -32,8 +32,7 @@ dev_gate_script_step "CoreMethodContract .inc no-growth guard" tools/checks/core
 dev_gate_script_step "CorePlan PHI/Binding boundary guard" tools/checks/coreplan_phi_binding_boundary_guard.sh
 dev_gate_script_step "CorePlan variable_map boundary inventory guard" tools/checks/coreplan_varmap_boundary_inventory_guard.sh
 dev_gate_group_label "root routes and no-fallback"
-dev_gate_script_step "MIR root facade guard" tools/checks/mir_root_facade_guard.sh
-dev_gate_script_step "MIR root import hygiene guard" tools/checks/mir_root_import_hygiene_guard.sh
+dev_gate_script_step "MIR root facade and import hygiene guard" tools/checks/mir_root_facade_guard.sh
 dev_gate_script_step "MIR builder CallTarget owner guard" tools/checks/mir_builder_calltarget_owner_guard.sh
 dev_gate_script_step "MapLookup fusion reader boundary guard" tools/checks/map_lookup_fusion_reader_boundary_guard.sh
 dev_gate_script_step "route detector legacy-surface guard" tools/checks/route_detector_legacy_surface_guard.sh
