@@ -312,22 +312,23 @@ pub(super) fn reconstruct_original_argument_protocol_v1(
     candidates: &[BorrowedCallActualCandidateV1],
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
-    reconstruct_original_argument_protocol_with_array_reads_v1(prepared, contracts, call, candidates, &mut |ordinal, site, _| {
+    reconstruct_original_argument_protocol_with_sources_v1(prepared, contracts, call, candidates, &mut |ordinal, site, _| {
         let Some(candidate) = candidates.iter().find(|actual| actual.ordinal == ordinal && &actual.site == site)
             else { return Err(freeze("borrowed-object/field-candidate-missing")); };
         let BorrowedCallActualValueV1::ReceivedField { parent, acquisition } = &candidate.value else { return Ok(None); };
         let Some(ledger) = ledger else { return Ok(None); };
         ledger.retained_returned_field_read_source_v1(&call.call, ordinal, *parent, acquisition)?
             .map(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_field_v1).transpose()
+            .map(|row| row.map(BorrowedFormalActualSourceV1::Read))
     }, ledger)
 }
 
-pub(super) fn reconstruct_original_argument_protocol_with_array_reads_v1(
+pub(super) fn reconstruct_original_argument_protocol_with_sources_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     candidates: &[BorrowedCallActualCandidateV1],
-    array_read: &mut dyn FnMut(u32, &SourceExprSiteV1, BindingRefV1) -> Result<Option<crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1>, String>,
+    source_actual: &mut dyn FnMut(u32, &SourceExprSiteV1, BindingRefV1) -> Result<Option<BorrowedFormalActualSourceV1>, String>,
     ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     if let Some(ledger) = ledger {
@@ -341,7 +342,7 @@ pub(super) fn reconstruct_original_argument_protocol_with_array_reads_v1(
     construct_borrowed_call_actuals_v1(
         prepared, call, contracts, &call.call, candidates,
         ledger.map(ObjectActualHomeSourceV1::Ledger).unwrap_or(ObjectActualHomeSourceV1::SourceOnly), None,
-        &mut |_| None, None, guarded_definition, array_read,
+        &mut |_| None, None, guarded_definition, source_actual,
     )
 }
 

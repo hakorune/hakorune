@@ -49,6 +49,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 return Err(freeze("borrowed-instance/method-original-source-drift"));
             }
             let read = OwnedExprSiteV1::new(site.owner(), actual.site.clone());
+            if static_source::ordinary_text_argument_source_v1(ingress, &read, method)?.is_some() { continue; }
             if let Some(loan) =
                 super::super::borrowed_formal_source::ArrayElementSourceLoanV1::issue(
                     ingress, &read,
@@ -209,6 +210,13 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         _ => unreachable!("received alternatives selected above"),
                     };
                     if !matches { return Err(freeze("borrowed-instance/mixed-acquisition-identity")); }
+                }
+                BorrowedCallActualValueV1::MethodCall(ref method)
+                    if static_source::ordinary_text_argument_source_v1(ingress,
+                        &OwnedExprSiteV1::new(site.owner(), actual.site.clone()), method)?.is_some() => {
+                    if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) {
+                        return Err(freeze("borrowed-instance/text-formal-domain"));
+                    }
                 }
                 BorrowedCallActualValueV1::MethodCall(ref method) => {
                     let mut loans = array_loans
@@ -536,7 +544,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
             if ledger.retained_owned_array_read_source_v1(loan)?.is_none() { return Ok(None); }
         }
     }
-    let Some(mut result) = super::object_source::reconstruct_original_argument_protocol_with_array_reads_v1(
+    let Some(mut result) = super::object_source::reconstruct_original_argument_protocol_with_sources_v1(
         ingress, contracts, call, &identity.candidates,
         &mut |ordinal, site, formal| {
             let (_, expected_site, expected_formal) = identity.incoming_arguments.iter().find(|(index, _, _)| *index == ordinal)
@@ -544,10 +552,21 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
             if expected_site != site || *expected_formal != formal {
                 return Err(freeze("borrowed-instance/read-original-identity"));
             }
+            let candidate = identity.candidates.get(ordinal as usize).ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
+            if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
+                if static_source::ordinary_text_argument_source_v1(ingress,
+                    &OwnedExprSiteV1::new(call.call.owner(), site.clone()), method)?.is_some() {
+                    let actual = array_ledger.ok_or_else(|| freeze("borrowed-instance/text-execution-unconnected"))?
+                        .borrowed_expression_actual_source_v1(&call.call, ordinal, site)?;
+                    if actual.formal != formal { return Err(freeze("borrowed-instance/text-formal-identity")); }
+                    return Ok(Some(actual.source));
+                }
+            }
             if let Some((_, loan)) = identity.field_loans.iter().find(|(index, _)| *index == ordinal) {
                 return array_ledger.ok_or_else(|| freeze("borrowed-instance/field-execution-unconnected"))?
                     .retained_returned_field_read_source_v1(&call.call, ordinal, loan.parent(), loan.acquisition())?
-                    .map(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_field_v1).transpose();
+                    .map(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_field_v1).transpose()
+                    .map(|row| row.map(BorrowedFormalActualSourceV1::Read));
             }
             let (_, loan) = identity.array_loans.iter().find(|(index, _)| *index == ordinal)
                 .ok_or_else(|| freeze("borrowed-instance/array-original-loan"))?;
@@ -557,6 +576,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
             array_ledger.ok_or_else(|| freeze("borrowed-instance/array-execution-unconnected"))?
                 .retained_owned_array_read_source_v1(loan)
                 .map(|source| source.map(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_array_v1))
+                .map(|row| row.map(BorrowedFormalActualSourceV1::Read))
         },
         array_ledger,
     )?
@@ -712,6 +732,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
                 loan.class()
             }
             BorrowedCallActualValueV1::MethodCall(ref method) => {
+                if static_source::ordinary_text_argument_source_v1(ingress,
+                    &OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone()), method)?.is_some() {
+                    if view.is_some() { return Err(freeze("borrowed-entry/object-view-drift")); }
+                    continue;
+                }
                 let loan = identity.array_loans.iter().find(|(index, _)| index == ordinal)
                     .ok_or_else(|| freeze("borrowed-instance/array-loan-missing"))?;
                 if candidate.ordinal != *ordinal || !loan.1.corroborates_method_source_v1(method) {

@@ -408,7 +408,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 assert_eq!(frame.evaluation().owned_result_nodes(), [0]);
                 assert_eq!(frame.evaluation().ordered_nodes().last(), Some(&0));
                 assert!(frame.evaluation().ordered_nodes().iter().all(|node| !frame.transfers_node(*node)), "Core receiver/bounds remain in source postorder");
-                let source_loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_argument_expression_source_v1(ingress, &pending, &call_site, 0).unwrap().unwrap();
+                let source_loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, &call_site, 0).unwrap().unwrap();
                 assert_eq!(frame.source_loan(), &source_loan);
                 let expected = vec![LocalCallArgumentV1::BorrowedActual { ordinal: 0,
                     site: frame.source().nodes()[0].site().clone() }].into_boxed_slice();

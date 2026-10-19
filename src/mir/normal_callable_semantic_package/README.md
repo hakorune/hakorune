@@ -4873,3 +4873,13 @@ source tuple before retaining its source refinement; executable reconstruction
 still compares the complete retained identity. Only explicit source Observe can
 reset qualification; executable phases never reset. Holding these plans alone
 adds no Text Call result, entry, ABI or executable expression permission.
+
+Ordinary Text actual sources retain their original StaticIncomingSource and solver
+result evidence in the common argument source loan. The same node product keeps
+Core and ordinary Text methods distinct. Static/Instance observer and completion
+borrow their original full formal contracts and refine the same ordinal slot;
+only the existing qualified frame can become an Expression actual. The shared
+actual constructor accepts genuine Read or Expression sources and corroborates
+the original outer Call/ordinal/actual/formal tuple. This source connection grants
+no ordinary Text result ABI or Return permission: full body-result purpose,
+CallNormal lifetime, borrowed entry and independent finals remain required.

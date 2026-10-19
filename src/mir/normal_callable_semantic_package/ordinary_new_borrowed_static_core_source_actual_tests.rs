@@ -59,15 +59,15 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             assert!(project_pending_static_source_arguments_for_route_v1(
                 ingress, &pending, original.call_site(), original.required_i64_arguments(), false,
             ).unwrap_err().contains("core-expression-execution-pending"));
-            let loan = argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 0).unwrap().unwrap();
+            let loan = argument_source::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, original.call_site(), 0).unwrap().unwrap();
             assert!(Rc::ptr_eq(loan.plan(), plan), "loan must retain the observed plan, not rebuild it");
             assert!(std::ptr::eq(loan.resolver_source().unwrap(), receipt.unwrap().source()), "loan must retain the ordinary Core receipt");
-            assert_eq!(loan, argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 0).unwrap().unwrap());
-            assert!(argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 1).unwrap_err().contains("core-source-identity"));
+            assert_eq!(loan, argument_source::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, original.call_site(), 0).unwrap().unwrap());
+            assert!(argument_source::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, original.call_site(), 1).unwrap_err().contains("core-source-identity"));
             let absent = BTreeMap::new();
-            assert!(argument_source::lend_argument_expression_source_v1(ingress, &absent, original.call_site(), 0).unwrap_err().contains("source-unobserved"));
+            assert!(argument_source::lend_argument_expression_source_v1(ingress, &absent, &package.parameter_contracts, original.call_site(), 0).unwrap_err().contains("source-unobserved"));
             let refused = BTreeMap::from([(original.call_site().clone(), Err("retained-original-refusal".to_owned()))]);
-            assert_eq!(argument_source::lend_argument_expression_source_v1(ingress, &refused, original.call_site(), 0).unwrap_err(), "retained-original-refusal");
+            assert_eq!(argument_source::lend_argument_expression_source_v1(ingress, &refused, &package.parameter_contracts, original.call_site(), 0).unwrap_err(), "retained-original-refusal");
 
             for mutation in 0..7 {
                 let mut drift = rows.clone();
@@ -83,7 +83,7 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                     _ => unreachable!(),
                 }
                 let pending = BTreeMap::from([(original.call_site().clone(), Ok(drift))]);
-                assert!(argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 0).is_err(), "no loan from corrupted full tuple: {mutation}");
+                assert!(argument_source::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, original.call_site(), 0).is_err(), "no loan from corrupted full tuple: {mutation}");
                 // A missing map cannot recover via legacy transport; extras
                 // cannot survive exact source/ordinal correspondence either.
                 assert!(project_pending_static_source_arguments_for_route_v1(

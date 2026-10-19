@@ -420,3 +420,33 @@ pub(super) fn retain_instance_argument_sources_v1(
     identity.argument_sources = original.argument_sources.clone();
     Ok(())
 }
+
+/// The shared actual constructor consumes real Read or Expression evidence.
+/// These remain distinct source kinds with their own final membership checks.
+pub(super) fn validate_computed_actual_source_v1(
+    source: &BorrowedFormalActualSourceV1, actual: &BorrowedCallActualCandidateV1,
+    call: &OwnedExprSiteV1,
+    formal: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1,
+) -> Result<(), String> {
+    match source {
+        BorrowedFormalActualSourceV1::Read(read) => {
+            if read.site().owner() != call.owner() || read.site().site() != &actual.site {
+                return Err(freeze("borrowed-actual/array-read-source-drift"));
+            }
+            if let BorrowedCallActualValueV1::MethodCall(method) = &actual.value {
+                if !read.corroborates_method_source_v1(method) { return Err(freeze("borrowed-actual/method-original-source-drift")); }
+            }
+        }
+        BorrowedFormalActualSourceV1::Expression(expression) => {
+            let frame = expression.frame();
+            if frame.source().owner() != call.owner()
+                || frame.source().nodes().first().is_none_or(|node| node.site() != &actual.site)
+                || !matches!(frame.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call: outer, ordinal, .. }
+                    if outer.site() == call.site() && *ordinal == actual.ordinal)
+                || formal.ordinal != actual.ordinal || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+            { return Err(freeze("borrowed-actual/expression-source-drift")); }
+        }
+        _ => return Err(freeze("borrowed-actual/expression-or-read-required")),
+    }
+    Ok(())
+}

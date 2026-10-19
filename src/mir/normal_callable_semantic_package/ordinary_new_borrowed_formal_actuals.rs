@@ -207,7 +207,7 @@ fn construct_borrowed_call_actuals_v1(
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
     static_zero: Option<static_input_finish::StaticInputFinishV1>,
     guarded_definition: Option<&super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
-    array_read: &mut dyn FnMut(u32, &SourceExprSiteV1, BindingRefV1) -> Result<Option<crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1>, String>,
+    source_actual: &mut dyn FnMut(u32, &SourceExprSiteV1, BindingRefV1) -> Result<Option<BorrowedFormalActualSourceV1>, String>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let mut callee_contracts = contracts
         .iter()
@@ -310,16 +310,9 @@ fn construct_borrowed_call_actuals_v1(
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
             BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
             BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. } => {
-                let source = array_read(*ordinal, site, *formal)?.ok_or_else(|| freeze("borrowed-actual/unsupported-or-unavailable"))?;
-                if source.site().owner() != call.owner() || source.site().site() != site {
-                    return Err(freeze("borrowed-actual/array-read-source-drift"));
-                }
-                if let BorrowedCallActualValueV1::MethodCall(method) = &actual.value {
-                    if !source.corroborates_method_source_v1(method) {
-                        return Err(freeze("borrowed-actual/method-original-source-drift"));
-                    }
-                }
-                BorrowedFormalActualSourceV1::Read(source)
+                let source = source_actual(*ordinal, site, *formal)?.ok_or_else(|| freeze("borrowed-actual/unsupported-or-unavailable"))?;
+                model::validate_computed_actual_source_v1(&source, actual, call, &contract.parameters[*ordinal as usize])?;
+                source
             }
             BorrowedCallActualValueV1::ReceivedNullable(binding)
                 if binding.owner() == call.owner() =>

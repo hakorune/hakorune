@@ -65,6 +65,25 @@ fn original_static_source_v1<'a>(
     Ok(Some(source))
 }
 
+/// The SAME original ordinary Text call source; classification only, never an
+/// executable result/ABI grant. A genuine method is selected before Array/Core.
+pub(super) fn ordinary_text_argument_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
+    method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
+    let Some(source) = original_static_source_v1(prepared, site)? else { return Ok(None) };
+    if !matches!(source.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString) {
+        return Ok(None);
+    }
+    if method.owner() != site.owner() || method.site() != site.site()
+        || !std::sync::Arc::ptr_eq(source.method_source(), method)
+        || source.call_site() != site
+        || source.call_result_evidence().is_none_or(|row| row.static_target_key() != Some(source.target())
+            || row.result_representation() != crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString)
+    { return Err(freeze("borrowed-actual/text-call-source-identity")); }
+    Ok(Some(Rc::clone(source)))
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Original constructor provider arguments use the same ordinary actual
     /// issuer. No Home observation, terminal membership or input finish is made.
@@ -123,11 +142,14 @@ pub(super) fn selects_static_expression_source_v1(
     prepared: &PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<bool, String> {
-    let core_source = actuals.iter().any(|actual| {
-        let BorrowedCallActualValueV1::MethodCall(method) = &actual.value else { return false; };
-        prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone()))
+    let mut core_source = false;
+    for actual in actuals {
+        let BorrowedCallActualValueV1::MethodCall(method) = &actual.value else { continue; };
+        let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
+        core_source |= prepared.ordinary_core_source_v1(&site)
             .is_some_and(|receipt| std::sync::Arc::ptr_eq(method, receipt.source().source()))
-    });
+            || ordinary_text_argument_source_v1(prepared, &site, method)?.is_some();
+    }
     let original_text_formal = |root| prepared.source_value_sum_v1(root).is_some_and(|sum|
         sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
     let source_expression = actuals.iter().any(|actual| match actual.value {
@@ -172,6 +194,7 @@ pub(super) fn prepare_static_source_actuals_v1(
                 || source.is_current_owner_bool_source_v1()
                 || prepared.is_static_terminal_source_v1(source)
                 || source_expression
+                || matches!(source.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
         });
     if !opaque_source && !original_source {
         return Ok(None);
@@ -258,6 +281,14 @@ pub(super) fn prepare_static_source_actuals_v1(
             }
             BorrowedCallActualValueV1::MethodCall(method) => {
                 let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
+                if ordinary_text_argument_source_v1(prepared, &site, method)?.is_some() {
+                    if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) {
+                        return Err(freeze("borrowed-static/text-formal-domain"));
+                    }
+                    arguments.push(LocalCallArgumentV1::BorrowedActual { ordinal: actual.ordinal, site: actual.site.clone() });
+                    integer_evidence.push(false);
+                    continue;
+                }
                 let receipt = prepared.ordinary_core_source_v1(&site)
                     .ok_or_else(|| freeze("borrowed-static/source-actual-unavailable"))?;
                 if method.owner() != call.owner() || method.site() != &actual.site

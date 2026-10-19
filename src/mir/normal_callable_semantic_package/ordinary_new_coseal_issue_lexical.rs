@@ -332,13 +332,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     }
     if let BorrowedCallActualRequestV1::ArgumentExpressionSource(input, ordinal) = request {
         return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::observed_argument_source_v1(input, source, pending, site, ordinal))
+            .and_then(|source| super::super::lexical_instance_call::observed_argument_source_v1(input, source, pending, contracts, site, ordinal))
             .map(|loan| loan.map(BorrowedCallArgumentsV1::ArgumentExpressionSource))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
     if let BorrowedCallActualRequestV1::CompleteArgumentExpression(frame) = request {
         return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::complete_argument_expression_v1(source, pending, site, frame))
+            .and_then(|source| super::super::lexical_instance_call::complete_argument_expression_v1(source, pending, contracts, site, frame))
             .map(|frame| Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }

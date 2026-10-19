@@ -226,26 +226,13 @@ unresolved MapGet remain within the original series obligations.
 
 ### Verified source/evaluation connections (V861–V868)
 
-Completed source/evaluation decisions and their full commands/validation:
-- V86137934abe54: SAME resolver reaching-definition/terminal-aware source flow.
-- V862be368415ca: point premises share that flow, SCC and independent grounding.
-- V863b92665faba: complete original Instance inputs/declaration/Parameter census;
-  json reached pending execution only, never a source-only acceptance.
-- V86441d10b7354: Print shares checked body/evaluator/terminal cleanup transaction.
-- V865fb8a780b5c / V86643e8418b15: original CallArgument owner/Arc/ordinal/site,
-  one complete SourceStatic validator, no retry or equal reissued Core identity.
-- V867ac35be25de / V8686bc04b37f4: real covered Prefix lends original SUM/flow/
-  read/plan and common entry issuer; independent Core Text premise remains.
-
-All eight commits record their then-current focused positives/negatives, same12
-baseline classification and guards. Native checks belong to their exact revisions,
-not current WIP. Preserve Root861B/CLI197/app220-221, Root862B/CLI198/app222-223,
-Root863C/CLI200/app225-226, Root864B/CLI201/app227-228, Root865B/CLI202/app229-230,
-Root866C/CLI203/app231, Root867F/CLI204/app232-233 and Root868B/CLI205/app234
-records/pins with matching backend/baseline until full-series acceptance.
-Superseded diagnostic binaries were retired as recorded in those commits;
-diagnostics remain explanatory. No parked adapter. Text evaluation/entry/cleanup/
-publication, named JSON/C, full-series/suite/CI and full-goal acceptance remain open.
+Full contracts/commands/classified results/pin provenance are retained at:
+`37934abe54` source flow;`be368415ca` point/SCC;`b92665faba` full Instance census;
+`41d10b7354` shared Print evaluator/cleanup;`fb8a780b5c`/`43e8418b15` original
+argument-purpose identity/validator;`ac35be25de`/`6bc04b37f4` covered Prefix/entry.
+Those source/evaluation preparations do not close Text execution. Keep861–868
+final root/CLI/source/native/baseline pins until full series acceptance; obsolete
+diagnostic executables retired as those commits record, no parked adapter.
 
 ### Verified Text precursor connections (V869–V875)
 
@@ -856,9 +843,11 @@ patch survives. Keep949/950 pinned source/binaries/logs and diagnostic provenanc
 until950 Text acceptance; no parallel source owner/adapter survives.
 
 950 One accepted construction Decision (source and physical workers agree):
-Source authority + issuer: SAME ExactString catalog and caller/site/target handoff
-plus all original Return/Completion sites and expression/Home provenance. Existing
-result owner seals executable Text Return demand; representation alone never does.
+Source authority + issuer: Static uses SAME ExactString catalog/caller/site/target
+handoff; Instance uses SAME original general Value Return plans and lexical target.
+Both require all original Return/Completion sites and actual expression/Home proof.
+Existing result owner seals Text only after qualification; representation alone
+or a missing Static row never does.
 Normalize Text residence acquisition in the SAME flow/record owners with private
 Initializer/Rebind/CallNormal origins, exact source Rc and proper purposes; never
 cast rebind to initializer. Existing expression evaluation/writer stays sole owner.
@@ -915,13 +904,10 @@ Decisions, commands/timings, baselines and pin retirement. Each174=170PASS/4same
 Keep final/native/C +954A FFI/runtime until950 acceptance. Prior953 fixed11=5/6,
 four EXEs. Full950 remains required; Loop Text Add is no originalJSON prerequisite.
 
-955 original Unit arguments/Instance signed entry landed `935b75487f`; closeout
-`e89b59539c` owns full mapping, source/entry reviews, commands/timings, baselines,
-fixed11 5PASS/6FAIL/four EXEs+marker, and retention/retirement. JSON409 advances
-to array-loan-missing; mimalloc410 canonical EXE/run exact363, while suite generic-
-MIR negative still fails. Keep955D/CLI294/native/C/suite +954A FFI/runtime until950
-acceptance. Obsolete955A/B/C843711104B retired; no diagnostic patch/adapter survives.
-Whole950/retained rows/finite goal open; no test/case/checker additions.
+955 Unit arguments/Instance scalar entry `935b75487f`/`e89b59539c` owns exact
+mapping/reviews/commands/baselines/retirement. JSON409 Array-loan stop, mim410 exact363,
+fixed11=5PASS/6FAIL/four EXEs+marker (generic-MIR mim negative still fails).
+Keep955D/CLI294/C/native/suite +954A runtime/FFI until950; redundant955A/B/C retired.
 
 956 refinement of the SAME950 construction Decision (two read-only source-to-
 consumer workers agree; no unresolved semantic design):
@@ -959,18 +945,55 @@ boolField scalar leaves remain required. No eligibility-only green closes950.
 Reuse existing tests/C/native slots and unchanged JSON/mimalloc; no new cases/
 files/checkers/hooks. Fixed suite955 is prior evidence, not whole-series closure.
 
-956 common argument retention BoxShape landed `2098e966f5`. That commit owns
-full producer/consumer/refinement review, original Instance direct-prepare -> bind
-fix, stale-assert retirement reasoning, all commands/timings/baselines and pin
-provenance. Root956C8focusedPASS;174existing=170PASS/4 exact955D/9263same names;
-no cases/files/hooks/checkers added. Current7Unit JSON byte-identical955; actual
-C/native955 reused under unchanged payload/runtime/FFI, no fresh C-run claim.
-CLI295 production equals956C; only snapshot difference test-only assert cleanup.
-OriginalJSON411 SAME409/array-loan-missing/noEXE; unchanged mimalloc412 canonical
-EXE/run exact363. Source responsibilities normalized, not originalJSON advance.
-Fixed11 last955 only; no current suite/CI/full950/goal closure. Keep956C/CLI295/
-native/source +954A FFI/runtime until950 acceptance. Redundant956B281291824B retired,
-source/build/failure logs retained; no parallel writer/adapter/diagnostic patch.
-Next required: generalized observer/lender/completer and genuine ordinary Text
-Call-purpose, all Return forms/OwnedString ABI, borrowed entry/Unit cleanup/BOTH
-finals/JSON/C, exactly the SAME950/956 Decision above. No inventory/design stop.
+956 retention BoxShape `2098e966f5`/`2e8ff5174f` owns full mapping/evidence/pins:
+956C8PASS;174=170PASS/4same/9263names;7Unit JSON exact955, prior C/native reused.
+CLI295 production matches956C;JSON411 unchanged/mim412 exact363;fixed11 prior955.
+Keep final/native/source/954A until950; redundant956B retired, logs retained.
+
+957 source connection refines SAME950/956 Decision; previous turn956 is progress
+(retention owner integrated), not originalJSON progress. Two read-only workers
+confirm common borrowed identity view + original parameter catalog, no new ledger.
+Thread existing contracts through observer/lender/completer; Static already retains
+its complete formals, Instance requires unique original owner/batch/mode/ordinal.
+Inner ordinary Text source retains SAME StaticIncomingSource Rc, original method
+Arc/ExactString/call-result target. Core/OrdinaryText share the existing node product;
+source classification never seals OwnedString ABI/Return or permits execution.
+Observe refines SAME pending slot; executable phases cannot reset/qualify anew.
+Both ledger frame demand and Instance reconstruct consume exact current frame;
+generalize shared actual constructor's Read callback into Read-or-Expression
+source (existing enum), never wrap Text as Array/Read. Necessary object_source
+signature follows that sole constructor; no second Instance constructor is added.
+Paths: existing actual model/constructor/Static+Instance source/argument source,
+coseal callback, Home argument qualifier, existing tests for API wiring, README.
+Existing cases reused; no new cases/parameters/hooks/checkers. Full950 body Text
+result-purpose/Return/ABI/CallNormal/borrowed entry/Unit cleanup/finals/JSON/C stay
+required. Shared Call emitter/result transport and independent lifetime checks are
+next consumers; source eligibility or a frame alone is never product acceptance.
+957 inner ordinary source currently retains StaticIncoming; Instance Text-returning
+reportUser in originalJSON remains required950, not claimed supported by this step.
+957 worker correction: Static result catalog is Static-only. Extend existing
+prepare_original_returns (Fields/UnitCandidate) to retain general Value plans before
+Home qualification, not preclaimed Text. CallableResultSource seals Instance Text
+from all genuine Return frames + canonical Completion/entry; join original lexical
+target. Do not widen Static solver (it seeds formals I64), forge StaticIncoming or
+invent StringBox class. Original Instance reportUser remains mandatory950 scope.
+957 verification: jobs4 `cargo quick-test-fast --no-run --message-format=json`:
+Root957A112.775024s/957B42.245161s buildPASS;957B9existing focusedPASS (previous8
+plus covered-prefix Core argument frame),174=170PASS/4 exact956C diagnostics,
+7.248626s;9263same names/no new warning. No case/parameter/file/hook/checker added.
+7Rust-issued Unit JSON byte-identical955; C/native955 reused under identical payload/
+FFI/runtime, no fresh C-run claim. Pointer/layer/CallTarget/diff guardsPASS.
+Jobs4 `cargo build --profile quick --bin hakorune --message-format=json` CLI296
+206.863608s PASS; root/CLI captured production source matches. FFI954A/runtime954A
+unchanged predecessor components, not full repository-snapshot equality.
+Canonical `--grammar-profile canonical --backend mir --emit-exe --emit-exe-nyrt
+runtime954A`,plugins1,pure-first/compat-none,FFI954A,16MiB stack: unchangedJSON413
+.060104s exit1/noEXE advances411/array-loan-missing -> lexical scope body failed
+borrowed-text-entry/original-read-identity. Error lacks owner/path; no inferred tuple
+is measured evidence. Unchanged mimalloc414 EXE144.092026s/run.001719s exact363.
+Next entry consumer is Static-only (mode guard, direct ordinal/no receiver layout,
+Static incoming finite structure); preserve all checks via original mode-specific
+entry/signature lanes, not deletion of guard. All950 Return/ABI/CallNormal obligations
+remain open; fixed11 prior955 only, no current suite/CI/whole-series completion.
+Keep957B/CLI296/native/source +954A components until950 acceptance.957A was not
+separately pinned; no diagnostic patch/adapter or parallel issuer/writer introduced.
