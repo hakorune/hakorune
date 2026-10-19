@@ -10,6 +10,11 @@ impl EmittedSourceLoopGraphV2 {
     pub(in crate::mir) fn verify_control_v2(&self, function: &MirFunction) -> Result<(), String> {
         if self.result.original().0 != self.after || !matches!(self.result.original().1,
             MirInstruction::Const { value: crate::mir::ConstValue::Void, .. }) { return Err(reject("loop-result")); }
+        if self.returns.len() != self.product.schedule().returns_v2().count()
+            || self.returns.iter().any(|row| self.product.schedule().returns_v2()
+                .filter(|source| std::rc::Rc::ptr_eq(source, &row.source)).count() != 1)
+            || self.returns.iter().enumerate().any(|(index, row)| self.returns[..index].iter()
+                .any(|old| std::rc::Rc::ptr_eq(&old.source, &row.source))) { return Err(reject("exit-outcome")); }
         if self.frames.len() != self.product.schedule().frames().len()
             || self.effects.len() != self.product.schedule().blocks_array_appends_v2().count() + self.product.schedule().calls_v2().count()
             || self.frames.iter().enumerate().any(|(index, frame)| frame.index != index) {
@@ -164,6 +169,19 @@ impl EmittedSourceLoopGraphV2 {
                         || !function.blocks.contains_key(&join) { return Err(reject("join-coordinates")); }
                 }
             }
+            if let Step::Return { source, .. } = step {
+                let mut rows = self.returns.iter().filter(|row| std::rc::Rc::ptr_eq(&row.source, source));
+                let row = rows.next().ok_or_else(|| reject("exit-cursor"))?;
+                if rows.next().is_some() || row.entry != cursor
+                    || row.terminal.1 != (MirInstruction::Return { value: Some(row.value) })
+                    || function.blocks.get(&row.terminal.0).and_then(|block| block.terminator.as_ref()) != Some(&row.terminal.1)
+                    || row.end != row.entry || !row.bindings.last().is_some_and(|binding|
+                        binding.0 == row.end && matches!(binding.1, MirInstruction::Jump { edge_args: None, .. })
+                            && function.blocks.get(&row.end).and_then(|block| block.terminator.as_ref()) == Some(&binding.1)) {
+                    return Err(reject("exit-entry"));
+                }
+                cursor = row.end;
+            }
             if let Step::Exit { port, .. } = step {
                 let edge = self.edges.iter().find(|row| row.cleanup.as_ref().is_some_and(|cleanup| cleanup.plan.port() == *port))
                     .ok_or_else(|| reject("exit-cursor"))?;
@@ -173,6 +191,10 @@ impl EmittedSourceLoopGraphV2 {
         }
         if block.end != cursor { return Err(reject("block-sequence-end")); }
         match steps.last() {
+            Some(Step::Return { source, .. }) => {
+                if block.normal || self.returns.iter().filter(|row| std::rc::Rc::ptr_eq(&row.source, source)
+                    && row.end == block.end).count() != 1 { return Err(reject("exit-outcome")); }
+            }
             Some(Step::Exit { site, port, .. }) => {
                 let mut edges = self.edges.iter().filter(|edge| match &edge.source {
                     crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::Break(original)

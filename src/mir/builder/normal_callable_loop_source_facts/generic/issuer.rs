@@ -54,8 +54,8 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         // A retained verified source product cannot be dropped into another
         // family, absent selection or the unretained planner/accumulation path.
         if source_recipe.is_some() && (variable_accum_recurrence.is_some()
-            || selection.as_ref().and_then(|selection| selection.sole_family())
-                != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)) {
+            || !matches!(selection.as_ref().and_then(|selection| selection.sole_family()),
+                Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue | CallableLoopSoleFamilyV1::LoopCondReturnInBody))) {
             return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(
                 "[freeze:contract][source-loop/product-route-drift]".into());
         }
@@ -77,7 +77,8 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 product,
             );
         }
-        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
+        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
+            || selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) && source_recipe.is_some() {
             return match loop_cond::issue(
                 owner,
                 parent_source,

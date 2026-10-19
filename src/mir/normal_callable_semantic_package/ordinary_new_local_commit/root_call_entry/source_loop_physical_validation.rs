@@ -45,6 +45,12 @@ pub(super) fn validate_owned_v2(graph: &EmittedSourceLoopGraphV2, owned: &[Bindi
             }
         }
     }
+    for returned in &graph.returns {
+        for row in &returned.bindings { claim(row, false)?; }
+        let dependencies = ExpressionReferenceReadV1::without_borrowed_phis_v2(
+            returned.read.dependencies()?.collect(), std::iter::once(&returned.read))?;
+        for row in &dependencies { claim(row, false)?; }
+    }
     for edge in &graph.edges {
         if let Some(cleanup) = &edge.cleanup { for row in &cleanup.bindings { claim(row, false)?; } }
         for value in &edge.values {
@@ -90,6 +96,7 @@ impl SourceLoopPhysicalProofV2 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_dependency_bindings_v2(&self)
         -> Result<Vec<Binding>, String> {
         let mut output = Vec::new();
+        for returned in &self.graph.returns { output.extend(returned.read.dependencies()?); }
         // These exact join producers are consumed again by validate_v2 below,
         // including an After value with no later source read. Lend the same
         // requirements to finishing liveness instead of allowing DCE to remove
@@ -169,6 +176,33 @@ impl SourceLoopPhysicalProofV2 {
             }
         }
         crate::mir::builder::capture_exact_loop_phis_v2(function, &phi_rows)?;
+        for returned in &self.graph.returns {
+            if context.ledger().source_loop_return_bindings_v2(&self.graph.product, &returned.source)? != returned.bindings
+                || returned.read.validate_scalar_read_v2(&returned.source.source, &returned.source.read,
+                    context, function, finishing)? != returned.value {
+                return Err(freeze("source-loop/frame-source"));
+            }
+            let terminal = &returned.terminal;
+            if terminal.1 != (MirInstruction::Return { value: Some(returned.value) })
+                || returned.bindings.iter().filter(|row| *row == terminal).count() != 1 {
+                return Err(freeze("source-loop/original-write"));
+            }
+            for binding in &returned.bindings {
+                match finishing {
+                    Some(projection) => match &binding.1 {
+                        MirInstruction::Jump { edge_args: None, .. } => {
+                            projection.structural_jump_binding(function, binding, matches!(context, CallValidationContextV1::Finalized(_)))?;
+                        }
+                        row if row.dst_value().is_some() => { projection.relation_binding(function, binding)?; }
+                        _ => { projection.required_effect_binding(function, binding)?; }
+                    },
+                    None if !physical_boundary::check_binding(function, None, binding.0, &binding.1)? => {
+                        return Err(freeze("source-loop/original-write"));
+                    }
+                    None => {},
+                }
+            }
+        }
         for edge in &self.graph.edges {
             if let Some(cleanup) = &edge.cleanup { cleanup.plan.validate_emitted_v2(cleanup, context, function, finishing)?; }
             let jump = (edge.predecessor, MirInstruction::Jump { target: edge.target, edge_args: None });

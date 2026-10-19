@@ -272,7 +272,10 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         >,
     ), String>{
         if simplify {
-            crate::mir::passes::simplify_cfg::simplify(&mut self.module);
+            // Match production finishing: the same retained source proofs lend
+            // their required producers before CFG transformations consume them.
+            let roots = self.scalar_finishing_liveness_v1()?;
+            crate::mir::passes::simplify_cfg::simplify_with_preserved_producers(&mut self.module, &roots);
         }
         let keys =
             finish_document_inputs(&mut self.root_validation, &self.module, &self.construction)?;

@@ -455,9 +455,20 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(Ok(row)) = row else {
             return Err(freeze("local-call-source-missing"));
         };
-        Ok(self.expected_local_call_binding_sources(owner)?.into_iter()
-            .filter(|source| source.covered_by(row) && !pending_routes.contains(source.site()))
-            .collect())
+        let mut sources = Vec::new();
+        for source in self.expected_local_call_binding_sources(owner)? {
+            // A Return inside this Loop claims its executed path children,
+            // never its own enclosing completion (which would form a cycle).
+            if let (LifecyclePrefixSourceV1::Loop { product, .. }, Some(site)) = (&source, exit.explicit_site()) {
+                let prefix = product.source.source.site().node().segments();
+                if site.node().segments().len() > prefix.len() && site.node().segments().starts_with(prefix) {
+                    sources.extend(product.lifecycle_prefixes_v2());
+                    continue;
+                }
+            }
+            sources.push(source);
+        }
+        Ok(sources.into_iter().filter(|source| source.covered_by(row) && !pending_routes.contains(source.site())).collect())
     }
 
     /// Select this exit's claimed binding-group rows from the recorded pool.
@@ -478,12 +489,14 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<RootLifecyclePrefixBindingGroupV1>, String> {
         let expected = self.expected_local_call_binding_sources_for_key_v1(owner, exit, &[])?;
         let pending = self.root_local_call_bindings.borrow();
-        let recorded = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
+        let roots = pending.get(&owner).cloned().unwrap_or_default();
+        drop(pending);
+        let recorded = super::source_loop_projection::snapshot_group_tree_v2(&roots);
         let mut selected = Vec::with_capacity(expected.len());
         for site in &expected {
-            let Some(group) = recorded.iter().find(|recorded| recorded.matches_source(site)) else {
-                return Err(freeze("local-call-binding-sequence"));
-            };
+            let mut matching = recorded.iter().filter(|recorded| recorded.matches_source(site));
+            let group = matching.next().ok_or_else(|| freeze("local-call-binding-sequence"))?;
+            if matching.next().is_some() { return Err(freeze("local-call-binding-sequence")); }
             selected.push(group.clone());
         }
         Ok(selected)

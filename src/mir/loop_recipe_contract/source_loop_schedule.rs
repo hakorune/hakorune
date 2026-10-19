@@ -57,6 +57,8 @@ pub(crate) enum SourceLoopScheduledStepV2 {
     If { item: LoopItemKeyV1, site: SourceStmtSiteV1, bundle: ResolvedIfRegionBundleV1,
         condition: usize, then_block: LoopBlockKeyV1, else_block: Option<LoopBlockKeyV1>,
         joins: Vec<SourceLoopBranchPhiV2> },
+    Return { source: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
+        operations: Range<usize>, item: LoopItemKeyV1, exit: LoopExitKeyV1 },
     Exit { item: LoopItemKeyV1, site: SourceStmtSiteV1, record: ResolvedExitRecordV1,
         port: usize, exit: LoopExitKeyV1 },
 }
@@ -79,6 +81,11 @@ impl VerifiedSourceLoopScheduleV2 {
         -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
         self.0.blocks.values().flatten().filter_map(|step| match step {
             SourceLoopScheduledStepV2::OwnedArrayAppend { observation, .. } => Some(observation), _ => None,
+        })
+    }
+    pub(crate) fn returns_v2(&self) -> impl Iterator<Item = &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>> {
+        self.0.blocks.values().flatten().filter_map(|step| match step {
+            SourceLoopScheduledStepV2::Return { source, .. } => Some(source), _ => None,
         })
     }
     pub(crate) fn calls_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
@@ -315,6 +322,50 @@ impl ScheduleCheck<'_, '_> {
                     for join in joins {
                         if !available.insert(join.result) { return Err(reject("schedule-result-unavailable")); }
                     }
+                }
+                SourceLoopScheduledStepV2::Return { source, operations, item, exit } => {
+                    if !source.corroborates(self.input) || !super::source_loop_v2::source_returns_v2(self.source)
+                        .iter().any(|original| Rc::ptr_eq(original, source))
+                        || operations.start != position || operations.end > block.items.len() || operations.end < position {
+                        return Err(reject("schedule-exit-source"));
+                    }
+                    let LoopExitKindV2::Return { value: Some(value) } = self.recipe.exits.get(exit.raw() as usize)
+                        .filter(|row| row.key == *exit).ok_or_else(|| reject("schedule-exit-source"))?.kind
+                        else { return Err(reject("schedule-exit-source")); };
+                    let class = self.recipe.values.get(value.raw() as usize).filter(|row| row.key == value).map(|row| row.class);
+                    let returned = self.values.iter().filter(|row| Rc::ptr_eq(&row.source, &source.source) && row.node == 0 && row.value == value).count();
+                    if returned != 1 || class != Some(LoopValueClassV2::I64) { return Err(reject("schedule-result-unavailable")); }
+                    let producer = super::source_loop_v2::producer_value_v2(source.read.producer(), self.recipe,
+                        self.values, self.bindings, self.draft);
+                    if operations.is_empty() {
+                        if producer != Some(value) { return Err(reject("schedule-operation-source")); }
+                    } else {
+                        let binding = self.bindings.get(&source.read.binding()).ok_or_else(|| reject("schedule-operation-source"))?;
+                        let role = self.source.source.bindings().bindings().find_map(|(actual, role)|
+                            (actual == source.read.binding()).then_some(role));
+                        match (role, source.read.producer()) {
+                            (Some(crate::mir::builder::CallableLoopSourceBindingClassV1::Carrier), super::source_loop_v2::Producer::LoopHeader(basis))
+                                if self.source.headers.get(&source.read.binding()).is_some_and(|original| Rc::ptr_eq(original, basis))
+                                    && Rc::ptr_eq(basis.source(), &self.source.source) => {},
+                            (Some(crate::mir::builder::CallableLoopSourceBindingClassV1::ReadOnlyOperand), producer)
+                                if !matches!(producer, super::source_loop_v2::Producer::LoopHeader(_))
+                                    && self.recipe.read_only_inputs.iter().any(|row| row.binding == *binding && row.class == LoopValueClassV2::I64) => {},
+                            _ => return Err(reject("schedule-operation-source")),
+                        }
+                        if operations.len() != 1 { return Err(reject("schedule-operation-source")); }
+                        let read_item = block.items[position];
+                        if !self.items.insert(read_item) || self.draft.operations.get(&read_item)
+                            .is_none_or(|plan| !Rc::ptr_eq(plan, &source.source))
+                            || !matches!(self.recipe.items[read_item.raw() as usize].item,
+                                LoopRecipeItemV2::Operation { operation: LoopOperationV2::ReadBinding { binding: actual, result } }
+                                    if actual == *binding && result == value) { return Err(reject("schedule-operation-source")); }
+                        available.insert(value);
+                    }
+                    if !available.contains(&value) || block.items.get(operations.end) != Some(item) || !self.items.insert(*item)
+                        || !matches!(self.recipe.items[item.raw() as usize].item, LoopRecipeItemV2::Exit { exit: actual } if actual == *exit) {
+                        return Err(reject("schedule-exit-source"));
+                    }
+                    self.control.push((source.site.clone(), *item)); position = operations.end + 1; alive = false;
                 }
                 SourceLoopScheduledStepV2::Exit { item, site, record, port, exit } => {
                     let original = self.input.function().resolved_exit(&ResolvedExitSiteV1::Statement(site.clone()));

@@ -104,6 +104,32 @@ impl CallableLoopSourceTargetProbeV1 {
                 return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
             }
         }
+        // Expression Core loans are owned by the SAME checked frames, rather
+        // than the older staged Core table. Normalize their exact resolver rows
+        // here; a source-site match alone never grants call coverage.
+        let mut expression_cores = std::collections::BTreeSet::new();
+        for frame in product.schedule().frames() {
+            use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1 as Prefix;
+            let evaluation = match frame.prefix() {
+                Prefix::BoolCondition { frame, .. } => frame.evaluation(),
+                Prefix::InitializerExpression { frame, .. } => frame.evaluation(),
+                Prefix::BindingRebind { frame, .. } => frame.evaluation(),
+                _ => return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign),
+            };
+            for (node, core) in evaluation.cores() {
+                if !core.matches_plan(frame.source(), *node) {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
+                }
+                let original = CallableLoopSourceItemBindingV1::from_resolved(
+                    product.source.source.owner(), core.source().source())?;
+                let item = items.iter().find(|item| **item == original)
+                    .ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
+                if !expression_cores.insert(item.call_site())
+                    || (!seen.insert(item.call_site()) && !self.core_methods.contains(item)) {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: item.call_site().clone() });
+                }
+            }
+        }
         if seen != items.iter().map(|item| item.call_site()).collect() {
             return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
         }

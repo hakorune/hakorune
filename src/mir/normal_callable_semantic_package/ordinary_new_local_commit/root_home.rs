@@ -417,6 +417,28 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(operations)
     }
 
+    /// Borrow the same Plain FunctionExit graph; its normal/fault cleanup is
+    /// still independently checked by the existing root final consumers.
+    pub(in crate::mir) fn source_loop_return_bindings_v2(&self,
+        product: &std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        source: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let owner = source.terminal.owner();
+        if self.retained_source_loop_recipe_v2(owner, product.source.source.site())?
+            .is_none_or(|original| !std::rc::Rc::ptr_eq(original, product))
+            || !product.schedule().returns_v2().any(|row| std::rc::Rc::ptr_eq(row, source))
+            || !matches!(self.terminal_relation_for_owner_at(owner, &source.site),
+                Some(TerminalRelationV1::I64Scalar(original)) if original == &source.terminal)
+            || self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow())
+                .and_then(|flow| flow.exit_row(&source.site)).and_then(Result::ok) != Some(&source.homes) {
+            return Err(freeze("source-loop/frame-source"));
+        }
+        let rows = self.root_exits.borrow();
+        let Some(RootHomeExitProgress::Emitted { bindings, entry: RootHomeExitEntry::Plain { .. }, .. })
+            = rows.get(&(owner, source.site.clone().into())) else { return Err(freeze("source-loop/original-write")); };
+        Ok(bindings.clone())
+    }
+
     pub(crate) fn record_root_home_exit(
         &self,
         owner: FunctionOwnerIdV1,

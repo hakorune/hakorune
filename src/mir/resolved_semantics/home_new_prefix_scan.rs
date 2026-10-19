@@ -167,6 +167,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_calls,
                 local_static_call,
             )?;
+            locals.record_source_loop_return_v1(statement.site(), terminal_relations.get(statement.site()),
+                exit_homes.get(statement.site()), local_calls);
             locals.note_source_loop_availability_v1(unavailable.is_none());
             locals.end_source_loop_body_v1(body, true);
             return Ok(true);

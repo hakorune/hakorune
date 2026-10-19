@@ -66,10 +66,20 @@ pub(in crate::mir) struct EmittedLoopEffectV2 {
     pub(in crate::mir) packet: crate::mir::normal_callable_semantic_package::RootLifecyclePrefixBindingGroupV1,
     pub(in crate::mir) result: Option<(LoopValueKeyV1, Rc<LocalSsaPhysicalRelationV1>)>,
 }
+pub(in crate::mir) struct EmittedLoopReturnV2 {
+    pub(in crate::mir) source: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
+    pub(in crate::mir) entry: BasicBlockId,
+    pub(in crate::mir) end: BasicBlockId,
+    pub(in crate::mir) value: ValueId,
+    pub(in crate::mir) terminal: (BasicBlockId, MirInstruction),
+    pub(in crate::mir) read: crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+    pub(in crate::mir) bindings: Vec<(BasicBlockId, MirInstruction)>,
+}
 pub(in crate::mir) struct EmittedSourceLoopGraphV2 {
     pub(in crate::mir) product: Rc<Product>,
     pub(in crate::mir) header: BasicBlockId,
     pub(in crate::mir) after: BasicBlockId,
+    pub(in crate::mir) returns: Vec<EmittedLoopReturnV2>,
     pub(in crate::mir) edges: Vec<EmittedLoopEdgeV2>,
     pub(in crate::mir) frames: Vec<EmittedLoopFrameV2>,
     pub(in crate::mir) effects: Vec<EmittedLoopEffectV2>,
@@ -189,7 +199,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     }
     let body_key = recipe.loops.first().ok_or_else(|| reject("root-loop-missing"))?.body;
     let mut driver = Driver { port, source, product: Rc::clone(&product), ledger, header, after,
-        logical, values, edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new() };
+        logical, values, returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new() };
     driver.edge(builder, Edge::LoopEntry, None)?;
     for &binding in product.source.headers.keys() {
         let name = driver.ledger.borrow().source_loop_binding_name(binding,
@@ -223,7 +233,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     let result = crate::mir::builder::emission::constant::emit_void_recorded(builder)?;
     let after_frame = driver.ledger.borrow().observed_fault_frame_binding_v2(
         builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?)?;
-    Ok((EmittedSourceLoopGraphV2 { product, header, after, edges: driver.edges, frames: driver.frames, effects: driver.effects,
+    Ok((EmittedSourceLoopGraphV2 { product, header, after, returns: driver.returns, edges: driver.edges, frames: driver.frames, effects: driver.effects,
         forks: driver.forks, blocks: driver.blocks, result, before, before_frame, after_frame },
         SourceLoopEntryStateV2 { values: entry_values, cache: entry_cache }))
 }
@@ -237,6 +247,7 @@ struct Driver<'a, 'port, 'collector, 'input, 'ledger> {
     after: BasicBlockId,
     logical: BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     values: BTreeMap<LoopValueKeyV1, ValueId>,
+    returns: Vec<EmittedLoopReturnV2>,
     edges: Vec<EmittedLoopEdgeV2>,
     frames: Vec<EmittedLoopFrameV2>,
     effects: Vec<EmittedLoopEffectV2>,
@@ -330,6 +341,24 @@ impl Driver<'_, '_, '_, '_, '_> {
                         self.frame(builder, *index, entry, value, None, None)?;
                         position += 1;
                     }
+                }
+                Step::Return { source, exit, .. } => {
+                    if position + 1 != steps.len() { return Err(reject("schedule-after-exit")); }
+                    let crate::mir::loop_recipe_contract::LoopExitKindV2::Return { value: Some(logical) }
+                        = self.product.recipe.as_recipe().exits[exit.raw() as usize].kind else { return Err(reject("exit-source-role")); };
+                    let entry = builder.function_state.current_block.ok_or_else(|| reject("body-entry"))?;
+                    let (value, read, bindings) = super::source_loop_frames::emit_return(builder, self.port, &self.product, source)?;
+                    if let Some(previous) = self.values.insert(logical, value) {
+                        if previous != value { return Err(reject("call-result-source")); }
+                    }
+                    let end = builder.function_state.current_block.ok_or_else(|| reject("body-end"))?;
+                    let mut terminals = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Return { .. }));
+                    let terminal = terminals.next().cloned().ok_or_else(|| reject("exit-cursor"))?;
+                    if terminals.next().is_some() || terminal.1 != (MirInstruction::Return { value: Some(value) }) {
+                        return Err(reject("exit-source-role"));
+                    }
+                    self.returns.push(EmittedLoopReturnV2 { source: Rc::clone(source), entry, end, value, terminal, read, bindings });
+                    return Ok(false);
                 }
                 Step::Exit { port, site, .. } => {
                     let original = self.product.source.ports.get(*port).ok_or_else(|| reject("exit-port"))?;

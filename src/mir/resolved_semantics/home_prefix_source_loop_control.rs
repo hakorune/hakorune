@@ -19,6 +19,7 @@ struct BodyDraft {
     terminated: Option<bool>,
 }
 enum Action {
+    Return(Rc<SourceLoopReturnV1>),
     Expression(HomeExpressionPlanV1),
     OwnedArrayAppend(NamedArrayHomeObservationV1),
     Call(super::super::super::LocalCallObservationV1),
@@ -34,6 +35,7 @@ pub(crate) struct CheckedSourceLoopBodyV1 {
 }
 #[derive(Debug)]
 pub(crate) enum CheckedSourceLoopStatementV1 {
+    Return(Rc<SourceLoopReturnV1>),
     Expression { site: SourceStmtSiteV1, frame: HomeExpressionPlanV1 },
     Call { site: SourceStmtSiteV1, observation: super::super::super::LocalCallObservationV1 },
     OwnedArrayAppend { site: SourceStmtSiteV1, observation: NamedArrayHomeObservationV1 },
@@ -41,6 +43,34 @@ pub(crate) enum CheckedSourceLoopStatementV1 {
         condition: Rc<CheckedBoolConditionFrameV1>, then_body: CheckedSourceLoopBodyV1,
         else_body: Option<CheckedSourceLoopBodyV1> },
     Exit { site: SourceStmtSiteV1, record: ResolvedExitRecordV1, port: usize },
+}
+
+/// The existing terminal walk's immutable FunctionExit observation. This is a
+/// source control node, never a Loop port or another cleanup permission.
+#[derive(Debug)]
+pub(crate) struct SourceLoopReturnV1 {
+    pub(crate) site: SourceStmtSiteV1,
+    pub(crate) record: ResolvedExitRecordV1,
+    pub(crate) terminal: super::super::super::TerminalI64ScalarReturnV1,
+    pub(crate) homes: super::super::super::RootHomeExitV1,
+    pub(crate) read: CurrentScalarReadV1,
+    pub(crate) source: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+}
+impl SourceLoopReturnV1 {
+    pub(crate) fn corroborates(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        use crate::mir::resolved_semantics::{ResolvedExitOriginV1 as Origin, ResolvedControlTransferV1 as Transfer};
+        use crate::mir::resolved_value_profile::{expression_plan::{ExpressionPlanRootV1, ExpressionNodeSourceV1 as Node},
+            expression_root::StatementExpressionRoleV1};
+        self.terminal.owner() == input.owner() && self.terminal.return_site() == &self.site
+            && self.terminal.value_site() == self.read.read() && self.read.binding().owner() == input.owner()
+            && self.source.owner() == input.owner() && self.source.nodes().len() == 1
+            && matches!(self.source.root(), ExpressionPlanRootV1::Statement { statement, role: StatementExpressionRoleV1::ReturnValue, value }
+                if statement == &self.site && value == self.read.read())
+            && matches!(self.source.nodes()[0].source(), Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
+                if *binding == self.read.binding())
+            && input.function().resolved_exit(&crate::mir::resolved_semantics::ResolvedExitSiteV1::Statement(self.site.clone())) == Some(&self.record)
+            && matches!((self.record.origin(), self.record.transfer()), (Origin::ExplicitReturn, Transfer::Return { .. }))
+    }
 }
 impl SourceLoopControlDraftV1 {
     fn fail(&mut self, reason: &'static str) { self.error.get_or_insert(reason); }
@@ -65,6 +95,10 @@ impl SourceLoopControlDraftV1 {
         for site in draft.visited {
             if observed_termination { return Err("source control statement after exit"); }
             let statement = match self.actions.remove(&site).ok_or("source statement has no checked execution action")? {
+                Action::Return(source) => {
+                    observed_termination = true;
+                    CheckedSourceLoopStatementV1::Return(source)
+                }
                 Action::Call(observation) => CheckedSourceLoopStatementV1::Call { site, observation },
                 Action::Expression(frame) => CheckedSourceLoopStatementV1::Expression { site, frame },
                 Action::OwnedArrayAppend(observation) => CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation },
@@ -92,6 +126,28 @@ impl SourceLoopControlDraftV1 {
 }
 
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_return_v1(
+        &self, site: &SourceStmtSiteV1, terminal: Option<&super::super::super::TerminalRelationV1>,
+        homes: Option<&Result<super::super::super::RootHomeExitV1, super::super::super::HomePrefixUnavailableV1>>,
+        calls: &[super::super::super::LocalCallObservationV1],
+    ) {
+        let Some(context) = &self.source_loop else { return };
+        let source = (|| {
+            let super::super::super::TerminalRelationV1::I64Scalar(terminal) = terminal? else { return None };
+            let homes = homes?.as_ref().ok()?;
+            let read = self.current_scalar_read_v1(terminal.value_site(), calls)?;
+            let ledger = self.input.forest().callable_source_ledger(self.input.owner()).ok()?;
+            let source = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                &ledger, self.input.body_shape()?, site).ok()??;
+            let record = *self.input.function().resolved_exit(&crate::mir::resolved_semantics::ResolvedExitSiteV1::Statement(site.clone()))?;
+            let observed = Rc::new(SourceLoopReturnV1 { site: site.clone(), record, terminal: terminal.clone(), homes: homes.clone(), read, source });
+            observed.corroborates(self.input).then_some(observed)
+        })();
+        match source {
+            Some(source) => context.control.borrow_mut().action(site, Action::Return(source)),
+            None => context.control.borrow_mut().fail("source statement has no checked execution action"),
+        }
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_call_v1(
         &self, site: &SourceStmtSiteV1, observation: &super::super::super::LocalCallObservationV1,
     ) {
@@ -200,6 +256,9 @@ impl ports::SourceLoopScanSummaryV1 {
         ) -> Result<(), &'static str> {
             for statement in body.statements.iter() {
                 match statement {
+                    CheckedSourceLoopStatementV1::Return(source) => {
+                        if !source.corroborates(input) { return Err("source Loop Exit port identity"); }
+                    }
                     CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation } => {
                         let NamedArrayHomeObservationV1::Append { source, call, candidate, availability, prior_homes, .. } = observation
                             else { return Err("source Loop append observation kind"); };

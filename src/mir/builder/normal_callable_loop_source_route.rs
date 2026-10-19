@@ -236,14 +236,39 @@ impl CallableLoopSourceRouteTokenV1 {
         selection: CallableLoopRouteMatchV1,
         projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
+        Self::issue_base(owner, parent_site, function_origin, source_kind, outcome, selection, projection, None)
+    }
+
+    pub(in crate::mir::builder) fn issue_checked_recipe_v2(
+        owner: FunctionOwnerIdV1, parent_site: SourceNodeSiteV1, function_origin: FunctionOriginV1,
+        source_kind: SemanticOwnerSourceKindV1, outcome: PlanBuildOutcome, selection: CallableLoopRouteMatchV1,
+        projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
+        product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        items: Box<[CallableLoopSourceItemBindingV1]>, probe: CallableLoopSourceTargetProbeV1,
+        call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
+    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
+        Self::issue_base(owner, parent_site, function_origin, source_kind, outcome, selection, projection, Some(&product))?
+            .with_checked_recipe_v2(product, items, probe, call_free)
+    }
+
+    fn issue_base(owner: FunctionOwnerIdV1, parent_site: SourceNodeSiteV1, function_origin: FunctionOriginV1,
+        source_kind: SemanticOwnerSourceKindV1, outcome: PlanBuildOutcome, selection: CallableLoopRouteMatchV1,
+        projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
+        checked: Option<&crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
         let facts = outcome
             .facts
             .as_ref()
             .ok_or(CallableLoopSourceRouteRejectV1::FactsMissing)?;
-        if facts.facts.loop_cond_break_continue().is_none() {
+        let checked_return = checked.is_some_and(|product|
+            selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody)
+                && facts.facts.loop_cond_return_in_body().is_some()
+                && product.source.source.matches_identity_v1(owner, &parent_site, function_origin, source_kind)
+                && product.schedule().returns_v2().next().is_some());
+        if !checked_return && facts.facts.loop_cond_break_continue().is_none() {
             return Err(CallableLoopSourceRouteRejectV1::LoopCondFactsMissing);
         }
-        if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
+        if !checked_return && selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
                 routes: selection.matched_routes().into(),
             });
@@ -273,7 +298,9 @@ impl CallableLoopSourceRouteTokenV1 {
         items: Box<[CallableLoopSourceItemBindingV1]>, probe: CallableLoopSourceTargetProbeV1,
         call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        if call_free.is_some() || self.source_coverage.is_some() || !self.source_items.is_empty() {
+        if call_free.as_ref().is_some_and(|coverage| !items.is_empty()
+            || coverage.owner() != self.owner || coverage.loop_site().node() != &self.parent_site)
+            || self.source_coverage.is_some() || !self.source_items.is_empty() {
             return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
         }
         CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(&product, self.owner, &self.parent_site, &items)?;
@@ -457,7 +484,12 @@ impl CallableLoopSourceRouteTokenV1 {
                 }
             }
         }
-        if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
+        let checked_return = matches!(&source_coverage, CallableLoopSourceCallCoverageV1::CheckedRecipe(product)
+            if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody)
+                && outcome.facts.as_ref().is_some_and(|facts| facts.facts.loop_cond_return_in_body().is_some())
+                && product.source.source.owner() == owner && product.source.source.site().node() == &parent_site
+                && product.schedule().returns_v2().next().is_some());
+        if !checked_return && selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
                 routes: selection.matched_routes().into(),
             });

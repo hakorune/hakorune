@@ -14,7 +14,7 @@ mod ports;
 #[path = "home_prefix_source_loop_control.rs"]
 mod control;
 pub(crate) use ports::{SourceLoopScanSummaryV1, SourceLoopPortKindV1};
-pub(crate) use control::{CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1};
+pub(crate) use control::{CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1, SourceLoopReturnV1};
 
 #[derive(Debug)]
 pub(crate) struct LoopHeaderScalarBasisV1 {

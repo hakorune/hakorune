@@ -126,6 +126,12 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
 ) -> Result<Option<Vec<LiveHomeV1>>, String> {
     for statement in tree.statements.iter() {
         match statement {
+            Statement::Return(source) => {
+                if !source.corroborates(input) || source.homes.homes().iter().ne(homes.iter().rev()) {
+                    return Err(reject("execution-normal-home-closure"));
+                }
+                return Ok(None);
+            }
             Statement::Call { observation, .. } => {
                 if observation.prior_homes() != homes.as_slice() {
                     return Err(reject("execution-prior-homes"));

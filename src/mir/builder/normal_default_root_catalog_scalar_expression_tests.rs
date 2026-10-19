@@ -171,15 +171,20 @@ fn scalar_expression_short_circuit_rhs_read_stays_in_deferred_block() {
 fn text_condition_keeps_short_circuit_and_final_source_operation() {
     use crate::mir::instruction::{InvokeOperation, StringInvokeOperation as Operation, StringInvokeOperand as Operand};
     use crate::mir::{BasicBlockId, ValueId};
-    for (prefix, condition, residence, in_method) in [
-        ("", "\"0\" < \"5\" || \"9\" < \"x\"", false, true),
-        ("", "\"0\" < \"5\" || \"9\" < \"x\"", false, false),
-        ("local text = \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", false, false),
-        ("local text = \"\" + \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", true, false),
-        ("local a = \"5\" local b = \"9\"", "a < b && b >= a", false, false),
-        ("local text = \"5\"", "text.substring(0, 1) < \"0\" || text.substring(0, 1) > \"9\"", false, false),
+    for (prefix, condition, residence, in_method, in_loop) in [
+        ("", "\"0\" < \"5\" || \"9\" < \"x\"", false, true, false),
+        ("", "\"0\" < \"5\" || \"9\" < \"x\"", false, false, false),
+        ("local text = \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", false, false, false),
+        ("local text = \"\" + \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", true, false, false),
+        ("local a = \"5\" local b = \"9\"", "a < b && b >= a", false, false, false),
+        ("local text = \"5\"", "text.substring(0, 1) < \"0\" || text.substring(0, 1) > \"9\"", false, false, false),
+        ("local text = \"5\"", "text.substring(i, i + 1) < \"0\" || text.substring(i, i + 1) > \"9\"", false, false, true),
     ] {
-        let text = if in_method {
+        let text = if in_loop {
+            format!("box Pool {{ size: i64 = 0 birth() {{}} }} static box Main {{ main() {{
+                local pool = new Pool() {prefix} local i = 0 loop(i < 2) {{
+                if {condition} {{ return i }} i = i + 1 }} return i }} }}")
+        } else if in_method {
             format!("box Pool {{ size: i64 = 0 birth() {{}} compare(): i64 {{
                 if {condition} {{ return 1 }} return 0 }} }} static box Main {{ main() {{
                 local pool = new Pool() return pool.compare() }} }}")
@@ -258,7 +263,8 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
                 MirInstruction::ReturnFault { .. } => {}, _ => panic!("comparison Fault escaped its unwind"),
             }
         }
-        for mutation in ["operator", "operand", "normal", "fault", "frame", "projection", "logical-edge", "copy-source", "text-end", "residence-producer"] {
+        for mutation in ["operator", "operand", "normal", "fault", "frame", "projection", "logical-edge", "copy-source", "text-end", "residence-producer", "return-value"] {
+            if mutation == "return-value" && !in_loop { continue; }
             if mutation == "copy-source" && text_copy.is_none() { continue; }
             if mutation == "residence-producer" && !residence { continue; }
             if mutation == "text-end" && !residence && !condition.contains("substring") { continue; }
@@ -269,6 +275,7 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
                 for row in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
                     if count != 0 { break; }
                     match (mutation, row) {
+                        ("return-value", MirInstruction::Return { value }) => { *value = Some(ValueId(90006)); count += 1; }
                         ("operator" | "operand" | "normal" | "fault" | "frame", MirInstruction::Invoke {
                             operation: InvokeOperation::String(Operation::Compare { op, left, .. }), normal_landing, fault_landing, fault_frame,
                         }) => {

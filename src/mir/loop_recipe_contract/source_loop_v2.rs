@@ -68,7 +68,7 @@ impl VerifiedSourceLoopRecipeProductV2 {
                         visit(product, *then_block, output);
                         if let Some(block) = else_block { visit(product, *block, output); }
                     }
-                    SourceLoopScheduledStepV2::Exit { .. } => {},
+                    SourceLoopScheduledStepV2::Exit { .. } | SourceLoopScheduledStepV2::Return { .. } => {},
                 }
             }
         }
@@ -89,7 +89,8 @@ impl VerifiedSourceLoopRecipeProductV2 {
         super::source_loop_schedule::assert_original_schedule_for_test(input, self);
     }
     pub(crate) fn owns_expression_v2(&self, source: &Rc<Source>) -> bool {
-        Rc::ptr_eq(source, self.source.condition.source())
+        source_returns_v2(&self.source).iter().any(|row| Rc::ptr_eq(source, &row.source))
+            || Rc::ptr_eq(source, self.source.condition.source())
             || self.source.body_expressions.iter().any(|frame| Rc::ptr_eq(source, frame.source()))
     }
     /// These qualified argument frames execute inside the SAME scheduled Call,
@@ -124,6 +125,21 @@ impl VerifiedSourceLoopRecipeProductV2 {
                 crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { call, candidate, .. }
                     if call == site || candidate == site)))
     }
+}
+pub(super) fn source_returns_v2(source: &Summary)
+    -> Vec<&Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>> {
+    fn visit<'a>(body: &'a Body, output: &mut Vec<&'a Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>>) {
+        for statement in &body.statements { match statement {
+            Statement::Return(source) => output.push(source),
+            Statement::If { then_body, else_body, .. } => {
+                visit(then_body, output); if let Some(body) = else_body { visit(body, output); }
+            }
+            _ => {},
+        } }
+    }
+    let mut output = Vec::new();
+    if let Ok(body) = &source.control { visit(body, &mut output); }
+    output
 }
 pub(super) fn source_call_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
     -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
@@ -211,6 +227,7 @@ pub(super) fn demanded_branch_joins_v2(source: &Summary)
             }
         }
     }
+    for source in source_returns_v2(source) { visit(source.read.producer(), &mut output); }
     Ok(output)
 }
 impl std::fmt::Debug for VerifiedSourceLoopRecipeProductV2 {
@@ -488,6 +505,20 @@ impl Projector<'_> {
                     }
                     self.schedule.step(block, SourceLoopScheduledStepV2::If { item, site: site.clone(), bundle: *bundle,
                         condition: condition_frame, then_block, else_block, joins });
+                }
+                Statement::Return(source) => {
+                    let start = self.recipe.blocks[block.raw() as usize].items.len();
+                    let reference = Reference::Scalar(crate::mir::resolved_semantics::home_new_prefix::CheckedScalarReferenceV1::Original(source.read.clone()));
+                    let value = self.reference(block, &source.source, &reference, LoopValueClassV2::I64)?;
+                    self.remember(&source.source, 0, value)?;
+                    let end = self.recipe.blocks[block.raw() as usize].items.len();
+                    let exit = LoopExitKeyV1::new(self.recipe.exits.len() as u32);
+                    self.recipe.exits.push(LoopRecipeExitV2 { key: exit, owner_loop: self.recipe.root_loop,
+                        kind: LoopExitKindV2::Return { value: Some(value) } });
+                    let item = self.item(block, LoopRecipeItemV2::Exit { exit });
+                    self.control.push(SourceLoopItemV2 { site: source.site.clone(), item });
+                    self.schedule.step(block, SourceLoopScheduledStepV2::Return {
+                        source: Rc::clone(source), operations: start..end, item, exit });
                 }
                 Statement::Exit { site, record, port } => {
                     let root = self.recipe.root_loop;

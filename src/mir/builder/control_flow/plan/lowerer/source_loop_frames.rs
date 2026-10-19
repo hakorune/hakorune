@@ -15,6 +15,39 @@ use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlockId, ValueId};
 use std::rc::Rc;
 
+/// Reuse the exact lexical read and the sole root FunctionExit writer. The
+/// Loop retains observations only; it never substitutes Loop-port cleanup.
+pub(super) fn emit_return(
+    builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
+    source: &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
+) -> Result<(ValueId, crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+    Vec<(BasicBlockId, crate::mir::MirInstruction)>), String> {
+    use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
+    let input = input(port, product)?;
+    if !source.corroborates(input) || !product.schedule().returns_v2().any(|row| Rc::ptr_eq(row, source)) {
+        return Err(freeze("call-source-drift"));
+    }
+    crate::mir::builder::control_flow::cleanup::ensure_cleanup_exit_allowed_v1(
+        &builder.function_state, crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return)?;
+    let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
+    let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+    let mut state = state.borrow_mut();
+    let prepared = state.prepare_exact_lexical_read(input.owner(), source.read.read().node(), source.read.binding())
+        .map_err(|error| error.to_string())?;
+    let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+    let producer = ExpressionReferenceReadV1::prepare_scalar_read_v2(&source.source, &source.read,
+        prepared.observation_v1(), CallValidationContextV1::Lowering(&claims), function)?;
+    let read = state.commit_exact_lexical_reads(vec![prepared]).map_err(|error| error.to_string())?
+        .pop().ok_or_else(|| freeze("call-source-missing"))?;
+    let observed = producer.finish(read);
+    let value = observed.scalar_read_value_v2(&source.source, &source.read,
+        CallValidationContextV1::Lowering(&claims), function)?;
+    if !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
+    crate::mir::builder::ordinary_new_admission::selected::emit_root_home_exit(
+        builder, &mut state, &claims, input.owner(), &source.site, value)?;
+    Ok((value, observed, claims.source_loop_return_bindings_v2(product, source)?))
+}
+
 pub(super) fn emit_array_append(
     builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
     statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,

@@ -93,8 +93,8 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         let source = original_reference(frame, node)?;
         let producer = match source {
-            Reference::Scalar(source) => return Self::prepare_scalar(
-                frame, source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, context, function),
+            Reference::Scalar(source) => return Self::prepare_scalar_read_v2(
+                frame.source(), source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, context, function),
             Reference::StaticText(original) => {
                 let value = read.loan_local_initializer_v1(original.definition_binding())?.0;
                 let mut rows = function.blocks.iter().flat_map(|(block, body)| body.all_instructions()
@@ -129,7 +129,7 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<(), String> {
         if let Reference::Scalar(source) = original_reference(frame, node)? {
             if matches!(self.producer, ReferenceProducerV1::Phi(_)) {
-                validate_source(frame, source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?,
+                validate_source(frame.source(), source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?,
                     &self.read, &self.producer, context)?;
             }
             let original = source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?;
@@ -193,14 +193,30 @@ impl ExpressionReferenceReadV1 {
             _ => Err(freeze("rebind-expression/rhs-producer")),
         }
     }
-    fn prepare_scalar(
-        frame: &CheckedExpressionEvaluationV1, source: &CurrentScalarReadV1, read: &ExactLexicalReadV1,
+    pub(in crate::mir) fn prepare_scalar_read_v2(
+        plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, source: &CurrentScalarReadV1, read: &ExactLexicalReadV1,
         context: CallValidationContextV1<'_>, function: &MirFunction,
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         let producer = prepare_scalar_binding_producer(source.binding(), source.producer(),
             read.binding_observation_v2(), context, function)?;
-        validate_source(frame, source, read, &producer, context)?;
+        validate_source(plan, source, read, &producer, context)?;
         Ok(PreparedExpressionReferenceReadV1 { producer })
+    }
+    /// A terminal source read uses the same producer/Copy/Phi verifier without
+    /// manufacturing an expression frame or consuming another lexical read.
+    pub(in crate::mir) fn scalar_read_value_v2(&self,
+        plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        source: &CurrentScalarReadV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<ValueId, String> { self.validate_scalar_read_v2(plan, source, context, function, None) }
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_scalar_read_v2(&self,
+        plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        source: &CurrentScalarReadV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&Finished>,
+    ) -> Result<ValueId, String> {
+        let value = validate_source(plan, source, &self.read, &self.producer, context)?;
+        validate_scalar_binding_observation_v1(source.binding(), source.producer(), self.read.binding_observation_v2(),
+            &self.producer, context, function, finishing)?;
+        Ok(value)
     }
     /// The SAME scalar producer/provenance check for a loop's original Entry.
     /// No expression frame or read site is synthesized or consumed.
@@ -270,7 +286,7 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
             Ok(Operand::StaticText { utf8: original.utf8().to_owned() })
         }
         Reference::Scalar(source) => Ok(Operand::NormalInteger(validate_source(
-            frame, source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, producer, context)?)),
+            frame.source(), source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, producer, context)?)),
         Reference::Residence(original) => {
             if frame.prior_homes().iter().filter(|home| matches!(home, crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition) if acquisition.same_source(original.acquisition()))).count() != 1
                 || original.root() != original.acquisition().binding() {
@@ -349,13 +365,18 @@ fn initializer_value(source: &Producer, read: &BindingValueObservationV2, contex
     if expected.is_some_and(|expected| expected != value) { return Err(freeze("expression/scalar-original-result")); }
     Ok(value)
 }
-fn validate_source(frame: &CheckedExpressionEvaluationV1, source: &CurrentScalarReadV1, read: &ExactLexicalReadV1, producer: &ReferenceProducerV1,
+fn validate_source(plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, source: &CurrentScalarReadV1, read: &ExactLexicalReadV1, producer: &ReferenceProducerV1,
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
     read.value_for(source.binding().owner(), source.read().node(), source.binding()).map_err(|error| error.to_string())?;
+    if plan.owner() != source.binding().owner() || !plan.nodes().iter().any(|node| node.site() == source.read()
+        && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(
+            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == source.binding())) {
+        return Err(freeze("expression/reference-source-node"));
+    }
     if matches!(source.producer(), Producer::LoopHeader(_)) {
         let product = context.source_loop_point_product_v2(source.producer())?;
-        if !product.owns_expression_v2(frame.source()) { return Err(freeze("expression/loop-header-source-scope")); }
+        if !product.owns_expression_v2(plan) { return Err(freeze("expression/loop-header-source-scope")); }
     }
     validate_scalar_origin(source.binding(), source.producer(), read.binding_observation_v2(), producer, context)
 }
