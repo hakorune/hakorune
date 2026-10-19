@@ -173,7 +173,7 @@ pub(super) fn seed_current_expression_references_v1(
     initial: Vec<(usize, CheckedExpressionReferenceV1)>, order: &[usize],
     static_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&super::super::SourceExprSiteV1)
-        -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+        -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, TextResidenceAcquisitionV1)>,
     scalar_reference: &mut impl FnMut(&super::super::SourceExprSiteV1) -> Option<CheckedScalarReferenceV1>,
 ) -> Option<std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>> {
     let bool_condition = prepared.is_bool_condition();

@@ -895,21 +895,11 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   canonical EXE. No Integer-element census for Count; SourceArray raw route retired.
   Original JSON remains unaccepted; shared/retained owners are not deleted.
 
-Current first-stop (948 acceptance, not full Text closure): unchanged original
-json-stream-aggregator384 canonical direct EXE, CLI286/root948C Rust source equal
-`8b7960a346`, exits1/noEXE in .051721s at borrowed-entry/finite-domain-unclosed;
-stderr exactly383. Runtime894A/FFI939A are explicit predecessors. No source edits,
-AST rewrite or fallback. Unchanged mimalloc385 EXE/run matches363 exactly.
-Worker source audit locates this refusal in existing
-ordinary_new_borrowed_formal_entry_contract::finite_text_entry_structure_v1;
-exact callee/formal/incoming and absent-vs-unsupported sum are still unmeasured.
-Next bounded action: observe that original owner, formal ordinal, full original
-incoming and source sum at its existing fail-fast boundary; distinguish missing
-proof from unsupported alternatives before selecting an implementation mapping.
-Do not widen finite domains, manufacture homogeneous sums/empty borrowed entries,
-reopen Map/untyped storage, or treat Array acceptance as Text completion.
-Retain948/CLI286/JSON384/native receipts and prior diagnostic patch until this
-measurement supersedes it. No new test/case/checker is selected.
+948 unchanged-source frontier and diagnostic selection are retained by
+`8b7960a346` and `de6e79e2ac`: JSON384 stopped at finite-domain-unclosed;
+mimalloc385 matched363. The exact original incoming/source-sum measurement and
+its implementation superseded that stop in949 below. This is historical evidence,
+not a current first-stop or full Text closure claim.
 
 949 original scalar incoming source projection landed `d819400df3`. The commit
 retains exact JsonLine.find/3 needle/start diagnosis, original all-five incoming,
@@ -959,7 +949,44 @@ true Unit-value-use and other result brands remain strict.
 Scope whole Text call tree: rebind, Return, Call result, borrowed entry use, Unit
 arguments, cleanup and C. TextEntry execution-pending and ordinary I64/Bool-only
 call leaves must close too. Literal/borrowed Return cannot be omitted as a shortcut.
-Next first BoxShape: inspect all acquisition consumers and normalize common loan
-interface with unchanged initializer behavior, separately from source admission.
-Both reviews found no unresolved semantic contract; names/wire spelling are routine
-implementation choices. Full series/retained rows/goal still open; no new tests.
+First BoxShape normalizes acquisition consumers/common loan with unchanged
+initializer behavior, separately from source admission; execution evidence below.
+Both construction reviews found no unresolved semantic contract; names/wire
+spelling are routine choices. Full series/retained rows/goal remain open.
+Next Text rebind uses the SAME existing source/progress Home arrays enriched with
+one LiveHome item: Stable(binding) or Text(original acquisition). Replace their
+binding-only elements, not a parallel map/receipt or point-aware source replay.
+Keep each historical frame's original acquisitions immutable. Normal source
+transition removes old Text and appends new; StaticText has no owned Home.
+Context resolves exact packet by source Rc/site, not latest installed_home(binding).
+Update shared prior unwind, root/Loop exits, cleanup and BOTH final scans together;
+never discard historical packets or retry an old End after its Fault.
+CallNormal's genuine source coordinate may be an inner node: Loop must use that
+original (plan,node), never fabricate an initializer or assume node0 for new origins.
+
+951 behavior-neutral Text acquisition normalization (root950B/CLI290):
+- Existing Prefix storage, aliases and all expression-purpose callbacks now carry
+  TextResidenceAcquisitionV1. Its private Initializer origin retains SAME frame Rc;
+  branch/alias equality compares that Rc, not wrapper address or frame contents.
+- Existing CallValidationContext now owns original packet/Home/local-loan/value
+  correspondence; expression reads retain current Home, source-site, producer and
+  dependency checks. No Rebind/CallNormal admission, ABI change or second ledger.
+- Read-only worker reviewed all consumers; missing owns_root forwarding caused
+  root950A exit101/52.442494s and was corrected before950B exit0/107.572803s.
+- Existing focused family/physical/Loop-final tests:10PASS/1 baseline red, identical
+  before/after with pinned949B. Baseline callable_source_loop_exit_read_binds_after_phi_dst
+  still refuses source-loop/v2/source Loop has an unavailable path; exact log equal.
+  Other previous baseline reds are not claimed fixed or rerun by this slice.
+- Root950B/CLI290 source manifests equal; CLI build206.087966s. OriginalJSON392
+  canonical direct EXE .050986s exit1/noEXE; stderr exact389/unit-value-use.
+  This intentionally preserves first-stop; it is internal preparation, not product
+  acceptance. Runtime894A/FFI939A are explicit unchanged predecessor artifacts.
+- Tests/cases/fixtures/hooks/checkers added:none;9263 test names unchanged.
+  Existing identity assertions guard source authority, not incidental layout.
+- Unchanged mimalloc393 canonical EXE141.863706s/run.001541s, stdout/stderr/exit0
+  exact363. Compiler trace timings differ; no compiler-stderr equality claim.
+  Pointer/layer/CallTarget/diff guards PASS. No new adapter or temporary source.
+  Keep950B/CLI290/392/393 and949B before/after pins for unfinished Text acceptance;
+  prior287/289 diagnostic provenance remains retained under its existing condition.
+- Next: source Home arrays retain exact Text acquisitions, then real Text rebind,
+  Return/CallNormal/borrowed entry/Unit args and cleanup through BOTH finals/JSON/C.

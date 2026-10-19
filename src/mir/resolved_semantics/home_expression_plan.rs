@@ -8,6 +8,7 @@ use crate::mir::resolved_value_profile::expression_plan::{
     ExpressionNodeSourceV1, ExpressionSourcePlanV1,
 };
 use std::rc::Rc;
+use super::TextResidenceAcquisitionV1;
 use crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvelopeV1;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedExpressionOperationLoanV1 {

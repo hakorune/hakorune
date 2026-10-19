@@ -54,7 +54,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
-        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+        -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, SourceScalarKind)>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
@@ -73,7 +73,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
-        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+        -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<CheckedScalarReferenceV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,

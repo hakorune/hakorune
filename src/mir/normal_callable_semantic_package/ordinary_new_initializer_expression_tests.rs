@@ -101,7 +101,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                 assert_eq!(first.scalar_reads().len(), usize::from(!annotation.is_empty()));
                 assert_eq!(first.evaluation().owned_result_nodes().len(), 2);
                 assert_eq!(second.residence_reads().len(), 1);
-                assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition(), first));
+                assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition().initializer_origin_v1(), first));
                 assert_eq!(second.residence_reads()[0].root(), first.binding());
                 assert_ne!(second.residence_reads()[0].binding(), first.binding(), "alias is a read, not a second owner");
                 assert_eq!(second.prior_homes(), [first.binding()]);
@@ -365,7 +365,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 let repeated = repeated.iter().find_map(|plan| plan.argument_frame()).unwrap();
                 assert!(Rc::ptr_eq(frame.source(), repeated.source()), "source identity survives a fresh Home walk");
                 if let Some(read) = repeated.residence_reads().first() {
-                    assert!(!Rc::ptr_eq(read.acquisition(), frame.residence_reads()[0].acquisition()),
+                    assert!(!read.acquisition().same_source(frame.residence_reads()[0].acquisition()),
                         "a new Home walk has its own actual acquisition proof");
                 }
                 if let Some(read) = frame.static_reads().first() { assert_eq!(read.utf8(), "bytes"); }

@@ -96,10 +96,8 @@ impl ExpressionReferenceReadV1 {
                 ReferenceProducerV1::Definition((block, row.clone()))
             }
             Reference::Residence(original) => {
-                let binding = context.with_original_initializer_v1(original.acquisition(), |packet| {
-                    context.ledger().validate_text_initializer_home_v1(packet, context)?;
-                    Ok(packet.root_acquisition_binding_v1()?.clone())
-                })?;
+                let binding = context.with_text_residence_v1(original.acquisition(), read,
+                    |_, binding| Ok(binding.clone()))?;
                 ReferenceProducerV1::Definition(binding)
             }
             _ => return Err(freeze("expression/reference-execution-pending")),
@@ -259,11 +257,8 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
                 || original.root() != original.acquisition().binding() {
                 return Err(freeze("expression/residence-current-home"));
             }
-            context.with_original_initializer_v1(original.acquisition(), |packet| {
-                context.ledger().validate_text_initializer_home_v1(packet, context)?;
-                let value = read.loan_local_initializer_v1(original.root())?.0;
-                if value != packet.value() || packet.local_value() != value
-                    || !matches!(producer, ReferenceProducerV1::Definition(binding) if binding == packet.root_acquisition_binding_v1()?) {
+            context.with_text_residence_v1(original.acquisition(), read, |value, original_binding| {
+                if !matches!(producer, ReferenceProducerV1::Definition(binding) if binding == original_binding) {
                     return Err(freeze("expression/residence-original-pair"));
                 }
                 // Borrow the original pair: the alias observation proves its

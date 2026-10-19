@@ -39,7 +39,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
-        -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+        -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, TextResidenceAcquisitionV1)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,

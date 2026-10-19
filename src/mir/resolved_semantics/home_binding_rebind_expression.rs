@@ -28,7 +28,7 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     mut prepared: super::leaves::PreparedExpressionCallsV1,
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
-        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+        -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,

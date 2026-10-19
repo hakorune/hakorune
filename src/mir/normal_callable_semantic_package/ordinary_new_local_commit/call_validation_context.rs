@@ -111,6 +111,22 @@ impl<'a> CallValidationContextV1<'a> {
             check(found.ok_or_else(|| freeze("initializer-expression/packet-missing"))?)
         })
     }
+    /// Resolve a Text acquisition through its original source purpose. This
+    /// borrows the existing packet and lexical loan; it issues no new Home.
+    pub(in crate::mir) fn with_text_residence_v1<R>(self,
+        acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
+        read: &crate::mir::builder::ExactLexicalReadV1,
+        check: impl FnOnce(ValueId, &(BasicBlockId, MirInstruction)) -> Result<R, String>,
+    ) -> Result<R, String> {
+        self.with_original_initializer_v1(acquisition.initializer_origin_v1(), |packet| {
+            self.ledger().validate_text_initializer_home_v1(packet, self)?;
+            let value = read.loan_local_initializer_v1(acquisition.binding())?.0;
+            if value != packet.value() || packet.local_value() != value {
+                return Err(freeze("expression/residence-original-pair"));
+            }
+            check(value, packet.root_acquisition_binding_v1()?)
+        })
+    }
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
         match self { Self::Lowering(ledger) => ledger, Self::Finalized(source) => &source.ledger }
     }

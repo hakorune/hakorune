@@ -10,23 +10,23 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Debug, Clone)]
 pub(crate) struct TextResidenceReadV1 {
     node: usize, binding: BindingRefV1, root: BindingRefV1,
-    acquisition: Rc<CheckedInitializerExpressionFrameV1>,
+    acquisition: TextResidenceAcquisitionV1,
 }
 impl PartialEq for TextResidenceReadV1 {
     fn eq(&self, other: &Self) -> bool {
         self.node == other.node && self.binding == other.binding && self.root == other.root
-            && Rc::ptr_eq(&self.acquisition, &other.acquisition)
+            && self.acquisition.same_source(&other.acquisition)
     }
 }
 impl Eq for TextResidenceReadV1 {}
 impl TextResidenceReadV1 {
-    pub(super) fn new(node: usize, binding: BindingRefV1, root: BindingRefV1, acquisition: Rc<CheckedInitializerExpressionFrameV1>) -> Self {
+    pub(super) fn new(node: usize, binding: BindingRefV1, root: BindingRefV1, acquisition: TextResidenceAcquisitionV1) -> Self {
         Self { node, binding, root, acquisition }
     }
     pub(crate) fn node(&self) -> usize { self.node }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn root(&self) -> BindingRefV1 { self.root }
-    pub(crate) fn acquisition(&self) -> &Rc<CheckedInitializerExpressionFrameV1> { &self.acquisition }
+    pub(crate) fn acquisition(&self) -> &TextResidenceAcquisitionV1 { &self.acquisition }
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedInitializerExpressionFrameV1 {
@@ -52,7 +52,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     entry_reads: &[InitializerTextEntryReadV1],
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Option<Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
-    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,

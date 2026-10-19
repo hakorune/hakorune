@@ -5,6 +5,45 @@ use super::super::CheckedInitializerExpressionFrameV1;
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
 use std::sync::Arc;
 
+/// Source-owned identity of one Text acquisition. Consumers borrow its origin;
+/// they do not turn another purpose into an initializer or issue a second Home.
+#[derive(Debug, Clone)]
+pub(crate) struct TextResidenceAcquisitionV1 {
+    origin: TextResidenceOriginV1,
+}
+#[derive(Debug, Clone)]
+enum TextResidenceOriginV1 {
+    Initializer(Rc<CheckedInitializerExpressionFrameV1>),
+}
+impl TextResidenceAcquisitionV1 {
+    fn from_initializer(frame: Rc<CheckedInitializerExpressionFrameV1>) -> Self {
+        assert!(frame.is_text_residence(), "Text installation requires an owned Text root");
+        Self { origin: TextResidenceOriginV1::Initializer(frame) }
+    }
+    pub(crate) fn binding(&self) -> BindingRefV1 {
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.binding() }
+    }
+    pub(crate) fn same_source(&self, other: &Self) -> bool {
+        match (&self.origin, &other.origin) {
+            (TextResidenceOriginV1::Initializer(a), TextResidenceOriginV1::Initializer(b)) => Rc::ptr_eq(a, b),
+        }
+    }
+    pub(crate) fn initializer_origin_v1(&self) -> &Rc<CheckedInitializerExpressionFrameV1> {
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame }
+    }
+    /// Original source coordinate only; not an evaluation or ownership grant.
+    /// Initializer acquisitions currently refer to its root expression.
+    pub(crate) fn source(&self) -> &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1> {
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.source() }
+    }
+    pub(crate) fn owns_root(&self) -> bool {
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.owns_root() }
+    }
+    pub(crate) fn is_text_residence(&self) -> bool {
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.is_text_residence() }
+    }
+}
+
 /// The covered read of one original non-owning literal definition. Bytes alone
 /// cannot stand in for the reaching definition or the current Prefix state.
 #[derive(Debug, Clone)]
@@ -63,21 +102,21 @@ impl PrefixLocalFlow<'_> {
             proof.corroborates(flow, value, root, |site| self.input.function().variable_ref(site))).map(Rc::clone)
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn text_reference(&self, site: &SourceExprSiteV1)
-        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)> {
+        -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)> {
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None };
         let StoredLocal::Text { root, acquisition } = self.locals.get(&binding)? else { return None };
         // An alias cannot silently follow the same binding's newer acquisition.
         let StoredLocal::Text { root: live, acquisition: current } = self.locals.get(root)? else { return None };
-        (*live == *root && *root == acquisition.binding() && Rc::ptr_eq(acquisition, current))
-            .then(|| (binding, *root, Rc::clone(acquisition)))
+        (*live == *root && *root == acquisition.binding() && acquisition.same_source(current))
+            .then(|| (binding, *root, acquisition.clone()))
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_initializer(&mut self, frame: Rc<CheckedInitializerExpressionFrameV1>) {
-        assert!(frame.is_text_residence(), "Text installation requires an owned Text root");
-        let root = frame.binding();
-        self.store(root, StoredLocal::Text { root, acquisition: frame });
+        let acquisition = TextResidenceAcquisitionV1::from_initializer(frame);
+        let root = acquisition.binding();
+        self.store(root, StoredLocal::Text { root, acquisition });
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_alias(&mut self, binding: BindingRefV1, root: BindingRefV1,
-        acquisition: Rc<CheckedInitializerExpressionFrameV1>) {
+        acquisition: TextResidenceAcquisitionV1) {
         self.store(binding, StoredLocal::Text { root, acquisition });
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn signed_entry_reference(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
@@ -97,14 +136,15 @@ pub(crate) fn assert_identity_for_test(
     let site = next.source().nodes()[read.node()].site();
     let mut current = PrefixLocalFlow::new(input);
     current.install_text_initializer(Rc::clone(&frame));
-    current.install_text_alias(read.binding(), frame.binding(), Rc::clone(&frame));
-    assert!(Rc::ptr_eq(&current.text_reference(site).unwrap().2, &frame));
+    let acquisition = TextResidenceAcquisitionV1::from_initializer(Rc::clone(&frame));
+    current.install_text_alias(read.binding(), frame.binding(), acquisition.clone());
+    assert!(current.text_reference(site).unwrap().2.same_source(&acquisition));
     assert!(current.observe(site).is_none(), "Text is not an Object/Scalar/BoundValue");
     let snapshot = current.clone();
     assert!(current.join_branch(&snapshot), "same acquisition survives a branch clone");
     current.install_uninitialized(frame.binding());
     assert!(current.text_reference(site).is_none(), "invalid root cannot retain an alias");
-    assert!(Rc::ptr_eq(&snapshot.text_reference(site).unwrap().2, &frame));
+    assert!(snapshot.text_reference(site).unwrap().2.same_source(&acquisition));
     let replacement = Rc::new(frame.as_ref().clone());
     current.install_text_initializer(replacement);
     assert!(current.text_reference(site).is_none(), "alias cannot follow an equal-content acquisition");

@@ -27,7 +27,7 @@ pub(crate) use source_loop::LoopHeaderScalarBasisV1;
 pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, SourceScalarKind};
 #[path = "home_prefix_text.rs"]
 mod text;
-pub(crate) use text::StaticTextReadV1;
+pub(crate) use text::{StaticTextReadV1, TextResidenceAcquisitionV1};
 #[cfg(test)]
 pub(crate) use text::assert_identity_for_test as assert_text_residence_identity_for_test;
 pub(crate) use field_alias::FieldAliasPathV1;
@@ -67,7 +67,7 @@ impl LoopI64PreStateRequestV1 {
 #[derive(Clone)]
 enum StoredLocal {
     StaticText { definition: SourceExprSiteV1 },
-    Text { root: BindingRefV1, acquisition: std::rc::Rc<super::CheckedInitializerExpressionFrameV1> },
+    Text { root: BindingRefV1, acquisition: TextResidenceAcquisitionV1 },
     NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,
@@ -182,7 +182,7 @@ impl OrdinaryObservation {
 fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
         (StoredLocal::StaticText { definition: a }, StoredLocal::StaticText { definition: b }) => a == b,
-        (StoredLocal::Text { root: a, acquisition: ap }, StoredLocal::Text { root: b, acquisition: bp }) => a == b && std::rc::Rc::ptr_eq(ap, bp),
+        (StoredLocal::Text { root: a, acquisition: ap }, StoredLocal::Text { root: b, acquisition: bp }) => a == b && ap.same_source(bp),
         (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
         (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
         (StoredLocal::Home { acquisition: a, construction_source: ac, ready: ar },
