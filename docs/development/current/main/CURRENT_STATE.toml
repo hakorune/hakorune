@@ -17,18 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-949 source projection d819400df3 verified93focusedPASS/6baseline, no added cases;
-JSON389 advances domain->Unit; unchanged mimalloc390 canonicalEXE/run exact363.
-950 exact Unit frontier6d3529fa6b: Main32 Body1 discards ingest/1 owner27,
-actual Main.sampleStream(). Diagnostic source removed; truevalue guard retained.
-Both workers accept whole ordinary Text call construction Decision in existing
-card: original allReturn/Home ownership, Text rebind, explicit OwnedString pair
-Call output/status0/1/2, checked Text materialization, borrowed entry operand,
-Unit fullordered args, Normal/Fault End and BOTH finals/JSON/C. No repr-only grant,
-Map/Handle alias, inline, fakeAdd or parallel ledger. No semantic design gap left.
-Fast selected ORDINARY-TEXT-CALL-S0. First behavior-preserving acquisition loan
-normalization before admission; whole series/retained rows/finite goal remain open.
-
+951 acquisition loan normalization251371eb9e;952 exact source Home identity
+through prior/branch/Map/Loop/exit and BOTH finals landed d5c058e18f. Binding-only
+Text cleanup lookup retired; shared Stable resolver rejects Text, no retry/map.
+Root952F174existing:170PASS/4 reproduced950B baselines;9263names/no added cases.
+CLI291 originalJSON394 preserves unit-value-use; unchanged mimalloc395 canonical
+EXE/run exact363; existing scoped-Text Loop396 runtime exact364 contract.
+Fixed11 CLI2915PASS/6 reproducedCLI290 failures (fourEXEs+empty marker PASS),
+not suite/CI/fullseries green. Runtime894A/FFI939A explicit component predecessors.
+Fast ORDINARY-TEXT-CALL-S0; accepted950 whole Text construction has no semantic
+contract gap. Next actual Text rebind/oldEnd, Return/CallNormal/borrowed entry/Unit
+args/cleanup/BOTH finals/JSON/C. No more inventory prerequisite or new ledger.
+Full series/retained rows/finite goal remain open.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"

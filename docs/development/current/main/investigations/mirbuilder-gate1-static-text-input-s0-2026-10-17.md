@@ -924,67 +924,23 @@ Keep950B/CLI290/392/393/949B and287/289 diagnostic provenance until Text accepta
 Next: the exact-acquisition Home arrays described above, then genuine Text rebind,
 Return/CallNormal/borrowed entry/Unit args, cleanup and BOTH finals/JSON/C.
 
-952 selected implementation scope: replace existing source live/prior/branch/port/
-exit/Map-outer Home elements with LiveHomeV1; Text keeps SAME acquisition Rc,
-Stable is only for existing non-rebindable Homes. No secondary history map.
-The shared installed_source_home owner resolves Text by exact original site/Rc/
-published packet and rejects Text through Stable. Existing packet/group final
-checks retain publication authority; no phase-specific lookup retry is introduced.
-Root release subjects and Loop full plans retain acquisition; BOTH scans reconstruct
-source End plans, including exact operation/value. Map allocation Fault and outer
-cleanup were additional binding-only snapshots and are included for correctness.
-Readonly source/physical reviews cover all consumers. Rebind/Return/CallNormal
-admission remains the next part of SAME Text series; no additional tests selected.
-
-952 verified normalization (no whole-series/production completion):
-- Root952A/B check47.548998/46.262818s and952C/D test builds60.095185/59.803026s
-  exposed representation migration errors only; corrected before952E117.228548s
-  and952F46.429579s PASS. F additionally removes three unused imports; no new
-  warning versus950B. No suppressed warning, semantic fallback or test-case change.
-- Existing changed-owner tests:174selected/nonzero,170PASS/4FAIL before and after
-  (950B predecessor,952E and final952F). All4 messages exact after source-line/
-  elapsed-time normalization: unknown_home_prefix; source_only_actual_probe;
-  qualified_call_map_argument/source-actual-unavailable; qualified_call_return
-  OpaqueCall expectation. These are reproduced baselines, not new waivers/fixes.
-- Root952F/CLI291 source manifests equal;9263test names unchanged. Cases/hooks/
-  fixtures/checker entries added:none. Existing assertion changes are type/projection
-  adaptations, with Text initializer/Loop snapshots comparing exact acquisition.
-- Pointer/layer/CallTarget/diff PASS. All modified production files <=800 lines.
-  Fixed11 is required here because shared cleanup crosses the acceptance owners;
-  its final result/classification is below; focused green never implies suite green.
-- CLI291 build215.368515s. Canonical direct --backend mir --emit-exe with
-  runtime894A and FFI939A (pure-first/no replay/plugins disabled) gives unchanged
-  JSON394 .050643s exit1/noEXE, stderr exact392/unit-value-use. No frontier advance.
-- Unchanged mimalloc395 EXE157.928395s/run.001819s, stdout/stderr/exit0 exact363.
-  Existing scoped-Text/Break Loop source396 retains364 source SHA and executes
-  exact364 runtime contract (Result:1/expected exit1), run.001353s. Recorder looked
-  for a nonexistent old .run.receipt after successful generation; recovered runtime
-  against original .runtime-contract without recompilation. Its build time was
-  not saved and is not claimed. This is an existing input, not an added fixture.
-- Kernel894A/FFI939A are explicit predecessors; their relevant runtime/C/include
-  source paths remain unchanged. Root/CLI Rust manifests match; no all-three
-  whole-repository manifest or full-series/CI green claim.
-- Commands: CARGO_BUILD_JOBS=4 cargo quick-test-fast --no-run --message-format=json;
-  cargo build --profile quick --bin hakorune --message-format=json. Both use same
-  source. Native argv/profile/env remain in392/394/395/396 receipts and951 landing.
-- Retired superseded952E test binary280991256B after matching952F174 outcomes;
-  source/build/failure logs retained. Keep950B/952F/CLI291/native and suite pins
-  until unfinished Text acceptance; no source trace or new temporary adapter.
-- Fixed11 CLI291: exit1/454.653059s,5PASS/6FAIL. Command: bash
-  tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --timeout 1900.
-  PASS: typed New, Birth, Birth-param, method EXEs plus empty marker (not EXE).
-  All6 FAIL reproduced with CLI290 and same FFI939A/kernel894A, exact full MIR/
-  panic diagnostics: JSON unit-value-use; boxtorrent stored-child/receiver-unavailable;
-  binary-trees borrowed-result/source-not-i64; mimalloc smoke generic precheck
-  borrowed-static/required-integer-source-unproved; allocator NamedArray(TextSourceMissing);
-  untyped-field phase84-5 Type inference ValueId14. No new regression or baseline
-  waiver. Failed prechecks leave their subsequent EXE assertion untested; direct
-  canonical mimalloc395 acceptance is separate. All6 remain required unfinished.
-- Selected binding-only Text cleanup lookup is physically retired across prior
-  unwind, New/Map Fault, root/Loop plans and final expectation. installed_home is
-  used only by Stable's shared resolver, which rejects Text; no retry. All old
-  dedicated Text snapshot elements are replaced, not retained as parallel lists.
-- Next actual construction: Text rebind source/physical acquisition and old End,
-  then all-original Return/CallNormal/borrowed entry/Unit arguments/cleanup/finals/C
-  under the accepted950 Decision. No further inventory prerequisite or design stop.
+952 canonical source Home/cleanup identity migration landed `d5c058e18f`.
+That commit retains complete source/physical mapping, both read-only reviews,
+all builds/commands/native provenance, exact baseline classification and pin decisions.
+One LiveHome item now survives existing source/prior/branch/Map/Loop/exit arrays,
+root Text subjects and BOTH final scans. Old binding-only Text cleanup lookup is
+retired; shared Stable resolver remains and rejects Text, with no retry/second map.
+Root952F170PASS/4 exact950B baselines across174existing tests;9263names unchanged,
+no added case/fixture/hook/checker; no new warnings. CLI291 same Rust source.
+OriginalJSON394 still392/unit-value-use/noEXE; unchanged mimalloc395 canonical
+EXE/run exact363. Existing scoped-Text Loop396 runtime exact364 contract; build
+elapsed not saved after recorder error, no timing claim. Runtime894A/FFI939A are
+explicit unchanged-component predecessors, not all-three whole-repo source equality.
+Fixed11 CLI2915PASS/6FAIL; four EXEs plus empty marker. All6 failures reproduce
+with CLI290/same component pins and exact diagnostics. No new regression or waiver;
+failed generic prechecks do not cover later EXE assertions. Whole suite stays open.
+Keep950B/952F/CLI291/394–396/suite/predecessor evidence until Text acceptance;
+952E duplicate test binary280991256B retired, its source/build/test logs retained.
+Next actual construction: Text rebind source/physical acquisition and old End,
+then all-original Return/CallNormal/borrowed entry/Unit arguments/cleanup/finals/C
+under950. No further inventory prerequisite, new ledger or semantic design stop.
