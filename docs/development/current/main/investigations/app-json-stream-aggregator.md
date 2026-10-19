@@ -1,7 +1,7 @@
 # APP-json-stream-aggregator
 
 Status: common untyped-storage target accepted; implementation first; JSON remains selected.
-Date: 2026-10-19
+Date: 2026-10-20
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md),
 [final pipeline](../design/mirbuilder-final-pipeline-ssot.md).
@@ -69,9 +69,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   alignment. Both final consumers must admit it and verify SAME source/slot/
   transfer/Normal/Fault correspondence before emission. Source activation is owed;
   Map placement, stored borrow/Shared and carrier forwarding remain unadmitted.
-- Next generalize allocation-only field inventory to source slot contracts and
-  keep known Empty distinct from ready. Connect scalar/Array destination demand
-  through the SAME write frame, successor Home state and checked read packet.
+- Allocation-only inventory now retains exact declaration fields plus the shared
+  storage vocabulary; I64-only execution/readiness retained. Constructor26 plus
+  allocation1/claim1/write2 PASS. Connect scalar/Array demand through the SAME
+  write frame, successor Home and checked read; known Empty is never ready.
   Direct empty Array acquisition must lend IntrinsicArrayNew/End evidence; do not
   invent an element/get proof or disguise it as a user-object Home.
 - The existing fields/checked_read.rs owner registers Integer only after checked

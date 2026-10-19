@@ -104,7 +104,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             .construction_source_for(claim.box_source(), 0).unwrap().as_ref().unwrap();
         assert!(std::rc::Rc::ptr_eq(original, retained));
         assert!(matches!(retained.completion(),
-            super::instance_construction::ConstructionCompletionV1::AllocationOnlyI64 { .. }));
+            super::instance_construction::ConstructionCompletionV1::AllocationOnly { .. }));
         assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
         assert!(matches!(claim.execution_profile().unwrap(),
             super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)

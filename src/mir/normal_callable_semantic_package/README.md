@@ -738,7 +738,8 @@ relocation does not change source authority or transfer timing. Constructor
 regressions use sibling `tests` and `construction_tests` modules.
 
 The original construction source distinguishes `InitializedFields` from
-`AllocationOnlyI64` with exact declaration field references. The same no-Birth
+`AllocationOnly` with exact declaration field references and shared per-field
+storage vocabulary. Current execution consumers retain an explicit I64-only projection. The same no-Birth
 catalog row retains that source and derived complete eligibility; repeated loans
 retain its Rc identity. Allocation-only fields have no initial readable value.
 Both complete-plan constructors refuse this disposition until the required LOCAL

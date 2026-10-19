@@ -142,6 +142,7 @@ impl ConstructionStoreV1 {
 
 #[path = "instance_construction_body.rs"]
 mod body;
+use body::ConstructionFieldSourceV1;
 pub(crate) use body::{ConstructionChildCallSourceLoanV1, ConstructionCompletionV1, ConstructionSourceStructureV1, ConstructionSourceStepV1};
 use std::rc::Rc;
 
@@ -305,11 +306,14 @@ pub(super) fn issue_construction_source_v1(
             {
                 return Err(U::InitializationContractMissing);
             }
-            plan.completion = ConstructionCompletionV1::AllocationOnlyI64 {
+            plan.completion = ConstructionCompletionV1::AllocationOnly {
                 fields: field_decls.iter().enumerate().map(|(ordinal, declaration)| {
                     let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
                         .ok_or(U::SourceRelationMissing)?;
-                    Ok((declaration.name.as_str().into(), field))
+                    Ok(ConstructionFieldSourceV1 {
+                        name: declaration.name.as_str().into(), field,
+                        storage: crate::mir::function::TypedObjectFieldStorage::I64,
+                    })
                 }).collect::<Result<Vec<_>, U>>()?.into_boxed_slice(),
             };
         }

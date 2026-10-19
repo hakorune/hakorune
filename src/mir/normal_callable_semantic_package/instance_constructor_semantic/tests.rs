@@ -309,13 +309,13 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         let original = source.as_ref().unwrap();
         assert!(std::rc::Rc::ptr_eq(original,
             batch.construction_source_for(parent, 0).unwrap().as_ref().unwrap()));
-        let ConstructionCompletionV1::AllocationOnlyI64 { fields } = original.completion() else {
+        let ConstructionCompletionV1::AllocationOnly { fields } = original.completion() else {
             panic!("no-Birth declared scalar source must retain allocation-only completion");
         };
-        assert_eq!(fields.iter().map(|(_, field)| field.declaration_ordinal()).collect::<Vec<_>>(), [0, 1]);
-        assert!(fields.iter().all(|(_, field)| field.object() == batch.object_for(parent).unwrap()));
-        for (name, field) in fields {
-            assert_eq!(original.allocation_only_i64_field(name), Some(*field));
+        assert_eq!(fields.iter().map(|source| source.field().declaration_ordinal()).collect::<Vec<_>>(), [0, 1]);
+        assert!(fields.iter().all(|source| source.field().object() == batch.object_for(parent).unwrap()));
+        for source in fields {
+            assert_eq!(original.allocation_only_i64_field(source.name()), Some(source.field()));
         }
         assert!(original.allocation_only_i64_field("absent").is_none());
         assert!(original.constructor().is_none() && original.stores().is_empty() && original.steps().is_empty());
@@ -408,7 +408,7 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
         let retained = batch.construction_source_for(parent, arity).unwrap();
         if source == "box Page { value: i64 }" {
             assert!(matches!(retained.as_ref().unwrap().completion(),
-                ConstructionCompletionV1::AllocationOnlyI64 { .. }));
+                ConstructionCompletionV1::AllocationOnly { .. }));
         } else {
             assert!(retained.is_err(), "unsupported source must not gain allocation-only completion: {source}");
         }
