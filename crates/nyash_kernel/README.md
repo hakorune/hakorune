@@ -355,3 +355,24 @@ These storage checks issue no source ownership or End permission. The final
 source/ABI consumer must authorize the move or borrow, retain Forward support,
 and perform complete child End only for Fresh. That consumer connection remains
 required before Mixed field execution is admitted.
+
+### Checked Dynamic strong stored fields
+
+`fault_checked_object.rs` extends the SAME indexed TypedSlot storage with explicit
+Empty/null/I64/Bool/Text/object/Array tags and independently supplied published End
+descriptors. `include/nyrt_fault_v1.h` declares the entries; the optional target
+section `.nyash.object_field_abi.v1` supplies value/outcome/descriptor size and
+alignment without changing the common runtime descriptor. Kind-zero Get is a
+checked tagged borrow observation for source tag tests, including null checks;
+Empty still Faults. No owning Dynamic call result is issued. This ABI must be admitted
+before a consumer emits this profile. Map placement, stored borrowed/Shared
+residences, self-contained carrier forwarding and source-to-backend activation
+remain unimplemented. A scalar tag never erases a carrier obligation.
+
+Replace validates before commit and moves the detached old residence into the
+same opaque Placement protocol used by Map outcomes. Ready must End before
+disposal; End marks Consumed and releases all locks before the source-selected
+callback. Text retains its existing lease pair, object End must include its
+complete source destruction, and tag inspection never chooses an owner or drop
+policy. Take leaves known Empty; plain reclaim refuses nonempty Dynamic fields.
+No generic compatibility getter/setter or direct-slot cell admits this profile.

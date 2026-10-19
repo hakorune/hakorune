@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-json-stream
 latest_card_summary = """
 APP-json-stream-aggregator: Loop Call未接続。自分の未検証変更はGit stashで保持。
 残り3実アプリ＋untyped sentinelの共通tagged storage契約を既存D0とreferenceで受理。
-source宣言→Dynamic layoutを接続。runtime slotをmove-only化。tagged値/置換/cleanupは未接続。
+sourceはDynamic layoutまで。runtimeはslot/置換/Endを実装し、C ABI両indexed profileでPASS。
 正式suite7PASS/4FAIL、実EXE6＋marker1。mimallocのハーネス修正はcard参照。
-次は同じruntime slotへtagged値/独立residenceを接続し、両consumerと未変更sentinelで検証。
+次は同じsource write/read packetとHome successorから両consumerへ接続。Map等の未接続はcard参照。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"

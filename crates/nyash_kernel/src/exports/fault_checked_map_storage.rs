@@ -47,7 +47,7 @@ pub(in crate::exports::fault) enum OutcomeState {
     Consumed,
 }
 
-pub(super) unsafe fn init<T>(ptr: *mut c_void, magic: u64, value: T) -> u32 {
+pub(in crate::exports::fault) unsafe fn init<T>(ptr: *mut c_void, magic: u64, value: T) -> u32 {
     if ptr.is_null() || (ptr as usize) % std::mem::align_of::<Placement<T>>() != 0 {
         return Status::InvalidContract as u32;
     }
@@ -60,7 +60,7 @@ pub(super) unsafe fn init<T>(ptr: *mut c_void, magic: u64, value: T) -> u32 {
     }
     Status::Normal as u32
 }
-pub(super) unsafe fn admit<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'a T, Status> {
+pub(in crate::exports::fault) unsafe fn admit<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'a T, Status> {
     if ptr.is_null() || (ptr as usize) % std::mem::align_of::<Placement<T>>() != 0 {
         return Err(Status::InvalidContract);
     }
@@ -81,7 +81,7 @@ pub(super) unsafe fn admit_mut<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'
     Ok(unsafe { (&mut *place).value.assume_init_mut() })
 }
 /// Only after live obligations and all borrows have ended. No semantic callback.
-pub(super) unsafe fn dispose<T>(ptr: *mut c_void) -> u32 {
+pub(in crate::exports::fault) unsafe fn dispose<T>(ptr: *mut c_void) -> u32 {
     let place = ptr.cast::<Placement<T>>();
     unsafe {
         std::ptr::addr_of_mut!((*place).magic).write(0);
@@ -89,7 +89,7 @@ pub(super) unsafe fn dispose<T>(ptr: *mut c_void) -> u32 {
     }
     Status::Normal as u32
 }
-pub(super) fn separate(regions: &[(usize, usize)]) -> bool {
+pub(in crate::exports::fault) fn separate(regions: &[(usize, usize)]) -> bool {
     for (i, &(start, size)) in regions.iter().enumerate() {
         let Some(end) = start.checked_add(size) else {
             return false;

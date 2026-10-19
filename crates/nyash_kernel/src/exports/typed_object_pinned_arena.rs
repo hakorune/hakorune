@@ -321,7 +321,7 @@ impl PinnedTypedObjectArena {
 impl DirectSlotCellV0 {
     pub(crate) fn from_typed_slot(slot: &TypedSlot) -> Option<Self> {
         // The V0 direct cell has no residence ABI. Never erase the outcome.
-        if slot.residence.is_some() { return None; }
+        if slot.residence.is_some() || slot.storage == TypedSlotStorage::Dynamic { return None; }
         Some(match (slot.storage, &slot.value) {
             (TypedSlotStorage::I64, TypedSlotValue::I64(value)) => Self::from_i64(*value),
             (TypedSlotStorage::U64, TypedSlotValue::Unsigned(value)) => {

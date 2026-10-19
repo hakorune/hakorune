@@ -8,6 +8,7 @@ pub(crate) use types::{
     default_layout_fields, field_get_hii_dispatch, field_set_hii_dispatch, handle_to_index,
     normalize_field_count, normalize_slot, typed_layouts, TypedSlot, TypedSlotLayout,
     TypedSlotObject, TypedSlotStorage, TypedSlotValue, ObjectResidenceOutcomeV1,
+    DynamicFieldValueV1, DynamicFieldStoredV1, DynamicFieldEndDescriptorV1,
 };
 
 use super::typed_object_pinned_arena::read_direct_slot_compat_i64;
@@ -48,6 +49,9 @@ pub extern "C" fn nyash_object_register_typed_layout_slot_iii(
     let Some(storage) = TypedSlotStorage::from_tag(storage_tag) else {
         return 0;
     };
+    // Dynamic storage requires the checked source-issued layout/profile; the
+    // compatibility registry cannot activate its read/replace/End contract.
+    if storage == TypedSlotStorage::Dynamic { return 0; }
     let mut layouts = match typed_layouts().lock() {
         Ok(layouts) => layouts,
         Err(_) => return 0,

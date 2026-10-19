@@ -14,6 +14,7 @@ pub(crate) const STORAGE_U8: i64 = 8;
 pub(crate) const STORAGE_U16: i64 = 9;
 pub(crate) const STORAGE_U32: i64 = 10;
 pub(crate) const STORAGE_U64: i64 = 11;
+pub(crate) const STORAGE_DYNAMIC: i64 = 12;
 
 pub(crate) type FieldGetHiiImpl = fn(i64, i64) -> i64;
 pub(crate) type FieldSetHiiImpl = fn(i64, i64, i64);
@@ -31,6 +32,7 @@ pub(crate) enum TypedSlotStorage {
     U16,
     U32,
     U64,
+    Dynamic,
 }
 
 impl TypedSlotStorage {
@@ -47,6 +49,7 @@ impl TypedSlotStorage {
             STORAGE_U16 => Some(Self::U16),
             STORAGE_U32 => Some(Self::U32),
             STORAGE_U64 => Some(Self::U64),
+            STORAGE_DYNAMIC => Some(Self::Dynamic),
             _ => None,
         }
     }
@@ -64,6 +67,7 @@ impl TypedSlotStorage {
             Self::U16 => STORAGE_U16,
             Self::U32 => STORAGE_U32,
             Self::U64 => STORAGE_U64,
+            Self::Dynamic => STORAGE_DYNAMIC,
         }
     }
 
@@ -101,7 +105,7 @@ impl TypedSlotStorage {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 // Values/residences move with their slot. Observation must not become an
 // owning clone when tagged strong fields acquire nontrivial obligations.
 pub(crate) enum TypedSlotValue {
@@ -109,6 +113,7 @@ pub(crate) enum TypedSlotValue {
     Handle(i64),
     Signed(i128),
     Unsigned(u128),
+    Dynamic(DynamicFieldStoredV1),
 }
 
 impl TypedSlotValue {
@@ -116,13 +121,14 @@ impl TypedSlotValue {
         match storage {
             TypedSlotStorage::I64 => Self::I64(0),
             TypedSlotStorage::Handle => Self::Handle(0),
+            TypedSlotStorage::Dynamic => Self::Dynamic(DynamicFieldStoredV1::empty()),
             storage if storage.is_unsigned_exact() => Self::Unsigned(0),
             _ => Self::Signed(0),
         }
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) struct TypedSlot {
     pub(crate) storage: TypedSlotStorage,
     pub(crate) value: TypedSlotValue,
@@ -216,7 +222,7 @@ impl TypedSlot {
         match self.value {
             TypedSlotValue::I64(value) | TypedSlotValue::Handle(value) => Some(value),
             TypedSlotValue::Signed(value) => i64::try_from(value).ok(),
-            TypedSlotValue::Unsigned(_) => None,
+            TypedSlotValue::Unsigned(_) | TypedSlotValue::Dynamic(_) => None,
         }
     }
 
@@ -247,7 +253,7 @@ impl TypedSlot {
     ) -> bool {
         if self.storage != TypedSlotStorage::I64
             || self.residence.is_some()
-            || self.value != TypedSlotValue::I64(0)
+            || !matches!(self.value, TypedSlotValue::I64(0))
             || !outcome.accepts_payload(value)
         {
             return false;
@@ -277,6 +283,73 @@ impl TypedSlot {
             return None;
         }
         Some(next_i64)
+    }
+}
+
+
+/// Borrow-only wire observation. Copying it never copies the slot's residence.
+/// Kinds: 0 EmptyField (internal only), 1 null, 2 I64, 3 Bool,
+/// 4 leased Text, 5 indexed object, 6 Array. Map needs its own movable placement
+/// connection before a field profile can admit it; no raw stack pointer default.
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct DynamicFieldValueV1 {
+    pub kind: u32,
+    pub reserved: u32,
+    pub value: i64,
+    pub token: u64,
+}
+impl DynamicFieldValueV1 {
+    pub(crate) const EMPTY: Self = Self { kind: 0, reserved: 0, value: 0, token: 0 };
+    pub(crate) fn well_formed(self) -> bool {
+        self.reserved == 0 && match self.kind {
+            0 | 1 => self.value == 0 && self.token == 0,
+            2 => self.token == 0,
+            3 => matches!(self.value, 0 | 1) && self.token == 0,
+            4 => self.value != 0 && self.token != 0,
+            5 | 6 => self.value != 0 && self.token == 0,
+            _ => false,
+        }
+    }
+}
+
+pub(crate) type DynamicFieldEndV1 = unsafe extern "C" fn(
+    *mut std::ffi::c_void, u64, *const DynamicFieldValueV1,
+) -> u32;
+
+/// Immutable live published constant. The final consumer binds its address,
+/// source-selected End, kind, profile and exact object type as ONE descriptor.
+/// Runtime identity validation never issues the source transfer permission.
+#[repr(C)]
+#[derive(Debug)]
+pub(crate) struct DynamicFieldEndDescriptorV1 {
+    pub profile: u32,
+    pub kind: u32,
+    pub type_id: i64,
+    pub end: Option<DynamicFieldEndV1>,
+}
+
+/// One move-only slot obligation. Prepared wrappers have no automatic semantic
+/// Drop: on precommit failure the candidate still belongs to the caller.
+#[derive(Debug)]
+pub(crate) struct DynamicFieldStoredV1 {
+    pub(crate) value: DynamicFieldValueV1,
+    pub(crate) end: Option<&'static DynamicFieldEndDescriptorV1>,
+}
+impl DynamicFieldStoredV1 {
+    pub(crate) const fn empty() -> Self { Self { value: DynamicFieldValueV1::EMPTY, end: None } }
+    pub(crate) fn is_empty(&self) -> bool { self.value == DynamicFieldValueV1::EMPTY && self.end.is_none() }
+
+    /// The opaque outcome owner consumes this AFTER every storage lock is gone.
+    /// End is selected by source descriptor, never by the value's tag.
+    pub(crate) unsafe fn end(self, frame: *mut std::ffi::c_void, site: u64) -> u32 {
+        match self.end {
+            None => 0,
+            Some(descriptor) => match descriptor.end {
+                Some(end) => unsafe { end(frame, site, &self.value) },
+                None => 2,
+            },
+        }
     }
 }
 

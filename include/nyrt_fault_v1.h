@@ -158,8 +158,8 @@ uint32_t nyrt_fault_frame_dispose_v1(void *) __asm__("nyash.fault.frame_dispose_
 /* Final entry only: reporting status, NOT Normal/Fault. 0=reported,
  * -1=invalid frame, -2=sink failure. Dispose remains mandatory after failure. */
 int32_t nyrt_fault_report_final_v1(const void *) __asm__("nyash.fault.report_final_v1");
-/* profile 1=SafeMutex, 2=SingleThreadExact. Layout tags must all be exact i64
- * (1) for this profile; count zero permits NULL. Pointers must not overlap.
+/* profile 1=SafeMutex, 2=SingleThreadExact. Layout tags are exact i64 (1)
+ * or checked Dynamic (12); count zero permits NULL. Pointers must not overlap.
  * InvalidContract never records a source Fault. Result is written only Normal.
  * No operation infers source permissions; generated callers supply published
  * definition/type/layout and destruction admission. */
@@ -192,6 +192,57 @@ uint32_t nyrt_object_checked_residence_set_v1(void *, uint32_t, uint64_t,
 uint32_t nyrt_object_checked_residence_get_v1(uint32_t, int64_t, int64_t,
     size_t, int64_t, NyrtObjectResidenceV1 *)
     __asm__("nyash.object.checked_residence_get_v1");
+/* Checked Dynamic strong-slot extension. Optional target descriptor words are
+ * {bytes=32,version=1,value size/align,outcome size/align,end descriptor size/align},
+ * encoded little-endian. Admit this descriptor before emitting these entries.
+ * Outcome placement is fresh/aligned and distinct from every input/frame.
+ * Value copies are BORROWED observations, never new Home/Text obligations.
+ * Descriptor is an immutable live published constant binding kind/profile/type
+ * and the source-selected complete End. A null descriptor explicitly requests
+ * a no-Home scalar residence. Unique Text/object/Array residences are admitted;
+ * stored borrowed, Shared, self-contained carrier and Map profiles remain
+ * unsupported here. Even scalar payloads do not imply no carrier obligation.
+ * Replace Normal consumes candidate and publishes Ready(old), including Empty.
+ * Failure leaves candidate caller-owned and outcome Unissued. End consumes
+ * Ready BEFORE callback, releases every lock, and preserves first Fault.
+ * No callback runs in Drop. Ready cannot dispose; Consumed cannot End twice.
+ * Take leaves known Empty and returns the same current obligation. The source
+ * destructor still owns parent fini, reverse declaration order and outer End.
+ * Plain reclaim refuses nonempty Dynamic fields. Empty/kind mismatch reads
+ * Fault without writing out. Get kind=0 is a tagged borrow observation for a
+ * source-proved tag test (such as null comparison), never Empty/default output
+ * or an owning Dynamic result. No failed-read retry selects this observation.
+ * Compatibility getters/setters never admit this ABI. */
+extern const unsigned char nyash_object_field_abi_descriptor_v1[32];
+#define NYRT_OBJECT_STORAGE_DYNAMIC_V1 12u
+#define NYRT_FIELD_EMPTY_V1 0u
+#define NYRT_FIELD_NULL_V1 1u
+#define NYRT_FIELD_I64_V1 2u
+#define NYRT_FIELD_BOOL_V1 3u
+#define NYRT_FIELD_TEXT_V1 4u
+#define NYRT_FIELD_OBJECT_V1 5u
+#define NYRT_FIELD_ARRAY_V1 6u
+typedef struct NyrtDynamicFieldValueV1 {
+    uint32_t kind, reserved;
+    int64_t value;
+    uint64_t token;
+} NyrtDynamicFieldValueV1;
+typedef uint32_t (*NyrtDynamicFieldEndV1)(void *, uint64_t, const NyrtDynamicFieldValueV1 *);
+typedef struct NyrtDynamicFieldEndDescriptorV1 {
+    uint32_t profile, kind;
+    int64_t type_id;
+    NyrtDynamicFieldEndV1 end;
+} NyrtDynamicFieldEndDescriptorV1;
+uint32_t nyrt_object_field_outcome_init_v1(void *) __asm__("nyash.object.field_outcome_init_v1");
+uint32_t nyrt_object_checked_dynamic_replace_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, const NyrtDynamicFieldValueV1 *,
+    const NyrtDynamicFieldEndDescriptorV1 *, void *) __asm__("nyash.object.checked_dynamic_replace_v1");
+uint32_t nyrt_object_checked_dynamic_get_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, uint32_t, NyrtDynamicFieldValueV1 *) __asm__("nyash.object.checked_dynamic_get_v1");
+uint32_t nyrt_object_checked_dynamic_take_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, void *) __asm__("nyash.object.checked_dynamic_take_v1");
+uint32_t nyrt_object_field_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.object.field_outcome_end_v1");
+uint32_t nyrt_object_field_outcome_dispose_v1(void *) __asm__("nyash.object.field_outcome_dispose_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,
     int64_t) __asm__("nyash.object.reclaim_unpublished_v1");
 uint32_t nyrt_object_home_release_plain_i64_v1(void *, uint32_t, uint64_t, int64_t,

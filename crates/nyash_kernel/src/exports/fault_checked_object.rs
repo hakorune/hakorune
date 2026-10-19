@@ -28,7 +28,7 @@ unsafe fn admit<'a>(
     storage: *mut c_void,
     profile: u32,
 ) -> Result<(&'a mut FaultFrame, TypedObjectStoreBackend), Status> {
-    if storage.is_null() {
+    if storage.is_null() || !storage.cast::<FaultFrame>().is_aligned() {
         return Err(Status::InvalidContract);
     }
     // Caller guarantees a live aligned frame and unique synchronous borrow.
@@ -274,4 +274,180 @@ pub unsafe extern "C" fn home_release(
     type_id: i64,
 ) -> u32 {
     unsafe { release(storage, profile, site, handle, type_id) }
+}
+
+use super::checked_map::storage::{
+    Placement, init as placement_init, admit as placement_admit,
+    dispose as placement_dispose, separate,
+};
+use crate::exports::typed_object::{
+    DynamicFieldEndDescriptorV1, DynamicFieldStoredV1, DynamicFieldValueV1,
+};
+use std::{mem::size_of, sync::Mutex};
+
+const FIELD_OUTCOME_TAG: u64 = 0x4649454c444f5501;
+pub(super) enum DynamicFieldOutcomeV1 { Unissued, Ready(DynamicFieldStoredV1), Consumed }
+pub(super) type DynamicFieldOutcomeStorageV1 = Placement<Mutex<DynamicFieldOutcomeV1>>;
+
+const fn dynamic_field_abi() -> [u8; 32] {
+    let words = [32u32, 1, size_of::<DynamicFieldValueV1>() as u32,
+        std::mem::align_of::<DynamicFieldValueV1>() as u32,
+        size_of::<DynamicFieldOutcomeStorageV1>() as u32,
+        std::mem::align_of::<DynamicFieldOutcomeStorageV1>() as u32,
+        size_of::<DynamicFieldEndDescriptorV1>() as u32,
+        std::mem::align_of::<DynamicFieldEndDescriptorV1>() as u32];
+    let mut out = [0; 32];
+    let mut index = 0;
+    while index < words.len() {
+        let bytes = words[index].to_le_bytes();
+        let mut byte = 0;
+        while byte < 4 { out[index * 4 + byte] = bytes[byte]; byte += 1; }
+        index += 1;
+    }
+    out
+}
+
+/// Optional field ABI extension, target-compiled independently of the unchanged
+/// common runtime descriptor. Consumers must admit this version before use.
+#[used]
+#[link_section = ".nyash.object_field_abi.v1"]
+#[export_name = "nyash_object_field_abi_descriptor_v1"]
+pub static DYNAMIC_FIELD_ABI_V1: [u8; 32] = dynamic_field_abi();
+
+fn dynamic_regions(frame: *mut c_void, outcome: *mut c_void) -> bool {
+    separate(&[(frame as usize, size_of::<FaultFrame>()),
+        (outcome as usize, size_of::<DynamicFieldOutcomeStorageV1>())])
+}
+
+#[export_name = "nyash.object.field_outcome_init_v1"]
+pub unsafe extern "C" fn dynamic_outcome_init(ptr: *mut c_void) -> u32 {
+    unsafe { placement_init(ptr, FIELD_OUTCOME_TAG, Mutex::new(DynamicFieldOutcomeV1::Unissued)) }
+}
+
+unsafe fn commit_dynamic(
+    frame: *mut c_void, profile: u32, site: u64, outcome: *mut c_void,
+    action: impl FnOnce(TypedObjectStoreBackend) -> Result<DynamicFieldStoredV1, CheckedStorageError>,
+) -> u32 {
+    if !dynamic_regions(frame, outcome) { return Status::InvalidContract as u32; }
+    let profile = match unsafe { admit(frame, profile) } {
+        Ok((_, profile)) => profile, Err(status) => return status as u32,
+    };
+    let result = {
+        let outcome = match unsafe { placement_admit::<Mutex<DynamicFieldOutcomeV1>>(outcome, FIELD_OUTCOME_TAG) } {
+            Ok(value) => value, Err(status) => return status as u32,
+        };
+        let mut outcome = match outcome.lock() { Ok(value) => value, Err(_) => return Status::InvalidContract as u32 };
+        if !matches!(*outcome, DynamicFieldOutcomeV1::Unissued) { return Status::InvalidContract as u32; }
+        match action(profile) {
+            Ok(old) => {
+                // No fallible work between the committed swap and publication.
+                *outcome = DynamicFieldOutcomeV1::Ready(old);
+                return Status::Normal as u32;
+            }
+            Err(error) => error,
+        }
+    };
+    // No outcome/object guard survives into Fault recording or user cleanup.
+    let frame = unsafe { &mut *frame.cast::<FaultFrame>() };
+    failed(frame, result, site)
+}
+
+/// Candidate is caller-owned unless Normal publishes the detached-old outcome.
+/// A null descriptor explicitly selects a no-Home scalar residence; it cannot
+/// store Text/object/Array handles. Stored borrowed/Map profiles remain unadmitted.
+#[export_name = "nyash.object.checked_dynamic_replace_v1"]
+pub unsafe extern "C" fn dynamic_replace(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, value: *const DynamicFieldValueV1,
+    descriptor: *const DynamicFieldEndDescriptorV1, outcome: *mut c_void,
+) -> u32 {
+    if value.is_null() || !value.is_aligned() || !separate(&[
+        (frame as usize, size_of::<FaultFrame>()),
+        (outcome as usize, size_of::<DynamicFieldOutcomeStorageV1>()),
+        (value as usize, size_of::<DynamicFieldValueV1>()),
+        (descriptor as usize, if descriptor.is_null() { 0 } else { size_of::<DynamicFieldEndDescriptorV1>() }),
+    ]) { return Status::InvalidContract as u32; }
+    let value = unsafe { *value };
+    if !value.well_formed() || value.kind == 0 { return Status::InvalidContract as u32; }
+    let end = if descriptor.is_null() { None } else {
+        if !descriptor.is_aligned() { return Status::InvalidContract as u32; }
+        // Published caller guarantees this immutable AOT constant remains live.
+        Some(unsafe { &*descriptor })
+    };
+    match (value.kind, end) {
+        (1..=3, None) => {}
+        (4..=6, Some(end)) if end.kind == value.kind && end.profile == profile
+            && end.end.is_some() && if value.kind == 5 { end.type_id > 0 } else { end.type_id == 0 } => {}
+        _ => return Status::InvalidContract as u32,
+    }
+    unsafe { commit_dynamic(frame, profile, site, outcome, |profile|
+        store::replace_dynamic_field_checked(profile, handle, type_id, slot, DynamicFieldStoredV1 { value, end })) }
+}
+
+/// Checked read is an observation supported by the still-live slot. It issues
+/// neither a Home nor an independent Text lease and writes only on Normal.
+/// Kind zero requests a tagged observation for an explicit source tag test;
+/// EmptyField still Faults. It is not a borrowed Dynamic callable result.
+#[export_name = "nyash.object.checked_dynamic_get_v1"]
+pub unsafe extern "C" fn dynamic_get(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, kind: u32, out: *mut DynamicFieldValueV1,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() || kind > 6
+        || !separate(&[(frame as usize, size_of::<FaultFrame>()),
+            (out as usize, size_of::<DynamicFieldValueV1>())]) { return Status::InvalidContract as u32; }
+    let (frame, profile) = match unsafe { admit(frame, profile) } {
+        Ok(value) => value, Err(status) => return status as u32,
+    };
+    match store::read_dynamic_field_checked(profile, handle, type_id, slot, kind) {
+        Ok(value) => { unsafe { out.write(value); } Status::Normal as u32 }
+        Err(error) => failed(frame, error, site),
+    }
+}
+
+/// The source destructor selects reverse field order and parent fini. Taking a
+/// field only detaches its current residence; End is a separate consumed outcome.
+#[export_name = "nyash.object.checked_dynamic_take_v1"]
+pub unsafe extern "C" fn dynamic_take(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, outcome: *mut c_void,
+) -> u32 {
+    unsafe { commit_dynamic(frame, profile, site, outcome, |profile|
+        store::take_dynamic_field_checked(profile, handle, type_id, slot)) }
+}
+
+#[export_name = "nyash.object.field_outcome_end_v1"]
+pub unsafe extern "C" fn dynamic_outcome_end(frame: *mut c_void, site: u64, ptr: *mut c_void) -> u32 {
+    if !dynamic_regions(frame, ptr) || frame.is_null() || !frame.cast::<FaultFrame>().is_aligned()
+        || !unsafe { (&*frame.cast::<FaultFrame>()).valid() } { return Status::InvalidContract as u32; }
+    let old = {
+        let outcome = match unsafe { placement_admit::<Mutex<DynamicFieldOutcomeV1>>(ptr, FIELD_OUTCOME_TAG) } {
+            Ok(value) => value, Err(status) => return status as u32,
+        };
+        let mut outcome = match outcome.lock() { Ok(value) => value, Err(_) => return Status::InvalidContract as u32 };
+        if !matches!(*outcome, DynamicFieldOutcomeV1::Ready(_)) { return Status::InvalidContract as u32; }
+        match std::mem::replace(&mut *outcome, DynamicFieldOutcomeV1::Consumed) {
+            DynamicFieldOutcomeV1::Ready(old) => old, _ => unreachable!(),
+        }
+    };
+    // Consume before callback: reentrant End cannot repeat the same obligation.
+    let status = unsafe { old.end(frame, site) };
+    match status {
+        0 => Status::Normal as u32,
+        1 if unsafe { (&*frame.cast::<FaultFrame>()).valid() }
+            && unsafe { (&*frame.cast::<FaultFrame>()).diagnostics().is_ok_and(|(first, _, _)| first.is_some()) } => Status::Fault as u32,
+        _ => Status::InvalidContract as u32,
+    }
+}
+
+#[export_name = "nyash.object.field_outcome_dispose_v1"]
+pub unsafe extern "C" fn dynamic_outcome_dispose(ptr: *mut c_void) -> u32 {
+    {
+        let outcome = match unsafe { placement_admit::<Mutex<DynamicFieldOutcomeV1>>(ptr, FIELD_OUTCOME_TAG) } {
+            Ok(value) => value, Err(status) => return status as u32,
+        };
+        let outcome = match outcome.lock() { Ok(value) => value, Err(_) => return Status::InvalidContract as u32 };
+        if matches!(*outcome, DynamicFieldOutcomeV1::Ready(_)) { return Status::InvalidContract as u32; }
+    }
+    unsafe { placement_dispose::<Mutex<DynamicFieldOutcomeV1>>(ptr) }
 }

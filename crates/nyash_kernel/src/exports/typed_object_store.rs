@@ -101,9 +101,9 @@ mod tests {
         let snapshot = bridge_materialize_direct_slot_snapshot(handle).unwrap();
         assert_eq!(snapshot.type_id, 23);
         assert_eq!(snapshot.fields.len(), 3);
-        assert_eq!(snapshot.fields[0].value, TypedSlotValue::I64(-7));
-        assert_eq!(snapshot.fields[1].value, TypedSlotValue::Unsigned(11));
-        assert_eq!(snapshot.fields[2].value, TypedSlotValue::Handle(-3));
+        assert!(matches!(snapshot.fields[0].value, TypedSlotValue::I64(-7)));
+        assert!(matches!(snapshot.fields[1].value, TypedSlotValue::Unsigned(11)));
+        assert!(matches!(snapshot.fields[2].value, TypedSlotValue::Handle(-3)));
         assert!(bridge_materialize_direct_slot_snapshot(-1).is_none());
         assert_eq!(get_compat_i64(handle, 0), Some(-7));
     }
@@ -134,7 +134,7 @@ mod tests {
         assert_eq!(get_compat_i64(view_handle, 0), Some(13));
 
         let direct_snapshot = bridge_materialize_direct_slot_snapshot(direct_handle).unwrap();
-        assert_eq!(direct_snapshot.fields[0].value, TypedSlotValue::I64(-9));
+        assert!(matches!(direct_snapshot.fields[0].value, TypedSlotValue::I64(-9)));
     }
 
     #[test]
@@ -160,9 +160,9 @@ mod tests {
         assert_eq!(get_compat_i64(handle, 2), Some(-17));
 
         let snapshot = bridge_materialize_direct_slot_snapshot(handle).unwrap();
-        assert_eq!(snapshot.fields[0].value, TypedSlotValue::I64(-11));
-        assert_eq!(snapshot.fields[1].value, TypedSlotValue::Unsigned(29));
-        assert_eq!(snapshot.fields[2].value, TypedSlotValue::Handle(-17));
+        assert!(matches!(snapshot.fields[0].value, TypedSlotValue::I64(-11)));
+        assert!(matches!(snapshot.fields[1].value, TypedSlotValue::Unsigned(29)));
+        assert!(matches!(snapshot.fields[2].value, TypedSlotValue::Handle(-17)));
     }
 
     #[test]

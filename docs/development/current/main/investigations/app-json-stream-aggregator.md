@@ -2,7 +2,6 @@
 
 Status: common untyped-storage target accepted; implementation first; JSON remains selected.
 Date: 2026-10-19
-Scope: unchanged JSON app, existing Loop/Text owners, canonical physical EXE.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md),
 [final pipeline](../design/mirbuilder-final-pipeline-ssot.md).
@@ -16,22 +15,22 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
 - JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
-  MIR compilation fails before artifact generation; no link or runtime evidence.
-  Original owner is `ingest`, Loop Body(2), source line145; first uncovered statement
-  is line151 `me.ingestLine(stream.substring(start, end))`. No artifact is generated.
-  On the current source-admission tree, incoming and Mul gates are cleared; debug
-  reports `source expression has no checked execution root`, path=None, in this Loop.
-  The scanner also lacks a Call action for line146 `local end = JsonLine.find(...)`;
-  retain its real I64 result as well as the later discarded Bool result.
+  MIR compilation stops before artifact/link/runtime. Owner `ingest`, Loop Body(2)
+  at line145, call line151 `me.ingestLine(stream.substring(start, end))`.
+  Incoming/Mul gates cleared; debug: `source expression has no checked execution root`.
+  Scanner also lacks line146 Local Call `end = JsonLine.find(...)`; retain its I64
+  result as well as the later discarded Bool result.
+- Post-runtime quick CLI rebuilt in188s: JSON smoke exit1 at the same Loop stop;
+  sentinel precheck exit1/direct EXE exit101 at phase84, no artifact. Explicit
+  quick runtime and selected Bool-equality C FFI; no new source admission claimed.
 - Other reds remain explicit: untyped-field phase84 inference panic,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
 ## Current priority and measurement interpretation
 
 - [Common storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md) is now the
-  accepted target for three real apps plus the untyped sentinel. Tagged dynamic
-  preserves existing EBNF; EmptyField read-Fault, source residence, replacement,
-  reads and cleanup are now specified. Implementation is open; production coverage is not.
+  accepted target for three real apps plus the untyped sentinel. Implementation
+  is open; runtime C tests alone do not prove source/production coverage.
 - `mimalloc-lite` suite PASS includes a harness correction: an obsolete generic JSON
   all-Invoke refusal precheck was removed; production compiler/app behavior was unchanged.
   The canonical EXE already worked. Route/toolchain/artifact/no-replay/output/exit checks remain.
@@ -48,32 +47,42 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   inference. Existing complete fixed-Array specialization remains a bounded profile.
 - Shared storage excludes Dynamic from numeric lane. Destruction/exact-slot/final
   consumer fences reject unsupported execution; layout availability grants no ABI.
-- Existing vocabulary2, plan inference19 (including layout4), declaration6 and
-  referenced physical-layout rejection1 PASS. Existing cases add Dynamic layout/
-  noninteger assertions for that independent boundary; no new test functions/files.
-- Runtime TypedSlotValue/TypedSlot/TypedSlotObject are now move-only. Existing
-  residence checks observe payload/outcome without cloning a storage owner.
-  Kernel lifecycle-core `typed_object`35 PASS (build105s, execution<0.01s);
-  checked C operations pass on SafeMutex/SingleThread, and indexed profile checks
-  retain rejection on PinnedArena/DirectSlot. No runtime representation changed.
-- Next extend the SAME TypedSlot value/residence and atomic store owner with known
-  EmptyField, checked tagged reads, replacement/detached-old cleanup and exact End.
-  Existing Text lease pairs and source-selected object/Array/Map End owners retain
-  authority; no generic handle clone, tag-to-destructor switch or alternate heap.
-- Both final consumers must recheck the same slot/residence/commit/Fault relation
-  before any C/runtime profile is admitted. The unchanged sentinel is the common
-  field-boundary acceptance, not a replacement for the selected JSON smoke.
-- JSON Loop Call source edits stay stashed until its physical half is implemented.
-  Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
+- Existing vocabulary2/inference19 (including layout4)/declaration6/physical-layout1
+  PASS; existing cases cover Dynamic/noninteger separation without new test functions.
+- Runtime Dynamic slots now hold explicit Empty/null/I64/Bool/Text/object/Array
+  values plus an independently published complete End descriptor. No owning Clone.
+  Replace atomically publishes the SAME detached old value/residence as Ready;
+  End consumes it before calling outside every lock. Take leaves known Empty.
+- Checked reads preserve Empty versus null and exact kind; kind-zero is a tagged
+  borrowed observation for source tag tests, never an owning Dynamic call result.
+  Compatibility registration/setters and direct cells cannot activate this profile;
+  outer reclaim refuses nonempty Dynamic slots. No tag selects an owner or End.
+- Existing kernel lifecycle-core typed_object35/fault34 PASS (test execution0.01s
+  each). Archive build5.43s. Existing native checked_map_runtime_abi_test.c compiles
+  with -Wall/-Wextra/-Werror, links the matching archive, passes SafeMutex and
+  SingleThread; existing Map boundary is also checked on SafeMutex only.
+- C fixture additions cover independent ABI/transaction/ownership boundaries:
+  Empty/kind Fault, failed write retaining candidate/old slot, actual child End,
+  reentry refusal and commit surviving cleanup Fault; no new test function/file
+  in Rust, checker, hook or guard. Kernel398/root9263 test functions remain.
+- Optional target section `.nyash.object_field_abi.v1` supplies physical sizes/
+  alignment. Both final consumers must admit it and verify SAME source/slot/
+  transfer/Normal/Fault correspondence before emission. Source activation is owed;
+  Map placement, stored borrow/Shared and carrier forwarding remain unadmitted.
+- Next generalize allocation-only field inventory to source slot contracts and
+  keep known Empty distinct from ready. Connect scalar/Array destination demand
+  through the SAME write frame, successor Home state and checked read packet.
+  Direct empty Array acquisition must lend IntrinsicArrayNew/End evidence; do not
+  invent an element/get proof or disguise it as a user-object Home.
+- The existing fields/checked_read.rs owner registers Integer only after checked
+  Invoke/NormalResult. Route the sentinel count Return through that SAME packet;
+  do not patch return_type_strategy or use infallible ObjectFieldGet for Dynamic.
+- Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
-- Existing Loop normalization uses SAME child groups; source_loop13PASS/1FAIL matches
-  the prior binary, source walk1/Array lifetime5 PASS; count_at remains open.
-- Literal I64/Bool Return census and SAME Core Text argument frames are connected.
-  Static22/Instance4/pending7 PASS; composition9PASS/2FAIL/result15PASS/2FAIL and
-  Unit diagnostic failure match prior evidence. Root test functions remain9263.
-- JSON's later UserStats/aggregator slots and Map remain implementation dependencies.
-  Accepted semantics do not claim physical storage/read/write/cleanup coverage.
+- Prior reds: count_at Loop, composition2/result2 and Unit diagnostic; earlier
+  connection/normalization/filter details remain in this file's Git history.
+- JSON UserStats/aggregator slots and Map remain implementation dependencies.
 
 ## Retained verification obligations
 
@@ -81,7 +90,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
   by the pre-existing tagged-add negative. Earlier SSA/handoff/Array teardown/synthetic
   callee reds remain open; implementation details are retained in this file's Git history.
-- No app workaround, silent retry, new checker/test file or runtime adapter was introduced.
 
 ## Completion obligations
 

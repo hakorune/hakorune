@@ -16,7 +16,8 @@ use crate::backend_env::{cached_env_choice, panic_unsupported_env_value, try_cac
 
 #[path = "typed_object_store_residence.rs"]
 mod residence;
-pub(super) use residence::{get_object_residence_checked, install_object_residence_checked};
+pub(super) use residence::{get_object_residence_checked, install_object_residence_checked,
+    replace_dynamic_field_checked, read_dynamic_field_checked, take_dynamic_field_checked};
 
 pub(super) const TYPED_OBJECT_STORE_ENV: &str = "HAKO_TYPED_OBJECT_STORE";
 
@@ -293,11 +294,11 @@ pub(super) fn new_checked_indexed(
     check_indexed_profile(expected)?;
     let count = i64::try_from(layout.len()).map_err(|_| CheckedStorageError::InvalidLayout)?;
     if super::typed_object::normalize_field_count(count).is_none()
-        || layout.iter().any(|slot| *slot != TypedSlotStorage::I64)
+        || layout.iter().any(|slot| !matches!(slot, TypedSlotStorage::I64 | TypedSlotStorage::Dynamic))
     {
         return Err(CheckedStorageError::InvalidLayout);
     }
-    allocate_i64_indexed(type_id, layout.len())
+    allocate_indexed(type_id, layout.iter().copied())
 }
 
 pub(super) fn new_checked_wire_indexed(
@@ -310,19 +311,21 @@ pub(super) fn new_checked_wire_indexed(
     if super::typed_object::normalize_field_count(count).is_none()
         || layout
             .iter()
-            .any(|tag| *tag != TypedSlotStorage::I64.tag() as u32)
+            .any(|tag| !matches!(*tag, 1 | 12))
     {
         return Err(CheckedStorageError::InvalidLayout);
     }
-    allocate_i64_indexed(type_id, layout.len())
+    allocate_indexed(type_id, layout.iter().map(|tag| match *tag {
+        1 => TypedSlotStorage::I64, 12 => TypedSlotStorage::Dynamic, _ => unreachable!(),
+    }))
 }
 
-fn allocate_i64_indexed(type_id: i64, count: usize) -> Result<i64, CheckedStorageError> {
+fn allocate_indexed(type_id: i64, layout: impl ExactSizeIterator<Item = TypedSlotStorage>) -> Result<i64, CheckedStorageError> {
     let mut fields = Vec::new();
     fields
-        .try_reserve_exact(count)
+        .try_reserve_exact(layout.len())
         .map_err(|_| CheckedStorageError::AllocationOrStorageUnavailable)?;
-    fields.extend((0..count).map(|_| TypedSlot::new(TypedSlotStorage::I64)));
+    fields.extend(layout.map(TypedSlot::new));
     new_typed_object(TypedSlotObject { type_id, fields })
         .ok_or(CheckedStorageError::AllocationOrStorageUnavailable)
 }
@@ -423,7 +426,9 @@ fn take_indexed(
     expected_type: i64,
 ) -> Option<TypedSlotObject> {
     let slot = objects.get_mut(handle_to_index(handle)?)?;
-    if slot.as_ref()?.type_id != expected_type {
+    if slot.as_ref()?.type_id != expected_type
+        || slot.as_ref()?.fields.iter().any(|field| matches!(&field.value,
+            super::typed_object::TypedSlotValue::Dynamic(value) if !value.is_empty())) {
         return None;
     }
     slot.take()

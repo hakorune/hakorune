@@ -18,7 +18,7 @@ use std::{ffi::c_void, mem::size_of, mem::MaybeUninit, sync::Mutex};
 #[path = "fault_checked_map_array_length.rs"]
 mod array_length;
 #[path = "fault_checked_map_storage.rs"]
-mod storage;
+pub(in crate::exports::fault) mod storage;
 use storage::*;
 pub(super) use storage::{
     KeyStorage, MapStorage, MapView, MapViewStorage, OutcomeStorage, TextView, TextViewStorage,
