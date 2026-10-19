@@ -15,6 +15,7 @@ struct OriginalReturnSourceV1 {
 #[derive(Debug)]
 enum OriginalReturnBodySourceV1 {
     Fields { plans: Box<[Rc<ExpressionSourcePlanV1>]>, field_values: Box<[SourceExprSiteV1]> },
+    LiteralScalars { plans: Box<[Rc<ExpressionSourcePlanV1>]>, class: BorrowedResultClassV1 },
     UnitCandidate {
         body: crate::mir::compiler::located::SourceBodySiteV1,
         body_end: u32,
@@ -105,15 +106,40 @@ impl OriginalReturnSourceLoanV1 {
     pub(super) fn field_plans(&self) -> impl Iterator<Item = &Rc<ExpressionSourcePlanV1>> {
         let values = match &self.0.body {
             OriginalReturnBodySourceV1::Fields { field_values, .. } => field_values.as_ref(),
-            OriginalReturnBodySourceV1::UnitCandidate { .. } => &[],
+            OriginalReturnBodySourceV1::LiteralScalars { .. } | OriginalReturnBodySourceV1::UnitCandidate { .. } => &[],
         };
         self.plans().iter().filter(move |plan| plan.nodes().first().is_some_and(|node| values.contains(node.site())))
     }
     fn plans(&self) -> &[Rc<ExpressionSourcePlanV1>] {
         match &self.0.body {
-            OriginalReturnBodySourceV1::Fields { plans, .. } => plans,
+            OriginalReturnBodySourceV1::Fields { plans, .. } | OriginalReturnBodySourceV1::LiteralScalars { plans, .. } => plans,
             OriginalReturnBodySourceV1::UnitCandidate { .. } => &[],
         }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn scalar_class_v1(&self) -> Option<BorrowedResultClassV1> {
+        match &self.0.body {
+            OriginalReturnBodySourceV1::Fields { .. } => Some(BorrowedResultClassV1::I64),
+            OriginalReturnBodySourceV1::LiteralScalars { class, .. } => Some(*class),
+            OriginalReturnBodySourceV1::UnitCandidate { .. } => None,
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_literal_scalar_v1(&self) -> bool {
+        matches!(self.0.body, OriginalReturnBodySourceV1::LiteralScalars { .. })
+    }
+    pub(super) fn matches_declaration_v1(&self, owner: FunctionOwnerIdV1, batch_slot: u32,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> bool {
+        self.0.owner == owner && self.0.batch_slot == batch_slot && &self.0.key == key
+            && self.plans().iter().all(|plan| plan.owner() == owner)
+    }
+    pub(super) fn corroborates_literal_returns_v1(&self, returns: &[OwnedExprSiteV1], class: BorrowedResultClassV1) -> bool {
+        let OriginalReturnBodySourceV1::LiteralScalars { plans, class: original } = &self.0.body else { return false };
+        !plans.is_empty() && class == *original && plans.len() == returns.len()
+            && plans.iter().all(|plan| plan.owner() == self.0.owner && literal_scalar_class_v1(plan) == Some(class)
+                && plan.nodes().first().is_some_and(|node| returns.iter()
+                    .filter(|site| site.owner() == self.0.owner && site.site() == node.site()).count() == 1))
+            && returns.iter().all(|site| plans.iter().filter(|plan| plan.nodes().first()
+                .is_some_and(|node| plan.owner() == site.owner() && node.site() == site.site())).count() == 1)
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_unit_candidate_v1(&self) -> bool {
         matches!(self.0.body, OriginalReturnBodySourceV1::UnitCandidate { .. })
@@ -135,6 +161,21 @@ impl OriginalReturnSourceLoanV1 {
     }
     pub(super) fn receiver(&self) -> BindingRefV1 {
         self.0.receiver
+    }
+}
+
+fn literal_scalar_class_v1(plan: &ExpressionSourcePlanV1) -> Option<BorrowedResultClassV1> {
+    use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+    if plan.nodes().len() != 1 { return None; }
+    let Node::Literal(literal) = plan.nodes().first()?.source() else { return None };
+    primitive_literal_class_v1(literal)
+}
+
+fn primitive_literal_class_v1(literal: &ResolvedLiteralSourceV1) -> Option<BorrowedResultClassV1> {
+    match literal {
+        ResolvedLiteralSourceV1::Integer(_) => Some(BorrowedResultClassV1::I64),
+        ResolvedLiteralSourceV1::Bool(_) => Some(BorrowedResultClassV1::Bool),
+        _ => None,
     }
 }
 
@@ -160,16 +201,27 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             let mut receivers = input.function().bindings().filter(|(_, row)| row.kind() == BindingKindV1::Receiver);
             let receiver = receivers.next().map(|(binding, _)| binding).ok_or_else(|| freeze("borrowed-result/original-return-receiver"))?;
             if receivers.next().is_some() { return Err(freeze("borrowed-result/original-return-receiver")); }
-            // Arity expansion belongs only to Unit; the original scalar field
-            // result owner retains its existing parameter-free boundary.
-            if !contract.parameters.is_empty() && input.body_shape().is_none_or(|shape|
-                shape.statements().iter().any(|row| matches!(row,
-                    crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }))) {
-                return Ok(None);
+            // Preserve the old parameterized nonliteral boundary before plan
+            // construction. Only the complete original primitive-literal
+            // Return census selects this new source request, never result success.
+            if !contract.parameters.is_empty() {
+                let shape = input.body_shape().ok_or_else(|| freeze("borrowed-result/original-return-shape"))?;
+                let mut class = None;
+                for statement in shape.statements() {
+                    let crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(value), .. } = statement else { continue };
+                    let Some(kind) = input.function().expression_source().literal(value).and_then(primitive_literal_class_v1)
+                        else { return Ok(None) };
+                    if class.is_some_and(|previous| previous != kind) { return Ok(None); }
+                    class = Some(kind);
+                }
             }
             let (plans, field_values) = original_return_plans_v1(input, receiver)?;
-            let body = if !field_values.is_empty() {
+            let literal_class = plans.first().and_then(|plan| literal_scalar_class_v1(plan))
+                .filter(|class| plans.iter().all(|plan| literal_scalar_class_v1(plan) == Some(*class)));
+            let body = if !field_values.is_empty() && contract.parameters.is_empty() {
                 OriginalReturnBodySourceV1::Fields { plans: plans.into_boxed_slice(), field_values: field_values.into_boxed_slice() }
+            } else if let Some(class) = literal_class {
+                OriginalReturnBodySourceV1::LiteralScalars { plans: plans.into_boxed_slice(), class }
             } else {
                 let shape = input.body_shape().ok_or_else(|| freeze("unit-source/body-shape"))?;
                 if shape.statements().iter().any(|statement| matches!(statement,
@@ -221,6 +273,10 @@ impl BorrowedResultCohortV1 {
     }
     pub(super) fn from_original_returns_v1(originals: OriginalReturnsV1) -> Self {
         Self::unavailable_with_original_v1(freeze("borrowed-result/original-cohort-unprepared"), originals)
+    }
+    pub(super) fn literal_scalar_owners_v1(&self) -> impl Iterator<Item = FunctionOwnerIdV1> + '_ {
+        self.rows.iter().filter_map(|(owner, row)| row.original.as_ref().ok()?.as_ref()?
+            .is_literal_scalar_v1().then_some(*owner))
     }
     #[cfg(test)]
     pub(super) fn prepared(rows: BTreeMap<FunctionOwnerIdV1, ScalarResultV1>,

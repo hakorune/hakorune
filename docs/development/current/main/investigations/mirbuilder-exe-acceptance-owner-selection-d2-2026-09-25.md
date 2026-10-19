@@ -19,6 +19,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   MIR compilation fails before artifact generation; no link or runtime evidence.
   Original owner is `ingest`, Loop Body(2), source line145; first uncovered statement
   is line151 `me.ingestLine(stream.substring(start, end))`. No artifact is generated.
+  On the current source-admission tree, incoming and Mul gates are cleared; debug
+  reports `source expression has no checked execution root`, path=None, in this Loop.
 - Other reds remain explicit: untyped-field phase84 inference panic,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
@@ -34,14 +36,25 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   behind the existing API. Static Core argument validation has one shared source owner.
   Existing Instance source tests4 and Core source tests2 PASS on the combined WIP;
   moving the validation bodies was checked against their original definitions.
-- Remaining source admission WIP must preserve existing borrowed-use family and final
-  permission checks; focused regressions are being repaired before admission is committed.
+- Uniform original I64/Bool literal Return census now survives parameterized source
+  qualification and independent final result checking. Existing borrowed-use family is
+  preserved; no input, Completion or Invoke ABI permission is inferred from that census.
+- Core Text actuals reuse the SAME argument receipt/frame through Instance preparation,
+  reconstruction and final validation. Complete literal Returns prove no Mul product;
+  missing use drafts alone still cannot prove that absence.
+- Focused Static22/Instance4/pending7 PASS; composition9PASS/2FAIL and result15PASS/2FAIL
+  match saved pre-change failures. The existing Unit-value diagnostic expectation also
+  fails with the pre-admission CLI; its refusal remains terminal, not a successful value.
+- Existing case adds I64/Bool Return-census loss checks and substring actuals because
+  empty field-plan coverage cannot detect a lost literal Return. Test functions remain9263;
+  no new test file/hook/checker/guard/token. Read-only worker reviewed same-source boundaries.
 - Reuse `home_prefix_source_loop*` source header/control/expression inventory,
   `produce_source_loop_recipe_v2`, and existing execution/schedule and expression writers.
   Landed Text, Bool, BranchNormal and argument owners supply existing contracts.
-- Determine original owner/site and the unavailable source path, then connect its SAME
-  source authority through Facts/Recipe/Verify to the existing physical consumer.
-  Do not add a parallel classifier, infer from MIR types, or rewrite the app.
+- Next connect this statement as a Call action in the existing source Loop tree,
+  schedule, physical Call writer and final child-packet verification. Its substring
+  argument belongs inside that SAME Call packet; do not turn it into an expression root.
+  Preserve Normal/Fault argument cleanup and original Homes; no backend inference or app edit.
 - JSON's later untyped UserStats/aggregator slots and Map remain explicit dependencies.
   This selection does not accept dynamic-slot semantics or promise a D0-free whole-app PASS.
 

@@ -658,6 +658,28 @@ fn original_return_field_requests_keep_nested_expression_plans_before_qualificat
                 "passive source request cannot grant numeric result: {body}");
         }
     }
+    for (body, class) in [
+        ("if true { return false } return true", BorrowedResultClassV1::Bool),
+        ("if true { return 7 } return 1", BorrowedResultClassV1::I64),
+    ] {
+        let text = format!("box Counter {{ birth() {{ }} read(p) {{ {body} }} }}
+            static box Main {{ main() {{ local c = new Counter() local s = \"text\" c.read(s.substring(0, s.length())) return 0 }} }}");
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let owner = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().owner;
+        let results = &mut Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap().borrowed_i64_results;
+        let proof = results.get_mut(&owner).unwrap().as_mut().unwrap();
+        assert_eq!(proof.class, class);
+        assert_eq!(proof.returns.len(), 2);
+        assert!(proof.original_return.as_ref().unwrap().is_literal_scalar_v1());
+        proof.verify_original_return_v1().unwrap();
+        // A shared original loan must not make a lost Return invisible merely
+        // because this source has no field expressions to corroborate.
+        proof.source_facts = Rc::new((*proof.source_facts).clone());
+        proof.source_facts_mut_for_test().returns = proof.returns[..1].to_vec().into_boxed_slice();
+        assert!(proof.verify_original_return_v1().is_err());
+    }
 }
 
 #[test]

@@ -232,7 +232,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     site: reference.call_site.clone(), issue,
                                 })?;
                             if discard { need.set_result_requirement(LexicalCallSourceResultRequirementV1::UnitDiscardSource(original.clone())); }
-                        } else {
+                        } else if !original.is_literal_scalar_v1() || !definitions.contains_key(&reference.callee_owner) {
+                            // A retained literal census does not replace the
+                            // existing original borrowed-use family or grant ABI.
                             need.set_result_requirement(LexicalCallSourceResultRequirementV1::ScalarReturnSource(original.clone()));
                         }
                     }
@@ -359,7 +361,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                         site: reference.call_site.clone(), issue: issue.clone(),
                                     })?;
                                     if !original.matches(&reference) || !proof.matches_original_return_v1(original)
-                                        || !grounded.contains(&reference.callee_owner) || proof.class != super::borrowed_formal_result::BorrowedResultClassV1::I64
+                                        || !grounded.contains(&reference.callee_owner) || original.scalar_class_v1() != Some(proof.class)
                                     { return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                                         site: reference.call_site, issue: "original-return/source-unproven".into(),
                                     }); }

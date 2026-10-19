@@ -269,7 +269,9 @@ fn source_result_pending(
         let sites = input.body_shape().and_then(|shape| super::super::super::verified_value_return_sites(input, shape))
             .filter(|sites| !sites.is_empty()).ok_or_else(|| freeze("borrowed-result/explicit-value-return-missing"))?;
         let draft = drafts.get(&owner);
-        if draft.is_none() && !zero_parameter_instance_result_owner_v1(contracts, owner)? {
+        let literal_source = original_return.is_some_and(|original| original.is_literal_scalar_v1()
+            && original.matches_declaration_v1(owner, contract.batch_slot, &key));
+        if draft.is_none() && !zero_parameter_instance_result_owner_v1(contracts, owner)? && !literal_source {
             return Err(freeze("borrowed-result/source-draft-missing"));
         }
         let mut class = None;
@@ -372,7 +374,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     );
     let owners: BTreeSet<_> = drafts.keys().copied().chain(contracts.iter()
         .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && row.parameters.is_empty())
-        .map(|row| row.owner)).collect();
+        .map(|row| row.owner)).chain(results.literal_scalar_owners_v1()).collect();
     let scalar_rows = owners
         .iter()
         .filter(|owner| {
@@ -599,8 +601,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             return results;
         }
     };
+    // Original literal Return capture is independent of borrowed-use drafts.
+    // Retain that source cohort; sealing below still verifies input and result.
+    let literal_owners: BTreeSet<_> = results.literal_scalar_owners_v1().collect();
     results.retain(|owner, result| {
-        if source.definitions.contains_key(owner) { return true; }
+        if source.definitions.contains_key(owner) || literal_owners.contains(owner) { return true; }
         match zero_parameter_instance_result_owner_v1(contracts, *owner) {
             Ok(selected) => selected,
             Err(issue) => { *result = Err(issue); true }

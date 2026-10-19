@@ -47,8 +47,14 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                     .map(|actual| Some(actual.source))).unwrap_or(Ok(None));
             }
             if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
+                let parameter = contracts.iter().find(|row| row.owner == call.callee)
+                    .and_then(|row| row.parameters.get(ordinal as usize))
+                    .filter(|row| row.ordinal == ordinal && row.binding == formal)
+                    .ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
                 if static_source::ordinary_text_argument_source_v1(ingress,
-                    &OwnedExprSiteV1::new(call.call.owner(), site.clone()), method)?.is_some() {
+                    &OwnedExprSiteV1::new(call.call.owner(), site.clone()), method)?.is_some()
+                    || static_source::core_argument_source_v1(ingress,
+                        &OwnedExprSiteV1::new(call.call.owner(), site.clone()), method, &parameter.kind)?.is_some() {
                     let actual = array_ledger.ok_or_else(|| freeze("borrowed-instance/text-execution-unconnected"))?
                         .borrowed_expression_actual_source_v1(&call.call, ordinal, site)?;
                     if actual.formal != formal { return Err(freeze("borrowed-instance/text-formal-identity")); }
@@ -225,8 +231,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
                 loan.class()
             }
             BorrowedCallActualValueV1::MethodCall(ref method) => {
+                let parameter = contracts.iter().find(|row| row.owner == call.callee)
+                    .and_then(|row| row.parameters.get(*ordinal as usize))
+                    .filter(|row| row.ordinal == *ordinal && row.binding == *formal)
+                    .ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
                 if static_source::ordinary_text_argument_source_v1(ingress,
-                    &OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone()), method)?.is_some() {
+                    &OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone()), method)?.is_some()
+                    || static_source::core_argument_source_v1(ingress,
+                        &OwnedExprSiteV1::new(call.call.owner(), candidate.site.clone()), method, &parameter.kind)?.is_some() {
                     if view.is_some() { return Err(freeze("borrowed-entry/object-view-drift")); }
                     continue;
                 }

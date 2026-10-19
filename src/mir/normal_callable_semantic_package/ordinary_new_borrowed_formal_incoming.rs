@@ -162,6 +162,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         let empty_scalar_source = matches!(requirement, crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
             | crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::ScalarReturnSource(_))
             && target.target.arity() == 0 && target.argument_sites.is_empty();
+        let literal_scalar_source = match requirement {
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::ScalarReturnSource(loan)
+                if loan.is_literal_scalar_v1() => {
+                    if !loan.matches(&target) { return Err(BorrowedIncomingDraftErrorV1::SourceIdentity); }
+                    true
+                }
+            _ => false,
+        };
         let unit_source = match requirement {
             crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::UnitDiscardSource(loan) => {
                 if !loan.is_unit_candidate_v1() || !loan.matches(&target) {
@@ -171,7 +179,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             }
             _ => false,
         };
-        if !requirement.has_object_source_requirement() && nullable.is_none() && mixed.is_none() && !empty_scalar_source && !unit_source
+        if !requirement.has_object_source_requirement() && nullable.is_none() && mixed.is_none() && !empty_scalar_source && !literal_scalar_source && !unit_source
             && !array_candidate && local_input.is_none() {
             continue;
         }
@@ -229,7 +237,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         {
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         }
-        if nullable.is_none() && !array_candidate && local_input.is_none() && !unit_source
+        if nullable.is_none() && !array_candidate && local_input.is_none() && !unit_source && !literal_scalar_source
             && contract
                 .parameters
                 .iter()
@@ -237,7 +245,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         {
             continue;
         }
-        if !contract.parameters.iter().all(|formal| (nullable.is_some() || array_candidate || local_input.is_some() || unit_source) && formal.kind.is_ordinary_borrowed_handle()
+        if !contract.parameters.iter().all(|formal| (nullable.is_some() || array_candidate || local_input.is_some() || unit_source || literal_scalar_source) && formal.kind.is_ordinary_borrowed_handle()
             || matches!(formal.kind,
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
                 if abi == crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)) {

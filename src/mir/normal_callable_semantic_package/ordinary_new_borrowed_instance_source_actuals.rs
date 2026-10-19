@@ -32,6 +32,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     {
         return Ok(None);
     }
+    let mut core_argument = false;
     let mut array_loans = Vec::new();
     let mut field_loans = Vec::new();
     for (position, actual) in actuals.iter().enumerate() {
@@ -50,6 +51,13 @@ pub(super) fn prepare_instance_source_actuals_v1(
             }
             let read = OwnedExprSiteV1::new(site.owner(), actual.site.clone());
             if static_source::ordinary_text_argument_source_v1(ingress, &read, method)?.is_some() { continue; }
+            if let Some(core) = ingress.ordinary_core_source_v1(&read) {
+                if !std::sync::Arc::ptr_eq(method, core.source().source()) {
+                    return Err(freeze("borrowed-instance/method-original-source-drift"));
+                }
+                core_argument = true;
+                continue;
+            }
             if let Some(loan) =
                 super::super::borrowed_formal_source::ArrayElementSourceLoanV1::issue(
                     ingress, &read,
@@ -73,6 +81,9 @@ pub(super) fn prepare_instance_source_actuals_v1(
             && target.target().arity() == 0 && target.argument_sites().is_empty());
     let unit_request = ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
         .filter_map(|row| row.source.instance()).any(|target| target.is_unit_discard_source_v1());
+    let scalar_request = ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
+        .filter_map(|row| row.source.instance()).any(|target| matches!(&target.result_requirement,
+            super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) if request.is_literal_scalar_v1()));
     let object_producer_request = match ingress.object_source_target_at_v1(site)? {
         Some(target) => ingress.original_object_producer_callee_v1(target)?,
         None => false,
@@ -83,7 +94,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     };
     let draft = ingress.source_definition_for(site.owner());
     let expression_request = ingress.original_signed_expression_argument_request_v1(site);
-    if array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request {
+    if !core_argument && array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !scalar_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request {
         if ingress.definitions.contains_key(&site.owner()) {
             return Ok(None);
         }
@@ -111,6 +122,13 @@ pub(super) fn prepare_instance_source_actuals_v1(
     let Some(target) = original.source.instance() else {
         return Ok(None);
     };
+    if scalar_request {
+        let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) = &target.result_requirement
+            else { return Err(freeze("borrowed-instance/source-identity")) };
+        if !request.is_literal_scalar_v1() || !request.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
+            return Err(freeze("borrowed-instance/source-identity"));
+        }
+    }
     if unit_request {
         let super::super::LexicalCallSourceResultRequirementV1::UnitDiscardSource(request) = &target.result_requirement
             else { return Err(freeze("borrowed-instance/unit-source-identity")) };
@@ -224,6 +242,9 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         return Err(freeze("borrowed-instance/text-formal-domain"));
                     }
                 }
+                BorrowedCallActualValueV1::MethodCall(ref method)
+                    if static_source::core_argument_source_v1(ingress,
+                        &OwnedExprSiteV1::new(site.owner(), actual.site.clone()), method, &formal.kind)?.is_some() => {}
                 BorrowedCallActualValueV1::MethodCall(ref method) => {
                     let mut loans = array_loans
                         .iter()

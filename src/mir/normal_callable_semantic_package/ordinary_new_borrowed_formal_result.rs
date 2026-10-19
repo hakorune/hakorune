@@ -97,6 +97,9 @@ impl BorrowedI64ResultSourceV1 {
     fn verify_original_return_v1(&self) -> Result<(), String> {
         if let Some(original) = &self.original_return {
             if original.is_unit_candidate_v1() { return Err(freeze("borrowed-result/unit-is-not-scalar")); }
+            if original.is_literal_scalar_v1() && !original.corroborates_literal_returns_v1(&self.returns, self.class) {
+                return Err(freeze("borrowed-result/result-contract-mismatch"));
+            }
             if original.field_plans().filter(|plan| plan.nodes().first().is_some_and(|node|
                 self.returns.contains(&OwnedExprSiteV1::new(plan.owner(), node.site().clone()))))
                 .any(|plan| self.expressions.iter().filter(|expression| Rc::ptr_eq(plan, expression.plan())).count()

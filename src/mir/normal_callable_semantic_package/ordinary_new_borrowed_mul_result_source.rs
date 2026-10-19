@@ -22,6 +22,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     source: &PreparedBorrowedFormalIngressV1,
 ) -> Result<(), String> {
     let Some(draft) = source.definitions.get(&owner) else {
+        // Complete original primitive-literal Returns cannot contain a Mul
+        // product. This is a source proof, not a missing-draft default.
+        if proof.multiplications.is_empty() && proof.original_return.as_ref().is_some_and(|original|
+            original.receiver().owner() == owner && original.is_literal_scalar_v1()
+                && original.corroborates_literal_returns_v1(&proof.returns, proof.class))
+        { return Ok(()); }
         // The same result producer checked the original parameter census and
         // retained this declaration; no borrowed Mul product can be issued there.
         if proof.parameterless_instance.as_ref().is_some_and(|(original_owner, _, key)|
