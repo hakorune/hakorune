@@ -1,6 +1,6 @@
 # APP-mimalloc-lite
 
-Status: standalone smoke PASS; fixed suite running, app closeout pending.
+Status: closed; standalone and fixed-suite smoke PASS (2026-10-19).
 Date: 2026-10-19
 Scope: 未変更mimalloc-liteの正規EXE・実行・期待出力/exitと必要なprofile境界。
 Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
@@ -8,8 +8,8 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
 
 ## 現在地
 
-- 選択row: `APP-mimalloc-lite`。新goalで再開。単体smokeは約163秒でPASS。
-- 固定11本を計測中。直近の全suite結果は5PASS/6FAILで、現在の結果に読み替えない。
+- `APP-mimalloc-lite`は着地。単体smoke約163秒、固定suite内約147秒でPASS。
+- 固定suiteは6PASS/5FAIL。PASS内訳は実EXE5本と空marker1本、SKIP/timeoutなし。
 - 変更前はgeneric JSON precheckが`required-integer-source-unproved`で停止した。
   EXEはClosedAppExecutable、generic JSONは未使用importも含むAllSourceという違いがあった。
 
@@ -32,8 +32,9 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
   lifecycle runtimeとC API FFIも明示。変更Rustはcfg(test)内だけでCLI再buildは不要。
 - pointer・builder layer・CallTarget guard、shell syntax、diff checkはPASS。
 - `bash tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 600`
-  を同じbinary/runtimeで実行中。空marker・SKIPをEXE成功に数えず、終了を確認する。
-- suite内でmimallocがPASSしたら本アプリを閉じ、次のuntyped-fieldへ選択を切り替える。
+  はsource一致のquick CLI、既存lifecycle runtime/C APIで完了。全体終了値1、約579秒。
+  対象revisionは`751dae566b`。赤はuntyped-field、binary-trees、boxtorrent、allocator、JSON。
+- untyped-fieldはユーザー判断で既存D0のParkedSealedを維持。次はallocator-stress。
 
 ## 保持する未完条件
 

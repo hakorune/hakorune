@@ -1,136 +1,58 @@
 # MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0
 
-Status: closed__2026-09-25__decision-accepted
-Date: 2026-09-25
-Parent: MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D1 (closed,
-  NoSafeSlice -> this card). Materializes the SSOT-named owner
-  `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (final-pipeline-ssot
-  acceptance recheck, ParkedSealed until source-backed storage is
-  migrated to an explicit supported type or issued with a tagged
-  dynamic/opaque ABI)
-Owner: workstream row H / unified resume gate 1
-Authority: mirbuilder-final-pipeline-ssot.md acceptance table;
-  D1 audit (worker 0b3a5cac) — TwoOwners split + untyped-storage
-  family is the highest-weight remaining class.
+Status: ParkedSealed; 2026-09-25 decision retained on 2026-10-19.
+Implementation permission: false until this D0 accepts a source-backed contract.
+Scope: unchanged `typed-object-untyped-field-min`; no new campaign or implementation card.
+Authority: [final pipeline](../design/mirbuilder-final-pipeline-ssot.md),
+[RULES](../../../RULES.md), EBNF legacy stored-slot semantics.
 
-## Slice
+## Accepted decision and current evidence
 
-Design only. Fix the authority question for inferred/untyped object
-storage on the ordinary-new lane: which issuer owns
-destruction/Home-end availability and field-read result type for
-fields whose `declared_type_name` is absent (init-only fields fed by
-birth parameters). Emit one accepted Decision + one bounded S-card,
-or a documented ParkedSealed/NoSafeSlice with observable reopen
-trigger.
+- 2026-09-25: birth-param fixture migrated to explicit fields/result and lifecycle EXE.
+  That historical exception does not authorize rewriting the unchanged untyped-field sentinel.
+- 2026-10-19 user decision: retain ParkedSealed and advance another acceptance app.
+  Recording alternatives below is not acceptance of an implementation or language change.
+- Source `init { count, items }` declares untyped stored slots. `count = 7` and
+  `items = new ArrayBox()` through a local do not declare fixed field storage.
+- Both suite precheck and direct `--backend mir --emit-exe` stop at
+  `return_type_strategy.rs` with `[phase84-5] Type inference failed for ValueId(14)`.
+  Direct EXE exits 101 before producing an artifact. This is not a link/runtime failure.
+- `fields/post_success.rs` deliberately publishes no declared type for an untyped read.
+  Canonical layout and destruction reject unavailable field types; MIR observations cannot repair them.
+- Handle-field owners now cover declared object/Array fields and source-qualified birth-side
+  direct Array acquisition. Main-local alias-to-field writes in this app are outside that profile.
+  Their existence alone does not satisfy this sentinel's reopen condition.
 
-## The edge (from D1 audit)
+## Alternatives to decide
 
-- `typed_object_birth_param_min`: `Page { init { page_id, capacity } }`
-  fields project `declared_type_name = None` ->
-  `object_definition.rs:107-132` issues
-  `Destruction::Unavailable(FieldType)` (declaration-shape only,
-  deliberately does not consult inference) -> `local_entry.rs:82-91`
-  `end_available() == false` -> `root_home.rs:167-184` exit
-  `Unavailable` -> `root_call_entry.rs:185`
-  `root-call-entry-missing`.
-- `typed_object_untyped_field_min`: `holder.count` untyped read ->
-  `FieldGet{ declared_type: None }` -> `post_success.rs:84-92`
-  publishes no `value_types` entry -> `return_type_strategy.rs`
-  `resolve_known_return_definition_type` has no FieldGet arm ->
-  debug panic `ValueId(15)` (release path continues to the parked
-  `Invoke` transport terminal).
-- `binary_trees` (downstream): after its own claim-census/`null`-arg
-  gaps are designed, tree field ends hit the same family.
+Costs are relative engineering scope, not measured completion dates.
 
-## Questions to answer
+| Option | Semantic effect | Implementation cost / affected owners |
+| --- | --- | --- |
+| Tagged dynamic slot | Preserve untyped slots, including value-kind changes. Define empty/uninitialized state, checked reads/conversions, replacement ownership, Normal/Fault cleanup and object destruction. A handle and an integer need distinct tags. | High: source slot issuer, layout/tagged ABI, write/read Recipe and verification, runtime/C consumer, cleanup and publication must agree end to end. Reuse existing tagged values where contracts match; no parallel value system. |
+| Annotation-required rejection on canonical EXE | Require explicit field types for this lane. Specify an early diagnostic instead of panic. If made a language-wide rule, revise legacy compatibility syntax and migration policy. | Smaller compiler scope, but language/acceptance policy changes are substantial. The unchanged exit-7 fixture remains failing; converting it to an expected refusal requires explicit acceptance changes and is not product success today. |
+| Closed source-qualified fixed profile | Admit only fields proven by a complete original writer inventory, exact acquisition/receiver identity and Normal dominance. Define escapes, aliases, conflicting writes and replacement behavior. | Medium to high: may reuse field-writer and Array residence owners, but introduces a new source contract. It is not generic dynamic-slot support and cannot replace that requirement merely because this fixture passes. |
+| Keep parked | Preserve current semantics and explicit unsupported boundary; continue other apps. | Selected now. No dynamic-slot implementation, source migration or new inference mechanism. The sentinel remains red and the full goal remains incomplete. |
 
-1. Is inferred storage in-scope for the selected EXE lane at all, or
-   is `declared-typed` storage the contract? Check the untyped-storage
-   parking records (`NoSafeSlice`/`ParkedSealed` history) before
-   designing an issuer.
-2. If in-scope: which existing receipt owns field-type observation
-   (Facts) — must stay AST-free and must not mint Recipe keys. Where
-   does the `usize`/`i64` birth-param inference live, and is it a
-   semantic authority or a physical guess?
-3. Masked edge: `sum()` has no declared return — the
-   root-instance-call disposition needs `results.row == I64`. Is a
-   result-contract issuer also missing for inferred returns?
-4. Does fixing destruction authority alone produce a passing entry,
-   or do all three (destruction, result type, field-read type) have
-   to land together? Pick the minimal honest unit.
+## Reopen trigger and acceptance
 
-## Boundary
+Reopen only after this existing D0 explicitly accepts one option and records:
 
-- Includes: `object_definition.rs`, `local_entry.rs`, `root_home.rs`,
-  `root_call_entry.rs`, `fields/post_success.rs`,
-  `return_type_strategy.rs`, `ordinary_new_arguments.rs` (null kind),
-  claim census (`ordinary_new_coseal_*`) — audit and authority naming.
-- Excludes: implementation; usize parameter contract; NamedArray;
-  String-result ABI; loop Facts; newbox toolchain.
+1. Source authority and slot/result representation; no classification from MIR types,
+   receiver names, backend success or C defaults.
+2. Construction/initial state, field replacement, alias/escape behavior, handle Home transfer,
+   destruction and Normal/Fault cleanup, including failed writes and failed reads.
+3. Existing issuer, sole runtime/backend consumer and final verification/publication path;
+   unsupported shapes retain a deliberate refusal boundary.
+4. Unchanged source/exit-7 acceptance for a support option, or explicitly approved
+   language/reference and suite changes for annotation-required rejection.
 
-## Exit
+D0 acceptance authorizes implementation; this option record does not.
+Do not suppress the panic by inventing I64, revive phase-293x MIR storage inference,
+weaken Text/Array negatives, or rewrite the app to evade this decision.
 
-- [ ] In-scope/out-of-scope decision for inferred storage recorded
-      with authority.
-- [ ] One accepted Decision + bounded S-card, or ParkedSealed with
-      reopen trigger.
+## Next action
 
-## Decision (accepted 2026-09-25)
-
-```text
-Decision: split the family by where untypedness is essential.
-  birth_param_min migrates to declared storage (SSOT-sanctioned
-  branch: source-backed storage migrated to an explicit supported
-  type) and moves its smoke caller to the --emit-exe lifecycle
-  route (MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0
-  precedent — the selfhost --mir route is retired for lifecycle
-  cases and must keep rejecting Invoke). untyped_field_min stays
-  red as the untyped/dynamic-storage sentinel.
-Source authority + canonical issuer:
-  declared field types (`page_id: i64`/`capacity: i64`) +
-  declared result `sum(): i64` are the existing authority;
-  PlainI64NoHook destruction + root-call entry + lifecycle V4
-  physical emit are existing owners — no new Facts/Recipe.
-Non-authority: inference-driven storage (phase-293x MIR-observation
-  route is retired), generic MIR JSON Invoke transport (intentional
-  rejection), `.hako` workaround scope (sanctioned by the SSOT
-  branch, not an evasion — the selfhost corpus has zero `init{}`
-  uses; `init{}` is documented legacy-compat).
-Fail-fast boundary: storage FieldType stop, root-call-entry-missing,
-  unsupported_newbox_type, no_lowering_variant all remain named.
-Smallest next slice:
-  MIRBUILDER-UNTYPED-OBJECT-STORAGE-S0 — birth_param_min: app
-  migration to declared fields + declared `sum(): i64` return +
-  smoke script moved to the --emit-exe lifecycle caller. Proven:
-  typed clone at /tmp compiles via lifecycle V4 and exits 30.
-Non-claims: does not fix untyped_field_min, does not admit handle-
-  typed fields into newbox, does not admit usize/NamedArray/loop
-  facts, does not change Invoke transport policy.
-```
-
-## Evidence (main-investigator probes, release+quick binaries)
-
-- `lang/**/*.hako` uses zero `init {}` forms — the selfhost corpus
-  already migrated to declared `field: Type`; `init{}` is legacy
-  compat (EBNF :984-996).
-- Typed-clone probe of birth_param (`page_id/capacity: i64`,
-  `sum(): i64`): `--emit-exe` -> lifecycle V4 ok -> EXE exits **30**
-  (matches the pinned expectation). On the retired `--mir` route the
-  same source dies at `unsupported terminator Invoke` — confirming
-  the smoke route must move, not the transport.
-- untyped_field typed clones still fail: `new Holder()`/`new Items()`/
-  `new ArrayBox()` -> `unsupported_newbox_type` (boxes with
-  handle-typed fields are not admitted at newbox), and minimal
-  i64-field `new Holder()` reaches `no_lowering_variant` — the pure
-  lane's newbox coverage gap (same class as newbox_min). Three
-  stacked gaps = design family, not a slice.
-- untyped_field_min therefore stays the untyped-storage sentinel:
-  `NoSafeSlice` — reopen when a tagged dynamic/opaque slot-ABI
-  D-card or handle-field newbox admission owner is selected.
-
-## Exit
-
-- [x] In-scope decision recorded: declared-storage migration for
-      birth_param; untyped_field stays sealed.
-- [x] One bounded S-card emitted:
-      `MIRBUILDER-UNTYPED-OBJECT-STORAGE-S0`.
+- Keep the fixture and existing safety boundaries unchanged; do not count it as PASS or SKIP.
+- Continue `APP-allocator-stress` by the user's 2026-10-19 selection override.
+- Historical D0 rationale and birth-param migration details remain in this file's Git history.
