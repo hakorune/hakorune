@@ -6,24 +6,21 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Last official fixed suite: source Loop If/SSA commit, 7PASS/4FAIL, actual EXE6 +
-  empty marker1, no SKIP/timeout, duration452.253s. Frozen quick opt0 CLI34.70s,
-  quick runtime/private C FFI; build/run300s, no Cargo overlap.
-- mimalloc PASS139.093s; allocator PASS160.642s; four typed EXEs PASS37–39s.
+- Last official fixed suite: Loop Function Return commit, 7PASS/4FAIL, actual EXE6 +
+  empty marker1, no SKIP/timeout. Runner448.163s/wall450.249s. Matching quick opt0
+  CLI59.01s, frozen quick runtime/private C FFI; build/run300s, no Cargo overlap.
+- mimalloc PASS140.112s; allocator PASS159.797s; four typed EXEs PASS36–38s.
   Totals include compile/link/run; individual phases were not timed.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --timeout 1900`. Later source/Text changes are outside this measurement.
-- Current matching quick CLI passes the Main.main argument frame for
-  `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
-  `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
-  Matching quick CLI47.99s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
-  (callee JsonLine.find/3). No EXE/link/runtime.
-- Callee find now retains original ReturnInBody control, source/Return read and
-  existing FunctionExit/root cleanup through both final consumers. Matching quick
-  CLI59.01s still stops at the same outer input cohort: find now has one uncovered
-  read, `if m == 0` (line11), whose plain scalar condition is not source-selected.
-  No EXE/link/runtime. Current Return changes remain WIP; fixed suite is running
-  with the same frozen CLI/runtime/C FFI, no Cargo overlap.
+  --suite real-apps-exe-boundary --timeout 1900`. Scalar If WIP is outside this measurement.
+- Matching scalar-If CLI36.96s passes find's original `if m == 0` read (line11).
+  JSON still fails during MIR construction: `phi_lifecycle/txn_abort`,
+  source-loop-header-after, `borrowed-entry/source-use-completion-pending`.
+  The next step is to identify the demanded entry owner and retain its SAME source
+  use/completion through ingress. No EXE/link/runtime; no old-route retry.
+- Scalar If retains the whole original scalar read census through both final
+  consumers. Related364 PASS; 36 previous-case failures remain. A matching fixed
+  suite is pending; the last completed suite above is the Return generation.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -36,8 +33,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   keep it for Fault cleanup; Normal excludes exactly that residence, with transfer
   committed only after all Normal cleanup succeeds. No ordinary result ABI is granted.
 - Local Call shares scalar/Text result-source identity. Text Argument demand keeps
-  original result/target, whole incoming census, formal contract and ordered inputs;
-  selected refusal is terminal. Numeric getters retain their existing gates.
+  original result/target, whole incoming census and ordered inputs; refusal is terminal.
 - Bool String comparisons share the existing expression body writer and final
   projection, retaining original Core/read proofs and per-comparison acquisition,
   Normal End, Fault prefix and remaining End suffix. Logical RHS stays conditional.
@@ -45,8 +41,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Threading removes only the same orphaned empty Jump, keeping other entries alive.
 - The existing substring tuple now covers Loop Return/root cleanup and changed
   Return operand refusal; this independent FunctionExit boundary needs the minimal
-  tuple/mutation extension. No new test function/file/hook/checker. Related311 PASS;
-  24 failures reproduce in the prior binary (Loop Facts21, Static source2, source SUM1).
+  tuple/mutation extension. Its minimal scalar If addition protects a separate read purpose.
+  Current related364 PASS; 36 failures reproduce prior cases/causes (root12, Loop21,
+  Static2, source SUM1). New test function/file/hook/checker count remains zero.
+- Plain scalar comparison selection requires the whole original leaf/read census.
+  Calls/fields keep their existing owner; scalar siblings cannot preempt a Static Call.
 - Core coverage borrows the SAME checked frame loans and exact resolver metadata;
   full source census/duplicates remain checked. Loop Return is not Header/After
   incoming. Shared lexical read and existing root cleanup emit once and validate

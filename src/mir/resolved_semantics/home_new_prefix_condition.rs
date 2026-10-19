@@ -44,7 +44,9 @@ fn contains_local_home_field(
 
 /// Calls and field receivers remain opaque to this morphology selector. Their
 /// exact original inputs are obligations of the shared leaf/Call/field owners.
-fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSourcePlanV1, locals: &PrefixLocalFlow<'_>) -> bool {
+fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSourcePlanV1,
+    locals: &PrefixLocalFlow<'_>, local_calls: &[LocalCallObservationV1],
+) -> bool {
     use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, ResolvedLiteralSourceV1 as Literal};
     fn supported(source: &ExpressionSourcePlanV1, index: usize) -> bool {
         let node = &source.nodes()[index];
@@ -89,9 +91,19 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
             .then_some(1)
     }
     let Some(binary) = source.nodes().first().and_then(|node| node.binary()) else { return false; };
+    // Plain scalar comparisons borrow a complete original read census. Calls
+    // and field receivers retain their existing owners; one scalar sibling does
+    // not authorize selecting their whole expression through another Call lane.
+    let plain_scalar = source.nodes().iter().all(|node| match node.source() {
+        Node::Binary(_) | Node::Literal(Literal::Integer(_) | Literal::Bool(_)) => true,
+        Node::Reference(_) => locals.current_scalar_read_v1(node.site(), local_calls).is_some(),
+        _ => false,
+    }) && source.nodes().iter().any(|node| matches!(node.source(), Node::Reference(_)));
     let selected = locals.in_source_loop_v1()
             && matches!(binary.operator(), Op::Equal | Op::NotEqual | Op::Less | Op::Greater
                 | Op::LessEqual | Op::GreaterEqual)
+        || (plain_scalar && matches!(binary.operator(), Op::Equal | Op::NotEqual | Op::Less | Op::Greater
+            | Op::LessEqual | Op::GreaterEqual))
         || matches!(binary.operator(), Op::And | Op::Or)
         || source.nodes_outside_calls().any(|(_, node)| matches!(node.source(), Node::Literal(Literal::String(_)))
             || matches!(node.source(), Node::Reference(_))
@@ -125,7 +137,7 @@ pub(super) fn observe<E>(
     let Ok(source) = condition_expression_source_plan_v1(input, statement)
         else { return Ok(ConditionInstallationV1::Refused) };
     if !contains_local_home_field(input, &source, locals)
-        && !(original_profile && selects(input, &source, locals))
+        && !(original_profile && selects(input, &source, locals, local_calls))
     { return Ok(ConditionInstallationV1::Unselected); }
     if !prefix_known { return Ok(ConditionInstallationV1::Refused); }
     Ok(if install_source(input, source, locals, homes, local_calls, path_calls, fields, actuals)?.is_some() {
@@ -186,9 +198,10 @@ fn install_source<E>(
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| {
             let Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) = locals.observe(site) else { return None; };
-            if locals.in_source_loop_v1() {
-                locals.current_scalar_read_v1(site, local_calls).map(Scalar::Original)
-            } else { Some(Scalar::Obligation { binding, kind }) }
+            if let Some(read) = locals.current_scalar_read_v1(site, local_calls) {
+                Some(Scalar::Original(read))
+            } else if locals.in_source_loop_v1() { None }
+            else { Some(Scalar::Obligation { binding, kind }) }
         },
         &mut |site| super::field_read::field_read_request(input, site, locals),
         &mut |plan| {

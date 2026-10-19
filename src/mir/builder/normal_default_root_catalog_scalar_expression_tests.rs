@@ -178,7 +178,7 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
         ("local text = \"\" + \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", true, false, false),
         ("local a = \"5\" local b = \"9\"", "a < b && b >= a", false, false, false),
         ("local text = \"5\"", "text.substring(0, 1) < \"0\" || text.substring(0, 1) > \"9\"", false, false, false),
-        ("local text = \"5\"", "text.substring(i, i + 1) < \"0\" || text.substring(i, i + 1) > \"9\"", false, false, true),
+        ("local text = \"5\" local m = text.length() if m == 0 {}", "text.substring(i, i + 1) < \"0\" || text.substring(i, i + 1) > \"9\"", false, false, true),
     ] {
         let text = if in_loop {
             format!("box Pool {{ size: i64 = 0 birth() {{}} }} static box Main {{ main() {{
