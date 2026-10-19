@@ -41,6 +41,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     MapEndOutcome,
     MapEnd,
     StringAdd,
+    StringMaterialize,
     StringLength,
     StringCompare,
     StringSubstring,
@@ -96,6 +97,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 crate::mir::instruction::OwnedArrayInvokeOperation::End { .. } => Self::OwnedArrayEnd,
             }),
             InvokeOperation::String(operation) => Some(match operation {
+                crate::mir::instruction::StringInvokeOperation::Materialize { .. } => Self::StringMaterialize,
                 crate::mir::instruction::StringInvokeOperation::Add { .. } => Self::StringAdd,
                 crate::mir::instruction::StringInvokeOperation::Length { .. } => Self::StringLength,
                 crate::mir::instruction::StringInvokeOperation::Compare { .. } => Self::StringCompare,

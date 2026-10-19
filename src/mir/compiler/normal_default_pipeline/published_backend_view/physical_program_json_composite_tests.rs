@@ -351,8 +351,8 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
     assert_eq!(encode(add), json!({"kind":"string_add", "site":42,
         "left":{"kind":"static_text", "utf8":"猫\0"},
         "right":{"kind":"normal_integer", "value":7}}));
-    assert_eq!(encode(Op::Print { value: Operand::OwnedString(ValueId(9)) }),
-        json!({"kind":"string_print", "site":42, "value":{"kind":"owned_string", "value":9}}));
+    assert_eq!(encode(Op::Materialize { value: Operand::OwnedString(ValueId(9)) }),
+        json!({"kind":"string_materialize", "site":42, "value":{"kind":"owned_string", "value":9}}));
     assert_eq!(encode(Op::End { value:ValueId(9) }),
         json!({"kind":"string_end", "site":42, "value":9}));
     for (op, comparison) in [(crate::mir::CompareOp::Eq, "eq"), (crate::mir::CompareOp::Ne, "ne"),

@@ -297,10 +297,7 @@ mod tests {
             (
                 0,
                 invoke(
-                    Op::Add {
-                        left: literal("猫\0"),
-                        right: literal(""),
-                    },
+                    Op::Materialize { value: literal("猫\0") },
                     1,
                     90,
                 ),

@@ -106,7 +106,7 @@ def checked_string_physical():
              "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
              "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",
              "nyash.string.checked_add_v1", "nyash.string.checked_print_v1", "nyash.string.checked_end_v1",
-             "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_index_of_v1", "nyash.string.checked_compare_v1",
+             "nyash.string.checked_materialize_v1", "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_index_of_v1", "nyash.string.checked_compare_v1",
              "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
     def execute(data, defines=(), status=0, endings=(), payload=None, primary=None):
         compile_input(data, True)
@@ -225,7 +225,7 @@ def checked_string_physical():
         cp = copy.deepcopy(data)
         projection = lambda source, dst: {"op": "invoke_normal_result", "invoke_block": source, "dst": dst}
         cp_rows = [
-            block(0, inv("string_add", 1, 90, left=literal("aé界z"), right=literal("")),
+            block(0, inv("string_materialize", 1, 90, value=literal("aé界z")),
                   [entry[0], {"op":"const_i64", "dst":1, "value":1}, {"op":"const_i64", "dst":4, "value":3},
                    {"op":"const_i64", "dst":5, "value":0}]),
             block(1, inv("string_substring", 2, 10, value=owned(2), start=1, end=4), [projection(0,2)]),
@@ -252,7 +252,7 @@ def checked_string_physical():
         for mutation in ["owned_bound", "integer_receiver", "integer_needle", "end_scalar", "slice_scalar"]:
             bad = copy.deepcopy(cp)
             if mutation == "owned_bound": first(bad, "string_substring")["operation"]["start"] = 2
-            elif mutation == "integer_receiver": first(bad, "string_length")["operation"]["value"] = {"kind":"normal_integer", "value":1}
+            elif mutation == "integer_receiver": first(bad, "string_materialize")["operation"]["value"] = {"kind":"normal_integer", "value":1}
             elif mutation == "integer_needle": first(bad, "string_index_of")["operation"]["needle"] = {"kind":"normal_integer", "value":1}
             elif mutation == "end_scalar": first(bad, "string_end")["operation"]["value"] = 7
             else: first(bad, "string_print")["operation"]["value"] = {"kind":"normal_integer", "value":3}

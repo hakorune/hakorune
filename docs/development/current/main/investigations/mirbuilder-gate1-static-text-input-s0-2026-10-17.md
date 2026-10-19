@@ -922,28 +922,72 @@ baseline failures (four EXEs plus empty marker). Full suite/series/goal stay ope
 Keep952F/CLI291/native/suite evidence and earlier950/diagnostic provenance until
 Text acceptance. 952E duplicate executable retired; its source/logs retained.
 
-953 owned-root Text rebind source→shared writer/assignment→published historical
-Home/read loan→BOTH finals→JSON/C/canonical EXE landed `0ffa4313dc`. That commit
-owns the complete Decision, read-only reviews, corrected failures, source/component
-provenance, commands/timings, baseline classification and temporary-pin retirement.
-It replaces initializer-only Home dispatch and scalar-only destination assumptions;
-no second evaluation payload/registry, adapter, raw release fallback or diagnostic.
-Exact optional replaced value on StringResidenceInstall supplies independent
-Rust/C old-End ordering; old-End Fault keeps new and never retries old. Source
-Plain RHS demand uses the same original SUM/Core owner, not a new classifier.
-Root953F174existing170PASS/4 exact952F baselines;9263same names. Two Rust source
-slots and existing C Home runtime slot replaced; no new case/parameter/file/hook/
-checker. Both C routes pass old-End Fault/new cleanup and existing malformed cases.
-Full predecessor C script PASS, changed-current slot selected PASS; no cancellation.
-CLI292/FFI953A/kernel894A: same-source Text rebind400 both EXE/run expected output/
-exit0 PASS (CLI291 coverage refusal); unchanged mimalloc399 exact363 PASS.
-OriginalJSON398 remains394 Unit-value-use/noEXE. Fixed11 5PASS/6 exact952 failures,
-four EXEs+empty marker; precheck reds do not cover later EXE assertions. No suite/
-CI/full950/finite-goal completion claim. One warning on an unchanged unused loan
-method is recorded, not suppressed. Source/physical shared owners remain retained.
-Keep953F/CLI292/FFI953A/kernel894A/native/C/diagnostic-source evidence until whole
-Text acceptance; superseded953B/C/D executables843428760B retired, logs retained.
-Next under950: explicit literal/borrowed Materialize, all-original Text Return/
-CallNormal/borrowed entry/Unit args/cleanup/BOTH finals/JSON/C. No new inventory
-prerequisite or semantic design stop. Loop Text Add remains unsupported/unclaimed;
-originalJSON has no such row, so this audit finding adds no execution prerequisite.
+953 owned-root Text rebind source→shared writer→historical Home→BOTH finals→C/
+canonical EXE landed `0ffa4313dc`, closeout/pointer `0c7467481d`. Those commits
+own exact replacement/old-End Fault law, source/physical reviews, baseline reds,
+commands/timings, component provenance and retirement. Root953F174=170PASS/4same;
+9263names, no added cases/checkers. CLI292/FFI953A Text rebind400 both EXE/runPASS;
+mimalloc399 exact363;JSON398 Unit-value-use;fixed11=5PASS/6same952 (four EXEs).
+Keep953F/CLI292/FFI953A/kernel894A and native/C evidence until950 acceptance;
+superseded953B/C/D executables843428760B retired, logs/diagnostic provenance kept.
+Whole950 Return/CallNormal/entry/Unit/cleanup/BOTH finals/JSON/C stays required.
+Loop Text Add unclaimed and absent in originalJSON; not an added prerequisite.
+
+954 Decision (read-only source/acquisition, physical and Materialize reviews):
+Source authority + canonical issuer:950 SAME original expression evaluation and
+checked Rebind purpose seals owned-root transfer vs Text-only Materialize need.
+Non-authority: MirType, a fabricated node0 acquisition, Add-with-empty, new ledger.
+Fail-fast boundary: Integer is never Materialize input; borrowed entry descriptors
+and Text Return/Call/Unit remain required950 connections, not waived by this slice.
+Smallest next slice: common unary Materialize runtime/MIR/ABI/JSON/C operation,
+then real literal/current Text loan rebind through SAME expression cleanup writer,
+assignment, historical Home publication and BOTH final scans. Original values stay
+immutable; purpose retains separate exact Invoke/NormalResult and effective root.
+Shared acquisition validation sees purpose operation after original evaluation;
+Materialize Fault unwinds original temporaries/Homes; Normal installs new pair and
+old-End Fault retains it. Input is borrowed, never consumed by Materialize.
+Paths: existing invoke_string, fault_checked_string/header, physical_abi/JSON op,
+C instruction schema/string emitter; home_binding_rebind_expression; selected
+expression_value/binding_rebind_expression; rebind_projection/terminal_paths;
+existing owner README and existing Rust/runtime/C fixture slots only. Shared
+Print destructuring follows the extra purpose field; source evaluation issues none.
+Non-claims: no full950/JSON/suite/goal completion; no new test/case/parameter/hook/
+checker/ledger. Reuse/replace overlapping slots and record real source first-stop.
+
+954 validation (source at parent0c7467481d plus this explicit WIP):
+`cargo quick-test-fast --no-run --message-format=json`:954A33.618913s compile
+failure (Print destructuring missing purpose field), corrected;954B92.011686sPASS.
+Root954B five existing focused filters PASS; expanded174=170PASS/4 exact953F
+baseline diagnostics (7.089036s);9263 identical names, no new warnings. Existing
+alias-only slots replaced with literal/loan rebinds;953 owned-root slots retained.
+No added case/parameter/file/checker/production test hook. Runtime extern and C
+acquisition observer extend existing ABI instrumentation, not a new test entry.
+`cargo test --profile quick -p nyash_kernel --no-default-features --features
+lifecycle-core --lib --no-run --message-format=json`:249.310646sPASS; existing
+checked_string_pairs filter1PASS (.00s): Static/Owned independent Materialize,
+malformed/Integer/released inputs reject without publishing; input stays live.
+`cargo build --profile quick -p nyash_lifecycle_kernel --message-format=json`:
+7.294168sPASS, runtime954A. CLI293 quick build199.643995sPASS;FFI954A cc6.846579sPASS.
+C existing CP slot selected without changing assertions (both indexed/native,
+Normal+substringFault+both readFaults+five malformed mutations):65.453750sPASS.
+Selection retains source/hash/argv and original assertions in temporary evidence;
+full unchanged C script not rerun. All required existing guards/diff PASS.
+Canonical direct `hakorune --grammar-profile canonical --backend mir --emit-exe
+OUT --emit-exe-nyrt runtime954A SOURCE`, plugins off,pure-first,compat none,FFI954A:
+Two reused source slots401/402: CLI292 both IncompleteOrdinaryNewCoverage/noEXE
+(.021377/.021610s);CLI293 both EXE119.267129/119.169777s,run.001417/.001526s,
+stdout xyz/ab then Result:0,stderr exact363,exit0. No original .hako edits.
+OriginalJSON405 .062686s exit1/noEXE, diagnostic exact398/unit-value-use. Reuse950
+source-to-consumer reviews for next whole Text Return/Call/entry/Unit connection;
+unchanged first-stop is not product acceptance. Fixed11 remains pinned953 evidence,
+not rerun for this bounded new operation; no current full-suite/CI/950/goal claim.
+
+Unchanged mimalloc406 same canonical route/current runtime954A:EXE151.767205s,
+run.001721s,stdout/stderr/exit0 exact363 PASS. Probe403/404 initially retained
+runtime894A in stored argv; receipts corrected,405/406 rerun with explicit954A.
+Do not count404 as current-runtime evidence; its redundant EXE retired after406.
+Keep954B/CLI293/FFI954A/runtime954A/kernel test/native/C evidence until950 acceptance;
+954A failed-build logs retained. No diagnostic/adapter or duplicate execution owner.
+Actual component source checks match; FFI uses C-shim scope, not false whole-repo
+manifest equality. Full950/retained rows/finite goal remain open; next Text Return/
+CallNormal/borrowed entry/Unit args/cleanup/BOTH finals/JSON/C, with no inventory gate.

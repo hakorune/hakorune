@@ -141,6 +141,9 @@ uint32_t nyrt_string_checked_compare_v1(void *, uint64_t, uint32_t,
     __asm__("nyash.string.checked_compare_v1");
 uint32_t nyrt_string_checked_length_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.string.checked_length_v1");
+/* Text-only borrowed input; Normal publishes an independent pair, never Ends input. */
+uint32_t nyrt_string_checked_materialize_v1(void *, uint64_t, const NyrtStringOperandV1 *, NyrtOwnedStringV1 *)
+    __asm__("nyash.string.checked_materialize_v1");
 uint32_t nyrt_string_checked_substring_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t, int64_t, NyrtOwnedStringV1 *)
     __asm__("nyash.string.checked_substring_v1");
 uint32_t nyrt_string_checked_index_of_v1(void *, uint64_t, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)

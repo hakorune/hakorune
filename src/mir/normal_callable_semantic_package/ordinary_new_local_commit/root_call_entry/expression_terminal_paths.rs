@@ -170,13 +170,14 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         terminal: &Binding, continuation: &Binding, residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, inherited, false, None)
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, inherited, false, None, None)
     }
     fn validate_paths_with_policy(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         terminal: &Binding, continuation: &Binding, residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>, defer_owned_argument: bool, displaced: Option<&InvokeOperation>,
+        purpose_acquisition: Option<&[Binding; 2]>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let ledger = context.ledger();
         use super::super::root_cleanup_graph::ordered_paths as paths;
@@ -216,6 +217,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             }
         }
         let mut original_order = self.ordered_bindings_in_context(context)?;
+        if let Some(pair) = purpose_acquisition { original_order.extend(pair.iter().cloned()); }
         let (mut normal, fault_frame) = match &terminal.1 {
             MirInstruction::Invoke { fault_frame, .. } => {
                 original_order.push(terminal.clone());
@@ -270,7 +272,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 Some(_) => return Err(freeze("expression/residence-replacement-kind")),
                 None => None,
             };
-            if replaces != expected_previous || self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {
+            let effective = purpose_acquisition.and_then(|pair| pair[1].1.dst_value())
+                .map(Operand::OwnedString).or_else(|| self.values.first().cloned().flatten());
+            if replaces != expected_previous || effective != Some(Operand::OwnedString(value)) || live.pop() != Some(value) {
                 return Err(freeze("expression/residence-original-root"));
             }
             let actual = mapped(original)?;
@@ -425,10 +429,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_rebind_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
-        residence: Option<&Binding>, displaced: Option<&InvokeOperation>,
+        residence: Option<&Binding>, displaced: Option<&InvokeOperation>, purpose_acquisition: Option<&[Binding; 2]>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
-        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, None, false, displaced)
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, None, false, displaced, purpose_acquisition)
     }
     pub(in crate::mir) fn validate_local_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
@@ -444,7 +448,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
-        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, None, inherited, true, None)
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, None, inherited, true, None, None)
     }
     fn validate_local_delimiters_v1(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,

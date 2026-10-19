@@ -25,6 +25,7 @@ pub(in crate::mir::builder) fn emit(
     let mut expression = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver))?;
+    expression_value::materialize_rebind_root(builder, &mut expression, &frame)?;
     let value = match expression.value {
         Operand::NormalInteger(value) if !frame.is_text_residence() => value,
         Operand::OwnedString(value) if frame.is_text_residence() => value,
@@ -46,7 +47,7 @@ pub(in crate::mir::builder) fn emit(
     let assigned = receipt.assigned();
     let bindings = expression.bindings.clone();
     let packet = Rc::new(EmittedBindingRebindProjectionV1::new(Rc::clone(&frame), receipt, expression.values, expression.calls, expression.path_reads.into_values().collect(), expression.reference_reads,
-        expression.entry, terminal, continuation, expression.bindings, ledger, function)?);
+        expression.entry, terminal, continuation, expression.purpose_acquisition, expression.bindings, ledger, function)?);
     let pending = ledger.prepare_rebind_expression_bindings(packet, bindings)?;
     let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment } = frame.source().root()
         else { return Err(freeze("rebind-expression/source-purpose")) };

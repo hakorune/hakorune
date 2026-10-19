@@ -14,6 +14,7 @@ type Binding = (BasicBlockId, MirInstruction);
 /// receipt and live temporary moves to the checked terminal consumer together.
 pub(super) struct EmittedExpressionValueV1 {
     pub(super) value: Operand,
+    pub(super) purpose_acquisition: Option<[Binding; 2]>,
     pub(super) values: Vec<Option<Operand>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, crate::mir::builder::ExactLexicalReadV1>,
@@ -277,7 +278,7 @@ pub(super) fn emit_with_prefix(
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     Ok(EmittedExpressionValueV1 {
-        value, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings,
+        value, purpose_acquisition: None, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings,
     })
 }
 
@@ -307,12 +308,23 @@ pub(super) fn emit_string_operation_v1(
     node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
     homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind), String> {
-    let owned = operation.owns_normal_result();
+    let pending = pending_operations(acquired, homes);
+    let (value, result, _) = emit_string_operation_with_pending_v1(builder, writer, operation,
+        fault_frame, &pending, bindings)?;
+    if result == crate::mir::instruction::InvokeNormalResultKind::OwnedString { acquired.push((node, value)); }
+    Ok((value, result))
+}
+
+/// Physical Invoke/Normal writer shared by source nodes and purpose acquisition.
+/// Only the caller that owns a source node may add it to the source-node stack.
+fn emit_string_operation_with_pending_v1(
+    builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
+    fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
+) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {
     let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
     let normal = writer.reserve_block(builder)?;
-    let pending = pending_operations(acquired, homes);
     let graph = root_graph::emit_cleanup_suffixes_with_writer(writer, builder, fault_frame,
-        normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), bindings)?;
+        normal, &[], pending, &[], &(0..pending.len()).collect::<Vec<_>>(), bindings)?;
     let invoke = writer.emit_current(builder, MirInstruction::Invoke {
         operation: InvokeOperation::String(operation), fault_frame,
         normal_landing: normal, fault_landing: graph.acquisition_fault,
@@ -321,7 +333,8 @@ pub(super) fn emit_string_operation_v1(
     builder.start_new_block(normal)?;
     let projection = MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value };
     writer.insert_projection(builder, normal, projection.clone())?;
-    bindings.extend([invoke, (normal, projection)]);
+    let pair = [invoke, (normal, projection)];
+    bindings.extend(pair.iter().cloned());
     let kind = match result {
         crate::mir::instruction::InvokeNormalResultKind::OwnedString => MirType::String,
         crate::mir::instruction::InvokeNormalResultKind::I64 => MirType::Integer,
@@ -329,8 +342,7 @@ pub(super) fn emit_string_operation_v1(
         _ => return Err(freeze("expression/string-result")),
     };
     builder.function_state.type_ctx.value_types.insert(value, kind);
-    if owned { acquired.push((node, value)); }
-    Ok((value, result))
+    Ok((value, result, pair))
 }
 
 /// I64 purpose completion retains the scalar result and ends only its child
@@ -371,13 +383,33 @@ pub(super) fn finish_deferred_argument_continuation(
     Ok((terminal, continuation))
 }
 
+/// Materialize after the original source acquisition-prefix validation. The
+/// original operand table and node stack remain untouched for both final scans.
+pub(super) fn materialize_rebind_root(
+    builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
+    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+) -> Result<(), String> {
+    if !frame.materializes_root() { return Ok(()); }
+    if !expression.value.is_text() || expression.purpose_acquisition.is_some() {
+        return Err(freeze("rebind-expression/materialize-domain"));
+    }
+    let pending = pending_operations(&expression.acquired, &expression.homes);
+    let (value, _, pair) = emit_string_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
+        Operation::Materialize { value: expression.value.clone() }, expression.fault_frame,
+        &pending, &mut expression.bindings)?;
+    expression.purpose_acquisition = Some(pair);
+    expression.value = Operand::OwnedString(value);
+    Ok(())
+}
+
 pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(Binding, Binding), String> {
     if !frame.is_text_residence() { return finish_scalar_continuation(builder, expression); }
     let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
-    if expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+    if expression.purpose_acquisition.is_some() != frame.materializes_root()
+        || !frame.materializes_root() && expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
     let displaced = ledger.text_rebind_displaced_end_v1(frame)?;
     finish_continuation(builder, expression, Some(root), displaced)
 }
@@ -399,7 +431,7 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
         let install = MirInstruction::StringResidenceInstall { value, replaces };
         builder.emit_instruction(install.clone())?;
         expression.bindings.push((block, install));
-        expression.acquired.pop();
+        if expression.purpose_acquisition.is_none() { expression.acquired.pop(); }
     }
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;

@@ -53,6 +53,7 @@ pub(super) fn encode_invoke(
                     crate::mir::CompareOp::Lt => "lt", crate::mir::CompareOp::Le => "le",
                     crate::mir::CompareOp::Gt => "gt", crate::mir::CompareOp::Ge => "ge",
                 }, "left":operand(left), "right":operand(right)}),
+                Op::Materialize { value } => json!({"kind":"string_materialize", "value":operand(value)}),
                 Op::Length { value } => json!({"kind":"string_length", "value":operand(value)}),
                 Op::Substring { value:v, start, end } => json!({"kind":"string_substring", "value":operand(v), "start":value(start), "end":value(end)}),
                 Op::IndexOf { value, needle } => json!({"kind":"string_index_of", "value":operand(value), "needle":operand(needle)}),

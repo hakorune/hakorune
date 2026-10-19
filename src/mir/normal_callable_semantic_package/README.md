@@ -4846,5 +4846,11 @@ sites; lookup and read loans require their exact source purpose and Rc. Rebind
 reads use the existing checked-rebind provenance, never an initializer loan.
 Both final consumers include both purposes in installed-Home/cleanup coverage and
 reconstruct the Normal-selected Fault residual, including a new pair retained
-when the displaced old End faults. Literal/borrowed-root Materialize and ordinary
-Text Return/Call ABI remain separate open connections in the same Text series.
+when the displaced old End faults. Checked Text rebinds whose original root is
+literal/current Text loan use an explicit Text-only Materialize purpose. Original
+expression values/acquisition nodes stay unchanged; the same rebind packet retains
+the separate Invoke/NormalResult pair and effective installed value. Both final
+scans validate that original operand and the complete ordered acquisition/cleanup
+boundary. Materialize publishes an independent pair and never Ends its input;
+Integer input is refused by MIR, runtime and C. Ordinary Text Return/Call ABI,
+borrowed entry execution and Unit argument closure remain open in the same series.

@@ -30,6 +30,9 @@ impl CheckedBindingRebindFrameV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn target(&self) -> BindingRefV1 { self.target }
     pub(crate) fn is_text_residence(&self) -> bool { !matches!(self.destination, BindingRebindDestinationV1::Integer) }
+    pub(crate) fn materializes_root(&self) -> bool {
+        self.is_text_residence() && !self.evaluation.owned_result_nodes().contains(&0)
+    }
     pub(crate) fn previous_text(&self) -> Option<&TextResidenceAcquisitionV1> {
         match &self.destination { BindingRebindDestinationV1::TextResidence(previous) => Some(previous), _ => None }
     }
@@ -89,9 +92,9 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred)
         else { return Ok(None) };
     let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores);
-    // Literal/borrowed roots require the explicit Materialize operation; never
-    // relabel a borrowed operand as an acquisition.
-    if owned_results.contains(&0) != text { return Ok(None); }
+    // The checked purpose materializes non-owning Text roots; evaluation keeps
+    // the original literal/read and its source acquisition set unchanged.
+    if !text && owned_results.contains(&0) { return Ok(None); }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     let frame = Rc::new(CheckedBindingRebindFrameV1 { target: *target, destination,
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(),

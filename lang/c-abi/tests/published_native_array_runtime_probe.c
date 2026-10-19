@@ -141,6 +141,15 @@ uint32_t wrap_string_add(void* f, uint64_t s, const NyrtStringOperandV1* a,
   printf("STRING_ADD %u %u\n", string_adds, status);
   return status;
 }
+uint32_t real_string_materialize(void*, uint64_t, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__real_nyash.string.checked_materialize_v1");
+uint32_t wrap_string_materialize(void*, uint64_t, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__wrap_nyash.string.checked_materialize_v1");
+uint32_t wrap_string_materialize(void* f, uint64_t s, const NyrtStringOperandV1* value, NyrtOwnedStringV1* out) {
+  uint32_t status = real_string_materialize(f, s, value, out);
+  if (!status) observe_string_acquisition(out);
+  return status;
+}
 uint32_t real_string_substring(void*, uint64_t, const NyrtStringOperandV1*, int64_t, int64_t, NyrtOwnedStringV1*)
     __asm__("__real_nyash.string.checked_substring_v1");
 uint32_t wrap_string_substring(void*, uint64_t, const NyrtStringOperandV1*, int64_t, int64_t, NyrtOwnedStringV1*)

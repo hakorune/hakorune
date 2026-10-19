@@ -17,20 +17,21 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-953 owned-root Text rebind landed0ffa4313dc: original destination/acquisition through
-shared expression/assignment writer, exact historical Home publication/read loans,
-BOTH finals and JSON/C/canonical EXE. StringResidenceInstall retains exact old
-replacement; End Fault keeps new pair and never retries old. No second registry.
-Root953F174existing170PASS/4 exact952F baselines;9263names/no added cases/checkers.
-Two existing Rust source slots and existing C Home runtime slot replaced, not added.
-CLI292/FFI953A: both reused Text rebind sources400 EXE/run expected stdout/exit0;
-unchanged mimalloc399 canonical EXE/run exact363. Kernel894A unchanged predecessor.
-OriginalJSON398 still394/unit-value-use/noEXE. Fixed11 5PASS/6FAIL, all6 diagnostic
-lines exact952; four EXEs+empty marker. No suite/CI/full-series green claim.
-Fast ORDINARY-TEXT-CALL-S0: next explicit literal/borrowed Materialize, all-original
-Text Return/CallNormal/borrowed entry/Unit args/cleanup/BOTH finals/JSON/C under950.
-Loop Text Add remains unclaimed; no new frontier prerequisite. No inventory or
-semantic design stop. Full Text/retained rows/finite goal remain open.
+954 explicit Text Materialize connected through checked Rebind purpose, original
+source evaluation, shared Invoke/cleanup/assignment, historical Home publication,
+BOTH finals, JSON/C and canonical EXE. Original values/source acquisitions unchanged;
+separate exact purpose Invoke/NormalResult supplies independent pair; never End input.
+Root954B five focusedPASS;174existing=170PASS/4exact953F baselines;9263same names.
+Existing Rust/runtime/C slots replaced, no added case/parameter/file/checker/hook.
+Runtime954A existing paired ABI testPASS;C selected complete CP slot both routesPASS.
+CLI293/FFI954A/runtime954A: two reused401 sources402 now EXE/run xyz/ab,exit0;
+CLI292 both refused coverage. Unchanged mimalloc406 EXE/run/stdout/stderr/exit exact363.
+OriginalJSON405 still398/unit-value-use/noEXE. Fixed11 is prior953 evidence, not rerun;
+no current suite/CI/whole950/finite-goal completion claim. Probe predecessor runtime
+receipt corrected and explicit954A rerun; redundant404 EXE retired, logs retained.
+Fast ORDINARY-TEXT-CALL-S0: next all-original Text Return/CallNormal/borrowed entry/
+Unit args/cleanup/BOTH finals/JSON/C under950. No inventory or semantic design stop.
+Loop Text Add unclaimed/not an originalJSON prerequisite. All retained rows stay open.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"

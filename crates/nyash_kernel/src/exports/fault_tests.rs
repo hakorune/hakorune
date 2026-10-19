@@ -397,6 +397,8 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         fn checked_end(storage: *mut std::ffi::c_void, site: u64, handle: u64, token: u64) -> u32;
         #[link_name = "nyash.string.checked_length_v1"]
         fn checked_length(storage: *mut std::ffi::c_void, site: u64, value: *const Operand, out: *mut i64) -> u32;
+        #[link_name = "nyash.string.checked_materialize_v1"]
+        fn checked_materialize(storage: *mut std::ffi::c_void, site: u64, value: *const Operand, out: *mut OwnedText) -> u32;
         #[link_name = "nyash.string.checked_substring_v1"]
         fn checked_substring(storage: *mut std::ffi::c_void, site: u64, value: *const Operand,
             start: i64, end: i64, out: *mut OwnedText) -> u32;
@@ -439,11 +441,11 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
     let mut second = sentinel;
     unsafe {
         assert_eq!(
-            checked_add(pointer, 1, &literal(b""), &literal(b""), &mut first),
+            checked_materialize(pointer, 1, &literal(b""), &mut first),
             0
         );
         assert_eq!(
-            checked_add(pointer, 2, &owned(first), &literal(b""), &mut second),
+            checked_materialize(pointer, 2, &owned(first), &mut second),
             0
         );
         assert_ne!(first.handle, second.handle);
@@ -532,7 +534,7 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
             assert_eq!(checked_length(pointer, 25, &bad, &mut scalar), 2);
             assert_eq!(checked_index_of(pointer, 25, &bad, &literal(b""), &mut scalar), 2);
             assert_eq!(checked_index_of(pointer, 25, &owned(base), &bad, &mut scalar), 2);
-            assert_eq!(checked_substring(pointer, 25, &bad, 0, 1, &mut slice), 2);
+            assert_eq!(checked_materialize(pointer, 25, &bad, &mut slice), 2);
             assert_eq!(scalar, 999);
             assert_eq!(slice, sentinel);
         }

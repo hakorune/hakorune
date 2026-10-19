@@ -138,6 +138,17 @@ pub unsafe extern "C" fn length(storage: *mut c_void, _site: u64, value: *const 
     Status::Normal as u32
 }
 
+/// Copy a borrowed Text descriptor into one independent End-authorized pair.
+/// Operand validation and publication use the same owners as the other reads.
+#[export_name = "nyash.string.checked_materialize_v1"]
+pub unsafe extern "C" fn materialize(storage: *mut c_void, site: u64, value: *const Operand,
+    out: *mut OwnedText) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
+    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    unsafe { publish(frame, site, value, out) }
+}
+
 #[export_name = "nyash.string.checked_substring_v1"]
 pub unsafe extern "C" fn substring(storage: *mut c_void, site: u64, value: *const Operand,
     start: i64, end: i64, out: *mut OwnedText) -> u32 {

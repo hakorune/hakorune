@@ -36,6 +36,8 @@ pub enum StringInvokeOperation {
     },
     /// Borrow exact Text operands and publish one Bool, with no owned result.
     Compare { op: crate::mir::CompareOp, left: StringInvokeOperand, right: StringInvokeOperand },
+    /// Borrow Text and publish a fresh independent pair without consuming input.
+    Materialize { value: StringInvokeOperand },
     /// Fixed CodePoint operations; the source issuer retains the exact Core law.
     Length { value: StringInvokeOperand },
     Substring { value: StringInvokeOperand, start: ValueId, end: ValueId },
@@ -48,7 +50,7 @@ pub enum StringInvokeOperation {
 impl StringInvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
         match self {
-            Self::Add { .. } | Self::Substring { .. } => Some(InvokeNormalResultKind::OwnedString),
+            Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } => Some(InvokeNormalResultKind::OwnedString),
             Self::Length { .. } | Self::IndexOf { .. } => Some(InvokeNormalResultKind::I64),
             Self::Compare { .. } => Some(InvokeNormalResultKind::Bool),
             Self::Print { .. } | Self::End { .. } => None,
@@ -56,7 +58,7 @@ impl StringInvokeOperation {
     }
     pub fn effects(&self) -> EffectMask {
         match self {
-            Self::Add { .. } | Self::Substring { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
+            Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
             Self::Length { .. } | Self::IndexOf { .. } | Self::Compare { .. } => EffectMask::READ.add(Effect::Control),
             // Runtime output preparation may allocate; End consumes residence.
             Self::Print { .. } => EffectMask::IO.add(Effect::Alloc).add(Effect::Control),
@@ -67,7 +69,7 @@ impl StringInvokeOperation {
         match self {
             Self::Add { left, right } | Self::Compare { left, right, .. } => vec![left, right],
             Self::IndexOf { value, needle } => vec![value, needle],
-            Self::Length { value } | Self::Substring { value, .. } | Self::Print { value } => vec![value],
+            Self::Materialize { value } | Self::Length { value } | Self::Substring { value, .. } | Self::Print { value } => vec![value],
             Self::End { .. } => vec![],
         }
     }
@@ -86,7 +88,7 @@ impl StringInvokeOperation {
             }
             Self::IndexOf { value, needle } => { value.rewrite_value(&mut rewrite); needle.rewrite_value(rewrite); }
             Self::Substring { value, start, end } => { value.rewrite_value(&mut rewrite); rewrite(start); rewrite(end); }
-            Self::Length { value } | Self::Print { value } => value.rewrite_value(rewrite),
+            Self::Materialize { value } | Self::Length { value } | Self::Print { value } => value.rewrite_value(rewrite),
             Self::End { value } => rewrite(value),
         }
     }
@@ -97,7 +99,7 @@ impl StringInvokeOperation {
         match self {
             Self::Add { left, .. } => left.is_text(),
             Self::Compare { left, right, .. } => left.is_text() && right.is_text(),
-            Self::Length { value } | Self::Substring { value, .. } => value.is_text(),
+            Self::Materialize { value } | Self::Length { value } | Self::Substring { value, .. } => value.is_text(),
             Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
             Self::Print { .. } | Self::End { .. } => true,
         }

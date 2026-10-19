@@ -15,6 +15,7 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     receipt: CompletedVariableAssignmentV1,
     root: ReferenceProducerV1,
     install: Option<Binding>,
+    purpose_acquisition: Option<[Binding; 2]>,
     values: Vec<Option<Operand>>,
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
@@ -35,8 +36,23 @@ impl EmittedBindingRebindProjectionV1 {
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.receipt.assigned() }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(&self) -> &ReferenceProducerV1 { &self.root }
-    fn expected_operand(&self) -> Operand {
-        if self.frame.is_text_residence() { Operand::OwnedString(self.value()) } else { Operand::NormalInteger(self.value()) }
+    fn validate_effective_root(&self) -> Result<(), String> {
+        let expected = if self.frame.is_text_residence() { Operand::OwnedString(self.value()) } else { Operand::NormalInteger(self.value()) };
+        match &self.purpose_acquisition {
+            Some([invoke, normal]) if self.frame.materializes_root() => {
+                let Some(Some(input)) = self.values.first() else { return Err(freeze("rebind-expression/materialize-input")) };
+                if !input.is_text() || !matches!(&invoke.1, MirInstruction::Invoke {
+                    operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
+                    normal_landing, .. } if value == input && *normal_landing == normal.0)
+                    || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: self.value() })
+                    || !self.original.contains(invoke) || !self.original.contains(normal) {
+                    return Err(freeze("rebind-expression/materialize-result"));
+                }
+            }
+            None if !self.frame.materializes_root() && self.values.first() == Some(&Some(expected)) => {}
+            _ => return Err(freeze("rebind-expression/purpose-result")),
+        }
+        Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&Binding> { self.install.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
@@ -52,13 +68,13 @@ impl EmittedBindingRebindProjectionV1 {
     pub(in crate::mir) fn new(frame: Rc<CheckedBindingRebindFrameV1>, receipt: CompletedVariableAssignmentV1,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>, reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
-        entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
+        entry: Binding, terminal: Binding, continuation: Binding, purpose_acquisition: Option<[Binding; 2]>, original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        if receipt.rhs() != receipt.assigned() || values.first() != Some(&Some(if frame.is_text_residence() { Operand::OwnedString(receipt.rhs()) } else { Operand::NormalInteger(receipt.rhs()) })) {
+        if receipt.rhs() != receipt.assigned() {
             return Err(freeze("rebind-expression/assignment-result"));
         }
-        let root = if let Some(reference) = reference_reads.get(&0) {
+        let root = if let Some(reference) = reference_reads.get(&0).filter(|_| purpose_acquisition.is_none()) {
             reference.result_producer_v1(receipt.rhs())?
         } else {
             let mut definitions = original.iter().filter(|(_, row)| row.dst_value() == Some(receipt.rhs()));
@@ -67,11 +83,12 @@ impl EmittedBindingRebindProjectionV1 {
             ReferenceProducerV1::Definition(root.clone())
         };
         let install = original.iter().find(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).cloned();
-        let packet = Self { frame, receipt, root, install, values, calls, path_reads, reference_reads,
+        let packet = Self { frame, receipt, root, install, purpose_acquisition, values, calls, path_reads, reference_reads,
             entry, terminal, continuation, original };
         let context = CallValidationContextV1::Lowering(ledger);
         let covered = packet.validate_paths(context, function, None)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
+        if let Some(pair) = &packet.purpose_acquisition { ordered.extend(pair.iter().cloned()); }
         if let Some(install) = &packet.install { ordered.push(install.clone()); }
         ordered.push(packet.terminal.clone());
         packet.expression().validate_original_scope(ledger, function, &covered, &packet.entry,
@@ -94,8 +111,8 @@ impl EmittedBindingRebindProjectionV1 {
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let selected = context.ledger().rebind_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?
             .ok_or_else(|| freeze("rebind-expression/source-missing"))?;
-        if !Rc::ptr_eq(&selected, &self.frame) || self.receipt.rhs() != self.receipt.assigned()
-            || self.values.first() != Some(&Some(self.expected_operand())) {
+        self.validate_effective_root()?;
+        if !Rc::ptr_eq(&selected, &self.frame) || self.receipt.rhs() != self.receipt.assigned() {
             return Err(freeze("rebind-expression/source-or-value"));
         }
         if !self.receipt.matches_rebind_frame_v1(&self.frame) { return Err(freeze("rebind-expression/target-name")); }
@@ -106,7 +123,7 @@ impl EmittedBindingRebindProjectionV1 {
         }
         let displaced = context.ledger().text_rebind_displaced_end_v1(&self.frame)?;
         let covered = self.expression().validate_rebind_continuation_v1(context, function, finishing,
-            &self.entry, &self.terminal, &self.continuation, self.install.as_ref(), displaced.as_ref())?;
+            &self.entry, &self.terminal, &self.continuation, self.install.as_ref(), displaced.as_ref(), self.purpose_acquisition.as_ref())?;
         Ok(covered)
     }
 }
