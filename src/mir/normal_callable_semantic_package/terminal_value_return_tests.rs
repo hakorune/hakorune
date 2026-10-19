@@ -136,9 +136,10 @@ fn parameter_handle_return_issues_borrowed_value_relation() {
 #[test]
 fn non_i64_literal_returns_issue_value_relations() {
     for (body, expected) in [
-        ("return \"s\"", TerminalReturnedSourceV1::StringLiteral),
-        ("return null", TerminalReturnedSourceV1::NullLiteral),
-        ("return 1.5", TerminalReturnedSourceV1::FloatLiteral),
+        ("return \"s\"", Some(TerminalReturnedSourceV1::StringLiteral)),
+        ("return null", Some(TerminalReturnedSourceV1::NullLiteral)),
+        ("return 1.5", Some(TerminalReturnedSourceV1::FloatLiteral)),
+        ("local text = \"a\" + \"b\" text = text + \"c\" return text", None),
     ] {
         let package = issue(&work_program(&format!("local m = %{{\"k\" => 1}} {body}")))
             .expect("literal return package");
@@ -146,7 +147,26 @@ fn non_i64_literal_returns_issue_value_relations() {
         let Some(TerminalRelationV1::Value(relation)) = contract.sole_terminal_relation() else {
             panic!("literal return issues a Value relation: {body}");
         };
-        assert_eq!(relation.returned(), &expected, "{body}");
+        if let Some(expected) = expected {
+            assert_eq!(relation.returned(), &expected, "{body}");
+        } else {
+            let TerminalReturnedSourceV1::TextResidence { binding, acquisition } = relation.returned() else {
+                panic!("owned Text return retains its current acquisition");
+            };
+            assert_eq!(*binding, acquisition.binding());
+            assert!(acquisition.rebind_origin_v1().is_some(), "return reads the latest residence");
+            let homes = contract.completion().cleanup().root_flow().unwrap().terminal_homes().unwrap();
+            assert!(homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone())),
+                "returned Text remains available if sibling cleanup faults");
+            let projection = package.ordinary_new_claim_ledger
+                .normal_exit_projection_v1(relation.owner(), relation.return_site()).unwrap().unwrap();
+            assert_eq!(projection.fault_homes(), homes);
+            assert_eq!(projection.homes().len() + 1, homes.len());
+            assert!(!projection.homes().iter().any(|home| home.binding() == acquisition.binding()),
+                "only successful Normal exit transfers the returned residence");
+            assert_eq!(super::direct_call_loan::lifecycle::call_result_kind(Some(&TerminalRelationV1::Value(relation.clone()))), None,
+                "source relation alone cannot grant an I64 or ordinary owned-pair ABI");
+        }
     }
 }
 

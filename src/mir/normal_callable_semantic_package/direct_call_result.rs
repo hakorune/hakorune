@@ -23,6 +23,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
         Some(TerminalRelationV1::BoolLiteral(_)) => Some(InvokeCallResultKind::Bool),
         Some(TerminalRelationV1::OpaqueCall(_)) => None,
         Some(TerminalRelationV1::Value(row)) => match row.returned() {
+            // A Text source relation does not grant the ordinary call's
+            // owned-pair ABI. Keep it closed until that transfer is admitted.
+            TerminalReturnedSourceV1::TextResidence { .. } => None,
             TerminalReturnedSourceV1::BorrowedNullableLocal(_) => None,
             TerminalReturnedSourceV1::Construction(_) => Some(InvokeCallResultKind::Handle),
             TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_) => {

@@ -162,6 +162,28 @@ impl OrdinaryNewClaimLedgerV1 {
         let disposition = dispositions.get(&(owner, exit.clone()));
         let homes = match relation {
             TerminalRelationV1::Value(value)
+                if matches!(value.returned(), TerminalReturnedSourceV1::TextResidence { .. }) =>
+            {
+                let TerminalReturnedSourceV1::TextResidence { binding, acquisition } = value.returned() else {
+                    unreachable!()
+                };
+                let returned = LiveHomeV1::Text(acquisition.clone());
+                if disposition.is_some() || binding.owner() != owner
+                    || acquisition.binding().owner() != owner || acquisition.source().owner() != owner
+                    || !acquisition.owns_root() || !acquisition.is_text_residence()
+                    || value.value_site().node() != &crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
+                        .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).node()
+                    || original.homes().iter().filter(|home| home.binding() == acquisition.binding()).count() != 1
+                    || !original.homes().contains(&returned)
+                {
+                    return Err(freeze("projection-proof-identity"));
+                }
+                // Transfer commits at Return after every Normal cleanup has
+                // succeeded. The SAME source residence remains in the original
+                // Fault list so a sibling cleanup failure still discharges it.
+                Cow::Owned(original.homes().iter().filter(|home| *home != &returned).cloned().collect())
+            }
+            TerminalRelationV1::Value(value)
                 if matches!(value.returned(), TerminalReturnedSourceV1::OwnedCall(_)) =>
             {
                 let TerminalReturnedSourceV1::OwnedCall(obligation) = value.returned() else {

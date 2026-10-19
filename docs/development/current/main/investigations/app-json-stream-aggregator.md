@@ -5,11 +5,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 
 ## Current measurement
 
-- Latest fixed suite with linear ABI extraction/per-invocation grounding reuse:
-  6PASS/5FAIL, actual EXE5 + empty marker1, no SKIP, duration657.431s.
-  Matching quick opt0 CLI42.89s, quick runtime and C FFI; no Cargo overlap.
-- mimalloc PASS205.577s; typed-newbox196.124s →37.816s. Allocator still timeout300s.
-  Prior pre-extraction suite: 5PASS/6FAIL/1392.243s; Array-transfer suite: 7PASS/4FAIL.
+- Latest fixed suite, source Loop If/SSA commit: 7PASS/4FAIL, actual EXE6 +
+  empty marker1, no SKIP/timeout, duration452.253s. Matching quick opt0 CLI34.70s,
+  quick runtime/private C FFI frozen for the run; no Cargo overlap.
+- mimalloc PASS139.093s; allocator PASS160.642s; four typed EXEs PASS37–39s each.
+  Previous official suite: 6PASS/5FAIL/657.431s, including allocator timeout300s.
 - Same allocator smoke: prior build-timeout300s → input-census sharing267.063s PASS
   → cohort/selection folding160.247s PASS (-40% total). Matching CLI43.24s; no Cargo/profiler overlap.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
@@ -23,7 +23,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Next: ordinary owned String Call/Return using the existing `{handle, End token}`
   representation. Move the exact callee residence only on Normal; caller Ends once
   after readonly ingest borrowing, including Fault. Do not coerce String to I64/object.
-- Fixed suite is being remeasured against this CLI; prior official result above remains.
+- Later Text Return source retains the latest acquisition; Normal excludes exactly
+  that residence, while Fault keeps it for sibling-cleanup failure. No ABI permission yet.
+- Matching Text-source CLI50.24s: same argument frame stop, no artifact. Focused33PASS;
+  qualified-return2 and Raw Loop residual1 reproduce pre-Text. Existing case protects Normal/Fault; no new tests.
 - Other reds: untyped-field execution permission, binary-trees source-not-i64, boxtorrent receiver-unavailable.
 
 ## Current priority and measurement interpretation

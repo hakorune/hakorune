@@ -40,6 +40,13 @@ pub(crate) enum TerminalReturnedSourceV1 {
     Construction(OwnedExprSiteV1),
     /// `return "<literal>"` — a string literal value.
     StringLiteral,
+    /// Exact read of the current owned Text acquisition. The original exit
+    /// keeps this residence live for Fault cleanup; Normal transfer is a
+    /// downstream disposition, never an Object Home or a new acquisition.
+    TextResidence {
+        binding: BindingRefV1,
+        acquisition: crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
+    },
     /// `return null` — the null literal value.
     NullLiteral,
     /// `return <float>` — a float literal value.
@@ -153,6 +160,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_returned_sou
         return Some(TerminalReturnedSourceV1::BorrowedNullableLocal(Box::new(
             loan.clone(),
         )));
+    }
+    if let Some((binding, root, acquisition)) = locals.text_reference(site) {
+        if root == acquisition.binding() && acquisition.owns_root()
+            && acquisition.is_text_residence()
+        {
+            return Some(TerminalReturnedSourceV1::TextResidence { binding, acquisition });
+        }
+        return None;
     }
     let OrdinaryObservation::Handle(root) = locals.observe(site)? else {
         return None;

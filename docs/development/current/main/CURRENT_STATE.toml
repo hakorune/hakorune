@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Loop If/SSAを最終consumerまで接続、既存focused247件PASS。
-matching quick opt0 CLI34.70秒。JSONはMain.mainのingest引数Main.sampleStream()で停止。
-次は通常関数のowned String Call/Return。既存handle＋End tokenをNormal時だけ移す。
-最新確定suite6PASS/5FAIL（実EXE5＋marker1）。現在のIf世代を再計測中。
-allocator単独160.247秒PASS。opaque整数引数/Return案はGit stash保持、未受理。
+APP-json-stream-aggregator: If/SSA接続済。Text Returnの元取得源とNormal/Fault分離を接続。
+Text focused33PASS/3既存赤（変更前再現）、If世代focused247PASS。ABIは未接続。
+matching CLI50.24秒。JSONはMain.mainのingest引数Main.sampleStream()で停止、EXE未生成。
+次は同Static result originとowned String pair ABI。opaque整数案はGit stash保持。
+If世代suite7PASS/4FAIL（実EXE6＋marker1）、452.3秒、SKIP/timeoutなし。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: Source Loop If/SSA at 2e7b1b1dc0 — fixed suite7 PASS/4 FAIL, 6 actual EXEs plus empty marker1, no SKIP/timeout, duration452.253s. Matching quick opt0 CLI34.70s and frozen quick runtime/private C FFI; build/run300s, no Cargo overlap. mimalloc139.093s and allocator160.642s PASS. JSON advances to Main.sampleStream owned String argument frame; source-slot, binary-trees and boxtorrent reds remain. Later Text return WIP is not part of this measurement.",
   "2026-10-20: Per-operation original-input cohort and selection folding — unchanged allocator_stress_exe standalone PASS160.247s versus267.063s at common Call landing, about40% less total smoke time; earlier build-timeout300s. Matching quick opt0 CLI build43.24s, same quick runtime/private C FFI, build/run300s, no Cargo/profiler overlap. Smoke total includes compile/link/run; phase timings were not captured separately. Existing focused176 and original-root refusal PASS; no test functions/hooks/cache added. Fixed suite remains last measured6 PASS/5 FAIL; JSON If stop unchanged.",
   "2026-10-20: Call WIP with sequential ABI archive traversal and per-invocation scalar grounding reuse — fixed real-apps-exe-boundary 6 PASS / 5 FAIL, 5 actual EXEs plus empty marker1, no SKIP, duration657.431s. Matching quick opt0 CLI build42.89s, selected quick runtime and matching production C FFI, outer1900/build/run300s, no Cargo overlap. mimalloc PASS205.577s; typed newbox196.124s to37.816s. Allocator still build-timeout300s; JSON If, source-slot, binary-trees and boxtorrent stops persist. Later fixture/profile edits and field-read loan sharing are not part of this measurement.",
-  "2026-10-20: real-apps-exe-boundary at Array transfer source admission 3ecdca645d — 7 PASS / 4 FAIL; 6 actual EXEs plus 1 empty marker; allocator and mimalloc PASS, no SKIP/timeout. Matching quick CLI (build210s), selected quick lifecycle runtime and production Bool-equality C FFI; outer1900/build/run300s; suite1149.982s. JSON Loop, binary-trees borrowed-result and boxtorrent stored-child stops remain; sentinel precheck now owned-field-write/original-source, no artifact. Later runtime changes are not part of this measurement.",
 ]
