@@ -1,10 +1,10 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "source-loop/v2/source Loop has an unavailable path"
-current_design_stop = "none"
+current_design_stop = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,20 +13,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
+current_execution_design = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+latest_card = "app-json-stream-aggregator"
+latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: ingest Loop（145行）のCall初期化（146行）/文（151行）に実行actionが不足。
-allocator-stressは未変更canonical EXE smokeと固定suite内でPASS、Bool Eq/NeのC接続が着地。
-正式suite7PASS/4FAIL、実EXE6＋marker1、mimalloc PASS、SKIP/timeoutなし。
-untyped-fieldは既存D0受理までParkedSealed。JSON後段の未注釈slot/Map依存も保持。
-原文Bool Return・Text実引数の不足接続は解消。次は同じCall packetをLoopへ接続。既存赤はcard参照。
+APP-json-stream-aggregator: Loop Call初期化/文が未接続。未検証の自分の変更はGit stashで保持。
+残り3実アプリ＋untyped sentinelの共通storage契約を既存D0で先に決着する。
+既存dynamic仕様を維持するtagged slotを設計方向に選択。完全な契約受理まで実装未許可。
+正式suite7PASS/4FAIL、実EXE6＋marker1、SKIP/timeoutなし。mimallocの計測上の改善理由はcard参照。
+次はslot初期状態・所有/alias・置換/失敗・checked readを既存Home契約と両consumerへ結ぶ。
 """
 next_design_card = "APP-json-stream-aggregator"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
-next_execution_card = "APP-json-stream-aggregator"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
+next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+next_execution_card = "none (until common untyped-storage D0 contract acceptance)"
+next_execution_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

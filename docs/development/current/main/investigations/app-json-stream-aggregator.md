@@ -1,6 +1,6 @@
 # APP-json-stream-aggregator
 
-Status: selected after allocator-stress canonical EXE landing.
+Status: common untyped-storage design decision first; JSON remains the selected app.
 Date: 2026-10-19
 Scope: unchanged JSON app, existing Loop/Text owners, canonical physical EXE.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
@@ -25,6 +25,22 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   retain its real I64 result as well as the later discarded Bool result.
 - Other reds remain explicit: untyped-field phase84 inference panic,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
+
+## Current priority and measurement interpretation
+
+- [Common storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md) is now the
+  immediate semantic decision for three real apps plus the untyped sentinel.
+  Tagged dynamic preserves existing EBNF; initial state/ownership/replacement/reads still
+  need a complete accepted contract. No dynamic storage implementation is authorized yet.
+- `mimalloc-lite` suite PASS includes a harness correction: an obsolete generic JSON
+  all-Invoke refusal precheck was removed; production compiler/app behavior was unchanged.
+  The canonical EXE already worked. Route/toolchain/artifact/no-replay/output/exit checks remain.
+- Existing publication tests cover generic profile rejection of four object-lifecycle
+  programs and positive Static I64 Invoke transport. They do not reproduce the same
+  mimalloc import closure or assert every unsupported Invoke subtype. Do not describe
+  this as a new runtime capability or an identical negative test transfer.
+- Own unverified Loop Call source edits are saved in Git stash under
+  `JSON Loop Call source connection pending common storage decision`; not built/tested.
 
 ## Next source connection
 
@@ -62,32 +78,17 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - JSON's later untyped UserStats/aggregator slots and Map remain explicit dependencies.
   This selection does not accept dynamic-slot semantics or promise a D0-free whole-app PASS.
 
-## Allocator landing and verification
+## Retained verification obligations
 
-- Unchanged `allocator_stress_exe.sh` passes alone and within the fixed suite:
-  physical lifecycle V4 / LLVM C API, actual executable, no compat replay, exact output
-  and exit0: requested_bytes=454, outstanding=12, rejects=4, summary=ok.
-- Its final C refusal was Bool Eq for original `heap.release(small_handles.get(1)) == false`.
-  Existing indexed admission now accepts only Bool/Bool Eq/Ne; the existing 0/1 carrier
-  and Compare emitter are reused. Mixed Bool/I64 and Bool ordering still refuse.
-- Existing C execution matrix adds only Bool Eq/Ne and three mixed/ordering refusals:
-  this independent physical C boundary is not protected by Rust source checks.
-  These cases and all preceding execution checks PASS; no new test function/file or hook.
-- Full C matrix stops at existing tagged-add negative case13: expected refusal is absent
-  with both the prior unchanged C library and the new one. Keep this red open and verify
-  its source/physical contract; later artifact/failure tail checks were not reached.
-- Matrix runtime selection now honors the same explicit lifecycle directory as the smoke.
-  Default root archive lacks checked_residence_set; runtime semantics/ABI are unchanged.
-- Earlier SSA/handoff/result-protocol, Array teardown and synthetic-callee reds remain open;
-  their reproduction details and allocator owner connections remain in this path's Git history.
-  Prior root test list9263 is unchanged; no Rust rebuild was required for the C-only landing.
-- Worker reviewed the C admission/matrix change read-only, no Cargo; diff/pointer checks PASS.
-  Production FFI is retained for later smokes. Owned debug/replay binaries were discarded;
-  no production adapter, new checker, guard, refusal token or app workaround was introduced.
+- Allocator and mimalloc physical EXEs pass unchanged. Allocator's Bool Eq/Ne C admission
+  retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
+  by the pre-existing tagged-add negative. Earlier SSA/handoff/Array teardown/synthetic
+  callee reds remain open; implementation details are retained in this file's Git history.
+- No app workaround, silent retry, new checker/test file or runtime adapter was introduced.
 
 ## Completion obligations
 
 - Existing JSON smoke must satisfy every artifact/run/output/negative contract unchanged.
-- Untyped-slot D0 stays ParkedSealed, implementation_permission=false until explicit acceptance.
+- Common untyped-slot D0 is ReopenedDesign; implementation_permission=false until full acceptance.
 - Retire replaced exclusive edges when caller/validation closure holds; retain shared owners.
 - Fixed acceptance, final pipeline switching/retirement and the full goal remain incomplete.

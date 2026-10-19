@@ -9,7 +9,8 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
 ## 現在地
 
 - `APP-mimalloc-lite`は着地。単体smoke約163秒、固定suite内約147秒でPASS。
-- 固定suiteは6PASS/5FAIL。PASS内訳は実EXE5本と空marker1本、SKIP/timeoutなし。
+- 着地時の固定suiteは6PASS/5FAIL。PASS内訳は実EXE5本と空marker1本、SKIP/timeoutなし。
+  最新の公式suite結果はCURRENT_STATEのlanded_tailを参照。
 - 変更前はgeneric JSON precheckが`required-integer-source-unproved`で停止した。
   EXEはClosedAppExecutable、generic JSONは未使用importも含むAllSourceという違いがあった。
 
@@ -17,8 +18,10 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
 
 - generic JSONは既にStatic I64 Invokeを受理する。旧「全Invoke拒否」の前提は不一致。
 - アプリsmokeから古いserializer precheckを削除。V4・LLVM C API・no replay・EXE存在・全出力/exit確認は維持。
-- その境界は既存source-publication testに統合：Static I64の実JSON出力成功と、object lifecycleのgeneric profile拒否。
+- profile境界は既存source-publication testで確認：Static I64の実JSON出力成功と、4本のStoreプログラムのgeneric profile拒否。
+  同じmimallocの全import closureや全unsupported Invoke subtypeを移した検証ではない。
   既存sourceケースを使い、test名・入力ケース・file・hook・checkerを追加しない。
+- EXE自体は変更前から成功。suite PASSへの改善はharness修正であり、新しいコンパイラ能力の獲得には数えない。
 - build timeout300秒とrun timeout120秒を分離。以前のbuild/run共通120秒は実測のEXE生成時間より短かった。
 - Integer証拠、AllSource受理範囲、production Rust、アプリsourceは変更しない。
 
@@ -34,7 +37,7 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
 - `bash tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 600`
   はsource一致のquick CLI、既存lifecycle runtime/C APIで完了。全体終了値1、約579秒。
   対象revisionは`751dae566b`。赤はuntyped-field、binary-trees、boxtorrent、allocator、JSON。
-- untyped-fieldはユーザー判断で既存D0のParkedSealedを維持。次はallocator-stress。
+- 当時の次対象はallocator-stress。現在の共通storage判断は[既存D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md)を参照。
 
 ## 保持する未完条件
 
