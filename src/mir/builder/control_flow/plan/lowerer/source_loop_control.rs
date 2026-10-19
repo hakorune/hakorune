@@ -11,7 +11,7 @@ impl EmittedSourceLoopGraphV2 {
         if self.result.original().0 != self.after || !matches!(self.result.original().1,
             MirInstruction::Const { value: crate::mir::ConstValue::Void, .. }) { return Err(reject("loop-result")); }
         if self.frames.len() != self.product.schedule().frames().len()
-            || self.appends.len() != self.product.schedule().blocks_array_appends_v2().count()
+            || self.effects.len() != self.product.schedule().blocks_array_appends_v2().count()
             || self.frames.iter().enumerate().any(|(index, frame)| frame.index != index) {
             return Err(reject("frame-census"));
         }
@@ -82,20 +82,21 @@ impl EmittedSourceLoopGraphV2 {
         let mut cursor = entry;
         for step in steps {
             if let Step::OwnedArrayAppend { site, observation, .. } = step {
-                let mut rows = self.appends.iter().filter(|row| &row.site == site);
+                let mut rows = self.effects.iter().filter(|row| &row.site == site);
                 let row = rows.next().ok_or_else(|| reject("array-append-missing"))?;
                 let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
                     source, call, candidate, ..
                 } = observation else { return Err(reject("array-append-source")); };
-                let continuation = row.packet.normal_continuation_binding();
-                if rows.next().is_some() || row.entry != cursor || row.packet.source().site() != call
-                    || !row.packet.source().matches_original_v1(source, candidate)
+                let packet = row.packet.owned_array_append().ok_or_else(|| reject("array-append-source"))?;
+                let continuation = packet.normal_continuation_binding();
+                if rows.next().is_some() || row.entry != cursor || packet.source().site() != call
+                    || !packet.source().matches_original_v1(source, candidate)
                     || !matches!(&continuation.1, MirInstruction::Jump { target, edge_args: None } if *target == row.end)
                     || function.blocks.get(&continuation.0).and_then(|block| block.terminator.as_ref()) != Some(&continuation.1)
                     || !crate::mir::verification::utils::compute_dominators(function)
-                        .dominates(row.entry, row.packet.invoke_binding().0)
+                        .dominates(row.entry, packet.invoke_binding().0)
                     || !crate::mir::verification::utils::compute_dominators(function)
-                        .dominates(row.entry, row.packet.candidate_entry_binding().0) {
+                        .dominates(row.entry, packet.candidate_entry_binding().0) {
                     return Err(reject("array-append-sequence"));
                 }
                 cursor = row.end;

@@ -18,7 +18,7 @@ pub(super) fn emit_array_append(
     builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
     statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     observation: &crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1,
-) -> Result<Rc<crate::mir::normal_callable_semantic_package::EmittedOwnedArrayAppendV1>, String> {
+) -> Result<crate::mir::normal_callable_semantic_package::RootLifecyclePrefixBindingGroupV1, String> {
     let input = input(port, product)?;
     let site = OwnedExprSiteV1::new(input.owner(),
         crate::mir::resolved_semantics::SourceExprSiteV1::from_node(statement.node().clone()));
@@ -38,7 +38,8 @@ pub(super) fn emit_array_append(
         if !packet.source().matches_original_v1(holder, candidate) {
             return Err(freeze("array-append-source-drift"));
         }
-        Ok(packet)
+        port.ordinary_new_claim_ledger.as_ref().ok_or_else(|| freeze("claim-ledger-missing"))?
+            .source_loop_effect_group_v2(product, &site)
     })
 }
 

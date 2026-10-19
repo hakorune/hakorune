@@ -10,9 +10,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Current measurement
 
 - Fixed `real-apps-exe-boundary`: 7PASS/4FAIL, actual EXE6 + empty marker1;
-  mimalloc and allocator PASS, no SKIP/timeout, duration764.0s.
-  Measured this Bool-equality landing tree using the quick CLI from `aef8645ec7`
-  (Rust unchanged), explicitly selected lifecycle runtime and rebuilt production C FFI.
+  mimalloc and allocator PASS, no SKIP/timeout, duration783.522s.
+  Measured literal-source admission `23ff510a8b` with its matching quick CLI,
+  explicitly selected lifecycle runtime and production Bool-equality C FFI.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
 - JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
@@ -21,6 +21,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   is line151 `me.ingestLine(stream.substring(start, end))`. No artifact is generated.
   On the current source-admission tree, incoming and Mul gates are cleared; debug
   reports `source expression has no checked execution root`, path=None, in this Loop.
+  The scanner also lacks a Call action for line146 `local end = JsonLine.find(...)`;
+  retain its real I64 result as well as the later discarded Bool result.
 - Other reds remain explicit: untyped-field phase84 inference panic,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
@@ -32,10 +34,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   `find`/`intField` loops. `ingestLine` returns original Bool literals false/false/true.
 - Existing debug mode now retains owner/function/site and scalar incoming context.
   Refusal selection and the default-off debug setting are unchanged.
-- Instance actual preparation and independent reconstruction/revalidation are separated
-  behind the existing API. Static Core argument validation has one shared source owner.
-  Existing Instance source tests4 and Core source tests2 PASS on the combined WIP;
-  moving the validation bodies was checked against their original definitions.
+- Instance actual preparation and independent revalidation are separated behind existing
+  APIs; Static/Instance Core argument checks share one source owner.
+- Loop physical effects now borrow the SAME existing child group/Append packet from the
+  exact parent, preserving source/continuation/finished checks without a separate Call map.
+  `source_loop`13PASS/1FAIL matches the saved pre-change binary; source walk1 and Array
+  lifetime5 PASS. The existing `count_at` source-Loop failure stays open.
 - Uniform original I64/Bool literal Return census now survives parameterized source
   qualification and independent final result checking. Existing borrowed-use family is
   preserved; no input, Completion or Invoke ABI permission is inferred from that census.
@@ -51,8 +55,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Reuse `home_prefix_source_loop*` source header/control/expression inventory,
   `produce_source_loop_recipe_v2`, and existing execution/schedule and expression writers.
   Landed Text, Bool, BranchNormal and argument owners supply existing contracts.
-- Next connect this statement as a Call action in the existing source Loop tree,
-  schedule, physical Call writer and final child-packet verification. Its substring
+- Next connect both Local and Discard as Call actions in the existing source Loop tree,
+  schedule, physical Static/Instance writers and final child-packet verification. Its substring
   argument belongs inside that SAME Call packet; do not turn it into an expression root.
   Preserve Normal/Fault argument cleanup and original Homes; no backend inference or app edit.
 - JSON's later untyped UserStats/aggregator slots and Map remain explicit dependencies.

@@ -91,6 +91,18 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(bindings)
     }
 
+    pub(in crate::mir) fn check_raw_effect_v2(&self, context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        self.validate_recorded_in_context(context, function, None)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn same_effect_packet_v2(&self, other: &Self) -> bool {
+        self.site == other.site && self.bindings == other.bindings && self.projected == other.projected
+            && matches!((&self.proof, &other.proof),
+                (PrefixPhysicalProofV1::OwnedArrayAppend(a), PrefixPhysicalProofV1::OwnedArrayAppend(b)) if Rc::ptr_eq(a, b))
+    }
+
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }

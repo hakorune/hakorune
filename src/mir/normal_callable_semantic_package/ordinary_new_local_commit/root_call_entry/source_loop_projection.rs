@@ -75,6 +75,27 @@ impl LifecyclePrefixDestinationV2 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow the existing child group from this exact open Loop parent. The
+    /// sole writer already committed it; no second packet or registry is issued.
+    pub(in crate::mir) fn source_loop_effect_group_v2(&self, product: &Rc<Product>,
+        site: &OwnedExprSiteV1,
+    ) -> Result<RootLifecyclePrefixBindingGroupV1, String> {
+        CallValidationContextV1::Lowering(self).with_local_call_group_tree_v2(site.owner(), |groups| {
+            let mut parents = groups.iter().filter_map(|group| group.source_loop_rc())
+                .filter(|parent| Rc::ptr_eq(parent.product(), product));
+            let parent = parents.next().ok_or_else(|| freeze("source-loop/parent-missing"))?;
+            if parents.next().is_some() { return Err(freeze("source-loop/parent-duplicate")); }
+            let children = parent.snapshot();
+            let mut matching = children.iter().filter(|group| group.site() == site);
+            let group = matching.next().ok_or_else(|| freeze("source-loop/frame-source"))?;
+            if matching.next().is_some() || !parent.expected.iter().any(|source|
+                source.site() == site && group.matches_source(source)) {
+                return Err(freeze("source-loop/frame-source"));
+            }
+            Ok(group.clone())
+        })
+    }
+
     /// Open at the sole selected Loop entry, before its condition/body descend.
     /// Reopening or attaching a reissued equal product is never a retry.
     pub(in crate::mir) fn open_source_loop_prefix_v2(&self, product: Rc<Product>) -> Result<(), String> {

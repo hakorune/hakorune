@@ -9,15 +9,15 @@ impl EmittedSourceLoopProjectionV2 {
     ) -> Result<Vec<RootLifecyclePrefixBindingGroupV1>, String> {
         let children = self.snapshot();
         if !Rc::ptr_eq(self.product(), &graph.product) || children.len() != self.expected.len()
-            || children.len() != graph.frames.len() + graph.appends.len() { return Err(freeze("source-loop/frame-census")); }
+            || children.len() != graph.frames.len() + graph.effects.len() { return Err(freeze("source-loop/frame-census")); }
         let mut index = 0;
         for (child, expected) in children.iter().zip(&self.expected) {
             if let LifecyclePrefixSourceV1::OwnedArrayAppend { site, holder, candidate, .. } = expected {
                 let packet = child.owned_array_append().ok_or_else(|| freeze("source-loop/append-packet"))?;
-                let mut rows = graph.appends.iter().filter(|row| row.packet.source().site() == site);
+                let mut rows = graph.effects.iter().filter(|row| row.packet.site() == site);
                 let row = rows.next().ok_or_else(|| freeze("source-loop/append-source"))?;
                 if rows.next().is_some() || !child.matches_source(expected)
-                    || !std::ptr::eq(packet, row.packet.as_ref()) || !packet.source().matches_original_v1(holder, candidate) {
+                    || !child.same_effect_packet_v2(&row.packet) || !packet.source().matches_original_v1(holder, candidate) {
                     return Err(freeze("source-loop/append-source"));
                 }
                 child.check_physical_bindings_v1(function, finishing)?;
