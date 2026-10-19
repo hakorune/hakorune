@@ -74,9 +74,7 @@ impl ArrayElementSourceLoanV1 {
         let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(None);
         };
-        let loan = NamedArrayHolderSourceLoanV1 {
-            requirement: Rc::clone(&self.requirement),
-        };
+        let loan = NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(&self.requirement));
         let mut initializer = None;
         let mut appends = Vec::new();
         for observation in flow.named_arrays() {
@@ -187,7 +185,7 @@ impl ArrayHolderLifecycleRecipeV1 {
         Ok(ends)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn holder_source_loan_v1(&self) -> NamedArrayHolderSourceLoanV1 {
-        NamedArrayHolderSourceLoanV1 { requirement: Rc::clone(&self.source.requirement) }
+        NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(&self.source.requirement))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         source: &ArrayElementSourceLoanV1,

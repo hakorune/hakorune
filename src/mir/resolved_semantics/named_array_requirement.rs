@@ -30,7 +30,7 @@ pub(crate) enum NamedArrayRequirementIssueV1 {
 /// Exact original named construction identity, not a provider capability.
 /// Both write and read source consumers borrow this same issuer; operation,
 /// element ownership and physical representation remain separate requirements.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NamedArrayConstructionSourceV1 {
     owner: FunctionOwnerIdV1,
     construction: SourceExprSiteV1,

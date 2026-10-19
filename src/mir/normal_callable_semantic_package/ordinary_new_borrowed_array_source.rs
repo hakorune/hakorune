@@ -35,26 +35,29 @@ pub(in crate::mir::normal_callable_semantic_package) struct ArrayProducerPlanV1 
 /// stays in the same requirement; this loan grants no construction/End execution.
 #[derive(Debug, Clone)]
 pub(crate) struct NamedArrayHolderSourceLoanV1 {
+    construction: NamedArrayConstructionSourceV1,
     requirement: Rc<ArrayElementSourceRequirementV1>,
 }
 impl PartialEq for NamedArrayHolderSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.requirement, &other.requirement)
+        self.construction == other.construction && Rc::ptr_eq(&self.requirement, &other.requirement)
     }
 }
 impl Eq for NamedArrayHolderSourceLoanV1 {}
 impl NamedArrayHolderSourceLoanV1 {
+    fn from_requirement(requirement: Rc<ArrayElementSourceRequirementV1>) -> Self {
+        Self { construction: requirement.holder().construction().clone(), requirement }
+    }
     pub(crate) fn append_candidate_is_null_v1(&self, call: &OwnedExprSiteV1) -> Option<bool> {
         if call.owner() != self.binding().owner() { return None; }
         self.requirement.holder().appends().iter().find(|row| row.call() == call.site())
             .map(|row| row.null_candidate())
     }
     pub(crate) fn binding(&self) -> BindingRefV1 {
-        self.requirement.holder().construction().binding()
+        self.construction.binding()
     }
     pub(crate) fn construction(&self) -> OwnedExprSiteV1 {
-        let source = self.requirement.holder().construction();
-        OwnedExprSiteV1::new(source.owner(), source.construction().clone())
+        OwnedExprSiteV1::new(self.construction.owner(), self.construction.construction().clone())
     }
     pub(crate) fn append_candidate(&self, call: &OwnedExprSiteV1) -> Option<OwnedExprSiteV1> {
         if call.owner() != self.binding().owner() {
@@ -108,9 +111,7 @@ impl PreparedBorrowedFormalIngressV1 {
             if !Rc::ptr_eq(requirement, current) {
                 return Err(freeze("array-holder/current-source-drift"));
             }
-            let loan = NamedArrayHolderSourceLoanV1 {
-                requirement: Rc::clone(requirement),
-            };
+            let loan = NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(requirement));
             let matches = if initializer {
                 loan.binding() == binding && loan.construction() == *site
             } else {

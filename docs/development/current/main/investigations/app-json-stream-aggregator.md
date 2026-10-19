@@ -18,10 +18,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Incoming/Mul gates cleared; debug: `source expression has no checked execution root`.
   Scanner also lacks line146 Local Call `end = JsonLine.find(...)`; retain its I64
   result as well as the later discarded Bool result.
-- With that CLI, sentinel precheck exits1; direct canonical EXE exits101 at
-  phase84 ValueId(14), no artifact. The generic JSON negative pin is retained;
-  known-empty source retention does not grant Dynamic execution/read permission.
-- Other reds remain explicit: untyped-field phase84 inference panic,
+- At writer source admission, matching quick CLI (build210s) keeps JSON's stop;
+  sentinel precheck/direct EXE both exit1 at owned-field-write/original-source:
+  the I64 execution lease rejects Dynamic. No artifact; generic negative pin retained.
+- Other reds remain explicit: untyped-field execution permission missing,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
 ## Current priority and measurement interpretation
@@ -75,8 +75,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   by typed cases; no new test functions/files. Focused27 PASS/2 known field-read reds.
   Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
   Dynamic execution, return inference and both final consumers remain unconnected.
-- Array identity shares one binding issuer with get/push; existing9 PASS. Provider
-  acquisition/End and transfer remain owed; no fake element/get proof.
+- Array holder now retains construction identity outside its SAME element requirement;
+  focused10 PASS. Empty acquisition/End and transfer remain owed; no fake get proof.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
