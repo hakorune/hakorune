@@ -964,29 +964,14 @@ never discard historical packets or retry an old End after its Fault.
 CallNormal's genuine source coordinate may be an inner node: Loop must use that
 original (plan,node), never fabricate an initializer or assume node0 for new origins.
 
-951 behavior-neutral Text acquisition normalization (root950B/CLI290):
-- Existing Prefix storage, aliases and all expression-purpose callbacks now carry
-  TextResidenceAcquisitionV1. Its private Initializer origin retains SAME frame Rc;
-  branch/alias equality compares that Rc, not wrapper address or frame contents.
-- Existing CallValidationContext now owns original packet/Home/local-loan/value
-  correspondence; expression reads retain current Home, source-site, producer and
-  dependency checks. No Rebind/CallNormal admission, ABI change or second ledger.
-- Read-only worker reviewed all consumers; missing owns_root forwarding caused
-  root950A exit101/52.442494s and was corrected before950B exit0/107.572803s.
-- Existing focused family/physical/Loop-final tests:10PASS/1 baseline red, identical
-  before/after with pinned949B. Baseline callable_source_loop_exit_read_binds_after_phi_dst
-  still refuses source-loop/v2/source Loop has an unavailable path; exact log equal.
-  Other previous baseline reds are not claimed fixed or rerun by this slice.
-- Root950B/CLI290 source manifests equal; CLI build206.087966s. OriginalJSON392
-  canonical direct EXE .050986s exit1/noEXE; stderr exact389/unit-value-use.
-  This intentionally preserves first-stop; it is internal preparation, not product
-  acceptance. Runtime894A/FFI939A are explicit unchanged predecessor artifacts.
-- Tests/cases/fixtures/hooks/checkers added:none;9263 test names unchanged.
-  Existing identity assertions guard source authority, not incidental layout.
-- Unchanged mimalloc393 canonical EXE141.863706s/run.001541s, stdout/stderr/exit0
-  exact363. Compiler trace timings differ; no compiler-stderr equality claim.
-  Pointer/layer/CallTarget/diff guards PASS. No new adapter or temporary source.
-  Keep950B/CLI290/392/393 and949B before/after pins for unfinished Text acceptance;
-  prior287/289 diagnostic provenance remains retained under its existing condition.
-- Next: source Home arrays retain exact Text acquisitions, then real Text rebind,
-  Return/CallNormal/borrowed entry/Unit args and cleanup through BOTH finals/JSON/C.
+951 behavior-neutral Text acquisition/loan normalization landed `251371eb9e`.
+The commit retains source/physical mapping, worker review, corrected build failure,
+all commands/provenance/results, baseline classification and temporary-pin decisions.
+Root950B10PASS/1 exact949B baseline;9263names/no added test/case/hook/checker.
+CLI290 originalJSON392 preserves389/unit-value-use; unchanged mimalloc393 canonical
+EXE/run/stdout/stderr/exit0 exact363. Runtime894A/FFI939A explicit predecessors.
+Common read consumers no longer own initializer packet/Home/loan resolution;
+shared initializer/scalar owners remain. This is preparation, not Text acceptance.
+Keep950B/CLI290/392/393/949B and287/289 diagnostic provenance until Text acceptance.
+Next: the exact-acquisition Home arrays described above, then genuine Text rebind,
+Return/CallNormal/borrowed entry/Unit args, cleanup and BOTH finals/JSON/C.
