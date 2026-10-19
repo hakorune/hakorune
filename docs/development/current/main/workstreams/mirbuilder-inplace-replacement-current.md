@@ -25,12 +25,16 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Product milestone and operational authority
 
-RULES owns operations; `CURRENT_STATE.toml` selects the row. Coordinated
-source-to-C implementation landed at `244c8d3f5e`; Plan field/read/Set connection
-landed at `c52e4f1231`. CLI176 app180 validates unchanged mimalloc-lite through
-canonical EXE/run/exact stdout/exit0. The [active card][app-bundle] owns commands,
-source/binary/FFI/runtime provenance and unresolved acceptance.
-This first milestone does not close S0, the fixed suite or whole MirBuilder.
+[RULES](../../../RULES.md) owns operations; CSTATE selects one `APP-<name>`
+and its short existing app card. Start with `APP-mimalloc-lite`'s smoke precheck,
+then untyped-field, binary-trees, boxtorrent, allocator-stress and JSON. Internal
+responsibility commits do not create execution rows. This workstream is a
+reference for retained required contracts, not a session-start reading list.
+
+Unchanged mimalloc-lite direct canonical EXE/run/output/exit has passed; its
+full smoke and the fixed product suite have not. Full suite success is a product
+milestone, not whole MirBuilder/Gate1 completion. Preserve every remaining
+connection/cutover/retirement and later handoff condition listed below.
 
 ## Current restart pointer
 
@@ -53,6 +57,8 @@ Reader stops: WASM Global/Extern `833eb87a80`/`3c7f5ea5bc`; VM Global/Extern
 no canonical WASM reader, backend parity or schema retirement is claimed.
 Historical whole-lib reds remain baseline evidence, not current green.
 
+The following family reopen contracts apply to unselected work; current-app
+repairs follow RULES without new family rows or census documents.
 Reopen another family only when source authority, typed issuer, lossless
 selected consumer, real production caller, fail-fast terminal, exclusive
 old-edge delete-set, outside-reader inventory, and source budget form one exact
@@ -331,15 +337,15 @@ fix attributed upstream dependencies; no broad census or VM reopening.
 
 ### Dependency-ordered remaining development
 
-Numbers group dependencies, not nine implementation units or a strict queue.
-CSTATE selects execution. If Loop/shared migration is an app repair dependency,
-connect it within that owner series first. S0 now has landed source/consumer
-connections; required initialization/FieldWrite and remaining acceptance stay
-with the mimalloc card. No completion-date estimate is established.
+Numbers below preserve dependencies and unfinished semantic obligations; they
+are not executable task rows. CSTATE selects one app. If Loop/shared migration
+is needed by that app, connect it within the same app work. Proved local old-edge
+retirement stays in-series; shared compatibility deletion waits for its own
+callers/contracts. No completion-date estimate is established.
 
 | order / existing owner | responsibility and dependency | acceptance / retirement / unresolved boundary |
 | --- | --- | --- |
-| 1 `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0` / [STATIC-TEXT-INPUT-S0](../investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md) | CSTATE now selects the distinct required String input series; ObjectForwardS0 remains unaccepted. Source-to-C/Plan and unchanged mimalloc app204 EXE/run/output/exit PASS. | Same-series independent source/consumer acceptance, regression repair and selected retirement remain owed; first milestone does not close the full pipeline. |
+| 1 `APP-mimalloc-lite` / [app card][app-bundle] | Direct EXE passed; full smoke precheck remains open. ObjectForward/field/initialization contracts remain required; Text work is retained for the later JSON app. | Existing smoke and source-to-consumer acceptance, attributed regressions and proved local retirement remain owed; first milestone does not close the full pipeline. |
 | 2 [mimalloc bundle D0][app-bundle] / Gate1 dependency | Existing ObjectFieldReceiver/new-object-args/forwarded-result, callable-loop and callee Home/result/cleanup dependencies. | First unchanged app milestone PASS; required field/initialization and final consumer coverage remain. Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
 | 3 `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` | Fixed11-entry manifest remains product acceptance; scope selection was Closed. | All existing stdout/exit/boundary expectations; failed programs stay open with storage/usize/Loop owners. Suite exclusions do not waive the later required selfhost handoff. |
 | 4 `MIR-CALL-MANDATORY-CALLEE-R6` -> `MIR-CALL-LEGACY-READER-STOP-R0` | Close remaining family cutovers and finite ingress/egress callers: typed consume, pre-artifact rejection or isolated compatibility. | Same source authority, existing contracts and selected old-edge deletion. Shared ownership is eligible; caller-zero is output, not an entry prerequisite. Actual caller disposition remains owed. |

@@ -2,140 +2,107 @@
 
 Status: SSOT
 Date: 2026-10-19
-Scope: task selection, implementation, validation, production cutover, retirement, and restart routing.
-Related:
-  - docs/development/current/main/CURRENT_STATE.toml
-  - CURRENT_TASK.md
-  - docs/development/current/main/DOCS_LAYOUT.md
-  - docs/development/current/main/design/recipe-first-entry-contract-ssot.md
-  - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
-  - docs/development/current/main/design/agent-current-entry-contract-ssot.md (family scheduler, worker, and optional-tool procedures)
-  - docs/development/current/main/design/current-docs-update-policy-ssot.md
-    (document lifecycle and size rules)
+Scope: 作業選択・実装・検証・退役・再開の唯一の運用ルール。
+Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current/main/design/mirbuilder-final-pipeline-ssot.md)。
 
 ## 0. 目的
 
-正しい意味を、小さく、速く本線に入れる。重複した記録を前進条件にしない。
-source authority・意味契約・失敗境界・必要な acceptance は実装着手の条件として保つ。
+受け入れアプリが実際に動く状態へ進める。内部準備・文書・検証資産の増加を製品進捗に数えない。
 
 ## 1. 変えない設計原則
 
-- 1つの意味に owner は1つ、実行経路も1つ。
-- 意味変更は `source -> Facts -> Recipe -> Verify -> sole physical owner -> publish` の順に流す。
-- Fail-Fast。silent fallback、名前によるハードコード、AST rewriteは禁止。
-- `.hako` の書き換えでコンパイラの表現力不足を回避しない。
-- BoxCount（受理形を増やす）と BoxShape（挙動を変えない整理）を同じsliceに混ぜない。
-- FactsはRecipe keyやphysical IDを作らない。Recipe producerがkeyを発行し、物理layoutは意味を再判定しない。
-
-契約の詳細は[Recipe契約](current/main/design/recipe-first-entry-contract-ssot.md)、
-[最終pipeline](current/main/design/mirbuilder-final-pipeline-ssot.md)、
-[表現力優先ポリシー](current/main/design/compiler-expressivity-first-policy.md)を参照する。
+- 一つの意味にownerと実行経路は一つ。`source -> Facts -> Recipe -> Verify -> sole physical owner -> publish`を守る。
+- Fail-Fast。silent fallback、失敗後のlegacy retry、名前・MIR型・backend成功からの意味推測、AST rewriteは禁止。
+- `.hako`の書き換えでコンパイラの表現力不足を回避しない。
+- 受理形の追加と挙動不変の整理はcommitで区別する。FactsはRecipe keyやphysical IDを発行しない。
+- 仕様・所有権・Normal/Fault cleanup・独立した最終検証を保持する。詳細は既存owner契約を必要箇所だけ参照する。
 
 ## 2. 作業の入口と単位
 
-- 選択中の作業は `CURRENT_STATE.toml` とそこから指されるactive cardで決める。
-- goalの範囲は `finite_product_goal` とその正本の必須完了条件。監査の改善候補を自動で必須化せず、parked laneは勝手に再開しない。
-- `CURRENT_STATE.toml.work_mode` が `fast` / `design_stop` / `closeout` の唯一のmode選択元。blocker文言から推測しない。
-- `CURRENT_TASK.md` は再開用の薄いroot pointer。各sliceのたびに書き換えず、active cardへ作業範囲と証拠を記録する。
-- 1sliceは1責務。コード変更は第6節のpositive/negative検証を満たす。契約変更なら同じsliceでowner README/referenceを更新する。
-- 選択中の意味owner・familyが変わる時は、旧rowの未完了条件と引継ぎ先を明示し、着手前に`CURRENT_STATE.toml`のrow/cardを実際の作業へ切り替える。`blocker_token`だけの移動ではrowを増やさず、改名だけで旧rowを完了扱いにしない。
+- 毎回読むのはAGENTS、RULES、`CURRENT_STATE.toml`、その`latest_card_path`。合計400行以内を目標とする。
+- `CURRENT_TASK.md`は任意の薄い入口。workstream・north-star・policy・過去cardは必要時の参照とし、毎回の必読にしない。
+- 固定製品acceptanceまでは一つのアプリに集中する。選択rowは`APP-<app-name>`。責務ごとのrow/cardやD0/S0等の接尾辞を増やさない。
+- 内部の責務分割はコードとcommitで行う。必要なentry・引数・結果・cleanup・publicationを最終consumerまで接続し、アプリが通るまで追う。
+- 別アプリの発見は既存cardに一行残す。別アプリの実装を並行選択しない。共有の不具合は現在のアプリに必要な範囲で直す。
+- `finite_product_goal`の必須条件とparked laneの再開条件は維持する。新しい監査候補や言語機能を自動で必須化しない。
+- modeの正本は`CURRENT_STATE.toml.work_mode`。`fast`は実装、`design_stop`は実際に未決の意味契約の解決、`closeout`は着地作業。
 
 ## 3. 毎回の流れ
 
-1. `CURRENT_STATE.toml`、`CURRENT_TASK.md`、active cardを読み、`git status -sb` と `bash tools/checks/current_state_pointer_guard.sh` を確認する。
-2. `work_mode`に従う。`fast`は選択されたbounded sliceだけを実装し、`closeout`は証拠とpointerを整える。
-3. `design_stop`ではactive cardの未解決契約だけを扱う。source authorityやcanonical issuerを推測せず、実装・fixture・fallback・production switch・新しいsemantic receiptを先行させない。
-4. sliceが要求するfocused positive/negative testsとstable guardを実行する。filter結果が0件なら成功扱いしない。
-5. コード・test・その契約を説明するowner docsを同じcommitにまとめる。pointerは選択先が変わる時だけ更新する。
-6. commitではsliceに属するパスだけを明示してstageし、既存の無関係な
-   staged/unstaged変更を保持する。同じファイルに別作業が混在する場合は
-   対象hunkだけを選ぶ。
+1. 現在地と`git status -sb`を確認し、既存pointer guardを通す。
+2. 使用binaryとruntimeを明示し、manifestに書かれた選択アプリのsmokeを実行する。古いrelease binaryを暗黙に使わない。
+3. 最初の失敗をsource行・実行経路へ結び付ける。precheck、コンパイル、リンク、実行、timeout、SKIPを区別する。
+4. 必要箇所の共通ownerを直し、既存focused検証と同じsmokeで確認する。同じ停止点なら既存調査を再利用して欠けた接続を直す。
+5. 検証済みの内部commitはアプリ完走前でもよい。対象パスだけstageし、無関係なWIPを保持する。
+6. アプリが通ったら既存cardの状態を短く更新し、次のアプリへpointerを切り替える。
 
-`tools/checks/dev_gate.sh quick` や重いacceptanceはactive cardが要求する時に実行する。CI結果待ちの間に独立した許可済み作業があれば続け、必須acceptanceの結果は正確なrun/SHAでcloseoutに記録する。
+commitは短い件名と必要な変更・検証・残件だけにする。通常実装では文書だけの追随commitを作らない。
+ユーザーが依頼した文書整理は独立commitでよい。今回のような未検証WIPの退避commitは専用branchへ隔離し、未検証と明記する。
 
 ## 4. 建設と旧経路退役の証明タイミング
 
-- MirBuilderの第一達成点は、goalの既存acceptanceから選ぶ未変更実アプリ1本の正規EXE生成・実行・出力/exit一致とする。選択は既存active cardに記し、goal全体の完了条件や固定suiteを置き換えない。
-- 建設の入口は二点で決める。①選ぶsource authority・canonical issuerと、受け持つ意味／失敗境界が固定されている。②接続するproduction caller、新owner、置き換える旧責務とedge、focused positive/negative acceptanceが決まっている。
-- bounded seriesは一つのsource責務を最終consumerまで接続する単位。内部sliceを分けても、entry・引数・結果・cleanup・publicationの必要な接続を同じseriesで閉じる。契約準備、機能追加、挙動不変の整理を区別し、準備の局所greenを本番置換完了にしない。旧責務を置き換えない純粋な機能追加はその旨を記し、LOC減少を強制しない。
-- この二点が閉じたら建設を始める。建設後のgreen、caller-zero、別callerの全数調査、CI完走を着手条件にしない。テスト失敗は選んだmapping内で直し、受理形やauthorityを広げる必要が出た時だけ設計へ戻る。
-- `NoSafeSlice`はdesign stopのまま扱う。候補・拒否・空receipt・fallbackへ変換しない。
-- production cutoverでは、同じsource authorityからselected consumerへ通す。失敗後に旧経路へretryしない。
-- 旧edgeを物理削除する前に、影響callerが同じbounded series内で切替または停止済みであり、対象acceptanceとguardが通り、そのedgeのcallerが0であることを確認する。条件を満たす旧専有実装・一時adapterは同じseriesで削除し、実アプリ全体の成功まで無条件に延期しない。共有ownerと未選択callerは残し、残存callerと未完の退役条件を既存cardに明記する。削除証明を建設の着手条件にしない。
+- 着手時に元source authority、canonical issuer、production consumerと必要な失敗境界を特定する。完成済みpacketや全repo censusを着手条件にしない。
+- 旧Compatibility経路のMIRは移植の調査資料として使う。仕様・既存期待出力・終了値・Fault/所有権契約を正しさの基準にし、生JSON一致を要求しない。
+- 参照経路は明示的な別実行に限る。新経路の失敗後に旧経路へretryせず、旧経路の成功をcanonical実行の証拠にしない。
+- 置換した専有edge・一時adapterは、caller切替または停止、caller-zero、必要検証が成立した同じ変更seriesで削除する。局所退役を全アプリ成功まで延期しない。
+- 共有Compatibility・schema・backendの大規模退役は、その既存callerと契約が閉じた後に行う。固定suite成功だけで共有ownerや未接続資産を一括削除しない。
+- 現在のアプリに不要なwarning整理・全repo削減・caller-zero資産の追加作業は選ばない。既存の恒久的な安全性検証は残す。
 
 ## 5. 詰まりと設計停止
 
-- 時間経過や同じ理由での再停止だけを理由に、必須のactive objectiveから自動的に別作業へ移らない。
-- mappingが未確定なら短いdecision briefをactive cardに記録する。`CURRENT_TASK.md`を履歴帳にしない。
-
-```text
-Decision:
-Source authority + canonical issuer:
-Non-authority:
-Fail-fast boundary:
-Smallest next slice:
-Non-claims:
-```
-
-- 実sourceのfirst-stopが修正後も同じなら、次の局所patchの前に既存調査を再利用して関連producerから最終consumer、全classifier armsと必要な関数参加集合を調べ、欠けた共通責務をowner単位で直す。同じ責務で3回続けて `NoSafeSlice` ならsemantic unit、opaque/transferred subtrees、型要件、counterexampleも見直し、edge censusや深いtask suffixを繰り返さない。難しい独立設計はread-only workerで確認し、主担当が既存cardの1つのDecisionへ統合する。
-- read-only workerは共有checkoutを編集せず、Cargoを起動しない。文書と実態が食い違えば原因を確認し、記載か設計判断を更新する。
-- 候補選択・design stopの解決順・停止判断は[family-local scheduler](current/main/design/agent-current-entry-contract-ssot.md#family-local-action-scheduler)を続けて使う。ここに定めたmodeと入口・退役の規則が優先する。
-- ユーザーが設計相談中の停止やgoalのpauseを明示したら、それに従う。
-- 同じ阻害が3回連続のgoal turnで続き、安全な代替も尽き、ユーザー判断か外部状態の変化が必要ならblockedにする。内部の未実装・設計不足は課題にして解決を続ける。
+- stopごとの文書・census・分類表を作らない。既存app cardへ不足契約・採用判断・次の接続を必要な数行だけ書く。
+- `NoSafeSlice`という内部状態や準備不足だけで長期停止しない。元sourceと旧実装を読み、現在のアプリに必要な共通責務を実装する。
+- 本当に未決の意味契約があれば、source authorityやcanonical issuerを推測せず、同じcardで決着する。新しいsemantic receiptを先行させない。
+- アプリ開始時の難しい接続、新しい責務境界、同じ停止の反復ではread-only workerを使う。既存調査を再利用し、毎小修正の全体監査にしない。
+- workerは共有checkoutを編集せず、Cargoを起動しない。主担当が判断を既存cardへ集約する。
+- 時間経過だけで別アプリへ逃げない。ユーザーの停止・pauseを優先し、許可範囲だけ再開する。
+- goalのblockedは同じ外部阻害が3goal turn連続し、内部で解ける手がなく、ユーザー判断か外部変化が必要な場合だけ。未実装は実装で解く。
 
 ## 6. テストと計算資源
 
-- test/fixture/guardは原則増やさない。証拠は既存test・既存acceptance実行を優先し、次に既存ケースの拡張・共通fixture/パラメータ化を使う。新規testは既存では守れない独立した意味・失敗境界がある場合だけとし、既存cardに不足と追加理由を短く記す。positive/negativeの証拠要求を新規test追加の要求へ読み替えない。既存ケースへの行・分岐・パラメータ追加も増加として扱い、test名/ファイル数が同じという理由で無条件に足さない。
-- 新規testファイル・checker実行入口はfamily内の統合・削除と組にして原則純増ゼロにする。独立した契約で純増が必要なら、既存ownerへ置けない理由・利用caller・既存証拠との差を同じcardに記す。追加前に置換/統合できる既存ケースを確認し、例外は不足する契約に必要な最小差分に限る。毎sliceの一定割合のtest追加や、名前を減らすだけの巨大testへの詰め込みで代替しない。帳尻のために異なる安全性検証を消さず、この規則を検査する新checker/台帳も作らない。
-- 同じ契約の等価ケースは共通fixtureやパラメータでまとめる。異なる失敗境界の診断と必要な独立実行・filter選択を保ち、source意味・独立した最終MIR・外部入力/実行検証を重複扱いで削らない。
-- 挙動不変の整理は既存回帰検証を使い、実装を写すtest・専用`_for_test`フック・内部配置/エラー全文の固定を追加しない。source入力→MIR/実行結果/構造化refusalを優先する。Rc同一性等はそれ自体が所有・権限契約で外から検証できない場合に限定し、理由を同じcardへ記す。重複ASTヘルパーは既存test-supportへ寄せ、巨大な汎用fixture基盤を新設しない。docs-onlyはリンク・pointer・契約を確認し、Cargoを起動しない。
-- checker/guardはshell・Python等の言語や配置を問わず同じ増加規則を適用する。既存family ownerを再利用し、作業rowの完了・一時的なコード配置・過去の選択pointerを守る専用guardを増やさない。新規guardは既存ownerで守れない継続的な契約と利用callerがある場合に限る。
-- 一時的test/guard/adapter/proofには、owner・正本の置換先・`retire_when`・削除に必要な証拠を既存card/metadataへ記す。条件を満たした専有物は第4節に従い同じbounded seriesで統合・物理退役する。
-  永続的な意味・安全性検証を一時負債に含めず、履歴はGitへ残す。退役を証明する新guard・台帳や、一律のtest数上限・全repo棚卸しを着手条件にしない。
-- 必要な検証がgreenなら、関連変更・失敗・未解決の懸念・要求gateがない限り再実行や拡張をしない。同じbuildをfilter実行で再利用し、結果は対象revision・実行条件に対応させる。
-- 選択production frontierは、変更前後の実sourceのfirst-stopと結果を比較する。first-stopが不変なら、局所契約の改善と実アプリ未達を分けて記す。計測にはsource revision、実行binaryの出所、command、build/link/実行時間を記し、未計測や古い結果を現HEADの進捗・速度として扱わない。
-- 固定acceptance suiteは、要求されたproduction cutover・goal closeout、またはsuite対象へ広く影響する変更で実行する。途中のsliceは選択frontierのfocused probeを使い、一律の時間間隔や毎sliceの全suite再実行を課さない。
-- 時間を測る際はbuild/link、test実行、shell guard、gateの重複実行を分ける。test名/ファイル数の削減だけで高速化を主張しない。整理batch/seriesの着地では既存検索・差分・互換な既存binaryの`--list`で増減を確認する。数え直すだけのCargo build・定期checker・新台帳は作らない。
-- 同じcheckoutでtop-level Cargoを同時に複数起動しない。`nyash-rust --lib`の日常focused testは`cargo quick-test-fast`（quick、root testのみopt-level=0）を使う。他package・最適化状態の検証とCLI buildは従来のquick設定を使い、`CARGO_BUILD_JOBS=4`を上限目安にする。
-- Cargoを中断した後は、既存の`cargo`/`rustc` processが終了したことを確かめてから次を起動する。
-- `--release`、`--nocapture`、`RUSTFLAGS=-Awarnings`はactive cardが必要とする場合だけ使う。warningを隠すために再実行しない。
-- 赤は今回の変更・既知baseline・informationalに分類する。未分類の赤はcloseoutしない。
-- CIは通知または次のcloseoutで確認する。進行中runを連打dispatchで取り消さず、pending/cancel/silenceをPASSや失敗と数えない。
+- test/fixture/guardは原則増やさない。既存test・既存acceptanceを使い、positive/negative証拠を新規test追加の要求へ読み替えない。
+- 既存ケースの行・分岐・パラメータ追加も増加として扱う。追加は既存証拠で守れない独立した意味・失敗境界に必要な最小差分だけとし、理由をcardへ一行残す。
+- 新規testファイル・checker入口はfamily内の統合・削除と組にして原則純増ゼロ。既存安全性検証を帳尻で消さず、この規則用のcheckerや台帳も作らない。
+- 実装を写すtest、専用`_for_test`フック、内部配置・エラー全文の固定を追加しない。source→MIR/実行/構造化refusalを優先する。
+- Rc同一性等の検証は、それ自体が所有・権限契約で外から検証できない場合だけ。等価fixtureは既存test-supportへ統合し、独立した失敗診断・filterを保つ。
+- アプリ修正に不要なfreezeトークンを増やさない。必要な失敗境界は既存診断ownerを優先し、既知の拒否を通すために無効化しない。
+- shell/Pythonを含むguardも同じ増加規則。一時test/guard/adapterは既存cardでowner・置換先・`retire_when`を明記し、条件成立時に統合・削除する。
+- 同じcheckoutでtop-level Cargoは一つ。稼働中のCargo/rustcが読むRustを編集しない。中断後は終了を確認して次を起動する。
+- jobs上限目安4。root libのfocused testは`cargo quick-test-fast`、CLIは`cargo build --profile quick --bin hakorune`を使う。
+- 同じbuildをfilter実行で再利用する。filter0件は成功にしない。必要検証が通れば、新しい変更・失敗・要求gateがない限り繰り返さない。
+- `--release`、`--nocapture`、warning抑制は必要性がある場合だけ。docs-onlyではCargoを起動しない。
+- 固定suiteはアプリ着地・広い共有変更・製品acceptanceの確認時に実行し、毎内部commitでは回さない。落ちた別アプリを既知baseline扱いで閉じない。
+- smokeのnegative precheckと直接EXEを分ける。意図した拒否境界の意味を確認し、単に期待エラーを現在の失敗へ差し替えない。
+- `11/11`表示だけで達成にしない。空marker、SKIP、timeoutを区別し、必要な全EXE生成・実行・期待出力/exitと既存negative境界を確認する。
+- 検証は対象revision/binary・command・結果を短く残す。build/link時間と実行時間を分け、古いbinaryの結果を現HEADの結果にしない。
+- 整理の増減は既存差分・検索・互換binaryの`--list`で確認する。数えるためのbuildや定期checkerを増やさない。
+- 赤は今回の変更・既知baseline・informationalを区別する。CIは通知か着地時に確認し、pending/cancelをPASSにせず、連打dispatchしない。
 
 ## 7. 文書とpointer
 
-- 作業モード・スライス・検証・closeoutの正本はこのfile。現在地は`CURRENT_STATE.toml`、root再開pointerは`CURRENT_TASK.md`、置き場所は[DOCS_LAYOUT.md](current/main/DOCS_LAYOUT.md)が所有する。
-- `agent-current-entry-contract-ssot.md`はworker consultationとoptional NekoCodeの補助手順を保持する。作業モードや着手・退役条件がこのfileと異なる場合は、このfileを適用する。
-- active cardにはscope、acceptance、parked items、non-claims、実行結果を記録する。再開mirrorへ履歴を複製しない。
-- active cardは1000行以内。上限前に完了済み経緯をcommit参照へ圧縮し、現在の契約・未解決事項・必要証拠を残す。別ownerの履歴を同じcardへ積み続けない。
-- 通常の実装sliceで更新する文書はactive card、選択やpointerが変わる場合の
-  `CURRENT_STATE.toml`、契約が変わる場合のowner README/referenceに限る。
-  workstream、隣接card、索引、restart mirrorは、それぞれが所有する事実を
-  変更するときだけ更新する。
-- 実装前に対象パスを絞る。実装で別文書の所有契約が実際に変わると判明した
-  場合だけ範囲を追加し、その理由をactive cardに記録する。履歴や見やすさの
-  ための横展開は同じsliceに混ぜない。
-- 新しい文書には`Status`、`Scope`、`Related`を記し、`DOCS_LAYOUT.md`に従う。文書を縮めるために契約や必要証拠を捨てない。
-- 言語仕様の変更は`docs/reference/**`を先に更新する。
+- `CURRENT_STATE.toml.latest_card_summary`は5行以内。アプリ、停止点、次の一手、WIP/未完条件への参照だけを書く。
+- 選択app cardは100行以内。scope・現在のstop・必要契約の参照・短い修正履歴・残件を置く。内部作業ごとのcardは作らない。
+- 証拠連番、ログpath、SHA一覧をcardへ積まない。必要なcommand/resultと一つの履歴参照に絞り、詳細はGitへ残す。`/tmp`だけを永続証拠にしない。
+- 既存の長い設計資料は必要時のreferenceとし、日々追記しない。未解決の意味契約は削除せず、一つのownerへ参照を保つ。
+- 通常更新はapp card、アプリ切替時のCSTATE、契約を変えたowner docsだけ。workstream等の鏡へ履歴を横展開しない。
+- 置き場所は[DOCS_LAYOUT](current/main/DOCS_LAYOUT.md)。仕様変更は`docs/reference/**`を先に更新する。
 
 ## 8. コードの衛生
 
-- production source fileは760行で分割を考え、800行をhard stopとする。圧縮で逃げない。test専用ファイルは行数だけで分割せず、familyの契約境界で整理する。混在ファイルのproduction部分をtestで例外化しない。
-- `allow(dead_code)`は限定owner・理由・再確認期限を記録する。V1/V2の並立には統合条件を持たせる。
-- debug logは既定OFF。無条件`eprintln!`は禁止。
-- 挙動不変のrefactorは2〜5 commitsにまとめ、受理形の拡張と混ぜない。
+- production sourceは760行で分割を検討し800行を上限とする。圧縮で逃げず、必要な責務境界で整理する。testは行数だけで分割しない。
+- 巨大な汎用基盤・並列の分類器/台帳/receiptを作らず、既存ownerに統合する。
+- debug logは既定OFF。無条件`eprintln!`は禁止。dead-code許可には理由・利用予定・再判断条件を持たせる。
 
 ## 9. 完了の定義
 
-- **slice closeout:** 選択ownerのpositive/negative evidence（既存test・acceptance実行で可）、要求された既存guard、赤の分類、owner docsが揃う。新規test/guardは完了条件ではない。対象familyの重複・一時物は統合/削除し、残す未完条件と追加資産の純増理由を同じcardへ記す。検証コード/ケース/入口の追加がなければ「追加なし」でよく、新しい集計表や報告ファイルは不要。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
-- 着地時に`/tmp`の証拠と退避adapterの保持・退避・廃棄を判定する。必要な検証条件・結果を着地commitへ残し、cardの完了履歴はそのcommit参照へ圧縮する。`/tmp`のpathとSHAだけを完了証拠にせず、未完の条件と必要な一時物は保持理由・退役条件を残す。
-- **MirBuilder migration complete:** 必須workstream rowが全て閉じ、実sourceからcanonical Facts/Recipe/verification、sole physical owner、publicationまで到達する。選択production callerが切替済みで、選択旧edgeが退役し、要求されたend-to-end acceptanceが記録されている。
-- 削除予定をtaskboardに残しただけではmigration完了にしない。
-- 進捗はproduction callerの切替、重複責務の解消、旧edgeの削除、実sourceのfirst-stopの変化と検証で報告する。前提契約だけが進んだ時はその旨と未達の実source条件を記し、commit/file/test数だけを根拠にしない。
+- **app完了:** その既存smokeの全契約と正規EXE生成・実行・期待出力/exitが成功し、変更と必要検証をcommit済み。内部準備だけは完了に数えない。
+- **固定製品acceptance:** `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary`の必要全契約が成功。空markerやSKIPはEXEの証拠ではない。
+- **MirBuilder/Gate1完了:** 固定製品acceptanceに加え、正本の必須source接続・production切替・R6/R7・Loop・物理退役・最終pipeline条件が成立する。後続Gate2〜4/selfhost条件は元の正本に従う。
+- 同じsource authorityから最終consumerまで接続し、置換済みの専有edge/adapterが退役していること。削除予定だけを残して移行完了にしない。
+- 着地時に一時証拠とadapterの保持/廃棄を判断する。進捗はアプリ成否・停止点の変化・責務統合・削除で報告する。
 
 ## 10. local entryと旧文書
 
-- ignored `AGENTS.md` / `CLAUDE.md`はRULES・CURRENT_STATE・owner資料への短い入口とagent固有の言語・口調だけを持ち、独立した実装手順を複製しない。秘密情報を含む可能性があるためignore設定は勝手に外さない。
-- `current-docs-update-policy-ssot.md`の作業モード・建設と退役の証明条件はsuperseded。残る文書lifecycle・registry・specialized validation clausesは個別移行まで有効で、競合時はこのfileを優先する。
-- `agent-current-entry-contract-ssot.md`のcurrent entry・work-mode規則はsupersededだが、family-local scheduler、worker consultation、optional NekoCodeの補助手順は引き続き参照する。二つの文書の役割は[DOCS_LAYOUT.md](current/main/DOCS_LAYOUT.md#operational-rule-map)に記す。
-- ルールを足す時は重複を減らし、本文は150行以内を目安にする。
+- ignored AGENTS/CLAUDEはこのfileと現在地への短い入口。独自のルールや履歴を複製せず、ignore設定を勝手に外さない。
+- 旧policy/schedulerの補助手順は必要時だけ参照する。運用が競合すればRULESを優先し、参照文書を追加の作業前提にしない。
+- このfileは150行以内を目安とし、ルール変更時は重複を減らす。

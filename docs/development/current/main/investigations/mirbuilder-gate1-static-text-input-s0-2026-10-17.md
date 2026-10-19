@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0
 
-Status: active; owned Text Local handoff and Core/I64 execution verified; full Text series unaccepted.
+Status: retained design reference for APP-json-stream-aggregator; full Text series unaccepted.
 Date: 2026-10-17
 Scope: required Gate1 source Text generation -> ordinary static borrowed input,
 including original incoming/entry, arguments/results, cleanup and publication.
@@ -14,7 +14,8 @@ Related: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml),
 
 ## Selection and actual source
 
-Current selected row: `MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0`.
+Historical responsibility label: `MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0`.
+Current execution follows CSTATE/app card; this retained contract is not a daily entry.
 Retained unfinished rows: STATIC-TEXT-INPUT-S0 and LOOP-AFTER-TEXT-READ-S0.
 This is the existing unchanged-JSON acceptance prerequisite, not new syntax or an
 optional audit feature. The selected owner is now ordinary Text call/Return and
@@ -960,3 +961,15 @@ TransferResidence(exact acquisition) and Materialize. Same checked expression,
 terminal relation/cleanup/result seal/BOTH finals/JSON/C and Loop CallSlot/Return
 actions remain required; no fake initializer/Core/Bool-as-Unit/double cleanup.
 FiniteText final conversion/OwnedString Call+Return/CallNormal/Unit and full950 open.
+
+## App-focused handoff
+
+Execution now follows `APP-mimalloc-lite`; this Text contract remains required for
+`APP-json-stream-aggregator`. Do not append slice history or create new suffix rows.
+The unfinished source-only Return work and matching stop handoff are preserved at
+commit `79cbec0a30`, branch `wip/ordinary-text-return-source-2026-10-19`.
+That checkpoint is unbuilt/untested/unaccepted and is NOT on the production branch.
+When JSON is selected, review/reuse needed changes; do not blindly merge its old
+CSTATE/card. Both outer formal-ingress prefilters, real Home Return frame/install,
+purpose-neutral entry reads, result/Call/cleanup/BOTH finals/JSON/C and Loop actions
+remain unfinished. Last verified production source remains the preceding959 code.

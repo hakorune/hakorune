@@ -31,7 +31,7 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 | Question | Owner |
 | --- | --- |
 | 進め方のルールは？ | [`docs/development/RULES.md`](../../RULES.md) |
-| 今どこを進めている？ | `CURRENT_STATE.toml` と `CURRENT_TASK.md` |
+| 今どこを進めている？ | `CURRENT_STATE.toml` と選択app card（`CURRENT_TASK.md`は任意の入口） |
 | family scheduler / worker / optional NekoCode の補助手順は？ | `design/agent-current-entry-contract-ssot.md` |
 | 文書をどこに置く？ | this file |
 
@@ -70,6 +70,10 @@ work-modeの旧規則を持たない一方、family-local scheduler、worker con
   - one-screen summary + links only
 - `15-Workstream-Map.md`
   - one-screen lane order mirror
+- selected app card
+  - reuse one existing card per app, at most 100 lines
+  - current stop, required contract references, remaining acceptance; no per-slice rows or receipts
+  - long existing semantic designs remain references rather than daily restart prerequisites
 - `workstreams/*.md`
   - active multi-day work cards
   - keep only the current four-block execution brief, compact queue, parked

@@ -1,9 +1,9 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
+current_execution_row = "APP-mimalloc-lite"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-text-call/owned-return-to-unit-argument"
+current_blocker_token = "ordinary-new/borrowed-static/required-integer-source-unproved"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,34 +13,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
-latest_card = "mirbuilder-gate1-static-text-input-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+latest_card = "mirbuilder-app-bundle-mimalloc-lite"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-959 same-row original Return/scalar normalization landed661f383f09. Immutable raw
-capture survives scalar failure/retirement; old numeric projection subset/order/
-errors remain. No source admission/result execution permission/second registry.
-Root959B5focusedPASS;174=170PASS/4exact958E;9263same names/no new cases/hooks/checkers.
-7UnitJSON exact955/prior native reused. CLI299236.433574s/rootCLI7584paths exact.
-OriginalJSON419 .060707s/exit1/noEXE: stderr exact417 Loop unavailable path.
-No current frontier advance;958 entry connection9a0bab4038 advanced Text entry to
-this aggregate token. No owner/site/cause measured; do not assume early Return
-or call statement is first culprit. Mim420 canonical EXE143.769714s/run.001803s,
-stdout/stderr/exit0 exact363. Pointer/layer/CallTarget/diff guards PASS.
-Next SAME950 raw Static/Instance general Value Return -> genuine Home frame ->
-result seal/Call/Return/cleanup/final consumer -> SAME Loop action schedule.
-Gate legacy scalar eligibility BEFORE propagating new raw Return capture Err.
-Distinguish TransferTemporary/TransferResidence(exact acquisition)/Materialize;
-never fake initializer/Core/Bool-as-Unit, double cleanup or relax unavailable.
-FiniteText final conversion/OwnedString Call+Return/CallNormal/Unit/full950 required.
-Keep959B/CLI299/source/apps +958E/CLI298/954A until950; no adapter. Fixed11 last955
-only5PASS/6FAIL; no current whole950/CI/finite-goal closure. Fast same
-ORDINARY-TEXT-CALL-S0; no design stop; full finite goal/retained rows remain open.
+APP-mimalloc-lite: smoke generic-MIR negative precheck未達。直接EXEは既存検証PASS。
+次はbinary/runtimeを明示して同じsmokeを再計測し、最初の失敗をsourceへ結び付ける。
+未検証Text Return WIPは専用branchへ隔離済み。契約と復帰条件は既存Text資料に保持。
+固定suiteは直近5PASS/6FAIL、現HEAD全suite未実行。11表示だけで製品達成にしない。
+今回は文書整理とWIP保存のみ。実装goalはpause継続、全体完了条件は変更なし。
 """
-next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
-next_execution_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
+next_design_card = "APP-mimalloc-lite"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_execution_card = "APP-mimalloc-lite"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -55,8 +41,4 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-10-11: MIRBUILDER-ROOT-EXIT-GRAPH-CORE-R2 — sole root Home graph core extracted behind raw writer; focused Call/cleanup/MapGet positives and negative pass, unchanged SizeClassBox first stop remains root-exit-unconsumed. One MapGet test is confirmed baseline red at b6a5b69ae2. Next: STATIC-TWO-EXIT-S0.",
-  "2026-10-11: MIRBUILDER-ROOT-EXIT-CANONICAL-WRITER-R1 — one root algorithm now has a canonical CFG writer adapter; root graph/Call projection positives and fail-fast negatives pass. Original SizeClassBox first stop remains root-exit-unconsumed. Next: STATIC-TWO-EXIT-S0.",
-  "2026-10-11: MIRBUILDER-ROOT-EXIT-GRAPH-PORT-R0 — behavior-preserving raw writer port; Plain/Call physical MIR and root binding order identical before/after, focused positive/negative and unchanged SizeClassBox first stop confirmed. Next: ROOT-EXIT-CANONICAL-WRITER-D0.",
-  ]
-
+]
