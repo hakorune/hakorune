@@ -5,6 +5,7 @@
 
 use crate::mir::PublishedLifecycleRuntimeRequirementsV1;
 use std::path::{Path, PathBuf};
+use std::io::{Read, Seek, SeekFrom};
 use std::process::Command;
 
 const MAGIC: &[u8; 8] = b"NYRTABI2";
@@ -181,20 +182,18 @@ fn require_native_array_symbol_inventory(text: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Read the one retained descriptor from a selected runtime archive.  `ar` is
-/// used only to unpack named members; the descriptor is selected by ELF section
-/// name, never by a byte-pattern scan.
+/// Read the one retained descriptor from every selected archive member. The
+/// descriptor is selected by ELF section name, never by a byte-pattern scan.
 pub(crate) fn read_runtime_abi_descriptor(
     archive: &Path,
 ) -> Result<RuntimeAbiDescriptorV2, String> {
-    let members = archive_members(archive)?;
     let mut found = Vec::new();
-    for member in members {
-        let bytes = archive_member_bytes(archive, &member)?;
-        if let Some(section) = elf_section(&bytes, SECTION_NAME)? {
+    visit_archive_members(archive, |bytes| {
+        if let Some(section) = elf_section(bytes, SECTION_NAME)? {
             found.push(decode_descriptor(section)?);
         }
-    }
+        Ok(())
+    })?;
     match found.len() {
         1 => Ok(found.remove(0)),
         0 => Err(format!(
@@ -213,15 +212,15 @@ fn require_lifecycle_entry_abi(archive: &Path) -> Result<(), String> {
     const SECTION: &str = ".nyash.entry_abi.v1";
     const EXPECTED: &[u8; 16] = b"NYENTRY1\x01\x00\x00\x00\x01\x00\x00\x00";
     let mut count = 0;
-    for member in archive_members(archive)? {
-        let bytes = archive_member_bytes(archive, &member)?;
-        if let Some(record) = elf_section(&bytes, SECTION)? {
+    visit_archive_members(archive, |bytes| {
+        if let Some(record) = elf_section(bytes, SECTION)? {
             if record != EXPECTED {
                 return Err("unsupported lifecycle entry ABI record".to_owned());
             }
             count += 1;
         }
-    }
+        Ok(())
+    })?;
     if count != 1 {
         return Err(format!(
             "lifecycle archive requires exactly one entry ABI record; found {count}"
@@ -230,52 +229,71 @@ fn require_lifecycle_entry_abi(archive: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn archive_members(archive: &Path) -> Result<Vec<String>, String> {
-    let output = Command::new("ar")
-        .arg("t")
-        .arg(archive)
-        .output()
-        .map_err(|error| format!("cannot list runtime archive {}: {error}", archive.display()))?;
-    if !output.status.success() {
-        return Err(format!(
-            "cannot list runtime archive {}: {}",
-            archive.display(),
-            String::from_utf8_lossy(&output.stderr)
-        ));
+/// Sequential structural ar traversal. Reopening the entire archive with `ar p`
+/// for every object made ABI selection quadratic in archive size. Keep one file
+/// and one member buffer; every ELF member still participates in both censuses.
+fn visit_archive_members(archive: &Path, mut visit: impl FnMut(&[u8]) -> Result<(), String>)
+    -> Result<(), String> {
+    let mut file = std::fs::File::open(archive)
+        .map_err(|error| format!("cannot open runtime archive {}: {error}", archive.display()))?;
+    let length = file.metadata().map_err(|error| format!("cannot inspect runtime archive: {error}"))?.len();
+    let mut magic = [0u8; 8];
+    file.read_exact(&mut magic).map_err(|error| format!("runtime archive header is truncated: {error}"))?;
+    if &magic != b"!<arch>\n" {
+        return Err("runtime descriptor requires a regular ar archive (thin archives are unsupported)".into());
     }
-    let names = String::from_utf8(output.stdout).map_err(|_| {
-        format!(
-            "runtime archive {} has non-UTF8 member name",
-            archive.display()
-        )
-    })?;
-    Ok(names
-        .lines()
-        .filter(|name| !name.is_empty())
-        .map(str::to_owned)
-        .collect())
-}
-
-fn archive_member_bytes(archive: &Path, member: &str) -> Result<Vec<u8>, String> {
-    let output = Command::new("ar")
-        .arg("p")
-        .arg(archive)
-        .arg(member)
-        .output()
-        .map_err(|error| {
-            format!(
-                "cannot extract {member} from {}: {error}",
-                archive.display()
-            )
-        })?;
-    if !output.status.success() {
-        return Err(format!(
-            "cannot extract {member} from {}: {}",
-            archive.display(),
-            String::from_utf8_lossy(&output.stderr)
-        ));
+    let decimal = |bytes: &[u8]| -> Result<u64, String> {
+        std::str::from_utf8(bytes).ok().and_then(|text| {
+            let text = text.trim();
+            (!text.is_empty() && text.bytes().all(|byte| byte.is_ascii_digit()))
+                .then(|| text.parse::<u64>().ok()).flatten()
+        }).ok_or_else(|| "runtime archive member has invalid size".into())
+    };
+    let mut position = 8u64;
+    let mut bytes = Vec::new();
+    while position < length {
+        let mut header = [0u8; 60];
+        file.read_exact(&mut header).map_err(|error| format!("runtime archive member header is truncated: {error}"))?;
+        if &header[58..] != b"`\n" { return Err("runtime archive member header is invalid".into()); }
+        let size = decimal(&header[48..58])?;
+        let start = position.checked_add(60).ok_or("runtime archive member offset overflows")?;
+        let end = start.checked_add(size).ok_or("runtime archive member size overflows")?;
+        let next = end.checked_add(size % 2).ok_or("runtime archive member padding overflows")?;
+        if next > length { return Err("runtime archive member is truncated".into()); }
+        let name = std::str::from_utf8(&header[..16]).map_err(|_| "runtime archive member name is not UTF-8")?.trim_end();
+        if !matches!(name, "/" | "//" | "/SYM64/") {
+            let size = usize::try_from(size).map_err(|_| "runtime archive member is too large")?;
+            if size > bytes.len() {
+                bytes.try_reserve_exact(size - bytes.len())
+                    .map_err(|error| format!("cannot allocate runtime archive member buffer: {error}"))?;
+            }
+            bytes.resize(size, 0);
+            file.read_exact(&mut bytes).map_err(|error| format!("cannot read runtime archive member: {error}"))?;
+            // BSD extended names occupy a prefix of the member payload. GNU
+            // long names use the separate // table and do not alter the payload.
+            let name_size = match name.strip_prefix("#1/") {
+                Some(size) => usize::try_from(decimal(size.as_bytes())?).map_err(|_| "runtime archive member name is too large")?,
+                None => 0,
+            };
+            let object = bytes.get(name_size..).ok_or("runtime archive member name is truncated")?;
+            let member_name = if name_size == 0 { name } else {
+                std::str::from_utf8(&bytes[..name_size])
+                    .map_err(|_| "runtime archive member name is not UTF-8")?.trim_end_matches('\0')
+            };
+            if !matches!(member_name.trim_end_matches('/'),
+                "__.SYMDEF" | "__.SYMDEF SORTED" | "__.SYMDEF_64" | "__.SYMDEF_64 SORTED") {
+                visit(object)?;
+            }
+        }
+        file.seek(SeekFrom::Start(end)).map_err(|error| format!("cannot seek runtime archive member: {error}"))?;
+        if size % 2 != 0 {
+            let mut padding = [0u8; 1];
+            file.read_exact(&mut padding).map_err(|error| format!("runtime archive padding is truncated: {error}"))?;
+            if padding[0] != b'\n' { return Err("runtime archive padding is invalid".into()); }
+        }
+        position = next;
     }
-    Ok(output.stdout)
+    Ok(())
 }
 
 fn elf_section<'a>(bytes: &'a [u8], wanted: &str) -> Result<Option<&'a [u8]>, String> {

@@ -5,8 +5,9 @@ Thin Rust bridge for backend object emission.
 ## Runtime descriptor and opaque Map layout
 
 `runtime_abi_descriptor.rs` reads the target's 236-byte descriptor V2 from its
-selected archive. Missing/old/duplicate/malformed records reject before artifact
-creation. `runtime_map_symbols.rs` requires each of the twelve opaque Map entries
+selected regular archive through sequential member traversal, without per-member
+subprocesses. GNU/BSD object members are supported; thin archives reject.
+Missing/old/duplicate/malformed records reject before artifact creation. `runtime_map_symbols.rs` requires each of the twelve opaque Map entries
 as one external function definition, including explicit scalar Value install. The invocation passes all Map/key/outcome
 layout triples through C session revision2; it never recomputes Rust layout.
 C validates geometry before target admission. Actual Map operation placement and

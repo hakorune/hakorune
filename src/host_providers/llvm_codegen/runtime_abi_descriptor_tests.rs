@@ -119,6 +119,45 @@ fn entry_abi_rejects_missing_duplicate_and_foreign_records() {
         let result = require_lifecycle_entry_abi(&archive);
         assert_eq!(result.is_ok(), accepted, "{case}: {result:?}");
     }
+    // Keep the ABI record valid while varying its physical archive container.
+    // A malformed trailing member must not hide behind a valid first record.
+    let object = std::fs::read(directory.join("valid-0.o")).unwrap();
+    let member = |name: &str, payload: &[u8]| {
+        let mut bytes = format!("{name:<16}{:<12}{:<6}{:<6}{:<8}{:<10}`\n",
+            0, 0, 0, "100644", payload.len()).into_bytes();
+        bytes.extend_from_slice(payload);
+        if payload.len() % 2 != 0 { bytes.push(b'\n'); }
+        bytes
+    };
+    let container = |members: Vec<Vec<u8>>| {
+        let mut bytes = b"!<arch>\n".to_vec();
+        for member in members { bytes.extend(member); }
+        bytes
+    };
+    let ordinary = member("entry.o/", &object);
+    let mut bsd = b"entry.o\0".to_vec();
+    bsd.extend_from_slice(&object);
+    let mut invalid_size = member("bad.o/", b"x");
+    invalid_size[48..58].copy_from_slice(b"not-a-size");
+    let mut truncated = member("bad.o/", &[0; 100]);
+    truncated.truncate(65);
+    let mut missing_padding = member("bad.o/", b"x");
+    missing_padding.pop();
+    for (case, bytes, accepted) in [
+        ("bsd-name", container(vec![member("#1/8", &bsd)]), true),
+        ("gnu-name", container(vec![member("//", b"long-entry-object-name.o/\n"), member("/0", &object)]), true),
+        ("same-name", container(vec![ordinary.clone(), ordinary.clone()]), false),
+        ("short-header", container(vec![ordinary.clone(), vec![0; 20]]), false),
+        ("invalid-size", container(vec![ordinary.clone(), invalid_size]), false),
+        ("short-payload", container(vec![ordinary.clone(), truncated]), false),
+        ("missing-padding", container(vec![ordinary.clone(), missing_padding]), false),
+        ("short-bsd-name", container(vec![ordinary, member("#1/99", b"x")]), false),
+        ("thin", b"!<thin>\n".to_vec(), false),
+    ] {
+        let archive = directory.join(format!("container-{case}.a"));
+        std::fs::write(&archive, bytes).unwrap();
+        assert_eq!(require_lifecycle_entry_abi(&archive).is_ok(), accepted, "{case}");
+    }
 }
 
 #[test]
