@@ -62,6 +62,24 @@ quick-build-fast builds98.78s. These are dependency-cohort switch costs, not
 controlled edit comparisons. A second unchanged CLI build is Fresh, wall.339s,
 with no rustc/link invocation; CLI --version exits0. No tests/checkers added.
 
+## Unused CLI macro dependency retirement (2026-10-20)
+
+Remove unused root anyhow and Clap's derive feature: root CLI/bin sources use
+Clap's builder API, with no derive/attribute consumers in source, tests or examples.
+ny-llvmc retains its own derive dependency; no workspace tool capability is removed.
+Locked offline native normal/build/dev graph drops100 ->97 unique packages:
+anyhow, clap_derive and heck leave the root graph. Cargo.lock stays unchanged
+because other workspace packages still need them. Combined native pruning133 ->97.
+
+With existing compiler WIP preserved, quick-build-fast --locked --offline --timings
+succeeds in106.58s. This is a dependency-cohort change plus WIP CLI build, not a
+controlled edit-speed comparison. A second --verbose run takes.345s, root Fresh,
+zero compilation/rustc invocations. Matching CLI --version/--help exit0 and invalid
+--grammar-profile exits2. No test/checker/guard added; incremental, jobs4, LLD,
+assertions and optimized dependency settings remain. Existing semantic test failure
+and unfinished compiler WIP are outside this tooling change and remain uncommitted.
+No hot-edit speedup or product acceptance is claimed by these CLI checks.
+
 ## Historical linker measurement
 
 Measure the next required Cargo build before choosing a linker change. Preserve
