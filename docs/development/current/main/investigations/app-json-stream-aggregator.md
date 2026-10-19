@@ -10,8 +10,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Matching quick opt0 CLI42.89s, quick runtime and C FFI; no Cargo overlap.
 - mimalloc PASS205.577s; typed-newbox196.124s →37.816s. Allocator still timeout300s.
   Prior pre-extraction suite: 5PASS/6FAIL/1392.243s; Array-transfer suite: 7PASS/4FAIL.
-- Field-read loan sharing built (CLI40.01s): allocator still build-timeout300s;
-  per-callee input-census sharing built (CLI37.07s); affected allocator remeasurement is running.
+- Same allocator smoke: prior build-timeout300s → input-census sharing267.063s PASS
+  → cohort/selection folding160.247s PASS (-40% total). Matching CLI43.24s; no Cargo/profiler overlap.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
 - Matching quick opt0 CLI after source-family ordering fix (build41s), existing JSON smoke: MIR compilation fails
@@ -35,7 +35,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   mimalloc import closure or assert every unsupported Invoke subtype. Do not describe
   this as a new runtime capability or an identical negative test transfer.
 - Loop Call source/SSA, full finite incoming/uses, readonly Text materialization and
-  implicit Unit inputs connect to both final consumers; latest focused176 PASS/0 FAIL, publication PASS.
+  implicit Unit inputs connect to both final consumers; focused176 plus original-root refusal PASS, publication PASS.
   Unit value-use and before/after-take guard-loss refusals PASS; object packet26 PASS.
   Fixtures retain real-EXE profile/field vetoes; final-entry refusal replaces an internal partition pin.
 
@@ -85,11 +85,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Shared Append outer Call now belongs to its existing effect packet; retain full census.
   Entry membership is passive; result loan issuer retains full anchor/grounding/dependency proof.
   Original numeric forwarding guard loss stays terminal; no nullable owner retry.
-  If/SSA draft stays isolated; field and callee-input folds share only same-operation immutable checks.
+  If/SSA stays isolated; cohort/selection folds reuse same-operation immutable checks, no persistent cache.
   Archive framing cases reuse one existing test fn to protect ABI refusals after retiring per-member subprocesses.
 - Prior reds: field-read2, count_at Loop, composition2/result2, Unit remain open.
 - Previous Array-transfer measurement passed allocator/mimalloc EXEs unchanged;
-  current Call-generation suite restores mimalloc; allocator still timeout. Bool Eq/Ne C admission
+  current fixed suite restores mimalloc; later allocator standalone PASS160.247s. Bool Eq/Ne C admission
   retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
   by the pre-existing tagged-add negative. Earlier SSA/handoff/Array teardown/synthetic
   callee reds remain open. Array provider3/handoff1 reproduce identically at pre-change HEAD.

@@ -32,13 +32,11 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn has_original_owning_object_input_v1(
         &self, ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
-        let selected = ingress.original_owning_object_input_callee_v1(target)?;
-        for incoming in ingress.source_incoming.exact_rows().filter(|row| row.callee == target.callee_owner()) {
-            if let Some(loan) = ingress.original_owning_object_input_source_v1(incoming.source.require_instance()?)? {
-                self.callable_result_classes.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
-            }
+        let loans = ingress.original_owning_object_input_callee_sources_v1(target)?;
+        for loan in &loans {
+            self.callable_result_classes.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
         }
-        Ok(selected)
+        Ok(!loans.is_empty())
     }
 
     /// Select the existing packet protocol from original source obligations.

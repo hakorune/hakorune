@@ -67,11 +67,21 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let finite_input = Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?;
         let mut source_result_request = source.original_returned_field_participant_request_v1(owner)?.is_some();
+        // Owning selection checks the whole callee, including every target and
+        // root; share that result only within this immutable selection scan.
+        let mut owning_request = None;
         for call in source.source_incoming.exact_rows().filter(|call| call.callee == owner) {
             let target = call.source.require_instance()?;
             source_result_request |= source.original_object_producer_source_v1(target)?.is_some()
                 || source.original_mixed_input_source_v1(target)?.is_some()
-                || self.has_original_owning_object_input_v1(source, target)?;
+                || match owning_request {
+                    Some(owning) => owning,
+                    None => {
+                        let owning = self.has_original_owning_object_input_v1(source, target)?;
+                        owning_request = Some(owning);
+                        owning
+                    }
+                };
         }
         if kind == OriginalInstanceInputKindV1::SourceInstance && !source_result_request
             && !finite_input && !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }

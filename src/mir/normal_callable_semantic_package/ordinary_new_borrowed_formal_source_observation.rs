@@ -48,19 +48,29 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_owning_object_input_callee_v1(
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
+        self.original_owning_object_input_callee_sources_v1(target).map(|loans| !loans.is_empty())
+    }
+
+    /// Lend the original cohort only within this immutable operation. Roots
+    /// remain independently checked by the result owner after the full census.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_owning_object_input_callee_sources_v1(
+        &self, target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Vec<&super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>, String> {
         if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
             return Err(freeze("nullable-input/original-incoming-census-drift"));
         }
         self.original_owning_object_input_target_v1(target)?;
-        let mut selected = false;
+        let mut loans = Vec::new();
         for row in self.source_incoming.exact_rows().filter(|row| row.callee == target.callee_owner()) {
             let original = row.source.require_instance()?;
             if original.target() != target.target() || original.target_batch_slot() != target.target_batch_slot() {
                 return Err(freeze("nullable-input/callee-identity"));
             }
-            selected |= self.original_owning_object_input_target_v1(original)?.is_some();
+            if let Some(loan) = self.original_owning_object_input_target_v1(original)? {
+                loans.push(loan);
+            }
         }
-        Ok(selected)
+        Ok(loans)
     }
 
     #[cfg(test)]
