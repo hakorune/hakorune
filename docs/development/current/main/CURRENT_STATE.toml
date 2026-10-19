@@ -17,10 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: 元ReturnInBody plannerとsource Headerを接続、finite entry readを条件にも統合。
-既存69件PASS、既知baseline2件は未解消。matching CLI51.53秒、find内Ifの実行actionが不足。
-次は条件Core StringのNormal/Fault/EndとLoop Returnを同じterminal owner・両final consumerへ接続。
-C Integer入口/owned Text pairはPASS。Rust checked Integer入口・String Call ABIは未接続。
+APP-json-stream-aggregator: Bool比較のCore Stringを共通expression writer・両final consumerへ接続。
+既存95件PASS、既知baseline2件は未解消。matching CLI39.50秒、JSONはMIR段階で停止。
+find内IfのCore sourceは保持。次はportable Loop Bool投影・比較ごとのEnd・Loop Returnを接続。
+Rust checked Integer入口・Static String Call ABIは未接続。詳細はactive card。
 最新公式suiteはIf世代7PASS/4FAIL（実EXE6＋marker1）、452.3秒。後続差分は未計測。
 """
 next_design_card = "APP-json-stream-aggregator"

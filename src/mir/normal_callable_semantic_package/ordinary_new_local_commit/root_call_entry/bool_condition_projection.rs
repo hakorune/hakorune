@@ -17,7 +17,6 @@ type Finished = super::super::super::physical_boundary::FinishedBindings;
 pub(in crate::mir) struct BoolConditionTextOperandV1 {
     pub(in crate::mir) node: usize,
     pub(in crate::mir) operand: crate::mir::instruction::StringInvokeOperand,
-    pub(in crate::mir) reference: Option<super::expression_projection::ExpressionReferenceReadV1>,
 }
 impl BoolConditionTextOperandV1 {
     pub(in crate::mir) fn comparison_operation_v1(frame: &CheckedBoolConditionFrameV1, node: usize,
@@ -63,7 +62,10 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     Field(Binding),
     Call { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
     Binary { append: Binding, operands: [Rc<LocalSsaPhysicalRelationV1>; 2] },
-    TextComparison { operands: [BoolConditionTextOperandV1; 2], bindings: Box<[Binding]> },
+    TextComparison { operands: [BoolConditionTextOperandV1; 2],
+        input_values: Box<[Option<crate::mir::instruction::StringInvokeOperand>]>,
+        input_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
+        entry: Binding, terminal: Binding, continuation: Binding, bindings: Box<[Binding]> },
     Logical { completed: CompletedLogicalShortCircuitV1, conditions: [Rc<LocalSsaPhysicalRelationV1>; 2] },
 }
 #[derive(Debug)]
@@ -145,6 +147,13 @@ impl BoolConditionSealV1 {
 
 }
 impl EmittedBoolConditionProjectionV1 {
+    pub(super) fn comparison_inputs_v1<'a>(&'a self, node: &'a BoolConditionNodeProjectionV1)
+        -> Result<super::expression_projection::ExpressionPhysicalProjectionRefV1<'a>, String> {
+        let BoolConditionValueProofV1::TextComparison { input_values, input_reads, bindings, .. } = &node.proof
+            else { return Err(freeze("bool-condition/text-comparison-source")); };
+        super::expression_projection::ExpressionPhysicalProjectionRefV1::new(self.frame.evaluation(),
+            input_values, &[], &[], input_reads, bindings).for_comparison_inputs(node.node, node.value)
+    }
     pub(in crate::mir) fn prepare(
         frame: Rc<CheckedBoolConditionFrameV1>, nodes: Vec<BoolConditionNodeProjectionV1>,
         entry: Binding, prefix: Vec<Binding>, materialization: Rc<IfConditionMaterializationV1>,

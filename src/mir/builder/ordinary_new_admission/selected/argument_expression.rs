@@ -72,15 +72,15 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     };
     let projection = Projection::from_expression_v1(
         frame,
-        expression.values,
-        expression.calls,
-        expression.path_reads.into_values().collect(),
-        expression.reference_reads,
-        expression.entry,
+        expression.body.values,
+        expression.body.calls,
+        expression.body.path_reads.into_values().collect(),
+        expression.body.reference_reads,
+        expression.body.entry,
         terminal,
         continuation,
         expression.purpose_acquisition,
-        expression.bindings,
+        expression.body.bindings,
         ledger,
         builder
             .function_state

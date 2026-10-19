@@ -157,11 +157,23 @@ fn install_source<E>(
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, E> {
     use super::expression_plan::CheckedScalarReferenceV1 as Scalar;
+    let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(&source,
+        super::expression_plan::ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(), homes,
+        &mut |site| {
+            match actuals(site, BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan: &source })? {
+                Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) => return Ok(Some(ExpressionCallSourceV1::Core(core))),
+                Some(_) => return Ok(None),
+                None => {},
+            }
+            local_call_flow::issue_source_scalar_frame_call_v1(input, &source, site,
+                homes, &mut |binding| locals.field_alias_call_path(binding), actuals)
+                .map(|call| call.map(ExpressionCallSourceV1::Ordinary))
+        })? else { return Ok(None) };
     let mut entry_reads = Vec::new();
     let owned = OwnedExprSiteV1::new(input.owner(), source.nodes()[0].site().clone());
-    // Ordinary Calls own their input subtrees. Parent expression reads borrow the
-    // original formal SUM here; current scalar/Home proofs stay with their owners.
-    for (_, node) in source.nodes_outside_calls() {
+    // Core inputs remain active; Ordinary Calls own their transferred children.
+    for (index, node) in source.nodes().iter().enumerate() {
+        if !prepared.is_active_reference(index) { continue; }
         if !matches!(node.source(), Node::Reference(_)) { continue; }
         let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
         if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(&owned,
@@ -170,7 +182,7 @@ fn install_source<E>(
         }
     }
     let mut installation = None;
-    let plan = qualify_condition_expression_v1(Rc::clone(&source), homes, &entry_reads,
+    let plan = qualify_condition_expression_v1(prepared, &entry_reads,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| {
             let Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) = locals.observe(site) else { return None; };
@@ -179,8 +191,6 @@ fn install_source<E>(
             } else { Some(Scalar::Obligation { binding, kind }) }
         },
         &mut |site| super::field_read::field_read_request(input, site, locals),
-        &mut |site| local_call_flow::issue_source_scalar_frame_call_v1(input, &source, site,
-            homes, &mut |binding| locals.field_alias_call_path(binding), actuals),
         &mut |plan| {
             let mut candidate = locals.expression_installation();
             if !candidate.approve(plan) { return false; }

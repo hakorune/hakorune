@@ -333,6 +333,17 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                         local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
                 }
+                // Conditions demand original Core analysis too; their Bool
+                // root is not an incoming value or execution permission.
+                use crate::mir::resolved_value_profile::expression_plan::{
+                    condition_expression_source_plan_v1, loop_condition_expression_source_plan_v1,
+                };
+                for plan in input.function().if_region_sites().map(|site| condition_expression_source_plan_v1(input, site))
+                    .chain(input.function().loop_sites().map(|site| loop_condition_expression_source_plan_v1(input, site))) {
+                    let Ok(plan) = plan else { continue };
+                    expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                        local_candidates, receiver, definitions, contracts, plan.nodes()[0].site(), None, Some(inventory), Some(&source_context)));
+                }
                 // Plain rebind RHSs demand the same original expression/Core
                 // analysis as Local initializers. This grants no destination,
                 // Home or execution permission; the current Prefix seals those.

@@ -16,13 +16,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Current matching quick CLI passes the Main.main argument frame for
   `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
   `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
-  Matching quick CLI51.53s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
+  Matching quick CLI39.50s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
   (callee JsonLine.find/3). No EXE/link/runtime.
 - Caller Loop `JsonLine.find` argument2 (`start`) now retains its checked scalar read
   in the original argument frame; matching smoke no longer reports ingest's uncovered read.
   Callee JsonLine.find now retains its original ReturnInBody planner family and
-  checked Header basis. Its source Loop next lacks the If comparison execution
-  action; the same input-cohort stop remains. No EXE/link/runtime was reached.
+  checked Header basis. Its condition Core source now reaches the Bool frame,
+  but portable Loop Bool projection refuses `opaque-or-owned-subtree`. The same
+  input-cohort stop remains; no EXE/link/runtime was reached.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -38,15 +39,17 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Text source demand validates original result/target evidence, whole incoming census,
   complete callee formal contract and SAME source snapshot/ordered arguments. A selected
   refusal is terminal. Qualification admits Text only in the existing Argument purpose.
-- Earlier normalized-source focused249 and Text Return focused33 PASS, with no new tests.
-  Qualified-return2/Raw Loop residual1 failures reproduce pre-Text; they remain open.
-- Next: prepare condition Calls once; seed active refs, keeping Core inputs while
-  excluding Ordinary transferred children. Close Core String temporaries and Loop Return
-  using the existing terminal/cleanup owner. Preserve source/Completion through Static packet, Invoke and
-  both final consumers; selected-Static-Loop I64 restrictions stay in force.
-  Reaching a String comparison must evaluate its original children in order, then compare
-  and End only its temporaries; Fault retains acquired prefix and remaining End suffix.
-  Do not eagerly evaluate logical RHS or treat source membership as execution permission.
+- Bool String comparisons share the existing expression body writer and final
+  projection, retaining original Core/read proofs and per-comparison acquisition,
+  Normal End, Fault prefix and remaining End suffix. Logical RHS stays conditional.
+  Source SUM now demands original If/Loop conditions, without new formal incoming.
+  Threading removes only the same orphaned empty Jump, keeping other entries alive.
+- Minimal existing substring tuple protects the new conditional owning-Core scope;
+  no test function/file/hook or checker added. Related existing95 PASS, including
+  SimplifyCFG16 and shared initializer/rebind/print/Call/Loop final consumers.
+- Next: project the SAME Core into the existing portable Loop Bool tree, close
+  acquisitions per comparison, and connect Loop Return through the original
+  terminal owner. Rust Integer entry and Static String Call ABI remain owed.
 - C pair Return reuses `{handle, End token}`, per-Invoke String output slot,
   Normal projection and String End. Existing borrowed-ingress `--text-only` matrix
   PASS with quick runtime/private C FFI and `CC="clang -fuse-ld=lld"`.
@@ -70,11 +73,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   C Static/Instance Copy/Phi, Normal/Fault and domain/producer mutation matrix PASS.
   Rust activation still requires module/published sequence replay plus rejection of
   projected root/Copy/Phi uses outside the sealed scope; a domain-only skip is forbidden.
-- Existing compiler tuple extension checks the separate caller boundary: a Loop
-  scalar enters an unannotated, unused callee formal without losing its source read.
-  It adds no test function; declared-formal/Return coverage remains in its original tuple.
-  Current focused69 PASS. Forwarded-candidate package setup and Raw Loop residual
-  tests still fail at their existing baselines; neither refusal is weakened.
+- Existing Loop caller tuple preserves its read into an unused unannotated formal.
+  Forwarded-candidate setup and Raw Loop residual retain their existing failures.
 
 ## Shared remaining contracts
 

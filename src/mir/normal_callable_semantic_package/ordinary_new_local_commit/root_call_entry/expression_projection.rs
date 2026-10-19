@@ -24,6 +24,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
     reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     original: &'a [Binding],
+    comparison: Option<(usize, ValueId)>,
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir) fn new(
@@ -33,7 +34,43 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
         reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
         original: &'a [Binding],
-    ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original } }
+    ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original, comparison: None } }
+
+    pub(in crate::mir) fn for_comparison_inputs(mut self, node: usize, result: ValueId) -> Result<Self, String> {
+        self.frame.text_comparison_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+        self.comparison = Some((node, result));
+        Ok(self)
+    }
+    fn node_selected(&self, node: usize) -> bool {
+        self.comparison.is_none_or(|(root, _)| node != root && self.frame.source().nodes()[node].site().node().segments()
+            .starts_with(self.frame.source().nodes()[root].site().node().segments()))
+    }
+    fn source_calls(&self) -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
+        self.frame.calls().iter().filter(|call| self.frame.source().nodes().iter().position(|node|
+            node.site() == call.site().site()).is_some_and(|node| self.node_selected(node)))
+    }
+    fn comparison_pair(&self) -> Result<Option<[Binding; 2]>, String> {
+        let Some((node, result)) = self.comparison else { return Ok(None) };
+        let binary = self.frame.source().nodes()[node].binary().ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+        let operand = |site| self.frame.source().nodes().iter().position(|row| row.site() == site)
+            .and_then(|node| self.values[node].clone()).filter(Operand::is_text)
+            .ok_or_else(|| freeze("bool-condition/text-operand-order"));
+        use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+        let op = match binary.operator() {
+            Op::Equal => crate::mir::CompareOp::Eq, Op::NotEqual => crate::mir::CompareOp::Ne,
+            Op::Less => crate::mir::CompareOp::Lt, Op::LessEqual => crate::mir::CompareOp::Le,
+            Op::Greater => crate::mir::CompareOp::Gt, Op::GreaterEqual => crate::mir::CompareOp::Ge,
+            _ => return Err(freeze("bool-condition/text-operator")),
+        };
+        let operation = Operation::Compare { op, left: operand(binary.lhs())?, right: operand(binary.rhs())? };
+        let invoke = self.require_unique(|row| matches!(row, MirInstruction::Invoke {
+            operation: InvokeOperation::String(actual), .. } if actual == &operation))?;
+        let MirInstruction::Invoke { normal_landing, .. } = invoke.1 else { unreachable!() };
+        let projection = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult {
+            invoke_block, dst } if *invoke_block == invoke.0 && *dst == result))?;
+        if projection.0 != normal_landing || projection.0 == invoke.0 { return Err(freeze("bool-condition/text-compare-projection")); }
+        Ok(Some([invoke.clone(), projection.clone()]))
+    }
 
     fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
@@ -43,16 +80,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let ledger = context.ledger();
         let source = self.frame.source();
         if !self.frame.reference_coverage_is_exact()
-            || self.values.len() != source.nodes().len() || self.calls.len() != self.frame.calls().len()
+            || self.values.len() != source.nodes().len() || self.calls.len() != self.source_calls().count()
         {
             return Err(freeze("print-expression/source-coverage"));
         }
-        if self.reference_reads.len() != self.frame.references().len()
-            || self.reference_reads.keys().any(|node| !self.frame.references().contains_key(node)) {
+        if self.reference_reads.len() != self.frame.references().keys().filter(|node| self.node_selected(**node)).count()
+            || self.reference_reads.keys().any(|node| !self.node_selected(*node) || !self.frame.references().contains_key(node))
+            || self.values.iter().enumerate().any(|(node, value)| !self.node_selected(node) && value.is_some()) {
             return Err(freeze("expression/reference-read-census"));
         }
         let mut roots = std::collections::BTreeMap::new();
-        for node in source.nodes() {
+        for (_, node) in source.nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
             let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
             if let Some(path) = ledger.statement_field_path_v1(&site, context)? {
                 let root_site = OwnedExprSiteV1::new(source.owner(), path.root_site().clone());
@@ -75,7 +113,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 return Err(freeze("print-expression/path-root-value"));
             }
         }
-        for (observed, packet) in self.frame.calls().iter().zip(self.calls()) {
+        for (observed, packet) in self.source_calls().zip(self.calls()) {
             if packet.call_site() != observed.site()
                 || ledger.lexical_i64_call_source(packet.call_site()) != Some(observed)
                 || observed.prior_homes() != self.frame.prior_homes()
@@ -101,7 +139,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .cloned()
                 .ok_or_else(|| freeze("print-expression/operand-missing"))
         };
-        for &index in self.frame.ordered_nodes() {
+        for &index in self.frame.ordered_nodes().iter().filter(|node| self.node_selected(**node)) {
             let node = &source.nodes()[index];
             let value = self.values[index].as_ref();
             if self.frame.transfers_node(index) {
@@ -219,6 +257,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 _ => return Err(freeze("print-expression/node-value")),
             }
         }
+        self.comparison_pair()?;
         Ok(())
     }
 
@@ -283,7 +322,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir) fn ordered_bindings_in_context(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
         let mut ordered = Vec::new();
         let source = self.frame.source();
-        for &index in self.frame.ordered_nodes() {
+        for &index in self.frame.ordered_nodes().iter().filter(|node| self.node_selected(**node)) {
             if self.frame.transfers_node(index) {
                 continue;
             }
@@ -346,6 +385,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 _ => {}
             }
         }
+        if let Some(pair) = self.comparison_pair()? { ordered.extend(pair); }
         Ok(ordered)
     }
 
@@ -384,7 +424,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         }
         let mut calls = Vec::new();
         let mut copies = Vec::new();
-        for (observation, packet) in self.frame.calls().iter().zip(self.calls()) {
+        for (observation, packet) in self.source_calls().zip(self.calls()) {
             copies.extend(
                 packet
                     .copy_dependencies(ledger)?
@@ -406,7 +446,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 },
             )?;
         }
-        for node in self.frame.source().nodes() {
+        for (_, node) in self.frame.source().nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
             copies.extend(ledger.checked_field_copy_dependencies_v1(
                 &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()),
                 CallValidationContextV1::Lowering(ledger))?);
@@ -471,6 +511,13 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             || covered.iter().any(|id| !scope.contains(id))
         {
             return Err(freeze("print-expression/scope-disconnected"));
+        }
+        if let Some(pair) = self.comparison_pair()? {
+            let MirInstruction::Invoke { fault_frame, .. } = pair[0].1 else { unreachable!() };
+            let frame = self.require_unique(|row| matches!(row, MirInstruction::FaultFrameEnter { dst, .. } if *dst == fault_frame))?;
+            if self.original.iter().any(|row| !scope.contains(&row.0) && row != entry_binding && row != frame) {
+                return Err(freeze("print-expression/unowned-scope-instruction"));
+            }
         }
         for (id, block) in &function.blocks {
             if scope.contains(id) {
@@ -623,10 +670,21 @@ pub(in crate::mir) fn validate_expression_acquisition_prefix_v1(
     frame: &CheckedExpressionEvaluationV1, before: Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1>,
     acquired: &[(usize, ValueId)], values: &[Option<Operand>], function: &MirFunction,
 ) -> Result<(), String> {
+    validate_expression_acquisition_scope_v1(frame, None, before, acquired, values, function)
+}
+
+pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
+    frame: &CheckedExpressionEvaluationV1, comparison: Option<usize>,
+    before: Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1>,
+    acquired: &[(usize, ValueId)], values: &[Option<Operand>], function: &MirFunction,
+) -> Result<(), String> {
     if values.len() != frame.source().nodes().len() {
         return Err(freeze("expression-call/value-coverage"));
     }
-    let order = frame.ordered_nodes();
+    let order = match comparison {
+        Some(node) => frame.text_comparison_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
+        None => frame.ordered_nodes().to_vec(),
+    };
     let end = if let Some(call) = before {
         if !frame.calls().iter().any(|original| std::ptr::eq(original, call)) {
             return Err(freeze("expression-call/original-observation"));

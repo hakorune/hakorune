@@ -215,7 +215,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 }
             }
         }
-        for node in self.frame.source().nodes() {
+        for (_, node) in self.frame.source().nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
             for original in ledger.checked_field_copy_dependencies_v1(
                 &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()), context)? {
                 let actual = match finishing {
@@ -373,7 +373,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 .chain(homes.iter().cloned())
                 .collect::<Vec<_>>()
         };
-        let calls = self.frame.calls().iter().zip(self.calls()).map(|(source, call)| {
+        let calls = self.source_calls().zip(self.calls()).map(|(source, call)| {
             let effects = call.ordered_call_bindings_in_context_v1(self.frame.source().owner(), source.arguments(), context)?
                 .into_iter().filter(|(_, instruction)| matches!(instruction, MirInstruction::Invoke { .. }))
                 .map(|binding| match finishing {

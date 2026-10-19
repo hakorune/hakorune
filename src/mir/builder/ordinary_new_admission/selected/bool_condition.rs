@@ -135,23 +135,26 @@ pub(in crate::mir::builder) fn cursor(builder: &MirBuilder) -> Result<Cursor, St
 }
 
 /// The recursive source owner calls this only when the original comparison is
-/// reached. Borrowed operands acquire no Text result and no Normal End.
+/// reached. Its shared input scope acquires and Ends only that comparison's
+/// Core temporaries, before the enclosing logical tree can merge or run RHS.
 pub(in crate::mir::builder) fn emit_text_comparison_v1(
     builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedBoolConditionFrameV1, node: usize,
-    operands: [crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1; 2],
 ) -> Result<(ValueId, Proof), String> {
-    let operation = crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1::comparison_operation_v1(frame, node, &operands)?;
-    let fault_frame = state.borrow_fault_frame(builder)?;
-    let mut bindings = vec![fault_frame_binding(builder, state, fault_frame)?];
-    let homes = ledger.prior_home_unwind_for(frame.prior_homes())?;
-    let mut acquired = Vec::new();
+    use crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1 as Operand;
+    let mut body = super::expression_value::emit_comparison_inputs_v1(builder, state, ledger, frame.evaluation(), node)?;
+    if !body.calls.is_empty() || !body.path_reads.is_empty() { return Err(freeze("bool-condition/text-operand-order")); }
+    let children = frame.text_comparison_children_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+    let operand = |node: usize| body.values[node].clone().filter(|value| value.is_text())
+        .map(|operand| Operand { node, operand }).ok_or_else(|| freeze("bool-condition/text-operand-order"));
+    let operands = [operand(children[0])?, operand(children[1])?];
+    let operation = Operand::comparison_operation_v1(frame, node, &operands)?;
     let (value, kind) = super::expression_value::emit_string_operation_v1(builder, &mut RawRootGraphWriterV1,
-        operation, node, fault_frame, &mut acquired, &homes, &mut bindings)?;
-    if kind != crate::mir::instruction::InvokeNormalResultKind::Bool || !acquired.is_empty() {
-        return Err(freeze("bool-condition/text-result"));
-    }
-    Ok((value, Proof::TextComparison { operands, bindings: bindings.into_boxed_slice() }))
+        operation, node, body.fault_frame, &mut body.acquired, &body.homes, &mut body.bindings)?;
+    if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
+    let (terminal, continuation) = super::expression_value::finish_comparison_continuation_v1(builder, &mut body)?;
+    Ok((value, Proof::TextComparison { operands, input_values: body.values.into_boxed_slice(),
+        input_reads: body.reference_reads, entry: body.entry, terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {
     let mut definitions = function.blocks.iter().flat_map(|(id, block)| block.all_instructions()

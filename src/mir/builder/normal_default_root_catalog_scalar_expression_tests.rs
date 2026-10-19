@@ -177,6 +177,7 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
         ("local text = \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", false, false),
         ("local text = \"\" + \"5\" local alias = text", "alias < \"0\" || alias > \"9\"", true, false),
         ("local a = \"5\" local b = \"9\"", "a < b && b >= a", false, false),
+        ("local text = \"5\"", "text.substring(0, 1) < \"0\" || text.substring(0, 1) > \"9\"", false, false),
     ] {
         let text = if in_method {
             format!("box Pool {{ size: i64 = 0 birth() {{}} compare(): i64 {{
@@ -210,7 +211,18 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
         let rhs = main.blocks.values().filter_map(|block| match block.terminator.as_ref() {
             Some(MirInstruction::Branch { then_bb, else_bb, then_edge_args: None, else_edge_args: None, .. }) =>
                 Some([*then_bb, *else_bb]), _ => None,
-        }).flatten().any(|target| comparisons.iter().any(|(id, _)| *id == target));
+        }).flatten().any(|mut target| {
+            let mut seen = std::collections::BTreeSet::new();
+            while seen.insert(target) {
+                if comparisons.iter().any(|(id, _)| *id == target) { return true; }
+                target = match main.blocks[&target].terminator.as_ref() {
+                    Some(MirInstruction::Jump { target, edge_args: None }) => *target,
+                    Some(MirInstruction::Invoke { normal_landing, .. }) => *normal_landing,
+                    _ => return false,
+                };
+            }
+            false
+        });
         assert!(rhs, "original short-circuit branch reaches the second comparison");
         let rows: Vec<_> = main.blocks.values().flat_map(|block| block.all_instructions()).collect();
         let mut roots: std::collections::BTreeSet<_> = rows.iter().filter_map(|row| match row {
@@ -248,7 +260,8 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
         }
         for mutation in ["operator", "operand", "normal", "fault", "frame", "projection", "logical-edge", "copy-source", "text-end", "residence-producer"] {
             if mutation == "copy-source" && text_copy.is_none() { continue; }
-            if matches!(mutation, "text-end" | "residence-producer") && !residence { continue; }
+            if mutation == "residence-producer" && !residence { continue; }
+            if mutation == "text-end" && !residence && !condition.contains("substring") { continue; }
             let mut changed = module.clone();
             let function = changed.functions.get_mut(&main_key).unwrap();
             let mut count = 0;

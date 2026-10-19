@@ -44,8 +44,8 @@ impl CheckedBoolConditionFrameV1 {
         let index = |site| self.source().nodes().iter().position(|node| node.site() == site);
         Some([index(binary.lhs())?, index(binary.rhs())?])
     }
-    pub(crate) fn text_operand_nodes_v1(&self) -> BTreeSet<usize> {
-        self.ordered_nodes().iter().filter_map(|node| self.text_comparison_children_v1(*node)).flatten().collect()
+    pub(crate) fn text_comparison_input_nodes_v1(&self) -> BTreeSet<usize> {
+        self.ordered_nodes().iter().filter_map(|node| self.evaluation.text_comparison_input_order_v1(*node)).flatten().collect()
     }
 }
 
@@ -63,25 +63,31 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
     if !matches!(source.root(), ExpressionPlanRootV1::IfCondition { .. }) { return Ok(None); }
-    qualify_condition_expression_v1(source, prior_homes, &[], static_reference, residence_reference,
+    let Some(prepared) = super::leaves::prepare_expression_calls_v1(&source,
+        ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(), prior_homes,
+        &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))?
+        else { return Ok(None) };
+    qualify_condition_expression_v1(prepared, &[], static_reference, residence_reference,
         &mut |site| scalar_reference(site).map(|(binding, kind)| CheckedScalarReferenceV1::Obligation { binding, kind }),
-        field_request, source_call, can_install, field_batch)
+        field_request, can_install, field_batch)
 }
 
 /// Preserve the genuine If/Loop purpose and exact original scalar proofs.
 /// This shares qualification only; it grants no outer control-flow completion.
 pub(crate) fn qualify_condition_expression_v1<E>(
-    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[LiveHomeV1],
+    mut prepared: super::leaves::PreparedExpressionCallsV1,
     entry_reads: &[crate::mir::normal_callable_semantic_package::FiniteEntryReadV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<CheckedScalarReferenceV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
+    if !prepared.is_bool_condition() { return Ok(None); }
+    let source = Rc::clone(prepared.source());
+    let prior_homes = prepared.prior_homes().to_vec();
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
     use ResolvedBinaryOperatorV1 as Op;
@@ -93,17 +99,13 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     };
     if source.nodes().first().is_none_or(|node| node.site() != condition) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
-    let Some(mut prepared) = super::leaves::prepare_expression_calls_v1(&source,
-        ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(), prior_homes,
-        &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))?
-        else { return Ok(None) };
     let initial = entry_reads.iter().map(|read| (read.requirement().node(),
         CheckedExpressionReferenceV1::FiniteEntry { read: read.clone(), exclusion: None })).collect();
     let Some(reference_proofs) = super::evaluation::seed_current_expression_references_v1(&mut prepared, initial, &order,
         static_reference, residence_reference,
         scalar_reference)
         else { return Ok(None) };
-    let Some(QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references, .. }) =
+    let Some(QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
         else { return Ok(None) };
     if !references.is_empty() { return Ok(None); }
@@ -147,12 +149,8 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             (Leaf::Value(Class::Bool), Leaf::Value(Class::Bool))
                 if matches!(binary.operator(), Op::Equal | Op::NotEqual) => DynamicOperatorValueClassV1::Bool,
             (Leaf::Value(Class::String), Leaf::Value(Class::String)) if binary.operator() != Op::Add => {
-                // Text children are borrowed leaf observations of this comparison,
-                // never hidden effectful subtrees or ordinary scalar ValueIds.
-                if [left, right].into_iter().any(|index| !matches!(source.nodes()[index].source(),
-                    crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::String(_))
-                    | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_))
-                    || !matches!(source.nodes()[index].children(), ExpressionChildrenV1::Known(children) if children.is_empty())) { return Ok(None); }
+                // The complete original input subtree is checked below, after
+                // all comparison loans and Core acquisitions are retained.
                 DynamicOperatorValueClassV1::String
             }
             _ => return Ok(None),
@@ -166,16 +164,27 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     if calls.values().any(|call| !matches!(call.result(), LocalCallResultClassV1::I64 | LocalCallResultClassV1::Bool)) {
         return Ok(None);
     }
+    let owned_results = super::evaluation::owned_result_nodes(&order, &[], &cores, &calls);
     let frame = Rc::new(CheckedBoolConditionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 {
             source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
             operations: operations.into_boxed_slice(), references: reference_proofs,
-            cores: BTreeMap::new(), owned_results: Box::new([]), transferred_inputs: transferred,
+            cores, owned_results, transferred_inputs: transferred,
         },
         logical: logical.into_boxed_slice(),
     });
     if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
+    let mut input_owners = BTreeMap::new();
+    for &node in frame.ordered_nodes() {
+        if frame.text_comparison_children_v1(node).is_none() { continue; }
+        let Some(inputs) = frame.evaluation().text_comparison_input_order_v1(node) else { return Ok(None) };
+        for input in inputs {
+            if input_owners.insert(input, node).is_some() { return Ok(None); }
+        }
+    }
+    if frame.evaluation().cores().keys().any(|node| !input_owners.contains_key(node))
+        || frame.evaluation().owned_result_nodes().iter().any(|node| !input_owners.contains_key(node)) { return Ok(None); }
 
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,

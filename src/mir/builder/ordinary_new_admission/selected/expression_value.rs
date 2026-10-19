@@ -15,6 +15,12 @@ type Binding = (BasicBlockId, MirInstruction);
 pub(super) struct EmittedExpressionValueV1 {
     pub(super) value: Operand,
     pub(super) purpose_acquisition: Option<[Binding; 2]>,
+    pub(super) body: EmittedExpressionBodyV1,
+}
+
+/// One evaluated source scope. A comparison borrows its inputs without
+/// inventing a root value or re-rooting the original source expression.
+pub(super) struct EmittedExpressionBodyV1 {
     pub(super) values: Vec<Option<Operand>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, crate::mir::builder::ExactLexicalReadV1>,
@@ -50,6 +56,29 @@ pub(super) fn emit_with_prefix(
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
+    let body = emit_body_with_prefix(builder, state, ledger, frame, None, inherited, emit_call)?;
+    let value = body.values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
+    Ok(EmittedExpressionValueV1 { value, purpose_acquisition: None, body })
+}
+
+pub(super) fn emit_comparison_inputs_v1(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1, comparison: usize,
+) -> Result<EmittedExpressionBodyV1, String> {
+    emit_body_with_prefix(builder, state, ledger, frame, Some(comparison), None,
+        &mut |_, _, _, _, _, _| Err(freeze("bool-condition/call-source")))
+}
+
+fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1,
+    comparison: Option<usize>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    emit_call: &mut impl FnMut(&mut MirBuilder, &mut CallableSemanticLoweringState,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>)
+        -> Result<EmittedLexicalCallProjectionV1, String>,
+) -> Result<EmittedExpressionBodyV1, String> {
+    let order = match comparison {
+        Some(node) => frame.text_comparison_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
+        None => frame.ordered_nodes().to_vec(),
+    };
     let owner = frame.source().owner();
     if state.owner() != owner { return Err(freeze("expression-value/state-owner")); }
     if !frame.reference_coverage_is_exact() { return Err(freeze("expression/reference-source-coverage")); }
@@ -57,7 +86,7 @@ pub(super) fn emit_with_prefix(
     // FaultFrame or MIR effect; a retained source class is not a physical value.
     // Corroborate every original finite requirement before the retained
     // multi-envelope execution fence. Preparation consumes no source read.
-    for original in frame.references().values() {
+    for (_, original) in frame.references().iter().filter(|(node, _)| order.contains(node)) {
         if let CheckedExpressionReferenceV1::FiniteEntry { read, exclusion } = original {
             let prepared = state.prepare_exact_lexical_read(owner, read.requirement().read().node(), read.requirement().binding())
                 .map_err(|error| error.to_string())?;
@@ -71,7 +100,7 @@ pub(super) fn emit_with_prefix(
     if frame.operations().iter().any(|operation| operation.single_envelope().is_none()) {
         return Err(freeze("expression/finite-envelope-execution-pending"));
     }
-    for &index in frame.ordered_nodes() {
+    for &index in &order {
         if frame.transfers_node(index) || frame.node_is_identity(index) { continue; }
         if matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::Scalar(read)) if read.original_read().is_none()) {
             return Err(freeze("expression/reference-scalar-obligation"));
@@ -97,7 +126,7 @@ pub(super) fn emit_with_prefix(
     // Fulfill every field-root read before any FaultFrame, CFG or value effect.
     // Reservation remains in original source order; binding nested receivers
     // still waits for the actual ancestor field writer below.
-    for &index in frame.ordered_nodes() {
+    for &index in &order {
         if frame.transfers_node(index) { continue; }
         let node = &source.nodes()[index];
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
@@ -158,7 +187,7 @@ pub(super) fn emit_with_prefix(
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
     let mut acquired = Vec::new();
     let mut calls = Vec::new();
-    for &index in frame.ordered_nodes() {
+    for &index in &order {
         if frame.transfers_node(index) { continue; }
         let node = &source.nodes()[index];
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
@@ -274,12 +303,9 @@ pub(super) fn emit_with_prefix(
         };
         values[index] = Some(value);
     }
-    let value = values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
-    crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame, None, &acquired, &values,
+    crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
-    Ok(EmittedExpressionValueV1 {
-        value, purpose_acquisition: None, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings,
-    })
+    Ok(EmittedExpressionBodyV1 { values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings })
 }
 
 pub(super) fn pending_operations(acquired: &[(usize, ValueId)], homes: &[InvokeOperation]) -> Vec<InvokeOperation> {
@@ -357,7 +383,7 @@ pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &
 pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
     let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
-    if expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+    if expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
     finish_continuation(builder, expression, Some(root), None)
 }
 
@@ -370,16 +396,16 @@ pub(super) fn finish_deferred_argument_continuation(
         return Err(freeze("argument-expression/deferred-root"));
     };
     let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
-    if materialized != Some(root) && expression.acquired.last() != Some(&(0, root)) {
+    if materialized != Some(root) && expression.body.acquired.last() != Some(&(0, root)) {
         return Err(freeze("argument-expression/deferred-acquisition-order"));
     }
     let mut writer = RawRootGraphWriterV1;
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
-    writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.bindings)?;
+    writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.body.bindings)?;
     let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean, edge_args: None })?;
-    expression.bindings.push(terminal.clone());
+    expression.body.bindings.push(terminal.clone());
     builder.start_new_block(next)?;
     Ok((terminal, continuation))
 }
@@ -394,10 +420,10 @@ pub(super) fn materialize_text_root(
     if !expression.value.is_text() || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }
-    let pending = pending_operations(&expression.acquired, &expression.homes);
+    let pending = pending_operations(&expression.body.acquired, &expression.body.homes);
     let (value, _, pair) = emit_string_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-        Operation::Materialize { value: expression.value.clone() }, expression.fault_frame,
-        &pending, &mut expression.bindings)?;
+        Operation::Materialize { value: expression.value.clone() }, expression.body.fault_frame,
+        &pending, &mut expression.body.bindings)?;
     expression.purpose_acquisition = Some(pair);
     expression.value = Operand::OwnedString(value);
     Ok(())
@@ -410,7 +436,7 @@ pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &
     if !frame.is_text_residence() { return finish_scalar_continuation(builder, expression); }
     let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
     if expression.purpose_acquisition.is_some() != frame.materializes_root()
-        || !frame.materializes_root() && expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+        || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
     let displaced = ledger.text_rebind_displaced_end_v1(frame)?;
     finish_continuation(builder, expression, Some(root), displaced)
 }
@@ -421,6 +447,17 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
     if residence.is_none() && !matches!(expression.value, Operand::NormalInteger(_)) {
         return Err(freeze("expression/scalar-continuation-result"));
     }
+    finish_body_continuation(builder, &mut expression.body, residence, displaced, expression.purpose_acquisition.is_some())
+}
+
+pub(super) fn finish_comparison_continuation_v1(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1)
+    -> Result<(Binding, Binding), String> {
+    finish_body_continuation(builder, body, None, None, false)
+}
+
+fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1,
+    residence: Option<ValueId>, displaced: Option<InvokeOperation>, materialized: bool,
+) -> Result<(Binding, Binding), String> {
     let mut writer = RawRootGraphWriterV1;
     if let Some(value) = residence {
         let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
@@ -431,17 +468,17 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
         };
         let install = MirInstruction::StringResidenceInstall { value, replaces };
         builder.emit_instruction(install.clone())?;
-        expression.bindings.push((block, install));
-        if expression.purpose_acquisition.is_none() { expression.acquired.pop(); }
+        body.bindings.push((block, install));
+        if !materialized { body.acquired.pop(); }
     }
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
-    writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.bindings)?;
-    let mut normal: Vec<_> = expression.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
-    let mut homes = expression.homes.clone();
+    writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
+    let mut normal: Vec<_> = body.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
+    let mut homes = body.homes.clone();
     if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
-    let fault = pending_operations(&expression.acquired, &homes);
+    let fault = pending_operations(&body.acquired, &homes);
     let mut normal_indices: Vec<_> = (0..normal.len()).collect();
     if let Some(old) = displaced {
         let index = fault.iter().position(|operation| *operation == old)
@@ -460,14 +497,14 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
     // Without child cleanup, there is no new fallible operation and no Fault
     // suffix consumer. Do not retain a detached ReturnFault for finishing to drop.
     let clean_entry = if normal.is_empty() { clean } else {
-        root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, expression.fault_frame, clean,
-            &normal, &fault, &after, &[], &mut expression.bindings)?.clean
+        root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, body.fault_frame, clean,
+            &normal, &fault, &after, &[], &mut body.bindings)?.clean
     };
     let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean_entry, edge_args: None })?;
-    expression.bindings.push(terminal.clone());
+    body.bindings.push(terminal.clone());
     builder.start_new_block(next)?;
     let mut unique = Vec::new();
-    for binding in std::mem::take(&mut expression.bindings) { if !unique.contains(&binding) { unique.push(binding); } }
-    expression.bindings = unique;
+    for binding in std::mem::take(&mut body.bindings) { if !unique.contains(&binding) { unique.push(binding); } }
+    body.bindings = unique;
     Ok((terminal, continuation))
 }

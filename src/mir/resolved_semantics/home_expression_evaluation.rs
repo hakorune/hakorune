@@ -42,6 +42,39 @@ impl CheckedExpressionEvaluationV1 {
     pub(crate) fn owned_result_nodes(&self) -> &[usize] { &self.owned_results }
     pub(crate) fn class(&self, node: usize) -> Option<ExpressionLeafClassV1> { self.classes.get(node).copied() }
     pub(crate) fn root_class(&self) -> ExpressionLeafClassV1 { self.classes[0] }
+    /// Borrow only the original eager inputs of one String comparison. The
+    /// enclosing Bool tree still owns conditional reach; no AST is re-rooted.
+    pub(crate) fn text_comparison_input_order_v1(&self, comparison: usize) -> Option<Vec<usize>> {
+        use crate::mir::dynamic_operator_contract::{DynamicOperatorValueClassV1 as Class,
+            DynamicOperatorNormalResultV1 as ResultKind};
+        let root = self.source.nodes().get(comparison)?;
+        let loan = self.operations.iter().find(|loan| loan.node() == comparison)?;
+        let envelope = loan.single_envelope()?;
+        if !Rc::ptr_eq(loan.source(), &self.source) || root.binary().is_none()
+            || envelope.domain().left() != Class::String || envelope.domain().right() != Class::String
+            || envelope.normal_result() != ResultKind::TrivialBool { return None; }
+        let prefix = root.site().node().segments();
+        let order: Vec<_> = self.order.iter().copied().filter(|node| *node != comparison
+            && self.source.nodes()[*node].site().node().segments().starts_with(prefix)).collect();
+        for &node in &order {
+            let original = &self.source.nodes()[node];
+            if self.transfers_node(node) || self.node_is_identity(node)
+                || !matches!(original.children(), crate::mir::resolved_value_profile::expression_children::ExpressionChildrenV1::Known(children)
+                    if children.iter().all(|child| child.reach == crate::mir::resolved_value_profile::expression_children::ExpressionChildReachV1::Always)) {
+                return None;
+            }
+            match original.source() {
+                ExpressionNodeSourceV1::Reference(_) | ExpressionNodeSourceV1::Literal(
+                    super::super::ResolvedLiteralSourceV1::Integer(_) | super::super::ResolvedLiteralSourceV1::String(_)) => {},
+                ExpressionNodeSourceV1::MethodCall if self.cores.get(&node).is_some_and(|core| core.matches_plan(&self.source, node)) => {},
+                ExpressionNodeSourceV1::Binary(binary) if binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add
+                    && self.class(node) == Some(ExpressionLeafClassV1::Value(
+                        crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64)) => {},
+                _ => return None,
+            }
+        }
+        (!order.is_empty()).then_some(order)
+    }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.transferred_inputs.contains(&node) }
     pub(crate) fn node_is_identity(&self, node: usize) -> bool {
         self.classes.get(node) == Some(&ExpressionLeafClassV1::Identity)

@@ -45,9 +45,9 @@ pub(in crate::mir::builder) fn emit(
     let effects = &function.blocks.get(&block).ok_or_else(|| freeze("no-block"))?.instructions[before..];
     if !effects.is_empty() { return Err(freeze("rebind-expression/unexpected-assignment-effect")); }
     let assigned = receipt.assigned();
-    let bindings = expression.bindings.clone();
-    let packet = Rc::new(EmittedBindingRebindProjectionV1::new(Rc::clone(&frame), receipt, expression.values, expression.calls, expression.path_reads.into_values().collect(), expression.reference_reads,
-        expression.entry, terminal, continuation, expression.purpose_acquisition, expression.bindings, ledger, function)?);
+    let bindings = expression.body.bindings.clone();
+    let packet = Rc::new(EmittedBindingRebindProjectionV1::new(Rc::clone(&frame), receipt, expression.body.values, expression.body.calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
+        expression.body.entry, terminal, continuation, expression.purpose_acquisition, expression.body.bindings, ledger, function)?);
     let pending = ledger.prepare_rebind_expression_bindings(packet, bindings)?;
     let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment } = frame.source().root()
         else { return Err(freeze("rebind-expression/source-purpose")) };

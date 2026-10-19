@@ -443,11 +443,11 @@ mod tests {
                     }
                     let mut emitted = result.unwrap();
                     assert!(matches!(emitted.value, Operand::OwnedString(_)));
-                    assert_eq!(emitted.acquired.len(), frame.evaluation().owned_result_nodes().len(), "all substring acquisitions survive; scalar Core readers acquire none");
+                    assert_eq!(emitted.body.acquired.len(), frame.evaluation().owned_result_nodes().len(), "all substring acquisitions survive; scalar Core readers acquire none");
                     let function = builder.function_state.current_function.as_ref().unwrap();
                     for mutation in 0..5 {
-                        let mut acquired = emitted.acquired.clone();
-                        let mut values = emitted.values.clone();
+                        let mut acquired = emitted.body.acquired.clone();
+                        let mut values = emitted.body.values.clone();
                         let mut changed = function.clone();
                         match mutation {
                             0 => acquired[0].0 = usize::MAX,
@@ -465,17 +465,17 @@ mod tests {
                         assert!(crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame.evaluation(), None, &acquired, &values, &changed).is_err(),
                             "source acquisition/physical producer mutation {mutation}");
                     }
-                    let reads: Vec<_> = std::mem::take(&mut emitted.path_reads).into_values().collect();
-                    let view = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &emitted.reference_reads, &emitted.bindings);
+                    let reads: Vec<_> = std::mem::take(&mut emitted.body.path_reads).into_values().collect();
+                    let view = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.body.values, &emitted.body.calls, &reads, &emitted.body.reference_reads, &emitted.body.bindings);
                     let context = CallValidationContextV1::Lowering(&ledger);
                     view.validate_source(context).unwrap();
                     view.validate_original_reference_dependencies(context, builder.function_state.current_function.as_ref().unwrap()).unwrap();
                     view.assert_reference_finishing_for_test(builder.function_state.current_function.as_ref().unwrap());
-                    if !emitted.reference_reads.is_empty() {
-                        assert_eq!(emitted.reference_reads.len(), frame.static_reads().len());
+                    if !emitted.body.reference_reads.is_empty() {
+                        assert_eq!(emitted.body.reference_reads.len(), frame.static_reads().len());
                         // Dependency producers precede the expression entry. Mutation
                         // or removal must fail the shared physical check independently.
-                        let producer = emitted.reference_reads.values().next().unwrap().definition().unwrap();
+                        let producer = emitted.body.reference_reads.values().next().unwrap().definition().unwrap();
                         for remove in [true, false] {
                             let mut changed = builder.function_state.current_function.as_ref().unwrap().clone();
                             let body = changed.blocks.get_mut(&producer.0).unwrap();
@@ -493,7 +493,7 @@ mod tests {
                     assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(_), .. })).count(), core_count);
                     assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::InvokeNormalResult { .. })).count(), core_count);
                     for mutation in 0..3 {
-                        let mut changed = emitted.bindings.clone();
+                        let mut changed = emitted.body.bindings.clone();
                         let index = changed.iter().position(|(_, row)| matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Substring { .. }), .. })).unwrap();
                         match mutation {
                             0 => { changed.remove(index); }
@@ -509,20 +509,20 @@ mod tests {
                             }
                             _ => unreachable!(),
                         }
-                        let changed = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &emitted.reference_reads, &changed);
+                        let changed = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.body.values, &emitted.body.calls, &reads, &emitted.body.reference_reads, &changed);
                         assert!(changed.validate_source(context).is_err(), "Core producer/projection mutation {mutation}");
                     }
-                    let retained = emitted.acquired.clone();
+                    let retained = emitted.body.acquired.clone();
                     let (terminal, continuation) = super::super::expression_value::finish_deferred_argument_continuation(
                         &mut builder, &mut emitted).unwrap();
-                    assert_eq!(emitted.acquired, retained, "root and older children remain owned until Call");
-                    assert!(!emitted.bindings.iter().any(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })),
+                    assert_eq!(emitted.body.acquired, retained, "root and older children remain owned until Call");
+                    assert!(!emitted.body.bindings.iter().any(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })),
                         "argument lifetime does not create a local Home");
-                    let deferred = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values,
-                        &emitted.calls, &reads, &emitted.reference_reads, &emitted.bindings);
+                    let deferred = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.body.values,
+                        &emitted.body.calls, &reads, &emitted.body.reference_reads, &emitted.body.bindings);
                     let function = builder.function_state.current_function.as_ref().unwrap();
                     deferred.assert_original_deferred_argument_paths_for_test(context, function,
-                        &emitted.entry, &terminal, &continuation);
+                        &emitted.body.entry, &terminal, &continuation);
                     Ok(())
                 },
             ).unwrap();

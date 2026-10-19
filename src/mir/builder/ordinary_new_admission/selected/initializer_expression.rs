@@ -31,12 +31,12 @@ impl PendingInitializerExpressionV1 {
     ) -> Result<(), String> {
         if receipt.ordinal() != self.ordinal || receipt.initializer() != self.value() { return Err(freeze("initializer-expression/local-receipt")); }
         let expression = self.expression;
-        let mut bindings = expression.bindings.clone();
+        let mut bindings = expression.body.bindings.clone();
         if let Some(copy) = receipt.copy() { bindings.push(copy.clone()); }
         let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(self.frame,
-            receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.values,
-            expression.calls, expression.path_reads.into_values().collect(), expression.reference_reads,
-            expression.entry, self.terminal, self.continuation, expression.bindings, ledger, function)?);
+            receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.body.values,
+            expression.body.calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
+            expression.body.entry, self.terminal, self.continuation, expression.body.bindings, ledger, function)?);
         ledger.prepare_initializer_expression_bindings(packet, bindings)?.commit()
     }
 }

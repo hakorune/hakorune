@@ -11,7 +11,7 @@ impl EmittedBoolConditionProjectionV1 {
         self.materialization.validate_source(&self.frame, context)?;
         let ledger = context.ledger();
         let source = self.frame.source();
-        let text_leaves = self.frame.text_operand_nodes_v1();
+        let text_leaves = self.frame.text_comparison_input_nodes_v1();
         let expected: Vec<_> = self.frame.ordered_nodes().iter().copied().filter(|index|
             !text_leaves.contains(index) && !self.frame.transfers_node(*index) && self.frame.class(*index) != Some(
                 crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)).collect();
@@ -120,23 +120,25 @@ impl EmittedBoolConditionProjectionV1 {
                 (Node::Binary(binary), BoolConditionValueProofV1::Logical { completed, conditions }) => {
                     self.validate_logical(node, binary, completed, conditions, function, finishing)?;
                 },
-                (Node::Binary(_), BoolConditionValueProofV1::TextComparison { operands, bindings }) => {
+                (Node::Binary(_), BoolConditionValueProofV1::TextComparison { operands, bindings, input_values,
+                    input_reads, entry, terminal, continuation }) => {
                     self.text_comparison_producers_v1(node, operands, bindings)?;
+                    let inputs = self.frame.evaluation().text_comparison_input_order_v1(node.node)
+                        .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+                    for input in inputs {
+                        if !observed_text.insert(input) { return Err(freeze("bool-condition/text-leaf-duplicate")); }
+                    }
                     for operand in operands {
-                        if !observed_text.insert(operand.node) { return Err(freeze("bool-condition/text-leaf-duplicate")); }
-                        match (source.nodes()[operand.node].source(), &operand.operand, &operand.reference) {
-                            (Node::Literal(Literal::String(text)), crate::mir::instruction::StringInvokeOperand::StaticText { utf8 }, None)
-                                if text.as_ref() == utf8.as_str() => {},
-                            (Node::Reference(_), value, Some(read)) => {
-                                if !observed_references.insert(operand.node)
-                                    || &read.operand(self.frame.evaluation(), operand.node, context)? != value {
-                                    return Err(freeze("bool-condition/text-reference-source"));
-                                }
-                                read.validate_dependencies_v1(self.frame.evaluation(), operand.node, context, function, finishing)?;
-                            },
-                            _ => return Err(freeze("bool-condition/text-leaf-source")),
+                        if input_values.get(operand.node) != Some(&Some(operand.operand.clone())) {
+                            return Err(freeze("bool-condition/text-operand-order"));
                         }
                     }
+                    for &input in input_reads.keys() {
+                        if !observed_references.insert(input) { return Err(freeze("bool-condition/reference-duplicate")); }
+                    }
+                    let projection = self.comparison_inputs_v1(node)?;
+                    projection.validate_scalar_continuation_v1(context, function, finishing,
+                        entry, terminal, continuation, None)?;
                     for binding in bindings.iter() {
                         if mapped(binding, finishing)?.is_none() && matches!(binding.1,
                             MirInstruction::Jump { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }) { continue; }

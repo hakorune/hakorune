@@ -185,22 +185,22 @@ impl EmittedBoolConditionProjectionV1 {
                     allowed.extend_from_slice(completed.bindings());
                     for relation in conditions { relation.append_observed_bindings_v1(&mut allowed); }
                 },
-                Proof::TextComparison { operands, bindings } => {
-                    let (invoke, result) = self.text_comparison_producers_v1(node, operands, bindings)?;
-                    let MirInstruction::Invoke { fault_frame, fault_landing, .. } = &invoke.1 else { unreachable!() };
-                    let mut expected = vec![invoke.clone(), result.clone()];
-                    expected.extend(self.expected_fault_inventory_v1(ledger, function, fault_frame, fault_landing, wrapper_suffix)?);
-                    if bindings.iter().any(|row| !expected.contains(row)) || expected.iter().any(|row| !bindings.contains(row)) {
-                        return Err(freeze("bool-condition/text-operation-inventory"));
-                    }
-                    let entry = function.blocks.get(&node.entry.block).ok_or_else(|| freeze("bool-condition/text-entry"))?;
-                    let exit = function.blocks.get(&node.exit.block).ok_or_else(|| freeze("bool-condition/text-exit"))?;
-                    if node.entry.block != invoke.0 || node.entry.instruction != entry.instructions.len()
-                        || node.exit.block != result.0 || node.exit.instruction != 1
-                        || exit.instructions.first() != Some(&result.1) {
+                Proof::TextComparison { bindings, entry, terminal, continuation, .. } => {
+                    let projection = self.comparison_inputs_v1(node)?;
+                    let context = CallValidationContextV1::Lowering(ledger);
+                    let covered = projection.validate_scalar_continuation_v1(context, function, None,
+                        entry, terminal, continuation, None)?;
+                    let mut ordered = projection.ordered_bindings_in_context(context)?;
+                    ordered.push(terminal.clone());
+                    projection.validate_original_scope(ledger, function, &covered, entry, terminal, continuation, &ordered)?;
+                    let MirInstruction::Jump { target, edge_args: None } = continuation.1
+                        else { return Err(freeze("bool-condition/text-evaluation-order")); };
+                    if node.entry.block != entry.0 || function.blocks.get(&entry.0)
+                        .is_none_or(|block| node.entry.instruction != block.instructions.len())
+                        || node.exit.block != target || node.exit.instruction != 0 {
                         return Err(freeze("bool-condition/text-evaluation-order"));
                     }
-                    allowed.extend(expected);
+                    allowed.extend_from_slice(bindings);
                 },
                 Proof::Call { packet, bindings } => {
                     let mut producers = Vec::new();
