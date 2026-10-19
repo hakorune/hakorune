@@ -62,7 +62,7 @@ impl OwnedReadyFieldReadSourceV1 {
         if !Rc::ptr_eq(source.frame(), &self.frame) || !source.owned_rhs().zip(
             self.request.owned_ready.as_ref().and_then(|plan| plan.rhs()))
                 .is_some_and(|(a, b)| Rc::ptr_eq(a, b)) { return Err(fail()); }
-        source.validate_source(ledger)?;
+        source.require_current_execution(ledger)?;
         context.require_ledger(ledger)?;
         context.with_original_field_write_v1(&self.frame, |packet| {
             if packet.source().owned_rhs().is_none() { return Err(fail()); }

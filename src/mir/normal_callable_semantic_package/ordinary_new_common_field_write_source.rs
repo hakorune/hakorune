@@ -40,6 +40,22 @@ impl FieldWriteSourceLoanV1 {
     pub(crate) fn owned_rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> {
         match &self.origin { FieldWriteSourceOriginV1::OwnedLocal { rhs, .. } => Some(rhs), _ => None }
     }
+    /// The existing physical writer is still restricted to its exact I64 lease.
+    /// A retained source assignment alone cannot authorize operand evaluation.
+    pub(crate) fn require_current_execution(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+        self.validate_source(ledger)?;
+        let Some(local) = self.frame().owned_local() else { return Ok(()) };
+        let fail = || freeze("owned-field-write/original-source");
+        if local.construction().allocation_only_i64_field(local.original().write().field()) != Some(local.field()) {
+            return Err(fail());
+        }
+        ledger.with_local_new_source_v1(local.acquisition(), local.root(), |source| {
+            if source.allocation_execution.is_none_or(|lease| !Rc::ptr_eq(lease.source(), local.construction())) {
+                return Err(fail());
+            }
+            Ok(())
+        })?.ok_or_else(fail)
+    }
     pub(crate) fn validate_source(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         let FieldWriteSourceOriginV1::OwnedLocal { frame, completion, rhs } = &self.origin else {
             return self.borrowed().expect("closed formal origin").validate_source(ledger);
@@ -54,7 +70,8 @@ impl FieldWriteSourceLoanV1 {
         { return Err(fail()); }
         ledger.field_write_claims.recheck_original_write_source_v1(local.original()).map_err(|_| fail())?;
         ledger.with_local_new_source_v1(local.acquisition(), local.root(), |source| {
-            if source.allocation_execution.is_none_or(|lease| !Rc::ptr_eq(lease.source(), local.construction()))
+            if source.construction != &Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::InitializationContractMissing)
+                || local.construction().allocation_only_fields().is_none()
                 || source.object != local.field().object() || !source.construction_source.as_ref()
                 .is_ok_and(|original| Rc::ptr_eq(original, local.construction())) { return Err(fail()); }
             Ok(())

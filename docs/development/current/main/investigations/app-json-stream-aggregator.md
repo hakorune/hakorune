@@ -73,9 +73,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Focused15 PASS; field-read2 baseline reds remain below. Empty is never ready.
   Array identity now has one binding issuer shared with get/push; existing9 PASS.
   Provider acquisition/End and transfer remain owed; no fake element/get proof.
-- Dynamic count Return needs SAME last-writer/RHS kind, never a main-I64 assumption.
-  Mutating call/alias invalidates that proof. Checked read emits Integer on Normal;
-  return inference and Dynamic admission remain unchanged until the full connection.
+- Writer source identity now separates from I64 execution lease; operand/RHS entry,
+  writer, physical read and Lowering/Finalized validation retain the SAME lease gate.
+  Focused7 PASS; Dynamic count still needs SAME last-writer/RHS and mutation invalidation.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.

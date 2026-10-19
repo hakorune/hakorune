@@ -63,7 +63,7 @@ impl EmittedBorrowedFieldWriteV1 {
         finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
         let ledger = context.ledger();
-        self.source.validate_source(ledger)?;
+        self.source.require_current_execution(ledger)?;
         let (receiver, site) = self.source.receiver()?;
         let base = self.receiver.value_for(site.owner(), site.site().node(), receiver).map_err(|issue| issue.to_string())?;
         self.graph.validate_operand(0, base, function, finishing)?;
