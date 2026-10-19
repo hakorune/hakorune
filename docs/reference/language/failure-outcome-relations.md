@@ -53,6 +53,10 @@ These carriers are not ordinary language values:
 UninitializedSlot:
   a local binding slot before its first successful publication
 
+EmptyField:
+  a declared strong untyped stored field before its first successful write;
+  reading it produces Fault, never an implicit null or scalar default
+
 ForeignNull:
   a native/FFI boundary observation before the declared boundary policy maps it
 
@@ -83,6 +87,7 @@ pointer, or missing payload buffer.
 | successful value result | `Result::Ok(T)` | `Unit`, `Result::Err` |
 | violated contract | `Fault` outcome | every ordinary value carrier |
 | uninitialized local | `UninitializedSlot` | every language value |
+| never-written strong untyped field | `EmptyField` (read produces Fault) | language null, `UninitializedSlot`, every language value |
 | foreign null observation | `ForeignNull` | `Unit`, `Option::None`, `CompatNull` |
 | compatibility null | `CompatNull` | canonical `Unit`, `Option::None` |
 

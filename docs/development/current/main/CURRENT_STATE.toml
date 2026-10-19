@@ -1,10 +1,10 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "source-loop/v2/source Loop has an unavailable path"
-current_design_stop = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Loop Call初期化/文が未接続。未検証の自分の変更はGit stashで保持。
-残り3実アプリ＋untyped sentinelの共通storage契約を既存D0で先に決着する。
-既存dynamic仕様を維持するtagged slotを設計方向に選択。完全な契約受理まで実装未許可。
-正式suite7PASS/4FAIL、実EXE6＋marker1、SKIP/timeoutなし。mimallocの計測上の改善理由はcard参照。
-次はslot初期状態・所有/alias・置換/失敗・checked readを既存Home契約と両consumerへ結ぶ。
+APP-json-stream-aggregator: Loop Call未接続。自分の未検証変更はGit stashで保持。
+残り3実アプリ＋untyped sentinelの共通tagged storage契約を既存D0とreferenceで受理。
+EmptyField読取Fault、source residence、String値コピー、置換/cleanupを決着。実装は未接続。
+正式suite7PASS/4FAIL、実EXE6＋marker1。mimallocのハーネス修正はcard参照。
+次は共通slot issuer/layoutから既存runtime・両最終consumerへ接続し、未変更sentinelで検証。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
-next_execution_card = "none (until common untyped-storage D0 contract acceptance)"
+next_execution_card = "APP-json-stream-aggregator"
 next_execution_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

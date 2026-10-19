@@ -340,6 +340,16 @@ uninitialized or unsupported residence is not a completed borrowed residence.
 This target does not permit publishing an incomplete parent or postponing
 ownership acquisition to ordinary caller result assignment.
 
+The accepted [untyped strong stored-slot target](ownership.md#untyped-strong-stored-slots)
+uses an explicit value tag plus source-issued residence disposition at the SAME
+field owner. Known `EmptyField` has no acquired obligation and is a complete
+field state; pending/unknown residence is not. Its read produces Fault, not
+implicit null. Replacement commits the new value/disposition before ending the
+detached old residence outside storage locks. Post-commit cleanup Fault keeps
+the committed state, preserves first Fault and drains remaining cleanup.
+This target grants no backend profile until its read/write, support and
+Normal/Fault cleanup have independent final verification.
+
 For a fully constructed parent:
 
 ```text

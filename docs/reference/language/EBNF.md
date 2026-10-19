@@ -941,6 +941,7 @@ postfix_cleanup    := primary_expr 'cleanup' block
 
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
+- Untyped strong stored-slot initial state, checked reads, residence and replacement follow [ownership.md](ownership.md#untyped-strong-stored-slots). This accepted target does not claim current EXE coverage; never-written is `EmptyField`, not implicit null.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
 - Box method names are unique within one nominal Box. A direct method,
   static/instance alternative, or delegate-exposed forwarding name cannot

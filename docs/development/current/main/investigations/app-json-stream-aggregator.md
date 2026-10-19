@@ -1,6 +1,6 @@
 # APP-json-stream-aggregator
 
-Status: common untyped-storage design decision first; JSON remains the selected app.
+Status: common untyped-storage target accepted; implementation first; JSON remains selected.
 Date: 2026-10-19
 Scope: unchanged JSON app, existing Loop/Text owners, canonical physical EXE.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
@@ -29,9 +29,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Current priority and measurement interpretation
 
 - [Common storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md) is now the
-  immediate semantic decision for three real apps plus the untyped sentinel.
-  Tagged dynamic preserves existing EBNF; initial state/ownership/replacement/reads still
-  need a complete accepted contract. No dynamic storage implementation is authorized yet.
+  accepted target for three real apps plus the untyped sentinel. Tagged dynamic
+  preserves existing EBNF; EmptyField read-Fault, source residence, replacement,
+  reads and cleanup are now specified. Implementation is open; production coverage is not.
 - `mimalloc-lite` suite PASS includes a harness correction: an obsolete generic JSON
   all-Invoke refusal precheck was removed; production compiler/app behavior was unchanged.
   The canonical EXE already worked. Route/toolchain/artifact/no-replay/output/exit checks remain.
@@ -89,6 +89,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Completion obligations
 
 - Existing JSON smoke must satisfy every artifact/run/output/negative contract unchanged.
-- Common untyped-slot D0 is ReopenedDesign; implementation_permission=false until full acceptance.
+- Common untyped-slot D0 is accepted; source/layout/runtime/final-consumer implementation remains.
 - Retire replaced exclusive edges when caller/validation closure holds; retain shared owners.
 - Fixed acceptance, final pipeline switching/retirement and the full goal remain incomplete.

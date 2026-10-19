@@ -730,9 +730,88 @@ The first verifier freezes exact source/destination behavior:
 | trivial value | ownership-changing destination | reject meaningless operation |
 | unknown/generic capability | ownership-changing destination | fail before effects |
 
-Fields, arrays, maps, packed storage, globals, registries, weak slots, and
-replacement/empty-slot rules remain separate D0 rows. An owning field is not
-assumed merely from its Box-typed payload.
+Fields and containers use their explicitly accepted destination contracts; an
+owning field is never inferred merely from its Box-typed payload. The strong
+untyped-field target below resolves that field row. Other packed storage,
+globals, registries, weak slots and unresolved container profiles remain separate.
+
+### Untyped strong stored slots
+
+Decision (2026-10-19): bare stored fields, including legacy `init { ... }`
+declarations, retain dynamic value-kind changes. This is an accepted semantic
+target, not production coverage or permission to infer storage from MIR types.
+Typed-field and weak-field profiles retain their separate contracts, including
+any already admitted declared numeric defaults.
+
+A slot is either `EmptyField` or a tagged language value with a separately
+source-issued residence disposition. `EmptyField` is the known never-written
+state, not language `null`, zero, or the local `UninitializedSlot` carrier.
+Reading it produces Fault. A completed object may contain known-empty fields;
+this does not permit publication with pending or unknown acquired obligations.
+Only a successful explicit null store installs language null.
+
+| Source-authorized candidate | Installed residence |
+| --- | --- |
+| Known scalar or explicit null | Value, with no child Home. |
+| Immutable String value | Independently supported String value residence, using the existing value materialization/publication owner; never blanket Trivial classification. |
+| Exact available compatible Home | Transfer once into the owning slot; remove its former cleanup responsibility. |
+| Already authorized self-contained Dynamic carrier | Forward its existing obligation once, without inventing a source Home. |
+| Exact admitted anchored borrowed handle | Non-owning residence, only with a verified live support relation covering every use and parent finalization. |
+| Unknown capability or unsupported relation | Reject before effects; no implicit share or retain. |
+
+An owning local can supply its own still-available Home. An ordinary alias
+cannot consume the Home of its supporting root. After transfer, subsequent
+non-owning uses require the exact installed-slot support; transfer never
+creates a second Home. A same-slot read is not by itself a new owning-store
+candidate. In particular, `x.f = x.f` through a borrowed Box read is rejected
+unless an exact source-proved no-op preserves the SAME residence and support
+identity; payload equality cannot issue that proof. A stored borrowed anchor
+must outlive the entire stored residence, with transitive dependencies preserved
+across holder mutation/end. Unsupported temporary/external/self-dependent
+anchors and ownership cycles reject before publication.
+
+For a closed constructor, an exact canonical birth-side `me.field = parameter`
+relation may declare a destination demand for that parameter ordinal. The
+caller must supply the SAME actual capability witness: a Box arm transfers an
+available Home, scalar/null arms transfer no Home, and a String arm installs
+an independently supported immutable value. A borrowed Box actual cannot
+satisfy an owning arm. This generalizes the existing Provided-field relation;
+it does not turn ordinary method formals, rebound aliases or opaque payloads
+into hidden Home-demand parameters. Before field installation the selected
+constructor argument owner retains its obligation; after installation only the
+field owns it. Constructor Fault drains installed fields and never restores a
+caller Home or ends the transferred argument a second time.
+
+Evaluate the Place and RHS once in source order. Prepare the candidate and
+validate the destination before commit. String preparation acquires independent
+Text residence before commit; copying its handle/tag is insufficient, and
+pre-commit failure cancels only the actual preparation acquisition.
+Pre-commit RHS/validation/write Fault leaves the old slot unchanged and cleanup with the actual prior candidate
+owner. Commit installs the new value and its disposition, then detaches and
+ends the old residence. A post-commit cleanup Fault does not roll back the
+slot or restore a caller Home. Preserve first Fault, attempt remaining cleanup,
+and execute user cleanup outside storage locks. Kind changes obey the SAME
+transaction; payload and disposition cannot be committed separately.
+
+Reads check I64/Bool/Text/object kind without bit reinterpretation or default
+coercion. Scalar reads copy values. String reads either retain a verified
+bounded view or materialize an independent immutable value before escape.
+Box reads create no Home: they borrow the exact holder/slot support, which
+replacement or holder end invalidates. Reject source uses whose support does
+not cover them. Such a borrow cannot become a self-contained Dynamic result
+without an existing independent acquisition authority.
+
+Destruction uses the current installed disposition exactly once: parent fini,
+then current owned field residences in reverse declaration order, then native
+structural drop. Empty/scalar/null fields have no child end; borrowed fields
+never end their anchor, which must remain live through parent fini. Failed
+construction follows lifecycle initialized-subset cleanup and never calls the
+incomplete parent fini. An EmptyField read Fault in parent fini still drains
+remaining field obligations under the first-Fault rule. Runtime tags select
+checked value operations, not
+ownership, sharing, support provenance or finalization policy.
+
+### Ordinary local reassignment
 
 Ordinary local reassignment is also unresolved for HomeV1:
 
