@@ -17,15 +17,6 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-960 USER-REQUESTED STOP:10 Rust/test files WIP, unbuilt/untested/uncommitted.
-Raw Static/Instance Value Return capture + immutable legacy role; scalar readers
-keep legacy projection. Passive Return source port/lender added, not yet invoked
-by terminal Home observer. Existing tests adapt access only; no added cases/hooks.
-Still missing BOTH outer callback prefilter bypasses, actual Return frame/install,
-purpose-neutral entry reader, terminal/cleanup/result/Call/final consumer wiring.
-Lexical instance-call source file800lines: no further growth without extraction.
-No Cargo/rustc/app acceptance running; diff check PASS. WIP is not covered by959
-validation below. Keep WIP and959 artifacts. User pause: wait for resume permission.
 959 same-row original Return/scalar normalization landed661f383f09. Immutable raw
 capture survives scalar failure/retirement; old numeric projection subset/order/
 errors remain. No source admission/result execution permission/second registry.

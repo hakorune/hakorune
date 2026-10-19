@@ -5,10 +5,6 @@ use super::{
 };
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
-    ReturnExpressionSource {
-        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
-        statement: &'a super::SourceStmtSiteV1,
-    },
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement(super::BindingRefV1),
     Observe(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, &'a [BorrowedCallActualCandidateV1]),
@@ -46,7 +42,6 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
-    ReturnExpressionSource(crate::mir::normal_callable_semantic_package::OriginalReturnSourceLoanV1),
     ExpressionCoreSource(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
     InitializerTextEntryRead(crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1),
     TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),

@@ -404,7 +404,6 @@ pub(super) use borrowed_formal_result::{
     required_scalar_source_walk_v1, source_scalar_result_arguments_v1, BorrowedI64ResultSourceV1,
 };
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::BorrowedResultCohortV1;
-pub(crate) use borrowed_formal_result::original::OriginalReturnSourceLoanV1;
 pub(crate) use borrowed_formal_result::{
     BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1,
 };

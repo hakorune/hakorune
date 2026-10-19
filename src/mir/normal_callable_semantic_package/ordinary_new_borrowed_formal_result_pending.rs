@@ -382,7 +382,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             })
         })
         .map(|owner| {
-            let request = results.legacy_original_return_source_v1(owner).map(|source| source.cloned());
+            let request = results.original_return_source_v1(owner).map(|source| source.cloned());
             let proof = request.and_then(|request| source_result_pending(
                 batch,
                 selected,

@@ -312,11 +312,6 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
-    if let BorrowedCallActualRequestV1::ReturnExpressionSource { input, statement } = request {
-        return results.lend_return_expression_source_v1(batch, selected, contracts, input, statement, site)
-            .map(|source| source.map(BorrowedCallArgumentsV1::ReturnExpressionSource))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
-    }
     if let BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_) = request {
         let (binding, initializer) = match request {
@@ -603,7 +598,6 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         }
         BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
-        | BorrowedCallActualRequestV1::ReturnExpressionSource { .. }
         | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)
         | BorrowedCallActualRequestV1::CompleteArgumentExpression(..)

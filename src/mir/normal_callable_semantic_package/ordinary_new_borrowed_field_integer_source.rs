@@ -46,7 +46,7 @@ impl IntegerFieldSourceLoanV1 {
             || proof
                 .original_return
                 .as_ref()
-                .is_none_or(|original| original.legacy_field_receiver_v1() != Some(receiver))
+                .is_none_or(|original| original.receiver() != receiver)
             || !proof
                 .expressions
                 .iter()
@@ -114,7 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_integer_field_v1(
         .original_return
         .as_ref()
         .ok_or_else(|| freeze("integer-field/original-return-missing"))?;
-    if original.legacy_field_receiver_v1() != Some(entry) {
+    if original.receiver() != entry {
         return Err(freeze("integer-field/receiver"));
     }
     proof.require_source_i64_v1()?;
