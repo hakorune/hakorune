@@ -172,6 +172,18 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.bindings()
     }
 
+    /// A local proof must account for captures in every semantic child owner,
+    /// including write-only upvars absent from this owner's variable refs.
+    pub(crate) fn uncaptured_binding(&self, binding: super::BindingRefV1) -> bool {
+        use super::{ResolvedAssignmentTargetV1 as Target, ResolvedLexicalRefV1 as Reference};
+        binding.owner() == self.owner && self.function.binding(binding).is_some()
+            && !self.forest.semantic_owners().any(|(_, owner)|
+                owner.assignment_targets().any(|(_, target)| matches!(target,
+                    Target::UpvarRebind(upvar) if upvar.source() == binding))
+                || owner.variable_refs().any(|(_, reference)| matches!(reference,
+                    Reference::Upvar(upvar) if upvar.source() == binding)))
+    }
+
     pub(crate) fn variable_refs(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedLexicalRefV1)> {

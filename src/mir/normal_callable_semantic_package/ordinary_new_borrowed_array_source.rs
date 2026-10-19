@@ -37,10 +37,11 @@ pub(in crate::mir::normal_callable_semantic_package) struct ArrayProducerPlanV1 
 pub(crate) struct NamedArrayHolderSourceLoanV1 {
     construction: NamedArrayConstructionSourceV1,
     requirement: Option<Rc<ArrayElementSourceRequirementV1>>,
+    empty_transfer: Option<crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1>,
 }
 impl PartialEq for NamedArrayHolderSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        self.construction == other.construction && match (&self.requirement, &other.requirement) {
+        self.construction == other.construction && self.empty_transfer == other.empty_transfer && match (&self.requirement, &other.requirement) {
             (Some(a), Some(b)) => Rc::ptr_eq(a, b), (None, None) => true, _ => false,
         }
     }
@@ -48,10 +49,20 @@ impl PartialEq for NamedArrayHolderSourceLoanV1 {
 impl Eq for NamedArrayHolderSourceLoanV1 {}
 impl NamedArrayHolderSourceLoanV1 {
     fn from_requirement(requirement: Rc<ArrayElementSourceRequirementV1>) -> Self {
-        Self { construction: requirement.holder().construction().clone(), requirement: Some(requirement) }
+        Self { construction: requirement.holder().construction().clone(), requirement: Some(requirement), empty_transfer: None }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn from_construction(construction: NamedArrayConstructionSourceV1) -> Self {
-        Self { construction, requirement: None }
+    pub(in crate::mir::normal_callable_semantic_package) fn from_construction(
+        construction: NamedArrayConstructionSourceV1,
+        empty_transfer: Option<crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1>,
+    ) -> Self {
+        Self { construction, requirement: None, empty_transfer }
+    }
+    pub(crate) fn proves_empty_transfer(
+        &self, assignment: &crate::mir::resolved_semantics::ResolvedAssignmentSourceV1,
+        destination: BindingRefV1, field: &str,
+    ) -> bool {
+        self.requirement.is_none() && self.empty_transfer.as_ref().is_some_and(|source|
+            source.matches_transfer(&self.construction, assignment, destination, field))
     }
     pub(crate) fn has_element_contract(&self) -> bool { self.requirement.is_some() }
     pub(crate) fn append_candidate_is_null_v1(&self, call: &OwnedExprSiteV1) -> Option<bool> {

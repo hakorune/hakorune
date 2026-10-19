@@ -373,11 +373,8 @@ pub(super) fn stable_source_binding_v1(
 fn uncaptured_source_binding_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, binding: BindingRefV1,
 ) -> bool {
-    use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1 as Target, ResolvedLexicalRefV1 as Reference};
-    binding.owner() == input.owner() && input.function().binding(binding).is_some()
-        && !input.forest().semantic_owners().any(|(_, function)|
-            function.assignment_targets().any(|(_, target)| matches!(target, Target::UpvarRebind(upvar) if upvar.source() == binding))
-                || function.variable_refs().any(|(_, reference)| matches!(reference, Reference::Upvar(upvar) if upvar.source() == binding)))
+    input.forest().callable_source_ledger(input.owner())
+        .is_ok_and(|ledger| ledger.uncaptured_binding(binding))
 }
 
 /// One alias hop for `local q = <binding>`: the initializer declaring

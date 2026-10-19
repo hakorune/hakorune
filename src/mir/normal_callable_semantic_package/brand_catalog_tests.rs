@@ -211,6 +211,8 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let array = transfer.rhs().unwrap().owned_array().unwrap();
     assert!(!array.has_element_contract(), "empty acquisition invents no get/element proof");
     let local = transfer.frame().owned_local().unwrap();
+    assert!(array.proves_empty_transfer(local.original().write().assignment(), local.root(),
+        local.original().write().field()), "End contents come from the original full source uses");
     assert!(transfer.frame().prior_homes().iter().any(|home| home.binding() == array.binding()));
     let exit = flow.exit_row(completion.explicit_sites().first().unwrap()).unwrap().unwrap();
     assert_eq!(exit.homes().iter().map(|home| home.binding()).collect::<Vec<_>>(), [local.root()],
@@ -221,7 +223,12 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     original.validate_source(ledger).unwrap();
     assert!(original.require_current_execution(ledger).is_err(), "source transfer grants no physical lease");
     for replacement in ["local alias = items holder.items = alias", "items.push(1) holder.items = items",
-        "holder.items = items holder.items = items", "holder.count = items"] {
+        "holder.items = items holder.items = items", "holder.count = items",
+        "holder.items = items holder.items.push(1)",
+        "holder.items = items local alias = holder.items",
+        "holder.items = items local alias = holder",
+        "holder.items = items local closure = fn() { return items }",
+        "holder.items = items local closure = fn() { holder = null return 0 }"] {
         let denied = issue_with_brand_catalog(&sentinel.replace("holder.items = items", replacement))
             .expect("unproved Array source remains descriptive");
         assert!(denied.ordinary_new_claim_ledger.terminal_i64_field_return().is_none(),

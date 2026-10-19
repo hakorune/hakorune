@@ -39,7 +39,7 @@ mod explicit_extern_call;
 mod expression_source;
 mod named_array_append_only_source;
 pub(crate) use named_array_append_only_source::{
-    NamedArrayAppendOnlySourceIssueV1, NamedArrayAppendOnlySourceV1,
+    NamedArrayAppendOnlySourceIssueV1, NamedArrayAppendOnlySourceV1, NamedArrayEmptyTransferSourceV1,
 };
 mod named_array_requirement;
 mod named_array_residence;

@@ -198,9 +198,7 @@ impl NamedArrayAppendOnlySourceV1 {
                 _ => return Err(E::UnsupportedUse),
             }
         }
-        if ledger.variable_refs().any(|(site, reference)| {
-            *reference == ResolvedLexicalRefV1::Local(binding) && !receivers.contains(site)
-        }) {
+        if !only_original_local_uses(ledger, binding, &receivers) {
             return Err(E::HolderEscape);
         }
         if !reads.iter().any(|row| row.call() == read.site()) {
@@ -215,5 +213,80 @@ impl NamedArrayAppendOnlySourceV1 {
             appends: appends.into_boxed_slice(),
             reads: reads.into_boxed_slice(),
         })
+    }
+}
+
+/// Complete original-use coverage, shared by element holders and empty transfers.
+/// This is source membership only; Home availability remains on the SAME flow.
+fn only_original_local_uses(
+    ledger: &CallableSemanticSourceLedgerView<'_>, binding: super::BindingRefV1,
+    allowed: &BTreeSet<SourceExprSiteV1>,
+) -> bool {
+    !ledger.variable_refs().any(|(site, reference)|
+        *reference == ResolvedLexicalRefV1::Local(binding) && !allowed.contains(site))
+}
+
+/// Original empty contents through one direct field transfer. This has no Home,
+/// canonical field, runtime storage or End execution authority of its own.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct NamedArrayEmptyTransferSourceV1 {
+    construction: NamedArrayConstructionSourceV1,
+    assignment: super::ResolvedAssignmentSourceV1,
+    destination: super::BindingRefV1,
+    field: Box<str>,
+}
+impl NamedArrayEmptyTransferSourceV1 {
+    pub(crate) fn issue(
+        ledger: &CallableSemanticSourceLedgerView<'_>,
+        shape: &super::VerifiedResolvedBodyShapeInventoryV1,
+        construction: &NamedArrayConstructionSourceV1,
+    ) -> Option<Self> {
+        use super::{BodyExpressionShapeV1 as Shape, ResolvedAssignmentTargetV1 as Target};
+        let binding = construction.binding();
+        if ledger.owner() != construction.owner() || shape.owner() != ledger.owner()
+            || !ledger.uncaptured_binding(binding) { return None; }
+        let mut uses = ledger.variable_refs().filter_map(|(site, reference)|
+            (*reference == ResolvedLexicalRefV1::Local(binding)).then_some(site));
+        let rhs = uses.next()?;
+        if uses.next().is_some() { return None; }
+        let mut assignments = shape.assignment_sources().iter().filter(|row| row.value_site() == rhs);
+        let assignment = assignments.next()?;
+        if assignments.next().is_some() || assignment.form() != super::ResolvedAssignmentFormV1::Plain {
+            return None;
+        }
+        let [SourcePathSegmentV1::Body(created), SourcePathSegmentV1::Initializer(_)] =
+            construction.construction().node().segments() else { return None; };
+        let [SourcePathSegmentV1::Body(transferred)] = assignment.statement_site().node().segments()
+            else { return None; };
+        if transferred <= created { return None; }
+        let Shape::FieldAccess { object, field, .. } = shape.expression_shape(assignment.target_site())?
+            else { return None; };
+        let ResolvedLexicalRefV1::Local(destination) = ledger.variable_ref(object)? else { return None; };
+        if destination == binding || !ledger.uncaptured_binding(destination)
+            || !matches!(ledger.assignment_target(assignment.target_site()), Some(Target::FieldWrite { receiver }) if receiver == object)
+            || ledger.assignment_targets().any(|(_, target)| matches!(target,
+                Target::BindingRebind(actual) if *actual == binding || *actual == destination)) {
+            return None;
+        }
+        let mut receivers = BTreeSet::new();
+        for expression in shape.expressions() {
+            let Shape::FieldAccess { site, object, field: accessed } = expression else { continue; };
+            if ledger.variable_ref(object) != Some(ResolvedLexicalRefV1::Local(destination)) { continue; }
+            // No direct/nested read, second writer or method receiver for this
+            // residence. Other fields acquire no scalar permission here.
+            if accessed == field && site != assignment.target_site() { return None; }
+            receivers.insert(object.clone());
+        }
+        if !only_original_local_uses(ledger, binding, &BTreeSet::from([rhs.clone()]))
+            || !only_original_local_uses(ledger, destination, &receivers) { return None; }
+        Some(Self { construction: construction.clone(), assignment: assignment.clone(), destination, field: field.clone() })
+    }
+    pub(crate) fn matches_transfer(
+        &self, construction: &NamedArrayConstructionSourceV1,
+        assignment: &super::ResolvedAssignmentSourceV1,
+        destination: super::BindingRefV1, field: &str,
+    ) -> bool {
+        self.construction == *construction && self.assignment == *assignment
+            && self.destination == destination && self.field.as_ref() == field
     }
 }

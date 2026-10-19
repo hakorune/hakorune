@@ -18,9 +18,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Incoming/Mul gates cleared; debug: `source expression has no checked execution root`.
   Scanner also lacks line146 Local Call `end = JsonLine.find(...)`; retain its I64
   result as well as the later discarded Bool result.
-- At Array transfer source admission, matching quick CLI (build210s) keeps JSON's stop;
-  sentinel precheck/direct EXE both exit1 at owned-field-write/original-source:
-  the I64 execution lease rejects Dynamic. No artifact; generic negative pin retained.
+- Latest empty-transfer source quick CLI (build210s): JSON same; sentinel precheck/direct
+  EXE exit1 at owned-field-write/original-source (I64 lease rejects Dynamic); no artifact.
 - Other reds remain explicit: untyped-field execution permission missing,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
@@ -71,19 +70,20 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Existing cases cover Dynamic kind/no-escape without new tests/files; focused27 PASS/2 baseline reds.
   Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
   Dynamic execution, return inference and both final consumers remain unconnected.
-- Array holder retains construction outside its SAME optional element requirement.
-  Bare initializer preserves selected refusals; source Normal moves the exact local
-  Home into Dynamic field. The frame keeps precommit Fault Homes; exit omits Array.
-  Existing sentinel/negative cases protect alias/mutation/doublemove/kind; no new tests.
-  Focused38 PASS/2 field-read baseline reds (stored-child caller / opaque formal);
-  physical acquisition/commit/End and consumers owed.
+- Array lifecycle recipe anchors holder/Completion separately from element operations.
+  Bare holder retains whole-source empty-transfer coverage: sole original Plain RHS,
+  no candidate/parent capture, escape, rebind or other access to the destination field.
+  SAME canonical Dynamic writer/live Homes join that fact before source Normal moves
+  the local Home into the field; precommit Fault retains it, local exit omits it.
+  Existing cases minimally cover independent content/End and capture boundaries;
+  focused12 PASS, no new tests/files. Physical acquisition/commit/End and consumers owed.
 - Runtime checked empty End retires unclaimed Boxed(empty) under the same state gate,
   releases outside locks and rejects other/retired states without consumption.
   Source must prove contents/End before both consumers admit it; identity alone cannot.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
-- Prior reds: count_at Loop, composition2/result2, Unit; earlier evidence remains in Git.
+- Prior reds: field-read2, count_at Loop, composition2/result2, Unit; evidence in Git.
 - JSON UserStats/aggregator slots and Map remain implementation dependencies; baselines unchanged.
 
 ## Retained verification obligations
@@ -91,7 +91,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Allocator and mimalloc physical EXEs pass unchanged. Allocator's Bool Eq/Ne C admission
   retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
   by the pre-existing tagged-add negative. Earlier SSA/handoff/Array teardown/synthetic
-  callee reds remain open; implementation details are retained in this file's Git history.
+  callee reds remain open. Array provider3/handoff1 reproduce identically at pre-change HEAD.
 
 ## Completion obligations
 

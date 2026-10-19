@@ -76,5 +76,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         Err(issue) => return Err(refuse(format!("[freeze:contract][array-holder/source-membership]: {issue:?}"))),
     };
     if identity.construction() != site.site() { return Err(refuse("[freeze:contract][array-holder/source-membership]".into())); }
-    Ok(Some(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(identity)))
+    let empty_transfer = input.body_shape().and_then(|shape|
+        crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1::issue(&ledger, shape, &identity));
+    Ok(Some(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(identity, empty_transfer)))
 }

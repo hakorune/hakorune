@@ -161,6 +161,8 @@ impl HomeExpressionPlanV1 {
         let local = frame.owned_local()?;
         let field = local.construction().allocation_only_field(local.original().write().field())?;
         if field.field() != local.field() || field.storage() != crate::mir::function::TypedObjectFieldStorage::Dynamic
+            || (!array.has_element_contract() && !array.proves_empty_transfer(
+                local.original().write().assignment(), local.root(), local.original().write().field()))
             || local.root() == array.binding() || frame.prior_homes().iter()
                 .filter(|home| home.binding() == array.binding()).count() != 1 { return None; }
         let source = Rc::clone(frame.source());
