@@ -25,9 +25,11 @@ pub(super) fn observe<E>(
     for actual in actuals {
         match &actual.value {
             BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_)
-            | BorrowedCallActualValueV1::SelfRooted { .. } => {},
+            | BorrowedCallActualValueV1::SelfRooted { .. }
+            | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer) => {},
             BorrowedCallActualValueV1::Binding(_) if locals.static_text_reference(&actual.site).is_some()
-                || locals.text_reference(&actual.site).is_some() => {},
+                || locals.text_reference(&actual.site).is_some()
+                || locals.current_scalar_read_v1(&actual.site, local_calls).is_some() => {},
             _ => continue,
         }
         let Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(loan)) =

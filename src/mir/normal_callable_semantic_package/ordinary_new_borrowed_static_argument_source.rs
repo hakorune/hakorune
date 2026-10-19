@@ -483,7 +483,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 &OwnedExprSiteV1::new(site.owner(), actual.site.clone()), method)?.is_some(),
             _ => false,
         };
-        let expression = core || ordinary_text || matches!(actual.value,
+        let finite_integer = matches!(actual.value, BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer))
+            && identity.source.parameters().get(actual.ordinal as usize).is_some_and(|formal|
+                matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                    && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only()));
+        let expression = core || ordinary_text || finite_integer || matches!(actual.value,
             BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))
             || matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
                 && !prepared.static_arguments.contains_key(&(site.clone(), actual.ordinal));
@@ -544,7 +548,8 @@ fn lend_argument_source_inner_v1(
     }
     let formal = identity.formals.get(ordinal as usize).ok_or_else(|| freeze("borrowed-static/argument-formal"))?;
     let i64_result = matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
-        || matches!(candidate.value, BorrowedCallActualValueV1::Expression)
+        || matches!(candidate.value, BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::Binding(_)
+                | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer))
             && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
             && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only());
     Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), i64_result, calls }))
@@ -570,10 +575,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
         if std::sync::Arc::ptr_eq(original, call))) { return Err(freeze("borrowed-static/core-source-identity")); }
     if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
         || matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-            && matches!(identity.candidates.get(ordinal as usize).map(|actual| &actual.value), Some(BorrowedCallActualValueV1::Expression))
+            && matches!(identity.candidates.get(ordinal as usize).map(|actual| &actual.value),
+                Some(BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::Binding(_)
+                    | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer)))
             && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only()) {
         let eligible = match crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, arg.site()) {
             Some(BorrowedCallActualValueV1::Expression) => true,
+            Some(BorrowedCallActualValueV1::Binding(_)) => matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle),
             Some(BorrowedCallActualValueV1::MethodCall(method)) => prepared.ordinary_core_source_v1(
                 &OwnedExprSiteV1::new(input.owner(), arg.site().clone())).is_some_and(|core|
                     std::sync::Arc::ptr_eq(&method, core.source().source())

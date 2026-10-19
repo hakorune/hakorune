@@ -17,10 +17,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Current matching quick CLI passes the Main.main argument frame for
   `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
   `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
-  Matching CLI37.76s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
+  Matching CLI35.23s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
   (callee JsonLine.find/3). No EXE/link/runtime.
-- Debug source-use closure also lacks ingest's Loop `JsonLine.find` argument2 (`start`),
-  while JsonLine.find has an unavailable Header basis. Preserve both original obligations.
+- Caller Loop `JsonLine.find` argument2 (`start`) now retains its checked scalar read
+  in the original argument frame; matching smoke no longer reports ingest's uncovered read.
+  Callee JsonLine.find still lacks its Header basis; the same input-cohort stop remains.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -53,6 +54,17 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   function/file, runtime function or checker. Physical execution is not source cutover.
 - Opaque scalar argument/Return draft remains in Git stash; it requires source-issued
   finite-entry reads and original Return use closure, never a binding-to-I64 guess.
+- Entry projection decision from read-only review: retain Opaque declaration and
+  tagged call ABI; a SAME signed-only source domain can authorize an Integer view.
+  C must check kind1 before body effects and independently reject every non-I64
+  incoming. Copy/Phi then use the checked I64 view; forwarding must publish tag1,
+  not a tagged Copy whose kind variable no longer exists. Legacy mixed guards stay.
+  This input projection and its Rust final-consumer connection are not implemented yet.
+- Existing compiler tuple extension checks the separate caller boundary: a Loop
+  scalar enters an unannotated, unused callee formal without losing its source read.
+  It adds no test function; declared-formal/Return coverage remains in its original tuple.
+  Current focused37 PASS. Selected Static forwarded-candidate drift test fails during
+  package setup identically in the pre-change saved binary; refusal is not weakened.
 
 ## Shared remaining contracts
 
