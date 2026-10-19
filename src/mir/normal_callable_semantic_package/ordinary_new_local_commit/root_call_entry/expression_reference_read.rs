@@ -40,6 +40,14 @@ impl ExpressionReferenceReadV1 {
         finishing: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.validate_layout(frame, node, context, function)?;
+        if let Reference::Scalar(read) = original_reference(frame, node)? {
+            if let Some(source) = read.original_read() {
+                if matches!(source.producer(), Producer::BranchNormal(_)) {
+                    self.read.loan_scalar_join_v1(source.producer())?.branch()
+                        .ok_or_else(|| freeze("expression/scalar-producer-kind"))?.validate(context, function, finishing)?;
+                }
+            }
+        }
         if let ReferenceProducerV1::Phi(point) = &self.producer {
             if let Some(projection) = finishing {
                 if matches!(context, CallValidationContextV1::Finalized(_)) {
@@ -217,8 +225,8 @@ fn prepare_scalar_binding_producer(binding: crate::mir::resolved_semantics::Bind
     function: &MirFunction,
 ) -> Result<ReferenceProducerV1, String> {
         let producer = match source {
-            Producer::LoopHeader(_) | Producer::LoopAfter { .. } =>
-                ReferenceProducerV1::Phi(std::rc::Rc::clone(read.loan_loop_point_v1(source)?.relation())),
+            Producer::BranchNormal(_) | Producer::LoopHeader(_) | Producer::LoopAfter { .. } =>
+                ReferenceProducerV1::Phi(std::rc::Rc::clone(read.loan_scalar_join_v1(source)?.relation())),
             Producer::BindingRebind(frame) => context.with_original_rebind_v1(frame, |packet| {
                 let value = read.loan_checked_rebind_v1(frame)?.0;
                 if packet.value() != value { return Err(freeze("expression/rebind-assigned-value")); }
@@ -238,9 +246,7 @@ fn prepare_scalar_binding_producer(binding: crate::mir::resolved_semantics::Bind
                 ReferenceProducerV1::Definition((block, row.clone()))
             }
         };
-        validate_entry_layout(binding, source, &producer, context, function)?;
-        validate_scalar_origin(binding, source, read, &producer, context)?;
-        validate_dependencies(read, &producer, function)?;
+        validate_scalar_binding_observation_v1(binding, source, read, &producer, context, function, None)?;
         Ok(producer)
 }
 fn original_reference(frame: &CheckedExpressionEvaluationV1, node: usize) -> Result<&Reference, String> {
@@ -334,6 +340,7 @@ fn initializer_value(source: &Producer, read: &BindingValueObservationV2, contex
         }
         Producer::Initializer(frame) => (frame.binding(), Some(context.with_original_initializer_v1(frame, |packet| Ok(packet.value()))?)),
         Producer::SignedEntry(_) => return Err(freeze("expression/scalar-entry-not-initializer")),
+        Producer::BranchNormal(_) => return Err(freeze("expression/scalar-producer-kind")),
         Producer::BindingRebind(_) => return Err(freeze("expression/scalar-rebind-not-initializer")),
         Producer::LoopHeader(_) => return Err(freeze("expression/loop-header-physical-pending")),
         Producer::LoopAfter { .. } => return Err(freeze("expression/loop-after-physical-pending")),
@@ -357,9 +364,19 @@ fn validate_scalar_origin(binding: crate::mir::resolved_semantics::BindingRefV1,
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
     let value = read.value_for(binding.owner(), binding).map_err(|error| error.to_string())?;
+    if let Producer::BranchNormal(basis) = source {
+        context.ledger().require_branch_scalar_source_v1(basis)?;
+        let point = read.loan_scalar_join_v1(source)?;
+        let ReferenceProducerV1::Phi(relation) = producer else { return Err(freeze("expression/scalar-producer-kind")); };
+        if !std::rc::Rc::ptr_eq(point.relation(), relation) || point.branch().is_none() {
+            return Err(freeze("expression/scalar-producer-kind"));
+        }
+        relation.require_completed_v1()?;
+        return Ok(value);
+    }
     if matches!(source, Producer::LoopHeader(_) | Producer::LoopAfter { .. }) {
         let ReferenceProducerV1::Phi(point) = producer else { return Err(freeze("expression/loop-point-producer-kind")); };
-        if !std::rc::Rc::ptr_eq(read.loan_loop_point_v1(source)?.relation(), point) {
+        if !std::rc::Rc::ptr_eq(read.loan_scalar_join_v1(source)?.relation(), point) {
             return Err(freeze("expression/loop-point-original-purpose"));
         }
         context.source_loop_point_product_v2(source)?;
@@ -451,4 +468,132 @@ fn validate_dependencies_for_entry(entry: ValueId, function: &MirFunction) -> Re
         return Err(freeze("expression/scalar-entry-carrier"));
     }
     Ok(())
+}
+
+
+/// The original IfForm observation and its sole indexed Phi. This belongs to
+/// the same value purpose; it is not another CFG writer or source registry.
+#[derive(Debug)]
+pub(in crate::mir) struct BranchScalarPhiObservationV1 {
+    source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
+    pending: std::rc::Rc<crate::mir::builder::IfConditionMaterializationV1>,
+    branch: Binding,
+    exits: [BasicBlockId; 2],
+    jumps: [Binding; 2],
+    inputs: [BindingValueObservationV2; 2],
+    producers: [ReferenceProducerV1; 2],
+    relation: std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>,
+}
+type Finished = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings;
+impl BranchScalarPhiObservationV1 {
+    pub(in crate::mir) fn source(&self) -> &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1> { &self.source }
+    pub(in crate::mir) fn relation(&self) -> &std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1> { &self.relation }
+    fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&Finished>) -> Result<(), String> {
+        context.ledger().require_branch_scalar_source_v1(&self.source)?;
+        let map_block = |block| finishing.and_then(|projection| projection.destination(block)).unwrap_or(block);
+        let actual = |row: &Binding| -> Result<Option<Binding>, String> {
+            match finishing {
+                Some(projection) if row.1.dst_value().is_some() => projection.relation_binding(function, row),
+                Some(projection) => projection.captured_effect_binding(function, row).map(Some),
+                None => {
+                    if function.blocks.get(&row.0).is_none_or(|body| body.all_instructions().filter(|old| **old == row.1).count() != 1) {
+                        return Err(freeze("expression/reference-dependency-missing"));
+                    }
+                    Ok(Some(row.clone()))
+                }
+            }
+        };
+        self.relation.require_completed_v1()?;
+        if finishing.is_some() {
+            self.relation.verify_projected(function, &mut |row| actual(row))?;
+            self.pending.relation().verify_projected(function, &mut |row| actual(row))?;
+        } else { self.relation.verify(function)?; self.pending.relation().verify(function)?; }
+        let branch = actual(&self.branch)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+        let merge = map_block(self.pending.merge());
+        let arms = [map_block(self.pending.arms().0), map_block(self.pending.arms().1)];
+        let exits = self.exits.map(map_block);
+        if branch.0 != map_block(self.pending.block()) || !matches!(branch.1,
+            MirInstruction::Branch { condition, then_bb, else_bb, .. }
+                if condition == self.pending.values().1 && [then_bb, else_bb] == arms) {
+            return Err(freeze("expression/scalar-producer-kind"));
+        }
+        for (index, jump) in self.jumps.iter().enumerate() {
+            let jump = actual(jump)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+            if jump.0 != exits[index] || !matches!(jump.1, MirInstruction::Jump { target, .. } if target == merge)
+                || !branch_reaches_v1(function, arms[index], exits[index], merge)
+                || branch_reaches_v1(function, arms[index], exits[1-index], merge) {
+                return Err(freeze("expression/scalar-producer-kind"));
+            }
+        }
+        let expected: std::collections::BTreeSet<_> = exits.into_iter().collect();
+        let actual_preds: std::collections::BTreeSet<_> = crate::mir::verification::utils::compute_predecessors(function)
+            .remove(&merge).unwrap_or_default().into_iter().collect();
+        if expected.len() != 2 || actual_preds != expected || function.blocks.get(&merge)
+            .is_none_or(|body| body.predecessors != expected) {
+            return Err(freeze("expression/scalar-producer-kind"));
+        }
+        let phi = actual(self.relation.identity_phi_binding_v1()?)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+        let values = [self.inputs[0].binding_value().1, self.inputs[1].binding_value().1];
+        let mut expected_inputs = [(exits[0], values[0]), (exits[1], values[1])];
+        expected_inputs.sort_by_key(|(block, _)| block.0);
+        if phi.0 != merge || !matches!(phi.1, MirInstruction::Phi { dst, ref inputs, .. }
+            if dst == self.relation.values().0 && inputs.as_slice() == expected_inputs) {
+            return Err(freeze("expression/scalar-producer-kind"));
+        }
+        for (index, (_, _, source)) in self.source.incoming().iter().enumerate() {
+            validate_scalar_binding_observation_v1(self.source.binding(), source, &self.inputs[index],
+                &self.producers[index], context, function, finishing)?;
+        }
+        Ok(())
+    }
+}
+fn branch_reaches_v1(function: &MirFunction, entry: BasicBlockId, exit: BasicBlockId, merge: BasicBlockId) -> bool {
+    let mut pending = vec![entry];
+    let mut seen = std::collections::BTreeSet::new();
+    while let Some(block) = pending.pop() {
+        if block == merge || !seen.insert(block) { continue; }
+        if block == exit { return true; }
+        if let Some(body) = function.blocks.get(&block) { pending.extend(body.out_edges().into_iter().map(|edge| edge.target)); }
+    }
+    false
+}
+fn validate_scalar_binding_observation_v1(binding: crate::mir::resolved_semantics::BindingRefV1,
+    source: &Producer, read: &BindingValueObservationV2, producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&Finished>,
+) -> Result<(), String> {
+    validate_entry_layout(binding, source, producer, context, function)?;
+    validate_scalar_origin(binding, source, read, producer, context)?;
+    if matches!(source, Producer::BranchNormal(_)) {
+        read.loan_scalar_join_v1(source)?.branch().ok_or_else(|| freeze("expression/scalar-producer-kind"))?
+            .validate(context, function, finishing)?;
+    }
+    if let Some(projection) = finishing {
+        if let ReferenceProducerV1::Phi(point) = producer {
+            point.require_completed_v1()?;
+            point.verify_projected(function, &mut |row| projection.relation_binding(function, row))?;
+        }
+        if let ReferenceProducerV1::Definition(row) = producer { projection.relation_binding(function, row)?; }
+        for row in read.original_copy_dependencies_v1()? { projection.relation_binding(function, row)?; }
+    } else { validate_dependencies(read, producer, function)?; }
+    Ok(())
+}
+impl ExpressionReferenceReadV1 {
+    pub(in crate::mir) fn prepare_branch_scalar_phi_v1(
+        source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
+        pending: std::rc::Rc<crate::mir::builder::IfConditionMaterializationV1>,
+        branch: Binding, exits: [Option<BasicBlockId>; 2], inputs: [BindingValueObservationV2; 2],
+        relation: std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<std::rc::Rc<BranchScalarPhiObservationV1>, String> {
+        context.ledger().require_branch_scalar_source_v1(&source)?;
+        let [Some(then_exit), Some(else_exit)] = exits else { return Err(freeze("expression/scalar-producer-kind")); };
+        let get_jump = |block| function.blocks.get(&block).and_then(|body| body.terminator.clone())
+            .map(|row| (block, row)).ok_or_else(|| freeze("expression/reference-dependency-missing"));
+        let producers = [prepare_scalar_binding_producer(source.binding(), &source.incoming()[0].2, &inputs[0], context, function)?,
+            prepare_scalar_binding_producer(source.binding(), &source.incoming()[1].2, &inputs[1], context, function)?];
+        let observed = std::rc::Rc::new(BranchScalarPhiObservationV1 { source, pending, branch, exits: [then_exit, else_exit],
+            jumps: [get_jump(then_exit)?, get_jump(else_exit)?], inputs, producers, relation });
+        observed.validate(context, function, None)?;
+        Ok(observed)
+    }
 }

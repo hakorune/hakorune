@@ -129,6 +129,10 @@ impl EmittedOwnedArrayAppendV1 {
                     None => self.original.clone(),
                 };
                 packet.validate_recorded_projected(&inventory, projection)?;
+                let argument_source = crate::mir::normal_callable_semantic_package::ExpressionCallArgumentSourceV1::for_owned_array_candidate_v1(
+                    ledger, source, row)?;
+                packet.validate_expression_arguments_at_source_v1(context, function, projection,
+                    &inventory, projection, None, Some(argument_source), &original.cancellation_operations_v1(*candidate))?;
                 let call = map(packet.invoke_binding())?;
                 let normal = map(packet.outer_bindings()?.1)?;
                 let MirInstruction::Invoke { operation: InvokeOperation::Call { result, .. },
@@ -140,8 +144,9 @@ impl EmittedOwnedArrayAppendV1 {
                         if invoke_block == call.0 && normal.0 == call_normal && dst == *candidate) {
                     return Err(freeze("array-append/candidate-normal-link"));
                 }
-                super::super::root_cleanup_graph::ordered_paths::pending_operations(function, call_fault, &homes, Some(call_frame))?;
-                require_before(function, &normal, &invoke)?;
+                let fault_operations: Vec<_> = packet.deferred_argument_ends_v1(context)?.into_iter().chain(homes.iter().cloned()).collect();
+                super::super::root_cleanup_graph::ordered_paths::pending_operations(function, call_fault, &fault_operations, Some(call_frame))?;
+                require_before(function, &map(packet.argument_completion_binding_v1()?)?, &invoke)?;
                 original.cancellation_operations_v1(*candidate)
             }
         };

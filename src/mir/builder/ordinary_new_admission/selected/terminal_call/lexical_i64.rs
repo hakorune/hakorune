@@ -78,7 +78,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_source(
         state,
         ledger,
         owner,
-        ArgumentSource::Local(relation),
+        ArgumentSource::from_local(relation),
         row,
         &mut bindings,
         None,
@@ -218,32 +218,8 @@ fn emit_lexical_i64_call(
         Some(source),
         consume_receiver,
     )?;
-    // Ordered evaluation owns the retained stacks; the same root graph writer
-    // ends them after Call Normal and before inherited/Homes on every Fault.
-    let normal_ends = prepared.deferred_argument_ends_v1(CallValidationContextV1::Lowering(ledger))?;
-    let (fault_landing, cleanup) = if normal_ends.is_empty() {
-        append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, bindings)?;
-        (cleanup_chain(builder, frame, unwind, outward, bindings)?, None)
-    } else {
-        let mut fault_operations = normal_ends.clone();
-        fault_operations.extend(unwind);
-        let mut seen = std::collections::BTreeSet::new();
-        for operation in &fault_operations {
-            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }) = operation {
-                if !seen.insert(*value) { return Err(freeze("call-argument/duplicate-acquisition")); }
-            }
-        }
-        let clean = builder.next_block_id();
-        let next = builder.next_block_id();
-        let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
-        append_block(builder, clean, continuation.1.clone(), bindings)?;
-        let after_normal: Vec<_> = (0..normal_ends.len())
-            .map(|index| ((index + 1)..fault_operations.len()).collect()).collect();
-        let graph = super::super::root_graph::emit_cleanup_suffixes_with_writer(
-            &mut RawRootGraphWriterV1, builder, frame, clean, &normal_ends, &fault_operations,
-            &after_normal, &(0..fault_operations.len()).collect::<Vec<_>>(), bindings)?;
-        (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
-    };
+    let (fault_landing, cleanup) = prepare_argument_cleanup_v1(
+        builder, ledger, &prepared, frame, outward, unwind, &[], bindings)?;
     if let Some(read) = stored_read { prepared = prepared.with_stored_receiver(read)?; }
     let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
     let packet = if let Some(result) = result {
@@ -258,6 +234,53 @@ fn emit_lexical_i64_call(
         bindings.push(invoke.clone());
         EmittedCall::from_unit_source(original, prepared, invoke, normal_landing)?
     };
+    finish_argument_cleanup_v1(builder, normal_landing, packet, cleanup, bindings)
+}
+
+pub(super) type ArgumentCleanupV1 = (BasicBlockId, BasicBlockId, Binding, Vec<Binding>);
+
+/// The same Call argument stack ends on Normal and before prior Homes on Fault.
+pub(super) fn prepare_argument_cleanup_v1(
+    builder: &mut MirBuilder, ledger: &OrdinaryNewClaimLedgerV1, prepared: &PreparedCall,
+    frame: ValueId, outward: BasicBlockId, unwind: Vec<InvokeOperation>,
+    normal_fault_cancellation: &[InvokeOperation], bindings: &mut Vec<Binding>,
+) -> Result<(BasicBlockId, Option<ArgumentCleanupV1>), String> {
+    let normal_ends = prepared.deferred_argument_ends_v1(CallValidationContextV1::Lowering(ledger))?;
+    let result = if normal_ends.is_empty() {
+        append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, bindings)?;
+        (cleanup_chain(builder, frame, unwind, outward, bindings)?, None)
+    } else {
+        let mut fault_operations = normal_ends.clone();
+        fault_operations.extend_from_slice(normal_fault_cancellation);
+        fault_operations.extend(unwind);
+        let mut seen = std::collections::BTreeSet::new();
+        for operation in &fault_operations {
+            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }) = operation {
+                if !seen.insert(*value) { return Err(freeze("call-argument/duplicate-acquisition")); }
+            }
+        }
+        let clean = builder.next_block_id();
+        let next = builder.next_block_id();
+        let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
+        append_block(builder, clean, continuation.1.clone(), bindings)?;
+        let after_normal: Vec<_> = (0..normal_ends.len())
+            .map(|index| ((index + 1)..fault_operations.len()).collect()).collect();
+        // A result exists only after Call Normal. Its cancellation belongs to
+        // Normal cleanup Fault suffixes, never the original Call Fault edge.
+        let call_fault: Vec<_> = (0..normal_ends.len())
+            .chain((normal_ends.len() + normal_fault_cancellation.len())..fault_operations.len()).collect();
+        let graph = super::super::root_graph::emit_cleanup_suffixes_with_writer(
+            &mut RawRootGraphWriterV1, builder, frame, clean, &normal_ends, &fault_operations,
+            &after_normal, &call_fault, bindings)?;
+        (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
+    };
+    Ok(result)
+}
+
+pub(super) fn finish_argument_cleanup_v1(
+    builder: &mut MirBuilder, normal_landing: BasicBlockId, packet: EmittedCall,
+    cleanup: Option<ArgumentCleanupV1>, bindings: &mut Vec<Binding>,
+) -> Result<EmittedCall, String> {
     let packet = match cleanup {
         Some((clean, next, continuation, normal)) => {
             let ingress = (normal_landing, MirInstruction::Jump { target: clean, edge_args: None });
@@ -308,7 +331,19 @@ pub(super) fn prepare_arguments_for_source(
     bindings: &mut Vec<Binding>,
 ) -> Result<PreparedCall, String> {
     prepare_arguments_with_prefix(builder, state, ledger, owner, receiver, source, row, bindings, None,
-        ledger.local_call_for_owner(owner, row.call_site().site()).map(ArgumentSource::Local), None)
+        ledger.local_call_for_owner(owner, row.call_site().site()).map(ArgumentSource::from_local), None)
+}
+
+/// Lend an already checked original purpose into the same argument writer.
+pub(super) fn prepare_arguments_for_original_v1(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
+    receiver: ExactLexicalReadV1, row: &LexicalInstanceCallDispositionRowV1,
+    original: ArgumentSource<'_>, bindings: &mut Vec<Binding>,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+) -> Result<PreparedCall, String> {
+    prepare_arguments_with_prefix(builder, state, ledger, owner, Some(receiver), original.arguments(),
+        SourceLoan::Instance(row), bindings, None, Some(original), Some(consume_receiver))
 }
 
 fn prepare_arguments_with_prefix(
@@ -369,7 +404,7 @@ fn prepare_arguments_with_prefix(
                 }
                 let scoped = prefix.zip(consume_receiver).map(|(prefix, consumer)| ExpressionCallPrefixV1::for_argument(prefix, consumer));
                 ArgumentProjection::CallResult(Box::new(emit_lexical_i64_call(
-                    builder, state, ledger, owner, ArgumentSource::Nested(inner),
+                    builder, state, ledger, owner, ArgumentSource::from_nested(inner),
                     CallSource::instance(inner_row), bindings,
                     scoped.as_ref().or(expression), consume_receiver,
                 )?))
@@ -538,7 +573,7 @@ pub(in crate::mir::builder) fn emit_unit_discard(
     let site = row.call_site().clone();
     let observation = ledger.unit_discard_source_v1(&site).ok_or_else(|| freeze("unit-call/source-missing"))?;
     let mut bindings = Vec::new();
-    let packet = emit_lexical_i64_call(builder, state, ledger, site.owner(), ArgumentSource::Local(observation),
+    let packet = emit_lexical_i64_call(builder, state, ledger, site.owner(), ArgumentSource::from_local(observation),
         CallSource::instance(row), &mut bindings, None, Some(consume_receiver))?;
     packet.call_with_ledger(site.owner(), observation.arguments(), ledger)?;
     ledger.record_root_lexical_call_bindings(site.owner(), site, bindings, packet)?;

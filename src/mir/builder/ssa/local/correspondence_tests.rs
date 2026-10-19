@@ -180,6 +180,26 @@ fn cache_and_identity_keep_exact_index_membership_and_detect_mutation() {
             if change_op { *op = crate::mir::CompareOp::Ne; } else { std::mem::swap(lhs, rhs); }
             assert!(relation.verify(&changed).is_err(), "changed Compare must reject");
         }
+        // A direct condition clone may lose its finisher-certified dead
+        // original. A Copy/identity relation cannot supply this permission.
+        let (mut builder, lhs) = fixture();
+        let rhs = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
+        let original = builder.next_value_id();
+        builder.emit_instruction(MirInstruction::Compare { dst: original, op, lhs, rhs }).unwrap();
+        let next = builder.core_ctx.next_block();
+        crate::mir::builder::emission::branch::emit_jump(&mut builder, next).unwrap();
+        builder.start_new_block(next).unwrap();
+        let cloned = super::super::try_cond(&mut builder, original).unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let clone = builder.function_state.local_ssa_correspondence.loan(function, original, cloned).unwrap();
+        let identity = builder.function_state.local_ssa_correspondence.loan(function, original, original).unwrap();
+        let mut finished = function.clone();
+        for body in finished.blocks.values_mut() { body.instructions.retain(|row| row.dst_value() != Some(original)); }
+        let project = |row: &PhysicalBinding| Ok(if row.1.dst_value() == Some(original) { None } else { Some(row.clone()) });
+        clone.verify_projected(&finished, &mut project.clone()).unwrap();
+        assert!(identity.verify_projected(&finished, &mut project.clone()).is_err());
+        for body in finished.blocks.values_mut() { body.instructions.retain(|row| row.dst_value() != Some(cloned)); }
+        assert!(clone.verify_projected(&finished, &mut project.clone()).is_err());
     }
 }
 
@@ -263,6 +283,25 @@ fn nested_function_restores_caller_index_and_refuses_child_loans() {
         &mut builder, header, rolled, "rollback-test").unwrap());
     assert!(pending.require_completed_v1().is_err());
     assert!(pending.verify(builder.function_state.current_function.as_ref().unwrap()).is_err());
+
+    // Final Phi patching remains legal before observation; a borrowed original
+    // then rejects mutation before either the instruction or its index changes.
+    let final_phi = builder.next_value_id();
+    crate::mir::builder::emission::phi_lifecycle::define_phi_final(
+        &mut builder, header, final_phi, vec![(initial, raw)], "final-correspondence").unwrap();
+    crate::mir::builder::emission::phi_lifecycle::patch_phi_inputs(
+        &mut builder, header, final_phi, vec![(initial, raw), (backedge, raw)], "unborrowed-final").unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let final_loan = builder.function_state.local_ssa_correspondence.loan(function, final_phi, final_phi).unwrap();
+    final_loan.require_completed_v1().unwrap();
+    final_loan.identity_phi_binding_v1().unwrap();
+    final_loan.verify(function).unwrap();
+    let before = function.blocks[&header].instructions.clone();
+    assert!(crate::mir::builder::emission::phi_lifecycle::patch_phi_inputs(
+        &mut builder, header, final_phi, vec![(initial, raw)], "observed-final").is_err());
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    assert_eq!(function.blocks[&header].instructions, before);
+    final_loan.verify(function).unwrap();
 }
 
 #[test]

@@ -10,7 +10,7 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 #[path = "expression_reference_read.rs"]
 mod reference_read;
-pub(in crate::mir) use reference_read::{ExpressionReferenceReadV1, ReferenceProducerV1};
+pub(in crate::mir) use reference_read::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ReferenceProducerV1};
 #[path = "expression_terminal_paths.rs"]
 mod terminal_paths;
 pub(in crate::mir) use terminal_paths::{ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1};

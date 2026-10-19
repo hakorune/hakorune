@@ -208,6 +208,12 @@ impl EmittedBoolConditionProjectionV1 {
                         .ok_or_else(|| freeze("bool-condition/call-observation"))?;
                     packet.visit_original_nodes_v1(self.frame.source().owner(), observation.arguments(), ledger,
                         &mut |inner, _| {
+                            // The original walk already checked read identity and
+                            // its source-owned Fault chain. Keep those effects
+                            // separate from the value-producer lender.
+                            for (_, read) in inner.array_read_records_v1() {
+                                producers.extend(read.bindings().cloned());
+                            }
                             producers.extend(bindings.iter().filter(|binding|
                                 inner.has_producer_at(inner.call_site(), binding)).cloned());
                             let MirInstruction::Invoke { fault_frame, fault_landing, .. } = &inner.invoke_binding().1

@@ -5,7 +5,7 @@ use crate::mir::{BasicBlockId, MirInstruction};
 
 #[derive(Debug, Clone)]
 enum LocalProducerPurposeV1 {
-    LoopPoint(Rc<LoopPointValueV1>),
+    ScalarJoin(Rc<ScalarJoinPointValueV1>),
     Initializer,
     BindingRebind(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>),
 }
@@ -13,7 +13,7 @@ impl PartialEq for LocalProducerPurposeV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Initializer, Self::Initializer) => true,
-            (Self::LoopPoint(a), Self::LoopPoint(b)) => Rc::ptr_eq(a, b),
+            (Self::ScalarJoin(a), Self::ScalarJoin(b)) => Rc::ptr_eq(a, b),
             (Self::BindingRebind(a), Self::BindingRebind(b)) => std::rc::Rc::ptr_eq(a, b),
             _ => false,
         }
@@ -22,16 +22,17 @@ impl PartialEq for LocalProducerPurposeV1 {
 /// An immutable source coordinate borrows the SAME indexed physical Phi.
 /// This is a value purpose, not a second loop registry or a completion grant.
 #[derive(Debug, Clone)]
-pub(in crate::mir) struct LoopPointValueV1 {
+pub(in crate::mir) struct ScalarJoinPointValueV1 {
     source: crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
     relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+    branch: Option<Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>>,
 }
-impl PartialEq for LoopPointValueV1 {
+impl PartialEq for ScalarJoinPointValueV1 {
     fn eq(&self, other: &Self) -> bool {
         self.source == other.source && Rc::ptr_eq(&self.relation, &other.relation)
     }
 }
-impl LoopPointValueV1 {
+impl ScalarJoinPointValueV1 {
     pub(in crate::mir::builder) fn new(
         source: crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
         relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
@@ -44,12 +45,19 @@ impl LoopPointValueV1 {
         relation.identity_phi_binding_v1()?;
         if matches!(source, Producer::LoopAfter { .. }) { relation.require_completed_v1()?; }
         relation.verify(function)?;
-        Ok(Rc::new(Self { source, relation }))
+        Ok(Rc::new(Self { source, relation, branch: None }))
     }
+    pub(in crate::mir) fn from_branch_v1(
+        branch: Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>,
+    ) -> Rc<Self> {
+        Rc::new(Self { source: crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(Rc::clone(branch.source())),
+            relation: Rc::clone(branch.relation()), branch: Some(branch) })
+    }
+    pub(in crate::mir) fn branch(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>> { self.branch.as_ref() }
     pub(in crate::mir) fn binding(&self) -> BindingRefV1 {
         use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
         match &self.source { Producer::LoopHeader(basis) => basis.binding(),
-            Producer::LoopAfter { binding, .. } => *binding, _ => unreachable!("constructor checked Loop purpose") }
+            Producer::LoopAfter { binding, .. } => *binding, Producer::BranchNormal(basis) => basis.binding(), _ => unreachable!("constructor checked Loop purpose") }
     }
     pub(in crate::mir) fn value(&self) -> ValueId { self.relation.values().0 }
     pub(in crate::mir) fn source(&self) -> &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 { &self.source }
@@ -65,11 +73,11 @@ pub(in crate::mir) struct LocalProvenanceV1 {
 }
 
 impl LocalProvenanceV1 {
-    pub(in crate::mir) fn loan_loop_point_v1(&self,
+    pub(in crate::mir) fn loan_scalar_join_v1(&self,
         source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
         result: ValueId,
-    ) -> Result<&Rc<LoopPointValueV1>, String> {
-        let LocalProducerPurposeV1::LoopPoint(point) = &self.purpose else {
+    ) -> Result<&Rc<ScalarJoinPointValueV1>, String> {
+        let LocalProducerPurposeV1::ScalarJoin(point) = &self.purpose else {
             return Err("[freeze:contract][local-read/loop-point-purpose]".into());
         };
         if point.source() != source { return Err("[freeze:contract][local-read/loop-point-source]".into()); }
@@ -201,14 +209,14 @@ impl MaterializedValuesV1 {
         Some(proof)
     }
 
-    pub(super) fn attach_loop_point_v1(&mut self, point: Rc<LoopPointValueV1>) -> Result<(), String> {
+    pub(super) fn attach_scalar_join_v1(&mut self, point: Rc<ScalarJoinPointValueV1>) -> Result<(), String> {
         let binding = point.binding();
         if self.get(&binding) != Some(&point.value()) {
             return Err("[freeze:contract][local-read/loop-point-publication]".into());
         }
         self.attach_provenance(binding, Some(LocalProvenanceV1 {
             root: binding, root_value: point.value(), copies: Vec::new(),
-            purpose: LocalProducerPurposeV1::LoopPoint(point),
+            purpose: LocalProducerPurposeV1::ScalarJoin(point),
         }));
         Ok(())
     }
@@ -375,16 +383,16 @@ impl LocalProvenanceV1 {
         let token = txn.define_provisional_phi(&mut builder, header, dst, "header").unwrap();
         let function = builder.function_state.current_function.as_ref().unwrap();
         let relation = builder.function_state.local_ssa_correspondence.loan(function, dst, dst).unwrap();
-        let point = LoopPointValueV1::new(source.clone(), Rc::clone(&relation), function).unwrap();
+        let point = ScalarJoinPointValueV1::new(source.clone(), Rc::clone(&relation), function).unwrap();
         let ordinary = builder.function_state.local_ssa_correspondence.loan(function, initial, initial).unwrap();
-        assert!(LoopPointValueV1::new(source.clone(), ordinary, function).is_err(), "ordinary definitions cannot become Phi purposes");
+        assert!(ScalarJoinPointValueV1::new(source.clone(), ordinary, function).is_err(), "ordinary definitions cannot become Phi purposes");
         let mut values = MaterializedValuesV1::default();
         values.insert(point.binding(), dst);
-        values.attach_loop_point_v1(Rc::clone(&point)).unwrap();
+        values.attach_scalar_join_v1(Rc::clone(&point)).unwrap();
         let proof = values.provenance(&point.binding()).unwrap();
-        assert!(Rc::ptr_eq(proof.loan_loop_point_v1(&source, dst).unwrap(), &point));
+        assert!(Rc::ptr_eq(proof.loan_scalar_join_v1(&source, dst).unwrap(), &point));
         assert!(proof.loan_initializer_v1(point.binding(), dst).is_err(), "a Header is not its pre-loop initializer");
-        assert!(proof.loan_loop_point_v1(&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::SignedEntry(point.binding()), dst).is_err());
+        assert!(proof.loan_scalar_join_v1(&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::SignedEntry(point.binding()), dst).is_err());
         assert!(relation.require_completed_v1().is_err(), "defined is not completed");
         builder.start_new_block(header).unwrap();
         let copied = builder.alloc_typed(MirType::Integer);
@@ -392,8 +400,8 @@ impl LocalProvenanceV1 {
         builder.emit_instruction(copy.clone()).unwrap();
         let receipt = CompletedLocalBindingV1::new(0, dst, copied).with_copy(Some((header, copy))).unwrap();
         let alias = values.local_provenance(point.binding(), &receipt).unwrap();
-        assert!(Rc::ptr_eq(alias.loan_loop_point_v1(&source, copied).unwrap(), &point));
-        assert!(alias.loan_loop_point_v1(&source, dst).is_err(), "complete Copy chain is mandatory");
+        assert!(Rc::ptr_eq(alias.loan_scalar_join_v1(&source, copied).unwrap(), &point));
+        assert!(alias.loan_scalar_join_v1(&source, dst).is_err(), "complete Copy chain is mandatory");
         txn.patch_phi_inputs(&mut builder, token, vec![(entry, initial)], "complete-original").unwrap();
         txn.commit(&mut builder).unwrap();
         relation.require_completed_v1().unwrap();
@@ -408,7 +416,7 @@ impl LocalProvenanceV1 {
         txn.define_provisional_phi(&mut builder, foreign, doomed, "pending").unwrap();
         let function = builder.function_state.current_function.as_ref().unwrap();
         let aborted = builder.function_state.local_ssa_correspondence.loan(function, doomed, doomed).unwrap();
-        let _point = LoopPointValueV1::new(source, Rc::clone(&aborted), function).unwrap();
+        let _point = ScalarJoinPointValueV1::new(source, Rc::clone(&aborted), function).unwrap();
         assert!(txn.abort_on_err(&mut builder, "expected abort".into()).cleanup_failures().is_empty());
         assert!(aborted.identity_phi_binding_v1().is_err(), "a rolled-back observation cannot be used");
     }

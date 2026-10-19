@@ -157,7 +157,7 @@ impl LocalSsaPhysicalRelationV1 {
         project: &mut impl FnMut(&PhysicalBinding) -> Result<Option<PhysicalBinding>, String>,
     ) -> Result<(), String> {
         self.verify_shape()?;
-        let mut verify_binding = |original: &PhysicalBinding| -> Result<(), String> {
+        let mut verify_binding = |original: &PhysicalBinding, cloned_compare: bool| -> Result<(), String> {
             match project(original)? {
                 Some(mapped) => {
                     let value = mapped
@@ -173,12 +173,17 @@ impl LocalSsaPhysicalRelationV1 {
                     original.1,
                     MirInstruction::Const { .. } | MirInstruction::Copy { .. }
                 ) => {}
+                // A checked Append re-materializes this exact Compare using
+                // its ordered child relations. Only the finishing projection
+                // can certify omission of its dead original; target stays mandatory.
+                None if cloned_compare && matches!(original.1, MirInstruction::Compare { .. }) => {}
                 None => return Err(reject("mandatory-producer-removed")),
             }
             Ok(())
         };
         match &self.source.resolved()? {
-            Definition::Instruction(original) => verify_binding(original)?,
+            Definition::Instruction(original) => verify_binding(original,
+                matches!((&self.step, &self.target), (Step::Append(_), Some((_, MirInstruction::Compare { .. })))))?,
             Definition::Phi(_) => return Err(reject("unresolved-phi")),
             Definition::Parameter { value, index } => {
                 if function.params.get(*index) != Some(value)
@@ -189,7 +194,7 @@ impl LocalSsaPhysicalRelationV1 {
             }
         }
         if let Some(target) = &self.target {
-            verify_binding(target)?;
+            verify_binding(target, false)?;
         }
         if let Step::Append(children) = &self.step {
             for child in children {
@@ -282,17 +287,27 @@ pub(in crate::mir) struct LocalSsaPhysicalIndexV1 {
 }
 
 impl LocalSsaPhysicalIndexV1 {
-    pub(in crate::mir::builder) fn prepare_provisional_phi_v1(
-        &self, function: &MirFunction, block: BasicBlockId, dst: ValueId,
-    ) -> Result<Rc<PhysicalPhiDefinitionV1>, String> {
+    fn require_fresh_phi_v1(&self, function: &MirFunction, dst: ValueId) -> Result<(), String> {
         if self.phis.contains_key(&dst) || function.params.contains(&dst)
             || function.blocks.values().any(|body| body.all_instructions().any(|row| row.dst_value() == Some(dst))) {
             return Err(reject("phi-definition-origin"));
         }
+        Ok(())
+    }
+    pub(in crate::mir::builder) fn prepare_provisional_phi_v1(
+        &self, function: &MirFunction, block: BasicBlockId, dst: ValueId,
+    ) -> Result<Rc<PhysicalPhiDefinitionV1>, String> {
+        self.require_fresh_phi_v1(function, dst)?;
         Ok(Rc::new(PhysicalPhiDefinitionV1::new(block, dst)))
     }
-
-    pub(in crate::mir::builder) fn commit_provisional_phi_v1(&mut self, phi: Rc<PhysicalPhiDefinitionV1>) {
+    pub(in crate::mir::builder) fn prepare_final_phi_v1(
+        &self, function: &MirFunction, binding: PhysicalBinding,
+    ) -> Result<Rc<PhysicalPhiDefinitionV1>, String> {
+        let MirInstruction::Phi { dst, .. } = &binding.1 else { return Err(reject("phi-completion-shape")); };
+        self.require_fresh_phi_v1(function, *dst)?;
+        Ok(Rc::new(PhysicalPhiDefinitionV1::final_definition(binding)))
+    }
+    pub(in crate::mir::builder) fn commit_phi_definition_v1(&mut self, phi: Rc<PhysicalPhiDefinitionV1>) {
         let dst = phi.current().expect("new Phi observation is live").1.dst_value().expect("Phi defines dst");
         assert!(self.phis.insert(dst, phi).is_none(), "exclusive Phi definition preflight changed");
     }
@@ -301,8 +316,8 @@ impl LocalSsaPhysicalIndexV1 {
         &self, function: &MirFunction, binding: PhysicalBinding,
     ) -> Result<Option<PhysicalPhiPatchV1>, String> {
         let dst = binding.1.dst_value().ok_or_else(|| reject("phi-completion-dst"))?;
-        // Existing final-Phi patch callers never issued a provisional loan.
-        // Tracked provisional loans, by contrast, must complete exactly once.
+        // Provisional observations complete once. Unborrowed final definitions
+        // may be replaced by this same successful writer; loans freeze them.
         let Some(phi) = self.phis.get(&dst) else { return Ok(None); };
         let before = instruction(function, dst).ok_or_else(|| reject("phi-completion-missing"))?;
         phi.prepare(&before, binding).map(Some)

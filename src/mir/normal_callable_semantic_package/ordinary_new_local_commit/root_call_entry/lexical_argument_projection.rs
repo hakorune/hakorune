@@ -361,6 +361,17 @@ impl LexicalCallArgumentProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn deferred_argument_ends_v1(
+        &self, context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<InvokeOperation>, String> { self.prepared.deferred_argument_ends_v1(context) }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn argument_completion_binding_v1(&self) -> Result<&Binding, String> {
+        match &self.argument_cleanup {
+            Some(cleanup) => Ok(&cleanup.continuation),
+            None => self.outer_bindings().map(|(_, normal)| normal),
+        }
+    }
+
     /// The enclosing Call is the common consumer of its source-bound argument
     /// evaluations. Completed scalar children stay outside its live-temp stack.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_expression_arguments_v1(
@@ -375,14 +386,15 @@ impl EmittedLexicalCallProjectionV1 {
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let original = context.ledger().local_call_for_owner(self.call_site().owner(), self.call_site().site())
-            .map(ExpressionCallArgumentSourceV1::Local);
-        self.validate_expression_arguments_at_source_v1(context, function, finishing, bindings, coordinates, inherited, original)
+            .map(ExpressionCallArgumentSourceV1::from_local);
+        self.validate_expression_arguments_at_source_v1(context, function, finishing, bindings, coordinates, inherited, original, &[])
     }
-    fn validate_expression_arguments_at_source_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_expression_arguments_at_source_v1(
         &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
         finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
         original: Option<ExpressionCallArgumentSourceV1<'_>>,
+        normal_fault_cancellation: &[InvokeOperation],
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         if let Some(prefix) = inherited { prefix.require_call(self)?; }
         if original.is_some_and(|source| source.site() != self.call_site()
@@ -411,7 +423,7 @@ impl EmittedLexicalCallProjectionV1 {
             covered.extend(argument.validate_expression_physical_with_prefix_v1(context, function, finishing, bindings, coordinates, inherited)?);
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
                 let source = original.and_then(|source| match source.arguments().get(ordinal) {
-                    Some(LocalCallArgumentV1::CallResult(inner)) => Some(ExpressionCallArgumentSourceV1::Nested(inner)), _ => None,
+                    Some(LocalCallArgumentV1::CallResult(inner)) => Some(ExpressionCallArgumentSourceV1::from_nested(inner)), _ => None,
                 });
                 let has_deferred = self.prepared.arguments[..ordinal].iter()
                     .map(|argument| argument.deferred_text_values_v1(context))
@@ -421,14 +433,14 @@ impl EmittedLexicalCallProjectionV1 {
                         original.ok_or_else(|| freeze("argument-expression/prefix-original-call"))?,
                         ordinal, &self.prepared.arguments[..ordinal], context, inherited)?;
                     covered.extend(inner.validate_expression_arguments_at_source_v1(context, function, finishing,
-                        bindings, coordinates, Some(&prefix), source)?);
+                        bindings, coordinates, Some(&prefix), source, &[])?);
                 } else {
                     covered.extend(inner.validate_expression_arguments_at_source_v1(context, function, finishing,
-                        bindings, coordinates, inherited, source)?);
+                        bindings, coordinates, inherited, source, &[])?);
                 }
             }
         }
-        covered.extend(self.validate_argument_lifetime_v1(context, function, finishing, inherited, original)?);
+        covered.extend(self.validate_argument_lifetime_v1(context, function, finishing, inherited, original, normal_fault_cancellation)?);
         Ok(covered)
     }
 
@@ -454,6 +466,7 @@ impl EmittedLexicalCallProjectionV1 {
         &self, context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
         finishing: Option<&FinishedBindings>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
         original: Option<ExpressionCallArgumentSourceV1<'_>>,
+        normal_fault_cancellation: &[InvokeOperation],
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         use super::super::super::root_cleanup_graph::ordered_paths as paths;
         let ends = self.prepared.deferred_argument_ends_v1(context)?;
@@ -521,7 +534,8 @@ impl EmittedLexicalCallProjectionV1 {
             }
             let (next, fault) = paths::release(function, normal, operation, Some(fault_frame))?;
             covered.insert(normal);
-            covered.extend(paths::pending_operations(function, fault, &operations[index + 1..], Some(fault_frame))?);
+            let after_fault: Vec<_> = ends[index + 1..].iter().chain(normal_fault_cancellation).chain(&suffix).cloned().collect();
+            covered.extend(paths::pending_operations(function, fault, &after_fault, Some(fault_frame))?);
             normal = next;
         }
         if paths::skip_until(function, normal, Some(stop))? != stop {

@@ -65,7 +65,7 @@ pub(in crate::mir::builder) fn emit_bool(
     let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver };
     let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
         .ok_or_else(|| freeze("bool-condition-call/disposition-missing"))?;
-    emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::Local(call),
+    emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
         CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver))
 }
 
@@ -105,6 +105,6 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     }
     let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
         .ok_or_else(|| freeze("expression-call/disposition-missing"))?;
-    emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::Local(call),
+    emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
         CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver))
 }

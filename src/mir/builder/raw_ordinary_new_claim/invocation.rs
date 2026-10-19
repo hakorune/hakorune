@@ -673,8 +673,9 @@ impl super::super::RawInvocationChildPortV1<'_, '_> {
             self.consume_lexical_self_receiver_locator_v1(&row)?;
             Some(row)
         };
+        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
         let packet = crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
-            builder, &mut self.callable_ledger.as_ref().expect("checked source state").borrow_mut(), ledger, append, candidate,
+            builder, &mut self.callable_ledger.as_ref().expect("checked source state").borrow_mut(), ledger, append, candidate, &consume_receiver,
         )?;
         Ok(Some(packet))
     }

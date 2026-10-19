@@ -178,6 +178,7 @@ pub(in crate::mir::builder) fn emit_append(
     ledger: &OrdinaryNewClaimLedgerV1,
     source: crate::mir::normal_callable_semantic_package::OwnedArrayAppendSourceLoanV1,
     candidate_row: Option<crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1>,
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedOwnedArrayAppendV1>, String> {
     use crate::mir::normal_callable_semantic_package::{
         EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1 as Candidate,
@@ -203,7 +204,7 @@ pub(in crate::mir::builder) fn emit_append(
         let (packet, value, cancellation) = super::terminal_call::emit_object_expression(
             builder, state, ledger, &source,
             candidate_row.ok_or_else(|| freeze("array-append/candidate-disposition-missing"))?,
-            &mut bindings,
+            &mut bindings, consume_receiver,
         )?;
         (Candidate::Call(packet), value, cancellation)
     };

@@ -89,13 +89,15 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             let bindings = self.lifecycle_bindings(owner)?;
             let mut projection = boundary.project(function)?;
+            // Source consumers borrow only a completely checked physical
+            // projection, including its exact dead-producer omissions.
+            boundary.validate_complete(function, &mut projection, &bindings)?;
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
             self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| projection.binding(binding.0, &binding.1))?;
             self.validate_terminal_scalar_literal_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_add_return_projected(owner, function, Some(&projection))?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
-            boundary.validate_complete(function, &mut projection, &bindings)?;
             self.verify_finished_scalar_operations_v1(owner, function, |original| {
                 projection.relation_binding(function, original)
             })?;
@@ -244,8 +246,8 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let bindings = self.lifecycle_bindings(owner)?;
         let mut projection = boundary.project(function)?;
-        self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
+        self.validate_root_body(owner, function, Some(&projection))?;
         self.main_arguments_projected_bindings_v1(function, |original| {
             let mapped = projection.binding(original.0, &original.1)?
                 .ok_or_else(|| freeze("main-arguments/mandatory-binding-removed"))?;

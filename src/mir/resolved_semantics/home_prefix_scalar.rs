@@ -2,7 +2,7 @@
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{CheckedBindingRebindFrameV1, CheckedInitializerExpressionFrameV1, LocalCallObservationV1, LocalCallResultClassV1};
-use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
+use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, SourceValueEdgeV1, SourceValueJoinKindV1, VerifiedSourceValueFlowV1};
 use std::{rc::Rc, sync::Arc};
 
 /// Source scalar class retained from an exact literal or declaration contract.
@@ -19,9 +19,45 @@ pub(crate) enum CurrentScalarProducerV1 {
     Call(LocalCallObservationV1),
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
     BindingRebind(Rc<CheckedBindingRebindFrameV1>),
+    BranchNormal(Rc<BranchNormalScalarSourceV1>),
     LoopHeader(Rc<super::source_loop::LoopHeaderScalarBasisV1>),
     LoopAfter { product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, binding: BindingRefV1 },
 }
+/// Complete original BranchNormal inputs, qualified by the existing scalar
+/// producer walk. Identity is the original immutable flow coordinate, not a
+/// newly allocated wrapper; separate reads may borrow this same source value.
+#[derive(Debug)]
+pub(crate) struct BranchNormalScalarSourceV1 {
+    flow: Arc<VerifiedSourceValueFlowV1>,
+    value: SourceValueRefV1,
+    binding: BindingRefV1,
+    site: SourceStmtSiteV1,
+    incoming: Box<[(SourceValueEdgeV1, SourceValueRefV1, CurrentScalarProducerV1)]>,
+}
+impl PartialEq for BranchNormalScalarSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.flow, &other.flow) && self.value == other.value
+            && self.binding == other.binding && self.site == other.site
+    }
+}
+impl Eq for BranchNormalScalarSourceV1 {}
+impl BranchNormalScalarSourceV1 {
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 { &self.site }
+    pub(crate) fn incoming(&self) -> &[(SourceValueEdgeV1, SourceValueRefV1, CurrentScalarProducerV1)] { &self.incoming }
+    pub(crate) fn corroborates_original(&self) -> bool {
+        self.flow.is_complete() && self.flow.owner() == self.binding.owner()
+            && matches!(self.flow.origin(self.value), Some(SourceValueOriginV1::Join {
+                binding, site, kind: SourceValueJoinKindV1::BranchNormal, incoming
+            }) if *binding == self.binding && site.node() == self.site.node()
+                && incoming.len() == 2 && self.incoming.len() == 2
+                && incoming.iter().zip(self.incoming.iter()).all(|((edge, value), (observed, original, _))|
+                    edge == observed && value == original)
+                && matches!((&incoming[0].0, &incoming[1].0),
+                    (SourceValueEdgeV1::ThenNormal, SourceValueEdgeV1::ElseNormal)))
+    }
+}
+
 /// A source read, not a physical operand or permission inferred from an I64 class.
 #[derive(Debug, Clone)]
 pub(crate) struct CurrentScalarReadV1 {
@@ -71,6 +107,13 @@ impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn scalar_producer_for_value_v1(
         &self, binding: BindingRefV1, value: SourceValueRefV1, calls: &[LocalCallObservationV1],
     ) -> Option<(SourceValueRefV1, CurrentScalarProducerV1)> {
+        self.scalar_producer_with_path_v1(binding, value, calls, &BTreeSet::new())
+    }
+    fn scalar_producer_with_path_v1(&self, binding: BindingRefV1, value: SourceValueRefV1,
+        calls: &[LocalCallObservationV1], path: &BTreeSet<SourceValueRefV1>,
+    ) -> Option<(SourceValueRefV1, CurrentScalarProducerV1)> {
+        let mut path = path.clone();
+        if !path.insert(value) { return None; }
         if binding.owner() != self.input.owner()
             || !matches!(self.locals.get(&binding), Some(StoredLocal::Trivial(Some(SourceScalarKind::Integer)))) {
             return None;
@@ -94,6 +137,18 @@ impl PrefixLocalFlow<'_> {
             rebind(site)
         } else { None };
         let producer = if let Some(rebind) = producer { rebind } else { match flow.origin(origin)? {
+            SourceValueOriginV1::Join { binding: original, site, kind: SourceValueJoinKindV1::BranchNormal, incoming } => {
+                if incoming.len() != 2 || !matches!((&incoming[0].0, &incoming[1].0),
+                    (SourceValueEdgeV1::ThenNormal, SourceValueEdgeV1::ElseNormal)) { return None; }
+                let inputs = incoming.iter().map(|(edge, value)| {
+                    let (_, producer) = self.scalar_producer_with_path_v1(*original, *value, calls, &path)?;
+                    Some((edge.clone(), *value, producer))
+                }).collect::<Option<Vec<_>>>()?;
+                let basis = Rc::new(BranchNormalScalarSourceV1 { flow: Arc::clone(flow), value: origin,
+                    binding: *original, site: SourceStmtSiteV1::from_node(site.node().clone()), incoming: inputs.into_boxed_slice() });
+                if !basis.corroborates_original() { return None; }
+                CurrentScalarProducerV1::BranchNormal(basis)
+            }
             SourceValueOriginV1::Join { .. } => match self.source_loop.as_ref().and_then(|active| active.header_for_value(flow, origin)) {
                 Some(basis) => CurrentScalarProducerV1::LoopHeader(Rc::clone(basis)),
                 None => self.source_loop_after_for_value_v2(flow, origin)?,

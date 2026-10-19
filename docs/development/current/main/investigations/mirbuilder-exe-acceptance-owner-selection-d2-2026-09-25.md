@@ -1,99 +1,81 @@
 # APP-allocator-stress
 
-Status: selected; Loop/If/Bool read pass; Main terminal source-result connection remains open.
+Status: selected; source/Main handoff passes; final Array holder correspondence remains open.
 Date: 2026-10-19
-Scope: unchanged allocator-stress, physical EXE, exact output/exit and retained handle safety.
+Scope: unchanged allocator-stress, canonical physical EXE, exact output/exit and handle safety.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 [retained-handle obligation, row 7](mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md),
 [parked untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md).
 
 ## Selection and measured stop
 
-- User authorized skipping parked untyped-field. Allocator reuses passing mimalloc's heap;
-  binary-trees/JSON also need unresolved untyped slots, JSON additional Text/Loop connections.
-- Latest fixed suite: committed computed-argument revision `3965b758ba`, 6PASS/5FAIL,
-  actual EXE5 + empty marker1, no SKIP/timeout; mimalloc green. Outer1900s/build/run300s.
-  Later Bool/If/argument WIP is outside that measurement; no product acceptance claim.
-- Matching BranchNormal quick CLI passes prior source refusal at main.hako:29
-  `rejects = rejects + 1` (Body11/IfThen0). Bool equality at line28 also passes.
-- Matching canonical smoke passes Loop, If Phi and release/Get Bool comparison, then stops
-  at Main `return stress.run()`: `ordinary-new/local-commit/artifact-source-unavailable`.
-  No EXE artifact is produced. Original line15 computed Object arguments also pass.
-  Next: connect the original scalar-result loan to the existing terminal-call protocol;
-  do not infer an I64 result from MIR or broaden the declaration-only route.
-- Existing smoke enters canonical physical lifecycle EXE directly, retaining exact
-  rejects=4/output/exit, lifecycle/C API/artifact checks and no compat replay.
+- User selected allocator after parking untyped-field. Allocator reuses mimalloc's heap;
+  binary-trees/JSON need unresolved untyped slots, JSON additional Text/Loop connections.
+- Official fixed suite remains computed-argument revision `3965b758ba`: 6PASS/5FAIL,
+  actual EXE5 + empty marker1, mimalloc PASS, no SKIP/timeout; outer1900/build/run300s.
+  Later BranchNormal/Object argument work is outside that measurement; remeasurement owed.
+- Matching quick CLI passes computed Object arguments, Loop, If Phi, Bool Get condition
+  and Main `return stress.run()` scalar-source/argument handoff. Final validation stops at
+  `ordinary-new/local-commit/owned-holder/instruction-missing`; no EXE artifact is produced.
+- Next: connect original holder observations to the existing finished physical projection.
+  Preserve exact requested_bytes=454, rejects=4, output/exit0, route and no-replay checks.
 
 ## Connected owners
 
-- Same original named-Array source selects holder/Get/Loop-body append before Text issuance.
+- Original named-Array source selects holder/Get/Loop Append before Text issuance.
   Same Home observation, checked Loop action, Recipe slot and child group reach the sole
-  raw/Loop append writer. No duplicated root effects or source rewrite.
-- Append transfer/Fault cancellation and holder teardown remain checked. Original source
-  Phi tuples feed existing liveness/repair; backedges require exact stable resource state
-  and agreement between cached/actual CFG, without claiming termination.
-- Computed arguments retain complete finite signed source SUM and original argument-purpose
-  frames. I64 uses ScalarCompleted/NormalInteger; Text keeps OwnedTextDeferred/OwnedString.
-  Declared usize/legacy transport remain unchanged. Wire tag1 requires the same finalized
-  descriptor and complete signed callee domain; bare frames cannot issue transport.
-- Add/Mul use the existing numeric envelope/writer/final matcher. Delegated argument frames
-  retain exact Call/ordinal, original method/plan/loan identity and evaluation-time Homes;
-  their parent Call owns execution/final checks, not separate Loop child prefixes.
-- Bool equality uses exact Bool/Bool Eq/Ne envelopes, existing Compare writer/final matcher;
-  no truthiness or Bool/Integer mixing. Existing positive/negative matrices cover this class.
-- IfForm shares snapshots across both arms and restores merge values/provenance. BranchNormal
-  retains complete original ThenNormal/ElseNormal inputs and original immutable flow coordinate.
-  Existing IfForm condition/exits and indexed Phi supply physical evidence; the same
-  ExpressionReferenceRead checks every input and finished correspondence. No new SSA writer.
-- Loop port coverage requires original If coverage and every incoming producer. Worker
-  review confirms coverage union alone grants no physical/source-edge correspondence.
+  writer; no duplicate effects, AST/source rewrite or MIR-based semantic inference.
+- Append transfer/Fault cancellation and holder teardown retain independent checks.
+  Original Phi inputs feed existing liveness; backedges require stable resource state and
+  agreement between cached/actual CFG. Termination is not inferred.
+- Computed arguments retain complete signed source SUM and original purpose frames.
+  I64 keeps ScalarCompleted/NormalInteger; Text keeps OwnedTextDeferred/OwnedString.
+  Same Call/ordinal, method/plan/loan and evaluation-time Homes reach final validation.
+- Bool Eq/Ne requires Bool/Bool, with the existing Compare writer and matcher.
+  Original Call walk now lends SAME Array Get Fault inventory through array_read_records_v1;
+  value-producer lending and original Read/Fault/final checks remain unchanged.
+- IfForm snapshots/restores each arm and merge values/provenance. BranchNormal retains
+  complete original ThenNormal/ElseNormal inputs and the same immutable flow coordinate.
+  Original condition/exits, same indexed Phi and every input producer reach final checks.
+  Loop coverage alone grants no physical edge correspondence. No additional SSA writer.
+- Actual sorted final Phi is registered by its sole successful writer. Unborrowed final
+  patch replaces its indexed observation; identity/append loans freeze it. Provisional
+  Phi still completes once. Both use the same existing SSA index.
+- Object candidate arguments use the SAME Taken Object packet/original Array recipe and
+  existing borrowed site/arguments/Homes view; no synthetic local or Home is constructed.
+  Existing receiver consumer handles nested argument Calls; candidate is consumed once.
+- Scalar/Object purposes share one argument cleanup graph and independent final validator.
+  Call Fault: argument Ends then prior Homes, no nonexistent candidate cancellation.
+  Normal argument-End Fault: remaining Ends, SAME candidate cancellation, prior Homes.
+  Success retains candidate for Append; Append Fault cancels candidate then unwinds Homes.
+- Append Home normalization is committed separately: acquisition order is shared with
+  Call/expression frames, existing unwind reverses once. Initializer order is unchanged.
+- Zero-input scalar demands use the existing original incoming census for result and
+  argument rows. Exact target, empty actuals, ScalarReturnSource identity, all Returns,
+  grounding/dependencies and executable corroboration remain mandatory. No ABI default.
+- Final Compare clone may omit its dead original only with SAME finisher-certified omission,
+  exact Append opcode/ordered operands and mandatory surviving target. Identity cannot omit.
+  Root/child final validation now seals the captured physical projection before its source
+  consumers; all validators still run before the final state is published.
 
-## Current WIP and verification
+## Verification and remaining evidence
 
-- BranchNormal root build PASS; existing focused61 PASS, test list9263 unchanged.
-  Existing initializer matrix changes expected refusal to proved If-join, without new cases.
-- Known `callable_source_loop_exit_read_binds_after_phi_dst` remains red at Text source
-  Loop unavailable, identical to preserved pre-change binary. It remains an open boundary.
-- Builder dependency/CallTarget guards and diff check PASS. Previous If-state CLI's mimalloc
-  smoke PASS, exact output/exit and no replay; current argument WIP has not repeated it.
-- WIP normalizes the existing argument source view to borrowed site/arguments/Homes.
-  Candidate arguments come from the SAME Taken Object packet and original Array recipe,
-  with no synthetic local/Home. Existing receiver consumer is lent to nested argument Calls;
-  candidate receiver itself stays consumed exactly once.
-- Scalar and Object candidate purposes share the existing argument cleanup graph writer.
-  Call Fault: argument Ends then prior Homes, with no nonexistent candidate cancellation.
-  Normal argument-End Fault: remaining Ends, SAME packet candidate cancellation, then Homes.
-  Normal success retains candidate for Append; Append Fault retains cancellation then Homes.
-  The independent final argument validator derives these expectations from the original packet.
-- Append Call validation now invokes that same full source/frame/producer/Normal-Fault check
-  and requires argument completion before transfer. Worker review confirms phase separation.
-- Object-argument root build PASS; existing focused88 PASS, 5 baseline reds reproduced
-  with the preserved pre-change binary (3 Array source, 2 synthetic final-call visitors).
-  They remain open, not accepted as success. Test list9263 unchanged.
-  Matching CLI build PASS; unchanged smoke advanced to expression-call/context-drift.
-- WIP normalizes Append prior Homes to acquisition order, matching Call/expression frames.
-  Remove two reversed comparisons and the unwind-side reverse adapter; the existing unwind
-  owner still emits newest-first. Initializer-prefix order is a separate unchanged contract.
-  Worker confirmed all consumers; root74 PASS/6 baseline reds, test list9263 unchanged.
-  Matching CLI passes context-drift and reaches ordinary If's not-indexed-phi.
-- WIP registers actual materialized/sorted final Phi at the same successful writer.
-  Unborrowed final patch replaces its indexed observation; any original identity/append loan
-  freezes it. Provisional still completes once. Both use the existing index, not MIR inference.
-  Worker approved. One existing test adds the independent unborrowed-final/borrowed-final
-  mutation boundary; provisional-only evidence cannot protect it. No new test function/file.
-  Root build and existing focused65 PASS, test list9263 unchanged. Matching CLI also passes
-  Phi indexing and advances beyond the previous stop before any artifact.
-- WIP connects the same Array Get Fault inventory through existing array_read_records_v1
-  inside the original validated Call walk. Producer lending is unchanged; no new accessor.
-  Existing Read owner retains source/Fault/final checks. Root/CLI builds PASS; existing
-  focused55 PASS, test list9263 unchanged. Matching smoke reaches the Main stop above.
-- No new file/test function/hook/checker/registry or runtime/C ABI change.
-  Existing manual Array writer test only adapts the receiver callback signature.
+- Root quick-test-fast and matching quick CLI builds PASS. Existing test list9263 unchanged.
+  Focused SSA10, physical-boundary22, root2 and handoff5 PASS. Root2/handoff1 reds reproduce
+  with the pre-order binary; result-protocol4 reds also reproduce with pre-source binary.
+  These remain unresolved boundaries, not accepted product success.
+- Result/actual and If/initializer/Object input focused results are retained with the build;
+  previous connection checks remain in this card's Git history. Fixed-suite refresh is next.
+- Builder dependency/CallTarget guards and diff checks PASS. Worker reviewed source family,
+  full cleanup graph, Phi identity and final Compare/order connection, read-only/no Cargo.
+- Existing test adds final-Phi patch/borrow mutation coverage absent from provisional checks.
+  Existing Compare matrix adds clone-source omission versus mandatory Identity/target checks;
+  these independent boundaries require no new test function/file, hook, checker or registry.
+- No runtime/C ABI change or app workaround. Manual Array writer test adapts its callback only.
 
 ## Completion obligations
 
-- `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh` must pass all
-  artifact/run/output obligations, including requested_bytes=454, rejects=4 and exit0.
-- Retire replaced exclusive edges only after caller/validation closure. Shared owners stay.
-  Untyped D0 stays ParkedSealed until explicit acceptance; full goal remains incomplete.
-- Prior selection and completed implementation details remain in this path's Git history.
+- Existing allocator_stress_exe.sh must pass every artifact/run/output/negative obligation.
+- Retire replaced exclusive edges after caller/validation closure; preserve shared owners.
+- Untyped-slot D0 remains ParkedSealed until explicit acceptance. Full goal is incomplete.
+- Completed implementation details and prior selection remain in this path's Git history.

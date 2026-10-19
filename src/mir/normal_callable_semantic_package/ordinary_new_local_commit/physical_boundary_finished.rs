@@ -74,6 +74,7 @@ impl FinishedBindings {
             && matches!(
                 original.1,
                 MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+                    | MirInstruction::Compare { .. }
             )
             && self.validated_sequence_omissions.contains(&mapped)
         {

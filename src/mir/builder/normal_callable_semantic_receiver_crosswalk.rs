@@ -75,11 +75,11 @@ impl PreparedExactLexicalReadV1 {
 
 impl BindingValueObservationV2 {
     pub(in crate::mir) fn binding_value(&self) -> (BindingRefV1, ValueId) { (self.binding, self.value) }
-    pub(in crate::mir) fn loan_loop_point_v1(&self,
+    pub(in crate::mir) fn loan_scalar_join_v1(&self,
         source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
-    ) -> Result<&std::rc::Rc<super::materialized_values::LoopPointValueV1>, String> {
+    ) -> Result<&std::rc::Rc<super::materialized_values::ScalarJoinPointValueV1>, String> {
         let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/loop-point-missing]")?
-            .loan_loop_point_v1(source, self.value)?;
+            .loan_scalar_join_v1(source, self.value)?;
         if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/loop-point-owner]".into()); }
         Ok(point)
     }
@@ -138,10 +138,10 @@ impl BindingValueObservationV2 {
 
 impl ExactLexicalReadV1 {
     pub(in crate::mir) fn binding_observation_v2(&self) -> &BindingValueObservationV2 { &self.binding_value }
-    pub(in crate::mir) fn loan_loop_point_v1(&self,
+    pub(in crate::mir) fn loan_scalar_join_v1(&self,
         source: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1,
-    ) -> Result<&std::rc::Rc<super::materialized_values::LoopPointValueV1>, String> {
-        self.binding_value.loan_loop_point_v1(source)
+    ) -> Result<&std::rc::Rc<super::materialized_values::ScalarJoinPointValueV1>, String> {
+        self.binding_value.loan_scalar_join_v1(source)
     }
     pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
@@ -255,6 +255,15 @@ impl CallableSemanticLoweringState {
         let value = self.value_for_exact_binding(self.owner, binding)?;
         Ok(BindingValueObservationV2 { owner: self.owner, binding, value,
             provenance: self.values.provenance(&binding) })
+    }
+
+    /// Borrow one existing arm snapshot without fabricating a source read.
+    pub(in crate::mir::builder) fn observe_snapshot_binding_v1(&self,
+        snapshot: &super::materialized_values::MaterializedValuesV1, binding: BindingRefV1,
+    ) -> Result<BindingValueObservationV2, ExactBindingValueErrorV1> {
+        if binding.owner() != self.owner { return Err(ExactBindingValueErrorV1::ForeignBinding); }
+        let value = *snapshot.get(&binding).ok_or(ExactBindingValueErrorV1::ValueUnavailable)?;
+        Ok(BindingValueObservationV2 { owner: self.owner, binding, value, provenance: snapshot.provenance(&binding) })
     }
 
     /// Consume one exact receiver source site and read its already-materialized

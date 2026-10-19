@@ -235,6 +235,16 @@ impl HomeExpressionPlanV1 {
         self.source_fields = fields;
         self.is_consistent().then_some(self)
     }
+    /// The same completed evaluation, independent of its existing purpose.
+    /// Field-write RHS uses a separate source-only representation and has no
+    /// CurrentScalarRead loans to lend through this interface.
+    pub(crate) fn evaluation(&self) -> Option<&CheckedExpressionEvaluationV1> {
+        self.argument_frame().map(|frame| frame.evaluation())
+            .or_else(|| self.initializer_frame().map(|frame| frame.evaluation()))
+            .or_else(|| self.rebind_frame().map(|frame| frame.evaluation()))
+            .or_else(|| self.condition_frame().map(|frame| frame.evaluation()))
+            .or_else(|| self.print_frame().map(|frame| frame.evaluation()))
+    }
     pub(crate) fn field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> {
         self.field_write.as_ref().map(|plan| &plan.frame)
     }

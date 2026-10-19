@@ -390,7 +390,7 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
         ("local start = count + line.length()", "start", ": i64", Some("initializer")),
         ("local start = count + line.length() local alias = start", "alias", ": i64", Some("initializer")),
         ("local start = 1 start = 2", "start", ": i64", Some("rebind")),
-        ("local start = 1 if count > 0 { start = 2 }", "start", ": i64", None),
+        ("local start = 1 if count > 0 { start = 2 }", "start", ": i64", Some("branch")),
         ("local start = 1 loop count > 0 { start = start + 1 break }", "start", ": i64", None),
         ("", "count", ": usize", None),
     ] {
@@ -430,6 +430,7 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
                     assert!(Rc::ptr_eq(original, retained));
                     "rebind"
                 }
+                Producer::BranchNormal(basis) => { assert!(basis.corroborates_original()); "branch" }
                 Producer::LoopHeader(_) | Producer::LoopAfter { .. } => panic!("this fixture has no Loop"),
                 Producer::Integer { value, .. } => { assert_eq!(*value, 1); "literal" }
                 Producer::Call(call) => {

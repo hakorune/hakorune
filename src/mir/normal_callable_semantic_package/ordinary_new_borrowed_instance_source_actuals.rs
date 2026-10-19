@@ -69,8 +69,8 @@ pub(super) fn prepare_instance_source_actuals_v1(
         None => false,
     };
     let zero_request = !nullable_request && ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
-        .filter_map(|row| row.source.instance()).any(|target| matches!(&target.result_requirement,
-            super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)));
+        .filter_map(|row| row.source.instance()).any(|target| target.uses_existing_borrowed_result_v1()
+            && target.target().arity() == 0 && target.argument_sites().is_empty());
     let unit_request = ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
         .filter_map(|row| row.source.instance()).any(|target| target.is_unit_discard_source_v1());
     let object_producer_request = match ingress.object_source_target_at_v1(site)? {
@@ -119,12 +119,14 @@ pub(super) fn prepare_instance_source_actuals_v1(
         }
     }
     if zero_request {
-        let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) = &target.result_requirement else {
+        if let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) = &target.result_requirement {
+            if !request.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
+                return Err(freeze("borrowed-instance/zero-source-identity"));
+            }
+        }
+        if !actuals.is_empty() || !original.arguments.is_empty() {
             return Err(freeze("borrowed-instance/zero-source-identity"));
-        };
-        if !request.matches(&super::super::source::CallTargetReferenceV1::from_target(target))
-            || !actuals.is_empty() || !original.arguments.is_empty()
-        { return Err(freeze("borrowed-instance/zero-source-identity")); }
+        }
     }
     // The existing Object source owner keeps its original qualification.
     if ingress.source_incoming.has_object_input_callee_v1(target) {
@@ -418,6 +420,8 @@ pub(super) fn selected_original_instance_forward_v1(
                 }
                 return Ok(true);
             }
+            if target.uses_existing_borrowed_result_v1() && target.target().arity() == 0
+                && target.argument_sites().is_empty() { return Ok(true); }
         }
         if original
             .source

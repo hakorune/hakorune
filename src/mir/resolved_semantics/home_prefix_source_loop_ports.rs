@@ -87,6 +87,9 @@ fn producer_is_covered(producer: &CurrentScalarProducerV1, port: &SourceLoopPort
         CurrentScalarProducerV1::Integer { .. } | CurrentScalarProducerV1::SignedEntry(_)
         | CurrentScalarProducerV1::LoopHeader(_) => return true,
         CurrentScalarProducerV1::LoopAfter { product, .. } => return port.covered.contains(product.source.source.site()),
+        CurrentScalarProducerV1::BranchNormal(source) => return source.corroborates_original()
+            && port.covered.contains(source.site())
+            && source.incoming().iter().all(|(_, _, producer)| producer_is_covered(producer, port)),
     };
     port.covered.contains(evaluation.source().root().statement())
         && evaluation.calls().iter().all(|call| port.calls.contains(call.site()))

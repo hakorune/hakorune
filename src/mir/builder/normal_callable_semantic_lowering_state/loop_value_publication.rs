@@ -24,9 +24,9 @@ impl CallableSemanticLoweringState {
         crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims)
             .source_loop_point_product_v2(&source)?;
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("loop-point-function-missing"))?;
-        let point = super::materialized_values::LoopPointValueV1::new(source, relation, function)?;
+        let point = super::materialized_values::ScalarJoinPointValueV1::new(source, relation, function)?;
         self.publish_source_final_value(point.binding(), value)?;
-        self.values.attach_loop_point_v1(point)
+        self.values.attach_scalar_join_v1(point)
     }
     /// Names locate an already selected source binding in the emission cache.
     /// They never classify a binding as a carrier or recover its identity.
@@ -113,6 +113,12 @@ impl CallableSemanticLoweringState {
     ) {
         self.values = snapshot;
     }
+    pub(in crate::mir::builder) fn attach_branch_scalar_phi_v1(&mut self,
+        observed: Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>,
+    ) -> Result<(), String> {
+        self.values.attach_scalar_join_v1(super::materialized_values::ScalarJoinPointValueV1::from_branch_v1(observed))
+    }
+
     /// Names locate only pre-If source slots whose exact cached value agrees.
     /// Historical unmatched bindings cannot be rediscovered from the merge map.
     pub(in crate::mir::builder) fn source_if_value_slots_v1(&self,

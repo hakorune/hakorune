@@ -375,7 +375,7 @@ impl SourceLoopPhiSessionV1 {
         }
         ledger.publish_source_loop_point_v2(builder, &issued).unwrap();
         let observed = ledger.observe_binding_value_v2(binding).unwrap();
-        assert!(Rc::ptr_eq(observed.loan_loop_point_v1(issued.source()).unwrap().relation(), issued.relation()));
+        assert!(Rc::ptr_eq(observed.loan_scalar_join_v1(issued.source()).unwrap().relation(), issued.relation()));
         let error = session.abort_error(builder, "expected source session abort".into());
         assert!(error.contains("expected source session abort"));
         assert!(issued.require_live_v2().is_err());

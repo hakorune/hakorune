@@ -24,7 +24,7 @@ mod scalar;
 #[path = "home_prefix_source_loop.rs"]
 pub(super) mod source_loop;
 pub(crate) use source_loop::LoopHeaderScalarBasisV1;
-pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, SourceScalarKind};
+pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, BranchNormalScalarSourceV1, SourceScalarKind};
 #[path = "home_prefix_text.rs"]
 mod text;
 pub(crate) use text::{StaticTextReadV1, TextResidenceAcquisitionV1, LiveHomeV1};

@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-allocator-stress"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/local-commit/artifact-source-unavailable"
+current_blocker_token = "ordinary-new/local-commit/owned-holder/instruction-missing"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
-APP-allocator-stress: Loop・If Phi・Bool Get条件を通過、Main returnでartifact-source-unavailable。
-matching quick CLIとroot build PASS、直近focused55件PASS、test名9263件不変。
-BranchNormal・Object引数・final Phi・Bool Read接続はWIP、EXE生成は未成功。
-正式suiteは3965b758baで6PASS/5FAIL、実EXE5＋marker1、mimalloc PASS、SKIP/timeoutなし。
-untyped-fieldは既存D0受理までParkedSealed。次はMain terminalの元source結果loan接続。
+APP-allocator-stress: Main返り値・Compare最終対応を通過、owned-holder/instruction-missing。
+root/quick CLI build PASS、既存focused検証済み・baseline赤は未解決、test名9263件不変。
+BranchNormal・Object引数・final Phi・zero-input接続を統合。EXE生成は未成功。
+正式suiteは3965b758baで6PASS/5FAIL、実EXE5＋marker1。次はmatching CLIで再計測。
+untyped-fieldは既存D0受理までParkedSealed。次の実装はholderの最終命令対応。
 """
 next_design_card = "APP-allocator-stress"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"

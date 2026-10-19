@@ -169,7 +169,12 @@ fn source_scalar_seed_target_v1(
         }
         return Ok(true);
     }
-    let existing_member = target.stored_receiver().is_some()
+    // The original incoming census already retains zero-input scalar demands
+    // without a borrowed-formal draft. Use that same source family here; a
+    // missing/refused result must then fail demand, never deselect the call.
+    let zero_input_source = target.target().arity() == 0 && target.argument_sites().is_empty();
+    if zero_input_source { exact_original_target(ingress, target)?; }
+    let existing_member = zero_input_source || target.stored_receiver().is_some()
         || ingress.source_only_definitions.contains_key(&target.call_site().owner());
     if !existing_member {
         // Affirmative other-result families keep their own issuer. Do not

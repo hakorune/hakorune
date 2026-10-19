@@ -165,7 +165,7 @@ impl SourceLoopPhysicalProofV2 {
                 }
                 for dependency in &value.dependencies {
                     let resolved = match &source.producer {
-                        Producer::LoopHeader(_) | Producer::LoopAfter { .. } => value.observation.loan_loop_point_v1(&source.producer)?
+                        Producer::LoopHeader(_) | Producer::LoopAfter { .. } => value.observation.loan_scalar_join_v1(&source.producer)?
                             .relation().resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
                         _ => dependency.clone(),
                     };

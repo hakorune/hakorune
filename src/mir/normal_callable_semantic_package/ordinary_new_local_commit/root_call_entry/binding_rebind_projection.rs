@@ -128,6 +128,41 @@ impl EmittedBindingRebindProjectionV1 {
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn branch_scalar_sources_v1(&self, owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>> {
+        use crate::mir::resolved_semantics::home_new_prefix::{CurrentScalarProducerV1 as Producer, CheckedExpressionReferenceV1 as Reference};
+        fn visit(source: &Producer, owner: FunctionOwnerIdV1, site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+            output: &mut Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>) {
+            if let Producer::BranchNormal(basis) = source {
+                if basis.binding().owner() == owner && basis.site() == site
+                    && !output.iter().any(|old| Rc::ptr_eq(old, basis)) { output.push(Rc::clone(basis)); }
+                for (_, _, input) in basis.incoming() { visit(input, owner, site, output); }
+            }
+        }
+        let mut output = Vec::new();
+        if let Some(flow) = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow()) {
+            for plan in flow.expression_plans() {
+                if let Some(evaluation) = plan.evaluation() {
+                    for reference in evaluation.references().values() {
+                        if let Reference::Scalar(read) = reference {
+                            if let Some(read) = read.original_read() { visit(read.producer(), owner, site, &mut output); }
+                        }
+                    }
+                }
+            }
+        }
+        output
+    }
+    pub(in crate::mir) fn require_branch_scalar_source_v1(&self,
+        source: &Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
+    ) -> Result<(), String> {
+        if !source.corroborates_original() || !self.branch_scalar_sources_v1(source.binding().owner(), source.site())
+            .iter().any(|original| Rc::ptr_eq(original, source)) {
+            return Err(freeze("expression/scalar-producer-kind"));
+        }
+        Ok(())
+    }
     pub(crate) fn rebind_expression_frame_v1(&self, owner: FunctionOwnerIdV1,
         statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<Option<Rc<CheckedBindingRebindFrameV1>>, String> {

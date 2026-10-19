@@ -3,23 +3,36 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallArgumentV1, LocalCallObservationV1, ArgumentCallObservationV1, CheckedArgumentExpressionFrameV1};
 use crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1;
-/// Borrow the original source node in either position; never synthesize a
-/// local destination for a nested argument Call.
+/// Borrow original ordered arguments and live Homes across Call purposes;
+/// an expression result never gains a synthetic local destination.
 #[derive(Clone, Copy)]
-pub(in crate::mir) enum ExpressionCallArgumentSourceV1<'a> {
-    Local(&'a LocalCallObservationV1),
-    Nested(&'a ArgumentCallObservationV1),
+pub(in crate::mir) struct ExpressionCallArgumentSourceV1<'a> {
+    site: &'a OwnedExprSiteV1,
+    arguments: &'a [LocalCallArgumentV1],
+    prior_homes: &'a [LiveHomeV1],
 }
 impl<'a> ExpressionCallArgumentSourceV1<'a> {
-    pub(in crate::mir) fn site(self) -> &'a OwnedExprSiteV1 {
-        match self { Self::Local(call) => call.site(), Self::Nested(call) => call.site() }
+    pub(in crate::mir) fn from_local(call: &'a LocalCallObservationV1) -> Self {
+        Self { site: call.site(), arguments: call.arguments(), prior_homes: call.prior_homes() }
     }
-    pub(in crate::mir) fn arguments(self) -> &'a [LocalCallArgumentV1] {
-        match self { Self::Local(call) => call.arguments(), Self::Nested(call) => call.arguments() }
+    pub(in crate::mir) fn from_nested(call: &'a ArgumentCallObservationV1) -> Self {
+        Self { site: call.site(), arguments: call.arguments(), prior_homes: call.prior_homes() }
     }
-    pub(in crate::mir) fn prior_homes(self) -> &'a [LiveHomeV1] {
-        match self { Self::Local(call) => call.prior_homes(), Self::Nested(call) => call.prior_homes() }
+    pub(in crate::mir) fn for_owned_array_candidate_v1(
+        ledger: &'a OrdinaryNewClaimLedgerV1,
+        source: &'a crate::mir::normal_callable_semantic_package::OwnedArrayAppendSourceLoanV1,
+        row: &'a crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
+    ) -> Result<Self, String> {
+        source.check_candidate_v1(row)?;
+        if source.candidate() != *row.call_site() {
+            return Err(freeze("argument-expression/prefix-original-call"));
+        }
+        Ok(Self { site: row.call_site(), arguments: ledger.object_packet_arguments_v1(row)?,
+            prior_homes: source.prior_homes()? })
     }
+    pub(in crate::mir) fn site(self) -> &'a OwnedExprSiteV1 { self.site }
+    pub(in crate::mir) fn arguments(self) -> &'a [LocalCallArgumentV1] { self.arguments }
+    pub(in crate::mir) fn prior_homes(self) -> &'a [LiveHomeV1] { self.prior_homes }
 }
 /// A synchronous loan of the parent's already checked live stack at one Call.
 /// It carries no source permission and never survives into a child packet.
@@ -62,7 +75,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         }
         let call = context.ledger().local_call_for_owner(site.owner(), site.site())
             .ok_or_else(|| freeze("argument-expression/prefix-original-call"))?;
-        Self::for_prepared_call_argument(ExpressionCallArgumentSourceV1::Local(call), *ordinal as usize, earlier, context, parent)
+        Self::for_prepared_call_argument(ExpressionCallArgumentSourceV1::from_local(call), *ordinal as usize, earlier, context, parent)
     }
     /// The original Call/position also covers a CallResult argument, which has
     /// no expression frame. Callers lend the same source observation used by

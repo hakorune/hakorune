@@ -52,18 +52,27 @@ impl RawInvocationChildPortV1<'_, '_> {
 
 struct IfStateObserverV1 {
     state: Rc<std::cell::RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+    claims: Option<Rc<OrdinaryNewClaimLedgerV1>>,
+    sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>,
+    pending: Option<Rc<IfConditionMaterializationV1>>,
+    branch: Option<(BasicBlockId, MirInstruction)>,
     slots: Vec<(crate::mir::resolved_semantics::BindingRefV1, String)>,
     baseline: Option<crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1>,
     arms: [Option<crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1>; 2],
 }
 impl IfFormPhysicalObserverV1 for IfStateObserverV1 {
-    fn before_branches(&mut self, _: &MirFunction, _: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+    fn before_branches(&mut self, _: &MirFunction, pending: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+        if self.pending.replace(pending).is_some() { return Err("If condition observed twice".into()); }
         self.baseline = Some(self.state.borrow().source_values_snapshot());
         Ok(())
     }
-    fn emitted_branch(&mut self, _: &MirFunction, _: &Rc<IfConditionMaterializationV1>,
-        _: (BasicBlockId, MirInstruction),
-    ) -> Result<(), String> { Ok(()) }
+    fn emitted_branch(&mut self, _: &MirFunction, pending: &Rc<IfConditionMaterializationV1>,
+        branch: (BasicBlockId, MirInstruction),
+    ) -> Result<(), String> {
+        if self.pending.as_ref().is_none_or(|original| !Rc::ptr_eq(original, pending))
+            || self.branch.replace(branch).is_some() { return Err("If branch observation mismatch".into()); }
+        Ok(())
+    }
     fn enter_branch(&mut self, _: crate::mir::builder::if_form::IfBranchKindV1) -> Result<(), String> {
         let baseline = self.baseline.as_ref().ok_or("If source value baseline missing")?.clone();
         self.state.borrow_mut().restore_source_values(baseline);
@@ -81,14 +90,44 @@ impl IfFormPhysicalObserverV1 for IfStateObserverV1 {
         let [then_values, else_values] = &mut self.arms;
         let arms = [then_values.take().ok_or("If Then source values missing")?,
             else_values.take().ok_or("If Else source values missing")?];
-        self.state.borrow_mut().restore_if_normal_values_v1(baseline, arms,
-            exits.map(|exit| exit.is_some()), &self.slots, &builder.function_state.variable_ctx.variable_map)
+        let mut observed = Vec::new();
+        for source in &self.sources {
+            if !self.slots.iter().any(|(binding, _)| *binding == source.binding()) {
+                return Err("If scalar source has no original value slot".into());
+            }
+            let claims = self.claims.as_ref().ok_or("If scalar source claims missing")?;
+            let inputs = [self.state.borrow().observe_snapshot_binding_v1(&arms[0], source.binding()).map_err(|error| error.to_string())?,
+                self.state.borrow().observe_snapshot_binding_v1(&arms[1], source.binding()).map_err(|error| error.to_string())?];
+            let name = &self.slots.iter().find(|(binding, _)| *binding == source.binding()).ok_or("If scalar slot missing")?.1;
+            let value = *builder.function_state.variable_ctx.variable_map.get(name).ok_or("If scalar merged value missing")?;
+            let function = builder.function_state.current_function.as_ref().ok_or("If scalar function missing")?;
+            let index = &mut builder.function_state.local_ssa_correspondence;
+            let relation = index.loan(function, value, value).ok_or("If scalar Phi relation missing")?;
+            index.require_member(&relation)?;
+            observed.push(crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::prepare_branch_scalar_phi_v1(
+                Rc::clone(source), Rc::clone(self.pending.as_ref().ok_or("If scalar condition missing")?),
+                self.branch.clone().ok_or("If scalar branch missing")?, exits, inputs, relation,
+                crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims), function)?);
+        }
+        let mut state = self.state.borrow_mut();
+        state.restore_if_normal_values_v1(baseline, arms,
+            exits.map(|exit| exit.is_some()), &self.slots, &builder.function_state.variable_ctx.variable_map)?;
+        for point in observed { state.attach_branch_scalar_phi_v1(point)?; }
+        Ok(())
     }
 }
 impl RawInvocationChildPortV1<'_, '_> {
     pub(super) fn if_state_observer_v1(&self, builder: &MirBuilder) -> Result<Option<Box<dyn IfFormPhysicalObserverV1>>, String> {
         let Some(state) = &self.callable_ledger else { return Ok(None) };
         let slots = state.borrow().source_if_value_slots_v1(&builder.function_state.variable_ctx.variable_map)?;
-        Ok(Some(Box::new(IfStateObserverV1 { state: Rc::clone(state), slots, baseline: None, arms: [None, None] })))
+        let mut sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>> = Vec::new();
+        if let (Some(claims), Some(owner), Some(node)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1(), self.current_source_site_v1()) {
+            for source in claims.branch_scalar_sources_v1(owner, &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node)) {
+                claims.require_branch_scalar_source_v1(&source)?;
+                if !sources.iter().any(|old| old.as_ref() == source.as_ref()) { sources.push(source); }
+            }
+        }
+        Ok(Some(Box::new(IfStateObserverV1 { state: Rc::clone(state), slots, sources,
+            claims: self.ordinary_new_claim_ledger.clone(), pending: None, branch: None, baseline: None, arms: [None, None] })))
     }
 }

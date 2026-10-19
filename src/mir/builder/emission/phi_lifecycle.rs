@@ -341,7 +341,7 @@ pub(in crate::mir::builder) fn define_provisional_phi(
     insert_phi_at_head_spanned(func, block, dst, vec![], span)
         .map_err(|e| format!("{e} op=define_provisional_phi tag={tag}"))?;
 
-    builder.function_state.local_ssa_correspondence.commit_provisional_phi_v1(physical);
+    builder.function_state.local_ssa_correspondence.commit_phi_definition_v1(physical);
 
     Ok(())
 }
@@ -461,9 +461,12 @@ pub(in crate::mir::builder) fn define_final_from_prepared_completion(
             ));
         }
 
-        // Insert PHI with complete inputs (single-step)
+        let physical = builder.function_state.local_ssa_correspondence.prepare_final_phi_v1(func,
+            (block, crate::mir::MirInstruction::Phi { dst, inputs: inputs.clone(), type_hint: type_hint.clone() }))?;
+        // Record only the successful sole writer's actual materialized/sorted Phi.
         insert_phi_at_head_spanned_with_type_hint(func, block, dst, inputs, type_hint, span)
             .map_err(|e| format!("{e} op=define_phi_final tag={tag}"))?;
+        builder.function_state.local_ssa_correspondence.commit_phi_definition_v1(physical);
     }
 
     crate::mir::builder::phi_completion::commit_for_builder(
@@ -679,7 +682,7 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
         builder,
         prepared_completion.after_instruction_commit(),
     );
-    if let Some(patch) = physical_patch { patch.commit(); }
+    if let Some(patch) = physical_patch { patch.commit(&mut builder.function_state.local_ssa_correspondence); }
     Ok(())
 }
 

@@ -289,7 +289,9 @@ fn owned_array_original_construction_installs_real_claim_and_checks_fault_phases
                     Some(ledger.take_lexical_instance_call(site.owner(), site.site()).unwrap().unwrap())
                 };
                 let packet = crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
-                    &mut builder, &mut state, &ledger, append, candidate,
+                    &mut builder, &mut state, &ledger, append, candidate, &|row| {
+                        assert!(!row.source_target().is_self_receiver()); Ok(())
+                    },
                 ).unwrap();
                 let function = builder.function_state.current_function.as_mut().unwrap();
                 packet.check_raw_v1(&ledger, function).unwrap();
