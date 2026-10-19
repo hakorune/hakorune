@@ -944,44 +944,19 @@ cleanup/final consumer -> SAME Loop action schedule; never relax unavailable.
 FiniteText final conversion/Instance result seal/OwnedString Call+Return/CallNormal/
 Unit cleanup remain mandatory; early Return vs call statement not measured culprit.
 
-959 refinement of SAME950 Decision (read-only original Return source review):
-Source authority + issuer: original prepare_original_returns_v1 captures immutable
-original Return plans before scalar result qualification. Existing cohort currently
-moves them into numeric proof, losing them on missing/Err/profile retirement.
-Smallest connection: normalize SAME per-owner cohort row to original capture result
-plus optional scalar qualification. No second map/registry, no new UnresolvedScalar
-or I64 proof to preserve source. Numeric get/iter/qualification keep exact old subset,
-order/errors and original source Rc; remove/clear/retain erase only scalar projection.
-Seed source rows before needs failure and preserve capture on static-argument failure.
-Existing numeric preparation reads this SAME original loan instead of consuming it.
-Non-authority: retained raw plan does not grant result class, Home/Call/Return ABI,
-Completion, input transport or execution. Field component/retained proof gates stay.
-This BoxShape keeps current capture/admission eligibility unchanged; next source
-admission captures Static/Instance general Value plans, then actual Return purpose
-through common expression/Home/cleanup/result seal/BOTH finals/JSON/C, not prep-only
-closure. TransferTemporary vs TransferResidence(exact acquisition) vs Materialize
-must remain distinct. Never fabricate initializer/ScalarReturnSource for Text.
-Existing Loop CallSlot/Return schema can consume SAME checked action; no fake Core,
-no Bool-as-Unit, no double cleanup or relaxed unavailable. Aggregate417 cause unmeasured.
-Bounded paths: existing result_original/result/pending/profile plus owner README/card;
-existing focused/composition/Unit/174 tests and unchanged JSON/mimalloc; add none.
-959 verification: root959B PASS143.468873s; five existing focused filters PASS.
-174 existing cases=170PASS/4FAIL; all exits and four red diagnostics exact958E
-(unknown Home prefix, source-only actual/plain completion, qualified Map argument,
-qualified Call return). Test list exact958E9263; no tests/cases/hooks/checkers added.
-7source-issued Unit JSON byte-identical955; prior native955 reused, not rerun.
-CLI299 PASS236.433574s; root/CLI source snapshots exact7584 paths; no new warnings.
-OriginalJSON419 .060707s/exit1/noEXE: stderr byte-identical417 Loop unavailable;
-internal retention normalization only, no production frontier advance.
-Unchanged mimalloc420 canonical EXE143.769714s/run.001803s; stdout/stderr/exit0
-exact363. Runtime/FFI954A reused under unchanged implementation; compile timing
-trace varies, not compile-stderr equality. Pointer/layer/CallTarget/diff guards PASS.
-Commands: CARGO_BUILD_JOBS=4 cargo quick-test-fast --no-run --message-format=json;
-cargo build --profile quick --bin hakorune --message-format=json; existing focused
-binary filters --test-threads=1; canonical --backend mir --emit-exe for original
-apps/json-stream-aggregator/main.hako and apps/mimalloc-lite/main.hako, then EXE.
-Keep959B/CLI299/source/app receipts and958E/CLI298/954A baselines until950 acceptance;
-no adapter added. Fixed11 last955 only; no whole950/CI/finite-goal closure.
-Next read-only review confirms raw general Return errors must remain separate from
-old scalar selection: gate legacy eligibility BEFORE propagating raw capture Err.
-Full950 result/Call/Return/finite entry/Unit/Loop actions remain required and open.
+959 source cohort normalization landed `661f383f09`; that commit owns the
+same-row raw capture/scalar projection Decision, read-only review, commands,
+source provenance and diagnostics. Raw source survives scalar failure/retirement;
+no source admission, result class, execution permission or second registry added.
+Root959B5focusedPASS;174=170PASS/4exact958E;9263same names/no new cases/hooks/checkers.
+7UnitJSON exact955/prior native reused. CLI299236.433574s; root/CLI7584paths exact.
+OriginalJSON419 .060707s/noEXE: stderr exact417 Loop unavailable; no frontier advance.
+Mim420 canonical EXE143.769714s/run.001803s/stdout/stderr/exit0 exact363. Guards PASS.
+Keep959B/CLI299/source/apps +958E/CLI298/954A until950; no adapter. Fixed11 prior955.
+Next raw Static/Instance general Value Return admission must gate legacy numeric
+eligibility BEFORE propagating new raw capture Err, preserving original field and
+Unit authority. Real Home Return frame distinguishes TransferTemporary,
+TransferResidence(exact acquisition) and Materialize. Same checked expression,
+terminal relation/cleanup/result seal/BOTH finals/JSON/C and Loop CallSlot/Return
+actions remain required; no fake initializer/Core/Bool-as-Unit/double cleanup.
+FiniteText final conversion/OwnedString Call+Return/CallNormal/Unit and full950 open.

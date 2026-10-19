@@ -17,28 +17,25 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-958 borrowed Text read connection landed9a0bab4038. Shared canonical entry lanes
-serve scalar/Text; Static source analysis correspondence is separate from actual
-operand permission. Original Uses/Finite selection/domain Rc/Copy/receiver stay.
-Readonly BorrowedText joins same expression reader/BOTH source finals/independent
-MIR/JSON; existing C wire/runtime unchanged. No acquire/install/End/parallel owner.
-Uses final domains require real actual completion and whole original incoming.
-Do not re-loan affine lexical preparation after take; retained canonical incoming
-is authority. Failed Static lookup never contradicts genuine Instance namespace.
-Root958E12focusedPASS;174=170PASS/4exact957B;9263same names/no new cases/hooks/checkers.
-7UnitJSON exact955;prior native955 reused. C existing --text-only physical proof
-PASS42.051703s, not Rust Text source cutover. CLI298145.994465s same source snapshot.
-OriginalJSON417 .057876s/noEXE advances Text entry -> source-loop/v2 unavailable
-path. Aggregate token has no owner/site/cause. Original has early Return and call
-statements; neither is claimed measured culprit. Next same950 general Value Return/
-Call/statement checked frames -> cleanup/final consumer -> same Loop action schedule;
-never relax unavailable or open genericLoop campaign. Static catalog still cannot
-cover Instance reportUser. FiniteText final conversion, Text result seal/OwnedString
-Call+Return/CallNormal/Unit cleanup and full950 remain required. Unchanged mimalloc418
-canonical EXE144.133659s/run.001741s/stdout/stderr/exit0 exact363. Fixed11 last955 only;
-no current whole950/CI/finite-goal closure. Keep958E/CLI298/native/source/954A until950;
-redundant958A/C/D test andCLI297 pins retired919030912bytes;logs/snapshots retained.
-Fast same ORDINARY-TEXT-CALL-S0; no design stop; full finite goal/retained rows open.
+959 same-row original Return/scalar normalization landed661f383f09. Immutable raw
+capture survives scalar failure/retirement; old numeric projection subset/order/
+errors remain. No source admission/result execution permission/second registry.
+Root959B5focusedPASS;174=170PASS/4exact958E;9263same names/no new cases/hooks/checkers.
+7UnitJSON exact955/prior native reused. CLI299236.433574s/rootCLI7584paths exact.
+OriginalJSON419 .060707s/exit1/noEXE: stderr exact417 Loop unavailable path.
+No current frontier advance;958 entry connection9a0bab4038 advanced Text entry to
+this aggregate token. No owner/site/cause measured; do not assume early Return
+or call statement is first culprit. Mim420 canonical EXE143.769714s/run.001803s,
+stdout/stderr/exit0 exact363. Pointer/layer/CallTarget/diff guards PASS.
+Next SAME950 raw Static/Instance general Value Return -> genuine Home frame ->
+result seal/Call/Return/cleanup/final consumer -> SAME Loop action schedule.
+Gate legacy scalar eligibility BEFORE propagating new raw Return capture Err.
+Distinguish TransferTemporary/TransferResidence(exact acquisition)/Materialize;
+never fake initializer/Core/Bool-as-Unit, double cleanup or relax unavailable.
+FiniteText final conversion/OwnedString Call+Return/CallNormal/Unit/full950 required.
+Keep959B/CLI299/source/apps +958E/CLI298/954A until950; no adapter. Fixed11 last955
+only5PASS/6FAIL; no current whole950/CI/finite-goal closure. Fast same
+ORDINARY-TEXT-CALL-S0; no design stop; full finite goal/retained rows remain open.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
