@@ -21,6 +21,8 @@ pub(crate) enum DynamicOperatorValueClassV1 {
     /// Logical signed-integer operand proven by a checked view, never by
     /// storage spelling (`usize`/U64Bits lanes stay physical detail).
     NormalInteger,
+    /// Exact source-qualified Boolean, never an integer or a truthiness view.
+    Bool,
     /// The exact source `null` literal producer; Integer zero and Bool
     /// false are never this class.
     Null,

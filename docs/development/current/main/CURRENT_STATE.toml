@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
-APP-allocator-stress: 正規smokeは最初のLoop source coverageを通過、Body11の条件式で停止。
-同じCallの数値引数・Add/Mul・委譲frame census・最終transport照合を接続。CLI build PASS。
-既存focused54件PASS、既知Text Loop赤1件、test名9263件不変。アプリ未完。
+APP-allocator-stress: 正規smokeはBool条件を通過、Body11/IfThen0のrejects再代入で停止。
+数値引数・Bool等値を既存ownerへ接続。matching CLI buildとsource停止点確認済み。
+数値引数focused54件・Bool focused32件PASS。既知Text Loop赤1件。アプリ未完。
 直近suite試行3PASS/8FAIL（timeout3件含む、前段WIP binary）。正式6/5はlanded_tail参照。
-untyped-fieldはD0受理までParkedSealed。次は28行目release(ArrayGet)==falseのprefix接続。
+untyped-fieldはD0受理までParkedSealed。次は元If-join scalar証明と既存Phi ownerの接続。
 """
 next_design_card = "APP-allocator-stress"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"

@@ -1,6 +1,6 @@
 # APP-allocator-stress
 
-Status: selected; first Loop source coverage passed; Bool call condition prefix remains open.
+Status: selected; Bool condition passed; following scalar rebind after an If join remains open.
 Date: 2026-10-19
 Scope: unchanged allocator-stress, physical EXE, exact output/exit and retained handle safety.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
@@ -16,8 +16,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Fresh source-only EXE passed `requestedBytes()` at main.hako:67; computed-argument
   CLI then passed original-actual selection and arithmetic frame qualification.
 - Latest matching quick CLI and selected canonical smoke pass first Loop source coverage.
-  They stop before artifacts at `array-home/append-prefix`, `PrefixNotCovered` Body11:
-  main.hako:28, `heap.release(small_handles.get(1)) == false`. EXE remains ungenerated.
+  Bool equality also passes main.hako:28 `heap.release(small_handles.get(1)) == false`.
+  Current canonical smoke stops before artifacts at `array-home/append-prefix`,
+  `PrefixNotCovered` Body11/IfThen0: line29 `rejects = rejects + 1`, after the
+  prior conditional increment. Exact source If-join scalar continuation remains open.
 - Existing smoke now selects canonical physical lifecycle EXE directly, as mimalloc
   does, retaining exact output/rejects=4, route/toolchain/artifact checks and no replay.
   Its earlier generic JSON route stopped at required-integer-source-unproved.
@@ -47,6 +49,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Loop source census binds delegated frames to exact candidate Call/ordinal, original
   method Arc, plan/source-loan Rc and evaluation-time Homes. Same Call packet owns
   execution/final checks; Loop child-prefix count excludes these delegated frames.
+- Bool equality borrows exact Bool/Bool Eq/Ne envelopes from the same
+  operator owner. No Integer/truthiness view; existing Compare writer/final matcher reused.
 - No app rewrite, new test file/hook/checker/registry, or runtime/C ABI change.
 
 ## Verification and next action
@@ -62,9 +66,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Current computed-actual/delegated coverage work: existing focused54 PASS;
   the same known Text Loop test remains failing. Test-name list9263 unchanged.
   Only the existing Copy-to-borrow test access changed; no cases or fixture calls added.
-- Matching quick CLI build PASS; selected unchanged-app smoke FAIL at Body11 before
-  artifacts. Next: connect the existing Bool-condition/ArrayGet call source owners;
+- Matching Bool quick CLI build PASS; unchanged-app smoke FAIL at Body11/IfThen0
+  before artifacts. Next: original If-join scalar source and existing physical Phi owner;
   preserve all artifact/run/output obligations before app completion.
+- Bool boundary: root build and focused32 PASS; test names9263 unchanged. Existing
+  positive/negative operator matrices include the new Bool class because old classes
+  cannot cover mixed Bool/Integer or Bool ordering refusal. No new test function/file.
+- Committed computed-argument binary is running the fixed suite with outer1900s and
+  build/run300s, separately from current Bool WIP. Do not merge revision results.
 - Pre-selector WIP CLI whole-suite attempt: 3PASS/8FAIL, including three 120s timeouts
   and five semantic failures. Same-binary mimalloc retake PASS with 300s build allowance;
   typed method/birth retakes still hit their inner120s limits. These are unresolved

@@ -61,6 +61,20 @@ const STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
     string_comparison(DynamicOperatorFamilyV1::LessEqual),
 ];
 
+/// Only equality is defined for exact Boolean operands.
+const fn bool_equality(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(family, DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    )
+}
+const BOOL_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] = [
+    bool_equality(DynamicOperatorFamilyV1::Equal),
+    bool_equality(DynamicOperatorFamilyV1::NotEqual),
+];
+
 const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
         DynamicOperatorDomainV1::new(
@@ -228,6 +242,14 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             _ => None,
         };
         if let Some(index) = index { return Ok(&STRING_COMPARISONS[index]); }
+    }
+    if matches!((domain.left(), domain.right()),
+        (DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool)) {
+        match domain.family() {
+            DynamicOperatorFamilyV1::Equal => return Ok(&BOOL_EQUALITIES[0]),
+            DynamicOperatorFamilyV1::NotEqual => return Ok(&BOOL_EQUALITIES[1]),
+            _ => return Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain),
+        }
     }
     match (domain.family(), domain.left(), domain.right()) {
         (

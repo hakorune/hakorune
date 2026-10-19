@@ -1,7 +1,7 @@
 # Dynamic operator contract
 
 This module is the sole profile-neutral semantic owner for supported operator
-execution domains: opaque Dynamic, checked Integer and checked String.
+execution domains: opaque Dynamic, checked Integer, checked String and exact Bool equality.
 
 It issues only complete borrowed envelopes. Callers cannot construct or pair
 effect, ordering, suspension, control, input access, Normal result, Fault, or
@@ -39,3 +39,9 @@ and grant no NormalInteger refinement. Mixed classes remain outside this view.
 Source Text read/residence, short-circuit reach, checked physical comparison,
 lifetime and final consumer correspondence are separate required connections;
 these envelopes alone do not select a Bool or Loop execution route.
+
+Exact source-qualified Bool/Bool Equal and NotEqual use their own complete
+TrivialBool envelope, with no result ownership or Integer refinement. Mixed
+Bool/Integer, Bool arithmetic and Bool ordering remain unsupported. The existing
+condition Call/Compare writer and independent source/operand correspondence are
+still required; this semantic envelope grants no Call or transport permission.

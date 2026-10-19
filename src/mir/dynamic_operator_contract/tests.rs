@@ -284,6 +284,9 @@ fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
             DynamicOperatorFamilyV1::GreaterEqual,
             DynamicOperatorFamilyV1::LessEqual,
         ].map(|family| DynamicOperatorDomainV1::new(family, class, class)))
+        .chain([DynamicOperatorFamilyV1::Equal, DynamicOperatorFamilyV1::NotEqual]
+            .map(|family| DynamicOperatorDomainV1::new(family,
+                DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool)))
     {
         let envelope = issue_dynamic_operator_execution_envelope_v1(domain).unwrap();
         assert!(std::ptr::eq(
@@ -328,6 +331,7 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
         DynamicOperatorValueClassV1::I64,
         DynamicOperatorValueClassV1::NormalInteger,
         DynamicOperatorValueClassV1::Null,
+        DynamicOperatorValueClassV1::Bool,
     ];
     for family in [
         DynamicOperatorFamilyV1::Equal,
@@ -340,6 +344,10 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
         for left in classes {
             for right in classes {
                 if matches!(left, DynamicOperatorValueClassV1::NormalInteger | DynamicOperatorValueClassV1::String) && right == left {
+                    continue;
+                }
+                if left == DynamicOperatorValueClassV1::Bool && right == left
+                    && matches!(family, DynamicOperatorFamilyV1::Equal | DynamicOperatorFamilyV1::NotEqual) {
                     continue;
                 }
                 // Retain the independently supported Dynamic domains. They

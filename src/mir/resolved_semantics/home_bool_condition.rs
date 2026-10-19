@@ -141,6 +141,8 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         let (Some(left), Some(right)) = (child(lhs), child(rhs)) else { return Ok(None); };
         let class = match (classes[left], classes[right]) {
             (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => DynamicOperatorValueClassV1::NormalInteger,
+            (Leaf::Value(Class::Bool), Leaf::Value(Class::Bool))
+                if matches!(binary.operator(), Op::Equal | Op::NotEqual) => DynamicOperatorValueClassV1::Bool,
             (Leaf::Value(Class::String), Leaf::Value(Class::String)) if binary.operator() != Op::Add => {
                 // Text children are borrowed leaf observations of this comparison,
                 // never hidden effectful subtrees or ordinary scalar ValueIds.
