@@ -49,6 +49,8 @@ pub(in crate::mir) struct EmittedLoopForkV2 {
     pub(in crate::mir) ends: (BasicBlockId, BasicBlockId),
     pub(in crate::mir) normal: (bool, bool),
     pub(in crate::mir) join: Option<BasicBlockId>,
+    pub(in crate::mir) condition_materialization: Rc<crate::mir::builder::IfConditionMaterializationV1>,
+    pub(in crate::mir) joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>>,
 }
 pub(in crate::mir) struct EmittedLoopBlockV2 {
     pub(in crate::mir) key: LoopBlockKeyV1,
@@ -253,8 +255,12 @@ impl Driver<'_, '_, '_, '_, '_> {
             .ok_or_else(|| reject("frame-alias-correspondence"))?;
         relation.verify(function)?;
         if let Prefix::BindingRebind { frame: original, .. } = frame.prefix() {
-            let binding = *self.product.bindings.get(&original.target()).ok_or_else(|| reject("rebind-logical-binding"))?;
-            if self.logical.insert(binding, frame.result()).is_none() { return Err(reject("rebind-before-logical-entry")); }
+            if let Some(binding) = self.product.bindings.get(&original.target()) {
+                if self.product.recipe.as_recipe().carriers.iter().any(|row| row.binding == *binding)
+                    && self.logical.insert(*binding, frame.result()).is_none() {
+                    return Err(reject("rebind-before-logical-entry"));
+                }
+            }
         }
         let end = builder.function_state.current_block.ok_or_else(|| reject("frame-end"))?;
         self.frames.push(EmittedLoopFrameV2 { index, entry, end, value, canonical: relation, condition, targets });
@@ -343,18 +349,34 @@ impl Driver<'_, '_, '_, '_, '_> {
     }
     fn branch(&mut self, builder: &mut MirBuilder, condition: usize, yes: LoopBlockKeyV1, no: Option<LoopBlockKeyV1>)
         -> Result<bool, String> {
+        use crate::mir::builder::if_form::IfBranchKindV1;
         let yes_bb = builder.next_block_id();
         let no_bb = builder.next_block_id();
         let join = builder.next_block_id();
         self.condition(builder, condition, (yes_bb, no_bb))?;
+        let materialization = self.frames[condition].condition.as_ref().ok_or_else(|| reject("condition-entry"))?;
+        let pending = crate::mir::builder::IfConditionMaterializationV1::from_materialization_v1(
+            Rc::clone(materialization), (yes_bb, no_bb), join)?;
+        let mut observer = super::source_loop_frames::prepare_if_observer(builder, self.port, &self.product, condition)?;
+        if let Some(observer) = observer.as_deref_mut() {
+            let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+            observer.before_branches(function, Rc::clone(&pending))?;
+            let branch = function.blocks.get(&pending.block()).and_then(|body| body.terminator.clone())
+                .ok_or_else(|| reject("condition-entry"))?;
+            observer.emitted_branch(function, &pending, (pending.block(), branch))?;
+        }
         let entry_values = self.ledger.borrow().source_values_snapshot();
         let no_cache = builder.snapshot_local_binding_state();
         let join_cache = builder.snapshot_local_binding_state();
+        let entry_map = builder.function_state.variable_ctx.variable_map.clone();
         let entry_logical = self.logical.clone();
         let entry_canonical_values = self.values.clone();
         let dominating: BTreeSet<_> = entry_canonical_values.keys().copied().collect();
         builder.start_new_block(yes_bb)?;
+        if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Then)?; }
         let yes_normal = self.scoped_body(builder, yes)?;
+        if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Then)?; }
+        let yes_map = builder.function_state.variable_ctx.variable_map.clone();
         let yes_logical = self.logical.clone();
         let yes_canonical_values = self.values.clone();
         let yes_values = self.ledger.borrow().source_values_snapshot();
@@ -363,16 +385,17 @@ impl Driver<'_, '_, '_, '_, '_> {
         if yes_normal { crate::mir::builder::emission::branch::emit_jump(builder, join)?; }
         self.logical = entry_logical;
         self.values = entry_canonical_values.clone();
-        self.ledger.borrow_mut().restore_source_values(entry_values.clone());
+        self.ledger.borrow_mut().restore_source_values(entry_values);
         builder.restore_local_binding_state(no_cache);
         builder.start_new_block(no_bb)?;
+        if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Else)?; }
         let no_normal = match no { Some(key) => self.scoped_body(builder, key)?, None => true };
+        if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Else)?; }
+        let no_map = builder.function_state.variable_ctx.variable_map.clone();
         let no_end = builder.function_state.current_block.ok_or_else(|| reject("else-end"))?;
         if no_normal { crate::mir::builder::emission::branch::emit_jump(builder, join)?; }
-        self.forks.push(EmittedLoopForkV2 { condition, yes, no, starts: (yes_bb, no_bb), ends: (yes_end, no_end),
-            normal: (yes_normal, no_normal), join: (yes_normal || no_normal).then_some(join) });
         match (yes_normal, no_normal) {
-            (false, false) => return Ok(false),
+            (false, false) => {},
             (true, false) => {
                 self.logical = yes_logical;
                 self.values = yes_canonical_values;
@@ -385,24 +408,32 @@ impl Driver<'_, '_, '_, '_, '_> {
                 if self.logical != yes_logical || self.logical.values().any(|key| !dominating.contains(key)) {
                     return Err(reject("if-logical-join-not-canonical"));
                 }
-                self.ledger.borrow_mut().restore_source_values(entry_values);
                 builder.restore_local_binding_state(join_cache);
-                // Both-normal joins use existing dominating logical producers.
-                // No new Phi or branch-specific alias becomes the canonical key.
-                for (&source, key) in &self.product.bindings {
-                    let Some(value) = self.logical.get(key).and_then(|key| self.values.get(key)).copied() else { continue; };
-                    let current = self.ledger.borrow().value_for_exact_binding(self.source.owner(), source).map_err(|error| error.to_string())?;
-                    if value != current {
-                        self.ledger.borrow_mut().publish_source_final_value(source, value)?;
-                        let name = super::source_loop_frames::input(self.port, &self.product)?.function().binding(source)
-                            .ok_or_else(|| reject("join-source-binding"))?.diagnostic_name().to_owned();
-                        builder.function_state.variable_ctx.variable_map.insert(name, value);
-                    }
-                }
             }
         }
-        builder.start_new_block(join)?;
-        Ok(true)
+        let mut joins = Vec::new();
+        if yes_normal || no_normal {
+            builder.suppress_next_entry_pin_copy();
+            builder.start_new_block(join)?;
+            builder.merge_modified_vars(yes_bb, no_bb, yes_normal.then_some(yes_end), no_normal.then_some(no_end),
+                &entry_map, &yes_map, &Some(no_map), None)?;
+            if let Some(observer) = observer.as_deref_mut() {
+                observer.completed_merge(builder, [yes_normal.then_some(yes_end), no_normal.then_some(no_end)])?;
+            }
+            let claims = self.port.ordinary_new_claim_ledger.as_ref().ok_or_else(|| reject("claims-missing"))?;
+            let site = self.product.schedule().frames()[condition].prefix().statement();
+            for source in claims.branch_scalar_sources_v1(self.source.owner(), site) {
+                let state = self.ledger.borrow();
+                let observation = state.observe_binding_value_v2(source.binding()).map_err(|error| error.to_string())?;
+                let point = observation.loan_scalar_join_v1(&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(source))?;
+                let branch = point.branch().ok_or_else(|| reject("if-logical-join-not-canonical"))?;
+                if !joins.iter().any(|old| Rc::ptr_eq(old, branch)) { joins.push(Rc::clone(branch)); }
+            }
+        }
+        self.forks.push(EmittedLoopForkV2 { condition, yes, no, starts: (yes_bb, no_bb), ends: (yes_end, no_end),
+            normal: (yes_normal, no_normal), join: (yes_normal || no_normal).then_some(join),
+            condition_materialization: pending, joins });
+        Ok(yes_normal || no_normal)
     }
     fn edge(&mut self, builder: &mut MirBuilder, source: Edge, port: Option<usize>) -> Result<(), String> {
         if self.edges.iter().any(|row| row.source == source) { return Err(reject("source-edge-repeat")); }

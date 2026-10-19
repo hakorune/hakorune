@@ -17,6 +17,11 @@ pub(super) fn check_operation(
     definitions: &mut BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
 ) -> Result<(), LoopRecipeV2RejectReason> {
     match operation {
+        LoopOperationV2::BranchPhi { then_value, else_value, result, .. } => {
+            let class = super::expect_defined_value(*item_key, *then_value, values, definitions)?;
+            expect_defined_class(*item_key, *else_value, class, values, definitions)?;
+            define_value(*item_key, *result, class, values, definitions)
+        }
         LoopOperationV2::BoolExpression { inputs, region, result } => {
             let classes = inputs.iter().map(|key| super::expect_defined_value(*item_key, *key, values, definitions))
                 .collect::<Result<Vec<_>, _>>()?;

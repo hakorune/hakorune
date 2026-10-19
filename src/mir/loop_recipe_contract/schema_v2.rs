@@ -114,6 +114,13 @@ pub(crate) enum LoopRecipeItemV2 {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub(crate) enum LoopOperationV2 {
+    /// SSA value selected by the two Normal arms of a preceding If in this block.
+    BranchPhi {
+        source_if: LoopItemKeyV1,
+        then_value: LoopValueKeyV1,
+        else_value: LoopValueKeyV1,
+        result: LoopValueKeyV1,
+    },
     ReadBinding {
         binding: LoopBindingKeyV1,
         result: LoopValueKeyV1,
@@ -197,7 +204,8 @@ impl LoopOperationV2 {
     /// behavior is never consulted here.
     pub(crate) fn execution_class_v2(&self) -> LoopOperationExecutionClassV2 {
         match self {
-            Self::ReadBinding { .. }
+            Self::BranchPhi { .. }
+            | Self::ReadBinding { .. }
             | Self::ConstI64 { .. }
             | Self::ConstText { .. }
             | Self::BinaryI64 { .. }

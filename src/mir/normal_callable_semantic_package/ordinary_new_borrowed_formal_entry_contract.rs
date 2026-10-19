@@ -2,6 +2,7 @@
 //! This structure grants no executable actual, object view or compiled marker.
 use super::*;
 use super::owner_view::BorrowedEntryOwnerViewV1;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 
 pub(super) struct BorrowedEntryStructureV1<'a> {
     owner: FunctionOwnerIdV1,
@@ -48,6 +49,33 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?.as_ref().map_err(Clone::clone)?;
         actuals.ordered_arguments_for_v1(call)?;
         Ok(Some(&actuals.opaque_actuals))
+    }
+
+    /// Source-use closure borrows the same finite Static census without
+    /// demanding completed actuals. Execution still belongs to the finisher.
+    fn original_static_input_use_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
+        let Some(original) = self.borrow_original_static_source_v1(site)? else {
+            return self.source_required_static_scalar_call_v1(site);
+        };
+        if self.finite_text_entry_for_owner_v1(original.callee_owner())?.is_none() {
+            // The non-finite scalar family retains its existing source issuer.
+            return self.source_required_static_scalar_call_v1(site);
+        }
+        let source = self.borrowed_formal_source.as_ref()
+            .ok_or_else(|| freeze("borrowed-static/source-missing"))?.as_ref().map_err(Clone::clone)?;
+        let incoming = source.source_incoming.project_source_v1(&[original.callee_owner()].into_iter().collect())
+            .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
+        let mut matching = incoming.iter().filter(|row| &row.call == site);
+        let row = matching.next().ok_or_else(|| freeze("static-input/requested-incoming-missing"))?;
+        if matching.next().is_some() || row.callee != original.callee_owner()
+            || !matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(retained)
+                if Rc::ptr_eq(retained, original)) {
+            return Err(freeze("static-input/requested-source-drift"));
+        }
+        self.verify_original_static_source_v1(original)?;
+        Ok(Some(Rc::clone(original)))
     }
 
     /// Source-use closure shared by the original Static and Instance input owners. Every original
@@ -148,13 +176,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
         for observation in calls {
-            let mut originals = structure.source.source_incoming.exact_rows().filter(|row| &row.call == observation.site());
-            let original = originals.next();
-            if originals.next().is_some() { return Err(freeze("static-input/qualified-use-identity")); }
-            // Exact-i64 Static calls need no borrowed incoming row. Borrow their
-            // already-qualified canonical source instead of inventing that row.
-            let scalar_static = if original.is_none() { self.source_required_static_scalar_call_v1(observation.site())? } else { None };
+            // Borrow the same checked finite-source census as entry/actuals;
+            // legacy-only membership cannot cover a qualified source-only call.
+            let original = Self::original_instance_input_call_v1(structure.source, catalog, observation.site())?;
+            let original = original.as_ref();
+            // Finite Static and exact-i64 dependencies retain their own source
+            // issuer; source-use closure never substitutes completed actuals.
+            let scalar_static = if original.is_none() { self.original_static_input_use_source_v1(observation.site())? } else { None };
             let target = original.map(|row| row.source.as_loan()).transpose()?;
             let argument_sites = match (target.as_ref(), scalar_static.as_ref()) {
                 (Some(target), None) => {
@@ -162,7 +193,12 @@ impl OrdinaryNewClaimLedgerV1 {
                     target.argument_sites()
                 }
                 (None, Some(original)) => original.argument_sites(),
-                _ => return Ok(None),
+                _ => {
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[input-use] owner={:?} original call source unavailable at {:?}", contract.owner, observation.site());
+                    }
+                    return Ok(None);
+                }
             };
             if argument_sites.len() != observation.arguments().len()
                 || self.local_call_for_owner(contract.owner, observation.site().site()) != Some(observation) {

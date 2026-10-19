@@ -21,6 +21,14 @@ impl SourceLoopScheduledFrameV2 {
     pub(crate) fn block(&self) -> LoopBlockKeyV1 { self.block }
     pub(crate) fn items(&self) -> Range<usize> { self.items.clone() }
     pub(crate) fn result(&self) -> LoopValueKeyV1 { self.result }
+    fn references(&self) -> &BTreeMap<usize, super::source_loop_v2::Reference> {
+        match &self.prefix {
+            Prefix::BoolCondition { frame, .. } => frame.references(),
+            Prefix::InitializerExpression { frame, .. } => frame.evaluation().references(),
+            Prefix::BindingRebind { frame, .. } => frame.evaluation().references(),
+            _ => unreachable!("source projector frame"),
+        }
+    }
     pub(crate) fn source(&self) -> &Rc<Source> {
         match &self.prefix {
             Prefix::BoolCondition { frame, .. } => frame.source(),
@@ -31,6 +39,13 @@ impl SourceLoopScheduledFrameV2 {
     }
 }
 
+/// Coordinate projection retained by the original If, never a new source proof.
+#[derive(Debug, Clone)]
+pub(crate) struct SourceLoopBranchPhiV2 {
+    pub(crate) source: Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
+    pub(crate) item: LoopItemKeyV1,
+    pub(crate) result: LoopValueKeyV1,
+}
 #[derive(Debug, Clone)]
 pub(crate) enum SourceLoopScheduledStepV2 {
     Frame(usize),
@@ -40,7 +55,8 @@ pub(crate) enum SourceLoopScheduledStepV2 {
     OwnedArrayAppend { item: LoopItemKeyV1, site: SourceStmtSiteV1,
         observation: crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1 },
     If { item: LoopItemKeyV1, site: SourceStmtSiteV1, bundle: ResolvedIfRegionBundleV1,
-        condition: usize, then_block: LoopBlockKeyV1, else_block: Option<LoopBlockKeyV1> },
+        condition: usize, then_block: LoopBlockKeyV1, else_block: Option<LoopBlockKeyV1>,
+        joins: Vec<SourceLoopBranchPhiV2> },
     Exit { item: LoopItemKeyV1, site: SourceStmtSiteV1, record: ResolvedExitRecordV1,
         port: usize, exit: LoopExitKeyV1 },
 }
@@ -77,6 +93,11 @@ impl SourceLoopScheduleDraftV2 {
     pub(super) fn calls_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
         self.blocks.values().flatten().filter(|step| matches!(step, SourceLoopScheduledStepV2::Call { .. }))
     }
+    pub(super) fn joins_v2(&self) -> impl Iterator<Item = &SourceLoopBranchPhiV2> {
+        self.blocks.values().flatten().filter_map(|step| match step {
+            SourceLoopScheduledStepV2::If { joins, .. } => Some(joins.as_slice()), _ => None,
+        }).flatten()
+    }
     pub(super) fn block(&mut self, key: LoopBlockKeyV1) { self.blocks.insert(key, Vec::new()); }
     pub(super) fn operation(&mut self, item: LoopItemKeyV1, source: &Rc<Source>) {
         assert!(self.operations.insert(item, Rc::clone(source)).is_none(), "projector operation issued once");
@@ -103,10 +124,16 @@ impl SourceLoopScheduleDraftV2 {
         values: &[SourceLoopValueV2], control: &[SourceLoopItemV2], bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
     ) -> Result<(), String> {
         let recipe = verified.as_recipe();
+        let demanded = super::source_loop_v2::demanded_branch_joins_v2(source)?;
+        if demanded.len() != self.joins_v2().count() || demanded.iter().any(|source|
+            self.joins_v2().filter(|join| &join.source == source).count() != 1) {
+            return Err(reject("schedule-operation-source"));
+        }
         if source.source.owner() != input.owner() || self.frames.len() != execution.len()
             || self.blocks.len() != recipe.blocks.len() || recipe.loops.len() != 1
             || self.operations.len() + self.blocks.values().flatten()
                 .filter(|step| matches!(step, SourceLoopScheduledStepV2::OwnedArrayAppend { .. } | SourceLoopScheduledStepV2::Call { .. })).count()
+                + self.joins_v2().count()
                 != recipe.items.iter().filter(|row| matches!(row.item, LoopRecipeItemV2::Operation { .. })).count() {
             return Err(reject("schedule-census"));
         }
@@ -133,7 +160,7 @@ impl SourceLoopScheduleDraftV2 {
             || self.frames.first().is_none_or(|frame| !Rc::ptr_eq(frame.source(), source.condition.source()) || frame.result != value) {
             return Err(reject("schedule-root-condition"));
         }
-        let mut check = ScheduleCheck { draft: self, recipe, input, source, bindings,
+        let mut check = ScheduleCheck { draft: self, recipe, input, source, bindings, values,
             frames: Vec::new(), items: BTreeSet::new(), blocks: BTreeSet::new(), control: Vec::new() };
         let available = recipe.inputs.iter().copied().collect();
         let available = check.block(block, available)?.ok_or_else(|| reject("schedule-condition-exit"))?;
@@ -154,6 +181,7 @@ struct ScheduleCheck<'a, 'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     source: &'a Summary,
     bindings: &'a BTreeMap<BindingRefV1, LoopBindingKeyV1>,
+    values: &'a [SourceLoopValueV2],
     frames: Vec<usize>,
     items: BTreeSet<LoopItemKeyV1>,
     blocks: BTreeSet<LoopBlockKeyV1>,
@@ -206,6 +234,9 @@ impl ScheduleCheck<'_, '_> {
                         if self.draft.operations.get(item).is_none_or(|source| !Rc::ptr_eq(source, frame.source())) {
                             return Err(reject("schedule-operation-source"));
                         }
+                        if matches!(operation, LoopOperationV2::BranchPhi { .. }) {
+                            return Err(reject("schedule-operation-source"));
+                        }
                         if let LoopOperationV2::WriteBinding { binding, value } = operation {
                             if !matches!(frame.prefix(), Prefix::BindingRebind { frame: rebind, .. }
                                 if self.bindings.get(&rebind.target()) == Some(binding) && *value == frame.result
@@ -216,15 +247,29 @@ impl ScheduleCheck<'_, '_> {
                         }
                         if let Some(result) = super::join_sig::operation_result_v2(operation) { available.insert(result); }
                     }
-                    if matches!(frame.prefix(), Prefix::BindingRebind { .. }) && (frame.items.is_empty() || !matches!(block.items.get(frame.items.end.wrapping_sub(1))
+                    if matches!(frame.prefix(), Prefix::BindingRebind { frame: rebind, .. }
+                        if self.bindings.get(&rebind.target()).is_some_and(|binding|
+                            self.recipe.carriers.iter().any(|row| row.binding == *binding))) && (frame.items.is_empty() || !matches!(block.items.get(frame.items.end.wrapping_sub(1))
                         .and_then(|item| self.recipe.items.get(item.raw() as usize)).map(|row| &row.item),
                         Some(LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding { .. } }))) {
                         return Err(reject("schedule-rebind-write-missing"));
                     }
+                    for (&node, reference) in frame.references() {
+                        let super::source_loop_v2::Reference::Scalar(read) = reference else { continue; };
+                        let Some(original) = read.original_read() else { continue; };
+                        let super::source_loop_v2::Producer::BranchNormal(join) = original.producer() else { continue; };
+                        let expected = super::source_loop_v2::producer_value_v2(original.producer(), self.recipe,
+                            self.values, self.bindings, self.draft).ok_or_else(|| reject("schedule-operation-source"))?;
+                        if join.binding() != reference.binding() || !available.contains(&expected)
+                            || self.values.iter().filter(|row| Rc::ptr_eq(&row.source, frame.source())
+                                && row.node == node && row.value == expected).count() != 1 {
+                            return Err(reject("schedule-operation-source"));
+                        }
+                    }
                     if !available.contains(&frame.result) { return Err(reject("schedule-result-unavailable")); }
                     self.frames.push(*index); position = frame.items.end;
                 }
-                SourceLoopScheduledStepV2::If { item, site, bundle, condition, then_block, else_block } => {
+                SourceLoopScheduledStepV2::If { item, site, bundle, condition, then_block, else_block, joins } => {
                     if block.items.get(position) != Some(item) || !self.items.insert(*item)
                         || self.frames.last() != Some(condition) { return Err(reject("schedule-if-order")); }
                     let frame = &self.draft.frames[*condition];
@@ -238,12 +283,38 @@ impl ScheduleCheck<'_, '_> {
                     self.control.push((site.clone(), *item));
                     let yes = self.block(*then_block, available.clone())?;
                     let no = match else_block { Some(key) => self.block(*key, available.clone())?, None => Some(available.clone()) };
+                    position += 1;
+                    for join in joins {
+                        let [(_, _, then_source), (_, _, else_source)] = join.source.incoming() else {
+                            return Err(reject("schedule-operation-source"));
+                        };
+                        let then_value = super::source_loop_v2::producer_value_v2(then_source, self.recipe,
+                            self.values, self.bindings, self.draft).ok_or_else(|| reject("schedule-operation-source"))?;
+                        let else_value = super::source_loop_v2::producer_value_v2(else_source, self.recipe,
+                            self.values, self.bindings, self.draft).ok_or_else(|| reject("schedule-operation-source"))?;
+                        if !join.source.corroborates_original() || join.source.site() != site
+                            || block.items.get(position) != Some(&join.item) || !self.items.insert(join.item)
+                            || self.draft.operations.contains_key(&join.item)
+                            || yes.as_ref().is_none_or(|values| !values.contains(&then_value))
+                            || no.as_ref().is_none_or(|values| !values.contains(&else_value))
+                            || available.contains(&join.result)
+                            || !matches!(self.recipe.items[join.item.raw() as usize].item,
+                                LoopRecipeItemV2::Operation { operation: LoopOperationV2::BranchPhi {
+                                    source_if, then_value: actual_yes, else_value: actual_no, result
+                                } } if source_if == *item && actual_yes == then_value && actual_no == else_value
+                                    && result == join.result) {
+                            return Err(reject("schedule-operation-source"));
+                        }
+                        position += 1;
+                    }
                     match (yes, no) {
                         (None, None) => alive = false,
                         (Some(values), None) | (None, Some(values)) => available = values,
                         (Some(yes), Some(no)) => available = yes.intersection(&no).copied().collect(),
                     }
-                    position += 1;
+                    for join in joins {
+                        if !available.insert(join.result) { return Err(reject("schedule-result-unavailable")); }
+                    }
                 }
                 SourceLoopScheduledStepV2::Exit { item, site, record, port, exit } => {
                     let original = self.input.function().resolved_exit(&ResolvedExitSiteV1::Statement(site.clone()));

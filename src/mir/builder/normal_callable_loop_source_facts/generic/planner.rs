@@ -204,7 +204,15 @@ impl PreissuedCallableLoopSourcePlanV1 {
     /// original body. The shared source is observation only, never Home After.
     pub(in crate::mir) fn source_observation_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>)
         -> Option<Rc<RetainedCallableLoopSourceV1>> {
-        self.loop_cond_source(input)?;
+        let selected = self.loop_cond_source(input);
+        if selected.is_none() && crate::config::env::builder_debug_enabled() {
+            eprintln!("[source-loop] owner={:?} site={:?} original planner source unavailable; condition={} family={:?} facts={}",
+                input.owner(), self.site(), self.condition_source_v1(input).is_some(),
+                self.planned.selection.as_ref().and_then(|selection| selection.sole_family()),
+                self.planned.outcome.facts.as_ref().is_some_and(|canonical|
+                    canonical.facts.loop_cond_break_continue.is_some()));
+        }
+        selected?;
         Some(Rc::clone(&self.source))
     }
 

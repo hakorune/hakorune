@@ -140,6 +140,9 @@ impl LoopJoinRecipeView for LoopRecipeV2JoinView<'_> {
 
 fn operation_view(operation: &LoopOperationV2) -> LoopJoinOperationView<'_> {
     match operation {
+        LoopOperationV2::BranchPhi { source_if, then_value, else_value, result } =>
+            LoopJoinOperationView::BranchPhi { source_if: *source_if,
+                then_value: *then_value, else_value: *else_value, result: *result },
         LoopOperationV2::BoolExpression { inputs, result, .. } => define(
             LoopJoinOperationFamily::BoolExpression, LoopJoinValueUses::Many(inputs), Some(*result)),
         LoopOperationV2::ReadBinding { binding, result } => LoopJoinOperationView::ReadBinding {
@@ -237,7 +240,8 @@ fn define(
 /// Reuse the neutral operation projection; source scheduling owns no opcode table.
 pub(in crate::mir::loop_recipe_contract) fn operation_result_v2(operation: &LoopOperationV2) -> Option<LoopValueKeyV1> {
     match operation_view(operation) {
-        LoopJoinOperationView::ReadBinding { result, .. } => Some(result),
+        LoopJoinOperationView::BranchPhi { result, .. }
+        | LoopJoinOperationView::ReadBinding { result, .. } => Some(result),
         LoopJoinOperationView::Define { result, .. } => result,
         LoopJoinOperationView::WriteBinding { .. } => None,
     }

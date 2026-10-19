@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/object-input/callee-exit: PrefixNotCovered(ingest Body(2))"
+current_blocker_token = "ordinary-new/argument-expression/frame-missing: Main.main ingest argument0 Main.sampleStream()"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Loop Call・有限Text入力・Unit最終検証・JSON publicationを接続。
-matching quick CLI: object-input/callee-exit。ingest Body(2)のIf条件（line147）が未接続。
-focused176件＋元root拒否PASS。callee入力検証を操作内共有、テスト関数・cache追加なし。
-最新suite6PASS/5FAIL（実EXE5＋marker1）、657.4秒。後続allocator単独PASS、suite未再計測。
-allocator smoke267.063→160.247秒PASS（約40%短縮）、matching CLI43.24秒。If/SSA案は分離保持。
+APP-json-stream-aggregator: Loop If/SSAを最終consumerまで接続、既存focused247件PASS。
+matching quick opt0 CLI34.70秒。JSONはMain.mainのingest引数Main.sampleStream()で停止。
+次は通常関数のowned String Call/Return。既存handle＋End tokenをNormal時だけ移す。
+最新確定suite6PASS/5FAIL（実EXE5＋marker1）。現在のIf世代を再計測中。
+allocator単独160.247秒PASS。opaque整数引数/Return案はGit stash保持、未受理。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"

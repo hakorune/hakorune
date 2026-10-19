@@ -87,10 +87,20 @@ pub(super) fn observe<'a, E>(
     }
     let mut child_locals = locals.clone();
     let Some(checkpoint) = child_locals.stage_source_loop_headers_v1(std::rc::Rc::clone(source), homes, local_calls)
-        else { return Ok(None); };
+        else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[source-loop] owner={:?} site={:?} Header basis unavailable", input.owner(), source.site());
+            }
+            return Ok(None);
+        };
     let mut child_calls = path_calls.clone();
     let Some(condition) = super::condition::observe_loop(input, source, &child_locals, homes,
-        local_calls, &mut child_calls, local_field_read, borrowed_actuals)? else { return Ok(None); };
+        local_calls, &mut child_calls, local_field_read, borrowed_actuals)? else {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[source-loop] owner={:?} site={:?} original Loop condition unavailable", input.owner(), source.site());
+        }
+        return Ok(None);
+    };
     let Ok(body) = input.source().child_body_from_stmt(statement, BodyChildRoleV1::LoopBody)
         else { return Ok(None); };
     let mut child_homes = homes.clone();
@@ -139,7 +149,12 @@ pub(super) fn observe<'a, E>(
     if !terminated && !child_locals.observe_source_loop_backedge_v1(&child_homes, &child_covered,
         &child_calls, &child_issue) { child_locals.note_source_loop_availability_v1(false); }
     child_locals.note_source_loop_availability_v1(child_issue.is_none());
-    let Some(mut summary) = child_locals.finish_source_loop_headers_v1(checkpoint, condition, local_calls) else { return Ok(None); };
+    let Some(mut summary) = child_locals.finish_source_loop_headers_v1(checkpoint, condition, local_calls) else {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[source-loop] owner={:?} site={:?} scoped Header finish unavailable path={child_issue:?}", input.owner(), source.site());
+        }
+        return Ok(None);
+    };
     if let Err(reason) = summary.validate_for_recipe_v1(input) {
         if crate::config::env::builder_debug_enabled() {
             eprintln!("[source-loop] owner={:?} function={:?} site={:?} reason={reason} path={child_issue:?} incoming={:?} control={:?} bool={:?}",

@@ -77,6 +77,7 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinItemView<'a> {
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationFamily {
+    BranchPhi,
     ReadBinding,
     ConstI64,
     ConstText,
@@ -91,6 +92,12 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationFamily {
 }
 
 pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationView<'a> {
+    BranchPhi {
+        source_if: LoopItemKeyV1,
+        then_value: LoopValueKeyV1,
+        else_value: LoopValueKeyV1,
+        result: LoopValueKeyV1,
+    },
     ReadBinding {
         binding: LoopBindingKeyV1,
         result: LoopValueKeyV1,

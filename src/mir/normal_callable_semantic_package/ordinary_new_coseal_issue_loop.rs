@@ -49,6 +49,11 @@ impl RetainedSourceLoopProductV1 {
     fn issue(input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceStmtSiteV1,
         policy: crate::mir::builder::LoopFactsPolicyFrameV1) -> std::rc::Rc<Self> {
         let plan = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy);
+        if let Err(reason) = &plan {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[source-loop] owner={:?} site={site:?} original planner issuance failed: {reason}", input.owner());
+            }
+        }
         let source = plan.as_ref().ok().map(|plan| std::rc::Rc::clone(plan.original_source_v1()));
         std::rc::Rc::new(Self { source, plan: std::cell::RefCell::new(Some(plan)), source_recipe: std::cell::OnceCell::new(), home: std::cell::OnceCell::new() })
     }
@@ -74,8 +79,14 @@ impl RetainedSourceLoopProductV1 {
         }
         let product = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(input, summary)
             .map(std::rc::Rc::new)
-            .map_err(|reason| format!("{reason}; owner={:?}; function={:?}; loop={:?}",
-                input.owner(), crate::mir::resolved_semantics::CallableHeaderSyntaxViewV1::from_function_ast(input.source().root()).map(|header| header.name()), source.site()));
+            .map_err(|reason| {
+                let issue = format!("{reason}; owner={:?}; function={:?}; loop={:?}",
+                    input.owner(), crate::mir::resolved_semantics::CallableHeaderSyntaxViewV1::from_function_ast(input.source().root()).map(|header| header.name()), source.site());
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[source-loop] original Recipe projection failed: {issue}");
+                }
+                issue
+            });
         self.source_recipe.set(product).map_err(|_| "[freeze:contract][source-loop/product-already-retained]".to_owned())?;
         self.source_recipe.get().unwrap().as_ref().map(std::rc::Rc::clone).map_err(Clone::clone)
     }

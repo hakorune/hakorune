@@ -159,6 +159,16 @@ fn context(
     ))
 }
 
+pub(super) fn prepare_if_observer(
+    builder: &MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>,
+    product: &Rc<Product>, condition: usize,
+) -> Result<Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>, String> {
+    input(port, product)?;
+    let frame = product.schedule().frames().get(condition).ok_or_else(|| freeze("frame-index"))?;
+    let source = context(port, frame.prefix().statement().node())?;
+    port.with_prepared_child_source_v1(source, |port| port.prepare_if_state_observer_v1(builder))
+}
+
 pub(super) fn emit_binding(
     builder: &mut MirBuilder,
     port: &mut RawInvocationChildPortV1<'_, '_>,

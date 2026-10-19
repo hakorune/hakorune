@@ -136,21 +136,33 @@ impl OrdinaryNewClaimLedgerV1 {
             output: &mut Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>) {
             if let Producer::BranchNormal(basis) = source {
                 if basis.binding().owner() == owner && basis.site() == site
-                    && !output.iter().any(|old| Rc::ptr_eq(old, basis)) { output.push(Rc::clone(basis)); }
+                    && !output.iter().any(|old| old == basis) { output.push(Rc::clone(basis)); }
                 for (_, _, input) in basis.incoming() { visit(input, owner, site, output); }
+            }
+        }
+        fn visit_evaluation(evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            owner: FunctionOwnerIdV1, site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+            output: &mut Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>) {
+            for reference in evaluation.references().values() {
+                if let Reference::Scalar(read) = reference {
+                    if let Some(read) = read.original_read() { visit(read.producer(), owner, site, output); }
+                }
+            }
+        }
+        fn visit_plan(plan: &crate::mir::resolved_semantics::home_new_prefix::HomeExpressionPlanV1,
+            owner: FunctionOwnerIdV1, site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+            output: &mut Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>) {
+            if let Some(evaluation) = plan.evaluation() { visit_evaluation(evaluation, owner, site, output); }
+            // Nested frames stay in the SAME retained Loop product; the outer
+            // flow does not flatten them into independent expression owners.
+            if let Some(product) = plan.loop_recipe_v2() {
+                visit_evaluation(product.source.condition.evaluation(), owner, site, output);
+                for plan in &product.source.body_expressions { visit_plan(plan, owner, site, output); }
             }
         }
         let mut output = Vec::new();
         if let Some(flow) = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow()) {
-            for plan in flow.expression_plans() {
-                if let Some(evaluation) = plan.evaluation() {
-                    for reference in evaluation.references().values() {
-                        if let Reference::Scalar(read) = reference {
-                            if let Some(read) = read.original_read() { visit(read.producer(), owner, site, &mut output); }
-                        }
-                    }
-                }
-            }
+            for plan in flow.expression_plans() { visit_plan(plan, owner, site, &mut output); }
         }
         output
     }
@@ -158,7 +170,7 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
     ) -> Result<(), String> {
         if !source.corroborates_original() || !self.branch_scalar_sources_v1(source.binding().owner(), source.site())
-            .iter().any(|original| Rc::ptr_eq(original, source)) {
+            .iter().any(|original| original == source) {
             return Err(freeze("expression/scalar-producer-kind"));
         }
         Ok(())

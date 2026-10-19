@@ -17,6 +17,19 @@ pub(in crate::mir) struct IfConditionMaterializationV1 {
     merge: crate::mir::BasicBlockId,
 }
 impl IfConditionMaterializationV1 {
+    /// Reuse a condition already emitted by its sole writer. This attaches
+    /// topology only; it neither evaluates the condition nor emits a branch.
+    pub(in crate::mir::builder) fn from_materialization_v1(
+        materialization: std::rc::Rc<super::condition_materialization::ConditionMaterializationV1>,
+        arms: (crate::mir::BasicBlockId, crate::mir::BasicBlockId),
+        merge: crate::mir::BasicBlockId,
+    ) -> Result<std::rc::Rc<Self>, String> {
+        if arms.0 == arms.1 || arms.0 == merge || arms.1 == merge
+            || [arms.0, arms.1, merge].contains(&materialization.block()) {
+            return Err("If condition topology mismatch".into());
+        }
+        Ok(std::rc::Rc::new(Self { materialization, arms, merge }))
+    }
     pub(in crate::mir) fn materialization(&self) -> &std::rc::Rc<super::condition_materialization::ConditionMaterializationV1> { &self.materialization }
     pub(in crate::mir) fn values(&self) -> (ValueId, ValueId) { self.materialization.values() }
     pub(in crate::mir) fn block(&self) -> crate::mir::BasicBlockId { self.materialization.block() }
@@ -118,9 +131,8 @@ impl MirBuilder {
 
         let pending = if let Some(cursor) = cursor {
             let materialization = cursor.finish(self, pre_branch_bb, condition_val)?;
-            let pending = std::rc::Rc::new(IfConditionMaterializationV1 {
-                materialization, arms: (then_block, else_block), merge: merge_block,
-            });
+            let pending = IfConditionMaterializationV1::from_materialization_v1(
+                materialization, (then_block, else_block), merge_block)?;
             let function = self.function_state.current_function.as_ref()
                 .ok_or_else(|| "[freeze:contract][if-form/function-missing]".to_owned())?;
             observer.as_deref_mut().expect("armed condition observer").before_branches(function, std::rc::Rc::clone(&pending))?;

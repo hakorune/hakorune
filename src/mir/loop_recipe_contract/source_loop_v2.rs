@@ -159,6 +159,60 @@ pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtS
     }
     find(source.control.as_ref().ok()?, site)
 }
+/// Resolve only an original immutable producer already present in this product.
+/// Shared by projection and independent source/schedule checking.
+pub(super) fn producer_value_v2(producer: &Producer, recipe: &LoopRecipeV2,
+    values: &[SourceLoopValueV2], bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
+    schedule: &SourceLoopScheduleDraftV2,
+) -> Option<LoopValueKeyV1> {
+    let source_result = |source: &Rc<Source>| values.iter()
+        .find(|row| Rc::ptr_eq(&row.source, source) && row.node == 0).map(|row| row.value);
+    match producer {
+        Producer::Call(call) => schedule.calls_v2().find_map(|step| match step {
+            SourceLoopScheduledStepV2::Call { observation, result, .. } if observation == call => *result,
+            _ => None,
+        }),
+        Producer::BranchNormal(source) => schedule.joins_v2().find(|join| join.source == *source).map(|join| join.result),
+        Producer::Initializer(frame) => source_result(frame.source()),
+        Producer::BindingRebind(frame) => source_result(frame.source()),
+        Producer::Integer { site, .. } => values.iter().find(|row|
+            row.source.nodes().get(row.node).is_some_and(|node| node.site() == site
+                && matches!(node.source(), Node::Literal(Literal::Integer(_))))) .map(|row| row.value),
+        Producer::SignedEntry(binding) => recipe.read_only_inputs.iter()
+            .find(|row| bindings.get(binding) == Some(&row.binding)).map(|row| row.entry_value),
+        _ => None,
+    }
+}
+/// Borrow demand from original checked reads, including joins used only as an
+/// incoming producer of a later join. No classifier or alternate flow is built.
+pub(super) fn demanded_branch_joins_v2(source: &Summary)
+    -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>, String> {
+    fn visit(producer: &Producer, output: &mut Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>) {
+        if let Producer::BranchNormal(join) = producer {
+            if output.iter().any(|old| old == join) { return; }
+            output.push(Rc::clone(join));
+            for (_, _, producer) in join.incoming() { visit(producer, output); }
+        }
+    }
+    let mut output = Vec::new();
+    for evaluation in std::iter::once(source.condition.evaluation())
+        .chain(source.body_expressions.iter().filter_map(|plan| plan.evaluation())) {
+        for (&node, reference) in evaluation.references() {
+            if let Reference::Scalar(read) = reference {
+                if let Some(original) = read.original_read() {
+                    if let Producer::BranchNormal(join) = original.producer() {
+                        if join.binding() != reference.binding()
+                            || evaluation.class(node) != Some(Leaf::Value(Value::I64)) {
+                            return Err(reject("scalar-obligation"));
+                        }
+                    }
+                    visit(original.producer(), &mut output);
+                }
+            }
+        }
+    }
+    Ok(output)
+}
 impl std::fmt::Debug for VerifiedSourceLoopRecipeProductV2 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("VerifiedSourceLoopRecipeProductV2").field("recipe", &self.recipe)
@@ -235,13 +289,15 @@ impl Projector<'_> {
                         }
                         None
                     }
-                    Producer::Call(call) => self.schedule.calls_v2().find_map(|step| match step {
-                        SourceLoopScheduledStepV2::Call { observation, result, .. } if observation == call => *result,
-                        _ => None,
-                    }),
-                    Producer::Initializer(frame) => self.result(frame.source()),
-                    Producer::BindingRebind(frame) => self.result(frame.source()),
-                    _ => None,
+                    Producer::BranchNormal(join) => {
+                        if !join.corroborates_original() || join.binding() != binding {
+                            return Err(reject("scalar-obligation"));
+                        }
+                        producer_value_v2(original.producer(), &self.recipe, &self.values,
+                            &self.bindings, &self.schedule)
+                    }
+                    producer => producer_value_v2(producer, &self.recipe, &self.values,
+                        &self.bindings, &self.schedule),
                 }
             }
             _ => None,
@@ -384,11 +440,15 @@ impl Projector<'_> {
                         if rebind.is_text_residence() {
                             if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
                                 .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("text-rebind-role")); }
-                        } else {
+                        } else if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
+                            .is_some_and(|(_, role)| role == Role::Carrier) {
                             let binding = self.bindings.get(&rebind.target()).copied().ok_or_else(|| reject("rebind-carrier"))?;
                             if !self.recipe.carriers.iter().any(|row| row.binding == binding) { return Err(reject("rebind-readonly")); }
                             let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
                             self.control.push(SourceLoopItemV2 { site: site.clone(), item });
+                        } else if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
+                            .is_none_or(|(_, role)| role != Role::IterationLocal) {
+                            return Err(reject("rebind-readonly"));
                         }
                         self.schedule.frame(Prefix::BindingRebind { site: prefix_site, frame: Rc::clone(rebind) },
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), value);
@@ -407,8 +467,27 @@ impl Projector<'_> {
                         *slot = Some(else_block); self.body(else_block, body)?;
                     }
                     let LoopRecipeItemV2::If { else_block, .. } = self.recipe.items[item.raw() as usize].item else { unreachable!() };
+                    let mut joins = Vec::new();
+                    for source in demanded_branch_joins_v2(self.source)?.into_iter().filter(|source| source.site() == site) {
+                        if !source.corroborates_original() { return Err(reject("scalar-obligation")); }
+                        let [(_, _, yes), (_, _, no)] = source.incoming() else { return Err(reject("scalar-obligation")); };
+                        let then_value = producer_value_v2(yes, &self.recipe, &self.values, &self.bindings,
+                            &self.schedule).ok_or_else(|| reject("local-result-unavailable"))?;
+                        let else_value = producer_value_v2(no, &self.recipe, &self.values, &self.bindings,
+                            &self.schedule).ok_or_else(|| reject("local-result-unavailable"))?;
+                        if [then_value, else_value].iter().any(|value|
+                            self.recipe.values[value.raw() as usize].class != LoopValueClassV2::I64) {
+                            return Err(reject("local-result-class"));
+                        }
+                        // BranchNormal is qualified only by the original integer scalar walk.
+                        let result = self.value(LoopValueClassV2::I64);
+                        let phi = self.item(block, LoopRecipeItemV2::Operation {
+                            operation: LoopOperationV2::BranchPhi { source_if: item, then_value, else_value, result },
+                        });
+                        joins.push(super::source_loop_schedule::SourceLoopBranchPhiV2 { source, item: phi, result });
+                    }
                     self.schedule.step(block, SourceLoopScheduledStepV2::If { item, site: site.clone(), bundle: *bundle,
-                        condition: condition_frame, then_block, else_block });
+                        condition: condition_frame, then_block, else_block, joins });
                 }
                 Statement::Exit { site, record, port } => {
                     let root = self.recipe.root_loop;

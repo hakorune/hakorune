@@ -60,6 +60,9 @@ pub(super) fn validate_owned_v2(graph: &EmittedSourceLoopGraphV2, owned: &[Bindi
         claim(&(edge.predecessor, MirInstruction::Jump { target: edge.target, edge_args: None }), false)?;
     }
     for fork in &graph.forks {
+        for point in &fork.joins {
+            claim(point.relation().identity_phi_binding_v1()?, false)?;
+        }
         if let Some(join) = fork.join {
             for (end, normal) in [(fork.ends.0, fork.normal.0), (fork.ends.1, fork.normal.1)] {
                 if normal { claim(&(end, MirInstruction::Jump { target: join, edge_args: None }), false)?; }
@@ -93,6 +96,9 @@ impl SourceLoopPhysicalProofV2 {
         // a producer while the independent proof still requires it.
         for (block, phis) in self.points.phis() {
             output.extend(phis.iter().map(|phi| (*block, phi.clone())));
+        }
+        for point in self.graph.forks.iter().flat_map(|fork| &fork.joins) {
+            point.relation().append_observed_bindings_v1(&mut output);
         }
         for edge in &self.graph.edges {
             for value in &edge.values {
@@ -196,6 +202,14 @@ impl SourceLoopPhysicalProofV2 {
             }
         }
         for fork in &self.graph.forks {
+            for point in &fork.joins {
+                if !Rc::ptr_eq(point.pending(), &fork.condition_materialization)
+                    || self.graph.product.schedule().frames().get(fork.condition)
+                        .is_none_or(|frame| frame.prefix().statement() != point.source().site()) {
+                    return Err(freeze("source-loop/frame-source"));
+                }
+                point.validate(context, function, finishing)?;
+            }
             if let (Some(join), Some(projection)) = (fork.join, finishing) {
                 for (end, normal) in [(fork.ends.0, fork.normal.0), (fork.ends.1, fork.normal.1)] {
                     if normal { projection.structural_jump_binding(function, &(end, MirInstruction::Jump { target: join, edge_args: None }),

@@ -396,6 +396,9 @@ fn process_block<V: LoopJoinRecipeView>(
         alternate_exit_payload: None,
         side_exits: Vec::new(),
     };
+    // Branch-local definitions remain private. Only an explicit SSA join can
+    // borrow the exact two Normal arm sets of a preceding If in this block.
+    let mut normal_arms = BTreeMap::new();
     for (index, item_key) in block.items.iter().enumerate() {
         let continuation = block
             .items
@@ -415,6 +418,7 @@ fn process_block<V: LoopJoinRecipeView>(
                     operation,
                     &mut flow.bindings,
                     &mut flow.available,
+                    &normal_arms,
                 )?;
             }
             LoopJoinItemView::Loop { loop_key } => {
@@ -554,14 +558,18 @@ fn process_block<V: LoopJoinRecipeView>(
                 }
                 if then_flow.exit != else_flow.exit
                     || then_flow.bindings != else_flow.bindings
-                    || then_flow.available != else_flow.available
+                    || (then_flow.available != else_flow.available
+                        && !block.items[index + 1..].iter().any(|next| matches!(recipe.item_at(*next),
+                            Some(LoopJoinItemView::Operation(LoopJoinOperationView::BranchPhi { source_if, .. }))
+                                if source_if == *item_key)))
                     || !then_flow.side_exits.is_empty()
                     || !else_flow.side_exits.is_empty()
                 {
                     return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: *item_key });
                 }
                 flow.bindings = then_flow.bindings;
-                flow.available = then_flow.available;
+                flow.available = then_flow.available.intersection(&else_flow.available).copied().collect();
+                normal_arms.insert(*item_key, (then_flow.available, else_flow.available));
                 flow.exit = then_flow.exit;
                 flow.exit_payload = then_flow.exit_payload;
                 flow.alternate_exit = None;
@@ -590,9 +598,19 @@ fn process_operation<'a>(
     operation: LoopJoinOperationView<'a>,
     bindings: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
+    normal_arms: &BTreeMap<LoopItemKeyV1, (BTreeSet<LoopValueKeyV1>, BTreeSet<LoopValueKeyV1>)>,
 ) -> Result<(), LoopJoinSigRejectReasonV1> {
     let require = |value| require_value(available, value);
     match operation {
+        LoopJoinOperationView::BranchPhi { source_if, then_value, else_value, result } => {
+            let (yes, no) = normal_arms.get(&source_if)
+                .ok_or(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: source_if })?;
+            require_value(yes, then_value)?;
+            require_value(no, else_value)?;
+            if !available.insert(result) {
+                return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: source_if });
+            }
+        }
         LoopJoinOperationView::ReadBinding { binding, result } => {
             let value = bindings
                 .get(&binding)

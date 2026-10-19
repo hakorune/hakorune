@@ -137,6 +137,9 @@ pub(super) fn has_only_operations<V: LoopJoinRecipeView>(
     };
     block.items.iter().all(|item_key| {
         let family = match recipe.item_at(*item_key) {
+            Some(LoopJoinItemView::Operation(LoopJoinOperationView::BranchPhi { .. })) => {
+                LoopJoinOperationFamily::BranchPhi
+            }
             Some(LoopJoinItemView::Operation(LoopJoinOperationView::ReadBinding { .. })) => {
                 LoopJoinOperationFamily::ReadBinding
             }

@@ -685,7 +685,7 @@ impl OrdinaryNewClaimLedgerV1 {
             validate_qualified_argument_sources_v1(prepared, &self.borrowed_formal_actuals, call, original)?;
         }
         let Some(ArgumentExpressionV1::Qualified(frame)) = identity.slots.get(&ordinal) else {
-            return Err(freeze("argument-expression/frame-missing"));
+            return Err(format!("{}: call={call:?}; ordinal={ordinal}; argument={site:?}", freeze("argument-expression/frame-missing")));
         };
         let source = lend_argument_expression_source_v1(prepared, &self.borrowed_formal_actuals, contracts, call, ordinal)?
             .ok_or_else(|| freeze("argument-expression/source-missing"))?;

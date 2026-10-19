@@ -14,12 +14,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   → cohort/selection folding160.247s PASS (-40% total). Matching CLI43.24s; no Cargo/profiler overlap.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
-- Matching quick opt0 CLI after source-family ordering fix (build41s), existing JSON smoke: MIR compilation fails
-  at `ordinary-new/object-input/callee-exit: PrefixNotCovered(Body(2))`; no artifact/link/runtime.
-  Existing debug identifies `ingest` Loop line145 and `source control If has no checked condition`
-  at line147 `if end < 0`. This is the original implicit Unit input's source refusal.
-  Line146 Local I64 and line151 discarded Bool now retain existing Call packets;
-  combined source/publication verification passes, but unchanged JSON EXE is still red.
+- Matching quick opt0 CLI34.70s with If/SSA connection: JSON MIR compilation advances
+  to `ordinary-new/argument-expression/frame-missing` at Main.main Body(1), argument0:
+  `agg.ingest(Main.sampleStream())`. No artifact/link/runtime; source itself is unchanged.
+- Source Loop If now retains checked conditions, exact branch incoming sources and
+  canonical Phi keys through schedule, sole writer and both final consumers.
+  Existing focused247 PASS, including typed schema43, JoinSig27 and original-root refusal1.
+- Next: ordinary owned String Call/Return using the existing `{handle, End token}`
+  representation. Move the exact callee residence only on Normal; caller Ends once
+  after readonly ingest borrowing, including Fault. Do not coerce String to I64/object.
+- Fixed suite is being remeasured against this CLI; prior official result above remains.
 - Other reds: untyped-field execution permission, binary-trees source-not-i64, boxtorrent receiver-unavailable.
 
 ## Current priority and measurement interpretation
@@ -75,18 +79,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   focused12 PASS, no new tests/files. Physical acquisition/commit/End and consumers owed.
 - Runtime checked empty End retires unclaimed Boxed(empty), releases outside locks and
   rejects other/retired states. Both consumers still require source contents/End proof.
-- Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
-  existing source/schedule and SAME child packet; original Core demand selects all entry stages.
-  Local receipt feeds SAME SSA index; Call receipt separates new operand writes from cached loans.
-- One publication case covers Local I64/discard Bool/substring cleanup and implicit Unit, matching JSON roles.
-  Both explicit/implicit Unit exits use the SAME final pool; borrowed Copy closure starts at source entry roots.
-  Static qualified input uses the checked complete census and existing Invoke writer; no new Plain Call admission.
-  C Text matrix reuses Unit/Bool leaf parameters to cover independent Normal/Fault/End/escape boundaries.
-  Shared Append outer Call now belongs to its existing effect packet; retain full census.
-  Entry membership is passive; result loan issuer retains full anchor/grounding/dependency proof.
-  Original numeric forwarding guard loss stays terminal; no nullable owner retry.
-  If/SSA stays isolated; cohort/selection folds reuse same-operation immutable checks, no persistent cache.
-  Archive framing cases reuse one existing test fn to protect ABI refusals after retiring per-member subprocesses.
+- Loop Local I64/discard Bool Calls, readonly Text inputs, explicit/implicit Unit and
+  Append retain original packets, full source census and final-pool validation.
+  Existing publication case now includes If rebind; existing schema case rejects three
+  invalid Phi origins, covering independent join provenance with no new test functions.
+  Cohort/selection folds share same-operation immutable checks; no persistent cache.
 - Prior reds: field-read2, count_at Loop, composition2/result2, Unit remain open.
 - Previous Array-transfer measurement passed allocator/mimalloc EXEs unchanged;
   current fixed suite restores mimalloc; later allocator standalone PASS160.247s. Bool Eq/Ne C admission

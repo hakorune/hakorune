@@ -445,7 +445,7 @@ fn check_blocks_and_items(
             });
         }
         let mut previous = None;
-        for item_key in &block.items {
+        for (position, item_key) in block.items.iter().enumerate() {
             if previous.is_some_and(|key: LoopItemKeyV1| key.raw() >= item_key.raw()) {
                 return Err(LoopRecipeV2RejectReason::NonCanonicalKeyOrder {
                     domain: "block_items",
@@ -460,16 +460,14 @@ fn check_blocks_and_items(
             let Some(item) = items.get(item_key) else {
                 return Err(LoopRecipeV2RejectReason::UnknownItem { key: *item_key });
             };
-            check_item(
-                item_key,
-                item,
-                &blocks,
-                &loops,
-                &exits,
-                bindings,
-                values,
-                &mut definitions,
-            )?;
+            if let LoopRecipeItemV2::Operation {
+                operation: super::schema_v2::LoopOperationV2::BranchPhi { source_if, .. },
+            } = item {
+                if !block.items[..position].contains(source_if)
+                    || !matches!(items.get(source_if), Some(LoopRecipeItemV2::If { .. })) {
+                    return Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: *item_key });
+                }
+            }
         }
     }
 
@@ -477,6 +475,10 @@ fn check_blocks_and_items(
         if !uses.contains(&row.key) {
             return Err(LoopRecipeV2RejectReason::UnknownItem { key: row.key });
         }
+        // Canonical recursive item order visits arm definitions before the
+        // continuation's SSA join. Block allocation is not definition order.
+        check_item(&row.key, &row.item, &blocks, &loops, &exits,
+            bindings, values, &mut definitions)?;
     }
     for value in &recipe.values {
         if !definitions.contains_key(&value.key) {

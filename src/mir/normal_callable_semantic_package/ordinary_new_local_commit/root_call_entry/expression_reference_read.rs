@@ -486,9 +486,10 @@ pub(in crate::mir) struct BranchScalarPhiObservationV1 {
 }
 type Finished = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings;
 impl BranchScalarPhiObservationV1 {
+    pub(in crate::mir) fn pending(&self) -> &std::rc::Rc<crate::mir::builder::IfConditionMaterializationV1> { &self.pending }
     pub(in crate::mir) fn source(&self) -> &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1> { &self.source }
     pub(in crate::mir) fn relation(&self) -> &std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1> { &self.relation }
-    fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&Finished>) -> Result<(), String> {
+    pub(in crate::mir) fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&Finished>) -> Result<(), String> {
         context.ledger().require_branch_scalar_source_v1(&self.source)?;
         let map_block = |block| finishing.and_then(|projection| projection.destination(block)).unwrap_or(block);
         let actual = |row: &Binding| -> Result<Option<Binding>, String> {

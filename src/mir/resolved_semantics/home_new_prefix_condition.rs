@@ -89,7 +89,10 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
             .then_some(1)
     }
     let Some(binary) = source.nodes().first().and_then(|node| node.binary()) else { return false; };
-    let selected = matches!(binary.operator(), Op::And | Op::Or)
+    let selected = locals.in_source_loop_v1()
+            && matches!(binary.operator(), Op::Equal | Op::NotEqual | Op::Less | Op::Greater
+                | Op::LessEqual | Op::GreaterEqual)
+        || matches!(binary.operator(), Op::And | Op::Or)
         || source.nodes_outside_calls().any(|(_, node)| matches!(node.source(), Node::Literal(Literal::String(_)))
             || matches!(node.source(), Node::Reference(_))
                 && (locals.static_text_reference(node.site()).is_some() || locals.text_reference(node.site()).is_some()))

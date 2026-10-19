@@ -441,6 +441,18 @@ fn v2_rejects_numeric_operand_used_before_definition() {
             key: LoopValueKeyV1::new(3),
         })
     );
+    for source_if in [0, 1, 999] {
+        let mut artifact = minimal_typed_recipe();
+        artifact.recipe.items[1].item = LoopRecipeItemV2::Operation {
+            operation: LoopOperationV2::BranchPhi {
+                source_if: LoopItemKeyV1::new(source_if),
+                then_value: LoopValueKeyV1::new(0), else_value: LoopValueKeyV1::new(1),
+                result: LoopValueKeyV1::new(3),
+            },
+        };
+        assert_eq!(LoopRecipeVerifierV2::verify_artifact(artifact),
+            Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: LoopItemKeyV1::new(1) }));
+    }
 }
 
 #[test]
