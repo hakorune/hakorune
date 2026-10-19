@@ -119,13 +119,12 @@ impl FinalizedRootSourceHandoffV1 {
         let context = CallValidationContextV1::Finalized(self);
         let text_home_owners = self.local_calls.iter().filter_map(|(owner, roots)|
             RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()
-                .any(|group| group.initializer().is_some_and(|packet| packet.frame().is_text_residence()))
+                .any(|group| group.text_residence_v1().is_some())
                 .then_some(*owner)).collect::<std::collections::BTreeSet<_>>();
         for owner in &text_home_owners {
             context.with_local_call_group_tree_v2(*owner, |groups| {
-                for packet in groups.iter().filter_map(|group| group.initializer())
-                    .filter(|packet| packet.frame().is_text_residence()) {
-                    self.ledger.validate_text_initializer_home_v1(packet, context)?;
+                for packet in groups.iter().filter_map(|group| group.text_residence_v1()) {
+                    self.ledger.validate_text_residence_home_v1(&packet, context)?;
                 }
                 Ok(())
             })?;

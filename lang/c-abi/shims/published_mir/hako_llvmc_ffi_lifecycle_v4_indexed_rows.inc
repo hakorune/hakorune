@@ -32,8 +32,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          transition: even a released value may remain an optimizer hint. */
     } else if (lv4_is(ins, "op", "string_residence_install")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "value"));
+      yyjson_val* previous = yyjson_obj_get(ins, "replaces");
+      hako_lv4_value* old = previous ? lv4_index_value(fn, lv4_u(ins, "replaces")) : NULL;
       if (faulted || birth || !value || value->kind != LV4_OWNED_STRING ||
-          !lv4_string_install(state, yyjson_arr_size(hako_physical_blocks(fn->function)), value->origin)) return 0;
+          (previous && (!old || old->kind != LV4_OWNED_STRING || old->origin < 0)) ||
+          !lv4_string_install(state, yyjson_arr_size(hako_physical_blocks(fn->function)), value->origin, old ? old->origin : -1)) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
       if (!root) {

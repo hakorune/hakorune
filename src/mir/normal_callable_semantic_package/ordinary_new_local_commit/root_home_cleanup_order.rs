@@ -107,7 +107,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selectio
 }
 
 /// Fault keeps every obligation except Normal operations already attempted.
-pub(in crate::mir::normal_callable_semantic_package) fn fault_indices_after_normal_step_v2(
+pub(crate) fn fault_indices_after_normal_step_v2(
     full_len: usize, normal: &[usize], step: usize,
 ) -> Result<Vec<usize>, String> {
     let attempted = normal.get(..=step).ok_or_else(|| freeze("root-cleanup-order/normal-step"))?;

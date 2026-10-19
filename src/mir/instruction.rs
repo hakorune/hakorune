@@ -660,9 +660,10 @@ pub enum MirInstruction {
     /// Incomplete acquisition and committed Home roles stay in retained bindings.
     ArrayResidenceRelease { value: ValueId },
 
-    /// Move the newest owned String temporary into a source-backed Local Home.
+    /// Move the newest owned String temporary into a source-backed Home.
+    /// A replacement keeps the exact old Home live until its checked End attempt.
     /// Infallible identity-preserving lifecycle event; no runtime/refcount work.
-    StringResidenceInstall { value: ValueId },
+    StringResidenceInstall { value: ValueId, replaces: Option<ValueId> },
 
     /// Check an exact-numeric local contract, then publish `%dst = %src`.
     LocalContractWrite {

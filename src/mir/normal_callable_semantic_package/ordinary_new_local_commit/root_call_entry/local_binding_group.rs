@@ -191,6 +191,16 @@ impl RootLifecyclePrefixBindingGroupV1 {
             .chain(self.owned_array_append().and_then(|packet| packet.candidate_packet()))
     }
 
+    pub(in crate::mir::normal_callable_semantic_package) fn text_residence_v1(&self) -> Option<TextResidencePacketV1> {
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet))
+                if packet.frame().is_text_residence() => Some(TextResidencePacketV1::Initializer(Rc::clone(packet))),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet))
+                if packet.frame().is_text_residence() => Some(TextResidencePacketV1::Rebind(Rc::clone(packet))),
+            _ => None,
+        }
+    }
+
     pub(super) fn initializer_rc(&self) -> Option<&Rc<EmittedInitializerExpressionProjectionV1>> {
         match &self.proof { PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => Some(packet), _ => None }
     }
@@ -290,6 +300,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         let coordinates = if self.projected { finishing } else { None };
+        if let Some(home) = self.text_residence_v1() { context.ledger().validate_text_residence_home_v1(&home, context)?; }
         match &self.proof {
             PrefixPhysicalProofV1::Loop(packet) =>
                 packet.validate_completion_v2(context, function, self.bindings(), coordinates, finishing),
@@ -298,7 +309,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 packet.validate_paths(context, function, finishing).map(drop)
             }
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => {
-                context.ledger().validate_text_initializer_home_v1(packet, context)?;
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing).map(drop)
             }

@@ -210,7 +210,11 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             }
         }
         MirInstruction::DestroyOwned { value }
-        | MirInstruction::ArrayResidenceRelease { value } | MirInstruction::StringResidenceInstall { value } => rewrite_value_use(value, from, to),
+        | MirInstruction::ArrayResidenceRelease { value } => rewrite_value_use(value, from, to),
+        MirInstruction::StringResidenceInstall { value, replaces } => {
+            rewrite_value_use(value, from, to);
+            if let Some(previous) = replaces { rewrite_value_use(previous, from, to); }
+        },
         MirInstruction::FutureSet { future, value } => {
             rewrite_value_use(future, from, to);
             rewrite_value_use(value, from, to);

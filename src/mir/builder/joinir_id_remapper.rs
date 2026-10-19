@@ -403,7 +403,7 @@ impl JoinIrIdRemapper {
             DestroyOwned { value } => DestroyOwned {
                 value: remap(*value),
             },
-            StringResidenceInstall { value } => StringResidenceInstall { value: remap(*value) },
+            StringResidenceInstall { value, replaces } => StringResidenceInstall { value: remap(*value), replaces: replaces.map(remap) },
             ArrayResidenceRelease { value } => ArrayResidenceRelease {
                 value: remap(*value),
             },

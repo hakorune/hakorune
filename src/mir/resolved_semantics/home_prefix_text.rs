@@ -1,7 +1,7 @@
 //! Current Text residences retain their original acquisition, never Object Home.
 use super::*;
 use std::rc::Rc;
-use super::super::CheckedInitializerExpressionFrameV1;
+use super::super::{CheckedInitializerExpressionFrameV1, CheckedBindingRebindFrameV1, BindingRebindDestinationV1};
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
 use std::sync::Arc;
 
@@ -38,6 +38,7 @@ pub(crate) struct TextResidenceAcquisitionV1 {
 #[derive(Debug, Clone)]
 enum TextResidenceOriginV1 {
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
+    Rebind(Rc<CheckedBindingRebindFrameV1>),
 }
 impl PartialEq for TextResidenceAcquisitionV1 {
     fn eq(&self, other: &Self) -> bool { self.same_source(other) }
@@ -48,27 +49,37 @@ impl TextResidenceAcquisitionV1 {
         assert!(frame.is_text_residence(), "Text installation requires an owned Text root");
         Self { origin: TextResidenceOriginV1::Initializer(frame) }
     }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn from_rebind(frame: Rc<CheckedBindingRebindFrameV1>) -> Self {
+        assert!(frame.is_text_residence(), "Text rebind requires an owned Text root");
+        Self { origin: TextResidenceOriginV1::Rebind(frame) }
+    }
     pub(crate) fn binding(&self) -> BindingRefV1 {
-        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.binding() }
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.binding(),
+            TextResidenceOriginV1::Rebind(frame) => frame.target() }
     }
     pub(crate) fn same_source(&self, other: &Self) -> bool {
         match (&self.origin, &other.origin) {
             (TextResidenceOriginV1::Initializer(a), TextResidenceOriginV1::Initializer(b)) => Rc::ptr_eq(a, b),
+            (TextResidenceOriginV1::Rebind(a), TextResidenceOriginV1::Rebind(b)) => Rc::ptr_eq(a, b),
+            _ => false,
         }
     }
-    pub(crate) fn initializer_origin_v1(&self) -> &Rc<CheckedInitializerExpressionFrameV1> {
-        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame }
+    pub(crate) fn initializer_origin_v1(&self) -> Option<&Rc<CheckedInitializerExpressionFrameV1>> {
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => Some(frame), _ => None }
+    }
+    pub(crate) fn rebind_origin_v1(&self) -> Option<&Rc<CheckedBindingRebindFrameV1>> {
+        match &self.origin { TextResidenceOriginV1::Rebind(frame) => Some(frame), _ => None }
     }
     /// Original source coordinate only; not an evaluation or ownership grant.
-    /// Initializer acquisitions currently refer to its root expression.
+    /// Initializer and Rebind acquisitions refer to their original root expression.
     pub(crate) fn source(&self) -> &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1> {
-        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.source() }
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.source(), TextResidenceOriginV1::Rebind(frame) => frame.source() }
     }
     pub(crate) fn owns_root(&self) -> bool {
-        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.owns_root() }
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.owns_root(), TextResidenceOriginV1::Rebind(frame) => frame.is_text_residence() }
     }
     pub(crate) fn is_text_residence(&self) -> bool {
-        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.is_text_residence() }
+        match &self.origin { TextResidenceOriginV1::Initializer(frame) => frame.is_text_residence(), TextResidenceOriginV1::Rebind(frame) => frame.is_text_residence() }
     }
 }
 
@@ -97,6 +108,24 @@ impl StaticTextReadV1 {
 }
 
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn rebind_destination_v1(
+        &self, binding: BindingRefV1, homes: &[LiveHomeV1],
+    ) -> Option<BindingRebindDestinationV1> {
+        if self.can_rebind_integer_v1(binding, homes) { return Some(BindingRebindDestinationV1::Integer); }
+        if binding.owner() != self.input.owner() { return None; }
+        match self.locals.get(&binding)? {
+            StoredLocal::StaticText { definition } if !homes.iter().any(|home| home.binding() == binding) =>
+                Some(BindingRebindDestinationV1::TextStatic(definition.clone())),
+            StoredLocal::Text { root, acquisition } if *root == binding && acquisition.binding() == binding
+                && homes.iter().filter(|home| home.binding() == binding).eq(std::iter::once(&LiveHomeV1::Text(acquisition.clone()))) =>
+                Some(BindingRebindDestinationV1::TextResidence(acquisition.clone())),
+            _ => None,
+        }
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_rebind(&mut self, frame: Rc<CheckedBindingRebindFrameV1>) {
+        let root = frame.target();
+        self.store(root, StoredLocal::Text { root, acquisition: frame.text_acquisition_v1() });
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_static_text(&mut self,
         binding: BindingRefV1, definition: SourceExprSiteV1) {
         self.store(binding, StoredLocal::StaticText { definition });

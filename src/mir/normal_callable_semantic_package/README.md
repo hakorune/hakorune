@@ -4838,3 +4838,13 @@ source analysis. They are graph seeds only, not incoming constraints or callee
 result dependencies; a declared result must not suppress actual-subtree analysis.
 The caller comes from the same checked Static/Main original context. Ordinary
 non-Core nested calls retain their existing argument owner.
+
+Text residence publication retains the existing Initializer or BindingRebind packet
+Rc in one dispatch, without copying evaluation data or creating another registry.
+Historical acquisitions of the same binding occupy distinct original expression
+sites; lookup and read loans require their exact source purpose and Rc. Rebind
+reads use the existing checked-rebind provenance, never an initializer loan.
+Both final consumers include both purposes in installed-Home/cleanup coverage and
+reconstruct the Normal-selected Fault residual, including a new pair retained
+when the displaced old End faults. Literal/borrowed-root Materialize and ordinary
+Text Return/Call ABI remain separate open connections in the same Text series.

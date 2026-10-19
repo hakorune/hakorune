@@ -16,15 +16,15 @@ impl MirBuilder {
         self.build_assignment_from_value_with_destination(var_name, value_id, None)
     }
 
-    pub(in crate::mir::builder) fn build_assignment_from_value_for_scalar_v1(
+    pub(in crate::mir::builder) fn build_assignment_from_value_for_checked_rebind_v1(
         &mut self, var_name: String, value_id: ValueId,
-        destination: &super::stmts::variable_assignment_completion::ScalarRebindDestinationV1,
+        destination: &super::stmts::variable_assignment_completion::CheckedRebindDestinationV1,
     ) -> Result<ValueId, String> {
         self.build_assignment_from_value_with_destination(var_name, value_id, Some(destination))
     }
 
     fn build_assignment_from_value_with_destination(&mut self, var_name: String, value_id: ValueId,
-        scalar: Option<&super::stmts::variable_assignment_completion::ScalarRebindDestinationV1>,
+        scalar: Option<&super::stmts::variable_assignment_completion::CheckedRebindDestinationV1>,
     ) -> Result<ValueId, String> {
         if let Some(destination) = scalar { destination.validate(self, &var_name)?; }
         vars::assignment_resolver::AssignmentResolverBox::ensure_declared(self, &var_name)?;

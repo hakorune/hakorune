@@ -8,12 +8,12 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
     if expected.get(prepared.preceding_sites.len()).is_none_or(|source| !prepared.group.matches_source(source)) {
         return Err(freeze("local-call-binding-preflight-stale"));
     }
-    let home = prepared.group.initializer_rc().filter(|packet| packet.frame().is_text_residence()).cloned();
+    let home = prepared.group.text_residence_v1();
     let mut homes = if home.is_some() { Some(ledger.local_commits.borrow_mut()) } else { None };
     if let (Some(packet), Some(rows)) = (&home, &homes) {
-        if !packet.has_text_home() || packet.frame().source().owner() != prepared.owner
+        if !packet.has_text_home() || packet.owner() != prepared.owner
             || rows.contains_key(prepared.group.site())
-            || rows.values().any(|row| row.binding() == Some(packet.frame().binding())) {
+            || rows.values().any(|row| row.binding() == Some(packet.binding()) && !matches!(row, LocalCommitV1::TextResidence(_))) {
             return Err(freeze("initializer-expression/home-publication-conflict"));
         }
     }
@@ -49,22 +49,29 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn validate_text_initializer_home_v1(
-        &self, packet: &EmittedInitializerExpressionProjectionV1, context: CallValidationContextV1<'_>,
+    pub(crate) fn text_rebind_displaced_end_v1(&self, frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1)
+        -> Result<Option<InvokeOperation>, String> {
+        let Some(previous) = frame.previous_text() else { return Ok(None) };
+        let operations = self.prior_home_unwind_for(&[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(previous.clone())])?;
+        if operations.len() != 1 || !matches!(operations[0], InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { .. })) {
+            return Err(freeze("rebind-expression/old-text-end"));
+        }
+        Ok(operations.into_iter().next())
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_text_residence_home_v1(
+        &self, packet: &TextResidencePacketV1, context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         context.require_ledger(self)?;
-        if !packet.frame().is_text_residence() { return Ok(()); }
-        let site = OwnedExprSiteV1::new(packet.frame().source().owner(), packet.frame().source().nodes()[0].site().clone());
+        let site = packet.site();
         let rows = self.local_commits.borrow();
         if !packet.has_text_home() || !matches!(rows.get(&site), Some(LocalCommitV1::TextResidence(original))
-            if std::ptr::eq(original.as_ref(), packet))
-            || rows.values().filter(|row| row.installs(packet.frame().binding())).count() != 1 {
-            return Err(freeze("initializer-expression/published-home-identity"));
+            if original.same_packet(packet)) {
+            return Err(freeze("text-residence/published-home-identity"));
         }
         context.with_local_call_group_tree_v2(site.owner(), |groups| {
-            if groups.iter().filter_map(|group| group.initializer())
-                .filter(|original| std::ptr::eq(*original, packet)).count() != 1 {
-                return Err(freeze("initializer-expression/published-prefix-identity"));
+            if groups.iter().filter_map(|group| group.text_residence_v1())
+                .filter(|original| original.same_packet(packet)).count() != 1 {
+                return Err(freeze("text-residence/published-prefix-identity"));
             }
             Ok(())
         })?;

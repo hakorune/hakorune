@@ -118,15 +118,35 @@ impl<'a> CallValidationContextV1<'a> {
         read: &crate::mir::builder::ExactLexicalReadV1,
         check: impl FnOnce(ValueId, &(BasicBlockId, MirInstruction)) -> Result<R, String>,
     ) -> Result<R, String> {
-        self.with_original_initializer_v1(acquisition.initializer_origin_v1(), |packet| {
-            self.ledger().validate_text_initializer_home_v1(packet, self)?;
-            let value = read.loan_local_initializer_v1(acquisition.binding())?.0;
-            if value != packet.value() || packet.local_value() != value {
-                return Err(freeze("expression/residence-original-pair"));
-            }
+        if let Some(frame) = acquisition.initializer_origin_v1() {
+            return self.with_original_initializer_v1(frame, |packet| {
+                let home = self.text_home_for_acquisition_v1(acquisition)?;
+                let value = read.loan_local_initializer_v1(acquisition.binding())?.0;
+                if value != packet.value() || home.local_value() != value {
+                    return Err(freeze("expression/residence-original-pair"));
+                }
+                check(value, packet.root_acquisition_binding_v1()?)
+            });
+        }
+        let frame = acquisition.rebind_origin_v1().ok_or_else(|| freeze("expression/residence-origin"))?;
+        self.with_original_rebind_v1(frame, |packet| {
+            let home = self.text_home_for_acquisition_v1(acquisition)?;
+            let value = read.loan_checked_rebind_v1(frame)?.0;
+            if value != packet.value() || home.local_value() != value { return Err(freeze("expression/residence-original-pair")); }
             check(value, packet.root_acquisition_binding_v1()?)
         })
     }
+    fn text_home_for_acquisition_v1(self,
+        acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
+    ) -> Result<TextResidencePacketV1, String> {
+        let rows = self.ledger().local_commits.borrow();
+        let home = crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone());
+        let LocalCommitV1::TextResidence(packet) = installed_source_home(&rows, &home)
+            .map_err(|_| freeze("expression/residence-published-home"))? else { return Err(freeze("expression/residence-published-home")) };
+        self.ledger().validate_text_residence_home_v1(packet, self)?;
+        Ok(packet.clone())
+    }
+
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {
         match self { Self::Lowering(ledger) => ledger, Self::Finalized(source) => &source.ledger }
     }

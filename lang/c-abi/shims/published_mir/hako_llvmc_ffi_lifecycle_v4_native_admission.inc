@@ -67,8 +67,11 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
       if (result_kind == LV4_I64 || result_kind == LV4_BOOL) state[origin] = 0;
     } else if (lv4_is(ins, "op", "string_residence_install")) {
       uint32_t value = lv4_u(ins, "value");
+      yyjson_val* previous = yyjson_obj_get(ins, "replaces");
+      int replaces = previous ? lv4_native_origin(fn, lv4_u(ins, "replaces"), budget) : -1;
       if (faulted || lv4_type(fn, value, budget) != LV4_OWNED_STRING ||
-          !lv4_string_install(state, count, lv4_native_origin(fn, value, budget))) return 0;
+          (previous && (replaces < 0 || lv4_type(fn, lv4_u(ins, "replaces"), budget) != LV4_OWNED_STRING)) ||
+          !lv4_string_install(state, count, lv4_native_origin(fn, value, budget), replaces)) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       int origin = lv4_native_origin(fn, lv4_u(ins, "value"), budget);
       if (origin < 0 || !state[origin] ||
@@ -88,14 +91,14 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
   if (lv4_is(term, "op", "invoke")) {
     yyjson_val* op = yyjson_obj_get(term, "operation");
     int string_end = lv4_is(op, "kind", "string_end");
-    if (faulted && !string_end) return 0;
+    if ((faulted || lv4_string_pending(state, count)) && !string_end) return 0;
     failure_fault = 1;
     if (string_end) {
       uint32_t value = lv4_u(op, "value");
       int origin = lv4_native_origin(fn, value, budget);
-      if (lv4_type(fn, value, budget) != LV4_OWNED_STRING || origin < 0 ||
-          state[origin] <= LV4_STRING_RANK_BASE || state[origin] != lv4_string_top(state, count)) return 0;
-      normal[origin] = state[origin] = 0;
+      if (lv4_type(fn, value, budget) != LV4_OWNED_STRING ||
+          !lv4_string_end(state, count, origin, faulted)) return 0;
+      memcpy(normal, state, count * sizeof(*state));
     } else if (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
       if (state[bi]) return 0;
       for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)

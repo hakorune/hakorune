@@ -1750,9 +1750,14 @@ installation in the existing expression inventory. I64 roots retain no owned
 root; any Text child acquisition still requires the common scalar continuation.
 A source read keeps the exact rebind producer before alias following, including
 self-assignment and later local aliases. It cannot borrow an initializer receipt.
-The production walk separately proves the old target is an available I64 and
-owns no Home before installing the rebind. Its mandatory lifecycle prefix uses
-the existing evaluated-binding group. The sole assignment owner accepts an opaque
+The production walk separately proves the destination from current Prefix state:
+an available Home-neutral I64, a StaticText definition without a Home, or the
+exact current owned Text acquisition. Owned Text RHS reads the old snapshot;
+Normal replaces its Home with the original Rebind frame Rc. Historical snapshots
+and aliases retain their original acquisition; aliases never follow a replacement.
+Literal/borrowed Text RHS still requires explicit Materialize and is refused until
+that operation is connected. Its mandatory lifecycle prefix uses the existing
+evaluated-binding group. The sole assignment owner accepts an opaque
 source/Home-neutral destination, preserves its completion receipt and omits the
 old scalar's irrelevant strong release. RHS child cleanup precedes publication.
 The materialized value slot retains the exact rebind purpose and shared Copy

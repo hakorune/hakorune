@@ -14,6 +14,7 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     frame: Rc<CheckedBindingRebindFrameV1>,
     receipt: CompletedVariableAssignmentV1,
     root: ReferenceProducerV1,
+    install: Option<Binding>,
     values: Vec<Option<Operand>>,
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
@@ -34,6 +35,19 @@ impl EmittedBindingRebindProjectionV1 {
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.receipt.assigned() }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(&self) -> &ReferenceProducerV1 { &self.root }
+    fn expected_operand(&self) -> Operand {
+        if self.frame.is_text_residence() { Operand::OwnedString(self.value()) } else { Operand::NormalInteger(self.value()) }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&Binding> { self.install.as_ref() }
+    pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
+        self.frame.is_text_residence() && self.receipt.rhs() == self.value()
+            && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
+                MirInstruction::StringResidenceInstall { value, .. } if *value == self.value()))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(&self) -> Result<&Binding, String> {
+        if !self.has_text_home() { return Err(freeze("rebind-expression/no-text-home")); }
+        self.expression().require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if *dst == self.value()))
+    }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedBindingRebindFrameV1>, receipt: CompletedVariableAssignmentV1,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
@@ -41,7 +55,7 @@ impl EmittedBindingRebindProjectionV1 {
         entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        if receipt.rhs() != receipt.assigned() || values.first() != Some(&Some(Operand::NormalInteger(receipt.rhs()))) {
+        if receipt.rhs() != receipt.assigned() || values.first() != Some(&Some(if frame.is_text_residence() { Operand::OwnedString(receipt.rhs()) } else { Operand::NormalInteger(receipt.rhs()) })) {
             return Err(freeze("rebind-expression/assignment-result"));
         }
         let root = if let Some(reference) = reference_reads.get(&0) {
@@ -52,11 +66,13 @@ impl EmittedBindingRebindProjectionV1 {
             if definitions.next().is_some() || function.params.contains(&receipt.rhs()) { return Err(freeze("rebind-expression/result-unique")); }
             ReferenceProducerV1::Definition(root.clone())
         };
-        let packet = Self { frame, receipt, root, values, calls, path_reads, reference_reads,
+        let install = original.iter().find(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).cloned();
+        let packet = Self { frame, receipt, root, install, values, calls, path_reads, reference_reads,
             entry, terminal, continuation, original };
         let context = CallValidationContextV1::Lowering(ledger);
         let covered = packet.validate_paths(context, function, None)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
+        if let Some(install) = &packet.install { ordered.push(install.clone()); }
         ordered.push(packet.terminal.clone());
         packet.expression().validate_original_scope(ledger, function, &covered, &packet.entry,
             &packet.terminal, &packet.continuation, &ordered)?;
@@ -73,19 +89,24 @@ impl EmittedBindingRebindProjectionV1 {
         }
         Ok(())
     }
-    pub(super) fn validate_paths(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_paths(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let selected = context.ledger().rebind_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?
             .ok_or_else(|| freeze("rebind-expression/source-missing"))?;
         if !Rc::ptr_eq(&selected, &self.frame) || self.receipt.rhs() != self.receipt.assigned()
-            || self.values.first() != Some(&Some(Operand::NormalInteger(self.value()))) {
+            || self.values.first() != Some(&Some(self.expected_operand())) {
             return Err(freeze("rebind-expression/source-or-value"));
         }
-        if !self.receipt.matches_scalar_frame_v1(&self.frame) { return Err(freeze("rebind-expression/target-name")); }
+        if !self.receipt.matches_rebind_frame_v1(&self.frame) { return Err(freeze("rebind-expression/target-name")); }
         self.expression().validate_source(context)?;
-        let covered = self.expression().validate_scalar_continuation_v1(context, function, finishing,
-            &self.entry, &self.terminal, &self.continuation, None)?;
+        let installs = self.original.iter().filter(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).count();
+        if installs != usize::from(self.frame.is_text_residence()) || self.frame.is_text_residence() && !self.has_text_home() {
+            return Err(freeze("rebind-expression/install-census"));
+        }
+        let displaced = context.ledger().text_rebind_displaced_end_v1(&self.frame)?;
+        let covered = self.expression().validate_rebind_continuation_v1(context, function, finishing,
+            &self.entry, &self.terminal, &self.continuation, self.install.as_ref(), displaced.as_ref())?;
         Ok(covered)
     }
 }
@@ -134,8 +155,8 @@ fn scalar_rebind_keeps_assignment_and_alias_provenance_through_both_final_consum
         let packets: Vec<_> = root.local_calls.get(&root.owner()).unwrap().iter().filter_map(|group| group.rebind()).collect();
         assert_eq!(packets.len(), 2, "both original rebinds remain mandatory: {rhs}");
         assert_ne!(packets[0].frame().source().root().statement(), packets[1].frame().source().root().statement());
-        assert!(!packets[0].receipt.matches_scalar_frame_v1(packets[1].frame()));
-        assert!(!packets[1].receipt.matches_scalar_frame_v1(packets[0].frame()));
+        assert!(!packets[0].receipt.matches_rebind_frame_v1(packets[1].frame()));
+        assert!(!packets[1].receipt.matches_rebind_frame_v1(packets[0].frame()));
         assert_eq!(packets[0].value(), packets[1].value(), "self-assignment reuses RHS, never a fresh definition");
         assert!(!module.functions.get(&key).unwrap().blocks.values().flat_map(|block| block.all_instructions())
             .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })), "a scalar rebind owns no Home to release");

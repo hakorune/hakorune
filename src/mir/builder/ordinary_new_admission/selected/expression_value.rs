@@ -337,7 +337,7 @@ pub(super) fn emit_string_operation_v1(
 /// Text acquisitions. Prior Homes remain live on Normal and unwind on Fault.
 pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
-    finish_continuation(builder, expression, None)
+    finish_continuation(builder, expression, None, None)
 }
 
 /// The destination's original initializer frame is the sole issuer of this
@@ -346,7 +346,7 @@ pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression
     -> Result<(Binding, Binding), String> {
     let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
     if expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
-    finish_continuation(builder, expression, Some(root))
+    finish_continuation(builder, expression, Some(root), None)
 }
 
 /// An owned argument lends its entire remaining stack to the enclosing Call.
@@ -371,7 +371,19 @@ pub(super) fn finish_deferred_argument_continuation(
     Ok((terminal, continuation))
 }
 
-fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, residence: Option<ValueId>)
+pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
+    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+    ledger: &OrdinaryNewClaimLedgerV1,
+) -> Result<(Binding, Binding), String> {
+    if !frame.is_text_residence() { return finish_scalar_continuation(builder, expression); }
+    let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
+    if expression.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+    let displaced = ledger.text_rebind_displaced_end_v1(frame)?;
+    finish_continuation(builder, expression, Some(root), displaced)
+}
+
+fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
+    residence: Option<ValueId>, displaced: Option<InvokeOperation>)
     -> Result<(Binding, Binding), String> {
     if residence.is_none() && !matches!(expression.value, Operand::NormalInteger(_)) {
         return Err(freeze("expression/scalar-continuation-result"));
@@ -379,7 +391,12 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
     let mut writer = RawRootGraphWriterV1;
     if let Some(value) = residence {
         let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-        let install = MirInstruction::StringResidenceInstall { value };
+        let replaces = match displaced.as_ref() {
+            Some(InvokeOperation::String(Operation::End { value })) => Some(*value),
+            Some(_) => return Err(freeze("expression/residence-replacement-kind")),
+            None => None,
+        };
+        let install = MirInstruction::StringResidenceInstall { value, replaces };
         builder.emit_instruction(install.clone())?;
         expression.bindings.push((block, install));
         expression.acquired.pop();
@@ -388,11 +405,23 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut expression.bindings)?;
-    let normal: Vec<_> = expression.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
+    let mut normal: Vec<_> = expression.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
     let mut homes = expression.homes.clone();
     if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
     let fault = pending_operations(&expression.acquired, &homes);
-    let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
+    let mut normal_indices: Vec<_> = (0..normal.len()).collect();
+    if let Some(old) = displaced {
+        let index = fault.iter().position(|operation| *operation == old)
+            .ok_or_else(|| freeze("rebind-expression/old-home-missing"))?;
+        if fault.iter().filter(|operation| **operation == old).count() != 1 || normal_indices.contains(&index) {
+            return Err(freeze("rebind-expression/old-home-duplicate"));
+        }
+        normal_indices.push(index);
+        normal.push(old);
+    }
+    let after = (0..normal.len()).map(|step|
+        crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &normal_indices, step))
+        .collect::<Result<Vec<_>, _>>()?;
     // The Local terminal is an infallible Jump. Its child acquisitions already
     // own their Fault paths; do not emit a detached terminal-acquisition suffix.
     // Without child cleanup, there is no new fallible operation and no Fault

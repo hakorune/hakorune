@@ -295,7 +295,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
     }));
     // These roots demand original expression analysis only. They contribute no
     // incoming argument, formal value or constraint to the source domain.
-    let mut initializer_roots = Vec::new();
+    let mut expression_roots = Vec::new();
     for declaration in batch.declarations().filter(|row| product.source_owners.contains(&row.owner())
         || app_main.is_some_and(|main| main.checked_caller_key(batch, contracts, row.owner(), row.batch_slot()).is_ok())
         || inventory.source_rows_v1().any(|incoming| incoming.call.owner() == row.owner()
@@ -316,8 +316,20 @@ pub(super) fn prepare_original_formal_seeds_v1(
                 for initializer in input.function().expression_source().initializers().filter(|row|
                     matches!(row.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. })) {
                     let Some(site) = initializer.initializer_site() else { continue };
-                    initializer_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                    expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                         local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
+                }
+                // Plain rebind RHSs demand the same original expression/Core
+                // analysis as Local initializers. This grants no destination,
+                // Home or execution permission; the current Prefix seals those.
+                if let Some(shape) = input.body_shape() {
+                    for assignment in shape.assignment_sources().iter().filter(|assignment|
+                        assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+                            && matches!(input.function().assignment_target(assignment.target_site()),
+                                Some(crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::BindingRebind(binding)) if binding.owner() == input.owner())) {
+                        expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                            local_candidates, receiver, definitions, contracts, assignment.value_site(), None, Some(inventory), Some(&source_context)));
+                    }
                 }
                 // Static result classification does not walk its actuals.
                 // Demand those original typed argument roots separately; this
@@ -330,7 +342,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     }
                     for (formal, site) in original.parameters().iter().zip(original.argument_sites()) {
                         if !matches!(formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) { continue; }
-                        initializer_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                        expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                             local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
                     }
                 }
@@ -372,7 +384,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                 })
             })?
     };
-    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &initializer_roots, &mut expand)?;
+    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots, &mut expand)?;
     for (site, operands) in &sums.core_calls {
         let receipt = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, site.owner(), |_, input|

@@ -17,18 +17,20 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-951 acquisition loan normalization251371eb9e;952 exact source Home identity
-through prior/branch/Map/Loop/exit and BOTH finals landed d5c058e18f. Binding-only
-Text cleanup lookup retired; shared Stable resolver rejects Text, no retry/map.
-Root952F174existing:170PASS/4 reproduced950B baselines;9263names/no added cases.
-CLI291 originalJSON394 preserves unit-value-use; unchanged mimalloc395 canonical
-EXE/run exact363; existing scoped-Text Loop396 runtime exact364 contract.
-Fixed11 CLI2915PASS/6 reproducedCLI290 failures (fourEXEs+empty marker PASS),
-not suite/CI/fullseries green. Runtime894A/FFI939A explicit component predecessors.
-Fast ORDINARY-TEXT-CALL-S0; accepted950 whole Text construction has no semantic
-contract gap. Next actual Text rebind/oldEnd, Return/CallNormal/borrowed entry/Unit
-args/cleanup/BOTH finals/JSON/C. No more inventory prerequisite or new ledger.
-Full series/retained rows/finite goal remain open.
+953 owned-root Text rebind now connects original destination/acquisition through
+shared expression/assignment writer, exact historical Home publication/read loans,
+BOTH finals and JSON/C/canonical EXE. StringResidenceInstall retains exact old
+replacement; End Fault keeps new pair and never retries old. No second registry.
+Root953F174existing170PASS/4 exact952F baselines;9263names/no added cases/checkers.
+Two existing Rust source slots and existing C Home runtime slot replaced, not added.
+CLI292/FFI953A: both reused Text rebind sources400 EXE/run expected stdout/exit0;
+unchanged mimalloc399 canonical EXE/run exact363. Kernel894A unchanged predecessor.
+OriginalJSON398 still394/unit-value-use/noEXE. Fixed11 5PASS/6FAIL, all6 diagnostic
+lines exact952; four EXEs+empty marker. No suite/CI/full-series green claim.
+Fast ORDINARY-TEXT-CALL-S0: next explicit literal/borrowed Materialize, all-original
+Text Return/CallNormal/borrowed entry/Unit args/cleanup/BOTH finals/JSON/C under950.
+Loop Text Add exact operation/execution still owed. No inventory prerequisite or
+semantic design stop. Full Text/retained rows/finite goal remain open.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"

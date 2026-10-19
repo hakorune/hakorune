@@ -252,10 +252,15 @@ impl Projector<'_> {
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), result);
                     } else if let Some(rebind) = frame.rebind_frame() {
                         let value = self.evaluation(block, rebind.evaluation())?;
-                        let binding = self.bindings.get(&rebind.target()).copied().ok_or_else(|| reject("rebind-carrier"))?;
-                        if !self.recipe.carriers.iter().any(|row| row.binding == binding) { return Err(reject("rebind-readonly")); }
-                        let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
-                        self.control.push(SourceLoopItemV2 { site: site.clone(), item });
+                        if rebind.is_text_residence() {
+                            if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
+                                .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("text-rebind-role")); }
+                        } else {
+                            let binding = self.bindings.get(&rebind.target()).copied().ok_or_else(|| reject("rebind-carrier"))?;
+                            if !self.recipe.carriers.iter().any(|row| row.binding == binding) { return Err(reject("rebind-readonly")); }
+                            let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
+                            self.control.push(SourceLoopItemV2 { site: site.clone(), item });
+                        }
                         self.schedule.frame(Prefix::BindingRebind { site: prefix_site, frame: Rc::clone(rebind) },
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), value);
                     } else { return Err(reject("statement-execution-family")); }

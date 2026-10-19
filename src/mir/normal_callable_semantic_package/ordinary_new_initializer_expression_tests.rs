@@ -101,7 +101,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                 assert_eq!(first.scalar_reads().len(), usize::from(!annotation.is_empty()));
                 assert_eq!(first.evaluation().owned_result_nodes().len(), 2);
                 assert_eq!(second.residence_reads().len(), 1);
-                assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition().initializer_origin_v1(), first));
+                assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition().initializer_origin_v1().unwrap(), first));
                 assert_eq!(second.residence_reads()[0].root(), first.binding());
                 assert_ne!(second.residence_reads()[0].binding(), first.binding(), "alias is a read, not a second owner");
                 assert_eq!(second.prior_homes(), [crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(first.text_acquisition_v1())]);
@@ -124,10 +124,10 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
         ("", "", "\"hello\"", "", 0), ("", "", "\"he\" + \"llo\"", "", 1),
         ("", "", "(\"h\" + \"e\") + \"llo\"", "", 1),
         ("", "", "\"a\" + 12", "", 1),
-        ("", "local first = \"a\" + \"b\"", "\"c\" + \"d\"", "", 2),
+        ("", "local first = \"ab\"", "\"c\" + \"d\"", "first = first + text first = first.substring(0, 1) print(first)", 3),
         ("static box Values { run(count: i64): i64 { local text = \"a\" + \"b\" return 0 } }", "", "Values.run(1)", "", 1),
         ("", "local first = \"a\" + \"b\"", "first.length()", "", 1),
-        ("", "local first = \"a\" + \"b\"", "first + \"!\"", "", 2),
+        ("", "local first = \"a\" + \"b\"", "first + \"!\"", "text = text + first print(text)", 3),
         ("", "local first = \"a\" + \"b\" local alias = first", "alias.length()", "", 1),
         ("", "local first = \"a\" + \"b\" local alias = first local second = alias", "second + \"!\"", "", 2),
         ("", "local first = \"a\" + \"b\"", "first.length()", "print(text)", 1),
@@ -162,9 +162,9 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
                             match mutation {
                                 "missing" => { body.instructions.remove(index); }
                                 "duplicate" => body.instructions.push(original.clone()),
-                                "foreign-root" => body.instructions[index] = crate::mir::MirInstruction::StringResidenceInstall { value: crate::mir::ValueId(99999) },
+                                "foreign-root" => body.instructions[index] = crate::mir::MirInstruction::StringResidenceInstall { value: crate::mir::ValueId(99999), replaces: None },
                                 "acquisition" => {
-                                    let crate::mir::MirInstruction::StringResidenceInstall { value } = original else { unreachable!() };
+                                    let crate::mir::MirInstruction::StringResidenceInstall { value, .. } = original else { unreachable!() };
                                     let producer = changed_function.blocks.values_mut().flat_map(|body| body.instructions.iter_mut())
                                         .find(|row| matches!(row, crate::mir::MirInstruction::InvokeNormalResult { dst, .. } if *dst == value)).unwrap();
                                     let crate::mir::MirInstruction::InvokeNormalResult { invoke_block, .. } = producer else { unreachable!() };
@@ -175,7 +175,7 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
                                     for body in changed_function.blocks.values_mut() {
                                         if let Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::String(
                                             crate::mir::instruction::StringInvokeOperation::End { value }), .. }) = &mut body.terminator {
-                                            if matches!(original, crate::mir::MirInstruction::StringResidenceInstall { value: root } if root == *value) {
+                                            if matches!(original, crate::mir::MirInstruction::StringResidenceInstall { value: root, .. } if root == *value) {
                                                 *value = crate::mir::ValueId(99999); changed_end = true;
                                             }
                                         }

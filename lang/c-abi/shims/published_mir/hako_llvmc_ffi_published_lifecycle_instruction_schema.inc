@@ -321,6 +321,14 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
         hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
         hako_physical_u64(yyjson_obj_get(instruction, "bits"), NULL);
   }
+  if (!strcmp(op, "string_residence_install") && yyjson_obj_get(instruction, "replaces")) {
+    static const char* const keys[] = {"op", "value", "replaces"};
+    return hako_physical_exact_keys(instruction, keys, 3) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "replaces"), &b) && a != b &&
+        hako_physical_value_available_at(function, a, current_block, current_index) &&
+        hako_physical_value_available_at(function, b, current_block, current_index);
+  }
   if (!strcmp(op, "array_residence_release") || !strcmp(op, "string_residence_install"))
     return hako_physical_exact_keys(instruction, ret, 2) &&
         hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) &&

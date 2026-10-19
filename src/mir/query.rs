@@ -130,7 +130,8 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             Debug { value, .. } => vec![*value],
             // Phase 287: Lifecycle management reads all values
             KeepAlive { values } => values.clone(),
-            DestroyOwned { value } | ArrayResidenceRelease { value } | StringResidenceInstall { value } => vec![*value],
+            DestroyOwned { value } | ArrayResidenceRelease { value } => vec![*value],
+            StringResidenceInstall { value, replaces } => std::iter::once(*value).chain(*replaces).collect(),
             ReleaseStrong { values } => values.clone(),
             Throw { exception, .. } => vec![*exception],
             Catch { .. } => Vec::new(),

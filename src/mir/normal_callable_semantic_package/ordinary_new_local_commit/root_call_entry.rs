@@ -54,7 +54,7 @@ impl PreparedLifecyclePrefixBindingGroupV1<'_> {
 
     fn commit_after_collected(self) {
         assert!(matches!(self.destination, source_loop_projection::LifecyclePrefixDestinationV2::Root), "scoped publication requires its prepared transaction");
-        assert!(self.group.initializer_rc().is_none(), "initializer publication requires its prepared transaction");
+        assert!(self.group.initializer_rc().is_none() && self.group.text_residence_v1().is_none(), "Text publication requires its prepared transaction");
         self.ledger
             .root_local_call_bindings
             .borrow_mut()

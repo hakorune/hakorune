@@ -190,6 +190,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   if (lv4_is(term, "op", "invoke")) {
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
+    if (lv4_string_pending(state, count) && !lv4_is(op, "kind", "string_end")) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
     } else if (hako_physical_string_operand_count(op)) {
@@ -206,10 +207,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2) normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "string_end")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (birth || !value || value->kind != LV4_OWNED_STRING || value->origin < 0 ||
-          state[value->origin] <= LV4_STRING_RANK_BASE ||
-          state[value->origin] != lv4_string_top(state, count)) return 0;
-      normal[value->origin] = state[value->origin] = 0;
+      if (birth || !value || value->kind != LV4_OWNED_STRING ||
+          !lv4_string_end(state, count, value->origin, faulted)) return 0;
+      memcpy(normal, state, count * sizeof(*state));
     } else if (lv4_is(op, "kind", "ordinary_call")) {
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");

@@ -48,7 +48,7 @@ mod initializer_expression;
 pub(crate) use initializer_expression::{qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1};
 #[path = "home_binding_rebind_expression.rs"]
 mod binding_rebind_expression;
-pub(crate) use binding_rebind_expression::{qualify_binding_rebind_expression_v1, CheckedBindingRebindFrameV1};
+pub(crate) use binding_rebind_expression::{qualify_binding_rebind_expression_v1, BindingRebindDestinationV1, CheckedBindingRebindFrameV1};
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
 pub(crate) use evaluation::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, CheckedScalarReferenceV1};

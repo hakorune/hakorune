@@ -11,7 +11,7 @@ pub(in crate::mir) struct CompletedVariableAssignmentV1 {
     target: Box<str>,
     rhs: ValueId,
     assigned: ValueId,
-    scalar: Option<ScalarRebindDestinationV1>,
+    scalar: Option<CheckedRebindDestinationV1>,
     _seal: CompletedVariableAssignmentSealV1,
 }
 
@@ -22,12 +22,12 @@ struct CompletedVariableAssignmentSealV1;
 /// and its exact current BindingRef-to-value/name crosswalk. This is not a
 /// physical type test and cannot be minted from a flag or an arbitrary name.
 #[derive(Debug)]
-pub(in crate::mir) struct ScalarRebindDestinationV1 {
+pub(in crate::mir) struct CheckedRebindDestinationV1 {
     frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
     name: String,
     previous: ValueId,
 }
-impl ScalarRebindDestinationV1 {
+impl CheckedRebindDestinationV1 {
     pub(in crate::mir::builder) fn prepare(builder: &MirBuilder,
         state: &crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
@@ -48,7 +48,7 @@ impl ScalarRebindDestinationV1 {
 }
 
 impl CompletedVariableAssignmentV1 {
-    pub(in crate::mir) fn matches_scalar_frame_v1(&self,
+    pub(in crate::mir) fn matches_rebind_frame_v1(&self,
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
     ) -> bool {
         self.scalar.as_ref().is_some_and(|source| std::rc::Rc::ptr_eq(&source.frame, frame) && source.name == self.target.as_ref())
@@ -111,16 +111,16 @@ pub(in crate::mir::builder) fn build_variable_assignment_with_completion_v1(
     complete(builder, target, rhs, None)
 }
 
-pub(in crate::mir::builder) fn build_scalar_variable_assignment_with_completion_v1(
-    builder: &mut MirBuilder, destination: ScalarRebindDestinationV1, rhs: ValueId,
+pub(in crate::mir::builder) fn build_checked_variable_assignment_with_completion_v1(
+    builder: &mut MirBuilder, destination: CheckedRebindDestinationV1, rhs: ValueId,
 ) -> Result<CompletedVariableAssignmentV1, RejectedVariableAssignmentCompletionV1> {
     complete(builder, destination.name.clone(), rhs, Some(destination))
 }
 
-fn complete(builder: &mut MirBuilder, target: String, rhs: ValueId, scalar: Option<ScalarRebindDestinationV1>)
+fn complete(builder: &mut MirBuilder, target: String, rhs: ValueId, scalar: Option<CheckedRebindDestinationV1>)
     -> Result<CompletedVariableAssignmentV1, RejectedVariableAssignmentCompletionV1> {
     let result = match scalar.as_ref() {
-        Some(source) => builder.build_assignment_from_value_for_scalar_v1(target.clone(), rhs, source),
+        Some(source) => builder.build_assignment_from_value_for_checked_rebind_v1(target.clone(), rhs, source),
         None => builder.build_assignment_from_value(target.clone(), rhs),
     };
     match result {

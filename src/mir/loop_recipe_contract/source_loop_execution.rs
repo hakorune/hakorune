@@ -125,7 +125,11 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                         homes.push(LiveHomeV1::Text(initializer.text_acquisition_v1()));
                     }
                 } else if let Some(rebind) = frame.rebind_frame() {
-                    output.push(evaluation(input, source, rebind.evaluation(), &homes, false)?);
+                    output.push(evaluation(input, source, rebind.evaluation(), &homes, rebind.is_text_residence())?);
+                    if rebind.is_text_residence() {
+                        homes.retain(|home| home.binding() != rebind.target());
+                        homes.push(LiveHomeV1::Text(rebind.text_acquisition_v1()));
+                    }
                 } else { return Err(reject("execution-root-purpose")); }
             }
             Statement::If { condition, then_body, else_body, .. } => {

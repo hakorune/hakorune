@@ -1,10 +1,10 @@
-//! Checked RHS -> common scalar cleanup -> sole assignment writer -> publication.
+//! Checked RHS -> common purpose cleanup -> sole assignment writer -> publication.
 use super::*;
 use super::expression_value;
 use crate::mir::instruction::StringInvokeOperand as Operand;
 use crate::mir::normal_callable_semantic_package::{EmittedBindingRebindProjectionV1, LexicalInstanceCallDispositionRowV1};
 use crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1;
-use crate::mir::builder::stmts::variable_assignment_completion::{build_scalar_variable_assignment_with_completion_v1, ScalarRebindDestinationV1};
+use crate::mir::builder::stmts::variable_assignment_completion::{build_checked_variable_assignment_with_completion_v1, CheckedRebindDestinationV1};
 use std::rc::Rc;
 
 pub(in crate::mir::builder) fn emit(
@@ -12,7 +12,7 @@ pub(in crate::mir::builder) fn emit(
     frame: Rc<CheckedBindingRebindFrameV1>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 ) -> Result<ValueId, String> {
-    let destination = ScalarRebindDestinationV1::prepare(builder, state, ledger, Rc::clone(&frame))?;
+    let destination = CheckedRebindDestinationV1::prepare(builder, state, ledger, Rc::clone(&frame))?;
     let name = destination.name().to_owned();
     let previous = state.value_for_exact_binding(frame.source().owner(), frame.target()).map_err(|error| error.to_string())?;
     // A LocalContractWrite needs its own result relation. Refuse before RHS
@@ -25,8 +25,12 @@ pub(in crate::mir::builder) fn emit(
     let mut expression = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver))?;
-    let Operand::NormalInteger(value) = expression.value else { return Err(freeze("rebind-expression/result-class")) };
-    let (terminal, continuation) = expression_value::finish_scalar_continuation(builder, &mut expression)?;
+    let value = match expression.value {
+        Operand::NormalInteger(value) if !frame.is_text_residence() => value,
+        Operand::OwnedString(value) if frame.is_text_residence() => value,
+        _ => return Err(freeze("rebind-expression/result-class")),
+    };
+    let (terminal, continuation) = expression_value::finish_rebind_continuation(builder, &mut expression, &frame, ledger)?;
     if state.value_for_exact_binding(frame.source().owner(), frame.target()).map_err(|error| error.to_string())? != previous
         || builder.function_state.variable_ctx.variable_map.get(&name) != Some(&previous) {
         return Err(freeze("rebind-expression/destination-drift"));
@@ -34,7 +38,7 @@ pub(in crate::mir::builder) fn emit(
     let block = builder.function_state.current_block.ok_or_else(|| freeze("rebind-expression/no-block"))?;
     let before = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?
         .blocks.get(&block).ok_or_else(|| freeze("no-block"))?.instructions.len();
-    let receipt = build_scalar_variable_assignment_with_completion_v1(builder, destination, value)
+    let receipt = build_checked_variable_assignment_with_completion_v1(builder, destination, value)
         .map_err(|error| error.bounded_report())?;
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let effects = &function.blocks.get(&block).ok_or_else(|| freeze("no-block"))?.instructions[before..];

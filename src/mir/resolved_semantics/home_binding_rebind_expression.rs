@@ -13,19 +13,35 @@ use crate::mir::resolved_value_profile::{
 use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BindingRebindDestinationV1 {
+    Integer,
+    TextStatic(SourceExprSiteV1),
+    TextResidence(TextResidenceAcquisitionV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedBindingRebindFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
     target: BindingRefV1,
+    destination: BindingRebindDestinationV1,
 }
 impl CheckedBindingRebindFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn target(&self) -> BindingRefV1 { self.target }
+    pub(crate) fn is_text_residence(&self) -> bool { !matches!(self.destination, BindingRebindDestinationV1::Integer) }
+    pub(crate) fn previous_text(&self) -> Option<&TextResidenceAcquisitionV1> {
+        match &self.destination { BindingRebindDestinationV1::TextResidence(previous) => Some(previous), _ => None }
+    }
+    pub(crate) fn text_acquisition_v1(self: &Rc<Self>) -> TextResidenceAcquisitionV1 {
+        TextResidenceAcquisitionV1::from_rebind(Rc::clone(self))
+    }
 }
 
 pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     mut prepared: super::leaves::PreparedExpressionCallsV1,
+    destination: BindingRebindDestinationV1,
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -48,6 +64,14 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     let prior_homes = prepared.prior_homes().to_vec();
     let mut unique_homes = BTreeSet::new();
     if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding())) { return Ok(None); }
+    match &destination {
+        BindingRebindDestinationV1::Integer | BindingRebindDestinationV1::TextStatic(_)
+            if prior_homes.iter().any(|home| home.binding() == *target) => return Ok(None),
+        BindingRebindDestinationV1::TextResidence(previous)
+            if previous.binding() != *target || prior_homes.iter().filter(|home|
+                **home == super::super::LiveHomeV1::Text(previous.clone())).count() != 1 => return Ok(None),
+        _ => {}
+    }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
@@ -59,13 +83,17 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
         else { return Ok(None) };
-    if !references.is_empty() || transferred.contains(&0) || classes[0] != Leaf::Value(Class::I64) { return Ok(None); }
+    let text = !matches!(destination, BindingRebindDestinationV1::Integer);
+    if !references.is_empty() || transferred.contains(&0)
+        || classes[0] != Leaf::Value(if text { Class::String } else { Class::I64 }) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred)
         else { return Ok(None) };
     let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores);
-    if owned_results.contains(&0) { return Ok(None); }
+    // Literal/borrowed roots require the explicit Materialize operation; never
+    // relabel a borrowed operand as an acquisition.
+    if owned_results.contains(&0) != text { return Ok(None); }
     reference_proofs.retain(|node, _| !transferred.contains(node));
-    let frame = Rc::new(CheckedBindingRebindFrameV1 { target: *target,
+    let frame = Rc::new(CheckedBindingRebindFrameV1 { target: *target, destination,
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(),
             order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(), references: reference_proofs,
             calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
@@ -108,11 +136,11 @@ mod tests {
                 5 => locals.install_observed(binding, Observation::Handle(binding)),
                 _ => unreachable!(),
             }
-            let homes = if case == 1 { vec![super::super::super::LiveHomeV1::Stable(binding)] } else { vec![] };
+            let mut homes = if case == 1 { vec![super::super::super::LiveHomeV1::Stable(binding)] } else { vec![] };
             let body = input.source().root_body().unwrap();
             let statement = input.source().body_stmt(&body, 1).unwrap();
             let mut calls = Vec::new(); let mut paths = Default::default();
-            let accepted = super::super::super::binding_rebind::observe::<()>(input, &statement, &mut locals, &homes,
+            let accepted = super::super::super::binding_rebind::observe::<()>(input, &statement, &mut locals, &mut homes,
                 case != 6, &mut calls, &mut paths, &mut |fields, _| { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
                 &mut |_, _| panic!("fixture has no calls")).unwrap();
             assert_eq!(accepted, case == 0, "destination case {case}");
@@ -152,7 +180,7 @@ mod tests {
                     &Default::default(), &[], &mut |_| panic!("no Call in fixture")).unwrap().unwrap();
                 let mut installation = None;
                 let mut batches = 0;
-                let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared,
+                let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared, BindingRebindDestinationV1::Integer,
                     &mut |_| None, &mut |_| None, &mut |site| locals.current_scalar_read_v1(site, &[]),
                     &mut |_| None, &mut |plan| {
                         let mut pending = locals.expression_installation();
@@ -208,7 +236,7 @@ mod tests {
             let prepared = leaves::prepare_expression_calls_v1::<()>(&source, leaves::ExpressionLeafProfileV1::BindingRebind,
                 &Default::default(), &[], &mut |_| panic!("no Call")).unwrap().unwrap();
             let mut installation = None;
-            let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared,
+            let plan = qualify_binding_rebind_expression_v1::<()>(input, prepared, BindingRebindDestinationV1::Integer,
                 &mut |_| None, &mut |_| None, &mut |site| locals.current_scalar_read_v1(site, &[]),
                 &mut |_| None, &mut |plan| {
                     let mut pending = locals.expression_installation();

@@ -1,4 +1,4 @@
-//! Exact installed Text Homes lent by their original initializer packet.
+//! Exact installed Text Homes lent by their original evaluated-binding packet.
 use super::*;
 
 impl FinalizedRootSourceHandoffV1 {
@@ -13,7 +13,7 @@ impl FinalizedRootSourceHandoffV1 {
         // its Text owner and the exact function's finished projection.
         let text_home_owners = self.local_calls.iter().filter_map(|(owner, roots)|
             RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()
-                .any(|group| group.initializer().is_some_and(|packet| packet.frame().is_text_residence()))
+                .any(|group| group.text_residence_v1().is_some())
                 .then_some(*owner)).collect::<Vec<_>>();
         if !text_home_owners.is_empty() { self.validate_finalized_root_cleanup_v1(module)?; }
         let mut result = Vec::new();
@@ -22,12 +22,12 @@ impl FinalizedRootSourceHandoffV1 {
                 if symbol != function.signature.name { return Ok(()); }
                 context.with_local_call_group_tree_v2(owner, |groups| {
                     for group in groups {
-                        let Some(packet) = group.initializer().filter(|packet| packet.frame().is_text_residence()) else { continue };
-                        if packet.frame().source().owner() != owner {
+                        let Some(packet) = group.text_residence_v1() else { continue };
+                        if packet.owner() != owner {
                             return Err(freeze("finished-initializer-home/source-owner"));
                         }
                         group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
-                        self.ledger.validate_text_initializer_home_v1(packet, CallValidationContextV1::Finalized(self))?;
+                        self.ledger.validate_text_residence_home_v1(&packet, CallValidationContextV1::Finalized(self))?;
                         let original = packet.install_binding().ok_or_else(|| freeze("finished-initializer-home/install-missing"))?;
                         let finished = projection.binding(original.0, &original.1)?
                             .ok_or_else(|| freeze("finished-initializer-home/install-removed"))?;

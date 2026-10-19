@@ -212,6 +212,7 @@ use owned_array::OwnedArrayLocalProgress;
 
 #[path = "ordinary_new_local_commit/local_entry.rs"]
 mod local_entry;
+use local_entry::TextResidencePacketV1;
 pub(super) use local_entry::LocalCommitV1;
 
 /// Exact source relation retained after its matching physical root passed
@@ -510,13 +511,11 @@ pub(super) fn installed_source_home<'a>(
             Ok(row)
         }
         LiveHomeV1::Text(acquisition) => {
-            // Only Initializer origins are admitted here. A future CallNormal
-            // must supply its own genuine source node, not this root coordinate.
-            let frame = acquisition.initializer_origin_v1();
-            let site = OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
+            let source = acquisition.source();
+            let site = OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone());
             let row = rows.get(&site).ok_or(HomeLookupError::Missing)?;
             if !matches!(row, LocalCommitV1::TextResidence(packet)
-                if std::rc::Rc::ptr_eq(packet.frame(), frame) && packet.has_text_home()) {
+                if packet.acquisition().same_source(acquisition) && packet.has_text_home()) {
                 return Err(HomeLookupError::Missing);
             }
             Ok(row)
@@ -756,3 +755,5 @@ pub(in crate::mir) use root_home::{SourceLoopCleanupPlanV2, SourceLoopPhysicalPr
 
 pub(crate) use root_home::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use root_home::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
+
+pub(crate) use self::root_home::fault_indices_after_normal_step_v2;

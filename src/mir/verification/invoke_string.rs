@@ -44,11 +44,24 @@ fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     #[derive(Clone, Default, PartialEq, Eq)]
-    struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId> }
+    struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId>, replacement: Option<(ValueId, ValueId)> }
     impl Live {
         fn contains(&self, value: &ValueId) -> bool { self.temporary.contains(value) || self.homes.contains(value) }
-        fn is_empty(&self) -> bool { self.temporary.is_empty() && self.homes.is_empty() }
-        fn end(&mut self) -> Option<ValueId> { if self.temporary.is_empty() { self.homes.pop() } else { self.temporary.pop() } }
+        fn is_empty(&self) -> bool { self.temporary.is_empty() && self.homes.is_empty() && self.replacement.is_none() }
+        fn end(&mut self, value: ValueId, faulted: bool) -> bool {
+            if !self.temporary.is_empty() { return self.temporary.pop() == Some(value); }
+            if let Some((new, old)) = self.replacement {
+                if !faulted {
+                    if value != old || self.homes.last() != Some(&new) { return false; }
+                    let Some(index) = self.homes.iter().position(|home| *home == old) else { return false };
+                    self.homes.remove(index);
+                    self.replacement = None;
+                    return true;
+                }
+                if value == new { self.replacement = None; }
+            }
+            self.homes.pop() == Some(value)
+        }
     }
     let selected = |instruction: &MirInstruction| {
         matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
@@ -118,7 +131,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     return Err("string-end-result-missing");
                 }
             }
-            if let MirInstruction::StringResidenceInstall { value } = instruction {
+            if let MirInstruction::StringResidenceInstall { value, replaces } = instruction {
+                if replaces.is_some_and(|previous| previous == *value || !results.contains_key(&previous)) {
+                    return Err("string-residence-replacement-result-missing");
+                }
                 if !results.contains_key(value) { return Err("string-residence-install-result-missing"); }
                 if block.terminator.as_ref().is_some_and(|term| std::ptr::eq(term, instruction)) {
                     return Err("string-residence-install-terminator");
@@ -138,7 +154,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 // KeepAlive is optimizer metadata, checked for SSA availability
                 // by the shared verifier; it performs no runtime pair access.
                 let allowed = allowed || matches!(instruction, MirInstruction::KeepAlive { .. })
-                    || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed } if *installed == value);
+                    || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed, replaces } if *installed == value || *replaces == Some(value));
                 if !allowed && !is_call_argument(instruction, value) {
                     return Err("string-owned-escape");
                 }
@@ -164,9 +180,13 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
         seen.insert((id, faulted), live.clone());
         let block = function.blocks.get(&id).ok_or("string-block-missing")?;
         for row in &block.instructions {
-            if let MirInstruction::StringResidenceInstall { value } = row {
-                if faulted || !results.contains_key(value) || live.homes.contains(value)
+            if let MirInstruction::StringResidenceInstall { value, replaces } = row {
+                if faulted || live.replacement.is_some() || !results.contains_key(value) || live.homes.contains(value)
                     || live.temporary.pop() != Some(*value) { return Err("string-residence-install-not-newest-temporary"); }
+                if let Some(previous) = replaces {
+                    if *previous == *value || !live.homes.contains(previous) { return Err("string-residence-replacement-not-live-home"); }
+                    live.replacement = Some((*value, *previous));
+                }
                 live.homes.push(*value);
             }
         }
@@ -177,12 +197,16 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             .terminator
             .as_ref()
             .ok_or("string-terminator-missing")?;
+        if live.replacement.is_some() && matches!(term, MirInstruction::Invoke { operation, .. }
+            if !matches!(operation, InvokeOperation::String(Op::End { .. }))) {
+            return Err("string-effect-before-replacement-end");
+        }
         if let MirInstruction::Invoke {
             operation: InvokeOperation::String(operation),
             ..
         } = term
         {
-            if faulted && !matches!(operation, Op::End { .. }) {
+            if (faulted || live.replacement.is_some()) && !matches!(operation, Op::End { .. }) {
                 return Err("string-effect-after-fault");
             }
             for operand in operation.operands() {
@@ -191,12 +215,13 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 }
             }
             if let Op::End { value } = operation {
-                if live.end() != Some(*value) {
+                if !live.end(*value, faulted) {
                     return Err("string-end-order-or-not-live");
                 }
             }
         }
         if let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = term {
+            if live.replacement.is_some() { return Err("string-effect-before-replacement-end"); }
             for value in &call.args {
                 if results.contains_key(value) && (faulted || !live.contains(value)) {
                     return Err("string-call-borrow-not-live");
@@ -403,7 +428,7 @@ mod tests {
         // its cleanup to the Home domain behind remaining expression children.
         let mut installed = good.clone();
         installed.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
-            MirInstruction::StringResidenceInstall { value: ValueId(3) });
+            MirInstruction::StringResidenceInstall { value: ValueId(3), replaces: None });
         for (id, value) in [(3, 2), (4, 3), (20, 2), (21, 3), (22, 3)] {
             let Some(MirInstruction::Invoke { operation: InvokeOperation::String(Op::End { value: target }), .. }) =
                 &mut installed.blocks.get_mut(&BasicBlockId(id)).unwrap().terminator else { panic!("End") };
@@ -414,31 +439,31 @@ mod tests {
         let mut both_homes = good.clone();
         for (id, value) in [(1, 2), (2, 3)] {
             both_homes.blocks.get_mut(&BasicBlockId(id)).unwrap().instructions.push(
-                MirInstruction::StringResidenceInstall { value: ValueId(value) });
+                MirInstruction::StringResidenceInstall { value: ValueId(value), replaces: None });
         }
         assert_eq!(check(&both_homes), Ok(()), "Home cleanup is reverse installation order");
         for (id, value) in [(2, 2), (2, 1), (2, 3), (10, 2)] {
             let mut bad = installed.clone();
             let rows = &mut bad.blocks.get_mut(&BasicBlockId(id)).unwrap().instructions;
-            let event = MirInstruction::StringResidenceInstall { value: ValueId(value) };
+            let event = MirInstruction::StringResidenceInstall { value: ValueId(value), replaces: None };
             if id == 2 && value == 2 { rows.insert(1, event); } else { rows.push(event); }
             assert_eq!(check(&bad), Err(if value == 1 { "string-residence-install-result-missing" }
                 else { "string-residence-install-not-newest-temporary" }));
         }
         let mut early_home_end = good.clone();
         early_home_end.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
-            MirInstruction::StringResidenceInstall { value: ValueId(3) });
+            MirInstruction::StringResidenceInstall { value: ValueId(3), replaces: None });
         assert_eq!(check(&early_home_end), Err("string-end-order-or-not-live"));
         let mut marker_only = MirFunction::new(good.signature.clone(), BasicBlockId(0));
         let mut block = BasicBlock::new(BasicBlockId(0));
-        block.add_instruction(MirInstruction::StringResidenceInstall { value: ValueId(99) });
+        block.add_instruction(MirInstruction::StringResidenceInstall { value: ValueId(99), replaces: None });
         block.set_terminator(MirInstruction::Return { value: None });
         marker_only.add_block(block);
         assert_eq!(check(&marker_only), Err("string-residence-install-result-missing"));
         for value in [3, 99] {
             let mut disconnected = good.clone();
             let mut block = BasicBlock::new(BasicBlockId(99));
-            block.add_instruction(MirInstruction::StringResidenceInstall { value: ValueId(value) });
+            block.add_instruction(MirInstruction::StringResidenceInstall { value: ValueId(value), replaces: None });
             block.set_terminator(MirInstruction::Return { value: None });
             disconnected.add_block(block);
             assert_eq!(check(&disconnected), Err(if value == 3 { "string-residence-install-unreachable" }

@@ -8,7 +8,7 @@ pub(in crate::mir::normal_callable_semantic_package) enum LocalCommitV1 {
     Map(MapLocalProgress),
     OwnedArray(OwnedArrayLocalProgress),
     CallReceived(CallReceivedCommitV1),
-    TextResidence(std::rc::Rc<root_home::EmittedInitializerExpressionProjectionV1>),
+    TextResidence(TextResidencePacketV1),
 }
 impl LocalCommitV1 {
     pub(super) fn ordinary(&self) -> Option<&NewLocalCommitV1> {
@@ -92,7 +92,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.binding,
             Self::CallReceived(row) => Some(row.binding),
             Self::OwnedArray(row) => Some(row.binding()),
-            Self::TextResidence(row) => Some(row.frame().binding()),
+            Self::TextResidence(row) => Some(row.binding()),
         }
     }
     pub(super) fn owner(&self) -> FunctionOwnerIdV1 {
@@ -102,7 +102,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.owner,
             Self::CallReceived(row) => row.owner,
             Self::OwnedArray(row) => row.owner(),
-            Self::TextResidence(row) => row.frame().source().owner(),
+            Self::TextResidence(row) => row.owner(),
         }
     }
     pub(super) fn declaration(&self) -> Option<&SourceBindingSiteV1> {
@@ -112,7 +112,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.declaration.as_ref(),
             Self::CallReceived(row) => Some(&row.declaration),
             Self::OwnedArray(row) => Some(row.declaration()),
-            Self::TextResidence(row) => Some(row.frame().source().root().initializer().expect("initializer").declaration_site()),
+            Self::TextResidence(row) => row.declaration(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn is_complete(&self) -> bool {
@@ -134,7 +134,7 @@ impl LocalCommitV1 {
             Self::Result(_) => false,
             Self::Map(row) => row.binding == Some(binding) && row.local().is_some(),
             Self::OwnedArray(row) => row.binding() == binding && row.local().is_some(),
-            Self::TextResidence(row) => row.has_text_home() && row.frame().binding() == binding,
+            Self::TextResidence(row) => row.has_text_home() && row.binding() == binding,
             Self::CallReceived(row) => {
                 row.binding == binding && row.local().is_some()
             }
@@ -237,7 +237,7 @@ impl LocalCommitV1 {
             }
             Self::CallReceived(row) => row.end_plan(),
             Self::OwnedArray(row) => row.end_plan(),
-            Self::TextResidence(row) => Box::new([(root_home::RootHomeReleaseSubjectV1::Binding(row.frame().binding()),
+            Self::TextResidence(row) => Box::new([(root_home::RootHomeReleaseSubjectV1::Binding(row.binding()),
                 InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: row.local_value() }))]),
         }
     }
@@ -280,13 +280,59 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in rows.values() {
             match row {
                 LocalCommitV1::Map(map) if map.binding == Some(binding) && map.local() == Some(value) => return Ok(true),
-                LocalCommitV1::TextResidence(packet) if packet.frame().binding() == binding && packet.local_value() == value => {
-                    self.validate_text_initializer_home_v1(packet, CallValidationContextV1::Lowering(self))?;
+                LocalCommitV1::TextResidence(packet) if packet.binding() == binding && packet.local_value() == value => {
+                    self.validate_text_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
                     return Ok(true);
                 }
                 _ => {}
             }
         }
         Ok(false)
+    }
+}
+
+
+/// Borrow the existing purpose packet; evaluation and provenance stay in it.
+#[derive(Debug, Clone)]
+pub(in crate::mir::normal_callable_semantic_package) enum TextResidencePacketV1 {
+    Initializer(std::rc::Rc<root_home::EmittedInitializerExpressionProjectionV1>),
+    Rebind(std::rc::Rc<root_home::EmittedBindingRebindProjectionV1>),
+}
+impl TextResidencePacketV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn acquisition(&self) -> crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1 {
+        match self { Self::Initializer(packet) => packet.frame().text_acquisition_v1(), Self::Rebind(packet) => packet.frame().text_acquisition_v1() }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn binding(&self) -> BindingRefV1 { self.acquisition().binding() }
+    pub(in crate::mir::normal_callable_semantic_package) fn owner(&self) -> FunctionOwnerIdV1 { self.binding().owner() }
+    pub(in crate::mir::normal_callable_semantic_package) fn site(&self) -> OwnedExprSiteV1 {
+        let acquisition = self.acquisition();
+        OwnedExprSiteV1::new(self.owner(), acquisition.source().nodes()[0].site().clone())
+    }
+    fn declaration(&self) -> Option<&SourceBindingSiteV1> {
+        match self { Self::Initializer(packet) => packet.frame().source().root().initializer().map(|row| row.declaration_site()), Self::Rebind(_) => None }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn value(&self) -> ValueId {
+        match self { Self::Initializer(packet) => packet.value(), Self::Rebind(packet) => packet.value() }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn local_value(&self) -> ValueId {
+        match self { Self::Initializer(packet) => packet.local_value(), Self::Rebind(packet) => packet.value() }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&(BasicBlockId, MirInstruction)> {
+        match self { Self::Initializer(packet) => packet.install_binding(), Self::Rebind(packet) => packet.install_binding() }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
+        match self { Self::Initializer(packet) => packet.has_text_home(), Self::Rebind(packet) => packet.has_text_home() }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn same_packet(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Initializer(a), Self::Initializer(b)) => std::rc::Rc::ptr_eq(a, b),
+            (Self::Rebind(a), Self::Rebind(b)) => std::rc::Rc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_paths(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&physical_boundary::FinishedBindings>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        match self { Self::Initializer(packet) => packet.validate_paths(context, function, finishing), Self::Rebind(packet) => packet.validate_paths(context, function, finishing) }
     }
 }

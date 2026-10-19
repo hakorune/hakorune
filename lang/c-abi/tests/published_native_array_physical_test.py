@@ -133,15 +133,26 @@ def checked_string_physical():
         execute(data, ["-DTEST_FAIL_STRING_PRINT"], 70, [1, 0], primary=9302)
         execute(data, ["-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9303)
         execute(data, ["-DTEST_FAIL_STRING_PRINT", "-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9302)
-        # Same physical pair moves from temporary top to installed Home. The
-        # remaining child ends first on Normal and on cleanup Fault paths.
+        # Reuse the installed-Home runtime slot for a true owned replacement:
+        # old End precedes Print; its Fault ends new once and never retries old.
         installed = copy.deepcopy(data)
         installed_rows = installed["functions"][0]["blocks"]
-        landing = next(b for b in installed_rows if b["id"] == 2)
-        landing["instructions"].append({"index":1,"instruction":{"op":"string_residence_install","value":3}})
-        landing["terminator"]["index"] = 2
-        for block_id, value in [(3,2),(4,3),(20,2),(21,3),(22,3)]:
-            next(b for b in installed_rows if b["id"] == block_id)["terminator"]["instruction"]["operation"]["value"] = value
+        for block_id,value in [(1,2),(2,3)]:
+            b = next(b for b in installed_rows if b["id"] == block_id)
+            event = {"op":"string_residence_install","value":value}
+            if block_id == 2: event["replaces"] = 2
+            b["instructions"].append({"index":1,"instruction":event})
+            b["terminator"]["index"] = 2
+        for block_id,operation in [(2,{"kind":"string_end","value":2}),
+                                   (3,{"kind":"string_print","value":owned(3)})]:
+            b = next(b for b in installed_rows if b["id"] == block_id)
+            operation["site"] = b["terminator"]["instruction"]["operation"]["site"]
+            b["terminator"]["instruction"]["operation"] = operation
+        b = next(b for b in installed_rows if b["id"] == 2)
+        b["terminator"]["instruction"]["fault"] = b["edges"][1]["target"] = 21
+        for block_id in [4,21]:
+            next(b for b in installed_rows if b["id"] == block_id)["terminator"]["instruction"]["operation"]["value"] = 3
+        installed_rows[:] = [b for b in installed_rows if b["id"] not in [20,22,1020,1022]]
         execute(installed, endings=[0,1])
         execute(installed, ["-DTEST_FAIL_STRING_PRINT"], 70, [0,1], primary=9302)
         execute(installed, ["-DTEST_FAIL_STRING_END_AT=1"], 70, [0,1], primary=9303)

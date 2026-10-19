@@ -273,3 +273,5 @@ pub(crate) use ordinary_new_coseal::{ArgumentExpressionSourceLoanV1, Initializer
 pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 
 pub(crate) use ordinary_new_coseal::ObjectFieldClassSourceV1;
+
+pub(crate) use ordinary_new_coseal::fault_indices_after_normal_step_v2;

@@ -725,9 +725,13 @@ checks the real lifecycle archive, nonzero readback, null Fault, remaining Home
 cleanup, and malformed field/result/cleanup rejection. This physical support
 does not establish compiler source admission or finalized source correspondence.
 
-Physical-v2 `string_residence_install` has exactly `op` and `value` fields and
-emits no runtime instruction. Both indexed and native admission move only a live
-String temporary top into the newest installed-Home rank, preserving its pair.
-Normal and Fault End drain temporaries before Homes, each in reverse order;
-installation on Fault or installation of an already installed/foreign value
-refuses before artifact replacement. This wire event supplies no source grant.
+Physical-v2 `string_residence_install` has exactly `op` and `value`, plus an
+optional `replaces` u32 for an owned rebind. Both values must be SSA-available
+and distinct. The event emits no runtime instruction. Indexed/native admission
+moves only the newest String temporary to Home, and replacement requires the
+exact old live Home. One pending old/new relation travels in the existing
+per-origin state through copies/joins. After temporary cleanup, Normal may End
+only that displaced old; Fault may End newest new and resume ordinary unwind.
+Attempted End clears the target and partner flag before both successors. Further
+effects/installs while pending, stale/temporary old, and Normal new-first End
+refuse. This wire event supplies no source grant.

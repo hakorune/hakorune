@@ -48,7 +48,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             match row {
                 LocalCommitV1::TextResidence(packet) => {
-                    self.validate_text_initializer_home_v1(packet, CallValidationContextV1::Lowering(self))?;
+                    self.validate_text_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
                     packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
                     continue;
                 }

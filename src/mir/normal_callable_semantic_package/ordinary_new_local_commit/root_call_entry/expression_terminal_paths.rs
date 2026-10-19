@@ -170,13 +170,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         terminal: &Binding, continuation: &Binding, residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, inherited, false)
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, inherited, false, None)
     }
     fn validate_paths_with_policy(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         terminal: &Binding, continuation: &Binding, residence: Option<&Binding>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>, defer_owned_argument: bool,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>, defer_owned_argument: bool, displaced: Option<&InvokeOperation>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let ledger = context.ledger();
         use super::super::root_cleanup_graph::ordered_paths as paths;
@@ -264,8 +264,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             }
         }
         let installed = if let Some(original) = residence {
-            let MirInstruction::StringResidenceInstall { value } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
-            if self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {
+            let MirInstruction::StringResidenceInstall { value, replaces } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
+            let expected_previous = match displaced {
+                Some(InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })) => Some(*value),
+                Some(_) => return Err(freeze("expression/residence-replacement-kind")),
+                None => None,
+            };
+            if replaces != expected_previous || self.values.first() != Some(&Some(Operand::OwnedString(value))) || live.pop() != Some(value) {
                 return Err(freeze("expression/residence-original-root"));
             }
             let actual = mapped(original)?;
@@ -274,32 +279,29 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             }
             Some(value)
         } else { None };
-        let end_sequence = |live: &[ValueId]| {
-            live.iter().rev().copied().chain(installed).map(|value|
-                InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }))
-                .chain(homes.iter().cloned()).collect::<Vec<_>>()
-        };
+        let full: Vec<_> = live.iter().rev().copied().chain(installed).map(|value|
+            InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }))
+            .chain(homes.iter().cloned()).collect();
+        let mut normal_indices: Vec<_> = if defer_owned_argument { Vec::new() } else { (0..live.len()).collect() };
+        if let Some(old) = displaced {
+            let index = full.iter().position(|operation| operation == old)
+                .ok_or_else(|| freeze("rebind-expression/old-home-missing"))?;
+            if residence.is_none() || full.iter().filter(|operation| *operation == old).count() != 1
+                || normal_indices.contains(&index) { return Err(freeze("rebind-expression/old-home-duplicate")); }
+            normal_indices.push(index);
+        }
         let stop = match finishing {
-            Some(projection) => projection
-                .destination(continuation.0)
+            Some(projection) => projection.destination(continuation.0)
                 .ok_or_else(|| freeze("print-expression/continuation-removed"))?,
             None => continuation.0,
         };
-        while let Some(value) = if defer_owned_argument { None } else { live.pop() } {
+        for (step, index) in normal_indices.iter().enumerate() {
             normal = paths::skip_until(function, normal, Some(stop))?;
-            let (next, fault) = paths::release(
-                function,
-                normal,
-                &InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }),
-                Some(fault_frame),
-            )?;
+            let (next, fault) = paths::release(function, normal, &full[*index], Some(fault_frame))?;
             covered.insert(normal);
-            covered.extend(paths::pending_operations(
-                function,
-                fault,
-                &end_sequence(&live),
-                Some(fault_frame),
-            )?);
+            let residual = super::super::fault_indices_after_normal_step_v2(full.len(), &normal_indices, step)?
+                .into_iter().map(|index| full[index].clone()).collect::<Vec<_>>();
+            covered.extend(paths::pending_operations(function, fault, &residual, Some(fault_frame))?);
             normal = next;
         }
         if paths::skip_until(function, normal, Some(stop))? != stop {
@@ -421,6 +423,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_continuation_v1(context, function, finishing, entry, terminal, continuation, None, inherited)
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_rebind_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
+        residence: Option<&Binding>, displaced: Option<&InvokeOperation>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, residence, None, false, displaced)
+    }
     pub(in crate::mir) fn validate_local_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
         residence: Option<&Binding>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
@@ -435,7 +444,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
-        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, None, inherited, true)
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, None, inherited, true, None)
     }
     fn validate_local_delimiters_v1(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
