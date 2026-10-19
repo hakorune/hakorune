@@ -964,33 +964,15 @@ shared expression/String operand/final JSON/C owners as required; README/card.
 Reuse existing focused/source/C/native slots, no new test/fixture/checker/hook.
 Full950 Call/Return/CallNormal/Unit cleanup and all retained rows remain open.
 
-958 verification (this landing; construction progress, full950 still open):
-Root958E `cargo quick-test-fast --no-run --message-format=json` PASS66.337441s,
-jobs4. Same pin:12 existing focused filters PASS(all nonzero);174 existing957B
-manifest=170PASS/4FAIL7.006679s, all four normalized red diagnostics exact957B.
-Full --list identical9263; no case/parameter/file/hook/checker additions. Existing
-source-shell assertion now expects absent canonical signature, not retired fence.
-No new warning diagnostic (existing private type now prints a qualified name).
-7 issuedUnit JSON exact955; prior native955 reused under same payload/C/runtime,
-not new Rust-to-native Text proof. Existing borrowed_ingress --text-only physical
-inputs with ffi954A/runtime954A PASS42.051703s: UTF8/NUL/empty/forwards/Normal/Fault/
-callee Add/caller End/domain/escape negatives. Backend capability only.
-CLI298 quick build PASS145.994465s, same7584-path source snapshot as958E/current.
-FFI954A C implementation/headers and runtime954A crate sources unchanged; whole
-predecessor compiler source manifests are NOT equal. Neither component rebuilt.
-OriginalJSON417 canonical direct --emit-exe .057876s/exit1/noEXE advances413 Text
-entry identity -> source-loop/v2/source Loop has an unavailable path. No owner/
-site/underlying reason in token; neither find nor ingest claimed measured culprit.
-Unchanged mimalloc418 same route EXE144.133659s/run.001741s, stdout/stderr/exit0
-exact363. Compile trace timing varies; no compile-stderr byte-equality claim.
-Intermediate415 source-drift refusal exposed wrong re-loan of spent affine target
-preparation and wrong cross-namespace Static observation check; both fixed using
-retained canonical incoming. Same target/formal/site/SUM/StaticRc/Stored bind stay.
-Pointer/layer/CallTarget/diff guards PASS. Fixed11 last955 only; no whole950/CI claim.
-Retain958E/CLI298/apps/native/source and954A until950 final acceptance; redundant
-958A/C/D test pins andCLI297 pin removed, logs/snapshots retained; no adapter.
-Worker followup: Loop summary token aggregates refused/unavailable, not one cause.
-Original source has early Return and call statements; shared950 Return/Call frame/
-cleanup/consumer must retain genuine actions in existing Loop schedule. Do not
-relax unavailable or open genericLoop campaign. FiniteText final conversion,
-Instance result seal/OwnedString Call+Return/CallNormal/Unit cleanup remain required.
+958 landed `9a0bab4038`; that commit owns full mapping/worker reviews, exact
+commands/provenance/diagnostics/retirement. Root958E12PASS;174170PASS/4exact957B;
+9263same names/no new cases/hooks/checkers;7UnitJSON exact955/prior native reused.
+Existing C --text-only physical proof PASS42.051703s, not Rust source acceptance.
+CLI298145.994465s. JSON417 .057876s/noEXE advances Text entry -> Loop unavailable
+path (aggregate, no owner/site/cause measured). Mim418 EXE144.133659s/run.001741s,
+stdout/stderr/exit0 exact363. Guards PASS;fixed11 prior955;full950 remains open.
+Keep958E/CLI298/native/source/954A until950;958A/C/D+CLI297 pins retired919030912bytes,
+logs/snapshots retained. Next original Value Return/Call/statement checked frames ->
+cleanup/final consumer -> SAME Loop action schedule; never relax unavailable.
+FiniteText final conversion/Instance result seal/OwnedString Call+Return/CallNormal/
+Unit cleanup remain mandatory; early Return vs call statement not measured culprit.
