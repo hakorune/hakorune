@@ -76,7 +76,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   If-state root build and existing focused48 PASS, test names9263 unchanged. The old
   If-driver oracle also failed on the preserved binary; its cached predecessor assertion
   now checks every live merge edge, including a single Normal arm. No cases were added.
-  Next: original If-join scalar source and existing physical Phi owner;
+  WIP: original BranchNormal source, existing IfForm/Phi and final verification connected.
+  Root rebuild pending after correcting an uncovered BranchNormal Loop-port match.
+  Next: focused checks and unchanged allocator EXE with the matching CLI;
   preserve all artifact/run/output obligations before app completion.
 - Bool boundary: root build and focused32 PASS; test names9263 unchanged. Existing
   positive/negative operator matrices include the new Bool class because old classes

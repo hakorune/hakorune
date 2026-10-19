@@ -19,7 +19,7 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-
 latest_card_summary = """
 APP-allocator-stress: 正規smokeはBool条件を通過、Body11/IfThen0のrejects再代入で停止。
 IfFormの分岐snapshot/merge復元を接続。matching CLIでmimalloc単体PASS、allocatorは同じsource停止。
-既存focused48件PASS、test名9263件不変。BranchNormal/Phi証明は未接続。
+既存focused48件PASS、test名9263件不変。BranchNormal/Phi接続はWIP、再build中。
 直近固定suiteは3965b758baで6PASS/5FAIL、実EXE5＋marker1、SKIP/timeoutなし。
 untyped-fieldはD0受理までParkedSealed。次は元If-join scalar証明と既存Phi ownerの接続。
 """
