@@ -13,12 +13,14 @@ Related: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml),
 ## Selection and actual source
 
 Retained unfinished row: `MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0`.
-Current selection moved to FIELD-ARRAY-READ-S0 in the existing app-bundle card;
+Current selection returns from FIELD-ARRAY-READ-S0 after `8b7960a346` verifies
+the zeroarg Array Return/receiver/local/participant/final connection. The Array
+row remains unaccepted with full product/retained-family obligations in its card.
 5da19f405d verifies the source Loop vertical, not all Text/JSON acceptance.
 Inherited `MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0` remains unaccepted: the SAME
 Body7 Text argument needs Body6's complete Loop After and all downstream entry,
 finite-domain, ordering/cleanup/use/JSON/C obligations below. This selection
-moves to that prerequisite's actual owner; it does not close the prior row.
+resumes the downstream ingress obligation; it does not close the prior row.
 This transfers the semantic owner from RequiredObjectForwardS0, which remains
 unaccepted with its independent acceptance/initialization/receiver obligations.
 It does not reopen parked untyped storage, scalar SCC, ExactText formal ABI,
@@ -903,64 +905,30 @@ Next physical Decision (both source/condition workers reviewed actual owners):
   JSON337 unchanged/noEXE, mimalloc338 runtime exact336. Retain source/native/
   review pins until full closure. Card recovery retained inherited Text/Loop laws.
 
-- Root925–929 preparation and exact historical evidence retained at
-  `ae4a16e7c4`/`d55780ec5c`/`4d3e9188e4`/`39b9e9649a`/`6b7baaa4ff`.
-  Original projector owns source/frame/item schedule and exact branch/Exit sites;
-  physical writers borrow SAME Raw port and original initializer/rebind/Bool
-  receipts. Shared cleanup returns entry; actual predecessor follows cleanup
-  and SSA localization. No second evaluator, fake ordinal, root-exit key or
-  physical parent Rc. Deferred If EdgeCFG and Loop-purpose/CarriersOnly/whole
-  completion gates remain. Current driver/final/native evidence is below.
-  Keep retained925–929 source/review/build/CLI269–270/native pins until closure;
-  historical preparation itself granted no Loop execution.
+- Root925–938 complete Loop construction, source/session/cleanup/SSA Decisions,
+  all intermediate evidence and old-adapter retirement are retained at
+  `5da19f405d` and its referenced ancestors. Source fixture364 canonical EXE/run
+  and unchanged mimalloc363 PASS; originalJSON362 remained source-not-i64.
+  Keep pins for unfinished Text/product regression; no blanket caller retirement.
+- Root939–948 Array prerequisite completed selected connection at `8b7960a346`
+  (`d94921c440` fixed profile; `5714e9b989` naming/origin normalization). This
+  supplies canonical Array Count source through original Return, local caller,
+  receiver read progress/finished lending and scalar participant to final JSON/C/
+  canonical EXE. No Integer-element census for Count; SourceArray raw route retired.
+  Original JSON remains unaccepted; shared/retained owners are not deleted.
 
-- Root930 source observation/provenance contracts and evidence retained at
-  `5113b20579`. SAME session owns basis→Entry/Header/After; Entry requires original
-  producer/provenance, After requires completed parent/FinishedBindings. No empty
-  Phi grant, second map/registry or parent Rc. Rebind invalidates provenance.
-  SAME value/name-map arm snapshots, strict Bool product/targets, complete
-  postcleanup Entry/Continue/Backedge→Header and false/Break→After remain required.
-  Original source fences stay; keep D/CLI273/native pins until whole closure.
-- `f8355dbdf7` retains Root931 observation/evidence/pins; scalar/session WIP still owes whole closure.
-- `74189f960b` retains Root932 shared cleanup policy and E103PASS+2 prior931B/C,
-  CLI275/README-only delta/JSON353 exact351/mimalloc354 exact352 evidence/pins.
-  Graph/source and lexical snapshots, canonical arm values, per-origin cleanup,
-  postcleanup predecessor, child-tree final lookup/copies/seals and Bool repair
-  remain WIP. Header/After Phi evidence uses same recorded roles, no final grant.
-- Root933 Decision/evidence is retained by `6c74b0ea6e` and `bef9f69f13`:
-  exact source/JoinSig/Entry observations patch SAME txn; prepared proof borrows
-  session, then moves original Header/After association after whole checks.
-  Keep933C/CLI276/native355/356 pins until whole closure; no source admission.
-- Root934 evidence/contracts retained at9f9b873da0; keep934E/F/prior pins.
-  F110PASS+2 prior/8MiB; CLI277/native357/358 predate scope extraction.
-  Preserve exact cleanup loans/SSA/topology/Fault-stop, same FaultFrame insertion,
-  arm/Exit/block census and KeepAlive multiplicity; empty/terminated scopes None.
-- Root937 shared fixes:251014c895/9ec57f75e3/45850f5163 retain exact metadata,
-  branch-threading and omission correspondence. Full source Loop construction,
-  worker Decisions, dependency closure and Root938 evidence now live at5da19f405d.
-  Whole source→SAME writer/Phi session→Home/cleanup→both finals→publication
-  vertical is verified for the unchanged existing source fixture. Text/JSON and
-  full finite goal remain open; no blanket retirement of non-product callers.
-  938C22 existing filters157PASS+3 unchanged baseline reds,9264 names unchanged.
-  Old plan-only adapter retired after canonical caller switch; redundant whole
-  source walk consolidated. Unique pending/abort/identity authority checks stay.
-  CLI279 canonical source Loop364 EXE/run PASS(exit1,Result:1,standard plugin
-  warning); initial scratch blank-output expectation was wrong, raw receipts
-  preserved and separately corroborated against original894A runtime sources.
-  Unchanged mimalloc363 EXE/run exact360;JSON362 still source-not-i64/noEXE.
-  See5da19f405d for exact commands/timings/hashes/known-red classification.
-  Root/CLI/native/build/review pins stay for unfinished Text and goal regression;
-  no parked adapter, disposable guard trees already removed. Runtime894A/FFI897A
-  are explicit predecessors; CLI predates only reviewed test-only retirement,
-  README changes and trailing-blank-line cleanup. No all-three-source/suite/CI claim.
-  Full staged check caught one extra EOF blank in newly tracked source_loop_v2;
-  removed at closeout with no code-token change; final diff rechecked.
-- Next Decision (read-only review, not implementation selection): real JSON
-  owner32 Body10 condition calls agg.userCount→me.users.length. Canonical ArrayLen
-  is I64/PureRead but semantic law Unprojected, ordinary source issuer String-only.
-  Missing responsibility is original Array field declaration+Birth provider →
-  exact ArrayLen observation → result cohort/Home → physical/ABI/publication.
-  Length must not inherit field Array.get's Integer-element census (users is Text).
-  Use existing field/provider authority; no selector-based scalar waiver or new
-  issuer by guesswork. Select actual owner/row before code and transfer retained
-  Loop/Text acceptance;RequiredObjectForwardS0 remains separately unaccepted.
+Current first-stop (948 acceptance, not full Text closure): unchanged original
+json-stream-aggregator384 canonical direct EXE, CLI286/root948C Rust source equal
+`8b7960a346`, exits1/noEXE in .051721s at borrowed-entry/finite-domain-unclosed;
+stderr exactly383. Runtime894A/FFI939A are explicit predecessors. No source edits,
+AST rewrite or fallback. Unchanged mimalloc385 EXE/run matches363 exactly.
+Worker source audit locates this refusal in existing
+ordinary_new_borrowed_formal_entry_contract::finite_text_entry_structure_v1;
+exact callee/formal/incoming and absent-vs-unsupported sum are still unmeasured.
+Next bounded action: observe that original owner, formal ordinal, full original
+incoming and source sum at its existing fail-fast boundary; distinguish missing
+proof from unsupported alternatives before selecting an implementation mapping.
+Do not widen finite domains, manufacture homogeneous sums/empty borrowed entries,
+reopen Map/untyped storage, or treat Array acceptance as Text completion.
+Retain948/CLI286/JSON384/native receipts and prior diagnostic patch until this
+measurement supersedes it. No new test/case/checker is selected.

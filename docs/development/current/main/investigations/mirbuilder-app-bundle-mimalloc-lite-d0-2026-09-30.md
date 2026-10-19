@@ -864,107 +864,19 @@ Keep945G/CLI283/app377-380/C receipts and original362/363/backend pins under
 /tmp/mirbuilder-required-forward-resume until stronger same-role source acceptance.
 No saved adapter/new checker/test case. Row and full goal remain unfinished.
 
-Root946 WIP source diagnosis, mapping, all intermediate results and baseline
-classifications are preserved in docs commit4e6f16d4e0. Source changes are NOT
-landed: same original Return plan Rc per Array read use with exact-one coverage,
-and common source-scalar local observation are under final verification.
-CLI285/JSON383 proves the unchanged real source moved past source-not-i64 to
-Static borrowed-entry/finite-domain-unclosed (.052368s,no EXE).946C zeroarg Count
-still fails final field-get-route-drift: SourceArray emits FieldGet without its
-existing ledger progress. Existing tagged formal previously hid that omission.
-946C existing tests: local-call8/home-flow7/checked-scalar1/Loop1 PASS;
-borrowed-result48PASS/4baseline, result-class23PASS/1baseline; broader local-call
-publication root-exit-source-missing also reproduced945G. No new test/case/checker.
-All receipts and required predecessor pins remain until same-series acceptance.
-
-Next canonical Decision (full producer/final read-only audit): generalize existing
-DeclaredArray result/source to ArrayField/CanonicalArrayFieldReadSource, keeping
-one outer arm and shared site/receiver/binding/field/name/original type. Private
-origin BorrowedEntry owns its parent call; FixedReceiver retains SAME class Rc.
-First a behavior-preserving BoxShape rename/origin boundary; then source expansion
-separately. No fabricated call or borrowed entry. Fixed recheck is mandatory before
-any generic no-requirement branch: original FieldAccess/Me, same source Rc from
-field-write owner, exact canonical field/name/type and own receiver/home. Stage,
-take, emit, record and finished projection all use existing local_field_reads;
-visit_array_field_read_originals includes this ArrayField source. Final lending
-validates origin independently, then common function/projection/recorded FieldGet
-membership; never demand Push permission for a non-Push read. Retire SourceArray
-private raw route after its caller uses existing ExactObject/Local realization.
-Get/Count source provider/element/lifetime and Set's existing ArrayStoreAny route
-keep operation authority. Final scalar participant projection must also retain
-validated scalar anchor/packet site with zero original actuals; no synthetic entry.
-
-Root946 was WIP, not a verified code landing; its nine paths are validated with948 below.
-All Cargo/rustc and native sessions from this turn are terminal; no build running.
-Next implementation follows the above shared receiver mapping, not a backend
-classifier waiver. JSON's new Static Text finite-domain stop is a separate retained
-Loop/Text responsibility: exact owner/formal/sum/incoming still needs measurement;
-no domain-set widening or generic Map/scalar storage reopening is authorized.
-Keep946A/B/C test pins/receipts, CLI284 diagnostic and CLI285/383 source evidence,
-plus original945/native/backend predecessors until this same series acceptance.
-Temporary946 diagnostic code is removed; only outside-checkout patch is retained.
-
-Root947 behavior-preserving ArrayField naming/shared source/private BorrowedEntry
-normalization landed5714e9b989. That commit records75focusedPASS/4known baseline
-reds plus retained946 Count final red,9263names and unchanged typedGet/OOB JSON.
-946 source Return/local features were retained uncommitted for948 acceptance.
-
-947 normalization landed5714e9b989;946 feature WIP was preserved until948 acceptance.948
-connects FixedReceiver within the private ArrayField origin. Read-only review
-confirms original input is a borrow without shared shape-row loan: private factory
-validates exact FieldAccess->Me/Receiver, unique original catalog/Instance key and
-same class Rc once, retaining immutable sites/binding/key/field/type. Final consumes
-that sealed fact and rechecks same source Rc/map/field/type/row identity; it does
-NOT re-observe original Me or infer from MIR. No fresh plan/AST clone needed.
-Existing sites reuse matching rows without reissuance/overwrite; other field-read
-owners retain precedence. Scope adds original class declaration accessor, existing
-Array receiver recipe/stager, raw port and sole FieldGet realization, original
-field-read visit/finished lender and scalar participant projection. All reuse
-existing progress/receipt owners; no new map, packet variant, test or checker.
-
-948 review refinement before acceptance: Fixed receiver facts are not a mandatory
-whole-expression field proof. Missing-row staging must leave a selected
-source_field_requirement untouched so existing take reports required-source-read-
-missing; Fixed origin recheck also refuses any such requirement. This preserves
-original path/numeric source loss and prevents early ArrayField dispatch from
-masking missing loans. Existing Entry origin remains unchanged; correction is
-applied after948A terminal.948A build98.556837s passed; Count advanced past final
-FieldGet drift to Invoke entry-values-missing.948B build57.004911s passed after
-restoring global tagged-source selection; Count advanced to participant/actuals-
-missing.74 other focused PASS; four result controls remain945G baseline reds.
-Decision948: source-scalar participant membership belongs only in the existing
-participant owner. Global selects_borrowed_source stays BorrowedActual-only for
-Lexical, existing Loop/Provider true. Both final tagged consumers retain their
-strict entry/slot validation. Participant getter still runs and propagates errors;
-None is allowed ONLY with original validated Instance scalar loan, no tagged
-source selection and no borrowed entry. None is not synthesized empty actuals.
-Read-only worker reviewed all three consumers and original visitor validation;
-prior assumption that zeroarg had existing [] was disproved by getter source.
-948C build67.433887s PASS.76 focused PASS incl original Loop; four result controls
-same945G baseline names. Existing publication cases Get/OOB and zeroarg untyped
-Countempty/one now complete final JSON.9263 test names unchanged; no added cases.
-Existing C driver reused in memory with only artifact paths/Count shape adapted:
-Get2execute/3malformedreject PASS12.418492s; Count2execute/3malformedreject PASS
-13.645601s. Runtime894A/FFI939A explicit predecessors, not all-three-current claim.
-Read-only source-to-final closeout review PASS; no SourceArray Rust caller remains.
-CLI286 quick build213.128268s PASS. Canonical --grammar-profile canonical
---backend mir --emit-exe --emit-exe-nyrt runtime894A with plugins disabled and
-pure-first/no compat replay: unchanged JSON384 .051721s same383 Static finite-
-domain-unclosed, noEXE; this is distinct from the fixed zeroarg Array source.
-Zeroarg Count386empty EXE105.618703s/run.001532s exit0;387one EXE104.974852s/
-run.001562s exit1. Both stdout/stderr/exit exactly expected. No .hako workaround.
-Unchanged mimalloc385 EXE142.161422s/run.001710s exit0; stdout/stderr/exit EXACT
-original363. CLI286/root948C Rust source hashes agree. TypedGet/OOB JSON remains
-byte-identical946C. Pointer/layer/CallTarget/diff guards PASS; changed production
-Rust files <=800lines. No added tests/cases/checkers/hooks. SourceArray Rust
-caller-zero and private route retirement verified. Shared owners remain.
-948 closes the selected zeroarg Array Return/receiver/local/participant/final
-connection and folds946 WIP into this verified code landing. Full row/goal,
-retained ObjectForward/Loop/Text and fixed-suite/CI closeout remain open.
-Next transfer actual work to existing STATIC-TEXT-INPUT-S0 card before code:
-measure originalJSON384 finite-domain owner/formal/sum/incoming. Do not infer
-that missing sum is an allowed finite domain; no widening/Map workaround.
-Retain948 source/build/test/C receipts andCLI286/native receipts for same-series
-closeout and next original-JSON frontier.946 diagnostic code is already removed;
-outside-checkout diagnostic patch retained only until original Static ingress
-owner/formal measurement supersedes it. No temporary adapter survives in source.
+Root946–948 zeroarg Array source-to-final connection landed `8b7960a346`;
+behavior-preserving source normalization is `5714e9b989`. The landing retains
+full Decisions, original Return-plan/class Rc correspondence, all-operation
+receiver progress/finished lending, scalar participant vs tagged ABI separation,
+SourceArray route retirement/caller-zero and exact test/C/native provenance.
+948C76focusedPASS/4same945G baseline reds;9263names/no added cases or checkers.
+CLI286/root948C Rust hashes agree. Count386/387 canonical EXE/run/output/exit
+PASS; unchanged mimalloc385 matches363 stdout/stderr/exit. Runtime894A/FFI939A
+are explicit predecessors. OriginalJSON384 stays same383 Static finite-domain-
+unclosed/noEXE. Full FIELD-ARRAY row, retained ObjectForward/Loop/Text, suite/CI
+and finite goal remain unaccepted; selected zeroarg connection is verified.
+Current responsibility transfers to existing STATIC-TEXT-INPUT-S0 card: measure
+exact original finite-domain owner/formal/sum/incoming, never waive unknown sums.
+Retain948/root/CLI286/native receipts and predecessor pins for unfinished original
+JSON acceptance. Diagnostic code is removed; outside-checkout946 patch stays
+only until Static ingress measurement supersedes it. No source adapter remains.

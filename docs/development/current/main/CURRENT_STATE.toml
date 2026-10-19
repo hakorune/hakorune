@@ -1,9 +1,9 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
+current_execution_row = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "field-array/original-json-static-ingress-handoff"
+current_blocker_token = "borrowed-static/finite-domain-unclosed"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,27 +13,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
+latest_card = "mirbuilder-gate1-static-text-input-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
 947 normalization5714e9b989;948 source-to-final connection verified: SAME original
 Array Return plan, FixedReceiver existing read progress/finished lending, local
 scalar handoff and participant membership distinct from tagged ABI. Dedicated
-SourceArray raw route removed/caller-zero.946 WIP included in948 landing.
+SourceArray raw route removed/caller-zero.946 WIP landed8b7960a346.
 948C76focusedPASS/4same945G baseline reds;9263 names, no added cases/checkers.
 Existing C Get2+Count2 execute/6malformed reject PASS. CLI286 quick213.128s;
 zeroarg Count386/387 canonical EXE/run/output/exit PASS. Unchanged mimalloc385
 EXE142.161s/run.001710s matches363 exactly. Runtime894A/FFI939A predecessors.
 OriginalJSON384 .051721s same383 distinct Static finite-domain-unclosed/noEXE.
-Next transfer to existing StaticText card and measure owner/formal/sum/incoming;
+Selection now StaticText: measure exact owner/formal/sum/incoming before mapping;
 no domain waiver. Full row/finite goal/retained families/suite/CI remain open.
 
 """
-next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_design_card = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
+next_execution_card = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
