@@ -927,71 +927,56 @@ EXE/runPASS, mimalloc399/406 exact363, JSON398/405 Unit-value-use. Fixed11 last9
 in their commits. Full950 Text Return/CallNormal/entry/Unit/cleanup/finals/C stays
 required. Loop Text Add unclaimed, absent originalJSON and not a prerequisite.
 
-955 Decision (950 reviews reused; read-only Unit/entry consumer review):
-Source authority + canonical issuer: original instance declaration/body/SequenceItem,
-SAME Unit Return loan/Completion and original ordered argument sites; source incoming
-opaque-formal subset remains distinct from full arity. Unit is no value result.
-Non-authority: scalar-result proof, fabricated empty arguments or new source scan.
-Fail-fast boundary: true Unit value-use stays rejected; Text actual expression/Call
-and qualified borrowed entry still require their full950 owners, not waived here.
-Smallest next slice: retire zero-arg-only Unit restriction in existing source loan,
-Home callback and completion corroboration; lend SAME pending phase through existing
-Instance argument projector after existing once-only statement actual staging.
-The shared receiver/arguments/Call/cleanup writer and both final consumers stay sole
-execution path. Preserve scalar field-result zero-input restriction and constructor
-stored-child scope; no new result classifier/ledger or fallback.
-Paths: result_original/unit, instance_source_actuals, coseal_issue_lexical,
-home_borrowed_call_port/home_local_unit_discard, existing discard/C execution slots,
-owner README. Initial focused run exposed the same census still registering Unit
-only at arity0; extend retained Unit demand in existing incoming owner (no rescan).
-955B then reaches the shared SignedEntry reader's static-only fence. Physical
-review selects SAME retained source signature lane, not offset/type inference;
-extend expression_reference_read source/receiver/metadata corroboration for Instance.
-955C reaches raw invocation Unit syntax guard; match genuine arity/argument count
-in existing raw_ordinary_new_claim/invocation, leaving constructor zero-arg scope.
-Replace two repeated zero-arg execution slots with ordered signed-i64
-literal/local arguments; preserve all other Unit/negative cases, add none.
-Shared incoming/scalar-entry change reaches multiple suite owners: fixed11 is
-required once after focused/CLI checks, with exact predecessor-red classification.
-Non-claims: this internal Unit connection does not close Text actuals/Return/Call/
-entry or whole950/finite goal. Compare originalJSON first-stop after construction.
+955 original Unit ordered arguments + Instance signed entry landed `935b75487f`.
+That commit owns exact original Return/Completion/full-vs-opaque argument contract,
+SAME pending/physical-signature/writer mapping, source/entry worker reviews,
+all commands/timings/intermediate corrections, baseline classification and pins.
+Root955D five focusedPASS;174existing=170PASS/4 exact954B baselines;9263same names.
+Existing two Unit slots replaced, no case/parameter/hook/checker additions.
+C existing7 slotsPASS;CLI294 same407 inputs408 both EXE/run7/exit0. Unchanged
+mimalloc410 canonical EXE/run exact363; originalJSON409 advances Unit-value-use
+-> array-loan-missing at Main32 Body1 sampleStream actual into ingest/1, noEXE.
+Current fixed11=5PASS/6FAIL same953 membership, four EXEs+empty marker; JSON advances,
+other5 exact diagnostics. Mimalloc suite fails generic-MIR negative before EXE;
+this does not contradict direct410 and does not close the required suite.
+Keep955D/CLI294/native/C/suite and unchanged954A runtime/FFI until950 acceptance;
+obsolete955A/B/C executables843711104B retired, logs/source retained. No parallel
+writer/adapter/diagnostic patch survives. Full950/finite goal remain open.
 
-955 verification (compiler source matches Root955D/CLI294 snapshots, all7584 paths):
-`CARGO_BUILD_JOBS=4 cargo quick-test-fast --no-run --message-format=json`;
-Root955A/B/C81.538480/57.706283/64.564646s exposed the three stated fences;
-Root955D56.284548s PASS. Same pinned binary, `RUST_MIN_STACK=16777216`,
-`--test-threads=1`: five focused PASS (borrowed statement discard, selected-failure
-terminal, strict-no-membership, branch-site groups, owned Text initializer).
-Expanded174 existing=170PASS/4 exact954B diagnostic baselines,7.822385s:
-unknown_home_prefix; source_only_actual_probe; qualified_call_map_argument;
-qualified_call_return. Existing9263 names unchanged; no added case/parameter/file/
-checker/hook, no new warning. Pointer/layer-dependency/CallTarget/diff guards PASS.
-`CARGO_BUILD_JOBS=4 cargo build --profile quick --bin hakorune --message-format=json`
-CLI294194.374036s PASS. FFI954A/runtime954A unchanged predecessor components:
-all differing snapshot files are compiler/owner-doc/test, not runtime/FFI sources.
-Existing C `published_lifecycle_v4_borrowed_source_execution_test.py /tmp --unit-only`
-all7 slots PASS56.852671s; only harness adaptation is explicit pinned FFI directory.
-Two replaced Unit slots retain current Rust-issued JSON; remaining Fault/malformed
-modes and constructor slot unchanged. Canonical direct `--backend mir --emit-exe
---emit-exe-nyrt runtime954A`, plugins disabled, pure-first/compat-none, FFI954A:
-same literal7/ordered local+7 sources407 both refused Unit-value-use with CLI293;
-CLI294 sources408 both EXE/runPASS132.248641/125.469363s,run.001480/.001356s,
-stdout `7\nResult: 0\n`,stderr exact363,exit0. Unchanged mimalloc410 EXE/runPASS176.095962s,
-run.002002s,stdout/stderr/exit exact363. OriginalJSON409 .050579s exit1/noEXE:
-Unit-value-use advances to borrowed-instance/array-loan-missing at SAME original
-Main32 Body1 sampleStream actual into ingest/1. This is missing ordinary Text
-actual/Call-result connection, not permission to invent Array evidence.
-Temporary disposition: obsolete Root955A/B/C executables843711104B retired after
-955D validation; source/build/failure logs retained. Keep955D/CLI294/native/C/suite
-pins and unchanged954A FFI/runtime until full950 acceptance. No diagnostic patch,
-new adapter or parallel physical writer remains. Full950/finite goal remain open.
-955 fixed11 current CLI294/FFI954A/runtime954A: `bash tools/smokes/v2/run.sh
---profile integration --owner-profile integration --suite real-apps-exe-boundary
---timeout 1900`, RUN_TIMEOUT_SECS1800, plugins1,pure-first/compat-none,16MiB stack.
-477.964548s overall;5PASS/6FAIL, exactly same membership as953. Four actual EXEs
-PASS plus empty boundary marker. JSON failure advances as409; other five exact
-first diagnostics: boxtorrent stored-child/receiver-unavailable; binary_trees
-borrowed-result/source-not-i64; allocator_stress NamedArray(TextSourceMissing);
-mimalloc generic-MIR negative required-integer-source-unproved; untyped-field
-ValueId14 main type-inference panic. Mimalloc suite stops in generic-MIR negative
-before EXE; canonical direct410 succeeds. No suite/CI/whole950 completion claim.
+956 refinement of the SAME950 construction Decision (two read-only source-to-
+consumer workers agree; no unresolved semantic design):
+Source authority + canonical issuer: existing original pending actual ordinal,
+its outer method Arc, target/callee owner/batch slot, formal kind/ordinal/binding,
+ordered actual site and expression-plan Rc. Original Static/Instance incoming
+loans retain their modes; no name lookup or new source scan/registry.
+Non-authority: MethodCall syntax, ExactString disposition, source eligibility or
+an absent Array loan cannot independently grant Text execution/ABI/Home membership.
+Fail-fast boundary: true Unit value-use/capture/unclosed incoming SUM stay rejected.
+Smallest next connection: normalize StaticArgumentExpressionV1 Source/Qualified
+into the common original argument product used by both pending Static/Instance.
+Generalize the existing binder/observer/lender/completer and repeated Observe reset;
+keep SAME plan/frame Rc, original identity and full ordered actual validation.
+Executable phases never reset. Use existing BorrowedCallSourceLoanV1 view plus
+original input/formal contract; do not copy an independent Instance issuer.
+Method-source evidence distinguishes genuine Core from genuine ordinary Text
+Call. Retain SAME StaticIncomingSourceV1 Rc (original method Arc, ExactString
+result source, original call-result Arc); require Core receipt only for Core.
+Instance reconstruction consumes the retained Qualified frame through existing
+BorrowedFormalActualSourceV1::Expression/OwnedTextDeferred, not Array-only read.
+Keep Array/field evidence and their existing execution-context requirement intact.
+Paths bounded to existing actual_model/static_argument_source/static_source_actuals/
+instance_source_actuals, coseal callback/reexports, shared Home argument/Call leaf
+qualifier and existing result/entry/physical/final consumers; owner README/card.
+Keep behavior-neutral product normalization distinct from Text admission.
+Required downstream, same series: ordinary Text Call leaves currently require
+borrowed_scalar/I64 or conditionBool; connect actual executable result-purpose
+loan/OwnedString ABI, CallNormal acquisition before argument cleanup, full original
+Return forms and borrowed entry descriptor, BOTH finals/JSON/C. Reuse existing
+call/writer and finite source_value_sum/lend_source_value_sum; no parallel emitter.
+Instance entry uses original mode/receiver lanes, never deletion of Static guards.
+Original required tree: sampleStream -> ingest -> substring -> ingestLine ->
+stringField, reportUser; literal empty/owned substring/concat Returns and intField/
+boolField scalar leaves remain required. No eligibility-only green closes950.
+Reuse existing tests/C/native slots and unchanged original JSON/mimalloc; no new
+cases/files/checkers/hooks. Full fixed suite evidence955 remains current until a
+new broad shared change/cutover requires remeasurement; no whole-series closure.

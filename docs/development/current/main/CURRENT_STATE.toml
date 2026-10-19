@@ -17,7 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-955 original Unit ordered arguments and Instance signed-entry connection verified;
+955 original Unit ordered arguments and Instance signed entry landed935b75487f;
 SAME Unit source/Completion + pending actuals + shared receiver/Call/cleanup writer.
 Zero-arg Unit fences retired; true Unit value-use and scalar-result scope preserved.
 Signed entry uses original canonical physical signature, formal lane and receiver.
