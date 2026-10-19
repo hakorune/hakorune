@@ -47,6 +47,19 @@ pub(super) enum OriginalFormalActualSeedV1 {
     Conflict,
 }
 impl OriginalFormalActualSeedV1 {
+    /// Nominal, formal and provider anchors already own their source SUM.
+    /// Scalar reaching-value analysis must not replace their original proof.
+    fn retains_original_binding_anchor_v1(&self) -> bool {
+        match self {
+            Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
+                | Self::Forward { .. } | Self::ProviderStatic(_) => true,
+            Self::SourceOnly(source) | Self::SumUnknown(source)
+                | Self::PointValue { legacy: source, .. } => source.retains_original_binding_anchor_v1(),
+            Self::MethodResult(source) => matches!(source.normal_representation(),
+                Some(crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactNominalBox { .. })),
+            _ => false,
+        }
+    }
     fn returned_field_domain_v1(source: &super::super::super::result_class_claim::ReturnedFieldSourceLoanV1) -> FormalActualSeedV1 {
         match (source.class(), source.nullable()) {
             (Some(class), true) => FormalActualSeedV1::All(Box::new([
@@ -246,9 +259,11 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         let legacy_context = context.for_legacy_actual();
         let legacy = classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
             caller, candidates, receiver, definitions, contracts, site, None, inventory, Some(&legacy_context), inherited);
-        let value = function.expression_source().value_flow()
-            .filter(|flow| flow.owner() == input.owner())
-            .and_then(|flow| flow.read(site, binding));
+        if legacy.retains_original_binding_anchor_v1() { return legacy; }
+        let value = uncaptured_source_binding_v1(input, binding).then(||
+            function.expression_source().value_flow()
+                .filter(|flow| flow.owner() == input.owner())
+                .and_then(|flow| flow.read(site, binding))).flatten();
         return OriginalFormalActualSeedV1::PointValue { owner: input.owner(), value, legacy: Box::new(legacy) };
     }
     if value_domain::declared_integer_seed_v1(input, contracts, binding) {
@@ -350,9 +365,16 @@ fn sum_checked(seed: OriginalFormalActualSeedV1, stable: bool) -> OriginalFormal
 pub(super) fn stable_source_binding_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, binding: BindingRefV1,
 ) -> bool {
+    use crate::mir::resolved_semantics::ResolvedAssignmentTargetV1 as Target;
+    uncaptured_source_binding_v1(input, binding)
+        && !input.function().assignment_targets().any(|(_, target)| matches!(target, Target::BindingRebind(actual) if *actual == binding))
+}
+
+fn uncaptured_source_binding_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, binding: BindingRefV1,
+) -> bool {
     use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1 as Target, ResolvedLexicalRefV1 as Reference};
     binding.owner() == input.owner() && input.function().binding(binding).is_some()
-        && !input.function().assignment_targets().any(|(_, target)| matches!(target, Target::BindingRebind(actual) if *actual == binding))
         && !input.forest().semantic_owners().any(|(_, function)|
             function.assignment_targets().any(|(_, target)| matches!(target, Target::UpvarRebind(upvar) if upvar.source() == binding))
                 || function.variable_refs().any(|(_, reference)| matches!(reference, Reference::Upvar(upvar) if upvar.source() == binding)))

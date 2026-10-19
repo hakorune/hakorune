@@ -175,7 +175,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     || original.arguments().iter().map(|argument| argument.site()).ne(call.source.argument_sites().iter())
                 { return Err(freeze("borrowed-view/original-call-identity")); }
                 let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                    static_claims, app_main, omitted)?;
+                    static_claims, app_main, omitted)?.map(|context| context.for_point_premise());
                 let slot = context.declaration_slot();
                 let candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
                     .map(Vec::as_slice).unwrap_or(&[]);

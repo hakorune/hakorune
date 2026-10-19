@@ -195,7 +195,7 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
     for (setup, actual, expected) in [
         ("", "\"text\"", Some(BTreeSet::from([Value::Text]))),
         ("local value = \"text\"", "value", Some(BTreeSet::from([Value::Text]))),
-        ("local value = \"text\" value = 7", "value", None),
+        ("local value = \"text\" value = 7", "value", Some(BTreeSet::from([Value::SignedI64]))),
         ("local value", "value", None),
         ("local value = \"text\" local capture = fn() { return value }", "value", None),
         ("", "Values.text()", Some(BTreeSet::from([Value::Text]))),
@@ -213,12 +213,12 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
         assert!(!source.contains_definition_for_test(formal.owner()), "source domain cannot select an entry");
     }
 
-    for (body, incoming, closed) in [
-        ("local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", true),
-        ("local alias = q local n = Values.sink(alias) return 0", "local n = Values.chain(\"text\")", true),
-        ("q = 7 local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", false),
-        ("local capture = fn() { return q } local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", false),
-        ("local n = Values.sink(q) return 0", "", false),
+    for (body, incoming, expected) in [
+        ("local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", Some(Value::Text)),
+        ("local alias = q local n = Values.sink(alias) return 0", "local n = Values.chain(\"text\")", Some(Value::Text)),
+        ("q = 7 local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", Some(Value::SignedI64)),
+        ("local capture = fn() { return q } local n = Values.sink(q) return 0", "local n = Values.chain(\"text\")", None),
+        ("local n = Values.sink(q) return 0", "", None),
     ] {
         let text = format!("static box Values {{ sink(p) {{ return 0 }} chain(q) {{ {body} }} unused() {{ {incoming} return 0 }} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
@@ -227,7 +227,7 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
         let source = ingress(&package);
         let p = formal(&package, "Values", "sink");
         assert_eq!(source.source_value_sum_v1(p).map(|sum| sum.alternatives().clone()),
-            closed.then(|| BTreeSet::from([Value::Text])), "all original source-only Forward obligations: {body}/{incoming}");
+            expected.map(|value| BTreeSet::from([value])), "all original source-only Forward obligations: {body}/{incoming}");
         assert!(!source.checked_static_input(p));
     }
 

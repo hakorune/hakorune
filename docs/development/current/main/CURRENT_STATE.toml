@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "borrowed-static/finite-domain-unclosed"
+current_blocker_token = "lexical-instance-call/unit-value-use"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,17 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-947 normalization5714e9b989;948 source-to-final connection verified: SAME original
-Array Return plan, FixedReceiver existing read progress/finished lending, local
-scalar handoff and participant membership distinct from tagged ABI. Dedicated
-SourceArray raw route removed/caller-zero.946 WIP landed8b7960a346.
-948C76focusedPASS/4same945G baseline reds;9263 names, no added cases/checkers.
-Existing C Get2+Count2 execute/6malformed reject PASS. CLI286 quick213.128s;
-zeroarg Count386/387 canonical EXE/run/output/exit PASS. Unchanged mimalloc385
-EXE142.161s/run.001710s matches363 exactly. Runtime894A/FFI939A predecessors.
-OriginalJSON384 .051721s same383 distinct Static finite-domain-unclosed/noEXE.
-Selection now StaticText: measure exact owner/formal/sum/incoming before mapping;
-no domain waiver. Full row/finite goal/retained families/suite/CI remain open.
+949 scalar original incoming now uses exact PointValue with WHOLE legacy seed;
+nominal/Forward/provider anchors and capture/guarded/ReturnedField/ctor boundaries
+preserved, old blind scalar source edge replaced without new variant/map/solver.
+949B93focusedPASS/6reproduced baseline reds;9263 names/no new cases/checkers.
+CLI288 build165.099s. OriginalJSON389 .050309s ADVANCES finite-domain-unclosed
+-> lexical-instance-call/unit-value-use/noEXE. Unchanged mimalloc390 canonical
+EXE142.013s/run.001611s stdout/stderr/exit exactly363; runtime894A/FFI939A prior.
+Next measure Unit exactcallee/site/SequenceItem/arguments; current UnitDiscard
+source/Home/writer/final are zeroarg. No callee guess or truevalue waiver.
+Full Text/retained rows/finite goal/suite/CI remain open; no whole-series closure.
 
 """
 next_design_card = "MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0"

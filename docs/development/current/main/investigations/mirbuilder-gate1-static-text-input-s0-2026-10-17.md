@@ -932,3 +932,55 @@ Do not widen finite domains, manufacture homogeneous sums/empty borrowed entries
 reopen Map/untyped storage, or treat Array acceptance as Text completion.
 Retain948/CLI286/JSON384/native receipts and prior diagnostic patch until this
 measurement supersedes it. No new test/case/checker is selected.
+
+949 measurement and one source Decision (read-only full-classifier review):
+CLI287 diagnostic build165.296759s PASS; originalJSON388 canonical direct EXE
+.063990s exit1/noEXE, same finite-domain refusal. Same source hash b5d4461b43a9
+as384; base argv/env/runtime894A/FFI939A unchanged except default-OFF trace flag.
+Observed JsonLine.find/3 owner18/batch16, Opaque ordinal1 needle binding1 SUM=None.
+Original inventory matches, SUM product exists, value absent; registered true,
+veto false, old definitions/target_static false. All five incoming retained:
+stringField19 Body1 needle SourceOnly(Conflict); Body4 quote Text/start conflict;
+intField20/boolField21 Body1 needle conflict; ingest27 LoopBody0 newline Text/
+start Conflict. Formal2 start alsoNone; formal0Text closes. This is missing
+scalar source classification, not Other/Object domain or inventory corruption.
+The same classifier admits Binary only in PointPremise mode, while incoming
+scalar locals currently follow old stable alias classification. Source scopes
+for these actuals must retain exact reaching values without changing transport.
+Source authority + canonical issuer: SAME original incoming/ordered sites and
+resolver value_flow.read; existing actual seed/PointValue/graph/SCC owners.
+Non-authority: legacy Conflict/Integer projection, selector/type guess, partial
+incoming, source SUM alone as entry/ABI/physical permission.
+Fail-fast: keep all original incoming and unknown/capture/nominal constraints;
+no finite-domain widening, homogeneous substitution or fallback.
+Smallest next slice: normalize checked incoming scalar source projection through
+existing PointValue with the WHOLE old seed retained as legacy. Preserve original
+nominal/Forward/provider anchors by source-role dispatch; preserve guarded actual,
+ReturnedField and stable ctor formal precedence. Factor existing capture check
+for point borrowing while retaining old stable helper's local-rebind restriction.
+Existing tests/cases only; changed rebind source expectation must describe exact
+read-point value, with capture/unknown/unsupported negatives preserved.
+Non-claims: no new source-to-physical acceptance, JSON EXE, full series or goal.
+Temporary diagnostic hunks removed and exact HEAD bytes restored. Retain
+cli-v287diagnostic.patch/source/build andJSON388 receipt/log outside checkout
+until this mapping's source and original-app frontier are verified; no adapter,
+test/case/checker or permanent trace added. Prior946 diagnostic patch was superseded by this measurement and removed.
+
+949 source projection verification: A build66.785630s; B60.225629s PASS.
+B93focusedPASS/6baseline: four945G result controls, declared-object scalar-loan/
+original-missing and guarded_receiver_packet_never_retries_old_protocol_after_
+guard_loss; both added baseline classes reproduced948C. Existing two rebind
+source expectations updated to exact SignedI64 at read; all inputs/case counts
+unchanged. Capture/unknown and legacy projections remain guarded.9263names.
+Worker full classifier/legacy/capture review PASS. Pointer/layer/CallTarget/diff
+PASS; actual_seed401/source_seeds753lines, no added variant/map/solver/hooks.
+CLI288 build165.098821s PASS; root949B/CLI Rust source manifests correspond.
+Unchanged JSON389 .050309s ADVANCES finite-domain-unclosed to lexical-instance-
+call/unit-value-use, exit1/noEXE. Unchanged mimalloc390 EXE142.012886s/run.001611s
+stdout/stderr/exit0 exactly363. Runtime894A/FFI939A explicit predecessors.
+This verifies selected source-domain admission, NOT full Text execution/series.
+Next measure exact Unit callee/caller/site/arguments and original SequenceItem;
+existing UnitDiscard is zeroarg throughout source/Home/writer/final. Keep true
+value-use refusal and do not infer callee or erase argument/cleanup obligations.
+Retain949/CLI288/JSON389/native receipts and CLI287 diagnostic provenance until
+full Text/originalJSON acceptance; diagnostic code is absent from current source.

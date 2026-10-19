@@ -4599,9 +4599,15 @@ or result-representation-only execution permission is created.
 
 ## Original Core point premises
 
-Core operand source requests use PointPremise mode in the same original actual
-classifier. Ordinary incoming/class/receiver/provider mappings and legacy
-projections are unchanged. The resolver's exact read-to-reaching-definition
+Core operand requests and checked ordinary incoming scalar sources use
+PointPremise mode in the same original actual classifier. Each scalar binding
+keeps its WHOLE old-context seed as PointValue's legacy projection. Original
+nominal/Mixed/returned-field/formal/Forward/provider anchors retain their existing
+SUM evidence, including nested source-only/unknown wrappers and declaration
+constraints. Scalar point reads require the original binding to be uncaptured;
+unknown/captured/foreign reads stay unclosed. Exact reaching definitions may
+prove a local rebind's source value without changing old transport projections.
+Ordinary class/receiver/provider mappings and legacy projections are unchanged. The resolver's exact read-to-reaching-definition
 reference defers cycles; source preparation reborrows the original declaration
 or Birth input, and the existing SUM memoizes before expansion. Entry, source
 expression, Normal branch/Loop predecessors and Unknown all feed the same graph.
@@ -4617,7 +4623,7 @@ uses its existing declaration proof; usize remains outside SignedI64. These are
 source result classes only: catalog result representation remains independent
 of operand execution premises, and no checked operation, range/nonFault, Home,
 Loop Recipe, ABI, cleanup or publication permission follows. General
-String*Dynamic and mutable ordinary incoming domains are not selected here.
+String*Dynamic and mutable ordinary transport are not selected here.
 
 Static actual observation receives the SAME resolved input and retains one
 original CallArgument plan Rc per ordered actual in the existing Static source
