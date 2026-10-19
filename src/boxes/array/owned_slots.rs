@@ -25,7 +25,7 @@ enum Phase {
 }
 
 pub(super) struct ArrayOwnedObjectStorage {
-    descriptor: ArrayOwnedSlotDescriptor,
+    descriptor: Option<ArrayOwnedSlotDescriptor>,
     slots: Vec<i64>,
     phase: Phase,
 }
@@ -38,7 +38,7 @@ impl ArrayOwnedObjectStorage {
         self.slots.capacity()
     }
     fn live(&self, descriptor: ArrayOwnedSlotDescriptor) -> Result<(), ArrayOwnedSlotError> {
-        if self.phase != Phase::Live || self.descriptor != descriptor {
+        if self.phase != Phase::Live || self.descriptor != Some(descriptor) {
             return Err(ArrayOwnedSlotError::InvalidContract);
         }
         Ok(())
@@ -68,7 +68,7 @@ impl ArrayBox {
             _ => return Err(ArrayOwnedSlotError::InvalidContract),
         }
         state.storage = ArrayStorage::OwnedObject(ArrayOwnedObjectStorage {
-            descriptor,
+            descriptor: Some(descriptor),
             slots: Vec::new(),
             phase: Phase::Live,
         });
@@ -144,7 +144,7 @@ impl ArrayBox {
         let ArrayStorage::OwnedObject(slots) = &mut state.storage else {
             return Err(ArrayOwnedSlotError::InvalidContract);
         };
-        if slots.descriptor != descriptor || slots.phase != Phase::Ending || !slots.slots.is_empty()
+        if slots.descriptor != Some(descriptor) || slots.phase != Phase::Ending || !slots.slots.is_empty()
         {
             return Err(ArrayOwnedSlotError::InvalidContract);
         }
