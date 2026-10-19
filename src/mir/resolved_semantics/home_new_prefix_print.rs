@@ -1,11 +1,12 @@
 //! Install one whole Print from the original pre-statement Home/actual basis.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,

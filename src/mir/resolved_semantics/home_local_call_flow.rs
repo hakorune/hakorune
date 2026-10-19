@@ -5,6 +5,7 @@
 //! resolver; this relation only records where the source places the returned
 //! value and which Homes were live before the call.
 
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow, SourceScalarKind};
 use super::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
@@ -73,14 +74,14 @@ pub(crate) enum LocalCallArgumentV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ArgumentCallObservationV1 {
     site: OwnedExprSiteV1,
-    prior_homes: Box<[BindingRefV1]>,
+    prior_homes: Box<[LiveHomeV1]>,
     arguments: Box<[LocalCallArgumentV1]>,
 }
 
 impl ArgumentCallObservationV1 {
     fn issue(
         site: OwnedExprSiteV1,
-        prior_homes: Box<[BindingRefV1]>,
+        prior_homes: Box<[LiveHomeV1]>,
         arguments: Box<[LocalCallArgumentV1]>,
     ) -> Self {
         Self {
@@ -94,7 +95,7 @@ impl ArgumentCallObservationV1 {
         &self.site
     }
 
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
 
@@ -144,7 +145,7 @@ pub(crate) struct LocalCallObservationV1 {
     statement: SourceStmtSiteV1,
     site: OwnedExprSiteV1,
     destination: LocalCallDestinationV1,
-    prior_homes: Box<[BindingRefV1]>,
+    prior_homes: Box<[LiveHomeV1]>,
     arguments: Box<[LocalCallArgumentV1]>,
     result: LocalCallResultClassV1,
     field_alias: Option<super::FieldAliasPathV1>,
@@ -164,7 +165,7 @@ impl LocalCallObservationV1 {
         site: OwnedExprSiteV1,
         declaration: SourceBindingSiteV1,
         destination: BindingRefV1,
-        prior_homes: Box<[BindingRefV1]>,
+        prior_homes: Box<[LiveHomeV1]>,
         arguments: Box<[LocalCallArgumentV1]>,
         result: LocalCallResultClassV1,
     ) -> Self {
@@ -223,7 +224,7 @@ impl LocalCallObservationV1 {
 
     pub(crate) fn field_alias(&self) -> Option<&super::FieldAliasPathV1> { self.field_alias.as_ref() }
 
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
 
@@ -281,7 +282,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     qualified_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -391,7 +392,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
         site.clone(),
         declaration,
         destination,
-        prior_homes.iter().copied().collect(),
+        prior_homes.iter().cloned().collect(),
         arguments.into_boxed_slice(),
         LocalCallResultClassV1::I64,
     )))
@@ -414,7 +415,7 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
@@ -457,7 +458,7 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
@@ -501,7 +502,7 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
             declaration,
             binding: destination,
         },
-        prior_homes: prior_homes.iter().copied().collect(),
+        prior_homes: prior_homes.iter().cloned().collect(),
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::Nullable,
         borrowed_scalar: None, unit_source: None,
@@ -513,7 +514,7 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
 pub(crate) fn issue_lexical_i64_discard_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
@@ -556,7 +557,7 @@ fn issue_lexical_i64_call<E>(
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
     destination: LocalCallDestinationV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     allow_strict: bool,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
@@ -598,7 +599,7 @@ fn issue_lexical_i64_call<E>(
         statement: statement.clone(),
         site: site.clone(),
         destination,
-        prior_homes: prior_homes.iter().copied().collect(),
+        prior_homes: prior_homes.iter().cloned().collect(),
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::I64,
         borrowed_scalar: None, unit_source: None,
@@ -610,7 +611,7 @@ fn issue_lexical_i64_call<E>(
 pub(super) fn issue_borrowed_i64_terminal_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
@@ -703,7 +704,7 @@ pub(crate) fn issue_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     result: LocalCallResultClassV1,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
@@ -741,7 +742,7 @@ pub(crate) fn issue_local_call<E>(
         site.clone(),
         declaration,
         destination,
-        prior_homes.iter().copied().collect(),
+        prior_homes.iter().cloned().collect(),
         arguments.into_boxed_slice(),
         result,
     )))

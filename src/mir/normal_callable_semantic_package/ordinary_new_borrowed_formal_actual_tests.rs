@@ -85,7 +85,7 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
     assert_eq!(flow.local_calls().len(), 1);
-    assert!(flow.local_calls()[0].prior_homes().contains(root));
+    assert!(flow.local_calls()[0].prior_homes().iter().any(|home| home.binding() == *root));
     let ledger = &package.ordinary_new_claim_ledger;
     let acquisition = acquisition.clone();
     let root = *root;

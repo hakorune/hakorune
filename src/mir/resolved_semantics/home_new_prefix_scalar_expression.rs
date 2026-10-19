@@ -1,5 +1,6 @@
 //! Pure scalar expression preflight. Source rows define operators and paths;
 //! field declarations remain obligations until the whole batch is proved.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::dynamic_operator_contract::{
     issue_dynamic_operator_execution_envelope_v1, DynamicOperatorDomainV1, DynamicOperatorFamilyV1,
@@ -25,7 +26,7 @@ pub(super) fn observe_local_initializer<E>(
         LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     statement: &SourceStmtSiteV1,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
@@ -67,7 +68,7 @@ pub(super) fn observe_scalar_expression<E>(
         LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     statement: &SourceStmtSiteV1,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
@@ -105,7 +106,7 @@ fn observe_scalar_expression_with_operation<E>(
         LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     statement: &SourceStmtSiteV1,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
@@ -252,7 +253,7 @@ pub(super) fn observe_local_mul_return<E>(
     site: &SourceExprSiteV1,
     statement: &SourceStmtSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -300,7 +301,7 @@ pub(super) fn observe_guarded_mul_return<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     statement: &SourceStmtSiteV1,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     borrowed_actuals: &mut impl FnMut(

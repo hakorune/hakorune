@@ -202,7 +202,7 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
     }
     let completed = completed.unwrap().expect("same complete original borrowed-result inputs");
     assert_eq!(completed, observed.arguments());
-    assert!(!observed.prior_homes().contains(&loan.destination()));
+    assert!(!observed.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(loan.destination())));
     assert!(target.stored_receiver().is_some());
     assert!(!target.has_object_source_requirement());
     assert!(target.object_return_sources().is_none());
@@ -330,7 +330,7 @@ fn stored_nullable_source_branch_retains_exact_return_operand_and_root() {
                                 .unwrap()
                                 .unwrap()
                                 .homes()
-                                .contains(&loan.destination()));
+                                .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(loan.destination())));
                         }
                     }
                 }

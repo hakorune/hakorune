@@ -147,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 let unreleasable = homes.iter().any(|binding| {
                     claims
                         .values()
-                        .find(|claim| claim.destination == *binding)
+                        .find(|claim| claim.destination == binding.binding())
                         .is_some_and(|claim| {
                             // Parity with `LocalCommitV1::end_available`: a
                             // Plain home releases directly; an owned-field

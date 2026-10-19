@@ -5,6 +5,7 @@
 //! `HomeFlowBranchDivergent` — never a union, never an empty substitution.
 //! Only a verified `ResolvedIfRegionBundleV1` admits the walk; any other `If`
 //! keeps `PrefixNotCovered`.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::SelectedLoopHomeLoanV1;
 use super::*;
 use crate::mir::resolved_semantics::{
@@ -20,7 +21,7 @@ pub(crate) use null_exclusion::EntryNullExclusionV1;
 /// (one that reached an explicit Return) does not join the continuation.
 struct BranchPath<'a> {
     locals: PrefixLocalFlow<'a>,
-    homes: Vec<BindingRefV1>,
+    homes: Vec<LiveHomeV1>,
     covered: Vec<SourceStmtSiteV1>,
     selected_seen: Vec<OwnedExprSiteV1>,
     calls: BTreeSet<OwnedExprSiteV1>,
@@ -160,7 +161,7 @@ pub(super) fn stage_unobserved_statement_actuals<E>(
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -184,7 +185,7 @@ fn stage_subtree_call_actuals<E>(
     site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -252,7 +253,7 @@ pub(super) fn observe_if_statement<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -476,7 +477,7 @@ pub(super) fn observe_if_statement<'a, E>(
     let base_selected = selected_seen.len();
     let nullable_guard = null_guarded_local(input.function(), condition.site());
     let fork = |locals: &PrefixLocalFlow<'a>,
-                homes: &Vec<BindingRefV1>,
+                homes: &Vec<LiveHomeV1>,
                 covered: &Vec<SourceStmtSiteV1>,
                 seen: &Vec<OwnedExprSiteV1>,
                 calls: &BTreeSet<OwnedExprSiteV1>,
@@ -628,11 +629,11 @@ pub(super) fn observe_if_statement<'a, E>(
         } else {
             // Ordered intersection: a Home survives the join only when both
             // fall-through paths still hold it, in the shared order.
-            let joined: Vec<BindingRefV1> = then_path
+            let joined: Vec<LiveHomeV1> = then_path
                 .homes
                 .iter()
                 .filter(|home| else_path.homes.contains(home))
-                .copied()
+                .cloned()
                 .collect();
             let mut join_locals = then_path.locals.clone();
             let divergent = then_path.homes != joined

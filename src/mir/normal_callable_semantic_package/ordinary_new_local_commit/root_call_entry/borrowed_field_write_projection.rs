@@ -1,4 +1,5 @@
 //! Original borrowed field write, its exact pins and checked Normal/Fault graph.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::{FieldWriteSourceLoanV1, CallValidationContextV1};
 use crate::mir::builder::{ExactLexicalReadV1, LocalSsaPhysicalRelationV1};
@@ -112,7 +113,7 @@ pub(super) fn validate_fault_inventory_v1(function: &MirFunction, landing: Basic
 }
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn validate_source_field_fault_v1(
-        &self, function: &MirFunction, invoke: &Binding, rows: &[Binding], homes: &[BindingRefV1],
+        &self, function: &MirFunction, invoke: &Binding, rows: &[Binding], homes: &[LiveHomeV1],
     ) -> Result<(), String> {
         let MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { .. },
             fault_landing, fault_frame, .. } = &invoke.1 else { return Err(freeze("field-read/fault-invoke")); };

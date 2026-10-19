@@ -1,4 +1,5 @@
 //! Cached-site drift and duplicate rejection must not commit an earlier row.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1;
 use crate::mir::resolved_semantics::{
@@ -331,7 +332,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                 let source = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                     &source_ledger, shape, statement.site()).unwrap().unwrap();
                 let candidates = collect_local_candidates_v1(package.batch(), package.instance_constructors(), input).unwrap();
-                let homes: Vec<_> = candidates.iter().map(|row| row.destination).collect();
+                let homes: Vec<_> = candidates.iter().map(|row| LiveHomeV1::Stable(row.destination)).collect();
                 assert_eq!(homes.len(), if expression.contains("run(h)") { 2 } else { 1 }, "real pre-Print fresh local Homes");
                 let prepared: super::super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1 =
                     Ok(ledger.lexical_instance_calls.borrow().values().map(|slot| {
@@ -344,7 +345,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                     }).collect());
                 let mut staged = BTreeMap::new();
                 let mut batches = 0;
-                let observe = |frame_homes: &[crate::mir::resolved_semantics::BindingRefV1], can_install: bool, staged: &mut BTreeMap<_, _>, batches: &mut usize| {
+                let observe = |frame_homes: &[LiveHomeV1], can_install: bool, staged: &mut BTreeMap<_, _>, batches: &mut usize| {
                     crate::mir::resolved_semantics::home_new_prefix::qualify_print_expression_v1(
                         Rc::clone(&source), frame_homes,
                 &mut |_| None, &mut |_| None, &mut |_| None,
@@ -387,7 +388,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                     let print = plan.print_frame().unwrap();
                     assert!(Rc::ptr_eq(print.source(), &source));
                     assert_eq!(print.prior_homes(), homes.as_slice());
-                    let mut duplicate_homes = homes.clone(); duplicate_homes.push(homes[0]);
+                    let mut duplicate_homes = homes.clone(); duplicate_homes.push(homes[0].clone());
                     let mut refused = BTreeMap::new(); let mut refused_batches = 0;
                     assert!(observe(&duplicate_homes, true, &mut refused, &mut refused_batches).unwrap().is_none());
                     assert!(refused.is_empty()); assert_eq!(refused_batches, 0);

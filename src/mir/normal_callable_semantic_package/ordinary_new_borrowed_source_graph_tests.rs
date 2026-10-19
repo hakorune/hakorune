@@ -312,7 +312,7 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
                     }).collect::<Vec<_>>()
                 }).unwrap();
                 locals.sort_by_key(|(ordinal, _)| *ordinal);
-                let expected: Vec<_> = locals.into_iter().rev().map(|(_, binding)| binding).collect();
+                let expected: Vec<_> = locals.into_iter().rev().map(|(_, binding)| crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)).collect();
                 assert_eq!(implicit.homes(), expected.as_slice(), "same LIFO as explicit exits");
                 assert_eq!(expected.len(), 2);
                 assert!(!flow.all_exits_ready(), "physical implicit consumer remains closed");

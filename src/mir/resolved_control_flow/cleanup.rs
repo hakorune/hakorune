@@ -1,7 +1,8 @@
 //! Ordered crossed-scope cleanup vocabulary for verified control exits.
 
 use crate::mir::resolved_semantics::home_new_prefix::{HomePrefixUnavailableV1, RootHomeFlow};
-use crate::mir::resolved_semantics::{BindingRefV1, ScopeId};
+use crate::mir::resolved_semantics::ScopeId;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 /// Immutable cleanup order sealed before canonical materialization.
 ///
@@ -34,7 +35,7 @@ impl ResolvedCleanupObligationsV1 {
     }
     pub(crate) fn terminal_homes(
         &self,
-    ) -> Option<Result<&[BindingRefV1], &HomePrefixUnavailableV1>> {
+    ) -> Option<Result<&[LiveHomeV1], &HomePrefixUnavailableV1>> {
         self.root_flow.as_ref().map(RootHomeFlow::terminal_homes)
     }
 }

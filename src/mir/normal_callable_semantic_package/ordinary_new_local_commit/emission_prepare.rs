@@ -39,7 +39,7 @@ impl OrdinaryNewClaimLedgerV1 {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         destruction: ObjectDestructionDispositionV1,
         children: Option<&[super::super::OwnedFieldChildV1]>,
-        prior_homes: Option<(&[BindingRefV1], &OwnedExprSiteV1)>,
+        prior_homes: Option<(&[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1], &OwnedExprSiteV1)>,
     ) -> Result<NewEmissionProgress, String> {
         if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
             let physical = arity
@@ -91,7 +91,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("prepare-outward-site"));
                 }
                 for binding in prior_homes {
-                    let prior = installed_home(rows, *binding).map_err(|error| match error {
+                    let prior = installed_source_home(rows, binding).map_err(|error| match error {
                         HomeLookupError::Missing => freeze("prior-home-not-installed"),
                         HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
                     })?;

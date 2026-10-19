@@ -253,7 +253,7 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
         Reference::Scalar(source) => Ok(Operand::NormalInteger(validate_source(
             frame, source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, producer, context)?)),
         Reference::Residence(original) => {
-            if frame.prior_homes().iter().filter(|binding| **binding == original.root()).count() != 1
+            if frame.prior_homes().iter().filter(|home| matches!(home, crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition) if acquisition.same_source(original.acquisition()))).count() != 1
                 || original.root() != original.acquisition().binding() {
                 return Err(freeze("expression/residence-current-home"));
             }

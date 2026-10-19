@@ -1,4 +1,5 @@
 //! Original source evidence for a returned owned call; no Home is acquired here.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 
@@ -7,7 +8,7 @@ pub(crate) enum ObjectReturnAcquisitionV1 {
     /// Explicit Return destination, never a discarded/local continuation.
     Direct {
         argument_sites: Box<[OwnedExprSiteV1]>,
-        fault_homes: Box<[BindingRefV1]>,
+        fault_homes: Box<[LiveHomeV1]>,
     },
     /// The original acquired call row, including its prior Fault homes.
     Received(LocalCallObservationV1),
@@ -20,7 +21,7 @@ pub(crate) struct TerminalObjectReturnObligationV1 {
     qualification: ObjectReturnCallQualificationV1,
     return_site: SourceStmtSiteV1,
     acquisition: ObjectReturnAcquisitionV1,
-    exit_homes: Box<[BindingRefV1]>,
+    exit_homes: Box<[LiveHomeV1]>,
     arguments: ObjectCallSourceSupportV1,
 }
 
@@ -45,7 +46,7 @@ impl TerminalObjectReturnObligationV1 {
     pub(crate) fn acquisition(&self) -> &ObjectReturnAcquisitionV1 {
         &self.acquisition
     }
-    pub(crate) fn exit_homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn exit_homes(&self) -> &[LiveHomeV1] {
         &self.exit_homes
     }
 }
@@ -58,7 +59,7 @@ pub(super) fn observe_object_return_source<E>(
     locals: &PrefixLocalFlow<'_>,
     calls: &[LocalCallObservationV1],
     covered: &BTreeSet<OwnedExprSiteV1>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -80,7 +81,7 @@ pub(super) fn observe_object_return_source<E>(
     }
     // Match the terminal exit's cleanup order, newest Home first. The original
     // received-call prior_homes representation remains untouched.
-    let exit_homes: Box<[BindingRefV1]> = homes.iter().rev().copied().collect();
+    let exit_homes: Box<[LiveHomeV1]> = homes.iter().rev().cloned().collect();
     let acquisition = if loan.call() == loan.value() {
         let Some(call) = input.function().method_call(value.site()) else {
             return Ok(Err(unavailable()));
@@ -122,7 +123,7 @@ pub(super) fn observe_object_return_source<E>(
         let Some(original) = locals.received_call_observation(binding, calls, covered) else {
             return Ok(Err(unavailable()));
         };
-        if original.site() != loan.call() || !homes.contains(&binding) {
+        if original.site() != loan.call() || !homes.iter().any(|home| home.binding() == binding) {
             return Ok(Err(unavailable()));
         }
         let same_result_role = matches!(

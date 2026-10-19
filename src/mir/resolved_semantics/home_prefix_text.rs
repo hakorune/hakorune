@@ -5,6 +5,30 @@ use super::super::CheckedInitializerExpressionFrameV1;
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
 use std::sync::Arc;
 
+/// One live source obligation. Text retains the exact acquisition, while
+/// existing non-rebindable Homes keep their stable binding identity.
+#[derive(Debug, Clone)]
+pub(crate) enum LiveHomeV1 {
+    Stable(BindingRefV1),
+    Text(TextResidenceAcquisitionV1),
+}
+impl LiveHomeV1 {
+    pub(crate) fn binding(&self) -> BindingRefV1 {
+        match self { Self::Stable(binding) => *binding, Self::Text(source) => source.binding() }
+    }
+    pub(crate) fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 { self.binding().owner() }
+}
+impl PartialEq for LiveHomeV1 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Stable(a), Self::Stable(b)) => a == b,
+            (Self::Text(a), Self::Text(b)) => a.same_source(b),
+            _ => false,
+        }
+    }
+}
+impl Eq for LiveHomeV1 {}
+
 /// Source-owned identity of one Text acquisition. Consumers borrow its origin;
 /// they do not turn another purpose into an initializer or issue a second Home.
 #[derive(Debug, Clone)]
@@ -15,8 +39,12 @@ pub(crate) struct TextResidenceAcquisitionV1 {
 enum TextResidenceOriginV1 {
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
 }
+impl PartialEq for TextResidenceAcquisitionV1 {
+    fn eq(&self, other: &Self) -> bool { self.same_source(other) }
+}
+impl Eq for TextResidenceAcquisitionV1 {}
 impl TextResidenceAcquisitionV1 {
-    fn from_initializer(frame: Rc<CheckedInitializerExpressionFrameV1>) -> Self {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn from_initializer(frame: Rc<CheckedInitializerExpressionFrameV1>) -> Self {
         assert!(frame.is_text_residence(), "Text installation requires an owned Text root");
         Self { origin: TextResidenceOriginV1::Initializer(frame) }
     }

@@ -1,4 +1,5 @@
 //! Original Unit statement demand; no scalar result, LOCAL or executable ABI.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 pub(super) enum UnitDiscardDemandV1 {
     Unselected,
@@ -9,7 +10,7 @@ pub(super) fn demand_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     site: &OwnedExprSiteV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     borrowed_arguments: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<UnitDiscardDemandV1, E> {

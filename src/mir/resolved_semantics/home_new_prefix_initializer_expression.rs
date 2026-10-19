@@ -1,11 +1,12 @@
 //! Real Local initializer qualification and Normal-only Text installation.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_value_profile::expression_plan::{local_expression_source_plan_v1, ExpressionNodeSourceV1};
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     initializer: &super::super::ResolvedInitializerRelationV1,
-    locals: &mut PrefixLocalFlow<'_>, homes: &mut Vec<BindingRefV1>, prefix_known: bool,
+    locals: &mut PrefixLocalFlow<'_>, homes: &mut Vec<LiveHomeV1>, prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
@@ -86,7 +87,7 @@ pub(super) fn observe<E>(
     installation.expect("approved initializer installation").commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
-    if frame.owns_root() { homes.push(frame.binding()); }
+    if frame.owns_root() { homes.push(LiveHomeV1::Text(frame.text_acquisition_v1())); }
     if frame.is_i64() { locals.install_i64_call_result(frame.binding()); }
     else { locals.install_text_initializer(frame); }
     Ok(true)
@@ -99,7 +100,7 @@ pub(crate) fn observe_for_test<E>(
     prefix_known: bool, invalid: Option<BindingRefV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<(Vec<HomeExpressionPlanV1>, Vec<BindingRefV1>), E> {
+) -> Result<(Vec<HomeExpressionPlanV1>, Vec<LiveHomeV1>), E> {
     let mut locals = PrefixLocalFlow::new(input);
     assert!(locals.install_parameters(parameters));
     if let Some(binding) = invalid { locals.install_uninitialized(binding); }

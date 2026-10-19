@@ -1,5 +1,6 @@
 //! Conditional named-Array Homes in the same source walk. No storage, Normal
 //! producer, commit, borrowed value or End execution capability is issued here.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1;
 
@@ -15,7 +16,7 @@ pub(crate) enum NamedArrayHomeObservationV1 {
         call: OwnedExprSiteV1,
         candidate: OwnedExprSiteV1,
         availability: Result<(), HomePrefixUnavailableV1>,
-        prior_homes: Box<[BindingRefV1]>,
+        prior_homes: Box<[LiveHomeV1]>,
         covered_statements: Box<[SourceStmtSiteV1]>,
     },
 }
@@ -42,7 +43,7 @@ pub(super) fn observe_initializer<E>(
     site: &OwnedExprSiteV1,
     binding: BindingRefV1,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     covered: &[SourceStmtSiteV1],
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     borrow: &mut impl FnMut(
@@ -71,7 +72,7 @@ pub(super) fn observe_initializer<E>(
     if source.binding() != binding
         || source.construction() != *site
         || input.owner() != binding.owner()
-        || homes.contains(&binding)
+        || homes.iter().any(|home| home.binding() == binding)
     {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(true);
@@ -82,7 +83,7 @@ pub(super) fn observe_initializer<E>(
             .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
             .map(|outward_fault| CallerNewHomePrefixV1 {
                 destination: binding,
-                prior_homes: homes.iter().rev().copied().collect(),
+                prior_homes: homes.iter().rev().cloned().collect(),
                 outward_fault,
                 covered_statements: covered.to_vec().into_boxed_slice(),
             }),
@@ -96,7 +97,7 @@ pub(super) fn observe_initializer<E>(
         prefix,
     });
     // Conditional source obligation on the construction's Normal successor.
-    homes.push(binding);
+    homes.push(LiveHomeV1::Stable(binding));
     Ok(true)
 }
 
@@ -104,7 +105,7 @@ pub(super) fn observe_append<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     covered: &[SourceStmtSiteV1],
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     borrow: &mut impl FnMut(
@@ -150,7 +151,7 @@ pub(super) fn observe_append<E>(
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(true);
     };
-    if !homes.contains(&source.binding()) || !locals.has_named_array_holder(&source) {
+    if !homes.iter().any(|home| home.binding() == source.binding()) || !locals.has_named_array_holder(&source) {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(true);
     }
@@ -159,7 +160,7 @@ pub(super) fn observe_append<E>(
         call,
         candidate,
         availability: unavailable.as_ref().cloned().map_or(Ok(()), Err),
-        prior_homes: homes.iter().rev().copied().collect(),
+        prior_homes: homes.iter().rev().cloned().collect(),
         covered_statements: covered.to_vec().into_boxed_slice(),
     });
     // The source store is covered; actual candidate ownership and successful

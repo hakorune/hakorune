@@ -92,7 +92,7 @@ fn original_main_object_return_matrix_preserves_source_cleanup_and_finished_refu
                             .find(|claim| {
                                 claim
                                     .home_prefix()
-                                    .is_ok_and(|prefix| prefix.destination() == *binding)
+                                    .is_ok_and(|prefix| prefix.destination() == binding.binding())
                             })
                             .unwrap()
                             .object()

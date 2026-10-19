@@ -1,5 +1,6 @@
 //! Context-free source exit snapshots. The collector never owns a Prefix clone
 //! or the shared expression inventory, so completed Loop products cannot cycle.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::{
     ResolvedControlTransferV1 as Transfer, ResolvedExitOriginV1 as Origin,
@@ -18,17 +19,17 @@ pub(crate) struct SourceLoopPortSnapshotV1 {
     pub(crate) kind: SourceLoopPortKindV1,
     // Exact path classes, not the mutable Loop collector or an After class.
     locals: BTreeMap<BindingRefV1, StoredLocal>,
-    homes: Box<[BindingRefV1]>,
+    homes: Box<[LiveHomeV1]>,
     crossed: Box<[ScopeId]>,
-    normal_ends: Box<[BindingRefV1]>,
+    normal_ends: Box<[LiveHomeV1]>,
     covered: Box<[SourceStmtSiteV1]>,
     calls: BTreeSet<OwnedExprSiteV1>,
     pub(crate) unavailable: Option<super::super::super::HomePrefixUnavailableV1>,
 }
 
 impl SourceLoopPortSnapshotV1 {
-    pub(crate) fn homes(&self) -> &[BindingRefV1] { &self.homes }
-    pub(crate) fn normal_ends(&self) -> &[BindingRefV1] { &self.normal_ends }
+    pub(crate) fn homes(&self) -> &[LiveHomeV1] { &self.homes }
+    pub(crate) fn normal_ends(&self) -> &[LiveHomeV1] { &self.normal_ends }
     pub(crate) fn crossed_scopes(&self) -> &[ScopeId] { &self.crossed }
 }
 
@@ -195,7 +196,7 @@ impl PrefixLocalFlow<'_> {
     /// `None` is not a Loop transfer; `Some(false)` is a selected but invalid
     /// target/scope receipt. The scanner must terminate either selected path.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_source_loop_exit_v1(
-        &self, site: &SourceStmtSiteV1, homes: &[BindingRefV1], covered: &[SourceStmtSiteV1],
+        &self, site: &SourceStmtSiteV1, homes: &[LiveHomeV1], covered: &[SourceStmtSiteV1],
         calls: &BTreeSet<OwnedExprSiteV1>,
         unavailable: &Option<super::super::super::HomePrefixUnavailableV1>,
     ) -> Option<bool> {
@@ -219,7 +220,7 @@ impl PrefixLocalFlow<'_> {
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_source_loop_backedge_v1(
-        &self, homes: &[BindingRefV1], covered: &[SourceStmtSiteV1], calls: &BTreeSet<OwnedExprSiteV1>,
+        &self, homes: &[LiveHomeV1], covered: &[SourceStmtSiteV1], calls: &BTreeSet<OwnedExprSiteV1>,
         unavailable: &Option<super::super::super::HomePrefixUnavailableV1>,
     ) -> bool {
         let Some(context) = &self.source_loop else { return false; };
@@ -228,7 +229,7 @@ impl PrefixLocalFlow<'_> {
     }
 
     fn record_source_loop_port(&self, kind: SourceLoopPortKindV1, start: ScopeId,
-        homes: &[BindingRefV1], covered: &[SourceStmtSiteV1], calls: &BTreeSet<OwnedExprSiteV1>,
+        homes: &[LiveHomeV1], covered: &[SourceStmtSiteV1], calls: &BTreeSet<OwnedExprSiteV1>,
         unavailable: &Option<super::super::super::HomePrefixUnavailableV1>,
     ) -> bool {
         let Some(context) = &self.source_loop else { return false; };
@@ -236,9 +237,9 @@ impl PrefixLocalFlow<'_> {
         let mut seen = BTreeSet::new();
         let mut normal_ends = Vec::new();
         for home in homes.iter().rev() {
-            let Some(binding) = self.input.function().binding(*home) else { return false; };
-            if home.owner() != self.input.owner() || !seen.insert(*home) { return false; }
-            if crossed.contains(&binding.owner_scope()) { normal_ends.push(*home); }
+            let Some(binding) = self.input.function().binding(home.binding()) else { return false; };
+            if home.owner() != self.input.owner() || !seen.insert(home.binding()) { return false; }
+            if crossed.contains(&binding.owner_scope()) { normal_ends.push(home.clone()); }
         }
         context.ports.borrow_mut().push(SourceLoopPortSnapshotV1 {
             kind, locals: self.locals.clone(), homes: homes.to_vec().into_boxed_slice(),

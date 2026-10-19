@@ -1,5 +1,6 @@
 //! A scoped borrow of the installed owner's existing Array recipe authority.
 //! No result-cohort clone, source inventory or executable receipt is issued.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 #[derive(Clone, Copy)]
@@ -177,7 +178,7 @@ impl OwnedArrayAppendSourceLoanV1 {
     pub(crate) fn null_candidate(&self) -> bool {
         self.recipe.original_append_v1(&self.site).expect("original Append loan").2
     }
-    pub(crate) fn prior_homes(&self) -> Result<&[crate::mir::resolved_semantics::BindingRefV1], String> {
+    pub(crate) fn prior_homes(&self) -> Result<&[LiveHomeV1], String> {
         self.recipe.append_prior_homes_v1(&self.site)
     }
     pub(crate) fn check_candidate_v1(&self, row: &super::super::LexicalInstanceCallDispositionRowV1) -> Result<(), String> {

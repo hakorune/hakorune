@@ -1,5 +1,6 @@
 //! Checked body of one original expression, borrowed by its purpose wrapper.
 //! Acquisitions are source templates; only the physical Normal edge owns a value.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
@@ -10,7 +11,7 @@ use std::collections::BTreeSet;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedExpressionEvaluationV1 {
     pub(super) source: Rc<ExpressionSourcePlanV1>,
-    pub(super) prior_homes: Box<[crate::mir::resolved_semantics::BindingRefV1]>,
+    pub(super) prior_homes: Box<[LiveHomeV1]>,
     pub(super) order: Box<[usize]>,
     pub(super) classes: Box<[ExpressionLeafClassV1]>,
     pub(super) calls: Box<[LocalCallObservationV1]>,
@@ -22,7 +23,7 @@ pub(crate) struct CheckedExpressionEvaluationV1 {
 }
 impl CheckedExpressionEvaluationV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
-    pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
     pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
     pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { &self.calls }
     pub(crate) fn cores(&self) -> &std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1> { &self.cores }
@@ -156,7 +157,7 @@ fn seed_reference_v1(
         }),
         CheckedExpressionReferenceV1::InitializerEntry { read, exclusion } => read.leaf_class(exclusion.as_deref())?,
         CheckedExpressionReferenceV1::Residence(read) => {
-            if !read.acquisition().is_text_residence() || !prepared.prior_homes().contains(&read.root()) { return None; }
+            if !read.acquisition().is_text_residence() || !prepared.prior_homes().contains(&LiveHomeV1::Text(read.acquisition().clone())) { return None; }
             Leaf::Value(Class::String)
         },
         CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::ArgumentEntry(_) => Leaf::Value(Class::String),

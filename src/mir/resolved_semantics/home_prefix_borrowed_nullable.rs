@@ -1,4 +1,5 @@
 //! Ownership-free nullable call result in the existing prefix state.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1;
 
@@ -8,7 +9,7 @@ impl PrefixLocalFlow<'_> {
         loan: crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
         calls: &[super::super::LocalCallObservationV1],
         covered: &std::collections::BTreeSet<OwnedExprSiteV1>,
-        homes: &[BindingRefV1],
+        homes: &[LiveHomeV1],
     ) -> bool {
         if !self.mixed_anchor_live_v1(&loan, Some((calls, covered, homes))) { return false; }
         self.store(loan.destination(), StoredLocal::ReceivedMixed(Box::new(loan)));
@@ -28,7 +29,7 @@ impl PrefixLocalFlow<'_> {
         &self,
         loan: &crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
         original_calls: Option<(&[super::super::LocalCallObservationV1],
-            &std::collections::BTreeSet<OwnedExprSiteV1>, &[BindingRefV1])>,
+            &std::collections::BTreeSet<OwnedExprSiteV1>, &[LiveHomeV1])>,
     ) -> bool {
         let mut current = loan;
         let mut seen = std::collections::BTreeSet::new();
@@ -54,7 +55,7 @@ impl PrefixLocalFlow<'_> {
                     && row.local_binding() == Some((declaration, binding)));
                 let Some(row) = rows.next() else { return false; };
                 if rows.next().is_some() || row.result() != kind || !covered.contains(acquisition)
-                    || !homes.contains(&binding)
+                    || !homes.iter().any(|home| home.binding() == binding)
                     || parent.is_some_and(|parent| row.mixed() != Some(parent)) { return false; }
             }
             match parent {

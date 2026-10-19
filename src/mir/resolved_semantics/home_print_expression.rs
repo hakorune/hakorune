@@ -1,5 +1,6 @@
 //! Whole Print qualification over the shared original expression plan.
 //! No physical IDs, runtime tokens or independent call inventory are issued.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1};
 use crate::mir::resolved_value_profile::{
@@ -20,7 +21,7 @@ pub(crate) struct CheckedPrintExpressionFrameV1 {
 impl CheckedPrintExpressionFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
-    pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { self.evaluation.prior_homes() }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { self.evaluation.prior_homes() }
     pub(crate) fn ordered_nodes(&self) -> &[usize] { self.evaluation.ordered_nodes() }
     pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { self.evaluation.calls() }
     pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { self.evaluation.operations() }
@@ -36,7 +37,7 @@ impl CheckedPrintExpressionFrameV1 {
 /// batch; after that final atomic batch succeeds, returning the frame cannot fail.
 pub(crate) fn qualify_print_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>,
-    prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(super::super::BindingRefV1, super::super::BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -49,7 +50,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     ) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
     let mut unique_homes = BTreeSet::new();
-    if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(*home)) {
+    if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding())) {
         return Ok(None);
     }
     use ExpressionLeafClassV1 as Leaf;

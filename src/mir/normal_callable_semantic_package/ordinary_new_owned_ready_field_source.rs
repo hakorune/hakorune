@@ -100,7 +100,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = row.source.owned_ready.as_ref().ok_or_else(|| fault("owned-ready/local-source-missing"))?;
         let required = self.source_field_requirement_v1(site)?
             .ok_or_else(|| fault("owned-ready/read-context-missing"))?;
-        if !source.matches_request(required.request()) || !required.prior_homes().contains(&row.home)
+        if !source.matches_request(required.request()) || !required.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(row.home))
             || row.numeric_source.is_some() { return Err(fault("owned-ready/read-context-drift")); }
         source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.source.field(), context)
     }

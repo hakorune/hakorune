@@ -1,5 +1,6 @@
 //! Home-effect verification on the SAME retained NoExitBody Recipe.
 //! This does not recognize a Loop route, issue Recipe keys or lower effects.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::planner::{PreissuedCallableLoopSourcePlanV1, RetainedCallableLoopSourceV1};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::*;
@@ -58,7 +59,7 @@ impl VerifiedNoExitArrayHomeAfterV1 {
     pub(in crate::mir) fn original_source_v1(&self) -> &Rc<RetainedCallableLoopSourceV1> { &self.source }
     pub(in crate::mir) fn updated(&self) -> &[BindingRefV1] { &self.updated }
     pub(in crate::mir) fn frame(&self) -> &LoopExecutionFrameKeyV1 { self.source.frame() }
-    pub(in crate::mir) fn prior_homes(&self) -> &[BindingRefV1] { self.prestate.prior_homes() }
+    pub(in crate::mir) fn prior_homes(&self) -> &[LiveHomeV1] { self.prestate.prior_homes() }
     pub(in crate::mir) fn appends(&self) -> &[VerifiedNoExitArrayAppendV1] { &self.appends }
     pub(in crate::mir) fn matches_prestate(&self, current: &LoopI64PreStateRequestV1) -> bool {
         self.prestate.same_snapshot(current)

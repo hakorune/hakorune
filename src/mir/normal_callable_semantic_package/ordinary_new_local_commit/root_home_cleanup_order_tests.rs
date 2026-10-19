@@ -198,15 +198,15 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         let plan_len = if owned { 3 } else { 1 };
         assert_eq!(order.full().len(), 2 * plan_len);
         assert_eq!(order.normal().len(), plan_len);
-        assert_eq!(order.full()[0].binding(), Some(projection.fault_homes()[0]));
-        assert_eq!(order.normal()[0].binding(), Some(projection.homes()[0]));
+        assert_eq!(order.full()[0].binding(), Some(projection.fault_homes()[0].binding()));
+        assert_eq!(order.normal()[0].binding(), Some(projection.homes()[0].binding()));
         assert_eq!(order.acquisition_fault(), order.full());
         assert_eq!(
             order.fault_after_normal_step(plan_len - 1).unwrap(),
             order.full()[..plan_len]
         );
         for origin in &order.full()[..plan_len] {
-            assert_eq!(origin.binding(), Some(projection.fault_homes()[0]));
+            assert_eq!(origin.binding(), Some(projection.fault_homes()[0].binding()));
             assert!(!order.normal().contains(origin));
         }
         if owned {
@@ -223,14 +223,14 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         }
         // This source Call Fault has no root exit key. The shared expansion
         // follows exactly the supplied order, including each complete child End.
-        let input = [projection.fault_homes()[1], projection.fault_homes()[0]];
+        let input = [projection.fault_homes()[1].clone(), projection.fault_homes()[0].clone()];
         let call_fault = source_home_end_plans_v1(&rows, &input).unwrap().unwrap();
         assert_eq!(call_fault.len(), 2 * plan_len);
         for (index, binding) in input.iter().enumerate() {
             let part = &call_fault[index * plan_len..(index + 1) * plan_len];
             assert!(part.iter().all(|(home, subject, _)| home == binding && match subject {
                 RootHomeReleaseSubjectV1::Binding(actual)
-                | RootHomeReleaseSubjectV1::FieldResidence { binding: actual, .. } => actual == binding,
+                | RootHomeReleaseSubjectV1::FieldResidence { binding: actual, .. } => *actual == binding.binding(),
                 _ => false,
             }));
             if owned {
@@ -242,10 +242,10 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         }
         let full = projection.fault_homes();
         for (f, n, error) in [
-            (vec![full[0], full[0]], vec![], "duplicate-home"),
-            (vec![full[0]], vec![full[1]], "foreign-home"),
-            (full.to_vec(), vec![full[1], full[0]], "home-order"),
-            (full.to_vec(), vec![full[0], full[0]], "home-order"),
+            (vec![full[0].clone(), full[0].clone()], vec![], "duplicate-home"),
+            (vec![full[0].clone()], vec![full[1].clone()], "foreign-home"),
+            (full.to_vec(), vec![full[1].clone(), full[0].clone()], "home-order"),
+            (full.to_vec(), vec![full[0].clone(), full[0].clone()], "home-order"),
         ] {
             assert!(
                 RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, &f, &n)
@@ -257,13 +257,13 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         let mut rows = ledger.local_commits.borrow_mut();
         let unavailable_site = rows
             .iter()
-            .find(|(_, row)| row.installs(full[0]))
+            .find(|(_, row)| row.installs(full[0].binding()))
             .unwrap()
             .0
             .clone();
         let missing_site = rows
             .iter()
-            .find(|(_, row)| row.installs(full[1]))
+            .find(|(_, row)| row.installs(full[1].binding()))
             .unwrap()
             .0
             .clone();
@@ -271,11 +271,11 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         // Both root exits and Loop ports use this same source-only selection.
         let super::super::super::LocalCommitV1::CallReceived(child) =
             rows.get_mut(&unavailable_site).unwrap() else { panic!("received"); };
-        let saved_parents = child.field_support_parents.replace(vec![full[1]].into_boxed_slice());
-        for normal in [vec![], vec![full[1]], full.to_vec()] {
+        let saved_parents = child.field_support_parents.replace(vec![full[1].binding()].into_boxed_slice());
+        for normal in [vec![], vec![full[1].clone()], full.to_vec()] {
             let selected = source_home_end_selection_v2(&rows, full, &normal);
             let root = RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, full, &normal);
-            if normal == vec![full[1]] {
+            if normal == vec![full[1].clone()] {
                 assert!(selected.unwrap_err().contains("escaping-local-anchor"));
                 assert!(root.unwrap_err().contains("escaping-local-anchor"));
             } else {

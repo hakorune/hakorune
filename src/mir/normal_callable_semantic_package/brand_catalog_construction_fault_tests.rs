@@ -1,4 +1,5 @@
 //! Source authority for partial Birth cleanup, independent of MIR order.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::super::OwnedFieldChildKindV1;
 use super::issue_with_brand_catalog;
 
@@ -99,9 +100,9 @@ fn allocation_only_local_new_releases_home_without_initializing_fields() {
         let required: Vec<_> = flow.source_expression_fields().collect();
         let [required] = required.as_slice() else { panic!("one original read: {expression}") };
         let writer = required.request().owned_ready.as_ref().unwrap();
-        assert_eq!(writer.prior_homes(), &[required.request().home]);
+        assert_eq!(writer.prior_homes(), &[LiveHomeV1::Stable(required.request().home)]);
         let claims = ledger.pending_claims_for_test();
-        let homes: Vec<_> = claims.values().map(|claim| claim.home_prefix().as_ref().unwrap().destination()).collect();
+        let homes: Vec<_> = claims.values().map(|claim| LiveHomeV1::Stable(claim.home_prefix().as_ref().unwrap().destination())).collect();
         assert_eq!(required.prior_homes(), homes.as_slice(), "current allocation order: {expression}");
         assert_eq!(required.prior_homes().len(), 2, "q must join read Fault cleanup");
         let original = flow.expression_plans().iter().find(|plan| std::rc::Rc::ptr_eq(plan.source(), required.plan())).unwrap();

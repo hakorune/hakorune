@@ -168,7 +168,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .prior_homes()
             .iter()
             .rev()
-            .copied()
+            .cloned()
             .collect();
         self.prior_home_unwind_for(&live)
     }
@@ -388,7 +388,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.live_owned_array_append_value_v1(source)?;
         // Named Append observations are newest-first, whereas LocalCall inputs
         // to the existing unwind owner are oldest-first. Normalize once here.
-        self.prior_home_unwind_for(&source.prior_homes()?.iter().rev().copied().collect::<Vec<_>>())
+        self.prior_home_unwind_for(&source.prior_homes()?.iter().rev().cloned().collect::<Vec<_>>())
     }
     pub(super) fn live_owned_array_recipe_value_v1(
         &self, recipe: &Rc<super::super::ArrayHolderLifecycleRecipeV1>,
@@ -432,7 +432,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || observation.arguments().iter().filter(|argument| matches!(argument,
                 crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { site, .. }
                     if site == read.site().site())).count() != 1
-            || observation.prior_homes().iter().filter(|binding| **binding == read.holder()).count() != 1
+            || observation.prior_homes().iter().filter(|binding| binding.binding() == read.holder()).count() != 1
         {
             return Err(freeze("owned-array-read-live-prefix-drift"));
         }

@@ -27,7 +27,7 @@ pub(crate) use source_loop::LoopHeaderScalarBasisV1;
 pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, SourceScalarKind};
 #[path = "home_prefix_text.rs"]
 mod text;
-pub(crate) use text::{StaticTextReadV1, TextResidenceAcquisitionV1};
+pub(crate) use text::{StaticTextReadV1, TextResidenceAcquisitionV1, LiveHomeV1};
 #[cfg(test)]
 pub(crate) use text::assert_identity_for_test as assert_text_residence_identity_for_test;
 pub(crate) use field_alias::FieldAliasPathV1;
@@ -39,7 +39,7 @@ pub(crate) struct LoopI64PreStateRequestV1 {
     owner: super::FunctionOwnerIdV1,
     site: SourceStmtSiteV1,
     integer_bindings: BTreeSet<BindingRefV1>,
-    prior_homes: Box<[BindingRefV1]>,
+    prior_homes: Box<[LiveHomeV1]>,
     borrowed_arrays: BTreeMap<BindingRefV1, super::field_read::BorrowedArrayFieldSourceV1>,
 }
 
@@ -50,7 +50,7 @@ impl LoopI64PreStateRequestV1 {
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
     }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { &self.prior_homes }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
     pub(crate) fn same_snapshot(&self, other: &Self) -> bool {
         self.owner == other.owner && self.site == other.site
             && self.integer_bindings == other.integer_bindings && self.prior_homes == other.prior_homes
@@ -271,7 +271,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn loop_i64_prestate(
         &self,
         site: &SourceStmtSiteV1,
-        homes: &[BindingRefV1],
+        homes: &[LiveHomeV1],
     ) -> Option<LoopI64PreStateRequestV1> {
         self.input.function().loop_region_bundle(site).ok()?;
         let integer_bindings = self
@@ -286,7 +286,7 @@ impl<'source> PrefixLocalFlow<'source> {
             owner: self.input.owner(),
             site: site.clone(),
             integer_bindings,
-            prior_homes: homes.iter().rev().copied().collect(),
+            prior_homes: homes.iter().rev().cloned().collect(),
             borrowed_arrays: self.live_borrowed_array_sources(),
         })
     }

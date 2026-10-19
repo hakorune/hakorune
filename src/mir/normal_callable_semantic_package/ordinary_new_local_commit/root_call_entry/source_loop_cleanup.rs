@@ -1,6 +1,7 @@
 //! Original Loop port obligations borrow installed Home End plans once.
 //! No root Return identity, execution permission or second Home registry.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use std::rc::Rc;
 use crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2 as Product;
 use crate::mir::instruction::InvokeOperation;
@@ -9,7 +10,7 @@ use crate::mir::instruction::InvokeOperation;
 pub(in crate::mir) struct SourceLoopCleanupPlanV2 {
     product: Rc<Product>,
     port: usize,
-    full: Vec<(BindingRefV1, super::super::RootHomeReleaseSubjectV1, InvokeOperation)>,
+    full: Vec<(LiveHomeV1, super::super::RootHomeReleaseSubjectV1, InvokeOperation)>,
     normal: Vec<usize>,
     residuals: Vec<Vec<usize>>,
 }
@@ -46,7 +47,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("source-loop/cleanup-product-missing"))?;
         if !Rc::ptr_eq(original, product) { return Err(freeze("source-loop/cleanup-product-drift")); }
         let source = product.source.ports.get(port).ok_or_else(|| freeze("source-loop/cleanup-port"))?;
-        let homes: Vec<_> = source.homes().iter().rev().copied().collect();
+        let homes: Vec<_> = source.homes().iter().rev().cloned().collect();
         let (full, normal) = super::super::source_home_end_selection_v2(
             &self.local_commits.borrow(), &homes, source.normal_ends())?
             .ok_or_else(|| freeze("source-loop/cleanup-end-unavailable"))?;

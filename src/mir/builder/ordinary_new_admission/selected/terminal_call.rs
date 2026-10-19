@@ -410,7 +410,7 @@ pub(in crate::mir::builder) fn emit_local_lexical(
         .handle_call_source(&owned_site)
         .ok_or_else(|| freeze("lexical-handle-source-missing"))?;
     if relation.prior_homes().is_empty()
-        || !relation.prior_homes().contains(&row.receiver_binding()?)
+        || !relation.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(row.receiver_binding()?))
     {
         return Err(freeze("lexical-handle-receiver-home-missing"));
     }

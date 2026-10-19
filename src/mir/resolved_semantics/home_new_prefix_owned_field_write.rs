@@ -1,12 +1,13 @@
 //! Owned LOCAL assignment qualification, separate from formal-borrow permission.
 //! Preserve the exact source frame and update readiness only after complete staging.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use std::rc::Rc;
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &mut PrefixLocalFlow<'_>, homes: &[BindingRefV1],
+    locals: &mut PrefixLocalFlow<'_>, homes: &[LiveHomeV1],
     source_consult: &mut impl HomeFieldSourceConsultV1<E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,

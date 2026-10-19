@@ -1,4 +1,5 @@
 //! Connect the retained source loan at the same real pre-evaluation Prefix point.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
@@ -15,7 +16,7 @@ pub(super) fn text_reference(input: ResolvedFunctionLoweringInputV1<'_>, locals:
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     call_site: &OwnedExprSiteV1, actuals: &[BorrowedCallActualCandidateV1],
-    locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[LiveHomeV1],
     local_calls: &[LocalCallObservationV1],
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,

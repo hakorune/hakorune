@@ -1,4 +1,5 @@
 //! Source observation of the existing bounded lexical local call.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{
     HomePrefixUnavailableV1, ObjectCallSourceSupportV1,
@@ -12,7 +13,7 @@ pub(crate) fn issue_lexical_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     result: LocalCallResultClassV1,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
@@ -67,7 +68,7 @@ pub(crate) fn issue_lexical_local_call<E>(
                     site.clone(),
                     declaration,
                     destination,
-                    prior_homes.iter().copied().collect(),
+                    prior_homes.iter().cloned().collect(),
                     arguments,
                     result,
                 )));
@@ -121,7 +122,7 @@ pub(crate) fn issue_lexical_local_call<E>(
         site.clone(),
         declaration,
         destination,
-        prior_homes.iter().copied().collect(),
+        prior_homes.iter().cloned().collect(),
         arguments.into_boxed_slice(),
         result,
     )))
@@ -135,7 +136,7 @@ pub(crate) fn issue_received_producer_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -143,7 +144,7 @@ pub(crate) fn issue_received_producer_local_call<E>(
 ) -> Result<Option<Result<LocalCallObservationV1, HomePrefixUnavailableV1>>, E> {
     let claim_local = input.function().method_call(site.site()).is_some_and(|call| {
         matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
-            if prior_homes.contains(&binding)
+            if prior_homes.iter().any(|home| home.binding() == binding)
             && input.function().binding(binding).is_some_and(|row|
                 matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Local { .. })))
     });
@@ -194,7 +195,7 @@ pub(crate) fn issue_received_producer_local_call<E>(
             site.clone(),
             declaration,
             destination,
-            prior_homes.iter().copied().collect(),
+            prior_homes.iter().cloned().collect(),
             arguments,
             result,
         ))));
@@ -212,7 +213,7 @@ pub(super) fn corroborate_received_initializer_v1(
     site: &OwnedExprSiteV1,
     declaration: &SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
 ) -> bool {
     corroborate_local_initializer_v1(input, statement, site, declaration, destination, prior_homes)
         && input.function().method_call(site.site()).is_some_and(|call|
@@ -227,7 +228,7 @@ pub(super) fn corroborate_local_initializer_v1(
     site: &OwnedExprSiteV1,
     declaration: &SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
 ) -> bool {
     let function = input.function();
     let Some(initializer) = function.expression_source().initializer(declaration) else {
@@ -244,7 +245,7 @@ pub(super) fn corroborate_local_initializer_v1(
         && function.declaration_binding(declaration) == Some(destination)
         && prior_homes
             .iter()
-            .all(|binding| binding.owner() == input.owner() && *binding != destination)
+            .all(|binding| binding.owner() == input.owner() && binding.binding() != destination)
 }
 
 pub(super) fn corroborate_received_arguments_v1(

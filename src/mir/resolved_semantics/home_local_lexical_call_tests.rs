@@ -65,7 +65,7 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
             } else {
                 row.binding()
             },
-            &[receiver],
+            &[super::super::LiveHomeV1::Stable(receiver)],
             LocalCallResultClassV1::Handle,
             &mut |_| {
                 old_predicate += 1;
@@ -117,7 +117,7 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
                     observation.local_binding(),
                     Some((declaration, row.binding()))
                 );
-                assert_eq!(observation.prior_homes(), [receiver]);
+                assert_eq!(observation.prior_homes(), [super::super::LiveHomeV1::Stable(receiver)]);
             }
             3 => assert_eq!(result.unwrap_err(), "selected-original-error"),
             _ => assert!(result.unwrap().is_none()),
@@ -141,7 +141,7 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
                     declaration.clone()
                 },
                 row.binding(),
-                &[receiver],
+                &[super::super::LiveHomeV1::Stable(receiver)],
                 &mut |owned, request| {
                     demands += 1;
                     assert_eq!(owned, &site);
@@ -206,7 +206,7 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
                         observation.local_binding(),
                         Some((declaration, row.binding()))
                     );
-                    assert_eq!(observation.prior_homes(), [receiver]);
+                    assert_eq!(observation.prior_homes(), [super::super::LiveHomeV1::Stable(receiver)]);
                 }
                 6 => assert_eq!(result.unwrap_err(), "producer-original-error"),
                 9 => assert!(result.unwrap().is_none()),

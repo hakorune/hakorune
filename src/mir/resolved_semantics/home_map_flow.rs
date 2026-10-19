@@ -1,5 +1,6 @@
 //! Map responsibility successors from the existing caller ownership walk.
 //! No physical ID, package descriptor, or runtime storage policy is issued here.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::local_call_flow::LocalCallObservationV1;
 use super::terminal_relation::{array_literal_element_count, map_literal_keys};
 use super::*;
@@ -18,7 +19,7 @@ use value_flow::{map_value_leaf, observe_array_elements};
 /// path observed, for the consumer's per-exit binding-group expectation.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RootHomeExitV1 {
-    homes: Box<[BindingRefV1]>,
+    homes: Box<[LiveHomeV1]>,
     implicit_origin: Option<(crate::mir::compiler::located::SourceBodySiteV1, u32)>,
     covered_calls: Box<[OwnedExprSiteV1]>,
     covered_statements: Box<[SourceStmtSiteV1]>,
@@ -26,11 +27,11 @@ pub(crate) struct RootHomeExitV1 {
 
 impl RootHomeExitV1 {
     /// Every source exit snapshots the same newest-first Home obligation.
-    pub(super) fn from_live_v1(homes: &[BindingRefV1], covered_calls: Box<[OwnedExprSiteV1]>,
+    pub(super) fn from_live_v1(homes: &[LiveHomeV1], covered_calls: Box<[OwnedExprSiteV1]>,
         covered_statements: Box<[SourceStmtSiteV1]>) -> Self {
-        Self::issue(homes.iter().rev().copied().collect(), covered_calls, covered_statements)
+        Self::issue(homes.iter().rev().cloned().collect(), covered_calls, covered_statements)
     }
-    pub(super) fn issue(homes: Box<[BindingRefV1]>, covered_calls: Box<[OwnedExprSiteV1]>,
+    pub(super) fn issue(homes: Box<[LiveHomeV1]>, covered_calls: Box<[OwnedExprSiteV1]>,
         covered_statements: Box<[SourceStmtSiteV1]>) -> Self {
         Self {
             homes,
@@ -40,7 +41,7 @@ impl RootHomeExitV1 {
         }
     }
     pub(super) fn implicit_from_live_v1(body: crate::mir::compiler::located::SourceBodySiteV1, end: u32,
-        homes: &[BindingRefV1], calls: Box<[OwnedExprSiteV1]>, statements: Box<[SourceStmtSiteV1]>) -> Self {
+        homes: &[LiveHomeV1], calls: Box<[OwnedExprSiteV1]>, statements: Box<[SourceStmtSiteV1]>) -> Self {
         let mut row = Self::from_live_v1(homes, calls, statements);
         row.implicit_origin = Some((body, end));
         row
@@ -48,7 +49,7 @@ impl RootHomeExitV1 {
     pub(crate) fn implicit_origin(&self) -> Option<(&crate::mir::compiler::located::SourceBodySiteV1, u32)> {
         self.implicit_origin.as_ref().map(|(body, end)| (body, *end))
     }
-    pub(crate) fn homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn homes(&self) -> &[LiveHomeV1] {
         &self.homes
     }
     pub(crate) fn covered_calls(&self) -> &[OwnedExprSiteV1] {
@@ -103,7 +104,7 @@ impl RootHomeFlow {
     /// The sole exit's homes — only when the flow observed exactly one
     /// explicit site with no uncovered implicit end. Multi-exit functions
     /// must read `exit_row` per site.
-    pub(crate) fn terminal_homes(&self) -> Result<&[BindingRefV1], &HomePrefixUnavailableV1> {
+    pub(crate) fn terminal_homes(&self) -> Result<&[LiveHomeV1], &HomePrefixUnavailableV1> {
         if self.exits.contains_key(&RootHomeExitKeyV1::ImplicitBodyEnd) || self.exits.len() != 1 {
             return Err(&HomePrefixUnavailableV1::TerminalNotCovered);
         }
@@ -231,8 +232,8 @@ impl MapHomeFlow {
         self.target_function
     }
     /// No Map exists on allocation Fault. Normal acquires an empty construction Map.
-    pub(crate) fn allocation_fault(&self) -> impl DoubleEndedIterator<Item = BindingRefV1> + '_ {
-        self.outer.iter().map(|home| home.binding)
+    pub(crate) fn allocation_fault(&self) -> impl DoubleEndedIterator<Item = LiveHomeV1> + '_ {
+        self.outer.iter().map(|home| home.home.clone())
     }
     /// Remaining outer Homes in cleanup order after exactly `installed` entries.
     /// Before entry i installs use i; after Normal (including displaced-end Fault)
@@ -240,7 +241,7 @@ impl MapHomeFlow {
     pub(crate) fn outer_after_installs(
         &self,
         installed: usize,
-    ) -> Option<impl DoubleEndedIterator<Item = BindingRefV1> + '_> {
+    ) -> Option<impl DoubleEndedIterator<Item = LiveHomeV1> + '_> {
         if installed > self.entries.len() {
             return None;
         }
@@ -248,7 +249,7 @@ impl MapHomeFlow {
             self.outer
                 .iter()
                 .filter(move |home| home.transferred_at.is_none_or(|entry| entry >= installed))
-                .map(|home| home.binding),
+                .map(|home| home.home.clone()),
         )
     }
     /// Source audit projection. Runtime cleanup consumes MapEnd, not this list.
@@ -274,7 +275,7 @@ impl MapHomeFlow {
 /// Initial reverse acquisition order, with the sole source-issued transfer point.
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct MapOuterHome {
-    binding: BindingRefV1,
+    home: LiveHomeV1,
     transferred_at: Option<usize>,
 }
 
@@ -547,11 +548,11 @@ pub(super) fn observe_map<E>(
     destination: MapDestinationV1,
     keys: &[Box<str>],
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     used: &mut std::collections::BTreeSet<BindingRefV1>,
     nested_out: &mut Vec<MapHomeObservation>,
     compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
-) -> Result<Result<(MapHomeFlow, Vec<BindingRefV1>), HomePrefixUnavailableV1>, E> {
+) -> Result<Result<(MapHomeFlow, Vec<LiveHomeV1>), HomePrefixUnavailableV1>, E> {
     let Some(shape) = input.body_shape() else {
         return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
     };
@@ -584,7 +585,7 @@ pub(super) fn observe_map<E>(
         .iter()
         .rev()
         .map(|binding| MapOuterHome {
-            binding: *binding,
+            home: binding.clone(),
             transferred_at: None,
         })
         .collect();
@@ -614,11 +615,11 @@ pub(super) fn observe_map<E>(
                     child.clone(),
                 )));
             }
-            let Some(position) = remaining.iter().position(|home| *home == binding) else {
+            let Some(position) = remaining.iter().position(|home| home.binding() == binding) else {
                 return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
             };
             remaining.remove(position);
-            let Some(home) = outer.iter_mut().find(|home| home.binding == binding) else {
+            let Some(home) = outer.iter_mut().find(|home| home.home.binding() == binding) else {
                 return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
             };
             home.transferred_at = Some(entries.len());
@@ -651,9 +652,9 @@ pub(super) fn observe_map<E>(
                         .outer
                         .iter()
                         .filter(|home| home.transferred_at.is_some())
-                        .map(|home| home.binding)
+                        .map(|home| home.home.clone())
                     {
-                        let Some(home) = outer.iter_mut().find(|home| home.binding == binding)
+                        let Some(home) = outer.iter_mut().find(|home| home.home == binding)
                         else {
                             return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
                         };

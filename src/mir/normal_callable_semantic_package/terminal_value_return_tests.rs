@@ -96,12 +96,12 @@ fn home_local_return_issues_value_relation_and_leaves_cleanup() {
     // `p` left with the caller; only the sibling map stays for cleanup.
     let terminal = flow.terminal_homes().unwrap();
     assert_eq!(terminal.len(), 1);
-    assert!(!terminal.contains(binding));
+    assert!(!terminal.iter().any(|home| home.binding() == *binding));
     assert!(matches!(
         flow.maps()[0].complete().unwrap().destination(),
         crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::LocalBinding(
             map_binding
-        ) if terminal.contains(map_binding)
+        ) if terminal.iter().any(|home| home.binding() == *map_binding)
     ));
     let _ = acquisition;
 }

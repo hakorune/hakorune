@@ -93,8 +93,8 @@ pub(crate) enum HomePrefixUnavailableV1 {
     /// joined path never substitutes a union or an empty list.
     HomeFlowBranchDivergent {
         site: SourceStmtSiteV1,
-        then_homes: Box<[BindingRefV1]>,
-        else_homes: Box<[BindingRefV1]>,
+        then_homes: Box<[LiveHomeV1]>,
+        else_homes: Box<[LiveHomeV1]>,
     },
 }
 
@@ -103,7 +103,7 @@ pub(crate) enum HomePrefixUnavailableV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CallerNewHomePrefixV1 {
     destination: BindingRefV1,
-    prior_homes: Box<[BindingRefV1]>,
+    prior_homes: Box<[LiveHomeV1]>,
     outward_fault: NewFaultContinuationV1,
     covered_statements: Box<[SourceStmtSiteV1]>,
 }
@@ -112,7 +112,7 @@ impl CallerNewHomePrefixV1 {
     pub(crate) fn destination(&self) -> BindingRefV1 {
         self.destination
     }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
     pub(crate) fn required_unwind(&self) -> &OwnedExprSiteV1 {
@@ -134,17 +134,17 @@ impl CallerNewHomePrefixV1 {
 /// Both outcome projections come from the same original terminal walk.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResultNewHomePrefixV1 {
-    prior_homes: Box<[BindingRefV1]>,
-    normal_homes: Box<[BindingRefV1]>,
+    prior_homes: Box<[LiveHomeV1]>,
+    normal_homes: Box<[LiveHomeV1]>,
     outward_fault: NewFaultContinuationV1,
     covered_statements: Box<[SourceStmtSiteV1]>,
 }
 
 impl ResultNewHomePrefixV1 {
-    pub(crate) fn normal_homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn normal_homes(&self) -> &[LiveHomeV1] {
         &self.normal_homes
     }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
     }
     pub(crate) fn required_unwind(&self) -> &OwnedExprSiteV1 {
@@ -165,7 +165,7 @@ pub(crate) use expression_plan::{qualify_binding_rebind_expression_v1, CheckedBi
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
 pub(crate) use local_flow::source_loop::{SourceLoopScanSummaryV1, SourceLoopPortKindV1, CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1};
-pub(crate) use local_flow::{CurrentScalarReadV1, CurrentScalarProducerV1, StaticTextReadV1, TextResidenceAcquisitionV1, FieldAliasPathV1, LoopI64PreStateRequestV1, SourceScalarKind};
+pub(crate) use local_flow::{CurrentScalarReadV1, CurrentScalarProducerV1, StaticTextReadV1, TextResidenceAcquisitionV1, LiveHomeV1, FieldAliasPathV1, LoopI64PreStateRequestV1, SourceScalarKind};
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[cfg(test)]
 pub(crate) use local_flow::assert_text_residence_identity_for_test;

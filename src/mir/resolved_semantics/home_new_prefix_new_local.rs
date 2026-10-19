@@ -1,5 +1,6 @@
 //! Selected local `new` source, argument and Normal/Fault Home accounting.
 //! This is the existing scanner branch, kept separate from ordinary locals.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 #[allow(clippy::too_many_arguments)]
@@ -12,7 +13,7 @@ pub(super) fn observe_selected_new_local<E>(
     results: &mut BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     covered_statements: &[SourceStmtSiteV1],
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -118,7 +119,7 @@ pub(super) fn observe_selected_new_local<E>(
                                             SelectedNewArgumentKindV1::Local { binding }
                                             | SelectedNewArgumentKindV1::Handle { binding }
                                             | SelectedNewArgumentKindV1::BoundValue { binding }
-                                                if homes.contains(&binding) =>
+                                                if homes.iter().any(|home| home.binding() == binding) =>
                                             {
                                                 moved_arguments.push(binding);
                                             }
@@ -155,7 +156,7 @@ pub(super) fn observe_selected_new_local<E>(
             .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
             .map(|outward_fault| CallerNewHomePrefixV1 {
                 destination: binding,
-                prior_homes: homes.iter().rev().copied().collect(),
+                prior_homes: homes.iter().rev().cloned().collect(),
                 outward_fault,
                 covered_statements: covered_statements.to_vec().into_boxed_slice(),
             }),
@@ -166,11 +167,11 @@ pub(super) fn observe_selected_new_local<E>(
     // `prior_homes` above kept each binding so a Fault unwind
     // still discharges it.
     for moved in moved_arguments {
-        homes.retain(|home| *home != moved);
+        homes.retain(|home| home.binding() != moved);
         locals.consume_home(moved);
     }
     // This is the Normal successor only, after exact local commit.
-    homes.push(binding);
+    homes.push(LiveHomeV1::Stable(binding));
     let construction_source = scalar_field.construction_source(owned, binding)?;
     locals.install_selected_normal_home(binding, owned.clone(), construction_source);
     Ok(())

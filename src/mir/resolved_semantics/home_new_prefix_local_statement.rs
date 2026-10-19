@@ -1,6 +1,7 @@
 //! Existing Local statement walk, shared by root, branch and Loop scans.
 //! The running scanner owns ordering; this owner retains the same initializer,
 //! Call, field, map and Home installation algorithms without a second evaluator.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 #[allow(clippy::too_many_arguments)]
@@ -14,7 +15,7 @@ pub(super) fn observe<'a, E>(
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -187,7 +188,7 @@ pub(super) fn observe<'a, E>(
                     }
                     path_calls.insert(local_call.site().clone());
                     local_calls.push(local_call);
-                    homes.push(binding);
+                    homes.push(LiveHomeV1::Stable(binding));
                 }
                 Err(issue) => {
                     unavailable.get_or_insert(issue);
@@ -214,7 +215,7 @@ pub(super) fn observe<'a, E>(
         )? {
             path_calls.insert(local_call.site().clone());
             local_calls.push(local_call);
-            homes.push(binding);
+            homes.push(LiveHomeV1::Stable(binding));
             locals.install_received_nullable(binding, &owned);
             continue;
         }
@@ -252,7 +253,7 @@ pub(super) fn observe<'a, E>(
             // exit can release it.
             path_calls.insert(local_call.site().clone());
             local_calls.push(local_call);
-            homes.push(binding);
+            homes.push(LiveHomeV1::Stable(binding));
             locals.install_map(binding);
             continue;
         }
@@ -289,7 +290,7 @@ pub(super) fn observe<'a, E>(
             // Its acquisition is the call site, never a `new` site.
             path_calls.insert(local_call.site().clone());
             local_calls.push(local_call);
-            homes.push(binding);
+            homes.push(LiveHomeV1::Stable(binding));
             locals.install_received_handle(binding, &owned);
             continue;
         }
@@ -308,7 +309,7 @@ pub(super) fn observe<'a, E>(
             // acquisition is this call site, never a `new` site.
             path_calls.insert(local_call.site().clone());
             local_calls.push(local_call);
-            homes.push(binding);
+            homes.push(LiveHomeV1::Stable(binding));
             locals.install_received_nullable(binding, &owned);
             continue;
         }
@@ -346,7 +347,7 @@ pub(super) fn observe<'a, E>(
                 )? {
                     Ok((map, remaining)) => {
                         *homes = remaining;
-                        homes.push(binding);
+                        homes.push(LiveHomeV1::Stable(binding));
                         locals.install_map(binding);
                         maps.push(map_flow::MapHomeObservation::Complete(map));
                     }

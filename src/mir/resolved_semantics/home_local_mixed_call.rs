@@ -1,4 +1,5 @@
 //! Original mixed result observation. Normal acquisition and End stay separate.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 pub(crate) fn issue_mixed_local_call<E>(
@@ -7,7 +8,7 @@ pub(crate) fn issue_mixed_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
@@ -26,7 +27,7 @@ pub(crate) fn issue_mixed_local_call<E>(
     Ok(Some(Ok(LocalCallObservationV1 {
         owner: input.owner(), statement: statement.clone(), site: site.clone(),
         destination: LocalCallDestinationV1::LocalBinding { declaration, binding: destination },
-        prior_homes: prior_homes.iter().copied().collect(), arguments,
+        prior_homes: prior_homes.iter().cloned().collect(), arguments,
         result: LocalCallResultClassV1::MixedObject, mixed: Some(Box::new(loan)),
         borrowed_scalar: None, unit_source: None, borrowed_nullable: None, field_alias: None,
     })))

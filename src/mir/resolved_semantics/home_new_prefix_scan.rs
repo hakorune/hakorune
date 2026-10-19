@@ -1,5 +1,6 @@
 //! Per-statement source walk inside `scan_new_home_flow`: the loop owns no
 //! separate authority — every observation still lands in the caller's rows.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::SelectedLoopHomeLoanV1;
 use super::*;
 
@@ -27,7 +28,7 @@ pub(super) fn scan_statement_flow<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,

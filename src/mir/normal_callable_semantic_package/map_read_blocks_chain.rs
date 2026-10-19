@@ -359,8 +359,8 @@ pub(super) fn borrow_roots(
     child: &MapHomeFlow,
 ) -> Vec<BindingRefV1> {
     let mut roots = BTreeSet::new();
-    roots.extend(actual.allocation_fault());
-    roots.extend(child.allocation_fault());
+    roots.extend(actual.allocation_fault().map(|home| home.binding()));
+    roots.extend(child.allocation_fault().map(|home| home.binding()));
     if let Some(elements) = entry.array_elements() {
         collect_element_roots(elements, &mut roots);
     }
@@ -372,7 +372,7 @@ pub(super) fn borrow_roots_for_entry(
     entry: &MapHomeEntry,
 ) -> Vec<BindingRefV1> {
     let mut roots = BTreeSet::new();
-    roots.extend(actual.allocation_fault());
+    roots.extend(actual.allocation_fault().map(|home| home.binding()));
     if let Some(elements) = entry.array_elements() {
         collect_element_roots(elements, &mut roots);
     }

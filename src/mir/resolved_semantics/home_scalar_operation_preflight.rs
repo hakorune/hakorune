@@ -1,4 +1,5 @@
 //! Same-owner scalar operator/operand preflight; parent publishes whole-expression results.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_value_profile::expression_source::{
     expression_source_v1, ResolvedExpressionSourceV1,
@@ -13,7 +14,7 @@ pub(super) fn preflight<E>(
     requests: &mut Vec<LocalFieldReadRequestV1>,
     calls: &mut Vec<LocalCallObservationV1>,
     statement: &SourceStmtSiteV1,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_binary: Option<&SourceExprSiteV1>,
     local_initializer_profile: bool,

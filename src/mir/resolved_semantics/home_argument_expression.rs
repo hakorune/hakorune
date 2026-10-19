@@ -1,5 +1,6 @@
 //! Completed semantic argument qualification at the real covered Prefix point.
 //! Mandatory entry requirements remain obligations, not physical descriptors.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{BindingRefV1, LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind};
 use crate::mir::normal_callable_semantic_package::{ArgumentExpressionSourceLoanV1, BorrowedTextEntryReadRequirementV1};
@@ -20,14 +21,14 @@ impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn static_reads(&self) -> Vec<&super::super::StaticTextReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::StaticText(read) => Some(read), _ => None }).collect() }
     pub(crate) fn residence_reads(&self) -> Vec<&super::initializer_expression::TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { self.evaluation.prior_homes() }
     pub(crate) fn text_reads(&self) -> Vec<&BorrowedTextEntryReadRequirementV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::ArgumentEntry(read) => Some(read), _ => None }).collect() }
     pub(crate) fn references(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar(read) => Some((node, (read.binding(), read.kind()))), _ => None }).collect() }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
 }
 
 pub(crate) fn qualify_argument_expression_v1<E>(
-    core: ArgumentExpressionSourceLoanV1, statement: &SourceStmtSiteV1, prior_homes: &[BindingRefV1],
+    core: ArgumentExpressionSourceLoanV1, statement: &SourceStmtSiteV1, prior_homes: &[LiveHomeV1],
     text_reads: &[BorrowedTextEntryReadRequirementV1],
     text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
@@ -52,7 +53,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     } else if !core.requires_i64_v1() && !matches!(root.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
         | ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_))) { return Ok(None); }
     let mut homes = BTreeSet::new();
-    if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(*home)) { return Ok(None); }
+    if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(home.binding())) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
@@ -69,7 +70,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             static_reads.push(read);
         } else if let Some((current, root, acquisition)) = residence_reference(node.site()) {
             if current != *binding || root != acquisition.binding() || acquisition.source().owner() != source.owner()
-                || (acquisition.owns_root() && !homes.contains(&root))
+                || (acquisition.owns_root() && !prior_homes.contains(&LiveHomeV1::Text(acquisition.clone())))
                 || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
             residence_reads.push(super::initializer_expression::TextResidenceReadV1::new(index, current, root, acquisition));
         }

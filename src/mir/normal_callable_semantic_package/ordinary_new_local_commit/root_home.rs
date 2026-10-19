@@ -93,6 +93,7 @@ impl RootHomeExitEntry {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum RootHomeReleaseSubjectV1 {
     Binding(BindingRefV1),
+    Text(crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1),
     DirectResult {
         site: OwnedExprSiteV1,
     },
@@ -126,9 +127,10 @@ impl RootHomeReleaseOriginV1 {
     }
 
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
-        match self.subject {
+        match &self.subject {
             RootHomeReleaseSubjectV1::Binding(binding)
-            | RootHomeReleaseSubjectV1::FieldResidence { binding, .. } => Some(binding),
+            | RootHomeReleaseSubjectV1::FieldResidence { binding, .. } => Some(*binding),
+            RootHomeReleaseSubjectV1::Text(source) => Some(source.binding()),
             RootHomeReleaseSubjectV1::ArgumentMap { .. }
             | RootHomeReleaseSubjectV1::DirectResult { .. }
             | RootHomeReleaseSubjectV1::DirectResultField { .. } => None,
@@ -562,25 +564,17 @@ impl OrdinaryNewClaimLedgerV1 {
                     // Each installed Home expands to its sealed teardown
                     // plan's subjects: owned `ArrayBox` residences precede
                     // the Home's own Binding release.
-                    for binding in expected_homes {
-                        let home =
-                            installed_home(&rows, *binding).map_err(|error| match error {
-                                HomeLookupError::Missing => freeze("root-home-not-installed"),
-                                HomeLookupError::Duplicate => freeze("duplicate-root-home"),
-                            })?;
-                        expected_subjects.extend(
-                            home.end_plan()
-                                .into_vec()
-                                .into_iter()
-                                .map(|(subject, _)| subject),
-                        );
-                    }
+                    let expected_plans = source_home_end_plans_v1(&rows, expected_homes)?
+                        .ok_or_else(|| freeze("root-home-end-unavailable"))?;
+                    expected_subjects.extend(expected_plans.iter().map(|(_, subject, _)| subject.clone()));
                     if origins.len() != expected_subjects.len() {
                         return Err(freeze("root-exit-origin-count"));
                     }
                     let expected_subjects = expected_subjects.into_iter();
                     for (emitted, expected_subject) in origins.iter().zip(expected_subjects) {
                         if emitted.origin.subject() != &expected_subject
+                            || expected_plans.iter().find(|(_, subject, _)| subject == &expected_subject)
+                                .is_some_and(|(_, _, operation)| emitted.origin.operation() != operation)
                             || emitted.origin.exit() != expected_exit
                         {
                             return Err(freeze("root-exit-origin-drift"));

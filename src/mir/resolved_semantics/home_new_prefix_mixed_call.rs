@@ -1,4 +1,5 @@
 //! Install one mixed local observation in the existing ordered Home walk.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 pub(super) fn observe<E>(
@@ -7,7 +8,7 @@ pub(super) fn observe<E>(
     site: &OwnedExprSiteV1,
     declaration: &SourceBindingSiteV1,
     binding: BindingRefV1,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     locals: &mut PrefixLocalFlow<'_>,
     calls: &mut Vec<LocalCallObservationV1>,
     covered: &mut BTreeSet<OwnedExprSiteV1>,
@@ -25,7 +26,7 @@ pub(super) fn observe<E>(
             calls.push(call);
             // This position is an outcome-dependent obligation, not an
             // owning-only Home. Its dedicated result/loan must survive End.
-            homes.push(binding);
+            homes.push(LiveHomeV1::Stable(binding));
         }
         Ok(_) => { unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); }
         Err(issue) => { unavailable.get_or_insert(issue); }

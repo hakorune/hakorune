@@ -91,7 +91,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.recheck_returned_field_argument_source_v1(source)?;
         let outer = self.local_call_for_owner(retained.call.owner(), retained.call.site())
             .ok_or_else(|| fault("returned/outer-call-missing"))?;
-        if outer.prior_homes().iter().filter(|home| **home == loan.parent()).count() != 1
+        if outer.prior_homes().iter().filter(|home| home.binding() == loan.parent()).count() != 1
             || !matches!(outer.arguments().get(retained.ordinal as usize),
                 Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal, site })
                     if *ordinal == retained.ordinal && site == loan.read().site())

@@ -1,9 +1,10 @@
 //! Source execution/lifecycle obligations of the SAME checked Loop tree.
 //! These are analysis templates, never runtime acquisitions or physical grants.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::source_loop_v2::{reject, Summary, Body, Statement, Evaluation, Source};
 use std::{rc::Rc, collections::BTreeSet};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1,
+use crate::mir::resolved_semantics::{OwnedExprSiteV1,
     CoreMethodHomeParameterRelationV1 as Parameter, CoreMethodHomeResultRelationV1 as ResultKind};
 use crate::mir::resolved_value_profile::{expression_projection::ExpressionLeafClassV1 as Leaf,
     expression_class::ExpressionValueClassV1 as Class};
@@ -30,7 +31,7 @@ fn fault(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, frame: &E
     Ok(SourceLoopFaultV2 { node, continuation, prior_acquisitions: prior_acquisitions.to_vec().into_boxed_slice() })
 }
 fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, frame: &Evaluation,
-    homes: &[BindingRefV1], retain_root: bool,
+    homes: &[LiveHomeV1], retain_root: bool,
 ) -> Result<SourceLoopEvaluationLifecycleV2, String> {
     if frame.prior_homes() != homes { return Err(reject("execution-prior-homes")); }
     let mut acquisitions = Vec::new();
@@ -94,34 +95,34 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
     Ok(SourceLoopEvaluationLifecycleV2 { source: Rc::clone(frame.source()), normal_temporary_ends, faults: faults.into_boxed_slice() })
 }
 fn normal_port(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary,
-    port: usize, homes: &[BindingRefV1],
+    port: usize, homes: &[LiveHomeV1],
 ) -> Result<(), String> {
     let port = source.ports.get(port).ok_or_else(|| reject("execution-normal-port"))?;
     if port.homes() != homes { return Err(reject("execution-port-homes")); }
     let mut unique = BTreeSet::new();
     let mut ends = Vec::new();
     for home in homes.iter().rev() {
-        let binding = input.function().binding(*home).ok_or_else(|| reject("execution-home-binding"))?;
-        if !unique.insert(*home) { return Err(reject("execution-home-duplicate")); }
-        if port.crossed_scopes().contains(&binding.owner_scope()) { ends.push(*home); }
+        let binding = input.function().binding(home.binding()).ok_or_else(|| reject("execution-home-binding"))?;
+        if !unique.insert(home.binding()) { return Err(reject("execution-home-duplicate")); }
+        if port.crossed_scopes().contains(&binding.owner_scope()) { ends.push(home.clone()); }
     }
-    let retained: Vec<_> = homes.iter().copied().filter(|home| !ends.contains(home)).collect();
+    let retained: Vec<_> = homes.iter().cloned().filter(|home| !ends.contains(home)).collect();
     if ends.as_slice() != port.normal_ends() || retained != source.condition.prior_homes() {
         return Err(reject("execution-normal-home-closure"));
     }
     Ok(())
 }
 fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Body,
-    mut homes: Vec<BindingRefV1>, output: &mut Vec<SourceLoopEvaluationLifecycleV2>,
-) -> Result<Option<Vec<BindingRefV1>>, String> {
+    mut homes: Vec<LiveHomeV1>, output: &mut Vec<SourceLoopEvaluationLifecycleV2>,
+) -> Result<Option<Vec<LiveHomeV1>>, String> {
     for statement in tree.statements.iter() {
         match statement {
             Statement::Expression { frame, .. } => {
                 if let Some(initializer) = frame.initializer_frame() {
                     output.push(evaluation(input, source, initializer.evaluation(), &homes, initializer.owns_root())?);
                     if initializer.owns_root() {
-                        if homes.contains(&initializer.binding()) { return Err(reject("execution-home-reacquisition")); }
-                        homes.push(initializer.binding());
+                        if homes.iter().any(|home| home.binding() == initializer.binding()) { return Err(reject("execution-home-reacquisition")); }
+                        homes.push(LiveHomeV1::Text(initializer.text_acquisition_v1()));
                     }
                 } else if let Some(rebind) = frame.rebind_frame() {
                     output.push(evaluation(input, source, rebind.evaluation(), &homes, false)?);

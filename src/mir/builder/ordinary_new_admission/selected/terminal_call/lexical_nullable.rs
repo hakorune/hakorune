@@ -84,7 +84,7 @@ fn emit_object(
     if borrowed_receiver != entry.is_some()
         || (!borrowed_receiver
             && (relation.prior_homes().is_empty()
-                || !relation.prior_homes().contains(&row.receiver_binding()?)))
+                || !relation.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(row.receiver_binding()?))))
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }

@@ -187,7 +187,7 @@ fn owned_local_map_get_issues_terminal_relation_and_keeps_cleanup() {
     assert!(flow
         .terminal_homes()
         .unwrap()
-        .contains(&relation.receiver()));
+        .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(relation.receiver())));
     assert_install_admits(package);
 }
 
@@ -224,7 +224,7 @@ fn owned_local_map_get_in_child_owner_keeps_cleanup() {
     assert!(flow
         .terminal_homes()
         .unwrap()
-        .contains(&relation.receiver()));
+        .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(relation.receiver())));
 }
 
 #[test]
@@ -309,7 +309,7 @@ fn owned_local_map_get_with_borrowed_handle_entry_reads_as_tagged_fault() {
     assert!(flow
         .terminal_homes()
         .unwrap()
-        .contains(&relation.receiver()));
+        .contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(relation.receiver())));
     assert_install_admits(package);
 }
 

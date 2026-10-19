@@ -1,4 +1,5 @@
 //! Entry-receiver local call source observation, not argument/execution authority.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 pub(crate) fn issue_receiver_local_call<E>(
@@ -7,7 +8,7 @@ pub(crate) fn issue_receiver_local_call<E>(
     site: &OwnedExprSiteV1,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     result: LocalCallResultClassV1,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
@@ -52,7 +53,7 @@ pub(crate) fn issue_receiver_local_call<E>(
         site.clone(),
         declaration,
         destination,
-        prior_homes.iter().copied().collect(),
+        prior_homes.iter().cloned().collect(),
         Box::new([]),
         result,
     )))

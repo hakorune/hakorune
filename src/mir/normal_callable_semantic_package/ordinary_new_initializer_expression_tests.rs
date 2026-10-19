@@ -104,7 +104,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                 assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition().initializer_origin_v1(), first));
                 assert_eq!(second.residence_reads()[0].root(), first.binding());
                 assert_ne!(second.residence_reads()[0].binding(), first.binding(), "alias is a read, not a second owner");
-                assert_eq!(second.prior_homes(), [first.binding()]);
+                assert_eq!(second.prior_homes(), [crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(first.text_acquisition_v1())]);
                 crate::mir::resolved_semantics::home_new_prefix::assert_text_residence_identity_for_test(input, Rc::clone(first), second);
                 // The actual production scan retains the same complete frame,
                 // not just this test's independent pre-evaluation walk.

@@ -1,4 +1,5 @@
 //! Common Normal/Fault temporary cleanup correspondence for expression purposes.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallArgumentV1, LocalCallObservationV1, ArgumentCallObservationV1, CheckedArgumentExpressionFrameV1};
 use crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1;
@@ -16,7 +17,7 @@ impl<'a> ExpressionCallArgumentSourceV1<'a> {
     pub(in crate::mir) fn arguments(self) -> &'a [LocalCallArgumentV1] {
         match self { Self::Local(call) => call.arguments(), Self::Nested(call) => call.arguments() }
     }
-    pub(in crate::mir) fn prior_homes(self) -> &'a [crate::mir::resolved_semantics::BindingRefV1] {
+    pub(in crate::mir) fn prior_homes(self) -> &'a [LiveHomeV1] {
         match self { Self::Local(call) => call.prior_homes(), Self::Nested(call) => call.prior_homes() }
     }
 }
@@ -28,7 +29,7 @@ pub(in crate::mir) struct ExpressionCallTransientPrefixV1<'a> {
 }
 enum TransientPrefixOriginV1<'a> {
     Emitted { call: &'a EmittedLexicalCallProjectionV1, live: &'a [ValueId],
-        prior_homes: &'a [crate::mir::resolved_semantics::BindingRefV1] },
+        prior_homes: &'a [LiveHomeV1] },
     Arguments { call: ExpressionCallArgumentSourceV1<'a>, ordinal: usize,
         earlier: &'a [LexicalCallArgumentProjectionV1], context: CallValidationContextV1<'a> },
     Evaluation { frame: &'a CheckedExpressionEvaluationV1,
@@ -97,7 +98,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                         if inner.site() == site || in_arguments(inner.arguments(), site)),
         })
     }
-    fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] {
+    fn prior_homes(&self) -> &[LiveHomeV1] {
         match &self.origin {
             TransientPrefixOriginV1::Emitted { prior_homes, .. } => prior_homes,
             TransientPrefixOriginV1::Evaluation { frame, .. } => frame.prior_homes(),
@@ -138,7 +139,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         Ok(operations)
     }
     pub(in crate::mir) fn unwind_for_call(&self, site: &OwnedExprSiteV1,
-        homes: &[crate::mir::resolved_semantics::BindingRefV1]) -> Result<Vec<InvokeOperation>, String> {
+        homes: &[LiveHomeV1]) -> Result<Vec<InvokeOperation>, String> {
         if self.prior_homes() != homes || !self.contains(site)? {
             return Err(freeze("expression-call/context-drift"));
         }

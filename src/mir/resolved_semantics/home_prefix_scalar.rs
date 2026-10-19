@@ -1,4 +1,5 @@
 //! Current scalar reads join original reaching definitions to the covered Prefix.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{CheckedBindingRebindFrameV1, CheckedInitializerExpressionFrameV1, LocalCallObservationV1, LocalCallResultClassV1};
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
@@ -50,8 +51,8 @@ impl CurrentScalarReadV1 {
     pub(crate) fn producer(&self) -> &CurrentScalarProducerV1 { &self.producer }
 }
 impl PrefixLocalFlow<'_> {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn can_rebind_integer_v1(&self, binding: BindingRefV1, homes: &[BindingRefV1]) -> bool {
-        binding.owner() == self.input.owner() && !homes.contains(&binding)
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn can_rebind_integer_v1(&self, binding: BindingRefV1, homes: &[LiveHomeV1]) -> bool {
+        binding.owner() == self.input.owner() && !homes.iter().any(|home| home.binding() == binding)
             && matches!(self.locals.get(&binding), Some(StoredLocal::Trivial(Some(SourceScalarKind::Integer))))
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn current_scalar_read_v1(

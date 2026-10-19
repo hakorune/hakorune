@@ -94,7 +94,7 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     let [a, b, c] = map.entries() else {
         panic!("three entries");
     };
-    let outer = |count| map.outer_after_installs(count).unwrap().collect::<Vec<_>>();
+    let outer = |count| map.outer_after_installs(count).unwrap().map(|home| home.binding()).collect::<Vec<_>>();
     let live = |count| {
         map.live_after_installs(count)
             .unwrap()
@@ -102,14 +102,14 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
             .collect::<Vec<_>>()
     };
     assert_eq!(
-        map.allocation_fault().collect::<Vec<_>>(),
+        map.allocation_fault().map(|home| home.binding()).collect::<Vec<_>>(),
         [
             c.binding().unwrap(),
             b.binding().unwrap(),
             a.binding().unwrap()
         ]
     );
-    assert_eq!(outer(0), map.allocation_fault().collect::<Vec<_>>());
+    assert_eq!(outer(0), map.allocation_fault().map(|home| home.binding()).collect::<Vec<_>>());
     assert_eq!(outer(1), [c.binding().unwrap(), b.binding().unwrap()]);
     assert!(live(0).is_empty());
     assert_eq!(live(1), [a.site().clone()]);
@@ -123,7 +123,7 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     assert!(a.displaced().is_none() && b.displaced().is_none());
     assert_eq!((a.key(), b.key(), c.key()), ("a", "b", "a"));
     assert_eq!(
-        flow.terminal_homes().unwrap(),
+        flow.terminal_homes().unwrap().iter().map(|home| home.binding()).collect::<Vec<_>>(),
         [map.local_binding().unwrap()]
     );
     let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
@@ -328,12 +328,12 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
     let [entry] = current.entries() else {
         panic!("one transfer");
     };
-    let terminal = flow.terminal_homes().unwrap();
+    let terminal: Vec<_> = flow.terminal_homes().unwrap().iter().map(|home| home.binding()).collect();
     assert_eq!(terminal.len(), 4);
     assert_eq!(terminal[1], current.local_binding().unwrap());
     assert_eq!(terminal[3], prior.local_binding().unwrap());
     assert_eq!(
-        current.outer_after_installs(0).unwrap().collect::<Vec<_>>(),
+        current.outer_after_installs(0).unwrap().map(|home| home.binding()).collect::<Vec<_>>(),
         [
             entry.binding().unwrap(),
             terminal[2],
@@ -341,7 +341,7 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
         ]
     );
     assert_eq!(
-        current.outer_after_installs(1).unwrap().collect::<Vec<_>>(),
+        current.outer_after_installs(1).unwrap().map(|home| home.binding()).collect::<Vec<_>>(),
         [terminal[2], prior.local_binding().unwrap()]
     );
     let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
@@ -353,7 +353,7 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
                 .is_ok_and(|prefix| prefix.destination() == terminal[0])
         })
         .expect("later New source prefix");
-    assert_eq!(later.home_prefix().unwrap().prior_homes(), &terminal[1..]);
+    assert_eq!(later.home_prefix().unwrap().prior_homes().iter().map(|home| home.binding()).collect::<Vec<_>>(), &terminal[1..]);
 }
 
 #[test]

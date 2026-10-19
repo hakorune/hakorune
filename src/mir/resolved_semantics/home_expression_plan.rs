@@ -1,5 +1,6 @@
 //! Whole-expression Home qualification and stable scalar loans of one source plan.
 //! Source structure remains owned by resolved_value_profile; physical rows live later.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
     home_new_prefix::LocalFieldReadRequestV1, FunctionOwnerIdV1, ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
     ResolvedInitializerRelationV1, ResolvedLiteralSourceV1, SourceStmtSiteV1,
@@ -97,12 +98,12 @@ pub(crate) struct ExpressionFieldRequirementV1 {
     plan: Rc<ExpressionSourcePlanV1>,
     node: usize,
     request: LocalFieldReadRequestV1,
-    prior_homes: Rc<[crate::mir::resolved_semantics::BindingRefV1]>,
+    prior_homes: Rc<[LiveHomeV1]>,
 }
 impl ExpressionFieldRequirementV1 {
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
     pub(crate) fn request(&self) -> &LocalFieldReadRequestV1 { &self.request }
-    pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
     fn is_consistent(&self) -> bool {
         self.request.site.owner() == self.plan.owner()
             && self.request.home.owner() == self.plan.owner()
@@ -124,7 +125,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
     loop_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     field_write: Option<FieldWritePlanV1>,
-    initializer_homes: Option<Rc<[crate::mir::resolved_semantics::BindingRefV1]>>,
+    initializer_homes: Option<Rc<[LiveHomeV1]>>,
 }
 impl HomeExpressionPlanV1 {
     /// Called only after the original scalar preflight proves both Integer
@@ -170,7 +171,7 @@ impl HomeExpressionPlanV1 {
     /// Whole initializer preflight supplies value-class proof separately. This
     /// frame retains only original read requirements and evaluation-time Homes.
     pub(super) fn initializer_reads(
-        source: Rc<ExpressionSourcePlanV1>, homes: &[crate::mir::resolved_semantics::BindingRefV1],
+        source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1],
         prepared: Option<Self>, requests: &[LocalFieldReadRequestV1],
     ) -> Option<Self> {
         if source.has_opaque_obligations() || source.root().initializer().is_none() { return None; }
@@ -268,7 +269,7 @@ impl HomeExpressionPlanV1 {
             .into_iter().filter(|present| *present).count() <= 1
             && self.initializer_homes.as_ref().is_none_or(|homes| self.source.root().initializer().is_some()
                 && homes.iter().all(|home| home.owner() == self.source.owner())
-                && homes.iter().copied().collect::<std::collections::BTreeSet<_>>().len() == homes.len())
+                && homes.iter().map(LiveHomeV1::binding).collect::<std::collections::BTreeSet<_>>().len() == homes.len())
             && self.field_write.as_ref().is_none_or(|plan| Rc::ptr_eq(plan.frame.source(), &self.source)
                 && match (&plan.rhs, plan.frame.is_borrowed()) {
                     (None, true) => true,
@@ -516,11 +517,11 @@ mod installation_tests {
                 crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) => binding,
                 _ => panic!("local source"),
             };
-            let homes = [binding(receiver), binding(assignment.value_site())];
+            let homes = [LiveHomeV1::Stable(binding(receiver)), LiveHomeV1::Stable(binding(assignment.value_site()))];
             let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
             let source = crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1(
                 &ledger, shape, assignment).unwrap();
-            assert!(HomeExpressionPlanV1::borrowed_field_write(Rc::clone(&source), &[homes[0], homes[0]]).is_none());
+            assert!(HomeExpressionPlanV1::borrowed_field_write(Rc::clone(&source), &[homes[0].clone(), homes[0].clone()]).is_none());
             let plan = HomeExpressionPlanV1::borrowed_field_write(Rc::clone(&source), &homes).unwrap();
             let frame = Rc::clone(plan.borrowed_field_write_frame().unwrap());
             assert!(Rc::ptr_eq(frame.source(), &source));
@@ -672,7 +673,7 @@ mod installation_tests {
         let source = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
             &ledger, input.body_shape(), initializers[1]).unwrap();
         for profile in [leaves::ExpressionLeafProfileV1::Print, leaves::ExpressionLeafProfileV1::LocalInitializer] {
-            let homes = [initializers[0].binding()];
+            let homes = [LiveHomeV1::Stable(initializers[0].binding())];
             let prepared = leaves::prepare_expression_calls_v1::<()>(&source, profile, &Default::default(), &homes,
                 &mut |_| panic!("literal initializer has no Call")).unwrap().unwrap();
             let mut batches = 0;

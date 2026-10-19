@@ -47,7 +47,7 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     { return Ok(None); }
     let prior_homes = prepared.prior_homes().to_vec();
     let mut unique_homes = BTreeSet::new();
-    if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(*home)) { return Ok(None); }
+    if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding())) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
@@ -108,7 +108,7 @@ mod tests {
                 5 => locals.install_observed(binding, Observation::Handle(binding)),
                 _ => unreachable!(),
             }
-            let homes = if case == 1 { vec![binding] } else { vec![] };
+            let homes = if case == 1 { vec![super::super::super::LiveHomeV1::Stable(binding)] } else { vec![] };
             let body = input.source().root_body().unwrap();
             let statement = input.source().body_stmt(&body, 1).unwrap();
             let mut calls = Vec::new(); let mut paths = Default::default();

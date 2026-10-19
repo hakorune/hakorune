@@ -134,7 +134,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             assert_eq!(local.root(), claim.home_prefix().unwrap().destination());
             assert!(std::rc::Rc::ptr_eq(local.construction(), retained));
             assert!(std::rc::Rc::ptr_eq(local.source(), frame.source()));
-            assert_eq!(frame.prior_homes(), &[local.root()]);
+            assert_eq!(frame.prior_homes(), &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(local.root())]);
         }
         assert_eq!(flow.lifecycle_prefixes(&[]).unwrap().len(), flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count());
         let foreign = issue_with_brand_catalog(&source).unwrap();
@@ -436,7 +436,7 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
                 let expected: Vec<_> = claims
                     .iter()
                     .rev()
-                    .map(|claim| claim.home_prefix().unwrap().destination())
+                    .map(|claim| crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(claim.home_prefix().unwrap().destination()))
                     .collect();
                 assert_eq!(homes.unwrap(), expected.as_slice(), "{suffix}");
             } else {
@@ -467,7 +467,7 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
             .unwrap();
         assert_eq!(
             homes,
-            [claims[1].home_prefix().unwrap().destination()].as_slice(),
+            [crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(claims[1].home_prefix().unwrap().destination())].as_slice(),
             "{suffix}"
         );
     }

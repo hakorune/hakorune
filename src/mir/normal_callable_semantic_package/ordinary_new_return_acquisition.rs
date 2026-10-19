@@ -139,7 +139,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     || acquisition.owner() != value.owner()
                     || acquisition.site() != loan.call()
                     || binding.owner() != value.owner()
-                    || exit.homes().iter().filter(|home| **home == binding).count() != 1
+                    || exit.homes().iter().filter(|home| home.binding() == binding).count() != 1
                     || !exit.covered_calls().contains(loan.call())
                     || calls.next() != Some(acquisition)
                     || calls.next().is_some()

@@ -1,4 +1,5 @@
 //! Original Local initializer purpose over the shared checked expression body.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{BindingRefV1, SourceExprSiteV1, SourceScalarKind};
 use crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1;
@@ -33,10 +34,13 @@ pub(crate) struct CheckedInitializerExpressionFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
 }
 impl CheckedInitializerExpressionFrameV1 {
+    pub(crate) fn text_acquisition_v1(self: &Rc<Self>) -> TextResidenceAcquisitionV1 {
+        TextResidenceAcquisitionV1::from_initializer(Rc::clone(self))
+    }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.source().root().initializer().expect("original initializer").binding() }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { self.evaluation.prior_homes() }
     pub(crate) fn entry_reads(&self) -> Vec<&InitializerTextEntryReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::InitializerEntry { read, .. } => Some(read), _ => None }).collect() }
     pub(crate) fn entry_refinements(&self) -> BTreeMap<usize, &Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::InitializerEntry { exclusion: Some(proof), .. } => Some((node, proof)), _ => None }).collect() }
     pub(crate) fn residence_reads(&self) -> Vec<&TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
@@ -66,7 +70,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     let ExpressionPlanRootV1::LocalInitializer { initializer, .. } = source.root() else { return Ok(None) };
     if initializer.binding().owner() != source.owner() || source.nodes().first().map(|node| node.site()) != initializer.initializer_site() { return Ok(None); }
     let mut homes = BTreeSet::new();
-    if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(*home)) { return Ok(None); }
+    if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(home.binding())) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }

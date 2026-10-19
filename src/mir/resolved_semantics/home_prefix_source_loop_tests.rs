@@ -127,8 +127,8 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
         }
         assert_eq!(port.homes.len(), 1);
         assert_eq!(port.normal_ends.as_ref(), port.homes.as_ref());
-        let StoredLocal::Text { acquisition, .. } = &port.locals[&port.normal_ends[0]] else { panic!("owned substring") };
-        assert_eq!(acquisition.binding(), port.normal_ends[0]);
+        let StoredLocal::Text { acquisition, .. } = &port.locals[&port.normal_ends[0].binding()] else { panic!("owned substring") };
+        assert_eq!(crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone()), port.normal_ends[0]);
         assert_eq!(input.function().scope(*port.crossed.last().unwrap()).unwrap().kind(), ScopeKindV1::LoopBody);
     }
     assert_eq!((breaks, backedges), (1, 1));
@@ -229,7 +229,7 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
     let product = Rc::new(product);
     let after_site = SourcePathV1::root_body(4).child(P::Value).expr();
     let binding = *product.source.headers.keys().next().unwrap();
-    assert!(!locals.apply_source_loop_after_v2(Rc::clone(&product), &[binding]),
+    assert!(!locals.apply_source_loop_after_v2(Rc::clone(&product), &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)]),
         "wrong entry Home snapshot cannot publish even one carrier");
     assert!(locals.current_scalar_read_v1(&after_site, &calls).is_none());
     assert!(locals.apply_source_loop_after_v2(Rc::clone(&product), &homes));

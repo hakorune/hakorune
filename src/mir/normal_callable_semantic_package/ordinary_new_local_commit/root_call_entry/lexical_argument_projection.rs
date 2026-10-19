@@ -1,4 +1,5 @@
 //! Tie an observed argument value to the original lexical argument meaning.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use super::super::expression_projection::{ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1};
@@ -277,7 +278,7 @@ impl LexicalCallArgumentProjectionV1 {
     /// actual tuple, including its formal, site and ordinal.
     pub(in crate::mir) fn require_argument_frame_position_v1(
         &self, call: &OwnedExprSiteV1, ordinal: usize,
-        homes: &[crate::mir::resolved_semantics::BindingRefV1], context: CallValidationContextV1<'_>,
+        homes: &[LiveHomeV1], context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let Self::Expression(packet) = self else { return Ok(()) };
         let source = packet.frame.source();

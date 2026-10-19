@@ -264,7 +264,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("map-duplicate-emission"));
         }
         for binding in flow.allocation_fault() {
-            if !installed_home(&rows, binding).is_ok_and(LocalCommitV1::end_available) {
+            if !installed_source_home(&rows, &binding).is_ok_and(LocalCommitV1::end_available) {
                 return Err(freeze("map-prior-home-unavailable"));
             }
         }
@@ -369,7 +369,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("map-duplicate-emission"));
         }
         for binding in flow.allocation_fault() {
-            if !installed_home(&rows, binding).is_ok_and(LocalCommitV1::end_available) {
+            if !installed_source_home(&rows, &binding).is_ok_and(LocalCommitV1::end_available) {
                 return Err(freeze("map-prior-home-unavailable"));
             }
         }
@@ -434,7 +434,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("map-duplicate-emission"));
         }
         for binding in flow.allocation_fault() {
-            if !installed_home(&rows, binding).is_ok_and(LocalCommitV1::end_available) {
+            if !installed_source_home(&rows, &binding).is_ok_and(LocalCommitV1::end_available) {
                 return Err(freeze("map-prior-home-unavailable"));
             }
         }
@@ -499,7 +499,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("map-prefix-range"))?
         {
             let row =
-                installed_home(&rows, binding).map_err(|_| freeze("map-outer-home-missing"))?;
+                installed_source_home(&rows, &binding).map_err(|_| freeze("map-outer-home-missing"))?;
             operations.extend(row.end_operations());
         }
         Ok(operations)

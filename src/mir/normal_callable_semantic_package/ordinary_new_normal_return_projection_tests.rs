@@ -1,3 +1,4 @@
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
     brand_catalog_tests::issue_with_brand_catalog, VerifiedNormalCallableSemanticPackageV1,
@@ -65,8 +66,8 @@ fn normal_projection_direct_received_typed_opaque_preserves_fault_and_order() {
                 let expected: Vec<_> = original
                     .homes()
                     .iter()
-                    .copied()
-                    .filter(|home| *home != destination)
+                    .cloned()
+                    .filter(|home| home.binding() != destination)
                     .collect();
                 assert_eq!(original.homes().len(), 2);
                 assert_eq!(projection.homes(), expected);
@@ -182,11 +183,11 @@ fn normal_projection_received_destination_missing_or_duplicate_refuses() {
     let missing: Vec<_> = obligation
         .exit_homes()
         .iter()
-        .copied()
-        .filter(|home| *home != destination)
+        .cloned()
+        .filter(|home| home.binding() != destination)
         .collect();
     let mut duplicate = obligation.exit_homes().to_vec();
-    duplicate.push(destination);
+    duplicate.push(LiveHomeV1::Stable(destination));
     for homes in [missing, duplicate] {
         assert!(received_normal_homes(destination, &homes)
             .unwrap_err()

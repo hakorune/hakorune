@@ -1,4 +1,5 @@
 //! Received-call source identity and invalidation; no acquired Home is issued.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::parser::NyashParser;
@@ -58,21 +59,21 @@ fn received_call_identity_preserves_both_classes_without_direct_new_home() {
     use super::super::local_call_flow::BorrowedCallActualValueV1 as Actual;
     let call = input.function().method_calls().find(|(_, call)| call.selector() == "consume").unwrap().0;
     let call = OwnedExprSiteV1::new(input.owner(), call.clone());
-    let observe = |flow: &PrefixLocalFlow<'_>, known, homes: &[BindingRefV1]| {
+    let observe = |flow: &PrefixLocalFlow<'_>, known, homes: &[LiveHomeV1]| {
         let rows = super::super::local_call_flow::observe_borrowed_call_actuals(input, &call, flow, known, homes);
         rows.into_iter().find(|(site, _)| site == &call).unwrap().1[0].value.clone()
     };
-    assert_eq!(observe(&flow, true, &[rows[0].0]), Actual::ReceivedField {
+    assert_eq!(observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]), Actual::ReceivedField {
         parent: rows[0].0, acquisition: rows[0].1.clone(),
     });
-    for (known, homes) in [(false, vec![rows[0].0]), (true, vec![]), (true, vec![rows[1].0])] {
+    for (known, homes) in [(false, vec![LiveHomeV1::Stable(rows[0].0)]), (true, vec![]), (true, vec![LiveHomeV1::Stable(rows[1].0)])] {
         assert_eq!(observe(&flow, known, &homes), Actual::FieldAccess);
     }
     flow.install_received_nullable(rows[0].0, &rows[0].1);
-    assert_eq!(observe(&flow, true, &[rows[0].0]), Actual::FieldAccess);
+    assert_eq!(observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]), Actual::FieldAccess);
     flow.install_received_handle(rows[0].0, &rows[0].1);
     flow.consume_home(rows[0].0);
-    assert_eq!(observe(&flow, true, &[rows[0].0]), Actual::FieldAccess);
+    assert_eq!(observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]), Actual::FieldAccess);
 }
 
 #[test]
@@ -155,7 +156,7 @@ fn received_return_borrows_original_call_row_and_fault_snapshot() {
             rows[0].1.clone(),
             initializer.declaration_site().clone(),
             rows[0].0,
-            vec![rows[1].0].into_boxed_slice(),
+            vec![LiveHomeV1::Stable(rows[1].0)].into_boxed_slice(),
             vec![super::super::LocalCallArgumentV1::Integer(29)].into_boxed_slice(),
             result,
         )
@@ -166,7 +167,7 @@ fn received_return_borrows_original_call_row_and_fault_snapshot() {
         .received_call_observation(rows[0].0, &calls, &covered)
         .unwrap();
     assert!(std::ptr::eq(original, &calls[0]));
-    assert_eq!(original.prior_homes(), &[rows[1].0]);
+    assert_eq!(original.prior_homes(), &[LiveHomeV1::Stable(rows[1].0)]);
     assert_eq!(
         original.arguments(),
         &[super::super::LocalCallArgumentV1::Integer(29)]

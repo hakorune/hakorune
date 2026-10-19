@@ -1,5 +1,6 @@
 //! Retain original exit obligations across the existing affine root progress.
 //! Sequence membership uses exact source origins, never emitted MIR discovery.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::{freeze, RootHomeReleaseOriginV1};
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
@@ -27,23 +28,23 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
 /// No exit identity is invented for a Call Fault; unavailable never becomes empty.
 pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1(
     rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
-    homes: &[super::BindingRefV1],
-) -> Result<Option<Vec<(super::BindingRefV1, super::RootHomeReleaseSubjectV1, crate::mir::instruction::InvokeOperation)>>, String> {
+    homes: &[LiveHomeV1],
+) -> Result<Option<Vec<(LiveHomeV1, super::RootHomeReleaseSubjectV1, crate::mir::instruction::InvokeOperation)>>, String> {
     for (index, binding) in homes.iter().enumerate() {
         if homes[..index].contains(binding) { return Err(freeze("root-cleanup-order/duplicate-home")); }
     }
     let mut result = Vec::new();
     let mut available = true;
     for binding in homes {
-        let home = super::installed_home(rows, *binding).map_err(|error| match error {
+        let home = super::installed_source_home(rows, binding).map_err(|error| match error {
             super::HomeLookupError::Missing => freeze("root-home-not-installed"),
             super::HomeLookupError::Duplicate => freeze("duplicate-root-home"),
         })?;
         if let super::LocalCommitV1::CallReceived(row) = home {
             if let Some(parents) = &row.field_support_parents {
                 for parent in parents.iter() {
-                    if homes.iter().filter(|binding| *binding == parent).count() != 1
-                        || homes.iter().position(|binding| binding == parent)
+                    if homes.iter().filter(|home| home.binding() == *parent).count() != 1
+                        || homes.iter().position(|home| home.binding() == *parent)
                             <= homes.iter().position(|candidate| candidate == binding) {
                         return Err(freeze("field-end/anchor-cleanup-order"));
                     }
@@ -52,7 +53,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
         }
         available &= home.end_available();
         if !home.end_available() { continue; }
-        result.extend(home.end_plan().into_vec().into_iter().map(|(subject, operation)| (*binding, subject, operation)));
+        result.extend(home.end_plan().into_vec().into_iter().map(|(subject, operation)| {
+            let subject = match binding {
+                LiveHomeV1::Text(acquisition) => super::RootHomeReleaseSubjectV1::Text(acquisition.clone()),
+                LiveHomeV1::Stable(_) => subject,
+            };
+            (binding.clone(), subject, operation)
+        }));
     }
     Ok(available.then_some(result))
 }
@@ -61,8 +68,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
 /// policy for root exits and Loop ports. No synthetic exit identity is needed.
 pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selection_v2(
     rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
-    full_homes: &[super::BindingRefV1], normal_homes: &[super::BindingRefV1],
-) -> Result<Option<(Vec<(super::BindingRefV1, super::RootHomeReleaseSubjectV1,
+    full_homes: &[LiveHomeV1], normal_homes: &[LiveHomeV1],
+) -> Result<Option<(Vec<(LiveHomeV1, super::RootHomeReleaseSubjectV1,
     crate::mir::instruction::InvokeOperation)>, Vec<usize>)>, String> {
     for (index, binding) in full_homes.iter().enumerate() {
         if full_homes[..index].contains(binding) {
@@ -82,8 +89,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selectio
     }
     for row in rows.values() {
         if let super::LocalCommitV1::CallReceived(row) = row {
-            if full_homes.contains(&row.binding) && !normal_homes.contains(&row.binding)
-                && row.field_support_parents.as_ref().is_some_and(|parents| parents.iter().any(|parent| normal_homes.contains(parent))) {
+            if full_homes.iter().any(|home| home.binding() == row.binding) && !normal_homes.iter().any(|home| home.binding() == row.binding)
+                && row.field_support_parents.as_ref().is_some_and(|parents| parents.iter().any(|parent| normal_homes.iter().any(|home| home.binding() == *parent))) {
                 return Err(freeze("field-end/escaping-local-anchor"));
             }
         }
@@ -118,8 +125,8 @@ impl RootHomeCleanupOrderV1 {
     pub(super) fn from_home_end_plans(
         rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
         exit: &super::SourceStmtSiteV1,
-        full_homes: &[super::BindingRefV1],
-        normal_homes: &[super::BindingRefV1],
+        full_homes: &[LiveHomeV1],
+        normal_homes: &[LiveHomeV1],
     ) -> Result<Option<Self>, String> {
         Self::from_home_end_plans_for_exit(rows, &RootHomeExitKeyV1::Explicit(exit.clone()), full_homes, normal_homes)
     }
@@ -127,7 +134,7 @@ impl RootHomeCleanupOrderV1 {
     pub(super) fn from_home_end_plans_for_exit(
         rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
         exit: &RootHomeExitKeyV1,
-        full_homes: &[super::BindingRefV1], normal_homes: &[super::BindingRefV1],
+        full_homes: &[LiveHomeV1], normal_homes: &[LiveHomeV1],
     ) -> Result<Option<Self>, String> {
         let mut full = Vec::new();
         let mut normal = Vec::new();

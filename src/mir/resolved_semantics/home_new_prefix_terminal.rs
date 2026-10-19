@@ -1,6 +1,7 @@
 //! Terminal-statement observation inside `scan_statement_flow`: each
 //! explicit exit site owns its own relation, result co-seal, and Home
 //! snapshot — every row lands in the site-keyed caller maps.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 #[allow(clippy::too_many_arguments)]
@@ -19,7 +20,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -561,7 +562,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                                 SelectedNewArgumentKindV1::Local { binding }
                                                                                 | SelectedNewArgumentKindV1::Handle { binding }
                                                                                 | SelectedNewArgumentKindV1::BoundValue { binding }
-                                                                                    if homes.contains(&binding) =>
+                                                                                    if homes.iter().any(|home| home.binding() == binding) =>
                                                                                 {
                                                                                     moved_arguments.push(binding);
                                                                                 }
@@ -584,7 +585,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                             }
                                                                         }
                                                                     }
-                                                                    let prior_homes = homes.iter().rev().copied().collect();
+                                                                    let prior_homes = homes.iter().rev().cloned().collect();
                                                                     // The arg
                                                                     // move
                                                                     // completes
@@ -601,7 +602,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                     // it.
                                                                     for moved in moved_arguments {
                                                                         homes.retain(|home| {
-                                                                            *home != moved
+                                                                            home.binding() != moved
                                                                         });
                                                                         locals.consume_home(moved);
                                                                     }
@@ -611,7 +612,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                 .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
                                                                 .map(|outward_fault| ResultNewHomePrefixV1 {
                                                                     prior_homes,
-                                                                    normal_homes: homes.iter().rev().copied().collect(),
+                                                                    normal_homes: homes.iter().rev().cloned().collect(),
                                                                     outward_fault,
                                                                     covered_statements: covered_statements.clone().into_boxed_slice(),
                                                                 }),
@@ -644,7 +645,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                     _ => None,
                                                 };
                                                 if let Some(binding) = binding {
-                                                    homes.retain(|home| *home != binding);
+                                                    homes.retain(|home| home.binding() != binding);
                                                     locals.consume_home(binding);
                                                 }
                                                 relation = Some(TerminalRelationV1::Value(

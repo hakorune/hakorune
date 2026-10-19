@@ -1,4 +1,5 @@
 //! CurrentOwner Static source-only expression-value observations.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::super::StaticI64CallClaimV1;
 use super::*;
 
@@ -8,7 +9,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &SourceExprSiteV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     if !site
@@ -46,7 +47,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
         statement: statement.clone(),
         site: owned,
         destination: LocalCallDestinationV1::ExpressionValue,
-        prior_homes: prior_homes.iter().copied().collect(),
+        prior_homes: prior_homes.iter().cloned().collect(),
         arguments: Box::new([]),
         result: LocalCallResultClassV1::I64,
     }))
@@ -60,7 +61,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &SourceExprSiteV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
@@ -124,7 +125,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &SourceExprSiteV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -199,7 +200,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
         statement: statement.clone(),
         site: owned,
         destination: LocalCallDestinationV1::ExpressionValue,
-        prior_homes: prior_homes.iter().copied().collect(),
+        prior_homes: prior_homes.iter().cloned().collect(),
         arguments,
         result: LocalCallResultClassV1::I64,
     }))

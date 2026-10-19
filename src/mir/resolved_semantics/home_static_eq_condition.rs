@@ -1,5 +1,6 @@
 //! One composed If Eq Home source: checked one-input Static Lhs and
 //! zero-input Static RHS. No execution, operator envelope or packet is issued.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::SourcePathV1;
 
@@ -106,7 +107,7 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &SourceExprSiteV1,
     statement: &SourceStmtSiteV1,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,

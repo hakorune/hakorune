@@ -814,74 +814,21 @@ basis retains SAME source/flow/binding/entry/producer, never mutable collector o
 its own inventory/condition slot. Break/Continue retain resolver target, scopes
 through LoopBody, reverse Normal Homes and complete live Fault suffix. No adapter.
 
-Current integrated WIP (uncommitted; no whole-series acceptance):
-- Same retained SourcePlan Rc lends source observation. Only genuine Mul
-  morphology Unselected reaches generic planning; selected source/Facts/Recipe
-  refusal is terminal. Caller-zero strict Mul facade removed in WIP.
-- Scoped immutable Header basis keeps original role/source/flow, Header/unique
-  Entry/existing scalar producer. Loop/If qualification preserves purpose/read
-  proof; each installation borrow drops before recursive body descent.
-- SAME scanner retains original body expressions/control/If/Exit tree before
-  joins. Context-free snapshots retain exact crossed scopes through LoopBody,
-  reverse iteration Normal ends, live Fault Homes, statements and path Calls.
-  Original Break/Continue remain distinct from function Return; no Prefix cycle.
-- Complete Carrier census: Header={unique Entry+all Backedge/Continue}; After=
-  {unique ConditionFalse+all Break}. Verify source values/classes/producers and
-  path coverage. ConditionFalse is SAME Header, never pre-loop Entry.
-- Every body expression root, including non-carrier substring/If, retains original
-  Rc; exclude own condition slot and shared inventory. Product cannot own itself.
-- Root916G73.914s:50PASS/1 independent dynamic baseline; H66.779s body-retention
-  19PASS. Initializer stale fixture confirmed915B/corrected; dynamic panic913D.
-  Keep prior source/build/failed/corrected/baseline pins until full closure.
-- Root917 closes BoolExpression wire: canonical ordered tree, exact imports,
-  one root/parent, same And/Or reach and comparison domain. No Call/field/opaque/
-  transferred/owning import. String comparison Fault precedes Normal. Internal
-  Bool merge never fabricates source If/Exit or execution permission.
-- Root918 projects SAME checked tree once to typed V2/all-carrier JoinSig. Original
-  value/node/result and source control keys match original incoming payloads.
-  I64/readonly Text imports retain roles; iteration Local results keep original
-  initializer SSA. Existing canonical Core loans project CallSlot without new
-  source permission. Root918D52PASS; source/Loop physical execution still pending.
-- Root919 co-seals execution templates: exact Core law/operand/result/ownership,
-  original expression-Fault ancestry/prior acquisitions, reverse Normal temporary
-  ends and each port's scope/Home closure. Same Prefix atomically publishes only
-  analysis I64 After with original product/flow; body-local Homes cannot escape.
-  No runtime acquisition, Header/After read, or physical publication permission.
-- Same selected source row owns Recipe OnceCell and affine plan; original condition
-  slot keeps SAME product once. Root lifecycle prefix is only outer Loop; scoped
-  children are excluded by SAME Rc/tree membership. Root exit covers outer Loop
-  only, not all child sites; flat child publication remains refused.
-- Root920–923 landed preparation and evidence are retained by `5502985779`,
-  `4952165da9` and ancestors: exact original-reference dependency readers, paired
-  source Recipe/plan identity, pending/foreign/repeat/abort and same PhiTxn laws.
-  None grants source execution. Retain CLI266/native/source pins until closure.
-  Historical facade/scope input guards and source-publication filter reds remain
-  classified as previously recorded; the old owned-result default-stack abort
-  remains unclassified (cancelled session99482), not a PASS/restart claim.
-
-Next physical Decision (both source/condition workers reviewed actual owners):
-- Connect one checked whole-Loop consumer inside PlanLowerer. Current source
-  Local/rebind use raw effects, body If Or clones Break, no generic V2 physical
-  consumer exists: Header-only callback or another retained receipt cannot close.
-- SAME source_loop_v2 producer must bind each frame to exact Recipe item range;
-  If to item/condition/child blocks, Exit to item/exit/target. Check complete ordered
-  bijection BEFORE effects; driver consumes only this verified schedule, no AST
-  classifier or independent source-control authority. Borrow existing checked
-  initializer/rebind/whole Bool writers at actual emission, preserving Local/Home.
-- Share CFG/terminator/condition-receipt core, NOT whole IfForm's all-name Phi
-  materialization/raw-only state restore. Use exact BindingRef state/verified joins.
-  Genuine Header AND body If need whole Bool and actual-Branch seal; one Break.
-- Existing LocalSSA Phi relation follows Header/After define→completed/BOTH finals;
-  no second receipt/pool/pending snapshot grant. Child reads never own parent Rc.
-  SAME Loop group owns scoped children; atomic Home destination Root/Loop child.
-- completed_loop checks all original source edges/producers, CFG predecessors,
-  SSA loan(original,incoming), Step inputs and real Bool false edge. Record Exit
-  AFTER cleanup/localization. Keep refusal until full group/reads/BOTH finals close.
-- Root924 WIP evidence is retained by `4d3e9188e4` and ancestors: SAME scoped
-  Loop collection/Home destination/tree; root-only census, pending Finalized
-  refusal, no child execution/completion permission. B38PASS/stable4; CLI267
-  JSON337 unchanged/noEXE, mimalloc338 runtime exact336. Retain source/native/
-  review pins until full closure. Card recovery retained inherited Text/Loop laws.
+Root916–924's historical WIP and next-physical Decision are superseded by the
+construction recorded below at `5da19f405d`. Full contracts, intermediate build/
+source/baseline evidence and reviews remain in `3480cc86db` and its references
+`5502985779`, `4952165da9`, `4d3e9188e4`. Retain those pins until Text/Loop closure.
+Current invariants: SAME source Rc/tree and verified ordered Recipe schedule drive
+one whole-Loop writer; Header/After bind unique Entry/all original incoming and
+real false edge, not pre-loop values. Shared checked Local/rebind/Bool writers,
+exact LocalSSA relations and completed_loop feed BOTH finals. Same scoped group
+owns children; no flat conditional publication, parent Rc cycle, AST classifier,
+second receipt/pool or fallback. Exit records follow cleanup/localization.
+Analysis preparation alone grants no execution. Readonly Text retains its role;
+iteration-local Homes cannot escape; original Fault ancestry/temporary Ends and
+port live-Home closure remain required. Historical facade/scope/source-publication
+reds remain classified by those commits. The owned-result default-stack abort
+(cancelled session99482) is still unclassified, not a PASS/restart claim.
 
 - Root925–938 complete Loop construction, source/session/cleanup/SSA Decisions,
   all intermediate evidence and old-adapter retirement are retained at
@@ -958,7 +905,8 @@ one LiveHome item: Stable(binding) or Text(original acquisition). Replace their
 binding-only elements, not a parallel map/receipt or point-aware source replay.
 Keep each historical frame's original acquisitions immutable. Normal source
 transition removes old Text and appends new; StaticText has no owned Home.
-Context resolves exact packet by source Rc/site, not latest installed_home(binding).
+Published Home owner resolves exact packet by source Rc/site, never latest binding;
+Context retains origin-specific read loans. BOTH phases use the same published row.
 Update shared prior unwind, root/Loop exits, cleanup and BOTH final scans together;
 never discard historical packets or retry an old End after its Fault.
 CallNormal's genuine source coordinate may be an inner node: Loop must use that
@@ -975,3 +923,68 @@ shared initializer/scalar owners remain. This is preparation, not Text acceptanc
 Keep950B/CLI290/392/393/949B and287/289 diagnostic provenance until Text acceptance.
 Next: the exact-acquisition Home arrays described above, then genuine Text rebind,
 Return/CallNormal/borrowed entry/Unit args, cleanup and BOTH finals/JSON/C.
+
+952 selected implementation scope: replace existing source live/prior/branch/port/
+exit/Map-outer Home elements with LiveHomeV1; Text keeps SAME acquisition Rc,
+Stable is only for existing non-rebindable Homes. No secondary history map.
+The shared installed_source_home owner resolves Text by exact original site/Rc/
+published packet and rejects Text through Stable. Existing packet/group final
+checks retain publication authority; no phase-specific lookup retry is introduced.
+Root release subjects and Loop full plans retain acquisition; BOTH scans reconstruct
+source End plans, including exact operation/value. Map allocation Fault and outer
+cleanup were additional binding-only snapshots and are included for correctness.
+Readonly source/physical reviews cover all consumers. Rebind/Return/CallNormal
+admission remains the next part of SAME Text series; no additional tests selected.
+
+952 verified normalization (no whole-series/production completion):
+- Root952A/B check47.548998/46.262818s and952C/D test builds60.095185/59.803026s
+  exposed representation migration errors only; corrected before952E117.228548s
+  and952F46.429579s PASS. F additionally removes three unused imports; no new
+  warning versus950B. No suppressed warning, semantic fallback or test-case change.
+- Existing changed-owner tests:174selected/nonzero,170PASS/4FAIL before and after
+  (950B predecessor,952E and final952F). All4 messages exact after source-line/
+  elapsed-time normalization: unknown_home_prefix; source_only_actual_probe;
+  qualified_call_map_argument/source-actual-unavailable; qualified_call_return
+  OpaqueCall expectation. These are reproduced baselines, not new waivers/fixes.
+- Root952F/CLI291 source manifests equal;9263test names unchanged. Cases/hooks/
+  fixtures/checker entries added:none. Existing assertion changes are type/projection
+  adaptations, with Text initializer/Loop snapshots comparing exact acquisition.
+- Pointer/layer/CallTarget/diff PASS. All modified production files <=800 lines.
+  Fixed11 is required here because shared cleanup crosses the acceptance owners;
+  its final result/classification is below; focused green never implies suite green.
+- CLI291 build215.368515s. Canonical direct --backend mir --emit-exe with
+  runtime894A and FFI939A (pure-first/no replay/plugins disabled) gives unchanged
+  JSON394 .050643s exit1/noEXE, stderr exact392/unit-value-use. No frontier advance.
+- Unchanged mimalloc395 EXE157.928395s/run.001819s, stdout/stderr/exit0 exact363.
+  Existing scoped-Text/Break Loop source396 retains364 source SHA and executes
+  exact364 runtime contract (Result:1/expected exit1), run.001353s. Recorder looked
+  for a nonexistent old .run.receipt after successful generation; recovered runtime
+  against original .runtime-contract without recompilation. Its build time was
+  not saved and is not claimed. This is an existing input, not an added fixture.
+- Kernel894A/FFI939A are explicit predecessors; their relevant runtime/C/include
+  source paths remain unchanged. Root/CLI Rust manifests match; no all-three
+  whole-repository manifest or full-series/CI green claim.
+- Commands: CARGO_BUILD_JOBS=4 cargo quick-test-fast --no-run --message-format=json;
+  cargo build --profile quick --bin hakorune --message-format=json. Both use same
+  source. Native argv/profile/env remain in392/394/395/396 receipts and951 landing.
+- Retired superseded952E test binary280991256B after matching952F174 outcomes;
+  source/build/failure logs retained. Keep950B/952F/CLI291/native and suite pins
+  until unfinished Text acceptance; no source trace or new temporary adapter.
+- Fixed11 CLI291: exit1/454.653059s,5PASS/6FAIL. Command: bash
+  tools/smokes/v2/run.sh --profile integration --owner-profile integration
+  --suite real-apps-exe-boundary --timeout 1900.
+  PASS: typed New, Birth, Birth-param, method EXEs plus empty marker (not EXE).
+  All6 FAIL reproduced with CLI290 and same FFI939A/kernel894A, exact full MIR/
+  panic diagnostics: JSON unit-value-use; boxtorrent stored-child/receiver-unavailable;
+  binary-trees borrowed-result/source-not-i64; mimalloc smoke generic precheck
+  borrowed-static/required-integer-source-unproved; allocator NamedArray(TextSourceMissing);
+  untyped-field phase84-5 Type inference ValueId14. No new regression or baseline
+  waiver. Failed prechecks leave their subsequent EXE assertion untested; direct
+  canonical mimalloc395 acceptance is separate. All6 remain required unfinished.
+- Selected binding-only Text cleanup lookup is physically retired across prior
+  unwind, New/Map Fault, root/Loop plans and final expectation. installed_home is
+  used only by Stable's shared resolver, which rejects Text; no retry. All old
+  dedicated Text snapshot elements are replaced, not retained as parallel lists.
+- Next actual construction: Text rebind source/physical acquisition and old End,
+  then all-original Return/CallNormal/borrowed entry/Unit arguments/cleanup/finals/C
+  under the accepted950 Decision. No further inventory prerequisite or design stop.

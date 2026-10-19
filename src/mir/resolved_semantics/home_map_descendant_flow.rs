@@ -7,6 +7,7 @@
 //! more specific verifier keep that destination (EntrySlot for map-entry
 //! children, CallArgument for sealed-call argument children); the residual
 //! family records `ContainedIn` destination evidence only.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::local_flow::PrefixLocalFlow;
 use super::map_flow::{self, MapDestinationV1, MapHomeObservation};
 use super::*;
@@ -23,7 +24,7 @@ pub(super) fn observe_descendant_maps<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<BindingRefV1>,
+    homes: &mut Vec<LiveHomeV1>,
     maps: &mut Vec<MapHomeObservation>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
 ) -> Result<(), E> {

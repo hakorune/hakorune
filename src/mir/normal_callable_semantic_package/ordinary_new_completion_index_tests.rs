@@ -138,11 +138,11 @@ fn root_completion_index_direct_received_matrix_lends_same_original_source() {
                         projection
                             .fault_homes()
                             .iter()
-                            .filter(|home| **home == destination)
+                            .filter(|home| home.binding() == destination)
                             .count(),
                         1
                     );
-                    assert!(!projection.homes().contains(&destination));
+                    assert!(!projection.homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(destination)));
                     assert!(ledger
                         .verified_direct_object_return_source_v1(owner, &exit)
                         .unwrap()

@@ -135,10 +135,10 @@ fn nested_map_transfer_marks_parent_outer_at_parent_entry_index() {
         .ordinary_new_claim_ledger
         .map_flow(&parent_owned)
         .expect("parent row completes");
-    let p_binding = parent.allocation_fault().next().expect("one outer home");
+    let p_binding = parent.allocation_fault().next().expect("one outer home").binding();
     // Consumed at parent entry 0: live before entry 0, gone after.
     assert_eq!(
-        parent.outer_after_installs(0).unwrap().collect::<Vec<_>>(),
+        parent.outer_after_installs(0).unwrap().map(|home| home.binding()).collect::<Vec<_>>(),
         vec![p_binding]
     );
     assert_eq!(parent.outer_after_installs(1).unwrap().count(), 0);
@@ -328,7 +328,7 @@ fn map_local_entry_is_a_non_consuming_borrow() {
         parent
             .outer_after_installs(parent.entries().len())
             .unwrap()
-            .collect::<Vec<_>>(),
+            .map(|home| home.binding()).collect::<Vec<_>>(),
         vec![*m_binding]
     );
 }

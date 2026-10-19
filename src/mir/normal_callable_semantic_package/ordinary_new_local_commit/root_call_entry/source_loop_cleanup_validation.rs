@@ -19,6 +19,14 @@ impl SourceLoopCleanupPlanV2 {
         if !std::ptr::eq(self, &emitted.plan) { return Err(freeze("source-loop/cleanup-plan-substitution")); }
         context.require_original_source_loop_v2(&self.product)?;
         context.require_source_loop_parent_v2(&self.product, matches!(context, CallValidationContextV1::Finalized(_)))?;
+        let port = self.product.source.ports.get(self.port).ok_or_else(|| freeze("source-loop/cleanup-port"))?;
+        let homes: Vec<_> = port.homes().iter().rev().cloned().collect();
+        let expected = super::super::super::source_home_end_selection_v2(
+            &context.ledger().local_commits.borrow(), &homes, port.normal_ends())?
+            .ok_or_else(|| freeze("source-loop/cleanup-end-unavailable"))?;
+        if self.full != expected.0 || self.normal != expected.1 {
+            return Err(freeze("source-loop/cleanup-source-plan-drift"));
+        }
         if self.normal_is_empty() {
             if emitted.from != emitted.entry || emitted.from != emitted.continuation
                 || !emitted.bindings.is_empty() || !emitted.operations.is_empty() || !emitted.normal_origins.is_empty() {

@@ -1,4 +1,5 @@
 //! Exact source scalar Return/Discard from the same package result loan.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1;
 
@@ -57,7 +58,7 @@ pub(super) fn observation_v1(
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
     destination: LocalCallDestinationV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     loan: BorrowedScalarResultSourceLoanV1,
     arguments: Box<[LocalCallArgumentV1]>,
 ) -> LocalCallObservationV1 {
@@ -80,7 +81,7 @@ pub(super) fn observation_v1(
 
 pub(crate) fn issue_source_scalar_expression_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &SourceStmtSiteV1,
-    site: &OwnedExprSiteV1, prior_homes: &[BindingRefV1],
+    site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1],
     receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
     borrowed_arguments: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
@@ -107,7 +108,7 @@ pub(crate) enum SourceScalarConditionCallV1 {
 
 pub(crate) fn issue_source_scalar_condition_call_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &SourceStmtSiteV1,
-    site: &OwnedExprSiteV1, prior_homes: &[BindingRefV1],
+    site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1],
     receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
     borrowed_arguments: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
@@ -133,7 +134,7 @@ pub(crate) fn issue_source_scalar_condition_call_v1<E>(
 pub(crate) fn issue_source_scalar_frame_call_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
-    site: &OwnedExprSiteV1, prior_homes: &[BindingRefV1],
+    site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1],
     receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
     actuals: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
@@ -160,7 +161,7 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
 pub(crate) fn issue_source_expression_call_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
-    site: &OwnedExprSiteV1, prior_homes: &[BindingRefV1],
+    site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1],
     receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
         -> Result<Option<BorrowedCallArgumentsV1>, E>,

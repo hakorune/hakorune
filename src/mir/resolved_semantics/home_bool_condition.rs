@@ -1,5 +1,6 @@
 //! Whole Bool condition qualification on the same immutable expression source.
 //! Conditional reach is retained; this owner never emits or eagerly runs RHS.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::leaves::{ExpressionLeafProfileV1, QualifiedExpressionLeavesV1};
 use super::super::{BindingRefV1, LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind};
@@ -23,7 +24,7 @@ pub(crate) struct CheckedBoolConditionFrameV1 {
 impl CheckedBoolConditionFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
-    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { self.evaluation.prior_homes() }
     pub(crate) fn ordered_nodes(&self) -> &[usize] { self.evaluation.ordered_nodes() }
     pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { self.evaluation.calls() }
     pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { self.evaluation.operations() }
@@ -51,7 +52,7 @@ impl CheckedBoolConditionFrameV1 {
 /// Every source/operator/call/refusal check precedes the last strict field
 /// batch. Only a complete candidate may enter the existing Home inventory.
 pub(crate) fn qualify_bool_condition_v1<E>(
-    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
+    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[LiveHomeV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -70,7 +71,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
 /// Preserve the genuine If/Loop purpose and exact original scalar proofs.
 /// This shares qualification only; it grants no outer control-flow completion.
 pub(crate) fn qualify_condition_expression_v1<E>(
-    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
+    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[LiveHomeV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -84,7 +85,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     use ExpressionValueClassV1 as Class;
     use ResolvedBinaryOperatorV1 as Op;
     let mut homes = BTreeSet::new();
-    if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(*home)) { return Ok(None); }
+    if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(home.binding())) { return Ok(None); }
     let condition = match source.root() {
         ExpressionPlanRootV1::IfCondition { condition, .. } | ExpressionPlanRootV1::LoopCondition { condition, .. } => condition,
         _ => return Ok(None),

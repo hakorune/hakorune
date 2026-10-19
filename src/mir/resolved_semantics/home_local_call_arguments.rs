@@ -1,11 +1,12 @@
 //! Ordered lexical I64 argument sealing inside the existing source-flow owner.
 //! Borrowed demand, strict scalar sealing and nested calls share one recursion.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 pub(super) fn seal_lexical_i64_arguments_at<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     allow_strict: bool,
     request: BorrowedCallActualRequestV1<'_>,
@@ -88,7 +89,7 @@ fn seal_i64_call_arguments<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     locals: &PrefixLocalFlow<'_>,
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     allow_strict: bool,
     request: BorrowedCallActualRequestV1<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
@@ -155,7 +156,7 @@ fn seal_argument_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     locals: &PrefixLocalFlow<'_>,
     site: &SourceExprSiteV1,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -197,7 +198,7 @@ fn seal_argument_call<E>(
     };
     Ok(Some(ArgumentCallObservationV1::issue(
         owned,
-        prior_homes.iter().copied().collect(),
+        prior_homes.iter().cloned().collect(),
         inner.into_boxed_slice(),
     )))
 }

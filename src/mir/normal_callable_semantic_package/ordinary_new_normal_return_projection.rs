@@ -1,4 +1,5 @@
 //! Read-only Normal cleanup projection from the original sealed return proof.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::{freeze, NormalReturnDispositionV1, OrdinaryNewClaimLedgerV1};
 use crate::mir::resolved_semantics::home_new_prefix::{
     ObjectReturnAcquisitionV1, RootHomeExitV1, TerminalObjectReturnObligationV1,
@@ -11,13 +12,13 @@ use std::borrow::Cow;
 
 pub(in crate::mir::normal_callable_semantic_package) struct NormalExitProjectionV1<'a> {
     original: &'a RootHomeExitV1,
-    homes: Cow<'a, [BindingRefV1]>,
+    homes: Cow<'a, [LiveHomeV1]>,
 }
 impl NormalExitProjectionV1<'_> {
-    pub(in crate::mir::normal_callable_semantic_package) fn homes(&self) -> &[BindingRefV1] {
+    pub(in crate::mir::normal_callable_semantic_package) fn homes(&self) -> &[LiveHomeV1] {
         &self.homes
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn fault_homes(&self) -> &[BindingRefV1] {
+    pub(in crate::mir::normal_callable_semantic_package) fn fault_homes(&self) -> &[LiveHomeV1] {
         self.original.homes()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn covered_calls(
@@ -29,8 +30,8 @@ impl NormalExitProjectionV1<'_> {
 
 fn project_normal_homes<'a>(
     obligation: &TerminalObjectReturnObligationV1,
-    homes: &'a [BindingRefV1],
-) -> Result<Cow<'a, [BindingRefV1]>, String> {
+    homes: &'a [LiveHomeV1],
+) -> Result<Cow<'a, [LiveHomeV1]>, String> {
     if obligation.exit_homes() != homes {
         return Err(freeze("projection-exit-homes"));
     }
@@ -52,15 +53,15 @@ fn project_normal_homes<'a>(
 
 fn received_normal_homes(
     destination: BindingRefV1,
-    homes: &[BindingRefV1],
-) -> Result<Vec<BindingRefV1>, String> {
-    if homes.iter().filter(|home| **home == destination).count() != 1 {
+    homes: &[LiveHomeV1],
+) -> Result<Vec<LiveHomeV1>, String> {
+    if homes.iter().filter(|home| home.binding() == destination).count() != 1 {
         return Err(freeze("projection-destination-count"));
     }
     Ok(homes
         .iter()
-        .copied()
-        .filter(|home| *home != destination)
+        .cloned()
+        .filter(|home| home.binding() != destination)
         .collect())
 }
 
@@ -112,7 +113,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || observation.local_binding() != Some((loan.declaration(), loan.destination()))
             || observation.result() != crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::BorrowedNullable
             || !original.covered_calls().contains(loan.call())
-            || original.homes().contains(&loan.destination())
+            || original.homes().iter().any(|home| home.binding() == loan.destination())
             || self.normal_return_dispositions.as_ref().is_some_and(|rows|
                 rows.contains_key(&(owner, exit.clone()))) {
             return Err(freeze("borrowed-local-source-identity"));

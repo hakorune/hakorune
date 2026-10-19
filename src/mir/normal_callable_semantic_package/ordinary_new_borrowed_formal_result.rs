@@ -1,4 +1,5 @@
 //! Source-result projection for borrowed callers of the existing lexical owner.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::borrowed_formal_actuals::PendingBorrowedFormalActualsV1;
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 use super::borrowed_formal_uses::BorrowedMulSourceV1;
@@ -420,7 +421,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         site: &OwnedExprSiteV1,
         arguments: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1],
-        homes: &[BindingRefV1],
+        homes: &[LiveHomeV1],
     ) -> Result<bool, String> {
         use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
         let source = self

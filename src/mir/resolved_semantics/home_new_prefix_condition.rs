@@ -1,5 +1,6 @@
 //! Install the original whole Bool condition in the shared Home transaction.
 //! Applicability is source morphology; selected refusal never retries a profile.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 use crate::mir::resolved_value_profile::expression_plan::{
@@ -100,7 +101,7 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &SourceStmtSiteV1,
-    locals: &PrefixLocalFlow<'_>, homes: &[BindingRefV1], prefix_known: bool,
+    locals: &PrefixLocalFlow<'_>, homes: &[LiveHomeV1], prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
@@ -131,7 +132,7 @@ pub(super) fn observe<E>(
 
 pub(super) fn observe_loop<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, source: &Rc<crate::mir::builder::RetainedCallableLoopSourceV1>,
-    locals: &PrefixLocalFlow<'_>, homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>, homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
@@ -145,7 +146,7 @@ pub(super) fn observe_loop<E>(
 
 fn install_source<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, source: Rc<ExpressionSourcePlanV1>,
-    locals: &PrefixLocalFlow<'_>, homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>, homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,

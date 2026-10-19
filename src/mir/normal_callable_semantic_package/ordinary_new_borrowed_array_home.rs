@@ -107,7 +107,7 @@ impl ArrayElementSourceLoanV1 {
                 } if source.binding() == binding => {
                     if source != &loan
                         || loan.append_candidate(call).as_ref() != Some(candidate)
-                        || prior_homes.iter().filter(|home| **home == binding).count() != 1
+                        || prior_homes.iter().filter(|home| home.binding() == binding).count() != 1
                     {
                         return Err(freeze("array-home/append-identity"));
                     }
@@ -140,7 +140,7 @@ impl ArrayElementSourceLoanV1 {
                 .exit_row(site)
                 .ok_or_else(|| freeze("array-home/exit-missing"))?
                 .map_err(|issue| format!("{}: {issue:?}", freeze("array-home/exit")))?;
-            let count = exit.homes().iter().filter(|home| **home == binding).count();
+            let count = exit.homes().iter().filter(|home| home.binding() == binding).count();
             if self.validate_holder_exit_source_v1(site, count)? {
                 ends.push((site, exit));
             }
@@ -180,7 +180,7 @@ impl ArrayHolderLifecycleRecipeV1 {
         for exit in self.completion.explicit_sites() {
             let row = flow.exit_row(exit).ok_or_else(|| freeze("array-holder/exit-missing"))?
                 .map_err(|issue| format!("{}: {issue:?}", freeze("array-holder/exit-unavailable")))?;
-            if self.source.validate_holder_exit_source_v1(exit, row.homes().iter().filter(|home| **home == self.holder()).count())? {
+            if self.source.validate_holder_exit_source_v1(exit, row.homes().iter().filter(|home| home.binding() == self.holder()).count())? {
                 ends.push(exit);
             }
         }
@@ -285,7 +285,7 @@ impl ArrayHolderLifecycleRecipeV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn append_prior_homes_v1(
         &self, site: &OwnedExprSiteV1,
-    ) -> Result<&[BindingRefV1], String> {
+    ) -> Result<&[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1], String> {
         let (_, candidate, _) = self.original_append_v1(site)
             .ok_or_else(|| freeze("array-append/original-missing"))?;
         let flow = self.completion.cleanup().root_flow()
@@ -301,7 +301,7 @@ impl ArrayHolderLifecycleRecipeV1 {
             || holder.construction().site() != self.construction()
             || holder.append_candidate(site).as_ref() != Some(observed)
             || observed.site() != candidate
-            || homes.iter().filter(|binding| **binding == self.holder()).count() != 1
+            || homes.iter().filter(|binding| binding.binding() == self.holder()).count() != 1
         { return Err(freeze("array-append/home-drift")); }
         available.as_ref().map_err(|issue| format!("{}: {issue:?}", freeze("array-append/unavailable")))?;
         Ok(homes)

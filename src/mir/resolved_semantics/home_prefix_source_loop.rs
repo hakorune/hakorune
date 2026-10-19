@@ -1,6 +1,7 @@
 //! Scoped inductive Header basis. This is source analysis, never a completed
 //! Loop, Home After or physical Phi permission. Body frames retain only the
 //! immutable basis, never a mutable exit collector or expression inventory.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::builder::{CallableLoopSourceBindingClassV1 as Role, RetainedCallableLoopSourceV1};
 use crate::mir::resolved_semantics::source_value_flow::{
@@ -69,7 +70,7 @@ pub(super) fn same_context(a: &Option<Rc<SourceLoopHeaderEnvironmentV1>>,
 
 impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_source_loop_headers_v1(
-        &mut self, source: Rc<RetainedCallableLoopSourceV1>, homes: &[BindingRefV1],
+        &mut self, source: Rc<RetainedCallableLoopSourceV1>, homes: &[LiveHomeV1],
         calls: &[super::super::LocalCallObservationV1],
     ) -> Option<SourceLoopHeaderCheckpointV1> {
         source.condition_source_v1(self.input)?;
@@ -147,7 +148,7 @@ pub(crate) use ports::tests::assert_original_loop_source_walk_for_test;
 impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn apply_source_loop_after_v2(&mut self,
         product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        homes: &[BindingRefV1],
+        homes: &[LiveHomeV1],
     ) -> bool {
         if product.source.source.owner() != self.input.owner() || product.source.condition.prior_homes() != homes
             || product.source.headers.keys().any(|binding| !self.can_rebind_integer_v1(*binding, homes)) { return false; }

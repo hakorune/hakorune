@@ -1,12 +1,13 @@
 //! Plain scalar rebind in the running Home walk; RHS permission is insufficient
 //! to overwrite a Home. The old destination must independently be Home-neutral.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1;
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &mut PrefixLocalFlow<'_>, homes: &[BindingRefV1], known: bool,
+    locals: &mut PrefixLocalFlow<'_>, homes: &[LiveHomeV1], known: bool,
     calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,

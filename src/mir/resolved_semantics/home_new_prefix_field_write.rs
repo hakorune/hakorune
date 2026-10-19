@@ -4,6 +4,7 @@
 //! formal path requires the canonical current non-null state, exact original
 //! writer/receiver/value consults, a numeric field declaration and checked RHS.
 //! Neither path acquires a Home or issues physical FieldSet permission.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 #[path = "home_new_prefix_owned_field_write.rs"]
 mod owned_local;
@@ -19,7 +20,7 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)

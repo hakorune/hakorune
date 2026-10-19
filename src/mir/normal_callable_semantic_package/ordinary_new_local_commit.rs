@@ -497,6 +497,33 @@ pub(super) fn installed_home(
     Ok(row)
 }
 
+/// Resolve the original published acquisition, never a newer same-name Home.
+pub(super) fn installed_source_home<'a>(
+    rows: &'a std::collections::BTreeMap<OwnedExprSiteV1, LocalCommitV1>,
+    home: &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1,
+) -> Result<&'a LocalCommitV1, HomeLookupError> {
+    use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
+    match home {
+        LiveHomeV1::Stable(binding) => {
+            let row = installed_home(rows, *binding)?;
+            if matches!(row, LocalCommitV1::TextResidence(_)) { return Err(HomeLookupError::Missing); }
+            Ok(row)
+        }
+        LiveHomeV1::Text(acquisition) => {
+            // Only Initializer origins are admitted here. A future CallNormal
+            // must supply its own genuine source node, not this root coordinate.
+            let frame = acquisition.initializer_origin_v1();
+            let site = OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
+            let row = rows.get(&site).ok_or(HomeLookupError::Missing)?;
+            if !matches!(row, LocalCommitV1::TextResidence(packet)
+                if std::rc::Rc::ptr_eq(packet.frame(), frame) && packet.has_text_home()) {
+                return Err(HomeLookupError::Missing);
+            }
+            Ok(row)
+        }
+    }
+}
+
 impl NewLocalCommitV1 {
     /// Teardown plan for this home in execution order: owned field
     /// children release in reverse declaration order — zero-initialized

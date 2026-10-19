@@ -1,5 +1,6 @@
 //! Physical checked FieldSet graph, independent of source operand provenance.
 //! This is correspondence only; source packets retain their own admission proof.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 
 #[derive(Debug)]
@@ -70,7 +71,7 @@ impl CheckedFieldWriteGraphV1 {
     pub(super) fn validate_paths(&self, ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction, finishing: Option<&FinishedBindings>,
         expected_field: hakorune_mir_defs::CanonicalFieldRefV1,
-        prior_homes: &[BindingRefV1],
+        prior_homes: &[LiveHomeV1],
     ) -> Result<(), String> {
         for original in self.bindings() {
             let observed = self.resolve_observed_binding_v1(original, false)?;

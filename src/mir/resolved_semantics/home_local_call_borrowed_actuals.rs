@@ -1,5 +1,6 @@
 //! Ordered passive actual candidates from the same prefix-local state.
 //! Source membership and typed-object domain are verified by the package.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::BindingKindV1;
 
@@ -79,7 +80,7 @@ fn observe_one_borrowed_call_actuals(
     site: &OwnedExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
 ) -> Option<Vec<BorrowedCallActualCandidateV1>> {
     if site.owner() != input.owner() {
         return None;
@@ -100,7 +101,7 @@ fn observe_one_borrowed_call_actuals(
                                 input.body_shape()?.expression_shape(site)? else { return None; };
                             let ResolvedLexicalRefV1::Local(parent) = input.function().variable_ref(object)?
                                 else { return None; };
-                            if !prior_homes.contains(&parent) { return None; }
+                            if !prior_homes.iter().any(|home| home.binding() == parent) { return None; }
                             let (acquisition, nullable) = locals.received_call_acquisition(parent)?;
                             (!nullable).then(|| BorrowedCallActualValueV1::ReceivedField {
                                 parent, acquisition: acquisition.clone(),
@@ -211,7 +212,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call
     site: &OwnedExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
-    prior_homes: &[BindingRefV1],
+    prior_homes: &[LiveHomeV1],
 ) -> Vec<(OwnedExprSiteV1, Vec<BorrowedCallActualCandidateV1>)> {
     if site.owner() != input.owner() {
         return Vec::new();
@@ -264,7 +265,7 @@ pub(super) fn contains_borrowed_actual_v1(arguments: &[super::LocalCallArgumentV
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actuals<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &PrefixLocalFlow<'_>, prefix_known: bool, prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>, prefix_known: bool, prior_homes: &[LiveHomeV1],
     local_calls: &[LocalCallObservationV1],
     fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1)
         -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
@@ -293,7 +294,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
 /// Nested/unobserved source staging continues to use Observe without this grant.
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_argument_expressions<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    root: &OwnedExprSiteV1, locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[BindingRefV1],
+    root: &OwnedExprSiteV1, locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[LiveHomeV1],
     local_calls: &[LocalCallObservationV1],
     fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1) -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,

@@ -64,7 +64,7 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     assert_eq!(map.allocation_fault().count(), 0);
     assert_eq!(map.outer_after_installs(2).unwrap().count(), 0);
     assert_eq!(
-        flow.terminal_homes().unwrap(),
+        flow.terminal_homes().unwrap().iter().map(|home| home.binding()).collect::<Vec<_>>(),
         [map.local_binding().unwrap()]
     );
     let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.sole_terminal_relation()
@@ -114,7 +114,7 @@ fn ordinary_i64_formal_alias_preserves_source_kind_without_a_home() {
         assert!(entry.transfer_home().is_none());
     }
     assert_eq!(
-        flow.terminal_homes().unwrap(),
+        flow.terminal_homes().unwrap().iter().map(|home| home.binding()).collect::<Vec<_>>(),
         [map.local_binding().unwrap()]
     );
     assert_install_admits(package);
@@ -360,16 +360,16 @@ fn mixed_value_replacement_keeps_home_transfer_positions() {
     assert_eq!(value.displaced(), Some(first.site()));
     assert_eq!(last.displaced(), Some(value.site()));
     assert_eq!(
-        map.outer_after_installs(1).unwrap().collect::<Vec<_>>(),
+        map.outer_after_installs(1).unwrap().map(|home| home.binding()).collect::<Vec<_>>(),
         [last.binding().unwrap()]
     );
     assert_eq!(
-        map.outer_after_installs(2).unwrap().collect::<Vec<_>>(),
+        map.outer_after_installs(2).unwrap().map(|home| home.binding()).collect::<Vec<_>>(),
         [last.binding().unwrap()]
     );
     assert_eq!(map.outer_after_installs(3).unwrap().count(), 0);
     assert_eq!(
-        flow.terminal_homes().unwrap(),
+        flow.terminal_homes().unwrap().iter().map(|home| home.binding()).collect::<Vec<_>>(),
         [map.local_binding().unwrap()]
     );
     assert!(package

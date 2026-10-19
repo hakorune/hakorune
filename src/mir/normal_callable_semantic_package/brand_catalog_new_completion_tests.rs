@@ -1,4 +1,5 @@
 //! Source-issued New/Home progress and finishing coverage, including multiple Homes.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::issue_with_brand_catalog;
 use crate::mir::instruction::InvokeCallResultKind;
 
@@ -18,10 +19,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         .map(|claim| claim.home_prefix().unwrap())
         .collect();
     assert!(prefixes[0].prior_homes().is_empty());
-    assert_eq!(prefixes[1].prior_homes(), &[prefixes[0].destination()]);
+    assert_eq!(prefixes[1].prior_homes(), &[LiveHomeV1::Stable(prefixes[0].destination())]);
     assert_eq!(
         prefixes[2].prior_homes(),
-        &[prefixes[1].destination(), prefixes[0].destination()]
+        &[LiveHomeV1::Stable(prefixes[1].destination()), LiveHomeV1::Stable(prefixes[0].destination())]
     );
     assert_eq!(prefixes[2].covered_statements().len(), 4);
     let sites: Vec<_> = claims.iter().map(|claim| claim.site().clone()).collect();

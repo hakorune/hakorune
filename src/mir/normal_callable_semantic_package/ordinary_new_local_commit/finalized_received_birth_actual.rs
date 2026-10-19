@@ -73,8 +73,8 @@ impl FinalizedRootSourceHandoffV1 {
             let plan = outer.construction.as_ref().map_err(|_| freeze("received-birth/construction"))?;
             if outer.site != *actual.site() || outer.birth_target.as_ref() != Some(actual.target())
                 || source != argument.source()
-                || prefix.prior_homes().iter().filter(|home| **home == binding).count() != 1
-                || prefix.normal_homes().contains(&binding)
+                || prefix.prior_homes().iter().filter(|home| home.binding() == binding).count() != 1
+                || prefix.normal_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding))
                 || !matches!(&outer.emission, NewEmissionProgress::Emitted {
                     result, arguments, progress: EmittedLocalProgress::Checked { .. }, ..
                 } if *result == actual.receiver() && arguments.as_ref() == actual.arguments())

@@ -26,7 +26,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             .ok_or_else(|| freeze("field-end/original-field-missing"))?;
                         if call != row.call_site() || ordinal != requirement.ordinal
                             || loan.child() != requirement.relation.child()
-                            || observation.prior_homes().iter().filter(|home| **home == parent).count() != 1 {
+                            || observation.prior_homes().iter().filter(|home| home.binding() == parent).count() != 1 {
                             return Err(freeze("field-end/parent-source-drift"));
                         }
                         self.recheck_returned_field_argument_source_v1(descriptor)?;

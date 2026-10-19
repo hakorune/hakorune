@@ -1,4 +1,5 @@
 //! Handle-result local-call commit coordination on the shared ledger.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::instruction::InvokeCallResultKind;
 
@@ -109,7 +110,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// operations.
     pub(crate) fn prior_home_unwind_for(
         &self,
-        prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+        prior_homes: &[LiveHomeV1],
     ) -> Result<Vec<InvokeOperation>, String> {
         self.prior_home_unwind(prior_homes)
             .ok_or_else(|| freeze("lexical-call-prior-home-unavailable"))
@@ -120,12 +121,12 @@ impl OrdinaryNewClaimLedgerV1 {
     /// operations, which the caller names per lane.
     fn prior_home_unwind(
         &self,
-        prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+        prior_homes: &[LiveHomeV1],
     ) -> Option<Vec<InvokeOperation>> {
         let rows = self.local_commits.borrow();
         let mut operations = Vec::new();
         for binding in prior_homes.iter().rev() {
-            match installed_home(&rows, *binding) {
+            match installed_source_home(&rows, binding) {
                 Ok(row) if row.end_available() => {
                     operations.extend(row.end_operations());
                 }

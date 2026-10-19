@@ -116,8 +116,8 @@ fn source_object_return_retains_received_call_and_distinct_fault_exit_homes() {
             panic!("received")
         };
         let (_, binding) = original.local_binding().unwrap();
-        assert!(!original.prior_homes().contains(&binding));
-        assert_eq!(obligation.exit_homes().last(), Some(&binding));
+        assert!(!original.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)));
+        assert_eq!(obligation.exit_homes().last().map(|home| home.binding()), Some(binding));
         assert_eq!(obligation.exit_homes().len(), 2);
         assert_eq!(original.site(), obligation.qualification().call());
         assert!(ledger.has_pending_object_return_v1(value.owner()));

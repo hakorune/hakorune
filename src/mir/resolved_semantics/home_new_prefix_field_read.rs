@@ -13,6 +13,7 @@
 //! The direct-initializer adapter allows Scalar/Alias. The sibling pure
 //! scalar-expression observer collects these same passive requests and
 //! submits a Scalar-only batch after proving its complete root.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
 
@@ -58,7 +59,7 @@ pub(super) fn observe_local_field_read<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
         LocalFieldReadDemandV1,

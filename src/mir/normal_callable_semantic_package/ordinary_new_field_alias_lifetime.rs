@@ -88,7 +88,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(path) = observation.field_alias() else { return Ok(false) };
         if self.lexical_i64_call_source(row.call_site()) != Some(observation)
             || observation.site() != row.call_site() || !observation.is_expression_value()
-            || !observation.prior_homes().contains(&path.root)
+            || !observation.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(path.root))
             || row.source_target().stored_receiver().is_some()
             || path.acquisition.owner() != observation.owner()
             || path.edges.last().map(|edge| edge.0) != Some(row.receiver_binding()?) {

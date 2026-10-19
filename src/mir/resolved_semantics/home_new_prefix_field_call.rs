@@ -18,6 +18,7 @@
 //! `ArrayElementWrite` emission already owns the instruction, and neither
 //! is lifecycle-required. Anything outside the manifest contract keeps
 //! `PrefixNotCovered`.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::core_method_result_kind::{
     lookup_core_method_result_row_v2, CoreMethodResultKindV1,
@@ -35,7 +36,7 @@ fn proven_field_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     call_site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -211,7 +212,7 @@ fn argument_subtree_neutral<E>(
     shape: &VerifiedResolvedBodyShapeInventoryV1,
     root: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     formal_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -271,7 +272,7 @@ fn argument_subtree_neutral<E>(
                     | local_flow::OrdinaryObservation::TrivialLocal(..),
                 ) => {}
                 Some(local_flow::OrdinaryObservation::BoundValue(binding))
-                    if !homes.contains(&binding) => {}
+                    if !homes.iter().any(|home| home.binding() == binding) => {}
                 // A `Handle` leaf is neutral only when the sealed draft
                 // admits a dominated-view value use at this exact site —
                 // the issuer's predicate is the consult, the draft stays
@@ -343,7 +344,7 @@ pub(super) fn observe_statement_field_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -395,7 +396,7 @@ pub(super) fn observe_local_field_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    homes: &[BindingRefV1],
+    homes: &[LiveHomeV1],
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,

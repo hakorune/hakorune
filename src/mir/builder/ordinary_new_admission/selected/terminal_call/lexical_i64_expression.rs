@@ -1,12 +1,13 @@
 //! The existing Call emitter borrows its enclosing expression's live prefix.
 //! No additional source call, Home, or packet inventory is created here.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::instruction::StringInvokeOperand;
 use crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1, LocalCallObservationV1,
 };
-use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
+use crate::mir::resolved_semantics::{OwnedExprSiteV1};
 
 fn in_arguments(arguments: &[LocalCallArgumentV1], site: &OwnedExprSiteV1) -> bool {
     arguments.iter().any(|argument| matches!(argument, LocalCallArgumentV1::CallResult(inner)
@@ -33,7 +34,7 @@ impl<'a> ExpressionCallPrefixV1<'a> {
     pub(super) fn consume_receiver(&self, row: &LexicalInstanceCallDispositionRowV1) -> Result<(), String> {
         (self.consume_receiver)(row)
     }
-    pub(super) fn unwind(&self, site: &OwnedExprSiteV1, prior_homes: &[BindingRefV1])
+    pub(super) fn unwind(&self, site: &OwnedExprSiteV1, prior_homes: &[LiveHomeV1])
         -> Result<Vec<InvokeOperation>, String> {
         match &self.kind {
             ExpressionCallPrefixKindV1::Evaluation(prefix) => prefix.unwind_for_call(site, prior_homes),

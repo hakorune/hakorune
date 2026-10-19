@@ -1,5 +1,6 @@
 //! Shared leaf qualification of one original whole-expression source plan.
 //! Calls own their exact receiver/actual subtrees; fields remain batch obligations.
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceExprSiteV1};
 use crate::mir::resolved_value_profile::{
@@ -31,7 +32,7 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     profile: ExpressionLeafProfileV1,
     seeded: &BTreeMap<usize, Leaf>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
-    prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    prior_homes: &[LiveHomeV1],
     order: &[usize],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
@@ -50,12 +51,12 @@ pub(crate) struct PreparedExpressionCallsV1 {
     calls: BTreeMap<usize, LocalCallObservationV1>,
     cores: BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     transferred: BTreeSet<usize>,
-    prior_homes: Box<[crate::mir::resolved_semantics::BindingRefV1]>,
+    prior_homes: Box<[LiveHomeV1]>,
 }
 
 impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool { self.profile == ExpressionLeafProfileV1::LocalInitializer }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_binding_rebind(&self) -> bool { self.profile == ExpressionLeafProfileV1::BindingRebind }
     pub(super) fn is_bool_condition(&self) -> bool { self.profile == ExpressionLeafProfileV1::BoolCondition }
@@ -76,7 +77,7 @@ impl PreparedExpressionCallsV1 {
 
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_calls_v1<E>(
     source: &Rc<ExpressionSourcePlanV1>, profile: ExpressionLeafProfileV1,
-    seeded: &BTreeMap<usize, Leaf>, prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    seeded: &BTreeMap<usize, Leaf>, prior_homes: &[LiveHomeV1],
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
 ) -> Result<Option<PreparedExpressionCallsV1>, E> {
     let statement = source.root().statement();
