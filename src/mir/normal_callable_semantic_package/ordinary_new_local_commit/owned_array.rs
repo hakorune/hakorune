@@ -386,9 +386,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, source: &crate::mir::normal_callable_semantic_package::OwnedArrayAppendSourceLoanV1,
     ) -> Result<Vec<InvokeOperation>, String> {
         self.live_owned_array_append_value_v1(source)?;
-        // Named Append observations are newest-first, whereas LocalCall inputs
-        // to the existing unwind owner are oldest-first. Normalize once here.
-        self.prior_home_unwind_for(&source.prior_homes()?.iter().rev().cloned().collect::<Vec<_>>())
+        // All Call/Append inputs retain acquisition order. The existing unwind
+        // owner alone converts that source order to newest-first execution.
+        self.prior_home_unwind_for(source.prior_homes()?)
     }
     pub(super) fn live_owned_array_recipe_value_v1(
         &self, recipe: &Rc<super::super::ArrayHolderLifecycleRecipeV1>,

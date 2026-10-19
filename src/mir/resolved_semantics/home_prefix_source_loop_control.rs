@@ -224,7 +224,7 @@ impl ports::SourceLoopScanSummaryV1 {
                                 || !Rc::ptr_eq(frame.source(), plan.source())
                                 || !Rc::ptr_eq(frame.source_loan().plan(), plan.source())
                                 || !frame.evaluation().reference_coverage_is_exact()
-                                || !frame.prior_homes().iter().rev().eq(prior_homes.iter())
+                                || frame.prior_homes() != prior_homes.as_ref()
                                 || !ordinals.insert(*ordinal) {
                                 return Err("source Loop append argument identity");
                             }

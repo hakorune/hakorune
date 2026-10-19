@@ -160,7 +160,8 @@ pub(super) fn observe_append<E>(
         call,
         candidate,
         availability: unavailable.as_ref().cloned().map_or(Ok(()), Err),
-        prior_homes: homes.iter().rev().cloned().collect(),
+        // Match expression/Call source order; the unwind owner reverses once.
+        prior_homes: homes.to_vec().into_boxed_slice(),
         covered_statements: covered.to_vec().into_boxed_slice(),
     };
     locals.record_source_loop_array_append_v1(statement.site(), &observation);

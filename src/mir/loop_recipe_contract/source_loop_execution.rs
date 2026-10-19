@@ -121,7 +121,7 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                 let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
                     source: holder, availability, prior_homes, ..
                 } = observation else { return Err(reject("execution-array-observation")); };
-                if availability.is_err() || prior_homes.iter().ne(homes.iter().rev())
+                if availability.is_err() || prior_homes.as_ref() != homes.as_slice()
                     || homes.iter().filter(|home| home.binding() == holder.binding()).count() != 1 {
                     return Err(reject("execution-array-homes"));
                 }
