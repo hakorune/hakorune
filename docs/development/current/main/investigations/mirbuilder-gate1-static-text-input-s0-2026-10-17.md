@@ -950,50 +950,43 @@ files/checkers/hooks. Fixed suite955 is prior evidence, not whole-series closure
 CLI295 production matches956C;JSON411 unchanged/mim412 exact363;fixed11 prior955.
 Keep final/native/source/954A until950; redundant956B retired, logs retained.
 
-957 source connection refines SAME950/956 Decision; previous turn956 is progress
-(retention owner integrated), not originalJSON progress. Two read-only workers
-confirm common borrowed identity view + original parameter catalog, no new ledger.
-Thread existing contracts through observer/lender/completer; Static already retains
-its complete formals, Instance requires unique original owner/batch/mode/ordinal.
-Inner ordinary Text source retains SAME StaticIncomingSource Rc, original method
-Arc/ExactString/call-result target. Core/OrdinaryText share the existing node product;
-source classification never seals OwnedString ABI/Return or permits execution.
-Observe refines SAME pending slot; executable phases cannot reset/qualify anew.
-Both ledger frame demand and Instance reconstruct consume exact current frame;
-generalize shared actual constructor's Read callback into Read-or-Expression
-source (existing enum), never wrap Text as Array/Read. Necessary object_source
-signature follows that sole constructor; no second Instance constructor is added.
-Paths: existing actual model/constructor/Static+Instance source/argument source,
-coseal callback, Home argument qualifier, existing tests for API wiring, README.
-Existing cases reused; no new cases/parameters/hooks/checkers. Full950 body Text
-result-purpose/Return/ABI/CallNormal/borrowed entry/Unit cleanup/finals/JSON/C stay
-required. Shared Call emitter/result transport and independent lifetime checks are
-next consumers; source eligibility or a frame alone is never product acceptance.
-957 inner ordinary source currently retains StaticIncoming; Instance Text-returning
-reportUser in originalJSON remains required950, not claimed supported by this step.
-957 worker correction: Static result catalog is Static-only. Extend existing
-prepare_original_returns (Fields/UnitCandidate) to retain general Value plans before
-Home qualification, not preclaimed Text. CallableResultSource seals Instance Text
-from all genuine Return frames + canonical Completion/entry; join original lexical
-target. Do not widen Static solver (it seeds formals I64), forge StaticIncoming or
-invent StringBox class. Original Instance reportUser remains mandatory950 scope.
-957 verification: jobs4 `cargo quick-test-fast --no-run --message-format=json`:
-Root957A112.775024s/957B42.245161s buildPASS;957B9existing focusedPASS (previous8
-plus covered-prefix Core argument frame),174=170PASS/4 exact956C diagnostics,
-7.248626s;9263same names/no new warning. No case/parameter/file/hook/checker added.
-7Rust-issued Unit JSON byte-identical955; C/native955 reused under identical payload/
-FFI/runtime, no fresh C-run claim. Pointer/layer/CallTarget/diff guardsPASS.
-Jobs4 `cargo build --profile quick --bin hakorune --message-format=json` CLI296
-206.863608s PASS; root/CLI captured production source matches. FFI954A/runtime954A
-unchanged predecessor components, not full repository-snapshot equality.
-Canonical `--grammar-profile canonical --backend mir --emit-exe --emit-exe-nyrt
-runtime954A`,plugins1,pure-first/compat-none,FFI954A,16MiB stack: unchangedJSON413
-.060104s exit1/noEXE advances411/array-loan-missing -> lexical scope body failed
-borrowed-text-entry/original-read-identity. Error lacks owner/path; no inferred tuple
-is measured evidence. Unchanged mimalloc414 EXE144.092026s/run.001719s exact363.
-Next entry consumer is Static-only (mode guard, direct ordinal/no receiver layout,
-Static incoming finite structure); preserve all checks via original mode-specific
-entry/signature lanes, not deletion of guard. All950 Return/ABI/CallNormal obligations
-remain open; fixed11 prior955 only, no current suite/CI/whole-series completion.
-Keep957B/CLI296/native/source +954A components until950 acceptance.957A was not
-separately pinned; no diagnostic patch/adapter or parallel issuer/writer introduced.
+957 common original Text actual source connection landed `1edde096a1`. That commit
+owns full source/view/formal/frame mapping, source-to-consumer worker reviews,
+Read-or-Expression constructor normalization, phase gates, all commands/timings,
+component provenance/baseline classification and retention.957B9focusedPASS;
+174=170PASS/4 exact956C/9263same names/no new warning or test/case/parameter/file/
+hook/checker.7Unit JSON exact955, C/native955 reused under same payload/components.
+CLI296/root957B snapshots match. OriginalJSON413 advances411 Array-loan -> borrowed-
+text-entry/original-read-identity(.060104s/noEXE); no owner/path measured. Unchanged
+mimalloc414 canonical EXE144.092026s/run.001719s/stdout/stderr/exit exact363.
+Fixed11 prior955 only; no current suite/CI/whole950/finite-goal closure. Keep957B/
+CLI296/native/source +954A components until950;957A never separately pinned.
+No diagnostic patch/adapter/parallel writer; source eligibility is not executable
+ordinary Text Return/ABI. Static catalog does not cover Instance reportUser.
+
+958 refinement of SAME950/956 Decision (read-only entry consumer review):
+Source authority + issuer: original read/plan/contract/domain Rc and existing
+mode-specific entry structure + all-incoming/use authority + recorded entry values
+and original physical signature. No invented Static source or guessed offset.
+Consumer: validate_prepared_finite_entry_read_v1 currently folds Static-only mode,
+ordinal-as-index, params==formals and no receiver into refusal. Static finite
+incoming structure is likewise Static-specific. Share original read/contract/Copy
+corroboration; Static keeps all current checks. Instance borrows its existing entry
+structure, original domain and canonical signature's InstanceReceiver/formal lanes,
+then verifies exact physical values/carriers/all formal coverage before lending.
+Do not delete Static guards or infer layout from MirType/name. Actual first owner/
+path remains unmeasured; no diagnostic guess is acceptance evidence.
+Complete borrowed Text operand must reach shared String consumer as genuine readonly
+descriptor/view, no owned-pair alias or End; explicit Materialize remains required
+for borrowed Return. BOTH independent finals/JSON/C remain required; physical
+worker reviews concrete ABI mapping before execution connection.
+Original Instance result authority: prepare_original_returns retains general Value
+plans alongside Fields/UnitCandidate, never preclaimed Text. Qualified original
+Home Return frames + canonical Completion seal CallableResultSource::Text; join
+same lexical target for Instance, Static additionally needs its catalog/handoff.
+Do not widen Static solver (it seeds formals I64), forge StaticIncoming or invent
+StringBox result class. Full original reportUser remains mandatory950 scope.
+Next bounded paths: existing borrowed entry/read/values/structure/signature and
+shared expression/String operand/final JSON/C owners as required; README/card.
+Reuse existing focused/source/C/native slots, no new test/fixture/checker/hook.
+Full950 Call/Return/CallNormal/Unit cleanup and all retained rows remain open.
