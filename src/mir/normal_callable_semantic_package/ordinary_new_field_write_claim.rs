@@ -142,7 +142,7 @@ impl OriginalFieldWriteSourceLoanV1 {
         let assignment = write.assignment();
         let ResolvedAssignmentTargetV1::FieldWrite { receiver } = input.function().assignment_target(assignment.target_site())? else { return None };
         let BodyExpressionShapeV1::FieldAccess { object, field, .. } = shape.expression_shape(assignment.target_site())? else { return None };
-        let field_ref = construction.allocation_only_i64_field(field)?;
+        let field_ref = construction.allocation_only_field(field)?.field();
         if input.owner() != write.owner() || source.owner() != input.owner()
             || acquisition.owner() != input.owner() || root.owner() != input.owner()
             || write.in_birth() || object != receiver || receiver != write.receiver_site()

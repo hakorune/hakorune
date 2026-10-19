@@ -94,7 +94,8 @@ fn ordinary_new_descriptor_errors_follow_candidate_source_order() {
 fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     use super::instance_construction::ConstructionUnavailableV1;
     for (declaration, first, second, prefix, rhs) in [("box Pair { left: i64 right: i64 }", "left", "right", "", "10"),
-        ("box Pair { east: i64 west: i64 }", "east", "west", "local n = 5", "n + 5")] {
+        ("box Pair { east: i64 west: i64 }", "east", "west", "local n = 5", "n + 5"),
+        ("box Pair { east west }", "east", "west", "local n = 5", "n + 5")] {
         let source = format!("{declaration} static box Main {{ main() {{ local pair = new Pair() {prefix} pair.{first} = {rhs} pair.{second} = 20 pair.{first} = 30 return 0 }} }}");
         let package = issue_with_brand_catalog(&source).unwrap();
         let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
@@ -106,9 +107,11 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert!(matches!(retained.completion(),
             super::instance_construction::ConstructionCompletionV1::AllocationOnly { .. }));
         assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
-        assert!(matches!(claim.execution_profile().unwrap(),
-            super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)
-                if std::rc::Rc::ptr_eq(lease.source(), retained)));
+        if retained.is_allocation_only_i64() {
+            assert!(matches!(claim.execution_profile().unwrap(),
+                super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)
+                    if std::rc::Rc::ptr_eq(lease.source(), retained)));
+        } else { assert!(claim.execution_profile().is_err(), "Dynamic source is not an execution lease"); }
         let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
         let flow = completion.cleanup().root_flow().expect("retained original source flow");
         let writes: Vec<_> = flow.expression_plans().iter().filter_map(|plan| {
@@ -123,6 +126,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             let source = package.ordinary_new_claim_ledger.field_write_source_at_v1(frame.source().owner(), frame.source().root().statement())
                 .unwrap().expect("source-origin loan before physical activation");
             source.validate_source(&package.ordinary_new_claim_ledger).unwrap();
+            assert_eq!(source.require_current_execution(&package.ordinary_new_claim_ledger).is_ok(), retained.is_allocation_only_i64());
             assert!(source.borrowed().is_none());
             let rhs = plan.field_write_rhs().expect("same qualified whole-RHS source");
             assert!(std::rc::Rc::ptr_eq(source.owned_rhs().unwrap(), rhs));
@@ -169,11 +173,13 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         }
         assert!(ledger.try_take(&site, "Pair", 0).is_err(), "take stays affine");
     }
-    for (body, fields) in [
-        ("pair.left = 10 return pair.left", 1),
-        ("pair.left = 10 pair.right = 20 pair.left = 30 return pair.left + pair.right", 2),
+    for (declaration, body, fields) in [
+        ("left: i64 right: i64", "pair.left = 10 return pair.left", 1),
+        ("left: i64 right: i64", "pair.left = 10 pair.right = 20 pair.left = 30 return pair.left + pair.right", 2),
+        ("left right", "pair.left = 10 return pair.left", 1),
+        ("left right", "pair.left = 10 pair.right = 20 pair.left = 30 return pair.left + pair.right", 2),
     ] {
-        let source = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local pair = new Pair() {body} }} }}");
+        let source = format!("box Pair {{ {declaration} }} static box Main {{ main() {{ local pair = new Pair() {body} }} }}");
         let package = issue_with_brand_catalog(&source).expect("source-ready terminal");
         let ledger = &package.ordinary_new_claim_ledger;
         let requests: Vec<_> = if fields == 1 {
@@ -189,6 +195,15 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             assert_eq!(request.receiver, local.root());
         }
         assert_eq!(flow.lifecycle_prefixes(&[]).unwrap().len(), flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count());
+    }
+    for body in ["return pair.left", "pair.right = 10 return pair.left",
+        "pair.left = 10 pair.touch() return pair.left",
+        "pair.left = 10 Main.observe(pair) pair.left = 20 return pair.left",
+        "pair.left = 10 local alias = pair Main.observe(alias) return pair.left",
+        "pair.left = 10 loop false { pair.touch() break } return pair.left"] {
+        let text = format!("box Pair {{ left right touch() {{ return 0 }} }} static box Main {{ observe(value: Pair) {{ return 0 }} main() {{ local pair = new Pair() {body} }} }}");
+        let package = issue_with_brand_catalog(&text).expect("unproved Dynamic source stays closed");
+        assert!(package.ordinary_new_claim_ledger.terminal_i64_field_return().is_none(), "no kind after missing writer or exposed root: {body}");
     }
     for body in ["return pair.left", "pair.left = 10 return pair.right",
         "pair.left = 10 if true { pair.left = 20 } else {} return pair.left"] {

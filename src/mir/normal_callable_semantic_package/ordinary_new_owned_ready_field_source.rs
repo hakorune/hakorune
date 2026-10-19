@@ -24,7 +24,14 @@ impl OwnedReadyFieldReadSourceV1 {
         request: &LocalFieldReadRequestV1, field: CanonicalFieldRefV1, declared: Option<&str>,
     ) -> Result<Self, String> {
         let fail = || fault("owned-ready/source");
-        let frame = request.owned_ready.as_ref().ok_or_else(fail)?.frame();
+        let plan = request.owned_ready.as_ref().ok_or_else(fail)?;
+        let (ready_field, storage) = plan.owned_i64_field().ok_or_else(fail)?;
+        let declared_matches = match storage {
+            crate::mir::function::TypedObjectFieldStorage::I64 => declared == Some("i64"),
+            crate::mir::function::TypedObjectFieldStorage::Dynamic => declared.is_none(),
+            _ => false,
+        };
+        let frame = plan.frame();
         let local = frame.owned_local().ok_or_else(fail)?;
         let mut matches = candidates.iter().filter(|row| row.destination == request.home);
         let candidate = matches.next().ok_or_else(fail)?;
@@ -34,10 +41,10 @@ impl OwnedReadyFieldReadSourceV1 {
                     .child(SourcePathSegmentV1::Receiver).expr()
             || request.alias_class.is_some() || request.path.is_some() || request.alias_path.is_some()
             || request.nullable || request.formal || request.received.is_some()
-            || declared != Some("i64") || field != local.field() || candidate.object != field.object()
+            || !declared_matches || field != ready_field || field != local.field() || candidate.object != field.object()
             || &candidate.site != local.acquisition()
             || !candidate.construction_source.as_ref().is_ok_and(|source| Rc::ptr_eq(source, local.construction()))
-            || local.construction().allocation_only_i64_field(&request.field) != Some(field)
+            || local.construction().allocation_only_field(&request.field).map(|field| field.field()) != Some(field)
             || local.original().write().field() != request.field.as_ref()
         { return Err(fail()); }
         Ok(Self { frame: Rc::clone(frame), request: request.clone(), field })
@@ -113,9 +120,14 @@ impl LocalFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn with_owned_ready(
         original: &Rc<Self>, source: OwnedReadyFieldReadSourceV1,
     ) -> Result<Rc<Self>, String> {
-        if original.owned_ready.is_some() || original.received.is_some() || original.returned.is_some()
+        let declared_matches = source.request.owned_ready.as_ref().and_then(|plan| plan.owned_i64_field())
+            .is_some_and(|(_, storage)| match storage {
+                crate::mir::function::TypedObjectFieldStorage::I64 => original.declared_type_name() == Some("i64"),
+                crate::mir::function::TypedObjectFieldStorage::Dynamic => original.declared_type_name().is_none(),
+                _ => false,
+            });
+        if !declared_matches || original.owned_ready.is_some() || original.received.is_some() || original.returned.is_some()
             || original.expression_path.is_some() || original.field != source.field()
-            || original.declared_type_name() != Some("i64")
             || *original.result() != crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar {
             return Err(fault("owned-ready/declaration"));
         }

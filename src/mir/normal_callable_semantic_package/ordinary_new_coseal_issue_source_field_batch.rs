@@ -118,7 +118,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         } else {
             request.alias_class.clone()
         };
-        let source = terminal_home::local_read_field(
+        let source = if request.owned_ready.is_some() {
+            let Some((field, declared)) = terminal_home::local_read_field_declaration(constructors,
+                candidates, coverage, receiver_proof, &request.site, request.home,
+                alias_class.as_deref(), &request.field)? else { return Ok(None); };
+            // Retain the original absent declaration. Only the exact successful
+            // writer can lend Scalar here; ordinary untyped reads stay closed.
+            let ready = field_reads::OwnedReadyFieldReadSourceV1::issue(candidates, request,
+                field, declared.as_deref()).map_err(|issue|
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
+            let descriptor = LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar,
+                declared.map(Into::into));
+            Some(LocalFieldReadSourceV1::with_owned_ready(&descriptor, ready).map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
+        } else { terminal_home::local_read_field(
             constructors,
             candidates,
             coverage,
@@ -127,7 +140,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             request.home,
             alias_class.as_deref(),
             &request.field,
-        )?;
+        )? };
         let source = match source {
             Some(source) => source,
             None => {
@@ -148,14 +161,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?,
             None => source,
         };
-        if request.owned_ready.is_some() {
-            let ready = field_reads::OwnedReadyFieldReadSourceV1::issue(candidates, request,
-                source.field(), source.declared_type_name()).map_err(|issue|
-                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
-            source = LocalFieldReadSourceV1::with_owned_ready(&source, ready).map_err(|issue|
-                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
-            // LOCAL readiness is its original value authority; never mint a formal numeric loan.
-        }
         if request.path.is_some() {
             let root = if parent.is_none() {
                 Some(terminal_home::ExpressionFieldRootSourceV1::issue(constructors, candidates, coverage,

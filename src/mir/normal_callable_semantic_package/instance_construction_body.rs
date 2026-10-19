@@ -39,6 +39,7 @@ pub(crate) struct ConstructionFieldSourceV1 {
 impl ConstructionFieldSourceV1 {
     pub(crate) fn name(&self) -> &str { &self.name }
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
+    pub(crate) fn storage(&self) -> TypedObjectFieldStorage { self.storage }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

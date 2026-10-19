@@ -67,15 +67,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   alignment. Both final consumers must admit it and verify SAME source/slot/
   transfer/Normal/Fault correspondence before emission. Source activation is owed;
   Map placement, stored borrow/Shared and carrier forwarding remain unadmitted.
-- Allocation-only inventory now retains exact declaration fields plus the shared
-  storage vocabulary; I64-only execution/readiness retained. Readiness now shares
-  the SAME write plan (frame/RHS); branch joins and final checks retain both identities.
-  Focused15 PASS; field-read2 baseline reds remain below. Empty is never ready.
-  Array identity now has one binding issuer shared with get/push; existing9 PASS.
-  Provider acquisition/End and transfer remain owed; no fake element/get proof.
-- Writer source identity now separates from I64 execution lease; operand/RHS entry,
-  writer, physical read and Lowering/Finalized validation retain the SAME lease gate.
-  Focused7 PASS; Dynamic count still needs SAME last-writer/RHS and mutation invalidation.
+- Allocation-only fields now use SAME successful writer/RHS for I64 source reads
+  of I64/Dynamic slots; untyped declaration stays absent, Empty stays unready.
+  Calls exposing root/alias forget the whole root proof, including mixed I64 fields;
+  alias writes clear readiness. Loop loses Dynamic-root proofs pending checked After.
+- Existing source cases minimally add Dynamic kind/no-escape boundaries not covered
+  by typed cases; no new test functions/files. Focused27 PASS/2 known field-read reds.
+  Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
+  Dynamic execution, return inference and both final consumers remain unconnected.
+- Array identity shares one binding issuer with get/push; existing9 PASS. Provider
+  acquisition/End and transfer remain owed; no fake element/get proof.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
@@ -97,4 +98,3 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Existing JSON smoke must satisfy every artifact/run/output/negative contract unchanged.
 - Common untyped-slot D0 is accepted; source/layout/runtime/final-consumer implementation remains.
 - Retire replaced exclusive edges when caller/validation closure holds; retain shared owners.
-- Fixed acceptance, final pipeline switching/retirement and the full goal remain incomplete.

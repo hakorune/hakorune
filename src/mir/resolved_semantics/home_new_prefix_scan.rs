@@ -127,6 +127,7 @@ pub(super) fn scan_statement_flow<'a, E>(
         };
         covered_statements.push(statement.site().clone());
         locals.visit_source_loop_statement_v1(body, statement.site(), index);
+        locals.invalidate_dynamic_field_sources(&statement);
         local_call_flow::stage_statement_actuals(input, &statement, locals,
             unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
 

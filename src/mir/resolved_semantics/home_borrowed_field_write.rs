@@ -25,6 +25,15 @@ pub(crate) struct FieldWritePlanV1 {
 impl FieldWritePlanV1 {
     pub(crate) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> { &self.frame }
     pub(crate) fn rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> { self.rhs.as_ref() }
+    /// Source kind of the SAME successful RHS, not a physical slot permission.
+    pub(crate) fn owned_i64_field(&self) -> Option<(hakorune_mir_defs::CanonicalFieldRefV1, crate::mir::function::TypedObjectFieldStorage)> {
+        use crate::mir::function::TypedObjectFieldStorage as Storage;
+        let local = self.frame.owned_local()?;
+        let field = local.construction().allocation_only_field(local.original().write().field())?;
+        if field.field() != local.field() || !matches!(field.storage(), Storage::I64 | Storage::Dynamic)
+            || !self.rhs.as_ref()?.is_consistent(self.frame.source()) { return None; }
+        Some((field.field(), field.storage()))
+    }
     pub(crate) fn same_source(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.frame, &other.frame) && match (&self.rhs, &other.rhs) {
             (Some(a), Some(b)) => Rc::ptr_eq(a, b),
