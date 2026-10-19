@@ -37,7 +37,7 @@ Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current
 6. アプリが通ったら既存cardの状態を短く更新し、次のアプリへpointerを切り替える。
 
 commitは短い件名と必要な変更・検証・残件だけにする。通常実装では文書だけの追随commitを作らない。
-ユーザーが依頼した文書整理は独立commitでよい。今回のような未検証WIPの退避commitは専用branchへ隔離し、未検証と明記する。
+ユーザーが依頼した文書整理は独立commitでよい。
 
 ## 4. 建設と旧経路退役の証明タイミング
 

@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-
 latest_card_summary = """
 APP-mimalloc-lite: smoke generic-MIR negative precheck未達。直接EXEは既存検証PASS。
 次はbinary/runtimeを明示して同じsmokeを再計測し、最初の失敗をsourceへ結び付ける。
-未検証Text Return WIPは専用branchへ隔離済み。契約と復帰条件は既存Text資料に保持。
+未検証Text Return WIPは取り下げ済み。必要な未完契約は既存Text資料に保持。
 固定suiteは直近5PASS/6FAIL、現HEAD全suite未実行。11表示だけで製品達成にしない。
-今回は文書整理とWIP保存のみ。実装goalはpause継続、全体完了条件は変更なし。
+今回はWIPの取り下げと履歴整理のみ。実装goalはpause継続、全体完了条件は変更なし。
 """
 next_design_card = "APP-mimalloc-lite"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

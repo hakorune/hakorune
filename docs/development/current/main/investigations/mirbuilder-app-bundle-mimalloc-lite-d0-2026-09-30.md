@@ -8,7 +8,7 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
 
 ## 現在のstop
 
-- 選択row: `APP-mimalloc-lite`。実装goalはpause継続。今回は文書とWIPの整理のみ。
+- 選択row: `APP-mimalloc-lite`。実装goalはpause継続。今回は未接続WIPの解消のみ。
 - 直近suiteではgeneric MIR JSONのnegative precheckが
   `ordinary-new/borrowed-static/required-integer-source-unproved`で停止。
   smokeが要求する`unsupported terminator Invoke`より前で落ちている。
@@ -47,6 +47,6 @@ runtimeは`HAKO_LIFECYCLE_NYRT`、既存FFIが必要なら`HAKO_AOT_FFI_LIB`を�
 - 次のアプリはuntyped-field、binary-trees、boxtorrent、allocator-stress、JSONの順。
   共有の不足は必要な共通ownerで直し、別アプリの実装を並行しない。
 - [JSON/Textの既存契約](mirbuilder-gate1-static-text-input-s0-2026-10-17.md)は未受理のまま後続へ保持。
-  未接続ReturnのWIPは専用branchに保存し、本線に混ぜない。
+  未接続Returnの準備実装は採用を取り下げた。差分と明示revertはGit履歴へ残し、保留branchは残さない。
 - 過去の完全な契約・履歴・検証条件は、このpathの`0311400375`時点のGit履歴に保存済み。
   必要な意味契約だけを参照し、日常の再開前提へ全履歴を戻さない。

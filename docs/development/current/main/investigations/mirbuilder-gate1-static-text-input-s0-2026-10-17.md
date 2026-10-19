@@ -966,10 +966,11 @@ FiniteText final conversion/OwnedString Call+Return/CallNormal/Unit and full950 
 
 Execution now follows `APP-mimalloc-lite`; this Text contract remains required for
 `APP-json-stream-aggregator`. Do not append slice history or create new suffix rows.
-The unfinished source-only Return work and matching stop handoff are preserved at
-commit `79cbec0a30`, branch `wip/ordinary-text-return-source-2026-10-19`.
-That checkpoint is unbuilt/untested/unaccepted and is NOT on the production branch.
-When JSON is selected, review/reuse needed changes; do not blindly merge its old
-CSTATE/card. Both outer formal-ingress prefilters, real Home Return frame/install,
+The unfinished source-only Return checkpoint was withdrawn: its callback had
+no actual Home requester or Return consumer and no verified executable behavior.
+The patch and explicit revert remain reachable in Git history; there is no live
+WIP branch to resume or merge. Validated959 cohort normalization remains intact.
+When JSON is selected, implement the required connection from the actual source.
+Both outer formal-ingress prefilters, real Home Return frame/install,
 purpose-neutral entry reads, result/Call/cleanup/BOTH finals/JSON/C and Loop actions
-remain unfinished. Last verified production source remains the preceding959 code.
+remain unfinished. Cancelling scaffolding does not complete those obligations.
