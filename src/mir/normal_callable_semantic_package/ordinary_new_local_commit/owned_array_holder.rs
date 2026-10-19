@@ -125,10 +125,23 @@ impl EmittedOwnedArrayHolderV1 {
         }
         // The existing owner inventory includes source-checked prefix/constructor
         // Fault End operations as well as the explicit exit End obligations.
-        let mut bindings = projection.bindings(&ledger.lifecycle_bindings(self.owner())?)?;
         let mut unique = Vec::new();
-        for binding in bindings.drain(..) {
-            if !unique.contains(&binding) { unique.push(binding); }
+        for original in ledger.lifecycle_bindings(self.owner())? {
+            // Lend only the SAME sealed physical correspondence. A projected
+            // coordinate alone does not prove that a dead dependency survived.
+            let binding = if original.1.dst_value().is_some() {
+                projection.relation_binding(function, &original)?
+            } else if matches!(original.1, MirInstruction::Jump { edge_args: None, .. }) {
+                projection.structural_jump_binding(function, &original, true)?
+            } else if matches!(original.1, MirInstruction::KeepAlive { .. }) {
+                projection.validate_metadata_correspondence_v2(function, &original, true)?;
+                continue;
+            } else {
+                Some(projection.required_effect_binding(function, &original)?)
+            };
+            if let Some(binding) = binding {
+                if !unique.contains(&binding) { unique.push(binding); }
+            }
         }
         self.check_physical(function, &unique)?;
         let finished = FinishedOwnedArrayHolderV1 {
@@ -142,7 +155,10 @@ impl EmittedOwnedArrayHolderV1 {
         Ok(())
     }
     fn check_physical(&self, function: &MirFunction, bindings: &[Binding]) -> Result<(), String> {
-        for binding in bindings { locate(function, binding)?; }
+        for binding in bindings {
+            locate(function, binding).map_err(|issue|
+                format!("{issue} function={} binding={binding:?}", function.signature.name))?;
+        }
         let expected: Vec<_> = bindings.iter().filter(|(_, row)| matches!(row,
             MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(operation), .. }
                 if operation.array() == self.array)).collect();

@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-allocator-stress"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/local-commit/owned-holder/instruction-missing"
+current_blocker_token = "published-lifecycle-v4/unsupported-cohort"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
-APP-allocator-stress: Main返り値・Compare最終対応を通過、owned-holder/instruction-missing。
-root/quick CLI build PASS、既存focused検証済み・baseline赤は未解決、test名9263件不変。
-BranchNormal・Object引数・final Phi・zero-input接続を統合。EXE生成は未成功。
-正式suiteは3965b758baで6PASS/5FAIL、実EXE5＋marker1。次はmatching CLIで再計測。
-untyped-fieldは既存D0受理までParkedSealed。次の実装はholderの最終命令対応。
+APP-allocator-stress: holder・Loop child Call coverageを通過、LLVM V4 unsupported-cohort。
+root/quick CLI build PASS、最終visitor32PASS/既知赤1、Array・物理境界36PASS/既知赤1。
+未変更appは物理programをC APIへ渡し、V4 flowで拒否。library emit/EXE生成は未成功。
+正式suiteはb6195de60fで6PASS/5FAIL、実EXE5＋marker1、mimalloc PASS、SKIP/timeoutなし。
+untyped-fieldは既存D0受理までParkedSealed。次はV4拒否の具体的な命令・型契約を特定。
 """
 next_design_card = "APP-allocator-stress"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
@@ -41,6 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-19: real-apps-exe-boundary at b6195de60f — 6 PASS / 5 FAIL; 5 actual EXEs plus 1 empty marker; mimalloc PASS, no SKIP/timeout. Matching quick CLI with existing lifecycle runtime/C API; outer timeout1900s and build/run300s; 704.9s. Allocator reaches final holder correspondence; later holder/group-tree WIP is outside this measurement.",
   "2026-10-19: real-apps-exe-boundary at 3965b758ba — 6 PASS / 5 FAIL; 5 actual EXEs plus 1 empty marker; mimalloc PASS, no SKIP/timeout. Quick CLI with existing lifecycle runtime/C API; outer timeout1900s and build/run300s. Later Bool/If work is not covered by this measurement.",
   "2026-10-19: real-apps-exe-boundary at 751dae566b — 6 PASS / 5 FAIL; mimalloc-lite PASS; 5 actual EXEs plus 1 empty marker; no SKIP/timeout. Source-compatible quick CLI and existing lifecycle runtime/C API; full MirBuilder remains incomplete.",
 ]

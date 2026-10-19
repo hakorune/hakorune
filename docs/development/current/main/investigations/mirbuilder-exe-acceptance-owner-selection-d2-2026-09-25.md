@@ -1,6 +1,6 @@
 # APP-allocator-stress
 
-Status: selected; source/Main handoff passes; final Array holder correspondence remains open.
+Status: selected; final MIR correspondence passes; LLVM V4 admission remains open.
 Date: 2026-10-19
 Scope: unchanged allocator-stress, canonical physical EXE, exact output/exit and handle safety.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
@@ -11,13 +11,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 - User selected allocator after parking untyped-field. Allocator reuses mimalloc's heap;
   binary-trees/JSON need unresolved untyped slots, JSON additional Text/Loop connections.
-- Official fixed suite remains computed-argument revision `3965b758ba`: 6PASS/5FAIL,
-  actual EXE5 + empty marker1, mimalloc PASS, no SKIP/timeout; outer1900/build/run300s.
-  Later BranchNormal/Object argument work is outside that measurement; remeasurement owed.
-- Matching quick CLI passes computed Object arguments, Loop, If Phi, Bool Get condition
-  and Main `return stress.run()` scalar-source/argument handoff. Final validation stops at
-  `ordinary-new/local-commit/owned-holder/instruction-missing`; no EXE artifact is produced.
-- Next: connect original holder observations to the existing finished physical projection.
+- Official fixed suite at `b6195de60f`: 6PASS/5FAIL, actual EXE5 + empty marker1,
+  mimalloc PASS, no SKIP/timeout; outer1900/build/run300s, total704.9s.
+  Later holder/group-tree changes are outside this measurement.
+- Matching quick CLI passes computed Object arguments, Loop, If Phi, Bool Get condition,
+  Main scalar-source/argument handoff, final holder and borrowed Call incoming coverage.
+  The physical program reaches LLVM C API V4, which refuses unsupported-cohort during
+  flow admission before library emission. Program has 30 functions/2819 blocks; no EXE.
+- Next: locate the exact V4 instruction/type refusal and connect its existing owner contract.
   Preserve exact requested_bytes=454, rejects=4, output/exit0, route and no-replay checks.
 
 ## Connected owners
@@ -58,6 +59,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Root/child final validation now seals the captured physical projection before its source
   consumers; all validators still run before the final state is published.
 
+- Holder final inventory now uses the same finisher's definition/structural-Jump/metadata/
+  mandatory-effect correspondence, retaining original Read Call and reverse Array census.
+  Only value-free Jumps contract; argument-carrying Jumps stay mandatory effects.
+- Final lexical visitor walks the existing per-owner group tree, including Loop Append
+  child packets. Root aggregate instruction census is unchanged; original candidate/args,
+  exact producer/copy correspondence and duplicate source/coordinate refusals stay intact.
+
 ## Verification and remaining evidence
 
 - Root quick-test-fast and matching quick CLI builds PASS. Existing test list9263 unchanged.
@@ -65,7 +73,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   with the pre-order binary; result-protocol4 reds also reproduce with pre-source binary.
   These remain unresolved boundaries, not accepted product success.
 - Result/actual and If/initializer/Object input focused results are retained with the build;
-  previous connection checks remain in this card's Git history. Fixed-suite refresh is next.
+  previous connection checks remain in this card's Git history. Formal suite is recorded above.
+- Latest holder root/CLI builds PASS, Array/physical focused36 PASS and 1 known teardown red.
+  Visitor focused32 PASS and 1 known synthetic-callee red; test names9263 unchanged.
 - Builder dependency/CallTarget guards and diff checks PASS. Worker reviewed source family,
   full cleanup graph, Phi identity and final Compare/order connection, read-only/no Cargo.
 - Existing test adds final-Phi patch/borrow mutation coverage absent from provisional checks.
