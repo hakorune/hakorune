@@ -303,6 +303,24 @@ pub(super) fn append_source_claims(
     Ok(())
 }
 
+/// Constructor rows borrow their original program source rather than a batch
+/// declaration. Keep this traversal with the existing source index owner.
+pub(super) fn collect_constructor_birth_sites_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    claimed_sites: &BTreeSet<OwnedExprSiteV1>,
+    index: &mut BTreeMap<OwnedExprSiteV1, (VerifiedOrdinaryNewBirthRecipeV1, BirthAbiHandoffV1)>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    batch.with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
+        for row in instance_constructors.rows() {
+            let input = row.lowering_input(loan.program()).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+            collect_birth_site_index_v1(input.function(), input.owner(), batch,
+                instance_constructors, claimed_sites, index)?;
+        }
+        Ok(())
+    }).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?
+}
+
 /// Admit one `new` construction site into the destination-less birth index
 /// when — and only when — a verified `Birth` recipe exists for it.  Missing
 /// coverage, a missing `birth` row, lookup errors, and verification failures

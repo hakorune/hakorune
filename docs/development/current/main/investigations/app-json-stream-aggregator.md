@@ -75,8 +75,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   by typed cases; no new test functions/files. Focused27 PASS/2 known field-read reds.
   Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
   Dynamic execution, return inference and both final consumers remain unconnected.
-- Array holder now retains construction identity outside its SAME element requirement;
-  focused10 PASS. Empty acquisition/End and transfer remain owed; no fake get proof.
+- Array holder retains construction identity outside its SAME element requirement.
+  Constructor traversal now uses source-index owner; focused14 PASS. Empty transfer/End owed.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.

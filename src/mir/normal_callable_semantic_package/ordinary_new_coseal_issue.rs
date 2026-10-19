@@ -749,24 +749,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .map(|claim| claim.site().clone())
         .chain(result_claims.iter().map(|claim| claim.core.site.clone()))
         .collect();
-    batch
-        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
-            for row in instance_constructors.rows() {
-                let input = row
-                    .lowering_input(loan.program())
-                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
-                collect_birth_site_index_v1(
-                    input.function(),
-                    input.owner(),
-                    batch,
-                    instance_constructors,
-                    &claimed_sites,
-                    &mut birth_site_index,
-                )?;
-            }
-            Ok(())
-        })
-        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
+    source_claims::collect_constructor_birth_sites_v1(batch, instance_constructors,
+        &claimed_sites, &mut birth_site_index)?;
 
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(
         claims.into_boxed_slice(),
