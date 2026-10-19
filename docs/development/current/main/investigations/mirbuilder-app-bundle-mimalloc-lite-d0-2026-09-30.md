@@ -683,7 +683,7 @@ operand, borrowed-result/source-not-i64. Original call agg.userCount returns
 me.users.length. No app rewrite or source-site/name permission is allowed.
 
 Source authority + canonical issuer: original method/receiver inventory, own-Me
-canonical declared nonweak Array field, original all-writer inventory and unique
+canonical nonweak Array field, original all-writer inventory and unique
 Plain Birth Array provider. Reuse OrdinaryNewFieldWriteClaimsV1 and the existing
 field-read source/recipe/collector. ArrayLen/0 manifest is I64Value/PureRead/
 WarmDirectAbi; Count must have its own canonical law, not String CP permission.
@@ -851,81 +851,18 @@ provided Array or replacement permission. Other JSON untyped stats/scalar fields
 remain separate possible whole-object blockers after users qualifies. This is a
 next contract mapping, not implemented admission or completed source-to-final row.
 
-Root945 mapping: connect fixed source Array qualification in existing writer /
-canonical definition owners and every selected constructor/storage/read/residence/
-verification/final owner. Generic function types retain canonical field refs,
-not package source loans; source Count keeps SAME original writer Rc. Validate
-qualification object/order/range/None/nonweak at source seal and membership.
-Preserve original declaration spelling on local/entry read descriptors too.
-Production scope adds canonical definition/membership/layout, constructor provider,
-terminal/borrowed Array read, child inventory, Invoke/End verification and physical
-ABI residences. Existing raw definition/read fixtures receive empty qualifications/
-optional original spelling mechanically. Existing publication fixture's two Count
-cases now use source-untyped Array field; typed Count remains in checked-scalar
-case. No test name/file/case/checker/hook added; fixture change is necessary to
-exercise the newly selected independent source contract through final JSON.
-Other untyped scalar/Map fields stay unavailable; full row/goal remain open until
-source-to-final verification. This is BoxCount, separate from landed BoxShape.
-
-Root945 source-to-final fixed Array connection:
-- Canonical definition retains original None spelling and qualified canonical
-  field refs. Same complete source writer Rc proves the unique empty Array Birth
-  provider; constructor consumes the sole declaration owner's explicit+init order.
-  Whole-Normal initialization, actual store, parent Home and End remain required.
-- Local Array and direct Count/Set receivers share one physical FieldGet emitter
-  with the source-proven result type. Direct receivers borrow the original resolved
-  input, exact FieldAccess/Me binding, selected instance and SAME field-class Rc;
-  retain state.value_for_exact_binding and compare the actual descent base.
-  Generic field-class get()/field() keep builtin exclusion. The temporary Count-only
-  receiver lender and old private declaration-relookup emitter were removed.
-- Source/constructor/Home/layout/Invoke/End/publication consumers now use the same
-  qualification; no fabricated annotation, MIR authority, AST rewrite or fallback.
-  Existing Get cases remain typed; existing Count empty/one cases become untyped;
-  checked-scalar still covers typed Count. No test/case/file/checker/hook added.
-
-Validation at this landing (working diff over b23eddc7f3):945A/B/C/E/F/G builds
-78.851/67.725/60.849/67.674/85.793/61.448s PASS.945D25.049s compile failed on an
-existing exhaustive test match, then corrected without a new case. Intermediate
-failures exposed omitted init fields and raw receiver type loss; final945G closes
-both Count cases through publication. Mistaken verification::invoke_tests filter
-matched0 and is NOT evidence; corrected mir::verification::invoke:: executes42.
-945G13 filters:144PASS/1 pre-existing result-class failure (real_page_heap,
-borrowed-static/required-integer-source-unproved, owner18 Body0 Value), reproduced
-at943C before this change; no waiver/rebaseline. Selected tests:publication1,
-checked-scalar1, constructor26, stored-child6, Core11, backend20, layout4, Invoke42,
-result-class23PASS/1baseline, Loop1, post-success4, FastMem3, field-batch2.
-Root test names9263 unchanged. Rust matches CLI283 exactly; root945G manifest has
-only two later owner README differences. CLI283 quick build198.451s PASS.
-Existing C driver adapted in memory only: Get2 executions/3 malformed refusals
-PASS12.396s; Count empty/one2 executions/3 malformed refusals PASS39.119s.
-Current Get JSON is NOT byte-identical to941: exact binding reuse removes a self
-Copy and rekeys SSA values; Get/OOB final/C regressions pass. Do not claim unchanged
-physical JSON. No tracked driver/checker was introduced.
-
-Native commands use cli-v283.hakorune --grammar-profile canonical --backend mir
---emit-exe <output> --emit-exe-nyrt <runtime-v894a> <source>, plugins disabled,
-pure-first/no compatibility replay, ffi-v939a. CLI is current source; runtime894A
-and FFI939A are explicit predecessor pins, NOT all-three-current-source evidence.
-- Count empty379 EXE131.299603s/run.001783s: stdout Result: 0, exit0 expected;
-  Count one380 EXE131.430902s/run.001760s: stdout Result: 1, exit1 expected.
-  Both stdout/stderr/exit match; sources are the two existing fixture inputs.
-- Unchanged mimalloc378 EXE168.371327s/run.001662s: stdout/stderr/exit match363.
-  Compile trace is NOT timing-only-identical: 2802->2799 rows,798->795 values,
-  770->767 flow/emitted rows,526->523 type lookups; functions30/blocks2032/layout
-  lookups2042 unchanged. Receiver binding reuse changes physical rows; no speed
-  improvement claim from these parallel native runs.
-- Unchanged JSON377 stops in.063452s, exit1/no EXE; stderr byte-identical362:
-  owner32 Body10 IfCondition/Lhs/Lhs/Lhs/Rhs/Lhs, borrowed-result/source-not-i64.
-  Thus fixed-profile final/native acceptance is real, but this application's
-  frontier, FIELD-ARRAY-READ-S0, retained Loop/Text/ObjectForward and full goal
-  remain open. Read-only worker audits the complete producer-to-final mapping
-  before another local patch; users Array alone proves no stats/scalar storage.
-Pointer/layer/CallTarget/diff guards PASS. Known manifest guard ordinary.rs
-allowlist red remains predecessor-classified; no new result-lookup caller.
-Keep945G/CLI283, app377-380, C driver receipts, original362/363 and backend pins
-under /tmp/mirbuilder-required-forward-resume until unfinished source acceptance
-has stronger same-role evidence. No saved adapter; two replaced private entries
-are removed. Commit owns the results above; paths/SHA alone are not acceptance.
+Fixed untyped Array source-to-final connection landed at d94921c440. That commit
+owns complete source/consumer mapping, retained original None spelling, physical
+receiver correspondence, removed private entries, owner docs and exact results:
+945G144PASS/1 reproduced result-class baseline red,9263 names/no new cases;
+CLI283198.451s; native Count379/380 empty/one expected0/1 and unchanged mimalloc378
+stdout/stderr/exit PASS; existing C Get/Count executions and malformed refusals
+PASS. CLI current, runtime894A/FFI939A explicit predecessors. Get physical JSON and
+mimalloc trace counters changed with receiver binding reuse; no byte-identity or
+speed claim. Original JSON377 remains exact362 source-not-i64 (no EXE).
+Keep945G/CLI283/app377-380/C receipts and original362/363/backend pins under
+/tmp/mirbuilder-required-forward-resume until stronger same-role source acceptance.
+No saved adapter/new checker/test case. Row and full goal remain unfinished.
 
 Original JSON follow-through audit (Root946, read-only): exact Main Body10 site
 is second summary conjunct agg.userCount()==3, left operand. userCount returns
@@ -937,3 +874,105 @@ Next pin capture_exact_count candidate/provider outcome versus IngressVerified
 and ground_source_results participant closure, using original inputs. The raw
 receiver just connected is downstream of this source failure, not another patch
 candidate. Generic untyped storage remains a distinct parked contract.
+
+Root946 actual source diagnosis: CLI284 temporary diagnostic build161.146699s;
+unchanged JSON381 stops.049489s at the same Main site. Original userCount owner28
+Count candidate IS canonical users(object1,ordinal1); source proof I64/fixedI64,
+reads1/expressions0/fields0/calls0 reaches IngressVerified. Original Return check
+fails original-return-plan-identity, then grounded membership is absent. Thus
+whole-object Map/scalar storage and writer-inventory incompleteness do NOT explain
+this stop. Temporary gated instrumentation is removed; diagnostic patch/binary/
+source manifest retained outside checkout, not production or final acceptance.
+Existing Count empty fixture with zero-argument probe382 reproduces source-not-i64
+with pinned uninstrumented CLI283 in.017958s; no new tracked test/case/driver.
+
+Same-row Decision refinement (read-only source review): original Return plan
+coverage currently accepts only result-expression projections, losing a valid
+whole read projection on zero-parameter instance methods. Retain SAME original
+Return plan Rc per existing checked Array read Return-use, validate whole direct
+call or existing sole local initializer correspondence, original Count/Get method,
+receiver/index and source field provenance; preserve each use during normalization.
+Original Return verification requires exact one projection per field plan plus
+reverse same-Rc coverage; no Count exemption, subexpression cover, fresh plan or
+MIR type authority. Existing Count cases switch to zero-parameter source form;
+reuse typed Get, original-plan/source/refusal and existing C/native acceptance.
+Scope: existing Return verifier, read-use wrapper, read issuer correspondence,
+pending caller, publication fixture and NCSP owner README. No new test/checker or
+generic storage admission. Blocker now original Return consumer projection; row
+is unchanged and no product completion is claimed from this diagnostic.
+
+946 implementation uses existing read Return-use wrapper's return_plans (SAME Rc),
+not a new registry/packet variant. Issuer checks original Count method Arc or
+Get/1 exact argument, Return root/whole call children/receiver field and complete
+plan range, or existing sole local initializer. Original Return owner requires
+one projection per field plan and bidirectional exact-one correspondence between
+each read's own Return sites and retained plans. Read-only review caught the
+initial inverse only counting totals; corrected before final acceptance. Existing
+Count cases now use probe/0, Get remains probe/1.946A build82.554234s and existing
+original-plan two/refusal plus field-Array Return normalization one PASS.946B
+build/testing pending; no original-app progress or row completion claim yet.
+
+946B build62.975436s PASS. Original-plan/result family48PASS/4FAIL: all four
+failures reproduce unchanged with945G binary (two composition I64 proof controls;
+two temporal argument/disposition diagnostic controls), so classified baseline,
+not waived. Result-class23PASS/1same baseline; checked-scalar1 and Loop1 PASS.
+Zero-parameter Count publication now advances beyond source rejection but hits
+return_type_strategy main ValueId13 missing physical result type. This is current
+new-source admission's unfinished caller result handoff, NOT baseline or success.
+Read-only final-consumer worker maps source result -> caller local/Return across
+all classifier arms; no completed-MIR inference repair or fixture workaround.
+CLI285 is being built to measure unchanged original JSON before the next patch.
+
+CLI285187.031238s PASS; unchanged JSON383 now advances beyond owner32 source-not-i64
+and stops at borrowed-entry/finite-domain-unclosed (.052368s,exit1/no EXE). Thus
+original Return projection repairs the real source frontier, but not final app.
+Final-consumer audit finds local initializer still requests only strict I64 args
+and records borrowed_scalar=None; discard/Return/expression already use the source
+scalar loan. Zeroarg original field Return is selected regardless :i64 annotation;
+no seed expansion or annotation workaround is authorized. Normalize the existing
+source demand/observation in common issue_lexical_i64_call, retain destination /
+prior Homes/original loan; local lane admits Integer only, discard retains Bool.
+Selected refusal stays terminal; only Unselected reaches existing strict owner.
+Reuse existing observation constructor across local/discard/frame, removing double
+lookup and replaced discard-only entry. Existing local scanner/sole Call-Normal
+emitter already installs I64 binding/type and exact cleanup; do not change inference.
+Scope extends existing resolved_semantics home_local_call_flow/source_scalar_call
+and that owner's README for this caller handoff. No new packet/test/registry.
+
+946C build58.324262s PASS; local-call8 and home-flow7 PASS, checked-scalar1,
+borrowed-result48PASS/4same baseline, result-class23PASS/1same baseline, Loop1.
+Broader borrowed local-call publication failure root-exit-source-missing also
+reproduces945G. Zeroarg Count now reaches final FieldGet with correct Array type;
+receiver carrier ExistingCallableI64 is EXPECTED, not the error. The unrelated
+handle parameter in older probe/1 supplied BorrowedTaggedValue and hid missing
+exact source-field lending. SourceArray currently emits without ledger progress.
+Read receiver-only loan would fix Count empty but miss literal Set's separate
+FieldGet; borrowed ArraySet formal/index proof and Push requirement cannot stand
+in for this source. No final/C/native acceptance yet for946 zeroarg inputs.
+
+Next canonical Decision (full producer/final read-only audit): generalize existing
+DeclaredArray result/source to ArrayField/CanonicalArrayFieldReadSource, keeping
+one outer arm and shared site/receiver/binding/field/name/original type. Private
+origin BorrowedEntry owns its parent call; FixedReceiver retains SAME class Rc.
+First a behavior-preserving BoxShape rename/origin boundary; then source expansion
+separately. No fabricated call or borrowed entry. Fixed recheck is mandatory before
+any generic no-requirement branch: original FieldAccess/Me, same source Rc from
+field-write owner, exact canonical field/name/type and own receiver/home. Stage,
+take, emit, record and finished projection all use existing local_field_reads;
+visit_array_field_read_originals includes this ArrayField source. Final lending
+validates origin independently, then common function/projection/recorded FieldGet
+membership; never demand Push permission for a non-Push read. Retire SourceArray
+private raw route after its caller uses existing ExactObject/Local realization.
+Get/Count source provider/element/lifetime and Set's existing ArrayStoreAny route
+keep operation authority. Final scalar participant projection must also retain
+validated scalar anchor/packet site with zero original actuals; no synthetic entry.
+
+Root946 is WIP, not a verified code landing: preserve all eleven task paths.
+All Cargo/rustc and native sessions from this turn are terminal; no build running.
+Next implementation follows the above shared receiver mapping, not a backend
+classifier waiver. JSON's new Static Text finite-domain stop is a separate retained
+Loop/Text responsibility: exact owner/formal/sum/incoming still needs measurement;
+no domain-set widening or generic Map/scalar storage reopening is authorized.
+Keep946A/B/C test pins/receipts, CLI284 diagnostic and CLI285/383 source evidence,
+plus original945/native/backend predecessors until this same series acceptance.
+Temporary946 diagnostic code is removed; only outside-checkout patch is retained.
