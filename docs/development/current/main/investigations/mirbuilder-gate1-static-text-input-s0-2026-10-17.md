@@ -922,69 +922,28 @@ baseline failures (four EXEs plus empty marker). Full suite/series/goal stay ope
 Keep952F/CLI291/native/suite evidence and earlier950/diagnostic provenance until
 Text acceptance. 952E duplicate executable retired; its source/logs retained.
 
-953 construction Decision (read-only source/physical reviews; implements950):
-Destination comes from current Prefix StoredLocal, not a fabricated target read.
-Integer stays Home-neutral; StaticText has no target Home; owned Text requires
-same current root/acquisition and exactly one matching live Home. RHS observes
-old state, then Normal replaces its Home with the original Rebind frame Rc.
-Extend sole expression continuation and assignment writer; existing Init/Rebind
-packets share a small Text residence dispatch, never a second payload/registry.
-Normal child Ends then displaced-old End; full Fault child Ends,new End,prior Homes.
-Use existing normal-index residual selection: attempted old End is never retried,
-new pair remains in Fault cleanup. Historical packets remain exact-site/Rc owned.
-Both final scans and source Loop lifecycle must consume the same purpose/identity.
-Owned-root construction first; explicit Materialize, borrowed entry, whole Return/
-CallNormal/Unit/JSON/C remain required in this same series, not omitted or green.
-No new test/case/hook/fixture/checker planned; reuse existing acceptance slots.
-
-953 continued Decision/evidence (construction still under950):
-Original Plain BindingRebind RHSs now demand the SAME source SUM/Core analysis
-inside the existing checked source context; Local-only root demand had omitted
-substring in a rebind. No destination/Home permission comes from these demands.
-Final source retention also includes genuine Rebind frames. Independent lifetime
-verification exposed its old strict-Home-LIFO boundary after source connection.
-The SAME StringResidenceInstall now carries optional exact replaced ValueId;
-initializer/static-old use None. Both source-finals compare it to the displaced
-original packet, and all used-value/remapping/JSON consumers retain both values.
-Rust liveness keeps one pending pair. C indexed/native retain OLD/NEW bits in
-existing per-origin ranks (no encoded origin/side ledger), masked only for rank
-comparison and preserved for state joins. Further effects/install while pending
-refuse. Attempted old Normal End clears old before both successors; new Fault
-End restores ordinary unwind. Optional wire field is strict/distinct/SSA-bound;
-no new runtime operation or kernel ABI. Both read-only reviews approve actual diff.
-Root953A import error and953E visibility error corrected;953B prefix coverage /
-953D strict-LIFO test failures corrected, not waived. Root953C temporary diagnostic
-identified prefixes=false (other buckets true); diagnostic removed. 953F quick
-build108.072892s;174existing filters170PASS/4 exact952F baseline diagnostics,
-7.065061s,9263same test names. Additional focused existing String lifetime test PASS.
-Two overlapping Rust source slots and existing C installed-Home slot replaced;
-no added test/case/parameter/fixture/checker/hook. C slot still has the same Normal,
-Print-Fault and first-End-Fault executions; now the old Home End faults and new is
-ended exactly once. Other temporary/Home-stack evidence remains in existing cases.
-FFI953A cc build6.913825s; original full checked-string script473.982675s PASS;
-updated Home slot + neighboring existing malformed/Home cases in both C routes
-128.611397s PASS via statement selection, no new committed execution entry.
-Initial C attempt used default stale archive and failed linking; rerun explicitly
-uses unchanged kernel894A. Full C finished before attempted cancellation; no kill
-ran. Full-script predecessor source and selected-current source are pinned.
-CLI292 quick build237.945124s. OriginalJSON398 .051651s remains394 Unit-value-use,
-exit1/noEXE. Root/CLI Rust code matches; root953F predates Python fixture-only edit.
-FFI C code matches953A; kernel894A is explicit unchanged-component predecessor.
-One new warning reports unchanged ExactLexicalRead::loan_loop_point_v1 unused;
-no warning suppression or unrelated deletion. New private-interface warnings fixed.
-Native399 unchanged mimalloc canonical EXE151.823642s/run.002074s/stdout/stderr/
-exit0 exact363 PASS. Both existing Text rebind sources400 now canonical EXE/run
-PASS (117.152621/.001204s and116.562126/.001322s), stdout a/ab!ab + Result:0,
-stderr exact363/exit0. CLI291 refused both SAME source hashes at coverage/noEXE.
-Pointer/layer/CallTarget/diff PASS. Superseded953B/C/D test executables843428760B
-retired; their source/logs remain. Keep953F/CLI292/FFI953A/kernel894A/native/
-selected-C and full-C predecessor-script evidence until full Text acceptance.
-No production diagnostic/adapter survives. Fixed11 CLI292/FFI953A457.262987s:
-5PASS/6FAIL, every status and all6 full source diagnostic lines exact952. Four
-EXEs + empty marker; six source/generic prechecks remain required/open, not waived.
-The mimalloc smoke red precedes its EXE assertion; canonical399 PASS is separate.
-This lands owned-root Text rebind source→both finals→JSON/C/EXE, not whole950.
-No originalJSON stop advance, full suite/CI success or finite-goal completion claim.
-Remaining: literal/borrowed Materialize, whole original Return/CallNormal/borrowed
-entry/Unit args/cleanup/finals/JSON/C under950. Loop Text Add still needs its exact
-checked operation projection/execution (existing core-only Loop path retained).
+953 owned-root Text rebind source→shared writer/assignment→published historical
+Home/read loan→BOTH finals→JSON/C/canonical EXE landed `0ffa4313dc`. That commit
+owns the complete Decision, read-only reviews, corrected failures, source/component
+provenance, commands/timings, baseline classification and temporary-pin retirement.
+It replaces initializer-only Home dispatch and scalar-only destination assumptions;
+no second evaluation payload/registry, adapter, raw release fallback or diagnostic.
+Exact optional replaced value on StringResidenceInstall supplies independent
+Rust/C old-End ordering; old-End Fault keeps new and never retries old. Source
+Plain RHS demand uses the same original SUM/Core owner, not a new classifier.
+Root953F174existing170PASS/4 exact952F baselines;9263same names. Two Rust source
+slots and existing C Home runtime slot replaced; no new case/parameter/file/hook/
+checker. Both C routes pass old-End Fault/new cleanup and existing malformed cases.
+Full predecessor C script PASS, changed-current slot selected PASS; no cancellation.
+CLI292/FFI953A/kernel894A: same-source Text rebind400 both EXE/run expected output/
+exit0 PASS (CLI291 coverage refusal); unchanged mimalloc399 exact363 PASS.
+OriginalJSON398 remains394 Unit-value-use/noEXE. Fixed11 5PASS/6 exact952 failures,
+four EXEs+empty marker; precheck reds do not cover later EXE assertions. No suite/
+CI/full950/finite-goal completion claim. One warning on an unchanged unused loan
+method is recorded, not suppressed. Source/physical shared owners remain retained.
+Keep953F/CLI292/FFI953A/kernel894A/native/C/diagnostic-source evidence until whole
+Text acceptance; superseded953B/C/D executables843428760B retired, logs retained.
+Next under950: explicit literal/borrowed Materialize, all-original Text Return/
+CallNormal/borrowed entry/Unit args/cleanup/BOTH finals/JSON/C. No new inventory
+prerequisite or semantic design stop. Loop Text Add remains unsupported/unclaimed;
+originalJSON has no such row, so this audit finding adds no execution prerequisite.

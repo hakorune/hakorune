@@ -17,7 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-953 owned-root Text rebind now connects original destination/acquisition through
+953 owned-root Text rebind landed0ffa4313dc: original destination/acquisition through
 shared expression/assignment writer, exact historical Home publication/read loans,
 BOTH finals and JSON/C/canonical EXE. StringResidenceInstall retains exact old
 replacement; End Fault keeps new pair and never retries old. No second registry.
@@ -29,7 +29,7 @@ OriginalJSON398 still394/unit-value-use/noEXE. Fixed11 5PASS/6FAIL, all6 diagnos
 lines exact952; four EXEs+empty marker. No suite/CI/full-series green claim.
 Fast ORDINARY-TEXT-CALL-S0: next explicit literal/borrowed Materialize, all-original
 Text Return/CallNormal/borrowed entry/Unit args/cleanup/BOTH finals/JSON/C under950.
-Loop Text Add exact operation/execution still owed. No inventory prerequisite or
+Loop Text Add remains unclaimed; no new frontier prerequisite. No inventory or
 semantic design stop. Full Text/retained rows/finite goal remain open.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
