@@ -78,7 +78,7 @@ that independent field boundary, then continue its Loop/Map connections.
 No app rewrite, phase-293x MIR inference revival, Text/Array negative weakening,
 or unsupported runtime activation is authorized.
 
-Own unverified JSON Loop Call source changes remain in Git stash with message
-`JSON Loop Call source connection pending common storage decision`; no build/test
-ran on that half-connection. Restore only when completing its physical consumer.
+JSON Loop Call changes are restored as uncommitted working-tree WIP; the original
+stash remains a backup. Build, partial focused results and the remaining publication
+failure are recorded in the active app card; this is not a completed connection.
 Historical options/costs and earlier decisions remain in this file's Git history.

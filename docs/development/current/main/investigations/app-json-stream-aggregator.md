@@ -1,8 +1,7 @@
 # APP-json-stream-aggregator
 
 Status: common untyped-storage target accepted; JSON selected. Date: 2026-10-20
-Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
-[untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
+Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Current measurement
 
@@ -15,9 +14,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
   MIR compilation stops before artifact/link/runtime. Owner `ingest`, Loop Body(2)
   at line145, call line151 `me.ingestLine(stream.substring(start, end))`.
-  Incoming/Mul gates cleared; debug: `source expression has no checked execution root`.
-  Scanner also lacks line146 Local Call `end = JsonLine.find(...)`; retain its I64
-  result as well as the later discarded Bool result.
+  Loop Call WIP quick CLI now reaches `source control If has no checked condition`
+  at line147 `if end < 0`; no artifact. Line146 Local I64 and line151 discard Bool
+  use existing Call packets; their complete publication verification remains open.
 - Latest empty-transfer source quick CLI (build210s): JSON same; sentinel precheck/direct
   EXE exit1 at owned-field-write/original-source (I64 lease rejects Dynamic); no artifact.
 - Other reds remain explicit: untyped-field execution permission missing,
@@ -26,8 +25,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Current priority and measurement interpretation
 
 - [Common storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md) is now the
-  accepted target for three real apps plus the untyped sentinel. Implementation
-  is open; runtime C tests alone do not prove source/production coverage.
+  accepted target for three real apps plus the untyped sentinel; ParkedSealed is
+  superseded. Shared critical-path implementation is open; it does not fix every stop.
 - `mimalloc-lite` suite PASS includes a harness correction: an obsolete generic JSON
   all-Invoke refusal precheck was removed; production compiler/app behavior was unchanged.
   The canonical EXE already worked. Route/toolchain/artifact/no-replay/output/exit checks remain.
@@ -35,8 +34,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   programs and positive Static I64 Invoke transport. They do not reproduce the same
   mimalloc import closure or assert every unsupported Invoke subtype. Do not describe
   this as a new runtime capability or an identical negative test transfer.
-- Own unverified Loop Call source edits are saved in Git stash under
-  `JSON Loop Call source connection pending common storage decision`; not built/tested.
+- Own Loop Call WIP is restored in the working tree; original stash remains a backup.
+  Loop:13PASS/known count_at FAIL; publication FAIL: Worker.accept substring actuals
+  remain SourceInstance rather than Executable.
+  Quick opt0 CLI builds; JSON reaches the If condition stop above. WIP is not landed.
 
 ## Next source connection
 
@@ -83,10 +84,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
+- Publication case addition covers Local I64/discard Bool/substring cleanup inside Loop,
+  an independent combined boundary absent from existing cases; no new test function/file.
 - Prior reds: field-read2, count_at Loop, composition2/result2, Unit; evidence in Git.
 - JSON UserStats/aggregator slots and Map remain implementation dependencies; baselines unchanged.
-
-## Retained verification obligations
 
 - Allocator and mimalloc physical EXEs pass unchanged. Allocator's Bool Eq/Ne C admission
   retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
@@ -94,7 +95,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   callee reds remain open. Array provider3/handoff1 reproduce identically at pre-change HEAD.
 
 ## Completion obligations
-
 - Existing JSON smoke must satisfy every artifact/run/output/negative contract unchanged.
 - Common untyped-slot D0 is accepted; source/layout/runtime/final-consumer implementation remains.
 - Retire replaced exclusive edges when caller/validation closure holds; retain shared owners.
