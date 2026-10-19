@@ -1,10 +1,10 @@
 date = "2026-10-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-text-call/owned-return-to-unit-argument"
-current_design_stop = "ordinary-text-call/return-ownership-and-output-abi"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,23 +17,22 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-949 scalar source projection landed d819400df3;93focusedPASS/6reproduced baseline
-reds,9263names/no added cases/checkers. JSON389 advances finite-domain to Unit.
-Unchanged mimalloc390 canonicalEXE/run/output/exit exact363; runtime/FFI prior.
-950 CLI289 diagnostic159.381s, originalJSON391 .051006s: ingest/1 owner27 called
-from Main32 Body1 SequenceItem(true), returnsvalue(false), arg Main.sampleStream().
-Genuine discarded Unit; current Unit source/Home/writer/final are zeroarg. Also
-ExactString catalog supplies no callable ownedText result ABI (explicit required
-followup); no OwnedString call kind/ordinary call leaf yet. Both traces removed.
-Actual owner transferred to ORDINARY-TEXT-CALL-S0 in existing Text card. Design
-whole original Text Return -> owned Call result -> Unit arg borrow -> both-edge
-End/both finals/JSON/C before construction. No Unit waiver/Map alias/inline.
-StaticText and all retained/full finite goal conditions remain open; goal active.
+949 source projection d819400df3 verified93focusedPASS/6baseline, no added cases;
+JSON389 advances domain->Unit; unchanged mimalloc390 canonicalEXE/run exact363.
+950 exact Unit frontier6d3529fa6b: Main32 Body1 discards ingest/1 owner27,
+actual Main.sampleStream(). Diagnostic source removed; truevalue guard retained.
+Both workers accept whole ordinary Text call construction Decision in existing
+card: original allReturn/Home ownership, Text rebind, explicit OwnedString pair
+Call output/status0/1/2, checked Text materialization, borrowed entry operand,
+Unit fullordered args, Normal/Fault End and BOTH finals/JSON/C. No repr-only grant,
+Map/Handle alias, inline, fakeAdd or parallel ledger. No semantic design gap left.
+Fast selected ORDINARY-TEXT-CALL-S0. First behavior-preserving acquisition loan
+normalization before admission; whole series/retained rows/finite goal remain open.
 
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
-next_execution_card = "none_until_owned_text_return_contract_accepted"
+next_execution_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

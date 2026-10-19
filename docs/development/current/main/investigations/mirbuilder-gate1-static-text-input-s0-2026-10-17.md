@@ -180,45 +180,15 @@ SAME Body7 Value source-actual-unavailable stop; no Text/runtime admission.
 Root852B/CLI187/app206-207 receipts, logs/manifests and backend pins remain needed
 for the unfinished series. No parked adapter or new dedicated guard exists.
 
-## Source-result preservation — construction
+## Source-result preservation (completed preparation)
 
-Previous status-only goal turn made no implementation progress. Revalidated clean
-checkout/pointer and resumed the existing source connection. Read-only worker
-confirmed one target-storage-generic evidence/row vocabulary, not duplicate
-borrowed/owned enums. Consume the SAME catalog into function and call-site rows;
-only sealed target storage changes. Both ordinal lists and Core manifest/fact
-move unchanged; borrowed duplicate checks still require pointer identity.
-Also retain the SAME full static target inventory: result solver call-site rows
-cover static declarations only. Instance callers retain original target+callee
-disposition without fabricating a stronger call-site proof. I64 homes claims and
-all executable paths remain unchanged. No second AST/solver/classifier is added.
-Paths additionally include existing ordinary_new_borrowed_static_retention_tests
-for static/instance difference and Core/ordinal retention, and both owner READMEs.
-This is passive preparation. Original-method Arc join, source SUM, entry and the
-full remaining series acceptance below remain required.
-
-Next same-series source connection, from the worker's full owner review:
-- Original incoming already reaches prepare_original_formal_seeds_v1 through
-  with_original_source_input_v1. Thread its existing AppMain loan, use canonical
-  contract/slot/key (or original constructor context), and require catalog brand
-  plus SAME method Arc before joining target/result/call-site evidence.
-- Original Qualified route/result identity now comes from full source_target;
-  explicit qualified-I64/zeroarg-I64 predicates keep execution bounded. The same
-  static incoming row retains canonical method/call-result identities. Core
-  method actual evidence and source SUM remain to be joined at the seed owner.
-- Retain Text/I64/Null contributions, all Forward edges, Other/unknown and
-  unresolved cycles in the SAME original seed product before lossy Conflict
-  projection. Derive the source SUM there; no parallel classifier/AST/solver.
-  Existing homogeneous Integer/Object projections and declared field constraints
-  remain. Unknown siblings and empty/seedless cycles do not close a domain.
-- ExactString/ExactStringOnSuccess is representation-on-Normal only, not Add,
-  substring or entry permission. Mutable bounds retain exact Prefix/Loop After
-  dependencies. Static target+callee disposition must stay distinct from stronger
-  call-site proof; instance callers have no invented static-solver row.
-Next expected paths: qualified_static_incoming_source and its existing source/
-entry predicate consumers; original formal seed/domain owner and existing tests.
-Update the bounded path list before source expansion. Full input/cleanup/
-publication acceptance remains the finish line, not passive catalog retention.
+`7f77d03941` and the V853–V868 commits below retain the full original catalog/
+method/ordinal/Core/source-SUM mapping and exact source/native evidence.
+One classifier/product retains all incoming and independent SCC obligations;
+Instance target disposition never manufactures a Static solver call-site row.
+Existing I64/Object projections and nominal constraints retain their own laws.
+ExactString remains representation only; Prefix/Loop After, ownership, cleanup,
+both final consumers and named JSON/C acceptance are still independent duties.
 
 ## Verified source preparation history (V853–V860)
 
@@ -241,7 +211,9 @@ and manifests remain explanatory evidence.
 Retained contracts: one classifier preserves Text/Other/Unknown/Forward rows,
 immutable local/formal inputs and exact required-I64 ordinals. Full reaching
 alternatives and independent SCC grounding are mandatory; seedless recursion,
-foreign Core/source identity, missing census and rebind/capture refuse. Conditional
+foreign Core/source identity, missing census and capture/unknown point reads
+refuse.949 exact scalar reaching definitions may prove a rebind's source SUM;
+this never grants mutable Text execution or changes the legacy projections. Conditional
 Core retains original receiver/ordered seeds/manifest law. Source SUM grants no
 runtime, ABI, Home, cleanup or fake Loop membership. Ordinary source and Static
 actual consumers share SAME plan/Core Rc, owner/site/ordinal and original method
@@ -951,35 +923,43 @@ owners remain. No parallel map/variant/solver or adapter survives in that landin
 Keep949/CLI288/JSON389/native and287 diagnostic provenance until originalJSON
 acceptance; obsolete946 diagnostic patch was superseded and removed.
 
-950 Unit frontier observation (read-only source-to-final/call-tree review):
-CLI289 diagnostic build159.380939s PASS; unchangedJSON391 .051006s exit1/noEXE.
-Exact callee JsonStreamAggregator.ingest/1 owner27; caller Main owner32 Body1;
-argument Body1/Argument0 is Main.sampleStream(). Requirement ExistingBorrowedResult,
-original SequenceItem Some(true), Completion returns_value Some(false). This is
-an actual discarded Unit call, not receiving Unit as a value. Guard557 stays.
-Both temporary hunks removed; exact HEAD source restored (lexical file799lines).
-Retain CLI289/source/log/diagnostic patch until accepted whole-call mapping;
-no permanent trace, test/case/checker or adapter. Diagnostic build not acceptance.
+950 actual frontier/provenance and source-to-C audit are retained at `6d3529fa6b`:
+CLI289 build159.380939s, unchangedJSON391 .051006s exit1/noEXE. Exact ingest/1
+owner27 <- Main32 Body1 SequenceItem(true), Unit Completion; actual sampleStream().
+All diagnostic source hunks removed. Keep289 patch/source/log until superseded;
+no permanent trace/adapter/test/checker. Unit-value rejection remains required.
 
-950 One Decision: connect ordinary owned Text Return -> argument -> Unit call ->
-Normal/Fault End as ONE responsibility; never add only a nonzero Unit flag.
-Source authority: SAME exact result catalog, original all-Return/source plans,
-callee Completion and original SequenceItem/ordered actual sites. Executable
-owned Text Return issuer/physical output mapping is not yet accepted.
-Non-authority: ExactString/MirType::String alone, names/selectors, Map/Handle
-reinterpretation, inline/AST rewrite, or borrowed tag4 as Return transfer proof.
-Fail-fast: no execution before a source-owned transferred String result plus
-exact caller acquisition/argument/End and both-final/ABI ownership agreement.
-Required mapping: callee's original out/Add/old-value End -> final owned Return;
-ordinary Call Normal owned-result transfer (Fault has no acquired result) ->
-existing OwnedTextDeferred/ordered transient prefix -> Unit argument borrow ->
-callee Normal/Fault one End, independently checked in both finals and JSON/C.
-Existing InvokeCallResultKind has no owned String; ordinary call expression leaves
-are Integer/Bool only. Representation README105–128 and strings.md69–90 explicitly
-separate ExactString publication from executable ownership ABI (required followup).
-Smallest next slice is DESIGN: settle exact Return/output ownership loan and ABI,
-then map existing Unit source/Home/argument/writer/final owners together; no code
-receipt or signature variant ahead of that decision. Reuse existing String result/
-End/runtime and ordinary call owners; preserve all incoming and true Unit value-use
-refusals. Full StaticText/ObjectForward/Loop/Array and finite goal remain open.
-No new test/case/checker is selected. Goal stays active during this design work.
+950 One accepted construction Decision (source and physical workers agree):
+Source authority + issuer: SAME ExactString catalog and caller/site/target handoff
+plus all original Return/Completion sites and expression/Home provenance. Existing
+result owner seals executable Text Return demand; representation alone never does.
+Normalize Text residence acquisition in the SAME flow/record owners with private
+Initializer/Rebind/CallNormal origins, exact source Rc and proper purposes; never
+cast rebind to initializer. Existing expression evaluation/writer stays sole owner.
+Text rebind borrows old value during RHS; Normal acquires new pair before old End;
+Fault cleanup retains all acquired Homes, including new pair if old End fails.
+Owned local/concat/substring/call result moves SAME pair; literal/borrowed Return
+uses explicit checked Materialize -> fresh independent pair, not fake Add/substr.
+Materialize borrows Text descriptor only, rejects Integer, shares runtime
+text_operand/publish; never End its input. Borrowed Text entry must become a real
+descriptor/view operand, never an owned pair; it cannot End or Return unmaterialized.
+ABI: explicit ordinary OwnedString result, repr(C){u64 handle,u64 token}, aligned
+independent out-slot; status0 publishes both,1Fault no caller result,2existing
+InvalidContract. No Map/object brand, MirType inference or raw-handle alias.
+Callee excludes transfer only from Normal cleanup, retains result on cleanupFault;
+out-pair move occurs only after ALL Normal cleanup. Caller records acquisition on
+CallNormal BEFORE fallible argument cleanup; later Fault discharges that result.
+Unit source retains original SequenceItem and full ordered existing actual/Home
+proofs. Evaluate sampleStream once, borrow via existing OwnedTextDeferred/transient
+prefix, End acquired arguments once on callee Normal/Fault; no acquisition on argFault.
+Both source/final scans and publication/JSON/C check exact Return/Call/Normal/End
+membership and lifetimes. Existing String runtime, input transport and progress
+owners are reused; no parallel classifier/ledger or fallback. Capture, allincoming,
+true Unit-value-use and other result brands remain strict.
+Scope whole Text call tree: rebind, Return, Call result, borrowed entry use, Unit
+arguments, cleanup and C. TextEntry execution-pending and ordinary I64/Bool-only
+call leaves must close too. Literal/borrowed Return cannot be omitted as a shortcut.
+Next first BoxShape: inspect all acquisition consumers and normalize common loan
+interface with unchanged initializer behavior, separately from source admission.
+Both reviews found no unresolved semantic contract; names/wire spelling are routine
+implementation choices. Full series/retained rows/goal still open; no new tests.
