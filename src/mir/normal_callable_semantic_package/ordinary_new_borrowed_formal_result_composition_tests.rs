@@ -218,7 +218,7 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
     package.ordinary_new_claim_ledger.borrowed_i64_results[&owner].as_ref().unwrap().require_source_i64_v1().unwrap();
 
     let mut foreign_sources = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
-    let foreign = foreign_sources.remove(&owner).unwrap().unwrap().unwrap();
+    let foreign = foreign_sources.remove(&owner).unwrap().legacy_source().unwrap().unwrap().clone();
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     let component = Rc::clone(ledger.borrowed_i64_results.field_component.as_ref().unwrap().as_ref().unwrap());
     ledger.borrowed_i64_results.require_field_component_v1(&component).unwrap();
@@ -251,7 +251,7 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
             matches!(package.selected.key_for_batch_slot(row.batch_slot),
                 Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().owner;
         let originals = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
-        assert!(originals[&owner].as_ref().unwrap().is_some(), "passive field requirement survives invalid result/Completion");
+        assert!(originals[&owner].legacy_source().unwrap().is_some(), "passive field requirement survives invalid result/Completion");
         assert!(package.ordinary_new_claim_ledger.borrowed_i64_results[&owner].is_err());
     }
 
@@ -277,7 +277,7 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
         assert!(grounded_source_results_with_ingress_v1(&ledger.borrowed_i64_results, ingress).contains(&read_owner));
         let field_leaf = if !operand {
             let expression = &proof.expressions[0];
-            let receiver = proof.original_return.as_ref().unwrap().receiver();
+            let receiver = proof.original_return.as_ref().unwrap().legacy_field_receiver_v1().unwrap();
             let site = expression.plan().nodes()[0].site().clone();
             let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
                 BodyExpressionShapeV1::FieldAccess { object, .. }) = expression.plan().nodes()[0].source() else { panic!("original field") };
@@ -647,7 +647,7 @@ fn original_return_field_requests_keep_nested_expression_plans_before_qualificat
             Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
                 if key.owner() == "Parent" && key.name() == "read")).unwrap();
         let originals = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
-        let loan = originals[&contract.owner].as_ref().unwrap();
+        let loan = originals[&contract.owner].legacy_source().unwrap();
         assert_eq!(loan.is_some(), requested, "{body}");
         if let Some(loan) = loan {
             assert_eq!(loan.field_plans().count(), if body.contains("if true") { 2 } else { 1 });
@@ -671,7 +671,7 @@ fn original_field_request_rejects_lost_retained_return_before_lending() {
     let mut results = std::mem::take(&mut Rc::get_mut(&mut package.ordinary_new_claim_ledger)
         .unwrap().borrowed_i64_results);
     let proof = results[&contract.owner].as_ref().unwrap();
-    let receiver = proof.original_return.as_ref().unwrap().receiver();
+    let receiver = proof.original_return.as_ref().unwrap().legacy_field_receiver_v1().unwrap();
     let site = OwnedExprSiteV1::new(contract.owner, proof.expressions[0].plan().nodes()[0].site().clone());
     let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
         BodyExpressionShapeV1::FieldAccess { object, .. }) = proof.expressions[0].plan().nodes()[0].source()

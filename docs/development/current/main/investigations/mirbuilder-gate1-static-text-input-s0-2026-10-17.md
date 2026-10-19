@@ -960,3 +960,29 @@ TransferResidence(exact acquisition) and Materialize. Same checked expression,
 terminal relation/cleanup/result seal/BOTH finals/JSON/C and Loop CallSlot/Return
 actions remain required; no fake initializer/Core/Bool-as-Unit/double cleanup.
 FiniteText final conversion/OwnedString Call+Return/CallNormal/Unit and full950 open.
+
+960 user-requested stop: implementation WIP retained, NOT built/tested/committed.
+Source capture now attempts Static/Instance general Value Return trees, retaining
+explicit legacy eligibility in the SAME capture row before newly covered errors.
+Profile/numeric consumers use legacy_source; exact-me field receiver stays gated.
+Existing composition tests only adapt source access; no cases/hooks/checkers added.
+Added passive ReturnExpressionSource request/response and early callback lender:
+canonical batch function identity/selected key/owner/exit/root corroboration,
+SAME original loan/plan, no result class/Completion/execution permission.
+This is incomplete source construction, not a Home Return or physical connection.
+Read-only workers confirmed this mapping; no worker edits/Cargo. Existing callbacks
+in ordinary_new_coseal_issue.rs and issue_source.rs still prefilter formal ingress
+failure: passive Return source must bypass BOTH before the callback can be used.
+Return frame, terminal observer invocation, existing field-batch threading and
+purpose-neutral entry reader are NOT implemented. No terminal/ABI/cleanup/final
+cutover or app advance claimed. Continue SAME950 Decision after resume permission.
+Next: inspect WIP, finish genuine source-to-Home Return qualification/install;
+retain exact original loan and TransferTemporary/TransferResidence/Materialize,
+then required result/Call/cleanup/BOTH finals/JSON/C and Loop action connection.
+ordinary_new_lexical_instance_call.rs is800 lines: cannot grow further without
+responsibility extraction; do not compress to bypass the source cap.
+Stop checks: git diff --check PASS; no Cargo/rustc/app acceptance process live.
+Last validated/pushed959 baseline is661f383f09/0311400375;959 test/app evidence
+above is NOT evidence for960 WIP. Keep959B/CLI299/source/apps +954A/earlier baselines.
+No new build or temporary executable generated960. Full finite goal remains open;
+user requested pause, do not resume implementation/build without permission.

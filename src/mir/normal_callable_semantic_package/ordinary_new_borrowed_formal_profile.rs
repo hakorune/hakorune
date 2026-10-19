@@ -216,8 +216,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                         ),
                     );
                 } else if let Some(original) = original_returns.get(&reference.callee_owner) {
-                    if let Some(original) = original.as_ref().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                        site: reference.call_site.clone(), issue: issue.clone(),
+                    if let Some(original) = original.legacy_source().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: reference.call_site.clone(), issue,
                     })? {
                         if !original.matches(&reference) { return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                             site: reference.call_site.clone(), issue: "original-return/target-identity".into(),
