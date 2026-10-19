@@ -1,17 +1,15 @@
 # APP-json-stream-aggregator
 
-Status: common untyped-storage target accepted; implementation first; JSON remains selected.
-Date: 2026-10-20
+Status: common untyped-storage target accepted; JSON selected. Date: 2026-10-20
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
-[untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md),
-[final pipeline](../design/mirbuilder-final-pipeline-ssot.md).
+[untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Current measurement
 
 - Fixed `real-apps-exe-boundary`: 7PASS/4FAIL, actual EXE6 + empty marker1;
-  mimalloc and allocator PASS, no SKIP/timeout, duration783.522s.
-  Measured literal-source admission `23ff510a8b` with its matching quick CLI,
-  explicitly selected lifecycle runtime and production Bool-equality C FFI.
+  mimalloc and allocator PASS, no SKIP/timeout, duration1150.771s.
+  Measured known-empty source admission `0013eb0e11` with matching quick CLI
+  (build233s), quick lifecycle runtime and production Bool-equality C FFI.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
 - JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
@@ -20,9 +18,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Incoming/Mul gates cleared; debug: `source expression has no checked execution root`.
   Scanner also lacks line146 Local Call `end = JsonLine.find(...)`; retain its I64
   result as well as the later discarded Bool result.
-- Post-runtime quick CLI rebuilt in188s: JSON smoke exit1 at the same Loop stop;
-  sentinel precheck exit1/direct EXE exit101 at phase84, no artifact. Explicit
-  quick runtime and selected Bool-equality C FFI; no new source admission claimed.
+- With that CLI, sentinel precheck exits1; direct canonical EXE exits101 at
+  phase84 ValueId(14), no artifact. The generic JSON negative pin is retained;
+  known-empty source retention does not grant Dynamic execution/read permission.
 - Other reds remain explicit: untyped-field phase84 inference panic,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
@@ -70,20 +68,22 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   transfer/Normal/Fault correspondence before emission. Source activation is owed;
   Map placement, stored borrow/Shared and carrier forwarding remain unadmitted.
 - Allocation-only inventory now retains exact declaration fields plus the shared
-  storage vocabulary; I64-only execution/readiness retained. Constructor26 plus
-  allocation1/claim1/write2 PASS. Connect scalar/Array demand through the SAME
-  write frame, successor Home and checked read; known Empty is never ready.
+  storage vocabulary; I64-only execution/readiness retained. Readiness now shares
+  the SAME write plan (frame/RHS); branch joins and final checks retain both identities.
+  Focused15 PASS; field-read2 baseline reds remain below. Empty is never ready.
   Array identity now has one binding issuer shared with get/push; existing9 PASS.
   Provider acquisition/End and transfer remain owed; no fake element/get proof.
-- The existing fields/checked_read.rs owner registers Integer only after checked
-  Invoke/NormalResult. Route the sentinel count Return through that SAME packet;
-  do not patch return_type_strategy or use infallible ObjectFieldGet for Dynamic.
+- Dynamic count Return needs SAME last-writer/RHS kind, never a main-I64 assumption.
+  Mutating call/alias invalidates that proof. Checked read emits Integer on Normal;
+  return inference and Dynamic admission remain unchanged until the full connection.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
 - Prior reds: count_at Loop, composition2/result2 and Unit diagnostic; earlier
   connection/normalization/filter details remain in this file's Git history.
 - JSON UserStats/aggregator slots and Map remain implementation dependencies.
+- Field-read9: 7PASS/2 baseline reds (stored-child caller assertion / opaque formal
+  ingress), reproduced before the no-hook/known-empty/readiness changes.
 
 ## Retained verification obligations
 

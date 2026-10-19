@@ -73,7 +73,7 @@ enum StoredLocal {
         acquisition: super::OwnedExprSiteV1,
         /// Immutable declaration source; branch-local readiness is not shared here.
         construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
-        ready: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, std::rc::Rc<super::CheckedFieldWriteFrameV1>>,
+        ready: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, super::FieldWritePlanV1>,
     },
     /// A call-result handle the caller received as an owned Home. It owes
     /// the caller's exit exactly one release like a `Home`, but its
@@ -188,7 +188,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::Home { acquisition: a, construction_source: ac, ready: ar },
             StoredLocal::Home { acquisition: b, construction_source: bc, ready: br }) =>
             a == b && ar.len() == br.len() && ar.iter().all(|(field, frame)|
-                br.get(field).is_some_and(|other| std::rc::Rc::ptr_eq(frame, other))) && match (ac, bc) {
+                br.get(field).is_some_and(|other| frame.same_source(other))) && match (ac, bc) {
                 (None, None) => true,
                 (Some(a), Some(b)) => std::rc::Rc::ptr_eq(a, b),
                 _ => false,

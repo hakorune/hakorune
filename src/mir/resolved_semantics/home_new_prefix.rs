@@ -160,7 +160,7 @@ impl ResultNewHomePrefixV1 {
 mod expression_plan;
 #[path = "home_new_prefix_binding_rebind.rs"]
 mod binding_rebind;
-pub(crate) use expression_plan::{qualify_binding_rebind_expression_v1, BindingRebindDestinationV1, CheckedBindingRebindFrameV1, ExpressionCallSourceV1, qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1, qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, qualify_condition_expression_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
+pub(crate) use expression_plan::{qualify_binding_rebind_expression_v1, BindingRebindDestinationV1, CheckedBindingRebindFrameV1, ExpressionCallSourceV1, qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1, qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, FieldWritePlanV1, qualify_bool_condition_v1, qualify_condition_expression_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;

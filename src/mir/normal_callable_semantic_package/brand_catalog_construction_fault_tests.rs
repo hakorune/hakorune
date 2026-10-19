@@ -99,7 +99,7 @@ fn allocation_only_local_new_releases_home_without_initializing_fields() {
         let flow = completion.cleanup().root_flow().unwrap();
         let required: Vec<_> = flow.source_expression_fields().collect();
         let [required] = required.as_slice() else { panic!("one original read: {expression}") };
-        let writer = required.request().owned_ready.as_ref().unwrap();
+        let writer = required.request().owned_ready.as_ref().unwrap().frame();
         assert_eq!(writer.prior_homes(), &[LiveHomeV1::Stable(required.request().home)]);
         let claims = ledger.pending_claims_for_test();
         let homes: Vec<_> = claims.values().map(|claim| LiveHomeV1::Stable(claim.home_prefix().as_ref().unwrap().destination())).collect();

@@ -73,8 +73,7 @@ pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpre
 
 #[path = "home_borrowed_field_write.rs"]
 mod field_write;
-pub(crate) use field_write::CheckedFieldWriteFrameV1;
-use field_write::FieldWritePlanV1;
+pub(crate) use field_write::{CheckedFieldWriteFrameV1, FieldWritePlanV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExpressionScalarOperationLoanV1 {
@@ -245,6 +244,7 @@ impl HomeExpressionPlanV1 {
             .or_else(|| self.condition_frame().map(|frame| frame.evaluation()))
             .or_else(|| self.print_frame().map(|frame| frame.evaluation()))
     }
+    pub(crate) fn field_write_plan(&self) -> Option<&FieldWritePlanV1> { self.field_write.as_ref() }
     pub(crate) fn field_write_frame(&self) -> Option<&Rc<CheckedFieldWriteFrameV1>> {
         self.field_write.as_ref().map(|plan| &plan.frame)
     }

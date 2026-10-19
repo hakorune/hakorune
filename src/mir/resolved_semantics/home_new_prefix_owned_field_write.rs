@@ -31,7 +31,7 @@ pub(super) fn observe<E>(
         &mut |site| super::super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
-    if plan.is_none() { return Ok(Some(false)); }
+    let Some(writer) = plan.as_ref().and_then(|plan| plan.field_write_plan()).cloned() else { return Ok(Some(false)); };
     installation.commit();
-    Ok(Some(locals.record_normal_field_write(frame)))
+    Ok(Some(locals.record_normal_field_write(writer)))
 }

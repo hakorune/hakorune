@@ -181,7 +181,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         } else { ledger.terminal_i64_add_return().unwrap().field_requests().iter().collect() };
         let flow = ledger.root_completion_for_test().cleanup().root_flow().unwrap();
         for request in requests {
-            let ready = request.owned_ready.as_ref().expect("exact successful LOCAL store");
+            let ready = request.owned_ready.as_ref().expect("exact successful LOCAL store").frame();
             let local = ready.owned_local().unwrap();
             let latest = flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame())
                 .filter(|frame| frame.owned_local().is_some_and(|write| write.field() == local.field())).last().unwrap();

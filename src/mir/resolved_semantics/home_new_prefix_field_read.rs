@@ -125,7 +125,7 @@ pub(crate) struct LocalFieldReadRequestV1 {
     pub(crate) alias_path: Option<Box<crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1>>,
     pub(crate) field: Box<str>,
     /// Exact prior Normal writer, retained only for the allocation-only LOCAL profile.
-    pub(crate) owned_ready: Option<std::rc::Rc<CheckedFieldWriteFrameV1>>,
+    pub(crate) owned_ready: Option<FieldWritePlanV1>,
 }
 
 impl LocalFieldReadRequestV1 {

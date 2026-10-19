@@ -18,9 +18,20 @@ enum FieldWriteReceiverV1 {
     OwnedLocal(crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct FieldWritePlanV1 {
+pub(crate) struct FieldWritePlanV1 {
     pub(super) frame: Rc<CheckedFieldWriteFrameV1>,
     pub(super) rhs: Option<Rc<QualifiedFieldWriteRhsV1>>,
+}
+impl FieldWritePlanV1 {
+    pub(crate) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> { &self.frame }
+    pub(crate) fn rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> { self.rhs.as_ref() }
+    pub(crate) fn same_source(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.frame, &other.frame) && match (&self.rhs, &other.rhs) {
+            (Some(a), Some(b)) => Rc::ptr_eq(a, b),
+            (None, None) => true,
+            _ => false,
+        }
+    }
 }
 impl CheckedFieldWriteFrameV1 {
     pub(crate) fn owned_local(&self) -> Option<&crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1> {

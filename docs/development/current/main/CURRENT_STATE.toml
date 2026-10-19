@@ -19,7 +19,7 @@ latest_card_path = "docs/development/current/main/investigations/app-json-stream
 latest_card_summary = """
 APP-json-stream-aggregator: Loop Call未接続。自分の未検証変更はGit stashで保持。
 残り3実アプリ＋untyped sentinelの共通tagged storage契約を既存D0とreferenceで受理。
-sourceはDynamic layoutとNoBirth inventoryまで。runtimeはslot/置換/Endを実装し、C ABI両indexed profileでPASS。
+sourceはDynamic layout/NoBirth、readinessは同じwrite planを共有。runtime C ABI両indexed profileでPASS。
 正式suite7PASS/4FAIL、実EXE6＋marker1。mimallocのハーネス修正はcard参照。
 次は同じsource write/read packetとHome successorから両consumerへ接続。Map等の未接続はcard参照。
 """
@@ -41,6 +41,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: real-apps-exe-boundary at known-empty source admission 0013eb0e11 — 7 PASS / 4 FAIL; 6 actual EXEs plus 1 empty marker; allocator and mimalloc PASS, no SKIP/timeout. Matching quick CLI (build233s), quick lifecycle runtime and production Bool-equality C FFI; outer1900/build/run300s; suite1150.771s. Same four first stops; sentinel direct EXE101/phase84, no artifact. Later identity/readiness normalizations have focused verification only.",
   "2026-10-19: real-apps-exe-boundary at literal-source admission 23ff510a8b — 7 PASS / 4 FAIL; 6 actual EXEs plus 1 empty marker; allocator and mimalloc PASS, no SKIP/timeout. Matching quick CLI, selected lifecycle runtime and production Bool-equality C FFI; outer1900/build/run300s; suite783.522s. Remaining reds: untyped-field, binary-trees, boxtorrent, JSON. Previous allocator measurement remains in Git history.",
-  "2026-10-19: real-apps-exe-boundary at b6195de60f — 6 PASS / 5 FAIL; 5 actual EXEs plus 1 empty marker; mimalloc PASS, no SKIP/timeout; 704.9s. Earlier holder stop and repeated measurements are retained in Git history.",
 ]

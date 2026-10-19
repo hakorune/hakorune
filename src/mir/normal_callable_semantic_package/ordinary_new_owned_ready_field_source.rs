@@ -13,7 +13,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct OwnedReadyFieldReadS
 }
 impl PartialEq for OwnedReadyFieldReadSourceV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.frame, &other.frame) && self.request == other.request && self.field == other.field
+        Rc::ptr_eq(&self.frame, &other.frame) && self.request.owned_ready.as_ref().zip(other.request.owned_ready.as_ref())
+            .is_some_and(|(a, b)| a.same_source(b)) && self.request == other.request && self.field == other.field
     }
 }
 impl Eq for OwnedReadyFieldReadSourceV1 {}
@@ -23,7 +24,7 @@ impl OwnedReadyFieldReadSourceV1 {
         request: &LocalFieldReadRequestV1, field: CanonicalFieldRefV1, declared: Option<&str>,
     ) -> Result<Self, String> {
         let fail = || fault("owned-ready/source");
-        let frame = request.owned_ready.as_ref().ok_or_else(fail)?;
+        let frame = request.owned_ready.as_ref().ok_or_else(fail)?.frame();
         let local = frame.owned_local().ok_or_else(fail)?;
         let mut matches = candidates.iter().filter(|row| row.destination == request.home);
         let candidate = matches.next().ok_or_else(fail)?;
@@ -44,7 +45,8 @@ impl OwnedReadyFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> { &self.frame }
     pub(in crate::mir::normal_callable_semantic_package) fn field(&self) -> CanonicalFieldRefV1 { self.field }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_request(&self, request: &LocalFieldReadRequestV1) -> bool {
-        self.request == *request && request.owned_ready.as_ref().is_some_and(|frame| Rc::ptr_eq(frame, &self.frame))
+        self.request == *request && request.owned_ready.as_ref().zip(self.request.owned_ready.as_ref()).is_some_and(|(plan, original)|
+            Rc::ptr_eq(plan.frame(), &self.frame) && plan.same_source(original))
     }
     fn recheck(&self, ledger: &OrdinaryNewClaimLedgerV1, site: &OwnedExprSiteV1,
         receiver_site: &SourceExprSiteV1, receiver: BindingRefV1, home: BindingRefV1, field: CanonicalFieldRefV1,
@@ -57,7 +59,9 @@ impl OwnedReadyFieldReadSourceV1 {
             || home != local.root() || receiver != home { return Err(fail()); }
         let source = ledger.field_write_source_at_v1(site.owner(), self.frame.source().root().statement())?
             .ok_or_else(fail)?;
-        if !Rc::ptr_eq(source.frame(), &self.frame) || source.owned_rhs().is_none() { return Err(fail()); }
+        if !Rc::ptr_eq(source.frame(), &self.frame) || !source.owned_rhs().zip(
+            self.request.owned_ready.as_ref().and_then(|plan| plan.rhs()))
+                .is_some_and(|(a, b)| Rc::ptr_eq(a, b)) { return Err(fail()); }
         source.validate_source(ledger)?;
         context.require_ledger(ledger)?;
         context.with_original_field_write_v1(&self.frame, |packet| {
@@ -84,7 +88,7 @@ impl OrdinaryNewClaimLedgerV1 {
         });
         match (&row.value_source, request.and_then(|request| request.owned_ready.as_ref())) {
             (TerminalFieldValueSourceV1::OwnedLocal(source), Some(frame)) => {
-                if !Rc::ptr_eq(source.frame(), frame) || !source.matches_request(request.unwrap()) {
+                if !Rc::ptr_eq(source.frame(), frame.frame()) || !source.matches_request(request.unwrap()) {
                     return Err(fault("owned-ready/terminal-source-drift"));
                 }
                 source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.field, context)

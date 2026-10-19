@@ -3,7 +3,7 @@
 use super::*;
 use std::rc::Rc;
 use crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1;
-use crate::mir::resolved_semantics::home_new_prefix::CheckedFieldWriteFrameV1;
+use crate::mir::resolved_semantics::home_new_prefix::FieldWritePlanV1;
 
 impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn owned_allocation_source(
@@ -14,23 +14,24 @@ impl PrefixLocalFlow<'_> {
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_normal_field_write(
-        &mut self, frame: Rc<CheckedFieldWriteFrameV1>,
+        &mut self, plan: FieldWritePlanV1,
     ) -> bool {
+        let frame = plan.frame();
         let Some(local) = frame.owned_local() else { return false };
         let Some(StoredLocal::Home { acquisition, construction_source: Some(source), ready }) = self.locals.get_mut(&local.root()) else { return false };
         if acquisition != local.acquisition() || !Rc::ptr_eq(source, local.construction())
             || source.allocation_only_i64_field(local.original().write().field()) != Some(local.field())
         { return false; }
-        ready.insert(local.field(), frame);
+        ready.insert(local.field(), plan);
         true
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn ready_field_read(
         &self, root: BindingRefV1, name: &str,
-    ) -> Option<Option<Rc<CheckedFieldWriteFrameV1>>> {
+    ) -> Option<Option<FieldWritePlanV1>> {
         let Some(StoredLocal::Home { construction_source: Some(source), ready, .. }) = self.locals.get(&root) else { return Some(None) };
         if !source.is_allocation_only_i64() { return Some(None); }
         let field = source.allocation_only_i64_field(name)?;
-        ready.get(&field).map(|frame| Some(Rc::clone(frame)))
+        ready.get(&field).cloned().map(Some)
     }
 }
