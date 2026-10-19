@@ -137,7 +137,23 @@ impl NamedArrayAppendOnlySourceV1 {
                 .ok_or(E::UnsupportedUse)?;
             match op {
                 CoreMethodOp::ArrayPush => {
-                    if segments.len() != 1
+                    // A repeated append is still one original source site. Only
+                    // the sealed Loop index can qualify a direct body child;
+                    // branches, nested expressions and loop conditions do not
+                    // become straight-line stores through path-prefix matching.
+                    // This is source membership, never a Normal/Home or trip-
+                    // count proof. The Loop consumer must discharge those.
+                    let direct_loop_body = ledger.loop_sites().any(|loop_site| {
+                        let parent = loop_site.node().segments();
+                        parent.len() == 1
+                            && segments.len() == parent.len() + 1
+                            && segments.starts_with(parent)
+                            && matches!(segments.last(), Some(SourcePathSegmentV1::LoopBody(_)))
+                            && ledger.resolved_loop_source(loop_site).is_ok()
+                            && ledger.resolved_loop_placement(loop_site, site).is_ok_and(|placement|
+                                placement == Some(super::ResolvedLoopPlacementV1::Body))
+                    });
+                    if (segments.len() != 1 && !direct_loop_body)
                         || !ledger
                             .source_site_inventory()
                             .contains_statement(&SourceStmtSiteV1::from_node(site.node().clone()))
@@ -190,7 +206,8 @@ impl NamedArrayAppendOnlySourceV1 {
         if !reads.iter().any(|row| row.call() == read.site()) {
             return Err(E::UnsupportedUse);
         }
-        // Sorting is safe only after the exact straight-line source shapes above.
+        // Deterministic source-site identity order only. This is neither
+        // runtime append order nor dominance or a lower bound on array length.
         appends.sort_by(|a, b| a.call.cmp(&b.call));
         reads.sort_by(|a, b| a.call().cmp(b.call()));
         Ok(Self {

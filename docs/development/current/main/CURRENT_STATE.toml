@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
-APP-allocator-stress: loop内のpush(heap.allocate(...))がNamedArray(TextSourceMissing)で停止。
-固定suiteは6PASS/5FAIL。実EXE成功5本＋空marker1本、SKIP/timeoutなし。mimalloc着地。
-untyped-fieldは9/25のParkedSealedを維持。既存D0に選択肢・影響・コスト・再開条件を記録。
-次は既存Arrayのowned/nullable handle経路をloopへ接続し、Textの拒否境界は保持する。
-ユーザー指定で本アプリへ進む。未注釈slotの実装はD0受理後。全体完了条件は維持。
+APP-allocator-stress: 直近の実アプリ停止点はNamedArray(TextSourceMissing)、EXE未生成。
+既存Array source ownerがresolver確認済みのLoop直下appendを保持。Home/実行許可は追加しない。
+既存source族9件＋共有loan1件PASS、test名9263件不変。次はchecked Loop actionと既存emit_appendを接続。
+固定suiteは6PASS/5FAIL（実EXE5＋marker1）。今回のsource検証で製品PASSを増やさない。
+untyped-fieldはD0受理までParkedSealed。全体完了条件は維持。
 """
 next_design_card = "APP-allocator-stress"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"

@@ -266,7 +266,7 @@ fn append_only_object_source_retains_all_stores_without_class_or_home_permission
             .unwrap()
         })
         .unwrap();
-    let original = "static box Main { run(factory) { local arr = new ArrayBox() arr.push(factory.make(1)) factory.use(arr.get(0)) arr.push(factory.make(2)) return 0 } }";
+    let original = "static box Main { run(factory) { local arr = new ArrayBox() loop(false) { arr.push(factory.make(1)) } factory.use(arr.get(0)) arr.push(factory.make(2)) return 0 } }";
     let cases = [
         (original.to_string(), None),
         (
@@ -344,6 +344,11 @@ fn append_only_object_source_retains_all_stores_without_class_or_home_permission
                             assert_eq!(source.reads()[0].call(), read.site());
                             assert_eq!(source.reads()[0].index(), read.arguments()[0].site());
                             assert_eq!(source.reads()[0].integer(), 0);
+                            // A zero-trip loop retains its append source but
+                            // proves neither a stored element nor read liveness.
+                            assert!(ledger.loop_sites().any(|site| ledger.resolved_loop_placement(
+                                site, source.appends()[0].call()).is_ok_and(|placement|
+                                    placement == Some(crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body))));
                             assert!(source
                                 .appends()
                                 .iter()

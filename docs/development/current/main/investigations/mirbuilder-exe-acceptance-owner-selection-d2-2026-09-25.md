@@ -25,8 +25,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Implementation direction
 
-- Existing `named_array_append_only_source.rs` retains original handle/nullable append candidates,
-  but currently permits only top-level push sites (`segments.len() == 1`).
+- `named_array_append_only_source.rs` now retains direct top-level Loop-body append sites,
+  qualified by the sealed resolver Loop index and exact Body placement. Other nested shapes
+  stay refused. Site sorting is deterministic identity order, never dominance or runtime length.
 - Reuse `selected/owned_array.rs::emit_append` and `ArrayHolderLifecycleRecipeV1` for this demand.
   Connect exact Array acquisition, instance-call result, element residence, loop iteration,
   later get/release, and Normal/Fault cleanup before publication.
@@ -41,8 +42,15 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Selection probes used the source-compatible quick CLI, explicit lifecycle runtime and
   C API FFI; all three candidate direct routes reproduced their known pre-artifact stop.
 - Existing smoke: `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh`.
-- Next: extend original append source control coverage together with Loop Home observation and
-  the existing owned-array physical consumer; do not merely remove the top-level restriction.
+- Source increment verified by the existing zero-trip positive and unchanged negative cases:
+  named-array source family 9PASS, original shared-loan test 1PASS; test-name list9263 unchanged.
+  Root `cargo quick-test-fast --no-run --message-format=json` and builder guards PASS.
+  Existing positive input was replaced, not multiplied; independent mimalloc top-level coverage remains.
+- This increment issues no Home, Normal, live-slot or physical permission. No new CLI/app
+  acceptance measurement yet; the recorded first stop remains the last measured result.
+- Next: retain the same append purpose in the checked Loop body, Recipe schedule and physical
+  consumer. Source-core selection must choose that whole handle source before Text rejection;
+  preserve independent final holder coverage and all existing Text refusal tests.
 - Reuse `array_actual_retains_original_shared_loan_and_refuses_executable_upgrade` and
   current owned-array emission/cleanup tests. Preserve candidate cancellation, outer holder
   lifetime and original nullable result identity across each iteration.
