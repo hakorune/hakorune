@@ -31,11 +31,12 @@ pub(super) fn observe<E>(
     let Ok(source) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer) else { return Ok(false) };
     let root_add = source.nodes().first().and_then(|node| node.binary()).is_some_and(|binary|
         binary.operator() == super::super::ResolvedBinaryOperatorV1::Add);
-    if !root_add && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
+    let root_reference = matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Reference(_));
+    if !root_add && !root_reference && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
     // Root ordinary Calls keep their existing Local owner. Borrow an original
     // Core receipt first, then transfer it once into the shared preparation.
-    let mut root_core = if root_add { None } else {
+    let mut root_core = if root_add || root_reference { None } else {
         match port(&owned, BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan: &source })? {
             Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) => Some(core),
             _ => return Ok(false),
@@ -55,8 +56,8 @@ pub(super) fn observe<E>(
         if !prepared.is_active_reference(index) { continue; }
         if !matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) { continue; }
         let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
-        if let Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(read)) = port(&owned,
-            BorrowedCallActualRequestV1::InitializerTextEntryRead { input, plan: &source, read: node.site(), binding, root })? {
+        if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = port(&owned,
+            BorrowedCallActualRequestV1::FiniteEntryRead { input, plan: &source, read: node.site(), binding, root })? {
             reads.push(read);
         }
     }
@@ -65,7 +66,8 @@ pub(super) fn observe<E>(
             || reads.iter().any(|read| read.requirement().node() == index)
             || locals.text_reference(node.site()).is_some()
     });
-    if !prepared.has_core() && !(root_add && has_parent_text) { return Ok(false); }
+    let signed_entry = root_reference && reads.iter().any(|read| read.requirement().node() == 0 && read.signed_only());
+    if !prepared.has_core() && !(root_add && has_parent_text) && !signed_entry { return Ok(false); }
     let mut installation = None;
     let plan = qualify_initializer_expression_v1(prepared, &reads,
         &mut |site| super::argument_expression::text_reference(input, locals, site),

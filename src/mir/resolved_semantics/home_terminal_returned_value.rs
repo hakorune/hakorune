@@ -185,3 +185,24 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_returned_sou
             })
     }
 }
+
+/// Borrow the original entry value at an exact Return; no scalar ABI grant.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn finite_entry_return<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, return_site: &SourceStmtSiteV1,
+    value_site: &SourceExprSiteV1, locals: &PrefixLocalFlow<'_>,
+    port: &mut impl FnMut(&OwnedExprSiteV1,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<super::TerminalI64ScalarReturnV1>, E> {
+    use crate::mir::resolved_semantics::home_new_prefix::{BorrowedCallActualRequestV1 as Request, BorrowedCallArgumentsV1 as Response};
+    let Some((binding, root)) = super::super::argument_expression::text_reference(input, locals, value_site) else { return Ok(None) };
+    let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(None) };
+    let Some(shape) = input.body_shape() else { return Ok(None) };
+    let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+        &ledger, shape, return_site) else { return Ok(None) };
+    let owned = OwnedExprSiteV1::new(input.owner(), value_site.clone());
+    let Some(Response::FiniteEntryRead(read)) = port(&owned, Request::FiniteEntryRead {
+        input, plan: &plan, read: value_site, binding, root })? else { return Ok(None) };
+    Ok(super::TerminalI64ScalarReturnV1::issue(input.owner(), return_site.clone(), value_site.clone())
+        .with_entry_read_v1(read))
+}

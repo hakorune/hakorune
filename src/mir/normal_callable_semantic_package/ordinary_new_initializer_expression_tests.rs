@@ -14,8 +14,9 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
         ("", "\"field\"", "relay(p) { return Values.caller(p, \"spare\") }", false),
     ] {
         let read_name = if prefix.contains("local alias") { "alias" } else { "key" };
+        let returned = if actual == "7" { read_name } else { "0" };
         let text = format!(r#"static box Values {{
-            caller(key, other) {{ {prefix} local needle = "x" + {read_name} return 0 }}
+            caller(key, other) {{ {prefix} local needle = "x" + {read_name} return {returned} }}
             seed() {{ return Values.caller({actual}, "spare") }} {sibling}
         }} static box Main {{ main() {{ return 0 }} }}"#);
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
@@ -28,28 +29,41 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
             let initializer = input.function().expression_source().initializers().last().unwrap();
             let original = input.forest().callable_source_ledger(input.owner()).unwrap();
             let plan = local_expression_source_plan_v1(&original, input.body_shape(), initializer).unwrap();
-            let read = plan.nodes().iter().find_map(|node| match node.source() {
-                ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => Some((node.site(), *binding)), _ => None,
-            }).unwrap();
-            let site = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
             let mut pending = ledger.borrowed_formal_actuals.clone();
             let before = pending.clone();
             let mut ask = |plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, root| {
+                let read = plan.nodes().iter().find_map(|node| match node.source() {
+                    ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => Some((node.site(), *binding)), _ => None,
+                }).unwrap();
+                let site = OwnedExprSiteV1::new(input.owner(), plan.nodes()[0].site().clone());
                 borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, &site,
-                    BorrowedCallActualRequestV1::InitializerTextEntryRead { input, plan, read: read.0, binding: read.1, root },
+                    BorrowedCallActualRequestV1::FiniteEntryRead { input, plan, read: read.0, binding: read.1, root },
                     &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap()
             };
             let row = ask(&plan, contract.parameters[0].binding);
             assert_eq!(row.is_some(), accepted, "{prefix:?}/{actual}");
-            if let Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan)) = row {
+            if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(loan)) = row {
                 assert!(Rc::ptr_eq(loan.requirement().source_plan(), &plan));
                 assert_eq!(loan.leaf_class(None).is_some(), actual != "null", "source Null still requires the real terminating branch");
                 assert_eq!(loan.requirement().formal(), (0, contract.parameters[0].binding));
-                assert_eq!(Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan.clone())), ask(&plan, contract.parameters[0].binding));
+                if actual == "7" {
+                    let shape = input.body_shape().unwrap();
+                    let statement = shape.statements().iter().find(|row| matches!(row,
+                        crate::mir::resolved_semantics::BodyStatementShapeV1::Return { .. })).unwrap();
+                    let returned = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                        &original, shape, statement.site()).unwrap().unwrap();
+                    let Some(BorrowedCallArgumentsV1::FiniteEntryRead(terminal)) = ask(&returned, contract.parameters[0].binding) else {
+                        panic!("direct Return retains the original finite source read");
+                    };
+                    assert!(terminal.signed_only());
+                    assert_eq!(terminal.requirement().formal(), loan.requirement().formal());
+                    assert_ne!(terminal.requirement().read(), loan.requirement().read());
+                }
+                assert_eq!(Some(BorrowedCallArgumentsV1::FiniteEntryRead(loan.clone())), ask(&plan, contract.parameters[0].binding));
                 let reissued = local_expression_source_plan_v1(&original, input.body_shape(), initializer).unwrap();
-                assert_ne!(Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan)), ask(&reissued, contract.parameters[0].binding));
+                assert_ne!(Some(BorrowedCallArgumentsV1::FiniteEntryRead(loan)), ask(&reissued, contract.parameters[0].binding));
             }
             assert_eq!(ask(&plan, contract.parameters[1].binding).is_some(), prefix == "key = other", "only the original current entry can supply provenance");
             assert_eq!(before, pending, "source demand does not arm execution or stage actuals");
@@ -85,7 +99,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                 match mutation { 2 => Some(contract.parameters[0].binding), 4 => Some(contract.parameters[1].binding), _ => None },
                 &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { batches += 1; assert!(fields.is_empty()); Ok((mutation != 3).then(Vec::new)) },
                 &mut |site, request| {
-                    if matches!(request, BorrowedCallActualRequestV1::InitializerTextEntryRead { .. }) { requests += 1; }
+                    if matches!(request, BorrowedCallActualRequestV1::FiniteEntryRead { .. }) { requests += 1; }
                     borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
                         &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                         &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)

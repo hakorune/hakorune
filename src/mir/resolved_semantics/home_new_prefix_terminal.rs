@@ -420,11 +420,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 // records the exact return/value sites.
                                 Some(ReturnScalar::Integer) => {
                                     relation = Some(TerminalRelationV1::I64Scalar(
-                                        TerminalI64ScalarReturnV1::issue(
+                                        finite_entry_return(input, statement.site(), value.site(), locals, borrowed_actuals)?
+                                            .unwrap_or_else(|| TerminalI64ScalarReturnV1::issue(
                                             input.owner(),
                                             statement.site().clone(),
                                             value.site().clone(),
-                                        ),
+                                        )),
                                     ));
                                     true
                                 }
@@ -435,7 +436,10 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                     // receiver stays live: owned locals
                                     // still owe their End and borrowed
                                     // formals keep caller ownership.
-                                    if let Some(row) = terminal_map_get(
+                                    if let Some(row) = finite_entry_return(input, statement.site(), value.site(), locals, borrowed_actuals)? {
+                                        relation = Some(TerminalRelationV1::I64Scalar(row));
+                                        true
+                                    } else if let Some(row) = terminal_map_get(
                                         input,
                                         statement.site(),
                                         value.site(),

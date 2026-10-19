@@ -132,7 +132,9 @@ impl PrefixLocalFlow<'_> {
             Some(CurrentScalarProducerV1::BindingRebind(Rc::clone(frame)))
         };
         let origin = flow.alias_terminal_with_expression_boundary(value, |site| function.variable_ref(site),
-            |site| rebind(site).is_some())?;
+            |site| rebind(site).is_some() || self.expression_plans.borrow().iter()
+                .filter_map(|plan| plan.initializer_frame()).any(|frame| frame.is_i64()
+                    && frame.source().nodes().first().is_some_and(|node| node.site() == site)))?;
         let producer = if let SourceValueOriginV1::Expression(site) = flow.origin(origin)? {
             rebind(site)
         } else { None };

@@ -17,11 +17,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Current matching quick CLI passes the Main.main argument frame for
   `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
   `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
-  Matching CLI35.23s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
+  Matching CLI after native-dependency pruning identifies ingest line146 `JsonLine.find(stream, "\n", start)`
   (callee JsonLine.find/3). No EXE/link/runtime.
 - Caller Loop `JsonLine.find` argument2 (`start`) now retains its checked scalar read
   in the original argument frame; matching smoke no longer reports ingest's uncovered read.
-  Callee JsonLine.find still lacks its Header basis; the same input-cohort stop remains.
+  Callee JsonLine.find currently has condition/facts but no sole planner family;
+  the same input-cohort stop remains. No EXE/link/runtime was reached.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -52,8 +53,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Runtime backend matches each explicit wire profile. The same test now honors CC.
   These minimal case extensions protect the new affine Call boundary; no new test
   function/file, runtime function or checker. Physical execution is not source cutover.
-- Opaque scalar argument/Return draft remains in Git stash; it requires source-issued
-  finite-entry reads and original Return use closure, never a binding-to-I64 guess.
+- FiniteEntryRead now retains the original SUM/flow/read/plan across initializer
+  and direct Return purposes. Signed-only root initializers keep their checked frame;
+  terminal coverage retains its separate original read, never a binding-to-I64 guess.
+  Existing Return-purpose tuple extension protects this independent source boundary.
+  Focused37 PASS with the current CLI/lib; physical Integer entry activation is owed.
+  The older opaque draft remains in Git stash pending full adoption/disposal.
 - Entry projection decision from read-only review: retain Opaque declaration and
   tagged call ABI; a SAME signed-only source domain can authorize an Integer view.
   C must check kind1 before body effects and independently reject every non-I64

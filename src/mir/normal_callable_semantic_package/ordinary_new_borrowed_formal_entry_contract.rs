@@ -102,8 +102,18 @@ impl OrdinaryNewClaimLedgerV1 {
         if !uses.captures().is_empty() { return Ok(None); }
         let mut origins = uses.roots().clone();
         let mut covered = BTreeSet::new();
+        let flow = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow());
         for initializer in uses.initializers() {
             let Some(site) = initializer.initializer_site() else { continue };
+            // A source-qualified numeric initializer projects a value, rather
+            // than installing another borrowed handle alias. Its own frame
+            // below accounts for the original entry read exactly once.
+            if flow.is_some_and(|flow| flow.expression_plans().iter()
+                .filter_map(|plan| plan.initializer_frame()).any(|frame|
+                    frame.binding() == initializer.binding() && frame.is_i64()
+                        && frame.entry_reads().iter().any(|read| read.requirement().node() == 0 && read.signed_only()))) {
+                continue;
+            }
             let Some(binding) = uses.reads().find_map(|(at, reference)| match reference {
                 ResolvedLexicalRefV1::Local(binding) if at == site => Some(*binding), _ => None,
             }) else { continue };
@@ -115,7 +125,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        let flow = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow());
         let mut plans: Vec<_> = flow.into_iter().flat_map(|flow| flow.expression_plans()).collect();
         let loops: Vec<_> = plans.iter().filter_map(|plan| plan.loop_recipe_v2()).collect();
         let mut calls: Vec<_> = flow.into_iter().flat_map(|flow| flow.local_calls()).collect();
@@ -227,7 +236,14 @@ impl OrdinaryNewClaimLedgerV1 {
             if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(row) = terminal {
                 for (site, reference) in uses.reads().filter(|(site, _)| *site == row.value_site()) {
                     let ResolvedLexicalRefV1::Local(binding) = reference else { return Ok(None) };
-                    if origins.contains_key(binding) { return Ok(None); }
+                    if let Some(original) = row.entry_read() {
+                        let required = original.requirement();
+                        if !original.signed_only() || !required.corroborates_original_uses_v1(uses)
+                            || required.read() != site || required.binding() != *binding
+                            || origins.get(binding) != Some(&required.formal().1) {
+                            return Err(freeze("static-input/entry-read-source"));
+                        }
+                    } else if origins.contains_key(binding) { return Ok(None); }
                     covered.insert((site.clone(), *binding));
                 }
             }

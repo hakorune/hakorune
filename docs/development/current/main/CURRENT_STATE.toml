@@ -17,10 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: caller Loopの整数を未注釈引数frameへ接続、既存37件PASS。
-matching CLI35.23秒、ingestの未被覆readは解消。JsonLine.findの入力cohort/Headerは未完。
-次は同source domainでtagged入口を検査付きI64へ投影し、Return・両final consumerへ接続。
-C owned pair matrixは両profile PASS、Rust String Call ABI未接続。残りopaque案はstash保持。
+APP-json-stream-aggregator: finite entry readを元SUM/flow/planのままinitializer・Returnへ接続、既存37件PASS。
+matching CLIの停止はingest line146 JsonLine.find。callee Loopはcondition/facts有り、sole family無し。
+次は元planner選択を正規化し、checked Integer entryを独立scope検証・両final consumerへ接続。
+C Integer入口/owned Text pair matrixはPASS。Rust物理入口とString Call ABIは未接続。
 最新公式suiteはIf世代7PASS/4FAIL（実EXE6＋marker1）、452.3秒。後続差分は未計測。
 """
 next_design_card = "APP-json-stream-aggregator"

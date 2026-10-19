@@ -348,10 +348,10 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|row| Some(BorrowedCallArgumentsV1::TextEntryRead(row)))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
-    if let BorrowedCallActualRequestV1::InitializerTextEntryRead { input, plan, read, binding, root } = request {
+    if let BorrowedCallActualRequestV1::FiniteEntryRead { input, plan, read, binding, root } = request {
         return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::lend_initializer_text_entry_read_v1(input, source, contracts, site, plan, read, binding, root))
-            .map(|row| row.map(BorrowedCallArgumentsV1::InitializerTextEntryRead))
+            .and_then(|source| super::super::lexical_instance_call::lend_finite_entry_read_v1(input, source, contracts, site, plan, read, binding, root))
+            .map(|row| row.map(BorrowedCallArgumentsV1::FiniteEntryRead))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
     if matches!(request, BorrowedCallActualRequestV1::SourceUnitDiscardArguments) {
@@ -607,7 +607,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)
         | BorrowedCallActualRequestV1::CompleteArgumentExpression(..)
         | BorrowedCallActualRequestV1::ArgumentTextEntryRead { .. }
-        | BorrowedCallActualRequestV1::InitializerTextEntryRead { .. }
+        | BorrowedCallActualRequestV1::FiniteEntryRead { .. }
         | BorrowedCallActualRequestV1::Observe(..)
         | BorrowedCallActualRequestV1::ReceivedObjectArguments(_, _)
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)

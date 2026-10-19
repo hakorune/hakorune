@@ -2,7 +2,7 @@
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use super::super::{BindingRefV1, SourceExprSiteV1, SourceScalarKind};
-use crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1;
+use crate::mir::normal_callable_semantic_package::FiniteEntryReadV1;
 use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1,
     expression_children::{ExpressionChildrenV1, ExpressionChildReachV1},
     expression_class::ExpressionValueClassV1 as Class, expression_projection::ExpressionLeafClassV1 as Leaf};
@@ -41,7 +41,7 @@ impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.source().root().initializer().expect("original initializer").binding() }
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { self.evaluation.prior_homes() }
-    pub(crate) fn entry_reads(&self) -> Vec<&InitializerTextEntryReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::InitializerEntry { read, .. } => Some(read), _ => None }).collect() }
+    pub(crate) fn entry_reads(&self) -> Vec<&FiniteEntryReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::InitializerEntry { read, .. } => Some(read), _ => None }).collect() }
     pub(crate) fn entry_refinements(&self) -> BTreeMap<usize, &Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::InitializerEntry { exclusion: Some(proof), .. } => Some((node, proof)), _ => None }).collect() }
     pub(crate) fn residence_reads(&self) -> Vec<&TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
     pub(crate) fn scalar_reads(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar(read) => Some((node, (read.binding(), read.kind()))), _ => None }).collect() }
@@ -53,7 +53,7 @@ impl CheckedInitializerExpressionFrameV1 {
 
 pub(crate) fn qualify_initializer_expression_v1<E>(
     mut prepared: super::leaves::PreparedExpressionCallsV1,
-    entry_reads: &[InitializerTextEntryReadV1],
+    entry_reads: &[FiniteEntryReadV1],
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Option<Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -90,7 +90,8 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared,
             &mut |_| None, &order, field_request)? else { return Ok(None) };
     if !references.is_empty() || transferred.contains(&0) || !matches!(classes[0], Leaf::Value(Class::String | Class::I64))
-        || (classes[0] == Leaf::Value(Class::I64) && !has_core) { return Ok(None); }
+        || (classes[0] == Leaf::Value(Class::I64) && !has_core
+            && !entry_reads.iter().any(|read| read.requirement().node() == 0 && read.signed_only())) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     // Owned Text transfers one root residence; I64 retains no Home. Its Text
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.

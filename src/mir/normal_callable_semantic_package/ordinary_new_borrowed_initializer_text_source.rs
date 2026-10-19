@@ -1,4 +1,4 @@
-//! Original initializer Text reads. Source proof only; current state is separate.
+//! Original finite entry reads. Source proof only; current state is separate.
 use super::*;
 use super::super::super::borrowed_formal_source::{SourceValueSumV1, SourceValueAlternativeV1};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -8,22 +8,23 @@ use crate::mir::resolved_value_profile::expression_plan::{ExpressionSourcePlanV1
 use crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1;
 
 #[derive(Debug, Clone)]
-pub(crate) struct InitializerTextEntryReadV1 {
+pub(crate) struct FiniteEntryReadV1 {
     requirement: BorrowedTextEntryReadRequirementV1,
     sum: Rc<SourceValueSumV1>,
     flow: std::sync::Arc<VerifiedSourceValueFlowV1>,
     value: SourceValueRefV1,
 }
-impl PartialEq for InitializerTextEntryReadV1 {
+impl PartialEq for FiniteEntryReadV1 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.sum, &other.sum) && std::sync::Arc::ptr_eq(&self.flow, &other.flow)
             && self.value == other.value && self.requirement == other.requirement
             && Rc::ptr_eq(self.requirement.source_plan(), other.requirement.source_plan())
     }
 }
-impl Eq for InitializerTextEntryReadV1 {}
-impl InitializerTextEntryReadV1 {
+impl Eq for FiniteEntryReadV1 {}
+impl FiniteEntryReadV1 {
     pub(crate) fn requirement(&self) -> &BorrowedTextEntryReadRequirementV1 { &self.requirement }
+    pub(crate) fn signed_only(&self) -> bool { self.sum.signed_only() }
     pub(in crate::mir) fn corroborates_finite_domain_v1(&self, domain: &Rc<SourceValueSumV1>) -> bool {
         Rc::ptr_eq(&self.sum, domain)
             && self.flow.read(self.requirement.read(), self.requirement.binding()) == Some(self.value)
@@ -48,18 +49,28 @@ impl InitializerTextEntryReadV1 {
     }
 }
 
-pub(in crate::mir::normal_callable_semantic_package) fn lend_initializer_text_entry_read_v1(
+pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v1(
     input: ResolvedFunctionLoweringInputV1<'_>, prepared: &PreparedBorrowedFormalIngressV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     site: &OwnedExprSiteV1, plan: &Rc<ExpressionSourcePlanV1>,
     read: &SourceExprSiteV1, binding: BindingRefV1, root: BindingRefV1,
-) -> Result<Option<InitializerTextEntryReadV1>, String> {
+) -> Result<Option<FiniteEntryReadV1>, String> {
     let reject = || freeze("borrowed-text-entry/initializer-source-identity");
-    let ExpressionPlanRootV1::LocalInitializer { initializer, .. } = plan.root() else { return Err(reject()) };
+    let original_root = match plan.root() {
+        ExpressionPlanRootV1::LocalInitializer { initializer, .. } =>
+            initializer.initializer_site() == Some(site.site())
+                && input.function().expression_source().initializers().filter(|row| *row == initializer).count() == 1,
+        ExpressionPlanRootV1::Statement { statement, role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value } => {
+            let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| reject())?;
+            let original = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                &ledger, input.body_shape().ok_or_else(reject)?, statement).map_err(|_| reject())?;
+            value == site.site() && original.as_deref() == Some(plan.as_ref())
+        }
+        _ => false,
+    };
     if input.owner() != plan.owner() || site.owner() != input.owner()
-        || initializer.initializer_site() != Some(site.site()) || root.owner() != input.owner()
+        || !original_root || root.owner() != input.owner()
         || binding.owner() != input.owner()
-        || input.function().expression_source().initializers().filter(|row| *row == initializer).count() != 1
         || input.function().variable_ref(read) != Some(ResolvedLexicalRefV1::Local(binding)) {
         return Err(reject());
     }
@@ -76,7 +87,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_initializer_text_en
     let requirement = super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(
         contracts, plan, read, binding, root,
         prepared.original_formal_read_v1(input.owner(), read, binding, root)?)?;
-    Ok(Some(InitializerTextEntryReadV1 { requirement, sum, flow: std::sync::Arc::clone(flow), value }))
+    Ok(Some(FiniteEntryReadV1 { requirement, sum, flow: std::sync::Arc::clone(flow), value }))
 }
 
 impl PreparedBorrowedFormalIngressV1 {
@@ -93,6 +104,14 @@ impl PreparedBorrowedFormalIngressV1 {
             if initializer.initializer_site().is_some_and(|site|
                 matches!(input.function().expression_source().literal(site), Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)))) { return true; }
             let Ok(plan) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer) else { return false };
+            if let Some(Node::Reference(ResolvedLexicalRefV1::Local(binding))) = plan.nodes().first().map(|node| node.source()) {
+                if let Some(flow) = input.function().expression_source().value_flow() {
+                    if let Some(root) = flow.read(plan.nodes()[0].site(), *binding)
+                        .and_then(|value| flow.alias_entry_origin(value, |site| input.function().variable_ref(site))) {
+                        if self.source_value_sum_v1(root).is_some_and(|sum| sum.signed_only()) { return true; }
+                    }
+                }
+            }
             if plan.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
                 && self.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone())).is_some()) { return true; }
             if !initializer.initializer_site().and_then(|site| input.function().expression_source().binary(site))

@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 
 #[path = "home_terminal_returned_value.rs"]
 mod returned_value;
-pub(super) use returned_value::terminal_returned_source;
+pub(super) use returned_value::{terminal_returned_source, finite_entry_return};
 pub(crate) use returned_value::{TerminalReturnedSourceV1, TerminalValueReturnV1};
 
 /// Source-only terminal shape for the selected ordinary-`New` root.
@@ -117,14 +117,15 @@ impl TerminalBoolLiteralReturnV1 {
 /// scalar classifier proves an i64 value that is neither a literal nor a
 /// field read: a local bound to a proven-i64 source (literal store, exact
 /// formal, field-read result, or classified call result) or a trivial
-/// integer expression. The row records owner and sites only — the i64 proof
-/// lives in the sealed expression-source inventory and the running local
-/// flow, never in this row.
+/// integer expression. Ordinary scalar proof stays in the source inventory and
+/// current flow; a direct finite entry read retains its original source loan.
+/// Neither form grants a physical result ABI.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct TerminalI64ScalarReturnV1 {
     owner: FunctionOwnerIdV1,
     return_site: SourceStmtSiteV1,
     value_site: SourceExprSiteV1,
+    entry_read: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
 }
 
 impl TerminalI64ScalarReturnV1 {
@@ -137,8 +138,18 @@ impl TerminalI64ScalarReturnV1 {
             owner,
             return_site,
             value_site,
+            entry_read: None,
         }
     }
+    pub(super) fn with_entry_read_v1(mut self, read: crate::mir::normal_callable_semantic_package::FiniteEntryReadV1) -> Option<Self> {
+        let required = read.requirement();
+        if !read.signed_only() || required.node() != 0 || required.read() != &self.value_site
+            || required.source_plan().owner() != self.owner
+            || required.source_plan().root().statement() != &self.return_site { return None; }
+        self.entry_read = Some(read);
+        Some(self)
+    }
+    pub(crate) fn entry_read(&self) -> Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1> { self.entry_read.as_ref() }
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }

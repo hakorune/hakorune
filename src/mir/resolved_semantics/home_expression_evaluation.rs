@@ -68,7 +68,7 @@ pub(crate) enum CheckedExpressionReferenceV1 {
     Residence(super::initializer_expression::TextResidenceReadV1),
     ArgumentEntry(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
     InitializerEntry {
-        read: crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1,
+        read: crate::mir::normal_callable_semantic_package::FiniteEntryReadV1,
         exclusion: Option<Rc<super::super::EntryNullExclusionV1>>,
     },
     Scalar(CheckedScalarReferenceV1),

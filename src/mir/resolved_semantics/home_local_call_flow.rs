@@ -316,7 +316,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
                 }
                 arguments.into_vec()
             }
-            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(_) | BorrowedCallArgumentsV1::InitializerTextEntryRead(_)) | Some(BorrowedCallArgumentsV1::TextEntryRead(_)) | Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_) | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_))
+            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(_) | BorrowedCallArgumentsV1::FiniteEntryRead(_)) | Some(BorrowedCallArgumentsV1::TextEntryRead(_)) | Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_) | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_))
             | Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
             | Some(BorrowedCallArgumentsV1::SourceInstance(_))
             | Some(BorrowedCallArgumentsV1::Scalar(_))

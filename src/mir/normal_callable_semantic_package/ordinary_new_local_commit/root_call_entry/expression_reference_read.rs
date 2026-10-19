@@ -291,7 +291,7 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
 }
 fn prepare_text_entry(
     required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
-    initializer: Option<&crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1>,
+    initializer: Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
     read: &ExactLexicalReadV1, context: CallValidationContextV1<'_>, function: &MirFunction,
 ) -> Result<ValueId, String> {
     let (entry, _, domain) = context.ledger().validate_prepared_finite_entry_read_v1(required, function, read)?;
