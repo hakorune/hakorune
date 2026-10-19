@@ -1,4 +1,4 @@
-//! Observe the original selected null guard through the existing writers.
+//! If observations share the existing condition, branch and merge writers.
 use super::*;
 use crate::mir::builder::if_form::{IfConditionMaterializationV1, IfFormPhysicalObserverV1};
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
@@ -47,5 +47,48 @@ impl RawInvocationChildPortV1<'_, '_> {
         let site = OwnedExprSiteV1::new(owner, condition);
         let Some((guard, _, _)) = ledger.borrowed_field_write_guard_for_binary_v1(owner, &site)? else { return Ok(None) };
         Ok(Some(Box::new(WriteGuardObserverV1 { ledger: Rc::clone(ledger), owner, guard })))
+    }
+}
+
+struct IfStateObserverV1 {
+    state: Rc<std::cell::RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+    slots: Vec<(crate::mir::resolved_semantics::BindingRefV1, String)>,
+    baseline: Option<crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1>,
+    arms: [Option<crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1>; 2],
+}
+impl IfFormPhysicalObserverV1 for IfStateObserverV1 {
+    fn before_branches(&mut self, _: &MirFunction, _: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+        self.baseline = Some(self.state.borrow().source_values_snapshot());
+        Ok(())
+    }
+    fn emitted_branch(&mut self, _: &MirFunction, _: &Rc<IfConditionMaterializationV1>,
+        _: (BasicBlockId, MirInstruction),
+    ) -> Result<(), String> { Ok(()) }
+    fn enter_branch(&mut self, _: crate::mir::builder::if_form::IfBranchKindV1) -> Result<(), String> {
+        let baseline = self.baseline.as_ref().ok_or("If source value baseline missing")?.clone();
+        self.state.borrow_mut().restore_source_values(baseline);
+        Ok(())
+    }
+    fn finished_branch(&mut self, branch: crate::mir::builder::if_form::IfBranchKindV1) -> Result<(), String> {
+        let index = match branch { crate::mir::builder::if_form::IfBranchKindV1::Then => 0,
+            crate::mir::builder::if_form::IfBranchKindV1::Else => 1 };
+        if self.arms[index].is_some() { return Err("If source value arm observed twice".into()); }
+        self.arms[index] = Some(self.state.borrow().source_values_snapshot());
+        Ok(())
+    }
+    fn completed_merge(&mut self, builder: &mut MirBuilder, exits: [Option<BasicBlockId>; 2]) -> Result<(), String> {
+        let baseline = self.baseline.take().ok_or("If source value baseline missing")?;
+        let [then_values, else_values] = &mut self.arms;
+        let arms = [then_values.take().ok_or("If Then source values missing")?,
+            else_values.take().ok_or("If Else source values missing")?];
+        self.state.borrow_mut().restore_if_normal_values_v1(baseline, arms,
+            exits.map(|exit| exit.is_some()), &self.slots, &builder.function_state.variable_ctx.variable_map)
+    }
+}
+impl RawInvocationChildPortV1<'_, '_> {
+    pub(super) fn if_state_observer_v1(&self, builder: &MirBuilder) -> Result<Option<Box<dyn IfFormPhysicalObserverV1>>, String> {
+        let Some(state) = &self.callable_ledger else { return Ok(None) };
+        let slots = state.borrow().source_if_value_slots_v1(&builder.function_state.variable_ctx.variable_map)?;
+        Ok(Some(Box::new(IfStateObserverV1 { state: Rc::clone(state), slots, baseline: None, arms: [None, None] })))
     }
 }

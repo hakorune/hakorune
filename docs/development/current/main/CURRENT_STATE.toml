@@ -18,9 +18,9 @@ latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
 APP-allocator-stress: 正規smokeはBool条件を通過、Body11/IfThen0のrejects再代入で停止。
-数値引数・Bool等値を既存ownerへ接続。matching CLI buildとsource停止点確認済み。
-数値引数focused54件・Bool focused32件PASS。既知Text Loop赤1件。アプリ未完。
-直近suite試行3PASS/8FAIL（timeout3件含む、前段WIP binary）。正式6/5はlanded_tail参照。
+IfFormの分岐snapshot/merge復元を接続。matching CLIでmimalloc単体PASS、allocatorは同じsource停止。
+既存focused48件PASS、test名9263件不変。BranchNormal/Phi証明は未接続。
+直近固定suiteは3965b758baで6PASS/5FAIL、実EXE5＋marker1、SKIP/timeoutなし。
 untyped-fieldはD0受理までParkedSealed。次は元If-join scalar証明と既存Phi ownerの接続。
 """
 next_design_card = "APP-allocator-stress"
@@ -41,5 +41,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-19: real-apps-exe-boundary at 3965b758ba — 6 PASS / 5 FAIL; 5 actual EXEs plus 1 empty marker; mimalloc PASS, no SKIP/timeout. Quick CLI with existing lifecycle runtime/C API; outer timeout1900s and build/run300s. Later Bool/If work is not covered by this measurement.",
   "2026-10-19: real-apps-exe-boundary at 751dae566b — 6 PASS / 5 FAIL; mimalloc-lite PASS; 5 actual EXEs plus 1 empty marker; no SKIP/timeout. Source-compatible quick CLI and existing lifecycle runtime/C API; full MirBuilder remains incomplete.",
 ]

@@ -340,14 +340,10 @@ fn assert_simple_if_termination_shape(
         }
     }
 
-    // Existing IfForm publishes merge predecessors while constructing a
-    // two-input result/variable PHI. A one-reachable-branch merge carries its
-    // edge solely in the Jump terminator and deliberately has no PHI rows.
-    let expected_predecessors = if !then_returns && !else_returns {
-        BTreeSet::from([then_bb, else_bb])
-    } else {
-        BTreeSet::new()
-    };
+    // Cached CFG predecessors describe every live merge edge, including
+    // a one-sided join that does not need a result/variable Phi.
+    let expected_predecessors = [(then_bb, then_returns), (else_bb, else_returns)]
+        .into_iter().filter_map(|(block, returns)| (!returns).then_some(block)).collect();
     assert_eq!(
         function.blocks[&merge_bb].predecessors,
         expected_predecessors,

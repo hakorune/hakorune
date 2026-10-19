@@ -370,7 +370,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                     let Some(value) = self.logical.get(key).and_then(|key| self.values.get(key)).copied() else { continue; };
                     let current = self.ledger.borrow().value_for_exact_binding(self.source.owner(), source).map_err(|error| error.to_string())?;
                     if value != current {
-                        self.ledger.borrow_mut().publish_source_loop_final_value(source, value)?;
+                        self.ledger.borrow_mut().publish_source_final_value(source, value)?;
                         let name = super::source_loop_frames::input(self.port, &self.product)?.function().binding(source)
                             .ok_or_else(|| reject("join-source-binding"))?.diagnostic_name().to_owned();
                         builder.function_state.variable_ctx.variable_map.insert(name, value);

@@ -43,7 +43,7 @@ mod field_write_rhs;
 pub(in crate::mir::builder) use field_write_rhs::FieldWriteRhsEmissionV1;
 mod borrowed_field_write;
 mod borrowed_array_set;
-mod borrowed_field_write_guard;
+mod if_observation;
 mod context;
 mod lineage;
 mod script_scope;

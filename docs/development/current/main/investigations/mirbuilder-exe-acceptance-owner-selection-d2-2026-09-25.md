@@ -51,6 +51,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   execution/final checks; Loop child-prefix count excludes these delegated frames.
 - Bool equality borrows exact Bool/Bool Eq/Ne envelopes from the same
   operator owner. No Integer/truthiness view; existing Compare writer/final matcher reused.
+- If state extends the existing IfForm observer across both arms and merge.
+  Restore existing value/provenance snapshots before each arm, including implicit Else.
+  Pre-If exact value/cache pairs bound merge publication; unchanged values retain origins.
+  New joins deliberately gain no scalar proof until original BranchNormal + Phi closure.
+  Prove all resolver ThenNormal/ElseNormal inputs, reuse the same IfForm condition/exits
+  and indexed Phi, then validate via existing ExpressionReferenceRead; no new SSA writer.
 - No app rewrite, new test file/hook/checker/registry, or runtime/C ABI change.
 
 ## Verification and next action
@@ -66,18 +72,21 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Current computed-actual/delegated coverage work: existing focused54 PASS;
   the same known Text Loop test remains failing. Test-name list9263 unchanged.
   Only the existing Copy-to-borrow test access changed; no cases or fixture calls added.
-- Matching Bool quick CLI build PASS; unchanged-app smoke FAIL at Body11/IfThen0
-  before artifacts. Next: original If-join scalar source and existing physical Phi owner;
+- Matching Bool quick CLI build PASS; unchanged-app smoke FAIL at Body11/IfThen0.
+  If-state root build and existing focused48 PASS, test names9263 unchanged. The old
+  If-driver oracle also failed on the preserved binary; its cached predecessor assertion
+  now checks every live merge edge, including a single Normal arm. No cases were added.
+  Next: original If-join scalar source and existing physical Phi owner;
   preserve all artifact/run/output obligations before app completion.
 - Bool boundary: root build and focused32 PASS; test names9263 unchanged. Existing
   positive/negative operator matrices include the new Bool class because old classes
   cannot cover mixed Bool/Integer or Bool ordering refusal. No new test function/file.
-- Committed computed-argument binary is running the fixed suite with outer1900s and
-  build/run300s, separately from current Bool WIP. Do not merge revision results.
-- Pre-selector WIP CLI whole-suite attempt: 3PASS/8FAIL, including three 120s timeouts
-  and five semantic failures. Same-binary mimalloc retake PASS with 300s build allowance;
-  typed method/birth retakes still hit their inner120s limits. These are unresolved
-  timing results, not final-HEAD acceptance or evidence that the old6PASS remain green.
+- Fixed suite on committed computed-argument revision `3965b758ba`: 6PASS/5FAIL,
+  actual EXE5 + empty marker1, no SKIP/timeout. Explicit outer1900s and build/run300s;
+  same lifecycle runtime/C API. Later Bool/If changes are outside this measurement.
+  Earlier120s timeout run is superseded for this snapshot, not counted as semantic red.
+- Same If-state quick CLI + lifecycle runtime/C API: existing mimalloc smoke PASS,
+  exact output/exit, no replay; allocator still stops at line29 before any artifact.
 - Existing smoke: `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh`.
 - Preserve expected accounting including rejects=4 and exit0. Retire only replaced exclusive
   edges after caller/validation closure. Untyped D0 stays ParkedSealed until accepted.

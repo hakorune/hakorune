@@ -58,6 +58,11 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.callable_ledger.as_ref().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?.borrow_mut().record_field_array_read_v1(recipe, read, receiver, operation, dst)
     }
 
+    fn prepare_if_state_observer_v1(&mut self, builder: &MirBuilder)
+        -> Result<Option<Box<dyn super::super::if_form::IfFormPhysicalObserverV1>>, String> {
+        self.if_state_observer_v1(builder)
+    }
+
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
         let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None) };
         let node = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][bool-condition/statement-site-missing]".to_owned())?;

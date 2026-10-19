@@ -27,6 +27,11 @@ impl IfConditionMaterializationV1 {
 }
 
 pub(in crate::mir::builder) trait IfFormPhysicalObserverV1 {
+    fn enter_branch(&mut self, _branch: IfBranchKindV1) -> Result<(), String> { Ok(()) }
+    fn finished_branch(&mut self, _branch: IfBranchKindV1) -> Result<(), String> { Ok(()) }
+    fn completed_merge(&mut self, _builder: &mut MirBuilder,
+        _normal_exits: [Option<crate::mir::BasicBlockId>; 2],
+    ) -> Result<(), String> { Ok(()) }
     fn before_branches(&mut self, function: &crate::mir::MirFunction,
         pending: std::rc::Rc<IfConditionMaterializationV1>) -> Result<(), String>;
     fn emitted_branch(&mut self, function: &crate::mir::MirFunction,
@@ -151,7 +156,9 @@ impl MirBuilder {
                 }
             }
         }
+        if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Then)?; }
         let then_value_raw = lower_branch(self, IfBranchKindV1::Then)?;
+        if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Then)?; }
         let then_exit_block = self.current_block()?;
         let then_reaches_merge = !self.is_current_block_terminated();
         let then_var_map_end = self.function_state.variable_ctx.variable_map.clone();
@@ -169,6 +176,7 @@ impl MirBuilder {
         self.debug_push_region(format!("join#{}", join_id) + "/else");
         // Scope enter for else-branch
         self.hint_scope_enter(0);
+        if let Some(observer) = observer.as_deref_mut() { observer.enter_branch(IfBranchKindV1::Else)?; }
         let (else_value_raw, else_var_map_end_opt) = if has_explicit_else {
             // Materialize all variables at block entry via single-pred Phi (correctness-first)
             crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
@@ -222,6 +230,7 @@ impl MirBuilder {
                 Some(self.function_state.variable_ctx.variable_map.clone()),
             )
         };
+        if let Some(observer) = observer.as_deref_mut() { observer.finished_branch(IfBranchKindV1::Else)?; }
         let else_exit_block = self.current_block()?;
         let else_reaches_merge = !self.is_current_block_terminated();
         if else_reaches_merge {
@@ -338,6 +347,10 @@ impl MirBuilder {
             skip_name,
         )?;
 
+        if let Some(observer) = observer.as_deref_mut() {
+            observer.completed_merge(self, [then_reaches_merge.then_some(then_exit_block),
+                else_reaches_merge.then_some(else_exit_block)])?;
+        }
         self.pop_if_merge();
         // Pop merge debug region
         self.debug_pop_region();

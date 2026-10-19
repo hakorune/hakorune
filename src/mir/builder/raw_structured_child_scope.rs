@@ -209,6 +209,11 @@ where
         field: &str, reads: [crate::mir::normal_callable_semantic_package::FieldWriteValueV1; 2],
     ) -> Result<(), String> { self.child.emit_borrowed_field_write_v1(builder, source, field, reads) }
 
+    fn prepare_if_state_observer_v1(&mut self, builder: &MirBuilder)
+        -> Result<Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>, String> {
+        self.child.prepare_if_state_observer_v1(builder)
+    }
+
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
         self.child.prepare_checked_bool_condition_v1()
     }

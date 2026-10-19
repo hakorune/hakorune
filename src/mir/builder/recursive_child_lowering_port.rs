@@ -134,6 +134,9 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Err("[freeze:contract][named-array/read-consumer-unavailable]".into())
     }
 
+    fn prepare_if_state_observer_v1(&mut self, _builder: &MirBuilder)
+        -> Result<Option<Box<dyn super::if_form::IfFormPhysicalObserverV1>>, String> { Ok(None) }
+
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
         Ok(None)
     }

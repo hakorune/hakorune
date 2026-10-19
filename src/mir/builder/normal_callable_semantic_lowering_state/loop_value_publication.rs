@@ -1,4 +1,4 @@
-//! Loop-carrier value publication and the `values` projection transaction.
+//! Source value publication and branch/Loop projection transactions.
 //!
 //! Carrier header/final phis emit physical `ValueId`s that must reach the
 //! binding-store `values` projection — the sole authority `read_variable`
@@ -25,7 +25,7 @@ impl CallableSemanticLoweringState {
             .source_loop_point_product_v2(&source)?;
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("loop-point-function-missing"))?;
         let point = super::materialized_values::LoopPointValueV1::new(source, relation, function)?;
-        self.publish_source_loop_final_value(point.binding(), value)?;
+        self.publish_source_final_value(point.binding(), value)?;
         self.values.attach_loop_point_v1(point)
     }
     /// Names locate an already selected source binding in the emission cache.
@@ -45,7 +45,7 @@ impl CallableSemanticLoweringState {
         Ok(name)
     }
 
-    pub(in crate::mir::builder) fn publish_source_loop_final_value(
+    pub(in crate::mir::builder) fn publish_source_final_value(
         &mut self,
         binding: BindingRefV1,
         value: ValueId,
@@ -89,7 +89,7 @@ impl CallableSemanticLoweringState {
         if candidates.next().is_some() {
             return Err(freeze("loop-final-name-ambiguous"));
         }
-        self.publish_source_loop_final_value(binding, value)
+        self.publish_source_final_value(binding, value)
     }
 
     /// Captures the `values` projection for a speculative branch lane.
@@ -112,5 +112,58 @@ impl CallableSemanticLoweringState {
         snapshot: crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1,
     ) {
         self.values = snapshot;
+    }
+    /// Names locate only pre-If source slots whose exact cached value agrees.
+    /// Historical unmatched bindings cannot be rediscovered from the merge map.
+    pub(in crate::mir::builder) fn source_if_value_slots_v1(&self,
+        physical: &BTreeMap<String, ValueId>,
+    ) -> Result<Vec<(BindingRefV1, String)>, String> {
+        let mut names = BTreeSet::new();
+        let mut rows = Vec::new();
+        for (binding, name) in &self.binding_names {
+            let Some(value) = self.values.get(binding) else { continue };
+            if physical.get(name.as_ref()) != Some(value) { continue; }
+            if !names.insert(name.as_ref()) { return Err("If source value slot is ambiguous".into()); }
+            rows.push((*binding, name.to_string()));
+        }
+        Ok(rows)
+    }
+
+    /// Restore the source slot projection at the same physical If merge.
+    /// A physical join does not itself grant scalar/source provenance.
+    pub(in crate::mir::builder) fn restore_if_normal_values_v1(
+        &mut self, baseline: MaterializedValuesV1,
+        arms: [MaterializedValuesV1; 2], normal: [bool; 2],
+        slots: &[(BindingRefV1, String)], physical: &BTreeMap<String, ValueId>,
+    ) -> Result<(), String> {
+        let [then_values, else_values] = arms;
+        let surviving = match normal {
+            [true, false] => Some(then_values.clone()),
+            [false, true] => Some(else_values.clone()),
+            [false, false] => { self.values = baseline; return Ok(()); }
+            [true, true] => None,
+        };
+        let mut rows = Vec::new();
+        for (binding, name) in slots {
+            let value = *physical.get(name).ok_or("If merged physical slot missing")?;
+            if let Some(surviving) = &surviving {
+                if surviving.get(binding) != Some(&value) { return Err("If surviving source value differs".into()); }
+            }
+            rows.push((*binding, value));
+        }
+        if let Some(surviving) = surviving { self.values = surviving; return Ok(()); }
+        self.values = baseline;
+        for (binding, value) in rows {
+            let unchanged = then_values.get(&binding) == Some(&value)
+                && else_values.get(&binding) == Some(&value)
+                && then_values.provenance(&binding) == else_values.provenance(&binding);
+            let common = unchanged.then(|| then_values.provenance(&binding)).flatten();
+            // Unrelated branches must not invalidate a still-live Dynamic origin.
+            if self.values.get(&binding) != Some(&value) {
+                self.publish_source_final_value(binding, value)?;
+            }
+            self.values.attach_provenance(binding, common);
+        }
+        Ok(())
     }
 }

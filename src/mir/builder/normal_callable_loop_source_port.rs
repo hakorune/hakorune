@@ -83,7 +83,7 @@ impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
     pub(super) fn publish_source_carrier(
         &self, binding: crate::mir::resolved_semantics::BindingRefV1, value: ValueId,
     ) -> Result<(), String> {
-        self.ledger.borrow_mut().publish_source_loop_final_value(binding, value)
+        self.ledger.borrow_mut().publish_source_final_value(binding, value)
     }
 
     pub(super) const fn new(

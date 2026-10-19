@@ -53,6 +53,11 @@ where
         self.child.prepare_borrowed_field_write_guard_observer_v1()
     }
 
+    fn prepare_if_state_observer_v1(&mut self, builder: &MirBuilder)
+        -> Result<Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>, String> {
+        self.child.prepare_if_state_observer_v1(builder)
+    }
+
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
         self.child.prepare_checked_bool_condition_v1()
     }
@@ -226,6 +231,42 @@ where
     }
 }
 
+struct IfObserversV1<'a> {
+    state: Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>,
+    condition: Option<&'a mut dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>,
+}
+impl crate::mir::builder::if_form::IfFormPhysicalObserverV1 for IfObserversV1<'_> {
+    fn before_branches(&mut self, function: &crate::mir::MirFunction,
+        pending: std::rc::Rc<crate::mir::builder::if_form::IfConditionMaterializationV1>,
+    ) -> Result<(), String> {
+        if let Some(state) = self.state.as_mut() { state.before_branches(function, std::rc::Rc::clone(&pending))?; }
+        if let Some(condition) = self.condition.as_deref_mut() { condition.before_branches(function, pending)?; }
+        Ok(())
+    }
+    fn emitted_branch(&mut self, function: &crate::mir::MirFunction,
+        pending: &std::rc::Rc<crate::mir::builder::if_form::IfConditionMaterializationV1>,
+        branch: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    ) -> Result<(), String> {
+        if let Some(state) = self.state.as_mut() { state.emitted_branch(function, pending, branch.clone())?; }
+        if let Some(condition) = self.condition.as_deref_mut() { condition.emitted_branch(function, pending, branch)?; }
+        Ok(())
+    }
+    fn enter_branch(&mut self, branch: IfBranchKindV1) -> Result<(), String> {
+        if let Some(state) = self.state.as_mut() { state.enter_branch(branch)?; }
+        Ok(())
+    }
+    fn finished_branch(&mut self, branch: IfBranchKindV1) -> Result<(), String> {
+        if let Some(state) = self.state.as_mut() { state.finished_branch(branch)?; }
+        Ok(())
+    }
+    fn completed_merge(&mut self, builder: &mut MirBuilder,
+        exits: [Option<crate::mir::BasicBlockId>; 2],
+    ) -> Result<(), String> {
+        if let Some(state) = self.state.as_mut() { state.completed_merge(builder, exits)?; }
+        Ok(())
+    }
+}
+
 pub(in crate::mir::builder) fn drive_if_statement_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -260,6 +301,14 @@ where
     let mut then_demanded = false;
     let mut else_demanded = false;
 
+    let mut observers = IfObserversV1 {
+        state: port.prepare_if_state_observer_v1(builder)?,
+        condition: match write_guard.as_mut() {
+            Some(observer) => Some(observer.as_mut()),
+            None => checked.as_mut().map(|lowered| lowered.observer()),
+        },
+    };
+    let armed = observers.state.is_some() || observers.condition.is_some();
     builder.lower_if_form_with_physical_observer_v1(
         condition_value,
         condition_debug,
@@ -281,10 +330,7 @@ where
             };
             drive_legacy_body_v1(builder, port, body)
         },
-        match write_guard.as_mut() {
-            Some(observer) => Some(observer.as_mut()),
-            None => checked.as_mut().map(|lowered| lowered.observer()),
-        },
+        if armed { Some(&mut observers) } else { None },
     )?;
     Ok(())
 }
