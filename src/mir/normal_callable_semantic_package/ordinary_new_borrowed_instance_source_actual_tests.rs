@@ -10,8 +10,9 @@ fn original_instance_forward_source_refuses_execution_and_snapshot_drift() {
     } sink(q): i64 { return 0 } } static box Main { main() { return 0 } }";
     let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
     // Check the source producer's boundary independently of later input closure.
-    // Completing sink's inputs does not complete probe's entry/Home execution.
-    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    // Restaging passive actuals does not revoke the preexisting Completion;
+    // this row itself must still refuse executable argument lending.
+    let ledger = &package.ordinary_new_claim_ledger;
     let (site, identity) = ledger.borrowed_formal_actuals.iter().find_map(|(site, rows)| {
         let rows = rows.as_ref().ok()?;
         match &rows.phase {
@@ -20,11 +21,23 @@ fn original_instance_forward_source_refuses_execution_and_snapshot_drift() {
             _ => None,
         }
     }).expect("original Instance source identity retained");
-    let staged = super::prepare_instance_source_actuals_v1(
+    let mut staged = super::prepare_instance_source_actuals_v1(
         ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap(),
         &package.parameter_contracts, &site, &identity.candidates,
     ).unwrap().unwrap();
-    ledger.borrowed_formal_actuals.insert(site, Ok(staged));
+    let slot = package.batch().declarations().find(|row| row.owner() == site.owner()).unwrap().batch_slot();
+    package.batch().with_lowering_input(slot, |input| {
+        let previous = Ok(staged.clone());
+        super::super::bind_argument_sources_v1(input,
+            ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap(),
+            &site, Some(&previous), Some(&mut staged)).unwrap();
+    }).unwrap();
+    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let mut observed = BTreeMap::from([(site.clone(), Ok(super::prepare_instance_source_actuals_v1(
+        ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap(),
+        &package.parameter_contracts, &site, &identity.candidates).unwrap().unwrap()))]);
+    super::super::stage_observed_call_actuals_v1(&mut observed, &site, Ok(Some(staged)));
+    ledger.borrowed_formal_actuals.insert(site.clone(), observed.remove(&site).unwrap());
     let ledger = &package.ordinary_new_claim_ledger;
     let (site, rows) = ledger.borrowed_formal_actuals.iter()
         .find(|(_, rows)| matches!(rows, Ok(rows) if matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::SourceInstance(_))))
@@ -58,10 +71,6 @@ fn original_instance_forward_source_refuses_execution_and_snapshot_drift() {
             .unwrap_err()
             .contains("source-only-instance")
     );
-    let completion = ledger.completion_for_owner(site.owner()).unwrap();
-    let flow = completion.cleanup().root_flow().unwrap();
-    assert!(!flow.all_exits_ready());
-    assert!(flow.local_calls().iter().all(|row| row.site() != site));
     for mutation in 0..5 {
         let mut pending = ledger.borrowed_formal_actuals.clone();
         let row = pending.get_mut(site).unwrap().as_mut().unwrap();
@@ -429,7 +438,7 @@ fn owning_object_local_input_keeps_qualified_sibling_and_refuses_phase_and_censu
             pending.get_mut(target.call_site()).unwrap().as_mut().unwrap().phase =
                 BorrowedCallActualEvidencePhaseV1::SourceInstance(InstanceSourceActualIdentityV1 {
                     source: target.clone(), incoming_arguments: Box::new([]),
-                    candidates: Box::new([]), array_loans: Box::new([]), field_loans: Box::new([]),
+                    candidates: Box::new([]), argument_sources: BTreeMap::new(), array_loans: Box::new([]), field_loans: Box::new([]),
                 });
             assert!(project_pending_instance_source_arguments_v1(source, &pending,
                 &package.parameter_contracts, target.call_site()).unwrap_err()
@@ -482,7 +491,7 @@ fn returned_field_input_keeps_qualified_object_phase_and_refuses_instance_drift(
     let mut forged = pending.clone();
     forged.get_mut(&call.call).unwrap().as_mut().unwrap().phase =
         BorrowedCallActualEvidencePhaseV1::SourceInstance(InstanceSourceActualIdentityV1 {
-            source: target.clone(), incoming_arguments: call.arguments.clone(), candidates: Box::new([]),
+            source: target.clone(), incoming_arguments: call.arguments.clone(), candidates: Box::new([]), argument_sources: BTreeMap::new(),
             array_loans: Box::new([]), field_loans: Box::new([]),
         });
     assert!(project_pending_instance_source_arguments_v1(source, &forged,

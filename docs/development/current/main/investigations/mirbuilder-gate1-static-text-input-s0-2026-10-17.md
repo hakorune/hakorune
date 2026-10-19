@@ -848,17 +848,12 @@ mimalloc385 matched363. The exact original incoming/source-sum measurement and
 its implementation superseded that stop in949 below. This is historical evidence,
 not a current first-stop or full Text closure claim.
 
-949 original scalar incoming projection landed `d819400df3`; it owns original
-all-five incoming/source-SUM, legacy/nominal/capture Decision, evidence/provenance.
-949B93PASS/6baseline/9263names;CLI288 JSON389 advances to Unit-value-use, mim390
-exact363. Keep949/CLI288/JSON389/native +287 diagnostic provenance until950 Text
-acceptance; obsolete946 patch retired. No parallel source owner/adapter survives.
-
-950 actual frontier/provenance and source-to-C audit are retained at `6d3529fa6b`:
-CLI289 build159.380939s, unchangedJSON391 .051006s exit1/noEXE. Exact ingest/1
-owner27 <- Main32 Body1 SequenceItem(true), Unit Completion; actual sampleStream().
-All diagnostic source hunks removed. Keep289 patch/source/log until superseded;
-no permanent trace/adapter/test/checker. Unit-value rejection remains required.
+949 original all-five incoming/scalar SUM, legacy/nominal/capture Decision and
+full provenance are retained at `d819400df3`; JSON389 Unit-value-use,mim390 exact363.
+950 original first-stop/source-to-C audit retained at `6d3529fa6b`: JSON391 identifies
+SAME Main32 Body1 SequenceItem sampleStream -> ingest/1 Unit. No diagnostic source
+patch survives. Keep949/950 pinned source/binaries/logs and diagnostic provenance
+until950 Text acceptance; no parallel source owner/adapter survives.
 
 950 One accepted construction Decision (source and physical workers agree):
 Source authority + issuer: SAME ExactString catalog and caller/site/target handoff
@@ -906,42 +901,27 @@ never discard historical packets or retry an old End after its Fault.
 CallNormal's genuine source coordinate may be an inner node: Loop must use that
 original (plan,node), never fabricate an initializer or assume node0 for new origins.
 
-951 acquisition/loan preparation is retained at `251371eb9e`;952 canonical
-source Home arrays/cleanup/BOTH finals and binding-only lookup retirement are
-retained at `d5c058e18f`, closeout/pointer `4d34d105af`. Those commits own all
-mapping, baseline classifications, commands, timings and intermediate-pin decisions.
-952F170PASS/4 exact950B baselines/9263names;CLI291 JSON394 Unit-value-use,
-mimalloc395 exact363, scoped Text Loop396 exact364. Fixed11 5PASS/6 exactCLI290
-baseline failures (four EXEs plus empty marker). Full suite/series/goal stay open.
-Keep952F/CLI291/native/suite evidence and earlier950/diagnostic provenance until
-Text acceptance. 952E duplicate executable retired; its source/logs retained.
+951 acquisition preparation `251371eb9e`;952 source Home arrays/cleanup/BOTH finals
+`d5c058e18f`, closeout `4d34d105af` retain full mapping, reviews, commands/timings,
+baselines and temporary retention. 952F170PASS/4 exact950B/9263names;CLI291 JSON394
+Unit-value-use, mim395 exact363, Loop396 exact364; fixed11=5/6sameCLI290. Keep final/
+native/suite/earlier950 diagnostic provenance until Text acceptance; duplicate952E
+executable retired. Whole Text/product and retained rows remain required.
 
-953 owned-root rebind is retained at `0ffa4313dc` / `0c7467481d`;954 explicit
-Materialize rebind at `dfdaff385a` / `f6a481574d`. These commits own full source/
-physical reviews, historical-Home/old-End Fault laws, original/purpose acquisition,
-BOTH final/C/native proofs, baseline classifications, timings and pin retirement.
-Each174existing=170PASS/4same;9263names/no added cases/checkers. Rebind400/402 both
-EXE/runPASS, mimalloc399/406 exact363, JSON398/405 Unit-value-use. Fixed11 last953
-5PASS/6same952; four EXEs. Keep953/954 final/native/C and954A FFI/runtime pins until
-950 acceptance; obsolete953B/C/D and954 duplicate executable retired as recorded
-in their commits. Full950 Text Return/CallNormal/entry/Unit/cleanup/finals/C stays
-required. Loop Text Add unclaimed, absent originalJSON and not a prerequisite.
+953 owned-root rebind `0ffa4313dc` / `0c7467481d`;954 Materialize rebind
+`dfdaff385a` / `f6a481574d` retain complete source/physical/cleanup/final/C/native
+Decisions, commands/timings, baselines and pin retirement. Each174=170PASS/4same,
+9263names; rebind400/402 and mimalloc399/406 EXE/runPASS,JSON398/405 Unit-value-use.
+Keep final/native/C +954A FFI/runtime until950 acceptance. Prior953 fixed11=5/6,
+four EXEs. Full950 remains required; Loop Text Add is no originalJSON prerequisite.
 
-955 original Unit ordered arguments + Instance signed entry landed `935b75487f`.
-That commit owns exact original Return/Completion/full-vs-opaque argument contract,
-SAME pending/physical-signature/writer mapping, source/entry worker reviews,
-all commands/timings/intermediate corrections, baseline classification and pins.
-Root955D five focusedPASS;174existing=170PASS/4 exact954B baselines;9263same names.
-Existing two Unit slots replaced, no case/parameter/hook/checker additions.
-C existing7 slotsPASS;CLI294 same407 inputs408 both EXE/run7/exit0. Unchanged
-mimalloc410 canonical EXE/run exact363; originalJSON409 advances Unit-value-use
--> array-loan-missing at Main32 Body1 sampleStream actual into ingest/1, noEXE.
-Current fixed11=5PASS/6FAIL same953 membership, four EXEs+empty marker; JSON advances,
-other5 exact diagnostics. Mimalloc suite fails generic-MIR negative before EXE;
-this does not contradict direct410 and does not close the required suite.
-Keep955D/CLI294/native/C/suite and unchanged954A runtime/FFI until950 acceptance;
-obsolete955A/B/C executables843711104B retired, logs/source retained. No parallel
-writer/adapter/diagnostic patch survives. Full950/finite goal remain open.
+955 original Unit arguments/Instance signed entry landed `935b75487f`; closeout
+`e89b59539c` owns full mapping, source/entry reviews, commands/timings, baselines,
+fixed11 5PASS/6FAIL/four EXEs+marker, and retention/retirement. JSON409 advances
+to array-loan-missing; mimalloc410 canonical EXE/run exact363, while suite generic-
+MIR negative still fails. Keep955D/CLI294/native/C/suite +954A FFI/runtime until950
+acceptance. Obsolete955A/B/C843711104B retired; no diagnostic patch/adapter survives.
+Whole950/retained rows/finite goal open; no test/case/checker additions.
 
 956 refinement of the SAME950 construction Decision (two read-only source-to-
 consumer workers agree; no unresolved semantic design):
@@ -968,15 +948,49 @@ Paths bounded to existing actual_model/static_argument_source/static_source_actu
 instance_source_actuals, coseal callback/reexports, shared Home argument/Call leaf
 qualifier and existing result/entry/physical/final consumers; owner README/card.
 Keep behavior-neutral product normalization distinct from Text admission.
-Required downstream, same series: ordinary Text Call leaves currently require
-borrowed_scalar/I64 or conditionBool; connect actual executable result-purpose
-loan/OwnedString ABI, CallNormal acquisition before argument cleanup, full original
-Return forms and borrowed entry descriptor, BOTH finals/JSON/C. Reuse existing
-call/writer and finite source_value_sum/lend_source_value_sum; no parallel emitter.
-Instance entry uses original mode/receiver lanes, never deletion of Static guards.
+Required downstream remains the complete950 Decision: genuine ordinary Text Call
+result-purpose/OwnedString ABI, all Return forms, borrowed entry, CallNormal before
+argument cleanup, BOTH finals/JSON/C. Existing call/writer/finite-SUM owners stay
+sole; Instance entry preserves original mode/receiver lanes. No eligibility-only
+or I64/Bool-only leaf completion substitutes for this full connection.
 Original required tree: sampleStream -> ingest -> substring -> ingestLine ->
 stringField, reportUser; literal empty/owned substring/concat Returns and intField/
 boolField scalar leaves remain required. No eligibility-only green closes950.
-Reuse existing tests/C/native slots and unchanged original JSON/mimalloc; no new
-cases/files/checkers/hooks. Full fixed suite evidence955 remains current until a
-new broad shared change/cutover requires remeasurement; no whole-series closure.
+Reuse existing tests/C/native slots and unchanged JSON/mimalloc; no new cases/
+files/checkers/hooks. Fixed suite955 is prior evidence, not whole-series closure.
+
+956 BoxShape implementation: move existing Source/Qualified enum into actual_model;
+common canonical-input/original-call binder replaces Static-only plan construction.
+Instance retains ordinal slots in its SAME identity. Three raw source snapshot
+comparisons now recheck semantic base + original bound plans, then compare complete
+rows; executable reconstruction comparison and generic staging stay strict.
+Direct source-only preparation may retain no slots and gains no qualification.
+Explicit Observe alone reuses old plan Rc/reset; no executable reset. Existing
+Static Core/flow and Instance Array/field/forward laws unchanged. This is source
+retention preparation, not Text admission; original409 stop is expected unchanged.
+Existing tests receive enum/binder path/struct updates; original Instance snapshot
+case binds its direct-prepare through Observe before SAME projections/mutations.
+Worker caught unbound-to-bound rejection; allow it only on matching source base,
+not executable phase. Repeated bound observation retains SAME plans. No new cases.
+956 verification: jobs4 `cargo quick-test-fast --no-run --message-format=json`:
+Root956A121.323307s,956B63.972052s,956C66.220420s buildPASS; existing8 focusedPASS.
+Retired two stale Instance test assertions (Completion readiness/local-call absence
+following manual actual-row replacement); SAME early panic reproduced on955D.
+956C reaches SAME existing source-only/executable and5mutation refusals. No new
+case/parameter/file/hook/checker;174existing=170PASS/4 exact955D diagnostics,7.342822s,
+9263same names/no new warning. Pointer/layer/CallTarget/diffPASS. Existing Rust-issued
+7Unit JSON byte-identical955 pins; C/native955 reused under unchanged payload/
+FFI/runtime, not a fresh C run. Jobs4 `cargo build --profile quick --bin hakorune
+--message-format=json` CLI295214.194748s PASS. Root956C full snapshot matches;
+CLI295 differs only test-only stale-assert retirement, production identical.
+FFI954A/runtime954A unchanged predecessor components, not full-manifest equality.
+Canonical `--grammar-profile canonical --backend mir --emit-exe --emit-exe-nyrt
+runtime954A`,plugins1,pure-first/compat-none,FFI954A,16MiB stack: unchangedJSON411
+.058289s exit1/noEXE SAME409/array-loan-missing; unchanged mimalloc412 EXE PASS
+156.123091s/run.001672s,stdout/stderr/exit exact363. Source responsibility normalized,
+not originalJSON advance. Fixed11 last955 only; no current suite/CI/whole950 closure.
+Temporary disposition: redundant956B executable281291824B retired after956C proof;
+logs/source retained,956A never separately pinned. Keep956C/CLI295/native/source
+and954A FFI/runtime until950 acceptance. No adapter/diagnostic patch/parallel writer.
+Next same950 common observer/lender/completer + genuine Text Call-purpose/Return
+ABI/borrowed entry/Unit cleanup/BOTH finals/JSON/C; all original scope remains open.

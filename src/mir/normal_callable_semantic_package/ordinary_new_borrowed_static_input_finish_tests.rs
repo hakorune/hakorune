@@ -415,7 +415,7 @@ fn static_expression_input_retains_original_frames_and_atomic_cohort() {
                 let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase else { unreachable!() };
                 if mutation == 3 { identity.candidates[0].ordinal = 1; }
                 else {
-                    let super::super::static_source::StaticArgumentExpressionV1::Qualified(frame) = identity.argument_sources.get_mut(&0).unwrap()
+                    let super::super::model::ArgumentExpressionV1::Qualified(frame) = identity.argument_sources.get_mut(&0).unwrap()
                         else { panic!("original qualified frame") };
                     *frame = Rc::new(frame.as_ref().clone());
                 }

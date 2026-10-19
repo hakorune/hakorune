@@ -4863,3 +4863,13 @@ signature and canonical owner/key, including the unique instance receiver lane.
 Both final scans recheck parameter values, carriers and receiver metadata; logical
 ordinal or MirType alone cannot grant entry permission. Text expression/Call actuals
 still require their source expression owner and remain part of the same series.
+
+Original argument Source/Qualified slots belong to the common actual model,
+shared by Static and Instance source observations. The common binder borrows the
+canonical outer method Arc and original call loan, retaining every original plan
+Rc on repeated Observe. Source-mode class/Core/Array/field proofs remain with
+those existing issuers. Instance re-preparation checks the unchanged semantic
+source tuple before retaining its source refinement; executable reconstruction
+still compares the complete retained identity. Only explicit source Observe can
+reset qualification; executable phases never reset. Holding these plans alone
+adds no Text Call result, entry, ABI or executable expression permission.

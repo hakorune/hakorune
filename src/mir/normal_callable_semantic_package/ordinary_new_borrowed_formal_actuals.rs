@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 
 #[path = "ordinary_new_borrowed_formal_actual_model.rs"]
 mod model;
-use model::BorrowedCallActualEvidencePhaseV1;
+use model::{ArgumentExpressionV1, BorrowedCallActualEvidencePhaseV1};
 pub(in crate::mir::normal_callable_semantic_package) use model::PreparedBorrowedCallActualsV1;
 pub(crate) use model::{BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1};
 pub(in crate::mir::normal_callable_semantic_package) use instance_source::recheck_pending_array_source_actuals_v1;
@@ -710,7 +710,7 @@ mod discard_tests;
 
 #[path = "ordinary_new_borrowed_static_source_actuals.rs"]
 mod static_source;
-pub(in crate::mir::normal_callable_semantic_package) use static_source::{project_current_owner_loop_scalar_source_v1, bind_static_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_initializer_text_entry_read_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
+pub(in crate::mir::normal_callable_semantic_package) use static_source::{project_current_owner_loop_scalar_source_v1, bind_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_initializer_text_entry_read_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_current_owner_static_source_arguments_v1;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_static_source_arguments_v1;
 

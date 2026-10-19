@@ -2,7 +2,7 @@
 use super::*;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_value_profile::expression_plan::{
-    call_argument_expression_source_plan_v1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
+    ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 
 /// Original outer Call and ordinal identity, independent of the value's class.
@@ -30,7 +30,7 @@ pub(super) fn corroborates_argument_source_v1(
 
 /// Re-observation borrows every original argument plan Rc. This is source
 /// coverage only: literal, local and Core inputs share no execution shortcut.
-pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sources_v1(
+pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
     site: &OwnedExprSiteV1,
@@ -38,6 +38,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
     rows: Option<&mut PreparedBorrowedCallActualsV1>,
 ) -> Result<(), String> {
     let Some(rows) = rows else { return Ok(()) };
+    if let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &mut rows.phase {
+        let reject = || freeze("borrowed-instance/argument-source-identity");
+        let mut originals = prepared.source_incoming.exact_rows().filter(|row| &row.call == site);
+        let original = originals.next().ok_or_else(reject)?;
+        if originals.next().is_some() || original.source.require_instance()? != &identity.source
+            || original.arguments != identity.incoming_arguments { return Err(reject()); }
+        let old = previous.map(|row| {
+            let row = row.as_ref().map_err(|_| freeze("borrowed-actual/repeated-walk-drift"))?;
+            let BorrowedCallActualEvidencePhaseV1::SourceInstance(old) = &row.phase else { return Err(reject()); };
+            if !old.same_original_source_v1(identity) { return Err(reject()); }
+            Ok((!old.argument_sources.is_empty()).then_some(&old.argument_sources))
+        }).transpose()?.flatten();
+        let method = input.function().method_call_source_v1(site.site()).ok_or_else(reject)?;
+        identity.argument_sources = model::bind_original_argument_plans_v1(input,
+            super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(&identity.source),
+            method, &identity.candidates, old)?;
+        return Ok(());
+    }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase else { return Ok(()) };
     let reject = || freeze("borrowed-static/core-source-identity");
     if !original_static_source_v1(prepared, site)?.is_some_and(|source| Rc::ptr_eq(source, &identity.source)) { return Err(reject()); }
@@ -56,21 +74,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
         || !input.function().method_call_source_v1(site.site()).is_some_and(|call|
             std::sync::Arc::ptr_eq(call, identity.source.method_source()))
     { return Err(reject()); }
-    let mut plans = BTreeMap::new();
     for (ordinal, candidate) in identity.candidates.iter().enumerate() {
         let ordinal = ordinal as u32;
         if candidate.ordinal != ordinal { return Err(reject()); }
-        // The binder checks spelling and binding identity, never the local's
-        // class, current value or ownership. Those remain separate demands.
-        let atom = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, &candidate.site);
-        let same = match (&candidate.value, atom.as_ref()) {
-            (BorrowedCallActualValueV1::Scalar(binding, _) | BorrowedCallActualValueV1::SelfRooted { binding, .. },
-                Some(BorrowedCallActualValueV1::Binding(original))) => binding == original,
-            (BorrowedCallActualValueV1::MethodCall(method), Some(BorrowedCallActualValueV1::MethodCall(original))) => std::sync::Arc::ptr_eq(method, original),
-            (expected, Some(original)) => expected == original,
-            _ => false,
-        };
-        if !same { return Err(reject()); }
         if let BorrowedCallActualValueV1::SelfRooted { binding, root } = candidate.value {
             if !prepared.static_arguments.contains_key(&(site.clone(), ordinal)) {
                 let flow = input.function().expression_source().value_flow().ok_or_else(reject)?;
@@ -87,18 +93,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
                 || old.is_some_and(|old| !old.core_arguments.get(&ordinal).is_some_and(|original| Rc::ptr_eq(original, receipt)))
             { return Err(reject()); }
         } else if identity.core_arguments.contains_key(&ordinal) { return Err(reject()); }
-        let plan = if let Some(old) = old {
-            StaticArgumentExpressionV1::Source(Rc::clone(old.argument_sources.get(&ordinal).ok_or_else(reject)?))
-        } else {
-            call_argument_expression_source_plan_v1(input, identity.source.method_source(), ordinal).map_err(|_| reject())?.into()
-        };
-        if !corroborates_argument_plan_v1(&plan, &identity.source, candidate.ordinal, &candidate.site)
-            || input.function().source_site_inventory().containing_statement(site.site()) != Some(plan.root().statement())
-        { return Err(reject()); }
-        plans.insert(ordinal, plan);
     }
     if identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) { return Err(reject()); }
-    identity.argument_sources = plans;
+    identity.argument_sources = model::bind_original_argument_plans_v1(input,
+        super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Static(&identity.source),
+        identity.source.method_source(), &identity.candidates, old.map(|old| &old.argument_sources)).map_err(|_| reject())?;
     Ok(())
 }
 
@@ -114,7 +113,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
                 old.same_original_source_v1(new)
                     && previous.opaque_actuals == current.opaque_actuals
                     && previous.ordered_arguments == current.ordered_arguments
-                    && new.argument_sources.values().all(|row| matches!(row, StaticArgumentExpressionV1::Source(_))),
+                    && new.argument_sources.values().all(|row| matches!(row, ArgumentExpressionV1::Source(_))),
+            (BorrowedCallActualEvidencePhaseV1::SourceInstance(old), BorrowedCallActualEvidencePhaseV1::SourceInstance(new)) =>
+                old.same_original_source_v1(new)
+                    && (old.argument_sources.is_empty()
+                        || old.argument_sources.len() == new.argument_sources.len()
+                            && old.argument_sources.iter().all(|(ordinal, plan)| new.argument_sources.get(ordinal)
+                                .is_some_and(|other| Rc::ptr_eq(plan, other))))
+                    && previous.opaque_actuals == current.opaque_actuals
+                    && previous.ordered_arguments == current.ordered_arguments
+                    && new.argument_sources.values().all(|row| matches!(row, ArgumentExpressionV1::Source(_))),
             _ => false,
         },
         _ => false,
@@ -293,7 +301,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         if !expression { continue; }
         let slot = identity.argument_sources.get(&actual.ordinal)
             .ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
-        let StaticArgumentExpressionV1::Qualified(frame) = slot else {
+        let ArgumentExpressionV1::Qualified(frame) = slot else {
             return Err(freeze(if core { "borrowed-static/core-expression-execution-pending" }
                 else { "borrowed-static/text-expression-execution-pending" }));
         };
@@ -435,13 +443,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn complete_argument_expres
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase else { return Err(reject()); };
     let slot = identity.argument_sources.get_mut(ordinal).ok_or_else(reject)?;
     match slot {
-        StaticArgumentExpressionV1::Qualified(previous) => {
+        ArgumentExpressionV1::Qualified(previous) => {
             if previous.as_ref() != frame.as_ref() { return Err(freeze("borrowed-static/argument-frame-current-drift")); }
             Ok(Rc::clone(previous))
         }
-        StaticArgumentExpressionV1::Source(plan) => {
+        ArgumentExpressionV1::Source(plan) => {
             if !Rc::ptr_eq(plan, frame.source()) { return Err(reject()); }
-            *slot = StaticArgumentExpressionV1::Qualified(Rc::clone(frame));
+            *slot = ArgumentExpressionV1::Qualified(Rc::clone(frame));
             Ok(Rc::clone(frame))
         }
     }
@@ -501,7 +509,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { return Err(freeze("argument-expression/source-phase")) };
         let identity = validate_static_source_actuals_v1(prepared, rows, call, identity.source.required_i64_arguments())?;
         validate_qualified_argument_sources_v1(prepared, &self.borrowed_formal_actuals, call, identity)?;
-        let Some(StaticArgumentExpressionV1::Qualified(frame)) = identity.argument_sources.get(&ordinal) else {
+        let Some(ArgumentExpressionV1::Qualified(frame)) = identity.argument_sources.get(&ordinal) else {
             return Err(freeze("argument-expression/frame-missing"));
         };
         if identity.source.argument_sites().get(ordinal as usize) != Some(site)

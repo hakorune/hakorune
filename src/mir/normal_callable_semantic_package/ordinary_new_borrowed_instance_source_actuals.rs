@@ -8,6 +8,7 @@ pub(super) struct InstanceSourceActualIdentityV1 {
     pub(super) source: LexicalInstanceCallSourceTargetV1,
     pub(super) incoming_arguments: Box<[(u32, SourceExprSiteV1, BindingRefV1)]>,
     pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
+    pub(super) argument_sources: BTreeMap<u32, ArgumentExpressionV1>,
     pub(super) array_loans: Box<
         [(
             u32,
@@ -265,6 +266,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
             source: target.clone(),
             incoming_arguments: original.arguments.clone(),
             candidates: actuals.to_vec().into_boxed_slice(),
+            argument_sources: BTreeMap::new(),
             array_loans: array_loans.into_boxed_slice(),
             field_loans: field_loans.into_boxed_slice(),
         }),
@@ -357,9 +359,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
         return Ok(None);
     };
     let ingress = source.as_ref().map_err(Clone::clone)?;
-    let rechecked =
+    let mut rechecked =
         prepare_instance_source_actuals_v1(ingress, contracts, site, &identity.candidates)?
             .ok_or_else(|| freeze("borrowed-instance/source-phase-drift"))?;
+    model::retain_instance_argument_sources_v1(&mut rechecked, identity)?;
     if rows != &rechecked || !rows.opaque_actuals.is_empty() {
         return Err(freeze("borrowed-instance/source-snapshot-drift"));
     }
@@ -514,9 +517,10 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
     {
         return Err(freeze("borrowed-instance/original-input"));
     }
-    let original =
+    let mut original =
         prepare_instance_source_actuals_v1(ingress, contracts, &call.call, &identity.candidates)?
             .ok_or_else(|| freeze("borrowed-instance/source-unavailable"))?;
+    model::retain_instance_argument_sources_v1(&mut original, identity)?;
     if original.phase != BorrowedCallActualEvidencePhaseV1::SourceInstance(identity.clone()) {
         return Err(freeze("borrowed-instance/source-identity"));
     }
@@ -666,9 +670,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
     {
         return Err(freeze("borrowed-instance/original-input"));
     }
-    let rebuilt = prepare_instance_source_actuals_v1(
+    let mut rebuilt = prepare_instance_source_actuals_v1(
         ingress, contracts, &call.call, &identity.candidates,
     )?.ok_or_else(|| freeze("borrowed-instance/source-unavailable"))?;
+    model::retain_instance_argument_sources_v1(&mut rebuilt, identity)?;
     if &rebuilt != rows || !rows.opaque_actuals.is_empty() {
         return Err(freeze("borrowed-instance/reconstructed-snapshot"));
     }

@@ -10,7 +10,7 @@ use std::rc::Rc;
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
 pub(super) use argument_source::{validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_static_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::{complete_argument_expression_v1, stage_observed_call_actuals_v1};
 
@@ -24,7 +24,7 @@ pub(super) struct StaticSourceActualIdentityV1 {
     pub(super) source: Rc<StaticIncomingSourceV1>,
     pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
     pub(super) integer_evidence: Box<[bool]>,
-    pub(super) argument_sources: BTreeMap<u32, StaticArgumentExpressionV1>,
+    pub(super) argument_sources: BTreeMap<u32, ArgumentExpressionV1>,
     pub(super) core_arguments: BTreeMap<u32, Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
 }
 
@@ -46,33 +46,6 @@ impl StaticSourceActualIdentityV1 {
     }
 }
 impl Eq for StaticSourceActualIdentityV1 {}
-
-/// Qualification refines the existing ordinal product; it never creates a
-/// second plan/frame inventory or makes the original actual executable.
-#[derive(Debug, Clone)]
-pub(super) enum StaticArgumentExpressionV1 {
-    Source(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>),
-    Qualified(Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>),
-}
-impl std::ops::Deref for StaticArgumentExpressionV1 {
-    type Target = Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>;
-    fn deref(&self) -> &Self::Target {
-        match self { Self::Source(plan) => plan, Self::Qualified(frame) => frame.source() }
-    }
-}
-impl From<Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>> for StaticArgumentExpressionV1 {
-    fn from(plan: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>) -> Self { Self::Source(plan) }
-}
-impl PartialEq for StaticArgumentExpressionV1 {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Source(left), Self::Source(right)) => Rc::ptr_eq(left, right),
-            (Self::Qualified(left), Self::Qualified(right)) => Rc::ptr_eq(left, right),
-            _ => false,
-        }
-    }
-}
-impl Eq for StaticArgumentExpressionV1 {}
 
 /// Passive argument plans borrow the complete original source census. They must
 /// not insert omitted callers into the legacy static-observation projection.
@@ -688,7 +661,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
     if required_i64_arguments.iter().any(|ordinal| {
         if identity.integer_evidence.get(*ordinal as usize) == Some(&true)
             || identity.argument_sources.get(ordinal).is_some_and(|slot| matches!(slot,
-                StaticArgumentExpressionV1::Qualified(frame) if frame.is_i64())) {
+                ArgumentExpressionV1::Qualified(frame) if frame.is_i64())) {
             return false;
         }
         let index = *ordinal as usize;

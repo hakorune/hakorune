@@ -17,25 +17,23 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-955 original Unit ordered arguments and Instance signed entry landed935b75487f;
-SAME Unit source/Completion + pending actuals + shared receiver/Call/cleanup writer.
-Zero-arg Unit fences retired; true Unit value-use and scalar-result scope preserved.
-Signed entry uses original canonical physical signature, formal lane and receiver.
-Root955D five focusedPASS;174existing=170PASS/4exact954B baselines;9263same names.
-Two existing Unit slots replaced with real ordered i64 inputs, no added cases/hooks.
-Existing C all7 Unit slotsPASS. CLI294/FFI954A/runtime954A canonical direct EXE:
-same407 sources408 both now EXE/run7/exit0;CLI293 both refused Unit-value-use.
-Unchanged mimalloc410 EXE/run/stdout/stderr/exit exact363. OriginalJSON409 advances
-Unit-value-use -> borrowed-instance/array-loan-missing at Main32 Body1 sampleStream
-actual into ingest/1; still noEXE. This requires ordinary Text expression/Call source,
-not Array evidence. Fixed11 current477.964548s=5PASS/6FAIL same953 membership;JSON advances,other5same.
-Four suite EXEs+empty marker; mimalloc suite fails generic-MIR negative before EXE.
-Keep955D/CLI294/native/C and unchanged954A runtime/FFI until full950 acceptance;
-obsolete955A/B/C executables843711104B retired, source/failure logs retained.
-Fast ORDINARY-TEXT-CALL-S0: normalize original argument Source/Qualified product
-across Static/Instance, then full Text Return/CallNormal/borrowed entry/Unit cleanup/
-BOTH finals/JSON/C under950. No inventory or semantic design stop. Full series,
-retained rows and finite goal open; Loop Text Add not an originalJSON prerequisite.
+956 common original argument Source/Qualified product verified across Static/Instance.
+Canonical-input/call binder retains SAME plan Rc; existing class/Core/Array/field
+proofs keep original owners. Source reprepare checks base+retained plans; complete
+executable comparison and generic staging remain strict. Observe-only empty->bound
+and repeated/reset refinement, never executable reset. Static-only enum/binder gone.
+Root956C8focusedPASS;174existing=170PASS/4exact955D baseline;9263same names/no warning.
+Two stale internal Completion assertions retired; same refusal+5mutation tests reach
+completion. No case/parameter/file/checker/hook additions.7Unit JSON byte-identical955;
+prior C/native955 reused under unchanged payload/runtime/FFI, not a fresh C run.
+CLI295214.194748s;production matches956C, sole snapshot delta test-only assert cleanup.
+FFI954A/runtime954A unchanged predecessors. Unchanged mimalloc412 canonical EXE/run
+exact363. OriginalJSON411 SAME409/array-loan-missing/noEXE: source normalization only,
+not app progress. Fixed11 last9555PASS/6FAIL; no current suite/CI/whole950 closure.
+Keep956C/CLI295/native/source evidence until950 acceptance; redundant956B281291824B
+executable retired, logs retained. Fast ORDINARY-TEXT-CALL-S0 continues common
+argument observer/lender/completer + genuine Text Call-purpose/Return ABI/borrowed
+entry/Unit cleanup/BOTH finals/JSON/C. Full series/retained rows/finite goal open.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"

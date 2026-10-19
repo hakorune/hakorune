@@ -29,7 +29,7 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             let rows = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &[actual]);
             if !closes { assert!(rows.unwrap().is_none(), "no original operand receipt can stage this input"); return; }
             let mut rows = rows.unwrap().unwrap();
-            bind_static_argument_sources_v1(input, ingress, original.call_site(), None, Some(&mut rows)).unwrap();
+            bind_argument_sources_v1(input, ingress, original.call_site(), None, Some(&mut rows)).unwrap();
             let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { panic!("source phase only") };
             assert!(std::sync::Arc::ptr_eq(receipt.unwrap().source().source(), method));
             assert!(Rc::ptr_eq(receipt.unwrap().operands(), ingress.closed_core_source_v1(&site).unwrap()));
@@ -41,10 +41,10 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                     && input.function().source_site_inventory().containing_statement(original.call_site().site()) == Some(statement)));
             let mut repeated = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &identity.candidates).unwrap().unwrap();
             let previous = Ok(rows.clone());
-            bind_static_argument_sources_v1(input, ingress, original.call_site(), Some(&previous), Some(&mut repeated)).unwrap();
+            bind_argument_sources_v1(input, ingress, original.call_site(), Some(&previous), Some(&mut repeated)).unwrap();
             assert_eq!(repeated, rows, "re-observation reuses the original plan Rc");
             let failed = Err("original-source-refusal".to_owned());
-            assert!(bind_static_argument_sources_v1(input, ingress, original.call_site(), Some(&failed), Some(&mut repeated))
+            assert!(bind_argument_sources_v1(input, ingress, original.call_site(), Some(&failed), Some(&mut repeated))
                 .unwrap_err().contains("repeated-walk-drift"), "a later Ok cannot replay an earlier refusal");
             let reissued = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, original.method_source(), 0).unwrap();
             assert!(!Rc::ptr_eq(plan, &reissued));
@@ -129,7 +129,7 @@ fn static_argument_plans_cover_literal_local_and_forward_without_execution_grant
                 BorrowedCallActualCandidateV1 { ordinal: ordinal as u32, site: site.clone(), value }
             }).collect();
             let mut rows = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &candidates).unwrap().unwrap();
-            bind_static_argument_sources_v1(input, ingress, original.call_site(), None, Some(&mut rows)).unwrap();
+            bind_argument_sources_v1(input, ingress, original.call_site(), None, Some(&mut rows)).unwrap();
             let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else { panic!("source only") };
             assert_eq!(identity.argument_sources.len(), 2, "every ordered actual has its original plan");
             assert!(identity.core_arguments.is_empty());
@@ -146,10 +146,10 @@ fn static_argument_plans_cover_literal_local_and_forward_without_execution_grant
                 let mut forged = candidates.clone();
                 forged[0].value = BorrowedCallActualValueV1::String("forged".into());
                 let mut changed = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &forged).unwrap().unwrap();
-                assert!(bind_static_argument_sources_v1(input, ingress, original.call_site(), None, Some(&mut changed)).is_err(), "literal payload must be original");
+                assert!(bind_argument_sources_v1(input, ingress, original.call_site(), None, Some(&mut changed)).is_err(), "literal payload must be original");
             }
             let mut repeated = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &candidates).unwrap().unwrap();
-            bind_static_argument_sources_v1(input, ingress, original.call_site(), Some(&Ok(rows.clone())), Some(&mut repeated)).unwrap();
+            bind_argument_sources_v1(input, ingress, original.call_site(), Some(&Ok(rows.clone())), Some(&mut repeated)).unwrap();
             assert_eq!(rows, repeated, "re-observation retains every SAME plan Rc");
             for mutation in 0..4 {
                 let mut changed = rows.clone();
