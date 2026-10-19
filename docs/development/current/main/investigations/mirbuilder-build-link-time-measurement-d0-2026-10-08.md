@@ -1,7 +1,7 @@
 # MirBuilder host build and link time measurement
 
-Status: required-build observation recorded; linker adoption unverified
-Date: 2026-10-08
+Status: daily opt0 CLI/test commands adopted; keep LLD and incremental
+Date: 2026-10-20
 Scope: independent tooling improvement; not a finite_product_goal completion condition
 Related:
   - ../CURRENT_STATE.toml
@@ -10,6 +10,25 @@ Related:
   - ../../../../../.cargo/config.toml
 
 ## Current decision
+
+Daily CLI builds use `cargo quick-build-fast`, matching the existing manual
+`cargo build --profile quick --bin hakorune --config profile.quick.package.nyash-rust.opt-level=0`.
+Root-library tests use `cargo quick-test-fast`; both retain optimized dependencies,
+incremental compilation, jobs4, assertions and LLD. `quick-build`/`quick-test`
+retain their existing opt1 behavior for optimized validation. Release is unchanged.
+This prevents accidental profile switching; it does not accelerate an already
+opt0 build or demonstrate further compiler runtime speedup.
+
+Verification on the preserved If/SSA WIP: latest required opt0 CLI build34.70s.
+New alias with `--verbose`: exit0, root crate Fresh, Cargo0.26s/wall0.331s;
+no rustc/link invocation or dependency rebuild. Existing incremental cohort reused.
+No source, fixture, test, guard, cache or target was added/removed for this check.
+The earlier controlled test-message edit (88.58s opt1 versus37.51s opt0) remains
+the bounded codegen evidence below; it is not a new CLI speed comparison.
+Host sccache remains installed for eligible dependencies; current server statistics
+show incremental/crate-type exclusions, not hot-edit cache hits. Keep incremental.
+
+## Historical linker measurement
 
 Measure the next required Cargo build before choosing a linker change. Preserve
 the selected MirBuilder source slice, quick profile, jobs, target and cache.

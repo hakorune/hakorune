@@ -68,7 +68,7 @@ commitは短い件名と必要な変更・検証・残件だけにする。通�
 - アプリ修正に不要なfreezeトークンを増やさない。必要な失敗境界は既存診断ownerを優先し、既知の拒否を通すために無効化しない。
 - shell/Pythonを含むguardも同じ増加規則。一時test/guard/adapterは既存cardでowner・置換先・`retire_when`を明記し、条件成立時に統合・削除する。
 - 同じcheckoutでtop-level Cargoは一つ。稼働中のCargo/rustcが読むRustを編集しない。中断後は終了を確認して次を起動する。
-- jobs上限目安4。root libのfocused testは`cargo quick-test-fast`、CLIは`cargo build --profile quick --bin hakorune`を使う。
+- jobs上限目安4。root libのfocused testは`cargo quick-test-fast`、CLIは`cargo quick-build-fast`を使う。本体opt0・依存quick opt1・incrementalを保ち、最適化CLIの測定は`cargo quick-build --bin hakorune`で分ける。
 - 同じbuildをfilter実行で再利用する。filter0件は成功にしない。必要検証が通れば、新しい変更・失敗・要求gateがない限り繰り返さない。
 - `--release`、`--nocapture`、warning抑制は必要性がある場合だけ。docs-onlyではCargoを起動しない。
 - 固定suiteはアプリ着地・広い共有変更・製品acceptanceの確認時に実行し、毎内部commitでは回さない。落ちた別アプリを既知baseline扱いで閉じない。
