@@ -744,7 +744,9 @@ catalog row retains that source and derived complete eligibility; repeated loans
 retain its Rc identity. Allocation-only fields have no initial readable value.
 Both complete-plan constructors refuse this disposition until the required LOCAL
 readiness and final-consumer connection exists; trivial Home demand grants no
-field value. Non-i64, owning, weak or hook-bearing declarations do not qualify.
+field value. Bare strong fields retain Dynamic known-empty source inventory;
+this does not grant execution, a readable value or complete field End. Non-i64,
+owning, weak or hook-bearing declarations do not qualify for I64 execution.
 
 Site resolution, local/result claim cores and the Normal local Home retain that
 same construction source Rc. Overrides retain unavailable source. The existing

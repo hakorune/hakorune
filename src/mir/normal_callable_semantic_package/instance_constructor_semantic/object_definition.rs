@@ -157,6 +157,7 @@ impl ObjectDeclarationSourceV1 {
                     )
                     .is_none()
                 && !is_user_object_field(field)
+                && field.declared_type_name.is_some()
         }) {
             Destruction::Unavailable(DestructionUnavailable::FieldType)
         } else if !ordinary_members {
@@ -164,7 +165,10 @@ impl ObjectDeclarationSourceV1 {
         } else {
             let array = !fixed_array_fields.is_empty() || projected_fields.iter()
                 .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"));
-            Destruction::no_hook_fields(array, projected_fields.iter().any(is_user_object_field), false)
+            let dynamic = projected_fields.iter().enumerate().any(|(ordinal, field)|
+                field.declared_type_name.is_none() && !fixed_array_fields.iter()
+                    .any(|field| field.declaration_ordinal() as usize == ordinal));
+            Destruction::no_hook_fields(array, projected_fields.iter().any(is_user_object_field), dynamic)
         };
         CanonicalObjectDefinitionV1::from_source_declaration(
             name,
@@ -229,8 +233,13 @@ mod tests {
             assert!(definition.local_fields_for_layout().is_ok());
             assert_eq!(
                 definition.destruction_disposition(),
-                Destruction::Unavailable(DestructionUnavailable::FieldType)
+                if text == "box Plain { value }" {
+                    Destruction::no_hook_fields(false, false, true)
+                } else { Destruction::Unavailable(DestructionUnavailable::FieldType) }
             );
+            // A source-declared empty slot is not an executable teardown profile,
+            // even if a caller presents an empty child inventory.
+            assert!(!definition.destruction_disposition().supports_static_execution(true));
         }
         let mut node = declaration("box Plain { value: i64 }");
         let ASTNode::BoxDeclaration { field_decls, .. } = &mut node else {
@@ -282,10 +291,8 @@ mod tests {
         assert!(fields[1].declared_type_name.is_none());
         assert!(fields[2].declared_type_name.is_none());
         assert_eq!(definition.local_fields_for_layout(), Ok(fields));
-        assert_eq!(
-            definition.destruction_disposition(),
-            Destruction::Unavailable(DestructionUnavailable::FieldType)
-        );
+        assert_eq!(definition.destruction_disposition(), Destruction::no_hook_fields(false, false, true));
+        assert!(!definition.destruction_disposition().supports_static_execution(false));
     }
 
     #[test]

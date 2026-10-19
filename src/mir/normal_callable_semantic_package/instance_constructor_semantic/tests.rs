@@ -406,9 +406,13 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
             .find(|row| row.kind() == ConstructorSourceKindV1::Birth)
             .map_or(0, |row| row.source_arity() as usize);
         let retained = batch.construction_source_for(parent, arity).unwrap();
-        if source == "box Page { value: i64 }" {
+        if matches!(source, "box Page { value: i64 }" | "box Page { value }") {
             assert!(matches!(retained.as_ref().unwrap().completion(),
                 ConstructionCompletionV1::AllocationOnly { .. }));
+            if source == "box Page { value }" {
+                assert!(!retained.as_ref().unwrap().is_allocation_only_i64());
+                assert!(retained.as_ref().unwrap().allocation_only_i64_field("value").is_none());
+            }
         } else {
             assert!(retained.is_err(), "unsupported source must not gain allocation-only completion: {source}");
         }

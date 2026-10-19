@@ -59,6 +59,9 @@ impl ObjectDestructionDispositionV1 {
     pub(in crate::mir) const fn no_hook_fields(array: bool, object: bool, dynamic: bool) -> Self {
         Self::NoHook(FieldTeardownRequirementsV1 { array, object, dynamic })
     }
+    /// Declaration eligibility only; does not grant field initialization or End.
+    pub(crate) fn has_no_hook(self) -> bool { matches!(self, Self::NoHook(_)) }
+
     pub(crate) fn supports_static_no_hook(self) -> bool {
         matches!(self, Self::NoHook(fields) if !fields.dynamic)
     }

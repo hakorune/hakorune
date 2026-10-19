@@ -295,13 +295,12 @@ pub(super) fn issue_construction_source_v1(
         if !fields.is_empty() {
             let definition = definitions.get(object_id.declaration_index() as usize)
                 .ok_or(U::SourceRelationMissing)?;
-            if definition.destruction_disposition()
-                != crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK
+            if !definition.destruction_disposition().has_no_hook()
                 || definition.fields().len() != field_decls.len()
-                || definition.fields().iter().zip(field_decls).any(|(canonical, field)| {
-                    canonical.name != field.name || canonical.is_weak
-                        || canonical.declared_type_name.as_deref() != Some("i64")
-                        || field.declared_type_name.as_deref() != Some("i64")
+                || definition.fields().iter().zip(field_decls).enumerate().any(|(ordinal, (canonical, field))| {
+                    canonical.name != field.name || canonical.is_weak || definition.is_array_field(ordinal)
+                        || !matches!(canonical.declared_type_name.as_deref(), None | Some("i64"))
+                        || canonical.declared_type_name != field.declared_type_name
                 })
             {
                 return Err(U::InitializationContractMissing);
@@ -312,7 +311,11 @@ pub(super) fn issue_construction_source_v1(
                         .ok_or(U::SourceRelationMissing)?;
                     Ok(ConstructionFieldSourceV1 {
                         name: declaration.name.as_str().into(), field,
-                        storage: crate::mir::function::TypedObjectFieldStorage::I64,
+                        storage: match declaration.declared_type_name.as_deref() {
+                            Some("i64") => crate::mir::function::TypedObjectFieldStorage::I64,
+                            None => crate::mir::function::TypedObjectFieldStorage::Dynamic,
+                            _ => return Err(U::InitializationContractMissing),
+                        },
                     })
                 }).collect::<Result<Vec<_>, U>>()?.into_boxed_slice(),
             };

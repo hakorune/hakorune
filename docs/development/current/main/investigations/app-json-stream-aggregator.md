@@ -43,12 +43,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Next source connection
 
-- Source declaration now issues Dynamic layout for bare strong slots; no writer/MIR
-  inference. Existing complete fixed-Array specialization remains a bounded profile.
+- Source now retains Dynamic layout and no-Birth known-empty field inventory,
+  without writer/MIR inference. Existing fixed-Array specialization stays bounded.
 - Destruction separates no-hook declaration from exact Array/object/Dynamic
-  requirements. Static projections reject Dynamic even with children; focused44 PASS.
-- Existing vocabulary2/inference19 (including layout4)/declaration6/physical-layout1
-  PASS; existing cases cover Dynamic/noninteger separation without new test functions.
+  requirements. Static projections reject Dynamic even with children; focused67 PASS.
+- Existing source cases are refined to protect known-empty versus execution/
+  readiness authority; no new test functions/files. Prior layout checks stay in Git.
 - Runtime Dynamic slots now hold explicit Empty/null/I64/Bool/Text/object/Array
   values plus an independently published complete End descriptor. No owning Clone.
   Replace atomically publishes the SAME detached old value/residence as Ready;
