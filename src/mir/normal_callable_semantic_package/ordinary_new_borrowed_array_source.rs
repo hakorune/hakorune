@@ -62,8 +62,11 @@ impl NamedArrayHolderSourceLoanV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.construction.binding()
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn construction_site(&self) -> &SourceExprSiteV1 {
+        self.construction.construction()
+    }
     pub(crate) fn construction(&self) -> OwnedExprSiteV1 {
-        OwnedExprSiteV1::new(self.construction.owner(), self.construction.construction().clone())
+        OwnedExprSiteV1::new(self.construction.owner(), self.construction_site().clone())
     }
     pub(crate) fn append_candidate(&self, call: &OwnedExprSiteV1) -> Option<OwnedExprSiteV1> {
         if call.owner() != self.binding().owner() {

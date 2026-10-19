@@ -158,19 +158,27 @@ impl ArrayElementSourceLoanV1 {
 /// Neither the original requirement nor Completion may point back to this row.
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct ArrayHolderLifecycleRecipeV1 {
-    source: ArrayElementSourceLoanV1,
-    producer: Rc<ArrayProducerPlanV1>,
+    holder: NamedArrayHolderSourceLoanV1,
     completion: Rc<VerifiedFunctionCompletionV1>,
     caller: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    elements: ArrayHolderElementRecipeV1,
+}
+
+/// Element operations share their original requirement/producer; neither a
+/// selected read nor its representative becomes the holder's construction identity.
+#[derive(Debug)]
+struct ArrayHolderElementRecipeV1 {
+    source: ArrayElementSourceLoanV1,
+    producer: Rc<ArrayProducerPlanV1>,
     reads: Box<[ArrayElementSourceLoanV1]>,
 }
 impl ArrayHolderLifecycleRecipeV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_append_sites_v1(&self) -> impl Iterator<Item = OwnedExprSiteV1> + '_ {
-        self.source.requirement.holder().appends().iter()
+        self.elements.source.requirement.holder().appends().iter()
             .map(|row| OwnedExprSiteV1::new(self.owner(), row.call().clone()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn original_read_sites_v1(&self) -> impl Iterator<Item = &OwnedExprSiteV1> {
-        self.reads.iter().map(|row| row.read())
+        self.elements.reads.iter().map(|row| row.read())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn original_end_sites_v1(&self) -> Result<Vec<&SourceStmtSiteV1>, String> {
         let flow = self.completion.cleanup().root_flow().ok_or_else(|| freeze("array-holder/root-flow-missing"))?;
@@ -178,14 +186,14 @@ impl ArrayHolderLifecycleRecipeV1 {
         for exit in self.completion.explicit_sites() {
             let row = flow.exit_row(exit).ok_or_else(|| freeze("array-holder/exit-missing"))?
                 .map_err(|issue| format!("{}: {issue:?}", freeze("array-holder/exit-unavailable")))?;
-            if self.source.validate_holder_exit_source_v1(exit, row.homes().iter().filter(|home| home.binding() == self.holder()).count())? {
+            if self.elements.source.validate_holder_exit_source_v1(exit, row.homes().iter().filter(|home| home.binding() == self.holder()).count())? {
                 ends.push(exit);
             }
         }
         Ok(ends)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn holder_source_loan_v1(&self) -> NamedArrayHolderSourceLoanV1 {
-        NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(&self.source.requirement))
+        self.holder.clone()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         source: &ArrayElementSourceLoanV1,
@@ -211,20 +219,24 @@ impl ArrayHolderLifecycleRecipeV1 {
             return Err(freeze("array-lifecycle/original-read-coverage"));
         }
         Ok(Some(Rc::new(Self {
-            source: reads[0].clone(), producer: Rc::clone(home.producer),
-            completion: Rc::clone(completion), caller: caller.clone(), reads: reads.into(),
+            holder: NamedArrayHolderSourceLoanV1::from_requirement(Rc::clone(&source.requirement)),
+            completion: Rc::clone(completion), caller: caller.clone(),
+            elements: ArrayHolderElementRecipeV1 {
+                source: reads[0].clone(), producer: Rc::clone(home.producer), reads: reads.into(),
+            },
         })))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn owner(&self) -> FunctionOwnerIdV1 { self.completion.owner() }
-    pub(in crate::mir::normal_callable_semantic_package) fn holder(&self) -> BindingRefV1 { self.source.holder() }
+    pub(in crate::mir::normal_callable_semantic_package) fn holder(&self) -> BindingRefV1 { self.holder.binding() }
     pub(in crate::mir::normal_callable_semantic_package) fn caller(&self) -> &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1 { &self.caller }
     pub(in crate::mir::normal_callable_semantic_package) fn construction(&self) -> &SourceExprSiteV1 {
-        self.source.requirement.holder().construction().construction()
+        self.holder.construction_site()
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn source(&self) -> &ArrayElementSourceLoanV1 { &self.source }
+    pub(in crate::mir::normal_callable_semantic_package) fn source(&self) -> &ArrayElementSourceLoanV1 { &self.elements.source }
     pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self, other: &Self) -> bool {
-        self.source == other.source && self.reads == other.reads && self.caller == other.caller
-            && Rc::ptr_eq(&self.producer, &other.producer) && Rc::ptr_eq(&self.completion, &other.completion)
+        self.holder == other.holder && self.elements.source == other.elements.source
+            && self.elements.reads == other.elements.reads && self.caller == other.caller
+            && Rc::ptr_eq(&self.elements.producer, &other.elements.producer) && Rc::ptr_eq(&self.completion, &other.completion)
     }
     /// Structural/Home re-demand only. The ledger additionally re-demands the
     /// current whole original producer inputs, Normal results and End descriptor.
@@ -237,12 +249,12 @@ impl ArrayHolderLifecycleRecipeV1 {
         if !Rc::ptr_eq(completion, &self.completion) {
             return Err(freeze("array-lifecycle/original-completion-drift"));
         }
-        let Some(home) = self.source.checked_home_source_v1(completion, selected, signatures)?
+        let Some(home) = self.elements.source.checked_home_source_v1(completion, selected, signatures)?
             else { return Err(freeze("array-lifecycle/home-unavailable")); };
-        if !Rc::ptr_eq(home.producer, &self.producer)
-            || self.reads.len() != self.source.requirement.holder().reads().len()
+        if !Rc::ptr_eq(home.producer, &self.elements.producer)
+            || self.elements.reads.len() != self.elements.source.requirement.holder().reads().len()
         { return Err(freeze("array-lifecycle/original-source-drift")); }
-        for (read, original) in self.reads.iter().zip(self.source.requirement.holder().reads()) {
+        for (read, original) in self.elements.reads.iter().zip(self.elements.source.requirement.holder().reads()) {
             if read.read().site() != original.call()
                 || ArrayElementSourceLoanV1::issue(ingress, read.read())?.as_ref() != Some(read)
             { return Err(freeze("array-lifecycle/current-read-drift")); }
@@ -253,11 +265,11 @@ impl ArrayHolderLifecycleRecipeV1 {
 
 impl ArrayHolderLifecycleRecipeV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn slot_descriptor_v1(&self) -> crate::mir::instruction::OwnedArraySlotDescriptorV1 {
-        let holder = self.source.requirement.holder();
-        let nullable = self.source.requirement.producers().len() != holder.appends().len()
-            || self.source.producer_sources_v1().any(|p| matches!(p.result_class(),
+        let holder = self.elements.source.requirement.holder();
+        let nullable = self.elements.source.requirement.producers().len() != holder.appends().len()
+            || self.elements.source.producer_sources_v1().any(|p| matches!(p.result_class(),
                 crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_)));
-        crate::mir::instruction::OwnedArraySlotDescriptorV1::new(self.producer.descriptor.object(), nullable)
+        crate::mir::instruction::OwnedArraySlotDescriptorV1::new(self.elements.producer.descriptor.object(), nullable)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn initializer_prefix_v1(&self) -> Result<&CallerNewHomePrefixV1, String> {
         let flow = self.completion.cleanup().root_flow().ok_or_else(|| freeze("array-lifecycle/root-flow-missing"))?;
@@ -278,7 +290,7 @@ impl ArrayHolderLifecycleRecipeV1 {
         &self, site: &OwnedExprSiteV1,
     ) -> Option<(&SourceExprSiteV1, &SourceExprSiteV1, bool)> {
         if site.owner() != self.owner() { return None; }
-        self.source.requirement.holder().appends().iter().find(|row| row.call() == site.site())
+        self.elements.source.requirement.holder().appends().iter().find(|row| row.call() == site.site())
             .map(|row| (row.receiver(), row.candidate(), row.null_candidate()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn append_prior_homes_v1(
@@ -309,7 +321,7 @@ impl ArrayHolderLifecycleRecipeV1 {
     ) -> Result<(), String> {
         let (_, candidate, null) = self.original_append_v1(site)
             .ok_or_else(|| freeze("array-append/original-missing"))?;
-        let mut sources = self.source.producer_sources_v1()
+        let mut sources = self.elements.source.producer_sources_v1()
             .filter(|source| source.source().call_site().site() == candidate);
         let original = sources.next().ok_or_else(|| freeze("array-append/producer-missing"))?;
         if null || sources.next().is_some() || original.source() != row.source_target()
@@ -318,14 +330,14 @@ impl ArrayHolderLifecycleRecipeV1 {
         Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn original_read_v1(&self, site: &OwnedExprSiteV1) -> Option<&ArrayElementSourceLoanV1> {
-        self.reads.iter().find(|read| read.read() == site)
+        self.elements.reads.iter().find(|read| read.read() == site)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn element_class_v1(&self) -> &str {
-        self.source.requirement.class()
+        self.elements.source.requirement.class()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn original_read_integer_v1(&self, site: &OwnedExprSiteV1) -> Result<i64, String> {
         let loan = self.original_read_v1(site).ok_or_else(|| freeze("array-read/original-missing"))?;
-        let mut rows = self.source.requirement.holder().reads().iter().filter(|row| row.call() == site.site());
+        let mut rows = self.elements.source.requirement.holder().reads().iter().filter(|row| row.call() == site.site());
         let row = rows.next().ok_or_else(|| freeze("array-read/original-index-missing"))?;
         if rows.next().is_some() || row.index() != loan.index() {
             return Err(freeze("array-read/original-index-drift"));
@@ -337,7 +349,7 @@ impl ArrayHolderLifecycleRecipeV1 {
 impl ArrayHolderLifecycleRecipeV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_read_receiver_v1(&self, site: &OwnedExprSiteV1) -> Result<&SourceExprSiteV1, String> {
         self.original_read_integer_v1(site)?;
-        self.source.requirement.holder().reads().iter().find(|row| row.call() == site.site())
+        self.elements.source.requirement.holder().reads().iter().find(|row| row.call() == site.site())
             .map(|row| row.receiver()).ok_or_else(|| freeze("array-read/original-receiver-missing"))
     }
 }
