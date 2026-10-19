@@ -4,6 +4,8 @@ Status: active; owned Text Local handoff and Core/I64 execution verified; full T
 Date: 2026-10-17
 Scope: required Gate1 source Text generation -> ordinary static borrowed input,
 including original incoming/entry, arguments/results, cleanup and publication.
+Selected prerequisite: ordinary owned Text callable Return -> Unit Text input;
+the retained StaticText series remains unaccepted.
 Related: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml),
 [workstream](../workstreams/mirbuilder-inplace-replacement-current.md),
 [final pipeline](../design/mirbuilder-final-pipeline-ssot.md),
@@ -12,8 +14,12 @@ Related: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml),
 
 ## Selection and actual source
 
-Retained unfinished row: `MIRBUILDER-GATE1-LOOP-AFTER-TEXT-READ-S0`.
-Current selection returns from FIELD-ARRAY-READ-S0 after `8b7960a346` verifies
+Current selected row: `MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0`.
+Retained unfinished rows: STATIC-TEXT-INPUT-S0 and LOOP-AFTER-TEXT-READ-S0.
+This is the existing unchanged-JSON acceptance prerequisite, not new syntax or an
+optional audit feature. The selected owner is now ordinary Text call/Return and
+Unit argument lifetime; the previous static input responsibility remains open.
+Previous selection returned from FIELD-ARRAY-READ-S0 after `8b7960a346` verifies
 the zeroarg Array Return/receiver/local/participant/final connection. The Array
 row remains unaccepted with full product/retained-family obligations in its card.
 5da19f405d verifies the source Loop vertical, not all Text/JSON acceptance.
@@ -933,54 +939,47 @@ reopen Map/untyped storage, or treat Array acceptance as Text completion.
 Retain948/CLI286/JSON384/native receipts and prior diagnostic patch until this
 measurement supersedes it. No new test/case/checker is selected.
 
-949 measurement and one source Decision (read-only full-classifier review):
-CLI287 diagnostic build165.296759s PASS; originalJSON388 canonical direct EXE
-.063990s exit1/noEXE, same finite-domain refusal. Same source hash b5d4461b43a9
-as384; base argv/env/runtime894A/FFI939A unchanged except default-OFF trace flag.
-Observed JsonLine.find/3 owner18/batch16, Opaque ordinal1 needle binding1 SUM=None.
-Original inventory matches, SUM product exists, value absent; registered true,
-veto false, old definitions/target_static false. All five incoming retained:
-stringField19 Body1 needle SourceOnly(Conflict); Body4 quote Text/start conflict;
-intField20/boolField21 Body1 needle conflict; ingest27 LoopBody0 newline Text/
-start Conflict. Formal2 start alsoNone; formal0Text closes. This is missing
-scalar source classification, not Other/Object domain or inventory corruption.
-The same classifier admits Binary only in PointPremise mode, while incoming
-scalar locals currently follow old stable alias classification. Source scopes
-for these actuals must retain exact reaching values without changing transport.
-Source authority + canonical issuer: SAME original incoming/ordered sites and
-resolver value_flow.read; existing actual seed/PointValue/graph/SCC owners.
-Non-authority: legacy Conflict/Integer projection, selector/type guess, partial
-incoming, source SUM alone as entry/ABI/physical permission.
-Fail-fast: keep all original incoming and unknown/capture/nominal constraints;
-no finite-domain widening, homogeneous substitution or fallback.
-Smallest next slice: normalize checked incoming scalar source projection through
-existing PointValue with the WHOLE old seed retained as legacy. Preserve original
-nominal/Forward/provider anchors by source-role dispatch; preserve guarded actual,
-ReturnedField and stable ctor formal precedence. Factor existing capture check
-for point borrowing while retaining old stable helper's local-rebind restriction.
-Existing tests/cases only; changed rebind source expectation must describe exact
-read-point value, with capture/unknown/unsupported negatives preserved.
-Non-claims: no new source-to-physical acceptance, JSON EXE, full series or goal.
-Temporary diagnostic hunks removed and exact HEAD bytes restored. Retain
-cli-v287diagnostic.patch/source/build andJSON388 receipt/log outside checkout
-until this mapping's source and original-app frontier are verified; no adapter,
-test/case/checker or permanent trace added. Prior946 diagnostic patch was superseded by this measurement and removed.
+949 original scalar incoming source projection landed `d819400df3`. The commit
+retains exact JsonLine.find/3 needle/start diagnosis, original all-five incoming,
+legacy/nominal/capture Decision, source/ABI separation, all tests and provenance.
+949B93focusedPASS/6reproduced baseline reds;9263names/no added cases/checkers.
+CLI288 originalJSON389 .050309s advances finite-domain-unclosed to Unit-value-use;
+unchanged mimalloc390 EXE/run/stdout/stderr/exit exact363. Runtime894A/FFI939A prior.
+Full Text source-to-execution/entry/arguments/cleanup/final/JSON acceptance remains
+open. Old scalar-only incoming source edge is replaced; shared stable and nominal
+owners remain. No parallel map/variant/solver or adapter survives in that landing.
+Keep949/CLI288/JSON389/native and287 diagnostic provenance until originalJSON
+acceptance; obsolete946 diagnostic patch was superseded and removed.
 
-949 source projection verification: A build66.785630s; B60.225629s PASS.
-B93focusedPASS/6baseline: four945G result controls, declared-object scalar-loan/
-original-missing and guarded_receiver_packet_never_retries_old_protocol_after_
-guard_loss; both added baseline classes reproduced948C. Existing two rebind
-source expectations updated to exact SignedI64 at read; all inputs/case counts
-unchanged. Capture/unknown and legacy projections remain guarded.9263names.
-Worker full classifier/legacy/capture review PASS. Pointer/layer/CallTarget/diff
-PASS; actual_seed401/source_seeds753lines, no added variant/map/solver/hooks.
-CLI288 build165.098821s PASS; root949B/CLI Rust source manifests correspond.
-Unchanged JSON389 .050309s ADVANCES finite-domain-unclosed to lexical-instance-
-call/unit-value-use, exit1/noEXE. Unchanged mimalloc390 EXE142.012886s/run.001611s
-stdout/stderr/exit0 exactly363. Runtime894A/FFI939A explicit predecessors.
-This verifies selected source-domain admission, NOT full Text execution/series.
-Next measure exact Unit callee/caller/site/arguments and original SequenceItem;
-existing UnitDiscard is zeroarg throughout source/Home/writer/final. Keep true
-value-use refusal and do not infer callee or erase argument/cleanup obligations.
-Retain949/CLI288/JSON389/native receipts and CLI287 diagnostic provenance until
-full Text/originalJSON acceptance; diagnostic code is absent from current source.
+950 Unit frontier observation (read-only source-to-final/call-tree review):
+CLI289 diagnostic build159.380939s PASS; unchangedJSON391 .051006s exit1/noEXE.
+Exact callee JsonStreamAggregator.ingest/1 owner27; caller Main owner32 Body1;
+argument Body1/Argument0 is Main.sampleStream(). Requirement ExistingBorrowedResult,
+original SequenceItem Some(true), Completion returns_value Some(false). This is
+an actual discarded Unit call, not receiving Unit as a value. Guard557 stays.
+Both temporary hunks removed; exact HEAD source restored (lexical file799lines).
+Retain CLI289/source/log/diagnostic patch until accepted whole-call mapping;
+no permanent trace, test/case/checker or adapter. Diagnostic build not acceptance.
+
+950 One Decision: connect ordinary owned Text Return -> argument -> Unit call ->
+Normal/Fault End as ONE responsibility; never add only a nonzero Unit flag.
+Source authority: SAME exact result catalog, original all-Return/source plans,
+callee Completion and original SequenceItem/ordered actual sites. Executable
+owned Text Return issuer/physical output mapping is not yet accepted.
+Non-authority: ExactString/MirType::String alone, names/selectors, Map/Handle
+reinterpretation, inline/AST rewrite, or borrowed tag4 as Return transfer proof.
+Fail-fast: no execution before a source-owned transferred String result plus
+exact caller acquisition/argument/End and both-final/ABI ownership agreement.
+Required mapping: callee's original out/Add/old-value End -> final owned Return;
+ordinary Call Normal owned-result transfer (Fault has no acquired result) ->
+existing OwnedTextDeferred/ordered transient prefix -> Unit argument borrow ->
+callee Normal/Fault one End, independently checked in both finals and JSON/C.
+Existing InvokeCallResultKind has no owned String; ordinary call expression leaves
+are Integer/Bool only. Representation README105–128 and strings.md69–90 explicitly
+separate ExactString publication from executable ownership ABI (required followup).
+Smallest next slice is DESIGN: settle exact Return/output ownership loan and ABI,
+then map existing Unit source/Home/argument/writer/final owners together; no code
+receipt or signature variant ahead of that decision. Reuse existing String result/
+End/runtime and ordinary call owners; preserve all incoming and true Unit value-use
+refusals. Full StaticText/ObjectForward/Loop/Array and finite goal remain open.
+No new test/case/checker is selected. Goal stays active during this design work.
