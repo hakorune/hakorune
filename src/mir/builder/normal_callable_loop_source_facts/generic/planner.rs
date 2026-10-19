@@ -204,16 +204,41 @@ impl PreissuedCallableLoopSourcePlanV1 {
     /// original body. The shared source is observation only, never Home After.
     pub(in crate::mir) fn source_observation_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>)
         -> Option<Rc<RetainedCallableLoopSourceV1>> {
-        let selected = self.loop_cond_source(input);
+        let selected = self.original_loop_cond_source_matches_v1(input);
         if selected.is_none() && crate::config::env::builder_debug_enabled() {
-            eprintln!("[source-loop] owner={:?} site={:?} original planner source unavailable; condition={} family={:?} facts={}",
+            eprintln!("[source-loop] owner={:?} site={:?} original planner source unavailable; condition={} family={:?} routes={:?}",
                 input.owner(), self.site(), self.condition_source_v1(input).is_some(),
                 self.planned.selection.as_ref().and_then(|selection| selection.sole_family()),
-                self.planned.outcome.facts.as_ref().is_some_and(|canonical|
-                    canonical.facts.loop_cond_break_continue.is_some()));
+                self.planned.selection.as_ref().map(|selection| selection.matched_routes()));
         }
         selected?;
         Some(Rc::clone(&self.source))
+    }
+
+    /// Share the original selected condition/body across LoopCond families.
+    /// Return stays Return: this loan grants no exit port or physical route.
+    fn original_loop_cond_source_matches_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<()> {
+        self.condition_source_v1(input)?;
+        let canonical = &self.planned.outcome.facts.as_ref()?.facts;
+        let (expected_condition, expected_body) = match self.planned.selection.as_ref()?.sole_family()? {
+            CallableLoopSoleFamilyV1::LoopCondBreakContinue => {
+                let facts = canonical.loop_cond_break_continue.as_ref()?;
+                (&facts.condition, facts.recipe.body.body.as_slice())
+            }
+            CallableLoopSoleFamilyV1::LoopCondReturnInBody => {
+                let facts = canonical.loop_cond_return_in_body.as_ref()?;
+                (&facts.condition, facts.recipe.body.body.as_slice())
+            }
+            CallableLoopSoleFamilyV1::LoopTrueBreakContinue => return None,
+        };
+        let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+        let membership = ledger.resolved_loop_source(self.site()).ok()?;
+        if !membership.source().frame_key().matches(self.frame()) { return None; }
+        let source = input.source();
+        let statement = source.stmt_at(&membership).ok()?;
+        let body = source.child_body_from_stmt(&statement, BodyChildRoleV1::LoopBody).ok()?;
+        let condition = source.child_expr_from_stmt(&statement, ExprChildRoleV1::LoopCondition).ok()?;
+        (expected_condition == condition.node() && expected_body == body.statements()).then_some(())
     }
 
     /// The existing Array Home consumer requires the complete flat NoExitBody;

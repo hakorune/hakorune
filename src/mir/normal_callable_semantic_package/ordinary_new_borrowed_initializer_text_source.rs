@@ -29,7 +29,7 @@ impl FiniteEntryReadV1 {
         Rc::ptr_eq(&self.sum, domain)
             && self.flow.read(self.requirement.read(), self.requirement.binding()) == Some(self.value)
     }
-    /// Finite original alternatives for this initializer read, not a runtime
+    /// Finite original alternatives for this source read, not a runtime
     /// carrier. Null removal requires the SAME covered branch/entry proof.
     pub(crate) fn leaf_class(&self, exclusion: Option<&crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>)
         -> Option<crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1> {
@@ -65,6 +65,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
             let original = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                 &ledger, input.body_shape().ok_or_else(reject)?, statement).map_err(|_| reject())?;
             value == site.site() && original.as_deref() == Some(plan.as_ref())
+        }
+        ExpressionPlanRootV1::IfCondition { statement, condition, .. } => {
+            let original = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
+                input, statement).map_err(|_| reject())?;
+            condition == site.site() && original.as_ref() == plan.as_ref()
+        }
+        ExpressionPlanRootV1::LoopCondition { statement, condition, .. } => {
+            let original = crate::mir::resolved_value_profile::expression_plan::loop_condition_expression_source_plan_v1(
+                input, statement).map_err(|_| reject())?;
+            condition == site.site() && original.as_ref() == plan.as_ref()
         }
         _ => false,
     };

@@ -169,7 +169,7 @@ impl OrdinaryNewClaimLedgerV1 {
             for (&node, reference) in evaluation.references() {
                 let entry = match reference {
                     Reference::ArgumentEntry(read) => Some(read),
-                    Reference::InitializerEntry { read, .. } => Some(read.requirement()),
+                    Reference::FiniteEntry { read, .. } => Some(read.requirement()),
                     _ => None,
                 };
                 if let Some(entry) = entry {

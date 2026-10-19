@@ -63,7 +63,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
     if !matches!(source.root(), ExpressionPlanRootV1::IfCondition { .. }) { return Ok(None); }
-    qualify_condition_expression_v1(source, prior_homes, static_reference, residence_reference,
+    qualify_condition_expression_v1(source, prior_homes, &[], static_reference, residence_reference,
         &mut |site| scalar_reference(site).map(|(binding, kind)| CheckedScalarReferenceV1::Obligation { binding, kind }),
         field_request, source_call, can_install, field_batch)
 }
@@ -72,6 +72,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
 /// This shares qualification only; it grants no outer control-flow completion.
 pub(crate) fn qualify_condition_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>, prior_homes: &[LiveHomeV1],
+    entry_reads: &[crate::mir::normal_callable_semantic_package::FiniteEntryReadV1],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -96,7 +97,9 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(), prior_homes,
         &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))?
         else { return Ok(None) };
-    let Some(reference_proofs) = super::evaluation::seed_current_expression_references_v1(&mut prepared, Vec::new(), &order,
+    let initial = entry_reads.iter().map(|read| (read.requirement().node(),
+        CheckedExpressionReferenceV1::FiniteEntry { read: read.clone(), exclusion: None })).collect();
+    let Some(reference_proofs) = super::evaluation::seed_current_expression_references_v1(&mut prepared, initial, &order,
         static_reference, residence_reference,
         scalar_reference)
         else { return Ok(None) };

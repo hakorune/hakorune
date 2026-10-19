@@ -58,7 +58,7 @@ pub(super) fn emit_with_prefix(
     // Corroborate every original finite requirement before the retained
     // multi-envelope execution fence. Preparation consumes no source read.
     for original in frame.references().values() {
-        if let CheckedExpressionReferenceV1::InitializerEntry { read, exclusion } = original {
+        if let CheckedExpressionReferenceV1::FiniteEntry { read, exclusion } = original {
             let prepared = state.prepare_exact_lexical_read(owner, read.requirement().read().node(), read.requirement().binding())
                 .map_err(|error| error.to_string())?;
             let (_, _, domain) = ledger.validate_prepared_finite_entry_read_v1(read.requirement(),
@@ -83,7 +83,7 @@ pub(super) fn emit_with_prefix(
         }
         if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
             && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_) | CheckedExpressionReferenceV1::Residence(_)
-                | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::InitializerEntry { .. })) {
+                | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::FiniteEntry { .. })) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }

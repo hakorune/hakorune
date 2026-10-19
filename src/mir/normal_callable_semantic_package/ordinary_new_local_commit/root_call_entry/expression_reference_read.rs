@@ -110,11 +110,11 @@ impl ExpressionReferenceReadV1 {
             }
             Reference::ArgumentEntry(requirement) => ReferenceProducerV1::Entry(
                 prepare_text_entry(requirement, None, read, context, function)?),
-            Reference::InitializerEntry { read: original, .. } => ReferenceProducerV1::Entry(
+            Reference::FiniteEntry { read: original, .. } => ReferenceProducerV1::Entry(
                 prepare_text_entry(original.requirement(), Some(original), read, context, function)?),
         };
         reference_operand(frame, node, read, &producer, context)?;
-        if !matches!(source, Reference::ArgumentEntry(_) | Reference::InitializerEntry { .. }) {
+        if !matches!(source, Reference::ArgumentEntry(_) | Reference::FiniteEntry { .. }) {
             validate_dependencies(read.binding_observation_v2(), &producer, function)?;
         }
         Ok(PreparedExpressionReferenceReadV1 { producer })
@@ -137,7 +137,7 @@ impl ExpressionReferenceReadV1 {
         }
         let entry = match original_reference(frame, node)? {
             Reference::ArgumentEntry(required) => Some(prepare_text_entry(required, None, &self.read, context, function)?),
-            Reference::InitializerEntry { read, .. } => Some(prepare_text_entry(read.requirement(), Some(read), &self.read, context, function)?),
+            Reference::FiniteEntry { read, .. } => Some(prepare_text_entry(read.requirement(), Some(read), &self.read, context, function)?),
             _ => None,
         };
         if entry.is_some_and(|entry| !matches!(self.producer, ReferenceProducerV1::Entry(original) if original == entry)) {
@@ -286,7 +286,7 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
             })
         }
         Reference::ArgumentEntry(required) => text_entry_operand(required, read, producer, context),
-        Reference::InitializerEntry { read: original, .. } => text_entry_operand(original.requirement(), read, producer, context),
+        Reference::FiniteEntry { read: original, .. } => text_entry_operand(original.requirement(), read, producer, context),
     }
 }
 fn prepare_text_entry(

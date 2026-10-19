@@ -241,7 +241,7 @@ mod tests {
                     state.record_completed_local(statement.node(), &crate::mir::builder::stmts::CompletedLocalStatementV1::from_parts(value, completed)).unwrap();
                 }
                 for reference in frame.evaluation().references().values() {
-                    let crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::InitializerEntry { read, .. } = reference else { continue };
+                    let crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { read, .. } = reference else { continue };
                     let required = read.requirement();
                     let prepared = state.prepare_exact_lexical_read(input.owner(), required.read().node(), required.binding()).unwrap();
                     let function = builder.function_state.current_function.as_ref().unwrap();
@@ -273,7 +273,7 @@ mod tests {
                     .collect::<std::collections::BTreeMap<_, _>>();
                 assert_eq!(rows(builder.function_state.current_function.as_ref().unwrap()), rows(&before));
                 for reference in frame.evaluation().references().values() {
-                    let required = match reference { crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::InitializerEntry { read, .. } => read.requirement(), _ => continue };
+                    let required = match reference { crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { read, .. } => read.requirement(), _ => continue };
                     state.prepare_exact_lexical_read(input.owner(), required.read().node(), required.binding()).unwrap();
                 }
                 Ok(())

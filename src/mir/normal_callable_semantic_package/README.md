@@ -4688,8 +4688,8 @@ SAME plan Rc/node to the exact current root. Other expression purposes must prov
 their own Text source at issuance; no Core/argument-specific proof enum or second
 entry registry is needed.
 
-FiniteEntryReadV1 reuses that entry-requirement issuer for original initializer
-and direct Return reads. Its lender retains SAME final formal SUM Rc, SAME resolver
+FiniteEntryReadV1 reuses that entry-requirement issuer for original initializer,
+If/Loop condition and direct Return reads. Its lender retains SAME final formal SUM Rc, SAME resolver
 value-flow Arc/read value and SAME source-plan Rc, checking original membership
 for each purpose. It keeps all closed Text/signed-I64/Null alternatives; source
 lending alone removes none. A signed-only root initializer retains its own checked

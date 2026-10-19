@@ -41,8 +41,8 @@ impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.source().root().initializer().expect("original initializer").binding() }
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { self.evaluation.prior_homes() }
-    pub(crate) fn entry_reads(&self) -> Vec<&FiniteEntryReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::InitializerEntry { read, .. } => Some(read), _ => None }).collect() }
-    pub(crate) fn entry_refinements(&self) -> BTreeMap<usize, &Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::InitializerEntry { exclusion: Some(proof), .. } => Some((node, proof)), _ => None }).collect() }
+    pub(crate) fn entry_reads(&self) -> Vec<&FiniteEntryReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::FiniteEntry { read, .. } => Some(read), _ => None }).collect() }
+    pub(crate) fn entry_refinements(&self) -> BTreeMap<usize, &Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::FiniteEntry { exclusion: Some(proof), .. } => Some((node, proof)), _ => None }).collect() }
     pub(crate) fn residence_reads(&self) -> Vec<&TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
     pub(crate) fn scalar_reads(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar(read) => Some((node, (read.binding(), read.kind()))), _ => None }).collect() }
     pub(crate) fn is_i64(&self) -> bool { self.evaluation.root_class() == Leaf::Value(Class::I64) }
@@ -79,7 +79,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         let requirement = read.requirement();
         if entry_reference(requirement.read()) != Some((requirement.binding(), requirement.formal().1)) { return Ok(None); }
         let exclusion = entry_refinement(requirement.read(), requirement.binding(), requirement.formal().1);
-        initial.push((requirement.node(), CheckedExpressionReferenceV1::InitializerEntry { read: read.clone(), exclusion }));
+        initial.push((requirement.node(), CheckedExpressionReferenceV1::FiniteEntry { read: read.clone(), exclusion }));
     }
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
     let Some(mut reference_proofs) = super::evaluation::seed_current_expression_references_v1(

@@ -15,8 +15,9 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
     ] {
         let read_name = if prefix.contains("local alias") { "alias" } else { "key" };
         let returned = if actual == "7" { read_name } else { "0" };
+        let condition = if actual == "7" { "if key == 7 { print(0) }" } else { "" };
         let text = format!(r#"static box Values {{
-            caller(key, other) {{ {prefix} local needle = "x" + {read_name} return {returned} }}
+            caller(key, other) {{ {prefix} local needle = "x" + {read_name} {condition} return {returned} }}
             seed() {{ return Values.caller({actual}, "spare") }} {sibling}
         }} static box Main {{ main() {{ return 0 }} }}"#);
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
@@ -60,6 +61,15 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
                     assert!(terminal.signed_only());
                     assert_eq!(terminal.requirement().formal(), loan.requirement().formal());
                     assert_ne!(terminal.requirement().read(), loan.requirement().read());
+                    let condition_site = input.function().if_region_sites().next().unwrap();
+                    let condition = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
+                        input, condition_site).unwrap();
+                    let Some(BorrowedCallArgumentsV1::FiniteEntryRead(condition)) = ask(&condition, contract.parameters[0].binding) else {
+                        panic!("condition keeps its original finite read independently of Return");
+                    };
+                    assert!(condition.signed_only());
+                    assert_eq!(condition.requirement().formal(), loan.requirement().formal());
+                    assert_ne!(condition.requirement().read(), terminal.requirement().read());
                 }
                 assert_eq!(Some(BorrowedCallArgumentsV1::FiniteEntryRead(loan.clone())), ask(&plan, contract.parameters[0].binding));
                 let reissued = local_expression_source_plan_v1(&original, input.body_shape(), initializer).unwrap();

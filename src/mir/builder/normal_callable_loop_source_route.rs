@@ -94,6 +94,7 @@ pub(in crate::mir::builder) use items::*;
 pub(in crate::mir::builder) enum CallableLoopSoleFamilyV1 {
     LoopCondBreakContinue,
     LoopTrueBreakContinue,
+    LoopCondReturnInBody,
 }
 
 /// Data-only callable route match issued from canonical loop facts.
@@ -202,6 +203,9 @@ impl CallableLoopRouteMatchV1 {
             }
             [LoopRouteId::LoopTrueBreakContinue] => {
                 Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue)
+            }
+            [LoopRouteId::LoopCondReturnInBody] => {
+                Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody)
             }
             _ => None,
         }

@@ -9,20 +9,20 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Last official fixed suite: source Loop If/SSA commit, 7PASS/4FAIL, actual EXE6 +
   empty marker1, no SKIP/timeout, duration452.253s. Frozen quick opt0 CLI34.70s,
   quick runtime/private C FFI; build/run300s, no Cargo overlap.
-- mimalloc PASS139.093s; allocator PASS160.642s; four typed EXEs PASS37–39s each.
-  Earlier allocator standalone267.063→160.247s after same-operation input validation sharing.
-  Those totals include compile/link/run; individual phases were not timed.
+- mimalloc PASS139.093s; allocator PASS160.642s; four typed EXEs PASS37–39s.
+  Totals include compile/link/run; individual phases were not timed.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`. Later source/Text changes are outside this measurement.
 - Current matching quick CLI passes the Main.main argument frame for
   `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
   `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
-  Matching CLI after native-dependency pruning identifies ingest line146 `JsonLine.find(stream, "\n", start)`
+  Matching quick CLI51.53s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
   (callee JsonLine.find/3). No EXE/link/runtime.
 - Caller Loop `JsonLine.find` argument2 (`start`) now retains its checked scalar read
   in the original argument frame; matching smoke no longer reports ingest's uncovered read.
-  Callee JsonLine.find currently has condition/facts but no sole planner family;
-  the same input-cohort stop remains. No EXE/link/runtime was reached.
+  Callee JsonLine.find now retains its original ReturnInBody planner family and
+  checked Header basis. Its source Loop next lacks the If comparison execution
+  action; the same input-cohort stop remains. No EXE/link/runtime was reached.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -34,17 +34,19 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Text Return retains its latest initializer/rebind acquisition. Original exit Homes
   keep it for Fault cleanup; Normal excludes exactly that residence, with transfer
   committed only after all Normal cleanup succeeds. No ordinary result ABI is granted.
-- Local Call observations now share one result-source enum: scalar loan or SAME
-  Static Text source Rc. Existing numeric getter lends only scalar, preserving its gates.
+- Local Call shares scalar/Text result-source identity; numeric getters keep their gates.
 - Text source demand validates original result/target evidence, whole incoming census,
   complete callee formal contract and SAME source snapshot/ordered arguments. A selected
   refusal is terminal. Qualification admits Text only in the existing Argument purpose.
-- Existing focused249 PASS on the normalized source generation; test function count unchanged.
-  Minimal existing tuple extension protects ordinary-call ownership versus Core results.
-  Prior Text Return focused33 PASS; qualified-return2/Raw Loop residual1 reproduce pre-Text.
-- Next: finish Static inputs and connect the SAME source/Completion/return residence to
-  existing Static packet selection, publication handoff, Invoke and final result consumers.
-  Retain selected-Static-Loop I64 restrictions; source membership is not execution permission.
+- Earlier normalized-source focused249 and Text Return focused33 PASS, with no new tests.
+  Qualified-return2/Raw Loop residual1 failures reproduce pre-Text; they remain open.
+- Next: prepare condition Calls once; seed active refs, keeping Core inputs while
+  excluding Ordinary transferred children. Close Core String temporaries and Loop Return
+  using the existing terminal/cleanup owner. Preserve source/Completion through Static packet, Invoke and
+  both final consumers; selected-Static-Loop I64 restrictions stay in force.
+  Reaching a String comparison must evaluate its original children in order, then compare
+  and End only its temporaries; Fault retains acquired prefix and remaining End suffix.
+  Do not eagerly evaluate logical RHS or treat source membership as execution permission.
 - C pair Return reuses `{handle, End token}`, per-Invoke String output slot,
   Normal projection and String End. Existing borrowed-ingress `--text-only` matrix
   PASS with quick runtime/private C FFI and `CC="clang -fuse-ld=lld"`.
@@ -56,8 +58,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - FiniteEntryRead now retains the original SUM/flow/read/plan across initializer
   and direct Return purposes. Signed-only root initializers keep their checked frame;
   terminal coverage retains its separate original read, never a binding-to-I64 guess.
-  Existing Return-purpose tuple extension protects this independent source boundary.
-  Focused37 PASS with the current CLI/lib; physical Integer entry activation is owed.
+  The same finite proof now serves genuine If/Loop conditions; the existing reference
+  variant is purpose-neutral, with original source/alias census and Null refusal kept.
+  Minimal existing tuple extension protects independent condition/Return read purposes.
   The older opaque draft remains in Git stash pending full adoption/disposal.
 - Entry projection decision from read-only review: retain Opaque declaration and
   tagged call ABI; a SAME signed-only source domain can authorize an Integer view.
@@ -65,14 +68,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   incoming. Copy/Phi then use the checked I64 view; forwarding must publish tag1,
   not a tagged Copy whose kind variable no longer exists. Legacy mixed guards stay.
   C Static/Instance Copy/Phi, Normal/Fault and domain/producer mutation matrix PASS.
-  Minimal existing matrix extensions protect this new input boundary; no new test function.
   Rust activation still requires module/published sequence replay plus rejection of
   projected root/Copy/Phi uses outside the sealed scope; a domain-only skip is forbidden.
 - Existing compiler tuple extension checks the separate caller boundary: a Loop
   scalar enters an unannotated, unused callee formal without losing its source read.
   It adds no test function; declared-formal/Return coverage remains in its original tuple.
-  Current focused37 PASS. Selected Static forwarded-candidate drift test fails during
-  package setup identically in the pre-change saved binary; refusal is not weakened.
+  Current focused69 PASS. Forwarded-candidate package setup and Raw Loop residual
+  tests still fail at their existing baselines; neither refusal is weakened.
 
 ## Shared remaining contracts
 

@@ -157,8 +157,20 @@ fn install_source<E>(
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, E> {
     use super::expression_plan::CheckedScalarReferenceV1 as Scalar;
+    let mut entry_reads = Vec::new();
+    let owned = OwnedExprSiteV1::new(input.owner(), source.nodes()[0].site().clone());
+    // Ordinary Calls own their input subtrees. Parent expression reads borrow the
+    // original formal SUM here; current scalar/Home proofs stay with their owners.
+    for (_, node) in source.nodes_outside_calls() {
+        if !matches!(node.source(), Node::Reference(_)) { continue; }
+        let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
+        if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(&owned,
+            BorrowedCallActualRequestV1::FiniteEntryRead { input, plan: &source, read: node.site(), binding, root })? {
+            entry_reads.push(read);
+        }
+    }
     let mut installation = None;
-    let plan = qualify_condition_expression_v1(Rc::clone(&source), homes,
+    let plan = qualify_condition_expression_v1(Rc::clone(&source), homes, &entry_reads,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| {
             let Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) = locals.observe(site) else { return None; };

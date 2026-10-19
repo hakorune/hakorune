@@ -67,7 +67,7 @@ pub(crate) enum CheckedExpressionReferenceV1 {
     StaticText(super::super::StaticTextReadV1),
     Residence(super::initializer_expression::TextResidenceReadV1),
     ArgumentEntry(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
-    InitializerEntry {
+    FiniteEntry {
         read: crate::mir::normal_callable_semantic_package::FiniteEntryReadV1,
         exclusion: Option<Rc<super::super::EntryNullExclusionV1>>,
     },
@@ -79,7 +79,7 @@ impl CheckedExpressionReferenceV1 {
             Self::StaticText(read) => read.binding(),
             Self::Residence(read) => read.binding(),
             Self::ArgumentEntry(read) => read.binding(),
-            Self::InitializerEntry { read, .. } => read.requirement().binding(),
+            Self::FiniteEntry { read, .. } => read.requirement().binding(),
             Self::Scalar(read) => read.binding(),
         }
     }
@@ -93,7 +93,7 @@ impl CheckedExpressionReferenceV1 {
             Self::Residence(read) => read.node() == node && read.root() == read.acquisition().binding()
                 && read.acquisition().source().owner() == source.owner() && read.acquisition().is_text_residence(),
             Self::ArgumentEntry(read) => Rc::ptr_eq(read.source_plan(), source) && read.node() == node && read.read() == original.site(),
-            Self::InitializerEntry { read, exclusion } => Rc::ptr_eq(read.requirement().source_plan(), source)
+            Self::FiniteEntry { read, exclusion } => Rc::ptr_eq(read.requirement().source_plan(), source)
                 && read.requirement().node() == node && read.requirement().read() == original.site()
                 && read.leaf_class(exclusion.as_deref()).is_some(),
             Self::Scalar(read) => read.original_read().is_none_or(|read| read.read() == original.site()),
@@ -158,7 +158,7 @@ fn seed_reference_v1(
             super::super::SourceScalarKind::Integer => Class::I64,
             super::super::SourceScalarKind::Bool => Class::Bool,
         }),
-        CheckedExpressionReferenceV1::InitializerEntry { read, exclusion } => read.leaf_class(exclusion.as_deref())?,
+        CheckedExpressionReferenceV1::FiniteEntry { read, exclusion } => read.leaf_class(exclusion.as_deref())?,
         CheckedExpressionReferenceV1::Residence(read) => {
             if !read.acquisition().is_text_residence() || !prepared.prior_homes().contains(&LiveHomeV1::Text(read.acquisition().clone())) { return None; }
             Leaf::Value(Class::String)
