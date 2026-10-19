@@ -84,6 +84,26 @@ pub(super) fn ordinary_text_argument_source_v1(
     Ok(Some(Rc::clone(source)))
 }
 
+/// Shared original Core argument identity; source admission grants no frame,
+/// input or executable result. Both Static and Instance bind that same frame later.
+pub(super) fn core_argument_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
+    method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    formal: &CallableParameterContractKindV1,
+) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>, String> {
+    let Some(receipt) = prepared.ordinary_core_source_v1(site) else { return Ok(None) };
+    if method.owner() != site.owner() || method.site() != site.site()
+        || !std::sync::Arc::ptr_eq(method, receipt.source().source())
+        || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
+        || !match (formal, receipt.source().target().result()) {
+            (kind, crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller) => kind.is_ordinary_borrowed_handle(),
+            (CallableParameterContractKindV1::ExactTrivial(abi), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller) => abi.is_i64(),
+            _ => false,
+        }
+    { return Err(freeze("borrowed-static/core-source-identity")); }
+    Ok(Some(Rc::clone(receipt)))
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Original constructor provider arguments use the same ordinary actual
     /// issuer. No Home observation, terminal membership or input finish is made.
@@ -289,18 +309,9 @@ pub(super) fn prepare_static_source_actuals_v1(
                     integer_evidence.push(false);
                     continue;
                 }
-                let receipt = prepared.ordinary_core_source_v1(&site)
+                let receipt = core_argument_source_v1(prepared, &site, method, &formal.kind)?
                     .ok_or_else(|| freeze("borrowed-static/source-actual-unavailable"))?;
-                if method.owner() != call.owner() || method.site() != &actual.site
-                    || !std::sync::Arc::ptr_eq(method, receipt.source().source())
-                    || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
-                    || !match (&formal.kind, receipt.source().target().result()) {
-                        (kind, crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller) => kind.is_ordinary_borrowed_handle(),
-                        (CallableParameterContractKindV1::ExactTrivial(abi), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller) => abi.is_i64(),
-                        _ => false,
-                    }
-                { return Err(freeze("borrowed-static/core-source-identity")); }
-                core_arguments.insert(actual.ordinal, Rc::clone(receipt));
+                core_arguments.insert(actual.ordinal, receipt);
                 false
             }
             _ => return Err(freeze("borrowed-static/source-actual-unavailable")),

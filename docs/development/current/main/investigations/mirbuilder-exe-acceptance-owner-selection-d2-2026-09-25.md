@@ -17,7 +17,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
 - JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
   MIR compilation fails before artifact generation; no link or runtime evidence.
-  The aggregate error does not identify the original function/Loop; establish that first.
+  Original owner is `ingest`, Loop Body(2), source line145; first uncovered statement
+  is line151 `me.ingestLine(stream.substring(start, end))`. No artifact is generated.
 - Other reds remain explicit: untyped-field phase84 inference panic,
   binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
 
@@ -25,9 +26,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 - Read-only worker recommends JSON over binary-trees: binary's `itemCheck` immediately
   reads untyped left/right/value; inferring their storage from birth writes would cross D0.
-- JSON candidate sites are `JsonLine.find` line15 (Text comparison + Return), `intField`
-  line49 (Text comparison + Break), and `ingest` line154 (Call + If rebind + substring).
-  These are candidates, not proof of which loop failed; include using-library owners.
+- The first uncovered path is the Bool-result statement call above, not the earlier
+  `find`/`intField` loops. `ingestLine` returns original Bool literals false/false/true.
+- Existing debug mode now retains owner/function/site and scalar incoming context.
+  Refusal selection and the default-off debug setting are unchanged.
+- Instance actual preparation and independent reconstruction/revalidation are separated
+  behind the existing API. Static Core argument validation has one shared source owner.
+  Existing Instance source tests4 and Core source tests2 PASS on the combined WIP;
+  moving the validation bodies was checked against their original definitions.
+- Remaining source admission WIP must preserve existing borrowed-use family and final
+  permission checks; focused regressions are being repaired before admission is committed.
 - Reuse `home_prefix_source_loop*` source header/control/expression inventory,
   `produce_source_loop_recipe_v2`, and existing execution/schedule and expression writers.
   Landed Text, Bool, BranchNormal and argument owners supply existing contracts.

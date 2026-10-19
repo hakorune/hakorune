@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
-APP-json-stream-aggregator: source Loop unavailableでMIR生成停止。原文owner/siteは未特定。
+APP-json-stream-aggregator: ingestのLoop（145行）、ingestLine(substring)文（151行）で停止。
 allocator-stressは未変更canonical EXE smokeと固定suite内でPASS、Bool Eq/NeのC接続が着地。
 正式suite7PASS/4FAIL、実EXE6＋marker1、mimalloc PASS、SKIP/timeoutなし。
 untyped-fieldは既存D0受理までParkedSealed。JSON後段の未注釈slot/Map依存も保持。
-次は既存Loop/Text ownerで同じsourceの不足接続を特定。既存C tagged-add negative赤はcard参照。
+次はBool Return原文とText実引数を既存ownerへ接続し、関連検証を確認。既存C negative赤はcard参照。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"

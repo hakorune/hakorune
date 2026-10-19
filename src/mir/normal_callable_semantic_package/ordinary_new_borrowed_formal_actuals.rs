@@ -744,6 +744,8 @@ pub(in crate::mir::normal_callable_semantic_package) use received_producer::rece
 
 #[path = "ordinary_new_borrowed_instance_source_actuals.rs"]
 mod instance_source;
+#[path = "ordinary_new_borrowed_instance_source_validation.rs"]
+mod instance_validation;
 pub(in crate::mir::normal_callable_semantic_package) use instance_source::project_pending_instance_source_arguments_v1;
 
 /// Exact reconstructed guarded source edge for the original reverse dependency graph.

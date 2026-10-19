@@ -72,7 +72,10 @@ impl RetainedSourceLoopProductV1 {
         if self.observation_source_v1(input).as_ref().is_none_or(|original| !std::rc::Rc::ptr_eq(source, original)) {
             return Err("[freeze:contract][source-loop/row-plan-drift]".into());
         }
-        let product = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(input, summary).map(std::rc::Rc::new);
+        let product = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(input, summary)
+            .map(std::rc::Rc::new)
+            .map_err(|reason| format!("{reason}; owner={:?}; function={:?}; loop={:?}",
+                input.owner(), crate::mir::resolved_semantics::CallableHeaderSyntaxViewV1::from_function_ast(input.source().root()).map(|header| header.name()), source.site()));
         self.source_recipe.set(product).map_err(|_| "[freeze:contract][source-loop/product-already-retained]".to_owned())?;
         self.source_recipe.get().unwrap().as_ref().map(std::rc::Rc::clone).map_err(Clone::clone)
     }

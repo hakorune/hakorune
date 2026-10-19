@@ -318,6 +318,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arg
         prepared_selected |= selected_source_scalar_target_v1(ingress, target, results, classes)?;
     }
     if !selected && !prepared_selected {
+        if crate::config::env::builder_debug_enabled() && (target.is_some() || !matching.is_empty()) {
+            eprintln!("[source-scalar] site={site:?} original={:?} prepared={} caller-source-only={} result={:?}",
+                target, matching.len(), ingress.source_only_definitions.contains_key(&site.owner()),
+                target.and_then(|target| results.get(&target.callee_owner())).map(|proof| proof.as_ref().map(|proof| &proof.class)));
+        }
         return Ok(None);
     }
     let target = target.ok_or_else(|| freeze("scalar-loan/original-missing"))?;

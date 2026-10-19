@@ -140,7 +140,15 @@ pub(super) fn observe<'a, E>(
         &child_calls, &child_issue) { child_locals.note_source_loop_availability_v1(false); }
     child_locals.note_source_loop_availability_v1(child_issue.is_none());
     let Some(mut summary) = child_locals.finish_source_loop_headers_v1(checkpoint, condition, local_calls) else { return Ok(None); };
-    if summary.validate_for_recipe_v1(input).is_err() { summary.refused = true; }
+    if let Err(reason) = summary.validate_for_recipe_v1(input) {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[source-loop] owner={:?} function={:?} site={:?} reason={reason} path={child_issue:?} incoming={:?} control={:?} bool={:?}",
+                input.owner(), crate::mir::resolved_semantics::CallableHeaderSyntaxViewV1::from_function_ast(input.source().root()).map(|header| header.name()), source.site(),
+                summary.incoming.as_ref().err(), summary.control.as_ref().err(),
+                summary.bool_expressions.as_ref().err());
+        }
+        summary.refused = true;
+    }
     // Retain failed ports as well: the whole-loop verifier needs the complete
     // source census and must never turn an omitted failed path into success.
     Ok(Some(summary))
