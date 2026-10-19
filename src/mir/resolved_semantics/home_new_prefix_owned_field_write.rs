@@ -7,7 +7,7 @@ use std::rc::Rc;
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &mut PrefixLocalFlow<'_>, homes: &[LiveHomeV1],
+    locals: &mut PrefixLocalFlow<'_>, homes: &mut Vec<LiveHomeV1>, prefix_known: bool,
     source_consult: &mut impl HomeFieldSourceConsultV1<E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
@@ -19,6 +19,18 @@ pub(super) fn observe<E>(
     let Some((acquisition, construction)) = locals.owned_allocation_source(root) else { return Ok(None) };
     let Some(local) = source_consult.owned_local_write(input, &acquisition, root, &construction, assignment.target_site())? else { return Ok(Some(false)) };
     let Some(frame) = CheckedFieldWriteFrameV1::for_owned_local(local, homes) else { return Ok(Some(false)) };
+    if let Some(array) = locals.available_named_array_holder(assignment.value_site()) {
+        if !prefix_known { return Ok(Some(false)); }
+        let binding = array.binding();
+        let Some(plan) = super::super::expression_plan::HomeExpressionPlanV1::owned_array_field_write(frame, array) else { return Ok(Some(false)); };
+        let writer = plan.field_write_plan().expect("owned Array transfer plan").clone();
+        if !locals.retain_expression_plan(plan) || !locals.record_normal_field_write(writer) { return Ok(Some(false)); }
+        // This is the source Normal successor. The exact frame retains the
+        // precommit Fault Homes; physical commit/End correspondence is still owed.
+        locals.consume_home(binding);
+        homes.retain(|home| home.binding() != binding);
+        return Ok(Some(true));
+    }
     let source = Rc::clone(frame.source());
     let mut installation = locals.expression_installation();
     let plan = super::super::expression_plan::qualify_field_write_expression_v1(source, true, Some(Rc::clone(&frame)),

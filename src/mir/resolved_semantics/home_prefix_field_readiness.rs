@@ -17,6 +17,10 @@ impl PrefixLocalFlow<'_> {
             // Preissued Loop After may bypass this per-statement walk. Until
             // it carries the same mutation proof, keep Dynamic roots closed.
             for value in self.locals.values_mut() {
+                if matches!(value, StoredLocal::NamedArrayHolder(source) if !source.has_element_contract()) {
+                    // Keep its Home in unwind; only the local source capability is lost.
+                    *value = StoredLocal::BoundValue;
+                }
                 if let StoredLocal::Home { construction_source, ready, .. } = value {
                     if construction_source.as_ref().and_then(|source| source.allocation_only_fields())
                         .is_some_and(|fields| fields.iter().any(|field| field.storage() == Storage::Dynamic)) {
@@ -50,6 +54,9 @@ impl PrefixLocalFlow<'_> {
                 _ => None,
             });
         for (root, value) in &mut self.locals {
+            if exposed.contains(root) && matches!(value, StoredLocal::NamedArrayHolder(source) if !source.has_element_contract()) {
+                *value = StoredLocal::BoundValue;
+            }
             let StoredLocal::Home { construction_source, ready, .. } = value else { continue };
             if !construction_source.as_ref().and_then(|source| source.allocation_only_fields())
                 .is_some_and(|fields| fields.iter().any(|field| field.storage() == Storage::Dynamic)) { continue; }
@@ -71,7 +78,7 @@ impl PrefixLocalFlow<'_> {
         let mut seen = BTreeSet::new();
         while seen.insert(binding) {
             match self.locals.get(&binding)? {
-                StoredLocal::Home { .. } => return Some(binding),
+                StoredLocal::Home { .. } | StoredLocal::NamedArrayHolder(_) => return Some(binding),
                 StoredLocal::Handle(root) | StoredLocal::FieldAlias { root, .. }
                     | StoredLocal::BorrowedArray { root, .. } => binding = *root,
                 _ => return None,
@@ -94,7 +101,10 @@ impl PrefixLocalFlow<'_> {
         let Some(local) = frame.owned_local() else { return false };
         let Some(StoredLocal::Home { acquisition, construction_source: Some(source), ready }) = self.locals.get_mut(&local.root()) else { return false };
         if acquisition != local.acquisition() || !Rc::ptr_eq(source, local.construction())
-            || plan.owned_i64_field().map(|(field, _)| field) != Some(local.field())
+            || !(plan.owned_i64_field().map(|(field, _)| field) == Some(local.field())
+                || plan.rhs().is_some_and(|rhs| rhs.owned_array().is_some() && rhs.is_consistent(frame.source()))
+                    && source.allocation_only_field(local.original().write().field())
+                        .is_some_and(|field| field.field() == local.field() && field.storage() == crate::mir::function::TypedObjectFieldStorage::Dynamic))
         { return false; }
         ready.insert(local.field(), plan);
         true

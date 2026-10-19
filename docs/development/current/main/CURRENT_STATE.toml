@@ -19,7 +19,7 @@ latest_card_path = "docs/development/current/main/investigations/app-json-stream
 latest_card_summary = """
 APP-json-stream-aggregator: Loop Call未接続。自分の未検証変更はGit stashで保持。
 残り3実アプリ＋untyped sentinelの共通tagged storage契約を既存D0とreferenceで受理。
-Dynamic I64 readのsourceは同じwriter/RHSで証明しcall/aliasで失効。物理実行は未接続。
+Array source Normalでlocal→field移転、I64 readのwriter根拠保持。物理実行・Endは未接続。
 正式suite7PASS/4FAIL、実EXE6＋marker1。mimallocのハーネス修正はcard参照。
 次は同じsource write/read packetとHome successorから両consumerへ接続。Map等の未接続はcard参照。
 """

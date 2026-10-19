@@ -35,6 +35,14 @@ impl PrefixLocalFlow<'_> {
         true
     }
 
+    /// Direct live owner only. A Handle/alias never lends the root's transfer.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn available_named_array_holder(
+        &self, site: &SourceExprSiteV1,
+    ) -> Option<NamedArrayHolderSourceLoanV1> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None };
+        let StoredLocal::NamedArrayHolder(source) = self.locals.get(&binding)? else { return None };
+        (source.binding() == binding).then(|| source.clone())
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_named_array_holder(
         &self,
         binding: BindingRefV1,

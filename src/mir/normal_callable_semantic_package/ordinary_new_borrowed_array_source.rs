@@ -31,26 +31,32 @@ pub(in crate::mir::normal_callable_semantic_package) struct ArrayProducerPlanV1 
     signatures: Rc<VerifiedCallablePhysicalSignatureCohortV1>,
 }
 
-/// Original LOCAL holder identity for the source Home walk. Producer support
-/// stays in the same requirement; this loan grants no construction/End execution.
+/// Original LOCAL holder identity for the source Home walk. Element support,
+/// when selected, stays in the SAME requirement; no construction/End execution.
 #[derive(Debug, Clone)]
 pub(crate) struct NamedArrayHolderSourceLoanV1 {
     construction: NamedArrayConstructionSourceV1,
-    requirement: Rc<ArrayElementSourceRequirementV1>,
+    requirement: Option<Rc<ArrayElementSourceRequirementV1>>,
 }
 impl PartialEq for NamedArrayHolderSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        self.construction == other.construction && Rc::ptr_eq(&self.requirement, &other.requirement)
+        self.construction == other.construction && match (&self.requirement, &other.requirement) {
+            (Some(a), Some(b)) => Rc::ptr_eq(a, b), (None, None) => true, _ => false,
+        }
     }
 }
 impl Eq for NamedArrayHolderSourceLoanV1 {}
 impl NamedArrayHolderSourceLoanV1 {
     fn from_requirement(requirement: Rc<ArrayElementSourceRequirementV1>) -> Self {
-        Self { construction: requirement.holder().construction().clone(), requirement }
+        Self { construction: requirement.holder().construction().clone(), requirement: Some(requirement) }
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn from_construction(construction: NamedArrayConstructionSourceV1) -> Self {
+        Self { construction, requirement: None }
+    }
+    pub(crate) fn has_element_contract(&self) -> bool { self.requirement.is_some() }
     pub(crate) fn append_candidate_is_null_v1(&self, call: &OwnedExprSiteV1) -> Option<bool> {
         if call.owner() != self.binding().owner() { return None; }
-        self.requirement.holder().appends().iter().find(|row| row.call() == call.site())
+        self.requirement.as_ref()?.holder().appends().iter().find(|row| row.call() == call.site())
             .map(|row| row.null_candidate())
     }
     pub(crate) fn binding(&self) -> BindingRefV1 {
@@ -63,7 +69,7 @@ impl NamedArrayHolderSourceLoanV1 {
         if call.owner() != self.binding().owner() {
             return None;
         }
-        self.requirement
+        self.requirement.as_ref()?
             .holder()
             .appends()
             .iter()

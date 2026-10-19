@@ -27,7 +27,7 @@ use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallab
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    issue_new_home_prefixes_with_arguments_v1, HomePrefixUnavailableV1,
+    issue_new_home_prefixes_with_arguments_v1, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, HomePrefixUnavailableV1,
     SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
@@ -585,6 +585,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         }, &mut source_claims::formal_i64_index_consult_v1(
                             input, instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut local_field_read, &mut |site, actuals| {
+                            if let (BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding), Ok(source)) = (actuals, &borrowed_formal_source) {
+                                return source_claims::named_array_initializer_source_v1(input, batch, brands, source, site, binding)
+                                    .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));
+                            }
                             if borrowed_formal_source.is_err() && !source_claims::select_failed_array_initializer_v1(
                                 input, batch, brands, &lexical_source_targets, site, actuals,
                             )? { return Ok(None); }

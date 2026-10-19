@@ -196,6 +196,37 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         }
         assert_eq!(flow.lifecycle_prefixes(&[]).unwrap().len(), flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).count());
     }
+    let shadow = issue_with_brand_catalog("box ArrayBox { value: i64 } static box Main { main() { local item = new ArrayBox() item.value = 7 return item.value } }")
+        .expect("user declaration stays with its ordinary New owner");
+    assert!(shadow.ordinary_new_claim_ledger.terminal_i64_field_return().is_some(),
+        "bare builtin qualification cannot reject an ordinary shadow");
+    let sentinel = include_str!("../../../apps/typed-object-untyped-field-min/main.hako");
+    let package = issue_with_brand_catalog(sentinel).expect("unchanged Array-to-Dynamic source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let completion = ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let transfer = flow.expression_plans().iter().find_map(|plan| plan.field_write_plan()
+        .filter(|writer| writer.rhs().is_some_and(|rhs| rhs.owned_array().is_some())))
+        .expect("exact owning Array transfer");
+    let array = transfer.rhs().unwrap().owned_array().unwrap();
+    assert!(!array.has_element_contract(), "empty acquisition invents no get/element proof");
+    let local = transfer.frame().owned_local().unwrap();
+    assert!(transfer.frame().prior_homes().iter().any(|home| home.binding() == array.binding()));
+    let exit = flow.exit_row(completion.explicit_sites().first().unwrap()).unwrap().unwrap();
+    assert_eq!(exit.homes().iter().map(|home| home.binding()).collect::<Vec<_>>(), [local.root()],
+        "Normal moves the Array Home into its holder; no second local End");
+    assert!(ledger.terminal_i64_field_return().is_some(), "unrelated Array acquisition preserves count writer kind");
+    let original = ledger.field_write_source_at_v1(transfer.frame().source().owner(),
+        transfer.frame().source().root().statement()).unwrap().unwrap();
+    original.validate_source(ledger).unwrap();
+    assert!(original.require_current_execution(ledger).is_err(), "source transfer grants no physical lease");
+    for replacement in ["local alias = items holder.items = alias", "items.push(1) holder.items = items",
+        "holder.items = items holder.items = items", "holder.count = items"] {
+        let denied = issue_with_brand_catalog(&sentinel.replace("holder.items = items", replacement))
+            .expect("unproved Array source remains descriptive");
+        assert!(denied.ordinary_new_claim_ledger.terminal_i64_field_return().is_none(),
+            "alias/mutation/reuse or Array payload cannot lend Integer: {replacement}");
+    }
     for body in ["return pair.left", "pair.right = 10 return pair.left",
         "pair.left = 10 pair.touch() return pair.left",
         "pair.left = 10 Main.observe(pair) pair.left = 20 return pair.left",

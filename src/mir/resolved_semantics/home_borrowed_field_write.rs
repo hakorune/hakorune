@@ -31,6 +31,7 @@ impl FieldWritePlanV1 {
         let local = self.frame.owned_local()?;
         let field = local.construction().allocation_only_field(local.original().write().field())?;
         if field.field() != local.field() || !matches!(field.storage(), Storage::I64 | Storage::Dynamic)
+            || self.rhs.as_ref()?.owned_array().is_some()
             || !self.rhs.as_ref()?.is_consistent(self.frame.source()) { return None; }
         Some((field.field(), field.storage()))
     }

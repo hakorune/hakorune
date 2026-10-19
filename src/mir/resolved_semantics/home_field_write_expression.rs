@@ -10,23 +10,36 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 use super::super::SourceScalarKind;
 
-/// Original whole-RHS source classes and evaluation order, never an execution
-/// permission. Modulo/Div/typed literal obligations stay with physical owners.
+/// Original whole-RHS scalar classes or exact Array transfer, never execution
+/// permission. Acquisition, checked commit and End remain physical obligations.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct QualifiedFieldWriteRhsV1 {
     source: Rc<ExpressionSourcePlanV1>,
     order: Box<[usize]>,
     classes: Box<[Leaf]>,
     references: BTreeMap<usize, (crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind)>,
+    // A conditional transfer of the exact live holder, not a physical End grant.
+    owned_array: Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
 }
 impl QualifiedFieldWriteRhsV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
+    pub(crate) fn owned_array(&self) -> Option<&crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1> { self.owned_array.as_ref() }
     pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
     pub(crate) fn node_class(&self, node: usize) -> Option<Leaf> { self.classes.get(node).copied() }
     pub(crate) fn reference(&self, node: usize) -> Option<(crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind)> {
         self.references.get(&node).copied()
     }
     pub(crate) fn is_consistent(&self, source: &Rc<ExpressionSourcePlanV1>) -> bool {
+        if let Some(array) = self.owned_array() {
+            return Rc::ptr_eq(source, self.source()) && source.owner() == array.binding().owner()
+                && !source.has_opaque_obligations() && self.classes.as_ref() == [Leaf::Identity]
+                && self.order.as_ref() == [0] && self.references.is_empty()
+                && matches!(source.root(), ExpressionPlanRootV1::Assignment { assignment }
+                    if assignment.form() == ResolvedAssignmentFormV1::Plain
+                    && source.nodes().first().is_some_and(|node| node.site() == assignment.value_site()))
+                && matches!(source.nodes(), [node] if matches!(node.source(),
+                    ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == array.binding()));
+        }
         if !Rc::ptr_eq(source, self.source()) || self.classes.len() != source.nodes().len()
             || self.node_class(0) != Some(Leaf::Value(Class::I64))
             || source.ordered_postorder_v1().ok().as_deref() != Some(self.ordered_nodes()) {
@@ -123,7 +136,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         if frame.is_some() {
             let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
             let rhs = Rc::new(QualifiedFieldWriteRhsV1 { source: Rc::clone(&source),
-                order: order.into_boxed_slice(), classes: classes.into_boxed_slice(), references });
+                order: order.into_boxed_slice(), classes: classes.into_boxed_slice(), references, owned_array: None });
             if !rhs.is_consistent(&source) { return Ok(None); }
             qualified_rhs = Some(rhs);
         }
@@ -137,4 +150,27 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         return Ok(None);
     }
     Ok(Some(candidate))
+}
+
+impl HomeExpressionPlanV1 {
+    /// Original Plain LOCAL Array move, staged before the source Home successor.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn owned_array_field_write(
+        frame: Rc<CheckedFieldWriteFrameV1>,
+        array: crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    ) -> Option<Self> {
+        let local = frame.owned_local()?;
+        let field = local.construction().allocation_only_field(local.original().write().field())?;
+        if field.field() != local.field() || field.storage() != crate::mir::function::TypedObjectFieldStorage::Dynamic
+            || local.root() == array.binding() || frame.prior_homes().iter()
+                .filter(|home| home.binding() == array.binding()).count() != 1 { return None; }
+        let source = Rc::clone(frame.source());
+        let rhs = Rc::new(QualifiedFieldWriteRhsV1 { source: Rc::clone(&source),
+            order: vec![0].into_boxed_slice(), classes: vec![Leaf::Identity].into_boxed_slice(),
+            references: BTreeMap::new(), owned_array: Some(array) });
+        if !rhs.is_consistent(&source) { return None; }
+        Some(Self { source, scalar_operations: Vec::new(), source_fields: Vec::new(),
+            initializer_homes: None, argument_frame: None, initializer_frame: None, rebind_frame: None,
+            print_frame: None, condition_frame: None, loop_recipe: None,
+            field_write: Some(FieldWritePlanV1 { frame, rhs: Some(rhs) }) })
+    }
 }

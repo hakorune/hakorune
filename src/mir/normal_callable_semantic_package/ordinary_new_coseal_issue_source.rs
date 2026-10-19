@@ -16,7 +16,7 @@ pub(super) use argument_relations::install_result_classes_with_argument_loans_v1
 
 #[path = "ordinary_new_named_array_source_selection.rs"]
 mod named_array_selection;
-pub(super) use named_array_selection::select_failed_array_initializer_v1;
+pub(super) use named_array_selection::{select_failed_array_initializer_v1, named_array_initializer_source_v1};
 
 #[path = "ordinary_new_source_claim_preparation.rs"]
 mod preparation;
@@ -644,6 +644,10 @@ pub(super) fn probe_source_home_prefixes_v1(
             .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.source.result().clone()).collect()))
         },
         &mut |site, actuals| {
+            if let (BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding), Ok(source)) = (actuals, borrowed_formal_source) {
+                return named_array_initializer_source_v1(input, batch, brands, source, site, binding)
+                    .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));
+            }
             if borrowed_formal_source.is_err() && !select_failed_array_initializer_v1(
                 input, batch, brands, lexical_source_targets, site, actuals,
             )? { return Ok(None); }

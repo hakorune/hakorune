@@ -18,7 +18,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Incoming/Mul gates cleared; debug: `source expression has no checked execution root`.
   Scanner also lacks line146 Local Call `end = JsonLine.find(...)`; retain its I64
   result as well as the later discarded Bool result.
-- At writer source admission, matching quick CLI (build210s) keeps JSON's stop;
+- At Array transfer source admission, matching quick CLI (build210s) keeps JSON's stop;
   sentinel precheck/direct EXE both exit1 at owned-field-write/original-source:
   the I64 execution lease rejects Dynamic. No artifact; generic negative pin retained.
 - Other reds remain explicit: untyped-field execution permission missing,
@@ -45,8 +45,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   without writer/MIR inference. Existing fixed-Array specialization stays bounded.
 - Destruction separates no-hook declaration from exact Array/object/Dynamic
   requirements. Static projections reject Dynamic even with children; focused67 PASS.
-- Existing source cases are refined to protect known-empty versus execution/
-  readiness authority; no new test functions/files. Prior layout checks stay in Git.
 - Runtime Dynamic slots now hold explicit Empty/null/I64/Bool/Text/object/Array
   values plus an independently published complete End descriptor. No owning Clone.
   Replace atomically publishes the SAME detached old value/residence as Ready;
@@ -75,16 +73,18 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   by typed cases; no new test functions/files. Focused27 PASS/2 known field-read reds.
   Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
   Dynamic execution, return inference and both final consumers remain unconnected.
-- Array holder retains construction identity outside its SAME element requirement.
-  Constructor traversal now uses source-index owner; focused14 PASS. Empty transfer/End owed.
+- Array holder retains construction outside its SAME optional element requirement.
+  Bare initializer preserves selected refusals; source Normal moves the exact local
+  Home into Dynamic field. The frame keeps precommit Fault Homes; exit omits Array.
+  Existing sentinel/negative cases protect alias/mutation/doublemove/kind; no new tests.
+  Focused38 PASS/2 baseline reds; physical acquisition/commit/End and consumers owed.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
 - Prior reds: count_at Loop, composition2/result2 and Unit diagnostic; earlier
   connection/normalization/filter details remain in this file's Git history.
 - JSON UserStats/aggregator slots and Map remain implementation dependencies.
-- Field-read9: 7PASS/2 baseline reds (stored-child caller assertion / opaque formal
-  ingress), reproduced before the no-hook/known-empty/readiness changes.
+- Field-read baseline2: stored-child caller assertion / opaque formal ingress; unchanged.
 
 ## Retained verification obligations
 

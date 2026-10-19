@@ -20,13 +20,13 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &[LiveHomeV1],
+    homes: &mut Vec<LiveHomeV1>, prefix_known: bool,
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
-    if let Some(admitted) = owned_local::observe(input, statement, locals, homes, scalar_field, fields)? {
+    if let Some(admitted) = owned_local::observe(input, statement, locals, homes, prefix_known, scalar_field, fields)? {
         return Ok(admitted);
     }
     if !observe_receiver_field_write(input, statement, locals, scalar_field, view_use)? { return Ok(false); }

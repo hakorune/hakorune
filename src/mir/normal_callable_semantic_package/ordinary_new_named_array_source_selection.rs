@@ -48,3 +48,33 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     }
     Ok(false)
 }
+
+/// Borrow the existing selected element row first. A bare construction can
+/// retain an initializer obligation, but cannot escape a selected row's refusal.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn named_array_initializer_source_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
+    source: &super::super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+    site: &OwnedExprSiteV1, binding: BindingRefV1,
+) -> Result<Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>, OrdinaryNewCoSealIssueV1> {
+    let refuse = |issue: String| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue };
+    if site.owner() != input.owner() || binding.owner() != input.owner() {
+        return Err(refuse("[freeze:contract][array-holder/source-membership]".into()));
+    }
+    if let Some(loan) = source.named_array_holder_source_v1(site, binding, true).map_err(&refuse)? {
+        return Ok(Some(loan));
+    }
+    let Some(brands) = brands else { return Ok(None) };
+    let ledger = input.forest().callable_source_ledger(input.owner())
+        .map_err(|issue| refuse(format!("[freeze:contract][array-holder/source-ledger]: {issue:?}")))?;
+    let identity = match NamedArrayConstructionSourceV1::issue_for_binding(&ledger, binding, batch.ordinary_box_coverage(), brands) {
+        Ok(identity) => identity,
+        Err(NamedArrayRequirementIssueV1::NotNamedArray | NamedArrayRequirementIssueV1::InitializerMissing
+            | NamedArrayRequirementIssueV1::ConstructionMissing | NamedArrayRequirementIssueV1::DeclarationCollision
+            | NamedArrayRequirementIssueV1::ReassignedReceiver | NamedArrayRequirementIssueV1::ConstructorShape) => return Ok(None),
+        Err(issue) => return Err(refuse(format!("[freeze:contract][array-holder/source-membership]: {issue:?}"))),
+    };
+    if identity.construction() != site.site() { return Err(refuse("[freeze:contract][array-holder/source-membership]".into())); }
+    Ok(Some(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(identity)))
+}
