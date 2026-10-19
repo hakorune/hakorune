@@ -67,12 +67,24 @@ impl NamedArrayConstructionSourceV1 {
         else {
             return Err(E::UnsupportedReceiver);
         };
-        if binding.owner() != ledger.owner()
-            || ledger.variable_ref(call.receiver_site())
-                != Some(ResolvedLexicalRefV1::Local(binding))
+        if ledger.variable_ref(call.receiver_site())
+            != Some(ResolvedLexicalRefV1::Local(binding))
         {
             return Err(E::UnsupportedReceiver);
         }
+        Self::issue_for_binding(ledger, binding, ordinary, brands)
+    }
+
+    /// The same original construction identity, independent of a get/push call.
+    /// This supplies no provider, element, ownership-transfer or End capability.
+    pub(crate) fn issue_for_binding(
+        ledger: &CallableSemanticSourceLedgerView<'_>,
+        binding: BindingRefV1,
+        ordinary: &ParserOrdinaryBoxSourceCoverageV1,
+        brands: &VerifiedBrandProgramDeclarationCatalogV1,
+    ) -> Result<Self, NamedArrayRequirementIssueV1> {
+        use NamedArrayRequirementIssueV1 as E;
+        if binding.owner() != ledger.owner() { return Err(E::UnsupportedReceiver); }
         let mut initializers = ledger
             .initializer_relations()
             .filter(|row| row.binding() == binding);

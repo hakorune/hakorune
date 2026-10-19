@@ -73,8 +73,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   storage vocabulary; I64-only execution/readiness retained. Constructor26 plus
   allocation1/claim1/write2 PASS. Connect scalar/Array demand through the SAME
   write frame, successor Home and checked read; known Empty is never ready.
-  Direct empty Array acquisition must lend IntrinsicArrayNew/End evidence; do not
-  invent an element/get proof or disguise it as a user-object Home.
+  Array identity now has one binding issuer shared with get/push; existing9 PASS.
+  Provider acquisition/End and transfer remain owed; no fake element/get proof.
 - The existing fields/checked_read.rs owner registers Integer only after checked
   Invoke/NormalResult. Route the sentinel count Return through that SAME packet;
   do not patch return_type_strategy or use infallible ObjectFieldGet for Dynamic.
