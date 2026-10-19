@@ -104,7 +104,7 @@ fn threads_branch_through_empty_jump_trampoline() {
             ..
         }) if then_bb == BasicBlockId(3) && else_bb == BasicBlockId(4)
     ));
-    assert!(function.blocks.contains_key(&BasicBlockId(1)));
+    assert!(!function.blocks.contains_key(&BasicBlockId(1)));
     assert!(function.blocks.contains_key(&BasicBlockId(2)));
     assert!(function.blocks.contains_key(&BasicBlockId(4)));
 }
@@ -275,12 +275,11 @@ fn threads_branch_through_empty_jump_trampoline_and_drops_dead_edge_args() {
 
     let function = module.functions.get("main").expect("main function");
     let entry = function.blocks.get(&BasicBlockId(0)).expect("entry block");
+    // Dropping the now-orphaned trampoline also lets the existing linear
+    // merge finish at the original return, with no edge arguments left.
     assert!(matches!(
         entry.terminator,
-        Some(MirInstruction::Jump {
-            target,
-            edge_args: None
-        }) if target == BasicBlockId(3)
+        Some(MirInstruction::Return { value: None })
     ));
 }
 

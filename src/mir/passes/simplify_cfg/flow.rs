@@ -228,6 +228,20 @@ pub(super) fn thread_branch_arm(
     }
 
     function.update_cfg();
+    // Retargeting can orphan this exact trampoline. Remove it so the finished
+    // boundary can follow deleted plain-Jump chains without retaining a stale
+    // destination. Other incoming edges keep the block alive.
+    if middle_id != function.entry_block
+        && function.blocks.get(&middle_id).is_some_and(|middle| {
+            middle.instructions.is_empty()
+                && middle.predecessors.is_empty()
+                && matches!(middle.terminator.as_ref(),
+                    Some(MirInstruction::Jump { target: actual, edge_args: None }) if *actual == target)
+        })
+    {
+        function.blocks.remove(&middle_id);
+        function.update_cfg();
+    }
 }
 
 fn can_rewrite_threaded_phi_predecessor(
