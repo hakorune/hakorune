@@ -205,11 +205,6 @@ regex = "1.0"
 rustc-hash = "2.1"
 parking_lot = "0.12"
 
-# WebAssembly対応
-wasm-bindgen = "0.2"
-console_error_panic_hook = "0.1"
-js-sys = "0.3"
-
 # Cranelift JIT (ARCHIVED: moved to archive/jit-cranelift/ during Phase 15)
 # cranelift-codegen = { version = "0.103", optional = true }
 # cranelift-frontend = { version = "0.103", optional = true }
@@ -247,7 +242,14 @@ windows = { version = "0.60", features = [
 # 開発時のスタックオーバーフロー診断用（Windows target では依存を無効化）
 backtrace-on-stack-overflow = "0.3"
 
-[dependencies.web-sys]
+# Browser bindings are used only by wasm32-gated code. Keep them out of native
+# compiler/test builds while retaining the existing browser feature set.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+js-sys = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies.web-sys]
 version = "0.3"
 features = [
   "console",
@@ -278,9 +280,6 @@ features = [
   "PeriodicWave",
   "OscillatorNode",
 ]
-
-[build-dependencies]
-once_cell = "1.20"
 
 [workspace]
 members = [

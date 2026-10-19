@@ -42,6 +42,26 @@ builds successfully and runs1 existing case PASS; `--list` still reports9263 tes
 this is not an edit/build speed comparison. `cargo quick-build-fast --verbose`
 reuses the existing CLI with no recompilation. No test/checker/source change.
 
+## Native-only dependency pruning (2026-10-20)
+
+Move wasm-bindgen, js-sys, web-sys and the browser panic hook into the existing
+`cfg(target_arch = "wasm32")` target boundary. Their root source uses are already
+wasm32-gated; native Box implementations remain unchanged. Remove unused root
+build-dependency once_cell; the normal dependency remains. No source/test edits.
+Offline locked Cargo trees, normal/build/dev edges, deduplicated by package:
+native109 ->100 (nine browser packages removed); wasm32 stays100 with identical
+package identities. Combined with Criterion retirement, native133 ->100.
+This removes dependency compilation work from fresh native builds; it does not
+establish a hot-edit speedup. Wasm target compilation is not verified on this
+host (only the native target is installed); its dependency graph is preserved.
+Existing incremental caches and compiler WIP are retained. A dependency cohort
+change can cause a one-time rebuild; record it separately from hot-edit timings.
+Verification with retained compiler WIP: locked quick-test-fast builds173.52s,
+existing finite-entry provenance case1 PASS (.03s),9262 filtered; locked
+quick-build-fast builds98.78s. These are dependency-cohort switch costs, not
+controlled edit comparisons. A second unchanged CLI build is Fresh, wall.339s,
+with no rustc/link invocation; CLI --version exits0. No tests/checkers added.
+
 ## Historical linker measurement
 
 Measure the next required Cargo build before choosing a linker change. Preserve
