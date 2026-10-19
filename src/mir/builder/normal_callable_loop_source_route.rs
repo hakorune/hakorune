@@ -273,7 +273,7 @@ impl CallableLoopSourceRouteTokenV1 {
             return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
         }
         CallableLoopSourceCallCoverageV1::validate_checked_recipe_v2(&product, self.owner, &self.parent_site, &items)?;
-        probe.consume_for_checked_recipe_v2(&items)?;
+        probe.consume_for_checked_recipe_v2(&items, &product)?;
         self.source_items = items;
         self.source_coverage = Some(CallableLoopSourceCallCoverageV1::CheckedRecipe(product));
         Ok(self)

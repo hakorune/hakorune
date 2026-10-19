@@ -200,7 +200,8 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn capture_owned_array_holders_v1(&self, owner: FunctionOwnerIdV1) -> Result<Vec<EmittedNamedArrayRequirementV1>, String> {
         let recipes: Vec<_> = self.array_holder_lifecycles.borrow().values()
             .filter(|recipe| recipe.owner() == owner).cloned().collect();
-        let groups = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+        let groups = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(self)
+            .with_local_call_group_tree_v2(owner, |groups| Ok(groups.to_vec()))?;
         let mut emitted = Vec::new();
         for recipe in recipes {
             let array = self.live_owned_array_recipe_value_v1(&recipe)?;

@@ -1,6 +1,7 @@
 //! Retain decisions made by the existing recursive source walk. No AST
 //! classifier, route Recipe expansion, joined-state reconstruction or keys.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
 use crate::mir::compiler::located::{LocatedBodyV1, SourceBodySiteV1};
 use crate::mir::resolved_semantics::{ResolvedIfRegionBundleV1, ResolvedExitRecordV1, SourceStmtSiteV1};
 use super::super::super::{HomeExpressionPlanV1, CheckedBoolConditionFrameV1};
@@ -19,6 +20,7 @@ struct BodyDraft {
 }
 enum Action {
     Expression(HomeExpressionPlanV1),
+    OwnedArrayAppend(NamedArrayHomeObservationV1),
     If { bundle: ResolvedIfRegionBundleV1, condition: Rc<CheckedBoolConditionFrameV1>,
         then_body: SourceBodySiteV1, else_body: Option<SourceBodySiteV1>, then_terminated: bool, else_terminated: bool },
     Exit { record: ResolvedExitRecordV1, port: usize },
@@ -32,6 +34,7 @@ pub(crate) struct CheckedSourceLoopBodyV1 {
 #[derive(Debug)]
 pub(crate) enum CheckedSourceLoopStatementV1 {
     Expression { site: SourceStmtSiteV1, frame: HomeExpressionPlanV1 },
+    OwnedArrayAppend { site: SourceStmtSiteV1, observation: NamedArrayHomeObservationV1 },
     If { site: SourceStmtSiteV1, bundle: ResolvedIfRegionBundleV1,
         condition: Rc<CheckedBoolConditionFrameV1>, then_body: CheckedSourceLoopBodyV1,
         else_body: Option<CheckedSourceLoopBodyV1> },
@@ -61,6 +64,7 @@ impl SourceLoopControlDraftV1 {
             if observed_termination { return Err("source control statement after exit"); }
             let statement = match self.actions.remove(&site).ok_or("source statement has no checked execution action")? {
                 Action::Expression(frame) => CheckedSourceLoopStatementV1::Expression { site, frame },
+                Action::OwnedArrayAppend(observation) => CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation },
                 Action::Exit { record, port } => {
                     observed_termination = true;
                     CheckedSourceLoopStatementV1::Exit { site, record, port }
@@ -85,6 +89,13 @@ impl SourceLoopControlDraftV1 {
 }
 
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_array_append_v1(
+        &self, site: &SourceStmtSiteV1, observation: &NamedArrayHomeObservationV1,
+    ) {
+        if let Some(context) = &self.source_loop {
+            context.control.borrow_mut().action(site, Action::OwnedArrayAppend(observation.clone()));
+        }
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn begin_source_loop_body_v1(&self, body: &LocatedBodyV1<'_>) {
         let Some(context) = &self.source_loop else { return };
         let mut draft = context.control.borrow_mut();
@@ -179,6 +190,23 @@ impl ports::SourceLoopScanSummaryV1 {
         ) -> Result<(), &'static str> {
             for statement in body.statements.iter() {
                 match statement {
+                    CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation } => {
+                        let NamedArrayHomeObservationV1::Append { source, call, candidate, availability, .. } = observation
+                            else { return Err("source Loop append observation kind"); };
+                        let ledger = input.forest().callable_source_ledger(input.owner())
+                            .map_err(|_| "source Loop append ledger")?;
+                        let original = ledger.method_call(call.site()).ok_or("source Loop append source missing")?;
+                        if call.owner() != input.owner() || call.site().node() != site.node()
+                            || source.binding().owner() != input.owner() || availability.is_err()
+                            || source.append_candidate(call).as_ref() != Some(candidate)
+                            || original.receiver() != crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+                                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(source.binding()))
+                            || !matches!(original.arguments(), [argument] if argument.site() == candidate.site())
+                            || ledger.resolved_loop_placement(summary.source.site(), call.site()).ok()
+                                != Some(Some(crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body)) {
+                            return Err("source Loop append identity");
+                        }
+                    }
                     CheckedSourceLoopStatementV1::Expression { site, frame } => {
                         if frame.source().owner() != input.owner() || frame.source().root().statement() != site {
                             return Err("source Loop execution frame identity");

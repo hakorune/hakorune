@@ -16,11 +16,11 @@ pub(crate) struct EmittedSourceLoopProjectionV2 {
 
 impl EmittedSourceLoopProjectionV2 {
     fn pending(product: Rc<Product>) -> Result<Rc<Self>, String> {
-        let expected: Vec<_> = product.schedule().frames().iter().map(|frame| frame.prefix().clone()).collect();
+        let expected = product.lifecycle_prefixes_v2();
         if expected.iter().enumerate().any(|(index, row)| expected[..index].iter().any(|old| old.site() == row.site())) {
             return Err(freeze("source-loop/child-site-duplicate"));
         }
-        if expected.len() != product.source.body_expressions.len() + 1
+        if expected.len() != product.source.body_expressions.len() + 1 + product.schedule().blocks_array_appends_v2().count()
             || !matches!(expected.first(), Some(LifecyclePrefixSourceV1::BoolCondition { frame, .. })
                 if Rc::ptr_eq(frame, &product.source.condition)) {
             return Err(freeze("source-loop/child-census"));

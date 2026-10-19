@@ -442,8 +442,46 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             pending.push((target, next, next_faulted));
         }
     }
-    // This original append-only holder cohort has no loop-carried state.
-    // A fixed-point revisit must not let a live holder cycle forever.
+    // Source Loop admission is separate. Independently validate only natural
+    // backedges whose exact resource state already reached a fixed point:
+    // claimed holders may survive an iteration, pending acquisitions may not.
+    // A conditional normal exit is not a proof of termination.
+    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    // Dominators use the cached CFG; certificates require the same edges as
+    // the terminators traversed by this independent lifetime check.
+    let consistent_cfg = function.blocks.values().all(|block| {
+        block.successors.iter().copied().collect::<BTreeSet<_>>()
+            == block.successors_from_terminator().into_iter().collect::<BTreeSet<_>>()
+    });
+    let mut predecessors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
+    for (id, block) in &function.blocks {
+        for next in block.successors_from_terminator() { predecessors.entry(next).or_default().push(*id); }
+    }
+    let mut backedges = BTreeSet::new();
+    for (tail, block) in &function.blocks {
+        if !consistent_cfg || !dominators.is_reachable(*tail) { continue; }
+        for header in block.successors_from_terminator() {
+            if !dominators.dominates(header, *tail) || seen.contains_key(&(header, true)) { continue; }
+            let Some(state) = seen.get(&(header, false)) else { continue; };
+            if state.holders.is_empty() || !state.outer.is_empty() || !state.candidates.is_empty() { continue; }
+            let mut members = BTreeSet::from([header]);
+            let mut pending = vec![*tail];
+            while let Some(id) = pending.pop() {
+                if members.insert(id) {
+                    pending.extend(predecessors.get(&id).into_iter().flatten().copied());
+                }
+            }
+            if members.iter().any(|id| !dominators.is_reachable(*id) || !dominators.dominates(header, *id)) {
+                continue;
+            }
+            let normal_exit = members.iter().any(|id| matches!(function.blocks[id].terminator.as_ref(),
+                Some(MirInstruction::Branch { then_bb, else_bb, .. })
+                    if members.contains(then_bb) != members.contains(else_bb)));
+            if normal_exit { backedges.insert((*tail, header)); }
+        }
+    }
+    // Unknown, faulted, irreducible and post-End cycles keep the existing
+    // refusal. No revisit or unreachable-block omission supplies a certificate.
     let mut active = BTreeSet::new();
     let mut complete = BTreeSet::new();
     let mut stack = vec![(function.entry_block, false)];
@@ -468,6 +506,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             .into_iter()
             .rev()
         {
+            if backedges.contains(&(id, next)) { continue; }
             stack.push((next, false));
         }
     }

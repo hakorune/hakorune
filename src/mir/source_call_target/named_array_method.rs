@@ -96,6 +96,21 @@ pub(crate) fn issue_source_bound_core_method_calls_with_named_arrays_v1(
         let Some((loop_site, ())) = nearest_loop(candidates)? else {
             continue;
         };
+        // Select the original whole-holder operation before issuing a Text
+        // contract. This source loan grants no element class, Home or ABI;
+        // the ordinary owned-array consumer must discharge those separately.
+        if ledger.method_calls().any(|(_, read)| {
+            read.receiver() == call.receiver()
+                && lookup_core_method_result_row_v2("ArrayBox", read.selector(), read.arity())
+                    .is_some_and(|row| row.op == CoreMethodOp::ArrayGet)
+                && crate::mir::resolved_semantics::NamedArrayAppendOnlySourceV1::issue(
+                    ledger, read, ordinary, brands,
+                ).is_ok_and(|holder| holder.appends().iter().any(|append|
+                    append.call() == site && append.receiver() == call.receiver_site()
+                        && matches!(call.arguments(), [argument] if argument.site() == append.candidate())))
+        }) {
+            continue;
+        }
         let nested_source = call
             .arguments()
             .first()

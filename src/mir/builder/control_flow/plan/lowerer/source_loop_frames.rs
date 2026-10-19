@@ -14,6 +14,34 @@ use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlockId, ValueId};
 use std::rc::Rc;
 
+pub(super) fn emit_array_append(
+    builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
+    statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    observation: &crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1,
+) -> Result<Rc<crate::mir::normal_callable_semantic_package::EmittedOwnedArrayAppendV1>, String> {
+    let input = input(port, product)?;
+    let site = OwnedExprSiteV1::new(input.owner(),
+        crate::mir::resolved_semantics::SourceExprSiteV1::from_node(statement.node().clone()));
+    if product.owned_array_append_v2(&site) != Some(observation) {
+        return Err(freeze("array-append-source-drift"));
+    }
+    let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
+        source: holder, call, candidate, ..
+    } = observation else { return Err(freeze("array-append-purpose")); };
+    if call != &site { return Err(freeze("array-append-source-drift")); }
+    let original = input.function().method_calls().find(|(original, _)| *original == site.site())
+        .map(|(_, call)| call).ok_or_else(|| freeze("array-append-original-missing"))?;
+    let source = context(port, statement.node())?;
+    port.with_prepared_child_source_v1(source, |port| {
+        let packet = port.emit_owned_array_append_v1(builder, original.selector(), original.arity() as usize)?
+            .ok_or_else(|| freeze("array-append-source-missing"))?;
+        if !packet.source().matches_original_v1(holder, candidate) {
+            return Err(freeze("array-append-source-drift"));
+        }
+        Ok(packet)
+    })
+}
+
 /// Validate the existing invocation and immutable product BEFORE opening a
 /// narrower source scope. No module port, scope or child evaluator is rebuilt.
 pub(super) fn input<'source>(

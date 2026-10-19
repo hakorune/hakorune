@@ -44,6 +44,11 @@ impl PartialEq for NamedArrayHolderSourceLoanV1 {
 }
 impl Eq for NamedArrayHolderSourceLoanV1 {}
 impl NamedArrayHolderSourceLoanV1 {
+    pub(crate) fn append_candidate_is_null_v1(&self, call: &OwnedExprSiteV1) -> Option<bool> {
+        if call.owner() != self.binding().owner() { return None; }
+        self.requirement.holder().appends().iter().find(|row| row.call() == call.site())
+            .map(|row| row.null_candidate())
+    }
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.requirement.holder().construction().binding()
     }

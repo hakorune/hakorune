@@ -125,6 +125,7 @@ impl RootHomeFlow {
         for observation in &self.named_arrays {
             if let super::NamedArrayHomeObservationV1::Append { source, call, candidate, availability, .. } = observation {
                 availability.as_ref().map_err(|_| "lifecycle-prefix/array-append-unavailable")?;
+                if loops.iter().any(|product| product.owned_array_append_v2(call).is_some()) { continue; }
                 prefixes.push(LifecyclePrefixSourceV1::OwnedArrayAppend {
                     site: call.clone(), statement: SourceStmtSiteV1::from_node(call.site().node().clone()),
                     holder: source.clone(), candidate: candidate.clone(),

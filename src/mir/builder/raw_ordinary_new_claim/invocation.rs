@@ -45,33 +45,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
     fn try_emit_owned_array_append(
         &mut self, builder: &mut crate::mir::MirBuilder, method: &str, arity: usize,
     ) -> Result<bool, String> {
-        let (Some(ledger), Some(node)) =
-            (self.ordinary_new_claim_ledger.as_ref(), self.current_source_site_v1())
-            else { return Ok(false); };
-        let owner = self.callable_owner_v1().ok_or("[freeze:contract][array-append/owner-missing]")?;
-        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
-        if !ledger.has_owned_array_append_v1(&site) { return Ok(false); }
-        let source = self.owned_array_source.ok_or("[freeze:contract][array-append/source-scope-missing]")?;
-        source.require_same_ledger_v1(ledger)?;
-        let append = source.prepare_append_v1(&site)?.ok_or("[freeze:contract][array-append/source-missing]")?;
-        self.check_new_emission_scope(&site)?;
-        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
-            != Some(crate::boxes::array::ArrayMethodId::Push) {
-            return Err("[freeze:contract][array-append/syntax-drift]".into());
-        }
-        let candidate = if append.null_candidate() { None } else {
-            let site = append.candidate();
-            let row = ledger.take_lexical_instance_call(site.owner(), site.site())?
-                .ok_or("[freeze:contract][array-append/candidate-disposition-missing]")?;
-            append.check_candidate_v1(&row)?;
-            self.consume_lexical_self_receiver_locator_v1(&row)?;
-            Some(row)
-        };
-        crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
-            builder, &mut self.callable_ledger.as_ref().expect("checked source state").borrow_mut(), ledger, append, candidate,
-        )?;
-        Ok(true)
+        self.emit_owned_array_append_v1(builder, method, arity).map(|packet| packet.is_some())
     }
     fn emit_terminal_i64_call_exit(
         &mut self,
@@ -667,5 +641,41 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .take_birth_site_recipe(&site, class, argument_count)
             .map(|entry| entry.map(|(recipe, _handoff)| recipe))
             .map_err(|error| format!("[freeze:contract][raw-ordinary-new/birth-site] {error:?}"))
+    }
+}
+
+impl super::super::RawInvocationChildPortV1<'_, '_> {
+    /// Same source/receiver/candidate transaction for raw statements and the
+    /// checked Loop schedule; the sole owned-array writer records the packet.
+    pub(in crate::mir::builder) fn emit_owned_array_append_v1(
+        &mut self, builder: &mut crate::mir::MirBuilder, method: &str, arity: usize,
+    ) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedOwnedArrayAppendV1>>, String> {
+        let (Some(ledger), Some(node)) =
+            (self.ordinary_new_claim_ledger.as_ref(), self.current_source_site_v1())
+            else { return Ok(None); };
+        let owner = self.callable_owner_v1().ok_or("[freeze:contract][array-append/owner-missing]")?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        if !ledger.has_owned_array_append_v1(&site) { return Ok(None); }
+        let source = self.owned_array_source.ok_or("[freeze:contract][array-append/source-scope-missing]")?;
+        source.require_same_ledger_v1(ledger)?;
+        let append = source.prepare_append_v1(&site)?.ok_or("[freeze:contract][array-append/source-missing]")?;
+        self.check_new_emission_scope(&site)?;
+        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
+            != Some(crate::boxes::array::ArrayMethodId::Push) {
+            return Err("[freeze:contract][array-append/syntax-drift]".into());
+        }
+        let candidate = if append.null_candidate() { None } else {
+            let site = append.candidate();
+            let row = ledger.take_lexical_instance_call(site.owner(), site.site())?
+                .ok_or("[freeze:contract][array-append/candidate-disposition-missing]")?;
+            append.check_candidate_v1(&row)?;
+            self.consume_lexical_self_receiver_locator_v1(&row)?;
+            Some(row)
+        };
+        let packet = crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
+            builder, &mut self.callable_ledger.as_ref().expect("checked source state").borrow_mut(), ledger, append, candidate,
+        )?;
+        Ok(Some(packet))
     }
 }

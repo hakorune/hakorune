@@ -230,7 +230,12 @@ fn owned_array_original_construction_installs_real_claim_and_checks_fault_phases
         let extra_append = if literal_null { "arr.push(null)" } else { "" };
         let slot_nullable = nullable || literal_null;
         let source = format!("box Token {{}} box Maker {{ make(n: i64) {{ {result} }} consume(value) {{ if value == null {{ return 0 }} return 1 }} ignored() {{ local marker = 0 local arr = new ArrayBox() arr.push(me.make(7)) {extra_append} me.consume(arr.get(0)) return me.consume(null) }} }} static box Main {{ main() {{ return 0 }} }}");
-        full_owned_array_compiler_probe(&source);
+        // Replace one existing whole-compiler input with repeated execution;
+        // the separate manual writer checks retain their straight-line scope.
+        let full_source = if !nullable && !literal_null {
+            source.replace("arr.push(me.make(7))", "local i = 0 loop(i < 2) { arr.push(me.make(7)) i = i + 1 }")
+        } else { source.clone() };
+        full_owned_array_compiler_probe(&full_source);
         let (context, installed) = installed_source(&source).unwrap();
         let ledger = installed.ordinary_new_claim_ledger();
         let mut selected = installed.begin_lowering(&context).unwrap();

@@ -77,6 +77,13 @@ impl SourceLoopPhysicalProofV2 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_dependency_bindings_v2(&self)
         -> Result<Vec<Binding>, String> {
         let mut output = Vec::new();
+        // These exact join producers are consumed again by validate_v2 below,
+        // including an After value with no later source read. Lend the same
+        // requirements to finishing liveness instead of allowing DCE to remove
+        // a producer while the independent proof still requires it.
+        for (block, phis) in self.points.phis() {
+            output.extend(phis.iter().map(|phi| (*block, phi.clone())));
+        }
         for edge in &self.graph.edges {
             for value in &edge.values {
                 let relations: Vec<_> = std::iter::once(&value.localized).chain(value.canonical.iter()).collect();

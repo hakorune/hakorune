@@ -178,9 +178,9 @@ impl NamedArrayAppendOnlySourceV1 {
                 CoreMethodOp::ArrayGet => {
                     // A direct argument read has no stored result/alias to outlive its holder.
                     if segments.len() < 2
-                        || !segments[1..]
-                            .iter()
-                            .all(|segment| matches!(segment, SourcePathSegmentV1::Argument(_)))
+                        || (!segments[1..].iter().all(|segment| matches!(segment, SourcePathSegmentV1::Argument(_)))
+                            && !ledger.method_calls().any(|(_, parent)| parent.arguments().iter()
+                                .any(|argument| argument.site() == site)))
                     {
                         return Err(E::SourceOrder);
                     }

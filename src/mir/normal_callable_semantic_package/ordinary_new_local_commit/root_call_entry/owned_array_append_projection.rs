@@ -25,11 +25,18 @@ pub(crate) struct EmittedOwnedArrayAppendV1 {
 impl EmittedOwnedArrayAppendV1 {
     pub(crate) fn source(&self) -> &OwnedArrayAppendSourceLoanV1 { &self.source }
     pub(crate) fn invoke_binding(&self) -> &Binding { &self.invoke }
+    pub(crate) fn normal_continuation_binding(&self) -> &Binding { &self.continuation }
     pub(crate) fn check_raw_v1(&self, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction) -> Result<(), String> {
         self.validate_paths(ledger, function, None)
     }
     pub(crate) fn candidate_packet(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.candidate { OwnedArrayAppendCandidateV1::Call(packet) => Some(packet), _ => None }
+    }
+    pub(crate) fn candidate_entry_binding(&self) -> &Binding {
+        match &self.candidate {
+            OwnedArrayAppendCandidateV1::Null(binding) => binding,
+            OwnedArrayAppendCandidateV1::Call(packet) => packet.invoke_binding(),
+        }
     }
     pub(crate) fn new(
         source: OwnedArrayAppendSourceLoanV1, receiver: ExactLexicalReadV1,

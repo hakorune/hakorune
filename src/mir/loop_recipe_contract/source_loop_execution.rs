@@ -117,6 +117,18 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
 ) -> Result<Option<Vec<LiveHomeV1>>, String> {
     for statement in tree.statements.iter() {
         match statement {
+            Statement::OwnedArrayAppend { observation, .. } => {
+                let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
+                    source: holder, availability, prior_homes, ..
+                } = observation else { return Err(reject("execution-array-observation")); };
+                if availability.is_err() || prior_homes.iter().ne(homes.iter().rev())
+                    || homes.iter().filter(|home| home.binding() == holder.binding()).count() != 1 {
+                    return Err(reject("execution-array-homes"));
+                }
+                // The same holder survives Normal and backedge. Candidate
+                // acquisition/cancellation belongs to the existing Append
+                // packet, never a speculative source-loop acquisition.
+            }
             Statement::Expression { frame, .. } => {
                 if let Some(initializer) = frame.initializer_frame() {
                     output.push(evaluation(input, source, initializer.evaluation(), &homes, initializer.owns_root())?);

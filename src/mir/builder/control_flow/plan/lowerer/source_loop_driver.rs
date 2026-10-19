@@ -57,12 +57,19 @@ pub(in crate::mir) struct EmittedLoopBlockV2 {
     pub(in crate::mir) normal: bool,
     pub(in crate::mir) scope_close: LexicalScopeCloseReceiptV2,
 }
+pub(in crate::mir) struct EmittedLoopArrayAppendV2 {
+    pub(in crate::mir) site: crate::mir::resolved_semantics::SourceStmtSiteV1,
+    pub(in crate::mir) entry: BasicBlockId,
+    pub(in crate::mir) end: BasicBlockId,
+    pub(in crate::mir) packet: Rc<crate::mir::normal_callable_semantic_package::EmittedOwnedArrayAppendV1>,
+}
 pub(in crate::mir) struct EmittedSourceLoopGraphV2 {
     pub(in crate::mir) product: Rc<Product>,
     pub(in crate::mir) header: BasicBlockId,
     pub(in crate::mir) after: BasicBlockId,
     pub(in crate::mir) edges: Vec<EmittedLoopEdgeV2>,
     pub(in crate::mir) frames: Vec<EmittedLoopFrameV2>,
+    pub(in crate::mir) appends: Vec<EmittedLoopArrayAppendV2>,
     pub(in crate::mir) forks: Vec<EmittedLoopForkV2>,
     pub(in crate::mir) blocks: Vec<EmittedLoopBlockV2>,
     pub(in crate::mir) result: crate::mir::builder::CompletedConstV1,
@@ -88,8 +95,9 @@ impl EmittedSourceLoopGraphV2 {
                 return Err(reject("finish-source-product"));
             }
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-            self.verify_control_v2(function)?;
             let claims = state.ordinary_new_claim_ledger().ok_or_else(|| reject("claims-missing"))?;
+            self.verify_control_v2(function)?;
+            for append in &self.appends { append.packet.check_raw_v1(claims, function)?; }
             let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims);
             for edge in &self.edges {
                 if let Some(cleanup) = &edge.cleanup { cleanup.plan.validate_original_emitted_v2(cleanup, context, function)?; }
@@ -177,7 +185,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     }
     let body_key = recipe.loops.first().ok_or_else(|| reject("root-loop-missing"))?.body;
     let mut driver = Driver { port, source, product: Rc::clone(&product), ledger, header, after,
-        logical, values, edges: Vec::new(), frames: Vec::new(), forks: Vec::new(), blocks: Vec::new() };
+        logical, values, edges: Vec::new(), frames: Vec::new(), appends: Vec::new(), forks: Vec::new(), blocks: Vec::new() };
     driver.edge(builder, Edge::LoopEntry, None)?;
     for &binding in product.source.headers.keys() {
         let name = driver.ledger.borrow().source_loop_binding_name(binding,
@@ -211,7 +219,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     let result = crate::mir::builder::emission::constant::emit_void_recorded(builder)?;
     let after_frame = driver.ledger.borrow().observed_fault_frame_binding_v2(
         builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?)?;
-    Ok((EmittedSourceLoopGraphV2 { product, header, after, edges: driver.edges, frames: driver.frames,
+    Ok((EmittedSourceLoopGraphV2 { product, header, after, edges: driver.edges, frames: driver.frames, appends: driver.appends,
         forks: driver.forks, blocks: driver.blocks, result, before, before_frame, after_frame },
         SourceLoopEntryStateV2 { values: entry_values, cache: entry_cache }))
 }
@@ -227,6 +235,7 @@ struct Driver<'a, 'port, 'collector, 'input, 'ledger> {
     values: BTreeMap<LoopValueKeyV1, ValueId>,
     edges: Vec<EmittedLoopEdgeV2>,
     frames: Vec<EmittedLoopFrameV2>,
+    appends: Vec<EmittedLoopArrayAppendV2>,
     forks: Vec<EmittedLoopForkV2>,
     blocks: Vec<EmittedLoopBlockV2>,
 }
@@ -267,6 +276,13 @@ impl Driver<'_, '_, '_, '_, '_> {
         let mut position = 0;
         while position < steps.len() {
             match &steps[position] {
+                Step::OwnedArrayAppend { site, observation, .. } => {
+                    let entry = builder.function_state.current_block.ok_or_else(|| reject("array-append-entry"))?;
+                    let packet = super::source_loop_frames::emit_array_append(builder, self.port, &self.product, site, observation)?;
+                    let end = builder.function_state.current_block.ok_or_else(|| reject("array-append-end"))?;
+                    self.appends.push(EmittedLoopArrayAppendV2 { site: site.clone(), entry, end, packet });
+                    position += 1;
+                }
                 Step::Frame(index) => {
                     let prefix = self.product.schedule().frames()[*index].prefix();
                     if matches!(prefix, Prefix::BoolCondition { .. }) {

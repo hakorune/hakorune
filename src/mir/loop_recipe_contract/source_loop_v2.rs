@@ -49,6 +49,37 @@ impl PartialEq for VerifiedSourceLoopRecipeProductV2 {
 }
 impl Eq for VerifiedSourceLoopRecipeProductV2 {}
 impl VerifiedSourceLoopRecipeProductV2 {
+    pub(crate) fn lifecycle_prefixes_v2(&self) -> Vec<Prefix> {
+        fn visit(product: &VerifiedSourceLoopRecipeProductV2, block: LoopBlockKeyV1, output: &mut Vec<Prefix>) {
+            for step in product.schedule().block(block).expect("verified source schedule block") {
+                match step {
+                    SourceLoopScheduledStepV2::Frame(index) => output.push(product.schedule().frames()[*index].prefix().clone()),
+                    SourceLoopScheduledStepV2::OwnedArrayAppend { site, observation, .. } => {
+                        let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
+                            source, call, candidate, ..
+                        } = observation else { unreachable!("verified append observation") };
+                        output.push(Prefix::OwnedArrayAppend { site: call.clone(), statement: site.clone(),
+                            holder: source.clone(), candidate: candidate.clone() });
+                    }
+                    SourceLoopScheduledStepV2::If { then_block, else_block, .. } => {
+                        visit(product, *then_block, output);
+                        if let Some(block) = else_block { visit(product, *block, output); }
+                    }
+                    SourceLoopScheduledStepV2::Exit { .. } => {},
+                }
+            }
+        }
+        let root = &self.recipe.as_recipe().loops[0];
+        let LoopConditionV2::Predicate { block, .. } = root.condition else { unreachable!("source Loop predicate") };
+        let mut output = Vec::new();
+        visit(self, block, &mut output); visit(self, root.body, &mut output);
+        output
+    }
+    pub(crate) fn owned_array_append_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1)
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
+        if site.owner() != self.source.source.owner() { return None; }
+        source_array_append_v2(&self.source, &SourceStmtSiteV1::from_node(site.site().node().clone()))
+    }
     pub(crate) fn schedule(&self) -> &VerifiedSourceLoopScheduleV2 { &self.schedule }
     #[cfg(test)]
     pub(crate) fn assert_schedule_for_test(&self, input: ResolvedFunctionLoweringInputV1<'_>) {
@@ -59,11 +90,33 @@ impl VerifiedSourceLoopRecipeProductV2 {
             || self.source.body_expressions.iter().any(|frame| Rc::ptr_eq(source, frame.source()))
     }
     pub(crate) fn owns_call_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {
-        site.owner() == self.source.source.owner() && std::iter::once(self.source.condition.source())
+        site.owner() == self.source.source.owner() && (std::iter::once(self.source.condition.source())
             .chain(self.source.body_expressions.iter().map(|frame| frame.source()))
             .any(|source| source.nodes().iter().any(|node| node.site() == site.site()
                 && matches!(node.source(), Node::MethodCall | Node::DirectCall)))
+            || self.schedule.blocks_array_appends_v2().any(|observation| matches!(observation,
+                crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { call, candidate, .. }
+                    if call == site || candidate == site)))
     }
+}
+pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
+    -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
+    fn find<'a>(body: &'a Body, site: &SourceStmtSiteV1)
+        -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
+        for statement in &body.statements {
+            match statement {
+                Statement::OwnedArrayAppend { site: original, observation } if original == site => return Some(observation),
+                Statement::If { then_body, else_body, .. } => {
+                    if let Some(row) = find(then_body, site).or_else(|| else_body.as_ref().and_then(|body| find(body, site))) {
+                        return Some(row);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+    find(source.control.as_ref().ok()?, site)
 }
 impl std::fmt::Debug for VerifiedSourceLoopRecipeProductV2 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -241,6 +294,18 @@ impl Projector<'_> {
     fn body(&mut self, block: LoopBlockKeyV1, body: &Body) -> Result<(), String> {
         for statement in body.statements.iter() {
             match statement {
+                Statement::OwnedArrayAppend { site, observation } => {
+                    // A unit effect slot delegates receiver/candidate/cleanup
+                    // to the original owned-array packet. No synthetic value,
+                    // scalar class or second expression evaluator is issued.
+                    let item = self.item(block, LoopRecipeItemV2::Operation {
+                        operation: LoopOperationV2::CallSlot { receiver: None, args: Vec::new(), result: None },
+                    });
+                    self.control.push(SourceLoopItemV2 { site: site.clone(), item });
+                    self.schedule.step(block, SourceLoopScheduledStepV2::OwnedArrayAppend {
+                        item, site: site.clone(), observation: observation.clone(),
+                    });
+                }
                 Statement::Expression { site, frame } => {
                     let start = self.recipe.blocks[block.raw() as usize].items.len();
                     let prefix_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
