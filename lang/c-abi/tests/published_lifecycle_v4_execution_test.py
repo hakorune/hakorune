@@ -18,7 +18,7 @@ YYJSON = ROOT / "plugins/nyash-json-plugin/c/yyjson"
 issued = json.loads(Path(sys.argv[1]).read_text())
 bool_inputs = [json.loads(Path(path).read_text()) for path in sys.argv[2:]]
 assert len(bool_inputs) == 2, "pass source-issued Pair JSON and both source-issued Bool JSON files"
-archive = ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"
+archive = Path(os.environ.get("HAKO_LIFECYCLE_NYRT", ROOT / "target/lifecycle-kernel/release")) / "libnyash_lifecycle_kernel.a"
 assert archive.is_file()
 env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
 
@@ -212,16 +212,21 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
     link()
     execute("normal", 3, "1 0 0 0 0 1")
 
-    # Signed comparison evidence must execute, not merely parse each spelling.
+    # Execute signed and Bool comparisons; reject mixed kinds and Bool ordering.
     for predicate, lhs, rhs, expected in [
             ("eq", -1, -1, 1), ("ne", -1, 0, 1),
             ("slt", -(2**63), 2**63 - 1, 1), ("sle", -1, -1, 1),
-            ("sgt", -(2**63), 2**63 - 1, 0), ("sge", -1, 0, 0)]:
+            ("sgt", -(2**63), 2**63 - 1, 0), ("sge", -1, 0, 0),
+            ("eq", False, False, 1), ("ne", False, True, 1),
+            ("eq", False, 0, None), ("eq", 0, False, None),
+            ("slt", False, True, None)]:
         data = copy.deepcopy(scalar_loop)
         blocks = data["functions"][0]["blocks"]
         entry = blocks[0]
-        entry["instructions"][1]["instruction"]["value"] = lhs
-        entry["instructions"][2]["instruction"]["value"] = rhs
+        entry["instructions"][1]["instruction"].update(
+            op="const_bool" if isinstance(lhs, bool) else "const_i64", value=lhs)
+        entry["instructions"][2]["instruction"].update(
+            op="const_bool" if isinstance(rhs, bool) else "const_i64", value=rhs)
         entry["instructions"][3]["instruction"] = {
             "op": "compare", "dst": 6, "lhs": 1, "rhs": 2, "predicate": predicate}
         entry["terminator"]["instruction"] = {"op": "branch", "condition": 6,
@@ -235,7 +240,9 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
             block["terminator"] = {"index": 1,
                 "instruction": {"op": "return", "value": 20 + value}}
         data["functions"][0]["blocks"] = [no, entry, yes]
-        compile_input(data)
+        compile_input(data, expected is not None)
+        if expected is None:
+            continue
         link()
         execute("normal", expected, "1 0 0 0 0 1")
 

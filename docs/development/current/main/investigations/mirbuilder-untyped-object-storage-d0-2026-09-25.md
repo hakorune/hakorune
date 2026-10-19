@@ -54,5 +54,6 @@ weaken Text/Array negatives, or rewrite the app to evade this decision.
 ## Next action
 
 - Keep the fixture and existing safety boundaries unchanged; do not count it as PASS or SKIP.
-- Continue `APP-allocator-stress` by the user's 2026-10-19 selection override.
+- Allocator-stress has landed; continue the selected JSON Loop/Text connection.
+  Its later untyped-slot dependency does not authorize this D0's implementation.
 - Historical D0 rationale and birth-param migration details remain in this file's Git history.

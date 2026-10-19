@@ -89,6 +89,12 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
+      /* Bool equality uses its canonical 0/1 carrier, never Integer or
+         tagged-payload coercion. Bool ordering remains outside this lane. */
+      if (lhs && rhs && lhs->kind == LV4_BOOL && rhs->kind == LV4_BOOL) {
+        if (!lv4_is(ins, "predicate", "eq") && !lv4_is(ins, "predicate", "ne")) return 0;
+        continue;
+      }
       /* The borrowed kind/payload lane may serve a checked compare only;
          the emitted kind==1 branch proves the i64 read at the use site. */
       if (!lhs || !rhs ||
