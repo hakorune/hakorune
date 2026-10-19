@@ -256,6 +256,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             yyjson_val* view = yyjson_obj_get(yyjson_arr_get(cparams, i), "object_view");
             int class_domain = yyjson_is_uint(view);
             int text_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "text_view"));
+            int integer_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "integer_view"));
+            if (integer_domain && (!yyjson_is_uint(kind) || yyjson_get_uint(kind) != 1 ||
+                !value || value->kind != LV4_I64)) return 0;
             if (arg_kind && !strcmp(arg_kind, "borrowed_text")) {
               yyjson_val* operand = yyjson_obj_get(arg, "operand");
               if (!text_domain || class_domain ||

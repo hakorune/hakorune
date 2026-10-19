@@ -353,7 +353,10 @@ static int lv4_index_open(hako_lv4_input* in) {
            never a lease and admits no consume. */
         param->kind = LV4_HANDLE; param->origin = -3;
       } else {
-        param->kind = ordinary && !lv4_is(row, "representation", "borrowed_kind_payload_v1") ? LV4_I64 : LV4_TAGGED; param->origin = -1;
+        /* The pair ABI is unchanged. Its checked Integer entry projection
+           dominates every body use; Copy/Phi transport the projected i64. */
+        param->kind = ordinary && (!lv4_is(row, "representation", "borrowed_kind_payload_v1") ||
+            yyjson_is_true(yyjson_obj_get(row, "integer_view"))) ? LV4_I64 : LV4_TAGGED; param->origin = -1;
       }
     }
     for (size_t bi = 0; bi < fn->block_count; bi++) {

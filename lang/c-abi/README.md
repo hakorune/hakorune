@@ -628,6 +628,16 @@ archive. It builds a private current-source shim, compiles and executes unchange
 source-issued JSON, and rejects fourteen external ABI mutations without artifacts.
 This tiny program does not prove full mimalloc or MirBuilder migration completion.
 
+An optional `integer_view: true` on a borrowed formal retains the same pair ABI
+and requires a null object view and no Text view. Every incoming must carry
+tag1 with an independently checked I64 value; generic tagged forwarding is
+rejected. The function prologue checks kind1 before any body effect, and the
+indexed body then uses I64 through Copy/Phi. This is an entry projection, not a
+mixed-domain coercion. Rust must supply the original finite-domain/use proof
+before emitting the marker; C support alone grants no source permission.
+The existing borrowed-ingress execution matrix covers Static/Instance Copy/Phi,
+Normal/Fault cleanup and domain/producer mutations without replacing artifacts.
+
 ### V4 Return emission owner
 
 `hako_llvmc_ffi_lifecycle_v4_emit.inc` calls the private

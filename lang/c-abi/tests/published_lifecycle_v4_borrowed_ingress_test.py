@@ -53,7 +53,7 @@ def function(name, role, receiver, params, blocks):
             'params': params, 'entry': 0, 'blocks': blocks}
 
 
-def graph(kind, payload=1):
+def graph(kind, payload=1, integer_view=False):
     arg_rows = [{'op': 'copy', 'dst': 10, 'src': 2}] if kind == 3 else [
         {'op': 'const_bool' if kind == 2 else 'const_i64', 'dst': 10, 'value': bool(payload) if kind == 2 else payload}]
     fault = {'op': 'return_fault', 'fault_frame': 1}
@@ -82,6 +82,25 @@ def graph(kind, payload=1):
               invoke({'kind': 'field_set', 'object_id': OBJECT, 'field_ordinal': FIELD,
                       'base': 0, 'value': 2, 'site': 77, 'exact_numeric_runtime_check': {'kind': 'none'}}, 1, 2), (1, 2)),
         block(1, [], {'op': 'return', 'value': 2}), block(2, [], fault)])
+    if integer_view:
+        for fn in [forward, leaf]:
+            fn['params'][0]['integer_view'] = True
+        forward['blocks'][0]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 1
+        store = copy.deepcopy(leaf['blocks'][0]['terminator']['instruction']['operation'])
+        store['value'] = 5
+        leaf['blocks'] = [
+            block(0, [{'op': 'fault_frame_enter', 'dst': 1, 'mode': 'borrowed'},
+                      {'op': 'const_i64', 'dst': 2, 'value': 7},
+                      {'op': 'const_i64', 'dst': 4, 'value': 1}],
+                  {'op': 'jump', 'target': 3, 'args': None}, (3,)),
+            block(3, [{'op': 'phi', 'dst': 5, 'inputs': [{'block': 0, 'value': 3}, {'block': 4, 'value': 7}]},
+                      {'op': 'compare', 'dst': 6, 'lhs': 5, 'rhs': 2, 'predicate': 'slt'}],
+                  {'op': 'branch', 'condition': 6, 'then': 4, 'else': 5,
+                   'then_args': None, 'else_args': None}, (4, 5)),
+            block(4, [{'op': 'add', 'dst': 7, 'lhs': 5, 'rhs': 4}],
+                  {'op': 'jump', 'target': 3, 'args': None}, (3,)),
+            block(5, [], invoke(store, 1, 2), (1, 2)),
+            block(1, [], {'op': 'return', 'value': 5}), block(2, [], fault)]
     return {'schema': 'hako.published-lifecycle-physical-program.v2',
             'fault_abi_version': 1, 'storage_profile': 1, 'process_result_site': 99,
             'functions': [root, forward, leaf], 'layouts': [copy.deepcopy(layout)]}
@@ -409,6 +428,49 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     print('borrowed empty Text descriptor executes without a fabricated SSA literal PASS')
     if '--text-only' in sys.argv:
         raise SystemExit(0)
+
+    data = graph(1, integer_view=True)
+    compile_input(data)
+    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+             '-lpthread', '-ldl', '-lm', '-o', exe])
+    for mode, expected in [('normal', 7), ('fault-first', 70)]:
+        result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE=mode), capture_output=True, text=True)
+        assert result.returncode == expected, (mode, result)
+        assert 'COUNTS ' + ('1 1 1 0 0 1' if mode == 'normal' else '1 1 1 0 1 1') + '\n' in result.stdout, result
+    for mutation in ['bool', 'forged-integer', 'null', 'forward-tagged', 'missing-view', 'false-view', 'text-view', 'object-view']:
+        changed = copy.deepcopy(data)
+        root, forward, leaf = changed['functions']
+        if mutation in ('bool', 'forged-integer'):
+            root['blocks'][1]['instructions'][1]['instruction'] = {'op': 'const_bool', 'dst': 10, 'value': True}
+            if mutation == 'bool': root['blocks'][1]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 2
+        elif mutation == 'null':
+            root['blocks'][1]['instructions'][1]['instruction'] = {'op': 'const_null', 'dst': 10}
+            root['blocks'][1]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 0
+        elif mutation == 'forward-tagged':
+            forward['blocks'][0]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 'tagged'
+        elif mutation == 'missing-view': del leaf['params'][0]['integer_view']
+        elif mutation == 'false-view': forward['params'][0]['integer_view'] = False
+        elif mutation == 'text-view': forward['params'][0]['text_view'] = True
+        else: forward['params'][0]['object_view'] = OBJECT
+        compile_input(changed, False)
+    # JsonLine's entry is Static: the same projection has no receiver lane.
+    static = copy.deepcopy(data)
+    for fn in static['functions'][1:]:
+        fn['receiver'] = fn['receiver_object'] = None
+    del static['functions'][0]['blocks'][1]['terminator']['instruction']['operation']['call']['receiver']
+    del static['functions'][1]['blocks'][0]['terminator']['instruction']['operation']['call']['receiver']
+    tail = next(b for b in static['functions'][2]['blocks'] if b['id'] == 5)
+    tail['terminator']['instruction'] = {'op': 'jump', 'target': 1, 'args': None}
+    tail['edges'] = [{'target': 1, 'args': None}]
+    static['functions'][2]['blocks'] = [b for b in static['functions'][2]['blocks'] if b['id'] != 2]
+    compile_input(static)
+    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+             '-lpthread', '-ldl', '-lm', '-o', exe])
+    result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+    assert result.returncode == 7 and 'COUNTS 1 0 1 0 0 1\n' in result.stdout, result
+    print('borrowed Integer entry projection: Static/Instance Copy/Phi, Normal/Fault cleanup and independent domain negatives PASS')
 
     for null_result in [False, True]:
         data = received_field_read_graph(null_result)

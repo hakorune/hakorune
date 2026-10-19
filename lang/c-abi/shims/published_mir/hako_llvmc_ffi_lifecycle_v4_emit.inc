@@ -168,6 +168,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     if (!lv4_is(param, "representation", "borrowed_kind_payload_v1")) continue;
     uint32_t v = lv4_u(param, "value");
     yyjson_val* object_view = yyjson_obj_get(param, "object_view");
+    if (yyjson_is_true(yyjson_obj_get(param, "integer_view"))) {
+      /* This is an ABI projection before the first body effect, not a
+         coercion or a guarded mixed-domain numeric operation. */
+      fprintf(f,
+          "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
+          "  br i1 %%arg_int%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v,v,v,v);
+      continue;
+    }
     if (yyjson_is_uint(object_view)) {
       uint32_t runtime_type = lv4_u(lv4_layout(in, (uint32_t)yyjson_get_uint(object_view)), "runtime_type_id");
       /* Caller provenance remains independently verified. A class domain

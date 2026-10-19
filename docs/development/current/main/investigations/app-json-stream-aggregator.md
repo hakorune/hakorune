@@ -59,7 +59,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   C must check kind1 before body effects and independently reject every non-I64
   incoming. Copy/Phi then use the checked I64 view; forwarding must publish tag1,
   not a tagged Copy whose kind variable no longer exists. Legacy mixed guards stay.
-  This input projection and its Rust final-consumer connection are not implemented yet.
+  C Static/Instance Copy/Phi, Normal/Fault and domain/producer mutation matrix PASS.
+  Minimal existing matrix extensions protect this new input boundary; no new test function.
+  Rust activation still requires module/published sequence replay plus rejection of
+  projected root/Copy/Phi uses outside the sealed scope; a domain-only skip is forbidden.
 - Existing compiler tuple extension checks the separate caller boundary: a Loop
   scalar enters an unannotated, unused callee formal without losing its source read.
   It adds no test function; declared-formal/Return coverage remains in its original tuple.

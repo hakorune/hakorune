@@ -24,6 +24,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
   static const char* const keys[] = {"value", "representation"};
   static const char* const view_keys[] = {"value", "representation", "object_view"};
   static const char* const text_keys[] = {"value", "representation", "object_view", "text_view"};
+  static const char* const integer_keys[] = {"value", "representation", "object_view", "integer_view"};
   yyjson_val* params = yyjson_obj_get(fn, "params");
   if (!yyjson_is_arr(params)) return 0;
   for (size_t i = 0; i < yyjson_arr_size(params); i++) {
@@ -34,13 +35,16 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       uint32_t object;
       yyjson_val* view = yyjson_obj_get(param, "object_view");
       yyjson_val* text = yyjson_obj_get(param, "text_view");
-      if (text && (!yyjson_is_true(text) || !yyjson_is_null(view) ||
+      yyjson_val* integer = yyjson_obj_get(param, "integer_view");
+      yyjson_val* scalar_view = text ? text : integer;
+      if ((text && integer) || (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
           (!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
            !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") &&
            !(yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
              (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") ||
-              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool")))))) return 0;
+              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool"))))))) return 0;
       if (!(text ? hako_physical_exact_keys(param, text_keys, 4) :
+          integer ? hako_physical_exact_keys(param, integer_keys, 4) :
           hako_physical_exact_keys(param, view_keys, 3)) ||
           (!yyjson_is_null(view) && (!hako_physical_u32(view, &object) ||
           !hako_physical_layout_has_object(layouts, object)))) return 0;
@@ -62,7 +66,8 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
            I64 has no receiver; nullable-handle keeps its instance boundary.
            The ordinary prologue revalidates the exact pair either way. */
         if ((!(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") &&
-               yyjson_is_true(yyjson_obj_get(param, "text_view"))) &&
+               (yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
+                yyjson_is_true(yyjson_obj_get(param, "integer_view")))) &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") &&
