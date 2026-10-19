@@ -86,8 +86,10 @@ pub(super) fn check_atomic_residence_operations(profile: TypedObjectStoreBackend
     }
     let parent = new_checked_indexed(profile, 901, &[TypedSlotStorage::I64; 3]).unwrap();
     let child = new_checked_indexed(profile, 902, &[]).unwrap();
+    // Observe the existing I64 payload/outcome without cloning its slot.
+    let snapshot = |field: &TypedSlot| (field.storage, field.as_compat_i64(), field.residence);
     for (slot, value, outcome) in [(0, 0, Null), (1, child, Fresh), (2, child, Forward)] {
-        let before = with_field(parent, slot, Clone::clone).unwrap();
+        let before = with_field(parent, slot, snapshot).unwrap();
         for (wrong_parent, wrong_type, wrong_slot, wrong_child, bad_value, bad_outcome) in [
             (parent, 900, slot, 902, value, outcome),
             (parent, 901, 9, 902, value, outcome),
@@ -108,7 +110,7 @@ pub(super) fn check_atomic_residence_operations(profile: TypedObjectStoreBackend
                 bad_outcome
             )
             .is_err());
-            assert_eq!(with_field(parent, slot, Clone::clone).unwrap(), before);
+            assert_eq!(with_field(parent, slot, snapshot).unwrap(), before);
         }
         install_object_residence_checked(profile, parent, 901, slot, 902, value, outcome).unwrap();
         assert_eq!(

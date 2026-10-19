@@ -44,44 +44,36 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Next source connection
 
-- Source declaration now issues Dynamic layout for bare strong slots; no observed
-  writer/MIR inference. Existing complete fixed-Array specialization is retained.
+- Source declaration now issues Dynamic layout for bare strong slots; no writer/MIR
+  inference. Existing complete fixed-Array specialization remains a bounded profile.
 - Shared storage excludes Dynamic from numeric lane. Destruction/exact-slot/final
-  consumer fences retain unsupported execution; layout availability grants no ABI.
-- Existing storage vocabulary2, canonical layout4, plan inference19 (including layout4), declaration6
-  and referenced physical-layout rejection1 PASS; no new test functions/files.
-  Existing cases now cover Dynamic layout/noninteger separation; independent boundary.
-- The first uncovered path is the Bool-result statement call above, not the earlier
-  `find`/`intField` loops. `ingestLine` returns original Bool literals false/false/true.
-- Existing debug mode now retains owner/function/site and scalar incoming context.
-  Refusal selection and the default-off debug setting are unchanged.
-- Instance actual preparation and independent revalidation are separated behind existing
-  APIs; Static/Instance Core argument checks share one source owner.
-- Loop physical effects now borrow the SAME existing child group/Append packet from the
-  exact parent, preserving source/continuation/finished checks without a separate Call map.
-  `source_loop`13PASS/1FAIL matches the saved pre-change binary; source walk1 and Array
-  lifetime5 PASS. The existing `count_at` source-Loop failure stays open.
-- Uniform original I64/Bool literal Return census now survives parameterized source
-  qualification and independent final result checking. Existing borrowed-use family is
-  preserved; no input, Completion or Invoke ABI permission is inferred from that census.
-- Core Text actuals reuse the SAME argument receipt/frame through Instance preparation,
-  reconstruction and final validation. Complete literal Returns prove no Mul product;
-  missing use drafts alone still cannot prove that absence.
-- Focused Static22/Instance4/pending7 PASS; composition9PASS/2FAIL and result15PASS/2FAIL
-  match saved pre-change failures. The existing Unit-value diagnostic expectation also
-  fails with the pre-admission CLI; its refusal remains terminal, not a successful value.
-- Existing case adds I64/Bool Return-census loss checks and substring actuals because
-  empty field-plan coverage cannot detect a lost literal Return. Test functions remain9263;
-  no new test file/hook/checker/guard/token. Read-only worker reviewed same-source boundaries.
-- Reuse `home_prefix_source_loop*` source header/control/expression inventory,
-  `produce_source_loop_recipe_v2`, and existing execution/schedule and expression writers.
-  Landed Text, Bool, BranchNormal and argument owners supply existing contracts.
-- Next connect both Local and Discard as Call actions in the existing source Loop tree,
-  schedule, physical Static/Instance writers and final child-packet verification. Its substring
-  argument belongs inside that SAME Call packet; do not turn it into an expression root.
-  Preserve Normal/Fault argument cleanup and original Homes; no backend inference or app edit.
-- JSON's later untyped UserStats/aggregator slots and Map remain explicit dependencies.
-  Accepted semantics still require physical storage, read/write and cleanup connection.
+  consumer fences reject unsupported execution; layout availability grants no ABI.
+- Existing vocabulary2, plan inference19 (including layout4), declaration6 and
+  referenced physical-layout rejection1 PASS. Existing cases add Dynamic layout/
+  noninteger assertions for that independent boundary; no new test functions/files.
+- Runtime TypedSlotValue/TypedSlot/TypedSlotObject are now move-only. Existing
+  residence checks observe payload/outcome without cloning a storage owner.
+  Kernel lifecycle-core `typed_object`35 PASS (build105s, execution<0.01s);
+  checked C operations pass on SafeMutex/SingleThread, and indexed profile checks
+  retain rejection on PinnedArena/DirectSlot. No runtime representation changed.
+- Next extend the SAME TypedSlot value/residence and atomic store owner with known
+  EmptyField, checked tagged reads, replacement/detached-old cleanup and exact End.
+  Existing Text lease pairs and source-selected object/Array/Map End owners retain
+  authority; no generic handle clone, tag-to-destructor switch or alternate heap.
+- Both final consumers must recheck the same slot/residence/commit/Fault relation
+  before any C/runtime profile is admitted. The unchanged sentinel is the common
+  field-boundary acceptance, not a replacement for the selected JSON smoke.
+- JSON Loop Call source edits stay stashed until its physical half is implemented.
+  Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
+  existing source tree/schedule and SAME Static/Instance child packet. Its substring
+  argument stays inside that packet; retain original Homes and argument cleanup.
+- Existing Loop normalization uses SAME child groups; source_loop13PASS/1FAIL matches
+  the prior binary, source walk1/Array lifetime5 PASS; count_at remains open.
+- Literal I64/Bool Return census and SAME Core Text argument frames are connected.
+  Static22/Instance4/pending7 PASS; composition9PASS/2FAIL/result15PASS/2FAIL and
+  Unit diagnostic failure match prior evidence. Root test functions remain9263.
+- JSON's later UserStats/aggregator slots and Map remain implementation dependencies.
+  Accepted semantics do not claim physical storage/read/write/cleanup coverage.
 
 ## Retained verification obligations
 

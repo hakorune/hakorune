@@ -101,7 +101,9 @@ impl TypedSlotStorage {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
+// Values/residences move with their slot. Observation must not become an
+// owning clone when tagged strong fields acquire nontrivial obligations.
 pub(crate) enum TypedSlotValue {
     I64(i64),
     Handle(i64),
@@ -120,7 +122,7 @@ impl TypedSlotValue {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct TypedSlot {
     pub(crate) storage: TypedSlotStorage,
     pub(crate) value: TypedSlotValue,
@@ -283,7 +285,7 @@ pub(crate) struct TypedSlotLayout {
     pub(crate) fields: Vec<TypedSlotStorage>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct TypedSlotObject {
     pub(crate) type_id: i64,
     pub(crate) fields: Vec<TypedSlot>,
