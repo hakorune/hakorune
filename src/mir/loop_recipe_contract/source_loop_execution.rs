@@ -38,6 +38,8 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
     let mut faults = Vec::new();
     let mut cores = 0;
     let mut text_comparisons = 0;
+    let mut comparison_cores = 0;
+    let mut normal_temporary_ends = Vec::new();
     for &node in frame.ordered_nodes() {
         if let Some(core) = frame.cores().get(&node) {
             let target = core.source().target();
@@ -79,7 +81,14 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             if frame.class(node) != Some(Leaf::Value(Class::Bool)) || frame.owned_result_nodes().contains(&node) {
                 return Err(reject("execution-comparison-result"));
             }
+            let inputs = frame.text_comparison_input_order_v1(node).ok_or_else(|| reject("execution-operation-census"))?;
+            let expected: Vec<_> = inputs.iter().copied().filter(|node| frame.owned_result_nodes().contains(node)).collect();
+            if acquisitions != expected { return Err(reject("execution-operation-census")); }
+            comparison_cores += inputs.iter().filter(|node| frame.cores().contains_key(node)).count();
             faults.push(fault(input, source, frame, node, &acquisitions)?);
+            // Each comparison closes before the logical merge. Its acquired
+            // prefix must never enter a later or skipped RHS Fault scope.
+            normal_temporary_ends.extend(acquisitions.drain(..).rev());
             text_comparisons += 1;
         }
         if frame.owned_result_nodes().contains(&node) {
@@ -87,12 +96,12 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             acquisitions.push(node);
         }
     }
-    if cores != frame.cores().len() || (text_comparisons != 0 && !frame.cores().is_empty()) {
+    if cores != frame.cores().len() || (text_comparisons != 0 && (comparison_cores != cores || !acquisitions.is_empty())) {
         return Err(reject("execution-operation-census"));
     }
-    let normal_temporary_ends = acquisitions.into_iter().rev()
-        .filter(|node| !(retain_root && *node == 0)).collect();
-    Ok(SourceLoopEvaluationLifecycleV2 { source: Rc::clone(frame.source()), normal_temporary_ends, faults: faults.into_boxed_slice() })
+    normal_temporary_ends.extend(acquisitions.into_iter().rev().filter(|node| !(retain_root && *node == 0)));
+    Ok(SourceLoopEvaluationLifecycleV2 { source: Rc::clone(frame.source()),
+        normal_temporary_ends: normal_temporary_ends.into_boxed_slice(), faults: faults.into_boxed_slice() })
 }
 fn normal_port(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary,
     port: usize, homes: &[LiveHomeV1],

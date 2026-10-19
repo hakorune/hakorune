@@ -1,6 +1,6 @@
 //! The SAME checked condition projected once into the portable closed region.
-//! Only genuine reference nodes become imports. Calls, fields and owned or
-//! transferred subtrees cannot masquerade as an input to this expression.
+//! Only genuine reference nodes become imports. Closed Core children retain
+//! their original loans; Calls/fields/transferred subtrees stay unadmitted.
 use super::{LoopBoolCompareV1 as Compare, LoopBoolCompareDomainV1 as Domain,
     LoopBoolNodeV1 as Node, LoopBoolRegionV1, LoopValueClassV2 as Class,
     LoopOperationV2, LoopValueKeyV1};
@@ -49,8 +49,7 @@ fn compare(op: Op) -> Result<(Compare, Family), String> {
 
 pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>) -> Result<CheckedLoopBoolExpressionV1, String> {
     let evaluation = frame.evaluation();
-    if !evaluation.reference_coverage_is_exact() || !evaluation.calls().is_empty()
-        || !evaluation.cores().is_empty() || !evaluation.owned_result_nodes().is_empty() {
+    if !evaluation.reference_coverage_is_exact() || !evaluation.calls().is_empty() {
         return Err(reject("opaque-or-owned-subtree"));
     }
     let mut nodes = Vec::new();
@@ -59,6 +58,8 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
     let source = frame.source();
     let mut operations = 0;
     let mut logical = 0;
+    let mut cores = 0;
+    let mut owned = 0;
     for &index in frame.ordered_nodes() {
         if frame.transfers_node(index) { return Err(reject("transferred-subtree")); }
         let original = source.nodes().get(index).ok_or_else(|| reject("source-node"))?;
@@ -74,6 +75,28 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
             Source::Literal(Literal::Integer(value)) if current_class == Class::I64 => Node::I64 { value: *value },
             Source::Literal(Literal::Bool(value)) if current_class == Class::Bool => Node::Bool { value: *value },
             Source::Literal(Literal::String(value)) if current_class == Class::Text => Node::Text { value: value.to_string() },
+            Source::MethodCall => {
+                use crate::mir::core_method_op::CoreMethodOp as Core;
+                let core = evaluation.cores().get(&index).ok_or_else(|| reject("hidden-effectful-node"))?;
+                if !core.matches_plan(source, index)
+                    || core.owns_result() != evaluation.owned_result_nodes().contains(&index) {
+                    return Err(reject("source-coverage"));
+                }
+                let original = core.source().source();
+                let child = |site| source.nodes().iter().position(|node| node.site() == site)
+                    .and_then(|node| indices.get(&node).copied()).ok_or_else(|| reject("child-order"));
+                let value = child(original.receiver_site())?;
+                let arguments = original.arguments().iter().map(|argument| child(argument.site()))
+                    .collect::<Result<Vec<_>, _>>()?;
+                cores += 1;
+                owned += usize::from(core.owns_result());
+                match (core.source().target().row().row().op, arguments.as_slice(), current_class) {
+                    (Core::StringLen, [], Class::I64) => Node::TextLength { value },
+                    (Core::StringSubstring, [start, end], Class::Text) => Node::TextSubstring { value, start: *start, end: *end },
+                    (Core::StringIndexOf, [needle], Class::I64) => Node::TextIndexOf { value, needle: *needle },
+                    _ => return Err(reject("hidden-effectful-node")),
+                }
+            }
             Source::Binary(binary) => {
                 let child = |site| source.nodes().iter().position(|node| node.site() == site)
                     .and_then(|node| indices.get(&node).copied()).ok_or_else(|| reject("child-order"));
@@ -115,6 +138,7 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
         nodes.push(node);
     }
     if operations != frame.operations().len() || logical != frame.logical_nodes().len()
+        || cores != evaluation.cores().len() || owned != evaluation.owned_result_nodes().len()
         || imports.len() != frame.references().len() || indices.len() != source.nodes().len() {
         return Err(reject("source-coverage"));
     }

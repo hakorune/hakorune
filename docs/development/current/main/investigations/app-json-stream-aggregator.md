@@ -16,14 +16,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Current matching quick CLI passes the Main.main argument frame for
   `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
   `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
-  Matching quick CLI39.50s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
+  Matching quick CLI47.99s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
   (callee JsonLine.find/3). No EXE/link/runtime.
-- Caller Loop `JsonLine.find` argument2 (`start`) now retains its checked scalar read
-  in the original argument frame; matching smoke no longer reports ingest's uncovered read.
-  Callee JsonLine.find now retains its original ReturnInBody planner family and
-  checked Header basis. Its condition Core source now reaches the Bool frame,
-  but portable Loop Bool projection refuses `opaque-or-owned-subtree`. The same
-  input-cohort stop remains; no EXE/link/runtime was reached.
+- Callee find retains caller scalar reads, original ReturnInBody family,
+  checked Header basis and portable Bool/Core projection. Its execution tree
+  next lacks the original `return i` action at line17. The same outer input-cohort
+  stop remains; no EXE/link/runtime was reached.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -45,11 +43,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Source SUM now demands original If/Loop conditions, without new formal incoming.
   Threading removes only the same orphaned empty Jump, keeping other entries alive.
 - Minimal existing substring tuple protects the new conditional owning-Core scope;
-  no test function/file/hook or checker added. Related existing95 PASS, including
-  SimplifyCFG16 and shared initializer/rebind/print/Call/Loop final consumers.
-- Next: project the SAME Core into the existing portable Loop Bool tree, close
-  acquisitions per comparison, and connect Loop Return through the original
-  terminal owner. Rust Integer entry and Static String Call ABI remain owed.
+  no test function/file/hook or checker added. Earlier focused95 PASS. Portable
+  Core/three-child order/type extends existing cases; related252 PASS, Loop contract
+  21 FAIL reproduce the same S6C Facts RelationCoverage in the prior binary.
+- Portable Bool retains original Core loans/ordered children; comparison-local
+  acquisitions close before logical merges. Linear initializer/rebind stays shared.
+  Next: retain Return after original terminal observation; use FunctionExit and
+  existing root cleanup, never Header/After incoming or Loop-only cleanup. Rust
+  Integer entry and Static String Call ABI remain owed.
 - C pair Return reuses `{handle, End token}`, per-Invoke String output slot,
   Normal projection and String End. Existing borrowed-ingress `--text-only` matrix
   PASS with quick runtime/private C FFI and `CC="clang -fuse-ld=lld"`.
@@ -70,9 +71,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   C must check kind1 before body effects and independently reject every non-I64
   incoming. Copy/Phi then use the checked I64 view; forwarding must publish tag1,
   not a tagged Copy whose kind variable no longer exists. Legacy mixed guards stay.
-  C Static/Instance Copy/Phi, Normal/Fault and domain/producer mutation matrix PASS.
-  Rust activation still requires module/published sequence replay plus rejection of
-  projected root/Copy/Phi uses outside the sealed scope; a domain-only skip is forbidden.
+  C Static/Instance mutation matrix PASS. Rust requires module/published replay
+  and rejection of root/Copy/Phi uses outside the sealed scope; no domain-only skip.
 - Existing Loop caller tuple preserves its read into an unused unannotated formal.
   Forwarded-candidate setup and Raw Loop residual retain their existing failures.
 

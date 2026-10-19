@@ -19,6 +19,9 @@ pub(crate) enum LoopBoolNodeV1 {
     I64 { value: i64 },
     Bool { value: bool },
     Text { value: String },
+    TextLength { value: u32 },
+    TextSubstring { value: u32, start: u32, end: u32 },
+    TextIndexOf { value: u32, needle: u32 },
     AddI64 { left: u32, right: u32 },
     Compare { op: LoopBoolCompareV1, domain: LoopBoolCompareDomainV1, left: u32, right: u32 },
     And { left: u32, right: u32 },
@@ -38,21 +41,29 @@ pub(crate) enum LoopBoolRegionRejectV1 {
     Root, ChildOrder, SharedChild, Orphan, Postorder, ImportOrder, ImportClass, ImportCoverage, Domain,
 }
 impl LoopBoolNodeV1 {
-    fn children(&self) -> Option<[u32; 2]> {
-        match self {
+    fn children(&self) -> impl DoubleEndedIterator<Item = u32> {
+        let children = match self {
+            Self::TextLength { value } => [Some(*value), None, None],
+            Self::TextSubstring { value, start, end } => [Some(*value), Some(*start), Some(*end)],
+            Self::TextIndexOf { value, needle } => [Some(*value), Some(*needle), None],
             Self::AddI64 { left, right } | Self::Compare { left, right, .. }
-            | Self::And { left, right } | Self::Or { left, right } => Some([*left, *right]),
-            _ => None,
-        }
+            | Self::And { left, right } | Self::Or { left, right } => [Some(*left), Some(*right), None],
+            _ => [None; 3],
+        };
+        children.into_iter().flatten()
     }
 }
 impl LoopBoolRegionV1 {
     pub(crate) fn may_fault(&self) -> bool {
         self.nodes.iter().any(|node| matches!(node,
-            LoopBoolNodeV1::Compare { domain: LoopBoolCompareDomainV1::Text, .. }))
+            LoopBoolNodeV1::Compare { domain: LoopBoolCompareDomainV1::Text, .. }
+            | LoopBoolNodeV1::TextLength { .. } | LoopBoolNodeV1::TextSubstring { .. }
+            | LoopBoolNodeV1::TextIndexOf { .. }))
     }
 
-    /// No Call/field/Core/owned subtree can hide behind a local node kind.
+    /// No Call/field or opaque owned subtree can hide behind a local node kind.
+    /// Closed Core nodes retain their exact typed children; source loans and
+    /// acquisition/End scopes are checked by the original source owner.
     /// Each import ordinal names exactly one supplied outer value class.
     pub(crate) fn verify(&self, inputs: &[Class]) -> Result<(), LoopBoolRegionRejectV1> {
         use LoopBoolRegionRejectV1 as Reject;
@@ -61,13 +72,11 @@ impl LoopBoolRegionV1 {
         let mut parents = vec![0u8; self.nodes.len()];
         let mut imports = 0;
         for (index, node) in self.nodes.iter().enumerate() {
-            if let Some(children) = node.children() {
-                for child in children {
-                    if child as usize >= index { return Err(Reject::ChildOrder); }
-                    let count = &mut parents[child as usize];
-                    if *count != 0 { return Err(Reject::SharedChild); }
-                    *count = 1;
-                }
+            for child in node.children() {
+                if child as usize >= index { return Err(Reject::ChildOrder); }
+                let count = &mut parents[child as usize];
+                if *count != 0 { return Err(Reject::SharedChild); }
+                *count = 1;
             }
             let class = match node {
                 LoopBoolNodeV1::Import { ordinal, class } => {
@@ -80,6 +89,19 @@ impl LoopBoolRegionV1 {
                 LoopBoolNodeV1::I64 { .. } => Class::I64,
                 LoopBoolNodeV1::Bool { .. } => Class::Bool,
                 LoopBoolNodeV1::Text { .. } => Class::Text,
+                LoopBoolNodeV1::TextLength { value } => {
+                    if classes[*value as usize] != Class::Text { return Err(Reject::Domain); }
+                    Class::I64
+                }
+                LoopBoolNodeV1::TextSubstring { value, start, end } => {
+                    if classes[*value as usize] != Class::Text || classes[*start as usize] != Class::I64
+                        || classes[*end as usize] != Class::I64 { return Err(Reject::Domain); }
+                    Class::Text
+                }
+                LoopBoolNodeV1::TextIndexOf { value, needle } => {
+                    if classes[*value as usize] != Class::Text || classes[*needle as usize] != Class::Text { return Err(Reject::Domain); }
+                    Class::I64
+                }
                 LoopBoolNodeV1::AddI64 { left, right } => {
                     if classes[*left as usize] != Class::I64 || classes[*right as usize] != Class::I64 { return Err(Reject::Domain); }
                     Class::I64
@@ -104,8 +126,10 @@ impl LoopBoolRegionV1 {
         let mut stack = vec![(self.root, false)];
         let mut next = 0usize;
         while let Some((node, visited)) = stack.pop() {
-            if let Some([left, right]) = self.nodes[node as usize].children().filter(|_| !visited) {
-                stack.extend([(node, true), (right, false), (left, false)]);
+            let mut children = self.nodes[node as usize].children().rev().peekable();
+            if !visited && children.peek().is_some() {
+                stack.push((node, true));
+                stack.extend(children.map(|child| (child, false)));
             } else {
                 if node as usize != next { return Err(Reject::Postorder); }
                 next += 1;

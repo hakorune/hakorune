@@ -152,19 +152,29 @@ fn const_text_wire_requires_exact_text_field() {
     }
 }
 
-fn bool_recipe() -> LoopRecipeV2 {
+fn bool_recipe(with_core: bool) -> LoopRecipeV2 {
     use super::bool_region::{LoopBoolRegionV1, LoopBoolNodeV1 as N, LoopBoolCompareV1 as C, LoopBoolCompareDomainV1 as D};
     let mut input = recipe("unused");
     input.values[2].class = LoopValueClassV2::Bool;
     input.items[0].item = LoopRecipeItemV2::Operation { operation: LoopOperationV2::BoolExpression {
         inputs: vec![LoopValueKeyV1::new(0); 2], result: LoopValueKeyV1::new(2),
-        region: LoopBoolRegionV1 { root: 6, nodes: vec![
+        region: if with_core { LoopBoolRegionV1 { root: 12, nodes: vec![
+            N::Import { ordinal: 0, class: LoopValueClassV2::Text },
+            N::Text { value: "X".into() }, N::Text { value: "x".into() },
+            N::TextIndexOf { value: 1, needle: 2 },
+            N::Text { value: "0".into() }, N::TextLength { value: 4 },
+            N::TextSubstring { value: 0, start: 3, end: 5 }, N::Text { value: "0".into() },
+            N::Compare { op: C::Less, domain: D::Text, left: 6, right: 7 },
+            N::Import { ordinal: 1, class: LoopValueClassV2::Text }, N::Text { value: "9".into() },
+            N::Compare { op: C::Greater, domain: D::Text, left: 9, right: 10 },
+            N::Or { left: 8, right: 11 },
+        ] } } else { LoopBoolRegionV1 { root: 6, nodes: vec![
             N::Import { ordinal: 0, class: LoopValueClassV2::Text }, N::Text { value: "0".into() },
             N::Compare { op: C::Less, domain: D::Text, left: 0, right: 1 },
             N::Import { ordinal: 1, class: LoopValueClassV2::Text }, N::Text { value: "9".into() },
             N::Compare { op: C::Greater, domain: D::Text, left: 3, right: 4 },
             N::Or { left: 2, right: 5 },
-        ] },
+        ] } },
     } };
     input.items[1].item = LoopRecipeItemV2::If { condition: LoopValueKeyV1::new(2),
         then_block: LoopBlockKeyV1::new(2), else_block: None };
@@ -185,7 +195,7 @@ fn bool_recipe() -> LoopRecipeV2 {
 
 #[test]
 fn closed_bool_region_preserves_short_circuit_and_fault_before_one_normal_result() {
-    let input = bool_recipe();
+    for input in [bool_recipe(false), bool_recipe(true)] {
     let wire = serde_json::to_string(&input).unwrap();
     assert_eq!(serde_json::from_str::<LoopRecipeV2>(&wire).unwrap(), input);
     let LoopRecipeItemV2::Operation { operation } = &input.items[0].item else { unreachable!() };
@@ -197,13 +207,14 @@ fn closed_bool_region_preserves_short_circuit_and_fault_before_one_normal_result
     let sig = closure.join_sig().as_sig();
     assert_eq!(sig.branches.len(), 1, "Bool's internal merge is not another source If or Break");
     assert_eq!(sig.loops[0].edges.iter().filter(|edge| edge.role == LoopJoinEdgeRoleV1::Break).count(), 1);
+    }
 }
 
 #[test]
 fn closed_bool_region_rejects_missing_extra_wrong_class_and_non_tree_inputs() {
     use super::bool_region::{LoopBoolNodeV1 as N, LoopBoolCompareV1 as C, LoopBoolCompareDomainV1 as D};
-    for mutation in 0..14 {
-        let mut input = bool_recipe();
+    for mutation in 0..16 {
+        let mut input = bool_recipe(mutation >= 14);
         let LoopRecipeItemV2::Operation { operation: LoopOperationV2::BoolExpression { region, inputs, result } }
             = &mut input.items[0].item else { unreachable!() };
         match mutation {
@@ -221,6 +232,8 @@ fn closed_bool_region_rejects_missing_extra_wrong_class_and_non_tree_inputs() {
             11 => *result = LoopValueKeyV1::new(0),
             12 => input.values[2].class = LoopValueClassV2::Text,
             13 => region.nodes[6] = N::Or { left: 5, right: 2 },
+            14 => region.nodes[6] = N::TextSubstring { value: 0, start: 5, end: 3 },
+            15 => region.nodes[6] = N::TextSubstring { value: 3, start: 0, end: 5 },
             _ => unreachable!(),
         }
         assert!(LoopRecipeVerifierV2::verify(input).is_err(), "mutation={mutation}");
