@@ -1012,7 +1012,7 @@ credits it too — armed `return <formal-indexed get>` seals i64 because
 grounded callee's incoming coverage names every call edge.
 
 For direct-local Map entries, a scoped callback checks the same candidate's exact
-New site/binding, construction eligibility and PlainI64NoHook destruction.
+New site/binding, construction eligibility and numeric no-hook destruction.
 The source walk owns availability and transfer; it keeps the acquisition site in
 the Home state and invalidates old-local/alias observations after transfer.
 Map-bearing Cataloged ordinary declarations consume their retained formal
@@ -1848,7 +1848,7 @@ receiver queries. This placement changes no source predicate or authority.
 
 The same private source child owns the verified walk's exact ordinary-candidate
 compatibility query: unique site, exact destination, construction readiness and
-PlainI64NoHook destruction. The cohort issuer only delegates; predicates,
+numeric no-hook destruction. The cohort issuer only delegates; predicates,
 error order and accepted source shapes are unchanged.
 
 ## Declared formal result identity

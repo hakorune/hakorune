@@ -61,14 +61,7 @@ pub(super) fn issue_provider_rhs_v1(
             child_definition.map(|definition| definition.destruction_disposition());
         if resolved.next().is_some()
             || child == object_id
-            || !matches!(
-                child_disposition,
-                Some(
-                    crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                )
-            )
+            || !child_disposition.is_some_and(|disposition| disposition.supports_static_no_hook())
         {
             return Err(U::FieldContractUnsupported);
         }

@@ -296,7 +296,7 @@ pub(super) fn issue_construction_source_v1(
             let definition = definitions.get(object_id.declaration_index() as usize)
                 .ok_or(U::SourceRelationMissing)?;
             if definition.destruction_disposition()
-                != crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                != crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK
                 || definition.fields().len() != field_decls.len()
                 || definition.fields().iter().zip(field_decls).any(|(canonical, field)| {
                     canonical.name != field.name || canonical.is_weak
@@ -643,12 +643,7 @@ pub(super) fn issue_construction_source_v1(
                                 .get(child.declaration_index() as usize)
                                 .map(|definition| definition.destruction_disposition())
                                 .is_some_and(|disposition| {
-                                    matches!(
-                                        disposition,
-                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                                    )
+                                    (disposition).supports_static_no_hook()
                                 }),
                             _ => false,
                         }

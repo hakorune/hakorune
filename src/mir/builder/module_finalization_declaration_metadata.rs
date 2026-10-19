@@ -92,7 +92,7 @@ mod tests {
                 }]
                 .into_boxed_slice(),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
+                crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]),
             )]
             .into_boxed_slice(),
         );

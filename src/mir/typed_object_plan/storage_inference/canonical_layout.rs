@@ -162,7 +162,7 @@ mod tests {
                 "Empty".into(),
                 Box::new([]),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
+                crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]),
             ),
             CanonicalObjectDefinitionV1::from_source_declaration(
                 "Inherited".into(),
@@ -178,7 +178,7 @@ mod tests {
                 "Pair".into(),
                 vec![field("left"), field("right")].into_boxed_slice(),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
+                crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]),
             ),
         ];
         for definition in &definitions {
@@ -374,7 +374,7 @@ mod tests {
                 }]
                 .into_boxed_slice(),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook, Box::new([]),
+                crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK, Box::new([]),
             )
         };
         let member = owner("Pair");

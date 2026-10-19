@@ -185,11 +185,7 @@ pub(super) fn append_source_claims(
                 &mut visiting,
             )?
         };
-        if matches!(
-            destruction,
-            ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-        ) {
+        if (destruction).supports_static_owned_fields() {
             match owned_field_children.entry(object) {
                 std::collections::btree_map::Entry::Vacant(entry) => {
                     entry.insert(children.clone());
@@ -274,11 +270,7 @@ pub(super) fn append_source_claims(
                 &mut visiting,
             )?
         };
-        if matches!(
-            destruction,
-            ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-        ) {
+        if (destruction).supports_static_owned_fields() {
             match owned_field_children.entry(object) {
                 std::collections::btree_map::Entry::Vacant(entry) => {
                     entry.insert(children.clone());
@@ -746,7 +738,7 @@ pub(super) fn ordinary_candidate_compatible_v1(
         return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
     }
     Ok(candidate.construction.is_ok()
-        && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
+        && candidate.destruction == ObjectDestructionDispositionV1::NUMERIC_NO_HOOK)
 }
 
 #[path = "ordinary_new_coseal_field_source.rs"]

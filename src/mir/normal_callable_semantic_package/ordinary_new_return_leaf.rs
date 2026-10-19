@@ -41,13 +41,12 @@ impl ObjectReturnTeardownDescriptorV1 {
 
     pub(super) fn supports_direct_teardown(&self, nullable: bool) -> bool {
         match self.destruction {
-            ObjectDestructionDispositionV1::PlainI64NoHook => self.children.is_none(),
-            ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-            | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
+            ObjectDestructionDispositionV1::NUMERIC_NO_HOOK => self.children.is_none(),
+            disposition if disposition.supports_static_owned_fields() => {
                 // Nullable child-field release has no accepted envelope yet.
                 !nullable && self.children.is_some()
             }
-            ObjectDestructionDispositionV1::Unavailable(_) => false,
+            _ => false,
         }
     }
 

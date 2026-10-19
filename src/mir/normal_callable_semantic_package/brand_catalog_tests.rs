@@ -264,7 +264,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     assert_eq!(projected, (claim.object(), claim.destruction()));
     assert_eq!(
         claim.destruction(),
-        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+        crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK
     );
     let foreign = issue_with_brand_catalog(&source).unwrap();
     let foreign_claims = foreign.ordinary_new_claim_ledger.pending_claims_for_test();

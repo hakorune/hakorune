@@ -299,7 +299,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .and_then(LocalCommitV1::ordinary)
                 .filter(|row| row.installs(binding))
                 .ok_or_else(|| freeze("map-candidate-not-installed"))?;
-            if row.destruction != super::super::ObjectDestructionDispositionV1::PlainI64NoHook {
+            if row.destruction != super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK {
                 return Err(freeze("map-candidate-end-unavailable"));
             }
         }
@@ -397,7 +397,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .and_then(LocalCommitV1::ordinary)
                 .filter(|row| row.installs(binding))
                 .ok_or_else(|| freeze("map-candidate-not-installed"))?;
-            if row.destruction != super::super::ObjectDestructionDispositionV1::PlainI64NoHook {
+            if row.destruction != super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK {
                 return Err(freeze("map-candidate-end-unavailable"));
             }
         }
@@ -455,7 +455,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .and_then(LocalCommitV1::ordinary)
                 .filter(|row| row.installs(binding))
                 .ok_or_else(|| freeze("map-candidate-not-installed"))?;
-            if row.destruction != super::super::ObjectDestructionDispositionV1::PlainI64NoHook {
+            if row.destruction != super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK {
                 return Err(freeze("map-candidate-end-unavailable"));
             }
         }

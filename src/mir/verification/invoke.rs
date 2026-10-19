@@ -135,7 +135,7 @@ pub(super) fn check_module_with_source(
                         InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
                             if !module.canonical_object_definition(*object).is_some_and(|definition|
                                 definition.destruction_disposition()
-                                    == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook) =>
+                                    == crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK) =>
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
@@ -150,12 +150,7 @@ pub(super) fn check_module_with_source(
                         InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::HomeReleaseIfLive { object, .. }
                             if !module.canonical_object_definition(*object).is_some_and(|definition|
-                                matches!(
-                                    definition.destruction_disposition(),
-                                    crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                                )) =>
+                                (definition.destruction_disposition()).supports_static_no_hook()) =>
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
@@ -167,11 +162,7 @@ pub(super) fn check_module_with_source(
                             if !(module.canonical_array_field(*field) && module
                                 .canonical_object_definition(field.object())
                                 .is_some_and(|definition| {
-                                    matches!(
-                                        definition.destruction_disposition(),
-                                        crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                                    )
+                                    (definition.destruction_disposition()).supports_static_owned_fields()
                                 })) =>
                         {
                             errors.push(error(*id, "field-residence-release-invalid"));
@@ -203,18 +194,12 @@ pub(super) fn check_module_with_source(
                             ) && module
                                 .canonical_object_definition(*child)
                                 .is_some_and(|definition| {
-                                    matches!(
-                                        definition.destruction_disposition(),
-                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                                    )
+                                    (definition.destruction_disposition()).supports_static_no_hook()
                                 })
                                 && module
                                     .canonical_object_definition(field.object())
                                     .is_some_and(|definition| {
-                                        definition.destruction_disposition()
-                                            == crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+                                        definition.destruction_disposition().supports_static_object_fields()
                                     })) =>
                         {
                             errors.push(error(*id, "object-field-release-invalid"));
@@ -259,18 +244,12 @@ pub(super) fn check_module_with_source(
                             ) && module
                                 .canonical_object_definition(*child)
                                 .is_some_and(|definition| {
-                                    matches!(
-                                        definition.destruction_disposition(),
-                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                                    )
+                                    (definition.destruction_disposition()).supports_static_no_hook()
                                 })
                                 && module
                                     .canonical_object_definition(field.object())
                                     .is_some_and(|definition| {
-                                        definition.destruction_disposition()
-                                            == crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+                                        definition.destruction_disposition().supports_static_object_fields()
                                     })) =>
                         {
                             errors.push(error(*id, "object-field-set-invalid"));

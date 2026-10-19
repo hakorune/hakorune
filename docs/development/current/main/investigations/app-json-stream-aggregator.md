@@ -45,8 +45,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 - Source declaration now issues Dynamic layout for bare strong slots; no writer/MIR
   inference. Existing complete fixed-Array specialization remains a bounded profile.
-- Shared storage excludes Dynamic from numeric lane. Destruction/exact-slot/final
-  consumer fences reject unsupported execution; layout availability grants no ABI.
+- Destruction separates no-hook declaration from exact Array/object/Dynamic
+  requirements. Static projections reject Dynamic even with children; focused44 PASS.
 - Existing vocabulary2/inference19 (including layout4)/declaration6/physical-layout1
   PASS; existing cases cover Dynamic/noninteger separation without new test functions.
 - Runtime Dynamic slots now hold explicit Empty/null/I64/Bool/Text/object/Array

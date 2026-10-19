@@ -124,8 +124,8 @@ fn allocation_identity_requires_definition_and_is_not_a_value_operand() {
             UserBoxFieldDecl { name: "items".into(), declared_type_name: Some("ArrayBox".into()), is_weak: false },
             UserBoxFieldDecl { name: "child".into(), declared_type_name: Some("Child".into()), is_weak: false },
             UserBoxFieldDecl { name: "weak".into(), declared_type_name: Some("ArrayBox".into()), is_weak: true },
-        ].into_boxed_slice(), Ok(()), D::OwnedObjectFieldsNoHook, Box::new([]),),
-        CanonicalObjectDefinitionV1::from_source_declaration("Child".into(), Box::new([]), Ok(()), D::PlainI64NoHook, Box::new([]),),
+        ].into_boxed_slice(), Ok(()), D::OBJECT_FIELDS_NO_HOOK, Box::new([]),),
+        CanonicalObjectDefinitionV1::from_source_declaration("Child".into(), Box::new([]), Ok(()), D::NUMERIC_NO_HOOK, Box::new([]),),
     ].into_boxed_slice());
     end_module.metadata.canonical_object_membership = Some(std::collections::BTreeMap::from([("Owner".into(), root), ("Child".into(), child)]));
     let body = vec![Step::ObjectField { field: field(1), child }, Step::ArrayField { field: field(0) }, Step::ReleaseOuter];
@@ -234,7 +234,7 @@ fn exact_field_store_is_unit_and_requires_published_definition() {
         let mut module = MirModule::new("field_read_structure".into());
         module.install_object_definitions_preflighted(vec![CanonicalObjectDefinitionV1::from_source_declaration(
             "Owner".into(), vec![UserBoxFieldDecl { name: "n".into(), declared_type_name: Some(declared_type_name.into()), is_weak }].into_boxed_slice(),
-            Ok(()), ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
+            Ok(()), ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]),
         )].into_boxed_slice());
         module.add_function(read.clone());
         let result = MirVerifier::new().verify_module(&module);
@@ -265,7 +265,7 @@ fn invoke_normal_definition_and_backend_fence_survive_optimization() {
                 "Object".into(),
                 Box::new([]),
                 Ok(()),
-                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
+                crate::mir::function::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]),
             ),
         ]
         .into_boxed_slice(),
@@ -385,7 +385,7 @@ fn cleanup_is_unit_and_requires_definition_owned_home_disposition() {
             operation, original,
             "object identity is not a ValueId operand"
         );
-        for disposition in [D::PlainI64NoHook, D::Unavailable(U::MemberRole)] {
+        for disposition in [D::NUMERIC_NO_HOOK, D::Unavailable(U::MemberRole)] {
             // Physical verifier witness, not source or runtime admission.
             let mut function = allocation_invoke_function();
             let origin = function.blocks.get_mut(&BasicBlockId(1)).unwrap();
@@ -411,7 +411,7 @@ fn cleanup_is_unit_and_requires_definition_owned_home_disposition() {
                 .into_boxed_slice(),
             );
             let result = MirVerifier::new().verify_module(&module);
-            if home && disposition != D::PlainI64NoHook {
+            if home && disposition != D::NUMERIC_NO_HOOK {
                 assert!(
                     format!("{:?}", result.unwrap_err()).contains("home-destruction-unavailable")
                 );
@@ -663,7 +663,7 @@ fn object_field_read_admits_numeric_fields_and_rejects_other_types() {
             ]
             .into_boxed_slice(),
             Ok(()),
-            ObjectDestructionDispositionV1::PlainI64NoHook, Box::new([]),
+            ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]),
         )]
         .into_boxed_slice(),
     );

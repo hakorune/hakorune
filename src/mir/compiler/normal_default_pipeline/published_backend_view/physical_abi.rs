@@ -13,7 +13,7 @@ mod row_obligations;
 use row_obligations::{issue_diagnostic_sites, issue_exact_numeric_checks};
 
 use super::compiled_entry_contract::CompiledEntryFormalKindV1;
-use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
+use crate::mir::function::TypedObjectFieldStorage;
 use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use crate::mir::MirInstruction;
@@ -420,12 +420,7 @@ impl<'module> PublishedMirBackendView<'module> {
             let definition = definitions
                 .get(object_id as usize)
                 .ok_or_else(|| fault("object-definition-missing"))?;
-            if !matches!(
-                definition.destruction_disposition(),
-                ObjectDestructionDispositionV1::PlainI64NoHook
-                    | ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                    | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-            ) {
+            if !(definition.destruction_disposition()).supports_static_no_hook() {
                 return Err(fault("object-destruction"));
             }
             let layout = definition
@@ -484,8 +479,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .map(|(ordinal, _)| ordinal as u32)
                 .collect::<Vec<_>>()
                 .into_boxed_slice();
-            let owned_object_residences = if definition.destruction_disposition()
-                == ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+            let owned_object_residences = if definition.destruction_disposition().supports_static_object_fields()
             {
                 let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(
                     object_id as usize,

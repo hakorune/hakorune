@@ -21,7 +21,7 @@ impl AllocationOnlyNewExecutionV1 {
         let source = source.as_ref().ok()?;
         if construction != &Err(ConstructionUnavailableV1::InitializationContractMissing)
             || !matches!(constructor, OrdinaryNewConstructorDispositionV1::NoBirthZero)
-            || arity != 0 || destruction != ObjectDestructionDispositionV1::PlainI64NoHook
+            || arity != 0 || destruction != ObjectDestructionDispositionV1::NUMERIC_NO_HOOK
             || source.object() != object || !source.is_allocation_only_i64()
             || source.constructor().is_some() || !source.steps().is_empty() || !source.stores().is_empty() {
             return None;

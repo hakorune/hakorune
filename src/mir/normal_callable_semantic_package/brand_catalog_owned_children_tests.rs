@@ -23,7 +23,7 @@ fn ordinary_new_owned_array_children_seal_in_declaration_order() {
     };
     assert_eq!(
         claim.destruction(),
-        crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+        crate::mir::function::ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK
     );
     let ordinals: Vec<u32> = claim
         .children()
@@ -75,7 +75,7 @@ fn ordinary_new_owned_array_children_stay_unproven_on_ambiguous_writes() {
         };
         assert_eq!(
             claim.destruction(),
-            crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook,
+            crate::mir::function::ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK,
             "{label}"
         );
         assert!(
@@ -117,7 +117,7 @@ fn ordinary_new_owned_object_children_seal_in_declaration_order() {
     };
     assert_eq!(
         claim.destruction(),
-        crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+        crate::mir::function::ObjectDestructionDispositionV1::no_hook_fields(true, true, false)
     );
     let children = claim.children().expect("proven owned residences");
     assert_eq!(children.len(), 2);
@@ -173,7 +173,7 @@ fn ordinary_new_owned_self_referential_children_seal() {
     };
     assert_eq!(
         claim.destruction(),
-        crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+        crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK
     );
     let children = claim.children().expect("self-referential residences seal");
     assert_eq!(children.len(), 2);
@@ -378,7 +378,7 @@ fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
         };
         assert_eq!(
             claim.destruction(),
-            crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
+            crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK,
             "{label}"
         );
         assert!(

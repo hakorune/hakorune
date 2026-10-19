@@ -187,17 +187,7 @@ impl LocalCommitV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn end_available(&self) -> bool {
         match self {
             Self::Ordinary(row) => {
-                let destruction_ok = match row.destruction {
-                    crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook => true,
-                    // An owned-field teardown is admissible only with the
-                    // sealed per-field residence proof; `None` never degrades
-                    // to a plain release.
-                    crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                    | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
-                        row.children.is_some()
-                    }
-                    crate::mir::function::ObjectDestructionDispositionV1::Unavailable(_) => false,
-                };
+                let destruction_ok = row.destruction.supports_static_execution(row.children.is_some());
                 destruction_ok && matches!(row.emission, NewEmissionProgress::Emitted { .. })
             }
             // Ownership leaves with the caller; the callee never ends the

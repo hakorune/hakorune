@@ -334,7 +334,7 @@ fn provided_parameter_object_store_seals_and_prepares() {
             .expect("Wrap definition");
         assert_eq!(
             destruction,
-            crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
+            crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK,
             "the object field keeps the owned-field disposition"
         );
         site.clone()

@@ -33,11 +33,10 @@ impl OrdinaryNewClaimLedgerV1 {
             && !matches!(progress, EmittedLocalProgress::Checked { local } if local == result)
         { return Err(freeze("fresh-result-cleanup/not-completed")); }
         let children = match row.destruction {
-            super::super::super::ObjectDestructionDispositionV1::PlainI64NoHook => &[][..],
-            super::super::super::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-            | super::super::super::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook =>
+            super::super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK => &[][..],
+            disposition if disposition.supports_static_owned_fields() =>
                 row.children.as_deref().ok_or_else(|| freeze("fresh-result-cleanup/children"))?,
-            super::super::super::ObjectDestructionDispositionV1::Unavailable(_) =>
+            _ =>
                 return Err(freeze("fresh-result-cleanup/destruction")),
         };
         let origins = super::super::super::object_end::operations_v1(row.object, false, children, *result)

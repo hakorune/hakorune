@@ -1,6 +1,5 @@
 //! Structural validation of the retained End body; source correspondence and
 //! permission remain with the original lifecycle owner and finished bindings.
-use crate::mir::function::ObjectDestructionDispositionV1 as Destruction;
 use crate::mir::instruction::ObjectEndStepV1 as Step;
 use crate::mir::MirModule;
 use hakorune_mir_defs::CanonicalObjectIdV1;
@@ -10,12 +9,7 @@ fn releasable(module: &MirModule, object: CanonicalObjectIdV1) -> bool {
     module
         .canonical_object_definition(object)
         .is_some_and(|row| {
-            matches!(
-                row.destruction_disposition(),
-                Destruction::PlainI64NoHook
-                    | Destruction::OwnedArrayFieldsNoHook
-                    | Destruction::OwnedObjectFieldsNoHook
-            )
+            (row.destruction_disposition()).supports_static_no_hook()
         })
 }
 
@@ -50,10 +44,7 @@ pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step
         match step {
             Step::ArrayField { .. } => {
                 if !module.canonical_array_field(field)
-                    || !matches!(
-                        disposition,
-                        Destruction::OwnedArrayFieldsNoHook | Destruction::OwnedObjectFieldsNoHook
-                    )
+                    || !(disposition).supports_static_owned_fields()
                 {
                     return false;
                 }
@@ -68,7 +59,7 @@ pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step
                 });
                 if declared != Some(child)
                     || !releasable(module, *child)
-                    || disposition != Destruction::OwnedObjectFieldsNoHook
+                    || !disposition.supports_static_object_fields()
                 {
                     return false;
                 }

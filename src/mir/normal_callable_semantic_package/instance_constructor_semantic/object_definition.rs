@@ -161,15 +161,10 @@ impl ObjectDeclarationSourceV1 {
             Destruction::Unavailable(DestructionUnavailable::FieldType)
         } else if !ordinary_members {
             Destruction::Unavailable(DestructionUnavailable::MemberRole)
-        } else if projected_fields.iter().any(is_user_object_field) {
-            Destruction::OwnedObjectFieldsNoHook
-        } else if !fixed_array_fields.is_empty() || projected_fields
-            .iter()
-            .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"))
-        {
-            Destruction::OwnedArrayFieldsNoHook
         } else {
-            Destruction::PlainI64NoHook
+            let array = !fixed_array_fields.is_empty() || projected_fields.iter()
+                .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"));
+            Destruction::no_hook_fields(array, projected_fields.iter().any(is_user_object_field), false)
         };
         CanonicalObjectDefinitionV1::from_source_declaration(
             name,
@@ -226,7 +221,7 @@ mod tests {
                     .unwrap()
                     .seal(Box::new([]))
                     .destruction_disposition(),
-                Destruction::PlainI64NoHook
+                Destruction::NUMERIC_NO_HOOK
             );
         }
         for text in ["box Plain { value }", "box Plain { value: StringBox }"] {

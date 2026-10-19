@@ -153,18 +153,8 @@ impl OrdinaryNewClaimLedgerV1 {
                             // Plain home releases directly; an owned-field
                             // home releases through its sealed children
                             // inventory — `Some` never degrades to plain.
-                            let releasable = match claim.destruction() {
-                                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook => {
-                                    true
-                                }
-                                crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                                | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
-                                    claim.children().is_some()
-                                }
-                                crate::mir::function::ObjectDestructionDispositionV1::Unavailable(_) => {
-                                    false
-                                }
-                            };
+                            let releasable = claim.destruction()
+                                .supports_static_execution(claim.children().is_some());
                             !releasable
                                 || claim.construction().is_err()
                                 || claim.home_prefix().is_err()

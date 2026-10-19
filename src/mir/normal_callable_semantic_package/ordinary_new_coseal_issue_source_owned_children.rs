@@ -49,11 +49,7 @@ pub(super) fn owned_field_children_of(
     visiting: &mut BTreeSet<hakorune_mir_defs::CanonicalObjectIdV1>,
 ) -> Result<Option<Box<[OwnedFieldChildV1]>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::function::ObjectDestructionDispositionV1;
-    if !matches!(
-        destruction,
-        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-            | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-    ) {
+    if !(destruction).supports_static_owned_fields() {
         return Ok(None);
     }
     // The definition-view closure returns `Option`, so a nested seal
@@ -135,10 +131,8 @@ pub(super) fn owned_field_children_of(
                             }
                         };
                     match child_destruction {
-                        ObjectDestructionDispositionV1::PlainI64NoHook => {}
-                        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                        | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-                            if child == object =>
+                        ObjectDestructionDispositionV1::NUMERIC_NO_HOOK => {}
+                        disposition if disposition.supports_static_owned_fields() && child == object =>
                         {
                             // Self-reference: the inventory being sealed is
                             // the child's own — no recursion. The emitted
@@ -146,8 +140,7 @@ pub(super) fn owned_field_children_of(
                             // different instance, so the release graph
                             // bottoms out on live children, not types.
                         }
-                        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                        | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
+                        disposition if disposition.supports_static_owned_fields() => {
                             // The nested admission: the child resolves only
                             // when its own teardown inventory seals. The
                             // `OwnedArray` arm additionally requires the
@@ -204,7 +197,7 @@ pub(super) fn owned_field_children_of(
                                 return None;
                             };
                             if child_destruction
-                                == ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                == ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK
                                 && nested.iter().any(|row| {
                                     !matches!(row.kind, OwnedFieldChildKindV1::Array)
                                 })

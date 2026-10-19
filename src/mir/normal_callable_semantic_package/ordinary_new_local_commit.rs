@@ -532,17 +532,9 @@ impl NewLocalCommitV1 {
     /// disposition.
     fn end_plan(&self) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
         let base = self.emission.local().expect("installed Home");
-        let children = match (&self.children, self.destruction) {
-            (Some(children), _) => children.as_ref(),
-            // An owned teardown without the sealed residence proof can never
-            // plan a plain release — `end_available` rejects it earlier.
-            (
-                None,
-                super::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-                | super::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
-            ) => unreachable!("owned teardown without sealed residences"),
-            (None, _) => &[],
-        };
+        assert!(self.destruction.supports_static_execution(self.children.is_some()),
+            "teardown requires a supported profile and sealed field residences");
+        let children = self.children.as_deref().unwrap_or(&[]);
         super::object_end::operations_v1(self.object, false, children, base)
             .map(|(field, operation)| (
                 match field {

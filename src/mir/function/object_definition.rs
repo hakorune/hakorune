@@ -36,21 +36,42 @@ pub(crate) enum ObjectDestructionUnavailableV1 {
     MemberRole,
 }
 
+/// Source declaration requirements, independently of concrete field-End proof.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct FieldTeardownRequirementsV1 {
+    array: bool,
+    object: bool,
+    dynamic: bool,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ObjectDestructionDispositionV1 {
-    PlainI64NoHook,
-    /// Non-weak `ArrayBox` declared fields hold owned residences the
-    /// teardown releases in reverse declaration order before the object
-    /// Home. Emission still requires the per-field write proof; this
-    /// disposition alone never releases a child.
-    OwnedArrayFieldsNoHook,
-    /// At least one declared field is a non-builtin user-object class.
-    /// Every field is scalar, `ArrayBox`, or a user-object residence the
-    /// teardown releases in reverse declaration order before the object
-    /// Home. Emission still requires the per-field write proof; this
-    /// disposition alone never releases a child.
-    OwnedObjectFieldsNoHook,
+    NoHook(FieldTeardownRequirementsV1),
     Unavailable(ObjectDestructionUnavailableV1),
+}
+
+impl ObjectDestructionDispositionV1 {
+    // Exact static profiles remain bounded projections of the source descriptor.
+    pub(crate) const NUMERIC_NO_HOOK: Self = Self::no_hook_fields(false, false, false);
+    pub(crate) const ARRAY_FIELDS_NO_HOOK: Self = Self::no_hook_fields(true, false, false);
+    pub(crate) const OBJECT_FIELDS_NO_HOOK: Self = Self::no_hook_fields(false, true, false);
+
+    pub(in crate::mir) const fn no_hook_fields(array: bool, object: bool, dynamic: bool) -> Self {
+        Self::NoHook(FieldTeardownRequirementsV1 { array, object, dynamic })
+    }
+    pub(crate) fn supports_static_no_hook(self) -> bool {
+        matches!(self, Self::NoHook(fields) if !fields.dynamic)
+    }
+    pub(crate) fn supports_static_owned_fields(self) -> bool {
+        matches!(self, Self::NoHook(fields) if !fields.dynamic && (fields.array || fields.object))
+    }
+    pub(crate) fn supports_static_object_fields(self) -> bool {
+        matches!(self, Self::NoHook(fields) if !fields.dynamic && fields.object)
+    }
+    /// `Some` is a separately sealed field inventory, never inferred from NoHook.
+    pub(crate) fn supports_static_execution(self, has_children: bool) -> bool {
+        self == Self::NUMERIC_NO_HOOK || (self.supports_static_owned_fields() && has_children)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
