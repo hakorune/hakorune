@@ -58,7 +58,7 @@ pub(crate) fn issue_borrowed_nullable_local_call<E>(
         prior_homes: prior_homes.iter().cloned().collect(),
         arguments,
         result: LocalCallResultClassV1::BorrowedNullable,
-        borrowed_scalar: None, unit_source: None,
+        result_source: None, unit_source: None,
         borrowed_nullable: Some(Box::new(loan)), mixed: None, field_alias: None,
     })))
 }

@@ -116,10 +116,11 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
+    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     let frame = Rc::new(CheckedArgumentExpressionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), references: reference_proofs, calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-            operations: operations.into_boxed_slice(), owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred },
+            operations: operations.into_boxed_slice(), owned_results, cores, transferred_inputs: transferred },
         source_loan: core,
     });
     if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }

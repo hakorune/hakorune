@@ -29,6 +29,6 @@ pub(crate) fn issue_mixed_local_call<E>(
         destination: LocalCallDestinationV1::LocalBinding { declaration, binding: destination },
         prior_homes: prior_homes.iter().cloned().collect(), arguments,
         result: LocalCallResultClassV1::MixedObject, mixed: Some(Box::new(loan)),
-        borrowed_scalar: None, unit_source: None, borrowed_nullable: None, field_alias: None,
+        result_source: None, unit_source: None, borrowed_nullable: None, field_alias: None,
     })))
 }

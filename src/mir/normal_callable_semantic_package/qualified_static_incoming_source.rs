@@ -89,7 +89,7 @@ impl StaticIncomingSourceV1 {
     ) -> &VerifiedCallableResultDispositionV1 {
         self.route.result()
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn method_source(
+    pub(in crate::mir) fn method_source(
         &self,
     ) -> &Arc<VerifiedResolvedMethodCallSourceV1> {
         &self.method_source

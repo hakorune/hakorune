@@ -258,6 +258,7 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
 fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct() {
     for (prefix, argument, incoming, expected, static_reads, residence_reads, entry_reads, owned) in [
         ("", "\"bytes\"", "\"seed\"", true, 0, 0, 0, false),
+        ("", "Values.text_result()", "\"seed\"", true, 0, 0, 0, true),
         ("local key = \"bytes\"", "key", "\"seed\"", true, 1, 0, 0, false),
         ("local key = \"bytes\" local alias = key", "alias", "\"seed\"", true, 1, 0, 0, false),
         ("local key = \"bytes\" key = 7", "key", "\"seed\"", false, 0, 0, 0, false),
@@ -281,8 +282,10 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         let (caller_parameters, caller_actual) = if static_reads > 0 { ("", String::new()) }
             else if entry_reads > 0 { ("line, count: i64", format!("{incoming}, 7")) }
             else { ("line", incoming.to_owned()) };
+        let ordinary = argument == "Values.text_result()";
+        let extra_result = if ordinary { "text_result() { local out = \"a\" + \"b\" out = out + \"c\" return out }" } else { "" };
         let extra_seed = if entry_reads > 0 { "text_seed() { return Values.caller(\"seed\", 7) }" } else { "" };
-        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller({caller_parameters}) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({caller_actual}) }} {extra_seed} }} static box Main {{ main() {{ return 0 }} }}");
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller({caller_parameters}) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({caller_actual}) }} {extra_seed} {extra_result} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
@@ -338,8 +341,9 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 assert_eq!(frame.text_reads().len(), entry_reads);
                 assert_eq!(frame.evaluation().owned_result_nodes().contains(&0), owned);
                 if argument.matches(".substring(").count() == 2 { assert_eq!(frame.evaluation().owned_result_nodes().len(), 2); }
-                assert_eq!(frame.source_loan().resolver_source().is_some(), owned);
-                assert_eq!(frame.evaluation().cores().len(), if !owned { 0 } else if argument.contains("indexOf") { 3 } else if argument.contains("length") || argument.matches(".substring(").count() == 2 { 2 } else { 1 });
+                assert_eq!(frame.source_loan().resolver_source().is_some(), owned && !ordinary);
+                assert_eq!(frame.evaluation().calls().len(), usize::from(ordinary));
+                assert_eq!(frame.evaluation().cores().len(), if !owned || ordinary { 0 } else if argument.contains("indexOf") { 3 } else if argument.contains("length") || argument.matches(".substring(").count() == 2 { 2 } else { 1 });
                 for (node, core) in frame.evaluation().cores() {
                     assert!(core.matches_plan(frame.source(), *node));
                     let original = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_expression_core_source_v1(
@@ -348,10 +352,10 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     assert_eq!(core, &original, "SAME canonical Core Rc, plan and node");
                     assert!(!frame.evaluation().transfers_node(*node));
                 }
-                if owned {
+                if owned && !ordinary {
                     assert!(std::ptr::eq(frame.evaluation().cores()[&0].source(), frame.source_loan().resolver_source().unwrap()));
                 }
-                if owned {
+                if owned && !ordinary {
                     crate::mir::MirBuilder::assert_checked_expression_core_for_test(input, package.ordinary_new_claim_ledger_for_test(), frame);
                 }
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();

@@ -105,23 +105,22 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
             }
             ExpressionCallSourceV1::Ordinary(call) => call,
         };
-        let Some(loan) = call.borrowed_scalar() else { return Ok(None) };
-        let (result, class) = match loan.kind() {
-            super::super::SourceScalarKind::Integer => (LocalCallResultClassV1::I64, Class::I64),
-            super::super::SourceScalarKind::Bool if profile == ExpressionLeafProfileV1::BoolCondition =>
-                (LocalCallResultClassV1::Bool, Class::Bool),
+        let Some(loan) = call.result_source() else { return Ok(None) };
+        let result = loan.result();
+        let class = match result {
+            LocalCallResultClassV1::I64 => Class::I64,
+            LocalCallResultClassV1::Bool if profile == ExpressionLeafProfileV1::BoolCondition => Class::Bool,
+            LocalCallResultClassV1::Text if profile == ExpressionLeafProfileV1::Argument => Class::String,
             _ => return Ok(None),
         };
         if call.owner() != source.owner() || call.statement() != statement || call.site() != &site
-            || !call.is_expression_value() || call.result() != result
-            || loan.source().call_site() != &site
-            || call.prior_homes() != prior_homes
-            || call.arguments().len() != loan.source().argument_sites().len()
+            || !call.is_expression_value() || call.result() != result || loan.call_site() != &site
+            || call.prior_homes() != prior_homes || call.arguments().len() != loan.argument_sites().len()
         { return Ok(None); }
-        let Some(receiver) = source.nodes().iter().position(|node| node.site() == loan.source().receiver_site())
+        let Some(receiver) = source.nodes().iter().position(|node| node.site() == loan.receiver_site())
             else { return Ok(None) };
         leaves[receiver] = Leaf::Identity;
-        for argument in std::iter::once(loan.source().receiver_site()).chain(loan.source().argument_sites().iter()) {
+        for argument in std::iter::once(loan.receiver_site()).chain(loan.argument_sites().iter()) {
             if !source.nodes().iter().any(|node| node.site() == argument) { return Ok(None); }
             for (child, node) in source.nodes().iter().enumerate() {
                 if node.site().node().segments().starts_with(argument.node().segments()) { transferred.insert(child); }

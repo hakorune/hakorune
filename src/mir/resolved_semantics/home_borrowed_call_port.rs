@@ -24,7 +24,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     },
     ScalarArguments,
     I64ResultArguments,
-    SourceScalarResultArguments,
+    SourceResultArguments,
     SourceUnitDiscardArguments,
     ReceivedObjectArguments(
         crate::mir::resolved_semantics::BindingRefV1,
@@ -60,8 +60,8 @@ pub(crate) enum BorrowedCallArgumentsV1 {
         arguments: Box<[LocalCallArgumentV1]>,
     },
     /// SAME sealed result source and original arguments; no execution permission.
-    SourceScalarResult {
-        loan: crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
+    SourceResult {
+        loan: super::LocalCallResultSourceV1,
         arguments: Box<[LocalCallArgumentV1]>,
     },
     /// Original Unit statement demand and ordered source arguments, never executable actuals.

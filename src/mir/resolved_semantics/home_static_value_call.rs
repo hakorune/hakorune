@@ -41,7 +41,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
         return Ok(None);
     }
     Ok(Some(LocalCallObservationV1 {
-        borrowed_scalar: None, unit_source: None,
+        result_source: None, unit_source: None,
         borrowed_nullable: None, mixed: None, field_alias: None,
         owner: input.owner(),
         statement: statement.clone(),
@@ -194,7 +194,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
         return Ok(None);
     }
     Ok(Some(LocalCallObservationV1 {
-        borrowed_scalar: None, unit_source: None,
+        result_source: None, unit_source: None,
         borrowed_nullable: None, mixed: None, field_alias: None,
         owner: input.owner(),
         statement: statement.clone(),

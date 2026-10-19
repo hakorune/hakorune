@@ -1,100 +1,74 @@
 # APP-json-stream-aggregator
 
-Status: common untyped-storage target accepted; JSON selected. Date: 2026-10-20
-Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
+Status: JSON selected; common untyped-storage target accepted. Date: 2026-10-20
+Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
+[untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Current measurement
+## Product evidence
 
-- Latest fixed suite, source Loop If/SSA commit: 7PASS/4FAIL, actual EXE6 +
-  empty marker1, no SKIP/timeout, duration452.253s. Matching quick opt0 CLI34.70s,
-  quick runtime/private C FFI frozen for the run; no Cargo overlap.
+- Last official fixed suite: source Loop If/SSA commit, 7PASS/4FAIL, actual EXE6 +
+  empty marker1, no SKIP/timeout, duration452.253s. Frozen quick opt0 CLI34.70s,
+  quick runtime/private C FFI; build/run300s, no Cargo overlap.
 - mimalloc PASS139.093s; allocator PASS160.642s; four typed EXEs PASS37–39s each.
-  Previous official suite: 6PASS/5FAIL/657.431s, including allocator timeout300s.
-- Same allocator smoke: prior build-timeout300s → input-census sharing267.063s PASS
-  → cohort/selection folding160.247s PASS (-40% total). Matching CLI43.24s; no Cargo/profiler overlap.
+  Earlier allocator standalone267.063→160.247s after same-operation input validation sharing.
+  Those totals include compile/link/run; individual phases were not timed.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
-- Matching quick opt0 CLI34.70s with If/SSA connection: JSON MIR compilation advances
-  to `ordinary-new/argument-expression/frame-missing` at Main.main Body(1), argument0:
-  `agg.ingest(Main.sampleStream())`. No artifact/link/runtime; source itself is unchanged.
-- Source Loop If now retains checked conditions, exact branch incoming sources and
-  canonical Phi keys through schedule, sole writer and both final consumers.
-  Existing focused247 PASS, including typed schema43, JoinSig27 and original-root refusal1.
-- Next: ordinary owned String Call/Return using the existing `{handle, End token}`
-  representation. Move the exact callee residence only on Normal; caller Ends once
-  after readonly ingest borrowing, including Fault. Do not coerce String to I64/object.
-- Later Text Return source retains the latest acquisition; Normal excludes exactly
-  that residence, while Fault keeps it for sibling-cleanup failure. No ABI permission yet.
-- Matching Text-source CLI50.24s: same argument frame stop, no artifact. Focused33PASS;
-  qualified-return2 and Raw Loop residual1 reproduce pre-Text. Existing case protects Normal/Fault; no new tests.
-- Other reds: untyped-field execution permission, binary-trees source-not-i64, boxtorrent receiver-unavailable.
+  --suite real-apps-exe-boundary --timeout 1900`. Later source/Text changes are outside this measurement.
+- Current matching quick CLI passes the Main.main argument frame for
+  `agg.ingest(Main.sampleStream())`, then fails during MIR construction:
+  `phi_lifecycle/txn_abort`, source-loop-header-after, `static-input/cohort-unfinished`.
+  Matching CLI37.76s identifies ingest line146 `JsonLine.find(stream, "\n", start)`
+  (callee JsonLine.find/3). No EXE/link/runtime.
+- Debug source-use closure also lacks ingest's Loop `JsonLine.find` argument2 (`start`),
+  while JsonLine.find has an unavailable Header basis. Preserve both original obligations.
+- Other product reds remain untyped-field source activation, binary-trees source-not-i64,
+  boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
-## Current priority and measurement interpretation
+## Connected source and next execution
 
-- [Common storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md) is now the
-  accepted target for three real apps plus the untyped sentinel; ParkedSealed is
-  superseded. Shared critical-path implementation is open; it does not fix every stop.
-- `mimalloc-lite` suite PASS includes a harness correction: an obsolete generic JSON
-  all-Invoke refusal precheck was removed; production compiler/app behavior was unchanged.
-  The canonical EXE already worked. Route/toolchain/artifact/no-replay/output/exit checks remain.
-- Existing publication tests cover generic profile rejection of four object-lifecycle
-  programs and positive Static I64 Invoke transport. They do not reproduce the same
-  mimalloc import closure or assert every unsupported Invoke subtype. Do not describe
-  this as a new runtime capability or an identical negative test transfer.
-- Loop Call source/SSA, full finite incoming/uses, readonly Text materialization and
-  implicit Unit inputs connect to both final consumers; focused176 plus original-root refusal PASS, publication PASS.
-  Unit value-use and before/after-take guard-loss refusals PASS; object packet26 PASS.
-  Fixtures retain real-EXE profile/field vetoes; final-entry refusal replaces an internal partition pin.
+- Existing source Loop Call/If retains original condition, argument subtrees, both
+  Normal arms, branch incoming producers and Phi keys through schedule and sole writer.
+  Both final consumers independently validate the same source and cleanup correspondence.
+- Text Return retains its latest initializer/rebind acquisition. Original exit Homes
+  keep it for Fault cleanup; Normal excludes exactly that residence, with transfer
+  committed only after all Normal cleanup succeeds. No ordinary result ABI is granted.
+- Local Call observations now share one result-source enum: scalar loan or SAME
+  Static Text source Rc. Existing numeric getter lends only scalar, preserving its gates.
+- Text source demand validates original result/target evidence, whole incoming census,
+  complete callee formal contract and SAME source snapshot/ordered arguments. A selected
+  refusal is terminal. Qualification admits Text only in the existing Argument purpose.
+- Existing focused249 PASS on the normalized source generation; test function count unchanged.
+  Minimal existing tuple extension protects ordinary-call ownership versus Core results.
+  Prior Text Return focused33 PASS; qualified-return2/Raw Loop residual1 reproduce pre-Text.
+- Next: finish Static inputs and connect the SAME source/Completion/return residence to
+  existing Static packet selection, publication handoff, Invoke and final result consumers.
+  Retain selected-Static-Loop I64 restrictions; source membership is not execution permission.
+- C pair Return is WIP: reuse `{handle, End token}`, existing per-Invoke String output
+  slot, Normal projection and String End. Preserve Fault nonpublication, exact live
+  returned residence and sibling cleanup. Existing physical Text matrix is running;
+  this is not source cutover evidence. No new runtime function/checker/test file.
+- Opaque scalar argument/Return draft remains in Git stash; it requires source-issued
+  finite-entry reads and original Return use closure, never a binding-to-I64 guess.
 
-## Next source connection
+## Shared remaining contracts
 
-- Source now retains Dynamic layout and no-Birth known-empty field inventory,
-  without writer/MIR inference. Existing fixed-Array specialization stays bounded.
-- Destruction separates no-hook declaration from exact Array/object/Dynamic; focused67 PASS.
-- Runtime Dynamic slots now hold explicit Empty/null/I64/Bool/Text/object/Array
-  values plus an independently published complete End descriptor. No owning Clone.
-  Replace atomically publishes the SAME detached old value/residence as Ready;
-  End consumes it before calling outside every lock. Take leaves known Empty.
-- Checked reads preserve Empty versus null and exact kind; kind-zero is a tagged
-  borrowed observation for source tag tests, never an owning Dynamic call result.
-  Compatibility registration/setters and direct cells cannot activate this profile;
-  outer reclaim refuses nonempty Dynamic slots. No tag selects an owner or End.
-- Lifecycle-core checked_array9 PASS (0.01s), archive build31.54s; existing native Map C
-  -Wall/-Wextra/-Werror PASS SafeMutex/SingleThread with empty-Array End; Map SafeMutex only.
-- Existing C cases cover Empty/kind Fault, transactions, End, reentry and cleanup Fault; no new test files/hooks/guards.
-- Optional target section `.nyash.object_field_abi.v1` supplies physical sizes/
-  alignment. Both final consumers must admit it and verify SAME source/slot/
-  transfer/Normal/Fault correspondence before emission. Source activation is owed;
+- [Common storage D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md) supersedes
+  ParkedSealed. Runtime Dynamic Empty/null/I64/Bool/Text/object/Array slots and complete
+  End descriptors exist; source activation and both final consumers remain incomplete.
+- Keep Empty distinct from null, exact source/slot/transfer and whole detached End.
   Map placement, stored borrow/Shared and carrier forwarding remain unadmitted.
-- Allocation-only fields now use SAME successful writer/RHS for I64 source reads
-  of I64/Dynamic slots; untyped declaration stays absent, Empty stays unready.
-  Calls exposing root/alias forget the whole root proof, including mixed I64 fields;
-  alias writes clear readiness. Loop loses Dynamic-root proofs pending checked After.
-- Existing cases cover Dynamic kind/no-escape without new tests/files; focused27 PASS/2 baseline reds.
-  Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
-  Dynamic execution, return inference and both final consumers remain unconnected.
-- Array lifecycle recipe anchors holder/Completion separately from element operations.
-  Bare holder retains whole-source empty-transfer coverage: sole original Plain RHS,
-  no candidate/parent capture, escape, rebind or other access to the destination field.
-  SAME canonical Dynamic writer/live Homes join that fact before source Normal moves
-  the local Home into the field; precommit Fault retains it, local exit omits it.
-  Existing cases minimally cover independent content/End and capture boundaries;
-  focused12 PASS, no new tests/files. Physical acquisition/commit/End and consumers owed.
-- Runtime checked empty End retires unclaimed Boxed(empty), releases outside locks and
-  rejects other/retired states. Both consumers still require source contents/End proof.
-- Loop Local I64/discard Bool Calls, readonly Text inputs, explicit/implicit Unit and
-  Append retain original packets, full source census and final-pool validation.
-  Existing publication case now includes If rebind; existing schema case rejects three
-  invalid Phi origins, covering independent join provenance with no new test functions.
-  Cohort/selection folds share same-operation immutable checks; no persistent cache.
-- Prior reds: field-read2, count_at Loop, composition2/result2, Unit remain open.
-- Previous Array-transfer measurement passed allocator/mimalloc EXEs unchanged;
-  current fixed suite restores mimalloc; later allocator standalone PASS160.247s. Bool Eq/Ne C admission
-  retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
-  by the pre-existing tagged-add negative. Earlier SSA/handoff/Array teardown/synthetic
-  callee reds remain open. Array provider3/handoff1 reproduce identically at pre-change HEAD.
+- Array holder/contents/End, exact empty-transfer census and canonical writer must stay
+  joined. Runtime empty End alone grants no source ownership or physical transfer.
+- Earlier SSA/handoff/Array teardown/synthetic callee and field/count/composition reds
+  remain open. Full implementation history is in Git; no new parallel inventory.
 
-## Completion obligations
-- Existing JSON smoke must satisfy every artifact/run/output/negative contract unchanged.
-- Common untyped-slot D0 is accepted; source/layout/runtime/final-consumer implementation remains.
-- Retire replaced exclusive edges when caller/validation closure holds; retain shared owners.
+## Measurement limits and completion
+
+- mimalloc suite PASS includes removal of an obsolete generic JSON all-Invoke refusal
+  precheck; canonical EXE already worked. This was a harness correction, not new capability.
+  Existing publication tests reject four object-lifecycle generic profiles; they do not
+  reproduce the same mimalloc closure or every Invoke subtype. Preserve that distinction.
+- Existing JSON smoke must satisfy every artifact, execution, output/exit and negative contract.
+- Source membership, isolated physical execution and local green are not product completion.
+  Complete common storage and both final consumers; retire replaced exclusive edges only
+  with caller/validation closure, retaining shared owners and finite-goal obligations.

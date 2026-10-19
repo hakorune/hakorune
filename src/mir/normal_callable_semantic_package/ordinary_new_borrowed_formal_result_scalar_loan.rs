@@ -337,7 +337,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arg
     let loan = issue_source_scalar_result_loan_v1(source, results, target)?;
     let arguments =
         lend_source_scalar_result_arguments_v1(source, pending, contracts, results, &loan, None)?;
-    Ok(Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceScalarResult { loan, arguments }))
+    Ok(Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceResult { loan: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Scalar(loan), arguments }))
 }
 
 /// Re-demand this loan and the SAME argument row without rebuilding a target list.

@@ -173,7 +173,7 @@ pub(crate) use local_flow::assert_text_residence_identity_for_test;
 mod local_call_flow;
 pub(crate) use local_call_flow::{
     issue_source_scalar_expression_call, borrowed_actual_source_atom_v1, ArgumentCallObservationV1, BorrowedCallActualCandidateV1,
-    BorrowedCallActualValueV1, LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
+    BorrowedCallActualValueV1, LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1, LocalCallResultSourceV1,
     QualifiedStaticCallClaimV1,
 };
 #[path = "home_static_i64_call_claim.rs"]

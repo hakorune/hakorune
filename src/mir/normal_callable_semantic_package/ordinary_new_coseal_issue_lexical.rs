@@ -362,8 +362,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
     if matches!(
         request,
-        BorrowedCallActualRequestV1::SourceScalarResultArguments
+        BorrowedCallActualRequestV1::SourceResultArguments
     ) {
+        if let Some(text) = super::super::lexical_instance_call::source_text_result_arguments_v1(
+            source, pending, contracts, site,
+        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })? {
+            return Ok(Some(text));
+        }
         return super::super::lexical_instance_call::source_scalar_result_arguments_v1(
             targets, contracts, source, pending, results, site, classes,
         )
@@ -608,7 +613,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(_)
         | BorrowedCallActualRequestV1::MixedLocalArguments(_)
-        | BorrowedCallActualRequestV1::SourceScalarResultArguments
+        | BorrowedCallActualRequestV1::SourceResultArguments
         | BorrowedCallActualRequestV1::SourceUnitDiscardArguments
         | BorrowedCallActualRequestV1::ObjectArguments(..) => {
             unreachable!("observation handled before demand")

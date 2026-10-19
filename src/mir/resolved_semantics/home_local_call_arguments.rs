@@ -61,7 +61,7 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
                 | BorrowedCallArgumentsV1::HandleSource(_)
                 | BorrowedCallArgumentsV1::SourceObject { .. }
                 | BorrowedCallArgumentsV1::SourceUnitDiscard { .. }
-                | BorrowedCallArgumentsV1::SourceScalarResult { .. }
+                | BorrowedCallArgumentsV1::SourceResult { .. }
                 | BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
                 | BorrowedCallArgumentsV1::MixedLocalSource { .. }
                 | BorrowedCallArgumentsV1::Object { .. } => None,
@@ -111,7 +111,7 @@ fn seal_i64_call_arguments<E>(
         | Some(BorrowedCallArgumentsV1::HandleSource(_))
         | Some(BorrowedCallArgumentsV1::SourceObject { .. })
         | Some(BorrowedCallArgumentsV1::SourceUnitDiscard { .. })
-        | Some(BorrowedCallArgumentsV1::SourceScalarResult { .. })
+        | Some(BorrowedCallArgumentsV1::SourceResult { .. })
         | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
             | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
         | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),

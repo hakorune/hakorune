@@ -91,7 +91,7 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
         || classes[0] != Leaf::Value(if text { Class::String } else { Class::I64 }) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
         else { return Ok(None) };
-    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores);
+    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     // The checked purpose materializes non-owning Text roots; evaluation keeps
     // the original literal/read and its source acquisition set unchanged.
     if !text && owned_results.contains(&0) { return Ok(None); }

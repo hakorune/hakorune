@@ -10,7 +10,7 @@ use std::rc::Rc;
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
 pub(super) use argument_source::{validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1, source_text_result_arguments_v1};
 pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::{complete_argument_expression_v1, stage_observed_call_actuals_v1};
 

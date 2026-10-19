@@ -5,6 +5,49 @@ use crate::mir::resolved_value_profile::expression_plan::{
     ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 
+/// Lend the original Text result and input tuple, never Completion or an ABI.
+/// Once Text is selected, missing/refused actuals remain terminal refusals.
+pub(in crate::mir::normal_callable_semantic_package) fn source_text_result_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>, pending: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1], site: &OwnedExprSiteV1,
+) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, String> {
+    // Preserve scalar's existing unselected behavior when no source inventory
+    // exists. Its issuer still reports errors for selected Instance targets.
+    let Ok(prepared) = source else { return Ok(None) };
+    let Some(original) = original_static_source_v1(prepared, site)? else { return Ok(None) };
+    let Some(original) = ordinary_text_argument_source_v1(prepared, site, original.method_source())?
+        else { return Ok(None) };
+    let reject = || freeze("borrowed-static/core-source-identity");
+    let mut matches = contracts.iter().filter(|contract| contract.owner == original.callee_owner());
+    let contract = matches.next().ok_or_else(reject)?;
+    if matches.next().is_some() || contract.batch_slot != original.target_batch_slot()
+        || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
+        || contract.parameters.len() != original.target().arity() as usize
+        || contract.parameters.len() != original.parameters().len()
+        || contract.parameters.iter().zip(original.parameters()).enumerate().any(|(index, (actual, expected))|
+            actual.ordinal as usize != index || actual.ordinal != expected.ordinal
+                || actual.binding.owner() != contract.owner || actual.binding != expected.binding || actual.kind != expected.kind)
+    { return Err(reject()); }
+    let incoming = prepared.source_incoming.project_source_v1(&[contract.owner].into_iter().collect())
+        .map_err(|issue| format!("{}: {issue:?}", reject()))?;
+    let mut matching = incoming.iter().filter(|row| &row.call == site);
+    let row = matching.next().ok_or_else(reject)?;
+    if matching.next().is_some() || row.callee != contract.owner
+        || !matches!(&row.source, super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(retained)
+            if Rc::ptr_eq(retained, &original))
+    { return Err(reject()); }
+    let rows = pending.get(site).ok_or_else(|| freeze("borrowed-static/source-unobserved"))?
+        .as_ref().map_err(Clone::clone)?;
+    let rows = rows.source_static_snapshot_v1().ok_or_else(|| freeze("borrowed-static/source-phase-required"))?;
+    let identity = validate_static_source_actuals_v1(prepared, rows, site, original.required_i64_arguments())?;
+    if !Rc::ptr_eq(&identity.source, &original) { return Err(reject()); }
+    validate_qualified_argument_sources_v1(prepared, pending, site, identity)?;
+    Ok(Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceResult {
+        loan: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::OwnedText(original),
+        arguments: rows.ordered_arguments.clone(),
+    }))
+}
+
 /// Original outer Call and ordinal identity, independent of the value's class.
 fn corroborates_argument_plan_v1(
     plan: &ExpressionSourcePlanV1, source: &StaticIncomingSourceV1,

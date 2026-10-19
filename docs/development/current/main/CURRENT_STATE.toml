@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/argument-expression/frame-missing: Main.main ingest argument0 Main.sampleStream()"
+current_blocker_token = "ordinary-new/static-input/cohort-unfinished: ingest line146 JsonLine.find(stream, newline, start)"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: If/SSA接続済。Text Returnの元取得源とNormal/Fault分離を接続。
-Text focused33PASS/3既存赤（変更前再現）、If世代focused247PASS。ABIは未接続。
-matching CLI50.24秒。JSONはMain.mainのingest引数Main.sampleStream()で停止、EXE未生成。
-次は同Static result originとowned String pair ABI。opaque整数案はGit stash保持。
-If世代suite7PASS/4FAIL（実EXE6＋marker1）、452.3秒、SKIP/timeoutなし。
+APP-json-stream-aggregator: scalar/Textの元sourceを単一result originへ統合、既存249件PASS。
+matching CLI37.76秒、Main.sampleStream()のframe不足を越え、JsonLine.findの入力cohortで停止。
+元Text ReturnとNormal/Fault分離は接続済み。次は入力確定・同Static packet・Rust result ABI。
+Cのowned pair ReturnはWIP、既存Text実行matrixで検証中。opaque整数案はGit stash保持。
+最新公式suiteはIf世代7PASS/4FAIL（実EXE6＋marker1）、452.3秒。後続差分は未計測。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"

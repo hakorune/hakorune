@@ -98,10 +98,11 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         && !owned_results.contains(&0) && !cores.get(&0).is_some_and(|core| core.owns_result()) { return Ok(None); }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
+    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     let frame = Rc::new(CheckedInitializerExpressionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), references: reference_proofs, calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-            operations: operations.into_boxed_slice(), owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred },
+            operations: operations.into_boxed_slice(), owned_results, cores, transferred_inputs: transferred },
     });
     if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),

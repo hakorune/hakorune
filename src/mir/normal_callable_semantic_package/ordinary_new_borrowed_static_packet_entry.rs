@@ -249,7 +249,8 @@ impl OrdinaryNewClaimLedgerV1 {
             let original = original.as_ref().map_err(Clone::clone)?;
             let qualified = self.checked_completed_static_expression_input_v1(original)?;
             if qualified.is_some() || self.is_static_expression_input_owner_v1(source, original.callee_owner()) {
-                qualified.ok_or_else(|| freeze("static-input/cohort-unfinished"))?;
+                qualified.ok_or_else(|| format!("{}: call={site:?}; callee={:?}; target={:?}",
+                    freeze("static-input/cohort-unfinished"), original.callee_owner(), original.target()))?;
                 self.verify_original_static_packet_source_v1(original)?;
                 self.borrowed_static_packet_actuals_v1(original)?
                     .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;

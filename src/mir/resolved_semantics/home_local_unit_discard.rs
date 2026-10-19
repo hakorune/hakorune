@@ -31,6 +31,6 @@ pub(super) fn demand_v1<E>(
         owner: input.owner(), statement: statement.site().clone(), site: site.clone(),
         destination: LocalCallDestinationV1::Discard, prior_homes: prior_homes.into(),
         arguments, result: LocalCallResultClassV1::Unit,
-        unit_source: Some(source), borrowed_scalar: None, borrowed_nullable: None, mixed: None, field_alias: None,
+        unit_source: Some(source), result_source: None, borrowed_nullable: None, mixed: None, field_alias: None,
     }))
 }

@@ -3,6 +3,66 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1;
 
+/// Source-recorded result class of one local direct-call continuation.
+/// `Map` marks a call into an unannotated callee whose sealed terminal
+/// relation proves a Map return; `I64` marks the exact-i64 lane.
+/// `Handle` marks a call into an unannotated callee whose sealed terminal
+/// relation proves a `return new` construction — the caller receives the
+/// transferred object as an owned Home and owes exactly one release.
+/// `Nullable` marks a `me.m(..)` receiver call whose callee claim is
+/// `NullableObject` — the caller receives an owned object or the `Void`
+/// sentinel and owes a checked release, never an unconditional one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LocalCallResultClassV1 {
+    Unit,
+    I64,
+    Bool,
+    /// The ordinary call transfers one owned String pair only on Normal.
+    Text,
+    Map,
+    Handle,
+    Nullable,
+    /// Source-proved nullable borrowed identity; owns no received Home.
+    BorrowedNullable,
+    /// Fresh or borrowed (or Null); non-null alone never proves ownership.
+    MixedObject,
+}
+
+/// The original result source, shared by expression qualification and the
+/// existing Call packet. Retention alone grants no executable result or Home.
+#[derive(Debug, Clone)]
+pub(crate) enum LocalCallResultSourceV1 {
+    Scalar(crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1),
+    OwnedText(std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>),
+}
+impl PartialEq for LocalCallResultSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Scalar(a), Self::Scalar(b)) => a == b,
+            (Self::OwnedText(a), Self::OwnedText(b)) => std::rc::Rc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
+}
+impl Eq for LocalCallResultSourceV1 {}
+impl LocalCallResultSourceV1 {
+    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
+        match self { Self::Scalar(loan) => loan.source().call_site(), Self::OwnedText(source) => source.call_site() }
+    }
+    pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
+        match self { Self::Scalar(loan) => loan.source().receiver_site(), Self::OwnedText(source) => source.method_source().receiver_site() }
+    }
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        match self { Self::Scalar(loan) => loan.source().argument_sites(), Self::OwnedText(source) => source.argument_sites() }
+    }
+    pub(crate) fn result(&self) -> LocalCallResultClassV1 {
+        match self {
+            Self::Scalar(loan) => match loan.kind() { SourceScalarKind::Integer => LocalCallResultClassV1::I64, SourceScalarKind::Bool => LocalCallResultClassV1::Bool },
+            Self::OwnedText(_) => LocalCallResultClassV1::Text,
+        }
+    }
+}
+
 pub(super) enum SourceScalarDemandV1 {
     Unselected,
     Refused,
@@ -22,34 +82,18 @@ pub(super) fn demand_v1<E>(
 ) -> Result<SourceScalarDemandV1, E> {
     let Some(response) = borrowed_arguments(
         site,
-        BorrowedCallActualRequestV1::SourceScalarResultArguments,
+        BorrowedCallActualRequestV1::SourceResultArguments,
     )?
     else {
         return Ok(SourceScalarDemandV1::Unselected);
     };
-    let BorrowedCallArgumentsV1::SourceScalarResult { loan, arguments } = response else {
+    let BorrowedCallArgumentsV1::SourceResult { loan, arguments } = response else {
         return Ok(SourceScalarDemandV1::Refused);
     };
-    let target = loan.source();
-    if input.owner() != site.owner()
-        || target.call_site() != site
-        || !input
-            .function()
-            .method_call(site.site())
-            .is_some_and(|call| {
-                call.owner() == input.owner()
-                    && call.receiver_site() == target.receiver_site()
-                    && call.arity() == target.target().arity()
-                    && call
-                        .arguments()
-                        .iter()
-                        .map(|argument| argument.site())
-                        .eq(target.argument_sites().iter())
-            })
-        || !lexical_local_call::corroborate_received_arguments_v1(input, site, &arguments)
-    {
+    if !result_matches_source_v1(input, site, &loan, &arguments) {
         return Ok(SourceScalarDemandV1::Refused);
     }
+    let LocalCallResultSourceV1::Scalar(loan) = loan else { return Ok(SourceScalarDemandV1::Refused) };
     Ok(SourceScalarDemandV1::Ready { loan, arguments })
 }
 
@@ -62,21 +106,36 @@ pub(super) fn observation_v1(
     loan: BorrowedScalarResultSourceLoanV1,
     arguments: Box<[LocalCallArgumentV1]>,
 ) -> LocalCallObservationV1 {
-    let result = match loan.kind() {
-        SourceScalarKind::Integer => LocalCallResultClassV1::I64,
-        SourceScalarKind::Bool => LocalCallResultClassV1::Bool,
+    result_observation_v1(owner, statement, site, destination, prior_homes,
+        LocalCallResultSourceV1::Scalar(loan), arguments)
+}
+
+fn result_matches_source_v1(input: ResolvedFunctionLoweringInputV1<'_>, site: &OwnedExprSiteV1,
+    loan: &LocalCallResultSourceV1, arguments: &[LocalCallArgumentV1],
+) -> bool {
+    let arity = match loan {
+        LocalCallResultSourceV1::Scalar(loan) => loan.source().target().arity(),
+        LocalCallResultSourceV1::OwnedText(source) => {
+            if !input.function().method_call_source_v1(site.site())
+                .is_some_and(|method| std::sync::Arc::ptr_eq(method, source.method_source())) { return false; }
+            source.target().arity()
+        }
     };
-    LocalCallObservationV1 {
-        owner,
-        statement: statement.clone(),
-        site: site.clone(),
-        destination,
-        prior_homes: prior_homes.into(),
-        arguments,
-        result,
-        borrowed_scalar: Some(loan), unit_source: None,
-        borrowed_nullable: None, mixed: None, field_alias: None,
-    }
+    input.owner() == site.owner() && loan.call_site() == site
+        && input.function().method_call(site.site()).is_some_and(|call|
+            call.owner() == input.owner() && call.receiver_site() == loan.receiver_site()
+                && call.arity() == arity && arguments.len() == arity as usize
+                && call.arguments().iter().map(|argument| argument.site()).eq(loan.argument_sites().iter()))
+        && lexical_local_call::corroborate_received_arguments_v1(input, site, arguments)
+}
+
+fn result_observation_v1(owner: FunctionOwnerIdV1, statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1, destination: LocalCallDestinationV1, prior_homes: &[LiveHomeV1],
+    loan: LocalCallResultSourceV1, arguments: Box<[LocalCallArgumentV1]>,
+) -> LocalCallObservationV1 {
+    LocalCallObservationV1 { owner, statement: statement.clone(), site: site.clone(), destination,
+        prior_homes: prior_homes.into(), arguments, result: loan.result(), result_source: Some(loan),
+        unit_source: None, borrowed_nullable: None, mixed: None, field_alias: None }
 }
 
 pub(crate) fn issue_source_scalar_expression_call<E>(
@@ -94,7 +153,7 @@ pub(crate) fn issue_source_scalar_expression_call<E>(
     Ok(Some(LocalCallObservationV1 {
         owner: input.owner(), statement: statement.clone(), site: site.clone(),
         destination: LocalCallDestinationV1::ExpressionValue, prior_homes: prior_homes.into(),
-        arguments, result: LocalCallResultClassV1::I64, borrowed_scalar: Some(loan), unit_source: None, borrowed_nullable: None, mixed: None, field_alias,
+        arguments, result: LocalCallResultClassV1::I64, result_source: Some(LocalCallResultSourceV1::Scalar(loan)), unit_source: None, borrowed_nullable: None, mixed: None, field_alias,
     }))
 }
 
@@ -172,6 +231,18 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         Some(_) => return Ok(None),
         None => {}
     }
-    issue_source_scalar_expression_call(input, source.root().statement(), site, prior_homes, receiver_path, port)
-        .map(|call| call.map(Call::Ordinary))
+    let Some(BorrowedCallArgumentsV1::SourceResult { loan, arguments }) =
+        port(site, BorrowedCallActualRequestV1::SourceResultArguments)? else { return Ok(None) };
+    if !result_matches_source_v1(input, site, &loan, &arguments) { return Ok(None); }
+    let field_alias = match &loan {
+        LocalCallResultSourceV1::Scalar(loan) if loan.kind() == SourceScalarKind::Integer =>
+            loan.source().receiver_binding().ok().and_then(receiver_path),
+        LocalCallResultSourceV1::OwnedText(_) if matches!(source.root(),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }) => None,
+        _ => return Ok(None),
+    };
+    let mut observation = result_observation_v1(input.owner(), source.root().statement(), site,
+        LocalCallDestinationV1::ExpressionValue, prior_homes, loan, arguments);
+    observation.field_alias = field_alias;
+    Ok(Some(Call::Ordinary(observation)))
 }

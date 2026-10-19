@@ -53,8 +53,11 @@ impl CheckedExpressionEvaluationV1 {
 pub(super) fn owned_result_nodes(
     order: &[usize], add: &[usize],
     cores: &std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
+    calls: &std::collections::BTreeMap<usize, LocalCallObservationV1>,
 ) -> Box<[usize]> {
-    order.iter().copied().filter(|node| add.contains(node) || cores.get(node).is_some_and(|core| core.owns_result())).collect()
+    order.iter().copied().filter(|node| add.contains(node) || cores.get(node).is_some_and(|core| core.owns_result())
+        || calls.get(node).is_some_and(|call| call.result() == super::super::LocalCallResultClassV1::Text
+            && matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::OwnedText(_))))).collect()
 }
 
 /// Existing purpose proofs live once, at the exact active source node. These

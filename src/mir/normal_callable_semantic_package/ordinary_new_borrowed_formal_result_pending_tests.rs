@@ -308,7 +308,7 @@ fn qualified_scalar_family_keeps_preflight_and_retained_loss_fail_closed() {
     let healthy = source_scalar_result_arguments_v1(&prepared, &package.parameter_contracts,
         ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_formal_actuals,
         &ledger.borrowed_i64_results, &original.call, &ledger.callable_result_classes).unwrap().unwrap();
-    let crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceScalarResult { loan, .. } = healthy else {
+    let crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceResult { loan: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Scalar(loan), .. } = healthy else {
         panic!("original dependency anchors qualified incoming");
     };
     for missing in [false, true] {

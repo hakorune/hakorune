@@ -427,7 +427,7 @@ pub(super) use borrowed_formal_actuals::{
     project_pending_borrowed_i64_arguments_v1,
     project_pending_current_owner_static_source_arguments_v1,
     project_pending_i64_result_arguments_v1, project_pending_instance_source_arguments_v1,
-    project_pending_object_arguments_v1, project_pending_static_source_arguments_v1,
+    project_pending_object_arguments_v1, project_pending_static_source_arguments_v1, source_text_result_arguments_v1,
     project_pending_object_target_arguments_v1,
     received_producer_arguments_v1, reject_borrowed_actuals_for_owner_v1,
     PendingBorrowedFormalActualsV1,
