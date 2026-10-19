@@ -8,6 +8,35 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, ResolvedLexicalRefV1};
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn stage_source_array_receiver_v1(&self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1, name: &str,
+    ) -> Result<(), String> {
+        if let Some(row) = self.local_field_reads.borrow().get(site) {
+            if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(source) = row.source.result() {
+                if source.fixed_origin_v1().is_some() {
+                    if !source.matches_original_receiver_v1(input, site, name)? { return Err(fault("fixed-array-original-drift")); }
+                    self.recheck_declared_array_read_v1(site, row, source)?;
+                }
+            }
+            return Ok(());
+        }
+        if self.source_field_requirement_v1(site)?.is_some() { return Ok(()); }
+        let Some(original) = self.array_field_receiver_source_v1(input, site, name)? else { return Ok(()); };
+        let source = LocalFieldReadSourceV1::from_declaration(original.field(),
+            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(Rc::clone(&original)),
+            original.declared_type_name().map(Into::into));
+        let row = LocalFieldRead {
+            local: None, receiver_site: original.receiver().site().clone(), receiver: original.binding(),
+            home: original.binding(), source, numeric_source: None, progress: LocalReadProgress::Pending,
+        };
+        self.recheck_declared_array_read_v1(site, &row, &original)?;
+        match self.local_field_reads.borrow_mut().entry(site.clone()) {
+            std::collections::btree_map::Entry::Vacant(entry) => { entry.insert(row); }
+            std::collections::btree_map::Entry::Occupied(_) => return Err(fault("fixed-array-duplicate-source")),
+        }
+        Ok(())
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn array_set_receiver_source_v1(
         &self, original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<Rc<LocalFieldReadSourceV1>, String> {
@@ -21,6 +50,23 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
         original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<(), String> {
+        if let Some((caller, source)) = original.fixed_origin_v1() {
+            if self.source_field_requirement_v1(site)?.is_some() { return Err(fault("fixed-array-required-expression-source")); }
+            let current = self.field_write_claims.array_source(caller.owner(), original.name())
+                .ok_or_else(|| fault("fixed-array-source-missing"))?;
+            let expected_receiver = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
+                .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver).expr();
+            if self.array_field_original_caller_v1(site.owner())? != Some(caller)
+                || !Rc::ptr_eq(source, &current) || source.array_declaration_v1() != Some((original.field(), original.declared_type_name()))
+                || original.site() != site || original.receiver().owner() != site.owner()
+                || original.receiver().site() != &expected_receiver || original.binding().owner() != site.owner()
+                || row.receiver_site != expected_receiver || row.receiver != original.binding() || row.home != row.receiver
+                || row.numeric_source.is_some() || row.local.is_some()
+                || row.source.field() != original.field() || row.source.declared_type_name() != original.declared_type_name()
+                || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(held) if Rc::ptr_eq(held, original))
+            { return Err(fault("fixed-array-source-drift")); }
+            return Ok(());
+        }
         let entry = self.finalized_borrowed_ordinary_entry_source_v1(site.owner())?;
         self.recheck_declared_array_entry_read_v1(&entry, site, row, original)
     }

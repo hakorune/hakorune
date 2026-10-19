@@ -3557,6 +3557,16 @@ Facts early. Original requirements select their family even when qualification
 fails. Missing/foreign requests and selected plans are explicit errors, including
 Stored eligibility. Passive unreachable Returns do not become execution needs.
 
+Zero-parameter field Array Returns retain the SAME original Return expression-plan
+Rc on each existing checked read use. The read issuer validates whole direct
+Count/Get call receiver/arguments/field provenance, or the existing sole local
+initializer relation; a nested read does not cover its parent expression. Original
+Return verification requires exactly one matching expression or read projection
+per field plan, and reverse same-plan correspondence for all retained read uses.
+Normalization merges Return uses without dropping their individual plan loans.
+This connects an already source-proven Array read to the original Return owner;
+it grants no generic field, scalar storage, Completion, Home or backend permission.
+
 The result owner lends an exact field-read source: the same sealed Facts,
 original expression/node, canonical field source, and entry receiver. LIVE and
 probe share one field consultation; only LIVE retains the loan on the existing
@@ -3892,8 +3902,19 @@ Canonical Array receiver reads use the shared `ArrayField` result and
 `CanonicalArrayFieldReadSourceV1` in the field-Array source owner. The source
 retains exact site/receiver/binding/field/name and original declaration spelling;
 its private BorrowedEntry origin owns the parent call. Entry consumers explicitly
-require that origin. This naming/ownership normalization issues no new source
-permission, residence, Home or operation and adds no result variant.
+require that origin. FixedReceiver instead retains the original input's sealed
+FieldAccess/Me facts, unique Instance caller and SAME canonical class-source Rc.
+The existing field-read map stages/takes/records every receiver occurrence and
+lends its mandatory finished FieldGet, independently of Get/Count/Set permission.
+Final recheck consumes the immutable facts and source identity; it does not
+re-observe Me, fabricate a borrowed entry or demand a Push residence requirement.
+Both origins share one result arm, descriptor and physical writer. A mandatory
+whole-expression field requirement retains its own source/path loan: FixedReceiver
+neither stages a replacement for a missing row nor bypasses that requirement.
+A validated scalar-result loan also selects the existing callable participant
+projection without selecting tagged borrowed ABI coverage. The participant's
+actual lookup still propagates errors; absent borrowed ingress is valid only for
+that scalar source with neither borrowed actual selection nor a borrowed entry.
 
 Borrowed Array reads reuse `build_field_access_from_value`, the existing typed
 Array `FieldGet` owner, and retain its actual emitted instruction on the same

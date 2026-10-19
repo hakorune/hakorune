@@ -1,14 +1,68 @@
 //! Immutable exact Integer field-read source, retained by the existing result facts.
 //! The wholebox census remains the sole store authority; no physical read permission.
 use super::*;
+use crate::mir::resolved_value_profile::expression_plan::{ExpressionSourcePlanV1, ExpressionPlanRootV1, ExpressionNodeSourceV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedFieldArrayReadSourceV1 {
     read: Rc<super::super::super::super::CheckedFieldArrayAccessSourceV1>,
     return_sites: Box<[OwnedExprSiteV1]>,
+    return_plans: Box<[Rc<ExpressionSourcePlanV1>]>,
     local_origin: Option<(BindingRefV1, SourceBindingSiteV1)>,
 }
 impl CheckedFieldArrayReadSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn covers_original_plan_v1(&self, plan: &Rc<ExpressionSourcePlanV1>) -> bool {
+        self.return_plans.iter().filter(|held| Rc::ptr_eq(held, plan)).count() == 1
+            && plan.nodes().first().is_some_and(|node|
+                self.return_sites.contains(&OwnedExprSiteV1::new(plan.owner(), node.site().clone())))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_original_return_v1(
+        &self, original: &original::OriginalReturnSourceLoanV1, returns: &[OwnedExprSiteV1],
+    ) -> bool {
+        self.return_sites.iter().all(|site| returns.contains(site)
+            && self.return_plans.iter().filter(|plan| plan.owner() == site.owner()
+                && plan.nodes().first().is_some_and(|node| node.site() == site.site())).count() == 1)
+            && self.return_plans.iter().all(|held| held.nodes().first().is_some_and(|node|
+                self.return_sites.iter().filter(|site| site.owner() == held.owner() && site.site() == node.site()).count() == 1
+                    && original.plan(node.site()).is_some_and(|plan| Rc::ptr_eq(plan, held))))
+    }
+
+    fn retain_original_plan_v1(&mut self, input: ResolvedFunctionLoweringInputV1<'_>,
+        site: &SourceExprSiteV1, original: &original::OriginalReturnSourceLoanV1,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::expression_children::{ExpressionChildrenV1, ExpressionChildReachV1};
+        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
+        use crate::mir::resolved_semantics::SourcePathSegmentV1;
+        let plan = original.plan(site).ok_or_else(|| freeze("borrowed-result/array-return-plan-missing"))?;
+        if plan.owner() != input.owner() || !self.read.matches_original_call_v1(input)
+            || !matches!(plan.root(), ExpressionPlanRootV1::Statement { role: StatementExpressionRoleV1::ReturnValue, value, .. } if value == site)
+            || plan.nodes().first().is_none_or(|node| node.site() != site)
+        { return Err(freeze("borrowed-result/array-return-plan-identity")); }
+        let root = &plan.nodes()[0];
+        if let Some((binding, declaration)) = &self.local_origin {
+            if plan.nodes().len() != 1 || !matches!(root.source(), ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(actual)) if actual == binding)
+                || super::super::super::super::field_array_read_source::local_initializer(input, *binding)
+                    .is_none_or(|(actual, call)| &actual != declaration || &call != self.call().site())
+            { return Err(freeze("borrowed-result/array-return-local-plan")); }
+        } else {
+            if site != self.call().site() || !matches!(root.source(), ExpressionNodeSourceV1::MethodCall) {
+                return Err(freeze("borrowed-result/array-return-call-plan"));
+            }
+            let ExpressionChildrenV1::Known(children) = root.children() else { return Err(freeze("borrowed-result/array-return-call-children")); };
+            if children.len() != 1 + usize::from(self.index().is_some())
+                || children.first().is_none_or(|child| child.role != SourcePathSegmentV1::Receiver || &child.site != self.receiver().site() || child.reach != ExpressionChildReachV1::Always)
+                || self.index().is_some_and(|index| children.get(1).is_none_or(|child|
+                    child.role != SourcePathSegmentV1::Argument(0) || &child.site != index.site() || child.reach != ExpressionChildReachV1::Always))
+            { return Err(freeze("borrowed-result/array-return-call-children")); }
+            let Some((receiver, fields)) = plan.field_path_v1(self.receiver().site()) else { return Err(freeze("borrowed-result/array-return-field-plan")); };
+            if fields.len() != 1 || input.function().binding(receiver).is_none_or(|row| row.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver)
+                || !matches!(plan.nodes()[fields[0]].source(), ExpressionNodeSourceV1::Shape(BodyExpressionShapeV1::FieldAccess { field, .. }) if field.as_ref() == self.field_name())
+            { return Err(freeze("borrowed-result/array-return-field-plan")); }
+            plan.ordered_postorder_v1().map_err(|_| freeze("borrowed-result/array-return-plan-range"))?;
+        }
+        self.return_plans = Box::new([Rc::clone(plan)]);
+        Ok(())
+    }
     pub(crate) fn read(&self) -> &Rc<super::super::super::super::CheckedFieldArrayAccessSourceV1> { &self.read }
     pub(crate) fn return_sites(&self) -> &[OwnedExprSiteV1] { &self.return_sites }
 }
@@ -43,6 +97,7 @@ pub(super) fn normalize_reads(
             std::collections::btree_map::Entry::Occupied(mut slot) => {
                 let mut comparable = read.as_ref().clone();
                 comparable.return_sites = slot.get().return_sites.clone();
+                comparable.return_plans = slot.get().return_plans.clone();
                 if &comparable != slot.get().as_ref() {
                     return Err(freeze("borrowed-result/array-read-source-conflict"));
                 }
@@ -55,6 +110,9 @@ pub(super) fn normalize_reads(
                     sites.push(site.clone());
                 }
                 current.return_sites = sites.into_boxed_slice();
+                let mut plans = current.return_plans.to_vec();
+                plans.extend(read.return_plans.iter().cloned());
+                current.return_plans = plans.into_boxed_slice();
             }
         }
     }
@@ -72,6 +130,7 @@ pub(super) fn capture_field_array_read(
     proven_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     original: Option<&super::super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
     writers: &super::super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    original_return: Option<&original::OriginalReturnSourceLoanV1>,
 ) -> Result<Option<Rc<CheckedFieldArrayReadSourceV1>>, String> {
     let function = input.function();
     // The return source is either the `get` itself or a local bound by a
@@ -103,9 +162,12 @@ pub(super) fn capture_field_array_read(
         },
     };
     let Some(read) = read else { return Ok(None) };
-    Ok(Some(Rc::new(CheckedFieldArrayReadSourceV1 {
-        read, return_sites: Box::new([OwnedExprSiteV1::new(input.owner(), site.clone())]), local_origin,
-    })))
+    let mut source = CheckedFieldArrayReadSourceV1 {
+        read, return_sites: Box::new([OwnedExprSiteV1::new(input.owner(), site.clone())]),
+        return_plans: Box::new([]), local_origin,
+    };
+    if let Some(original) = original_return { source.retain_original_plan_v1(input, site, original)?; }
+    Ok(Some(Rc::new(source)))
 }
 
 // Home observation consumes only original source evidence, before Completion exists.

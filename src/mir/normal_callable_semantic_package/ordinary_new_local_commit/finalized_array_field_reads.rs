@@ -23,28 +23,33 @@ impl FinalizedRootSourceHandoffV1 {
             }
             let mut result = Vec::new();
             for (site, source, original) in &originals {
-                let LocalFieldReadResultV1::BorrowedArray(array) = source.result() else { unreachable!() };
-                let requirement = &array.requirement;
-                if requirement.owner() != owner || requirement.field_site() != site.site()
-                    || requirement.field() != source.field()
-                { return Err(freeze("finished-array-field/source-membership")); }
-                let mut emissions = arrays.iter().filter(|row| matches!(row,
-                    EmittedNamedArrayRequirementV1::Write(write)
-                        if write.borrows_field_residence_v1(requirement)));
-                let emitted = emissions.next().ok_or_else(|| freeze("finished-array-field/emission-missing"))?;
-                if emissions.next().is_some() || emitted.owner() != owner || emitted.validate(module)? != symbol {
-                    return Err(freeze("finished-array-field/emission-membership"));
-                }
-                // Redemand the original constructor's store/receiver/value and
-                // cleanup correspondence against the current provider body.
-                let provider_key = requirement.provider_caller();
-                let mut providers = self.construction.iter().filter(|(key, _)| key == provider_key);
-                let (_, provider) = providers.next().ok_or_else(|| freeze("finished-array-field/provider-missing"))?;
-                if providers.next().is_some() { return Err(freeze("finished-array-field/provider-duplicate")); }
-                let provider_symbol = module.canonical_callable_definition_symbol(provider_key)
-                    .ok_or_else(|| freeze("finished-array-field/provider-definition"))?;
-                provider.validate_artifact_after_compiler_finishing(module.functions.get(provider_symbol)
-                    .ok_or_else(|| freeze("finished-array-field/provider-body"))?)?;
+                if let LocalFieldReadResultV1::BorrowedArray(array) = source.result() {
+                    let requirement = &array.requirement;
+                    if requirement.owner() != owner || requirement.field_site() != site.site()
+                        || requirement.field() != source.field()
+                    { return Err(freeze("finished-array-field/source-membership")); }
+                    let mut emissions = arrays.iter().filter(|row| matches!(row,
+                        EmittedNamedArrayRequirementV1::Write(write)
+                            if write.borrows_field_residence_v1(requirement)));
+                    let emitted = emissions.next().ok_or_else(|| freeze("finished-array-field/emission-missing"))?;
+                    if emissions.next().is_some() || emitted.owner() != owner || emitted.validate(module)? != symbol {
+                        return Err(freeze("finished-array-field/emission-membership"));
+                    }
+                    // Redemand the original constructor's store/receiver/value and
+                    // cleanup correspondence against the current provider body.
+                    let provider_key = requirement.provider_caller();
+                    let mut providers = self.construction.iter().filter(|(key, _)| key == provider_key);
+                    let (_, provider) = providers.next().ok_or_else(|| freeze("finished-array-field/provider-missing"))?;
+                    if providers.next().is_some() { return Err(freeze("finished-array-field/provider-duplicate")); }
+                    let provider_symbol = module.canonical_callable_definition_symbol(provider_key)
+                        .ok_or_else(|| freeze("finished-array-field/provider-definition"))?;
+                    provider.validate_artifact_after_compiler_finishing(module.functions.get(provider_symbol)
+                        .ok_or_else(|| freeze("finished-array-field/provider-body"))?)?;
+                } else if let LocalFieldReadResultV1::ArrayField(array) = source.result() {
+                    if array.site() != site || array.field() != source.field() || !module.canonical_array_field(source.field()) {
+                        return Err(freeze("finished-array-field/source-membership"));
+                    }
+                } else { unreachable!("original visitor selects only source Array reads"); }
                 let finished = projection.relation_binding(function, original)?
                     .ok_or_else(|| freeze("finished-array-field/read-removed"))?;
                 if !projection.recorded().contains(&finished)

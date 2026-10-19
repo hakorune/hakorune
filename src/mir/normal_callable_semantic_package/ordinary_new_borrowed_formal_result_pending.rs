@@ -295,7 +295,7 @@ fn source_result_pending(
             } else if let Some(call) = capture_call(input, site, needs)? {
                 calls.push(call); BorrowedResultClassV1::UnresolvedScalar
             } else if let Some(read) = capture_field_array_read(
-                input, contract, site, selected, batch, constructors, proven_fields, original, field_claims,
+                input, contract, site, selected, batch, constructors, proven_fields, original, field_claims, original_return,
             )? { field_array_reads.push(read); BorrowedResultClassV1::I64 }
             else if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Bool(_))) { BorrowedResultClassV1::Bool }
             else if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Null))

@@ -57,6 +57,12 @@ impl ObjectFieldClassSourceV1 {
             || self.inventory.opaque || self.inventory.value_incomplete { return None; }
         self.declaration.as_ref().map(|(field, _)| *field)
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn array_declaration_v1(
+        &self,
+    ) -> Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<&str>)> {
+        let field = self.array_field()?;
+        Some((field, self.declaration.as_ref()?.1.as_deref()))
+    }
     pub(crate) fn field(&self) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
         if self.inventory.opaque || self.inventory.value_incomplete || crate::box_trait::is_builtin_box(self.class()) { return None; }
         let (field, declared) = self.declaration.as_ref()?;

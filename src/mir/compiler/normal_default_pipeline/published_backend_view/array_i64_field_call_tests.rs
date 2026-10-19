@@ -17,12 +17,13 @@ fn array_page_source(body: &str, declared_array: bool) -> String {
     } else {
         ("init { free }", "me.free = new ArrayBox()")
     };
+    let (parameters, arguments) = if declared_array { ("handle", "h") } else { ("", "") };
     format!(
         "box Handle {{ birth() {{ }} }} \
          box Page {{ {field} top: i64 = 0 \
          birth() {{ {birth} }} \
-         probe(handle): i64 {{ {body} }} }} \
-         static box Main {{ main() {{ local p = new Page() local h = new Handle() local r = p.probe(h) return r }} }}"
+         probe({parameters}): i64 {{ {body} }} }} \
+         static box Main {{ main() {{ local p = new Page() local h = new Handle() local r = p.probe({arguments}) return r }} }}"
     )
 }
 
@@ -97,7 +98,7 @@ fn array_i64_get_publishes_through_array_element_read() {
                         .as_array()
                         .unwrap()
                         .iter()
-                        .find(|f| f["name"] == "Page.probe/1")
+                        .find(|f| f["name"] == if count { "Page.probe/0" } else { "Page.probe/1" })
                         .unwrap();
                     let gets: Vec<_> = callee["blocks"]
                         .as_array()

@@ -1,5 +1,6 @@
 //! Original source-selected participants, distinct from executable call coordinates.
 use super::*;
+use super::finalized_borrowed_call_visit::FinalizedBorrowedCallPacketV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1;
 use crate::mir::resolved_control_flow::{DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1};
@@ -15,6 +16,11 @@ impl FinalizedRootSourceHandoffV1 {
         module: &MirModule,
         callables: &VerifiedCallableResultContractCohortV1,
     ) -> Result<BTreeMap<CanonicalSameModuleCallableKeyV1, InvokeCallResultKind>, String> {
+        // Scalar source membership does not imply a tagged borrowed entry.
+        let scalar_source = |packet: FinalizedBorrowedCallPacketV1<'_>| matches!(packet,
+            FinalizedBorrowedCallPacketV1::Lexical(physical)
+            if matches!(physical.original_source(), CallPacketSourceLoanV1::Instance(original)
+                if original.scalar_result_source_v1().is_some()));
         let mut selected_callees = BTreeSet::new();
         let mut real_targets = BTreeMap::new();
         let declarations: BTreeSet<_> = self
@@ -39,7 +45,7 @@ impl FinalizedRootSourceHandoffV1 {
                     else { return Err(freeze("callable-participant/unit-source-kind")); };
                 self.ledger.corroborate_unit_discard_v1(original)?;
             }
-            if unit || packet.selects_borrowed_source(arguments)
+            if unit || scalar_source(packet) || packet.selects_borrowed_source(arguments)
                 || self.has_borrowed_ordinary_entry_v1(packet.callee_owner())
             {
                 selected_callees.insert(packet.target().clone());
@@ -53,11 +59,16 @@ impl FinalizedRootSourceHandoffV1 {
             .filter(|(_, groups)| groups.iter().any(|group| group.field_array_append().is_some()))
             .map(|(owner, _)| *owner).collect();
         owners.extend(field_owners.iter().copied());
-        self.visit_finalized_borrowed_call_nodes_v1(module, |packet, _, _, _, _| {
+        self.visit_finalized_borrowed_call_nodes_v1(module, |packet, arguments, _, _, _| {
             if selected_callees.contains(packet.target()) {
                 if packet.result() != Some(InvokeCallResultKind::Unit) {
-                    self.borrowed_finalized_call_actuals_v1(packet)?
-                        .ok_or_else(|| freeze("callable-participant/actuals-missing"))?;
+                    let actuals = self.borrowed_finalized_call_actuals_v1(packet)?;
+                    let scalar_only = scalar_source(packet)
+                        && !packet.selects_borrowed_source(arguments)
+                        && !self.has_borrowed_ordinary_entry_v1(packet.callee_owner());
+                    if actuals.is_none() && !scalar_only {
+                        return Err(freeze("callable-participant/actuals-missing"));
+                    }
                 }
                 owners.insert(packet.call_site().owner());
                 owners.insert(packet.callee_owner());

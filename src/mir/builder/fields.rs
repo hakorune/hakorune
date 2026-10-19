@@ -33,12 +33,6 @@ pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
 }
 
 enum PreparedRawFieldReadRouteV1 {
-    SourceArray {
-        object: ASTNode,
-        expected_base: ValueId,
-        field: String,
-        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ObjectFieldClassSourceV1>,
-    },
     ResultPath {
         object: ASTNode,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -78,9 +72,6 @@ enum PreparedRawFieldReadRouteV1 {
 }
 
 impl PreparedRawFieldReadV1 {
-    pub(in crate::mir::builder) fn source_array(object: ASTNode, expected_base: ValueId, field: String,
-        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ObjectFieldClassSourceV1>,
-    ) -> Self { Self { route: PreparedRawFieldReadRouteV1::SourceArray { object, expected_base, field, source } } }
     pub(in crate::mir::builder) fn result_path(object: ASTNode,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
@@ -164,7 +155,6 @@ impl PreparedRawFieldReadV1 {
         matches!(
             self.route,
             PreparedRawFieldReadRouteV1::Dynamic { .. }
-                | PreparedRawFieldReadRouteV1::SourceArray { .. }
                 | PreparedRawFieldReadRouteV1::ResultPath { .. }
         ) || matches!(&self.route, PreparedRawFieldReadRouteV1::ExactObject { claim, .. }
             if !matches!(claim, PreparedExactFieldReadClaimV1::CheckedLocal { .. })
@@ -283,13 +273,6 @@ impl super::MirBuilder {
         Port: RawAstChildLoweringPortV1,
     {
         match prepared.route {
-            PreparedRawFieldReadRouteV1::SourceArray { object, expected_base, field, source } => {
-                if source.array_field().is_none() { return Err("[freeze:contract][ordinary-field-read/array-source-unavailable]".into()); }
-                let base = drive_legacy_expression_v1(self, port, object)?;
-                if base != expected_base { return Err("[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into()); }
-                self.emit_field_access_from_value_with_destination_v1(base,
-                    field, None, Some(crate::mir::MirType::Box(source.class().to_owned())))
-            }
             PreparedRawFieldReadRouteV1::ResultPath { object, site, ledger } => {
                 let base = drive_legacy_expression_v1(self, port, object)?;
                 let source = ledger.bind_result_path_receiver_v1(&site, base)?;
@@ -537,7 +520,6 @@ mod tests {
             PreparedRawFieldReadRouteV1::RecordLiteral { .. } => "record-literal",
             PreparedRawFieldReadRouteV1::RecordUpdate { .. } => "record-update",
             PreparedRawFieldReadRouteV1::Dynamic { .. } => "dynamic",
-            PreparedRawFieldReadRouteV1::SourceArray { .. } => "source_array",
         }
     }
 

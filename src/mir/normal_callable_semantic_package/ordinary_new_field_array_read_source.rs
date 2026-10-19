@@ -49,6 +49,17 @@ pub(crate) struct CheckedFieldArrayAccessSourceV1 {
 }
 
 impl CheckedFieldArrayAccessSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_original_call_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> bool {
+        let Some(call) = input.function().method_call_source_v1(self.call.site()) else { return false; };
+        if input.owner() != self.call.owner() || call.receiver_site() != self.receiver.site() { return false; }
+        match &self.operation {
+            FieldArrayReadSourceOperationV1::Count(source) => std::sync::Arc::ptr_eq(call, &source.method),
+            FieldArrayReadSourceOperationV1::Element { index, .. } => call.selector() == "get" && call.arity() == 1
+                && call.arguments().first().is_some_and(|argument| argument.ordinal() == 0 && argument.site() == index.site()),
+        }
+    }
     pub(crate) fn call(&self) -> &OwnedExprSiteV1 { &self.call }
     pub(crate) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }
     pub(crate) fn index(&self) -> Option<&OwnedExprSiteV1> {
@@ -396,11 +407,64 @@ pub(crate) struct CanonicalArrayFieldReadSourceV1 {
     declared_type_name: Option<Box<str>>,
     origin: ArrayFieldReadOriginV1,
 }
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 enum ArrayFieldReadOriginV1 {
     BorrowedEntry { call: OwnedExprSiteV1 },
+    FixedReceiver {
+        caller: CanonicalSameModuleCallableKeyV1,
+        source: Rc<field_write_claim::ObjectFieldClassSourceV1>,
+    },
 }
+impl PartialEq for ArrayFieldReadOriginV1 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::BorrowedEntry { call: left }, Self::BorrowedEntry { call: right }) => left == right,
+            (Self::FixedReceiver { caller: left, source }, Self::FixedReceiver { caller: right, source: other }) =>
+                left == right && Rc::ptr_eq(source, other),
+            _ => false,
+        }
+    }
+}
+impl Eq for ArrayFieldReadOriginV1 {}
 impl CanonicalArrayFieldReadSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn fixed_receiver_v1(
+        input: ResolvedFunctionLoweringInputV1<'_>, caller: CanonicalSameModuleCallableKeyV1,
+        site: &OwnedExprSiteV1, name: &str, source: Rc<field_write_claim::ObjectFieldClassSourceV1>,
+    ) -> Result<Option<Self>, String> {
+        let Some((receiver, binding)) = Self::original_receiver_v1(input, site, name)? else { return Ok(None); };
+        if caller.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod {
+            return Err(freeze("array-read/receiver-source-caller"));
+        }
+        let Some((field, declared)) = source.array_declaration_v1() else { return Ok(None); };
+        Ok(Some(Self { site: site.clone(), receiver, binding, field, name: name.into(),
+            declared_type_name: declared.map(Into::into), origin: ArrayFieldReadOriginV1::FixedReceiver { caller, source } }))
+    }
+    fn original_receiver_v1(input: ResolvedFunctionLoweringInputV1<'_>, site: &OwnedExprSiteV1, name: &str,
+    ) -> Result<Option<(OwnedExprSiteV1, BindingRefV1)>, String> {
+        use crate::mir::resolved_semantics::BodyMeReceiverV1;
+        if input.owner() != site.owner() { return Err(freeze("array-read/receiver-source-owner")); }
+        let Some(shape) = input.body_shape() else { return Ok(None); };
+        let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(site.site()) else { return Ok(None); };
+        if field.as_ref() != name { return Err(freeze("array-read/receiver-source-field")); }
+        let Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. }) = shape.expression_shape(object) else { return Ok(None); };
+        let expected = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver).expr();
+        if object != &expected || binding.owner() != input.owner()
+            || input.function().binding(*binding).is_none_or(|row| row.kind() != BindingKindV1::Receiver) {
+            return Err(freeze("array-read/receiver-source-binding"));
+        }
+        Ok(Some((OwnedExprSiteV1::new(input.owner(), object.clone()), *binding)))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_original_receiver_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>, site: &OwnedExprSiteV1, name: &str,
+    ) -> Result<bool, String> {
+        Ok(&self.site == site && self.name() == name
+            && Self::original_receiver_v1(input, site, name)? == Some((self.receiver.clone(), self.binding)))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn fixed_origin_v1(&self)
+        -> Option<(&CanonicalSameModuleCallableKeyV1, &Rc<field_write_claim::ObjectFieldClassSourceV1>)> {
+        match &self.origin { ArrayFieldReadOriginV1::FixedReceiver { caller, source } => Some((caller, source)), _ => None }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_entry_v1(
         call: OwnedExprSiteV1, site: OwnedExprSiteV1, receiver: OwnedExprSiteV1,
         binding: BindingRefV1, field: hakorune_mir_defs::CanonicalFieldRefV1,
@@ -410,7 +474,7 @@ impl CanonicalArrayFieldReadSourceV1 {
             origin: ArrayFieldReadOriginV1::BorrowedEntry { call } }
     }
     pub(in crate::mir) fn entry_call_v1(&self) -> Option<&OwnedExprSiteV1> {
-        match &self.origin { ArrayFieldReadOriginV1::BorrowedEntry { call } => Some(call) }
+        match &self.origin { ArrayFieldReadOriginV1::BorrowedEntry { call } => Some(call), ArrayFieldReadOriginV1::FixedReceiver { .. } => None }
     }
     pub(in crate::mir) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
     pub(in crate::mir) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }

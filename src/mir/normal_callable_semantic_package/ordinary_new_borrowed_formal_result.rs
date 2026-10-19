@@ -139,9 +139,11 @@ impl BorrowedI64ResultSourceV1 {
             if original.is_unit_candidate_v1() { return Err(freeze("borrowed-result/unit-is-not-scalar")); }
             if original.field_plans().filter(|plan| plan.nodes().first().is_some_and(|node|
                 self.returns.contains(&OwnedExprSiteV1::new(plan.owner(), node.site().clone()))))
-                .any(|plan| !self.expressions.iter().any(|expression| Rc::ptr_eq(plan, expression.plan())))
+                .any(|plan| self.expressions.iter().filter(|expression| Rc::ptr_eq(plan, expression.plan())).count()
+                    + self.field_array_reads.iter().filter(|read| read.covers_original_plan_v1(plan)).count() != 1)
                 || self.expressions.iter().any(|expression| expression.plan().nodes().first().is_none_or(|node|
                     original.plan(node.site()).is_none_or(|plan| !Rc::ptr_eq(plan, expression.plan()))))
+                || self.field_array_reads.iter().any(|read| !read.matches_original_return_v1(original, &self.returns))
             { return Err(freeze("borrowed-result/original-return-plan-identity")); }
         }
         Ok(())

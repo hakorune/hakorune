@@ -538,20 +538,6 @@ pub(crate) fn issue_lexical_i64_discard_call<E>(
         unit_discard::UnitDiscardDemandV1::Refused => return Ok(None),
         unit_discard::UnitDiscardDemandV1::Ready(observation) => return Ok(Some(observation)),
     }
-    match source_scalar_call::demand_v1(input, &site, borrowed_arguments)? {
-        source_scalar_call::SourceScalarDemandV1::Ready { loan, arguments } => {
-            return Ok(Some(source_scalar_call::discard_v1(
-                input.owner(),
-                statement.site(),
-                &site,
-                prior_homes,
-                loan,
-                arguments,
-            )));
-        }
-        source_scalar_call::SourceScalarDemandV1::Refused => return Ok(None),
-        source_scalar_call::SourceScalarDemandV1::Unselected => {}
-    }
     issue_lexical_i64_call(
         input,
         statement.site(),
@@ -582,6 +568,18 @@ fn issue_lexical_i64_call<E>(
         E,
     >,
 ) -> Result<Option<LocalCallObservationV1>, E> {
+    match source_scalar_call::demand_v1(input, site, borrowed_arguments)? {
+        source_scalar_call::SourceScalarDemandV1::Ready { loan, arguments } => {
+            if !matches!(destination, LocalCallDestinationV1::Discard) && loan.kind() != SourceScalarKind::Integer {
+                return Ok(None);
+            }
+            return Ok(Some(source_scalar_call::observation_v1(
+                input.owner(), statement, site, destination, prior_homes, loan, arguments,
+            )));
+        }
+        source_scalar_call::SourceScalarDemandV1::Refused => return Ok(None),
+        source_scalar_call::SourceScalarDemandV1::Unselected => {}
+    }
     let Some(arguments) = seal_lexical_i64_arguments_at(
         input,
         site,

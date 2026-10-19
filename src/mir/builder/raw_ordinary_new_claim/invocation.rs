@@ -129,6 +129,9 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         // A claimed `local x = recv.field` initializer reaches the same
         // raw FieldAccess dispatch — its staged row carries the sealed
         // declared-type classification that decides the destination type.
+        if let Some(input) = self.source_input {
+            ledger.stage_source_array_receiver_v1(input, &site, field)?;
+        }
         let checked = ledger.local_field_read_requires_checked_v1(&site);
         let mut original_read = None;
         let receiver_site = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
@@ -155,11 +158,6 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
                 ledger.clone(),
                 claim,
             )));
-        }
-        if let Some(input) = self.source_input {
-            if let Some((binding, source)) = ledger.array_field_receiver_source_v1(input, &site, field)? {
-                return Ok(Some(PreparedRawFieldReadV1::source_array(object, resolve(binding)?, field.to_owned(), source)));
-            }
         }
         Ok(None)
     }

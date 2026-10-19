@@ -83,6 +83,14 @@ Nullable membership only to their exact outer call; distinct argument calls
 still require the original I64-result predicate. Borrowed projection runs first,
 and its refusal propagates without strict retry. The entry-receiver flow's empty
 argument row never proves arity or executable values.
+Source scalar local initializers and discarded calls use the same demand and
+observation constructor. A selected local Integer result retains its original
+scalar loan, arguments, destination and prior Homes; the existing scanner installs
+the local Integer state. Local Bool is not accepted as Integer. Selected refusal
+never retries strict arguments; only an unselected source demand uses the existing
+strict I64 issuer. Discard and expression observations retain their own scalar
+result policy and the same immutable source evidence.
+
 The bounded lexical local-call observer lives in `home_local_lexical_call.rs`;
 `home_local_call_flow.rs` reexports its original signature for the sole scanner.
 For a ClaimLocal received Handle, it first corroborates the original initializer

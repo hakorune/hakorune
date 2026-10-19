@@ -369,7 +369,8 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let rows = self.local_field_reads.borrow();
         for (site, row) in rows.iter() {
-            if site.owner() != owner || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)) {
+            if site.owner() != owner || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
+                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(_)) {
                 continue;
             }
             self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;

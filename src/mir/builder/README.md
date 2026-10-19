@@ -471,7 +471,9 @@ the proven physical FieldGet carries Box(ArrayBox).
 Direct Array receivers use the source-scoped original resolver input and the
 same field-class loan, including the exact Me binding and canonical Array
 qualification. Prepared descent checks its base against that binding's existing
-state value before emission. Set/Get/Count share this receiver proof; their
+state value before emission. Their source uses the existing ArrayField row and
+Pending/take/emit/record/FinishedBindings progress; the dedicated SourceArray raw
+route is removed. Set/Get/Count share this receiver proof; their
 operation owners still decide writes, element types, reads and final coverage.
 Ordinary-object `ObjectFieldGet` remains unavailable for Array residence. Source
 Rc identity, recorded base/name/type and final read census remain checked. This

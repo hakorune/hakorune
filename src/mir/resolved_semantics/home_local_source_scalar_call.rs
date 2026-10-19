@@ -52,10 +52,11 @@ pub(super) fn demand_v1<E>(
     Ok(SourceScalarDemandV1::Ready { loan, arguments })
 }
 
-pub(super) fn discard_v1(
+pub(super) fn observation_v1(
     owner: FunctionOwnerIdV1,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
+    destination: LocalCallDestinationV1,
     prior_homes: &[BindingRefV1],
     loan: BorrowedScalarResultSourceLoanV1,
     arguments: Box<[LocalCallArgumentV1]>,
@@ -68,7 +69,7 @@ pub(super) fn discard_v1(
         owner,
         statement: statement.clone(),
         site: site.clone(),
-        destination: LocalCallDestinationV1::Discard,
+        destination,
         prior_homes: prior_homes.into(),
         arguments,
         result,
@@ -122,8 +123,7 @@ pub(crate) fn issue_source_scalar_condition_call_v1<E>(
         SourceScalarDemandV1::Ready { .. } => return Ok(SourceScalarConditionCallV1::Refused),
     };
     let field_alias = loan.source().receiver_binding().ok().and_then(receiver_path);
-    let mut observation = discard_v1(input.owner(), statement, site, prior_homes, loan, arguments);
-    observation.destination = LocalCallDestinationV1::ExpressionValue;
+    let mut observation = observation_v1(input.owner(), statement, site, LocalCallDestinationV1::ExpressionValue, prior_homes, loan, arguments);
     observation.field_alias = field_alias;
     Ok(SourceScalarConditionCallV1::Ready(observation))
 }
@@ -149,8 +149,7 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
     let SourceScalarDemandV1::Ready { loan, arguments } = demand_v1(input, site, actuals)?
         else { return Ok(None) };
     let field_alias = loan.source().receiver_binding().ok().and_then(receiver_path);
-    let mut observation = discard_v1(input.owner(), statement, site, prior_homes, loan, arguments);
-    observation.destination = LocalCallDestinationV1::ExpressionValue;
+    let mut observation = observation_v1(input.owner(), statement, site, LocalCallDestinationV1::ExpressionValue, prior_homes, loan, arguments);
     observation.field_alias = field_alias;
     Ok(Some(observation))
 }

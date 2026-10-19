@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "field-array/final-receiver-source-projection"
+current_blocker_token = "field-array/original-json-static-ingress-handoff"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,16 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Fixed Array profile landed d94921c440.947 ArrayField source naming/common owner
-and private BorrowedEntry-call origin normalized without source admission change;
-75focusedPASS/4existing baseline red plus retained946C Count final red.9263 names,
-typed Get/OOB JSON unchanged. No new tests/checkers.946 source Return-plan/local
-handoff features remain UNCOMMITTED; CLI285 originalJSON383 passed source-not-i64
-to distinct Static finite-domain-unclosed, but zeroarg Count final receiver reads
-still need existing local_field_reads/FinishedBindings integration and scalar
-participant protocol. Next FixedReceiver private origin, exact same-Rc recheck,
-all-operation progress/final lending and SourceArray raw route retirement. Full
-row and finite goal open; no latest-source native/CI/full-suite claim from947.
+947 normalization5714e9b989;948 source-to-final connection verified: SAME original
+Array Return plan, FixedReceiver existing read progress/finished lending, local
+scalar handoff and participant membership distinct from tagged ABI. Dedicated
+SourceArray raw route removed/caller-zero.946 WIP included in948 landing.
+948C76focusedPASS/4same945G baseline reds;9263 names, no added cases/checkers.
+Existing C Get2+Count2 execute/6malformed reject PASS. CLI286 quick213.128s;
+zeroarg Count386/387 canonical EXE/run/output/exit PASS. Unchanged mimalloc385
+EXE142.161s/run.001710s matches363 exactly. Runtime894A/FFI939A predecessors.
+OriginalJSON384 .051721s same383 distinct Static finite-domain-unclosed/noEXE.
+Next transfer to existing StaticText card and measure owner/formal/sum/incoming;
+no domain waiver. Full row/finite goal/retained families/suite/CI remain open.
+
 """
 next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
