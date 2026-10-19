@@ -36,6 +36,8 @@ mod wire {
             handle: i64,
             descriptor: *const super::super::owned::Descriptor,
         ) -> u32;
+        #[link_name = "nyash.array.checked_empty_end_v1"]
+        pub fn empty_end(frame: *mut c_void, site: u64, handle: i64) -> u32;
         #[link_name = "nyash.array.checked_new_v1"]
         pub fn new(frame: *mut c_void, site: u64, out: *mut i64) -> u32;
         #[link_name = "nyash.array.checked_script_arguments_new_v1"]
@@ -443,6 +445,33 @@ fn checked_array_release_retires_the_published_host_residence() {
     drop(array); // exactly one ordinary void release
     assert!(handles::get(handle as u64).is_none());
     assert_eq!(unsafe { wire::i64(pointer(&mut frame), 1, handle, 7) }, 2);
+    let checked = OwnedArray::new(&mut frame);
+    let retained = handles::get(checked.0 as u64).unwrap();
+    assert_eq!(unsafe { wire::empty_end(pointer(&mut frame), 2, checked.0) }, 0);
+    assert!(handles::get(checked.0 as u64).is_none());
+    assert_eq!(unsafe { wire::empty_end(pointer(&mut frame), 3, checked.0) }, 2);
+    let alias = retained.as_any().downcast_ref::<ArrayBox>().unwrap();
+    assert!(
+        alias.retire_empty_residence().is_err(),
+        "terminal state survives a retained Arc"
+    );
+    assert!(
+        alias.slot_append_i64_result(7).is_err(),
+        "terminal storage cannot mutate"
+    );
+    std::mem::forget(checked); // checked End already consumed this residence
+    for claimed in [false, true] {
+        let rejected = OwnedArray::new(&mut frame);
+        if claimed {
+            assert_eq!(unsafe { wire::claim(pointer(&mut frame), 4, rejected.0, 4) }, 0);
+        } else {
+            assert_eq!(unsafe { wire::i64(pointer(&mut frame), 4, rejected.0, 7) }, 0);
+        }
+        let before = rejected.values();
+        assert_eq!(unsafe { wire::empty_end(pointer(&mut frame), 5, rejected.0) }, 2);
+        assert!(handles::get(rejected.0 as u64).is_some(), "rejected End retains the owner");
+        assert_eq!(rejected.values(), before);
+    }
 }
 
 #[test]

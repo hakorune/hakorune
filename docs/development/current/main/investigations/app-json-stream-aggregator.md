@@ -7,9 +7,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Current measurement
 
 - Fixed `real-apps-exe-boundary`: 7PASS/4FAIL, actual EXE6 + empty marker1;
-  mimalloc and allocator PASS, no SKIP/timeout, duration1150.771s.
-  Measured known-empty source admission `0013eb0e11` with matching quick CLI
-  (build233s), quick lifecycle runtime and production Bool-equality C FFI.
+  mimalloc and allocator PASS, no SKIP/timeout, duration1149.982s.
+  Measured Array transfer source admission `3ecdca645d` with matching quick CLI
+  (build210s), selected quick lifecycle runtime and production Bool-equality C FFI.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
 - JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
@@ -53,14 +53,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   borrowed observation for source tag tests, never an owning Dynamic call result.
   Compatibility registration/setters and direct cells cannot activate this profile;
   outer reclaim refuses nonempty Dynamic slots. No tag selects an owner or End.
-- Existing kernel lifecycle-core typed_object35/fault34 PASS (test execution0.01s
-  each). Archive build5.43s. Existing native checked_map_runtime_abi_test.c compiles
-  with -Wall/-Wextra/-Werror, links the matching archive, passes SafeMutex and
-  SingleThread; existing Map boundary is also checked on SafeMutex only.
+- Existing lifecycle-core checked_array9 PASS (execution0.01s); matching archive
+  build31.54s. Native checked_map_runtime_abi_test.c with -Wall/-Wextra/-Werror
+  passes SafeMutex/SingleThread, including explicit empty-Array End; Map SafeMutex only.
 - C fixture additions cover independent ABI/transaction/ownership boundaries:
   Empty/kind Fault, failed write retaining candidate/old slot, actual child End,
-  reentry refusal and commit surviving cleanup Fault; no new test function/file
-  in Rust, checker, hook or guard. Kernel398/root9263 test functions remain.
+  reentry refusal and commit surviving cleanup Fault; existing cases minimally
+  protect independent empty-End ABI/state/ownership boundaries. No new tests/hooks/guards.
 - Optional target section `.nyash.object_field_abi.v1` supplies physical sizes/
   alignment. Both final consumers must admit it and verify SAME source/slot/
   transfer/Normal/Fault correspondence before emission. Source activation is owed;
@@ -69,22 +68,23 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   of I64/Dynamic slots; untyped declaration stays absent, Empty stays unready.
   Calls exposing root/alias forget the whole root proof, including mixed I64 fields;
   alias writes clear readiness. Loop loses Dynamic-root proofs pending checked After.
-- Existing source cases minimally add Dynamic kind/no-escape boundaries not covered
-  by typed cases; no new test functions/files. Focused27 PASS/2 known field-read reds.
+- Existing cases cover Dynamic kind/no-escape without new tests/files; focused27 PASS/2 baseline reds.
   Operand/RHS entry, writer, physical read and Lowering/Finalized retain I64 lease;
   Dynamic execution, return inference and both final consumers remain unconnected.
 - Array holder retains construction outside its SAME optional element requirement.
   Bare initializer preserves selected refusals; source Normal moves the exact local
   Home into Dynamic field. The frame keeps precommit Fault Homes; exit omits Array.
   Existing sentinel/negative cases protect alias/mutation/doublemove/kind; no new tests.
-  Focused38 PASS/2 baseline reds; physical acquisition/commit/End and consumers owed.
+  Focused38 PASS/2 field-read baseline reds (stored-child caller / opaque formal);
+  physical acquisition/commit/End and consumers owed.
+- Runtime checked empty End retires unclaimed Boxed(empty) under the same state gate,
+  releases outside locks and rejects other/retired states without consumption.
+  Source must prove contents/End before both consumers admit it; identity alone cannot.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
   existing source tree/schedule and SAME Static/Instance child packet. Its substring
   argument stays inside that packet; retain original Homes and argument cleanup.
-- Prior reds: count_at Loop, composition2/result2 and Unit diagnostic; earlier
-  connection/normalization/filter details remain in this file's Git history.
-- JSON UserStats/aggregator slots and Map remain implementation dependencies.
-- Field-read baseline2: stored-child caller assertion / opaque formal ingress; unchanged.
+- Prior reds: count_at Loop, composition2/result2, Unit; earlier evidence remains in Git.
+- JSON UserStats/aggregator slots and Map remain implementation dependencies; baselines unchanged.
 
 ## Retained verification obligations
 

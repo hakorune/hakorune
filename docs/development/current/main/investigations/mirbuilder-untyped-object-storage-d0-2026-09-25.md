@@ -63,8 +63,9 @@ D0 acceptance authorizes implementation, not execution of an unverified profile.
   String formals may install independent immutable values; object fields/Map
   insertion and borrowed results require their separate source support proofs.
 - These are necessary common semantics, not a claim that storage fixes every stop.
-- Sentinel precheck and direct canonical EXE currently fail at phase84 inference
-  ValueId(14), before artifact/link/runtime. Do not invent I64 to suppress the panic.
+- Sentinel still fails before artifact/link/runtime; its changing first stop and
+  matching binary evidence belong in [the active app card](app-json-stream-aggregator.md).
+  Do not infer an I64 field declaration to bypass missing Dynamic execution.
 - Keep unchanged sources, expected outputs/exit-7 sentinel and safety negatives.
   Existing suites/focused cases are reused; no new checker/test file/card selected.
 

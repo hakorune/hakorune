@@ -25,6 +25,7 @@ enum Phase {
 }
 
 pub(super) struct ArrayOwnedObjectStorage {
+    // Live/Ending always have a real child contract. None is terminal-only.
     descriptor: Option<ArrayOwnedSlotDescriptor>,
     slots: Vec<i64>,
     phase: Phase,
@@ -46,6 +47,25 @@ impl ArrayOwnedObjectStorage {
 }
 
 impl ArrayBox {
+    /// Consume a source-proved unclaimed empty residence under the SAME gate.
+    /// This physical check grants no source ownership or content/End contract.
+    pub fn retire_empty_residence(&self) -> Result<(), ArrayOwnedSlotError> {
+        let mut state = self.items.state.write();
+        if state.element_contract.is_some()
+            || !matches!(&state.storage, ArrayStorage::Boxed(items) if items.is_empty())
+        {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        // Reuse the existing terminal representation, never a fabricated live
+        // child descriptor. All claimed and compatibility mutations stay closed.
+        state.storage = ArrayStorage::OwnedObject(ArrayOwnedObjectStorage {
+            descriptor: None,
+            slots: Vec::new(),
+            phase: Phase::Ended,
+        });
+        Ok(())
+    }
+
     /// Only an empty, uncontracted builtin Array may receive this representation.
     pub fn claim_owned_slots(
         &self,

@@ -37,6 +37,10 @@ static uint32_t field_array_end(void *frame, uint64_t site, const NyrtDynamicFie
   nyrt_handle_release_h(value->value);
   return 0;
 }
+static uint32_t field_empty_array_end(void *frame, uint64_t site, const NyrtDynamicFieldValueV1 *value) {
+  return nyrt_array_checked_empty_end_v1(frame,site,value->value);
+}
+static const NyrtDynamicFieldEndDescriptorV1 field_empty_array[] = {{1,NYRT_FIELD_ARRAY_V1,0,field_empty_array_end},{2,NYRT_FIELD_ARRAY_V1,0,field_empty_array_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_text[] = {{1,NYRT_FIELD_TEXT_V1,0,field_text_end},{2,NYRT_FIELD_TEXT_V1,0,field_text_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_array[] = {{1,NYRT_FIELD_ARRAY_V1,0,field_array_end},{2,NYRT_FIELD_ARRAY_V1,0,field_array_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_child[] = {{1,NYRT_FIELD_OBJECT_V1,941,field_object_end},{2,NYRT_FIELD_OBJECT_V1,941,field_object_end}};
@@ -156,6 +160,7 @@ int main(void) {
   /* Direct Array Home uses the existing source-selected release owner. */
   int64_t array=0; assert(nyrt_array_checked_new_v1(frame,180,&array)==0);
   assert(nyrt_array_checked_claim_v1(frame,181,array,NYRT_ARRAY_ELEMENT_I64_V1)==0);
+  assert(nyrt_array_checked_empty_end_v1(frame,181,array)==2); /* claimed is not bare */
   NyrtDynamicFieldValueV1 array_value={NYRT_FIELD_ARRAY_V1,0,array,0};
   assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
   assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,182,field_parent,940,0,&array_value,&field_array[field_profile-1],field_outcome)==0);
@@ -165,6 +170,16 @@ int main(void) {
   assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,185,field_parent,940,0,field_outcome)==0);
   field_finish(frame,186);
   assert(nyrt_array_checked_append_i64_v1(frame,187,array,1)==2);
+  /* Unclaimed empty residence carries its own checked End choice. */
+  assert(nyrt_array_checked_new_v1(frame,188,&array)==0);
+  array_value.value=array;
+  assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
+  assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,188,field_parent,940,0,&array_value,&field_empty_array[field_profile-1],field_outcome)==0);
+  field_finish(frame,188);
+  assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
+  assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,189,field_parent,940,0,field_outcome)==0);
+  field_finish(frame,189);
+  assert(nyrt_array_checked_empty_end_v1(frame,189,array)==2); /* already consumed */
   assert(nyrt_object_home_release_plain_i64_v1(frame,field_profile,190,field_parent,940)==0);
   assert(nyrt_fault_frame_dispose_v1(frame)==0);
   free(field_outcome);

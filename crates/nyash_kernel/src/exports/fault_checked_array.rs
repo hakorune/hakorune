@@ -28,6 +28,33 @@ const TYPE_MISMATCH: i64 = 1;
 const NEGATIVE_TO_UNSIGNED: i64 = 2;
 const OUT_OF_RANGE: i64 = 3;
 
+/// End for an independently source-proved unclaimed empty Array residence.
+/// Validate/retire under its state gate, then release outside BOTH registries
+/// and state guards. Runtime emptiness is not source ownership authority.
+#[export_name = "nyash.array.checked_empty_end_v1"]
+pub unsafe extern "C" fn end_empty(storage: *mut c_void, _site: u64, handle: i64) -> u32 {
+    if let Err(status) = unsafe { admit(storage) } {
+        return status as u32;
+    }
+    let Some(object) = u64::try_from(handle)
+        .ok()
+        .filter(|handle| *handle != 0)
+        .and_then(handles::get)
+    else {
+        return Status::InvalidContract as u32;
+    };
+    let Some(array) = object.as_any().downcast_ref::<ArrayBox>() else {
+        return Status::InvalidContract as u32;
+    };
+    if array.retire_empty_residence().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    // `get` lent an Arc after dropping the host-registry lock. The retirement
+    // guard is gone too, so removal cannot re-enter either held guard.
+    crate::nyrt_handle_release_h(handle);
+    Status::Normal as u32
+}
+
 fn element_spec(tag: u32) -> Result<ArrayElementContractSpec, Status> {
     let element = match tag {
         ELEMENT_I8 => ExactArrayElementType::I8,

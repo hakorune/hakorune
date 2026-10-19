@@ -256,6 +256,11 @@ uint32_t nyrt_object_home_release_plain_i64_v1(void *, uint32_t, uint64_t, int64
  * has no returned-result or cleanup guarantee. Release uses nyrt_handle_release_h. */
 uint32_t nyrt_array_checked_new_v1(void *, uint64_t, int64_t *)
     __asm__("nyash.array.checked_new_v1");
+/* Independently source-proved unclaimed Boxed(empty) only. Retires once before
+ * registry release; other profiles/state reject without consumption. This is
+ * not a general Array End or a source ownership/emptiness issuer. */
+uint32_t nyrt_array_checked_empty_end_v1(void *, uint64_t, int64_t)
+    __asm__("nyash.array.checked_empty_end_v1");
 /* Whole immutable Main ingress snapshot. UTF-8 slices may contain NUL.
  * Normal alone publishes out. Before publication all elements stay local RAII. */
 typedef struct { const uint8_t *data; size_t length; } nyrt_script_argument_utf8_v1;
