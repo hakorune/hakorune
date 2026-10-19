@@ -959,38 +959,18 @@ boolField scalar leaves remain required. No eligibility-only green closes950.
 Reuse existing tests/C/native slots and unchanged JSON/mimalloc; no new cases/
 files/checkers/hooks. Fixed suite955 is prior evidence, not whole-series closure.
 
-956 BoxShape implementation: move existing Source/Qualified enum into actual_model;
-common canonical-input/original-call binder replaces Static-only plan construction.
-Instance retains ordinal slots in its SAME identity. Three raw source snapshot
-comparisons now recheck semantic base + original bound plans, then compare complete
-rows; executable reconstruction comparison and generic staging stay strict.
-Direct source-only preparation may retain no slots and gains no qualification.
-Explicit Observe alone reuses old plan Rc/reset; no executable reset. Existing
-Static Core/flow and Instance Array/field/forward laws unchanged. This is source
-retention preparation, not Text admission; original409 stop is expected unchanged.
-Existing tests receive enum/binder path/struct updates; original Instance snapshot
-case binds its direct-prepare through Observe before SAME projections/mutations.
-Worker caught unbound-to-bound rejection; allow it only on matching source base,
-not executable phase. Repeated bound observation retains SAME plans. No new cases.
-956 verification: jobs4 `cargo quick-test-fast --no-run --message-format=json`:
-Root956A121.323307s,956B63.972052s,956C66.220420s buildPASS; existing8 focusedPASS.
-Retired two stale Instance test assertions (Completion readiness/local-call absence
-following manual actual-row replacement); SAME early panic reproduced on955D.
-956C reaches SAME existing source-only/executable and5mutation refusals. No new
-case/parameter/file/hook/checker;174existing=170PASS/4 exact955D diagnostics,7.342822s,
-9263same names/no new warning. Pointer/layer/CallTarget/diffPASS. Existing Rust-issued
-7Unit JSON byte-identical955 pins; C/native955 reused under unchanged payload/
-FFI/runtime, not a fresh C run. Jobs4 `cargo build --profile quick --bin hakorune
---message-format=json` CLI295214.194748s PASS. Root956C full snapshot matches;
-CLI295 differs only test-only stale-assert retirement, production identical.
-FFI954A/runtime954A unchanged predecessor components, not full-manifest equality.
-Canonical `--grammar-profile canonical --backend mir --emit-exe --emit-exe-nyrt
-runtime954A`,plugins1,pure-first/compat-none,FFI954A,16MiB stack: unchangedJSON411
-.058289s exit1/noEXE SAME409/array-loan-missing; unchanged mimalloc412 EXE PASS
-156.123091s/run.001672s,stdout/stderr/exit exact363. Source responsibility normalized,
-not originalJSON advance. Fixed11 last955 only; no current suite/CI/whole950 closure.
-Temporary disposition: redundant956B executable281291824B retired after956C proof;
-logs/source retained,956A never separately pinned. Keep956C/CLI295/native/source
-and954A FFI/runtime until950 acceptance. No adapter/diagnostic patch/parallel writer.
-Next same950 common observer/lender/completer + genuine Text Call-purpose/Return
-ABI/borrowed entry/Unit cleanup/BOTH finals/JSON/C; all original scope remains open.
+956 common argument retention BoxShape landed `2098e966f5`. That commit owns
+full producer/consumer/refinement review, original Instance direct-prepare -> bind
+fix, stale-assert retirement reasoning, all commands/timings/baselines and pin
+provenance. Root956C8focusedPASS;174existing=170PASS/4 exact955D/9263same names;
+no cases/files/hooks/checkers added. Current7Unit JSON byte-identical955; actual
+C/native955 reused under unchanged payload/runtime/FFI, no fresh C-run claim.
+CLI295 production equals956C; only snapshot difference test-only assert cleanup.
+OriginalJSON411 SAME409/array-loan-missing/noEXE; unchanged mimalloc412 canonical
+EXE/run exact363. Source responsibilities normalized, not originalJSON advance.
+Fixed11 last955 only; no current suite/CI/full950/goal closure. Keep956C/CLI295/
+native/source +954A FFI/runtime until950 acceptance. Redundant956B281291824B retired,
+source/build/failure logs retained; no parallel writer/adapter/diagnostic patch.
+Next required: generalized observer/lender/completer and genuine ordinary Text
+Call-purpose, all Return forms/OwnedString ABI, borrowed entry/Unit cleanup/BOTH
+finals/JSON/C, exactly the SAME950/956 Decision above. No inventory/design stop.
