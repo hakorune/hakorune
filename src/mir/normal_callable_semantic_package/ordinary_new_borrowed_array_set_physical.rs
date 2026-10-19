@@ -50,7 +50,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(entry) = entries.get(&owner) else { return Ok(Vec::new()) };
         let source = self.finalized_borrowed_ordinary_entry_source_v1(owner)?;
         use super::super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
-        let expected: BTreeSet<_> = source.definition.uses.iter().filter_map(|row| match &row.kind {
+        let expected: BTreeSet<_> = source.legacy_uses_v1().filter_map(|row| match &row.kind {
             Use::ArrayElementFieldIndexValue { call, .. } => Some(call.clone()), _ => None,
         }).collect();
         if entry.array_sets.keys().cloned().collect::<BTreeSet<_>>() != expected {

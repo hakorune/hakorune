@@ -20,6 +20,7 @@ use super::UnifiedValueCallReceiptErrorV1;
 pub(in crate::mir::builder) struct CompletedUnifiedValueCallEmissionV1 {
     final_destination: ValueId,
     binding: (crate::mir::BasicBlockId, MirInstruction),
+    operand_bindings: Vec<(crate::mir::BasicBlockId, MirInstruction)>,
     _seal: CompletedUnifiedValueCallEmissionSealV1,
 }
 
@@ -28,6 +29,7 @@ struct CompletedUnifiedValueCallEmissionSealV1;
 
 impl CompletedUnifiedValueCallEmissionV1 {
     pub(in crate::mir::builder) fn binding(&self) -> &(crate::mir::BasicBlockId, MirInstruction) { &self.binding }
+    pub(in crate::mir::builder) fn operand_bindings(&self) -> &[(crate::mir::BasicBlockId, MirInstruction)] { &self.operand_bindings }
     pub(in crate::mir::builder) const fn final_destination(&self) -> ValueId {
         self.final_destination
     }
@@ -80,6 +82,7 @@ pub(super) fn emit_finalized_generic_call_v1(
     >,
     lookup: Option<&dyn FunctionSignatureLookupV1>,
     signature_publication: UnifiedCallSignaturePublicationV1,
+    operand_bindings: Vec<(crate::mir::BasicBlockId, MirInstruction)>,
 ) -> Result<CompletedUnifiedCallEmissionV1, String> {
     let final_destination = call.dst;
     let prepared_post_success = PreparedUnifiedCallPostSuccessV1::prepare(
@@ -102,6 +105,7 @@ pub(super) fn emit_finalized_generic_call_v1(
             CompletedUnifiedCallEmissionV1::Value(CompletedUnifiedValueCallEmissionV1 {
                 final_destination,
                 binding: (block, call_inst),
+                operand_bindings,
                 _seal: CompletedUnifiedValueCallEmissionSealV1,
             })
         }

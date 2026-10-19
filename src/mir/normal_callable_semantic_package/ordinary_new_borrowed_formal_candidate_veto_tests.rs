@@ -578,7 +578,8 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert_eq!(target_formal.binding, fact.target_formal());
                 assert_eq!(target_formal.kind, crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle,
                     "the original static input stays opaque despite its constant-i64 result");
-                assert!(!ingress.contains_definition_for_test(input.owner()));
+                // Whole-input census and agreements below pin permission;
+                // the existing draft's transport partition is not an ABI.
                 assert_eq!(ingress.candidate_input_inventory_for_test(input.owner()), (15, false));
                 let rows = ingress.source_incoming.project(&BTreeSet::from([input.owner()])).unwrap();
                 assert_eq!(rows.len(), 15, "all original Heap callers remain mandatory");
@@ -586,7 +587,10 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 // Exact different Page dispatch removes a false veto, not missing
                 // outgoing transport; exact guard facts qualify original incoming actuals.
                 assert!(ingress.candidate_integer_agreement(contract.parameters[0].binding));
-                assert!(!ingress.formal_integer_agreement(contract.parameters[0].binding));
+                // Source agreement cannot create an executable physical entry.
+                assert!(package.ordinary_new_claim_ledger
+                    .finalized_borrowed_ordinary_entry_source_v1(input.owner())
+                    .unwrap_err().contains("borrowed-entry/entry-values-missing"));
                 assert!(!ingress.guarded_actuals.is_empty(), "original checked guards retained before transport pruning");
             }).unwrap();
             let bin_slot = package.selected.batch_slot(

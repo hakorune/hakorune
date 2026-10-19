@@ -47,7 +47,7 @@ impl BorrowedArraySetSourceLoanV1 {
             return Err(freeze("borrowed-set/completion-identity"));
         }
         let entry = ledger.finalized_borrowed_ordinary_entry_source_v1(owner)?;
-        let mut originals = entry.definition.uses.iter().filter_map(|row| match &row.kind {
+        let mut originals = entry.legacy_uses_v1().filter_map(|row| match &row.kind {
             Use::ArrayElementFieldIndexValue { call, index, reach, receiver } if call == &self.call =>
                 Some((row, index, reach, receiver)),
             _ => None,
@@ -59,8 +59,8 @@ impl BorrowedArraySetSourceLoanV1 {
             || (row.binding, row.formal, &row.site) != (self.value.0, self.value.1, &self.value.2)
             || reach != &self.reach || !Rc::ptr_eq(reach.guard(), self.reach.guard())
             || reach.operand() != (row.binding, row.formal, &row.site)
-            || entry.definition.origins.get(&row.binding) != Some(&row.formal)
-            || entry.definition.origins.get(&binding) != Some(&formal)
+            || entry.origins().get(&row.binding) != Some(&row.formal)
+            || entry.origins().get(&binding) != Some(&formal)
             || [access.owner(), receiver.owner(), row.site.owner()].iter().any(|actual| *actual != owner)
             || !entry.formals.iter().any(|(_, original)| *original == row.formal)
             || !entry.formals.iter().any(|(_, original)| *original == formal)
@@ -82,7 +82,7 @@ impl BorrowedArraySetSourceLoanV1 {
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn array_set_receivers_v1(&self)
         -> impl Iterator<Item = &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>> {
-        self.definition.uses.iter().filter_map(|row| match &row.kind {
+        self.legacy_uses_v1().filter_map(|row| match &row.kind {
             Use::ArrayElementFieldIndexValue { receiver, .. } => Some(receiver), _ => None,
         })
     }
@@ -91,7 +91,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         &self, source: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> bool {
         source.site().owner() == self.owner && source.entry_call_v1().is_some_and(|call| call.owner() == self.owner)
-            && self.definition.uses.iter().filter(|row| matches!(&row.kind,
+            && self.legacy_uses_v1().filter(|row| matches!(&row.kind,
                 Use::ArrayElementFieldIndexValue { call, receiver, .. }
                     if source.entry_call_v1() == Some(call) && Rc::ptr_eq(receiver, source))).count() == 1
     }
@@ -108,7 +108,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !definition.uses.iter().any(|row| matches!(&row.kind,
             Use::ArrayElementFieldIndexValue { call: original, .. } if original == call)) { return Ok(None); }
         let entry = self.finalized_borrowed_ordinary_entry_source_v1(owner)?;
-        let mut originals = entry.definition.uses.iter().filter_map(|row| match &row.kind {
+        let mut originals = entry.legacy_uses_v1().filter_map(|row| match &row.kind {
             Use::ArrayElementFieldIndexValue { call: original, index, reach, receiver } if original == call =>
                 Some((row, index, reach, receiver)),
             _ => None,

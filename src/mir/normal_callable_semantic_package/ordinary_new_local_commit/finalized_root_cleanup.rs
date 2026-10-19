@@ -5,21 +5,62 @@ use crate::mir::MirModule;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
 impl FinalizedRootSourceHandoffV1 {
-    /// The same implicit cleanup consumer, scoped to one original participant;
-    /// no executable Call or additional cleanup receipt is manufactured.
-    pub(super) fn validate_finalized_implicit_participant_v1(
+    /// Validate every original Unit endpoint against the retained final pool.
+    /// Both explicit and implicit exits keep their source order and bindings;
+    /// no caller returns to the affine lowering pool after handoff.
+    pub(super) fn validate_finalized_unit_participant_v1(
         &self, owner: FunctionOwnerIdV1, module: &MirModule,
     ) -> Result<(), String> {
+        let completion = self.ledger.completion_for_owner(owner)
+            .ok_or_else(|| freeze("callable-participant/completion-missing"))?;
         self.ledger.with_finished_projection(owner, |symbol, projection| {
             let function = module.functions.get(symbol)
                 .filter(|function| function.signature.name == symbol)
                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
+            let context = CallValidationContextV1::Finalized(self);
             let exits = self.ledger.root_exits.borrow();
-            let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =
-                exits.get(&(owner, RootHomeExitKeyV1::ImplicitBodyEnd))
-            else { return Err(freeze("implicit-exit/unconsumed")); };
-            validate_finished_implicit_cleanup(&self.ledger, self, owner, function,
-                projection, order, origins, bindings, entry)
+            for site in completion.explicit_sites() {
+                let source = self.ledger.normal_exit_projection_v1(owner, site)?
+                    .ok_or_else(|| freeze("root-exit-source-missing"))?;
+                let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =
+                    exits.get(&(owner, site.clone().into()))
+                else { return Err(freeze("root-exit-unconsumed")); };
+                let expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+                    &self.ledger.local_commits.borrow(), &site.clone().into(),
+                    source.homes(), source.homes(),
+                )?.ok_or_else(|| freeze("root-home-end-unavailable"))?;
+                if order.full() != expected.full() || order.normal() != expected.normal()
+                    || order.normal() != origins.iter().map(|origin| origin.origin().clone()).collect::<Vec<_>>() {
+                    return Err(freeze("root-exit-origin-order"));
+                }
+                if !matches!(entry, RootHomeExitEntry::Plain { .. }) {
+                    return Err(freeze("call-source-missing"));
+                }
+                for origin in origins {
+                    let emitted = origin.binding();
+                    if !matches!(&emitted.1, MirInstruction::Invoke { operation, .. }
+                        if operation == origin.origin().operation())
+                        || bindings.iter().filter(|binding| **binding == emitted).count() != 1 {
+                        return Err(freeze("root-exit-origin-binding-drift"));
+                    }
+                }
+                self.ledger.validate_local_call_binding_groups_for_key_v1(owner,
+                    &site.clone().into(), entry.local_call_groups(), &[])?;
+                for group in entry.local_call_groups() {
+                    group.validate_recorded_in_context(context, function, Some(projection))?;
+                    group.check_physical_bindings_v1(function, Some(projection))?;
+                }
+                validate_finished_cleanup_entry(context, owner, site, function, projection,
+                    order, entry, bindings, Some(projection))?;
+            }
+            if completion.implicit_body_end().is_some() {
+                let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =
+                    exits.get(&(owner, RootHomeExitKeyV1::ImplicitBodyEnd))
+                else { return Err(freeze("implicit-exit/unconsumed")); };
+                validate_finished_implicit_cleanup(&self.ledger, self, owner, function,
+                    projection, order, origins, bindings, entry)?;
+            }
+            Ok(())
         })
     }
 

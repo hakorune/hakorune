@@ -21,11 +21,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_unit_discard_v1(
         Err(_) if matching.len() == 1 && !matching[0].is_unit_discard_source_v1() => return Ok(None),
         Err(issue) => return Err(issue.clone()),
     };
-    let originals: Vec<_> = ingress.source_incoming.exact_rows().filter(|row| &row.call == site).collect();
-    let selected = originals.iter().any(|row| row.source.unit_discard_source_v1().is_some())
+    let original = OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)?;
+    let selected = original.as_ref().is_some_and(|row| row.source.unit_discard_source_v1().is_some())
         || matching.iter().any(|target| target.is_unit_discard_source_v1());
     if !selected { return Ok(None); }
-    let [original] = originals.as_slice() else { return Err(freeze("unit-source/original-missing-or-duplicate")); };
+    let original = original.as_ref().ok_or_else(|| freeze("unit-source/original-missing-or-duplicate"))?;
     let loan = original.source.unit_discard_source_v1().ok_or_else(|| freeze("unit-source/original-loan-missing"))?;
     // Pending stored membership cannot disappear into an old scalar probe.
     let target = original.source.require_instance().map_err(|_| freeze("unit-source/stored-receiver-pending"))?;
@@ -86,7 +86,15 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(ingress) = &self.borrowed_formal_source else { return Ok(None); };
         let ingress = ingress.as_ref().map_err(Clone::clone)?;
         let mut selected = None;
-        for incoming in ingress.source_incoming.exact_rows() {
+        let mut incoming: Vec<_> = ingress.source_incoming.exact_rows().filter(|row| row.callee == owner).collect();
+        let source_only: Vec<_> = ingress.source_incoming.source_rows_with_legacy_v1()
+            .filter(|(row, legacy)| !legacy && row.callee == owner && row.source.unit_discard_source_v1().is_some())
+            .map(|(row, _)| row).collect();
+        if !source_only.is_empty() {
+            let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+            if Self::original_finite_text_instance_input_request_v1(ingress, catalog, owner)? { incoming.extend(source_only); }
+        }
+        for incoming in incoming {
             let Some(source) = incoming.source.instance() else { continue; };
             if source.callee_owner() != owner || !source.is_unit_discard_source_v1() { continue; }
             let completion = self.original_unit_completion_v1(source)?;
@@ -136,15 +144,15 @@ impl OrdinaryNewClaimLedgerV1 {
             else { return Err(freeze("unit-call/original-source-missing")); };
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("unit-call/incoming-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let mut originals = ingress.source_incoming.exact_rows().filter(|row| &row.call == source.call_site());
-        let incoming = originals.next().ok_or_else(|| freeze("unit-call/original-missing"))?;
-        if originals.next().is_some() || incoming.callee != source.callee_owner()
+        let contracts = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+        let incoming = Self::original_instance_input_call_v1(ingress, contracts, source.call_site())?
+            .ok_or_else(|| freeze("unit-call/original-missing"))?;
+        if incoming.callee != source.callee_owner()
             || incoming.source.require_instance()? != source || incoming.source.unit_discard_source_v1() != Some(original)
             || !original.matches(&super::super::source::CallTargetReferenceV1::from_target(source)) {
             return Err(freeze("unit-call/original-incoming-drift"));
         }
-        let contracts = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
-        check_original_argument_contract_v1(contracts, source, incoming)?;
+        check_original_argument_contract_v1(contracts, source, &incoming)?;
         if incoming.source.constructor_unit_source_v1(source)?.is_none() {
             let observation = self.unit_discard_source_v1(source.call_site())
                 .ok_or_else(|| freeze("unit-call/discard-observation-missing"))?;
@@ -210,9 +218,9 @@ impl OrdinaryNewClaimLedgerV1 {
         self.corroborate_unit_discard_v1(row)?;
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("unit-call/incoming-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let mut originals = ingress.source_incoming.exact_rows().filter(|incoming| &incoming.call == row.call_site());
-        let incoming = originals.next().ok_or_else(|| freeze("unit-call/original-missing"))?;
-        if originals.next().is_some() { return Err(freeze("unit-call/original-duplicate")); }
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+        let incoming = Self::original_instance_input_call_v1(ingress, catalog, row.call_site())?
+            .ok_or_else(|| freeze("unit-call/original-missing"))?;
         Ok(incoming.source.constructor_unit_source_v1(row.source_target())?.cloned())
     }
 

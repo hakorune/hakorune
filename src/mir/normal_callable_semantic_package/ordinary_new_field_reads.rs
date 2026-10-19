@@ -415,10 +415,16 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     fn recheck_local_field_source_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
+        self.recheck_local_field_source_using_v1(site, row, context,
+            || self.recheck_result_path_field_v1(site, row, context))
+    }
+    fn recheck_local_field_source_using_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
+        context: CallValidationContextV1<'_>, recheck_path: impl FnOnce() -> Result<(), String>,
+    ) -> Result<(), String> {
         context.require_ledger(self)?;
         if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row, context); }
         if row.source.returned.is_some() { return self.recheck_returned_field_read_v1(site, row); }
-        if row.source.expression_path.is_some() { return self.recheck_result_path_field_v1(site, row, context); }
+        if row.source.expression_path.is_some() { return recheck_path(); }
         if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(source) = row.source.result() {
             return self.recheck_declared_array_read_v1(site, row, source);
         }
@@ -695,18 +701,22 @@ impl OrdinaryNewClaimLedgerV1 {
             expected.push((*block, instruction));
         }
         let local_reads = self.local_field_reads.borrow();
-        self.validate_result_path_fields_present_v1(owner, &local_reads)?;
+        // One checked source loan lives only for this immutable validation.
+        // Each row still rechecks its own path/descriptor and physical relation.
+        let result = self.validate_result_path_fields_present_v1(owner, &local_reads)?;
         if let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) {
             for field in flow.source_expression_fields() {
                 let site = &field.request().site;
                 if site.owner() != owner { return Err(fault("foreign-source-requirement")); }
                 let row = local_reads.get(site).ok_or_else(|| fault("required-source-read-missing"))?;
-                self.recheck_local_field_source_v1(site, row, context)?;
+                self.recheck_local_field_source_using_v1(site, row, context, ||
+                    self.recheck_result_path_field_using_result_v1(site, row, context, result.as_ref()))?;
             }
         }
         for (site, row) in local_reads.iter() {
             if site.owner() != owner { continue; }
-            self.recheck_local_field_source_v1(site, row, context)?;
+            self.recheck_local_field_source_using_v1(site, row, context, ||
+                self.recheck_result_path_field_using_result_v1(site, row, context, result.as_ref()))?;
             if matches!(row.progress, LocalReadProgress::CheckedEmitted { .. }) { continue; }
             let LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
                 return Err(fault("unconsumed-read"));

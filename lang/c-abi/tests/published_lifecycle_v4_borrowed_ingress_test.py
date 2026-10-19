@@ -174,7 +174,7 @@ def received_field_read_graph(null_result):
     return data
 
 
-def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱"):
+def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱", result="i64"):
     """A caller descriptor, two unchanged-pointer forwards, and a read-only leaf."""
     data = graph(1)
     for fn in data['functions'][1:]:
@@ -238,6 +238,24 @@ def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱"):
         leaf['blocks'][0]['terminator']['instruction']['operation']['right'] = {'kind': 'borrowed_text', 'value': 7}
         original = text[len('prefix:'):]
         text = original + (original if owned else 'second')
+    if result != 'i64':
+        assert result in ('unit', 'bool') and not add and not two
+        leaf['role'] = 'ordinary_' + result
+        returned = leaf['blocks'][1]
+        if result == 'unit':
+            returned['terminator']['instruction']['value'] = None
+        else:
+            returned['instructions'] = [{'index': 0, 'instruction': {'op': 'const_bool', 'dst': 8, 'value': True}}]
+            returned['terminator']['index'] = 1
+            returned['terminator']['instruction']['value'] = 8
+        middle['blocks'][0]['terminator']['instruction']['operation']['result'] = result
+        normal = middle['blocks'][1]
+        if result == 'unit':
+            normal['instructions'] = []  # Unit has no projected value.
+        normal['instructions'].append({'index': len(normal['instructions']),
+            'instruction': {'op': 'const_i64', 'dst': 8, 'value': 7}})
+        normal['terminator']['index'] = len(normal['instructions'])
+        normal['terminator']['instruction']['value'] = 8
     return data, text
 
 
@@ -263,8 +281,8 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             assert obj.read_bytes() == marker
         assert not list(work.glob('borrowed.o.*'))
 
-    for owned in [False, True]:
-        data, text = borrowed_text_graph(owned)
+    for owned, result_kind in [(False, 'i64'), (True, 'i64'), (True, 'unit'), (True, 'bool')]:
+        data, text = borrowed_text_graph(owned, result=result_kind)
         compile_input(data)
         checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps + ['string.checked_end', 'string.checked_print', 'string.checked_add']],
@@ -317,7 +335,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
                 end['terminator']['instruction'] = {'op': 'jump', 'target': target, 'args': None}
                 end['edges'] = [{'target': target, 'args': None}]
                 compile_input(changed, False)
-        print('borrowed Text', 'owned' if owned else 'UTF-8/NUL', 'two forwards, Normal/Fault, exact caller End and domain/escape negatives PASS')
+        print('borrowed Text', result_kind, 'owned' if owned else 'UTF-8/NUL', 'two forwards, Normal/Fault, exact caller End and domain/escape negatives PASS')
     for owned, two in [(False, False), (True, False), (False, True), (True, True)]:
         data, text = borrowed_text_graph(owned, add=True, two=two)
         compile_input(data)

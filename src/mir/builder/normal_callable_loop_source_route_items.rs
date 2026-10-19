@@ -11,6 +11,9 @@ use crate::mir::callable_result_representation::{
 };
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1, SourceStmtSiteV1};
 
+#[path = "normal_callable_loop_source_route_checked_recipe.rs"]
+mod checked_recipe;
+
 /// Resolver-owned source item relation retained for the future LoopCond
 /// physical port. This copies only source sites and selector metadata; it
 /// does not reopen AST dispatch or issue a Recipe.
@@ -317,46 +320,7 @@ pub(in crate::mir::builder) enum CallableLoopSourceCallCoverageV1 {
 }
 
 impl CallableLoopSourceCallCoverageV1 {
-    pub(in crate::mir::builder) fn validate_checked_recipe_v2(
-        product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2,
-        owner: FunctionOwnerIdV1, parent: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-        items: &[CallableLoopSourceItemBindingV1],
-    ) -> Result<(), CallableLoopSourceRouteRejectV1> {
-        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
-        if product.source.source.owner() != owner {
-            return Err(CallableLoopSourceRouteRejectV1::SourceCoverageForeign);
-        }
-        if product.source.source.site().node() != parent {
-            return Err(CallableLoopSourceRouteRejectV1::SourceCoverageSiteMismatch);
-        }
-        let mut expected = std::collections::BTreeSet::new();
-        for node in product.schedule().frames().iter().flat_map(|frame| frame.source().nodes()) {
-            if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) && !expected.insert(node.site()) {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: node.site().clone() });
-            }
-        }
-        for observation in product.schedule().blocks_array_appends_v2() {
-            let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
-                source, call, candidate, ..
-            } = observation else { return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign); };
-            if !expected.insert(call.site()) {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: call.site().clone() });
-            }
-            match source.append_candidate_is_null_v1(call) {
-                Some(true) => {},
-                Some(false) if expected.insert(candidate.site()) => {},
-                _ => return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign),
-            }
-        }
-        let mut observed = std::collections::BTreeSet::new();
-        for item in items {
-            if !observed.insert(item.call_site()) {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: item.call_site().clone() });
-            }
-        }
-        if expected != observed { return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign); }
-        Ok(())
-    }
+
 
     pub(in crate::mir::builder) const fn as_with_calls(
         &self,
@@ -484,27 +448,7 @@ impl CallableLoopSourceTargetProbeV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn consume_for_checked_recipe_v2(
-        self, items: &[CallableLoopSourceItemBindingV1],
-        product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2,
-    ) -> Result<(), CallableLoopSourceRouteRejectV1> {
-        if self.requirement_mismatch { return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch); }
-        if !self.uncovered.is_empty() { return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected { call_sites: self.uncovered }); }
-        let mut seen = std::collections::BTreeSet::new();
-        if !self.selected.is_empty() || self.instance_methods.iter().any(|item|
-            !items.contains(item) || !seen.insert(item.call_site()) || !product.schedule().blocks_array_appends_v2().any(|observation|
-                matches!(observation,
-                    crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { candidate, source, call, .. }
-                        if candidate.site() == item.call_site() && source.append_candidate_is_null_v1(call) == Some(false)))) {
-            return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
-        }
-        for item in &self.core_methods {
-            if !items.contains(item) || !seen.insert(item.call_site()) {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
-            }
-        }
-        Ok(())
-    }
+
 
     /// Any classified evidence still carried by this probe. A CallFree loop
     /// must arrive with none — a selected, uncovered, mismatched, or

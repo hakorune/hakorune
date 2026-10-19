@@ -25,7 +25,7 @@ impl EmittedSourceLoopProjectionV2 {
         // second prefix here would evaluate the arguments twice.
         let standalone = product.source.body_expressions.iter()
             .filter(|plan| plan.argument_frame().is_none()).count();
-        if expected.len() != standalone + 1 + product.schedule().blocks_array_appends_v2().count()
+        if expected.len() != standalone + 1 + product.schedule().blocks_array_appends_v2().count() + product.schedule().calls_v2().count()
             || !matches!(expected.first(), Some(LifecyclePrefixSourceV1::BoolCondition { frame, .. })
                 if Rc::ptr_eq(frame, &product.source.condition)) {
             return Err(freeze("source-loop/child-census"));
@@ -160,7 +160,11 @@ impl CallValidationContextV1<'_> {
         self.with_local_call_group_tree_v2(product.source.source.owner(), |groups| {
             let mut packets = groups.iter().filter_map(|group| group.source_loop_rc())
                 .filter(|packet| std::rc::Rc::ptr_eq(packet.product(), product));
-            let packet = packets.next().ok_or_else(|| freeze("source-loop/original-group-membership"))?;
+            let packet = packets.next().ok_or_else(|| {
+                format!("{} owner={:?} phase={} groups={}",
+                    freeze("source-loop/original-group-membership"), product.source.source.owner(),
+                    if matches!(self, Self::Finalized(_)) { "Finalized" } else { "Lowering" }, groups.len())
+            })?;
             if packets.next().is_some() { return Err(freeze("source-loop/original-group-membership")); }
             if completed { packet.require_completed()?; }
             Ok(())

@@ -18,6 +18,39 @@ pub(super) struct InstanceSourceActualIdentityV1 {
     pub(super) field_loans: Box<[(u32, super::super::super::result_class_claim::ReturnedFieldSourceLoanV1)]>,
 }
 
+/// Original computed Core actuals select preparation, the callee Home walk
+/// and whole-input reconstruction together. This grants no executable frame.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_core_argument_input_request_v1(
+    ingress: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    site: &OwnedExprSiteV1,
+) -> Result<bool, String> {
+    let mut originals = ingress.source_incoming.exact_rows().filter(|row| &row.call == site);
+    let Some(original) = originals.next() else { return Ok(false) };
+    if originals.next().is_some() { return Err(freeze("borrowed-instance/duplicate-source")); }
+    let Some(target) = original.source.instance() else { return Ok(false) };
+    let mut matching = contracts.iter().filter(|row| row.owner == original.callee);
+    let contract = matching.next().ok_or_else(|| freeze("borrowed-instance/source-contract"))?;
+    if matching.next().is_some() || target.call_site() != site
+        || target.callee_owner() != original.callee || target.target_batch_slot() != contract.batch_slot
+        || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+        || target.argument_sites().len() != contract.parameters.len()
+        || target.target().arity() as usize != contract.parameters.len()
+    { return Err(freeze("borrowed-instance/source-identity")); }
+    let mut requested = false;
+    for (ordinal, (argument, formal)) in target.argument_sites().iter().zip(&contract.parameters).enumerate() {
+        if formal.ordinal as usize != ordinal || formal.binding.owner() != original.callee {
+            return Err(freeze("borrowed-instance/actual-identity"));
+        }
+        let read = OwnedExprSiteV1::new(site.owner(), argument.clone());
+        if let Some(core) = ingress.ordinary_core_source_v1(&read) {
+            requested |= static_source::core_argument_source_v1(
+                ingress, &read, core.source().source(), &formal.kind)?.is_some();
+        }
+    }
+    Ok(requested)
+}
+
 pub(super) fn prepare_instance_source_actuals_v1(
     ingress: &PreparedBorrowedFormalIngressV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -32,7 +65,12 @@ pub(super) fn prepare_instance_source_actuals_v1(
     {
         return Ok(None);
     }
-    let mut core_argument = false;
+    let core_argument = original_core_argument_input_request_v1(ingress, contracts, site)?;
+    let finite_input = match crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)? {
+        Some(call) => crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(
+            ingress, contracts, call.callee)?,
+        None => false,
+    };
     let mut array_loans = Vec::new();
     let mut field_loans = Vec::new();
     for (position, actual) in actuals.iter().enumerate() {
@@ -55,7 +93,6 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 if !std::sync::Arc::ptr_eq(method, core.source().source()) {
                     return Err(freeze("borrowed-instance/method-original-source-drift"));
                 }
-                core_argument = true;
                 continue;
             }
             if let Some(loan) =
@@ -94,7 +131,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     };
     let draft = ingress.source_definition_for(site.owner());
     let expression_request = ingress.original_signed_expression_argument_request_v1(site);
-    if !core_argument && array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !scalar_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request {
+    if !finite_input && !core_argument && array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !scalar_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request {
         if ingress.definitions.contains_key(&site.owner()) {
             return Ok(None);
         }
@@ -107,18 +144,9 @@ pub(super) fn prepare_instance_source_actuals_v1(
             return Ok(None);
         }
     }
-    let mut originals = ingress
-        .source_incoming
-        .exact_rows()
-        .filter(|row| &row.call == site);
-    // A caller draft can mention an Instance argument outside this borrowed
-    // incoming profile. Only a retained original row selects this source law.
-    let Some(original) = originals.next() else {
+    let Some(original) = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)? else {
         return Ok(None);
     };
-    if originals.next().is_some() {
-        return Err(freeze("borrowed-instance/duplicate-source"));
-    }
     let Some(target) = original.source.instance() else {
         return Ok(None);
     };
@@ -273,6 +301,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 BorrowedCallActualValueV1::Expression
                     if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                         && ingress.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only()) => {}
+                BorrowedCallActualValueV1::String(_) if finite_input && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) => {},
                 BorrowedCallActualValueV1::Integer(_)
                 | BorrowedCallActualValueV1::Bool(_)
                 | BorrowedCallActualValueV1::Null => {}
@@ -380,12 +409,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
     };
     if let BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(identity) = &rows.phase {
         let ingress = source.as_ref().map_err(Clone::clone)?;
-        let original = ingress
-            .source_incoming
-            .exact_rows()
-            .find(|row| &row.call == site)
+        let original = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)?
             .ok_or_else(|| freeze("borrowed-instance/original-source-missing"))?;
-        recheck_instance_source_actuals_v1(ingress, contracts, original, rows, identity, array_ledger)?;
+        recheck_instance_source_actuals_v1(ingress, contracts, &original, rows, identity, array_ledger)?;
         return Ok(Some(rows.ordered_arguments.clone()));
     }
     let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &rows.phase else {

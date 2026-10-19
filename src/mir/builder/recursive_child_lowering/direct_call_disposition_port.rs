@@ -111,19 +111,34 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             .map_err(|error| format!("[freeze:contract][static-execution/argument-read/{error:?}]"))
     }
 
-    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>>, String> {
+    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<(std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1)>, String> {
         let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None) };
         let site = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][static-scalar/source-site]".to_owned())?;
-        ledger.source_required_static_scalar_call_v1(&crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site)))
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site));
+        let Some(source) = ledger.source_required_static_scalar_call_v1(&site)? else { return Ok(None) };
+        let observation = ledger.lexical_i64_call_source(&site)
+            .ok_or("[freeze:contract][static-scalar/local-source]")?.clone();
+        Ok(Some((source, observation)))
     }
     fn record_source_required_static_scalar_call_v1(&mut self, builder: &mut MirBuilder,
         source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, observations: Vec<(u32, crate::mir::resolved_semantics::SourceExprSiteV1, ValueId)>,
+        projections: Vec<crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1>,
+        operand_bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
         binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
     ) -> Result<(), String> {
         let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or_else(|| "[freeze:contract][static-scalar/ledger-missing]".to_owned())?;
-        ledger.record_source_required_static_scalar_call_v1(source, observations, binding,
-            builder.function_state.current_function.as_ref().ok_or_else(|| "[freeze:contract][static-scalar/no-function]".to_owned())?)
+        let function = builder.function_state.current_function.as_ref()
+            .ok_or("[freeze:contract][static-scalar/no-function]")?;
+        let crate::mir::MirInstruction::Call(call) = &binding.1 else {
+            return Err("[freeze:contract][static-scalar/physical-call]".into());
+        };
+        if call.args.len() != observations.len() { return Err("[freeze:contract][static-scalar/physical-arity]".into()); }
+        let transport = observations.iter().zip(&call.args).map(|((_, _, original), actual)|
+            builder.function_state.local_ssa_correspondence.loan(function, *original, *actual)
+                .ok_or_else(|| "[freeze:contract][static-scalar/argument-correspondence]".to_owned()))
+            .collect::<Result<Vec<_>, _>>()?;
+        ledger.record_source_required_static_scalar_call_v1(source, observations, projections, transport, operand_bindings, binding, function)
     }
 
     fn record_scalar_direct_call_v1(&mut self, builder: &mut MirBuilder,

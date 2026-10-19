@@ -194,12 +194,29 @@ impl FieldPathSourceV1 {
     pub(super) fn descriptor(&self) -> Result<(CanonicalFieldRefV1, LocalFieldReadResultV1, Option<&str>), String> {
         match self { Self::Return(a) => a.descriptor(), Self::Print(a) => Ok((a.declaration.field(), a.declaration.result().clone(), a.declaration.declared_type_name())) }
     }
-    pub(super) fn recheck(&self, ledger: &OrdinaryNewClaimLedgerV1, context: CallValidationContextV1<'_>) -> Result<(), String> {
+    pub(super) fn result_source_for_recheck_v1(&self, ledger: &OrdinaryNewClaimLedgerV1)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::CallableScalarResultSourceLoanV1>, String> {
+        match self {
+            Self::Return(source) => {
+                let result = ledger.callable_scalar_result_source_v1(source.site().owner())?
+                    .ok_or_else(|| fault("result-path/result-missing"))?;
+                Ok(Some(result))
+            }
+            Self::Print(_) => Ok(None),
+        }
+    }
+    pub(super) fn recheck_using_result_v1(&self, ledger: &OrdinaryNewClaimLedgerV1,
+        context: CallValidationContextV1<'_>,
+        result: Option<&crate::mir::normal_callable_semantic_package::CallableScalarResultSourceLoanV1>,
+    ) -> Result<(), String> {
         context.require_ledger(ledger)?;
         match self {
-            Self::Return(a) => a.recheck(&ledger.callable_scalar_result_source_v1(a.site().owner())?
-                .ok_or_else(|| fault("result-path/result-missing"))?),
-            Self::Print(a) => a.recheck_in_context_v1(context),
+            Self::Return(source) => {
+                let result = result.filter(|result| result.owner() == source.site().owner())
+                    .ok_or_else(|| fault("result-path/result-missing"))?;
+                source.recheck(result)
+            }
+            Self::Print(source) => source.recheck_in_context_v1(context),
         }
     }
 }

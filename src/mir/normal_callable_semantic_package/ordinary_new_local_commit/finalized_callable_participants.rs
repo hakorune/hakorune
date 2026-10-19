@@ -161,9 +161,7 @@ impl FinalizedRootSourceHandoffV1 {
                     let completion = self.ledger.completion_for_owner(owner)
                         .ok_or_else(|| freeze("callable-participant/completion-missing"))?;
                     validate_unit(completion)?;
-                    self.ledger.with_finished_projection(owner, |_, projection| {
-                        self.ledger.validate_root_home_exit(owner, function, Some(projection))
-                    })?;
+                    self.validate_finalized_unit_participant_v1(owner, module)?;
                 }
                 result.insert(key.clone(), kind);
                 continue;
@@ -175,7 +173,7 @@ impl FinalizedRootSourceHandoffV1 {
                         || !self.ledger.completion_for_owner(owner).is_some_and(|original| std::ptr::eq(original, completion.as_ref())) {
                         return Err(freeze("callable-participant/implicit-unit-completion"));
                     }
-                    self.validate_finalized_implicit_participant_v1(owner, module)?;
+                    self.validate_finalized_unit_participant_v1(owner, module)?;
                     if result.insert(key.clone(), InvokeCallResultKind::Unit).is_some() {
                         return Err(freeze("callable-participant/duplicate"));
                     }

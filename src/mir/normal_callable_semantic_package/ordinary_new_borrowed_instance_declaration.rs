@@ -417,3 +417,36 @@ impl PreparedBorrowedFormalIngressV1 {
         Ok(Some(draft))
     }
 }
+
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn original_borrowed_instance_input_completion_needed_v1(
+    source: &PreparedBorrowedFormalIngressV1,
+    catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    owner: FunctionOwnerIdV1,
+) -> Result<bool, (OwnedExprSiteV1, String)> {
+    for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
+        if OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(source, catalog, owner)
+            .map_err(|issue| (call.call.clone(), issue))? { return Ok(true); }
+        if source.original_returned_field_participant_request_v1(owner)
+            .map_err(|issue| (call.call.clone(), issue))?.is_some()
+            || super::super::super::borrowed_formal_actuals::original_core_argument_input_request_v1(source, catalog, &call.call)
+                .map_err(|issue| (call.call.clone(), issue))? {
+            return checked_original_instance_parameter_frame_v1(source, Some(catalog), owner)
+                .map(|view| view.is_some()).map_err(|issue| (call.call.clone(), issue));
+        }
+    }
+    let Some(call) = source.source_incoming.exact_rows().find(|call| {
+        call.callee == owner
+            && source
+                .source_only_definitions
+                .contains_key(&call.call.owner())
+            && call
+                .source
+                .instance()
+                .is_some_and(|target| !source.source_incoming.has_object_input_callee_v1(target))
+    }) else {
+        return Ok(false);
+    };
+    checked_mixed_instance_entry_source_v1(source, Some(catalog), owner)
+        .map(|view| view.is_some())
+        .map_err(|issue| (call.call.clone(), issue))
+}

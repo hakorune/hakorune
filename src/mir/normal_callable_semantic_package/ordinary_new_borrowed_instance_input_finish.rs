@@ -17,6 +17,41 @@ enum ArrayProducerReadinessV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// One checked original census for every stage of Instance input closure.
+    /// Finite Text source membership selects the source scope, never a phase.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_calls_v1(
+        source: &PreparedBorrowedFormalIngressV1,
+        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, String> {
+        let owners = std::collections::BTreeSet::from([owner]);
+        let rows = if Self::original_finite_text_instance_input_request_v1(source, catalog, owner)? {
+            source.source_incoming.project_source_v1(&owners)
+        } else {
+            source.source_incoming.project(&owners)
+        };
+        rows.map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage")))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_call_v1(
+        source: &PreparedBorrowedFormalIngressV1,
+        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<BorrowedIncomingCallDraftV1>, String> {
+        // Successful source membership only proposes an owner. The checked
+        // projection below retains all owner/global scan errors and duplicates.
+        if let Some(call) = source.source_incoming.source_rows_v1().find(|row| &row.call == site) {
+            if Self::original_finite_text_instance_input_request_v1(source, catalog, call.callee)? {
+                return Ok(Self::original_instance_input_calls_v1(source, catalog, call.callee)?
+                    .into_vec().into_iter().find(|row| &row.call == site));
+            }
+        }
+        let mut rows = source.source_incoming.exact_rows().filter(|row| &row.call == site);
+        let original = rows.next().cloned();
+        if rows.next().is_some() { return Err(freeze("borrowed-instance/duplicate-source")); }
+        Ok(original)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn retain_original_instance_input_issuance_v1(
         &mut self,
         selected: std::rc::Rc<VerifiedSelectedCallableBatchMapV1>,
@@ -308,10 +343,15 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         // Original Instance membership is stable when an actual becomes executable.
         // Rechecking a completed owner yields Ready(empty), never new input permission.
-        let owners: std::collections::BTreeSet<_> = source.source_incoming.exact_rows()
+        let mut owners: std::collections::BTreeSet<_> = source.source_incoming.exact_rows()
             .filter_map(|call| call.source.instance().filter(|target|
                 !source.source_incoming.has_object_input_callee_v1(target)).map(|_| call.callee))
             .collect();
+        for contract in contracts {
+            if Self::original_finite_text_instance_input_request_v1(source, contracts, contract.owner)? {
+                owners.insert(contract.owner);
+            }
+        }
         for owner in owners {
             // The original global/guarded/mixed Instance frame selects input only.
             // It lends no body, field, result, cleanup or publication permission.
@@ -362,11 +402,7 @@ impl OrdinaryNewClaimLedgerV1 {
             match closure {
                 TypedInputClosureV1::Pending => {}
                 TypedInputClosureV1::Refused(issue) => {
-                    for call in source
-                        .source_incoming
-                        .exact_rows()
-                        .filter(|row| row.callee == owner)
-                    {
+                    for call in Self::original_instance_input_calls_v1(source, contracts, owner)?.iter() {
                         if let Some(row) = self.borrowed_formal_actuals.get_mut(&call.call) {
                             if row.is_ok() {
                                 *row = Err(issue.clone());
@@ -422,18 +458,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         TypedInputClosureV1::Refused(issue) => return Err(issue),
         _ => return Err(freeze("instance-input/cohort-unfinished")),
     }
-    let mut matching = source
-        .source_incoming
-        .exact_rows()
-        .filter(|row| row.call == original.call);
-    if !matching.next().is_some_and(|row| {
-        row.callee == original.callee
-            && row.arguments == original.arguments
-            && row
-                .source
-                .instance()
-                .is_some_and(|target| Some(target) == original.source.instance())
-    }) || matching.next().is_some()
+    let matching = OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(source, catalog, &original.call)?;
+    if !matching.as_ref().is_some_and(|row| {
+        row.callee == original.callee && row.arguments == original.arguments
+            && row.source.instance() == original.source.instance()
+    })
         || ledger
             .borrowed_formal_actuals
             .get(&original.call)

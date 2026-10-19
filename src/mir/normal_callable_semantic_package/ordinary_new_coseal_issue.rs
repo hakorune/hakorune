@@ -349,7 +349,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, input)?;
                 let has_field_scalar_walk = source_claims::requires_field_scalar_walk_v1(&field_write_claims, owner)?;
                 let has_required_scalar_source_walk = super::lexical_instance_call::required_scalar_source_walk_v1(
-                    &borrowed_formal_source, &borrowed_i64_results, owner, &callable_result_classes,
+                    &borrowed_formal_source, &borrowed_i64_results, parameter_contracts, owner, &callable_result_classes,
                 ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: issue.0, issue: issue.1 })?;
                 let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites) || has_current_owner_i64_source;
                 // Print expressions need the same original Home scan even
@@ -683,7 +683,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
                                                 static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))
-                                        || ((has_integer_return || has_required_scalar_source_walk || has_field_scalar_walk || has_typed_static_walk) && matches!(row, TerminalRelationV1::I64Scalar(_)))
                                         || loop_issue::retain_static_i64_search_early_return_v1(
                                             input, static_caller_key.as_ref(), static_call_claims,
                                             &preissued_static_i64_products, row))

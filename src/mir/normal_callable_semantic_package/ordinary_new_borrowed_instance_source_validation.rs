@@ -42,7 +42,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                 return Err(freeze("borrowed-instance/read-original-identity"));
             }
             let candidate = identity.candidates.get(ordinal as usize).ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
-            if matches!(candidate.value, BorrowedCallActualValueV1::Expression) {
+            if matches!(candidate.value, BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_)) {
                 return array_ledger.map(|ledger| ledger.borrowed_expression_actual_source_v1(&call.call, ordinal, site)
                     .map(|actual| Some(actual.source))).unwrap_or(Ok(None));
             }
@@ -177,11 +177,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
         }
         _ => return Ok(false),
     };
-    let mut originals = ingress.source_incoming.exact_rows()
-        .filter(|row| row.call == call.call);
-    let original = originals.next()
+    let original = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, &call.call)?
         .ok_or_else(|| freeze("borrowed-instance/source-unavailable"))?;
-    if originals.next().is_some() || original.callee != call.callee
+    if original.callee != call.callee
         || original.arguments != call.arguments
         || original.source.require_instance()? != call.source.require_instance()?
         || identity.source != *call.source.require_instance()?

@@ -17,11 +17,11 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     > {
         use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
         let mut returns = Vec::new();
-        for row in &self.definition.uses {
+        for row in self.legacy_uses_v1() {
             let Use::BorrowedFormalReturn { exit, source } = &row.kind else {
                 continue;
             };
-            if self.definition.origins.get(&row.binding) != Some(&row.formal)
+            if self.origins().get(&row.binding) != Some(&row.formal)
                 || row.site.owner() != self.owner
                 || source.value() != &row.site
                 || source.formal() != row.formal

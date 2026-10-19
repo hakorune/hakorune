@@ -84,6 +84,10 @@ pub(crate) struct VerifiedResolverCoreMethodCallableContractV1 {
 }
 
 impl VerifiedResolverCoreMethodCallableContractV1 {
+    pub(crate) fn source(&self) -> &std::sync::Arc<VerifiedResolvedMethodCallSourceV1> {
+        &self.source
+    }
+
     pub(crate) fn named_array_requirement(&self) -> Option<&super::NamedArrayRequirementV1> {
         self.named_array.as_ref()
     }

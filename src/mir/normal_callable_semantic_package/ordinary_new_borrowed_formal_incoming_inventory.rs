@@ -361,13 +361,34 @@ impl BorrowedIncomingInventoryV1 {
         &self,
         owners: &std::collections::BTreeSet<FunctionOwnerIdV1>,
     ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
-        if !owners.is_subset(&self.owners) {
+        self.project_scope_v1(owners, false)
+    }
+
+    /// Checked projection of the original source census, including SourceOnly
+    /// obligations. Global errors and unresolved rows remain refusals.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn project_source_v1(
+        &self, owners: &std::collections::BTreeSet<FunctionOwnerIdV1>,
+    ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
+        self.project_scope_v1(owners, true)
+    }
+
+    fn project_scope_v1(
+        &self, owners: &std::collections::BTreeSet<FunctionOwnerIdV1>, source: bool,
+    ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
+        let registered = if source { &self.source_owners } else { &self.owners };
+        if !owners.is_subset(registered) {
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         }
-        self.legacy_observations()
+        let mut seen = std::collections::BTreeSet::new();
+        self.observations.iter()
+            .filter(|row| if source { row.scope.source() } else { row.scope.legacy() })
+            .map(|row| &row.original)
             .filter(|(owner, _)| owner.is_none_or(|owner| owners.contains(&owner)))
             .map(|(_, row)| {
                 let row = row.as_ref().map_err(Clone::clone)?;
+                if source && !seen.insert(row.call.clone()) {
+                    return Err(BorrowedIncomingDraftErrorV1::CallIdentity(row.call.clone()));
+                }
                 if row.source.is_pending() {
                     return Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(
                         row.call.clone(),

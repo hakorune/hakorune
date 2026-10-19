@@ -226,8 +226,10 @@ impl PreparedBorrowedCallActualsV1 {
             BorrowedCallActualEvidencePhaseV1::EntryOnlyStaticBool(_) => {
                 Err(freeze("ordinary-new/borrowed-entry/bool-entry-not-call"))
             }
-            BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
-                "ordinary-new/borrowed-entry/source-only-instance-actuals",
+            BorrowedCallActualEvidencePhaseV1::SourceInstance(ref original) => Err(format!(
+                "{}: call={:?}, callee={:?}, target={:?}",
+                freeze("ordinary-new/borrowed-entry/source-only-instance-actuals"),
+                original.source.call_site(), original.source.callee_owner(), original.source.target(),
             )),
             BorrowedCallActualEvidencePhaseV1::SourceObject(ref original) => Err(format!(
                 "{}: call={:?}, callee={:?}, target={:?}",
@@ -462,6 +464,14 @@ pub(super) fn validate_computed_actual_source_v1(
                     if outer.site() == call.site() && *ordinal == actual.ordinal)
                 || formal.ordinal != actual.ordinal || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
             { return Err(freeze("borrowed-actual/expression-source-drift")); }
+            if let BorrowedCallActualValueV1::String(value) = &actual.value {
+                use crate::mir::resolved_value_profile::{expression_plan::ExpressionNodeSourceV1 as Node,
+                    expression_class::ExpressionValueClassV1 as Class, expression_projection::ExpressionLeafClassV1 as Leaf};
+                if !matches!(frame.source().nodes()[0].source(),
+                    Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(original)) if original == value)
+                    || frame.is_i64() || frame.evaluation().root_class() != Leaf::Value(Class::String)
+                { return Err(freeze("borrowed-actual/expression-source-drift")); }
+            }
         }
         _ => return Err(freeze("borrowed-actual/expression-or-read-required")),
     }

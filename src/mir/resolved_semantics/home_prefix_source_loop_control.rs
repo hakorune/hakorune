@@ -21,6 +21,7 @@ struct BodyDraft {
 enum Action {
     Expression(HomeExpressionPlanV1),
     OwnedArrayAppend(NamedArrayHomeObservationV1),
+    Call(super::super::super::LocalCallObservationV1),
     If { bundle: ResolvedIfRegionBundleV1, condition: Rc<CheckedBoolConditionFrameV1>,
         then_body: SourceBodySiteV1, else_body: Option<SourceBodySiteV1>, then_terminated: bool, else_terminated: bool },
     Exit { record: ResolvedExitRecordV1, port: usize },
@@ -34,6 +35,7 @@ pub(crate) struct CheckedSourceLoopBodyV1 {
 #[derive(Debug)]
 pub(crate) enum CheckedSourceLoopStatementV1 {
     Expression { site: SourceStmtSiteV1, frame: HomeExpressionPlanV1 },
+    Call { site: SourceStmtSiteV1, observation: super::super::super::LocalCallObservationV1 },
     OwnedArrayAppend { site: SourceStmtSiteV1, observation: NamedArrayHomeObservationV1 },
     If { site: SourceStmtSiteV1, bundle: ResolvedIfRegionBundleV1,
         condition: Rc<CheckedBoolConditionFrameV1>, then_body: CheckedSourceLoopBodyV1,
@@ -63,6 +65,7 @@ impl SourceLoopControlDraftV1 {
         for site in draft.visited {
             if observed_termination { return Err("source control statement after exit"); }
             let statement = match self.actions.remove(&site).ok_or("source statement has no checked execution action")? {
+                Action::Call(observation) => CheckedSourceLoopStatementV1::Call { site, observation },
                 Action::Expression(frame) => CheckedSourceLoopStatementV1::Expression { site, frame },
                 Action::OwnedArrayAppend(observation) => CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation },
                 Action::Exit { record, port } => {
@@ -89,6 +92,13 @@ impl SourceLoopControlDraftV1 {
 }
 
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_call_v1(
+        &self, site: &SourceStmtSiteV1, observation: &super::super::super::LocalCallObservationV1,
+    ) {
+        let Some(context) = &self.source_loop else { return };
+        context.control.borrow_mut().action(site, Action::Call(observation.clone()));
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_array_append_v1(
         &self, site: &SourceStmtSiteV1, observation: &NamedArrayHomeObservationV1,
     ) {
@@ -227,6 +237,53 @@ impl ports::SourceLoopScanSummaryV1 {
                                 || frame.prior_homes() != prior_homes.as_ref()
                                 || !ordinals.insert(*ordinal) {
                                 return Err("source Loop append argument identity");
+                            }
+                            roots.push(plan.source());
+                        }
+                    }
+                    CheckedSourceLoopStatementV1::Call { site, observation } => {
+                        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as ResultClass;
+                        let ledger = input.forest().callable_source_ledger(input.owner())
+                            .map_err(|_| "source Loop call ledger")?;
+                        let original = ledger.method_call(observation.site().site()).ok_or("source Loop call source missing")?;
+                        if observation.owner() != input.owner() || observation.statement() != site
+                            || observation.is_expression_value()
+                            || !matches!(observation.result(), ResultClass::I64 | ResultClass::Bool | ResultClass::Unit)
+                            || (observation.result() == ResultClass::Unit && observation.local_binding().is_some())
+                            || original.owner() != input.owner() || original.arguments().len() != observation.arguments().len()
+                            || ledger.resolved_loop_placement(summary.source.site(), observation.site().site()).ok()
+                                != Some(Some(crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body)) {
+                            return Err("source Loop call identity");
+                        }
+                        if let Some((declaration, binding)) = observation.local_binding() {
+                            if input.function().declaration_binding(declaration) != Some(binding)
+                                || !input.function().expression_source().initializers().any(|row|
+                                    row.declaration_site() == declaration && row.binding() == binding
+                                        && row.initializer_site() == Some(observation.site().site())) {
+                                return Err("source Loop call initializer identity");
+                            }
+                        } else if observation.site().site().node() != site.node() {
+                            return Err("source Loop call statement identity");
+                        }
+                        let mut ordinals = BTreeSet::new();
+                        for plan in summary.body_expressions.iter().filter(|plan|
+                            plan.argument_frame().is_some() && plan.source().root().statement() == site) {
+                            let frame = plan.argument_frame().ok_or("source Loop call argument frame")?;
+                            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                call, ordinal, ..
+                            } = plan.source().root() else { return Err("source Loop call argument purpose"); };
+                            if call.owner() != input.owner() || call.site() != observation.site().site()
+                                || ledger.method_call_source_v1(call.site()).is_none_or(|original|
+                                    !std::sync::Arc::ptr_eq(original, call))
+                                || call.arguments().get(*ordinal as usize).is_none_or(|argument|
+                                    argument.ordinal() != *ordinal || plan.source().nodes().first()
+                                        .is_none_or(|root| root.site() != argument.site()))
+                                || !Rc::ptr_eq(frame.source(), plan.source())
+                                || !Rc::ptr_eq(frame.source_loan().plan(), plan.source())
+                                || !frame.evaluation().reference_coverage_is_exact()
+                                || frame.prior_homes() != observation.prior_homes()
+                                || !ordinals.insert(*ordinal) {
+                                return Err("source Loop call argument identity");
                             }
                             roots.push(plan.source());
                         }

@@ -35,14 +35,16 @@ where
         self.child.take_exact_static_argument_read_v1(site, binding)
     }
 
-    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>>, String> {
+    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<(std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1)>, String> {
         self.child.prepare_source_required_static_scalar_call_v1()
     }
     fn record_source_required_static_scalar_call_v1(&mut self, builder: &mut crate::mir::MirBuilder,
         source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, observations: Vec<(u32, crate::mir::resolved_semantics::SourceExprSiteV1, crate::mir::ValueId)>,
+        projections: Vec<crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1>,
+        operand_bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
         binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
     ) -> Result<(), String> {
-        self.child.record_source_required_static_scalar_call_v1(builder, source, observations, binding)
+        self.child.record_source_required_static_scalar_call_v1(builder, source, observations, projections, operand_bindings, binding)
     }
 
     fn record_scalar_direct_call_v1(&mut self, builder: &mut crate::mir::MirBuilder,

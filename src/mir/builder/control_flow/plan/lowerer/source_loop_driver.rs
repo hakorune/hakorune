@@ -62,6 +62,7 @@ pub(in crate::mir) struct EmittedLoopEffectV2 {
     pub(in crate::mir) entry: BasicBlockId,
     pub(in crate::mir) end: BasicBlockId,
     pub(in crate::mir) packet: crate::mir::normal_callable_semantic_package::RootLifecyclePrefixBindingGroupV1,
+    pub(in crate::mir) result: Option<(LoopValueKeyV1, Rc<LocalSsaPhysicalRelationV1>)>,
 }
 pub(in crate::mir) struct EmittedSourceLoopGraphV2 {
     pub(in crate::mir) product: Rc<Product>,
@@ -277,11 +278,32 @@ impl Driver<'_, '_, '_, '_, '_> {
         let mut position = 0;
         while position < steps.len() {
             match &steps[position] {
+                Step::Call { site, observation, result, .. } => {
+                    let entry = builder.function_state.current_block.ok_or_else(|| reject("call-entry"))?;
+                    let (packet, actual) = super::source_loop_frames::emit_call(builder, self.port, &self.product, site, observation)?;
+                    let result = match (result, actual) {
+                        (Some(logical), Some((value, local))) => {
+                            // Later source reads name the Local writer's result;
+                            // retain initializer -> local separately as evidence.
+                            if self.values.insert(*logical, local).is_some() { return Err(reject("call-result-repeat")); }
+                            let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+                            let relation = builder.function_state.local_ssa_correspondence.loan(function, value, local)
+                                .ok_or_else(|| reject("call-local-correspondence"))?;
+                            relation.verify(function)?;
+                            Some((*logical, relation))
+                        }
+                        (None, None) => None,
+                        _ => return Err(reject("call-result-source")),
+                    };
+                    let end = builder.function_state.current_block.ok_or_else(|| reject("call-end"))?;
+                    self.effects.push(EmittedLoopEffectV2 { site: site.clone(), entry, end, packet, result });
+                    position += 1;
+                }
                 Step::OwnedArrayAppend { site, observation, .. } => {
                     let entry = builder.function_state.current_block.ok_or_else(|| reject("array-append-entry"))?;
                     let packet = super::source_loop_frames::emit_array_append(builder, self.port, &self.product, site, observation)?;
                     let end = builder.function_state.current_block.ok_or_else(|| reject("array-append-end"))?;
-                    self.effects.push(EmittedLoopEffectV2 { site: site.clone(), entry, end, packet });
+                    self.effects.push(EmittedLoopEffectV2 { site: site.clone(), entry, end, packet, result: None });
                     position += 1;
                 }
                 Step::Frame(index) => {

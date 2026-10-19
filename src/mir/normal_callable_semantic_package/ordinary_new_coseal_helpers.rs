@@ -119,6 +119,7 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                 | TerminalRelationV1::BoolLiteral(_)
                 | TerminalRelationV1::I64Field(_)
                 | TerminalRelationV1::I64Add(_)
+                | TerminalRelationV1::I64Scalar(_)
                 | TerminalRelationV1::MapGet(_)
         )
         // A `return new ...` relation is the co-sealed evidence that the

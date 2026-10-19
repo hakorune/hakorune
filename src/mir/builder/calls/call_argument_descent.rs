@@ -76,8 +76,8 @@ pub(in crate::mir::builder) struct CompletedDirectCallArgumentsV1 {
     projections: Option<Vec<ArgumentProjection>>,
 }
 impl CompletedDirectCallArgumentsV1 {
-    pub(in crate::mir::builder) fn into_parts(self) -> (Vec<ValueId>, Vec<(u32, SourceExprSiteV1, ValueId)>) {
-        (self.values, self.observations)
+    pub(in crate::mir::builder) fn into_parts(self) -> (Vec<ValueId>, Vec<(u32, SourceExprSiteV1, ValueId)>, Option<Vec<ArgumentProjection>>) {
+        (self.values, self.observations, self.projections)
     }
     pub(in crate::mir::builder) fn into_values(self) -> Vec<ValueId> { self.values }
     pub(in crate::mir::builder) fn bind_row(self,

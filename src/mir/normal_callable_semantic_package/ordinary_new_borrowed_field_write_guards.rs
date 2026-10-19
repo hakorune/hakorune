@@ -39,7 +39,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }) { return Ok(None); }
         let entry = self.finalized_borrowed_ordinary_entry_source_v1(owner)?;
         let mut result = None;
-        for row in &entry.definition.uses {
+        for row in entry.legacy_uses_v1() {
             let (guard, formal) = match &row.kind {
                 Use::FieldWriteReceiver { guard, .. } => (guard, row.formal),
                 Use::ArrayElementFieldIndexValue { index, .. } => {
@@ -64,7 +64,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("borrowed-write-guard/receiver-source"));
                 }
             }
-            let mut uses = entry.definition.uses.iter().filter(|row| row.formal == formal
+            let mut uses = entry.legacy_uses_v1().filter(|row| row.formal == formal
                 && matches!(&row.kind, Use::NullCompareOperand { binary } if binary == site));
             let row = uses.next().ok_or_else(|| freeze("borrowed-write-guard/null-source"))?;
             if uses.next().is_some() { return Err(freeze("borrowed-write-guard/null-source-duplicate")); }

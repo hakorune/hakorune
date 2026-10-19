@@ -29,12 +29,12 @@ fn stored_child_receiver_corroboration_rejects_identity_drift() {
             .expect("original scalar participant");
         assert_eq!(callable.kind(), crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer);
         assert!(required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
-            &ledger.borrowed_i64_results, selected_owner, &ledger.callable_result_classes).unwrap());
+            &ledger.borrowed_i64_results, &package.parameter_contracts, selected_owner, &ledger.callable_result_classes).unwrap());
         let original_result = ledger.borrowed_i64_results.remove(&selected_owner).unwrap();
         let missing = ledger.callable_scalar_result_source_v1(selected_owner).unwrap_err();
         assert!(missing.contains("scalar-loan/result-missing"), "{missing}");
         let (_, walk_missing) = required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
-            &ledger.borrowed_i64_results, selected_owner, &ledger.callable_result_classes).unwrap_err();
+            &ledger.borrowed_i64_results, &package.parameter_contracts, selected_owner, &ledger.callable_result_classes).unwrap_err();
         assert!(walk_missing.contains("scalar-loan/result-missing"), "{walk_missing}");
         ledger.borrowed_i64_results.insert(selected_owner, original_result);
         let borrowed = ledger
@@ -342,6 +342,8 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
     }
 }
 
+// These source-inventory negatives retain every writer and the unarmed seal
+// call. Main does not demand the unrelated, unsupported LoopAfter result.
 /// A field written with a non-`new` value carries no class claim:
 /// `me.inner = 7` vetoes `inner`, so the loop call stays unarmed.
 #[test]
@@ -368,7 +370,7 @@ box Outer {
 static box Main {
     main() {
         local o = new Outer()
-        return o.run()
+        return 0
     }
 }
 "#,
@@ -427,7 +429,7 @@ box Outer {
 static box Main {
     main() {
         local o = new Outer()
-        return o.run()
+        return 0
     }
 }
 "#,
@@ -480,7 +482,7 @@ static box Main {
         local o = new Outer()
         local n = new Inner()
         o.inner = n
-        return o.run()
+        return 0
     }
 }
 "#,

@@ -34,6 +34,9 @@ impl SourceLoopScheduledFrameV2 {
 #[derive(Debug, Clone)]
 pub(crate) enum SourceLoopScheduledStepV2 {
     Frame(usize),
+    Call { item: LoopItemKeyV1, site: SourceStmtSiteV1,
+        observation: crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        result: Option<LoopValueKeyV1> },
     OwnedArrayAppend { item: LoopItemKeyV1, site: SourceStmtSiteV1,
         observation: crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1 },
     If { item: LoopItemKeyV1, site: SourceStmtSiteV1, bundle: ResolvedIfRegionBundleV1,
@@ -62,12 +65,18 @@ impl VerifiedSourceLoopScheduleV2 {
             SourceLoopScheduledStepV2::OwnedArrayAppend { observation, .. } => Some(observation), _ => None,
         })
     }
+    pub(crate) fn calls_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
+        self.0.blocks.values().flatten().filter(|step| matches!(step, SourceLoopScheduledStepV2::Call { .. }))
+    }
     pub(crate) fn frames(&self) -> &[SourceLoopScheduledFrameV2] { &self.0.frames }
     pub(crate) fn block(&self, key: LoopBlockKeyV1) -> Option<&[SourceLoopScheduledStepV2]> {
         self.0.blocks.get(&key).map(Vec::as_slice)
     }
 }
 impl SourceLoopScheduleDraftV2 {
+    pub(super) fn calls_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
+        self.blocks.values().flatten().filter(|step| matches!(step, SourceLoopScheduledStepV2::Call { .. }))
+    }
     pub(super) fn block(&mut self, key: LoopBlockKeyV1) { self.blocks.insert(key, Vec::new()); }
     pub(super) fn operation(&mut self, item: LoopItemKeyV1, source: &Rc<Source>) {
         assert!(self.operations.insert(item, Rc::clone(source)).is_none(), "projector operation issued once");
@@ -97,7 +106,7 @@ impl SourceLoopScheduleDraftV2 {
         if source.source.owner() != input.owner() || self.frames.len() != execution.len()
             || self.blocks.len() != recipe.blocks.len() || recipe.loops.len() != 1
             || self.operations.len() + self.blocks.values().flatten()
-                .filter(|step| matches!(step, SourceLoopScheduledStepV2::OwnedArrayAppend { .. })).count()
+                .filter(|step| matches!(step, SourceLoopScheduledStepV2::OwnedArrayAppend { .. } | SourceLoopScheduledStepV2::Call { .. })).count()
                 != recipe.items.iter().filter(|row| matches!(row.item, LoopRecipeItemV2::Operation { .. })).count() {
             return Err(reject("schedule-census"));
         }
@@ -171,6 +180,19 @@ impl ScheduleCheck<'_, '_> {
                                 if args.is_empty()) {
                         return Err(reject("schedule-array-source"));
                     }
+                    self.control.push((site.clone(), *item)); position += 1;
+                }
+                SourceLoopScheduledStepV2::Call { item, site, observation, result } => {
+                    if super::source_loop_v2::source_call_v2(self.source, site) != Some(observation)
+                        || block.items.get(position) != Some(item) || !self.items.insert(*item)
+                        || self.draft.operations.contains_key(item)
+                        || result.is_some() != observation.local_binding().is_some()
+                        || !matches!(&self.recipe.items[item.raw() as usize].item,
+                            LoopRecipeItemV2::Operation { operation: LoopOperationV2::CallSlot { receiver: None, args, result: actual } }
+                                if args.is_empty() && actual == result) {
+                        return Err(reject("schedule-operation-source"));
+                    }
+                    if let Some(result) = result { available.insert(*result); }
                     self.control.push((site.clone(), *item)); position += 1;
                 }
                 SourceLoopScheduledStepV2::Frame(index) => {

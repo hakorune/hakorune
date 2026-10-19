@@ -50,7 +50,7 @@ pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
     domains: Box<[BorrowedFormalDomainV1]>,
     formals: Box<[(u32, BindingRefV1)]>,
     source: &'ledger PreparedBorrowedFormalIngressV1,
-    definition: &'ledger super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
+    evidence: EntryStructureEvidenceV1<'ledger>,
     incoming_rows: Box<[&'ledger super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>,
     incoming: BorrowedEntryActualsV1<'ledger>,
 }
@@ -67,7 +67,19 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         Ok(self.domains.iter().find(|domain| domain.ordinal() == ordinal && domain.binding() == binding))
     }
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
-        &self.definition.origins
+        match &self.evidence {
+            EntryStructureEvidenceV1::Uses(view) => &view.definition.origins,
+            EntryStructureEvidenceV1::FiniteText { uses, .. } => uses.roots(),
+        }
+    }
+    // Finite input reaches this product only after every original use has a
+    // qualified purpose and every actual has completed. It therefore carries
+    // no legacy guarded/object admission, rather than borrowing an empty draft.
+    fn legacy_definition_v1(&self) -> Option<&super::borrowed_formal_uses::BorrowedFormalUsesDraftV1> {
+        match &self.evidence { EntryStructureEvidenceV1::Uses(view) => Some(view.definition), _ => None }
+    }
+    fn legacy_uses_v1(&self) -> impl Iterator<Item = &super::borrowed_formal_uses::BorrowedFormalUseDraftRowV1> {
+        self.legacy_definition_v1().into_iter().flat_map(|draft| draft.uses.iter())
     }
     pub(crate) fn incoming(
         &self,
@@ -86,9 +98,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn compare_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand {
                     binary,
@@ -112,7 +122,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         String,
     > {
         use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
-        let draft = self.definition;
+        let Some(draft) = self.legacy_definition_v1() else { return Ok(Vec::new()) };
         let mut returns = Vec::new();
         for row in &draft.uses {
             let Use::IntegerReturn { exit, guard } = &row.kind else {
@@ -146,9 +156,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn add_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::AddOperand {
                     binary,
@@ -167,9 +175,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
             super::borrowed_formal_uses::BorrowedMulSideV1,
         ),
     > {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand {
                     binary,
@@ -187,9 +193,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn array_element_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::ArrayElementValue {
                     call,
@@ -205,9 +209,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn new_argument_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1, u32)> {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::NewArgument {
                     site,
@@ -223,9 +225,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn null_compare_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::NullCompareOperand {
                     binary,
@@ -240,9 +240,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn field_read_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.definition
-            .uses
-            .iter()
+        self.legacy_uses_v1()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::FieldReadOperand {
                     site,
@@ -266,14 +264,15 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     > {
         use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
         let mut uses = Vec::new();
-        for row in &self.definition.uses {
+        let Some(definition) = self.legacy_definition_v1() else { return Ok(uses) };
+        for row in &definition.uses {
             let Use::UnresolvedArgument { call, ordinal } = &row.kind else {
                 continue;
             };
             let Some(fact) = self.source.guarded_actuals.get(&(call.clone(), *ordinal)) else {
                 continue;
             };
-            if !fact.matches_draft_argument(row, call, *ordinal, self.definition) {
+            if !fact.matches_draft_argument(row, call, *ordinal, definition) {
                 return Err(freeze("borrowed-guarded/final-source-identity"));
             }
             uses.push((
@@ -299,6 +298,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let values = self.borrowed_ordinary_entry_values_v1(owner);
         self.check_borrowed_ordinary_entry_values_v1(owner, &values)?;
         let values = values?;
+        if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+            return self.finish_borrowed_entry_source_v1(structure);
+        }
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -307,7 +309,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let view = self
             .checked_entry_owner_view_v1(source, owner)?
-            .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+            .ok_or_else(|| format!("{}: owner={owner:?}", freeze("borrowed-entry/entry-owner")))?;
         let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner,
@@ -317,8 +319,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 .map(|(ordinal, binding, _)| (*ordinal, *binding))
                 .collect(),
             source,
-            definition: view.definition,
-            incoming_rows: view.incoming,
+            incoming_rows: view.incoming.clone(),
+            evidence: EntryStructureEvidenceV1::Uses(view),
             incoming,
         })
     }
@@ -349,7 +351,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let mut contracts = self.original_parameter_contracts.as_deref()
                 .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?
                 .iter().filter(|row| row.owner == owner);
-            let contract = contracts.next().ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+            let contract = contracts.next().ok_or_else(|| format!("{}: owner={owner:?}", freeze("borrowed-entry/entry-owner")))?;
             if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
             return match contract.mode {
                 crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod => Ok(false),
@@ -590,58 +592,75 @@ impl OrdinaryNewClaimLedgerV1 {
         ) {
             return Err(freeze("borrowed-call/disposition-not-owned-and-taken"));
         }
-        if self.uses_object_packet_protocol_v1(row)? {
-            return row.checked_object_packet_actuals_v1(self).map(Some);
-        }
         let source = self
             .borrowed_formal_source
             .as_ref()
             .ok_or_else(|| freeze("borrowed-call/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let Some(view) = self.checked_entry_owner_view_v1(source, row.callee_owner())? else {
-            if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::Bool) {
-                return Err(freeze("borrowed-call/bool-input-incomplete"));
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        if let Some(original) = Self::original_instance_input_call_v1(source, catalog, row.call_site())? {
+            if original.callee != row.callee_owner() || original.source.require_instance()? != row.source_target()
+                || row.argument_sites().len() != row.target().arity() as usize {
+                return Err(freeze("borrowed-call/disposition-identity"));
             }
-            if source.incoming.iter().any(|call| &call.call == row.call_site()) {
-                return Err(freeze("borrowed-entry/incoming-identity"));
-            }
-            return if source.definitions.contains_key(&row.callee_owner()) {
-                Err(freeze("borrowed-call/incoming-missing"))
-            } else { Ok(None) };
-        };
-        let mut incoming = view.incoming.iter().copied()
-            .filter(|call| &call.call == row.call_site());
-        let Some(call) = incoming.next() else {
-            if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::Bool) {
-                return Err(freeze("borrowed-call/bool-input-incomplete"));
-            }
-            return if source.definitions.contains_key(&row.callee_owner()) {
-                Err(freeze("borrowed-call/incoming-missing"))
-            } else {
-                Ok(None)
-            };
-        };
-        if incoming.next().is_some()
-            || call.callee != row.callee_owner()
-            || row.source_target() != call.source.require_instance()?
-            || row.argument_sites().len() != row.target().arity() as usize
-            || call
-                .arguments
-                .iter()
-                .any(|(ordinal, site, _)| row.argument_sites().get(*ordinal as usize) != Some(site))
-        {
-            return Err(freeze("borrowed-call/disposition-identity"));
         }
-        let inputs = self.entry_actual_loans_v1(source, call.callee, &view)?;
-        let BorrowedEntryActualsV1::Executable(inputs) = inputs else {
-            return Err(freeze("borrowed-entry/canonical-packet-actual-required"));
+        if self.uses_object_packet_protocol_v1(row)? {
+            return row.checked_object_packet_actuals_v1(self).map(Some);
+        }
+        let actuals = if let Some(actuals) = self.completed_finite_entry_call_actuals_v1(row)? {
+            actuals
+        } else {
+            let Some(view) = self.checked_entry_owner_view_v1(source, row.callee_owner())? else {
+                if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::Bool) {
+                    return Err(freeze("borrowed-call/bool-input-incomplete"));
+                }
+                if source.incoming.iter().any(|call| &call.call == row.call_site()) {
+                    return Err(freeze("borrowed-entry/incoming-identity"));
+                }
+                return if source.definitions.contains_key(&row.callee_owner()) {
+                    Err(freeze("borrowed-call/incoming-missing"))
+                } else { Ok(None) };
+            };
+            let mut incoming = view.incoming.iter().copied()
+                .filter(|call| &call.call == row.call_site());
+            let Some(call) = incoming.next() else {
+                if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::Bool) {
+                    return Err(freeze("borrowed-call/bool-input-incomplete"));
+                }
+                return if source.definitions.contains_key(&row.callee_owner()) {
+                    Err(freeze("borrowed-call/incoming-missing"))
+                } else {
+                    Ok(None)
+                };
+            };
+            if incoming.next().is_some()
+                || call.callee != row.callee_owner()
+                || row.source_target() != call.source.require_instance()?
+                || row.argument_sites().len() != row.target().arity() as usize
+                || call
+                    .arguments
+                    .iter()
+                    .any(|(ordinal, site, _)| row.argument_sites().get(*ordinal as usize) != Some(site))
+            {
+                return Err(freeze("borrowed-call/disposition-identity"));
+            }
+            let inputs = self.entry_actual_loans_v1(source, call.callee, &view)?;
+            let BorrowedEntryActualsV1::Executable(inputs) = inputs else {
+                return Err(freeze("borrowed-entry/canonical-packet-actual-required"));
+            };
+            let mut exact = inputs.iter().filter(|(site, _)| *site == row.call_site());
+            let actuals = exact.next().map(|(_, actuals)| *actuals)
+                .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
+            if exact.next().is_some() {
+                return Err(freeze("borrowed-call/disposition-identity"));
+            }
+            actuals
         };
-        let mut exact = inputs.iter().filter(|(site, _)| *site == row.call_site());
-        let actuals = exact.next().map(|(_, actuals)| *actuals)
-            .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
-        if exact.next().is_some() {
-            return Err(freeze("borrowed-call/disposition-identity"));
+        if row.source_target().is_unit_discard_source_v1() {
+            self.corroborate_unit_discard_v1(row)?;
+            return Ok(Some(actuals));
         }
         if row.source_target().borrowed_nullable_local_source().is_some() {
             self.corroborate_borrowed_nullable_call_v1(row)?;
@@ -653,14 +672,14 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let proof = self
             .borrowed_i64_results
-            .get(&call.callee)
+            .get(&row.callee_owner())
             .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
         proof.require_source_sealed_v1()?;
         if !proof.contract_corroborated
             || proof.returns.is_empty()
-            || proof.returns.iter().any(|site| site.owner() != call.callee)
+            || proof.returns.iter().any(|site| site.owner() != row.callee_owner())
         {
             return Err(freeze("borrowed-call/result-not-corroborated"));
         }
@@ -676,7 +695,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 super::borrowed_formal_result::validate_source_scalar_result_loan_v1(
                     self.borrowed_formal_source.as_ref().unwrap(), &self.borrowed_i64_results, loan, row.source_target(),
                 )?;
-                if self.callable_scalar_result_source_v1(call.callee)?.is_none()
+                if self.callable_scalar_result_source_v1(row.callee_owner())?.is_none()
                     || loan.kind() != crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool
                 { return Err(freeze("borrowed-call/scalar-source-drift")); }
                 crate::mir::instruction::InvokeCallResultKind::Bool
@@ -740,3 +759,4 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 
 #[path = "ordinary_new_borrowed_formal_entry_contract.rs"]
 mod entry_contract;
+use entry_contract::EntryStructureEvidenceV1;

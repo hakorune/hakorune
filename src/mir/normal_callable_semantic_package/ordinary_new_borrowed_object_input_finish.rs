@@ -34,7 +34,13 @@ impl OrdinaryNewClaimLedgerV1 {
         if contracts.next().is_some() { return Err(freeze("object-input/original-contract-duplicate")); }
         if contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod { return Ok(None); }
         let mut kind = None;
-        for call in source.source_incoming.exact_rows().filter(|call| call.callee == owner) {
+        let calls = if Self::original_finite_text_instance_input_request_v1(source, catalog, owner)? {
+            Self::original_instance_input_calls_v1(source, catalog, owner)?
+        } else {
+            source.source_incoming.exact_rows().filter(|call| call.callee == owner)
+                .cloned().collect::<Vec<_>>().into_boxed_slice()
+        };
+        for call in &calls {
             let target = call.source.require_instance()?;
             if target.call_site() != &call.call || target.callee_owner() != owner
                 || target.target_batch_slot() != contract.batch_slot
@@ -57,6 +63,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let contract = self.original_parameter_contracts.as_deref()
             .and_then(|catalog| catalog.iter().find(|row| row.owner == owner))
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+        let finite_input = Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?;
         let mut source_result_request = source.original_returned_field_participant_request_v1(owner)?.is_some();
         for call in source.source_incoming.exact_rows().filter(|call| call.callee == owner) {
             let target = call.source.require_instance()?;
@@ -65,7 +74,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || self.has_original_owning_object_input_v1(source, target)?;
         }
         if kind == OriginalInstanceInputKindV1::SourceInstance && !source_result_request
-            && !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }
+            && !finite_input && !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }
         Ok(self.selected_object_input_contract_v1(source, contract)?.then_some(kind))
     }
 
@@ -94,6 +103,12 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_requires_reconstruction_v1(
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+        if Self::original_finite_text_instance_input_request_v1(source, catalog, owner)? {
+            Self::original_instance_input_calls_v1(source, catalog, owner)?;
+            return Ok(true);
+        }
         // exact_rows alone omits retained scanner errors and unresolved callers.
         source.source_incoming.project_declaration_v1(owner).map_err(|issue|
             format!("{}: {issue:?}", freeze("instance-input/original-incoming-coverage")))?;
@@ -116,13 +131,25 @@ impl OrdinaryNewClaimLedgerV1 {
                     row.site.site() == site && draft.origins.get(&row.binding) == Some(&row.formal)
                         && matches!(&row.kind, super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::UnresolvedArgument { call: original, ordinal: original_ordinal }
                             if original == &call.call && original_ordinal == ordinal)))));
-        Ok(!complete_transport || source_forward)
+        // A complete legacy transport census does not mean a computed Core
+        // argument has completed its original expression/temporary protocol.
+        // Select reconstruction from that original demand, never current phase.
+        let mut core_argument = false;
+        for call in &originals {
+            core_argument |= original_core_argument_input_request_v1(source, catalog, &call.call)?;
+        }
+        Ok(!complete_transport || source_forward || core_argument
+            || Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?)
     }
 
     /// Object protocols retain their original, stronger result/source qualification.
     pub(in crate::mir::normal_callable_semantic_package) fn selected_original_object_input_owner_v1(
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
+        // A source Instance cannot become an Object input by validating an
+        // unrelated scalar-result graph. Select this query's original family first.
+        if self.original_instance_input_kind_v1(source, owner)?
+            != Some(OriginalInstanceInputKindV1::QualifiedObject) { return Ok(false); }
         Ok(self.selected_original_instance_input_kind_v1(source, owner)?
             == Some(OriginalInstanceInputKindV1::QualifiedObject))
     }
@@ -267,15 +294,9 @@ impl OrdinaryNewClaimLedgerV1 {
             TypedInputClosureV1::Ready(rows) if !rows.is_empty() => return Ok(None),
             TypedInputClosureV1::Ready(_) => {}
         }
-        let mut matching = source
-            .source_incoming
-            .exact_rows()
-            .filter(|row| &row.call == target.call_site());
-        let call = matching
-            .next()
+        let call = Self::original_instance_input_call_v1(source, contracts, target.call_site())?
             .ok_or_else(|| freeze("object-input/original-row-missing"))?;
-        if matching.next().is_some()
-            || call.source.require_instance()? != target
+        if call.source.require_instance()? != target
             || call.callee != target.callee_owner()
         {
             return Err(freeze("object-input/original-target"));
@@ -284,7 +305,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         let actuals = actuals.as_ref().map_err(Clone::clone)?;
-        actuals.ordered_arguments_for_v1(call).map(Some)
+        actuals.ordered_arguments_for_v1(&call).map(Some)
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn selected_object_input_contract_v1(
@@ -311,6 +332,9 @@ impl OrdinaryNewClaimLedgerV1 {
         // Original result/read requests borrow the common parameter frame.
         // Mixed/Field stay SourceInstance; only the full input verifier can
         // close every incoming/Completion/signature and permit reconstruction.
+        if Self::original_finite_text_instance_input_request_v1(source, catalog, contract.owner)? {
+            return Ok(self.checked_input_use_source_v1(contract)?.is_some());
+        }
         let mut parameter_frame_request = source.original_returned_field_participant_request_v1(contract.owner)?.is_some();
         for call in source.source_incoming.exact_rows().filter(|call| call.callee == contract.owner) {
             if let Some(target) = call.source.instance() {
@@ -409,10 +433,29 @@ impl OrdinaryNewClaimLedgerV1 {
                 "root-flow-missing".into(),
             ));
         };
-        if completion.explicit_sites().is_empty() {
-            return Ok(ObjectInputCompletionGateV1::Pending(
-                "explicit-exits-empty".into(),
-            ));
+        let mut implicit_ready = false;
+        if completion.implicit_body_end().is_some() {
+            let ingress = self.borrowed_formal_source.as_ref()
+                .ok_or_else(|| freeze("object-input/source-missing"))?.as_ref().map_err(Clone::clone)?;
+            let catalog = self.original_parameter_contracts.as_deref()
+                .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+            if Self::original_finite_text_instance_input_request_v1(ingress, catalog, owner)? {
+                let incoming = Self::original_instance_input_calls_v1(ingress, catalog, owner)?;
+                if incoming.is_empty() || completion.returns_value() || incoming.iter().any(|row|
+                    row.source.unit_discard_source_v1().is_none_or(|original|
+                        !original.matches_unit_completion_v1(completion))) {
+                    return Err(freeze("unit-call/completion-source-drift"));
+                }
+                match flow.implicit_exit() {
+                    None => return Ok(ObjectInputCompletionGateV1::Pending("implicit-exit-missing".into())),
+                    Some(Err(issue)) => return Ok(ObjectInputCompletionGateV1::Refused(
+                        format!("{}: {issue:?}", freeze("object-input/callee-exit")))),
+                    Some(Ok(_)) => { self.implicit_root_home_source_v1(owner, completion)?; implicit_ready = true; }
+                }
+            }
+        }
+        if completion.explicit_sites().is_empty() && !implicit_ready {
+            return Ok(ObjectInputCompletionGateV1::Pending("explicit-exits-empty".into()));
         }
         for exit in completion.explicit_sites() {
             match flow.exit_row(exit) {
@@ -466,17 +509,11 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("object-input/contract-identity"));
         }
-        let calls = match source
-            .source_incoming
-            .project(&[owner].into_iter().collect())
-        {
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+        let calls = match Self::original_instance_input_calls_v1(source, catalog, owner) {
             Ok(rows) => rows,
-            Err(issue) => {
-                return Ok(TypedInputClosureV1::Refused(format!(
-                    "{}: {issue:?}",
-                    freeze("borrowed-formal/incoming-coverage")
-                )))
-            }
+            Err(issue) => return Ok(TypedInputClosureV1::Refused(issue)),
         };
         match self.checked_typed_object_input_completion_v1(owner)? {
             ObjectInputCompletionGateV1::Pending(_) => return Ok(TypedInputClosureV1::Pending),

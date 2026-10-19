@@ -117,6 +117,13 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
 ) -> Result<Option<Vec<LiveHomeV1>>, String> {
     for statement in tree.statements.iter() {
         match statement {
+            Statement::Call { observation, .. } => {
+                if observation.prior_homes() != homes.as_slice() {
+                    return Err(reject("execution-prior-homes"));
+                }
+                // Scalar Local/Discard leaves caller Homes unchanged. All
+                // argument acquisition/End/Fault remains inside the SAME Call.
+            }
             Statement::OwnedArrayAppend { observation, .. } => {
                 let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
                     source: holder, availability, prior_homes, ..

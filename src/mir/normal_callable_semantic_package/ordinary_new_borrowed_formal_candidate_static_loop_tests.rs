@@ -29,9 +29,10 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
             let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else { panic!("source-backed") };
             let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
             let consumed = NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
-            let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+            let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_selection_v1(
                 &mut FunctionSemanticResolverSessionV1::new(94).unwrap(), consumed, Some(&catalog),
                 crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
+                crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
             ).unwrap();
             let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
             let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
@@ -110,9 +111,10 @@ fn real_mimalloc_static_loop_v2_rejects_source_and_home_mutations() {
                 let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else { panic!("source-backed") };
                 let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
                 let consumed = NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
-                let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+                let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_selection_v1(
                     &mut FunctionSemanticResolverSessionV1::new(95).unwrap(), consumed, Some(&catalog),
                     crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
+                crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
                 );
                 if case == 1 {
                     let error = match package {

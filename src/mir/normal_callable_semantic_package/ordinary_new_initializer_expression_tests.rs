@@ -472,6 +472,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
             ("static box Values { find(value: i64): i64 { return value } run(count: i64): i64 { local first = Values.find(\"abc\".length()) local next = first + \"d\".length() return 0 } }", "local out = Values.run(1)", "0"),
             ("static box Values { read(count: i64, other: i64): i64 { local n = count + \"d\".length() return 0 } }", "local out = Values.read(1, 2)", "0"),
             ("static box Values { sink(p, q) { return 0 } run(): i64 { local out = Values.sink(\"abc\".substring(0,2).substring(0,1), \"xy\".substring(0,1)) return 0 } }", "local out = Values.run()", "0"),
+            ("static box Values { find(text, value: i64): i64 { local n = text.length() return value } } box Worker { accept(text) { return true } run(text) { local n = text.length() local i = 0 loop(i < n) { local end = Values.find(text, i) me.accept(text.substring(i, end)) i = end + 1 } } }", "local worker = new Worker() worker.run(\"7\")", "0"),
         ] {
             // Declared Main args selects the existing ordinary body consumer;
             // arity-0 qualified Main has a distinct canonical trivial-body route.

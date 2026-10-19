@@ -6,6 +6,7 @@ use super::super::borrowed_formal_uses::{
 };
 use super::*;
 
+#[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct BorrowedEntryOwnerViewV1
 <'a> {
@@ -39,7 +40,10 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn selected_source_instance_input_owner_v1(
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        Ok(self.checked_source_instance_input_entry_v1(source, owner)?.is_some()
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        Ok(Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?
+            || self.checked_source_instance_input_entry_v1(source, owner)?.is_some()
             || self.selected_original_instance_input_kind_v1(source, owner)?
                 == Some(super::super::borrowed_formal_actuals::object_input_finish::OriginalInstanceInputKindV1::SourceInstance))
     }
@@ -90,7 +94,14 @@ impl OrdinaryNewClaimLedgerV1 {
             if let Some(view) = self.checked_mixed_instance_entry_v1(source, owner)? {
                 return Ok(Some(view));
             }
-            if self.selected_original_object_input_owner_v1(source, owner)?
+            let catalog = self.original_parameter_contracts.as_deref()
+                .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+            let mut core_input = false;
+            for call in source.source_incoming.exact_rows().filter(|row| row.callee == owner) {
+                core_input |= super::super::borrowed_formal_actuals::original_core_argument_input_request_v1(
+                    source, catalog, &call.call)?;
+            }
+            if core_input || self.selected_original_object_input_owner_v1(source, owner)?
                 || source.original_returned_field_participant_request_v1(owner)?.is_some() {
                 return mixed_instance::checked_original_instance_parameter_frame_v1(
                     source, self.original_parameter_contracts.as_deref(), owner);
@@ -158,9 +169,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(definition) = source.definitions.get(&owner) else {
             return Ok(None);
         };
+        // Reconstruction checks complete original/transport correspondence.
+        // Equal row projections need no scalar-result graph just to choose
+        // their view; entry_actual_loans still demands the selected full owner.
         let original_input = self.original_instance_input_kind_v1(source, owner)?.is_some()
-            && (self.selected_original_instance_input_kind_v1(source, owner)?.is_some()
-                || self.original_instance_input_requires_reconstruction_v1(source, owner)?);
+            && self.original_instance_input_requires_reconstruction_v1(source, owner)?;
         let incoming = if original_input {
             source.source_incoming.project_declaration_v1(owner).map_err(|issue| {
                 format!("{}: {issue:?}", freeze("borrowed-entry/original-incoming-coverage"))
@@ -265,7 +278,8 @@ impl OrdinaryNewClaimLedgerV1 {
             if self.checked_completed_original_instance_target_arguments_v1(
                 first.source.require_instance()?, selected, catalog, signatures,
             )?.is_none() {
-                return Err(freeze("borrowed-entry/original-input-not-ready"));
+                return Err(format!("{}: {}", freeze("borrowed-entry/original-input-not-ready"),
+                    self.typed_object_input_completion_diagnostic_v1(owner)?));
             }
             let mut rows = Vec::new();
             for call in &view.incoming {
@@ -752,32 +766,5 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn original_borrowed_instance_input_completion_needed_v1(
-    source: &PreparedBorrowedFormalIngressV1,
-    catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-    owner: FunctionOwnerIdV1,
-) -> Result<bool, (OwnedExprSiteV1, String)> {
-    if let Some(call) = source.source_incoming.exact_rows().find(|row|
-        row.callee == owner) {
-        if source.original_returned_field_participant_request_v1(owner)
-            .map_err(|issue| (call.call.clone(), issue))?.is_some() {
-            return mixed_instance::checked_original_instance_parameter_frame_v1(source, Some(catalog), owner)
-                .map(|view| view.is_some()).map_err(|issue| (call.call.clone(), issue));
-        }
-    }
-    let Some(call) = source.source_incoming.exact_rows().find(|call| {
-        call.callee == owner
-            && source
-                .source_only_definitions
-                .contains_key(&call.call.owner())
-            && call
-                .source
-                .instance()
-                .is_some_and(|target| !source.source_incoming.has_object_input_callee_v1(target))
-    }) else {
-        return Ok(false);
-    };
-    mixed_instance::checked_mixed_instance_entry_source_v1(source, Some(catalog), owner)
-        .map(|view| view.is_some())
-        .map_err(|issue| (call.call.clone(), issue))
-}
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal)
+use mixed_instance::original_borrowed_instance_input_completion_needed_v1;

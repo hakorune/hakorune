@@ -5,22 +5,22 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 
 ## Current measurement
 
-- Fixed `real-apps-exe-boundary`: 7PASS/4FAIL, actual EXE6 + empty marker1;
-  mimalloc and allocator PASS, no SKIP/timeout, duration1149.982s.
-  Measured Array transfer source admission `3ecdca645d` with matching quick CLI
-  (build210s), selected quick lifecycle runtime and production Bool-equality C FFI.
+- Latest fixed suite with linear ABI extraction/per-invocation grounding reuse:
+  6PASS/5FAIL, actual EXE5 + empty marker1, no SKIP, duration657.431s.
+  Matching quick opt0 CLI42.89s, quick runtime and C FFI; no Cargo overlap.
+- mimalloc PASS205.577s; typed-newbox196.124s →37.816s. Allocator still timeout300s.
+  Prior pre-extraction suite: 5PASS/6FAIL/1392.243s; Array-transfer suite: 7PASS/4FAIL.
+- Field-read loan sharing built (CLI40.01s): allocator still build-timeout300s;
+  per-callee input-census sharing built (CLI37.07s); affected allocator remeasurement is running.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900`, build/run limits300s.
-- JSON first stop: `[freeze:contract][source-loop/v2/source Loop has an unavailable path]`.
-  MIR compilation stops before artifact/link/runtime. Owner `ingest`, Loop Body(2)
-  at line145, call line151 `me.ingestLine(stream.substring(start, end))`.
-  Loop Call WIP quick CLI now reaches `source control If has no checked condition`
-  at line147 `if end < 0`; no artifact. Line146 Local I64 and line151 discard Bool
-  use existing Call packets; their complete publication verification remains open.
-- Latest empty-transfer source quick CLI (build210s): JSON same; sentinel precheck/direct
-  EXE exit1 at owned-field-write/original-source (I64 lease rejects Dynamic); no artifact.
-- Other reds remain explicit: untyped-field execution permission missing,
-  binary-trees borrowed-result/source-not-i64, boxtorrent stored-child/receiver-unavailable.
+- Matching quick opt0 CLI after source-family ordering fix (build41s), existing JSON smoke: MIR compilation fails
+  at `ordinary-new/object-input/callee-exit: PrefixNotCovered(Body(2))`; no artifact/link/runtime.
+  Existing debug identifies `ingest` Loop line145 and `source control If has no checked condition`
+  at line147 `if end < 0`. This is the original implicit Unit input's source refusal.
+  Line146 Local I64 and line151 discarded Bool now retain existing Call packets;
+  combined source/publication verification passes, but unchanged JSON EXE is still red.
+- Other reds: untyped-field execution permission, binary-trees source-not-i64, boxtorrent receiver-unavailable.
 
 ## Current priority and measurement interpretation
 
@@ -34,17 +34,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   programs and positive Static I64 Invoke transport. They do not reproduce the same
   mimalloc import closure or assert every unsupported Invoke subtype. Do not describe
   this as a new runtime capability or an identical negative test transfer.
-- Own Loop Call WIP is restored in the working tree; original stash remains a backup.
-  Loop:13PASS/known count_at FAIL; publication FAIL: Worker.accept substring actuals
-  remain SourceInstance rather than Executable.
-  Quick opt0 CLI builds; JSON reaches the If condition stop above. WIP is not landed.
+- Loop Call source/SSA, full finite incoming/uses, readonly Text materialization and
+  implicit Unit inputs connect to both final consumers; latest focused176 PASS/0 FAIL, publication PASS.
+  Unit value-use and before/after-take guard-loss refusals PASS; object packet26 PASS.
+  Fixtures retain real-EXE profile/field vetoes; final-entry refusal replaces an internal partition pin.
 
 ## Next source connection
 
 - Source now retains Dynamic layout and no-Birth known-empty field inventory,
   without writer/MIR inference. Existing fixed-Array specialization stays bounded.
-- Destruction separates no-hook declaration from exact Array/object/Dynamic
-  requirements. Static projections reject Dynamic even with children; focused67 PASS.
+- Destruction separates no-hook declaration from exact Array/object/Dynamic; focused67 PASS.
 - Runtime Dynamic slots now hold explicit Empty/null/I64/Bool/Text/object/Array
   values plus an independently published complete End descriptor. No owning Clone.
   Replace atomically publishes the SAME detached old value/residence as Ready;
@@ -53,13 +52,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   borrowed observation for source tag tests, never an owning Dynamic call result.
   Compatibility registration/setters and direct cells cannot activate this profile;
   outer reclaim refuses nonempty Dynamic slots. No tag selects an owner or End.
-- Existing lifecycle-core checked_array9 PASS (execution0.01s); matching archive
-  build31.54s. Native checked_map_runtime_abi_test.c with -Wall/-Wextra/-Werror
-  passes SafeMutex/SingleThread, including explicit empty-Array End; Map SafeMutex only.
-- C fixture additions cover independent ABI/transaction/ownership boundaries:
-  Empty/kind Fault, failed write retaining candidate/old slot, actual child End,
-  reentry refusal and commit surviving cleanup Fault; existing cases minimally
-  protect independent empty-End ABI/state/ownership boundaries. No new tests/hooks/guards.
+- Lifecycle-core checked_array9 PASS (0.01s), archive build31.54s; existing native Map C
+  -Wall/-Wextra/-Werror PASS SafeMutex/SingleThread with empty-Array End; Map SafeMutex only.
+- Existing C cases cover Empty/kind Fault, transactions, End, reentry and cleanup Fault; no new test files/hooks/guards.
 - Optional target section `.nyash.object_field_abi.v1` supplies physical sizes/
   alignment. Both final consumers must admit it and verify SAME source/slot/
   transfer/Normal/Fault correspondence before emission. Source activation is owed;
@@ -78,18 +73,23 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   the local Home into the field; precommit Fault retains it, local exit omits it.
   Existing cases minimally cover independent content/End and capture boundaries;
   focused12 PASS, no new tests/files. Physical acquisition/commit/End and consumers owed.
-- Runtime checked empty End retires unclaimed Boxed(empty) under the same state gate,
-  releases outside locks and rejects other/retired states without consumption.
-  Source must prove contents/End before both consumers admit it; identity alone cannot.
+- Runtime checked empty End retires unclaimed Boxed(empty), releases outside locks and
+  rejects other/retired states. Both consumers still require source contents/End proof.
 - Connect BOTH line146 Local I64 Call and line151 discarded Bool Call through the
-  existing source tree/schedule and SAME Static/Instance child packet. Its substring
-  argument stays inside that packet; retain original Homes and argument cleanup.
-- Publication case addition covers Local I64/discard Bool/substring cleanup inside Loop,
-  an independent combined boundary absent from existing cases; no new test function/file.
-- Prior reds: field-read2, count_at Loop, composition2/result2, Unit; evidence in Git.
-- JSON UserStats/aggregator slots and Map remain implementation dependencies; baselines unchanged.
-
-- Allocator and mimalloc physical EXEs pass unchanged. Allocator's Bool Eq/Ne C admission
+  existing source/schedule and SAME child packet; original Core demand selects all entry stages.
+  Local receipt feeds SAME SSA index; Call receipt separates new operand writes from cached loans.
+- One publication case covers Local I64/discard Bool/substring cleanup and implicit Unit, matching JSON roles.
+  Both explicit/implicit Unit exits use the SAME final pool; borrowed Copy closure starts at source entry roots.
+  Static qualified input uses the checked complete census and existing Invoke writer; no new Plain Call admission.
+  C Text matrix reuses Unit/Bool leaf parameters to cover independent Normal/Fault/End/escape boundaries.
+  Shared Append outer Call now belongs to its existing effect packet; retain full census.
+  Entry membership is passive; result loan issuer retains full anchor/grounding/dependency proof.
+  Original numeric forwarding guard loss stays terminal; no nullable owner retry.
+  If/SSA draft stays isolated; field and callee-input folds share only same-operation immutable checks.
+  Archive framing cases reuse one existing test fn to protect ABI refusals after retiring per-member subprocesses.
+- Prior reds: field-read2, count_at Loop, composition2/result2, Unit remain open.
+- Previous Array-transfer measurement passed allocator/mimalloc EXEs unchanged;
+  current Call-generation suite restores mimalloc; allocator still timeout. Bool Eq/Ne C admission
   retains mixed Bool/I64 and Bool-order refusals; existing matrix tail is still blocked
   by the pre-existing tagged-add negative. Earlier SSA/handoff/Array teardown/synthetic
   callee reds remain open. Array provider3/handoff1 reproduce identically at pre-change HEAD.

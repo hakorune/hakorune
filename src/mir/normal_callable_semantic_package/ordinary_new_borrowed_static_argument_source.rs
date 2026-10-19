@@ -33,6 +33,7 @@ pub(super) fn corroborates_argument_source_v1(
 pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
+    contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
     site: &OwnedExprSiteV1,
     previous: Option<&Result<PreparedBorrowedCallActualsV1, String>>,
     rows: Option<&mut PreparedBorrowedCallActualsV1>,
@@ -58,9 +59,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
     }
     if let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &mut rows.phase {
         let reject = || freeze("borrowed-instance/argument-source-identity");
-        let mut originals = prepared.source_incoming.exact_rows().filter(|row| &row.call == site);
-        let original = originals.next().ok_or_else(reject)?;
-        if originals.next().is_some() || original.source.require_instance()? != &identity.source
+        let contracts = contracts.ok_or_else(reject)?;
+        let original = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(prepared, contracts, site)?.ok_or_else(reject)?;
+        if original.source.require_instance()? != &identity.source
             || original.arguments != identity.incoming_arguments { return Err(reject()); }
         let old = previous.map(|row| {
             let row = row.as_ref().map_err(|_| freeze("borrowed-actual/repeated-walk-drift"))?;
@@ -253,9 +254,8 @@ fn argument_source_identity_v1<'a>(
         | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(identity) => {
             let reject = || freeze("borrowed-instance/argument-source-identity");
             let contracts = contracts.ok_or_else(reject)?;
-            let mut originals = prepared.source_incoming.exact_rows().filter(|row| &row.call == site);
-            let original = originals.next().ok_or_else(reject)?;
-            if originals.next().is_some() || original.source.require_instance()? != &identity.source
+            let original = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(prepared, contracts, site)?.ok_or_else(reject)?;
+            if original.source.require_instance()? != &identity.source
                 || original.arguments != identity.incoming_arguments { return Err(reject()); }
             let mut matches = contracts.iter().filter(|row| row.owner == identity.source.callee_owner());
             let contract = matches.next().ok_or_else(reject)?;
@@ -271,7 +271,7 @@ fn argument_source_identity_v1<'a>(
             if rebuilt.ordered_arguments != rows.ordered_arguments { return Err(reject()); }
             match &rows.phase {
                 BorrowedCallActualEvidencePhaseV1::SourceInstance(_) if &rebuilt != rows => return Err(reject()),
-                BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_) => { rows.checked_ordered_arguments_v1(original)?; }
+                BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_) => { rows.checked_ordered_arguments_v1(&original)?; }
                 _ => {},
             }
             Ok(Some(ArgumentSourceIdentityRefV1 { source: Loan::Instance(&identity.source), candidates: &identity.candidates,

@@ -232,7 +232,9 @@ pub(super) fn emit_with_prefix(
             }
             Node::MethodCall if frame.cores().contains_key(&index) => {
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
-                emit_string_value(builder, &mut writer, operation, index, fault_frame, &mut acquired, &homes, &mut bindings)?
+                let value = emit_string_value(builder, &mut writer, operation, index, fault_frame, &mut acquired, &homes, &mut bindings)?;
+                state.complete_expression_core_source_v1(&frame.cores()[&index])?;
+                value
             }
             Node::MethodCall => {
                 let call = frame.calls().iter().find(|call| call.site().site() == node.site())
@@ -367,7 +369,8 @@ pub(super) fn finish_deferred_argument_continuation(
     let Operand::OwnedString(root) = expression.value else {
         return Err(freeze("argument-expression/deferred-root"));
     };
-    if expression.acquired.last() != Some(&(0, root)) {
+    let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
+    if materialized != Some(root) && expression.acquired.last() != Some(&(0, root)) {
         return Err(freeze("argument-expression/deferred-acquisition-order"));
     }
     let mut writer = RawRootGraphWriterV1;
@@ -383,11 +386,11 @@ pub(super) fn finish_deferred_argument_continuation(
 
 /// Materialize after the original source acquisition-prefix validation. The
 /// original operand table and node stack remain untouched for both final scans.
-pub(super) fn materialize_rebind_root(
-    builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
-    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
+/// Shared purpose acquisition; preserve the original evaluation operands.
+pub(super) fn materialize_text_root(
+    builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, required: bool,
 ) -> Result<(), String> {
-    if !frame.materializes_root() { return Ok(()); }
+    if !required { return Ok(()); }
     if !expression.value.is_text() || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }

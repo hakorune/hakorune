@@ -34,9 +34,6 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
 ) -> Result<(ValueId, Projection), String> {
     let frame = ledger.qualified_argument_expression_frame_v1(call, ordinal, site)?;
-    if !frame.is_i64() && !frame.evaluation().owned_result_nodes().contains(&0) {
-        return Err(freeze("argument-expression/deferred-source-root"));
-    }
     if state.owner() != call.owner() {
         return Err(freeze("argument-expression/state-owner"));
     }
@@ -61,6 +58,7 @@ pub(in crate::mir::builder) fn emit_with_prefix(
             )
         },
     )?;
+    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
     let (value, terminal, continuation) = match expression.value {
         Operand::NormalInteger(value) if frame.is_i64() => {
             let (terminal, continuation) = expression_value::finish_scalar_continuation(builder, &mut expression)?;
@@ -81,6 +79,7 @@ pub(in crate::mir::builder) fn emit_with_prefix(
         expression.entry,
         terminal,
         continuation,
+        expression.purpose_acquisition,
         expression.bindings,
         ledger,
         builder

@@ -98,7 +98,7 @@ impl CallableSemanticLoweringState {
                 != self.named_array_field_allocations.len()
         {
             return Err(format!(
-                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?}",
+                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?} pending_core={:?} pending_static={:?}",
                 freeze("incomplete-consumption"),
                 self.owner,
                 self.entry_installed,
@@ -112,6 +112,8 @@ impl CallableSemanticLoweringState {
                 self.consumed_direct_lambdas.len(),
                 self.direct_lambda_captures.len(),
                 loop_break_transport_kind,
+                self.source_core_method_calls.keys().collect::<Vec<_>>(),
+                self.source_static_result_publications.keys().collect::<Vec<_>>(),
             ));
         }
         let mut rows = self.named_array_writes.into_iter().map(|port| port.take_completed()).collect::<Result<Vec<_>, _>>()?;

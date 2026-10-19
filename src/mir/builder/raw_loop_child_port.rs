@@ -139,6 +139,14 @@ fn source_target_for_loop(
         RawInvocationRootLineageV1::Cataloged(key) => Some(key),
         _ => None,
     });
+    let checked = {
+        let state = callable_ledger.borrow();
+        match state.ordinary_new_claim_ledger() {
+            Some(claims) => claims.retained_source_loop_recipe_v2(state.owner(),
+                &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(parent_site.clone()))?.cloned(),
+            None => None,
+        }
+    };
     let mut selected = Vec::new();
     let mut uncovered = Vec::new();
     let mut instance_methods = Vec::new();
@@ -183,7 +191,11 @@ fn source_target_for_loop(
             requirement_mismatch = true;
             continue;
         }
-        if consume_publication {
+        // A scheduled Call owns its argument tree and consumes publication in
+        // the existing Local/Call writer. Generic frames keep staged handoffs.
+        let delegated = checked.as_ref().is_some_and(|product| product.delegates_call_v2(
+            &crate::mir::resolved_semantics::OwnedExprSiteV1::new(callable_ledger.borrow().owner(), item.call_site().clone())));
+        if consume_publication && !delegated {
             let declarations = declarations.ok_or_else(|| {
                 "[freeze:contract][callable-loop/static-publication/catalog-missing]".to_owned()
             })?;

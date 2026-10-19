@@ -54,6 +54,37 @@ impl OrdinaryNewClaimLedgerV1 {
         if target.has_object_source_requirement() {
             return Ok(true);
         }
+        // A checked numeric formal forward belongs to its original guarded
+        // input owner. Losing that support cannot select nullable acquisition.
+        // Text/typed forwards do not acquire this numeric guard requirement.
+        if let Some(Ok(source)) = &self.borrowed_formal_source {
+            let caller = target.call_site().owner();
+            if target.is_self_receiver()
+                && borrowed_formal_actuals::selected_source_only_object_forward_v1(source, target) {
+                let numeric_forward = source.source_only_definitions.get(&caller).is_some_and(|draft| {
+                    draft.uses.iter().any(|usage| {
+                        if usage.site.owner() != caller
+                            || draft.origins.get(&usage.binding) != Some(&usage.formal) { return false; }
+                        let borrowed_formal_uses::BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal }
+                            = &usage.kind else { return false; };
+                        call == target.call_site()
+                            && target.argument_sites().get(*ordinal as usize) == Some(usage.site.site())
+                            && self.original_parameter_contracts.as_deref().is_some_and(|catalog|
+                                catalog.iter().filter(|row| row.owner == caller)
+                                    .flat_map(|row| &row.parameters).any(|parameter|
+                                        parameter.binding == usage.formal
+                                            && parameter.kind == CallableParameterContractKindV1::OpaqueHandle))
+                            && draft.uses.iter().any(|guard| guard.formal == usage.formal
+                                && matches!(guard.kind,
+                                    borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand { .. }))
+                    })
+                });
+                if numeric_forward {
+                    return has_original_forwarding_receiver_input_source_v1(source,
+                        self.original_parameter_contracts.as_deref(), caller, &mut |original| original == target);
+                }
+            }
+        }
         if self.has_received_field_packet_source_v1(target)? { return Ok(true); }
         if self.has_original_receiver_nullable_packet_source_v1(target)? {
             return Ok(true);

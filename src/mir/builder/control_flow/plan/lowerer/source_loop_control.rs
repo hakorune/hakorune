@@ -11,7 +11,7 @@ impl EmittedSourceLoopGraphV2 {
         if self.result.original().0 != self.after || !matches!(self.result.original().1,
             MirInstruction::Const { value: crate::mir::ConstValue::Void, .. }) { return Err(reject("loop-result")); }
         if self.frames.len() != self.product.schedule().frames().len()
-            || self.effects.len() != self.product.schedule().blocks_array_appends_v2().count()
+            || self.effects.len() != self.product.schedule().blocks_array_appends_v2().count() + self.product.schedule().calls_v2().count()
             || self.frames.iter().enumerate().any(|(index, frame)| frame.index != index) {
             return Err(reject("frame-census"));
         }
@@ -81,6 +81,19 @@ impl EmittedSourceLoopGraphV2 {
         let steps = self.product.schedule().block(key).ok_or_else(|| reject("schedule-block"))?;
         let mut cursor = entry;
         for step in steps {
+            if let Step::Call { site, observation, result, .. } = step {
+                let mut rows = self.effects.iter().filter(|row| &row.site == site);
+                let row = rows.next().ok_or_else(|| reject("call-missing"))?;
+                if rows.next().is_some() || row.entry != cursor
+                    || row.packet.site() != observation.site()
+                    || row.result.as_ref().map(|(key, _)| key) != result.as_ref() {
+                    return Err(reject("call-sequence"));
+                }
+                if let Some((_, relation)) = &row.result { relation.verify(function)?; }
+                // The packet owner validates the original continuation and
+                // ordered arguments in both Lowering and final projection.
+                cursor = row.end;
+            }
             if let Step::OwnedArrayAppend { site, observation, .. } = step {
                 let mut rows = self.effects.iter().filter(|row| &row.site == site);
                 let row = rows.next().ok_or_else(|| reject("array-append-missing"))?;
@@ -89,7 +102,7 @@ impl EmittedSourceLoopGraphV2 {
                 } = observation else { return Err(reject("array-append-source")); };
                 let packet = row.packet.owned_array_append().ok_or_else(|| reject("array-append-source"))?;
                 let continuation = packet.normal_continuation_binding();
-                if rows.next().is_some() || row.entry != cursor || packet.source().site() != call
+                if rows.next().is_some() || row.result.is_some() || row.entry != cursor || packet.source().site() != call
                     || !packet.source().matches_original_v1(source, candidate)
                     || !matches!(&continuation.1, MirInstruction::Jump { target, edge_args: None } if *target == row.end)
                     || function.blocks.get(&continuation.0).and_then(|block| block.terminator.as_ref()) != Some(&continuation.1)

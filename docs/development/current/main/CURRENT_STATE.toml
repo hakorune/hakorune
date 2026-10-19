@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "source-loop/v2/source Loop has an unavailable path"
+current_blocker_token = "ordinary-new/object-input/callee-exit: PrefixNotCovered(ingest Body(2))"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Loop Call接続WIPを作業ツリーへ復元。publication検証は未完。
-残り3実アプリ＋untyped sentinelの共通tagged storage契約を既存D0とreferenceで受理。
-空Arrayの全参照・capture検査をsource移転へ接続。物理取得・移転・Endは未接続。
-正式suite7PASS/4FAIL、実EXE6＋marker1。mimallocのハーネス修正はcard参照。
-次はLoop内substring引数のSourceInstance→Executable接続。JSONの次の不足はIf条件frame。
+APP-json-stream-aggregator: Loop Call・有限Text入力・Unit最終検証・JSON publicationを接続。
+matching quick CLI: object-input/callee-exit。ingest Body(2)のIf条件（line147）が未接続。
+focused176PASS/0FAIL。最終entry拒否を確認。入力census共有CLI37.07秒、allocator再計測中。
+最新suite6PASS/5FAIL（実EXE5＋marker1）、657.4秒。allocator build timeout300秒を保持。
+If/SSA案は分離保持。field-read共有CLI40.01秒でもallocator300秒timeout。mimalloc直近PASS。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,6 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: Call WIP with sequential ABI archive traversal and per-invocation scalar grounding reuse — fixed real-apps-exe-boundary 6 PASS / 5 FAIL, 5 actual EXEs plus empty marker1, no SKIP, duration657.431s. Matching quick opt0 CLI build42.89s, selected quick runtime and matching production C FFI, outer1900/build/run300s, no Cargo overlap. mimalloc PASS205.577s; typed newbox196.124s to37.816s. Allocator still build-timeout300s; JSON If, source-slot, binary-trees and boxtorrent stops persist. Later fixture/profile edits and field-read loan sharing are not part of this measurement.",
+  "2026-10-20: Call source ordering WIP after Append census fix — real-apps-exe-boundary 5 PASS / 6 FAIL, 4 actual EXEs plus empty marker1, no SKIP, duration1392.243s. Matching quick opt0 CLI build41.21s, selected quick runtime and private matching production C FFI, outer1900/build/run300s; no Cargo overlap. Allocator no longer stops at SourceCallResidualEvidence; allocator and mimalloc both reach archive inspection but hit build300s. JSON If/source-slot/binary-trees/boxtorrent stops persist. Local proof reuse and sequential ABI archive reading are later unbuilt work, not part of this measurement.",
   "2026-10-20: real-apps-exe-boundary at Array transfer source admission 3ecdca645d — 7 PASS / 4 FAIL; 6 actual EXEs plus 1 empty marker; allocator and mimalloc PASS, no SKIP/timeout. Matching quick CLI (build210s), selected quick lifecycle runtime and production Bool-equality C FFI; outer1900/build/run300s; suite1149.982s. JSON Loop, binary-trees borrowed-result and boxtorrent stored-child stops remain; sentinel precheck now owned-field-write/original-source, no artifact. Later runtime changes are not part of this measurement.",
-  "2026-10-20: previous known-empty source admission 0013eb0e11 — 7 PASS / 4 FAIL; actual EXEs6 plus empty marker1, no SKIP/timeout, suite1150.771s. Matching quick CLI/runtime/C FFI; earlier details remain in Git history.",
 ]

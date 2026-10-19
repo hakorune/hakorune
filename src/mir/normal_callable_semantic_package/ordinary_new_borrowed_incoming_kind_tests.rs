@@ -34,7 +34,10 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
         domains: Box::new([]),
         formals: Box::new([]),
         source,
-        definition: source.source_definition_for(owner).unwrap(),
+        evidence: EntryStructureEvidenceV1::Uses(owner_view::BorrowedEntryOwnerViewV1 {
+            definition: source.source_definition_for(owner).unwrap(),
+            incoming: source.incoming.iter().collect(), tagged: false, mixed: false,
+        }),
         incoming_rows: source.incoming.iter().collect(),
         incoming: BorrowedEntryActualsV1::Executable(Box::new([])),
     };

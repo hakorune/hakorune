@@ -12,6 +12,26 @@ impl EmittedSourceLoopProjectionV2 {
             || children.len() != graph.frames.len() + graph.effects.len() { return Err(freeze("source-loop/frame-census")); }
         let mut index = 0;
         for (child, expected) in children.iter().zip(&self.expected) {
+            if let LifecyclePrefixSourceV1::Call { site, statement } = expected {
+                let mut rows = graph.effects.iter().filter(|row| row.packet.site() == site);
+                let row = rows.next().ok_or_else(|| freeze("source-loop/call-source"))?;
+                let mut calls = graph.product.schedule().calls_v2().filter_map(|step| match step {
+                    crate::mir::loop_recipe_contract::SourceLoopScheduledStepV2::Call { site: original, observation, result, .. }
+                        if original == statement && observation.site() == site => Some((observation, result)),
+                    _ => None,
+                });
+                let (observation, result) = calls.next().ok_or_else(|| freeze("source-loop/call-source"))?;
+                if calls.next().is_some() || rows.next().is_some() || !child.matches_source(expected)
+                    || !child.same_effect_packet_v2(&row.packet)
+                    || row.result.as_ref().map(|(key, _)| key) != result.as_ref() {
+                    return Err(freeze("source-loop/call-source"));
+                }
+                child.corroborate_loop_call_v2(observation, row.entry, row.end,
+                    row.result.as_ref().map(|(_, relation)| relation.values().0), context, function, finishing.is_none())?;
+                child.check_physical_bindings_v1(function, finishing)?;
+                child.validate_recorded_in_context(context, function, finishing)?;
+                continue;
+            }
             if let LifecyclePrefixSourceV1::OwnedArrayAppend { site, holder, candidate, .. } = expected {
                 let packet = child.owned_array_append().ok_or_else(|| freeze("source-loop/append-packet"))?;
                 let mut rows = graph.effects.iter().filter(|row| row.packet.site() == site);

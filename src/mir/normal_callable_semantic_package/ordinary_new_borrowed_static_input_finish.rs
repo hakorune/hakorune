@@ -85,6 +85,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-zero/contract-duplicate"));
             }
             let prepared = if self.is_static_expression_input_owner_v1(source, owner) {
+                // Preserve original route membership even while Completion is
+                // pending. Demand must not retry a generic Static writer.
+                let incoming = source.source_incoming.project_source_v1(&[owner].into_iter().collect())
+                    .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
+                let sites: Vec<_> = incoming.iter().filter(|call|
+                    self.local_call_for_owner(call.call.owner(), call.call.site()).is_some())
+                    .map(|call| call.call.clone()).collect();
+                if let Some(Ok(selected)) = self.borrowed_static_source_sites.as_mut() {
+                    selected.extend(sites);
+                }
                 self.prepare_static_expression_input_owner_v1(source, selected, contract, signatures, results)?
             } else {
                 self.prepare_static_zero_input_owner_v1(source, selected, contract, signatures, results)?
@@ -223,7 +233,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(if missing { None } else { requested })
     }
 
-    fn is_static_expression_input_owner_v1(&self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(&self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1) -> bool {
         source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row|
             matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
                 if original.parameters().iter().any(|formal| matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
@@ -329,13 +339,15 @@ impl OrdinaryNewClaimLedgerV1 {
         if matching.next().is_some() { return Err(freeze("static-input/contract-duplicate")); }
         let completion = self.completion_index.get(&owner).ok_or_else(|| freeze("static-input/completion-missing"))?
             .as_ref().map_err(|error| format!("{}: {error:?}", freeze("static-input/callee-completion")))?;
-        let uses = self.checked_static_input_use_source_v1(contract)?
+        let uses = self.checked_input_use_source_v1(contract)?
             .ok_or_else(|| freeze("static-input/source-uses-unfinished"))?;
         let domains = self.static_input_domains_v1(source, contract)
             .ok_or_else(|| freeze("static-input/domain-unfinished"))?;
         let mut seen = std::collections::BTreeSet::new();
         let mut found = None;
-        for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
+        let incoming = source.source_incoming.project_source_v1(&[owner].into_iter().collect())
+            .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
+        for call in &incoming {
             if !seen.insert(call.call.clone()) { return Err(freeze("static-input/original-row-duplicate")); }
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source
                 else { return Err(freeze("static-input/original-source-kind")) };
@@ -416,14 +428,16 @@ impl OrdinaryNewClaimLedgerV1 {
         if !self.verify_static_input_header_v1(selected, contract, signatures, results, completion, "static-input")? {
             return Ok(TypedInputClosureV1::Pending);
         }
-        let Some(uses) = self.checked_static_input_use_source_v1(contract)? else { return Ok(TypedInputClosureV1::Pending) };
+        let Some(uses) = self.checked_input_use_source_v1(contract)? else { return Ok(TypedInputClosureV1::Pending) };
         let Some(domains) = self.static_input_domains_v1(source, contract) else { return Ok(TypedInputClosureV1::Pending) };
         let Some(SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(contract.batch_slot)
             else { return Err(freeze("static-input/selected-key")) };
         let mut seen = std::collections::BTreeSet::new();
         let mut missing = false;
         let mut replacements = Vec::new();
-        for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
+        let incoming = source.source_incoming.project_source_v1(&[owner].into_iter().collect())
+            .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
+        for call in &incoming {
             if !seen.insert(call.call.clone()) { return Err(freeze("static-input/original-row-duplicate")); }
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &call.source
                 else { return Err(freeze("static-input/original-source-kind")) };

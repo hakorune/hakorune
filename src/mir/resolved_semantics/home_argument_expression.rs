@@ -16,6 +16,8 @@ pub(crate) struct CheckedArgumentExpressionFrameV1 {
 }
 impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn is_i64(&self) -> bool { self.evaluation.root_class() == Leaf::Value(Class::I64) }
+    /// Argument purpose obtains independent Text residence for a readonly root.
+    pub(crate) fn materializes_root(&self) -> bool { !self.is_i64() && !self.evaluation.owned_result_nodes().contains(&0) }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source_loan(&self) -> &ArgumentExpressionSourceLoanV1 { &self.source_loan }
     pub(crate) fn static_reads(&self) -> Vec<&super::super::StaticTextReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::StaticText(read) => Some(read), _ => None }).collect() }

@@ -288,9 +288,13 @@ impl OrdinaryNewClaimLedgerV1 {
             )
         {
             return Err(format!(
-                "{} debug={:?}",
+                "{} owner={owner:?} debug={:?} pending_return={} homes={:?}",
                 freeze("artifact-source-unavailable"),
-                self.finalized_root_observation(owner)
+                self.finalized_root_observation(owner),
+                self.has_pending_object_return_v1(owner),
+                self.root_completion.as_ref().and_then(|row| row.as_ref().ok())
+                    .and_then(|row| row.cleanup().root_flow())
+                    .map(|flow| flow.terminal_homes().map(|homes| homes.len())),
             ));
         }
         if self.finalized_root_observation(owner) != function.root_ordinary_new_observation() {

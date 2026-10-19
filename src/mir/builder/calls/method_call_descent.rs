@@ -202,10 +202,11 @@ where
 
     pub(in crate::mir::builder) fn lower_all_observed_with_expected_sites(
         &mut self, builder: &mut MirBuilder, expected_sites: &[SourceExprSiteV1],
+        original: Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1>,
     ) -> Result<super::call_argument_descent::CompletedDirectCallArgumentsV1, String>
     where Port: DirectCallDispositionPortV1 {
         let arguments = self.port.call_arguments_input(self.input)?;
-        drive_call_arguments_with_expected_sites_v1(builder, self.port, arguments, expected_sites, None)
+        drive_call_arguments_with_expected_sites_v1(builder, self.port, arguments, expected_sites, original)
     }
 
     pub(in crate::mir::builder) fn lower_all_with_expected_sites(
@@ -216,7 +217,7 @@ where
     where
         Port: DirectCallDispositionPortV1,
     {
-        self.lower_all_observed_with_expected_sites(builder, expected_sites).map(|completed| completed.into_values())
+        self.lower_all_observed_with_expected_sites(builder, expected_sites, None).map(|completed| completed.into_values())
     }
 }
 

@@ -19,6 +19,18 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_owning_object_input_source_v1<'a>(
         &self, target: &'a LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<&'a super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>, String> {
+        let loan = self.original_owning_object_input_target_v1(target)?;
+        if loan.is_some() && !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+            return Err(freeze("nullable-input/original-source-drift"));
+        }
+        Ok(loan)
+    }
+
+    // Exact target checks remain per call. The callee-wide operation below
+    // corroborates the immutable whole inventory once before visiting its rows.
+    fn original_owning_object_input_target_v1<'a>(
+        &self, target: &'a LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Option<&'a super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>, String> {
         let mut rows = self.source_incoming.exact_rows().filter(|row| &row.call == target.call_site());
         let Some(row) = rows.next() else {
             return if target.owning_object_local_input_v1().is_some() { Err(freeze("nullable-input/original-missing")) } else { Ok(None) };
@@ -27,7 +39,7 @@ impl PreparedBorrowedFormalIngressV1 {
             return Err(freeze("nullable-input/original-target-drift"));
         }
         let Some(loan) = target.owning_object_local_input_v1() else { return Ok(None); };
-        if !loan.matches_target(target) || !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+        if !loan.matches_target(target) {
             return Err(freeze("nullable-input/original-source-drift"));
         }
         Ok(Some(loan))
@@ -39,14 +51,14 @@ impl PreparedBorrowedFormalIngressV1 {
         if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
             return Err(freeze("nullable-input/original-incoming-census-drift"));
         }
-        self.original_owning_object_input_source_v1(target)?;
+        self.original_owning_object_input_target_v1(target)?;
         let mut selected = false;
         for row in self.source_incoming.exact_rows().filter(|row| row.callee == target.callee_owner()) {
             let original = row.source.require_instance()?;
             if original.target() != target.target() || original.target_batch_slot() != target.target_batch_slot() {
                 return Err(freeze("nullable-input/callee-identity"));
             }
-            selected |= self.original_owning_object_input_source_v1(original)?.is_some();
+            selected |= self.original_owning_object_input_target_v1(original)?.is_some();
         }
         Ok(selected)
     }

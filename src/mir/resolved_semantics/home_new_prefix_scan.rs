@@ -253,6 +253,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     local_lexical_i64_call,
                     borrowed_actuals,
                 )? {
+                    locals.record_source_loop_call_v1(statement.site(), &call);
                     path_calls.insert(call.site().clone());
                     local_calls.push(call);
                     continue;
@@ -483,7 +484,11 @@ pub(super) fn scan_statement_flow<'a, E>(
             borrowed_actuals,
             view_use,
         )?;
-        locals.record_source_loop_expression_v1(statement.site());
+        let mut calls = local_calls.iter().filter(|call| call.statement() == statement.site() && !call.is_expression_value());
+        if let Some(call) = calls.next() {
+            if calls.next().is_none() { locals.record_source_loop_call_v1(statement.site(), call); }
+            else { locals.note_source_loop_availability_v1(false); }
+        } else { locals.record_source_loop_expression_v1(statement.site()); }
     }
     locals.end_source_loop_body_v1(body, false);
     Ok(false)

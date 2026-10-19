@@ -247,6 +247,14 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if let Some(original) = source.source_incoming.static_observations().get(site) {
             let original = original.as_ref().map_err(Clone::clone)?;
+            let qualified = self.checked_completed_static_expression_input_v1(original)?;
+            if qualified.is_some() || self.is_static_expression_input_owner_v1(source, original.callee_owner()) {
+                qualified.ok_or_else(|| freeze("static-input/cohort-unfinished"))?;
+                self.verify_original_static_packet_source_v1(original)?;
+                self.borrowed_static_packet_actuals_v1(original)?
+                    .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+                return Ok(Some(Rc::clone(original)));
+            }
             if self
                 .checked_static_tagged_packet_actuals_v1(original)?
                 .is_some()
@@ -342,13 +350,17 @@ impl OrdinaryNewClaimLedgerV1 {
         // Source-only CurrentOwner packets are not co-sealed. Their canonical
         // demand remains selected: emission will preserve the original refusal
         // before taking publication instead of retrying the generic call.
-        for row in source.source_incoming.exact_rows() {
+        for (row, legacy) in source.source_incoming.exact_rows().map(|row| (row, true))
+            .chain(source.source_incoming.source_rows_with_legacy_v1().filter(|(_, legacy)| !legacy)) {
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                 &row.source
             else {
                 continue;
             };
-            let completed = self
+            let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
+            if !legacy && !applies { continue; }
+            let qualified = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
+            let completed = qualified || self
                 .checked_static_scalar_packet_actuals_v1(original)?
                 .is_some()
                 || self
@@ -445,17 +457,21 @@ impl OrdinaryNewClaimLedgerV1 {
                 found = true;
             }
         }
-        for row in source
+        for (row, legacy) in source
             .source_incoming
-            .exact_rows()
-            .filter(|row| row.call.owner() == owner)
+            .exact_rows().map(|row| (row, true))
+            .chain(source.source_incoming.source_rows_with_legacy_v1().filter(|(_, legacy)| !legacy))
+            .filter(|(row, _)| row.call.owner() == owner)
         {
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                 &row.source
             else {
                 continue;
             };
-            if (self.is_static_zero_packet_cohort_v1(original)
+            let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
+            if !legacy && !applies { continue; }
+            let qualified = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
+            if (qualified || self.is_static_zero_packet_cohort_v1(original)
                 || self
                     .checked_static_scalar_packet_actuals_v1(original)?
                     .is_some()

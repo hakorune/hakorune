@@ -39,17 +39,19 @@ fn exact_original_target(
     ingress: &PreparedBorrowedFormalIngressV1,
     target: &LexicalInstanceCallSourceTargetV1,
 ) -> Result<(), String> {
-    let mut originals = ingress
-        .source_incoming
-        .exact_rows()
-        .filter(|row| &row.call == target.call_site());
-    let original = originals
-        .next()
-        .ok_or_else(|| freeze("scalar-loan/original-missing"))?;
-    if originals.next().is_some()
-        || original.callee != target.callee_owner()
-        || original.source.require_instance()? != target
-    {
+    let source_member = ingress.source_incoming.source_rows_with_legacy_v1()
+        .any(|(row, legacy)| !legacy && &row.call == target.call_site());
+    let calls = if source_member {
+        ingress.source_incoming.project_source_v1(&BTreeSet::from([target.callee_owner()]))
+            .map_err(|issue| format!("{}: {issue:?}", freeze("scalar-loan/original-identity")))?
+    } else {
+        ingress.source_incoming.exact_rows().filter(|row| &row.call == target.call_site())
+            .cloned().collect::<Vec<_>>().into_boxed_slice()
+    };
+    let mut originals = calls.iter().filter(|row| &row.call == target.call_site());
+    let original = originals.next().ok_or_else(|| freeze("scalar-loan/original-missing"))?;
+    if originals.next().is_some() || original.callee != target.callee_owner()
+        || original.source.require_instance()? != target {
         return Err(freeze("scalar-loan/original-identity"));
     }
     Ok(())
@@ -160,6 +162,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn corroborate_source_scala
 
 fn source_scalar_seed_target_v1(
     ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     if !target.uses_existing_borrowed_result_v1() { return Ok(false); }
@@ -183,7 +186,11 @@ fn source_scalar_seed_target_v1(
             || results.get(&target.callee_owner()).is_some_and(|proof|
                 proof.as_ref().is_ok_and(|proof| proof.class == BorrowedResultClassV1::Nullable))
         { return Ok(false); }
-        if !ingress.original_array_argument_source_v1(target)? { return Ok(false); }
+        let array_input = ingress.original_array_argument_source_v1(target)?;
+        let core_input = super::super::borrowed_formal_actuals::original_core_argument_input_request_v1(
+            ingress, contracts, target.call_site())?;
+        if core_input { exact_original_target(ingress, target)?; }
+        if !array_input && !core_input { return Ok(false); }
     }
     // Affirmative original non-scalar facts select their own issuer before demand.
     // Absence/Err of selected scalar evidence is never an unselection predicate.
@@ -206,9 +213,10 @@ fn source_scalar_seed_target_v1(
 /// No seedless cycle or unrelated call/discard makes a scalar family member.
 fn selected_source_scalar_target_v1(
     ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
-    if source_scalar_seed_target_v1(ingress, target, results, classes)? {
+    if source_scalar_seed_target_v1(ingress, target, contracts, results, classes)? {
         return Ok(true);
     }
     if !target.uses_existing_borrowed_result_v1()
@@ -231,7 +239,7 @@ fn selected_source_scalar_target_v1(
         for (dependency, role) in dependencies {
             if role == SourceDependencyRoleV1::FieldWriter { continue; }
             // Full original target equality precedes owner traversal/dedup.
-            if source_scalar_seed_target_v1(ingress, dependency, results, classes)? {
+            if source_scalar_seed_target_v1(ingress, dependency, contracts, results, classes)? {
                 return Ok(true);
             }
             if dependency.uses_existing_borrowed_result_v1()
@@ -246,13 +254,14 @@ fn selected_source_scalar_target_v1(
 /// This lends no empty cleanup, input, signature or executable result permission.
 pub(in crate::mir::normal_callable_semantic_package) fn required_scalar_source_walk_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>, results: &ResultSources,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     owner: FunctionOwnerIdV1, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     let Ok(ingress) = source else { return Ok(false); };
     let mut pending = Vec::new();
     for original in ingress.source_incoming.exact_rows() {
         if let Some(target) = original.source.instance() {
-            if selected_source_scalar_target_v1(ingress, target, results, classes)
+            if selected_source_scalar_target_v1(ingress, target, contracts, results, classes)
                 .map_err(|issue| (target.call_site().clone(), issue))?
                 && match results.get(&target.callee_owner()) {
                     Some(Ok(proof)) => matches!(proof.class, BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool | BorrowedResultClassV1::UnresolvedScalar),
@@ -302,20 +311,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arg
         Err(_) if matching.is_empty() => return Ok(None),
         Err(issue) => return Err(issue.clone()),
     };
-    let mut originals = ingress
-        .source_incoming
-        .exact_rows()
-        .filter(|row| &row.call == site);
-    let original = originals.next();
-    if originals.next().is_some() {
-        return Err(freeze("scalar-loan/original-identity"));
-    }
-    let target = original.and_then(|row| row.source.instance());
-    let selected = target.map(|target| selected_source_scalar_target_v1(ingress, target, results, classes))
+    let original = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)?;
+    let target = original.as_ref().and_then(|row| row.source.instance());
+    let selected = target.map(|target| selected_source_scalar_target_v1(ingress, target, contracts, results, classes))
         .transpose()?.unwrap_or(false);
     let mut prepared_selected = false;
     for target in &matching {
-        prepared_selected |= selected_source_scalar_target_v1(ingress, target, results, classes)?;
+        prepared_selected |= selected_source_scalar_target_v1(ingress, target, contracts, results, classes)?;
     }
     if !selected && !prepared_selected {
         if crate::config::env::builder_debug_enabled() && (target.is_some() || !matching.is_empty()) {
@@ -389,23 +391,30 @@ impl OrdinaryNewClaimLedgerV1 {
         &'a self,
         loan: &BorrowedScalarResultSourceLoanV1,
         site: &OwnedExprSiteV1,
-        validation: &mut Option<ScalarSourceValidationV1<'a>>,
+        validation: &ScalarSourceValidationV1<'a>,
     ) -> Result<(), String> {
         let source = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| freeze("callable-scalar/source-missing"))?;
         let ingress = source.as_ref().map_err(Clone::clone)?;
-        let mut originals = ingress.source_incoming.exact_rows().filter(|row| &row.call == site);
-        let original = originals.next().ok_or_else(|| freeze("callable-scalar/anchor-missing"))?;
-        if originals.next().is_some() { return Err(freeze("callable-scalar/anchor-duplicate")); }
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+        let original = Self::original_instance_input_call_v1(ingress, catalog, site)?
+            .ok_or_else(|| freeze("callable-scalar/anchor-missing"))?;
         let target = original.source.require_instance()?;
-        validation.get_or_insert_with(|| ScalarSourceValidationV1::new(source, &self.borrowed_i64_results))
-            .validate(loan, target)
+        validation.validate(loan, target)
     }
 
     /// Original scalar terminal/Discard membership selects this responsibility.
     /// Other result owners and their errors are not implicit scalar candidates.
     pub(in crate::mir::normal_callable_semantic_package) fn callable_scalar_result_participant_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {
-        let mut validation = None;
+        self.callable_scalar_result_scope_v1(owner, false, None)
+    }
+
+    /// One original membership walk serves passive selection and source issuance.
+    /// Only the issuer requests proof verification; entry selection grants no result.
+    fn callable_scalar_result_scope_v1(&self, owner: FunctionOwnerIdV1, verify: bool,
+        validation: Option<&ScalarSourceValidationV1<'_>>) -> Result<bool, String> {
+        let mut anchors = Vec::new();
         let mut participants = BTreeSet::new();
         let mut pending = Vec::new();
         for relation in self.terminal_relation.values()
@@ -414,8 +423,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(terminal) = relation {
                 if let Some(loan) = terminal.source_scalar() {
-                    self.validate_callable_scalar_anchor_v1(loan,
-                        &OwnedExprSiteV1::new(terminal.owner(), terminal.call_site().clone()), &mut validation)?;
+                    anchors.push((loan, OwnedExprSiteV1::new(terminal.owner(), terminal.call_site().clone())));
                     participants.insert(terminal.owner());
                     participants.insert(loan.source.callee_owner());
                     pending.push((loan.source.callee_owner(), loan.facts.as_ref()));
@@ -432,7 +440,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if let Some(flow) = completion.cleanup().root_flow() {
                 for call in flow.local_calls() {
                     if let Some(loan) = call.borrowed_scalar() {
-                        self.validate_callable_scalar_anchor_v1(loan, call.site(), &mut validation)?;
+                        anchors.push((loan, call.site().clone()));
                         participants.insert(loan.source.callee_owner());
                         pending.push((loan.source.callee_owner(), loan.facts.as_ref()));
                     }
@@ -440,19 +448,37 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         if pending.is_empty() && !participants.contains(&owner) { return Ok(false); }
-        let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?.as_ref().map_err(Clone::clone)?;
         let mut seen = BTreeSet::new();
+        let mut selected_facts = Vec::new();
         while let Some((current, facts)) = pending.pop() {
             if !seen.insert(current) { continue; }
-            for (dependency, role) in source_dependencies_v1(facts, ingress)? {
-                if role == SourceDependencyRoleV1::FieldWriter { continue; }
-                participants.insert(dependency.callee_owner());
-                if let Some(Ok(proof)) = self.borrowed_i64_results.get(&dependency.callee_owner()) {
-                    pending.push((dependency.callee_owner(), proof.source_facts.as_ref()));
+            // Membership follows the SAME retained forward/expression edges.
+            // FieldWriter edges never selected participants in this owner.
+            // Do not validate unrelated fields just to answer an entry query.
+            for callee in facts.dependencies.iter().map(|call| call.callee_owner())
+                .chain(facts.expressions.iter().flat_map(|expression|
+                    expression.calls().map(|call| call.callee_owner))) {
+                participants.insert(callee);
+                if let Some(Ok(proof)) = self.borrowed_i64_results.get(&callee) {
+                    pending.push((callee, proof.source_facts.as_ref()));
+                }
+            }
+            selected_facts.push(facts);
+        }
+        if !participants.contains(&owner) { return Ok(false); }
+        // Selection is not execution permission. Selected queries keep every
+        // original anchor, grounding, field-writer and dependency check.
+        if verify {
+            let validation = validation.ok_or_else(|| freeze("callable-scalar/source-missing"))?;
+            let ingress = validation.source.as_ref().map_err(Clone::clone)?;
+            for (loan, site) in &anchors { self.validate_callable_scalar_anchor_v1(loan, site, validation)?; }
+            for facts in selected_facts {
+                // demand already checked these exact immutable anchor facts.
+                if !anchors.iter().any(|(loan, _)| std::ptr::eq(loan.facts.as_ref(), facts)) {
+                    source_dependencies_v1(facts, ingress)?;
                 }
             }
         }
-        if !participants.contains(&owner) { return Ok(false); }
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
         let mut contracts = catalog.iter().filter(|row| row.owner == owner);
@@ -465,8 +491,13 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Option<CallableScalarResultSourceLoanV1>, String> {
-        if !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }
-        self.checked_callable_scalar_result_source_v1(owner).map(Some)
+        // One immutable borrow scopes grounding to this issuance only. A later
+        // call, including after a source mutation, always starts a fresh scan.
+        let validation = self.borrowed_formal_source.as_ref()
+            .map(|source| ScalarSourceValidationV1::new(source, &self.borrowed_i64_results));
+        if !self.callable_scalar_result_scope_v1(owner, true, validation.as_ref())? { return Ok(None); }
+        let validation = validation.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?;
+        self.checked_callable_scalar_result_source_v1(owner, validation).map(Some)
     }
 
     /// Field reads retain their own source responsibility even when no borrowed
@@ -477,12 +508,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let selected = self.borrowed_i64_results.get(&owner).and_then(|row| row.as_ref().ok())
             .is_some_and(|proof| !proof.field_array_reads.is_empty());
         if !selected { return Ok(Vec::new()); }
-        let source = self.checked_callable_scalar_result_source_v1(owner)?;
+        let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?;
+        let validation = ScalarSourceValidationV1::new(ingress, &self.borrowed_i64_results);
+        let source = self.checked_callable_scalar_result_source_v1(owner, &validation)?;
         Ok(source.field_array_reads().to_vec())
     }
 
     fn checked_callable_scalar_result_source_v1(
-        &self, owner: FunctionOwnerIdV1,
+        &self, owner: FunctionOwnerIdV1, validation: &ScalarSourceValidationV1<'_>,
     ) -> Result<CallableScalarResultSourceLoanV1, String> {
         let proof = self.borrowed_i64_results.get(&owner)
             .ok_or_else(|| freeze("callable-scalar/result-missing"))?
@@ -493,7 +526,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref().map_err(Clone::clone)?;
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
-        let grounded = grounded_source_results_with_ingress_v1(&self.borrowed_i64_results, ingress);
+        let grounded = validation.grounded.get_or_init(||
+            grounded_source_results_with_ingress_v1(&self.borrowed_i64_results, ingress));
         let mut pending = vec![(owner, None)];
         let mut seen = BTreeSet::new();
         while let Some((current, expected)) = pending.pop() {

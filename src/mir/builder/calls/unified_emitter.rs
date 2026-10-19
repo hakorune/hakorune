@@ -44,6 +44,7 @@ pub(in crate::mir::builder) fn emit_canonical_instance_value_terminal_v1(
         None,
         None,
         UnifiedCallSignaturePublicationV1::Existing,
+        Vec::new(),
     )?;
     match outcome {
         physical_terminal::CompletedUnifiedCallEmissionV1::Value(receipt) => {
@@ -77,6 +78,7 @@ pub(in crate::mir::builder) fn emit_canonical_instance_call_at_v1(
         None,
         None,
         UnifiedCallSignaturePublicationV1::Existing,
+        Vec::new(),
     )?;
     Ok(())
 }
@@ -631,11 +633,26 @@ impl UnifiedCallEmitterBox {
         // Finalize operands in current block (EmitGuardBox wrapper)
         let mut callee = callee;
         let mut args_local: Vec<ValueId> = args;
+        // Capture the sole operand writer's append interval. Cached operands
+        // remain dependencies and must not be owned again by this Call.
+        let operand_block = builder.function_state.current_block
+            .ok_or("No current basic block")?;
+        let operand_start = builder.function_state.current_function.as_ref()
+            .and_then(|function| function.blocks.get(&operand_block))
+            .map_or(0, |block| block.instructions.len());
         crate::mir::builder::emit_guard::finalize_call_operands(
             builder,
             &mut callee,
             &mut args_local,
         )?;
+        if builder.function_state.current_block != Some(operand_block) {
+            return Err("[freeze:contract][static-scalar/argument-correspondence]".into());
+        }
+        let operand_bindings = builder.function_state.current_function.as_ref()
+            .and_then(|function| function.blocks.get(&operand_block))
+            .and_then(|block| block.instructions.get(operand_start..))
+            .ok_or("[freeze:contract][static-scalar/argument-correspondence]")?
+            .iter().map(|row| (operand_block, row.clone())).collect();
 
         // 📦 Hotfix 7 (Phase 21.7 fixed): Include receiver in args for instance methods ONLY
         // VM's exec_function_inner expects receiver as the first parameter (ValueId(0))
@@ -711,6 +728,7 @@ impl UnifiedCallEmitterBox {
             map_write_replay,
             lookup,
             signature_publication,
+            operand_bindings,
         )
         .map(UnifiedCallEmissionOutcomeV1::Generic)
     }

@@ -16,7 +16,7 @@ use model::{ArgumentExpressionV1, BorrowedCallActualEvidencePhaseV1};
 pub(in crate::mir::normal_callable_semantic_package) use model::PreparedBorrowedCallActualsV1;
 pub(crate) use model::{BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1};
 pub(in crate::mir::normal_callable_semantic_package) use instance_source::recheck_pending_array_source_actuals_v1;
-pub(super) use instance_source::{revalidate_passive_instance_incoming_v1, revalidate_passive_instance_incoming_with_array_context_v1};
+pub(super) use instance_source::{original_core_argument_input_request_v1, revalidate_passive_instance_incoming_v1, revalidate_passive_instance_incoming_with_array_context_v1};
 
 #[path = "ordinary_new_borrowed_static_bool_entry_finish.rs"]
 mod static_bool_entry_finish;
@@ -310,7 +310,7 @@ fn construct_borrowed_call_actuals_v1(
             }
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
             BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
-            BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. } => {
+            BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. } => {
                 let source = source_actual(*ordinal, site, *formal)?.ok_or_else(|| freeze("borrowed-actual/unsupported-or-unavailable"))?;
                 model::validate_computed_actual_source_v1(&source, actual, call, &contract.parameters[*ordinal as usize])?;
                 source

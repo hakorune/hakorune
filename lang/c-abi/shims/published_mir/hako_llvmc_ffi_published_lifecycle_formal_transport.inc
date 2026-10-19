@@ -35,7 +35,10 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       yyjson_val* view = yyjson_obj_get(param, "object_view");
       yyjson_val* text = yyjson_obj_get(param, "text_view");
       if (text && (!yyjson_is_true(text) || !yyjson_is_null(view) ||
-          !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64"))) return 0;
+          (!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
+           !(yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
+             (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") ||
+              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool")))))) return 0;
       if (!(text ? hako_physical_exact_keys(param, text_keys, 4) :
           hako_physical_exact_keys(param, view_keys, 3)) ||
           (!yyjson_is_null(view) && (!hako_physical_u32(view, &object) ||
@@ -56,7 +59,9 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
         /* The selected internal carrier uses the same pair transport. Static
            I64 has no receiver; nullable-handle keeps its instance boundary.
            The ordinary prologue revalidates the exact pair either way. */
-        if ((!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
+        if ((!(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") &&
+               yyjson_is_true(yyjson_obj_get(param, "text_view"))) &&
+             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle") &&

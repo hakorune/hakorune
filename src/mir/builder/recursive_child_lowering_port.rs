@@ -438,9 +438,11 @@ pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
         Err("[freeze:contract][static-execution/argument-read-unavailable]".into())
     }
 
-    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>>, String> { Ok(None) }
+    fn prepare_source_required_static_scalar_call_v1(&self) -> Result<Option<(std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1)>, String> { Ok(None) }
     fn record_source_required_static_scalar_call_v1(&mut self, _builder: &mut MirBuilder,
         _source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>, _observations: Vec<(u32, crate::mir::resolved_semantics::SourceExprSiteV1, ValueId)>,
+        _projections: Vec<crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1>,
+        _operand_bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
         _binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
     ) -> Result<(), String> { Err("[freeze:contract][static-scalar/proof-consumer-unavailable]".into()) }
 

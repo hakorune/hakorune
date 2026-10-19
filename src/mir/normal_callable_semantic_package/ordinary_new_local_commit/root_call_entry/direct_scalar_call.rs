@@ -9,7 +9,8 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 #[derive(Debug)]
 enum ScalarCallSourceV1 {
     Direct(DirectCallDispositionRowV1),
-    Static { original: Rc<StaticIncomingSourceV1>, observations: Vec<(u32, SourceExprSiteV1, ValueId)> },
+    Static { original: Rc<StaticIncomingSourceV1>, observations: Vec<(u32, SourceExprSiteV1, ValueId)>,
+        projections: Vec<LexicalCallArgumentProjectionV1>, transport: Vec<Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>> },
 }
 type Binding = (BasicBlockId, MirInstruction);
 type Boundary = super::super::super::physical_boundary::FinishedBindings;
@@ -61,33 +62,53 @@ impl DirectScalarCallProjectionV1 {
                 }
                 (row.observed_arguments().ok_or_else(|| freeze("direct-scalar/argument-descent-missing"))?, row.argument_sites())
             }
-            ScalarCallSourceV1::Static { original, observations } => {
+            ScalarCallSourceV1::Static { original, observations, projections, transport } => {
                 let selected = context.ledger().source_required_static_scalar_call_v1(self.source.site())?
                     .ok_or_else(|| freeze("static-scalar/required-source-missing"))?;
                 if !Rc::ptr_eq(original, &selected) { return Err(freeze("static-scalar/original-source")); }
+                if projections.len() != observations.len() || transport.len() != observations.len() || self.arguments.len() != observations.len()
+                    || self.source.arguments().len() != observations.len() {
+                    return Err(freeze("direct-scalar/argument-projections-cardinality"));
+                }
+                for (index, ((projection, relation), (_, site, value))) in projections.iter().zip(transport).zip(observations).enumerate() {
+                    if projection.value_for_source_v1(&self.source.arguments()[index], self.source.owner(), site, None, Some(context))? != *value
+                        || relation.values() != (*value, self.arguments[index]) {
+                        return Err(freeze("direct-scalar/argument-source-value"));
+                    }
+                }
                 (observations.as_slice(), original.argument_sites())
             }
         };
         if observations.len() != self.arguments.len() || self.source.arguments().len() != observations.len()
             || observations.iter().enumerate().any(|(index, (ordinal, site, value))|
                 *ordinal as usize != index || argument_sites.get(index) != Some(site)
-                    || self.arguments.get(index) != Some(value)) {
+                    || self.arguments.get(index) != Some(&match &self.origin {
+                        ScalarCallSourceV1::Static { transport, .. } => transport[index].values().1,
+                        ScalarCallSourceV1::Direct(_) => *value,
+                    })) {
             return Err(freeze("direct-scalar/argument-descent"));
         }
         match &self.physical {
             DirectScalarPhysicalV1::Plain(binding) => {
                 let MirInstruction::Call(actual) = &binding.1 else { return Err(freeze("direct-scalar/plain-call")) };
                 let dst = actual.dst.ok_or_else(|| freeze("direct-scalar/plain-result"))?;
-                let source_matches = match &self.origin {
-                    ScalarCallSourceV1::Direct(row) => actual == &row.scalar_emission().map_err(|_| freeze("direct-scalar/scalar-source"))?
+                let expected = match &self.origin {
+                    ScalarCallSourceV1::Direct(row) => row.scalar_emission().map_err(|_| freeze("direct-scalar/scalar-source"))?
                         .materialize_call(Some(dst), self.arguments.clone()).map_err(|_| freeze("direct-scalar/materialization"))?,
                     ScalarCallSourceV1::Static { original, .. } => {
                         let target = original.target().canonical_global_target_v1().map_err(|_| freeze("static-scalar/target"))?;
-                        actual.callee == crate::mir::Callee::Global(target) && actual.args == self.arguments
+                        let mut expected = actual.clone();
+                        expected.callee = crate::mir::Callee::Global(target);
+                        expected.args = self.arguments.clone();
+                        expected
                     }
                 };
-                if !source_matches || self.original.as_slice() != [binding.clone()] {
-                    return Err(freeze("direct-scalar/plain-materialization"));
+                if actual != &expected || match &self.origin {
+                    ScalarCallSourceV1::Direct(_) => self.original.as_slice() != [binding.clone()],
+                    ScalarCallSourceV1::Static { .. } => !self.original.contains(binding),
+                } {
+                    return Err(format!("{}: site={:?} actual={actual:?} expected={expected:?}",
+                        freeze("direct-scalar/plain-materialization"), self.source.site()));
                 }
                 Ok(dst)
             }
@@ -108,10 +129,23 @@ impl DirectScalarCallProjectionV1 {
             }
         }
     }
+    pub(super) fn corroborate_loop_continuation_v2(&self, entry: BasicBlockId, end: BasicBlockId,
+        function: &MirFunction, check_coordinates: bool,
+    ) -> Result<(), String> {
+        let (call, normal) = match &self.physical {
+            DirectScalarPhysicalV1::Plain(binding) => (binding.0, binding.0),
+            DirectScalarPhysicalV1::Invoke { invoke, normal } => (invoke.0, normal.0),
+        };
+        if end != normal || (check_coordinates && !crate::mir::verification::utils::compute_dominators(function).dominates(entry, call)) {
+            return Err(freeze("source-loop/call-continuation"));
+        }
+        Ok(())
+    }
+
     pub(super) fn argument_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         let projections = match &self.origin {
             ScalarCallSourceV1::Direct(row) => row.argument_projections_v1().unwrap_or(&[]),
-            ScalarCallSourceV1::Static { .. } => &[],
+            ScalarCallSourceV1::Static { projections, .. } => projections.as_slice(),
         };
         projections.iter().flat_map(|argument| argument.expression_calls_v1())
     }
@@ -134,12 +168,33 @@ impl DirectScalarCallProjectionV1 {
         let projected;
         let expected = match coordinates { Some(boundary) => { projected = boundary.bindings(&self.original)?; &projected }, None => &self.original };
         if expected.as_slice() != bindings { return Err(freeze("direct-scalar/recorded-membership")); }
-        if let ScalarCallSourceV1::Direct(row) = &self.origin {
-            for argument in row.argument_projections_v1().unwrap_or(&[]) {
-                argument.validate_expression_physical_v1(context, function, finishing, bindings, coordinates)?;
+        let require_completed = finishing.is_some() || matches!(context, CallValidationContextV1::Finalized(_));
+        let projections = match &self.origin {
+            ScalarCallSourceV1::Direct(row) => row.argument_projections_v1().unwrap_or(&[]),
+            ScalarCallSourceV1::Static { projections, transport, .. } => {
+                for relation in transport {
+                    if require_completed { relation.require_completed_v1()?; }
+                    match finishing {
+                        Some(boundary) => relation.verify_projected(function, &mut |row| boundary.relation_binding(function, row))?,
+                        None => relation.verify(function)?,
+                    }
+                }
+                projections.as_slice()
             }
+        };
+        for argument in projections {
+            argument.validate_expression_physical_v1(context, function, finishing, bindings, coordinates)?;
         }
         for original in self.original.iter().chain(&self.dependencies) {
+            let resolved;
+            let original = if let ScalarCallSourceV1::Static { transport, .. } = &self.origin {
+                let mut current = original.clone();
+                for relation in transport {
+                    if let Some(row) = relation.resolve_observed_binding_v1(&current, require_completed)? { current = row; }
+                }
+                resolved = current;
+                &resolved
+            } else { original };
             let actual = match (finishing, original.1.dst_value()) {
                 (Some(boundary), Some(dst)) => {
                     if boundary.captured_definition(dst)? != original { return Err(freeze("direct-scalar/captured-producer")); }
@@ -193,13 +248,38 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(Rc::clone(original)))
     }
     pub(in crate::mir) fn record_source_required_static_scalar_call_v1(&self, original: Rc<StaticIncomingSourceV1>,
-        observations: Vec<(u32, SourceExprSiteV1, ValueId)>, binding: Binding, function: &MirFunction,
+        observations: Vec<(u32, SourceExprSiteV1, ValueId)>, projections: Vec<LexicalCallArgumentProjectionV1>,
+        transport: Vec<Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>>, operand_bindings: Vec<Binding>, binding: Binding, function: &MirFunction,
     ) -> Result<(), String> {
         let source = self.lexical_i64_call_source(original.call_site()).ok_or_else(|| freeze("static-scalar/local-source"))?.clone();
-        let arguments: Vec<_> = observations.iter().map(|(_, _, value)| *value).collect();
-        let bindings = vec![binding.clone()];
-        let packet = DirectScalarCallProjectionV1 { origin: ScalarCallSourceV1::Static { original, observations }, source,
-            dependencies: argument_dependencies(function, &arguments)?, arguments,
+        let MirInstruction::Call(call) = &binding.1 else { return Err(freeze("direct-scalar/plain-call")); };
+        let arguments = call.args.clone();
+        let context = CallValidationContextV1::Lowering(self);
+        let mut bindings = Vec::new();
+        let mut dependencies = Vec::new();
+        for projection in &projections {
+            match projection {
+                LexicalCallArgumentProjectionV1::Integer(row) => bindings.push(row.clone()),
+                LexicalCallArgumentProjectionV1::Scalar(read) => dependencies.extend_from_slice(read.original_copy_dependencies_v1()?),
+                LexicalCallArgumentProjectionV1::Expression(_) => bindings.extend_from_slice(projection.expression_bindings_v1()),
+                _ => return Err(freeze("direct-scalar/argument-source-producer")),
+            }
+            dependencies.extend(projection.expression_copy_dependencies_v1(context)?);
+        }
+        for relation in &transport {
+            relation.verify(function)?;
+            let mut rows = Vec::new();
+            relation.append_observed_bindings_v1(&mut rows);
+            for row in rows {
+                if !dependencies.contains(&row) { dependencies.push(row); }
+            }
+            if let Some(row) = relation.target_binding() {
+                if operand_bindings.contains(row) && !bindings.contains(row) { bindings.push(row.clone()); }
+            }
+        }
+        bindings.push(binding.clone());
+        let packet = DirectScalarCallProjectionV1 { origin: ScalarCallSourceV1::Static { original, observations, projections, transport }, source,
+            dependencies, arguments,
             physical: DirectScalarPhysicalV1::Plain(binding), original: bindings.clone(), params: function.params.clone(),
             param_types: function.signature.params.clone(), carriers: function.metadata.physical_param_carriers.clone() };
         packet.validate(CallValidationContextV1::Lowering(self), function, None, &bindings, None)?;

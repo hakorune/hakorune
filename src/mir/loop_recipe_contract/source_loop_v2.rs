@@ -53,6 +53,9 @@ impl VerifiedSourceLoopRecipeProductV2 {
         fn visit(product: &VerifiedSourceLoopRecipeProductV2, block: LoopBlockKeyV1, output: &mut Vec<Prefix>) {
             for step in product.schedule().block(block).expect("verified source schedule block") {
                 match step {
+                    SourceLoopScheduledStepV2::Call { site, observation, .. } => output.push(Prefix::Call {
+                        site: observation.site().clone(), statement: site.clone(),
+                    }),
                     SourceLoopScheduledStepV2::Frame(index) => output.push(product.schedule().frames()[*index].prefix().clone()),
                     SourceLoopScheduledStepV2::OwnedArrayAppend { site, observation, .. } => {
                         let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
@@ -89,15 +92,53 @@ impl VerifiedSourceLoopRecipeProductV2 {
         Rc::ptr_eq(source, self.source.condition.source())
             || self.source.body_expressions.iter().any(|frame| Rc::ptr_eq(source, frame.source()))
     }
+    /// These qualified argument frames execute inside the SAME scheduled Call,
+    /// not the Loop frame emitter. Source summary verification binds their Arc,
+    /// original ordinal and complete reference coverage before product issuance.
+    pub(crate) fn scheduled_call_arguments_v2(&self) -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1> {
+        self.source.body_expressions.iter().filter_map(|plan| plan.argument_frame().map(|frame| frame.as_ref()))
+            .filter(|frame| match frame.source().root() {
+                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal, statement } =>
+                    self.schedule.calls_v2().any(|step| matches!(step, SourceLoopScheduledStepV2::Call { site, observation, .. }
+                        if site == statement && observation.site().owner() == call.owner()
+                            && observation.site().site() == call.site()
+                            && call.arguments().get(*ordinal as usize).is_some_and(|argument|
+                                argument.ordinal() == *ordinal && frame.source().nodes().first().is_some_and(|root| root.site() == argument.site())))),
+                _ => false,
+            })
+    }
+    pub(crate) fn delegates_call_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {
+        site.owner() == self.source.source.owner() && (self.schedule.calls_v2().any(|step|
+            matches!(step, SourceLoopScheduledStepV2::Call { observation, .. } if observation.site() == site))
+            || self.scheduled_call_arguments_v2().any(|frame| frame.source().nodes().iter()
+                .any(|node| node.site() == site.site() && matches!(node.source(), Node::MethodCall))))
+    }
     pub(crate) fn owns_call_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {
         site.owner() == self.source.source.owner() && (std::iter::once(self.source.condition.source())
             .chain(self.source.body_expressions.iter().map(|frame| frame.source()))
             .any(|source| source.nodes().iter().any(|node| node.site() == site.site()
                 && matches!(node.source(), Node::MethodCall | Node::DirectCall)))
+            || self.schedule.calls_v2().any(|step| matches!(step,
+                SourceLoopScheduledStepV2::Call { observation, .. } if observation.site() == site))
             || self.schedule.blocks_array_appends_v2().any(|observation| matches!(observation,
                 crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { call, candidate, .. }
                     if call == site || candidate == site)))
     }
+}
+pub(super) fn source_call_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
+    -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
+    fn visit<'a>(body: &'a Body, site: &SourceStmtSiteV1)
+        -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
+        for statement in body.statements.iter() { match statement {
+            Statement::Call { site: original, observation } if original == site => return Some(observation),
+            Statement::If { then_body, else_body, .. } => {
+                if let Some(call) = visit(then_body, site).or_else(|| else_body.as_ref().and_then(|body| visit(body, site))) { return Some(call); }
+            }
+            _ => {},
+        } }
+        None
+    }
+    visit(source.control.as_ref().ok()?, site)
 }
 pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
     -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
@@ -194,6 +235,10 @@ impl Projector<'_> {
                         }
                         None
                     }
+                    Producer::Call(call) => self.schedule.calls_v2().find_map(|step| match step {
+                        SourceLoopScheduledStepV2::Call { observation, result, .. } if observation == call => *result,
+                        _ => None,
+                    }),
                     Producer::Initializer(frame) => self.result(frame.source()),
                     Producer::BindingRebind(frame) => self.result(frame.source()),
                     _ => None,
@@ -294,6 +339,25 @@ impl Projector<'_> {
     fn body(&mut self, block: LoopBlockKeyV1, body: &Body) -> Result<(), String> {
         for statement in body.statements.iter() {
             match statement {
+                Statement::Call { site, observation } => {
+                    let result = if let Some((_, binding)) = observation.local_binding() {
+                        if self.source.source.bindings().bindings().find(|(original, _)| *original == binding)
+                            .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("initializer-role")); }
+                        let class = match observation.result() {
+                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => LoopValueClassV2::I64,
+                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => LoopValueClassV2::Bool,
+                            _ => return Err(reject("local-result-class")),
+                        };
+                        Some(self.value(class))
+                    } else { None };
+                    let item = self.item(block, LoopRecipeItemV2::Operation {
+                        operation: LoopOperationV2::CallSlot { receiver: None, args: Vec::new(), result },
+                    });
+                    self.control.push(SourceLoopItemV2 { site: site.clone(), item });
+                    self.schedule.step(block, SourceLoopScheduledStepV2::Call {
+                        item, site: site.clone(), observation: observation.clone(), result,
+                    });
+                }
                 Statement::OwnedArrayAppend { site, observation } => {
                     // A unit effect slot delegates receiver/candidate/cleanup
                     // to the original owned-array packet. No synthetic value,

@@ -131,7 +131,7 @@ impl RootHomeCleanupOrderV1 {
         Self::from_home_end_plans_for_exit(rows, &RootHomeExitKeyV1::Explicit(exit.clone()), full_homes, normal_homes)
     }
 
-    pub(super) fn from_home_end_plans_for_exit(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn from_home_end_plans_for_exit(
         rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
         exit: &RootHomeExitKeyV1,
         full_homes: &[LiveHomeV1], normal_homes: &[LiveHomeV1],
@@ -258,7 +258,7 @@ impl RootHomeCleanupOrderV1 {
             .collect()
     }
 
-    pub(super) fn full(&self) -> &[RootHomeReleaseOriginV1] {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn full(&self) -> &[RootHomeReleaseOriginV1] {
         &self.full
     }
 

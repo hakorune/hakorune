@@ -120,6 +120,7 @@ pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
     terminal: Binding,
     continuation: Binding,
     original: Vec<Binding>,
+    purpose_acquisition: Option<[Binding; 2]>,
     completion: ArgumentCompletionV1,
 }
 impl EmittedArgumentExpressionProjectionV1 {
@@ -175,9 +176,29 @@ impl EmittedArgumentExpressionProjectionV1 {
         {
             return Err(freeze("argument-expression/source-or-result"));
         }
+        if self.purpose_acquisition.is_some() != self.frame.materializes_root() {
+            return Err(freeze("argument-expression/deferred-source-root"));
+        }
+        let materialized = match &self.purpose_acquisition {
+            Some([invoke, normal]) => {
+                let input = self.values.first().and_then(Option::as_ref)
+                    .ok_or_else(|| freeze("argument-expression/result"))?;
+                let value = normal.1.dst_value().ok_or_else(|| freeze("argument-expression/result"))?;
+                if !input.is_text() || !matches!(&invoke.1, MirInstruction::Invoke {
+                    operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
+                    normal_landing, .. } if value == input && *normal_landing == normal.0)
+                    || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value })
+                    || !self.original.contains(invoke) || !self.original.contains(normal) {
+                    return Err(freeze("argument-expression/result"));
+                }
+                Some(value)
+            }
+            None => None,
+        };
         let value = match (self.completion, self.values.first()) {
             (ArgumentCompletionV1::ScalarCompleted, Some(Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value))))
                 if self.frame.is_i64() => *value,
+            (ArgumentCompletionV1::OwnedTextDeferred, _) if materialized.is_some() => materialized.unwrap(),
             (ArgumentCompletionV1::OwnedTextDeferred, Some(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value))))
                 if !self.frame.is_i64() && self.frame.evaluation().owned_result_nodes().contains(&0) => *value,
             _ => return Err(freeze("argument-expression/result")),
@@ -197,7 +218,7 @@ impl EmittedArgumentExpressionProjectionV1 {
             ArgumentCompletionV1::ScalarCompleted => self.expression().validate_scalar_continuation_v1(
                 context, function, finishing, &self.entry, &self.terminal, &self.continuation, inherited),
             ArgumentCompletionV1::OwnedTextDeferred => self.expression().validate_deferred_argument_continuation_v1(
-                context, function, finishing, &self.entry, &self.terminal, &self.continuation, inherited),
+                context, function, finishing, &self.entry, &self.terminal, &self.continuation, inherited, self.purpose_acquisition.as_ref()),
         }
     }
 }
@@ -216,16 +237,18 @@ impl LexicalCallArgumentProjectionV1 {
         entry: Binding,
         terminal: Binding,
         continuation: Binding,
+        purpose_acquisition: Option<[Binding; 2]>,
         original: Vec<Binding>,
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
         function: &crate::mir::MirFunction,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<Self, String> {
         let completion = if frame.is_i64() { ArgumentCompletionV1::ScalarCompleted }
-            else if frame.evaluation().owned_result_nodes().contains(&0) { ArgumentCompletionV1::OwnedTextDeferred }
+            else if frame.materializes_root() || frame.evaluation().owned_result_nodes().contains(&0) { ArgumentCompletionV1::OwnedTextDeferred }
             else { return Err(freeze("argument-expression/deferred-source-root")); };
         let packet = EmittedArgumentExpressionProjectionV1 {
             completion,
+            purpose_acquisition,
             frame,
             values,
             calls,
@@ -239,6 +262,7 @@ impl LexicalCallArgumentProjectionV1 {
         let context = CallValidationContextV1::Lowering(ledger);
         let covered = packet.validate(context, function, None, inherited)?;
         let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
+        if let Some(pair) = &packet.purpose_acquisition { ordered.extend(pair.iter().cloned()); }
         ordered.push(packet.terminal.clone());
         packet.expression().validate_original_scope(
             ledger,
@@ -267,6 +291,10 @@ impl LexicalCallArgumentProjectionV1 {
             };
             if !seen.insert(*value) { return Err(freeze("argument-expression/deferred-duplicate")); }
             values.push(*value);
+        }
+        if packet.purpose_acquisition.is_some() {
+            if !seen.insert(root) { return Err(freeze("argument-expression/deferred-duplicate")); }
+            values.push(root);
         }
         if values.last() != Some(&root) {
             return Err(freeze("argument-expression/deferred-root-order"));
@@ -325,7 +353,7 @@ impl LexicalCallArgumentProjectionV1 {
         Ok(Default::default())
     }
 
-    pub(super) fn expression_copy_dependencies_v1(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expression_copy_dependencies_v1(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
         let mut copies = Vec::new();
         if let Self::Expression(packet) = self {
             packet.validate_source(context)?;
@@ -574,7 +602,7 @@ mod tests {
             reference_reads: Default::default(), entry: (BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None }),
             terminal: (BasicBlockId(2), MirInstruction::Jump { target: BasicBlockId(3), edge_args: None }),
             continuation: (BasicBlockId(3), MirInstruction::Jump { target: BasicBlockId(4), edge_args: None }), original: Vec::new(),
-            completion: ArgumentCompletionV1::ScalarCompleted,
+            completion: ArgumentCompletionV1::ScalarCompleted, purpose_acquisition: None,
         }));
         assert!(projection.value_for_source_v1(&source, frames[1].source().owner(), frames[1].source().nodes()[0].site(),
             None, Some(CallValidationContextV1::Lowering(ledger))).unwrap_err().contains("argument-expression/ordinal-owner"),

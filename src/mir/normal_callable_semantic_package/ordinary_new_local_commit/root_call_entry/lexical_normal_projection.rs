@@ -115,6 +115,46 @@ impl EmittedLexicalCallProjectionV1 {
         Ok(ordered)
     }
 
+    pub(in crate::mir) fn corroborate_loop_continuation_v2(
+        &self, source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        entry: BasicBlockId, end: BasicBlockId, context: CallValidationContextV1<'_>,
+        function: &crate::mir::MirFunction, check_coordinates: bool,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        let expected = match source.result() {
+            Class::I64 => InvokeCallResultKind::I64,
+            Class::Bool => InvokeCallResultKind::Bool,
+            Class::Unit => InvokeCallResultKind::Unit,
+            _ => return Err(freeze("source-loop/call-source")),
+        };
+        if self.call_site() != source.site() || self.row.loan().result() != Some(expected)
+            || context.ledger().local_call_for_owner(source.owner(), source.site().site()) != Some(source) {
+            return Err(freeze("source-loop/call-source"));
+        }
+        self.normal_result_using(source.owner(), source.arguments(), Some(context))?;
+        let MirInstruction::Invoke { normal_landing, .. } = &self.invoke.1 else {
+            return Err(freeze("source-loop/call-invoke"));
+        };
+        let expected = match &self.argument_cleanup {
+            Some(cleanup) => match cleanup.continuation.1 {
+                MirInstruction::Jump { target, edge_args: None } => target,
+                _ => return Err(freeze("source-loop/call-continuation")),
+            },
+            None => *normal_landing,
+        };
+        if expected != end { return Err(freeze("source-loop/call-continuation")); }
+        if check_coordinates {
+            let dominators = crate::mir::verification::utils::compute_dominators(function);
+            let mut writes = self.ordered_call_bindings_in_context_v1(source.owner(), source.arguments(), context)?;
+            for argument in &self.prepared.arguments { writes.extend_from_slice(argument.expression_bindings_v1()); }
+            if writes.iter().filter(|(_, row)| !matches!(row, MirInstruction::FaultFrameEnter { .. }))
+                .any(|(block, _)| !dominators.dominates(entry, *block)) {
+                return Err(freeze("source-loop/call-entry"));
+            }
+        }
+        Ok(())
+    }
+
     pub(in crate::mir) fn value_in_context_v1(
         &self, owner: FunctionOwnerIdV1, source: &[LocalCallArgumentV1], context: CallValidationContextV1<'_>,
     ) -> Result<ValueId, String> {

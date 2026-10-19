@@ -63,7 +63,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_field_write_use_for_frame_v1(
         &self, ledger: &OrdinaryNewClaimLedgerV1, frame: &Rc<CheckedFieldWriteFrameV1>,
     ) -> Result<BorrowedFieldWriteSourceRefV1<'_>, String> {
-        let pair = checked_field_write_pair_v1(self.owner, &self.formals, self.definition, frame)?;
+        let pair = checked_field_write_pair_v1(self.owner, &self.formals, self.legacy_definition_v1().ok_or_else(|| freeze("borrowed-field-write/source-missing"))?, frame)?;
         ledger.recheck_borrowed_field_write_frame_v1(frame, pair.original)?;
         let view = self.formal_object_view(pair.receiver.1)?
             .ok_or_else(|| freeze("borrowed-field-write/object-view-missing"))?;

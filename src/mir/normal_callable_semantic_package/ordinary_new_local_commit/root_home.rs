@@ -479,7 +479,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let exits = self.root_exits.borrow();
         for expected_exit in completion.explicit_sites() {
             let Some(exit_row) = self.normal_exit_projection_v1(owner, expected_exit)? else {
-                return Err(freeze("root-exit-source-missing"));
+                return Err(format!("{}: owner={owner:?} exit={expected_exit:?} dispositions={} flow_exit={} terminal={:?}",
+                    freeze("root-exit-source-missing"), self.normal_return_dispositions.is_some(),
+                    flow.exit_row(expected_exit).is_some(), self.terminal_relation_for_owner_at(owner, expected_exit)));
             };
             let expected_homes = exit_row.homes();
             let pending_row = pending.and_then(|pending| pending.root(owner, expected_exit));

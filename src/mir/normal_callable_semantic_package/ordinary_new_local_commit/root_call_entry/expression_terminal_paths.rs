@@ -268,11 +268,11 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             context, function, finishing, &ordered, &homes, fault_frame, inherited,
         )?;
         if defer_owned_argument {
-            let Some(Some(Operand::OwnedString(root))) = self.values.first() else {
-                return Err(freeze("argument-expression/deferred-root"));
-            };
-            if residence.is_some() || !self.frame.owned_result_nodes().contains(&0)
-                || live.last() != Some(root)
+            let root = purpose_acquisition.and_then(|pair| pair[1].1.dst_value())
+                .or_else(|| match self.values.first() { Some(Some(Operand::OwnedString(value))) => Some(*value), _ => None })
+                .ok_or_else(|| freeze("argument-expression/deferred-root"))?;
+            if residence.is_some() || (purpose_acquisition.is_none() && !self.frame.owned_result_nodes().contains(&0))
+                || live.last() != Some(&root)
                 || !matches!(self.frame.source().root(),
                     crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }) {
                 return Err(freeze("argument-expression/deferred-source-acquisition"));
@@ -458,10 +458,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         entry: &Binding, terminal: &Binding, continuation: &Binding,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>, purpose_acquisition: Option<&[Binding; 2]>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_delimiters_v1(context, function, finishing, entry, terminal, continuation)?;
-        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, None, inherited, true, None, None)
+        self.validate_paths_with_policy(context, function, finishing, terminal, continuation, None, inherited, true, None, purpose_acquisition)
     }
     fn validate_local_delimiters_v1(
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
@@ -488,7 +488,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         entry: &Binding, terminal: &Binding, continuation: &Binding,
     ) {
         self.validate_deferred_argument_continuation_v1(context, function, None,
-            entry, terminal, continuation, None).unwrap();
+            entry, terminal, continuation, None, None).unwrap();
         assert!(self.validate_scalar_continuation_v1(context, function, None,
             entry, terminal, continuation, None).is_err(), "scalar completion cannot skip its own Ends");
         let mut changed = function.clone();
@@ -496,7 +496,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             target: BasicBlockId(999_995), edge_args: None,
         });
         assert!(self.validate_deferred_argument_continuation_v1(context, &changed, None,
-            entry, terminal, continuation, None).is_err(), "deferred delimiter must remain original");
+            entry, terminal, continuation, None, None).is_err(), "deferred delimiter must remain original");
     }
 
 }

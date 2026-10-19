@@ -30,7 +30,7 @@ fn original_instance_forward_source_refuses_execution_and_snapshot_drift() {
         let previous = Ok(staged.clone());
         super::super::bind_argument_sources_v1(input,
             ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap(),
-            &site, Some(&previous), Some(&mut staged)).unwrap();
+            Some(&package.parameter_contracts), &site, Some(&previous), Some(&mut staged)).unwrap();
     }).unwrap();
     let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     let mut observed = BTreeMap::from([(site.clone(), Ok(super::prepare_instance_source_actuals_v1(

@@ -35,6 +35,16 @@ pub(super) fn validate_owned_v2(graph: &EmittedSourceLoopGraphV2, owned: &[Bindi
                 else_edge_args: Some(crate::mir::EdgeArgs { layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly, values: vec![] }) }), false)?;
         }
     }
+    for effect in &graph.effects {
+        if let Some((_, relation)) = &effect.result {
+            let mut dependencies = Vec::new();
+            relation.append_observed_bindings_v1(&mut dependencies);
+            for row in &dependencies {
+                let current = relation.resolve_observed_binding_v1(row, true)?.unwrap_or_else(|| row.clone());
+                claim(&current, false)?;
+            }
+        }
+    }
     for edge in &graph.edges {
         if let Some(cleanup) = &edge.cleanup { for row in &cleanup.bindings { claim(row, false)?; } }
         for value in &edge.values {
@@ -99,6 +109,7 @@ impl SourceLoopPhysicalProofV2 {
             }
         }
         for relation in self.graph.frames.iter().map(|frame| &frame.canonical)
+            .chain(self.graph.effects.iter().filter_map(|effect| effect.result.as_ref().map(|(_, relation)| relation)))
             .chain(self.graph.edges.iter().filter_map(|edge| edge.cleanup.as_ref())
                 .flat_map(|cleanup| cleanup.operations.iter()).flat_map(|operation| operation.operands.iter())) {
             let mut dependencies = Vec::new();
@@ -133,6 +144,13 @@ impl SourceLoopPhysicalProofV2 {
                     _ if row.1.dst_value().is_some() => { projection.relation_binding(function, row)?; }
                     _ => { projection.required_effect_binding(function, row)?; }
                 }
+            }
+        }
+        for relation in self.graph.effects.iter().filter_map(|effect| effect.result.as_ref().map(|(_, relation)| relation)) {
+            relation.require_completed_v1()?;
+            match finishing {
+                Some(projection) => relation.verify_projected(function, &mut |row| projection.relation_binding(function, row))?,
+                None => relation.verify(function)?,
             }
         }
         let mut phi_rows = Vec::new();

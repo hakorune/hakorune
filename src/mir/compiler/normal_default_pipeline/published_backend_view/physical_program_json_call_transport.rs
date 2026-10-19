@@ -96,7 +96,11 @@ pub(super) fn encode_parameters(
                                 input.entry().borrowed_object_view(ordinal, param.0)
                             );
                             if input.entry().borrowed_formal_domain_v1(ordinal, param.0).is_some_and(|domain| domain.text_only()) {
-                                if !matches!(function.role(), super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }) {
+                                use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
+                                let text_role = matches!(function.role(), Role::OrdinaryI64 { .. })
+                                    || function.role().has_receiver()
+                                        && matches!(function.role(), Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. });
+                                if !text_role {
                                     return Err(fault("borrowed-text/parameter-role"));
                                 }
                                 row["text_view"] = json!(true);

@@ -14,8 +14,24 @@ impl BorrowedCallUses {
             .functions
             .entry(caller.signature.name.clone())
             .or_default();
-        for (original, finished) in copies {
-            state.copy(original, Some(*finished))?;
+        // The packet has independently validated every copy, including
+        // ordinary scalar/receiver dependencies. This closure tracks only
+        // descendants of the SAME source-issued borrowed entry roots.
+        let mut borrowed_values: BTreeSet<_> = caller_entry.iter().map(|(_, _, value)| *value).collect();
+        let mut admitted = BTreeSet::new();
+        loop {
+            let mut progressed = false;
+            for (index, (original, finished)) in copies.iter().enumerate() {
+                let MirInstruction::Copy { src, dst } = &original.1 else {
+                    return Err(fault("borrowed-use/copy-instruction"));
+                };
+                if admitted.contains(&index) || !borrowed_values.contains(src) { continue; }
+                state.copy(original, Some(*finished))?;
+                borrowed_values.insert(*dst);
+                admitted.insert(index);
+                progressed = true;
+            }
+            if !progressed { break; }
         }
         for actual in actuals {
             if let Some((_, formal)) = actual.source.caller_formal_origin_v1() {

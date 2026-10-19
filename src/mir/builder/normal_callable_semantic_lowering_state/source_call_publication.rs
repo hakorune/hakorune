@@ -3,6 +3,36 @@
 use super::*;
 
 impl CallableSemanticLoweringState {
+    /// The shared expression writer already reads operands and emits the Core.
+    /// Discharge its SAME staged source without reading or emitting it again.
+    pub(in crate::mir::builder) fn complete_expression_core_source_v1(
+        &mut self, loan: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+    ) -> Result<(), String> {
+        let original = loan.source();
+        let site = original.source().site();
+        if self.consumed_source_core_method_calls.contains(site) {
+            return Err(freeze("duplicate-core-method-call-consumption"));
+        }
+        let Some(row) = self.source_core_method_calls.get(site) else {
+            // Ordinary Core expressions outside a Loop have no staged Loop row.
+            return Ok(());
+        };
+        let contract = row.contract();
+        let target = contract.target();
+        if contract.owner() != self.owner || contract.named_array_requirement().is_some()
+            || !std::sync::Arc::ptr_eq(contract.source(), original.source())
+            || target.schema() != original.target().schema()
+            || !std::ptr::eq(target.row().row(), original.target().row().row())
+            || target.row().arity() != original.target().row().arity()
+            || target.result() != original.target().result()
+            || target.receiver() != original.target().receiver()
+            || target.parameters() != original.target().parameters()
+        { return Err(freeze("core-method-call-target")); }
+        self.source_core_method_calls.remove(site);
+        self.consumed_source_core_method_calls.insert(site.clone());
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn install_source_static_result_publication(
         &mut self,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,

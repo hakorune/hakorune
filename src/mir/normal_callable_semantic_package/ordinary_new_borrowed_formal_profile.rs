@@ -231,7 +231,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                 }).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                                     site: reference.call_site.clone(), issue,
                                 })?;
-                            if discard { need.set_result_requirement(LexicalCallSourceResultRequirementV1::UnitDiscardSource(original.clone())); }
+                            if discard {
+                                need.set_result_requirement(LexicalCallSourceResultRequirementV1::UnitDiscardSource(original.clone()));
+                            } else if !definitions.contains_key(&reference.callee_owner) {
+                                // Original Unit has no result projection. Existing borrowed-use
+                                // drafts retain their own pending-result diagnostics.
+                                return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                    site: reference.call_site.clone(),
+                                    issue: freeze("lexical-instance-call/unit-value-use"),
+                                });
+                            }
                         } else if !original.is_literal_scalar_v1() || !definitions.contains_key(&reference.callee_owner) {
                             // A retained literal census does not replace the
                             // existing original borrowed-use family or grant ABI.

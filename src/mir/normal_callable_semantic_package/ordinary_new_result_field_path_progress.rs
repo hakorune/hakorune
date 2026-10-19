@@ -32,7 +32,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     pub(super) fn validate_result_path_fields_present_v1(&self, owner: FunctionOwnerIdV1,
         rows: &BTreeMap<OwnedExprSiteV1, LocalFieldRead>,
-    ) -> Result<(), String> {
+    ) -> Result<Option<CallableScalarResultSourceLoanV1>, String> {
         for (_, row) in rows.iter().filter(|(site, _)| site.owner() == owner) {
             if let Some(path) = &row.source.expression_path {
                 let parent = path.parent().and_then(|site| rows.get(&site))
@@ -40,16 +40,24 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !path.matches_parent(parent) { return Err(fault("expression-path/parent-source-drift")); }
             }
         }
-        let Some(result) = self.callable_scalar_result_source_v1(owner)? else { return Ok(()); };
+        let Some(result) = self.callable_scalar_result_source_v1(owner)? else { return Ok(None); };
         for loan in result.nested_result_field_sources_v1()? {
             let row = rows.get(&loan.site()).ok_or_else(|| fault("result-path/required-read-missing"))?;
             if row.source.expression_path.as_ref() != Some(&FieldPathSourceV1::Return(loan)) { return Err(fault("result-path/required-source-drift")); }
         }
-        Ok(())
+        Ok(Some(result))
     }
     pub(super) fn recheck_result_path_field_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let loan = row.source.expression_path.as_ref().ok_or_else(|| fault("result-path/source-missing"))?;
-        loan.recheck(self, context)?;
+        context.require_ledger(self)?;
+        let result = loan.result_source_for_recheck_v1(self)?;
+        self.recheck_result_path_field_using_result_v1(site, row, context, result.as_ref())
+    }
+    pub(super) fn recheck_result_path_field_using_result_v1(&self, site: &OwnedExprSiteV1,
+        row: &LocalFieldRead, context: CallValidationContextV1<'_>, result: Option<&CallableScalarResultSourceLoanV1>,
+    ) -> Result<(), String> {
+        let loan = row.source.expression_path.as_ref().ok_or_else(|| fault("result-path/source-missing"))?;
+        loan.recheck_using_result_v1(self, context, result)?;
         let (field, kind, declared) = loan.descriptor()?;
         if loan.site() != *site || row.receiver_site != *loan.receiver_site()
             || row.receiver != loan.root() || row.home != loan.home() || row.numeric_source.is_some()
@@ -83,13 +91,16 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Rc<LocalFieldReadSourceV1>, String> {
         let mut rows = self.local_field_reads.borrow_mut();
         let row = rows.get(site).ok_or_else(|| fault("missing-source-site"))?;
-        self.recheck_result_path_field_v1(site, row, CallValidationContextV1::Lowering(self))?;
+        let loan = row.source.expression_path.as_ref().ok_or_else(|| fault("result-path/source-missing"))?;
+        let result = loan.result_source_for_recheck_v1(self)?;
+        self.recheck_result_path_field_using_result_v1(site, row, CallValidationContextV1::Lowering(self), result.as_ref())?;
         let LocalReadProgress::SourceReceiverPending { root } = row.progress else { return Err(fault("result-path/not-reserved")); };
         let loan = row.source.expression_path.as_ref().expect("checked path source");
         let expected = if let Some(parent) = loan.parent() {
             let previous = rows.get(&parent).ok_or_else(|| fault("result-path/ancestor-missing"))?;
             if !loan.matches_parent(previous.source.expression_path.as_ref()) { return Err(fault("expression-path/parent-source-drift")); }
-            self.recheck_result_path_field_v1(&parent, previous, CallValidationContextV1::Lowering(self))?;
+            self.recheck_result_path_field_using_result_v1(&parent, previous,
+                CallValidationContextV1::Lowering(self), result.as_ref())?;
             match &previous.progress {
                 LocalReadProgress::Emitted { instruction: MirInstruction::ObjectFieldGet { dst, .. }, source, .. }
                     if !source.requires_checked_field_read_v1() && Rc::ptr_eq(source, &previous.source) => *dst,

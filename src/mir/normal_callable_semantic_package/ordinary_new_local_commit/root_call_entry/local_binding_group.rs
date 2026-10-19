@@ -99,8 +99,36 @@ impl RootLifecyclePrefixBindingGroupV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn same_effect_packet_v2(&self, other: &Self) -> bool {
         self.site == other.site && self.bindings == other.bindings && self.projected == other.projected
-            && matches!((&self.proof, &other.proof),
-                (PrefixPhysicalProofV1::OwnedArrayAppend(a), PrefixPhysicalProofV1::OwnedArrayAppend(b)) if Rc::ptr_eq(a, b))
+            && match (&self.proof, &other.proof) {
+                (PrefixPhysicalProofV1::OwnedArrayAppend(a), PrefixPhysicalProofV1::OwnedArrayAppend(b)) => Rc::ptr_eq(a, b),
+                (PrefixPhysicalProofV1::Call(Some(a)), PrefixPhysicalProofV1::Call(Some(b))) => Rc::ptr_eq(a, b),
+                (PrefixPhysicalProofV1::DirectScalar(a), PrefixPhysicalProofV1::DirectScalar(b)) => Rc::ptr_eq(a, b),
+                _ => false,
+            }
+    }
+
+    /// Match the original Call's actual continuation after argument cleanup.
+    /// A discarded value has a packet, but grants no receiving Local binding.
+    pub(in crate::mir) fn corroborate_loop_call_v2(
+        &self, source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        entry: BasicBlockId, end: BasicBlockId, value: Option<ValueId>,
+        context: CallValidationContextV1<'_>, function: &MirFunction, check_coordinates: bool,
+    ) -> Result<(), String> {
+        if self.site() != source.site() || source.local_binding().is_some() != value.is_some() {
+            return Err(freeze("source-loop/call-source"));
+        }
+        if let Some(value) = value {
+            if self.scalar_call_value_v1(source, context)? != value { return Err(freeze("source-loop/call-result")); }
+        }
+        match &self.proof {
+            PrefixPhysicalProofV1::Call(Some(packet)) => packet.corroborate_loop_continuation_v2(
+                source, entry, end, context, function, check_coordinates),
+            PrefixPhysicalProofV1::DirectScalar(packet) => {
+                packet.value(source, context)?;
+                packet.corroborate_loop_continuation_v2(entry, end, function, check_coordinates)
+            }
+            _ => Err(freeze("source-loop/call-packet")),
+        }
     }
 
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {

@@ -25,7 +25,7 @@ pub(in crate::mir::builder) fn emit(
     let mut expression = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver))?;
-    expression_value::materialize_rebind_root(builder, &mut expression, &frame)?;
+    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
     let value = match expression.value {
         Operand::NormalInteger(value) if !frame.is_text_residence() => value,
         Operand::OwnedString(value) if frame.is_text_residence() => value,

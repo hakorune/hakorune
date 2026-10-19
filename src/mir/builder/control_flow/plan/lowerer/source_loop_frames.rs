@@ -4,7 +4,8 @@ use crate::mir::builder::condition_materialization::ConditionMaterializationCapt
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1;
 use crate::mir::builder::recursive_child_lowering::{
-    RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
+    RawInvocationChildPortV1, RecursiveChildLoweringPortV1, DirectCallDispositionPortV1,
+    RawOrdinaryNewClaimPortV1,
 };
 use crate::mir::builder::{ConditionMaterializationV1, MirBuilder};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -41,6 +42,66 @@ pub(super) fn emit_array_append(
         port.ordinary_new_claim_ledger.as_ref().ok_or_else(|| freeze("claim-ledger-missing"))?
             .source_loop_effect_group_v2(product, &site)
     })
+}
+
+/// Delegate the original Local statement or discarded Call to its sole writer.
+/// The schedule's CallSlot is a slot, never an empty receiver/argument list.
+pub(super) fn emit_call(
+    builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
+    statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+) -> Result<(crate::mir::normal_callable_semantic_package::RootLifecyclePrefixBindingGroupV1,
+    Option<(ValueId, ValueId)>), String> {
+    use crate::mir::resolved_semantics::{SourceBindingSiteV1, home_new_prefix::LocalCallResultClassV1 as Class};
+    let input = input(port, product)?;
+    if !product.schedule().calls_v2().any(|step| matches!(step,
+        crate::mir::loop_recipe_contract::SourceLoopScheduledStepV2::Call { site, observation: original, .. }
+            if site == statement && original == observation)) {
+        return Err(freeze("call-source-drift"));
+    }
+    let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
+    let value = if let Some((declaration, binding)) = observation.local_binding() {
+        let SourceBindingSiteV1::Local { statement: original_statement, ordinal } = declaration
+            else { return Err(freeze("call-local-declaration")); };
+        if original_statement != statement || input.function().declaration_binding(declaration) != Some(binding) {
+            return Err(freeze("call-local-declaration"));
+        }
+        let original = input.source().exact_stmt(statement).map_err(|error| format!("{error:?}"))?;
+        let source = context(port, statement.node())?;
+        let completed = port.with_prepared_child_source_v1(source, |port|
+            port.lower_callable_local_with_receipt_v2(builder, original.node().clone()))?;
+        let receipt = completed.bindings().iter().find(|row| row.ordinal() == *ordinal)
+            .ok_or_else(|| freeze("call-completed-local"))?;
+        if receipt.initializer() != receipt.local() {
+            let (block, _) = receipt.copy().ok_or_else(|| freeze("call-completed-local"))?;
+            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+            builder.function_state.local_ssa_correspondence.record_pin_copy(
+                function, receipt.initializer(), receipt.local(), *block)?;
+        }
+        Some((receipt.initializer(), receipt.local()))
+    } else {
+        let original = input.function().method_calls().find(|(site, _)| *site == observation.site().site())
+            .map(|(_, call)| call).ok_or_else(|| freeze("call-original-missing"))?;
+        let source = context(port, observation.site().site().node())?;
+        port.with_prepared_child_source_v1(source, |port| {
+            if observation.result() == Class::Unit {
+                if !port.try_emit_unit_discard(builder, original.selector(), original.arity() as usize)? {
+                    return Err(freeze("call-source-missing"));
+                }
+            } else if let Some(selected) = claims.selected_static_local_source_v1(observation.site())? {
+                if port.emit_local_static_lifecycle_call_v1(builder, selected.target().owner(),
+                    original.selector(), original.arity() as usize)?.is_none() {
+                    return Err(freeze("call-source-missing"));
+                }
+            } else if port.emit_local_lexical_lifecycle_call_v1(builder, original.selector())?.is_none() {
+                return Err(freeze("call-source-missing"));
+            }
+            Ok(())
+        })?;
+        None
+    };
+    let packet = claims.source_loop_effect_group_v2(product, observation.site())?;
+    Ok((packet, value))
 }
 
 /// Validate the existing invocation and immutable product BEFORE opening a

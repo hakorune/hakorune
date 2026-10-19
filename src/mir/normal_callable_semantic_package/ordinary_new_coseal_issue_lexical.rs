@@ -484,7 +484,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             receiver,
             nullable_class,
         ).and_then(|mut rows| {
-            super::super::lexical_instance_call::bind_argument_sources_v1(input, source.as_ref().map_err(Clone::clone)?, site, pending.get(site), rows.as_mut())?;
+            super::super::lexical_instance_call::bind_argument_sources_v1(input, source.as_ref().map_err(Clone::clone)?, Some(contracts), site, pending.get(site), rows.as_mut())?;
             Ok(rows)
         });
         super::super::lexical_instance_call::stage_observed_call_actuals_v1(

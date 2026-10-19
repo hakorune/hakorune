@@ -10,7 +10,8 @@ pub(super) struct BorrowedEntryStructureV1<'a> {
     formals: Box<[(u32, BindingRefV1)]>,
 }
 
-enum EntryStructureEvidenceV1<'a> {
+#[derive(Debug)]
+pub(super) enum EntryStructureEvidenceV1<'a> {
     Uses(BorrowedEntryOwnerViewV1<'a>),
     FiniteText {
         uses: Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
@@ -20,10 +21,39 @@ enum EntryStructureEvidenceV1<'a> {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Source-use closure for the common Static input owner. Every original
+    /// Lend completed finite inputs through the same entry-use and incoming
+    /// closure. This is an actual loan, never an artificial legacy Uses draft.
+    pub(super) fn completed_finite_entry_call_actuals_v1(
+        &self, row: &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-call/source-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        if !Self::original_finite_text_instance_input_request_v1(source, catalog, row.callee_owner())? { return Ok(None); }
+        let contract = catalog.iter().find(|contract| contract.owner == row.callee_owner())
+            .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+        let parameters: Vec<_> = contract.parameters.iter().map(|formal|
+            (formal.ordinal, formal.binding, formal.kind.clone())).collect();
+        let entry = self.borrowed_entry_source_for_contract(row.callee_owner(), &parameters)?
+            .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
+        let mut incoming = entry.incoming_rows.iter().copied().filter(|call| &call.call == row.call_site());
+        let call = incoming.next().ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
+        if incoming.next().is_some() || call.callee != row.callee_owner()
+            || call.source.require_instance()? != row.source_target()
+            || row.argument_sites().len() != row.target().arity() as usize
+            || call.arguments.iter().any(|(ordinal, site, _)| row.argument_sites().get(*ordinal as usize) != Some(site)) {
+            return Err(freeze("borrowed-call/disposition-identity"));
+        }
+        let actuals = self.borrowed_formal_actuals.get(row.call_site())
+            .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?.as_ref().map_err(Clone::clone)?;
+        actuals.ordered_arguments_for_v1(call)?;
+        Ok(Some(&actuals.opaque_actuals))
+    }
+
+    /// Source-use closure shared by the original Static and Instance input owners. Every original
     /// read is accounted for by a qualified purpose or an exact entry alias;
     /// physical entry/use correspondence remains a separate final obligation.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_static_input_use_source_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_input_use_source_v1(
         &self, contract: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1,
     ) -> Result<Option<Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
@@ -41,7 +71,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         // These remain explicit obligations until their own source/control
         // owners can lend a complete proof; no empty-use draft substitutes.
-        if !uses.assignments().is_empty() || !uses.captures().is_empty() { return Ok(None); }
+        if !uses.captures().is_empty() { return Ok(None); }
         let mut origins = uses.roots().clone();
         let mut covered = BTreeSet::new();
         for initializer in uses.initializers() {
@@ -57,41 +87,127 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        if let Some(flow) = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow()) {
-            for plan in flow.expression_plans() {
-                let evaluations = [plan.initializer_frame().map(|frame| frame.evaluation()),
-                    plan.argument_frame().map(|frame| frame.evaluation()),
-                    plan.print_frame().map(|frame| frame.evaluation()),
-                    plan.condition_frame().map(|frame| frame.evaluation())];
-                for evaluation in evaluations.into_iter().flatten() {
-                    if evaluation.source().owner() != contract.owner || !evaluation.reference_coverage_is_exact() {
-                        return Err(freeze("static-input/qualified-use-identity"));
-                    }
-                    for (&node, reference) in evaluation.references() {
-                        let entry = match reference {
-                            Reference::ArgumentEntry(read) => Some(read),
-                            Reference::InitializerEntry { read, .. } => Some(read.requirement()),
-                            _ => None,
-                        };
-                        if let Some(entry) = entry {
-                            if !entry.corroborates_original_uses_v1(uses)
-                                || origins.get(&entry.binding()) != Some(&entry.formal().1) {
-                                return Err(freeze("static-input/entry-read-source"));
-                            }
-                        } else if origins.contains_key(&reference.binding()) { return Ok(None); }
-                        let site = evaluation.source().nodes()[node].site();
-                        if !uses.reads().any(|(at, original)| at == site && *original == ResolvedLexicalRefV1::Local(reference.binding()))
-                            || !covered.insert((site.clone(), reference.binding())) {
-                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
-                        }
-                    }
+        let flow = self.completion_for_owner(contract.owner).and_then(|completion| completion.cleanup().root_flow());
+        let mut plans: Vec<_> = flow.into_iter().flat_map(|flow| flow.expression_plans()).collect();
+        let loops: Vec<_> = plans.iter().filter_map(|plan| plan.loop_recipe_v2()).collect();
+        let mut calls: Vec<_> = flow.into_iter().flat_map(|flow| flow.local_calls()).collect();
+        for product in &loops {
+            if product.source.source.owner() != contract.owner { return Err(freeze("static-input/qualified-use-identity")); }
+            plans.extend(product.source.body_expressions.iter());
+            for step in product.schedule().calls_v2() {
+                if let crate::mir::loop_recipe_contract::SourceLoopScheduledStepV2::Call { observation, .. } = step {
+                    if !calls.contains(&observation) { calls.push(observation); }
                 }
             }
         }
-        if uses.reads().any(|(site, reference)| match reference {
-            ResolvedLexicalRefV1::Local(binding) => !covered.contains(&(site.clone(), *binding)),
+        let mut assignments = BTreeSet::new();
+        let mut evaluations: Vec<&crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1> = Vec::new();
+        for plan in plans {
+            if let Some(frame) = plan.rebind_frame() {
+                let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
+                    = frame.source().root() else { return Err(freeze("static-input/qualified-use-identity")) };
+                if origins.contains_key(&frame.target())
+                    || !uses.assignments().iter().any(|(site, target)| site == assignment.target_site()
+                        && *target == crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::BindingRebind(frame.target())) {
+                    return Ok(None);
+                }
+                assignments.insert(assignment.target_site().clone());
+            }
+            for evaluation in [plan.initializer_frame().map(|frame| frame.evaluation()),
+                plan.argument_frame().map(|frame| frame.evaluation()),
+                plan.print_frame().map(|frame| frame.evaluation()),
+                plan.condition_frame().map(|frame| frame.evaluation()),
+                plan.rebind_frame().map(|frame| frame.evaluation())].into_iter().flatten() {
+                if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
+            }
+        }
+        for product in &loops {
+            let evaluation = product.source.condition.evaluation();
+            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
+        }
+        for evaluation in evaluations {
+            if evaluation.source().owner() != contract.owner || !evaluation.reference_coverage_is_exact() {
+                return Err(freeze("static-input/qualified-use-identity"));
+            }
+            for (&node, reference) in evaluation.references() {
+                let entry = match reference {
+                    Reference::ArgumentEntry(read) => Some(read),
+                    Reference::InitializerEntry { read, .. } => Some(read.requirement()),
+                    _ => None,
+                };
+                if let Some(entry) = entry {
+                    if !entry.corroborates_original_uses_v1(uses)
+                        || origins.get(&entry.binding()) != Some(&entry.formal().1) {
+                        return Err(freeze("static-input/entry-read-source"));
+                    }
+                } else if origins.contains_key(&reference.binding()) { return Ok(None); }
+                let site = evaluation.source().nodes()[node].site();
+                if !uses.reads().any(|(at, original)| at == site && *original == ResolvedLexicalRefV1::Local(reference.binding()))
+                    || !covered.insert((site.clone(), reference.binding())) {
+                    return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                }
+            }
+        }
+        for observation in calls {
+            let mut originals = structure.source.source_incoming.exact_rows().filter(|row| &row.call == observation.site());
+            let original = originals.next();
+            if originals.next().is_some() { return Err(freeze("static-input/qualified-use-identity")); }
+            // Exact-i64 Static calls need no borrowed incoming row. Borrow their
+            // already-qualified canonical source instead of inventing that row.
+            let scalar_static = if original.is_none() { self.source_required_static_scalar_call_v1(observation.site())? } else { None };
+            let target = original.map(|row| row.source.as_loan()).transpose()?;
+            let argument_sites = match (target.as_ref(), scalar_static.as_ref()) {
+                (Some(target), None) => {
+                    if target.call_site() != observation.site() { return Err(freeze("static-input/qualified-use-identity")); }
+                    target.argument_sites()
+                }
+                (None, Some(original)) => original.argument_sites(),
+                _ => return Ok(None),
+            };
+            if argument_sites.len() != observation.arguments().len()
+                || self.local_call_for_owner(contract.owner, observation.site().site()) != Some(observation) {
+                return Err(freeze("static-input/qualified-use-identity"));
+            }
+            if let Some(instance) = original.and_then(|row| row.source.instance()) {
+                let binding = instance.receiver_binding()?;
+                if origins.contains_key(&binding) { return Ok(None); }
+                if uses.reads().any(|(site, reference)| site == instance.receiver_site()
+                    && *reference == ResolvedLexicalRefV1::Local(binding)) {
+                    covered.insert((instance.receiver_site().clone(), binding));
+                }
+            }
+            for (argument, site) in observation.arguments().iter().zip(argument_sites) {
+                if let crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Scalar(binding) = argument {
+                    if origins.contains_key(binding) { return Ok(None); }
+                    if !uses.reads().any(|(at, reference)| at == site && *reference == ResolvedLexicalRefV1::Local(*binding)) {
+                        return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                    }
+                    covered.insert((site.clone(), *binding));
+                }
+            }
+        }
+        // Retained scalar terminals own exact Return reads, including Loop After.
+        for terminal in self.terminal_relations_for_owner(contract.owner) {
+            if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(row) = terminal {
+                for (site, reference) in uses.reads().filter(|(site, _)| *site == row.value_site()) {
+                    let ResolvedLexicalRefV1::Local(binding) = reference else { return Ok(None) };
+                    if origins.contains_key(binding) { return Ok(None); }
+                    covered.insert((site.clone(), *binding));
+                }
+            }
+        }
+        if assignments.len() != uses.assignments().len()
+            || uses.assignments().iter().any(|(site, _)| !assignments.contains(site)) { return Ok(None); }
+        let missing: Vec<_> = uses.reads().filter(|(site, reference)| match reference {
+            ResolvedLexicalRefV1::Local(binding) => !covered.contains(&((*site).clone(), *binding)),
             _ => true,
-        }) { return Ok(None); }
+        }).collect();
+        if !missing.is_empty() {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[input-use] owner={:?} uncovered={missing:?}", contract.owner);
+            }
+            return Ok(None);
+        }
         Ok(Some(Rc::clone(uses)))
     }
 
@@ -112,7 +228,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        if let Some(structure) = self.finite_text_entry_structure_v1(source, owner, parameters)? {
+        if let Some(structure) = Self::finite_text_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, parameters)? {
             return Ok(Some(structure));
         }
         let Some(view) = self.checked_entry_owner_view_v1(source, owner)? else {
@@ -197,16 +313,58 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn finish_borrowed_entry_source_v1<'a>(
         &'a self, structure: BorrowedEntryStructureV1<'a>,
     ) -> Result<BorrowedOrdinaryEntrySourceRefV1<'a>, String> {
-        let EntryStructureEvidenceV1::Uses(view) = structure.evidence else {
-            return Err(freeze("borrowed-entry/source-use-completion-pending"));
+        let (domains, incoming_rows, incoming) = match &structure.evidence {
+            EntryStructureEvidenceV1::Uses(view) => {
+                let incoming = self.entry_actual_loans_v1(structure.source, structure.owner, view)?;
+                (self.checked_entry_domains_v1(structure.source, structure.owner, view, &incoming)?,
+                    view.incoming.clone(), incoming)
+            }
+            EntryStructureEvidenceV1::FiniteText { uses, incoming, domains } => {
+                let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+                let contract = catalog.iter().find(|row| row.owner == structure.owner)
+                    .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+                let complete = self.checked_input_use_source_v1(contract)?
+                    .ok_or_else(|| freeze("borrowed-entry/source-use-completion-pending"))?;
+                if !Rc::ptr_eq(uses, &complete) { return Err(freeze("static-input/original-use-identity")); }
+                let mut actuals = Vec::new();
+                for call in incoming {
+                    match &call.source {
+                        super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Instance(target) => {
+                            let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+                                .ok_or_else(|| freeze("borrowed-entry/original-issuance-missing"))?;
+                            if self.checked_completed_original_instance_target_arguments_v1(target, selected, catalog, signatures)?.is_none() {
+                                return Err(freeze("borrowed-entry/original-input-not-ready"));
+                            }
+                        }
+                        super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) => {
+                            self.checked_completed_static_expression_input_v1(original)?
+                                .ok_or_else(|| freeze("borrowed-entry/original-input-not-ready"))?;
+                        }
+                        _ => return Err(freeze("borrowed-entry/incoming-source-identity")),
+                    }
+                    let row = self.borrowed_formal_actuals.get(&call.call)
+                        .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?.as_ref().map_err(Clone::clone)?;
+                    row.ordered_arguments_for_v1(call)?;
+                    if row.opaque_actuals.len() != structure.formals.len()
+                        || row.opaque_actuals.iter().zip(&structure.formals).any(|(actual, (ordinal, formal))|
+                            actual.ordinal != *ordinal || actual.formal != *formal) {
+                        return Err(freeze("borrowed-entry/incoming-formals"));
+                    }
+                    actuals.push((&call.call, row.opaque_actuals.as_ref()));
+                }
+                let domains = structure.formals.iter().map(|(ordinal, binding)| {
+                    let domain = domains.get(binding).ok_or_else(|| freeze("borrowed-entry/domain-formal"))?;
+                    Ok(BorrowedFormalDomainV1::from_source_v1(*ordinal, *binding, Rc::clone(domain)))
+                }).collect::<Result<Vec<_>, String>>()?.into_boxed_slice();
+                (domains, incoming.clone(), BorrowedEntryActualsV1::Executable(actuals.into_boxed_slice()))
+            }
         };
-        let incoming = self.entry_actual_loans_v1(structure.source, structure.owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner: structure.owner, formals: structure.formals, source: structure.source,
-            domains: self.checked_entry_domains_v1(structure.source, structure.owner, &view, &incoming)?,
-            definition: view.definition, incoming_rows: view.incoming, incoming,
+            domains, evidence: structure.evidence, incoming_rows, incoming,
         })
     }
+
     pub(super) fn borrowed_ordinary_entry_structure_v1(
         &self,
         input: &SelectedCallableLoweringInputRefV1<'_>,
@@ -259,7 +417,9 @@ impl OrdinaryNewClaimLedgerV1 {
     /// A source domain selects only structural entry work. Unsupported uses
     /// remain unfulfilled; this is never an executable incoming projection.
     fn finite_text_entry_structure_v1<'a>(
-        &'a self, source: &'a PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
+        owner: FunctionOwnerIdV1,
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         use super::super::borrowed_formal_source::SourceValueAlternativeV1 as Alternative;
@@ -269,7 +429,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner) {
             return Ok(None);
         }
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = catalog
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
         let mut matching = catalog.iter().filter(|row| row.owner == owner);
         let Some(contract) = matching.next() else { return Ok(None) };
@@ -362,6 +522,21 @@ impl OrdinaryNewClaimLedgerV1 {
         }))
     }
 
+    /// Original finite Instance membership selects preparation only. Completion,
+    /// all use purposes and executable incoming remain separate prerequisites.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_finite_text_instance_input_request_v1(
+        source: &PreparedBorrowedFormalIngressV1,
+        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        owner: FunctionOwnerIdV1,
+    ) -> Result<bool, String> {
+        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let Some(contract) = contracts.next() else { return Ok(false) };
+        if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
+        if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod { return Ok(false); }
+        let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+        Ok(Self::finite_text_entry_structure_v1(source, Some(catalog), owner, &parameters)?.is_some())
+    }
+
     pub(super) fn finite_text_entry_for_owner_v1(
         &self, owner: FunctionOwnerIdV1,
     ) -> Result<Option<BorrowedEntryStructureV1<'_>>, String> {
@@ -371,7 +546,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|rows| rows.iter().find(|row| row.owner == owner)) else { return Ok(None) };
         let parameters: Vec<_> = contract.parameters.iter()
             .map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        self.finite_text_entry_structure_v1(source, owner, &parameters)
+        Self::finite_text_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, &parameters)
     }
 
     /// Only source-scope staging consumes the structure. Object/field consumers
