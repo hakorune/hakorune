@@ -159,7 +159,7 @@ pub(crate) use model::{
 };
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedArraySetSourceLoanV1;
-pub(crate) use ordinary_new_coseal::DeclaredArrayFieldReadSourceV1;
+pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::{OriginalScalarAppendV1, LocalFieldReadSourceV1};

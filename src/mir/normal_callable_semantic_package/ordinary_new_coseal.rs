@@ -193,7 +193,7 @@ pub(crate) use result_class_claim::{
 };
 #[path = "ordinary_new_field_array_read_source.rs"]
 mod field_array_read_source;
-pub(crate) use field_array_read_source::CheckedFieldArrayAccessSourceV1;
+pub(crate) use field_array_read_source::{CheckedFieldArrayAccessSourceV1, CanonicalArrayFieldReadSourceV1};
 
 #[path = "array_i64_fields.rs"]
 mod array_i64_fields;
@@ -694,7 +694,6 @@ mod main_arguments;
 
 pub(crate) use lexical_instance_call::{BorrowedFieldWriteSourceLoanV1, FieldWriteSourceLoanV1};
 pub(in crate::mir) use lexical_instance_call::BorrowedArraySetSourceLoanV1;
-pub(crate) use lexical_instance_call::DeclaredArrayFieldReadSourceV1;
 
 pub(crate) use local_commit::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use local_commit::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};

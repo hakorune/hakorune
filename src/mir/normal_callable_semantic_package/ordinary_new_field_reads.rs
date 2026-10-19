@@ -106,9 +106,9 @@ impl LocalFieldReadSourceV1 {
             (LocalFieldReadResultV1::BorrowedArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
                 source.requirement.field() == self.field() && source.requirement.field_name() == field && class == "ArrayBox",
             (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
-            (LocalFieldReadResultV1::DeclaredArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
+            (LocalFieldReadResultV1::ArrayField(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
                 source.field() == self.field() && source.name() == field && class == "ArrayBox",
-            (LocalFieldReadResultV1::DeclaredArray(_), _) => false,
+            (LocalFieldReadResultV1::ArrayField(_), _) => false,
             (_, MirInstruction::ObjectFieldGet { field, .. }) => *field == self.field(),
             _ => false,
         }
@@ -418,7 +418,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row, context); }
         if row.source.returned.is_some() { return self.recheck_returned_field_read_v1(site, row); }
         if row.source.expression_path.is_some() { return self.recheck_result_path_field_v1(site, row, context); }
-        if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(source) = row.source.result() {
+        if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(source) = row.source.result() {
             return self.recheck_declared_array_read_v1(site, row, source);
         }
         let requirement = self.source_field_requirement_v1(site)?;

@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Fixed untyped Array source-to-final profile landed d94921c440;945G/CLI283 Count
-and unchanged mimalloc EXE/run PASS.946 WIP connects original Return plan Rc and
-source-scalar local handoff. CLI285 JSON383 moves past source-not-i64 to distinct
-Static borrowed-entry/finite-domain-unclosed; current local handoff is later946C.
-946C zeroarg Count now reaches final FieldGet but its SourceArray receiver was
-never recorded in local_field_reads; unrelated tagged formal previously hid gap.
-Worker mapping: generalize existing ArrayField source with private entry/fixed
-origins, one existing progress/finished owner; remove SourceArray raw route and
-retain scalar participant/actual protocol. No checker/test/case added; WIP stays
-uncommitted until final acceptance. Full row and finite goal remain open.
+Fixed Array profile landed d94921c440.947 ArrayField source naming/common owner
+and private BorrowedEntry-call origin normalized without source admission change;
+75focusedPASS/4existing baseline red plus retained946C Count final red.9263 names,
+typed Get/OOB JSON unchanged. No new tests/checkers.946 source Return-plan/local
+handoff features remain UNCOMMITTED; CLI285 originalJSON383 passed source-not-i64
+to distinct Static finite-domain-unclosed, but zeroarg Count final receiver reads
+still need existing local_field_reads/FinishedBindings integration and scalar
+participant protocol. Next FixedReceiver private origin, exact same-Rc recheck,
+all-operation progress/final lending and SourceArray raw route retirement. Full
+row and finite goal open; no latest-source native/CI/full-suite claim from947.
 """
 next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-READ-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

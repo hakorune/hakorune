@@ -239,14 +239,14 @@ impl super::MirBuilder {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
-                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(_) => crate::mir::MirType::Box("ArrayBox".into()),
+                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(_) => crate::mir::MirType::Box("ArrayBox".into()),
             },
         };
         if let PreparedExactFieldReadClaimV1::Local(source) = &claim {
             let array_field = match source.result() {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array) =>
                     Some((array.requirement.owner(), array.requirement.field_site(), array.requirement.field_name())),
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(array) =>
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array) =>
                     Some((array.site().owner(), array.site().site(), array.name())),
                 _ => None,
             };

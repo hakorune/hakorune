@@ -14,7 +14,7 @@ pub(in crate::mir) struct BorrowedArraySetSourceLoanV1 {
     index: Rc<GuardedFormalFieldIndexV1>,
     reach: CheckedIntegerOperandReachV1,
     completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
-    receiver_source: Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>,
+    receiver_source: Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     receiver_read: Rc<LocalFieldReadSourceV1>,
     index_read: Rc<LocalFieldReadSourceV1>,
 }
@@ -74,26 +74,26 @@ impl BorrowedArraySetSourceLoanV1 {
             || !matches!(self.index_read.result(),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar)
             || !matches!(self.receiver_read.result(),
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(_))
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(_))
         { return Err(freeze("borrowed-set/field-class")); }
         Ok(())
     }
 }
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn array_set_receivers_v1(&self)
-        -> impl Iterator<Item = &Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>> {
+        -> impl Iterator<Item = &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>> {
         self.definition.uses.iter().filter_map(|row| match &row.kind {
             Use::ArrayElementFieldIndexValue { receiver, .. } => Some(receiver), _ => None,
         })
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn borrows_array_set_receiver_v1(
-        &self, source: &Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>,
+        &self, source: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> bool {
-        source.site().owner() == self.owner && source.call().owner() == self.owner
+        source.site().owner() == self.owner && source.entry_call_v1().is_some_and(|call| call.owner() == self.owner)
             && self.definition.uses.iter().filter(|row| matches!(&row.kind,
                 Use::ArrayElementFieldIndexValue { call, receiver, .. }
-                    if call == source.call() && Rc::ptr_eq(receiver, source))).count() == 1
+                    if source.entry_call_v1() == Some(call) && Rc::ptr_eq(receiver, source))).count() == 1
     }
 }
 impl OrdinaryNewClaimLedgerV1 {

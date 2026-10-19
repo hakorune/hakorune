@@ -22,7 +22,7 @@ pub(crate) enum LocalFieldReadResultV1 {
     /// A numeric-integer declared type — the binding is a trivial scalar.
     Scalar,
     /// Original selected field-call container read, without owned residence.
-    DeclaredArray(std::rc::Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>),
+    ArrayField(std::rc::Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>),
     /// An ordinary-box declared type — the binding is a borrowed alias
     /// carrying the declared class name.
     Alias(Box<str>),
@@ -234,7 +234,7 @@ pub(super) fn install_local_field_read_result(
     // ordinary-box results are borrowed field aliases that
     // join no Home set.
     match result {
-        LocalFieldReadResultV1::DeclaredArray(_) => {
+        LocalFieldReadResultV1::ArrayField(_) => {
             // Statement-call provenance never installs a local Home.
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         }

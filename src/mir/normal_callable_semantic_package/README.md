@@ -3888,6 +3888,13 @@ a provisional Phi captured before the sole Loop writer installs its backedge.
 Physical observations must respect that writer's completion boundary. Skipping
 Phi checks or adopting current MIR as a replacement source proof is not allowed.
 
+Canonical Array receiver reads use the shared `ArrayField` result and
+`CanonicalArrayFieldReadSourceV1` in the field-Array source owner. The source
+retains exact site/receiver/binding/field/name and original declaration spelling;
+its private BorrowedEntry origin owns the parent call. Entry consumers explicitly
+require that origin. This naming/ownership normalization issues no new source
+permission, residence, Home or operation and adds no result variant.
+
 Borrowed Array reads reuse `build_field_access_from_value`, the existing typed
 Array `FieldGet` owner, and retain its actual emitted instruction on the same
 local-read progress row. They never use ordinary-object `ObjectFieldGet`.
@@ -3905,7 +3912,7 @@ receiver/numeric-read/store corridor stays with its own source-use consumers; an
 Array read loan grants no store authority. The original `ArrayElementFieldIndexValue`
 Set lends its same index requirement, Integer reach/guard, Completion and existing
 entry field descriptors. Its original classifier retains the canonical self-rooted
-Array field declaration as the same Rc. `DeclaredArray` uses the existing affine
+Array field declaration as the same Rc. `ArrayField` uses the existing affine
 field-read map and FieldGet writer, and grants no owned residence or local Home.
 The index retains the existing original entry/formal-object scalar descriptor;
 statement field-call reads require no invented expression plan. Located raw lowering retains the

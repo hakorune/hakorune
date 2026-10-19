@@ -20,7 +20,7 @@ use crate::mir::resolved_semantics::{
 #[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
 mod array_element;
 pub(super) use array_element::GuardedFormalFieldIndexV1;
-pub(crate) use array_element::DeclaredArrayFieldReadSourceV1;
+use crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1;
 
 #[path = "ordinary_new_borrowed_formal_use_field_read.rs"]
 mod field_read;
@@ -173,7 +173,7 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     ArrayElementFieldIndexValue {
         call: OwnedExprSiteV1,
         index: Rc<array_element::GuardedFormalFieldIndexV1>,
-        receiver: Rc<DeclaredArrayFieldReadSourceV1>,
+        receiver: Rc<CanonicalArrayFieldReadSourceV1>,
         reach: guarded_actual::CheckedIntegerOperandReachV1,
     },
     /// One argument position of a `new <Child>(...)` construction dominated

@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::{
 
 use super::{
     normal_integer_operand, use_dominated_by_if, BorrowedFormalUseDraftErrorV1,
-    BorrowedFormalUseDraftKindV1,
+    BorrowedFormalUseDraftKindV1, CanonicalArrayFieldReadSourceV1,
 };
 
 /// `site` is the value argument of a `.set(index, value)` element write only
@@ -80,14 +80,14 @@ pub(super) fn array_element_value_kind(
     if !integer && !get_result {
         return guarded_field_index_value(input, all_origins, null_guards, integer_guards,
             formal, binding, call, index.site(), site, context,
-            std::rc::Rc::new(DeclaredArrayFieldReadSourceV1 {
-                call: OwnedExprSiteV1::new(input.owner(), call.site().clone()),
-                site: OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
-                receiver: OwnedExprSiteV1::new(input.owner(), object.clone()),
-                binding: me, field: receiver_field, name: field.clone(),
-                declared_type_name: constructors.field_declared_type_name(receiver_field)
+            std::rc::Rc::new(CanonicalArrayFieldReadSourceV1::borrowed_entry_v1(
+                OwnedExprSiteV1::new(input.owner(), call.site().clone()),
+                OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
+                OwnedExprSiteV1::new(input.owner(), object.clone()),
+                me, receiver_field, field.clone(),
+                constructors.field_declared_type_name(receiver_field)
                     .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?,
-            }));
+            )));
     }
     let dominated = guards
         .get(&formal)
@@ -185,28 +185,6 @@ fn get_result_index(
     Ok(proven.is_some())
 }
 
-/// Original self-rooted ArrayBox declaration proof. This is a container read,
-/// not an owned field residence or permission to store a borrowed element.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct DeclaredArrayFieldReadSourceV1 {
-    call: OwnedExprSiteV1,
-    site: OwnedExprSiteV1,
-    receiver: OwnedExprSiteV1,
-    binding: BindingRefV1,
-    field: hakorune_mir_defs::CanonicalFieldRefV1,
-    name: Box<str>,
-    declared_type_name: Option<Box<str>>,
-}
-impl DeclaredArrayFieldReadSourceV1 {
-    pub(in crate::mir) fn call(&self) -> &OwnedExprSiteV1 { &self.call }
-    pub(in crate::mir) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
-    pub(in crate::mir) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }
-    pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
-    pub(in crate::mir) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
-    pub(in crate::mir) fn name(&self) -> &str { &self.name }
-    pub(in crate::mir) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
-}
-
 /// Original source requirement only: no field class, physical value or entry grant.
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) struct GuardedFormalFieldIndexV1 {
@@ -244,7 +222,7 @@ fn guarded_field_index_value(
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     index: &SourceExprSiteV1, value: &SourceExprSiteV1,
     context: Option<&super::BorrowedFormalSourceUseContextV1<'_>>,
-    receiver_source: std::rc::Rc<DeclaredArrayFieldReadSourceV1>,
+    receiver_source: std::rc::Rc<CanonicalArrayFieldReadSourceV1>,
 ) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
     let Some(context) = context else { return Ok(None); };
     if !matches!(context.results.get(context.key),

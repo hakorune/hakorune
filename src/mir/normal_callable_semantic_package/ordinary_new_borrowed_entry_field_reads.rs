@@ -9,7 +9,7 @@ use crate::mir::resolved_semantics::{BodyExpressionShapeV1, ResolvedLexicalRefV1
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn array_set_receiver_source_v1(
-        &self, original: &Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>,
+        &self, original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<Rc<LocalFieldReadSourceV1>, String> {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(original.site()).ok_or_else(|| fault("declared-array-not-staged"))?;
@@ -19,7 +19,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_declared_array_read_v1(
         &self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
-        original: &Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>,
+        original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<(), String> {
         let entry = self.finalized_borrowed_ordinary_entry_source_v1(site.owner())?;
         self.recheck_declared_array_entry_read_v1(&entry, site, row, original)
@@ -27,12 +27,12 @@ impl OrdinaryNewClaimLedgerV1 {
 
     fn recheck_declared_array_entry_read_v1(&self, entry: &BorrowedOrdinaryEntrySourceRefV1<'_>,
         site: &OwnedExprSiteV1, row: &LocalFieldRead,
-        original: &Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>,
+        original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<(), String> {
         if original.site() != site || original.receiver().site() != &row.receiver_site
             || original.binding() != row.receiver || row.home != row.receiver
             || row.source.field() != original.field() || row.numeric_source.is_some()
-            || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(source)
+            || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(source)
                 if Rc::ptr_eq(source, original))
             || !entry.borrows_array_set_receiver_v1(original)
         { return Err(fault("declared-array-source-drift")); }
@@ -40,7 +40,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     fn stage_array_set_receiver_v1(
-        &self, entry: &BorrowedOrdinaryEntrySourceRefV1<'_>, original: &Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>,
+        &self, entry: &BorrowedOrdinaryEntrySourceRefV1<'_>, original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<Rc<LocalFieldReadSourceV1>, String> {
         if !entry.borrows_array_set_receiver_v1(original) { return Err(fault("declared-array-original-missing")); }
         let mut reads = self.local_field_reads.borrow_mut();
@@ -49,7 +49,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(Rc::clone(&row.source));
         }
         let source = LocalFieldReadSourceV1::from_declaration(original.field(),
-            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(Rc::clone(original)),
+            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(Rc::clone(original)),
             original.declared_type_name().map(Into::into));
         reads.insert(original.site().clone(), LocalFieldRead {
             local: None, receiver_site: original.receiver().site().clone(),

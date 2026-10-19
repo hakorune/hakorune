@@ -383,3 +383,39 @@ pub(super) fn retain_argument_reads(
     }
     Ok(())
 }
+
+/// Exact source for a self-rooted canonical Array field receiver. Operation
+/// permission and owned residence remain with their independent source owners.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct CanonicalArrayFieldReadSourceV1 {
+    site: OwnedExprSiteV1,
+    receiver: OwnedExprSiteV1,
+    binding: BindingRefV1,
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    name: Box<str>,
+    declared_type_name: Option<Box<str>>,
+    origin: ArrayFieldReadOriginV1,
+}
+#[derive(Debug, PartialEq, Eq)]
+enum ArrayFieldReadOriginV1 {
+    BorrowedEntry { call: OwnedExprSiteV1 },
+}
+impl CanonicalArrayFieldReadSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_entry_v1(
+        call: OwnedExprSiteV1, site: OwnedExprSiteV1, receiver: OwnedExprSiteV1,
+        binding: BindingRefV1, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        name: Box<str>, declared_type_name: Option<Box<str>>,
+    ) -> Self {
+        Self { site, receiver, binding, field, name, declared_type_name,
+            origin: ArrayFieldReadOriginV1::BorrowedEntry { call } }
+    }
+    pub(in crate::mir) fn entry_call_v1(&self) -> Option<&OwnedExprSiteV1> {
+        match &self.origin { ArrayFieldReadOriginV1::BorrowedEntry { call } => Some(call) }
+    }
+    pub(in crate::mir) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
+    pub(in crate::mir) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }
+    pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(in crate::mir) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
+    pub(in crate::mir) fn name(&self) -> &str { &self.name }
+    pub(in crate::mir) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
+}
