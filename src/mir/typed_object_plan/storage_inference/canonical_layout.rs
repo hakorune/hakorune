@@ -46,7 +46,11 @@ fn layout(
                         && membership.is_some_and(|m| m.contains_key(name)))
                     .then_some(TypedObjectFieldStorage::Handle)
                 })
-            });
+            })
+            // Absence of a source annotation declares a dynamic slot. It is
+            // not a request to infer fixed storage from later MIR writes.
+            .or_else(|| field.declared_type_name.is_none()
+                .then_some(TypedObjectFieldStorage::Dynamic));
         let Some(storage) = storage else {
             return Ok(Err(Unavailable::FieldType(slot)));
         };
@@ -296,7 +300,7 @@ mod tests {
     }
 
     #[test]
-    fn unsupported_field_has_no_observation_fallback_and_ids_are_checked() {
+    fn untyped_declaration_is_dynamic_and_unsupported_types_have_no_fallback() {
         let definition = CanonicalObjectDefinitionV1::from_source_declaration(
             "Unknown".into(),
             vec![UserBoxFieldDecl {
@@ -310,10 +314,13 @@ mod tests {
                 crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
             ), Box::new([]),
         );
-        assert_eq!(
-            layout(&definition, 1, None).unwrap(),
-            Err(Unavailable::FieldType(0))
-        );
+        let dynamic = layout(&definition, 1, None).unwrap().unwrap();
+        assert_eq!(dynamic.fields[0].storage, TypedObjectFieldStorage::Dynamic);
+        assert_eq!(dynamic.fields[0].declared_type_name, None);
+        assert!(!dynamic.fields[0].storage.uses_integer_lane());
+        // Source layout availability does not issue destruction/ABI authority.
+        assert!(matches!(definition.destruction_disposition(),
+            crate::mir::function::ObjectDestructionDispositionV1::Unavailable(_)));
         let integer_box = CanonicalObjectDefinitionV1::from_source_declaration(
             "IntegerBoxField".into(),
             vec![UserBoxFieldDecl {

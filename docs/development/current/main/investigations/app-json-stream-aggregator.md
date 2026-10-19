@@ -44,8 +44,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Next source connection
 
-- Read-only worker recommends JSON over binary-trees: binary's `itemCheck` immediately
-  reads untyped left/right/value; inferring their storage from birth writes would cross D0.
+- Source declaration now issues Dynamic layout for bare strong slots; no observed
+  writer/MIR inference. Existing complete fixed-Array specialization is retained.
+- Shared storage excludes Dynamic from numeric lane. Destruction/exact-slot/final
+  consumer fences retain unsupported execution; layout availability grants no ABI.
+- Existing storage vocabulary2, canonical layout4, plan inference19 (including layout4), declaration6
+  and referenced physical-layout rejection1 PASS; no new test functions/files.
+  Existing cases now cover Dynamic layout/noninteger separation; independent boundary.
 - The first uncovered path is the Bool-result statement call above, not the earlier
   `find`/`intField` loops. `ingestLine` returns original Bool literals false/false/true.
 - Existing debug mode now retains owner/function/site and scalar incoming context.
@@ -76,7 +81,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   argument belongs inside that SAME Call packet; do not turn it into an expression root.
   Preserve Normal/Fault argument cleanup and original Homes; no backend inference or app edit.
 - JSON's later untyped UserStats/aggregator slots and Map remain explicit dependencies.
-  This selection does not accept dynamic-slot semantics or promise a D0-free whole-app PASS.
+  Accepted semantics still require physical storage, read/write and cleanup connection.
 
 ## Retained verification obligations
 

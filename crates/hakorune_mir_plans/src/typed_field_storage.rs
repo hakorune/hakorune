@@ -20,6 +20,9 @@ pub enum TypedObjectFieldStorage {
     U64,
     USize,
     Handle,
+    /// Source-declared untyped strong slot. Value tags and residence are
+    /// independently checked; this is neither integer nor handle storage.
+    Dynamic,
 }
 
 impl TypedObjectFieldStorage {
@@ -36,11 +39,13 @@ impl TypedObjectFieldStorage {
             Self::U64 => "u64",
             Self::USize => "usize",
             Self::Handle => "handle",
+            Self::Dynamic => "dynamic",
         }
     }
 
     pub fn uses_integer_lane(self) -> bool {
-        !matches!(self, Self::Handle)
+        matches!(self, Self::I8 | Self::I16 | Self::I32 | Self::I64 | Self::ISize
+            | Self::U8 | Self::U16 | Self::U32 | Self::U64 | Self::USize)
     }
 }
 
@@ -54,6 +59,7 @@ mod tests {
         assert_eq!(TypedObjectFieldStorage::I64.as_str(), "i64");
         assert_eq!(TypedObjectFieldStorage::USize.as_str(), "usize");
         assert_eq!(TypedObjectFieldStorage::Handle.as_str(), "handle");
+        assert_eq!(TypedObjectFieldStorage::Dynamic.as_str(), "dynamic");
     }
 
     #[test]
@@ -61,5 +67,6 @@ mod tests {
         assert!(TypedObjectFieldStorage::I64.uses_integer_lane());
         assert!(TypedObjectFieldStorage::USize.uses_integer_lane());
         assert!(!TypedObjectFieldStorage::Handle.uses_integer_lane());
+        assert!(!TypedObjectFieldStorage::Dynamic.uses_integer_lane());
     }
 }
