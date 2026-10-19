@@ -28,6 +28,20 @@ the bounded codegen evidence below; it is not a new CLI speed comparison.
 Host sccache remains installed for eligible dependencies; current server statistics
 show incremental/crate-type exclusions, not hot-edit cache hits. Keep incremental.
 
+## Unused test dependency retirement (2026-10-20)
+
+Removed unused root `criterion` dev-dependency, its commented-out benchmark stub,
+and redundant dev `tempfile` declaration (the normal dependency remains).
+No active Rust source or benchmark target imports Criterion. Offline root
+normal/build/dev dependency graph drops from133 to109 unique packages, including
+the Criterion plotting, Rayon and Ciborium subtrees. This reduces first-build
+dependency work; no hot-edit speedup is inferred. Existing caches are retained.
+Verification: `cargo quick-test-fast original_text_argument -- --test-threads=1`
+builds successfully and runs1 existing case PASS; `--list` still reports9263 tests,
+0 benchmarks. Changing the dependency cohort incurred a one-time2m44s test build;
+this is not an edit/build speed comparison. `cargo quick-build-fast --verbose`
+reuses the existing CLI with no recompilation. No test/checker/source change.
+
 ## Historical linker measurement
 
 Measure the next required Cargo build before choosing a linker change. Preserve
