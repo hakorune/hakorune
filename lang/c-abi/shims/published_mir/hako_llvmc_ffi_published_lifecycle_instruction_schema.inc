@@ -465,7 +465,10 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
          (hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) && hako_physical_value_available_at(function, a, current_block, current_index) && hako_physical_is_const_unit(function, a)))) ||
        (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_bool") && hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) && hako_physical_value_available_at(function, a, current_block, current_index)) ||
        (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_i64") && hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) && hako_physical_value_available_at(function, a, current_block, current_index)) ||
-       (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_map") && hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) && hako_physical_value_available_at(function, a, current_block, current_index)) ||
+       ((hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_map") ||
+         hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_text")) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) &&
+        hako_physical_value_available_at(function, a, current_block, current_index)) ||
        (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_handle") && hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) && hako_physical_value_available_at(function, a, current_block, current_index)) ||
        ((hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_handle") ||
          (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_borrowed_nullable_handle") ||

@@ -40,6 +40,8 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
 }
 static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
   if (lv4_is(op, "kind", "ordinary_call")) {
+    if (lv4_is(op, "result", "text"))
+      fprintf(f, "  %%strout%u = alloca %%nyrt.string.owned, align 8\n", b);
     yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
     for (size_t i = 0; i < yyjson_arr_size(args); i++)
       if (lv4_is(yyjson_arr_get(args, i), "kind", "borrowed_text"))

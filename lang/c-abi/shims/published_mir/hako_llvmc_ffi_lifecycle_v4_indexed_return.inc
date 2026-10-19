@@ -6,8 +6,19 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   int birth = lv4_is(fn->function, "role", "birth_unit");
   int ordinary_bool = lv4_is(fn->function, "role", "ordinary_bool");
   int ordinary_map = lv4_is(fn->function, "role", "ordinary_map");
+  int ordinary_text = lv4_is(fn->function, "role", "ordinary_text");
   int ordinary_handle = lv4_is(fn->function, "role", "ordinary_handle");
   int ordinary_nullable = lv4_is(fn->function, "role", "ordinary_nullable_handle");
+  if (ordinary_text && lv4_is(term, "op", "return")) {
+    hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+    /* The source return transfers the SAME installed residence after all
+       Normal cleanup. Pending replacements and Fault never publish a pair. */
+    if (faulted || !result || result->kind != LV4_OWNED_STRING || result->origin < 0 ||
+        (size_t)result->origin >= count || lv4_string_pending(state, count) ||
+        state[result->origin] <= LV4_STRING_HOME_BASE || state[result->origin] >= LV4_STRING_LIMIT)
+      return 0;
+    state[result->origin] = 0;
+  }
   if (ordinary_map && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
     /* A live LV4_MAP lease transfers into caller-owned storage. A spent
@@ -83,5 +94,6 @@ static int lv4_indexed_return(const hako_lv4_input* in,
       lv4_borrowed_tagged_formal(fn, result);
   return !faulted && result && (tagged_i64 ||
       result->kind == (birth ? LV4_UNIT : ordinary_bool ? LV4_BOOL : ordinary_map ? LV4_MAP :
+          ordinary_text ? LV4_OWNED_STRING :
           (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64));
 }

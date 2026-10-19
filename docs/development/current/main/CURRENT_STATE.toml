@@ -20,7 +20,7 @@ latest_card_summary = """
 APP-json-stream-aggregator: scalar/Textの元sourceを単一result originへ統合、既存249件PASS。
 matching CLI37.76秒、Main.sampleStream()のframe不足を越え、JsonLine.findの入力cohortで停止。
 元Text ReturnとNormal/Fault分離は接続済み。次は入力確定・同Static packet・Rust result ABI。
-Cのowned pair ReturnはWIP、既存Text実行matrixで検証中。opaque整数案はGit stash保持。
+Cのowned pair Returnは両profile実行matrix PASS。Rust Call ABIは未接続、opaque整数案はstash保持。
 最新公式suiteはIf世代7PASS/4FAIL（実EXE6＋marker1）、452.3秒。後続差分は未計測。
 """
 next_design_card = "APP-json-stream-aggregator"

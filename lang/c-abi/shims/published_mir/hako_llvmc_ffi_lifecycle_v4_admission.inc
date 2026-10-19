@@ -25,6 +25,7 @@ static int lv4_is(yyjson_val* object, const char* key, const char* text) {
 static int lv4_is_ordinary(yyjson_val* function) {
   return lv4_is(function, "role", "ordinary_unit") || lv4_is(function, "role", "ordinary_bool") ||
       lv4_is(function, "role", "ordinary_i64") || lv4_is(function, "role", "ordinary_map") ||
+      lv4_is(function, "role", "ordinary_text") ||
       lv4_is(function, "role", "ordinary_handle") || lv4_is(function, "role", "ordinary_nullable_handle") ||
       lv4_is(function, "role", "ordinary_borrowed_nullable_handle") || lv4_is(function, "role", "ordinary_mixed_handle");
 }
@@ -63,6 +64,9 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
   if (lv4_is(def, "op", "const_f64_bits")) return LV4_F64;
   if (lv4_is(def, "op", "invoke_normal_result")) {
     yyjson_val* origin = hako_physical_block_by_id(fn, lv4_u(def, "invoke_block"));
+    yyjson_val* op = yyjson_obj_get(lv4_term(origin), "operation");
+    if (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "text"))
+      return LV4_OWNED_STRING;
     int result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(yyjson_obj_get(lv4_term(origin), "operation"), "kind")));
     return result == 1 ? LV4_OWNED_STRING : result == 2 ? LV4_I64 : result == 3 ? LV4_BOOL : LV4_HANDLE;
   }

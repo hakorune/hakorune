@@ -511,6 +511,7 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
         hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_bool") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_i64") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_map") ||
+      hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_text") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_handle") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_handle") || borrowed) {
     yyjson_val* receiver = yyjson_obj_get(function, "receiver");

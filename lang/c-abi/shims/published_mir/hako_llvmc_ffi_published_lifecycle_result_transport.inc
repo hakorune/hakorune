@@ -5,6 +5,7 @@ static const char* hako_physical_ordinary_result_role(yyjson_val* result) {
   if (hako_physical_string(result, "unit")) return "ordinary_unit";
   if (hako_physical_string(result, "bool")) return "ordinary_bool";
   if (hako_physical_string(result, "map")) return "ordinary_map";
+  if (hako_physical_string(result, "text")) return "ordinary_text";
   if (hako_physical_string(result, "handle")) return "ordinary_handle";
   if (hako_physical_string(result, "nullable_handle")) return "ordinary_nullable_handle";
   if (hako_physical_string(result, "i64")) return "ordinary_i64";

@@ -4,6 +4,16 @@ static int lv4_emit_return(FILE* f, const hako_lv4_input* in,
     yyjson_val* fn, yyjson_val* term, uint32_t b,
     int birth, int ordinary_map, int ordinary) {
   if (birth || lv4_is(fn, "role", "ordinary_unit")) fprintf(f, "  ret i32 0\n");
+  else if (lv4_is(fn, "role", "ordinary_text")) {
+    uint32_t value = lv4_u(term, "value");
+    /* Both words belong to one live source residence. Only the admitted
+       Normal Return moves them; the common Fault path writes neither. */
+    fprintf(f,
+        "  store i64 %%v%u, ptr %%out_text, align 8\n"
+        "  %%return_token%u = getelementptr inbounds %%nyrt.string.owned, ptr %%out_text, i32 0, i32 1\n"
+        "  store i64 %%t%u, ptr %%return_token%u, align 8\n  ret i32 0\n",
+        value, b, value, b);
+  }
   else if (ordinary_map) {
     /* Move the live lease into caller-owned storage, then dispose the
        moved-from slot. The caller owns the resulting live map. */

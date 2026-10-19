@@ -43,10 +43,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Next: finish Static inputs and connect the SAME source/Completion/return residence to
   existing Static packet selection, publication handoff, Invoke and final result consumers.
   Retain selected-Static-Loop I64 restrictions; source membership is not execution permission.
-- C pair Return is WIP: reuse `{handle, End token}`, existing per-Invoke String output
-  slot, Normal projection and String End. Preserve Fault nonpublication, exact live
-  returned residence and sibling cleanup. Existing physical Text matrix is running;
-  this is not source cutover evidence. No new runtime function/checker/test file.
+- C pair Return reuses `{handle, End token}`, per-Invoke String output slot,
+  Normal projection and String End. Existing borrowed-ingress `--text-only` matrix
+  PASS with quick runtime/private C FFI and `CC="clang -fuse-ld=lld"`.
+  SafeMutex/SingleThread Return cover callee Fault, failed Add without result,
+  exact caller End and result-kind/spent-result/Fault-omission refusals.
+  Runtime backend matches each explicit wire profile. The same test now honors CC.
+  These minimal case extensions protect the new affine Call boundary; no new test
+  function/file, runtime function or checker. Physical execution is not source cutover.
 - Opaque scalar argument/Return draft remains in Git stash; it requires source-issued
   finite-entry reads and original Return use closure, never a binding-to-I64 guess.
 

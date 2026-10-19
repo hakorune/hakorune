@@ -77,6 +77,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   int birth = lv4_is(fn, "role", "birth_unit");
   int ordinary_unit = lv4_is(fn, "role", "ordinary_unit");
   int ordinary_map = lv4_is(fn, "role", "ordinary_map");
+  int ordinary_text = lv4_is(fn, "role", "ordinary_text");
   int ordinary = lv4_is_ordinary(fn);
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);
@@ -90,7 +91,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     fprintf(f, ") {\nstart:\n");
   } else if (ordinary) {
     fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame", fi);
-    if (!ordinary_unit) fprintf(f, ", ptr %%%s", ordinary_map ? "out_map" : "out_i64");
+    if (!ordinary_unit) fprintf(f, ", ptr %%%s", ordinary_map ? "out_map" : ordinary_text ? "out_text" : "out_i64");
     if (hako_physical_object_result_role(fn)) fprintf(f, ", ptr %%out_outcome");
     if (yyjson_is_uint(yyjson_obj_get(fn, "receiver")))
       fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
@@ -132,7 +133,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
        caller's sealed provider-argument calls are ExactI64 only — the
        flow arm already closed every other result kind. */
     if ((ordinary || birth) && lv4_is(op, "kind", "ordinary_call") &&
-        !lv4_is(op, "result", "map") && !lv4_is(op, "result", "unit"))
+        !lv4_is(op, "result", "map") && !lv4_is(op, "result", "unit") && !lv4_is(op, "result", "text"))
       fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (hako_physical_object_result_call(op))
       fprintf(f, "  %%call_outcome%u = alloca i32, align 4\n", lv4_u(block, "id"));
@@ -509,6 +510,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               b, lv4_u(call, "target"));
         else if (lv4_is(op, "result", "map"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
+              b, lv4_u(call, "target"), b);
+        else if (lv4_is(op, "result", "text"))
+          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%strout%u",
               b, lv4_u(call, "target"), b);
         else if (ordinary || birth)
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%call_out%u",

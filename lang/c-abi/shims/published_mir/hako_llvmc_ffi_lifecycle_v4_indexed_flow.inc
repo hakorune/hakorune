@@ -62,6 +62,7 @@ static int lv4_borrowed_formal_domain(hako_lv4_function_index* fn, hako_lv4_valu
   int instance = fn->receiver_object_set &&
       yyjson_is_uint(yyjson_obj_get(fn->function, "receiver"));
   int static_i64 = (lv4_is(fn->function, "role", "ordinary_i64") ||
+      lv4_is(fn->function, "role", "ordinary_text") ||
       lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") ||
       lv4_is(fn->function, "role", "ordinary_mixed_handle")) &&
       yyjson_is_null(yyjson_obj_get(fn->function, "receiver")) &&
@@ -324,7 +325,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           } else if (!arg_kind || strcmp(arg_kind, "i64")) return 0;
         }
       }
-      if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
+      if (lv4_is(op, "result", "text")) {
+        if (!lv4_string_push(state, count, &normal[bi])) return 0;
+      } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
