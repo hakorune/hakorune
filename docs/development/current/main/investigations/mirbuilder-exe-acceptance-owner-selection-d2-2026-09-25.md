@@ -1,95 +1,99 @@
 # APP-allocator-stress
 
-Status: selected; Bool condition passed; following scalar rebind after an If join remains open.
+Status: selected; Loop/If/Bool read pass; Main terminal source-result connection remains open.
 Date: 2026-10-19
 Scope: unchanged allocator-stress, physical EXE, exact output/exit and retained handle safety.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
-[existing retained-handle obligation, row 7](mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md),
+[retained-handle obligation, row 7](mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md),
 [parked untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md).
 
 ## Selection and measured stop
 
 - User authorized skipping parked untyped-field. Allocator reuses passing mimalloc's heap;
   binary-trees/JSON also need unresolved untyped slots, JSON additional Text/Loop connections.
-- Fixed suite at revision `751dae566b`: 6PASS/5FAIL, actual EXE5 + empty marker1,
-  SKIP/timeout0; mimalloc green. This is the landed baseline, not current WIP acceptance.
-- Fresh source-only EXE passed `requestedBytes()` at main.hako:67; computed-argument
-  CLI then passed original-actual selection and arithmetic frame qualification.
-- Latest matching quick CLI and selected canonical smoke pass first Loop source coverage.
-  Bool equality also passes main.hako:28 `heap.release(small_handles.get(1)) == false`.
-  Current canonical smoke stops before artifacts at `array-home/append-prefix`,
-  `PrefixNotCovered` Body11/IfThen0: line29 `rejects = rejects + 1`, after the
-  prior conditional increment. Exact source If-join scalar continuation remains open.
-- Existing smoke now selects canonical physical lifecycle EXE directly, as mimalloc
-  does, retaining exact output/rejects=4, route/toolchain/artifact checks and no replay.
-  Its earlier generic JSON route stopped at required-integer-source-unproved.
-- Original demand: `apps/allocator-stress/main.hako:15`,
-  `small_handles.push(heap.allocate(1 + (i * 4)))` in the first loop.
+- Latest fixed suite: committed computed-argument revision `3965b758ba`, 6PASS/5FAIL,
+  actual EXE5 + empty marker1, no SKIP/timeout; mimalloc green. Outer1900s/build/run300s.
+  Later Bool/If/argument WIP is outside that measurement; no product acceptance claim.
+- Matching BranchNormal quick CLI passes prior source refusal at main.hako:29
+  `rejects = rejects + 1` (Body11/IfThen0). Bool equality at line28 also passes.
+- Matching canonical smoke passes Loop, If Phi and release/Get Bool comparison, then stops
+  at Main `return stress.run()`: `ordinary-new/local-commit/artifact-source-unavailable`.
+  No EXE artifact is produced. Original line15 computed Object arguments also pass.
+  Next: connect the original scalar-result loan to the existing terminal-call protocol;
+  do not infer an I64 result from MIR or broaden the declaration-only route.
+- Existing smoke enters canonical physical lifecycle EXE directly, retaining exact
+  rejects=4/output/exit, lifecycle/C API/artifact checks and no compat replay.
 
 ## Connected owners
 
-- Same named-Array source selects original holder/Get/Loop-body append sites before Text
-  issuance. Text refusals remain intact; Get is a direct parent-call argument.
-- Same append Home observation, checked Loop action, Recipe effect slot and child-group
-  packet retain receiver/candidate identities. Root prefixes do not duplicate Loop effects.
-- Raw and Loop ports share the sole append writer. Normal transfer/Fault cancellation and
-  holder teardown remain checked. Graph validation binds entry, acquisition and continuation.
-- Same source proof lends required Phi tuples to repair/liveness. Natural-backedge admission
-  checks exact resource state and consistent cached/actual CFG, without a termination claim.
-- Current arithmetic work retains the SAME finite signed source SUM for the stable original
-  formal use. Declared usize and legacy transport agreements are unchanged.
-- Object input now uses the existing argument-purpose source/frame protocol, with original
-  membership checks on re-observation and reconstruction. No second expression evaluator.
-- Same computed-actual packet selects ScalarCompleted/NormalInteger for I64; Text retains
-  OwnedTextDeferred/OwnedString and its cleanup. Exact Call operand coverage stays mandatory.
-- Wire tag1 requires the same finalized computed descriptor/value and callee's signed-only
-  complete source domain. Bare expression frames cannot issue transport.
-- Add/Mul argument operations use the same canonical numeric envelope, expression
-  writer and independent opcode/source matcher. No second arithmetic evaluator.
-- Loop source census binds delegated frames to exact candidate Call/ordinal, original
-  method Arc, plan/source-loan Rc and evaluation-time Homes. Same Call packet owns
-  execution/final checks; Loop child-prefix count excludes these delegated frames.
-- Bool equality borrows exact Bool/Bool Eq/Ne envelopes from the same
-  operator owner. No Integer/truthiness view; existing Compare writer/final matcher reused.
-- If state extends the existing IfForm observer across both arms and merge.
-  Restore existing value/provenance snapshots before each arm, including implicit Else.
-  Pre-If exact value/cache pairs bound merge publication; unchanged values retain origins.
-  New joins deliberately gain no scalar proof until original BranchNormal + Phi closure.
-  Prove all resolver ThenNormal/ElseNormal inputs, reuse the same IfForm condition/exits
-  and indexed Phi, then validate via existing ExpressionReferenceRead; no new SSA writer.
-- No app rewrite, new test file/hook/checker/registry, or runtime/C ABI change.
+- Same original named-Array source selects holder/Get/Loop-body append before Text issuance.
+  Same Home observation, checked Loop action, Recipe slot and child group reach the sole
+  raw/Loop append writer. No duplicated root effects or source rewrite.
+- Append transfer/Fault cancellation and holder teardown remain checked. Original source
+  Phi tuples feed existing liveness/repair; backedges require exact stable resource state
+  and agreement between cached/actual CFG, without claiming termination.
+- Computed arguments retain complete finite signed source SUM and original argument-purpose
+  frames. I64 uses ScalarCompleted/NormalInteger; Text keeps OwnedTextDeferred/OwnedString.
+  Declared usize/legacy transport remain unchanged. Wire tag1 requires the same finalized
+  descriptor and complete signed callee domain; bare frames cannot issue transport.
+- Add/Mul use the existing numeric envelope/writer/final matcher. Delegated argument frames
+  retain exact Call/ordinal, original method/plan/loan identity and evaluation-time Homes;
+  their parent Call owns execution/final checks, not separate Loop child prefixes.
+- Bool equality uses exact Bool/Bool Eq/Ne envelopes, existing Compare writer/final matcher;
+  no truthiness or Bool/Integer mixing. Existing positive/negative matrices cover this class.
+- IfForm shares snapshots across both arms and restores merge values/provenance. BranchNormal
+  retains complete original ThenNormal/ElseNormal inputs and original immutable flow coordinate.
+  Existing IfForm condition/exits and indexed Phi supply physical evidence; the same
+  ExpressionReferenceRead checks every input and finished correspondence. No new SSA writer.
+- Loop port coverage requires original If coverage and every incoming producer. Worker
+  review confirms coverage union alone grants no physical/source-edge correspondence.
 
-## Verification and next action
+## Current WIP and verification
 
-- `cargo quick-test-fast --no-run --message-format=json` PASS.
-- Existing whole-compiler/writer test1, named-array family9, source-loop13 and lifetime5 PASS.
-  One existing full-compiler input was replaced by two iterations; the manual writer inputs
-  remain straight-line. No additional test executions/cases in its four-variant loop.
-- `callable_source_loop_exit_read_binds_after_phi_dst` remains red at Text source Loop
-  unavailable; the same test fails identically with the preserved pre-change root binary.
-  This is an open source boundary, not accepted product success.
-- Test-name list9263 unchanged; builder layer/CallTarget guards and diff check PASS.
-- Current computed-actual/delegated coverage work: existing focused54 PASS;
-  the same known Text Loop test remains failing. Test-name list9263 unchanged.
-  Only the existing Copy-to-borrow test access changed; no cases or fixture calls added.
-- Matching Bool quick CLI build PASS; unchanged-app smoke FAIL at Body11/IfThen0.
-  If-state root build and existing focused48 PASS, test names9263 unchanged. The old
-  If-driver oracle also failed on the preserved binary; its cached predecessor assertion
-  now checks every live merge edge, including a single Normal arm. No cases were added.
-  WIP: original BranchNormal source, existing IfForm/Phi and final verification connected.
-  Root rebuild pending after correcting an uncovered BranchNormal Loop-port match.
-  Next: focused checks and unchanged allocator EXE with the matching CLI;
-  preserve all artifact/run/output obligations before app completion.
-- Bool boundary: root build and focused32 PASS; test names9263 unchanged. Existing
-  positive/negative operator matrices include the new Bool class because old classes
-  cannot cover mixed Bool/Integer or Bool ordering refusal. No new test function/file.
-- Fixed suite on committed computed-argument revision `3965b758ba`: 6PASS/5FAIL,
-  actual EXE5 + empty marker1, no SKIP/timeout. Explicit outer1900s and build/run300s;
-  same lifecycle runtime/C API. Later Bool/If changes are outside this measurement.
-  Earlier120s timeout run is superseded for this snapshot, not counted as semantic red.
-- Same If-state quick CLI + lifecycle runtime/C API: existing mimalloc smoke PASS,
-  exact output/exit, no replay; allocator still stops at line29 before any artifact.
-- Existing smoke: `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh`.
-- Preserve expected accounting including rejects=4 and exit0. Retire only replaced exclusive
-  edges after caller/validation closure. Untyped D0 stays ParkedSealed until accepted.
-- Prior D2 selection history remains in this path's Git history; no new app card.
+- BranchNormal root build PASS; existing focused61 PASS, test list9263 unchanged.
+  Existing initializer matrix changes expected refusal to proved If-join, without new cases.
+- Known `callable_source_loop_exit_read_binds_after_phi_dst` remains red at Text source
+  Loop unavailable, identical to preserved pre-change binary. It remains an open boundary.
+- Builder dependency/CallTarget guards and diff check PASS. Previous If-state CLI's mimalloc
+  smoke PASS, exact output/exit and no replay; current argument WIP has not repeated it.
+- WIP normalizes the existing argument source view to borrowed site/arguments/Homes.
+  Candidate arguments come from the SAME Taken Object packet and original Array recipe,
+  with no synthetic local/Home. Existing receiver consumer is lent to nested argument Calls;
+  candidate receiver itself stays consumed exactly once.
+- Scalar and Object candidate purposes share the existing argument cleanup graph writer.
+  Call Fault: argument Ends then prior Homes, with no nonexistent candidate cancellation.
+  Normal argument-End Fault: remaining Ends, SAME packet candidate cancellation, then Homes.
+  Normal success retains candidate for Append; Append Fault retains cancellation then Homes.
+  The independent final argument validator derives these expectations from the original packet.
+- Append Call validation now invokes that same full source/frame/producer/Normal-Fault check
+  and requires argument completion before transfer. Worker review confirms phase separation.
+- Object-argument root build PASS; existing focused88 PASS, 5 baseline reds reproduced
+  with the preserved pre-change binary (3 Array source, 2 synthetic final-call visitors).
+  They remain open, not accepted as success. Test list9263 unchanged.
+  Matching CLI build PASS; unchanged smoke advanced to expression-call/context-drift.
+- WIP normalizes Append prior Homes to acquisition order, matching Call/expression frames.
+  Remove two reversed comparisons and the unwind-side reverse adapter; the existing unwind
+  owner still emits newest-first. Initializer-prefix order is a separate unchanged contract.
+  Worker confirmed all consumers; root74 PASS/6 baseline reds, test list9263 unchanged.
+  Matching CLI passes context-drift and reaches ordinary If's not-indexed-phi.
+- WIP registers actual materialized/sorted final Phi at the same successful writer.
+  Unborrowed final patch replaces its indexed observation; any original identity/append loan
+  freezes it. Provisional still completes once. Both use the existing index, not MIR inference.
+  Worker approved. One existing test adds the independent unborrowed-final/borrowed-final
+  mutation boundary; provisional-only evidence cannot protect it. No new test function/file.
+  Root build and existing focused65 PASS, test list9263 unchanged. Matching CLI also passes
+  Phi indexing and advances beyond the previous stop before any artifact.
+- WIP connects the same Array Get Fault inventory through existing array_read_records_v1
+  inside the original validated Call walk. Producer lending is unchanged; no new accessor.
+  Existing Read owner retains source/Fault/final checks. Root/CLI builds PASS; existing
+  focused55 PASS, test list9263 unchanged. Matching smoke reaches the Main stop above.
+- No new file/test function/hook/checker/registry or runtime/C ABI change.
+  Existing manual Array writer test only adapts the receiver callback signature.
+
+## Completion obligations
+
+- `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh` must pass all
+  artifact/run/output obligations, including requested_bytes=454, rejects=4 and exit0.
+- Retire replaced exclusive edges only after caller/validation closure. Shared owners stay.
+  Untyped D0 stays ParkedSealed until explicit acceptance; full goal remains incomplete.
+- Prior selection and completed implementation details remain in this path's Git history.
