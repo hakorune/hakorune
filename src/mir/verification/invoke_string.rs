@@ -113,7 +113,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 if !operation.valid_operand_domains() {
                     return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
                 }
-                if matches!(operation, Op::Substring { start, end, .. } if results.contains_key(start) || results.contains_key(end)) {
+                if matches!(operation, Op::Substring { start, end, .. } if results.contains_key(start) || results.contains_key(end)
+                    || check_borrowed_operand(function, *start).is_ok() || check_borrowed_operand(function, *end).is_ok()) {
                     return Err("string-integer-domain");
                 }
                 for operand in operation.operands() {
@@ -121,7 +122,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         Operand::OwnedString(value) if !results.contains_key(value) => {
                             return Err("string-owned-result-missing");
                         }
-                        Operand::NormalInteger(value) if results.contains_key(value) => {
+                        Operand::BorrowedText(value) => check_borrowed_operand(function, *value)?,
+                        Operand::NormalInteger(value) if results.contains_key(value) || check_borrowed_operand(function, *value).is_ok() => {
                             return Err("string-integer-domain");
                         }
                         _ => {}
@@ -258,6 +260,31 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
         return Err("string-residence-install-unreachable");
     }
     Ok(())
+}
+
+/// Physical evidence only: source/domain/use closure is checked independently.
+/// A readonly descriptor must retain its exact marked formal through Copies.
+fn check_borrowed_operand(function: &MirFunction, mut value: ValueId) -> Result<(), &'static str> {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    let mut seen = std::collections::BTreeSet::new();
+    loop {
+        if !seen.insert(value) { return Err("string-borrowed-copy-cycle"); }
+        let mut definitions = function.blocks.values().flat_map(|block| block.all_instructions())
+            .filter(|row| row.dst_value() == Some(value));
+        let mut params = function.params.iter().enumerate().filter(|(_, original)| **original == value);
+        if let Some((index, _)) = params.next() {
+            if params.next().is_some() || definitions.next().is_some()
+                || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(index)) != Some(&Carrier::BorrowedTaggedValue)
+                || function.metadata.declared_param_decls.get(index).is_none_or(|row| row.implicit_receiver)
+                || !matches!(function.signature.params.get(index), Some(crate::mir::MirType::Integer | crate::mir::MirType::Unknown)) {
+                return Err("string-borrowed-formal");
+            }
+            return Ok(());
+        }
+        let Some(MirInstruction::Copy { src, .. }) = definitions.next() else { return Err("string-borrowed-origin"); };
+        if definitions.next().is_some() { return Err("string-borrowed-copy-duplicate"); }
+        value = *src;
+    }
 }
 
 #[cfg(test)]

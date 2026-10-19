@@ -310,7 +310,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner,
-            domains: self.checked_static_input_domains_for_owner_v1(owner)?,
+            domains: self.checked_entry_domains_v1(source, owner, &view, &incoming)?,
             formals: values
                 .iter()
                 .map(|(ordinal, binding, _)| (*ordinal, *binding))
@@ -345,7 +345,15 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(Clone::clone)?;
         if self.finite_text_entry_for_owner_v1(owner)?.is_some() {
-            return Ok(false); // Canonical Static declaration; no receiver inference.
+            let mut contracts = self.original_parameter_contracts.as_deref()
+                .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?
+                .iter().filter(|row| row.owner == owner);
+            let contract = contracts.next().ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+            if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
+            return match contract.mode {
+                crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod => Ok(false),
+                crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod => Ok(true),
+            };
         }
         let view = self
             .checked_entry_owner_view_v1(source, owner)?

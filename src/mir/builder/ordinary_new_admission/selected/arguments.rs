@@ -431,7 +431,7 @@ mod tests {
                             // initializer/Home. The real compiler test owns execution.
                             assert!(error.contains("lexical-call-prior-home-unavailable"), "{error}");
                         } else {
-                            assert!(error.contains("reference-execution-pending") || error.contains("domain-not-text-only"), "{error}");
+                            assert!(error.contains("scalar-entry-signature") || error.contains("domain-not-text-only"), "{error}");
                         }
                         for requirement in frame.text_reads() {
                             state.prepare_exact_lexical_read(input.owner(), requirement.read().node(), requirement.binding()).unwrap();

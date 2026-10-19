@@ -87,3 +87,41 @@ impl FunctionUses {
         Ok(())
     }
 }
+
+impl FunctionUses {
+    /// Both final scans corroborate readonly String operands against the same
+    /// sealed Text entry domains; ordinary numeric/object uses stay refused.
+    pub(super) fn verify_text_operation_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        operation: &crate::mir::instruction::StringInvokeOperation, fault_frame: ValueId,
+    ) -> Result<(), String> {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        if tracked.contains_key(&fault_frame) || views.views.contains_key(&fault_frame) {
+            return Err(fault("borrowed-use/string-fault-frame"));
+        }
+        for operand in operation.operands() {
+            if let Operand::BorrowedText(value) = operand {
+                let formal = tracked.get(value).ok_or_else(|| fault("borrowed-use/string-formal"))?;
+                let mut roots = self.roots.iter().filter(|(_, original)| *original == formal);
+                let (root, _) = roots.next().ok_or_else(|| fault("borrowed-use/string-formal"))?;
+                if roots.next().is_some() || !self.domains.get(root).is_some_and(|domain| domain.text_only()) {
+                    return Err(fault("borrowed-use/string-domain"));
+                }
+            }
+        }
+        for operand in operation.operands() {
+            if operand.value().is_some_and(|value| tracked.contains_key(&value) || views.views.contains_key(&value))
+                && !matches!(operand, Operand::BorrowedText(_)) {
+                return Err(fault("borrowed-use/string-operand"));
+            }
+        }
+        let scalar_values = match operation {
+            crate::mir::instruction::StringInvokeOperation::Substring { start, end, .. } => vec![*start, *end],
+            crate::mir::instruction::StringInvokeOperation::End { value } => vec![*value],
+            _ => Vec::new(),
+        };
+        if scalar_values.iter().any(|value| tracked.contains_key(value) || views.views.contains_key(value)) {
+            return Err(fault("borrowed-use/string-operand"));
+        }
+        Ok(())
+    }
+}

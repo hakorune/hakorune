@@ -4883,3 +4883,14 @@ actual constructor accepts genuine Read or Expression sources and corroborates
 the original outer Call/ordinal/actual/formal tuple. This source connection grants
 no ordinary Text result ABI or Return permission: full body-result purpose,
 CallNormal lifetime, borrowed entry and independent finals remain required.
+
+Borrowed Text entry reads (950/958) use the original contract/use/domain and the
+selected Uses or FiniteText structure. Canonical signature lanes, including the
+Instance receiver, determine physical correspondence; ordinal arithmetic and
+MirType never issue entry authority. Shared expression readers retain exact formal
+and alias values and lend `BorrowedText` to String operations without acquisition
+or End. Both final source scans corroborate the sealed Text domain; independent
+MIR verifies the original marked formal/Copy chain. JSON reuses C's `borrowed_text`
+view descriptor; explicit Materialize is required to obtain an independent pair.
+Existing Uses staging/actual closure and finite multi-envelope refusals remain.
+This connection does not claim ordinary Text Call/Return/cleanup series closure.

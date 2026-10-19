@@ -80,12 +80,10 @@ pub(super) fn emit_with_prefix(
             let prepared = state.prepare_exact_lexical_read(owner, requirement.read().node(), requirement.binding()).map_err(|error| error.to_string())?;
             ledger.validate_prepared_text_entry_read_v1(requirement,
                 builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, prepared.observation_v1())?;
-            // A valid entry read alone cannot issue the still-unconnected
-            // String operand or final all-use/incoming closure.
-            return Err(freeze("expression/reference-execution-pending/text-entry-string-consumer"));
         }
         if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
-            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_) | CheckedExpressionReferenceV1::Residence(_))) {
+            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_) | CheckedExpressionReferenceV1::Residence(_)
+                | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::InitializerEntry { .. })) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }

@@ -331,6 +331,7 @@ pub(super) fn encode_string_operand_v1(operand: &crate::mir::instruction::String
     use crate::mir::instruction::StringInvokeOperand as Operand;
     match operand {
         Operand::StaticText { utf8 } => json!({"kind":"static_text", "utf8":utf8}),
+        Operand::BorrowedText(v) => json!({"kind":"borrowed_text", "value":value(v)}),
         Operand::OwnedString(v) => json!({"kind":"owned_string", "value":value(v)}),
         Operand::NormalInteger(v) => json!({"kind":"normal_integer", "value":value(v)}),
     }

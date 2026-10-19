@@ -7,19 +7,21 @@ use crate::mir::{Effect, EffectMask, ValueId};
 pub enum StringInvokeOperand {
     StaticText { utf8: String },
     OwnedString(ValueId),
+    /// Readonly tagged Text formal/view; never an owned acquisition.
+    BorrowedText(ValueId),
     NormalInteger(ValueId),
 }
 impl StringInvokeOperand {
     pub fn value(&self) -> Option<ValueId> {
         match self {
             Self::StaticText { .. } => None,
-            Self::OwnedString(value) | Self::NormalInteger(value) => Some(*value),
+            Self::OwnedString(value) | Self::BorrowedText(value) | Self::NormalInteger(value) => Some(*value),
         }
     }
     pub fn rewrite_value(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::StaticText { .. } => {}
-            Self::OwnedString(value) | Self::NormalInteger(value) => rewrite(value),
+            Self::OwnedString(value) | Self::BorrowedText(value) | Self::NormalInteger(value) => rewrite(value),
         }
     }
     pub fn is_text(&self) -> bool {

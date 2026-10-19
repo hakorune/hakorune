@@ -438,6 +438,9 @@ impl FunctionUses {
                         fault("borrowed-use/unproved-copy")));
                 }
             }
+            MirInstruction::Invoke { operation: InvokeOperation::String(operation), fault_frame, .. } => {
+                self.verify_text_operation_v1(tracked, views, operation, *fault_frame)?;
+            }
             MirInstruction::Call(call)
                 if matches!(call.callee, Callee::BirthConstructor { .. }) =>
             {

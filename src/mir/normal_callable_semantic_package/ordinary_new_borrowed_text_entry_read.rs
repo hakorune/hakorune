@@ -74,7 +74,6 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(crate::mir::ValueId, crate::mir::ValueId, Rc<super::super::borrowed_formal_source::SourceValueSumV1>), String> {
         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
-        use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
         let owner = requirement.source_plan.owner();
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-text-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
@@ -82,7 +81,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut declarations = catalog.iter().filter(|row| row.owner == owner);
         let declaration = declarations.next().ok_or_else(|| freeze("borrowed-text-entry/declaration-missing"))?;
         if declarations.next().is_some() || requirement.batch_slot != declaration.batch_slot
-            || requirement.mode != declaration.mode || requirement.mode != Mode::StaticBoxMethod
+            || requirement.mode != declaration.mode
             || !requirement.original.matches_contract(declaration)
             || source.original_formal_read_v1(owner, &requirement.read, requirement.binding, requirement.formal)? != requirement.original
             || declaration.parameters.get(requirement.ordinal as usize).is_none_or(|row|
@@ -93,30 +92,55 @@ impl OrdinaryNewClaimLedgerV1 {
                     crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == requirement.binding)) {
             return Err(freeze("borrowed-text-entry/original-read-identity"));
         }
-        let structure = self.finite_text_entry_for_owner_v1(owner)?
+        let parameters: Vec<_> = declaration.parameters.iter().map(|row|
+            (row.ordinal, row.binding, row.kind.clone())).collect();
+        let structure = self.borrowed_entry_structure_for_contract(owner, &parameters)?
             .ok_or_else(|| freeze("borrowed-text-entry/finite-structure-required"))?;
         let entries = self.borrowed_ordinary_entry_values_v1(owner)?;
         structure.check_finite_entry_values_v1(&entries)?;
-        let domain = structure.finite_domain_for_formal_v1(requirement.ordinal, requirement.formal)?;
+        let domain = structure.source_domain_for_formal_v1(requirement.ordinal, requirement.formal)?;
         let canonical = source.lend_source_value_sum_v1(requirement.formal)
             .ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))?;
-        if !Rc::ptr_eq(domain, &canonical) { return Err(freeze("borrowed-text-entry/domain-source-drift")); }
+        if !Rc::ptr_eq(&domain, &canonical) { return Err(freeze("borrowed-text-entry/domain-source-drift")); }
         let mut formals = entries.iter().filter(|row| row.0 == requirement.ordinal && row.1 == requirement.formal);
         let entry_value = formals.next().ok_or_else(|| freeze("borrowed-text-entry/formal-value-missing"))?.2;
         if formals.next().is_some() { return Err(freeze("borrowed-text-entry/formal-value-duplicate")); }
         let carriers = function.metadata.physical_param_carriers.as_deref()
             .ok_or_else(|| freeze("borrowed-text-entry/carriers-missing"))?;
-        if function.params.len() != declaration.parameters.len()
-            || function.signature.params.len() != function.params.len() || carriers.len() != function.params.len()
-            || function.params.get(requirement.ordinal as usize) != Some(&entry_value)
-            || entries.iter().any(|(ordinal, _, value)| function.params.get(*ordinal as usize) != Some(value)
-                || carriers.get(*ordinal as usize) != Some(&Carrier::BorrowedTaggedValue)
-                || !matches!(function.signature.params.get(*ordinal as usize), Some(crate::mir::MirType::Integer | crate::mir::MirType::Unknown)))
+        // Static's existing source-only analysis law has no executable
+        // signature requirement. Actual String reads separately demand the
+        // canonical layout; this loan still issues no operand permission.
+        let source_layout = |ordinal: u32, formal: BindingRefV1| match declaration.mode {
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod =>
+                Ok((ordinal as usize, declaration.parameters.len(), 0, None)),
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod =>
+                self.original_entry_layout_v1(formal, formal, |kind| kind.is_ordinary_borrowed_handle())
+                    .map(|(index, count, receivers, symbol)| (index, count, receivers, Some(symbol))),
+        };
+        let (index, count, receivers, symbol) = source_layout(requirement.ordinal, requirement.formal)?;
+        let mut borrowed_lanes = BTreeSet::new();
+        for (ordinal, formal, value) in entries.iter() {
+            let (lane, lanes, receiver_count, name) = source_layout(*ordinal, *formal)?;
+            if declaration.parameters.get(*ordinal as usize).is_none_or(|row|
+                row.ordinal != *ordinal || row.binding != *formal || !row.kind.is_ordinary_borrowed_handle())
+                || lanes != count || receiver_count != receivers || name != symbol
+                || function.params.get(lane) != Some(value)
+                || carriers.get(lane) != Some(&Carrier::BorrowedTaggedValue)
+                || !matches!(function.signature.params.get(lane), Some(crate::mir::MirType::Integer | crate::mir::MirType::Unknown))
+                || !borrowed_lanes.insert(lane) {
+                return Err(freeze("borrowed-text-entry/physical-formal"));
+            }
+        }
+        if symbol.as_ref().is_some_and(|symbol| &function.signature.name != symbol) || function.params.len() != count
+            || function.signature.params.len() != count || carriers.len() != count
+            || function.params.get(index) != Some(&entry_value)
+            || receivers == 1 && function.metadata.declared_param_decls.len() != count
+            || function.metadata.declared_param_decls.iter().enumerate().any(|(index, row)|
+                row.implicit_receiver != (receivers == 1 && index == 0))
+            || receivers == 1 && carriers.first() != Some(&Carrier::ExistingCallableI64)
             || carriers.iter().enumerate().filter_map(|(index, carrier)|
-                (*carrier == Carrier::BorrowedTaggedValue).then_some(index)).collect::<BTreeSet<_>>()
-                != entries.iter().map(|(ordinal, _, _)| *ordinal as usize).collect::<BTreeSet<_>>()
-            || function.metadata.declared_param_decls.iter().any(|row| row.implicit_receiver)
-            || function.params.iter().copied().collect::<BTreeSet<_>>().len() != function.params.len()
+                (*carrier == Carrier::BorrowedTaggedValue).then_some(index)).collect::<BTreeSet<_>>() != borrowed_lanes
+            || function.params.iter().copied().collect::<BTreeSet<_>>().len() != count
             || function.blocks.values().flat_map(|block| block.all_instructions()).any(|row|
                 row.dst_value().is_some_and(|dst| function.params.contains(&dst))) {
             return Err(freeze("borrowed-text-entry/physical-formal"));
@@ -130,6 +154,53 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("borrowed-text-entry/physical-copy"));
             }
         }
-        Ok((entry_value, value, Rc::clone(domain)))
+        Ok((entry_value, value, domain))
     }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+/// Ephemeral source-to-physical correspondence from the SAME retained signature:
+/// (formal lane, total physical lanes, receiver lanes, canonical symbol).
+pub(in crate::mir) fn original_entry_layout_v1(&self, binding: crate::mir::resolved_semantics::BindingRefV1, formal: crate::mir::resolved_semantics::BindingRefV1,
+    accepts: impl FnOnce(&crate::mir::callable_parameter_contract::CallableParameterContractKindV1) -> bool,
+) -> Result<(usize, usize, usize, String), String> {
+    use crate::mir::callable_parameter_contract::{CallableParameterDeclarationModeV1 as Mode};
+    use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1 as Role;
+    let ledger = self;
+    let catalog = ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("expression/scalar-entry-catalog"))?;
+    let mut declarations = catalog.iter().filter(|row| row.owner == binding.owner());
+    let declaration = declarations.next().ok_or_else(|| freeze("expression/scalar-entry-owner"))?;
+    if declarations.next().is_some() { return Err(freeze("expression/scalar-entry-owner")); }
+    let (receivers, namespace) = match declaration.mode {
+        Mode::StaticBoxMethod => (0, hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod),
+        Mode::InstanceBoxMethod => (1, hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod),
+    };
+    let mut rows = declaration.parameters.iter().filter(|row| row.binding == formal);
+    let row = rows.next().ok_or_else(|| freeze("expression/scalar-entry-formal"))?;
+    if rows.next().is_some() || declaration.parameters.get(row.ordinal as usize).is_none_or(|original| original.binding != formal)
+        || !accepts(&row.kind) { return Err(freeze("expression/scalar-entry-contract")); }
+    let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
+        .ok_or_else(|| freeze("expression/scalar-entry-issuance"))?;
+    let signature = signatures.row(declaration.batch_slot).ok_or_else(|| freeze("expression/scalar-entry-signature"))?;
+    let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(declaration.batch_slot)
+        else { return Err(freeze("expression/scalar-entry-key")) };
+    if signature.owner() != binding.owner() || signature.mode() != declaration.mode
+        || key.namespace() != namespace || key.arity() as usize != declaration.parameters.len()
+        || !selected.identity_for_batch_slot(declaration.batch_slot).is_some_and(|identity| signature.identity().same_as(identity))
+        || signature.source_logical_arity() as usize != declaration.parameters.len()
+        || signature.receiver_lane_count() as usize != receivers
+        || signature.lanes().iter().filter(|lane| lane.role() == Role::InstanceReceiver).count() != receivers
+        || receivers == 1 && signature.lanes().first().is_none_or(|lane| lane.index() != 0
+            || lane.role() != Role::InstanceReceiver || lane.logical_ordinal().is_some() || lane.binding().owner() != binding.owner()) {
+        return Err(freeze("expression/scalar-entry-source-signature"));
+    }
+    let mut lanes = signature.lanes().iter().filter(|lane| lane.binding() == formal
+        && lane.logical_ordinal() == Some(row.ordinal) && lane.role() == Role::OrdinaryScalar);
+    let lane = lanes.next().ok_or_else(|| freeze("expression/scalar-entry-formal-lane"))?;
+    if lanes.next().is_some() || signature.lanes().get(lane.index() as usize) != Some(lane) {
+        return Err(freeze("expression/scalar-entry-formal-lane"));
+    }
+    Ok((lane.index() as usize, signature.physical_callable_lane_count() as usize, receivers, key.mir_symbol_projection()))
+}
+
 }

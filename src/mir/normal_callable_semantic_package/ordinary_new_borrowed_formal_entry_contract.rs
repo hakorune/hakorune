@@ -161,6 +161,39 @@ impl OrdinaryNewClaimLedgerV1 {
         }))
     }
 
+    /// Final domain loan only after the SAME Uses owner completed its actuals.
+    /// Passive structures/SelectedTagged declarations grant no Text marker.
+    pub(super) fn checked_entry_domains_v1(&self, source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1, view: &BorrowedEntryOwnerViewV1<'_>, incoming: &BorrowedEntryActualsV1<'_>,
+    ) -> Result<Box<[BorrowedFormalDomainV1]>, String> {
+        use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let contract = contracts.next().ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+        if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
+        if contract.mode == Mode::StaticBoxMethod { return self.checked_static_input_domains_for_owner_v1(owner); }
+        let sums: Vec<_> = contract.parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
+            .map(|row| (row, source.lend_source_value_sum_v1(row.binding))).collect();
+        if !sums.iter().any(|(_, sum)| sum.as_ref().is_some_and(|sum| sum.text_only())) { return Ok(Box::new([])); }
+        if !matches!(incoming, BorrowedEntryActualsV1::Executable(rows) if !rows.is_empty())
+            || !source.source_incoming.source_registered_owners_v1().contains(&owner)
+            || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) {
+            return Err(freeze("borrowed-entry/text-domain-unfinished"));
+        }
+        let originals: Vec<_> = source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).collect();
+        if originals.len() != view.incoming.len() || originals.iter().any(|original|
+            !view.incoming.iter().any(|row| row.call == original.call && row.callee == original.callee
+                && row.arguments == original.arguments && row.source.same_original_source_v1(&original.source))) {
+            return Err(freeze("borrowed-entry/text-domain-incoming"));
+        }
+        // Enrich the existing Uses domain column only where the original
+        // source supplies a sum. Unrelated Object formals keep their own
+        // authority and never acquire a new scalar-domain prerequisite.
+        Ok(sums.into_iter().filter_map(|(formal, sum)| sum.filter(|sum| !sum.alternatives().is_empty())
+            .map(|sum| BorrowedFormalDomainV1::from_source_v1(formal.ordinal, formal.binding, sum)))
+            .collect::<Vec<_>>().into_boxed_slice())
+    }
+
     pub(super) fn finish_borrowed_entry_source_v1<'a>(
         &'a self, structure: BorrowedEntryStructureV1<'a>,
     ) -> Result<BorrowedOrdinaryEntrySourceRefV1<'a>, String> {
@@ -170,7 +203,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming = self.entry_actual_loans_v1(structure.source, structure.owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner: structure.owner, formals: structure.formals, source: structure.source,
-            domains: self.checked_static_input_domains_for_owner_v1(structure.owner)?,
+            domains: self.checked_entry_domains_v1(structure.source, structure.owner, &view, &incoming)?,
             definition: view.definition, incoming_rows: view.incoming, incoming,
         })
     }
@@ -241,7 +274,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut matching = catalog.iter().filter(|row| row.owner == owner);
         let Some(contract) = matching.next() else { return Ok(None) };
         if matching.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
-        if contract.mode != Mode::StaticBoxMethod { return Ok(None); }
+        let namespace = match contract.mode {
+            Mode::StaticBoxMethod => hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod,
+            Mode::InstanceBoxMethod => hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod,
+        };
         let borrowed: Vec<_> = contract.parameters.iter()
             .filter(|row| row.kind.is_ordinary_borrowed_handle()).collect();
         let sums: Vec<_> = borrowed.iter().map(|row| source.lend_source_value_sum_v1(row.binding)).collect();
@@ -270,21 +306,15 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming: Box<[_]> = source.source_incoming.source_rows_v1()
             .filter(|row| row.callee == owner).collect();
         let Some(first) = incoming.first() else { return Err(freeze("borrowed-entry/finite-incoming-missing")) };
-        let BorrowedIncomingSourceV1::Static(first_source) = &first.source else {
-            return Err(freeze("borrowed-entry/finite-incoming-kind"));
-        };
+        let first_source = first.source.as_loan()?;
         let mut sites = BTreeSet::new();
         for row in &incoming {
-            let BorrowedIncomingSourceV1::Static(original) = &row.source else {
-                return Err(freeze("borrowed-entry/finite-incoming-kind"));
-            };
+            let original = row.source.as_loan()?;
             if original.call_site() != &row.call || original.callee_owner() != owner
                 || original.target_batch_slot() != contract.batch_slot || original.target() != first_source.target()
-                || original.target().namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                || original.namespace() != namespace || original.declaration_mode() != contract.mode
+                || original.target().namespace() != namespace
                 || original.target().arity() as usize != contract.parameters.len()
-                || original.parameters().len() != contract.parameters.len()
-                || original.parameters().iter().zip(&contract.parameters).any(|(a, b)|
-                    a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind)
                 || original.argument_sites().len() != contract.parameters.len()
                 || row.arguments.len() != borrowed.len() || !sites.insert(row.call.clone())
                 || row.arguments.iter().zip(&borrowed).any(|((ordinal, site, formal), expected)|
@@ -292,10 +322,36 @@ impl OrdinaryNewClaimLedgerV1 {
                         || original.argument_sites().get(*ordinal as usize) != Some(site)) {
                 return Err(freeze("borrowed-entry/finite-incoming-identity"));
             }
-            // Legacy rows, when present, must be the same canonical source.
+            match &row.source {
+                BorrowedIncomingSourceV1::Static(original) => {
+                    if original.parameters().len() != contract.parameters.len()
+                        || original.parameters().iter().zip(&contract.parameters).any(|(a, b)|
+                            a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind) {
+                        return Err(freeze("borrowed-entry/finite-incoming-identity"));
+                    }
+                }
+                // The original target was corroborated before affine lexical
+                // issuance consumed its preparation. This retained incoming
+                // loan, not the spent preparation slot, owns source identity.
+                BorrowedIncomingSourceV1::Instance(_) => {}
+                BorrowedIncomingSourceV1::SelectedStored { target, .. } => {
+                    if !row.source.bind_selected_v1(target)?.same_source(&row.source) {
+                        return Err(freeze("borrowed-entry/finite-incoming-source-drift"));
+                    }
+                }
+                BorrowedIncomingSourceV1::PendingStored(_) => return Err(freeze("borrowed-entry/finite-incoming-kind")),
+            }
+            // Only the matching namespace can corroborate this source. A
+            // failed Static lookup is not contradictory Instance evidence.
             if let Some(retained) = source.source_incoming.static_observations().get(&row.call) {
-                if !Rc::ptr_eq(retained.as_ref().map_err(Clone::clone)?, original) {
-                    return Err(freeze("borrowed-entry/finite-incoming-source-drift"));
+                match &row.source {
+                    BorrowedIncomingSourceV1::Static(original) => {
+                        if !Rc::ptr_eq(retained.as_ref().map_err(Clone::clone)?, original) {
+                            return Err(freeze("borrowed-entry/finite-incoming-source-drift"));
+                        }
+                    }
+                    _ if retained.is_ok() => return Err(freeze("borrowed-entry/finite-incoming-source-drift")),
+                    _ => {},
                 }
             }
         }
@@ -344,6 +400,28 @@ impl BorrowedEntryStructureV1<'_> {
         domains.get(&formal).ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))
     }
 
+    /// Borrow the selected structure's original domain without completing its
+    /// actuals. Existing Uses owners retain their full use/actual final proof.
+    pub(super) fn source_domain_for_formal_v1(&self, ordinal: u32, formal: BindingRefV1)
+        -> Result<Rc<super::super::borrowed_formal_source::SourceValueSumV1>, String> {
+        use super::super::borrowed_formal_source::SourceValueAlternativeV1 as Alternative;
+        if matches!(self.evidence, EntryStructureEvidenceV1::FiniteText { .. }) {
+            return self.finite_domain_for_formal_v1(ordinal, formal).map(Rc::clone);
+        }
+        if !self.formals.contains(&(ordinal, formal))
+            || !self.source.source_incoming.source_registered_owners_v1().contains(&self.owner)
+            || self.source.source_incoming.sum_vetoed_owners_v1().contains(&self.owner) {
+            return Err(freeze("borrowed-text-entry/structural-formal"));
+        }
+        let sum = self.source.lend_source_value_sum_v1(formal)
+            .ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))?;
+        if sum.alternatives().is_empty() || sum.alternatives().iter().any(|alternative|
+            !matches!(alternative, Alternative::Text | Alternative::SignedI64 | Alternative::Null)) {
+            return Err(freeze("borrowed-entry/finite-domain-unclosed"));
+        }
+        Ok(sum)
+    }
+
     pub(super) fn finite_alias_formal_v1(&self,
         initializer: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
         source_binding: Option<BindingRefV1>,
@@ -373,15 +451,29 @@ impl BorrowedEntryStructureV1<'_> {
     pub(super) fn check_finite_entry_values_v1(
         &self, rows: &[(u32, BindingRefV1, crate::mir::ValueId)],
     ) -> Result<(), String> {
-        let EntryStructureEvidenceV1::FiniteText { uses, incoming, domains } = &self.evidence else {
-            return Err(freeze("borrowed-entry/finite-structure-required"));
-        };
         if rows.len() != self.formals.len()
             || rows.iter().zip(self.formals.iter()).any(|((ordinal, binding, _), formal)| (*ordinal, *binding) != *formal)
-            || rows.iter().map(|(_, _, value)| *value).collect::<BTreeSet<_>>().len() != rows.len()
-            || domains.len() != rows.len() || incoming.is_empty()
-            || uses.roots().keys().copied().collect::<BTreeSet<_>>() != rows.iter().map(|(_, binding, _)| *binding).collect()
-            || rows.iter().any(|(_, binding, _)| !domains.contains_key(binding)) {
+            || rows.iter().map(|(_, _, value)| *value).collect::<BTreeSet<_>>().len() != rows.len() {
+            return Err(freeze("borrowed-entry/finite-entry-values-identity"));
+        }
+        let roots = match &self.evidence {
+            EntryStructureEvidenceV1::FiniteText { uses, incoming, domains } => {
+                if domains.len() != rows.len() || incoming.is_empty()
+                    || rows.iter().any(|(_, binding, _)| !domains.contains_key(binding)) {
+                    return Err(freeze("borrowed-entry/finite-entry-values-identity"));
+                }
+                uses.roots().keys().copied().collect::<BTreeSet<_>>()
+            }
+            EntryStructureEvidenceV1::Uses(view) => {
+                if view.incoming.iter().any(|call| call.arguments.len() != rows.len()
+                    || call.arguments.iter().zip(rows).any(|((ordinal, _, formal), (expected, binding, _))|
+                        ordinal != expected || formal != binding)) {
+                    return Err(freeze("borrowed-entry/finite-entry-values-identity"));
+                }
+                view.definition.origins.values().copied().collect()
+            }
+        };
+        if roots != rows.iter().map(|(_, binding, _)| *binding).collect() {
             return Err(freeze("borrowed-entry/finite-entry-values-identity"));
         }
         Ok(())

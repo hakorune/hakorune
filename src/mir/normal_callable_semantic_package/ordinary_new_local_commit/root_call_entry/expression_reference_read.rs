@@ -100,10 +100,15 @@ impl ExpressionReferenceReadV1 {
                     |_, binding| Ok(binding.clone()))?;
                 ReferenceProducerV1::Definition(binding)
             }
-            _ => return Err(freeze("expression/reference-execution-pending")),
+            Reference::ArgumentEntry(requirement) => ReferenceProducerV1::Entry(
+                prepare_text_entry(requirement, None, read, context, function)?),
+            Reference::InitializerEntry { read: original, .. } => ReferenceProducerV1::Entry(
+                prepare_text_entry(original.requirement(), Some(original), read, context, function)?),
         };
         reference_operand(frame, node, read, &producer, context)?;
-        validate_dependencies(read.binding_observation_v2(), &producer, function)?;
+        if !matches!(source, Reference::ArgumentEntry(_) | Reference::InitializerEntry { .. }) {
+            validate_dependencies(read.binding_observation_v2(), &producer, function)?;
+        }
         Ok(PreparedExpressionReferenceReadV1 { producer })
     }
     pub(in crate::mir) fn operand(&self, frame: &CheckedExpressionEvaluationV1, node: usize,
@@ -121,6 +126,14 @@ impl ExpressionReferenceReadV1 {
             }
             let original = source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?;
             validate_entry_layout(original.binding(), original.producer(), &self.producer, context, function)?;
+        }
+        let entry = match original_reference(frame, node)? {
+            Reference::ArgumentEntry(required) => Some(prepare_text_entry(required, None, &self.read, context, function)?),
+            Reference::InitializerEntry { read, .. } => Some(prepare_text_entry(read.requirement(), Some(read), &self.read, context, function)?),
+            _ => None,
+        };
+        if entry.is_some_and(|entry| !matches!(self.producer, ReferenceProducerV1::Entry(original) if original == entry)) {
+            return Err(freeze("expression/reference-text-entry-producer"));
         }
         Ok(())
     }
@@ -266,52 +279,48 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
                 Ok(Operand::OwnedString(value))
             })
         }
-        _ => Err(freeze("expression/reference-execution-pending")),
+        Reference::ArgumentEntry(required) => text_entry_operand(required, read, producer, context),
+        Reference::InitializerEntry { read: original, .. } => text_entry_operand(original.requirement(), read, producer, context),
     }
 }
-/// Ephemeral source-to-physical correspondence from the SAME retained signature:
-/// (formal lane, total physical lanes, receiver lanes, canonical symbol).
+fn prepare_text_entry(
+    required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+    initializer: Option<&crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1>,
+    read: &ExactLexicalReadV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+) -> Result<ValueId, String> {
+    let (entry, _, domain) = context.ledger().validate_prepared_finite_entry_read_v1(required, function, read)?;
+    if !domain.text_only() || initializer.is_some_and(|original| !original.corroborates_finite_domain_v1(&domain)) {
+        return Err(freeze("expression/reference-execution-pending/text-entry-domain"));
+    }
+    let (index, count, receivers, symbol) = context.ledger().original_entry_layout_v1(
+        required.binding(), required.formal().1, |kind| matches!(kind,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle))?;
+    if function.signature.name != symbol || function.params.len() != count
+        || function.params.get(index) != Some(&entry) || function.metadata.declared_param_decls.len() != count
+        || function.metadata.declared_param_decls.iter().enumerate().any(|(index, row)|
+            row.implicit_receiver != (receivers == 1 && index == 0)) {
+        return Err(freeze("expression/reference-text-entry-layout"));
+    }
+    Ok(entry)
+}
+fn text_entry_operand(required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+    read: &ExactLexicalReadV1, producer: &ReferenceProducerV1, context: CallValidationContextV1<'_>,
+) -> Result<Operand, String> {
+    let entries = context.ledger().borrowed_ordinary_entry_values_v1(required.binding().owner())?;
+    let mut matching = entries.iter().filter(|(ordinal, formal, _)| (*ordinal, *formal) == required.formal());
+    let entry = matching.next().ok_or_else(|| freeze("expression/reference-text-entry-value"))?.2;
+    if matching.next().is_some() || !matches!(producer, ReferenceProducerV1::Entry(value) if *value == entry) {
+        return Err(freeze("expression/reference-text-entry-producer"));
+    }
+    read.loan_forwarded_copies(required.formal().1, entry)?;
+    Ok(Operand::BorrowedText(read.value_for(required.binding().owner(), required.read().node(), required.binding())
+        .map_err(|error| error.to_string())?))
+}
 fn signed_entry_layout(binding: crate::mir::resolved_semantics::BindingRefV1, formal: crate::mir::resolved_semantics::BindingRefV1,
     context: CallValidationContextV1<'_>,
 ) -> Result<(usize, usize, usize, String), String> {
-    use crate::mir::callable_parameter_contract::{CallableParameterDeclarationModeV1 as Mode, CallableParameterContractKindV1 as Kind};
-    use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1 as Role;
-    let ledger = context.ledger();
-    let catalog = ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("expression/scalar-entry-catalog"))?;
-    let mut declarations = catalog.iter().filter(|row| row.owner == binding.owner());
-    let declaration = declarations.next().ok_or_else(|| freeze("expression/scalar-entry-owner"))?;
-    if declarations.next().is_some() { return Err(freeze("expression/scalar-entry-owner")); }
-    let (receivers, namespace) = match declaration.mode {
-        Mode::StaticBoxMethod => (0, hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod),
-        Mode::InstanceBoxMethod => (1, hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod),
-        _ => return Err(freeze("expression/scalar-entry-layout-pending")),
-    };
-    let mut rows = declaration.parameters.iter().filter(|row| row.binding == formal);
-    let row = rows.next().ok_or_else(|| freeze("expression/scalar-entry-formal"))?;
-    if rows.next().is_some() || declaration.parameters.get(row.ordinal as usize).is_none_or(|original| original.binding != formal)
-        || !matches!(row.kind, Kind::ExactTrivial(abi) if abi.is_i64()) { return Err(freeze("expression/scalar-entry-contract")); }
-    let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
-        .ok_or_else(|| freeze("expression/scalar-entry-issuance"))?;
-    let signature = signatures.row(declaration.batch_slot).ok_or_else(|| freeze("expression/scalar-entry-signature"))?;
-    let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(declaration.batch_slot)
-        else { return Err(freeze("expression/scalar-entry-key")) };
-    if signature.owner() != binding.owner() || signature.mode() != declaration.mode
-        || key.namespace() != namespace || key.arity() as usize != declaration.parameters.len()
-        || !selected.identity_for_batch_slot(declaration.batch_slot).is_some_and(|identity| signature.identity().same_as(identity))
-        || signature.source_logical_arity() as usize != declaration.parameters.len()
-        || signature.receiver_lane_count() as usize != receivers
-        || signature.lanes().iter().filter(|lane| lane.role() == Role::InstanceReceiver).count() != receivers
-        || receivers == 1 && signature.lanes().first().is_none_or(|lane| lane.index() != 0
-            || lane.role() != Role::InstanceReceiver || lane.logical_ordinal().is_some() || lane.binding().owner() != binding.owner()) {
-        return Err(freeze("expression/scalar-entry-source-signature"));
-    }
-    let mut lanes = signature.lanes().iter().filter(|lane| lane.binding() == formal
-        && lane.logical_ordinal() == Some(row.ordinal) && lane.role() == Role::OrdinaryScalar);
-    let lane = lanes.next().ok_or_else(|| freeze("expression/scalar-entry-formal-lane"))?;
-    if lanes.next().is_some() || signature.lanes().get(lane.index() as usize) != Some(lane) {
-        return Err(freeze("expression/scalar-entry-formal-lane"));
-    }
-    Ok((lane.index() as usize, signature.physical_callable_lane_count() as usize, receivers, key.mir_symbol_projection()))
+    context.ledger().original_entry_layout_v1(binding, formal, |kind| matches!(kind,
+        crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
 }
 
 fn initializer_value(source: &Producer, read: &BindingValueObservationV2, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
