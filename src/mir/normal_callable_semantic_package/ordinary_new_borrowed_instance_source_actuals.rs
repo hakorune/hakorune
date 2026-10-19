@@ -69,6 +69,8 @@ pub(super) fn prepare_instance_source_actuals_v1(
     let zero_request = !nullable_request && ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
         .filter_map(|row| row.source.instance()).any(|target| matches!(&target.result_requirement,
             super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)));
+    let unit_request = ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
+        .filter_map(|row| row.source.instance()).any(|target| target.is_unit_discard_source_v1());
     let object_producer_request = match ingress.object_source_target_at_v1(site)? {
         Some(target) => ingress.original_object_producer_callee_v1(target)?,
         None => false,
@@ -78,7 +80,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         None => None,
     };
     let draft = ingress.source_definition_for(site.owner());
-    if array_loans.is_empty() && field_loans.is_empty() && !zero_request && !object_producer_request && mixed_request.is_none() && !nullable_request {
+    if array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !object_producer_request && mixed_request.is_none() && !nullable_request {
         if ingress.definitions.contains_key(&site.owner()) {
             return Ok(None);
         }
@@ -106,6 +108,13 @@ pub(super) fn prepare_instance_source_actuals_v1(
     let Some(target) = original.source.instance() else {
         return Ok(None);
     };
+    if unit_request {
+        let super::super::LexicalCallSourceResultRequirementV1::UnitDiscardSource(request) = &target.result_requirement
+            else { return Err(freeze("borrowed-instance/unit-source-identity")) };
+        if !request.is_unit_candidate_v1() || !request.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
+            return Err(freeze("borrowed-instance/unit-source-identity"));
+        }
+    }
     if zero_request {
         let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) = &target.result_requirement else {
             return Err(freeze("borrowed-instance/zero-source-identity"));
@@ -383,6 +392,7 @@ pub(super) fn selected_original_instance_forward_v1(
                 && !ingress.source_incoming.has_object_input_callee_v1(target) { return Ok(true); }
             if !ingress.source_incoming.has_object_input_callee_v1(target)
                 && ingress.original_object_producer_callee_v1(target)? { return Ok(true); }
+            if target.is_unit_discard_source_v1() { return Ok(true); }
             if let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) = &target.result_requirement {
                 if !request.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
                     return Err(freeze("borrowed-instance/zero-source-identity"));

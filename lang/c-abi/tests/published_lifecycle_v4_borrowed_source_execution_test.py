@@ -200,7 +200,7 @@ if any(flag in sys.argv for flag in ('--unit', '--unit-only', '--constructor-uni
                 assert f'COUNTS 1 {stores} {released-reclaims} {reclaims} {reports} 1\n' in result.stdout, (case, mode_name, result)
                 assert f'OWNED {attempts} {acquired} {released}\n' in result.stdout, (case, mode_name, result)
                 prints = (2 if case == 6 and not reports else
-                          int(case >= 2 and not mode_name.startswith('new-fault')))
+                          int(not mode_name.startswith('new-fault')))
                 assert sum(line.startswith('UNIT_PRINT ') for line in result.stdout.splitlines()) == prints, (case, mode_name, result)
                 assert result.stdout.splitlines().count('7') == (prints if mode_name != 'print-fault' else 0), \
                     (case, mode_name, result)

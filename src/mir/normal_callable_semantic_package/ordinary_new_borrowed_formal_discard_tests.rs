@@ -154,10 +154,14 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
     }
 
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    for (case, body) in ["", "local scratch = 0", "print(7)", "print(7) return",
-        "local a = new Transport() local b = new Transport() print(7)",
-        "if true { print(7) return } print(7)"].into_iter().enumerate() {
-        let text = format!("box Transport {{ birth() {{ }} touch() {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() recv.touch() return 0 }} }}");
+    for (case, (parameters, prefix, arguments, body)) in [
+        ("n: i64", "", "7", "print(n)"),
+        ("left: i64, right: i64", "local before = 1", "before, 7", "local scratch = left print(right)"),
+        ("", "", "", "print(7)"), ("", "", "", "print(7) return"),
+        ("", "", "", "local a = new Transport() local b = new Transport() print(7)"),
+        ("", "", "", "if true { print(7) return } print(7)")].into_iter().enumerate() {
+        let arity = if parameters.is_empty() { 0 } else { parameters.split(',').count() };
+        let text = format!("box Transport {{ birth() {{ }} touch({parameters}) {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() {prefix} recv.touch({arguments}) return 0 }} }}");
         let request = original_request(&text);
         let compiled = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
             crate::mir::MirCompiler::with_options(false).compile_normal_with_published(request, |view, _| {
@@ -165,7 +169,7 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
                 let wire = crate::mir::emit_lifecycle_physical_abi_json(&input)?;
                 let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
                 let functions = json["functions"].as_array().unwrap();
-                let callee = functions.iter().find(|row| row["name"] == "Transport.touch/0").expect("real Unit callee");
+                let callee = functions.iter().find(|row| row["name"] == format!("Transport.touch/{arity}")).expect("real Unit callee");
                 assert_eq!(callee["role"], "ordinary_unit");
                 let calls: Vec<_> = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap())
                     .map(|block| &block["terminator"]["instruction"])

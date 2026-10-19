@@ -848,17 +848,11 @@ mimalloc385 matched363. The exact original incoming/source-sum measurement and
 its implementation superseded that stop in949 below. This is historical evidence,
 not a current first-stop or full Text closure claim.
 
-949 original scalar incoming source projection landed `d819400df3`. The commit
-retains exact JsonLine.find/3 needle/start diagnosis, original all-five incoming,
-legacy/nominal/capture Decision, source/ABI separation, all tests and provenance.
-949B93focusedPASS/6reproduced baseline reds;9263names/no added cases/checkers.
-CLI288 originalJSON389 .050309s advances finite-domain-unclosed to Unit-value-use;
-unchanged mimalloc390 EXE/run/stdout/stderr/exit exact363. Runtime894A/FFI939A prior.
-Full Text source-to-execution/entry/arguments/cleanup/final/JSON acceptance remains
-open. Old scalar-only incoming source edge is replaced; shared stable and nominal
-owners remain. No parallel map/variant/solver or adapter survives in that landing.
-Keep949/CLI288/JSON389/native and287 diagnostic provenance until originalJSON
-acceptance; obsolete946 diagnostic patch was superseded and removed.
+949 original scalar incoming projection landed `d819400df3`; it owns original
+all-five incoming/source-SUM, legacy/nominal/capture Decision, evidence/provenance.
+949B93PASS/6baseline/9263names;CLI288 JSON389 advances to Unit-value-use, mim390
+exact363. Keep949/CLI288/JSON389/native +287 diagnostic provenance until950 Text
+acceptance; obsolete946 patch retired. No parallel source owner/adapter survives.
 
 950 actual frontier/provenance and source-to-C audit are retained at `6d3529fa6b`:
 CLI289 build159.380939s, unchangedJSON391 .051006s exit1/noEXE. Exact ingest/1
@@ -922,33 +916,82 @@ baseline failures (four EXEs plus empty marker). Full suite/series/goal stay ope
 Keep952F/CLI291/native/suite evidence and earlier950/diagnostic provenance until
 Text acceptance. 952E duplicate executable retired; its source/logs retained.
 
-953 owned-root Text rebind source→shared writer→historical Home→BOTH finals→C/
-canonical EXE landed `0ffa4313dc`, closeout/pointer `0c7467481d`. Those commits
-own exact replacement/old-End Fault law, source/physical reviews, baseline reds,
-commands/timings, component provenance and retirement. Root953F174=170PASS/4same;
-9263names, no added cases/checkers. CLI292/FFI953A Text rebind400 both EXE/runPASS;
-mimalloc399 exact363;JSON398 Unit-value-use;fixed11=5PASS/6same952 (four EXEs).
-Keep953F/CLI292/FFI953A/kernel894A and native/C evidence until950 acceptance;
-superseded953B/C/D executables843428760B retired, logs/diagnostic provenance kept.
-Whole950 Return/CallNormal/entry/Unit/cleanup/BOTH finals/JSON/C stays required.
-Loop Text Add unclaimed and absent in originalJSON; not an added prerequisite.
+953 owned-root rebind is retained at `0ffa4313dc` / `0c7467481d`;954 explicit
+Materialize rebind at `dfdaff385a` / `f6a481574d`. These commits own full source/
+physical reviews, historical-Home/old-End Fault laws, original/purpose acquisition,
+BOTH final/C/native proofs, baseline classifications, timings and pin retirement.
+Each174existing=170PASS/4same;9263names/no added cases/checkers. Rebind400/402 both
+EXE/runPASS, mimalloc399/406 exact363, JSON398/405 Unit-value-use. Fixed11 last953
+5PASS/6same952; four EXEs. Keep953/954 final/native/C and954A FFI/runtime pins until
+950 acceptance; obsolete953B/C/D and954 duplicate executable retired as recorded
+in their commits. Full950 Text Return/CallNormal/entry/Unit/cleanup/finals/C stays
+required. Loop Text Add unclaimed, absent originalJSON and not a prerequisite.
 
-954 explicit Text Materialize→Rebind→shared writer/cleanup→Home→BOTH finals→JSON/
-C/canonical EXE landed `dfdaff385a`. That commit owns read-only source/physical/
-Materialize reviews, exact purpose/immutable operand law, all commands/timings,
-corrected build/probe failures, component provenance and temporary retirement.
-Root954B five focusedPASS;174existing=170PASS/4 exact953F baselines;9263same names,
-no new warnings/cases/parameters/files/checkers/production test hooks. Existing
-Rust/runtime/C slots replaced; real paired runtime test and both C routes PASS.
-CLI293/FFI954A/runtime954A: reused sources402 both EXE/run xyz/ab then Result:0,
-stderr exact363,exit0 (CLI292 coverage refused). Unchanged mimalloc406 same route
-EXE/run/output/exit exact363 PASS. OriginalJSON405 still398/unit-value-use/noEXE.
-Fixed11 remains prior953 pinned evidence; no current suite/CI/full950/goal claim.
-Probe403/404 predecessor runtime argv/receipts corrected;405/406 explicitly954A.
-Redundant404 EXE7013136B retired; failed-build/probe logs and actual provenance kept.
-Keep954B/CLI293/FFI954A/runtime954A/kernel-test/native/C pins until950 acceptance.
-No diagnostic/adapter or duplicate execution owner survives. Whole950/retained rows/
-finite goal remain open: next all-original Text Return/CallNormal/borrowed entry/
-Unit args/cleanup/BOTH finals/JSON/C; reuse950 source-to-consumer reviews, no new
-inventory gate or semantic design stop. Loop Text Add remains unsupported/unclaimed
-and absent from originalJSON, not a new execution prerequisite.
+955 Decision (950 reviews reused; read-only Unit/entry consumer review):
+Source authority + canonical issuer: original instance declaration/body/SequenceItem,
+SAME Unit Return loan/Completion and original ordered argument sites; source incoming
+opaque-formal subset remains distinct from full arity. Unit is no value result.
+Non-authority: scalar-result proof, fabricated empty arguments or new source scan.
+Fail-fast boundary: true Unit value-use stays rejected; Text actual expression/Call
+and qualified borrowed entry still require their full950 owners, not waived here.
+Smallest next slice: retire zero-arg-only Unit restriction in existing source loan,
+Home callback and completion corroboration; lend SAME pending phase through existing
+Instance argument projector after existing once-only statement actual staging.
+The shared receiver/arguments/Call/cleanup writer and both final consumers stay sole
+execution path. Preserve scalar field-result zero-input restriction and constructor
+stored-child scope; no new result classifier/ledger or fallback.
+Paths: result_original/unit, instance_source_actuals, coseal_issue_lexical,
+home_borrowed_call_port/home_local_unit_discard, existing discard/C execution slots,
+owner README. Initial focused run exposed the same census still registering Unit
+only at arity0; extend retained Unit demand in existing incoming owner (no rescan).
+955B then reaches the shared SignedEntry reader's static-only fence. Physical
+review selects SAME retained source signature lane, not offset/type inference;
+extend expression_reference_read source/receiver/metadata corroboration for Instance.
+955C reaches raw invocation Unit syntax guard; match genuine arity/argument count
+in existing raw_ordinary_new_claim/invocation, leaving constructor zero-arg scope.
+Replace two repeated zero-arg execution slots with ordered signed-i64
+literal/local arguments; preserve all other Unit/negative cases, add none.
+Shared incoming/scalar-entry change reaches multiple suite owners: fixed11 is
+required once after focused/CLI checks, with exact predecessor-red classification.
+Non-claims: this internal Unit connection does not close Text actuals/Return/Call/
+entry or whole950/finite goal. Compare originalJSON first-stop after construction.
+
+955 verification (compiler source matches Root955D/CLI294 snapshots, all7584 paths):
+`CARGO_BUILD_JOBS=4 cargo quick-test-fast --no-run --message-format=json`;
+Root955A/B/C81.538480/57.706283/64.564646s exposed the three stated fences;
+Root955D56.284548s PASS. Same pinned binary, `RUST_MIN_STACK=16777216`,
+`--test-threads=1`: five focused PASS (borrowed statement discard, selected-failure
+terminal, strict-no-membership, branch-site groups, owned Text initializer).
+Expanded174 existing=170PASS/4 exact954B diagnostic baselines,7.822385s:
+unknown_home_prefix; source_only_actual_probe; qualified_call_map_argument;
+qualified_call_return. Existing9263 names unchanged; no added case/parameter/file/
+checker/hook, no new warning. Pointer/layer-dependency/CallTarget/diff guards PASS.
+`CARGO_BUILD_JOBS=4 cargo build --profile quick --bin hakorune --message-format=json`
+CLI294194.374036s PASS. FFI954A/runtime954A unchanged predecessor components:
+all differing snapshot files are compiler/owner-doc/test, not runtime/FFI sources.
+Existing C `published_lifecycle_v4_borrowed_source_execution_test.py /tmp --unit-only`
+all7 slots PASS56.852671s; only harness adaptation is explicit pinned FFI directory.
+Two replaced Unit slots retain current Rust-issued JSON; remaining Fault/malformed
+modes and constructor slot unchanged. Canonical direct `--backend mir --emit-exe
+--emit-exe-nyrt runtime954A`, plugins disabled, pure-first/compat-none, FFI954A:
+same literal7/ordered local+7 sources407 both refused Unit-value-use with CLI293;
+CLI294 sources408 both EXE/runPASS132.248641/125.469363s,run.001480/.001356s,
+stdout `7\nResult: 0\n`,stderr exact363,exit0. Unchanged mimalloc410 EXE/runPASS176.095962s,
+run.002002s,stdout/stderr/exit exact363. OriginalJSON409 .050579s exit1/noEXE:
+Unit-value-use advances to borrowed-instance/array-loan-missing at SAME original
+Main32 Body1 sampleStream actual into ingest/1. This is missing ordinary Text
+actual/Call-result connection, not permission to invent Array evidence.
+Temporary disposition: obsolete Root955A/B/C executables843711104B retired after
+955D validation; source/build/failure logs retained. Keep955D/CLI294/native/C/suite
+pins and unchanged954A FFI/runtime until full950 acceptance. No diagnostic patch,
+new adapter or parallel physical writer remains. Full950/finite goal remain open.
+955 fixed11 current CLI294/FFI954A/runtime954A: `bash tools/smokes/v2/run.sh
+--profile integration --owner-profile integration --suite real-apps-exe-boundary
+--timeout 1900`, RUN_TIMEOUT_SECS1800, plugins1,pure-first/compat-none,16MiB stack.
+477.964548s overall;5PASS/6FAIL, exactly same membership as953. Four actual EXEs
+PASS plus empty boundary marker. JSON failure advances as409; other five exact
+first diagnostics: boxtorrent stored-child/receiver-unavailable; binary_trees
+borrowed-result/source-not-i64; allocator_stress NamedArray(TextSourceMissing);
+mimalloc generic-MIR negative required-integer-source-unproved; untyped-field
+ValueId14 main type-inference panic. Mimalloc suite stops in generic-MIR negative
+before EXE; canonical direct410 succeeds. No suite/CI/whole950 completion claim.

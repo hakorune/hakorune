@@ -17,21 +17,25 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-static-text-input-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"
 latest_card_summary = """
-954 explicit Text Materialize landed dfdaff385a through checked Rebind purpose, original
-source evaluation, shared Invoke/cleanup/assignment, historical Home publication,
-BOTH finals, JSON/C and canonical EXE. Original values/source acquisitions unchanged;
-separate exact purpose Invoke/NormalResult supplies independent pair; never End input.
-Root954B five focusedPASS;174existing=170PASS/4exact953F baselines;9263same names.
-Existing Rust/runtime/C slots replaced, no added case/parameter/file/checker/hook.
-Runtime954A existing paired ABI testPASS;C selected complete CP slot both routesPASS.
-CLI293/FFI954A/runtime954A: two reused401 sources402 now EXE/run xyz/ab,exit0;
-CLI292 both refused coverage. Unchanged mimalloc406 EXE/run/stdout/stderr/exit exact363.
-OriginalJSON405 still398/unit-value-use/noEXE. Fixed11 is prior953 evidence, not rerun;
-no current suite/CI/whole950/finite-goal completion claim. Probe predecessor runtime
-receipt corrected and explicit954A rerun; redundant404 EXE retired, logs retained.
-Fast ORDINARY-TEXT-CALL-S0: next all-original Text Return/CallNormal/borrowed entry/
-Unit args/cleanup/BOTH finals/JSON/C under950. No inventory or semantic design stop.
-Loop Text Add unclaimed/not an originalJSON prerequisite. All retained rows stay open.
+955 original Unit ordered arguments and Instance signed-entry connection verified;
+SAME Unit source/Completion + pending actuals + shared receiver/Call/cleanup writer.
+Zero-arg Unit fences retired; true Unit value-use and scalar-result scope preserved.
+Signed entry uses original canonical physical signature, formal lane and receiver.
+Root955D five focusedPASS;174existing=170PASS/4exact954B baselines;9263same names.
+Two existing Unit slots replaced with real ordered i64 inputs, no added cases/hooks.
+Existing C all7 Unit slotsPASS. CLI294/FFI954A/runtime954A canonical direct EXE:
+same407 sources408 both now EXE/run7/exit0;CLI293 both refused Unit-value-use.
+Unchanged mimalloc410 EXE/run/stdout/stderr/exit exact363. OriginalJSON409 advances
+Unit-value-use -> borrowed-instance/array-loan-missing at Main32 Body1 sampleStream
+actual into ingest/1; still noEXE. This requires ordinary Text expression/Call source,
+not Array evidence. Fixed11 current477.964548s=5PASS/6FAIL same953 membership;JSON advances,other5same.
+Four suite EXEs+empty marker; mimalloc suite fails generic-MIR negative before EXE.
+Keep955D/CLI294/native/C and unchanged954A runtime/FFI until full950 acceptance;
+obsolete955A/B/C executables843711104B retired, source/failure logs retained.
+Fast ORDINARY-TEXT-CALL-S0: normalize original argument Source/Qualified product
+across Static/Instance, then full Text Return/CallNormal/borrowed entry/Unit cleanup/
+BOTH finals/JSON/C under950. No inventory or semantic design stop. Full series,
+retained rows and finite goal open; Loop Text Add not an originalJSON prerequisite.
 """
 next_design_card = "MIRBUILDER-GATE1-ORDINARY-TEXT-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-text-input-s0-2026-10-17.md"

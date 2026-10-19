@@ -4852,5 +4852,14 @@ expression values/acquisition nodes stay unchanged; the same rebind packet retai
 the separate Invoke/NormalResult pair and effective installed value. Both final
 scans validate that original operand and the complete ordered acquisition/cleanup
 boundary. Materialize publishes an independent pair and never Ends its input;
-Integer input is refused by MIR, runtime and C. Ordinary Text Return/Call ABI,
-borrowed entry execution and Unit argument closure remain open in the same series.
+Integer input is refused by MIR, runtime and C. Ordinary Text Return/Call ABI and borrowed entry execution remain open in the
+same series. Original Unit statement demand retains its genuine ordered arguments
+through the same Instance pending phase; arity does not create a value result.
+The declaration's opaque-formal subset is checked separately from full arity.
+Home demand and Completion recheck the same projected argument row; the existing
+receiver/argument/Call/cleanup writer owns execution. Signed scalar entry reads
+select the original formal's OrdinaryScalar lane from the retained physical
+signature and canonical owner/key, including the unique instance receiver lane.
+Both final scans recheck parameter values, carriers and receiver metadata; logical
+ordinal or MirType alone cannot grant entry permission. Text expression/Call actuals
+still require their source expression owner and remain part of the same series.

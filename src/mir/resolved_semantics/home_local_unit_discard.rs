@@ -16,20 +16,21 @@ pub(super) fn demand_v1<E>(
 ) -> Result<UnitDiscardDemandV1, E> {
     let Some(response) = borrowed_arguments(site, BorrowedCallActualRequestV1::SourceUnitDiscardArguments)?
         else { return Ok(UnitDiscardDemandV1::Unselected); };
-    let BorrowedCallArgumentsV1::SourceUnitDiscard { source } = response
+    let BorrowedCallArgumentsV1::SourceUnitDiscard { source, arguments } = response
         else { return Ok(UnitDiscardDemandV1::Refused); };
     if statement.owner() != input.owner() || !matches!(statement.node(), crate::ast::ASTNode::MethodCall { .. })
         || source.call_site() != site || !source.is_unit_discard_source_v1()
-        || !source.argument_sites().is_empty()
+        || arguments.len() != source.argument_sites().len()
         || !input.function().method_call(site.site()).is_some_and(|call|
-            call.owner() == input.owner() && call.arity() == 0
+            call.owner() == input.owner() && call.arity() == source.target().arity()
+                && call.arguments().iter().map(|argument| argument.site()).eq(source.argument_sites().iter())
                 && call.selector() == source.target().name() && call.receiver_site() == source.receiver_site()) {
         return Ok(UnitDiscardDemandV1::Refused);
     }
     Ok(UnitDiscardDemandV1::Ready(LocalCallObservationV1 {
         owner: input.owner(), statement: statement.site().clone(), site: site.clone(),
         destination: LocalCallDestinationV1::Discard, prior_homes: prior_homes.into(),
-        arguments: Box::new([]), result: LocalCallResultClassV1::Unit,
+        arguments, result: LocalCallResultClassV1::Unit,
         unit_source: Some(source), borrowed_scalar: None, borrowed_nullable: None, mixed: None, field_alias: None,
     }))
 }

@@ -64,8 +64,8 @@ pub(crate) enum BorrowedCallArgumentsV1 {
         loan: crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
         arguments: Box<[LocalCallArgumentV1]>,
     },
-    /// Original zero-argument Unit statement demand, never executable actuals.
-    SourceUnitDiscard { source: crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1 },
+    /// Original Unit statement demand and ordered source arguments, never executable actuals.
+    SourceUnitDiscard { source: crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1, arguments: Box<[LocalCallArgumentV1]> },
     Scalar(Box<[LocalCallArgumentV1]>),
     StaticSource(Box<[LocalCallArgumentV1]>),
     /// Original Instance arguments only; cannot seal an executable call.

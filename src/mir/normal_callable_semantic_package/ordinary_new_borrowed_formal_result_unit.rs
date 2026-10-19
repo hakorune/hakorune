@@ -7,6 +7,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_unit_discard_v1(
     targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<BorrowedCallArgumentsV1>, String> {
     let mut matching = Vec::new();
@@ -31,17 +32,39 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_unit_discard_v1(
     let [prepared] = matching.as_slice() else { return Err(freeze("unit-source/prepared-missing-or-duplicate")); };
     let LexicalCallSourceResultRequirementV1::UnitDiscardSource(retained) = &target.result_requirement
         else { return Err(freeze("unit-source/requirement-drift")); };
-    let declarations: Vec<_> = contracts.iter().filter(|row| row.owner == original.callee).collect();
-    let [declaration] = declarations.as_slice() else { return Err(freeze("unit-source/declaration-missing-or-duplicate")); };
     if *prepared != target || retained != loan || !loan.is_unit_candidate_v1()
         || !loan.matches(&super::super::source::CallTargetReferenceV1::from_target(target))
         || target.call_site() != site || target.callee_owner() != original.callee
-        || declaration.batch_slot != target.target_batch_slot()
-        || declaration.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-        || !declaration.parameters.is_empty() || target.target().arity() != 0
-        || !target.argument_sites().is_empty() || !original.arguments.is_empty()
     { return Err(freeze("unit-source/original-discard-drift")); }
-    Ok(Some(BorrowedCallArgumentsV1::SourceUnitDiscard { source: target.clone() }))
+    check_original_argument_contract_v1(contracts, target, original)?;
+    let arguments = super::super::borrowed_formal_actuals::project_pending_instance_arguments_by_phase_v1(
+        source, pending, contracts, target, None)?;
+    Ok(Some(BorrowedCallArgumentsV1::SourceUnitDiscard { source: target.clone(), arguments }))
+}
+
+/// The incoming opaque-formal subset and full ordered actual list have different
+/// cardinalities. Corroborate both against the same original declaration.
+fn check_original_argument_contract_v1(
+    contracts: &[OwnedCallableParameterContractDeclarationV1], target: &LexicalInstanceCallSourceTargetV1,
+    incoming: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+) -> Result<(), String> {
+    let declarations: Vec<_> = contracts.iter().filter(|row| row.owner == incoming.callee).collect();
+    let [declaration] = declarations.as_slice() else { return Err(freeze("unit-source/declaration-missing-or-duplicate")); };
+    if target.callee_owner() != incoming.callee || target.call_site() != &incoming.call
+        || incoming.source.require_instance()? != target || declaration.batch_slot != target.target_batch_slot()
+        || declaration.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+        || declaration.parameters.len() != target.target().arity() as usize
+        || target.argument_sites().len() != declaration.parameters.len()
+        || declaration.parameters.iter().enumerate().any(|(ordinal, row)| row.ordinal as usize != ordinal
+            || row.binding.owner() != incoming.callee)
+    { return Err(freeze("unit-source/original-argument-contract")); }
+    let opaque: Vec<_> = declaration.parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle()).collect();
+    if opaque.len() != incoming.arguments.len() || opaque.iter().zip(&incoming.arguments).any(|(formal, (ordinal, site, binding))|
+        formal.ordinal != *ordinal || formal.binding != *binding
+            || target.argument_sites().get(*ordinal as usize) != Some(site)) {
+        return Err(freeze("unit-source/original-opaque-arguments"));
+    }
+    Ok(())
 }
 
 impl PreparedBorrowedFormalIngressV1 {
@@ -117,15 +140,19 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming = originals.next().ok_or_else(|| freeze("unit-call/original-missing"))?;
         if originals.next().is_some() || incoming.callee != source.callee_owner()
             || incoming.source.require_instance()? != source || incoming.source.unit_discard_source_v1() != Some(original)
-            || !incoming.arguments.is_empty()
             || !original.matches(&super::super::source::CallTargetReferenceV1::from_target(source)) {
             return Err(freeze("unit-call/original-incoming-drift"));
         }
+        let contracts = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+        check_original_argument_contract_v1(contracts, source, incoming)?;
         if incoming.source.constructor_unit_source_v1(source)?.is_none() {
             let observation = self.unit_discard_source_v1(source.call_site())
                 .ok_or_else(|| freeze("unit-call/discard-observation-missing"))?;
+            let arguments = super::super::borrowed_formal_actuals::project_pending_instance_arguments_by_phase_v1(
+                self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("unit-call/incoming-missing"))?,
+                &self.borrowed_formal_actuals, contracts, source, Some(self))?;
             if observation.unit_source() != Some(source) || observation.local_binding().is_some()
-                || observation.is_expression_value() || !observation.arguments().is_empty()
+                || observation.is_expression_value() || observation.arguments() != arguments.as_ref()
                 || observation.borrowed_scalar().is_some() || observation.borrowed_nullable().is_some() {
                 return Err(freeze("unit-call/original-discard-drift"));
             }

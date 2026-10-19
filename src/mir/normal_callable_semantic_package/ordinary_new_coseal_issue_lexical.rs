@@ -355,7 +355,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
     if matches!(request, BorrowedCallActualRequestV1::SourceUnitDiscardArguments) {
-        return super::super::lexical_instance_call::source_unit_discard_v1(targets, contracts, source, site)
+        return super::super::lexical_instance_call::source_unit_discard_v1(targets, contracts, source, pending, site)
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
     super::super::lexical_instance_call::recheck_pending_array_source_actuals_v1(source, pending, classes, targets, site)

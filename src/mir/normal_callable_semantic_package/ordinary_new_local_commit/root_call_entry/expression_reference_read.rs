@@ -212,7 +212,7 @@ fn prepare_scalar_binding_producer(binding: crate::mir::resolved_semantics::Bind
                 Ok(packet.root_producer().clone())
             })?,
             Producer::SignedEntry(formal) => {
-                let ordinal = signed_entry_ordinal(binding, *formal, context)?;
+                let (ordinal, _, _, _) = signed_entry_layout(binding, *formal, context)?;
                 let value = *function.params.get(ordinal).ok_or_else(|| freeze("expression/scalar-entry-param"))?;
                 ReferenceProducerV1::Entry(value)
             }
@@ -269,20 +269,51 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
         _ => Err(freeze("expression/reference-execution-pending")),
     }
 }
-fn signed_entry_ordinal(binding: crate::mir::resolved_semantics::BindingRefV1, formal: crate::mir::resolved_semantics::BindingRefV1,
+/// Ephemeral source-to-physical correspondence from the SAME retained signature:
+/// (formal lane, total physical lanes, receiver lanes, canonical symbol).
+fn signed_entry_layout(binding: crate::mir::resolved_semantics::BindingRefV1, formal: crate::mir::resolved_semantics::BindingRefV1,
     context: CallValidationContextV1<'_>,
-) -> Result<usize, String> {
+) -> Result<(usize, usize, usize, String), String> {
     use crate::mir::callable_parameter_contract::{CallableParameterDeclarationModeV1 as Mode, CallableParameterContractKindV1 as Kind};
-    let catalog = context.ledger().original_parameter_contracts.as_deref().ok_or_else(|| freeze("expression/scalar-entry-catalog"))?;
+    use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1 as Role;
+    let ledger = context.ledger();
+    let catalog = ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("expression/scalar-entry-catalog"))?;
     let mut declarations = catalog.iter().filter(|row| row.owner == binding.owner());
     let declaration = declarations.next().ok_or_else(|| freeze("expression/scalar-entry-owner"))?;
-    if declarations.next().is_some() || declaration.mode != Mode::StaticBoxMethod { return Err(freeze("expression/scalar-entry-layout-pending")); }
+    if declarations.next().is_some() { return Err(freeze("expression/scalar-entry-owner")); }
+    let (receivers, namespace) = match declaration.mode {
+        Mode::StaticBoxMethod => (0, hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod),
+        Mode::InstanceBoxMethod => (1, hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod),
+        _ => return Err(freeze("expression/scalar-entry-layout-pending")),
+    };
     let mut rows = declaration.parameters.iter().filter(|row| row.binding == formal);
     let row = rows.next().ok_or_else(|| freeze("expression/scalar-entry-formal"))?;
     if rows.next().is_some() || declaration.parameters.get(row.ordinal as usize).is_none_or(|original| original.binding != formal)
         || !matches!(row.kind, Kind::ExactTrivial(abi) if abi.is_i64()) { return Err(freeze("expression/scalar-entry-contract")); }
-    Ok(row.ordinal as usize)
+    let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
+        .ok_or_else(|| freeze("expression/scalar-entry-issuance"))?;
+    let signature = signatures.row(declaration.batch_slot).ok_or_else(|| freeze("expression/scalar-entry-signature"))?;
+    let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(declaration.batch_slot)
+        else { return Err(freeze("expression/scalar-entry-key")) };
+    if signature.owner() != binding.owner() || signature.mode() != declaration.mode
+        || key.namespace() != namespace || key.arity() as usize != declaration.parameters.len()
+        || !selected.identity_for_batch_slot(declaration.batch_slot).is_some_and(|identity| signature.identity().same_as(identity))
+        || signature.source_logical_arity() as usize != declaration.parameters.len()
+        || signature.receiver_lane_count() as usize != receivers
+        || signature.lanes().iter().filter(|lane| lane.role() == Role::InstanceReceiver).count() != receivers
+        || receivers == 1 && signature.lanes().first().is_none_or(|lane| lane.index() != 0
+            || lane.role() != Role::InstanceReceiver || lane.logical_ordinal().is_some() || lane.binding().owner() != binding.owner()) {
+        return Err(freeze("expression/scalar-entry-source-signature"));
+    }
+    let mut lanes = signature.lanes().iter().filter(|lane| lane.binding() == formal
+        && lane.logical_ordinal() == Some(row.ordinal) && lane.role() == Role::OrdinaryScalar);
+    let lane = lanes.next().ok_or_else(|| freeze("expression/scalar-entry-formal-lane"))?;
+    if lanes.next().is_some() || signature.lanes().get(lane.index() as usize) != Some(lane) {
+        return Err(freeze("expression/scalar-entry-formal-lane"));
+    }
+    Ok((lane.index() as usize, signature.physical_callable_lane_count() as usize, receivers, key.mir_symbol_projection()))
 }
+
 fn initializer_value(source: &Producer, read: &BindingValueObservationV2, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
     let (binding, expected) = match source {
         Producer::Integer { binding, .. } => (*binding, None),
@@ -339,7 +370,7 @@ fn validate_scalar_origin(binding: crate::mir::resolved_semantics::BindingRefV1,
     }
     match (source, producer) {
         (Producer::SignedEntry(formal), ReferenceProducerV1::Entry(entry)) => {
-            signed_entry_ordinal(binding, *formal, context)?;
+            signed_entry_layout(binding, *formal, context)?;
             read.loan_forwarded_copies(*formal, *entry)?;
         }
         (Producer::SignedEntry(_), _) | (_, ReferenceProducerV1::Entry(_)) => return Err(freeze("expression/scalar-producer-kind")),
@@ -383,10 +414,13 @@ fn validate_entry_layout(binding: crate::mir::resolved_semantics::BindingRefV1, 
     context: CallValidationContextV1<'_>, function: &MirFunction,
 ) -> Result<(), String> {
     let (Producer::SignedEntry(formal), ReferenceProducerV1::Entry(entry)) = (source, producer) else { return Ok(()) };
-    let ordinal = signed_entry_ordinal(binding, *formal, context)?;
-    let declaration = context.ledger().original_parameter_contracts.as_deref().unwrap().iter()
-        .find(|row| row.owner == binding.owner()).unwrap();
-    if declaration.parameters.len() != function.params.len() || function.params.get(ordinal) != Some(entry) {
+    let (ordinal, count, receivers, symbol) = signed_entry_layout(binding, *formal, context)?;
+    let declarations = &function.metadata.declared_param_decls;
+    if function.signature.name != symbol || count != function.params.len()
+        || function.params.get(ordinal) != Some(entry) || declarations.len() != count
+        || declarations.iter().enumerate().any(|(index, row)| row.implicit_receiver != (receivers == 1 && index == 0))
+        || receivers == 1 && function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.first())
+            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
         return Err(freeze("expression/scalar-entry-ordinal-value"));
     }
     // Reuse the complete physical entry and exact Copy checks, independently
@@ -399,12 +433,12 @@ fn validate_dependencies_for_entry(entry: ValueId, function: &MirFunction) -> Re
     if function.params.len() != function.signature.params.len() || carriers.len() != function.params.len()
         || function.params.iter().filter(|value| **value == entry).count() != 1
         || function.params.iter().copied().collect::<std::collections::BTreeSet<_>>().len() != function.params.len()
-        || function.metadata.declared_param_decls.iter().any(|row| row.implicit_receiver)
         || function.blocks.values().flat_map(|block| block.all_instructions()).any(|row| row.dst_value().is_some_and(|dst| function.params.contains(&dst))) {
         return Err(freeze("expression/scalar-entry-physical"));
     }
     let index = function.params.iter().position(|value| *value == entry).unwrap();
-    if carriers[index] != Carrier::ExistingCallableI64 || function.signature.params[index] != crate::mir::MirType::Integer {
+    if function.metadata.declared_param_decls.get(index).is_none_or(|row| row.implicit_receiver)
+        || carriers[index] != Carrier::ExistingCallableI64 || function.signature.params[index] != crate::mir::MirType::Integer {
         return Err(freeze("expression/scalar-entry-carrier"));
     }
     Ok(())

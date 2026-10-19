@@ -93,7 +93,7 @@ impl OriginalReturnSourceLoanV1 {
         self.0.owner == reference.callee_owner
             && self.0.batch_slot == reference.target_batch_slot
             && self.0.key == reference.target
-            && reference.argument_sites.is_empty()
+            && reference.argument_sites.len() == self.0.key.arity() as usize
     }
     pub(super) fn plan(&self, value: &SourceExprSiteV1) -> Option<&Rc<ExpressionSourcePlanV1>> {
         self.plans().iter().find(|plan| {
@@ -146,20 +146,27 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     contracts: &[OwnedCallableParameterContractDeclarationV1],
 ) -> OriginalReturnsV1 {
     contracts.iter().filter(|contract|
-        contract.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-            && contract.parameters.is_empty()).map(|contract| {
+        contract.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod).map(|contract| {
         let source = batch.with_lowering_input(contract.batch_slot, |input| {
             let key = selected.key_for_batch_slot(contract.batch_slot).and_then(|key| match key {
                 crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) => Some(key), _ => None,
             }).ok_or_else(|| freeze("borrowed-result/original-return-key"))?;
             if input.owner() != contract.owner || input.function().owner() != contract.owner
-                || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod || key.arity() != 0
+                || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod || key.arity() as usize != contract.parameters.len()
                 || contracts.iter().filter(|row| row.owner == contract.owner).count() != 1
-                || input.function().declaration_sites().any(|site| matches!(site, SourceBindingSiteV1::Parameter { .. }))
+                || contract.parameters.iter().enumerate().any(|(ordinal, row)|
+                    row.ordinal as usize != ordinal || row.binding.owner() != input.owner())
             { return Err(freeze("borrowed-result/original-return-owner")); }
             let mut receivers = input.function().bindings().filter(|(_, row)| row.kind() == BindingKindV1::Receiver);
             let receiver = receivers.next().map(|(binding, _)| binding).ok_or_else(|| freeze("borrowed-result/original-return-receiver"))?;
             if receivers.next().is_some() { return Err(freeze("borrowed-result/original-return-receiver")); }
+            // Arity expansion belongs only to Unit; the original scalar field
+            // result owner retains its existing parameter-free boundary.
+            if !contract.parameters.is_empty() && input.body_shape().is_none_or(|shape|
+                shape.statements().iter().any(|row| matches!(row,
+                    crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }))) {
+                return Ok(None);
+            }
             let (plans, field_values) = original_return_plans_v1(input, receiver)?;
             let body = if !field_values.is_empty() {
                 OriginalReturnBodySourceV1::Fields { plans: plans.into_boxed_slice(), field_values: field_values.into_boxed_slice() }

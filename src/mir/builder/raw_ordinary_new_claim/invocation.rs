@@ -27,7 +27,8 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         }
         let Some(observation) = ledger.unit_discard_source_v1(&site) else { return Ok(false); };
         let original = observation.unit_source().ok_or("[freeze:contract][unit-call/original-missing]")?;
-        if method != original.target().name() || arity != 0 || !original.argument_sites().is_empty() {
+        if method != original.target().name() || arity != original.target().arity() as usize
+            || original.argument_sites().len() != arity || observation.arguments().len() != arity {
             return Err("[freeze:contract][unit-call/syntax-drift]".into());
         }
         self.check_new_emission_scope(&site)?;
