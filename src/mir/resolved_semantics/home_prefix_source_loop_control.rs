@@ -183,7 +183,7 @@ impl ports::SourceLoopScanSummaryV1 {
         let mut roots = Vec::new();
         let mut frames = vec![&self.condition];
         let mut exits = BTreeSet::new();
-        fn visit<'a>(body: &'a CheckedSourceLoopBodyV1, summary: &ports::SourceLoopScanSummaryV1,
+        fn visit<'a>(body: &'a CheckedSourceLoopBodyV1, summary: &'a ports::SourceLoopScanSummaryV1,
             input: ResolvedFunctionLoweringInputV1<'_>,
             roots: &mut Vec<&'a Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>>,
             frames: &mut Vec<&'a Rc<CheckedBoolConditionFrameV1>>, exits: &mut BTreeSet<usize>,
@@ -191,7 +191,7 @@ impl ports::SourceLoopScanSummaryV1 {
             for statement in body.statements.iter() {
                 match statement {
                     CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation } => {
-                        let NamedArrayHomeObservationV1::Append { source, call, candidate, availability, .. } = observation
+                        let NamedArrayHomeObservationV1::Append { source, call, candidate, availability, prior_homes, .. } = observation
                             else { return Err("source Loop append observation kind"); };
                         let ledger = input.forest().callable_source_ledger(input.owner())
                             .map_err(|_| "source Loop append ledger")?;
@@ -205,6 +205,30 @@ impl ports::SourceLoopScanSummaryV1 {
                             || ledger.resolved_loop_placement(summary.source.site(), call.site()).ok()
                                 != Some(Some(crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body)) {
                             return Err("source Loop append identity");
+                        }
+                        // These frames execute inside the SAME append candidate's
+                        // Call packet, not as separate Loop expression steps.
+                        let mut ordinals = BTreeSet::new();
+                        for plan in summary.body_expressions.iter().filter(|plan|
+                            plan.argument_frame().is_some() && plan.source().root().statement() == site) {
+                            let frame = plan.argument_frame().ok_or("source Loop append argument frame")?;
+                            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                call: argument_call, ordinal, ..
+                            } = plan.source().root() else { return Err("source Loop append argument purpose"); };
+                            if argument_call.owner() != input.owner() || argument_call.site() != candidate.site()
+                                || ledger.method_call_source_v1(candidate.site()).is_none_or(|original|
+                                    !std::sync::Arc::ptr_eq(original, argument_call))
+                                || argument_call.arguments().get(*ordinal as usize).is_none_or(|argument|
+                                    argument.ordinal() != *ordinal || plan.source().nodes().first()
+                                        .is_none_or(|root| root.site() != argument.site()))
+                                || !Rc::ptr_eq(frame.source(), plan.source())
+                                || !Rc::ptr_eq(frame.source_loan().plan(), plan.source())
+                                || !frame.evaluation().reference_coverage_is_exact()
+                                || !frame.prior_homes().iter().rev().eq(prior_homes.iter())
+                                || !ordinals.insert(*ordinal) {
+                                return Err("source Loop append argument identity");
+                            }
+                            roots.push(plan.source());
                         }
                     }
                     CheckedSourceLoopStatementV1::Expression { site, frame } => {

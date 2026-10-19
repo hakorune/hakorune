@@ -33,6 +33,7 @@ impl BorrowedFormalDomainV1 {
     pub(in crate::mir) fn ordinal(&self) -> u32 { self.ordinal }
     pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(in crate::mir) fn text_only(&self) -> bool { self.sum.text_only() }
+    pub(in crate::mir) fn signed_only(&self) -> bool { self.sum.signed_only() }
     #[cfg(test)]
     pub(super) fn source_sum_v1(&self) -> &Rc<super::borrowed_formal_source::SourceValueSumV1> { &self.sum }
 }

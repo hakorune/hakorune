@@ -173,8 +173,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                             Operand::NormalInteger(lhs),
                             Operand::NormalInteger(rhs),
                         ) => {
-                            self.require_unique(|row| matches!(row, MirInstruction::BinOp { dst: actual, op: crate::mir::BinaryOp::Add, lhs: a, rhs: b }
-                                if actual == dst && *a == lhs && *b == rhs))?;
+                            let operation = self.frame.operations().iter().find(|loan| loan.node() == index
+                                && Rc::ptr_eq(loan.source(), source)).and_then(|loan| loan.integer_operator_v1())
+                                .ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
+                            self.require_unique(|row| matches!(row, MirInstruction::BinOp { dst: actual, op, lhs: a, rhs: b }
+                                if actual == dst && *op == operation && *a == lhs && *b == rhs))?;
                         }
                         (Operand::OwnedString(dst), left, right)
                             if self.frame.owned_result_nodes().contains(&index) =>

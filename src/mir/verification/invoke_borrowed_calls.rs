@@ -118,14 +118,16 @@ pub(super) fn original_call_slots(
                 return Err("borrowed-source-actual-coverage".into());
             }
             for actual in actuals {
-                let Some(operand) = packet.borrowed_text_argument_operand_v1(actual.ordinal, CallValidationContextV1::Finalized(source))? else { continue };
-                let StringInvokeOperand::OwnedString(value) = operand else { return Err("borrowed-source-text-operand".into()) };
+                let Some(operand) = packet.borrowed_computed_argument_operand_v1(actual.ordinal, CallValidationContextV1::Finalized(source))? else { continue };
+                let value = match operand { StringInvokeOperand::OwnedString(value) | StringInvokeOperand::NormalInteger(value) => value,
+                    _ => return Err("borrowed-source-text-operand".into()) };
                 let instruction = caller.blocks.get(&coordinate.0).and_then(|block| block.all_instructions().nth(coordinate.1))
                     .ok_or_else(|| "borrowed-source-text-coordinate".to_owned())?;
                 let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = instruction
                     else { return Err("borrowed-source-text-call".into()) };
                 if call.args.get(actual.ordinal as usize) != Some(&value)
-                    || image.text.insert((caller.signature.name.clone(), coordinate.0, coordinate.1, actual.ordinal as usize), value).is_some() {
+                    || matches!(operand, StringInvokeOperand::OwnedString(_))
+                        && image.text.insert((caller.signature.name.clone(), coordinate.0, coordinate.1, actual.ordinal as usize), value).is_some() {
                     return Err("borrowed-source-text-identity".into());
                 }
             }

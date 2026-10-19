@@ -177,19 +177,24 @@ pub(super) fn encode_ordinary_call(
             consumed += 1;
             if matches!(proof.source, Source::Expression(_)) {
                 let issued = issued_call.ok_or_else(|| fault("borrowed-expression/call-missing"))?;
-                let operand = issued.borrowed_text_operand_v1(proof.ordinal)
+                let operand = issued.borrowed_computed_operand_v1(proof.ordinal)
                     .ok_or_else(|| fault("borrowed-expression/descriptor-missing"))?;
-                if !matches!(operand, crate::mir::instruction::StringInvokeOperand::OwnedString(original) if original == value) {
-                    return Err(fault("borrowed-expression/operand-drift"));
-                }
                 let parameter = callee.params().get(index + offset).ok_or_else(|| fault("borrowed-expression/formal-missing"))?;
                 let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
-                if !input.entry().borrowed_formal_domain_v1(*target, parameter.0).is_some_and(|domain| domain.text_only() && domain.ordinal() as usize == index) {
-                    return Err(fault("borrowed-expression/finite-domain-transport-unconnected"));
-                }
-                return Ok(json!({"kind":"borrowed_text", "operand": super::operation::encode_string_operand_v1(operand)}));
+                let domain = input.entry().borrowed_formal_domain_v1(*target, parameter.0)
+                    .filter(|domain| domain.ordinal() as usize == index)
+                    .ok_or_else(|| fault("borrowed-expression/finite-domain-transport-unconnected"))?;
+                return match (&proof.source, operand) {
+                    (Source::Expression(source), crate::mir::instruction::StringInvokeOperand::NormalInteger(original))
+                        if source.frame().is_i64() && original == value && domain.signed_only() =>
+                            Ok(json!({"kind":1, "value":value.0})),
+                    (Source::Expression(source), crate::mir::instruction::StringInvokeOperand::OwnedString(original))
+                        if !source.frame().is_i64() && original == value && domain.text_only() =>
+                            Ok(json!({"kind":"borrowed_text", "operand":super::operation::encode_string_operand_v1(operand)})),
+                    _ => Err(fault("borrowed-expression/operand-drift")),
+                };
             }
-            if issued_call.and_then(|row| row.borrowed_text_operand_v1(proof.ordinal)).is_some() {
+            if issued_call.and_then(|row| row.borrowed_computed_operand_v1(proof.ordinal)).is_some() {
                 return Err(fault("borrowed-expression/unselected-descriptor"));
             }
             let kind = encode_borrowed_call_actual_kind(
@@ -413,7 +418,7 @@ fn encode_borrowed_call_actual_kind(
 
 fn encode_borrowed_actual_kind(source: &Source) -> Result<Value, String> {
     Ok(match source {
-        // A computed Text needs the descriptor from this SAME finalized Call
+        // A computed actual needs the descriptor from this SAME finalized Call
         // packet. Its source frame alone cannot manufacture a wire operand.
         Source::Expression(_) => return Err(fault("borrowed-expression/descriptor-missing")),
         // The exact `null` literal spells tag 0; the `value` field still

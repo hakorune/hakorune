@@ -38,6 +38,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
     rows: Option<&mut PreparedBorrowedCallActualsV1>,
 ) -> Result<(), String> {
     let Some(rows) = rows else { return Ok(()) };
+    if let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &mut rows.phase {
+        let reject = || freeze("borrowed-object/source-actual-identity");
+        let mut originals = prepared.source_incoming.exact_rows().filter(|row| &row.call == site);
+        let original = originals.next().ok_or_else(reject)?;
+        if originals.next().is_some() || original.source.require_instance()? != &identity.source
+            || original.arguments != identity.incoming_arguments { return Err(reject()); }
+        let old = previous.map(|row| {
+            let row = row.as_ref().map_err(|_| freeze("borrowed-actual/repeated-walk-drift"))?;
+            let BorrowedCallActualEvidencePhaseV1::SourceObject(old) = &row.phase else { return Err(reject()); };
+            if !old.same_original_source_v1(identity) { return Err(reject()); }
+            Ok((!old.argument_sources.is_empty()).then_some(&old.argument_sources))
+        }).transpose()?.flatten();
+        let method = input.function().method_call_source_v1(site.site()).ok_or_else(reject)?;
+        identity.argument_sources = model::bind_original_argument_plans_v1(input,
+            super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(&identity.source),
+            method, &identity.candidates, old)?;
+        return Ok(());
+    }
     if let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &mut rows.phase {
         let reject = || freeze("borrowed-instance/argument-source-identity");
         let mut originals = prepared.source_incoming.exact_rows().filter(|row| &row.call == site);
@@ -119,6 +137,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
                     && previous.ordered_arguments == current.ordered_arguments
                     && new.argument_sources.values().all(|row| matches!(row, ArgumentExpressionV1::Source(_))),
             (BorrowedCallActualEvidencePhaseV1::SourceInstance(old), BorrowedCallActualEvidencePhaseV1::SourceInstance(new)) =>
+                old.same_original_source_v1(new)
+                    && (old.argument_sources.is_empty()
+                        || old.argument_sources.len() == new.argument_sources.len()
+                            && old.argument_sources.iter().all(|(ordinal, plan)| new.argument_sources.get(ordinal)
+                                .is_some_and(|other| Rc::ptr_eq(plan, other))))
+                    && previous.opaque_actuals == current.opaque_actuals
+                    && previous.ordered_arguments == current.ordered_arguments
+                    && new.argument_sources.values().all(|row| matches!(row, ArgumentExpressionV1::Source(_))),
+            (BorrowedCallActualEvidencePhaseV1::SourceObject(old), BorrowedCallActualEvidencePhaseV1::SourceObject(new)) =>
                 old.same_original_source_v1(new)
                     && (old.argument_sources.is_empty()
                         || old.argument_sources.len() == new.argument_sources.len()
@@ -245,6 +272,34 @@ fn argument_source_identity_v1<'a>(
             match &rows.phase {
                 BorrowedCallActualEvidencePhaseV1::SourceInstance(_) if &rebuilt != rows => return Err(reject()),
                 BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_) => { rows.checked_ordered_arguments_v1(original)?; }
+                _ => {},
+            }
+            Ok(Some(ArgumentSourceIdentityRefV1 { source: Loan::Instance(&identity.source), candidates: &identity.candidates,
+                slots: &identity.argument_sources, formals: &contract.parameters }))
+        }
+        BorrowedCallActualEvidencePhaseV1::SourceObject(identity)
+        | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) => {
+            let reject = || freeze("borrowed-object/source-actual-identity");
+            let contracts = contracts.ok_or_else(reject)?;
+            let mut originals = prepared.source_incoming.exact_rows().filter(|row| &row.call == site);
+            let original = originals.next().ok_or_else(reject)?;
+            if originals.next().is_some() || original.source.require_instance()? != &identity.source
+                || original.arguments != identity.incoming_arguments { return Err(reject()); }
+            let mut matches = contracts.iter().filter(|row| row.owner == identity.source.callee_owner());
+            let contract = matches.next().ok_or_else(reject)?;
+            if matches.next().is_some() || contract.batch_slot != identity.source.target_batch_slot()
+                || contract.mode != Loan::Instance(&identity.source).declaration_mode()
+                || contract.parameters.len() != identity.candidates.len()
+                || contract.parameters.iter().enumerate().any(|(index, formal)| formal.ordinal as usize != index
+                    || formal.binding.owner() != contract.owner || identity.source.argument_sites().get(index)
+                        != identity.candidates.get(index).map(|candidate| &candidate.site)) { return Err(reject()); }
+            let mut rebuilt = object_source::prepare_object_source_actuals_v1(prepared, contracts, site, &identity.candidates)?
+                .ok_or_else(reject)?;
+            model::retain_object_argument_sources_v1(&mut rebuilt, identity)?;
+            if rebuilt.ordered_arguments != rows.ordered_arguments { return Err(reject()); }
+            match &rows.phase {
+                BorrowedCallActualEvidencePhaseV1::SourceObject(_) if &rebuilt != rows => return Err(reject()),
+                BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_) => { rows.checked_ordered_arguments_v1(original)?; }
                 _ => {},
             }
             Ok(Some(ArgumentSourceIdentityRefV1 { source: Loan::Instance(&identity.source), candidates: &identity.candidates,
@@ -445,7 +500,10 @@ fn lend_argument_source_inner_v1(
         if !std::sync::Arc::ptr_eq(method, original) { return Err(freeze("borrowed-static/core-source-identity")); }
     }
     let formal = identity.formals.get(ordinal as usize).ok_or_else(|| freeze("borrowed-static/argument-formal"))?;
-    let i64_result = matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64());
+    let i64_result = matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
+        || matches!(candidate.value, BorrowedCallActualValueV1::Expression)
+            && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+            && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only());
     Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), i64_result, calls }))
 }
 
@@ -462,12 +520,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     let Some(rows) = pending.get(site) else { return Ok(None) };
     let rows = rows.as_ref().map_err(Clone::clone)?;
     if !matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_)
-        | BorrowedCallActualEvidencePhaseV1::SourceInstance(_)) { return Ok(None); }
+        | BorrowedCallActualEvidencePhaseV1::SourceInstance(_) | BorrowedCallActualEvidencePhaseV1::SourceObject(_)) { return Ok(None); }
     let Some(identity) = argument_source_identity_v1(prepared, Some(contracts), rows, site)? else { return Ok(None) };
     let Some(formal) = identity.formals.get(ordinal as usize).filter(|formal| formal.ordinal == ordinal) else { return Ok(None) };
     if !identity.slots.get(&ordinal).is_some_and(|plan| matches!(plan.root(), ExpressionPlanRootV1::CallArgument { call: original, .. }
         if std::sync::Arc::ptr_eq(original, call))) { return Err(freeze("borrowed-static/core-source-identity")); }
-    if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) {
+    if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
+        || matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+            && matches!(identity.candidates.get(ordinal as usize).map(|actual| &actual.value), Some(BorrowedCallActualValueV1::Expression))
+            && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only()) {
         let eligible = match crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, arg.site()) {
             Some(BorrowedCallActualValueV1::Expression) => true,
             Some(BorrowedCallActualValueV1::MethodCall(method)) => prepared.ordinary_core_source_v1(
@@ -548,6 +609,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn complete_argument_expres
     let slots = match &mut rows.phase {
         BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) => &mut identity.argument_sources,
         BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) => &mut identity.argument_sources,
+        BorrowedCallActualEvidencePhaseV1::SourceObject(identity) => &mut identity.argument_sources,
         _ => return Err(reject()),
     };
     let slot = slots.get_mut(ordinal).ok_or_else(reject)?;

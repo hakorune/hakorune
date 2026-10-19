@@ -608,7 +608,7 @@ fn provider_static_original_base_keeps_source_evidence_through_ready() {
         let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
         let context = ledger.borrowed_i64_results.field_candidates.as_ref().unwrap();
         let parameter = context.writers.get(&("Page".into(), "n".into())).and_then(|rows|
-            rows.iter().find_map(|row| match row.birth { Some(BirthBaseV1::Parameter(basis)) => Some(basis), _ => None }));
+            rows.iter().find_map(|row| match &row.birth { Some(BirthBaseV1::Parameter(basis)) => Some(basis), _ => None }));
         assert_eq!(parameter.is_some(), expected, "{body}");
         if let Some(basis) = parameter {
             assert!(basis.i64_source());

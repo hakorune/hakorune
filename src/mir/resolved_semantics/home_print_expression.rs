@@ -77,7 +77,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     if !references.is_empty() { return Ok(None); }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) { return Ok(None); }
-    let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
+    let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     let frame = Rc::new(CheckedPrintExpressionFrameV1 { evaluation: CheckedExpressionEvaluationV1 {
         source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(),
         references: reference_proofs, calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),

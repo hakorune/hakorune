@@ -229,19 +229,20 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 .get(&coordinate)
                 .ok_or_else(|| fault("borrowed-incoming/coordinate-mismatch"))?;
             corroborate_final_call(published_call.0, *published_call.1, caller, (block, index))?;
-            let mut text_operands = BTreeMap::new();
+            let mut computed_operands = BTreeMap::new();
             for actual in actuals {
-                if let Some(operand) = packet.borrowed_text_argument_operand_v1(actual.ordinal,
+                if let Some(operand) = packet.borrowed_computed_argument_operand_v1(actual.ordinal,
                     crate::mir::normal_callable_semantic_package::CallValidationContextV1::Finalized(source))? {
                     if !matches!(operand, crate::mir::instruction::StringInvokeOperand::OwnedString(value)
+                        | crate::mir::instruction::StringInvokeOperand::NormalInteger(value)
                         if published_call.0.args.get(actual.ordinal as usize) == Some(&value))
-                        || text_operands.insert(actual.ordinal, operand).is_some() {
+                        || computed_operands.insert(actual.ordinal, operand).is_some() {
                         return Err(fault("borrowed-incoming/text-operand"));
                     }
                 }
             }
-            uses.text_call(caller, (block, index), actuals, &text_operands)?;
-            if witnessed.insert(coordinate, BorrowedCallIncomingV1 { actuals, text_operands }).is_some() {
+            uses.computed_call(caller, (block, index), actuals, &computed_operands)?;
+            if witnessed.insert(coordinate, BorrowedCallIncomingV1 { actuals, computed_operands }).is_some() {
                 return Err(fault("borrowed-incoming/coordinate-mismatch"));
             }
             Ok(())

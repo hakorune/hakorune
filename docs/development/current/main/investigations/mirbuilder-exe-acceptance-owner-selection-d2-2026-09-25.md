@@ -1,6 +1,6 @@
 # APP-allocator-stress
 
-Status: selected; original Array/Loop stop passed; scalar result source remains open.
+Status: selected; first Loop source coverage passed; Bool call condition prefix remains open.
 Date: 2026-10-19
 Scope: unchanged allocator-stress, physical EXE, exact output/exit and retained handle safety.
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
@@ -12,35 +12,41 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - User authorized skipping parked untyped-field. Allocator reuses passing mimalloc's heap;
   binary-trees/JSON also need unresolved untyped slots, JSON additional Text/Loop connections.
 - Fixed suite at revision `751dae566b`: 6PASS/5FAIL, actual EXE5 + empty marker1,
-  SKIP/timeout0; mimalloc green. No new whole-suite measurement or full-goal completion.
-- Fresh direct EXE advances beyond `NamedArray(TextSourceMissing)` and stops before
-  artifact generation at `ordinary-new/borrowed-result/source-not-i64`: main.hako:67
-  summary `heap.requestedBytes()`, returning two declared child `requested_bytes` fields.
-- Existing smoke separately stops in generic MIR emission at
-  `borrowed-static/required-integer-source-unproved`; this is not the direct EXE route.
+  SKIP/timeout0; mimalloc green. This is the landed baseline, not current WIP acceptance.
+- Fresh source-only EXE passed `requestedBytes()` at main.hako:67; computed-argument
+  CLI then passed original-actual selection and arithmetic frame qualification.
+- Latest matching quick CLI and selected canonical smoke pass first Loop source coverage.
+  They stop before artifacts at `array-home/append-prefix`, `PrefixNotCovered` Body11:
+  main.hako:28, `heap.release(small_handles.get(1)) == false`. EXE remains ungenerated.
+- Existing smoke now selects canonical physical lifecycle EXE directly, as mimalloc
+  does, retaining exact output/rejects=4, route/toolchain/artifact checks and no replay.
+  Its earlier generic JSON route stopped at required-integer-source-unproved.
 - Original demand: `apps/allocator-stress/main.hako:15`,
   `small_handles.push(heap.allocate(1 + (i * 4)))` in the first loop.
 
 ## Connected owners
 
-- Same named-Array source issuer retains exact resolver-qualified Loop-body append sites.
-  Original Get stays a direct parent-call argument; slot bounds/liveness stay runtime checks.
-- Before Text contract issuance, the existing whole-holder source selects its exact handle
-  append/candidate. No Text error is caught or relaxed; class/Home/ABI refusals remain downstream.
-- Same append Home observation becomes a checked Loop action, Recipe unit-effect slot and
-  verified schedule step. Receiver, candidate and prior Homes retain original identities.
-- The existing raw and Loop ports share one append transaction and sole `emit_append` writer.
-  Candidate CallNormal precedes transfer; cancellation precedes holder unwind on Fault.
-- Same Loop child group tree owns append packets; the root does not duplicate conditional
-  effects. Whole-holder final validation traverses that tree and keeps site cardinality.
-- Independent graph checks bind step entry to candidate acquisition and Append, plus the
-  actual Normal continuation. Both manual and whole-program verification retain their scopes.
-- Same source proof lends required Phi tuples to always-on draft repair and finishing
-  liveness. Strict correspondence is retained; no missing producer is silently accepted.
-- Independent lifetime verification keeps exact-State joins/all terminal End checks. Only
-  resource-stable natural backedges with a conditional normal exit are eligible; Fault,
-  pending acquisitions, empty-holder and residual cycles retain refusal. Cached CFG and
-  actual terminator edges must agree before backedge certification. No termination claim.
+- Same named-Array source selects original holder/Get/Loop-body append sites before Text
+  issuance. Text refusals remain intact; Get is a direct parent-call argument.
+- Same append Home observation, checked Loop action, Recipe effect slot and child-group
+  packet retain receiver/candidate identities. Root prefixes do not duplicate Loop effects.
+- Raw and Loop ports share the sole append writer. Normal transfer/Fault cancellation and
+  holder teardown remain checked. Graph validation binds entry, acquisition and continuation.
+- Same source proof lends required Phi tuples to repair/liveness. Natural-backedge admission
+  checks exact resource state and consistent cached/actual CFG, without a termination claim.
+- Current arithmetic work retains the SAME finite signed source SUM for the stable original
+  formal use. Declared usize and legacy transport agreements are unchanged.
+- Object input now uses the existing argument-purpose source/frame protocol, with original
+  membership checks on re-observation and reconstruction. No second expression evaluator.
+- Same computed-actual packet selects ScalarCompleted/NormalInteger for I64; Text retains
+  OwnedTextDeferred/OwnedString and its cleanup. Exact Call operand coverage stays mandatory.
+- Wire tag1 requires the same finalized computed descriptor/value and callee's signed-only
+  complete source domain. Bare expression frames cannot issue transport.
+- Add/Mul argument operations use the same canonical numeric envelope, expression
+  writer and independent opcode/source matcher. No second arithmetic evaluator.
+- Loop source census binds delegated frames to exact candidate Call/ordinal, original
+  method Arc, plan/source-loan Rc and evaluation-time Homes. Same Call packet owns
+  execution/final checks; Loop child-prefix count excludes these delegated frames.
 - No app rewrite, new test file/hook/checker/registry, or runtime/C ABI change.
 
 ## Verification and next action
@@ -53,13 +59,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   unavailable; the same test fails identically with the preserved pre-change root binary.
   This is an open source boundary, not accepted product success.
 - Test-name list9263 unchanged; builder layer/CallTarget guards and diff check PASS.
-- Final quick CLI after CFG consistency hardening compiled; direct EXE and existing
-  smoke both reproduce the stops above, exit1 before artifacts. Existing lifecycle
-  runtime/C API reused; no runtime/C ABI change.
-- Next: inspect requested_bytes writer `requested_size`: original
-  Return leaf uses old Integer agreement, while Loop actual arithmetic has source SUM.
-  Reuse that finite signed source closure; do not infer I64 from usize or widen transport.
-  This diagnosis still needs direct validation; no app PASS from focused tests.
+- Current computed-actual/delegated coverage work: existing focused54 PASS;
+  the same known Text Loop test remains failing. Test-name list9263 unchanged.
+  Only the existing Copy-to-borrow test access changed; no cases or fixture calls added.
+- Matching quick CLI build PASS; selected unchanged-app smoke FAIL at Body11 before
+  artifacts. Next: connect the existing Bool-condition/ArrayGet call source owners;
+  preserve all artifact/run/output obligations before app completion.
+- Pre-selector WIP CLI whole-suite attempt: 3PASS/8FAIL, including three 120s timeouts
+  and five semantic failures. Same-binary mimalloc retake PASS with 300s build allowance;
+  typed method/birth retakes still hit their inner120s limits. These are unresolved
+  timing results, not final-HEAD acceptance or evidence that the old6PASS remain green.
 - Existing smoke: `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh`.
 - Preserve expected accounting including rejects=4 and exit0. Retire only replaced exclusive
   edges after caller/validation closure. Untyped D0 stays ParkedSealed until accepted.

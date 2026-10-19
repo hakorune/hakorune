@@ -20,7 +20,12 @@ impl EmittedSourceLoopProjectionV2 {
         if expected.iter().enumerate().any(|(index, row)| expected[..index].iter().any(|old| old.site() == row.site())) {
             return Err(freeze("source-loop/child-site-duplicate"));
         }
-        if expected.len() != product.source.body_expressions.len() + 1 + product.schedule().blocks_array_appends_v2().count()
+        // Verified source coverage binds argument-purpose frames to their
+        // append candidate. Its Call packet owns those children; emitting a
+        // second prefix here would evaluate the arguments twice.
+        let standalone = product.source.body_expressions.iter()
+            .filter(|plan| plan.argument_frame().is_none()).count();
+        if expected.len() != standalone + 1 + product.schedule().blocks_array_appends_v2().count()
             || !matches!(expected.first(), Some(LifecyclePrefixSourceV1::BoolCondition { frame, .. })
                 if Rc::ptr_eq(frame, &product.source.condition)) {
             return Err(freeze("source-loop/child-census"));

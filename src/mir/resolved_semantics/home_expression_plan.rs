@@ -24,6 +24,21 @@ impl CheckedExpressionOperationLoanV1 {
     pub(crate) fn single_envelope(&self) -> Option<&'static VerifiedDynamicOperatorExecutionEnvelopeV1> {
         match self.envelopes.as_ref() { [envelope] => Some(*envelope), _ => None }
     }
+    /// One canonical numeric operation, tied to its original source node.
+    /// The writer and independent physical matcher consume this same loan.
+    pub(crate) fn integer_operator_v1(&self) -> Option<crate::mir::BinaryOp> {
+        use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+            DynamicOperatorValueClassV1 as Class, DynamicOperatorNormalResultV1 as ResultKind};
+        let envelope = self.single_envelope()?;
+        let domain = envelope.domain();
+        if domain.left() != Class::NormalInteger || domain.right() != Class::NormalInteger
+            || envelope.normal_result() != ResultKind::NormalInteger { return None; }
+        match (self.plan.nodes().get(self.node)?.binary()?.operator(), domain.family()) {
+            (ResolvedBinaryOperatorV1::Add, Family::Add) => Some(crate::mir::BinaryOp::Add),
+            (ResolvedBinaryOperatorV1::Multiply, Family::Mul) => Some(crate::mir::BinaryOp::Mul),
+            _ => None,
+        }
+    }
 }
 
 

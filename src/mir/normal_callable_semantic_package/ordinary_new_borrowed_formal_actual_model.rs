@@ -17,7 +17,7 @@ impl BorrowedExpressionActualSourceV1 {
     pub(super) fn from_frame(frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>) -> Result<Self, String> {
         use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf};
-        if frame.is_i64() || frame.evaluation().root_class() != Leaf::Value(Class::String) {
+        if frame.evaluation().root_class() != Leaf::Value(if frame.is_i64() { Class::I64 } else { Class::String }) {
             return Err(freeze("borrowed-expression/source-result"));
         }
         Ok(Self { frame })
@@ -412,6 +412,23 @@ pub(super) fn retain_instance_argument_sources_v1(
     };
     if !identity.same_original_source_v1(original) || !identity.argument_sources.is_empty() {
         return Err(freeze("borrowed-instance/source-identity"));
+    }
+    if !original.argument_sources.is_empty() {
+        validate_original_argument_plans_v1(super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            &original.source), &original.candidates, &original.argument_sources)?;
+    }
+    identity.argument_sources = original.argument_sources.clone();
+    Ok(())
+}
+
+pub(super) fn retain_object_argument_sources_v1(
+    prepared: &mut PreparedBorrowedCallActualsV1, original: &object_source::ObjectSourceActualIdentityV1,
+) -> Result<(), String> {
+    let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &mut prepared.phase else {
+        return Err(freeze("borrowed-object/source-actual-identity"));
+    };
+    if !identity.same_original_source_v1(original) || !identity.argument_sources.is_empty() {
+        return Err(freeze("borrowed-object/source-actual-identity"));
     }
     if !original.argument_sources.is_empty() {
         validate_original_argument_plans_v1(super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(

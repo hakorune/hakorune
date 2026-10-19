@@ -107,13 +107,14 @@ pub(super) fn revalidate_passive_object_incoming_v1(
     {
         return Err(freeze("borrowed-entry/object-view-drift"));
     }
-    let rechecked = object_source::prepare_object_source_actuals_v1(
+    let mut rechecked = object_source::prepare_object_source_actuals_v1(
         ingress,
         contracts,
         &call.call,
         &identity.candidates,
     )?
     .ok_or_else(|| freeze("borrowed-object/source-phase-drift"))?;
+    model::retain_object_argument_sources_v1(&mut rechecked, identity)?;
     if rows != &rechecked {
         return Err(freeze("borrowed-object/source-snapshot-drift"));
     }
@@ -309,7 +310,7 @@ fn construct_borrowed_call_actuals_v1(
             }
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
             BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
-            BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. } => {
+            BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. } => {
                 let source = source_actual(*ordinal, site, *formal)?.ok_or_else(|| freeze("borrowed-actual/unsupported-or-unavailable"))?;
                 model::validate_computed_actual_source_v1(&source, actual, call, &contract.parameters[*ordinal as usize])?;
                 source

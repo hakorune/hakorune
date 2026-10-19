@@ -174,7 +174,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if contract.mode == Mode::StaticBoxMethod { return self.checked_static_input_domains_for_owner_v1(owner); }
         let sums: Vec<_> = contract.parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
             .map(|row| (row, source.lend_source_value_sum_v1(row.binding))).collect();
-        if !sums.iter().any(|(_, sum)| sum.as_ref().is_some_and(|sum| sum.text_only())) { return Ok(Box::new([])); }
+        if !sums.iter().any(|(_, sum)| sum.as_ref().is_some_and(|sum| sum.text_only() || sum.signed_only())) { return Ok(Box::new([])); }
         if !matches!(incoming, BorrowedEntryActualsV1::Executable(rows) if !rows.is_empty())
             || !source.source_incoming.source_registered_owners_v1().contains(&owner)
             || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) {

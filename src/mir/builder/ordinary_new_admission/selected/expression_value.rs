@@ -255,7 +255,7 @@ pub(super) fn emit_with_prefix(
                             return Err(freeze("print-expression/integer-operands"));
                         };
                         let completed = crate::mir::builder::ops::arithmetic::build_arithmetic_op_recorded(
-                            builder, crate::mir::BinaryOp::Add, lhs, rhs)?;
+                            builder, operation.integer_operator_v1().ok_or_else(|| freeze("print-expression/operator-source-missing"))?, lhs, rhs)?;
                         let binding = completed.original().ok_or_else(|| freeze("print-expression/integer-append"))?.clone();
                         let value = binding.1.dst_value().ok_or_else(|| freeze("print-expression/integer-result"))?;
                         bindings.push(binding);

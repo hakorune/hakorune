@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-allocator-stress"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/borrowed-result/source-not-i64"
+current_blocker_token = "ordinary-new/array-home/append-prefix"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
 latest_card_summary = """
-APP-allocator-stress: 直接EXEはrequestedBytes()のborrowed-result/source-not-i64で停止。
-元Array source→checked Loop→既存append writer→子group→最終検証を接続。EXE未生成。
-既存focused28件PASS、Text Loop1件は旧binaryでも同じ赤。test名9263件不変。
-既存smokeの汎用MIR経路はborrowed-static/required-integer-source-unproved。最終CLIでも確認済み。
-固定suite直近6PASS/5FAIL（実EXE5＋marker1）。untyped-fieldはD0受理までParkedSealed。
+APP-allocator-stress: 正規smokeは最初のLoop source coverageを通過、Body11の条件式で停止。
+同じCallの数値引数・Add/Mul・委譲frame census・最終transport照合を接続。CLI build PASS。
+既存focused54件PASS、既知Text Loop赤1件、test名9263件不変。アプリ未完。
+直近suite試行3PASS/8FAIL（timeout3件含む、前段WIP binary）。正式6/5はlanded_tail参照。
+untyped-fieldはD0受理までParkedSealed。次は28行目release(ArrayGet)==falseのprefix接続。
 """
 next_design_card = "APP-allocator-stress"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"

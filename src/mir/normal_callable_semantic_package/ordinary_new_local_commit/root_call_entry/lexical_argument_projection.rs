@@ -17,7 +17,7 @@ impl LexicalCallArgumentProjectionV1 {
         let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call: outer, ordinal: position, .. } = source.root()
             else { return Err(freeze("argument-expression/source-purpose")) };
         if !std::rc::Rc::ptr_eq(original.frame(), &packet.frame)
-            || packet.completion != ArgumentCompletionV1::OwnedTextDeferred
+            || packet.completion != if packet.frame.is_i64() { ArgumentCompletionV1::ScalarCompleted } else { ArgumentCompletionV1::OwnedTextDeferred }
             || source.owner() != call.owner() || outer.site() != call.site()
             || *position != ordinal || source.nodes().first().map(|node| node.site()) != Some(site) {
             return Err(freeze("argument-expression/borrowed-original-identity"));
@@ -607,9 +607,9 @@ impl LexicalCallArgumentProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
-    /// Lend the computed Text descriptor from the SAME original actual/frame
+    /// Lend the computed descriptor from the SAME original actual/frame
     /// and verified Call packet. Physical SSA classification cannot issue it.
-    pub(in crate::mir) fn borrowed_text_argument_operand_v1(
+    pub(in crate::mir) fn borrowed_computed_argument_operand_v1(
         &self, ordinal: u32, context: CallValidationContextV1<'_>,
     ) -> Result<Option<crate::mir::instruction::StringInvokeOperand>, String> {
         let actuals = match context {
@@ -618,12 +618,12 @@ impl EmittedLexicalCallProjectionV1 {
         };
         let Some(actuals) = actuals else { return Ok(None) };
         let Some(actual) = actuals.iter().find(|actual| actual.ordinal == ordinal) else { return Ok(None) };
-        if !matches!(actual.source, crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(_)) {
-            return Ok(None);
-        }
+        let crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(source) = &actual.source
+            else { return Ok(None); };
         let argument = self.prepared.arguments.get(ordinal as usize)
             .ok_or_else(|| freeze("call-argument/text-ordinal"))?;
         let value = argument.borrowed_expression_value_v1(&actual.source, self.call_site(), ordinal, &actual.site, context)?;
-        Ok(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)))
+        Ok(Some(if source.frame().is_i64() { crate::mir::instruction::StringInvokeOperand::NormalInteger(value) }
+            else { crate::mir::instruction::StringInvokeOperand::OwnedString(value) }))
     }
 }

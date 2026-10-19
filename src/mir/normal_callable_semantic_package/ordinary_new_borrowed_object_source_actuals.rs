@@ -37,6 +37,13 @@ pub(super) struct ObjectSourceActualIdentityV1 {
     pub(super) source: LexicalInstanceCallSourceTargetV1,
     pub(super) incoming_arguments: Box<[(u32, SourceExprSiteV1, BindingRefV1)]>,
     pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
+    pub(super) argument_sources: BTreeMap<u32, ArgumentExpressionV1>,
+}
+impl ObjectSourceActualIdentityV1 {
+    pub(super) fn same_original_source_v1(&self, other: &Self) -> bool {
+        self.source == other.source && self.incoming_arguments == other.incoming_arguments
+            && self.candidates == other.candidates
+    }
 }
 
 /// The existing Object input owner keeps its phase for Field arguments too.
@@ -58,6 +65,8 @@ pub(super) fn selected_original_object_phase_v1(
     if prepared.source_incoming.static_observations().contains_key(call) { return Ok(false); }
     if selected_returned_field_input_v1(prepared, call)? { return Ok(true); }
     let Some(target) = prepared.object_source_target_at_v1(call)? else { return Ok(false); };
+    if prepared.original_signed_expression_argument_request_v1(call)
+        && prepared.source_incoming.has_object_input_callee_v1(target) { return Ok(true); }
     Ok(selected_source_only_object_forward_v1(prepared, target))
 }
 
@@ -205,6 +214,7 @@ pub(super) fn prepare_object_source_actuals_v1(
             source: target.clone(),
             incoming_arguments: original.arguments.clone(),
             candidates: actuals.to_vec().into_boxed_slice(),
+            argument_sources: BTreeMap::new(),
         }),
         opaque_actuals: Box::new([]),
         ordered_arguments: arguments.into_boxed_slice(),
@@ -288,9 +298,10 @@ pub(super) fn reconstruct_object_source_actuals_v1(
     {
         return Err(freeze("borrowed-guarded/original-input"));
     }
-    let original =
+    let mut original =
         prepare_object_source_actuals_v1(prepared, contracts, &call.call, &identity.candidates)?
             .ok_or_else(|| freeze("borrowed-guarded/source-unavailable"))?;
+    model::retain_object_argument_sources_v1(&mut original, identity)?;
     if original.phase != BorrowedCallActualEvidencePhaseV1::SourceObject(identity.clone()) {
         return Err(freeze("borrowed-guarded/source-identity"));
     }
@@ -315,6 +326,10 @@ pub(super) fn reconstruct_original_argument_protocol_v1(
     reconstruct_original_argument_protocol_with_sources_v1(prepared, contracts, call, candidates, &mut |ordinal, site, _| {
         let Some(candidate) = candidates.iter().find(|actual| actual.ordinal == ordinal && &actual.site == site)
             else { return Err(freeze("borrowed-object/field-candidate-missing")); };
+        if matches!(candidate.value, BorrowedCallActualValueV1::Expression) {
+            return ledger.map(|ledger| ledger.borrowed_expression_actual_source_v1(&call.call, ordinal, site)
+                .map(|actual| Some(actual.source))).unwrap_or(Ok(None));
+        }
         let BorrowedCallActualValueV1::ReceivedField { parent, acquisition } = &candidate.value else { return Ok(None); };
         let Some(ledger) = ledger else { return Ok(None); };
         ledger.retained_returned_field_read_source_v1(&call.call, ordinal, *parent, acquisition)?

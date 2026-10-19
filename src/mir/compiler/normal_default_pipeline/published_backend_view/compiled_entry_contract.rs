@@ -100,7 +100,7 @@ pub(crate) struct CompiledEntryBirthCallV1 {
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct BorrowedCallIncomingV1<'module> {
     pub(super) actuals: &'module [PreparedBorrowedFormalActualV1],
-    pub(super) text_operands: BTreeMap<u32, crate::mir::instruction::StringInvokeOperand>,
+    pub(super) computed_operands: BTreeMap<u32, crate::mir::instruction::StringInvokeOperand>,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct ClosedBorrowedEntryV1 {
@@ -123,8 +123,8 @@ impl<'module> CompiledEntryOrdinaryCallV1<'module> {
     pub(crate) fn borrowed_actuals(&self) -> Option<&'module [PreparedBorrowedFormalActualV1]> {
         self.borrowed_actuals.as_ref().map(|incoming| incoming.actuals)
     }
-    pub(crate) fn borrowed_text_operand_v1(&self, ordinal: u32) -> Option<&crate::mir::instruction::StringInvokeOperand> {
-        self.borrowed_actuals.as_ref()?.text_operands.get(&ordinal)
+    pub(crate) fn borrowed_computed_operand_v1(&self, ordinal: u32) -> Option<&crate::mir::instruction::StringInvokeOperand> {
+        self.borrowed_actuals.as_ref()?.computed_operands.get(&ordinal)
     }
     pub(crate) const fn caller_block_id(&self) -> crate::mir::BasicBlockId {
         self.caller_block_id

@@ -1,11 +1,11 @@
-//! Existing checked Add envelope construction shared by expression purposes.
+//! Existing checked Add/Mul envelopes shared by expression purposes.
 use super::*;
 use crate::mir::dynamic_operator_contract::{issue_dynamic_operator_execution_envelope_v1,
     DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorNormalResultV1, DynamicOperatorValueClassV1};
 use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
     expression_projection::ExpressionLeafClassV1 as Leaf};
 use std::collections::BTreeSet;
-pub(super) fn qualify_add_operations_v1(
+pub(super) fn qualify_arithmetic_operations_v1(
     source: &Rc<ExpressionSourcePlanV1>, order: &[usize], classes: &[Leaf], transferred: &BTreeSet<usize>,
 ) -> Option<(Vec<Rc<CheckedExpressionOperationLoanV1>>, Vec<usize>)> {
     let mut operations = Vec::new();
@@ -20,6 +20,7 @@ pub(super) fn qualify_add_operations_v1(
         let Some(binary) = source.nodes()[index].binary() else { continue };
         let family = match binary.operator() {
             ResolvedBinaryOperatorV1::Add => DynamicOperatorFamilyV1::Add,
+            ResolvedBinaryOperatorV1::Multiply => DynamicOperatorFamilyV1::Mul,
             _ => return None,
         };
         let operand = |site| source.nodes().iter().position(|node| node.site() == site)

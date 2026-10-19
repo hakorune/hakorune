@@ -82,7 +82,8 @@ pub(super) fn prepare_instance_source_actuals_v1(
         None => None,
     };
     let draft = ingress.source_definition_for(site.owner());
-    if array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !object_producer_request && mixed_request.is_none() && !nullable_request {
+    let expression_request = ingress.original_signed_expression_argument_request_v1(site);
+    if array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request {
         if ingress.definitions.contains_key(&site.owner()) {
             return Ok(None);
         }
@@ -127,6 +128,9 @@ pub(super) fn prepare_instance_source_actuals_v1(
     }
     // The existing Object source owner keeps its original qualification.
     if ingress.source_incoming.has_object_input_callee_v1(target) {
+        if expression_request {
+            return object_source::prepare_object_source_actuals_v1(ingress, contracts, site, actuals);
+        }
         return Ok(None);
     }
     let mut matching = contracts.iter().filter(|row| row.owner == original.callee);
@@ -243,6 +247,9 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         return Err(freeze("borrowed-instance/field-loan-identity"));
                     }
                 }
+                BorrowedCallActualValueV1::Expression
+                    if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                        && ingress.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only()) => {}
                 BorrowedCallActualValueV1::Integer(_)
                 | BorrowedCallActualValueV1::Bool(_)
                 | BorrowedCallActualValueV1::Null => {}
@@ -392,6 +399,7 @@ pub(super) fn selected_original_instance_forward_v1(
             return Err(freeze("borrowed-instance/duplicate-source"));
         }
         if let Some(target) = original.source.instance() {
+            if ingress.original_signed_expression_argument_request_v1(site) { return Ok(true); }
             if ingress.returned_field_argument_selected_v1(site) {
                 for (ordinal, _, _) in original.arguments.iter() {
                     if ingress.original_returned_field_actual_source_v1(site, *ordinal)?.is_some() { return Ok(true); }
@@ -553,6 +561,10 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                 return Err(freeze("borrowed-instance/read-original-identity"));
             }
             let candidate = identity.candidates.get(ordinal as usize).ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
+            if matches!(candidate.value, BorrowedCallActualValueV1::Expression) {
+                return array_ledger.map(|ledger| ledger.borrowed_expression_actual_source_v1(&call.call, ordinal, site)
+                    .map(|actual| Some(actual.source))).unwrap_or(Ok(None));
+            }
             if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
                 if static_source::ordinary_text_argument_source_v1(ingress,
                     &OwnedExprSiteV1::new(call.call.owner(), site.clone()), method)?.is_some() {

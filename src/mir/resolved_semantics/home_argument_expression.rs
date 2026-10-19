@@ -98,7 +98,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             &mut |_| None, &order, field_request)? else { return Ok(None) };
     let expected = if core.requires_i64_v1() { Class::I64 } else { Class::String };
     if classes[0] != Leaf::Value(expected) || transferred.contains(&0) || !references.is_empty() { return Ok(None); }
-    let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
+    let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     if core.resolver_source().is_some_and(|original| !cores.get(&0)
         .is_some_and(|retained| std::ptr::eq(retained.source(), original))) { return Ok(None); }
     let mut reference_proofs = scalar_proofs;

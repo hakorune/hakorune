@@ -52,11 +52,11 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
         }
     }
 
-    pub(in crate::mir) fn borrowed_text_argument_operand_v1(
+    pub(in crate::mir) fn borrowed_computed_argument_operand_v1(
         self, ordinal: u32, context: CallValidationContextV1<'_>,
     ) -> Result<Option<crate::mir::instruction::StringInvokeOperand>, String> {
         match self {
-            Self::Lexical(packet) => packet.borrowed_text_argument_operand_v1(ordinal, context),
+            Self::Lexical(packet) => packet.borrowed_computed_argument_operand_v1(ordinal, context),
             Self::LoopBody(_) | Self::ProviderArgument(_) => Ok(None),
         }
     }

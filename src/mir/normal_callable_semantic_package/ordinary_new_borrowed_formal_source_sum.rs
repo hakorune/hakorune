@@ -32,7 +32,7 @@ impl SourceValueSumV1 {
     ) -> &BTreeSet<SourceValueAlternativeV1> {
         &self.0
     }
-    fn signed_only(&self) -> bool {
+    pub(in crate::mir) fn signed_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::SignedI64)
     }
     pub(in crate::mir) fn text_only(&self) -> bool {
@@ -41,6 +41,27 @@ impl SourceValueSumV1 {
     fn permits_object(&self, name: &str) -> bool {
         self.0.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
             || matches!(value, SourceValueAlternativeV1::Object(actual) if actual.as_ref() == name))
+    }
+}
+
+impl PreparedBorrowedFormalIngressV1 {
+    /// Select an original computed argument purpose, never a legacy literal
+    /// caller or an executable entry. The whole source SUM stays independent.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+    fn original_signed_expression_argument_request_v1(&self, call: &OwnedExprSiteV1) -> bool {
+        fn original_binary(seed: &OriginalFormalActualSeedV1, owner: FunctionOwnerIdV1, site: &SourceExprSiteV1) -> bool {
+            match seed {
+                OriginalFormalActualSeedV1::Binary { owner: original, source, .. } => *original == owner && source.site() == site,
+                OriginalFormalActualSeedV1::SourceOnly(source) | OriginalFormalActualSeedV1::SumUnknown(source) => original_binary(source, owner, site),
+                _ => false,
+            }
+        }
+        let product = &self.original_formal_seeds;
+        if !product.corroborate_original_v1(&self.source_incoming) { return false; }
+        let Some(sums) = &product.source_sums else { return false; };
+        product.rows.iter().filter(|row| &row.incoming.call == call && row.incoming.source.instance().is_some())
+            .any(|row| row.incoming.arguments.iter().zip(&row.seeds).any(|((_, site, formal), seed)|
+                original_binary(seed, call.owner(), site) && sums.values.get(formal).is_some_and(|sum| sum.signed_only())))
     }
 }
 

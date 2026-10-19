@@ -117,13 +117,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_t
             {
                 return Err(freeze("borrowed-object/source-actual-identity"));
             }
-            let rechecked = super::object_source::prepare_object_source_actuals_v1(
+            let mut rechecked = super::object_source::prepare_object_source_actuals_v1(
                 ingress,
                 contracts,
                 site,
                 &identity.candidates,
             )?
             .ok_or_else(|| freeze("borrowed-object/source-phase-drift"))?;
+            super::model::retain_object_argument_sources_v1(&mut rechecked, identity)?;
             if rows != &rechecked {
                 return Err(freeze("borrowed-object/source-snapshot-drift"));
             }

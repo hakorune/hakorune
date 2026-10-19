@@ -40,7 +40,7 @@ impl BorrowedCallUses {
 }
 
 impl BorrowedCallUses {
-    pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view::compiled_entry_contract::borrowed_call_incoming) fn text_call(
+    pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view::compiled_entry_contract::borrowed_call_incoming) fn computed_call(
         &mut self, caller: &MirFunction, coordinate: Coordinate,
         actuals: &[PreparedBorrowedFormalActualV1], operands: &BTreeMap<u32, crate::mir::instruction::StringInvokeOperand>,
     ) -> Result<(), String> {
@@ -49,6 +49,15 @@ impl BorrowedCallUses {
         if required != operands.keys().copied().collect() { return Err(fault("borrowed-text/source-coverage")); }
         let state = self.functions.entry(caller.signature.name.clone()).or_default();
         for (ordinal, operand) in operands {
+            let actual = actuals.iter().find(|actual| actual.ordinal == *ordinal)
+                .ok_or_else(|| fault("borrowed-text/source-coverage"))?;
+            match (&actual.source, operand) {
+                (BorrowedFormalActualSourceV1::Expression(source), crate::mir::instruction::StringInvokeOperand::NormalInteger(_))
+                    if source.frame().is_i64() => continue,
+                (BorrowedFormalActualSourceV1::Expression(source), crate::mir::instruction::StringInvokeOperand::OwnedString(_))
+                    if !source.frame().is_i64() => {},
+                _ => return Err(fault("borrowed-text/operand-correspondence")),
+            }
             if state.text_arguments.insert((coordinate.0, coordinate.1, *ordinal as usize), operand.clone()).is_some() {
                 return Err(fault("borrowed-text/duplicate-occurrence"));
             }
