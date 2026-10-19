@@ -4894,3 +4894,12 @@ MIR verifies the original marked formal/Copy chain. JSON reuses C's `borrowed_te
 view descriptor; explicit Materialize is required to obtain an independent pair.
 Existing Uses staging/actual closure and finite multi-envelope refusals remain.
 This connection does not claim ordinary Text Call/Return/cleanup series closure.
+
+The original Return result cohort retains one per-owner row with immutable raw
+Return capture and an optional numeric qualification. Numeric failure or profile
+retirement clears that qualification while preserving the same original source
+loan/error. Numeric consumers still see only their old scalar subset, with the
+same order and refusal gates; source-only rows issue no numeric proof or result
+ABI. The original Return owner owns this storage and its projections; there is
+no separate Text result registry. Actual Text Return/Call sealing remains a
+separate required950 connection through checked Home frames and Completion.

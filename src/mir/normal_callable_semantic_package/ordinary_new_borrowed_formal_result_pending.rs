@@ -349,11 +349,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     proven_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     original: &Result<super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1, String>,
     field_claims: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    mut original_returns: original::OriginalReturnsV1,
+    original_returns: original::OriginalReturnsV1,
 ) -> BorrowedResultCohortV1 {
+    let mut results = BorrowedResultCohortV1::from_original_returns_v1(original_returns);
     let needs = match needs {
         Ok(needs) => needs,
-        Err(issue) => return BorrowedResultCohortV1::unavailable(issue.clone()),
+        Err(issue) => {
+            results.field_candidates = Err(issue.clone());
+            results.field_component = Err(issue.clone());
+            return results;
+        }
     };
     let field_candidates = composition::FieldCandidatesV1::prepare(batch, field_claims, constructors,
         original.as_ref(), drafts, contracts, needs);
@@ -368,7 +373,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let owners: BTreeSet<_> = drafts.keys().copied().chain(contracts.iter()
         .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && row.parameters.is_empty())
         .map(|row| row.owner)).collect();
-    let results = owners
+    let scalar_rows = owners
         .iter()
         .filter(|owner| {
             contracts.iter().any(|row| {
@@ -377,7 +382,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             })
         })
         .map(|owner| {
-            let request = original_returns.remove(owner).transpose().map(Option::flatten);
+            let request = results.original_return_source_v1(owner).map(|source| source.cloned());
             let proof = request.and_then(|request| source_result_pending(
                 batch,
                 selected,
@@ -416,8 +421,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             });
             (*owner, proof)
         })
-        .collect();
-    let mut results = BorrowedResultCohortV1::prepared(results, field_candidates);
+        .collect::<Vec<_>>();
+    results.field_candidates = Ok(field_candidates);
+    results.field_component = Ok(None);
+    for (owner, scalar) in scalar_rows { results.insert(owner, scalar); }
     composition::resolve_pending_source_classes_v1(&mut results);
     results
 }

@@ -267,7 +267,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 Err(error.clone()),
                 Err(error.clone()),
                 Err(error.clone()),
-                BorrowedResultCohortV1::unavailable(error),
+                BorrowedResultCohortV1::unavailable_with_original_v1(error, original_returns),
             ))
         }
     };

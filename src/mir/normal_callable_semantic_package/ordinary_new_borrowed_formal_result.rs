@@ -48,48 +48,7 @@ mod integer_field;
 pub(in crate::mir::normal_callable_semantic_package) use integer_field::{lend_integer_field_v1, IntegerFieldSourceLoanV1};
 pub(in crate::mir::normal_callable_semantic_package) use expression_field::{ExpressionFieldSourceLoanV1, ClosedNumericFieldSourceLoanV1, ExpressionObjectFieldSourceLoanV1};
 
-/// One original source cohort: field obligations survive absent/failed getters.
-/// Map access borrows result rows; it cannot replace the retained source context.
-#[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct BorrowedResultCohortV1 {
-    rows: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
-    field_candidates: Result<Rc<composition::FieldCandidatesV1>, String>,
-    field_component: Result<Option<Rc<composition::ClosedFieldComponentV1>>, String>,
-}
-impl Default for BorrowedResultCohortV1 {
-    fn default() -> Self {
-        Self::unavailable(freeze("borrowed-result/original-cohort-unprepared"))
-    }
-}
-impl BorrowedResultCohortV1 {
-    pub(super) fn unavailable(issue: String) -> Self {
-        Self { rows: BTreeMap::new(), field_candidates: Err(issue.clone()), field_component: Err(issue) }
-    }
-    fn require_field_component_v1(
-        &self, component: &Rc<composition::ClosedFieldComponentV1>,
-    ) -> Result<(), String> {
-        let original = self.field_candidates.as_ref().map_err(Clone::clone)?;
-        let retained = self.field_component.as_ref().map_err(Clone::clone)?.as_ref()
-            .ok_or_else(|| freeze("borrowed-result/field-component-unsealed"))?;
-        if !Rc::ptr_eq(retained, component) || !component.belongs_to(original) {
-            return Err(freeze("borrowed-result/field-component-identity"));
-        }
-        Ok(())
-    }
-    fn prepared(
-        rows: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
-        field_candidates: Rc<composition::FieldCandidatesV1>,
-    ) -> Self {
-        Self { rows, field_candidates: Ok(field_candidates), field_component: Ok(None) }
-    }
-}
-impl std::ops::Deref for BorrowedResultCohortV1 {
-    type Target = BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>;
-    fn deref(&self) -> &Self::Target { &self.rows }
-}
-impl std::ops::DerefMut for BorrowedResultCohortV1 {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.rows }
-}
+pub(in crate::mir::normal_callable_semantic_package) use original::BorrowedResultCohortV1;
 
 /// The sole result class a borrowed callee's uniform return sites prove.
 /// `I64` includes original guarded scalar/operation Normal results; `Nullable` is

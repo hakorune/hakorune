@@ -191,3 +191,104 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         (contract.owner, source)
     }).collect()
 }
+
+/// Raw Return capture and optional numeric qualification share one owner row.
+/// Numeric refusal/profile retirement never destroys the immutable source loan.
+#[derive(Debug)]
+struct OriginalResultRowV1 {
+    original: Result<Option<OriginalReturnSourceLoanV1>, String>,
+    scalar: Option<Result<BorrowedI64ResultSourceV1, String>>,
+}
+type ScalarResultV1 = Result<BorrowedI64ResultSourceV1, String>;
+
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedResultCohortV1 {
+    rows: BTreeMap<FunctionOwnerIdV1, OriginalResultRowV1>,
+    pub(super) field_candidates: Result<Rc<composition::FieldCandidatesV1>, String>,
+    pub(super) field_component: Result<Option<Rc<composition::ClosedFieldComponentV1>>, String>,
+}
+impl Default for BorrowedResultCohortV1 {
+    fn default() -> Self { Self::unavailable(freeze("borrowed-result/original-cohort-unprepared")) }
+}
+impl BorrowedResultCohortV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn unavailable(issue: String) -> Self {
+        Self::unavailable_with_original_v1(issue, BTreeMap::new())
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn unavailable_with_original_v1(issue: String, originals: OriginalReturnsV1) -> Self {
+        Self { rows: originals.into_iter().map(|(owner, original)|
+            (owner, OriginalResultRowV1 { original, scalar: None })).collect(),
+            field_candidates: Err(issue.clone()), field_component: Err(issue) }
+    }
+    pub(super) fn from_original_returns_v1(originals: OriginalReturnsV1) -> Self {
+        Self::unavailable_with_original_v1(freeze("borrowed-result/original-cohort-unprepared"), originals)
+    }
+    #[cfg(test)]
+    pub(super) fn prepared(rows: BTreeMap<FunctionOwnerIdV1, ScalarResultV1>,
+        field_candidates: Rc<composition::FieldCandidatesV1>,
+    ) -> Self {
+        let mut cohort = Self::from_original_returns_v1(BTreeMap::new());
+        cohort.field_candidates = Ok(field_candidates);
+        cohort.field_component = Ok(None);
+        for (owner, scalar) in rows { cohort.insert(owner, scalar); }
+        cohort
+    }
+    pub(super) fn require_field_component_v1(&self, component: &Rc<composition::ClosedFieldComponentV1>) -> Result<(), String> {
+        let original = self.field_candidates.as_ref().map_err(Clone::clone)?;
+        let retained = self.field_component.as_ref().map_err(Clone::clone)?.as_ref()
+            .ok_or_else(|| freeze("borrowed-result/field-component-unsealed"))?;
+        if !Rc::ptr_eq(retained, component) || !component.belongs_to(original) {
+            return Err(freeze("borrowed-result/field-component-identity"));
+        }
+        Ok(())
+    }
+    /// Source-only loan, independent of absence/error/sealing of a scalar row.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_return_source_v1(&self, owner: &FunctionOwnerIdV1)
+        -> Result<Option<&OriginalReturnSourceLoanV1>, String> {
+        self.rows.get(owner).map(|row| row.original.as_ref().map(Option::as_ref).map_err(Clone::clone))
+            .unwrap_or(Ok(None))
+    }
+    // Existing scalar-map projection. No caller sees source-only rows as a
+    // successful or unresolved numeric result; ordering is still canonical.
+    pub(in crate::mir::normal_callable_semantic_package) fn get(&self, owner: &FunctionOwnerIdV1) -> Option<&ScalarResultV1> {
+        self.rows.get(owner)?.scalar.as_ref()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn get_mut(&mut self, owner: &FunctionOwnerIdV1) -> Option<&mut ScalarResultV1> {
+        self.rows.get_mut(owner)?.scalar.as_mut()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn iter(&self) -> impl Iterator<Item = (&FunctionOwnerIdV1, &ScalarResultV1)> {
+        self.rows.iter().filter_map(|(owner, row)| row.scalar.as_ref().map(|scalar| (owner, scalar)))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn iter_mut(&mut self) -> impl Iterator<Item = (&FunctionOwnerIdV1, &mut ScalarResultV1)> {
+        self.rows.iter_mut().filter_map(|(owner, row)| row.scalar.as_mut().map(|scalar| (owner, scalar)))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn values_mut(&mut self) -> impl Iterator<Item = &mut ScalarResultV1> {
+        self.iter_mut().map(|(_, scalar)| scalar)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn insert(&mut self, owner: FunctionOwnerIdV1, scalar: ScalarResultV1) -> Option<ScalarResultV1> {
+        self.rows.entry(owner).or_insert_with(|| OriginalResultRowV1 { original: Ok(None), scalar: None }).scalar.replace(scalar)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn retain(&mut self, mut keep: impl FnMut(&FunctionOwnerIdV1, &mut ScalarResultV1) -> bool) {
+        for (owner, row) in &mut self.rows {
+            if let Some(mut scalar) = row.scalar.take() {
+                if keep(owner, &mut scalar) { row.scalar = Some(scalar); }
+            }
+        }
+    }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn values(&self) -> impl Iterator<Item = &ScalarResultV1> { self.iter().map(|(_, scalar)| scalar) }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn keys(&self) -> impl Iterator<Item = &FunctionOwnerIdV1> { self.iter().map(|(owner, _)| owner) }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn len(&self) -> usize { self.iter().count() }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn is_empty(&self) -> bool { self.iter().next().is_none() }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn remove(&mut self, owner: &FunctionOwnerIdV1) -> Option<ScalarResultV1> { self.rows.get_mut(owner)?.scalar.take() }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn clear(&mut self) { for row in self.rows.values_mut() { row.scalar = None; } }
+}
+#[cfg(test)]
+impl std::ops::Index<&FunctionOwnerIdV1> for BorrowedResultCohortV1 {
+    type Output = ScalarResultV1;
+    fn index(&self, owner: &FunctionOwnerIdV1) -> &Self::Output { self.get(owner).expect("existing scalar result row") }
+}
