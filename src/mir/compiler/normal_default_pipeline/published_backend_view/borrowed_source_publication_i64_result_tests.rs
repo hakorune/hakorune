@@ -30,6 +30,13 @@ fn unannotated_borrowed_i64_result_publishes_call_forms() {
             MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
                     require_artifact_verification(verification);
+                    // Physical lifecycle publication does not grant generic
+                    // document admission. Keep this refusal at the serializer
+                    // boundary, independent of an app's unused import closure.
+                    let refusal = crate::runner::mir_json_emit::emit_published_view_body(view)
+                        .expect_err("object lifecycle is outside the generic JSON profile");
+                    assert!(refusal.contains("[mir-json/canonical-transport/")
+                        && refusal.contains("outside-profile"), "{refusal}");
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -163,6 +170,16 @@ fn static_direct_return_records_one_root_invoke() {
                             crate::mir::instruction::InvokeCallResultKind::I64, .. }, .. })).count(), 1);
                 assert_eq!(instructions.iter().filter(|row| matches!(row,
                     crate::mir::MirInstruction::InvokeNormalResult { .. })).count(), 1);
+                let output = tempfile::NamedTempFile::new().map_err(|error| error.to_string())?;
+                crate::runner::mir_json_emit::emit_mir_json_for_published_view(view, output.path())?;
+                let document: serde_json::Value = serde_json::from_reader(output.as_file())
+                    .expect("canonical Static I64 document");
+                let relay = document["functions"].as_array().unwrap().iter()
+                    .find(|function| function["name"] == "Layout.relay/0").unwrap();
+                assert_eq!(relay["blocks"].as_array().unwrap().iter()
+                    .flat_map(|block| block["instructions"].as_array().unwrap())
+                    .filter(|row| row["op"] == "invoke" && row["operation"]["kind"] == "call"
+                        && row["operation"]["result"] == "i64").count(), 1);
                 Ok(())
             })
             .unwrap();

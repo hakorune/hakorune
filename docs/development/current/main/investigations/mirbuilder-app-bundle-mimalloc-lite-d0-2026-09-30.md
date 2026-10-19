@@ -1,52 +1,44 @@
 # APP-mimalloc-lite
 
-Status: selected; smoke未達、直接EXEの既存検証は成功。
+Status: standalone smoke PASS; fixed suite running, app closeout pending.
 Date: 2026-10-19
-Scope: 未変更mimalloc-liteの既存smokeを全契約込みで通す。
+Scope: 未変更mimalloc-liteの正規EXE・実行・期待出力/exitと必要なprofile境界。
 Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
 [全体完了条件](../workstreams/mirbuilder-inplace-replacement-current.md)。
 
-## 現在のstop
+## 現在地
 
-- 選択row: `APP-mimalloc-lite`。実装goalはpause継続。今回は未接続WIPの解消のみ。
-- 直近suiteではgeneric MIR JSONのnegative precheckが
-  `ordinary-new/borrowed-static/required-integer-source-unproved`で停止。
-  smokeが要求する`unsupported terminator Invoke`より前で落ちている。
-- 一方、最後に検証済みのsourceでは正規直接EXE生成・実行・期待出力/exit0が成功。
-  smoke失敗を直接EXE失敗と同一視せず、現HEADのsmoke結果とも混同しない。
+- 選択row: `APP-mimalloc-lite`。新goalで再開。単体smokeは約163秒でPASS。
+- 固定11本を計測中。直近の全suite結果は5PASS/6FAILで、現在の結果に読み替えない。
+- 変更前はgeneric JSON precheckが`required-integer-source-unproved`で停止した。
+  EXEはClosedAppExecutable、generic JSONは未使用importも含むAllSourceという違いがあった。
 
-## 再開後の手順
+## 修正した責務
 
-1. 現HEADから作ったbinaryとlifecycle runtimeを明示する。
-2. `bash tools/smokes/v2/profiles/integration/apps/mimalloc_lite_exe.sh`を実行する。
-3. 最初の失敗をsource行とgeneric/physical経路へ結び付け、既存のsource/actual ownerを直す。
-4. 関連既存testと同じsmokeで確認する。precheckと直接EXEの両方を満たす。
-5. 一つのアプリが通るまで追い、内部commitごとのrow/card/証拠連番は増やさない。
+- generic JSONは既にStatic I64 Invokeを受理する。旧「全Invoke拒否」の前提は不一致。
+- アプリsmokeから古いserializer precheckを削除。V4・LLVM C API・no replay・EXE存在・全出力/exit確認は維持。
+- その境界は既存source-publication testに統合：Static I64の実JSON出力成功と、object lifecycleのgeneric profile拒否。
+  既存sourceケースを使い、test名・入力ケース・file・hook・checkerを追加しない。
+- build timeout300秒とrun timeout120秒を分離。以前のbuild/run共通120秒は実測のEXE生成時間より短かった。
+- Integer証拠、AllSource受理範囲、production Rust、アプリsourceは変更しない。
 
-入口候補は`ordinary_new_borrowed_static_source_actuals.rs`。
-計測のbinaryはsmoke-facing `HAKO_BIN`と`NYASH_BIN`を同じ絶対pathへ設定する。
-runtimeは`HAKO_LIFECYCLE_NYRT`、既存FFIが必要なら`HAKO_AOT_FFI_LIB`を明示する。
-既存環境のgrammar/stack/route条件を揃え、timeoutはbuild/link時間に合わせる。
-直近の直接EXE生成は約144秒なので、smoke既定120秒のtimeoutを意味論の失敗に数えない。
+## 検証と次の一手
 
-## 正しさと終了条件
+- `cargo quick-test-fast --no-run --message-format=json`成功。
+- 既存`unannotated_borrowed_i64_result_publishes_call_forms`と
+  `static_direct_return_records_one_root_invoke`は各1件PASS。test名一覧9263件不変。
+- `bash tools/smokes/v2/profiles/integration/apps/mimalloc_lite_exe.sh`はPASS。
+  source一致の既存quick CLIを再利用し、HAKO_BIN/NYASH_BINを同じ絶対pathへ設定。
+  lifecycle runtimeとC API FFIも明示。変更Rustはcfg(test)内だけでCLI再buildは不要。
+- pointer・builder layer・CallTarget guard、shell syntax、diff checkはPASS。
+- `bash tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 600`
+  を同じbinary/runtimeで実行中。空marker・SKIPをEXE成功に数えず、終了を確認する。
+- suite内でmimallocがPASSしたら本アプリを閉じ、次のuntyped-fieldへ選択を切り替える。
 
-- 元source・parameter/incoming・result・Completion・Home/Fault証拠を保持する。
-- source→Facts/Recipe/Verify→既存physical owner→独立した両final→JSON/Cを通す。
-- `.hako`回避、AST rewrite、legacy retry、表現型やruntime名からのauthority推測は禁止。
-- negativeは「意図したexport境界で拒否」の意味を守る。現在のエラーへ機械的に期待値を変えない。
-- EXEはpure-first/no compat replay。既存smokeの全出力とexitを変更せず照合する。
-- runtime不足SKIP・空marker・timeoutはEXE成功の証拠にしない。
-- 置換済み専有edge/adapterは切替・caller-zero・必要検証が揃えば同じ変更seriesで削除する。
+## 保持する未完条件
 
-## 未完と次の順序
-
-- このsmoke成功まで本rowは未完。固定suiteの成功と全MirBuilder/Gate1完了は別。
-- 旧ObjectForward/field Birth/LOCAL初期化/receiver/cleanup/publicationの未完契約は維持する。
-  既存成功を全field形・全失敗経路の成功へ一般化しない。
-- 次のアプリはuntyped-field、binary-trees、boxtorrent、allocator-stress、JSONの順。
-  共有の不足は必要な共通ownerで直し、別アプリの実装を並行しない。
+- suite成功と全MirBuilder/Gate1完了は別。ObjectForward/field Birth/LOCAL初期化/receiver/cleanup/publicationの未完契約は維持。
+- 共有の不足は現在アプリに必要なownerで直し、置換済み専有edge/adapterは証明成立時に同じseriesで削除する。
 - [JSON/Textの既存契約](mirbuilder-gate1-static-text-input-s0-2026-10-17.md)は未受理のまま後続へ保持。
-  未接続Returnの準備実装は採用を取り下げた。差分と明示revertはGit履歴へ残し、保留branchは残さない。
-- 過去の完全な契約・履歴・検証条件は、このpathの`0311400375`時点のGit履歴に保存済み。
-  必要な意味契約だけを参照し、日常の再開前提へ全履歴を戻さない。
+  未接続Return準備は取り下げ済みで、保留branchはない。
+- 過去の完全な契約・履歴はこのpathの`0311400375`時点のGit履歴に保存済み。
