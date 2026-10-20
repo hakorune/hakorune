@@ -313,6 +313,19 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    if matches!(request, BorrowedCallActualRequestV1::StoredReturnSource) {
+        return classes.map_stored_return_source_v1(site)
+            .and_then(|source| {
+                if source.as_ref().is_some_and(|source| !source.receiver_v1().same_source(field_write_claims)) {
+                    return Err("callee-facts-identity");
+                }
+                Ok(source)
+            })
+            .map(|source| source.map(BorrowedCallArgumentsV1::StoredReturnSource))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(), issue: issue.to_owned(),
+            });
+    }
     if let BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_) = request {
         let (binding, initializer) = match request {
@@ -602,7 +615,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             )
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
-        BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
+        BorrowedCallActualRequestV1::StoredReturnSource
+        | BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
         | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)

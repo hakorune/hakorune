@@ -390,6 +390,29 @@ pub(super) fn prepare_original_formal_seeds_v1(
                 })
             })?
     };
+    let mut expand_returns = |source: &Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>, need_body: bool|
+        -> Result<Option<Vec<(OwnedExprSiteV1, OriginalFormalActualSeedV1)>>, String> {
+        let reject = || freeze("source-sum/caller-contract");
+        crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, source.callee_owner(), |context, input| {
+                let slot = context.declaration_slot().ok_or_else(reject)?;
+                OriginalActualSourceContextV1::require_static_result_input_v1(source, input, slot, batch, selected, contracts, inventory, omitted)?;
+                let Some(flow) = input.function().expression_source().value_flow().filter(|flow| flow.is_complete()) else { return Ok(None) };
+                if source_flows.get(&input.owner()).is_none_or(|retained| !std::sync::Arc::ptr_eq(retained, flow)) { return Ok(None); }
+                if !need_body { return Ok(Some(Vec::new())); }
+                let Some(shape) = input.body_shape() else { return Ok(None) };
+                let Some(sites) = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::verified_value_return_sites(input, shape)
+                    else { return Ok(None) };
+                let unique: BTreeSet<_> = sites.iter().collect();
+                if sites.is_empty() || unique.len() != sites.len() { return Err(reject()); }
+                let Some(source_context) = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
+                    static_claims, app_main, omitted)?.map(|context| context.for_point_premise()) else { return Ok(None) };
+                let local_candidates = candidates.get(&slot).and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
+                Ok(Some(sites.iter().map(|site| (OwnedExprSiteV1::new(input.owner(), site.clone()),
+                    classify_original_actual_seed_in_scope(input, batch, selected, results,
+                    input.owner(), local_candidates, None, definitions, contracts, site, None, Some(inventory), Some(&source_context)))).collect()))
+            })?
+    };
     let mut map_receiver = |method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>| {
         crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, method.owner(), |context, input| {
@@ -404,7 +427,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
             }).ok().flatten()
     };
     let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots,
-        source_flows, &mut expand, &mut map_receiver)?;
+        source_flows.clone(), &mut expand, &mut expand_returns, &mut map_receiver)?;
     for (site, operands) in &sums.core_calls {
         let receipt = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, site.owner(), |_, input|
@@ -439,6 +462,15 @@ impl OriginalFormalSeedProductV1 {
         let mut current = BTreeMap::new();
         for (call, legacy) in inventory.source_rows_with_legacy_v1() {
             if current.insert(call.call.clone(), (call, legacy)).is_some() { return false; }
+        }
+        if let Some(sums) = &self.source_sums {
+            if sums.static_sources.iter().any(|(site, source)| current.get(site).is_none_or(|(row, _)|
+                row.callee != source.callee_owner() || !matches!(&row.source,
+                    super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(same) if Rc::ptr_eq(same, source))))
+                || sums.return_sites.iter().any(|(owner, sites)| sites.is_empty()
+                    || sites.iter().any(|site| site.owner() != *owner)
+                    || sites.iter().collect::<BTreeSet<_>>().len() != sites.len()
+                    || sums.flows.get(owner).is_none_or(|flow| flow.owner() != *owner || !flow.is_complete())) { return false; }
         }
         self.rows.iter().all(|row| {
             let Some((call, legacy)) = current.get(&row.incoming.call) else { return false; };

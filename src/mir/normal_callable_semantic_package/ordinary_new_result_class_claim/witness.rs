@@ -69,6 +69,11 @@ pub(crate) struct MapStoredResultSourceV1 {
     pub(super) returns: std::collections::BTreeMap<OwnedExprSiteV1, MapStoredReturnV1>,
     pub(super) uses: super::super::container_field_uses::FieldUseCensusV1,
 }
+impl PartialEq for MapStoredResultSourceV1 {
+    fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
+}
+impl Eq for MapStoredResultSourceV1 {}
+
 #[derive(Debug)]
 pub(super) enum MapStoredReturnV1 {
     Present { get: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
@@ -84,6 +89,18 @@ pub(super) struct DisjointFieldAppendSourceV1 {
     call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 }
 impl MapStoredResultSourceV1 {
+    /// SAME original get; the source census also retains its guarding has.
+    pub(crate) fn present_get_v1(&self, value: &OwnedExprSiteV1)
+        -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
+        match self.returns.get(value)? {
+            MapStoredReturnV1::Present { get, .. } => Some(get),
+            MapStoredReturnV1::InstalledLocal { .. } => None,
+        }
+    }
+    pub(crate) fn receiver_v1(&self)
+        -> &crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1 {
+        &self.receiver
+    }
     pub(super) fn origin(&self) -> ResultValueOriginV1 {
         ResultValueOriginV1::MapHeld { field: self.receiver.field(), key: self.key,
             object: self.object, class: self.class.clone() }
@@ -252,4 +269,26 @@ fn original_payload_new_v1(
             super::sole_initializer_site(function, binding)?
         };
     function.expression_source().construction(&site).cloned()
+}
+
+impl super::OrdinaryNewResultClassClaimsV1 {
+    /// Lend the SAME whole original Return derivation, without Completion,
+    /// admission or a Home. Every exit must retain this allocation and origin.
+    pub(crate) fn map_stored_return_source_v1(&self, value: &OwnedExprSiteV1)
+        -> Result<Option<Rc<MapStoredResultSourceV1>>, &'static str> {
+        let mut rows = self.source_rows().filter(|(_, exits)| exits.iter().any(|exit| exit.site() == value));
+        let Some((key, _)) = rows.next() else { return Ok(None) };
+        if rows.next().is_some() { return Err("callee-facts-identity"); }
+        let roots = self.checked_original_source_roots_v1(key, value.owner())?;
+        let Some(first) = roots.first() else { return Ok(None) };
+        let ResultWitnessStepV1::MapStored { source } = first.step() else { return Ok(None) };
+        let sites: std::collections::BTreeSet<_> = roots.iter().map(|root| root.site()).collect();
+        if roots.len() != source.returns.len() || sites != source.returns.keys().collect()
+            || roots.iter().any(|root| root.origin() != &source.origin()
+                || !matches!(root.step(), ResultWitnessStepV1::MapStored { source: same }
+                    if Rc::ptr_eq(same, source))) {
+            return Err("callee-facts-identity");
+        }
+        Ok(Some(Rc::clone(source)))
+    }
 }

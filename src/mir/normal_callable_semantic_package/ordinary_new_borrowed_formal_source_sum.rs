@@ -13,6 +13,8 @@ pub(super) enum SourcePointExpansionV1 {
     Unknown,
 }
 type MapReceiverLender<'a> = dyn FnMut(&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>) -> Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>> + 'a;
+type StaticSource = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
+type ReturnExpander<'a> = dyn FnMut(&Rc<StaticSource>, bool) -> Result<Option<Vec<(OwnedExprSiteV1, OriginalFormalActualSeedV1)>>, String> + 'a;
 type PointExpander<'a> = dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -80,6 +82,8 @@ pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
     pub(super) values: BTreeMap<BindingRefV1, Rc<SourceValueSumV1>>,
     pub(super) core_calls: BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
+    pub(super) static_sources: BTreeMap<OwnedExprSiteV1, Rc<StaticSource>>,
+    pub(super) return_sites: BTreeMap<FunctionOwnerIdV1, Box<[OwnedExprSiteV1]>>,
     pub(super) points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), Rc<SourceValueSumV1>>,
     pub(super) flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
 }
@@ -138,6 +142,11 @@ impl Node {
 struct Graph<'a> {
     points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
     expand: &'a mut PointExpander<'a>,
+    expand_returns: &'a mut ReturnExpander<'a>,
+    returns: BTreeMap<FunctionOwnerIdV1, usize>,
+    static_sources: BTreeMap<OwnedExprSiteV1, Rc<StaticSource>>,
+    return_sites: BTreeMap<FunctionOwnerIdV1, Box<[OwnedExprSiteV1]>>,
+    flow_owners: BTreeSet<FunctionOwnerIdV1>,
     expansion_error: Option<String>,
     nodes: Vec<Node>,
     formals: BTreeMap<BindingRefV1, usize>,
@@ -161,6 +170,40 @@ impl Graph<'_> {
             Ok(SourcePointExpansionV1::Seed(seed)) => node.union.push(self.seed(&seed)),
             Ok(SourcePointExpansionV1::Unknown) => node.invalid = true,
             Err(error) => { self.expansion_error.get_or_insert(error); node.invalid = true; }
+        }
+        self.nodes[id] = node;
+        id
+    }
+
+    fn static_return(&mut self, source: &Rc<StaticSource>) -> usize {
+        // Validate every participating incoming Rc before sharing its callee node.
+        if let Some(same) = self.static_sources.get(source.call_site()) {
+            if !Rc::ptr_eq(same, source) {
+                self.expansion_error.get_or_insert_with(|| freeze("source-sum/caller-owner"));
+            }
+            if let Some(&id) = self.returns.get(&source.callee_owner()) { return id; }
+        }
+        let expanded = (self.expand_returns)(source, !self.returns.contains_key(&source.callee_owner()));
+        self.static_sources.insert(source.call_site().clone(), Rc::clone(source));
+        if let Some(&id) = self.returns.get(&source.callee_owner()) {
+            match &expanded {
+                Err(error) => { self.expansion_error.get_or_insert(error.clone()); self.nodes[id].invalid = true; }
+                Ok(None) => self.nodes[id].invalid = true,
+                _ => {},
+            }
+            return id;
+        }
+        let id = self.nodes.len();
+        self.nodes.push(Node::default());
+        self.returns.insert(source.callee_owner(), id);
+        let mut node = Node::default();
+        match expanded {
+            Ok(Some(seeds)) if !seeds.is_empty() && self.flow_owners.contains(&source.callee_owner()) => {
+                self.return_sites.insert(source.callee_owner(), seeds.iter().map(|(site, _)| site.clone()).collect());
+                for (_, seed) in seeds { node.union.push(self.seed(&seed)); }
+            }
+            Err(error) => { self.expansion_error.get_or_insert(error); node.invalid = true; }
+            _ => node.invalid = true,
         }
         self.nodes[id] = node;
         id
@@ -245,7 +288,9 @@ impl Graph<'_> {
                 {
                     row.invalid = true;
                 }
-                match source.normal_representation() {
+                if let Some(original) = source.static_source_v1() {
+                    row.union.push(self.static_return(original));
+                } else { match source.normal_representation() {
                     Some(Rep::ExactString) => {
                         row.atoms.insert(Value::Text);
                     }
@@ -259,7 +304,7 @@ impl Graph<'_> {
                         row.atoms.insert(Value::Object(box_name.into()));
                     }
                     None => row.invalid = true,
-                }
+                } }
                 let i64: Vec<_> = source.required_i64().iter().map(|seed| self.seed(seed)).collect();
                 let text: Vec<_> = source.required_text().iter().map(|seed| self.seed(seed)).collect();
                 if let Some(request) = source.core_operand_request() {
@@ -306,6 +351,7 @@ pub(super) fn resolve_original_source_sums_v1(
     initializer_roots: &[OriginalFormalActualSeedV1],
     flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
     expand: &mut PointExpander<'_>,
+    expand_returns: &mut ReturnExpander<'_>,
     map_receiver: &mut MapReceiverLender<'_>,
 ) -> Result<OriginalSourceSumsV1, String> {
     let mut graph = Graph {
@@ -313,7 +359,8 @@ pub(super) fn resolve_original_source_sums_v1(
         nodes: Vec::new(),
         formals: BTreeMap::new(),
         constructors,
-        core_requests: Vec::new(), map_receiver,
+        core_requests: Vec::new(), map_receiver, expand_returns,
+        returns: BTreeMap::new(), static_sources: BTreeMap::new(), return_sites: BTreeMap::new(), flow_owners: flows.keys().copied().collect(),
     };
     let mut registered = BTreeSet::new();
     for contract in contracts
@@ -375,6 +422,8 @@ pub(super) fn resolve_original_source_sums_v1(
     }
     Ok(OriginalSourceSumsV1 {
         new_calls: Rc::clone(&source.new_calls),
+        static_sources: graph.static_sources,
+        return_sites: graph.return_sites,
         flows,
         points: graph.points.into_iter().filter_map(|(point, node)|
             values[node].clone().map(|value| (point, Rc::new(value)))).collect(),

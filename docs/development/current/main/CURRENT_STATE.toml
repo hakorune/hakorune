@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/lexical-instance-call/source-pending: owner26 ingestLine Body5 statsFor(user), Map-slot result ABI/lifetime not connected"
+current_blocker_token = "ordinary-new/object-input/callee-exit: PrefixNotCovered Body2; callee absent from diagnostic; Map slot execution/Return/lifetime incomplete"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: borrowed resultのpayloadと支持元を分離して着地。
-JSONはowner26 statsFor source-pending。Map slot ABI/lifetime・所有移転は未接続。
-固定suite7PASS/4FAIL（実EXE6＋空marker1）、372.713s、SKIP/timeoutなし。
-CLI89s/root165s、Invoke42/nullable2/JSONsource1 PASS。既知赤は親binaryと診断一致。
-WIP解消。次は元get/set NormalからReturn・slot寿命まで接続。finite goal未完。
+APP-json-stream-aggregator: 元Static全ReturnのSUMと同じMap Return sourceを接続。
+JSONはobject-input/callee-exit PrefixNotCovered(Body2)。calleeは診断に未掲載。
+固定suite7PASS/4FAIL（実EXE6＋空marker1）、401.795s、SKIP/timeoutなし。
+CLI40.30s/root95s、focusedの親比追加失敗なし。test9263件、新規ファイルなし。
+次はcallee特定と元get/set Normal・Return・slot寿命接続。finite goal未完。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: Suite7/4 actualEXE6+marker1,401.795s,no SKIP/timeout. Original Static complete Return edges connected to the existing SUM/SCC graph without catalog result authority; per-incoming Rc/target/contract and sealed omitted target checks retained, callee body memoized. SAME whole Map Return source reaches terminal/entry-use closure with exact receiver and passive Text key; miss set stays unavailable, no Fresh/scalar fallback or ABI/Home grant. CLI40.30s/root95s; unchanged runtime/C reused. JSONsource1/object-return5/borrowed-use27/Map-terminal13/nullable2 PASS. Initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent diagnostics except compilation session IDs. Existing case extensions cover independent Static Return domain and Map source identity; no new tests/files/hooks/checkers/guards/cards, inventory9263. JSON now object-input/callee-exit PrefixNotCovered Body2, callee unreported; Map/get/set/Return/lifetime and finite goal remain owed.",
   "2026-10-21: Borrowed result payload and support normalized in the existing Invoke kind and physical role. Same original loan projects Formal or ReceiverFieldSlot(field,key ordinal,payload object); key is not a payload formal. Call/declaration JSON share one encoder and preserve existing Formal wire. Map stays pending: source/corroboration/MIR/final Return/JSON gates still refuse unfinished storage support. CLI89s/root165s with concurrent suite; unchanged runtime/FFI reused. Invoke42/nullable2/JSONsource1 PASS; publication2/1 and source-result49/3 exactly match saved parent failure diagnostics. Frozen suite7/4 actualEXE6+marker1,372.713s,no SKIP/timeout. No new tests/asserts/hooks/checkers/guards/cards; inventory9263 unchanged. WIP resolved. JSON statsFor source-pending; original get/set Normal Home transfer, Return producer, slot lifetime and finite-goal cutover/retirement remain owed.",
   "2026-10-21: Shared finite Scalar/SUM Bool input, Field RHS/condition references and exact final operand/Copy scans connected. Rust/C Bool view stays distinct from I64; tag2/payload0-or-1 checked before effects. Original Static scalar membership shared by old finishers and finite selection, duplicate predicate removed, mimalloc/allocator regressions recovered. Frozen suite7/4 actualEXE6+marker1,355.919s,no SKIP/timeout; native probes exit7/6, wrong domains refuse before EXE. Entry64/2, actuals82/4, source33/8 retain exact prior failures; borrowed-use27/Invoke42/owned-write1/publication1/prefix1/JSONsource1 PASS. CLI39.08s/runtime2.51s/root81s with concurrent app compilation. No new tests/asserts/hooks/checkers/guards/cards; inventory9263 unchanged. WIP resolved; JSON statsFor source-pending, Map slot ABI/lifetime and finite-goal source/consumer/cutover/retirement remain owed.",
-  "2026-10-21: SAME Map-backed LOCAL receiver source now retains payload class and exact slot loan in existing lexical target/incoming, with sole initializer/unrebound/uncaptured checks and all Return/holder/key recheck. Unit SourceInstance keeps Scalar kinds without executable I64 transport. Old co-seal/object/borrowed/mixed/Unit promotion remains closed until real slot ABI/lifetime. JSON stop moves owner26 ingestLine to owner22 UserStats.add Body0 opaque bytes RHS. Existing JSONsource1/nullable2/stored2/publication1/prefix1 PASS; actuals82/4 unchanged, result23/1 reproduced with saved prior binary. Frozen suite7/4 actualEXE6+marker1,324.680s,no SKIP/timeout. CLI33.95s/runtime6.42s/root91s. No new test case/assert/file/hook/checker/guard/card. Next normalize original Bool SUM plus shared finite Integer/Bool input/reference owner and exact entry projections; preserve all Home/End/slot ABI/prior reds and finite-goal source/consumer/cutover/retirement.",
 ]

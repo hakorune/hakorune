@@ -125,7 +125,9 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
                 assert_eq!(exits.len(), 2);
                 for exit in exits {
                     assert!(exit.alternatives().iter().all(|origin| matches!(origin, ResultValueOriginV1::MapHeld { class, .. } if class.as_ref() == "Item")));
-                    assert!(exit.witnesses().iter().all(|root| matches!(root.step(), ResultWitnessStepV1::MapStored { .. })));
+                    let loan = facts.map_stored_return_source_v1(exit.site()).unwrap().expect("same original storage Return");
+                    assert!(exit.witnesses().iter().all(|root| matches!(root.step(),
+                        ResultWitnessStepV1::MapStored { source } if Rc::ptr_eq(source, &loan))));
                     assert!(facts.object_return_qualification(exit.site()).is_none());
                 }
             }

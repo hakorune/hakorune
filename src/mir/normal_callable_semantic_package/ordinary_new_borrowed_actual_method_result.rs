@@ -26,6 +26,43 @@ impl<'a> OriginalActualSourceContextV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(&self) -> Self {
         Self { claims: self.claims, caller: self.caller.clone(), owner: self.owner, point_premise: true }
     }
+    /// Check the SAME original Static incoming and callee before source Return expansion.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn require_static_result_input_v1(
+        source: &Rc<StaticIncomingSourceV1>, input: ResolvedFunctionLoweringInputV1<'_>, slot: u32,
+        batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1], inventory: &BorrowedIncomingInventoryV1,
+        omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
+    ) -> Result<(), String> {
+        let selected_slot = selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(source.target().clone()));
+        let original_omitted = omitted.get(&source.callee_owner()) == Some(source.target())
+            && omitted.values().filter(|key| *key == source.target()).count() == 1;
+        let reject = || format!("{}: call={:?} target={:?} callee={:?} selected={selected_slot:?}",
+            freeze("source-sum/caller-contract"), source.call_site(), source.target(), source.callee_owner());
+        let mut incoming = inventory.source_rows_v1().filter(|row| &row.call == source.call_site());
+        let original = incoming.next().ok_or_else(reject)?;
+        if incoming.next().is_some() || original.callee != source.callee_owner()
+            || !matches!(&original.source, BorrowedIncomingSourceV1::Static(same) if Rc::ptr_eq(same, source))
+            || !source.catalog_brand().is_same(selected.catalog_brand())
+            || selected_slot != Some(source.target_batch_slot()) && !original_omitted {
+            return Err(reject());
+        }
+        let declaration = batch.declarations().find(|row| row.batch_slot() == slot).ok_or_else(reject)?;
+        let mut rows = contracts.iter().filter(|row| row.owner == input.owner());
+        let contract = rows.next().ok_or_else(reject)?;
+        if input.owner() != source.callee_owner() || slot != source.target_batch_slot()
+            || rows.next().is_some() || contract.batch_slot != slot
+            || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+            || match selected.identity_for_batch_slot(slot) {
+                Some(identity) => !identity.same_as(declaration.identity()),
+                None => !original_omitted,
+            }
+            || contract.parameters.len() != source.parameters().len()
+            || contract.parameters.iter().zip(source.parameters()).any(|(a,b)|
+                a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind) {
+            return Err(reject());
+        }
+        Ok(())
+    }
     pub(super) fn for_legacy_actual(&self) -> Self {
         Self { claims: self.claims, caller: self.caller.clone(), owner: self.owner, point_premise: false }
     }
@@ -321,6 +358,11 @@ impl OriginalMethodResultSeedV1 {
     ) -> &Arc<VerifiedResolvedMethodCallSourceV1> {
         &self.method
     }
+    /// Original Static edge, independently of legacy result representation.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn static_source_v1(&self)
+        -> Option<&Rc<StaticIncomingSourceV1>> {
+        match &self.proof { Some(OriginalMethodResultProofV1::Static(source)) => Some(source), _ => None }
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn normal_representation(
         &self,
     ) -> Option<VerifiedCallableResultRepresentationV1> {
@@ -392,5 +434,21 @@ mod tests {
                     .unwrap();
             })
             .unwrap();
+
+        // Unannotated Static results compose their complete original Return
+        // graph, even while the separate catalog result authority is unavailable.
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            r#"static box Reader { take(text) { if text == "" { return "" } return text.substring(0,1) } }
+                static box Sink { check(value) { local n = value.length() return n } }
+                static box Main { main() { local value = Reader.take("xy") local n = Sink.check(value) return n } }"#,
+            crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+        let prepared = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(CanonicalSameModuleCallableKeyV1::static_box_method("Sink", "check", 1));
+        let slot = package.selected.batch_slot(&key).unwrap();
+        let formal = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap().parameters[0].binding;
+        assert!(prepared.source_value_sum_v1(formal).is_some_and(|sum| sum.text_only()));
+        assert!(prepared.source_incoming.source_rows_v1().any(|row| matches!(&row.source,
+            BorrowedIncomingSourceV1::Static(source) if source.target() == &CanonicalSameModuleCallableKeyV1::static_box_method("Reader", "take", 1)
+                && source.source_result().representation().is_none())));
     }
 }

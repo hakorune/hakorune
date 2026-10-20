@@ -22,6 +22,8 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
         plan: &'a std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     },
+    /// Original whole storage-supported Return source; never an owning call.
+    StoredReturnSource,
     ScalarArguments,
     I64ResultArguments,
     SourceResultArguments,
@@ -42,6 +44,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
+    StoredReturnSource(std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>),
     ExpressionCoreSource(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
     FiniteEntryRead(crate::mir::normal_callable_semantic_package::FiniteEntryReadV1),
     TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),

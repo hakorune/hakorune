@@ -136,6 +136,7 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                     TerminalReturnedSourceV1::Construction(_)
                         | TerminalReturnedSourceV1::OwnedCall(_)
                         | TerminalReturnedSourceV1::BorrowedNullableLocal(_)
+                        | TerminalReturnedSourceV1::StoredMapGet { .. }
                         | TerminalReturnedSourceV1::NullLiteral
                         | TerminalReturnedSourceV1::TextResidence { .. }
                         | TerminalReturnedSourceV1::TextExpression(_)

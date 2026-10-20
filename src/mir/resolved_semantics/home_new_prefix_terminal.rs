@@ -50,7 +50,8 @@ pub(super) fn observe_terminal_statement<'a, E>(
     let mut relation: Option<TerminalRelationV1> = None;
     // Qualified object returns are exclusive, including unavailable support.
     // They must never reach the scalar borrowed-argument shortcut.
-    let object_terminal = if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
+    let stored_terminal = super::terminal_relation::observe_stored_return_v1(input, statement, locals, homes, local_calls, borrowed_actuals)?;
+    let object_terminal = if stored_terminal.is_some() { stored_terminal } else if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
         if let Ok(value) = input
             .source()
             .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)

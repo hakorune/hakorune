@@ -187,7 +187,7 @@ pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopI64ResultSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopPacketSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::{BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1};
 pub(crate) use ordinary_new_coseal::{
-    BorrowedNullableLocalSourceLoanV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1,
+    MapStoredResultSourceV1, BorrowedNullableLocalSourceLoanV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1,
     BirthAbiHandoffV1, BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1, QualifiedFieldWriteReceiverV1,
     LexicalInstanceCallDispositionRowV1, LexicalInstanceCallSourceTargetV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,

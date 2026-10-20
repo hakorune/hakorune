@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 
 #[path = "home_terminal_returned_value.rs"]
 mod returned_value;
-pub(super) use returned_value::{terminal_returned_source, observe_text_return_expression_v1, finite_entry_return};
+pub(super) use returned_value::{terminal_returned_source, observe_text_return_expression_v1, observe_stored_return_v1, finite_entry_return};
 pub(crate) use returned_value::{TerminalReturnedSourceV1, TerminalValueReturnV1};
 
 /// Source-only terminal shape for the selected ordinary-`New` root.

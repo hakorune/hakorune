@@ -21,35 +21,6 @@ pub(super) enum EntryStructureEvidenceV1<'a> {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Lend completed finite inputs through the same entry-use and incoming
-    /// closure. This is an actual loan, never an artificial legacy Uses draft.
-    pub(super) fn completed_finite_entry_call_actuals_v1(
-        &self, row: &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
-    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
-        let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-call/source-missing"))?
-            .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        if !Self::original_finite_instance_input_request_v1(source, catalog, row.callee_owner())? { return Ok(None); }
-        let contract = catalog.iter().find(|contract| contract.owner == row.callee_owner())
-            .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
-        let parameters: Vec<_> = contract.parameters.iter().map(|formal|
-            (formal.ordinal, formal.binding, formal.kind.clone())).collect();
-        let entry = self.borrowed_entry_source_for_contract(row.callee_owner(), &parameters)?
-            .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
-        let mut incoming = entry.incoming_rows.iter().copied().filter(|call| &call.call == row.call_site());
-        let call = incoming.next().ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
-        if incoming.next().is_some() || call.callee != row.callee_owner()
-            || call.source.require_instance()? != row.source_target()
-            || row.argument_sites().len() != row.target().arity() as usize
-            || call.arguments.iter().any(|(ordinal, site, _)| row.argument_sites().get(*ordinal as usize) != Some(site)) {
-            return Err(freeze("borrowed-call/disposition-identity"));
-        }
-        let actuals = self.borrowed_formal_actuals.get(row.call_site())
-            .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?.as_ref().map_err(Clone::clone)?;
-        actuals.ordered_arguments_for_v1(call)?;
-        Ok(Some(&actuals.opaque_actuals))
-    }
-
     /// Source-use closure shared by the original Static and Instance input owners. Every original
     /// read is accounted for by a qualified purpose or an exact entry alias;
     /// physical entry/use correspondence remains a separate final obligation.
@@ -180,7 +151,23 @@ impl OrdinaryNewClaimLedgerV1 {
         for terminal in self.terminal_relations_for_owner(contract.owner) {
             use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
             if let TerminalRelationV1::Value(value) = terminal {
-                if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {
+                let evaluation = match value.returned() {
+                    TerminalReturnedSourceV1::TextExpression(evaluation) => Some(evaluation),
+                    TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } => {
+                        let field = source.receiver_v1();
+                        field.require_entry_source_v1(self)?;
+                        if origins.contains_key(&field.receiver())
+                            || source.present_get_v1(&OwnedExprSiteV1::new(contract.owner, value.value_site().clone())).is_none()
+                            || !uses.reads().any(|(at, original)| at == receiver_read
+                                && *original == ResolvedLexicalRefV1::Local(field.receiver()))
+                            || !covered.insert((receiver_read.clone(), field.receiver())) {
+                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                        }
+                        Some(key)
+                    }
+                    _ => None,
+                };
+                if let Some(evaluation) = evaluation {
                     if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) {
                         evaluations.push(evaluation);
                     }

@@ -165,7 +165,17 @@ original selected-site and lexical receiver checks.
 
 The private `home_terminal_returned_value.rs` owns returned-value source identity;
 `home_terminal_relation.rs` retains its historical reexports and other terminal
-classifiers. The source walk and lifecycle authority are unchanged.
+classifiers. Storage-supported Returns borrow the SAME whole original Map source
+through the existing argument port, with current field-inventory identity. A
+Present get retains its own Me-read site and qualifies the original Text-key
+CallArgument through the common Text evaluation owner. Child completion retains
+this source relation explicitly; original entry-use closure counts receiver and
+key reads. This issues no Home, completed result ABI or physical slot lifetime;
+get/set Normal transfer and independent final Return validation remain required.
+Original Static result domains join the existing source SUM/SCC graph through all
+callee Return edges, independently of catalog result representation. The source
+owner validates every incoming identity and retains complete original Return/flow
+identity; shared callee expansion grants no execution, Home or result ABI.
 
 The terminal relation additionally records non-i64 `return <value>` evidence
 through `TerminalValueReturnV1`: the exact returned source is a `MapLiteral`
