@@ -2,6 +2,125 @@
 use super::*;
 
 impl BorrowedCallUses {
+    pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view::compiled_entry_contract) fn local_field_writes_entry(&mut self, source: &FinalizedRootSourceHandoffV1,
+        owner: FunctionOwnerIdV1, function: &MirFunction,
+    ) -> Result<(), String> {
+        let state = self.functions.entry(function.signature.name.clone()).or_default();
+        field_write::local_entry(state, source, owner, function)
+    }
+    pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view::compiled_entry_contract) fn entry(
+        &mut self,
+        source: &FinalizedRootSourceHandoffV1,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let state = self
+            .functions
+            .entry(function.signature.name.clone())
+            .or_default();
+        let entry = source.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        for (ordinal, formal, value) in source.borrowed_ordinary_entry_values_v1(owner)?.iter() {
+            if let Some(domain) = entry.formal_domain_v1(*ordinal, *formal)? {
+                if state.domains.insert(*value, domain.clone()).is_some_and(|previous| previous != *domain) {
+                    return Err(fault("borrowed-use/conflicting-domain"));
+                }
+            }
+            if function
+                .params
+                .iter()
+                .filter(|parameter| *parameter == value)
+                .count()
+                != 1
+            {
+                return Err(fault("borrowed-use/entry-parameter"));
+            }
+            if let Some(previous) = state.roots.insert(*value, *formal) {
+                if previous != *formal {
+                    return Err(fault("borrowed-use/conflicting-root"));
+                }
+            }
+        }
+        source.with_borrowed_ordinary_alias_copies_v1(owner, function, |_, _, _, _, _, copies| {
+            for original in copies {
+                let coordinate =
+                    source.borrowed_ordinary_alias_copy_coordinate_v1(owner, function, original)?;
+                state.copy(original, coordinate)?;
+            }
+            Ok(())
+        })?;
+        for (_, formal, _) in source
+            .borrowed_ordinary_compare_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.compare_admissions.entry(*formal).or_default() += 1;
+        }
+        let mut expected = BTreeMap::<_, BTreeSet<_>>::new();
+        let mut compare_sites = BTreeMap::new();
+        source.with_borrowed_ordinary_compares_v1(owner, function, |loan, _, binding| {
+            let block = function.blocks.get(&binding.0)
+                .ok_or_else(|| fault("borrowed-use/compare-block"))?;
+            let mut rows = block.all_instructions().enumerate()
+                .filter(|(_, row)| **row == binding.1);
+            let (index, _) = rows.next().ok_or_else(|| fault("borrowed-use/compare-missing"))?;
+            if rows.next().is_some() { return Err(fault("borrowed-use/compare-duplicate")); }
+            if compare_sites.insert(loan.site().clone(), (binding.0, index)).is_some() {
+                return Err(fault("borrowed-use/compare-source-duplicate"));
+            }
+            for (formal, side) in loan.operand_formals() {
+                if !expected.entry(formal).or_default().insert(((binding.0, index), side)) {
+                    return Err(fault("borrowed-use/compare-source-duplicate"));
+                }
+            }
+            Ok(())
+        })?;
+        state.compare_coordinates = Some(expected);
+        source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
+            state.copy(copy, Some(coordinate))
+        })?;
+        guarded_arguments::entry(state, source, owner, function, &compare_sites)?;
+        field_write::entry(state, source, owner, function, &compare_sites)?;
+        array_set::entry(state, source, owner, function, &compare_sites)?;
+        mul::entry(state, source, owner, function, &compare_sites)?;
+        integer_return::entry(state, source, owner, function)?;
+        for (_, formal, _) in source
+            .borrowed_ordinary_add_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.add_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _) in source
+            .borrowed_ordinary_array_element_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.set_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _, _) in source
+            .borrowed_ordinary_new_argument_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.ctor_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _) in source
+            .borrowed_ordinary_null_compare_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.null_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _) in source
+            .borrowed_ordinary_field_read_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.field_admissions.entry(*formal).or_default() += 1;
+        }
+        state.object_views =
+            source.borrowed_ordinary_formal_object_views_v1(owner, function)?;
+        Ok(())
+    }
+
+
+}
+
+impl BorrowedCallUses {
     pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view::compiled_entry_contract::borrowed_call_incoming) fn call(
         &mut self,
         caller: &MirFunction,
