@@ -356,6 +356,7 @@ impl OrdinaryNewClaimLedgerV1 {
         use super::super::OrdinaryNewTrivialArgumentKindV1;
 
         let matching = match source.kind() {
+            OrdinaryNewTrivialArgumentKindV1::Expression { .. } => 0,
             OrdinaryNewTrivialArgumentKindV1::Integer(expected) => function
                 .blocks
                 .values()

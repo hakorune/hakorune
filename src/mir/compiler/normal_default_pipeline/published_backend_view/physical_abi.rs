@@ -679,7 +679,8 @@ pub(super) fn scalar_actual_kind(
         | Kind::Handle { .. }
         | Kind::BoundValue { .. }
         | Kind::I64Field { .. }
-        | Kind::QualifiedStaticCall { .. } => Err(fault("actual-kind-unavailable")),
+        | Kind::QualifiedStaticCall { .. }
+        | Kind::Expression { .. } => Err(fault("actual-kind-unavailable")),
     }
 }
 

@@ -72,6 +72,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
                 input, call, *ordinal).map_err(|_| reject())?;
             call.site() == site.site() && original.as_ref() == plan.as_ref()
         }
+        ExpressionPlanRootV1::NewArgument { construction, ordinal, .. } => {
+            let original = crate::mir::resolved_value_profile::expression_plan::new_argument_expression_source_plan_v1(
+                input, site, *ordinal).map_err(|_| reject())?;
+            construction.site() == site.site() && original.as_ref() == plan.as_ref()
+        }
         ExpressionPlanRootV1::Assignment { assignment } => {
             let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| reject())?;
             let original = crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1(

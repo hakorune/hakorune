@@ -44,7 +44,8 @@ pub(super) fn materialize_arguments(
             // the Birth construction plan; the selected `local x = new`
             // lane never admits it. A row reaching this owner is issuer
             // drift, not a supported actual.
-            OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. } => {
+            OrdinaryNewTrivialArgumentKindV1::Expression { .. }
+            | OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. } => {
                 return Err(freeze("argument-kind-provider-only"))
             }
             OrdinaryNewTrivialArgumentKindV1::I64Field { object } => {

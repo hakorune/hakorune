@@ -1,18 +1,17 @@
 # APP-json-stream-aggregator
-Status: Construction execution and retained final replay share one source-indexed plan; Text Birth and Map publication remain incomplete. Date: 2026-10-21
+Status: Original New argument evaluation is retained through co-seal; physical Text Birth and Map publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 378.740s;
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 380.497s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON first stop: owner26 ingestLine Body5 Initializer0 statsFor(user), callee25,
   lexical-instance-call/source-pending. No MIR/EXE. Four required apps remain red.
-- CLI97s/root143s builds. Existing FieldHas source EXE exit7; runtime unchanged.
-- 23 focused filters retain parent outcomes/failure causes. Comparison excludes
-  only the added execution projection from Debug; raw diagnostics retained.
-  Construction2/collector13 PASS. Root inventory9263 byte-identical; no new warnings.
+- CLI64s/root106s builds; runtime/FFI unchanged. Earlier FieldHas EXE exit7.
+- 25 focused filters retain parent outcomes/failure causes; raw diagnostics kept.
+  Original JSON source case PASS; inventory9263 byte-identical, root warnings unchanged.
 - Earlier ABI-only Text append12 runs/9 refusals and Map get8 runs/9 refusals
   remain narrow ABI evidence; source-backed Text final publication/EXE is owed.
 
@@ -32,6 +31,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   and execution mode/prefix before replaying actual Invoke/cleanup coordinates.
   Existing physical test fixtures retain real source plans; no new test functions,
   files, hooks, checker, guard, card or adapter.
+- NewArgument evaluation retains the original New, exact ordinal/site and SAME
+  checked evaluation Rc through co-seal. Local/return-New share one source-order
+  argument walk; Text borrows input Homes. Physical/ABI admission remains closed.
+- Existing JSON case extends the independent original-New purpose/loan boundary;
+  no new test functions/files/hooks/checkers. Duplicate argument walks removed.
 - First-write I64/Map checks Empty. Birth Fault discharges only committed prefix;
   Provided stays caller-owned until Normal. Full End drains all declared residences.
 - One synchronous MapEndContext handles detached outcomes/Array children outside
@@ -69,8 +73,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   once. It grants no source Birth/Map/Call/Return publication or parent Map End.
 
 ## Next and completion limits
-- Next: genuine original NewArgument expression root → existing evaluation and
-  same source SUM/Birth formal → late execution plan. Borrowed Text must
+- Next: typed checked Birth actuals retaining the same New evaluation; StaticText
+  has no fake SSA or caller Materialize. Same source SUM/Birth formal → late plan.
+  Borrowed Text must
   Materialize an independent pair before Dynamic initialization. Materialize
   Fault owes prior prefix; install Fault Ends fresh pair then prefix; later
   Birth Fault must include every successfully installed Text residence.

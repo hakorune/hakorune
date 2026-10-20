@@ -342,6 +342,8 @@ pub(super) fn observe<'a, E>(
                 selected_seen,
                 unavailable,
                 scalar_field,
+                local_calls,
+                borrowed_actuals,
                 argument_i64_field,
             )?;
         } else if let Some(keys) = map_literal_keys(input, site) {

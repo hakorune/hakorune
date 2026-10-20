@@ -1,8 +1,8 @@
 //! Neutral source facts for selected direct-local ordinary `New` arguments.
 //!
-//! This module deliberately has no package, AST, MIR-value, ABI, or backend
-//! dependency.  The source walk issues observations; the package may co-seal
-//! them into its existing admission claim.
+//! Rows carry source facts and existing checked expression loans; never MIR
+//! values, ABI descriptors or backend decisions. The source walk issues
+//! observations; the package may co-seal them into its existing admission claim.
 
 use super::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1};
 
@@ -24,14 +24,29 @@ pub(crate) enum SelectedNewArgumentKindV1 {
     /// expression's lexical binding; the canonical field identity stays
     /// in the issuer's staged read row — this kind keeps provenance only.
     I64Field { object: BindingRefV1 },
+    /// Qualified source expression. No scalar/object or physical Birth lane
+    /// follows from this loan. The selected New owns its exact purpose.
+    Expression { evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1> },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub(crate) struct SelectedNewArgumentV1 {
     ordinal: u32,
     site: SourceExprSiteV1,
     kind: SelectedNewArgumentKindV1,
 }
+
+impl PartialEq for SelectedNewArgumentV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.ordinal == other.ordinal && self.site == other.site
+            && match (&self.kind, &other.kind) {
+                (SelectedNewArgumentKindV1::Expression { evaluation: a }, SelectedNewArgumentKindV1::Expression { evaluation: b }) =>
+                    std::rc::Rc::ptr_eq(a, b),
+                _ => self.kind == other.kind,
+            }
+    }
+}
+impl Eq for SelectedNewArgumentV1 {}
 
 impl SelectedNewArgumentV1 {
     pub(crate) fn new(

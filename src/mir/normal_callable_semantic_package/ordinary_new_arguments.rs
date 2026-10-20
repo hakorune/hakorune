@@ -30,6 +30,9 @@ pub(crate) enum OrdinaryNewTrivialArgumentKindV1 {
     I64Field {
         object: BindingRefV1,
     },
+    /// SAME qualified original New actual; kept distinct from raw scalar or
+    /// object bindings until complete Text/Birth transport is verified.
+    Expression { evaluation: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1> },
     /// A proven `Alias.m(..)` qualified static-box call: the sealed claim
     /// row proves the `StaticBoxMethod` target and its `ExactI64` result
     /// disposition; `arguments` are the callee's sealed literal actuals in
@@ -69,7 +72,10 @@ impl PartialEq for OrdinaryNewTrivialArgumentV1 {
             && self.new_site == other.new_site
             && self.ordinal == other.ordinal
             && self.site == other.site
-            && self.kind == other.kind
+            && match (&self.kind, &other.kind) {
+                (OrdinaryNewTrivialArgumentKindV1::Expression { evaluation: a }, OrdinaryNewTrivialArgumentKindV1::Expression { evaluation: b }) => Rc::ptr_eq(a, b),
+                _ => self.kind == other.kind,
+            }
             && match (&self.field_array_read, &other.field_array_read) {
                 (None, None) => true, (Some(a), Some(b)) => Rc::ptr_eq(a, b), _ => false,
             }

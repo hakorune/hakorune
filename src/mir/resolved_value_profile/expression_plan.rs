@@ -27,6 +27,12 @@ pub(crate) enum ExpressionPlanRootV1 {
         call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
         ordinal: u32,
     },
+    /// One actual of the original New, never a fabricated Call/initializer.
+    NewArgument {
+        statement: SourceStmtSiteV1,
+        construction: crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
+        ordinal: u32,
+    },
     LocalInitializer {
         statement: SourceStmtSiteV1,
         initializer: ResolvedInitializerRelationV1,
@@ -55,7 +61,7 @@ pub(crate) enum ExpressionPlanRootV1 {
 impl ExpressionPlanRootV1 {
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
-            Self::CallArgument { statement, .. } | Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }
+            Self::CallArgument { statement, .. } | Self::NewArgument { statement, .. } | Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }
             | Self::IfCondition { statement, .. } | Self::LoopCondition { statement, .. } => {
                 statement
             }
@@ -65,7 +71,7 @@ impl ExpressionPlanRootV1 {
     pub(crate) fn initializer(&self) -> Option<&ResolvedInitializerRelationV1> {
         match self {
             Self::LocalInitializer { initializer, .. } => Some(initializer),
-            Self::CallArgument { .. } | Self::Statement { .. } | Self::Assignment { .. }
+            Self::CallArgument { .. } | Self::NewArgument { .. } | Self::Statement { .. } | Self::Assignment { .. }
             | Self::IfCondition { .. } | Self::LoopCondition { .. } => None,
         }
     }
@@ -403,6 +409,29 @@ pub(crate) fn call_argument_expression_source_plan_v1(
     build_plan(&ledger, input.body_shape(), ExpressionPlanRootV1::CallArgument {
         statement: statement.clone(), call: std::sync::Arc::clone(call), ordinal,
     }, argument.site())
+}
+
+/// Borrow the exact original New and ordinal. All siblings and overrides stay
+/// on the root for later source replay; this grants no argument execution.
+pub(crate) fn new_argument_expression_source_plan_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    new_site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ordinal: u32,
+) -> Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+    use ExpressionChildIssueV1 as Issue;
+    let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| Issue::ForeignOwner)?;
+    let inventory = ledger.source_site_inventory();
+    if input.owner() != new_site.owner() || ledger.owner() != input.owner()
+        || !inventory.contains_expression(new_site.site()) { return Err(Issue::ChildIdentity); }
+    let construction = input.function().expression_source().construction(new_site.site()).ok_or(Issue::MissingSource)?;
+    let argument = construction.arguments().get(ordinal as usize).ok_or(Issue::ChildIdentity)?;
+    let expected = SourcePathV1::from_node(new_site.site().node()).child(SourcePathSegmentV1::Argument(ordinal)).expr();
+    if construction.site() != new_site.site() || argument != &expected
+        || !inventory.contains_expression(argument) { return Err(Issue::ChildIdentity); }
+    let statement = inventory.containing_statement(new_site.site()).ok_or(Issue::MissingSource)?;
+    build_plan(&ledger, input.body_shape(), ExpressionPlanRootV1::NewArgument {
+        statement: statement.clone(), construction: construction.clone(), ordinal,
+    }, argument)
 }
 
 fn build_plan(

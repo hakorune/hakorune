@@ -18,6 +18,8 @@ pub(super) fn observe_selected_new_local<E>(
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
+    calls: &[LocalCallObservationV1],
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -39,107 +41,15 @@ pub(super) fn observe_selected_new_local<E>(
                     field_initializers,
                     ..
                 } => {
-                    let observed_arguments = {
-                        let mut rows = Vec::with_capacity(arguments.len());
-                        let mut row_error = None;
-                        for (ordinal, _) in arguments.iter().enumerate() {
-                            let Ok(ordinal) = u32::try_from(ordinal) else {
-                                row_error = Some(
-                                    SelectedNewArgumentUnavailableV1::ArgumentOrdinalOverflow {
-                                        new_site: owned.clone(),
-                                    },
-                                );
-                                break;
-                            };
-                            let argument = match input
-                                .source()
-                                .child_expr_from_expr(&new, ExprChildRoleV1::CallArgument(ordinal))
-                            {
-                                Ok(argument) => argument,
-                                Err(_) => {
-                                    row_error =
-                                        Some(SelectedNewArgumentUnavailableV1::SourceMismatch {
-                                            new_site: owned.clone(),
-                                        });
-                                    break;
-                                }
-                            };
-                            match locals
-                                .observe_selected_argument(argument.site(), argument_i64_field)?
-                            {
-                                Some(kind) => rows.push(SelectedNewArgumentV1::new(
-                                    ordinal,
-                                    argument.site().clone(),
-                                    kind,
-                                )),
-                                None => {
-                                    row_error = Some(
-                                        SelectedNewArgumentUnavailableV1::ArgumentNotTrivial {
-                                            new_site: owned.clone(),
-                                            site: argument.site().clone(),
-                                        },
-                                    );
-                                    break;
-                                }
-                            }
-                        }
-                        match row_error {
-                            Some(error) => Err(error),
-                            None => Ok(rows.into_boxed_slice()),
-                        }
-                    };
-                    argument_observations.insert(
-                        owned.clone(),
-                        SelectedNewArgumentObservationV1::new(owned.clone(), observed_arguments),
-                    );
+                    let (observation, moved, issue) = observe_new_arguments_v1(input, owned, arguments.len(),
+                        locals, homes, calls, argument_i64_field, actuals)?;
+                    argument_observations.insert(owned.clone(), observation);
+                    moved_arguments = moved;
+                    if let Some(issue) = issue { unavailable.get_or_insert(issue); }
                     if !field_initializers.is_empty() {
-                        unavailable.get_or_insert_with(|| {
-                            HomePrefixUnavailableV1::OverridesNotCovered(site.clone())
-                        });
+                        unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::OverridesNotCovered(site.clone()));
                     }
-                    for argument in 0..arguments.len() {
-                        let arg = input.source().child_expr_from_expr(
-                            &new,
-                            ExprChildRoleV1::CallArgument(argument as u32),
-                        );
-                        match arg {
-                            // Handle arguments require the selected parameter's
-                            // source demand, not merely a physical borrow ABI.
-                            Ok(arg) => {
-                                match locals
-                                    .observe_selected_argument(arg.site(), argument_i64_field)?
-                                {
-                                    Some(kind) => {
-                                        match kind {
-                                            // An argument naming a live owned
-                                            // binding moves the lease into the
-                                            // constructed object; the frame's
-                                            // exit obligation ends at this
-                                            // edge.
-                                            SelectedNewArgumentKindV1::Local { binding }
-                                            | SelectedNewArgumentKindV1::Handle { binding }
-                                            | SelectedNewArgumentKindV1::BoundValue { binding }
-                                                if homes.iter().any(|home| home.binding() == binding) =>
-                                            {
-                                                moved_arguments.push(binding);
-                                            }
-                                            _ => {}
-                                        }
-                                    }
-                                    None => {
-                                        unavailable.get_or_insert_with(|| {
-                                            HomePrefixUnavailableV1::ArgumentNotCovered(
-                                                arg.site().clone(),
-                                            )
-                                        });
-                                    }
-                                }
-                            }
-                            Err(_) => {
-                                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
-                            }
-                        }
-                    }
+
                 }
                 _ => {
                     unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
@@ -175,4 +85,72 @@ pub(super) fn observe_selected_new_local<E>(
     let construction_source = scalar_field.construction_source(owned, binding)?;
     locals.install_selected_normal_home(binding, owned.clone(), construction_source);
     Ok(())
+}
+
+/// One source-order observation shared by local and return-New. Home transfer
+/// is derived from those same rows; qualified Text expressions borrow inputs.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn observe_new_arguments_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, new_site: &OwnedExprSiteV1, arity: usize,
+    locals: &PrefixLocalFlow<'_>, homes: &[LiveHomeV1], calls: &[LocalCallObservationV1],
+    argument_i64_field: &mut impl FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str) -> Result<bool, E>,
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<(SelectedNewArgumentObservationV1, Vec<BindingRefV1>, Option<HomePrefixUnavailableV1>), E> {
+    let source = input.function().expression_source().construction(new_site.site());
+    let Some(source) = source.filter(|source| input.owner() == new_site.owner()
+        && source.site() == new_site.site() && source.arguments().len() == arity) else {
+        return Ok((SelectedNewArgumentObservationV1::new(new_site.clone(),
+            Err(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: new_site.clone() })),
+            Vec::new(), Some(HomePrefixUnavailableV1::SourceMismatch)));
+    };
+    let mut rows = Vec::with_capacity(arity);
+    let mut moved = Vec::new();
+    let mut error = None;
+    let mut unavailable = None;
+    for (index, site) in source.arguments().iter().enumerate() {
+        let Ok(ordinal) = u32::try_from(index) else {
+            error.get_or_insert(SelectedNewArgumentUnavailableV1::ArgumentOrdinalOverflow { new_site: new_site.clone() });
+            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+            break;
+        };
+        let expected = crate::mir::resolved_semantics::SourcePathV1::from_node(new_site.site().node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal)).expr();
+        if site != &expected {
+            error.get_or_insert(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: new_site.clone() });
+            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+            continue;
+        }
+        let observed = locals.observe_selected_argument(site, argument_i64_field)?;
+        // Already-proved scalar leaves keep their exact old domain. Opaque
+        // bindings/otherwise uncovered Text need their own original evaluation.
+        let needs_expression = matches!(&observed, None | Some(SelectedNewArgumentKindV1::Handle { .. } | SelectedNewArgumentKindV1::BoundValue { .. }));
+        let evaluation = if needs_expression {
+            match crate::mir::resolved_value_profile::expression_plan::new_argument_expression_source_plan_v1(input, new_site, ordinal) {
+                Ok(plan) => super::terminal_relation::qualify_terminal_text_evaluation_v1(input, plan, new_site, locals, homes, calls, actuals)?,
+                Err(_) => {
+                    error.get_or_insert(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: new_site.clone() });
+                    unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                    continue;
+                }
+            }
+        } else { None };
+        let kind = evaluation.map(|evaluation| SelectedNewArgumentKindV1::Expression { evaluation }).or(observed);
+        match kind {
+            Some(kind) => {
+                match &kind {
+                    SelectedNewArgumentKindV1::Local { binding } | SelectedNewArgumentKindV1::Handle { binding }
+                    | SelectedNewArgumentKindV1::BoundValue { binding } if homes.iter().any(|home| home.binding() == *binding) => moved.push(*binding),
+                    _ => {},
+                }
+                rows.push(SelectedNewArgumentV1::new(ordinal, site.clone(), kind));
+            }
+            None => {
+                error.get_or_insert(SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { new_site: new_site.clone(), site: site.clone() });
+                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+            }
+        }
+    }
+    Ok((SelectedNewArgumentObservationV1::new(new_site.clone(), match error {
+        Some(error) => Err(error), None => Ok(rows.into_boxed_slice()),
+    }), moved, unavailable))
 }
