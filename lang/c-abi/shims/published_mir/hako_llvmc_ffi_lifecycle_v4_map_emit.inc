@@ -92,8 +92,8 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
     fprintf(f, "@\"nyash.map.checked_install_borrowed_array_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, ptr %%borrowed_elements%u, i64 %zu, ptr %%outcome%u)\n",
         in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), b, len, b);
   } else if (install) {
-    fprintf(f, "@\"nyash.map.checked_install_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, i64 %%v%u, i64 %u, ptr %%outcome%u)\n",
-        in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), lv4_u(op, "value"), lv4_type_id(in, op), b);
+    fprintf(f, "@\"nyash.map.checked_install_indexed_end_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, i64 %%v%u, i64 %u, ptr @hako_lifecycle_object_end_descriptor_%u, ptr %%outcome%u)\n",
+        in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), lv4_u(op, "value"), lv4_type_id(in, op), lv4_u(op, "object_id"), b);
   } else {
     fprintf(f, "@\"nyash.map.%s_v1\"(ptr %%frame, i64 %llu, ptr %%v%u)\n",
         end_map ? "checked_end" : "outcome_end", site, lv4_u(op, end_map ? "map" : "outcome"));
@@ -162,7 +162,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.map.outcome_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.checked_new_v1\"(ptr, i32, i64, ptr)\n"
       "declare i32 @\"nyash.map.key_prepare_utf8_v1\"(ptr, i64, ptr, ptr, i64)\n"
-      "declare i32 @\"nyash.map.checked_install_indexed_v1\"(ptr, i32, i64, ptr, ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.map.checked_install_indexed_end_v1\"(ptr, i32, i64, ptr, ptr, i64, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.map.checked_install_value_v1\"(ptr, i32, i64, ptr, ptr, i32, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_install_text_v1\"(ptr, i32, i64, ptr, ptr, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_install_empty_array_v1\"(ptr, i32, i64, ptr, ptr, ptr)\n"

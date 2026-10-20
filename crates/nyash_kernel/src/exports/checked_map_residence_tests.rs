@@ -1,6 +1,7 @@
 use super::*;
 use crate::exports::typed_object::TypedSlotStorage;
 use crate::exports::typed_object_store_backend::{get_checked_indexed, new_checked_indexed};
+use nyash_rust::boxes::map_box::checked::MapEndContext;
 use nyash_rust::boxes::{
     map_box::checked::{CheckedMap, CheckedMapError},
     map_key_domain::MapKeyDomain,
@@ -15,11 +16,11 @@ fn checked_map_uses_real_indexed_residence_without_native_publication() {
     let b = allocate();
     let c = allocate();
     assert!(matches!(
-        prepare(TypedObjectStoreBackend::SingleThreadExact, a, 904),
+        prepare(TypedObjectStoreBackend::SingleThreadExact, a, 904, None),
         Err(CheckedStorageError::ProfileMismatch)
     ));
     assert!(matches!(
-        prepare(profile, a, 905),
+        prepare(profile, a, 905, None),
         Err(CheckedStorageError::ObjectOrFieldMismatch)
     ));
     assert!(live(a));
@@ -27,7 +28,7 @@ fn checked_map_uses_real_indexed_residence_without_native_publication() {
     let rejected = map
         .install(
             MapKeyDomain::from_text("a"),
-            prepare(profile, a, 904).unwrap(),
+            prepare(profile, a, 904, None).unwrap(),
         )
         .err()
         .expect("unissued install rejects");
@@ -37,37 +38,40 @@ fn checked_map_uses_real_indexed_residence_without_native_publication() {
     map.acquire().unwrap();
     map.install(
         MapKeyDomain::from_text("a"),
-        prepare(profile, a, 904).unwrap(),
+        prepare(profile, a, 904, None).unwrap(),
     )
     .ok()
     .unwrap()
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     map.install(
         MapKeyDomain::from_text("b"),
-        prepare(profile, b, 904).unwrap(),
+        prepare(profile, b, 904, None).unwrap(),
     )
     .ok()
     .unwrap()
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     let old = map
         .install(
             MapKeyDomain::from_text("a"),
-            prepare(profile, c, 904).unwrap(),
+            prepare(profile, c, 904, None).unwrap(),
         )
         .ok()
         .unwrap();
     assert!(live(a) && live(b) && live(c));
-    old.end().unwrap();
+    old.end(&mut MapEndContext::unbound()).unwrap();
     assert!(!live(a) && live(b) && live(c));
     assert!(matches!(
         map.observe_native(&MapKeyDomain::from_text("a")),
         Err(CheckedMapError::ProjectionUnavailable)
     ));
-    assert_eq!(map.end().unwrap().first, None);
+    assert_eq!(map.end(&mut MapEndContext::unbound()).unwrap().first, None);
     assert!(!live(a) && !live(b) && !live(c));
-    assert_eq!(map.end(), Err(CheckedMapError::InvalidState));
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()),
+        Err(CheckedMapError::InvalidState)
+    );
     map.require_disposable().unwrap();
 }
 
@@ -78,24 +82,30 @@ fn failed_old_end_does_not_undo_new_install_or_skip_remaining_real_payloads() {
     let b = new_checked_indexed(profile, 905, &[]).unwrap();
     let map = CheckedMap::unissued();
     map.acquire().unwrap();
-    map.install(MapKeyDomain::from_i64(1), prepare(profile, a, 905).unwrap())
-        .ok()
-        .unwrap()
-        .end()
-        .unwrap();
+    map.install(
+        MapKeyDomain::from_i64(1),
+        prepare(profile, a, 905, None).unwrap(),
+    )
+    .ok()
+    .unwrap()
+    .end(&mut MapEndContext::unbound())
+    .unwrap();
     let old = map
         .install(
             MapKeyDomain::from_text("1"),
-            prepare(profile, b, 905).unwrap(),
+            prepare(profile, b, 905, None).unwrap(),
         )
         .ok()
         .unwrap();
     // Physical stale-identity negative test; this is not a second source owner.
     reclaim_checked_indexed(profile, a, 905).unwrap();
-    assert_eq!(old.end(), Err(MapEndError::InvalidIdentity));
-    assert_eq!(map.end().unwrap().first, None);
+    assert_eq!(
+        old.end(&mut MapEndContext::unbound()),
+        Err(MapEndError::InvalidIdentity)
+    );
+    assert_eq!(map.end(&mut MapEndContext::unbound()).unwrap().first, None);
     assert!(matches!(
-        prepare(profile, b, 905),
+        prepare(profile, b, 905, None),
         Err(CheckedStorageError::ObjectOrFieldMismatch)
     ));
 }

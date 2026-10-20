@@ -115,15 +115,15 @@ uint32_t wrap_prepare(void* frame, uint64_t site, void* key, const uint8_t* byte
   return real_prepare(frame, site, key, bytes, len);
 }
 
-extern uint32_t real_install(void*, uint32_t, uint64_t, void*, void*, int64_t, int64_t, void*)
-    __asm__("__real_nyash.map.checked_install_indexed_v1");
-uint32_t wrap_install(void*, uint32_t, uint64_t, void*, void*, int64_t, int64_t, void*)
-    __asm__("__wrap_nyash.map.checked_install_indexed_v1");
+extern uint32_t real_install(void*, uint32_t, uint64_t, void*, void*, int64_t, int64_t, const NyrtDynamicFieldEndDescriptorV1*, void*)
+    __asm__("__real_nyash.map.checked_install_indexed_end_v1");
+uint32_t wrap_install(void*, uint32_t, uint64_t, void*, void*, int64_t, int64_t, const NyrtDynamicFieldEndDescriptorV1*, void*)
+    __asm__("__wrap_nyash.map.checked_install_indexed_end_v1");
 uint32_t wrap_install(void* frame, uint32_t profile, uint64_t site, void* map,
-    void* key, int64_t value, int64_t type, void* out) {
+    void* key, int64_t value, int64_t type, const NyrtDynamicFieldEndDescriptorV1* end, void* out) {
   /* Real attempt consumes key but rejects identity before candidate transfer. */
   if (is_mode("install-fault")) value = INT64_MAX;
-  return real_install(frame, profile, site, map, key, value, type, out);
+  return real_install(frame, profile, site, map, key, value, type, end, out);
 }
 
 #ifdef HAKO_MAP_VALUE_PROBE
@@ -141,7 +141,7 @@ uint32_t wrap_value(void* frame, uint32_t profile, uint64_t site, void* map,
   value_installs++;
   /* Exercise the shared real attempt-Fault transition; no fake opaque mutation. */
   if (is_mode("install-fault") || is_mode("value-install-fault"))
-    return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
+    return nyrt_map_checked_install_indexed_v1(frame, profile, site, map, key, INT64_MAX, 900, out);
   return real_value(frame, profile, site, map, key, kind, value, out);
 }
 #endif
@@ -172,7 +172,7 @@ uint32_t wrap_three_value(void* frame, uint32_t profile, uint64_t site, void* ma
   if (ordinal > 8 || kind != NYRT_MAP_VALUE_I64) abort();
   three_value_sequence[ordinal - 1] = value;
   if (ordinal_mode("value-install-fault-") == ordinal)
-    return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
+    return nyrt_map_checked_install_indexed_v1(frame, profile, site, map, key, INT64_MAX, 900, out);
   return real_three_value(frame, profile, site, map, key, kind, value, out);
 }
 #endif
@@ -192,7 +192,7 @@ uint32_t wrap_four_value(void* frame, uint32_t profile, uint64_t site, void* map
   if (ordinal > 8 || kind != NYRT_MAP_VALUE_I64) abort();
   four_value_sequence[ordinal - 1] = value;
   if (ordinal_mode("value-install-fault-") == ordinal)
-    return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
+    return nyrt_map_checked_install_indexed_v1(frame, profile, site, map, key, INT64_MAX, 900, out);
   return real_four_value(frame, profile, site, map, key, kind, value, out);
 }
 #endif
@@ -212,7 +212,7 @@ uint32_t wrap_five_value(void* frame, uint32_t profile, uint64_t site, void* map
   if (ordinal > 8 || kind != NYRT_MAP_VALUE_I64) abort();
   five_value_sequence[ordinal - 1] = value;
   if (ordinal_mode("value-install-fault-") == ordinal)
-    return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
+    return nyrt_map_checked_install_indexed_v1(frame, profile, site, map, key, INT64_MAX, 900, out);
   return real_five_value(frame, profile, site, map, key, kind, value, out);
 }
 #endif
@@ -298,7 +298,7 @@ uint32_t wrap_consumer_value(void* frame, uint32_t profile, uint64_t site, void*
   uint32_t result;
   if (ordinal > CONSUMER_MAX || kind != NYRT_MAP_VALUE_I64) abort();
   if (ordinal_mode("value-install-fault-") == ordinal)
-    return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
+    return nyrt_map_checked_install_indexed_v1(frame, profile, site, map, key, INT64_MAX, 900, out);
   result = real_consumer_value(frame, profile, site, map, key, kind, value, out);
   /* Only a completed install carried the entry; a faulted attempt consumed
    * the key into the outcome but never reached the map. */

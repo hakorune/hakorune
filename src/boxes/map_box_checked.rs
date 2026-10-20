@@ -17,11 +17,80 @@ pub enum MapEndError {
     ProfileMismatch,
     StorageUnavailable,
     InvalidIdentity,
+    /// The same runtime frame already owns this callback's diagnostic.
+    RecordedFault,
+    /// ABI/protocol failure, never converted into a recoverable source Fault.
+    InvalidContract,
+}
+
+/// One synchronous borrowed End context. It is neither a Home nor a stored
+/// runtime capability. Every leaf records at encounter time, before later Ends.
+/// Native-only callers explicitly choose unbound; complete runtime descriptors
+/// require a bound frame. No callback or cleanup runs from Drop.
+pub struct MapEndContext<'frame> {
+    runtime: Option<(
+        *mut std::ffi::c_void,
+        u64,
+        unsafe fn(*mut std::ffi::c_void, u64, MapEndError) -> bool,
+    )>,
+    report: MapEndReport,
+    invalid: bool,
+    borrow: std::marker::PhantomData<&'frame mut std::ffi::c_void>,
+}
+impl MapEndContext<'_> {
+    pub fn unbound() -> Self {
+        Self {
+            runtime: None,
+            report: MapEndReport::default(),
+            invalid: false,
+            borrow: std::marker::PhantomData,
+        }
+    }
+    /// The frame is initialized, uniquely borrowed and valid for 'frame. The
+    /// reporter only records/validates that frame; it never invokes user code.
+    pub unsafe fn from_runtime(
+        frame: std::ptr::NonNull<std::ffi::c_void>,
+        site: u64,
+        report: unsafe fn(*mut std::ffi::c_void, u64, MapEndError) -> bool,
+    ) -> Self {
+        Self {
+            runtime: Some((frame.as_ptr(), site, report)),
+            ..Self::unbound()
+        }
+    }
+    pub fn runtime(&self) -> Option<(*mut std::ffi::c_void, u64)> {
+        self.runtime.map(|(frame, site, _)| (frame, site))
+    }
+    pub fn record(&mut self, error: MapEndError) {
+        self.report.record(error);
+        if error == MapEndError::InvalidContract {
+            self.invalid = true;
+        } else if let Some((frame, site, report)) = self.runtime {
+            if !unsafe { report(frame, site, error) } {
+                self.invalid = true;
+            }
+        } else if error == MapEndError::RecordedFault {
+            self.invalid = true;
+        }
+    }
+    pub fn report(&self) -> &MapEndReport {
+        &self.report
+    }
+    pub fn invalid_contract(&self) -> bool {
+        self.invalid
+    }
+    fn result(&self) -> Result<(), MapEndError> {
+        if self.invalid {
+            Err(MapEndError::InvalidContract)
+        } else {
+            self.report.first.map_or(Ok(()), Err)
+        }
+    }
 }
 
 /// A physical obligation, not a NyashBox. End consumes the attempt on either outcome.
 pub trait CanonicalMapResidence: Send + Sync {
-    fn end(self: Box<Self>) -> Result<(), MapEndError>;
+    fn end(self: Box<Self>, context: &mut MapEndContext<'_>);
 }
 
 /// Read-only text result from a checked Map. A present non-text value is a
@@ -65,15 +134,15 @@ pub enum CheckedMapPayload {
     Residence(Box<dyn CanonicalMapResidence>),
 }
 impl CheckedMapPayload {
-    fn end(self) -> Result<(), MapEndError> {
+    fn end(self, context: &mut MapEndContext<'_>) {
         match self {
             Self::I64(_)
             | Self::Bool(_)
             | Self::Text(_)
             | Self::EmptyArray
-            | Self::BorrowedHandle(_) => Ok(()),
-            Self::Array(value) => value.end(),
-            Self::Residence(value) => value.end(),
+            | Self::BorrowedHandle(_) => {}
+            Self::Array(value) => value.end(context),
+            Self::Residence(value) => value.end(context),
         }
     }
 }
@@ -116,16 +185,16 @@ pub struct MapInstallFailure {
 /// eventual opaque ABI rejects disposal while its detached outcome is Ready.
 pub struct DetachedMapEntry(Option<CheckedMapPayload>);
 impl DetachedMapEntry {
-    pub fn end(self) -> Result<(), MapEndError> {
-        match self.0 {
-            Some(value) => value.end(),
-            None => Ok(()),
+    pub fn end(self, context: &mut MapEndContext<'_>) -> Result<(), MapEndError> {
+        if let Some(value) = self.0 {
+            value.end(context);
         }
+        context.result()
     }
 }
 
 /// Finite physical failures; the kernel translates them to its FaultFrame.
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct MapEndReport {
     pub first: Option<MapEndError>,
     pub suppressed: [Option<MapEndError>; 8],
@@ -397,11 +466,11 @@ impl CheckedMap {
     }
 
     /// Both returned outcomes consume the end attempt. No storage lock spans end.
-    pub fn end(&self) -> Result<MapEndReport, CheckedMapError> {
-        let mut report = MapEndReport::default();
+    pub fn end(&self, context: &mut MapEndContext<'_>) -> Result<MapEndReport, CheckedMapError> {
+        let mut poisoned = false;
         let mut entries = {
             let mut state = self.state.lock().unwrap_or_else(|poison| {
-                report.record(MapEndError::StorageUnavailable);
+                poisoned = true;
                 poison.into_inner()
             });
             if state.phase != Phase::Live {
@@ -412,18 +481,19 @@ impl CheckedMap {
             entries.extend(state.entries.drain().map(|(_, entry)| entry));
             entries
         };
+        if poisoned {
+            context.record(MapEndError::StorageUnavailable);
+        }
         // Unstable sort allocates no scratch storage; orders are unique.
         entries.sort_unstable_by(|a, b| b.order.cmp(&a.order));
         for entry in entries {
-            if let Err(error) = entry.payload.end() {
-                report.record(error);
-            }
+            entry.payload.end(context);
         }
         self.state
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .phase = Phase::Ended;
-        Ok(report)
+        Ok(context.report().clone())
     }
 
     /// Placement owner calls this before native destruction. This does not end a Home.

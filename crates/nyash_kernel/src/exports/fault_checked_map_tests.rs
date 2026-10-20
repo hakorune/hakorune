@@ -2,6 +2,7 @@ use super::*;
 use crate::exports::typed_object_store_backend::{
     new_checked_indexed, reclaim_checked_indexed, validate_checked_indexed_identity,
 };
+use nyash_rust::boxes::map_box::checked::MapEndContext;
 use nyash_rust::boxes::map_box::checked::{CheckedMap, CheckedMapPayload, OwnedMapArrayResidence};
 use std::mem::MaybeUninit;
 use std::sync::Arc;
@@ -330,16 +331,32 @@ fn end_report_preserves_prior_primary_and_marks_omitted_without_fake_facts() {
     let mut frame = FaultFrame::new();
     assert!(frame.record(Diagnostic::new(77, 1, [0; 2])).is_ok());
     let ptr = (&mut frame as *mut FaultFrame).cast();
-    let result = MapEndReport {
-        first: Some(MapEndError::InvalidIdentity),
-        suppressed: [Some(MapEndError::StorageUnavailable); 8],
-        suppressed_count: 20,
-    };
-    assert_eq!(unsafe { report(ptr, 8, result) }, 1);
+    {
+        let mut context = unsafe { end_context(ptr, 8) };
+        context.record(MapEndError::InvalidIdentity);
+        for _ in 0..20 {
+            context.record(MapEndError::StorageUnavailable);
+        }
+        assert_eq!(end_status(&context), 1);
+    }
     assert_eq!(frame.primary.reason, 77);
     assert_eq!(frame.suppressed_len, 8);
     assert_eq!(frame.omitted, 1);
     assert!(frame.valid());
+    // Encounter order crosses the native-error / complete-callback boundary.
+    let mut frame = FaultFrame::new();
+    let ptr = (&mut frame as *mut FaultFrame).cast();
+    {
+        let mut context = unsafe { end_context(ptr, 9) };
+        context.record(MapEndError::StorageUnavailable);
+        assert_eq!(unsafe { super::super::record_static(ptr, 77, 10, 0, 0) }, 1);
+        context.record(MapEndError::RecordedFault);
+        assert_eq!(end_status(&context), 1);
+    }
+    assert_eq!(frame.primary.reason, 100);
+    assert_eq!(frame.primary.site, 9);
+    assert_eq!(frame.suppressed_len, 1);
+    assert_eq!(frame.suppressed[0].reason, 77);
 }
 #[test]
 fn descriptor_contains_target_compiled_opaque_layouts() {
@@ -689,21 +706,23 @@ fn text_child(value: CheckedMapPayload) -> Arc<CheckedMap> {
         .install(MapKeyDomain::from_text("name"), value)
         .map_err(|failure| failure.error)
         .unwrap()
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     child
 }
 
 unsafe fn install_array_parent(map: *mut c_void, child: Arc<CheckedMap>) {
     let mut residence = OwnedMapArrayResidence::builder(1).unwrap();
-    residence.push_map(child).unwrap();
+    residence
+        .push_map(child, &mut MapEndContext::unbound())
+        .unwrap();
     let payload = CheckedMapPayload::Array(Box::new(residence.finish()));
     admit::<CheckedMap>(map, MAP_TAG)
         .unwrap()
         .install(MapKeyDomain::from_text("functions"), payload)
         .map_err(|failure| failure.error)
         .unwrap()
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
 }
 

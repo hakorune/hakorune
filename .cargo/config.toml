@@ -19,6 +19,9 @@ quick-test = "test --profile quick"
 # existing opt0 incremental cohort; dependencies keep quick opt1. quick-build
 # remains available for optimized compiler/runtime measurements.
 quick-build-fast = ["build", "--profile", "quick", "--bin", "hakorune", "--config", "profile.quick.package.nyash-rust.opt-level=0"]
+# Development lifecycle archive shares the CLI/test opt0 root cohort and target
+# directory. Keep quick-build for optimized runtime/benchmark measurements.
+quick-build-lifecycle-fast = ["build", "--profile", "quick", "-p", "nyash_lifecycle_kernel", "--config", "profile.quick.package.nyash-rust.opt-level=0"]
 # Daily focused root-library tests: optimize dependencies, skip root test codegen
 # optimization. Keep quick-test for optimized checks and CLI builds unchanged.
 quick-test-fast = ["test", "--profile", "quick", "--lib", "-p", "nyash-rust", "--config", "profile.quick.package.nyash-rust.opt-level=0"]

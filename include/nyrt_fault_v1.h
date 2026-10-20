@@ -321,6 +321,10 @@ uint32_t nyrt_map_key_prepare_utf8_v1(void *, uint64_t, void *, const uint8_t *,
 uint32_t nyrt_map_key_dispose_v1(void *) __asm__("nyash.map.key_dispose_v1");
 uint32_t nyrt_map_outcome_init_v1(void *) __asm__("nyash.map.outcome_init_v1");
 uint32_t nyrt_map_checked_install_indexed_v1(void *, uint32_t, uint64_t, void *, void *, int64_t, int64_t, void *) __asm__("nyash.map.checked_install_indexed_v1");
+/* Complete source End, outside Map locks, borrowed through the same FaultFrame.
+ * Immutable descriptor is retained on commit; rejection leaves caller Home intact.
+ * The legacy indexed entry above remains numeric/NoHook only. */
+uint32_t nyrt_map_checked_install_indexed_end_v1(void *, uint32_t, uint64_t, void *, void *, int64_t, int64_t, const NyrtDynamicFieldEndDescriptorV1 *, void *) __asm__("nyash.map.checked_install_indexed_end_v1");
 /* Borrowed Array payload. `elements` points to `len` live Map storage
  * pointers owned by the caller's MapLocal cleanup; the installed residence
  * never ends those child Maps. */

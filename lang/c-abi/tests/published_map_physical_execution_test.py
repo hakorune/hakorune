@@ -3,6 +3,7 @@
 import copy
 import json
 import os
+import shlex
 import signal
 from pathlib import Path
 import subprocess
@@ -17,8 +18,14 @@ ARCHIVE = Path(sys.argv[1]).resolve()
 ISSUED = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None
 
 
+CC = shlex.split(os.environ.get("CC") or "cc")
+
+
 def run(args, **kwargs):
-    return subprocess.run([str(a) for a in args], capture_output=True, text=True, **kwargs)
+    command = [str(a) for a in args]
+    if command and command[0] == "cc":
+        command = CC + command[1:]
+    return subprocess.run(command, capture_output=True, text=True, **kwargs)
 
 
 def checked(args, **kwargs):
@@ -379,7 +386,7 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     compile_input(program(["same", "same"]))
     wraps = ["storage_init", "storage_dispose", "key_init", "key_dispose",
              "outcome_init", "outcome_dispose", "checked_new", "key_prepare_utf8",
-             "checked_install_indexed", "outcome_end", "checked_end"]
+             "checked_install_indexed_end", "outcome_end", "checked_end"]
     checked(["cc", TESTS / "published_map_fault_probe.c", obj, ARCHIVE,
              *["-Wl,--wrap=nyash.map." + name + "_v1" for name in wraps],
              "-ldl", "-lpthread", "-lm", "-o", exe])

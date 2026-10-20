@@ -4,7 +4,11 @@ use nyash_rust::boxes::{
     map_box::checked::{CheckedMap, DetachedMapEntry},
     map_key_domain::MapKeyDomain,
 };
-use std::{ffi::c_void, mem::MaybeUninit, sync::Mutex};
+use std::{
+    ffi::c_void,
+    mem::{size_of, MaybeUninit},
+    sync::Mutex,
+};
 pub(super) const MAP_TAG: u64 = 0x4d415001;
 pub(super) const KEY_TAG: u64 = 0x4b455901;
 pub(super) const OUT_TAG: u64 = 0x4f555401;
@@ -60,7 +64,10 @@ pub(in crate::exports::fault) unsafe fn init<T>(ptr: *mut c_void, magic: u64, va
     }
     Status::Normal as u32
 }
-pub(in crate::exports::fault) unsafe fn admit<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'a T, Status> {
+pub(in crate::exports::fault) unsafe fn admit<'a, T>(
+    ptr: *mut c_void,
+    magic: u64,
+) -> Result<&'a T, Status> {
     if ptr.is_null() || (ptr as usize) % std::mem::align_of::<Placement<T>>() != 0 {
         return Err(Status::InvalidContract);
     }
@@ -107,4 +114,86 @@ pub(in crate::exports::fault) fn separate(regions: &[(usize, usize)]) -> bool {
         }
     }
     true
+}
+
+// Fresh placement, explicit move and native disposal never run semantic End.
+#[export_name = "nyash.map.storage_init_v1"]
+pub unsafe extern "C" fn map_init(ptr: *mut c_void) -> u32 {
+    unsafe { init(ptr, MAP_TAG, CheckedMap::unissued()) }
+}
+#[export_name = "nyash.map.storage_move_v1"]
+pub unsafe extern "C" fn map_move(dst: *mut c_void, src: *mut c_void) -> u32 {
+    if !separate(&[
+        (dst as usize, size_of::<MapStorage>()),
+        (src as usize, size_of::<MapStorage>()),
+    ]) {
+        return Status::InvalidContract as u32;
+    }
+    let map = match unsafe { admit::<CheckedMap>(src, MAP_TAG) } {
+        Ok(v) => v,
+        Err(s) => return s as u32,
+    };
+    if map.require_live().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    // dst null/alignment failures precede the move; init cannot fail below.
+    if dst.is_null() || (dst as usize) % std::mem::align_of::<Placement<CheckedMap>>() != 0 {
+        return Status::InvalidContract as u32;
+    }
+    let place = src.cast::<Placement<CheckedMap>>();
+    let moved = unsafe { (*place).value.assume_init_read() };
+    unsafe { (*place).value = MaybeUninit::new(CheckedMap::unissued()) };
+    unsafe { init(dst, MAP_TAG, moved) }
+}
+#[export_name = "nyash.map.storage_dispose_v1"]
+pub unsafe extern "C" fn map_dispose(ptr: *mut c_void) -> u32 {
+    {
+        let map = match unsafe { admit::<CheckedMap>(ptr, MAP_TAG) } {
+            Ok(v) => v,
+            Err(s) => return s as u32,
+        };
+        if map.require_disposable().is_err() {
+            return Status::InvalidContract as u32;
+        }
+    }
+    unsafe { dispose::<CheckedMap>(ptr) }
+}
+
+#[export_name = "nyash.map.key_init_v1"]
+pub unsafe extern "C" fn key_init(ptr: *mut c_void) -> u32 {
+    unsafe { init(ptr, KEY_TAG, Mutex::new(KeyState::Empty)) }
+}
+#[export_name = "nyash.map.outcome_init_v1"]
+pub unsafe extern "C" fn outcome_init(ptr: *mut c_void) -> u32 {
+    unsafe { init(ptr, OUT_TAG, Mutex::new(OutcomeState::Unissued)) }
+}
+#[export_name = "nyash.map.key_dispose_v1"]
+pub unsafe extern "C" fn key_dispose(ptr: *mut c_void) -> u32 {
+    {
+        let key = match unsafe { admit::<Mutex<KeyState>>(ptr, KEY_TAG) } {
+            Ok(v) => v,
+            Err(s) => return s as u32,
+        };
+        if key.lock().is_err() {
+            return Status::InvalidContract as u32;
+        }
+    }
+    unsafe { dispose::<Mutex<KeyState>>(ptr) }
+}
+#[export_name = "nyash.map.outcome_dispose_v1"]
+pub unsafe extern "C" fn outcome_dispose(ptr: *mut c_void) -> u32 {
+    {
+        let out = match unsafe { admit::<Mutex<OutcomeState>>(ptr, OUT_TAG) } {
+            Ok(v) => v,
+            Err(s) => return s as u32,
+        };
+        let out = match out.lock() {
+            Ok(v) => v,
+            Err(_) => return Status::InvalidContract as u32,
+        };
+        if matches!(*out, OutcomeState::Ready(_)) {
+            return Status::InvalidContract as u32;
+        }
+    }
+    unsafe { dispose::<Mutex<OutcomeState>>(ptr) }
 }

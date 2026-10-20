@@ -336,9 +336,16 @@ allocator abort recovery is not supplied by this returned-error contract.
 The kernel residence validates SafeMutex/profile, exact indexed identity and type
 without taking the payload. Preparation does not issue a Home or transfer it.
 Dropping a rejected wrapper does not reclaim the prior owner's payload; consuming
-end uses the existing exact indexed reclaim. Profile mismatch, storage failure
-and invalid identity are finite physical error facts. No kernel dependency enters
-root, and no registration callback or second payload registry is introduced.
+end uses the source-selected complete-End descriptor when supplied, or the
+existing exact indexed reclaim for the legacy numeric/NoHook entry. The descriptor
+is an immutable published constant, retained unchanged; preparation never invokes
+it. The complete End owns both child cleanup and outer reclaim, so no additional
+numeric reclaim follows its callback. It requires a bound `MapEndContext`, borrowed
+synchronously through Map, detached entries and Array children. Synthetic errors
+are recorded immediately in the same frame; callback Faults are already recorded
+and are not duplicated. InvalidContract takes priority over ordinary Fault status.
+Profile mismatch, storage failure and invalid identity are finite physical error
+facts. No kernel dependency enters root or second payload registry is introduced.
 
 A present owned entry has no authorized native Box projection and returns
 ProjectionUnavailable; a missing key returns None. Native keys/clone/iteration
@@ -393,11 +400,24 @@ Implemented export spellings are `nyash.map.storage_init_v1`,
 `nyash.map.checked_new_v1`, `nyash.map.key_init_v1`,
 `nyash.map.key_prepare_utf8_v1`, `nyash.map.key_dispose_v1`,
 `nyash.map.outcome_init_v1`, `nyash.map.checked_install_indexed_v1`,
+`nyash.map.checked_install_indexed_end_v1`,
 `nyash.map.checked_install_value_v1`, `nyash.map.checked_install_text_v1`,
 `nyash.map.checked_install_empty_array_v1`,
 `nyash.map.outcome_end_v1`, `nyash.map.outcome_dispose_v1`,
 `nyash.map.checked_get_i64_v1`, `nyash.map.checked_end_v1` and
 `nyash.map.storage_dispose_v1`.
+
+The complete indexed entry uses `(frame, profile:u32, site:u64, map, key,
+handle:i64, type_id:i64, const NyrtDynamicFieldEndDescriptorV1*, outcome)->u32`.
+The immutable descriptor must be separate from mutable frame/Map/key/outcome
+storage, and match profile, Object kind5, exact type and nonnull End. Invalid
+descriptors reject before key consumption; valid descriptors use the same existing
+install transaction. Rejection leaves the object caller-owned. C emission always
+uses this entry and its existing complete-End helper; the runtime archive binding
+requires that symbol. Public value/descriptor size, alignment and offsets are
+checked against the LLVM target even for V2 static input. Opaque Dynamic field
+outcomes still require their optional V3 target extension. This ABI connection
+introduces no Map-field storage permission or Map-held source result acceptance.
 
 The value entry uses `(frame, profile:u32, site:u64, map, key, kind:u32,
 payload:i64, outcome)->u32`; pointer regions keep the same opaque contract.

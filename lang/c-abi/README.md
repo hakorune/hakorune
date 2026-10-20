@@ -369,7 +369,9 @@ Lifecycle invocation ownership
   This tag does not classify source values; unknown storage tags still reject.
 - Focused reproduction: build with `bash tools/build_hako_llvmc_ffi.sh`; run the
   existing physical parser preartifact C test and `published_lifecycle_v4_execution_test.py`
-  with the three JSON paths captured by the Rust physical_program_json tests
+  with `CC='cc -fuse-ld=lld'` on the Linux development host (the Map physical
+  execution test honors the same `CC` driver/flags), and the three JSON paths
+  captured by the Rust physical_program_json tests
   (`/tmp/hako-issued-physical-v2.json`, and `...-bool-0.json`, `...-bool-1.json`).
 - Receiver identity R0 reproduction: after rebuilding the C shim, compile
   `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` against

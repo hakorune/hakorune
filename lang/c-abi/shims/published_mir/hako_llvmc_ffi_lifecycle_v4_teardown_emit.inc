@@ -219,5 +219,15 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
       "  %%td_result = or i32 %%td_prior, %%td_outer\n"
       "  ret i32 %%td_result\nbad:\n  br label %%invalid\ninvalid:\n  ret i32 2\n}\n",
       lv4_layout_dynamic(layout) ? "home_release_completed_fields" : "home_release_plain_i64", in->profile, type);
+  /* Immutable complete-End capability shared by every residence consumer.
+   * The value is a borrowed projection; the callback creates no second Home. */
+  fprintf(f,
+      "@hako_lifecycle_object_end_descriptor_%u = private constant { i32, i32, i64, ptr } { i32 %u, i32 5, i64 %lld, ptr @hako_lifecycle_object_end_adapter_%u }\n"
+      "define internal i32 @hako_lifecycle_object_end_adapter_%u(ptr %%frame, i64 %%site, ptr %%value) {\nstart:\n"
+      "  %%payload = getelementptr { i32, i32, i64, i64 }, ptr %%value, i32 0, i32 2\n"
+      "  %%handle = load i64, ptr %%payload, align 8\n"
+      "  %%status = call i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%handle, i64 %%site)\n"
+      "  ret i32 %%status\n}\n",
+      id, in->profile, type, id, id, id);
   return !ferror(f);
 }

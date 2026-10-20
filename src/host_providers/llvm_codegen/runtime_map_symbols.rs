@@ -7,7 +7,7 @@ const SYMBOLS: &[&str] = &[
     "nyash.map.key_prepare_utf8_v1",
     "nyash.map.key_dispose_v1",
     "nyash.map.outcome_init_v1",
-    "nyash.map.checked_install_indexed_v1",
+    "nyash.map.checked_install_indexed_end_v1",
     "nyash.map.checked_install_value_v1",
     "nyash.map.checked_install_text_v1",
     "nyash.map.checked_install_empty_array_v1",
@@ -41,17 +41,24 @@ pub(super) fn require_checked_map_symbols(archive: &Path) -> Result<(), String> 
     validate(text)
 }
 fn validate(text: &str) -> Result<(), String> {
-    for symbol in SYMBOLS {
-        let mut count = 0;
-        for line in text.lines() {
-            let fields: Vec<_> = line.split_whitespace().collect();
-            if fields.first().copied() != Some(*symbol) {
-                continue;
-            }
-            if fields.len() < 3 || !matches!(fields[1], "T" | "W") {
-                return Err(format!("checked Map symbol is not a function: {symbol}"));
-            }
-            count += 1;
+    // Read each nm row once. Keep original required-symbol order for diagnostics;
+    // splitting/allocating every row once per required entry dominates opt0 builds.
+    let mut inventory = [(0usize, true); SYMBOLS.len()];
+    for line in text.lines() {
+        let mut fields = line.split_whitespace();
+        let Some(name) = fields.next() else {
+            continue;
+        };
+        let Some(index) = SYMBOLS.iter().position(|symbol| *symbol == name) else {
+            continue;
+        };
+        let (count, function) = &mut inventory[index];
+        *count += 1;
+        *function &= matches!(fields.next(), Some("T" | "W")) && fields.next().is_some();
+    }
+    for (symbol, (count, function)) in SYMBOLS.iter().zip(inventory) {
+        if !function {
+            return Err(format!("checked Map symbol is not a function: {symbol}"));
         }
         if count != 1 {
             return Err(format!("checked Map symbol missing or duplicate: {symbol}"));
@@ -59,6 +66,7 @@ fn validate(text: &str) -> Result<(), String> {
     }
     Ok(())
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

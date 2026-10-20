@@ -7,6 +7,7 @@ Range variants below test the physical ABI only, not new source acceptance.
 import copy
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -23,8 +24,14 @@ assert archive.is_file()
 env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
 
 
+CC = shlex.split(os.environ.get("CC") or "cc")
+
+
 def run(argv, **kw):
-    return subprocess.run([str(x) for x in argv], text=True, capture_output=True, **kw)
+    command = [str(x) for x in argv]
+    if command and command[0] == "cc":
+        command = CC + command[1:]
+    return subprocess.run(command, text=True, capture_output=True, **kw)
 
 
 def checked(argv, **kw):

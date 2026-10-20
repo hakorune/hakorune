@@ -9,12 +9,12 @@ use crate::exports::{
 use nyash_rust::boxes::{
     map_box::checked::{
         BorrowedMapArrayResidence, CheckedMap, CheckedMapArrayLengthRead, CheckedMapArrayReadError,
-        CheckedMapError, CheckedMapI64Read, CheckedMapPayload, CheckedMapTextViewRead, MapEndError,
-        MapEndReport,
+        CheckedMapError, CheckedMapI64Read, CheckedMapPayload, CheckedMapTextViewRead,
+        MapEndContext, MapEndError,
     },
     map_key_domain::MapKeyDomain,
 };
-use std::{ffi::c_void, mem::size_of, mem::MaybeUninit, sync::Mutex};
+use std::{ffi::c_void, mem::size_of, sync::Mutex};
 #[path = "fault_checked_map_array_length.rs"]
 mod array_length;
 #[path = "fault_checked_map_storage.rs"]
@@ -46,46 +46,48 @@ fn root_reason(error: CheckedMapError) -> Option<u32> {
         _ => None,
     }
 }
-fn end_reason(error: MapEndError) -> u32 {
-    match error {
-        MapEndError::StorageUnavailable => 100,
-        _ => 101,
-    }
-}
-unsafe fn report(ptr: *mut c_void, site: u64, result: MapEndReport) -> u32 {
-    let Some(first) = result.first else {
-        return Status::Normal as u32;
-    };
+// The caller has validated the frame and lends it until all synchronous Ends
+// return. Record synthetic failures immediately; callbacks already recorded theirs.
+unsafe fn record_end_error(ptr: *mut c_void, site: u64, error: MapEndError) -> bool {
     let frame = unsafe { &mut *ptr.cast::<FaultFrame>() };
     if !frame.valid() {
-        return Status::InvalidContract as u32;
+        return false;
     }
-    for error in std::iter::once(first).chain(result.suppressed.into_iter().flatten()) {
-        if frame
-            .record(Diagnostic::new(end_reason(error), site, [0; 2]))
-            .is_err()
-        {
-            return Status::InvalidContract as u32;
-        }
+    match error {
+        MapEndError::RecordedFault => frame.primary_present == 1,
+        MapEndError::InvalidContract => false,
+        _ => frame
+            .record(Diagnostic::new(
+                if error == MapEndError::StorageUnavailable {
+                    100
+                } else {
+                    101
+                },
+                site,
+                [0; 2],
+            ))
+            .is_ok(),
     }
-    if result.suppressed_count > result.suppressed.len() {
-        frame.omitted = 1;
+}
+unsafe fn end_context<'frame>(ptr: *mut c_void, site: u64) -> MapEndContext<'frame> {
+    unsafe {
+        MapEndContext::from_runtime(
+            std::ptr::NonNull::new_unchecked(ptr),
+            site,
+            record_end_error,
+        )
     }
-    Status::Fault as u32
+}
+fn end_status(context: &MapEndContext<'_>) -> u32 {
+    if context.invalid_contract() {
+        Status::InvalidContract as u32
+    } else if context.report().first.is_some() {
+        Status::Fault as u32
+    } else {
+        Status::Normal as u32
+    }
 }
 
-#[export_name = "nyash.map.storage_init_v1"]
-pub unsafe extern "C" fn map_init(ptr: *mut c_void) -> u32 {
-    unsafe { init(ptr, MAP_TAG, CheckedMap::unissued()) }
-}
-#[export_name = "nyash.map.key_init_v1"]
-pub unsafe extern "C" fn key_init(ptr: *mut c_void) -> u32 {
-    unsafe { init(ptr, KEY_TAG, Mutex::new(KeyState::Empty)) }
-}
-#[export_name = "nyash.map.outcome_init_v1"]
-pub unsafe extern "C" fn outcome_init(ptr: *mut c_void) -> u32 {
-    unsafe { init(ptr, OUT_TAG, Mutex::new(OutcomeState::Unissued)) }
-}
 #[export_name = "nyash.map.checked_new_v1"]
 pub unsafe extern "C" fn allocate(
     frame: *mut c_void,
@@ -176,7 +178,63 @@ pub unsafe extern "C" fn install(
 ) -> u32 {
     unsafe {
         install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
-            checked_map_residence::prepare(TypedObjectStoreBackend::SafeMutex, handle, type_id)
+            checked_map_residence::prepare(
+                TypedObjectStoreBackend::SafeMutex,
+                handle,
+                type_id,
+                None,
+            )
+        })
+    }
+}
+
+/// Same commit protocol, with the source-selected complete End retained intact.
+/// The immutable descriptor remains valid for every installed lifetime.
+#[export_name = "nyash.map.checked_install_indexed_end_v1"]
+pub unsafe extern "C" fn install_with_end(
+    frame: *mut c_void,
+    profile: u32,
+    site: u64,
+    map_ptr: *mut c_void,
+    key_ptr: *mut c_void,
+    handle: i64,
+    type_id: i64,
+    descriptor: *const crate::exports::typed_object::DynamicFieldEndDescriptorV1,
+    out_ptr: *mut c_void,
+) -> u32 {
+    if descriptor.is_null()
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (map_ptr as usize, size_of::<MapStorage>()),
+            (key_ptr as usize, size_of::<KeyStorage>()),
+            (out_ptr as usize, size_of::<OutcomeStorage>()),
+            (
+                descriptor as usize,
+                size_of::<crate::exports::typed_object::DynamicFieldEndDescriptorV1>(),
+            ),
+        ])
+        || (descriptor as usize)
+            % std::mem::align_of::<crate::exports::typed_object::DynamicFieldEndDescriptorV1>()
+            != 0
+    {
+        return Status::InvalidContract as u32;
+    }
+    let descriptor = unsafe { &*descriptor };
+    if descriptor.profile != profile
+        || descriptor.kind != 5
+        || descriptor.type_id != type_id
+        || descriptor.end.is_none()
+    {
+        return Status::InvalidContract as u32;
+    }
+    unsafe {
+        install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
+            checked_map_residence::prepare(
+                TypedObjectStoreBackend::SafeMutex,
+                handle,
+                type_id,
+                Some(descriptor),
+            )
         })
     }
 }
@@ -666,37 +724,11 @@ pub unsafe extern "C" fn outcome_end(frame: *mut c_void, site: u64, ptr: *mut c_
             _ => unreachable!(),
         }
     };
-    match old.end() {
-        Ok(()) => Status::Normal as u32,
-        Err(error) => unsafe { failed(frame, site, end_reason(error)) },
-    }
+    let mut context = unsafe { end_context(frame, site) };
+    let _ = old.end(&mut context);
+    end_status(&context)
 }
-/// Relocates a live lease into fresh storage for a boundary transfer. The
-/// moved-from placement is left as an unissued map the caller must dispose.
-#[export_name = "nyash.map.storage_move_v1"]
-pub unsafe extern "C" fn map_move(dst: *mut c_void, src: *mut c_void) -> u32 {
-    if !separate(&[
-        (dst as usize, size_of::<MapStorage>()),
-        (src as usize, size_of::<MapStorage>()),
-    ]) {
-        return Status::InvalidContract as u32;
-    }
-    let map = match unsafe { admit::<CheckedMap>(src, MAP_TAG) } {
-        Ok(v) => v,
-        Err(s) => return s as u32,
-    };
-    if map.require_live().is_err() {
-        return Status::InvalidContract as u32;
-    }
-    // dst null/alignment failures precede the move; init cannot fail below.
-    if dst.is_null() || (dst as usize) % std::mem::align_of::<Placement<CheckedMap>>() != 0 {
-        return Status::InvalidContract as u32;
-    }
-    let place = src.cast::<Placement<CheckedMap>>();
-    let moved = unsafe { (*place).value.assume_init_read() };
-    unsafe { (*place).value = MaybeUninit::new(CheckedMap::unissued()) };
-    unsafe { init(dst, MAP_TAG, moved) }
-}
+
 #[export_name = "nyash.map.checked_end_v1"]
 pub unsafe extern "C" fn map_end(frame: *mut c_void, site: u64, ptr: *mut c_void) -> u32 {
     if !separate(&[
@@ -706,61 +738,20 @@ pub unsafe extern "C" fn map_end(frame: *mut c_void, site: u64, ptr: *mut c_void
     {
         return Status::InvalidContract as u32;
     }
+    let mut context = unsafe { end_context(frame, site) };
     let result = {
         let map = match unsafe { admit::<CheckedMap>(ptr, MAP_TAG) } {
             Ok(v) => v,
             Err(s) => return s as u32,
         };
-        map.end()
+        map.end(&mut context)
     };
     match result {
-        Ok(result) => unsafe { report(frame, site, result) },
+        Ok(_) => end_status(&context),
         Err(_) => Status::InvalidContract as u32,
     }
 }
-#[export_name = "nyash.map.storage_dispose_v1"]
-pub unsafe extern "C" fn map_dispose(ptr: *mut c_void) -> u32 {
-    {
-        let map = match unsafe { admit::<CheckedMap>(ptr, MAP_TAG) } {
-            Ok(v) => v,
-            Err(s) => return s as u32,
-        };
-        if map.require_disposable().is_err() {
-            return Status::InvalidContract as u32;
-        }
-    }
-    unsafe { dispose::<CheckedMap>(ptr) }
-}
-#[export_name = "nyash.map.key_dispose_v1"]
-pub unsafe extern "C" fn key_dispose(ptr: *mut c_void) -> u32 {
-    {
-        let key = match unsafe { admit::<Mutex<KeyState>>(ptr, KEY_TAG) } {
-            Ok(v) => v,
-            Err(s) => return s as u32,
-        };
-        if key.lock().is_err() {
-            return Status::InvalidContract as u32;
-        }
-    }
-    unsafe { dispose::<Mutex<KeyState>>(ptr) }
-}
-#[export_name = "nyash.map.outcome_dispose_v1"]
-pub unsafe extern "C" fn outcome_dispose(ptr: *mut c_void) -> u32 {
-    {
-        let out = match unsafe { admit::<Mutex<OutcomeState>>(ptr, OUT_TAG) } {
-            Ok(v) => v,
-            Err(s) => return s as u32,
-        };
-        let out = match out.lock() {
-            Ok(v) => v,
-            Err(_) => return Status::InvalidContract as u32,
-        };
-        if matches!(*out, OutcomeState::Ready(_)) {
-            return Status::InvalidContract as u32;
-        }
-    }
-    unsafe { dispose::<Mutex<OutcomeState>>(ptr) }
-}
+
 #[cfg(test)]
 #[path = "fault_checked_map_tests.rs"]
 mod tests;

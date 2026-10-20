@@ -44,6 +44,19 @@ static const NyrtDynamicFieldEndDescriptorV1 field_empty_array[] = {{1,NYRT_FIEL
 static const NyrtDynamicFieldEndDescriptorV1 field_text[] = {{1,NYRT_FIELD_TEXT_V1,0,field_text_end},{2,NYRT_FIELD_TEXT_V1,0,field_text_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_array[] = {{1,NYRT_FIELD_ARRAY_V1,0,field_array_end},{2,NYRT_FIELD_ARRAY_V1,0,field_array_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_child[] = {{1,NYRT_FIELD_OBJECT_V1,941,field_object_end},{2,NYRT_FIELD_OBJECT_V1,941,field_object_end}};
+/* Same complete-End descriptor is retained by a Map entry. The callback
+ * reenters Map state, proving that the Map lock is absent during End. */
+static void *complete_map;
+static unsigned complete_map_ends;
+static uint32_t map_object_end(void *frame, uint64_t site, const NyrtDynamicFieldValueV1 *value) {
+  assert(value->kind==NYRT_FIELD_OBJECT_V1 && value->reserved==0 && value->token==0);
+  assert(nyrt_map_storage_dispose_v1(complete_map)==2);
+  assert(nyrt_object_home_release_plain_i64_v1(frame,1,site,value->value,932)==0);
+  complete_map_ends++;
+  return nyrt_fault_record_static_v1(frame,101,site,0,0);
+}
+static const NyrtDynamicFieldEndDescriptorV1 map_child={1,NYRT_FIELD_OBJECT_V1,932,map_object_end};
+static const NyrtDynamicFieldEndDescriptorV1 wrong_map_child={1,NYRT_FIELD_OBJECT_V1,933,map_object_end};
 static uint32_t field_word(size_t at) {
   const unsigned char *p=nyash_object_field_abi_descriptor_v1+at;
   return (uint32_t)p[0] | (uint32_t)p[1]<<8 | (uint32_t)p[2]<<16 | (uint32_t)p[3]<<24;
@@ -75,7 +88,27 @@ int main(void) {
   assert(nyrt_map_outcome_end_v1(frame,6,out)==0);
   assert(nyrt_map_outcome_dispose_v1(out)==0);
   assert(nyrt_map_key_dispose_v1(key)==0);
-  assert(nyrt_map_checked_end_v1(frame,7,map)==0);
+  /* Keep the first numeric/NoHook entry, then a newer complete-End entry.
+   * A callback Fault must not skip the older entry or record a duplicate Fault. */
+  int64_t complete_child=0;
+  assert(nyrt_object_checked_new_v1(frame,1,6,932,layout,1,&complete_child)==0);
+  assert(nyrt_map_key_init_v1(key)==0);
+  assert(nyrt_map_key_prepare_utf8_v1(frame,6,key,(const uint8_t*)"complete",8)==0);
+  assert(nyrt_map_outcome_init_v1(out)==0);
+  assert(nyrt_map_checked_install_indexed_end_v1(frame,1,6,map,key,complete_child,932,NULL,out)==2);
+  assert(nyrt_map_checked_install_indexed_end_v1(frame,1,6,map,key,complete_child,932,(const NyrtDynamicFieldEndDescriptorV1*)out,out)==2);
+  assert(nyrt_map_checked_install_indexed_end_v1(frame,1,6,map,key,complete_child,932,&wrong_map_child,out)==2);
+  assert(nyrt_object_checked_field_get_i64_v1(1,complete_child,932,0,&value)==0);
+  assert(nyrt_map_checked_install_indexed_end_v1(frame,1,6,map,key,complete_child,932,&map_child,out)==0);
+  assert(nyrt_map_outcome_end_v1(frame,6,out)==0);
+  assert(nyrt_map_outcome_dispose_v1(out)==0);
+  assert(nyrt_map_key_dispose_v1(key)==0);
+  complete_map=map;
+  assert(nyrt_map_checked_end_v1(frame,7,map)==1);
+  assert(complete_map_ends==1 && ((NyrtFaultFrameV1*)frame)->primary.reason==101);
+  assert(((NyrtFaultFrameV1*)frame)->primary.site==7 && ((NyrtFaultFrameV1*)frame)->suppressed_len==0);
+  value=91;
+  assert(nyrt_object_checked_field_get_i64_v1(1,complete_child,932,0,&value)==2 && value==91);
   value=91;
   assert(nyrt_object_checked_field_get_i64_v1(1,child,931,0,&value)==2 && value==91);
   assert(nyrt_map_storage_dispose_v1(map)==0);

@@ -4,8 +4,8 @@
 //! Scalar and mixed Array shapes remain outside the selected T2-alpha lane and
 //! are rejected before a Map payload is committed.
 use super::{
-    CheckedMap, CheckedMapError, CheckedMapTextRead, CheckedMapTextViewRead, MapEndError,
-    MapKeyDomain,
+    CheckedMap, CheckedMapError, CheckedMapTextRead, CheckedMapTextViewRead, MapEndContext,
+    MapEndError, MapKeyDomain,
 };
 use std::sync::Arc;
 
@@ -84,7 +84,7 @@ unsafe impl Sync for CheckedMapReadView {}
 pub trait CanonicalMapArrayResidence: Send + Sync {
     fn read_map(&self, index: i64) -> Result<CheckedMapReadView, CheckedMapArrayReadError>;
     fn len(&self) -> usize;
-    fn end(self: Box<Self>) -> Result<(), MapEndError>;
+    fn end(self: Box<Self>, context: &mut MapEndContext<'_>);
 }
 
 /// The first concrete T2-alpha residence. Elements and release roots are
@@ -99,27 +99,18 @@ impl OwnedMapArrayResidence {
         OwnedMapArrayResidenceBuilder::with_capacity(capacity)
     }
 
-    fn release_roots(mut roots: Vec<Arc<CheckedMap>>) -> Result<(), MapEndError> {
-        let mut first = None;
+    fn release_roots(mut roots: Vec<Arc<CheckedMap>>, context: &mut MapEndContext<'_>) {
         while let Some(root) = roots.pop() {
-            match root.end() {
-                Ok(report) => {
-                    if let Some(error) = report.first {
-                        first.get_or_insert(error);
-                    }
-                }
-                Err(error) => {
-                    first.get_or_insert(match error {
-                        CheckedMapError::StorageUnavailable => MapEndError::StorageUnavailable,
-                        _ => MapEndError::InvalidIdentity,
-                    });
-                }
+            if let Err(error) = root.end(context) {
+                context.record(match error {
+                    CheckedMapError::StorageUnavailable => MapEndError::StorageUnavailable,
+                    _ => MapEndError::InvalidIdentity,
+                });
             }
             if root.require_disposable().is_err() {
-                first.get_or_insert(MapEndError::InvalidIdentity);
+                context.record(MapEndError::InvalidIdentity);
             }
         }
-        first.map_or(Ok(()), Err)
     }
 }
 
@@ -143,8 +134,8 @@ impl CanonicalMapArrayResidence for OwnedMapArrayResidence {
         self.elements.len()
     }
 
-    fn end(self: Box<Self>) -> Result<(), MapEndError> {
-        Self::release_roots(self.release_roots)
+    fn end(self: Box<Self>, context: &mut MapEndContext<'_>) {
+        Self::release_roots(self.release_roots, context);
     }
 }
 
@@ -191,24 +182,30 @@ impl CanonicalMapArrayResidence for BorrowedMapArrayResidence {
         self.elements.len()
     }
 
-    fn end(self: Box<Self>) -> Result<(), MapEndError> {
+    fn end(self: Box<Self>, _context: &mut MapEndContext<'_>) {
         // The borrowed roots are ended by the caller's MapLocal cleanup.
         drop(self);
-        Ok(())
     }
 }
 
 /// Stages owned Map roots before the Array payload becomes a Map candidate.
 /// A failed append immediately releases the already acquired prefix in reverse
 /// order; an unaccepted candidate remains caller-owned.
+#[must_use = "finish the Array or explicitly abort its acquired prefix"]
 pub struct OwnedMapArrayResidenceBuilder {
     elements: Vec<Arc<CheckedMap>>,
     release_roots: Vec<Arc<CheckedMap>>,
 }
 
 impl OwnedMapArrayResidenceBuilder {
-    fn after_failure(&mut self, error: MapEndError) -> MapEndError {
-        self.release_prefix().err().unwrap_or(error)
+    fn after_failure(
+        &mut self,
+        error: MapEndError,
+        context: &mut MapEndContext<'_>,
+    ) -> MapEndError {
+        context.record(error);
+        self.release_prefix(context);
+        error
     }
 
     pub fn with_capacity(capacity: usize) -> Result<Self, MapEndError> {
@@ -226,17 +223,21 @@ impl OwnedMapArrayResidenceBuilder {
         })
     }
 
-    pub fn push_map(&mut self, map: Arc<CheckedMap>) -> Result<(), MapEndError> {
+    pub fn push_map(
+        &mut self,
+        map: Arc<CheckedMap>,
+        context: &mut MapEndContext<'_>,
+    ) -> Result<(), MapEndError> {
         if let Err(error) = map.require_live() {
             let error = match error {
                 CheckedMapError::StorageUnavailable => MapEndError::StorageUnavailable,
                 _ => MapEndError::InvalidIdentity,
             };
-            return Err(self.after_failure(error));
+            return Err(self.after_failure(error, context));
         }
         if let Err(error) = self.elements.try_reserve(1) {
             let _ = error;
-            return Err(self.after_failure(MapEndError::StorageUnavailable));
+            return Err(self.after_failure(MapEndError::StorageUnavailable, context));
         }
         self.elements.push(Arc::clone(&map));
         if !self
@@ -247,7 +248,7 @@ impl OwnedMapArrayResidenceBuilder {
             if let Err(error) = self.release_roots.try_reserve(1) {
                 let _ = error;
                 let _ = self.elements.pop();
-                return Err(self.after_failure(MapEndError::StorageUnavailable));
+                return Err(self.after_failure(MapEndError::StorageUnavailable, context));
             }
             self.release_roots.push(map);
         }
@@ -261,18 +262,16 @@ impl OwnedMapArrayResidenceBuilder {
         }
     }
 
-    fn release_prefix(&mut self) -> Result<(), MapEndError> {
+    /// Explicit cancellation, including the case where no append failed.
+    /// Drop only releases native bookkeeping; it never invokes child End.
+    pub fn abort(mut self, context: &mut MapEndContext<'_>) -> Result<(), MapEndError> {
+        self.release_prefix(context);
+        context.result()
+    }
+
+    fn release_prefix(&mut self, context: &mut MapEndContext<'_>) {
         let roots = std::mem::take(&mut self.release_roots);
         self.elements.clear();
-        OwnedMapArrayResidence::release_roots(roots)
-    }
-}
-
-impl Drop for OwnedMapArrayResidenceBuilder {
-    fn drop(&mut self) {
-        // A builder that is abandoned has not transferred its prefix to a
-        // Map. Best-effort cleanup preserves the same reverse-root contract;
-        // explicit push errors already report the first failure to the caller.
-        let _ = self.release_prefix();
+        OwnedMapArrayResidence::release_roots(roots, context);
     }
 }

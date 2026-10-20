@@ -9,7 +9,7 @@ struct Probe {
     ending: bool,
 }
 impl CanonicalMapResidence for Probe {
-    fn end(self: Box<Self>) -> Result<(), MapEndError> {
+    fn end(self: Box<Self>, context: &mut MapEndContext<'_>) {
         if let Some(map) = self.map.upgrade() {
             let result = map.observe_native(&MapKeyDomain::from_text("a"));
             assert_eq!(
@@ -22,7 +22,10 @@ impl CanonicalMapResidence for Probe {
             );
             if self.ending {
                 assert_eq!(map.acquire(), Err(CheckedMapError::InvalidState));
-                assert_eq!(map.end(), Err(CheckedMapError::InvalidState));
+                assert_eq!(
+                    map.end(&mut MapEndContext::unbound()),
+                    Err(CheckedMapError::InvalidState)
+                );
                 let rejected = map
                     .install(
                         MapKeyDomain::from_text("late"),
@@ -42,7 +45,9 @@ impl CanonicalMapResidence for Probe {
             }
         }
         self.events.lock().unwrap().push(self.id);
-        self.failure.map_or(Ok(()), Err)
+        if let Some(error) = self.failure {
+            context.record(error);
+        }
     }
 }
 fn candidate(
@@ -79,14 +84,14 @@ fn replacement_and_terminal_fault_preserve_order_and_refuse_reentry() {
         "a",
         candidate(&map, &events, 1, false, Some(MapEndError::InvalidIdentity)),
     )
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     install(
         &map,
         "b",
         candidate(&map, &events, 2, true, Some(MapEndError::ProfileMismatch)),
     )
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     let old = install(
         &map,
@@ -100,14 +105,20 @@ fn replacement_and_terminal_fault_preserve_order_and_refuse_reentry() {
         ),
     );
     assert!(events.lock().unwrap().is_empty());
-    assert_eq!(old.end(), Err(MapEndError::InvalidIdentity));
+    assert_eq!(
+        old.end(&mut MapEndContext::unbound()),
+        Err(MapEndError::InvalidIdentity)
+    );
     assert_eq!(*events.lock().unwrap(), vec![1]);
-    let report = map.end().unwrap();
+    let report = map.end(&mut MapEndContext::unbound()).unwrap();
     assert_eq!(*events.lock().unwrap(), vec![1, 3, 2]);
     assert_eq!(report.first, Some(MapEndError::StorageUnavailable));
     assert_eq!(report.suppressed[0], Some(MapEndError::ProfileMismatch));
     assert_eq!(report.suppressed_count, 1);
-    assert_eq!(map.end(), Err(CheckedMapError::InvalidState));
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()),
+        Err(CheckedMapError::InvalidState)
+    );
     assert_eq!(map.acquire(), Err(CheckedMapError::InvalidState));
     map.require_disposable().unwrap();
 }
@@ -125,7 +136,9 @@ fn precommit_refusal_returns_the_same_candidate_and_keeps_live_entry() {
     assert_eq!(residence_address(&failed.candidate), address);
     assert_eq!(failed.error, CheckedMapError::InvalidState);
     map.acquire().unwrap();
-    install(&map, "a", failed.candidate).end().unwrap();
+    install(&map, "a", failed.candidate)
+        .end(&mut MapEndContext::unbound())
+        .unwrap();
     map.state.lock().unwrap().next_order = u64::MAX;
     let failed = map
         .install(
@@ -145,7 +158,7 @@ fn precommit_refusal_returns_the_same_candidate_and_keeps_live_entry() {
         .unwrap()
         .is_none());
     drop(failed.candidate);
-    assert_eq!(map.end().unwrap().first, None);
+    assert_eq!(map.end(&mut MapEndContext::unbound()).unwrap().first, None);
     assert_eq!(*events.lock().unwrap(), vec![1]);
 }
 
@@ -166,7 +179,7 @@ fn poisoned_storage_refuses_install_but_still_ends_all_entries() {
             ending: true,
         })),
     )
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let _state = map.state.lock().unwrap();
@@ -182,7 +195,7 @@ fn poisoned_storage_refuses_install_but_still_ends_all_entries() {
     assert_eq!(failed.error, CheckedMapError::StorageUnavailable);
     drop(failed.candidate);
     assert_eq!(
-        map.end().unwrap().first,
+        map.end(&mut MapEndContext::unbound()).unwrap().first,
         Some(MapEndError::StorageUnavailable)
     );
     assert_eq!(*events.lock().unwrap(), vec![1]);
@@ -193,7 +206,10 @@ fn poisoned_storage_refuses_install_but_still_ends_all_entries() {
 fn empty_map_and_bounded_failure_report_have_explicit_outcomes() {
     let map = CheckedMap::unissued();
     map.acquire().unwrap();
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     let mut report = MapEndReport::default();
     for _ in 0..12 {
         report.record(MapEndError::InvalidIdentity);
@@ -201,6 +217,10 @@ fn empty_map_and_bounded_failure_report_have_explicit_outcomes() {
     assert_eq!(report.first, Some(MapEndError::InvalidIdentity));
     assert_eq!(report.suppressed, [Some(MapEndError::InvalidIdentity); 8]);
     assert_eq!(report.suppressed_count, 11); // total, not stored count
+    let mut context = MapEndContext::unbound();
+    context.record(MapEndError::StorageUnavailable);
+    context.record(MapEndError::InvalidContract);
+    assert_eq!(context.result(), Err(MapEndError::InvalidContract));
 }
 
 #[test]
@@ -251,19 +271,24 @@ fn inline_values_preserve_payload_on_rejection_and_detachment() {
             _ => panic!("value must not become a residence"),
         };
         map.acquire().unwrap();
-        install(&map, "a", failed.candidate).end().unwrap();
+        install(&map, "a", failed.candidate)
+            .end(&mut MapEndContext::unbound())
+            .unwrap();
         let old = install(&map, "a", CheckedMapPayload::I64(7));
         match old.0.as_ref().unwrap() {
             CheckedMapPayload::I64(value) => assert_eq!((false, *value), expected),
             CheckedMapPayload::Bool(value) => assert_eq!((true, i64::from(*value)), expected),
             _ => panic!("detached payload changed"),
         }
-        old.end().unwrap();
+        old.end(&mut MapEndContext::unbound()).unwrap();
         assert!(matches!(
             map.observe_native(&MapKeyDomain::from_text("a")),
             Err(CheckedMapError::ProjectionUnavailable)
         ));
-        assert_eq!(map.end().unwrap(), MapEndReport::default());
+        assert_eq!(
+            map.end(&mut MapEndContext::unbound()).unwrap(),
+            MapEndReport::default()
+        );
         map.require_disposable().unwrap();
     }
 }
@@ -287,14 +312,19 @@ fn text_payload_owns_bytes_through_rejection_detachment_and_end() {
         CheckedMapPayload::Text(text) if text.as_ref() == "owned"
     ));
     map.acquire().unwrap();
-    install(&map, "a", failed.candidate).end().unwrap();
+    install(&map, "a", failed.candidate)
+        .end(&mut MapEndContext::unbound())
+        .unwrap();
     let old = install(&map, "a", CheckedMapPayload::Text("next".into()));
     assert!(matches!(
         &old.0,
         Some(CheckedMapPayload::Text(text)) if text.as_ref() == "owned"
     ));
-    old.end().unwrap();
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    old.end(&mut MapEndContext::unbound()).unwrap();
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     map.require_disposable().unwrap();
 }
 
@@ -311,11 +341,16 @@ fn empty_array_payload_is_an_owned_marker_with_trivial_end() {
     assert_eq!(failed.error, CheckedMapError::InvalidState);
     assert!(matches!(failed.candidate, CheckedMapPayload::EmptyArray));
     map.acquire().unwrap();
-    install(&map, "a", failed.candidate).end().unwrap();
+    install(&map, "a", failed.candidate)
+        .end(&mut MapEndContext::unbound())
+        .unwrap();
     let old = install(&map, "a", CheckedMapPayload::EmptyArray);
     assert!(matches!(old.0, Some(CheckedMapPayload::EmptyArray)));
-    old.end().unwrap();
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    old.end(&mut MapEndContext::unbound()).unwrap();
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     map.require_disposable().unwrap();
 }
 
@@ -339,7 +374,9 @@ fn borrowed_handle_payload_reads_non_scalar_and_ends_trivially() {
         CheckedMapPayload::BorrowedHandle(0x5AFE)
     ));
     map.acquire().unwrap();
-    install(&map, "a", failed.candidate).end().unwrap();
+    install(&map, "a", failed.candidate)
+        .end(&mut MapEndContext::unbound())
+        .unwrap();
     assert!(matches!(
         map.read_i64(&MapKeyDomain::from_text("a")),
         Ok(CheckedMapI64Read::NonScalar)
@@ -349,8 +386,11 @@ fn borrowed_handle_payload_reads_non_scalar_and_ends_trivially() {
         old.0,
         Some(CheckedMapPayload::BorrowedHandle(0x5AFE))
     ));
-    old.end().unwrap();
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    old.end(&mut MapEndContext::unbound()).unwrap();
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     map.require_disposable().unwrap();
 }
 
@@ -360,20 +400,23 @@ fn value_replacement_after_failed_residence_end_keeps_new_slot_and_other_homes()
     let events = Arc::new(Mutex::new(Vec::new()));
     map.acquire().unwrap();
     install(&map, "a", CheckedMapPayload::Bool(true))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     install(
         &map,
         "a",
         candidate(&map, &events, 1, false, Some(MapEndError::InvalidIdentity)),
     )
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     install(&map, "b", candidate(&map, &events, 2, true, None))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     let old = install(&map, "a", CheckedMapPayload::I64(30));
-    assert_eq!(old.end(), Err(MapEndError::InvalidIdentity));
+    assert_eq!(
+        old.end(&mut MapEndContext::unbound()),
+        Err(MapEndError::InvalidIdentity)
+    );
     assert!(matches!(
         map.state
             .lock()
@@ -384,7 +427,10 @@ fn value_replacement_after_failed_residence_end_keeps_new_slot_and_other_homes()
             .payload,
         CheckedMapPayload::I64(30)
     ));
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     assert_eq!(*events.lock().unwrap(), [1, 2]);
     map.require_disposable().unwrap();
 }
@@ -393,7 +439,7 @@ fn text_child(value: &str) -> Arc<CheckedMap> {
     let map = Arc::new(CheckedMap::unissued());
     map.acquire().unwrap();
     install(&map, "name", CheckedMapPayload::Text(value.into()))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     map
 }
@@ -402,14 +448,18 @@ fn text_child(value: &str) -> Arc<CheckedMap> {
 fn owned_array_reads_nested_map_text_and_releases_duplicate_root_once() {
     let child = text_child("main");
     let mut builder = OwnedMapArrayResidence::builder(2).unwrap();
-    builder.push_map(Arc::clone(&child)).unwrap();
-    builder.push_map(Arc::clone(&child)).unwrap();
+    builder
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
+    builder
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
     let array = builder.finish();
 
     let map = CheckedMap::unissued();
     map.acquire().unwrap();
     install(&map, "functions", CheckedMapPayload::Array(Box::new(array)))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
 
     let view = map
@@ -431,7 +481,10 @@ fn owned_array_reads_nested_map_text_and_releases_duplicate_root_once() {
         Err(CheckedMapArrayReadError::Bounds)
     ));
     drop((view, second));
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     child.require_disposable().unwrap();
     map.require_disposable().unwrap();
 }
@@ -442,29 +495,52 @@ fn array_builder_fault_releases_acquired_prefix_in_reverse_root_order() {
     let first = Arc::new(CheckedMap::unissued());
     first.acquire().unwrap();
     install(&first, "name", candidate(&first, &events, 1, true, None))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     let second = Arc::new(CheckedMap::unissued());
     second.acquire().unwrap();
     install(&second, "name", candidate(&second, &events, 2, true, None))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     let invalid = Arc::new(CheckedMap::unissued());
 
     let mut builder = OwnedMapArrayResidence::builder(3).unwrap();
-    builder.push_map(Arc::clone(&first)).unwrap();
-    builder.push_map(Arc::clone(&second)).unwrap();
-    assert_eq!(builder.push_map(invalid), Err(MapEndError::InvalidIdentity));
+    builder
+        .push_map(Arc::clone(&first), &mut MapEndContext::unbound())
+        .unwrap();
+    builder
+        .push_map(Arc::clone(&second), &mut MapEndContext::unbound())
+        .unwrap();
+    assert_eq!(
+        builder.push_map(invalid, &mut MapEndContext::unbound()),
+        Err(MapEndError::InvalidIdentity)
+    );
     assert_eq!(*events.lock().unwrap(), vec![2, 1]);
     first.require_disposable().unwrap();
     second.require_disposable().unwrap();
+    // Native Drop must not run semantic End; cancellation uses explicit abort.
+    let child = text_child("abort");
+    let mut staged = OwnedMapArrayResidence::builder(1).unwrap();
+    staged
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
+    drop(staged);
+    child.require_live().unwrap();
+    let mut staged = OwnedMapArrayResidence::builder(1).unwrap();
+    staged
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
+    staged.abort(&mut MapEndContext::unbound()).unwrap();
+    child.require_disposable().unwrap();
 }
 
 #[test]
 fn array_candidate_is_returned_unchanged_when_map_install_refuses_it() {
     let child = text_child("main");
     let mut builder = OwnedMapArrayResidence::builder(1).unwrap();
-    builder.push_map(Arc::clone(&child)).unwrap();
+    builder
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
     let payload = CheckedMapPayload::Array(Box::new(builder.finish()));
     let address = match &payload {
         CheckedMapPayload::Array(value) => {
@@ -488,8 +564,13 @@ fn array_candidate_is_returned_unchanged_when_map_install_refuses_it() {
         _ => panic!("array candidate changed shape"),
     }
     map.acquire().unwrap();
-    install(&map, "functions", failed.candidate).end().unwrap();
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    install(&map, "functions", failed.candidate)
+        .end(&mut MapEndContext::unbound())
+        .unwrap();
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     child.require_disposable().unwrap();
 }
 
@@ -498,10 +579,12 @@ fn array_index_and_text_lookup_reject_missing_kind_and_bounds() {
     let child = Arc::new(CheckedMap::unissued());
     child.acquire().unwrap();
     install(&child, "name", CheckedMapPayload::I64(7))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     let mut builder = OwnedMapArrayResidence::builder(1).unwrap();
-    builder.push_map(Arc::clone(&child)).unwrap();
+    builder
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
 
     let map = CheckedMap::unissued();
     map.acquire().unwrap();
@@ -510,10 +593,10 @@ fn array_index_and_text_lookup_reject_missing_kind_and_bounds() {
         "functions",
         CheckedMapPayload::Array(Box::new(builder.finish())),
     )
-    .end()
+    .end(&mut MapEndContext::unbound())
     .unwrap();
     install(&map, "scalar", CheckedMapPayload::I64(1))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     assert!(matches!(
         map.read_array_map(&MapKeyDomain::from_text("missing"), 0),
@@ -543,7 +626,10 @@ fn array_index_and_text_lookup_reject_missing_kind_and_bounds() {
         Ok(CheckedMapTextRead::NonText)
     ));
     drop(view);
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     child.require_disposable().unwrap();
 }
 
@@ -552,7 +638,7 @@ fn array_length_reads_empty_marker_and_borrowed_residence_without_projection() {
     let empty = CheckedMap::unissued();
     empty.acquire().unwrap();
     install(&empty, "params", CheckedMapPayload::EmptyArray)
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     assert!(matches!(
         empty.read_array_length(&MapKeyDomain::from_text("params")),
@@ -562,17 +648,24 @@ fn array_length_reads_empty_marker_and_borrowed_residence_without_projection() {
         empty.read_array_length(&MapKeyDomain::from_text("missing")),
         Ok(CheckedMapArrayLengthRead::Missing)
     ));
-    assert_eq!(empty.end().unwrap(), MapEndReport::default());
+    assert_eq!(
+        empty.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
 
     let child = text_child("main");
     let mut builder = OwnedMapArrayResidence::builder(2).unwrap();
-    builder.push_map(Arc::clone(&child)).unwrap();
-    builder.push_map(Arc::clone(&child)).unwrap();
+    builder
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
+    builder
+        .push_map(Arc::clone(&child), &mut MapEndContext::unbound())
+        .unwrap();
     let array = builder.finish();
     let map = CheckedMap::unissued();
     map.acquire().unwrap();
     install(&map, "blocks", CheckedMapPayload::Array(Box::new(array)))
-        .end()
+        .end(&mut MapEndContext::unbound())
         .unwrap();
     assert!(matches!(
         map.read_array_length(&MapKeyDomain::from_text("blocks")),
@@ -582,6 +675,9 @@ fn array_length_reads_empty_marker_and_borrowed_residence_without_projection() {
         map.read_array_length(&MapKeyDomain::from_text("missing")),
         Ok(CheckedMapArrayLengthRead::Missing)
     ));
-    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    assert_eq!(
+        map.end(&mut MapEndContext::unbound()).unwrap(),
+        MapEndReport::default()
+    );
     child.require_disposable().unwrap();
 }

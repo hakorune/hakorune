@@ -103,20 +103,38 @@ static int hako_lts_fault_layout_matches(
       abi_size(data, frame) == in->frame_size && abi_align(data, frame) == in->frame_align &&
       element_offset(data, frame, 4u) == in->frame_primary_offset &&
       element_offset(data, frame, 5u) == in->frame_suppressed_offset;
-  if (matched && in->revision == 3u) {
-    const hako_llvmc_object_field_abi_v1* field =
-        &((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
-    if (field->revision) {
-      void* value_fields[4] = {i32, i32, i64, i64};
-      void* end_fields[4] = {i32, i32, i64, pointer};
-      void* value = struct_type(context, value_fields, 4u, 0);
-      void* end = struct_type(context, end_fields, 4u, 0);
-      matched = value && end && abi_size(data, value) == field->value_size &&
-          abi_align(data, value) == field->value_align &&
-          abi_size(data, end) == field->end_descriptor_size &&
-          abi_align(data, end) == field->end_descriptor_align;
+  /* These public callback structures are also used by static Map V2 input.
+   * Compare target geometry before any descriptor is emitted, independently
+   * of the optional opaque Dynamic-field outcome extension. */
+  if (matched) {
+    void* value_fields[4] = {i32, i32, i64, i64};
+    void* end_fields[4] = {i32, i32, i64, pointer};
+    void* value = struct_type(context, value_fields, 4u, 0);
+    void* end = struct_type(context, end_fields, 4u, 0);
+    matched = value && end &&
+        abi_size(data, value) == sizeof(NyrtDynamicFieldValueV1) &&
+        abi_align(data, value) == _Alignof(NyrtDynamicFieldValueV1) &&
+        element_offset(data, value, 0u) == offsetof(NyrtDynamicFieldValueV1, kind) &&
+        element_offset(data, value, 1u) == offsetof(NyrtDynamicFieldValueV1, reserved) &&
+        element_offset(data, value, 2u) == offsetof(NyrtDynamicFieldValueV1, value) &&
+        element_offset(data, value, 3u) == offsetof(NyrtDynamicFieldValueV1, token) &&
+        abi_size(data, end) == sizeof(NyrtDynamicFieldEndDescriptorV1) &&
+        abi_align(data, end) == _Alignof(NyrtDynamicFieldEndDescriptorV1) &&
+        element_offset(data, end, 0u) == offsetof(NyrtDynamicFieldEndDescriptorV1, profile) &&
+        element_offset(data, end, 1u) == offsetof(NyrtDynamicFieldEndDescriptorV1, kind) &&
+        element_offset(data, end, 2u) == offsetof(NyrtDynamicFieldEndDescriptorV1, type_id) &&
+        element_offset(data, end, 3u) == offsetof(NyrtDynamicFieldEndDescriptorV1, end);
+    if (matched && in->revision == 3u) {
+      const hako_llvmc_object_field_abi_v1* field =
+          &((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
+      if (field->revision)
+        matched = abi_size(data, value) == field->value_size &&
+            abi_align(data, value) == field->value_align &&
+            abi_size(data, end) == field->end_descriptor_size &&
+            abi_align(data, end) == field->end_descriptor_align;
     }
   }
+
 done:
   dispose_context(context);
   return matched;

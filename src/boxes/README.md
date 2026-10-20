@@ -56,11 +56,15 @@ The T2-alpha physical owner adds `CheckedMapPayload::Array` through the
 `CanonicalMapArrayResidence` contract. `OwnedMapArrayResidenceBuilder` stages
 checked Map children, releases the acquired prefix in reverse root order on a
 construction fault, and deduplicates repeated roots such as `[main, main]`.
+Every nested End receives the same borrowed `MapEndContext`; runtime errors are
+recorded at encounter time, and complete-End callbacks retain the same FaultFrame.
+Unbound native contexts cannot execute a complete runtime descriptor. Builder
+cancellation uses explicit `abort(context)`; ordinary Drop never invokes child End.
 `ArrayIndex` returns a read-only child view and `MapLookup` validates an owned
 Text payload; neither operation grants End authority or creates a mutable
-`ArrayBox`. This is an owner-level contract only: compiler `MapInvokeOperation`,
-kernel exports, C emission, and source production admission remain the next
-slice.
+`ArrayBox`. Kernel opaque operations and the C consumer reuse this physical
+owner; source production admission and borrowed-result permissions still require
+their original compiler proofs.
 
 ## JSON observation
 
