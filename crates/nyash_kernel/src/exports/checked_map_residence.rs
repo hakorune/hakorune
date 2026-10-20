@@ -42,7 +42,7 @@ impl CanonicalMapResidence for IndexedResidence {
                 context.record(MapEndError::InvalidContract);
                 return;
             };
-            let stored = DynamicFieldStoredV1 {
+            let stored = DynamicFieldStoredV1::Published {
                 value: DynamicFieldValueV1 {
                     kind: 5,
                     reserved: 0,

@@ -392,7 +392,50 @@ pub unsafe extern "C" fn dynamic_replace(
         _ => return Status::InvalidContract as u32,
     }
     unsafe { commit_dynamic(frame, profile, site, outcome, |profile|
-        store::replace_dynamic_field_checked(profile, handle, type_id, slot, DynamicFieldStoredV1 { value, end })) }
+        store::replace_dynamic_field_checked(profile, handle, type_id, slot, DynamicFieldStoredV1::Published { value, end })) }
+}
+
+/// Dedicated source-authorized Map Home transfer. A stack placement is moved
+/// into stable native storage; generic tagged replacement cannot forge it.
+/// Normal means committed, with the SAME detached-old outcome protocol.
+#[export_name = "nyash.object.checked_map_field_install_v1"]
+pub unsafe extern "C" fn map_field_install(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, source: *mut c_void, outcome: *mut c_void,
+) -> u32 {
+    if profile != 1 || !separate(&[
+        (frame as usize, size_of::<FaultFrame>()),
+        (outcome as usize, size_of::<DynamicFieldOutcomeStorageV1>()),
+        (source as usize, size_of::<super::checked_map::MapStorage>()),
+    ]) { return Status::InvalidContract as u32; }
+    if let Err(status) = unsafe { admit(frame, profile) } { return status as u32; }
+    let prepared = match unsafe { super::PreparedMapMoveV1::prepare(source) } {
+        Ok(value) => value,
+        Err(Status::Fault) => return unsafe { super::record_static(frame, 100, site, 0, 0) },
+        Err(status) => return status as u32,
+    };
+    unsafe { commit_dynamic(frame, profile, site, outcome, |profile|
+        store::install_map_field_checked(profile, handle, type_id, slot, prepared)) }
+}
+
+/// Borrow only. The source proof retains this exact field until last use and
+/// excludes replacement/End. No generic Dynamic value or transferable Home.
+#[export_name = "nyash.object.checked_map_field_borrow_v1"]
+pub unsafe extern "C" fn map_field_borrow(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, out: *mut *mut c_void,
+) -> u32 {
+    if profile != 1 || out.is_null() || !out.is_aligned() || !separate(&[
+        (frame as usize, size_of::<FaultFrame>()),
+        (out as usize, size_of::<*mut c_void>()),
+    ]) { return Status::InvalidContract as u32; }
+    let (frame, profile) = match unsafe { admit(frame, profile) } {
+        Ok(value) => value, Err(status) => return status as u32,
+    };
+    match store::read_map_field_checked(profile, handle, type_id, slot) {
+        Ok(value) => { unsafe { out.write(value) }; Status::Normal as u32 }
+        Err(error) => failed(frame, error, site),
+    }
 }
 
 /// Checked read is an observation supported by the still-live slot. It issues

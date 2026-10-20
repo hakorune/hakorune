@@ -11,6 +11,8 @@ mod checked_array;
 
 #[path = "fault_checked_map.rs"]
 pub(super) mod checked_map;
+pub(crate) use checked_map::storage::OwnedMapPlacementV1;
+pub(super) use checked_map::storage::PreparedMapMoveV1;
 
 #[path = "fault_checked_string.rs"]
 mod checked_string;

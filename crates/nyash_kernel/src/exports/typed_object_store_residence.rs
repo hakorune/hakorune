@@ -73,26 +73,27 @@ use crate::exports::typed_object::{DynamicFieldStoredV1, DynamicFieldValueV1, Ty
 fn validate_dynamic(objects: &IndexedObjects, candidate: &DynamicFieldStoredV1, profile: TypedObjectStoreBackend) -> Option<()> {
     let profile = match profile { TypedObjectStoreBackend::SafeMutex => 1,
         TypedObjectStoreBackend::SingleThreadExact => 2, _ => return None };
-    match (candidate.value.kind, candidate.end) {
+    let DynamicFieldStoredV1::Published { value, end } = candidate else { return None; };
+    match (value.kind, *end) {
         (0..=3, None) => {}
-        (4..=6, Some(end)) if end.profile == profile && end.kind == candidate.value.kind
+        (4..=6, Some(end)) if end.profile == profile && end.kind == value.kind
             && end.end.is_some() && if end.kind == 5 { end.type_id > 0 } else { end.type_id == 0 } => {}
         _ => return None,
     }
-    if !candidate.value.well_formed() { return None; }
-    match candidate.value.kind {
-        0..=3 => candidate.end.is_none().then_some(()),
+    if !value.well_formed() { return None; }
+    match value.kind {
+        0..=3 => end.is_none().then_some(()),
         4 => {
-            let token = std::num::NonZeroU64::new(candidate.value.token)?;
+            let token = std::num::NonZeroU64::new(value.token)?;
             nyash_rust::runtime::dynamic_v2_lease::with_end_authorized_text_pair(
-                candidate.value.value as u64, token, |_| ()).ok()
+                value.value as u64, token, |_| ()).ok()
         }
         5 => {
-            let descriptor = candidate.end?;
-            let child = objects.get(handle_to_index(candidate.value.value)?)?.as_ref()?;
+            let descriptor = (*end)?;
+            let child = objects.get(handle_to_index(value.value)?)?.as_ref()?;
             (child.type_id == descriptor.type_id).then_some(())
         }
-        6 => crate::plugin::with_array_box_direct(candidate.value.value, |_| ()),
+        6 => crate::plugin::with_array_box_direct(value.value, |_| ()),
         _ => None,
     }
 }
@@ -106,20 +107,17 @@ pub(in crate::exports) fn replace_dynamic_field_checked(
     check_indexed_profile(expected)?;
     with_objects_mut(|objects| {
         validate_dynamic(objects, &candidate, expected)?;
-        if candidate.value.kind == 5 && candidate.value.value == handle {
+        let DynamicFieldStoredV1::Published { value, .. } = &candidate else { return None; };
+        if value.kind == 5 && value.value == handle {
             // A direct owning self-cycle has no admitted source support plan.
             return None;
         }
-        let parent = objects.get_mut(handle_to_index(handle)?)?.as_mut()?;
-        if parent.type_id != type_id { return None; }
-        let field = parent.fields.get_mut(slot)?;
-        if field.storage != TypedSlotStorage::Dynamic || field.residence.is_some() { return None; }
-        let TypedSlotValue::Dynamic(old) = &mut field.value else { return None; };
+        let old = dynamic_slot_mut(objects, handle, type_id, slot)?;
         // This profile transfers unique obligations, not independently Shared
         // Homes. A borrowed same-slot read cannot reacquire that obligation.
-        if candidate.value.kind >= 4 && old.value.kind == candidate.value.kind
-            && old.value.value == candidate.value.value
-            && old.value.token == candidate.value.token { return None; }
+        if let DynamicFieldStoredV1::Published { value: previous, .. } = old {
+            if value.kind >= 4 && previous == value { return None; }
+        }
         Some(std::mem::replace(old, candidate))
     }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
@@ -135,9 +133,11 @@ pub(in crate::exports) fn read_dynamic_field_checked(
         let field = parent.fields.get(slot)?;
         if field.storage != TypedSlotStorage::Dynamic || field.residence.is_some() { return None; }
         let TypedSlotValue::Dynamic(value) = &field.value else { return None; };
-        if value.is_empty() || (kind != 0 && value.value.kind != kind) { return None; }
+        if value.is_empty() { return None; }
         validate_dynamic(objects, value, expected)?;
-        Some(value.value) // observation only: no End descriptor or new Home
+        let DynamicFieldStoredV1::Published { value, .. } = value else { return None; };
+        if kind != 0 && value.kind != kind { return None; }
+        Some(*value) // observation only: no End descriptor or new Home
     }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
@@ -146,7 +146,57 @@ pub(in crate::exports) fn read_dynamic_field_checked(
 pub(in crate::exports) fn take_dynamic_field_checked(
     expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
 ) -> Result<DynamicFieldStoredV1, CheckedStorageError> {
-    replace_dynamic_field_checked(expected, handle, type_id, slot, DynamicFieldStoredV1::empty())
+    check_indexed_profile(expected)?;
+    with_objects_mut(|objects| {
+        let old = dynamic_slot_mut(objects, handle, type_id, slot)?;
+        Some(std::mem::replace(old, DynamicFieldStoredV1::empty()))
+    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+}
+
+fn dynamic_slot_mut(objects: &mut IndexedObjects, handle: i64, type_id: i64, slot: usize)
+    -> Option<&mut DynamicFieldStoredV1>
+{
+    let parent = objects.get_mut(handle_to_index(handle)?)?.as_mut()?;
+    if parent.type_id != type_id { return None; }
+    let field = parent.fields.get_mut(slot)?;
+    if field.storage != TypedSlotStorage::Dynamic || field.residence.is_some() { return None; }
+    let TypedSlotValue::Dynamic(value) = &mut field.value else { return None; };
+    Some(value)
+}
+
+/// All destination validation holds the SAME guard through the source move.
+/// On rejection only uninitialized destination bytes are freed; source stays live.
+pub(in crate::exports) fn install_map_field_checked(
+    expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
+    prepared: crate::exports::fault::PreparedMapMoveV1<'_>,
+) -> Result<DynamicFieldStoredV1, CheckedStorageError> {
+    check_indexed_profile(expected)?;
+    if expected != TypedObjectStoreBackend::SafeMutex { return Err(CheckedStorageError::ProfileMismatch); }
+    with_objects_mut(|objects| {
+        let old = dynamic_slot_mut(objects, handle, type_id, slot)?;
+        if matches!(old, DynamicFieldStoredV1::Map(map) if map.as_ptr().cast_const() == prepared.source_ptr()) {
+            return None;
+        }
+        let candidate = DynamicFieldStoredV1::Map(prepared.commit());
+        Some(std::mem::replace(old, candidate))
+    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+}
+
+/// Borrow-only view, authorized by a retained source field loan. Generic tagged
+/// reads never expose this address or accept it as a candidate Home.
+pub(in crate::exports) fn read_map_field_checked(
+    expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
+) -> Result<*mut std::ffi::c_void, CheckedStorageError> {
+    check_indexed_profile(expected)?;
+    if expected != TypedObjectStoreBackend::SafeMutex { return Err(CheckedStorageError::ProfileMismatch); }
+    with_objects(|objects| {
+        let parent = objects.get(handle_to_index(handle)?)?.as_ref()?;
+        if parent.type_id != type_id { return None; }
+        let field = parent.fields.get(slot)?;
+        if field.storage != TypedSlotStorage::Dynamic || field.residence.is_some() { return None; }
+        let TypedSlotValue::Dynamic(DynamicFieldStoredV1::Map(map)) = &field.value else { return None; };
+        Some(map.as_ptr())
+    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
 #[cfg(test)]

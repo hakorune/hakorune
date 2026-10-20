@@ -332,21 +332,27 @@ pub(crate) struct DynamicFieldEndDescriptorV1 {
 /// One move-only slot obligation. Prepared wrappers have no automatic semantic
 /// Drop: on precommit failure the candidate still belongs to the caller.
 #[derive(Debug)]
-pub(crate) struct DynamicFieldStoredV1 {
-    pub(crate) value: DynamicFieldValueV1,
-    pub(crate) end: Option<&'static DynamicFieldEndDescriptorV1>,
+pub(crate) enum DynamicFieldStoredV1 {
+    Published {
+        value: DynamicFieldValueV1,
+        end: Option<&'static DynamicFieldEndDescriptorV1>,
+    },
+    Map(crate::exports::fault::OwnedMapPlacementV1),
 }
 impl DynamicFieldStoredV1 {
-    pub(crate) const fn empty() -> Self { Self { value: DynamicFieldValueV1::EMPTY, end: None } }
-    pub(crate) fn is_empty(&self) -> bool { self.value == DynamicFieldValueV1::EMPTY && self.end.is_none() }
+    pub(crate) const fn empty() -> Self { Self::Published { value: DynamicFieldValueV1::EMPTY, end: None } }
+    pub(crate) fn is_empty(&self) -> bool {
+        matches!(self, Self::Published { value, end: None } if *value == DynamicFieldValueV1::EMPTY)
+    }
 
     /// The opaque outcome owner consumes this AFTER every storage lock is gone.
     /// End is selected by source descriptor, never by the value's tag.
     pub(crate) unsafe fn end(self, frame: *mut std::ffi::c_void, site: u64) -> u32 {
-        match self.end {
-            None => 0,
-            Some(descriptor) => match descriptor.end {
-                Some(end) => unsafe { end(frame, site, &self.value) },
+        match self {
+            Self::Map(map) => unsafe { map.end(frame, site) },
+            Self::Published { end: None, .. } => 0,
+            Self::Published { value, end: Some(descriptor) } => match descriptor.end {
+                Some(end) => unsafe { end(frame, site, &value) },
                 None => 2,
             },
         }

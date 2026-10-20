@@ -417,7 +417,29 @@ uses this entry and its existing complete-End helper; the runtime archive bindin
 requires that symbol. Public value/descriptor size, alignment and offsets are
 checked against the LLVM target even for V2 static input. Opaque Dynamic field
 outcomes still require their optional V3 target extension. This ABI connection
-introduces no Map-field storage permission or Map-held source result acceptance.
+does not itself issue source Map-field permission or Map-held result acceptance.
+
+The dedicated SafeMutex `checked_map_field_install_v1(frame, profile, site,
+parent, type, slot, source_map, outcome)` moves an initialized live Map into
+fallibly allocated stable native placement owned by the existing Dynamic field.
+Source permission must come from the canonical construction/write issuer.
+Source/frame/outcome separation, source Live, allocation and destination identity
+are checked before movement. The same object guard covers destination validation,
+no-fail source move, slot swap and detached-old publication; rejection preserves
+the caller's Map and leaves the outcome Unissued. Normal leaves source placement
+Unissued and disposable. The usual detached-old End/dispose follows separately;
+its Fault cannot roll back the committed field.
+
+Map residence is a private move-only variant of the SAME field outcome owner,
+not a new registry, numeric handle or public Dynamic tag. It runs the existing
+checked Map End outside object/outcome locks, then native dispose/free on Normal
+or Fault. InvalidContract never silently frees a live placement. Generic Dynamic
+replace/get, including kind-zero observations, neither accept nor expose Maps.
+`checked_map_field_borrow_v1` writes a stable nonowning address only on Normal.
+The source retains the exact field loan through last use and excludes replacement
+and End; the address grants no transferable Home. Reinstalling a same-slot borrow
+is refused. This native boundary does not activate unproved source construction,
+partial Birth cleanup, callable results or Map-held mutation permissions.
 
 The value entry uses `(frame, profile:u32, site:u64, map, key, kind:u32,
 payload:i64, outcome)->u32`; pointer regions keep the same opaque contract.

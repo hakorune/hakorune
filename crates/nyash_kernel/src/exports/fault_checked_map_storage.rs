@@ -87,6 +87,64 @@ pub(super) unsafe fn admit_mut<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'
     }
     Ok(unsafe { (&mut *place).value.assume_init_mut() })
 }
+
+/// A source-exclusive live Map loan and a fresh, fallibly allocated destination.
+/// Dropping preparation only frees uninitialized bytes; ownership has not moved.
+pub(in crate::exports) struct PreparedMapMoveV1<'a> {
+    source: std::ptr::NonNull<MapStorage>,
+    destination: Box<MaybeUninit<MapStorage>>,
+    loan: std::marker::PhantomData<&'a mut MapStorage>,
+}
+impl<'a> PreparedMapMoveV1<'a> {
+    pub(in crate::exports) fn source_ptr(&self) -> *const c_void {
+        self.source.as_ptr().cast()
+    }
+    pub(in crate::exports) unsafe fn prepare(source: *mut c_void) -> Result<Self, Status> {
+        let map = unsafe { admit::<CheckedMap>(source, MAP_TAG) }?;
+        map.require_live().map_err(|_| Status::InvalidContract)?;
+        let layout = std::alloc::Layout::new::<MaybeUninit<MapStorage>>();
+        let allocation = unsafe { std::alloc::alloc(layout) }.cast::<MaybeUninit<MapStorage>>();
+        if allocation.is_null() { return Err(Status::Fault); }
+        Ok(Self {
+            source: std::ptr::NonNull::new(source.cast::<MapStorage>()).expect("admitted source"),
+            destination: unsafe { Box::from_raw(allocation) },
+            loan: std::marker::PhantomData,
+        })
+    }
+
+    /// Call only after destination slot validation under its retained guard.
+    /// No allocation, validation, callback or lock acquisition remains here.
+    pub(in crate::exports) fn commit(mut self) -> OwnedMapPlacementV1 {
+        // No exclusive reference was formed before the same-slot refusal.
+        let source = unsafe { self.source.as_mut() };
+        let value = unsafe { source.value.assume_init_read() };
+        source.value = MaybeUninit::new(CheckedMap::unissued());
+        self.destination.write(Placement { magic: MAP_TAG, value: MaybeUninit::new(value) });
+        OwnedMapPlacementV1(std::mem::ManuallyDrop::new(self.destination))
+    }
+}
+
+/// Native ownership, never a numeric handle or another semantic registry.
+/// InvalidContract must not free bytes still backing a live Map obligation.
+#[derive(Debug)]
+pub(crate) struct OwnedMapPlacementV1(
+    std::mem::ManuallyDrop<Box<MaybeUninit<MapStorage>>>,
+);
+impl OwnedMapPlacementV1 {
+    pub(in crate::exports) fn as_ptr(&self) -> *mut c_void {
+        self.0.as_ptr().cast_mut().cast()
+    }
+    pub(in crate::exports) unsafe fn end(mut self, frame: *mut c_void, site: u64) -> u32 {
+        let ptr = self.as_ptr();
+        let status = unsafe { super::map_end(frame, site, ptr) };
+        if status > 1 || unsafe { map_dispose(ptr) } != Status::Normal as u32 {
+            return Status::InvalidContract as u32;
+        }
+        // Disposal has consumed native bookkeeping; no semantic Drop occurs.
+        unsafe { std::mem::ManuallyDrop::drop(&mut self.0) };
+        status
+    }
+}
 /// Only after live obligations and all borrows have ended. No semantic callback.
 pub(in crate::exports::fault) unsafe fn dispose<T>(ptr: *mut c_void) -> u32 {
     let place = ptr.cast::<Placement<T>>();

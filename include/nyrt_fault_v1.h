@@ -246,6 +246,14 @@ uint32_t nyrt_object_checked_dynamic_get_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, uint32_t, NyrtDynamicFieldValueV1 *) __asm__("nyash.object.checked_dynamic_get_v1");
 uint32_t nyrt_object_checked_dynamic_take_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, void *) __asm__("nyash.object.checked_dynamic_take_v1");
+/* SafeMutex only: source-exclusive initialized Live Map -> stable field Home.
+ * Precommit refusal preserves source and destination; Normal publishes old.
+ * Borrow requires a retained exact field loan, excludes replacement/End, and
+ * never grants ownership. Generic Dynamic get/replace do not accept Maps. */
+uint32_t nyrt_object_checked_map_field_install_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, void *, void *) __asm__("nyash.object.checked_map_field_install_v1");
+uint32_t nyrt_object_checked_map_field_borrow_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, void **) __asm__("nyash.object.checked_map_field_borrow_v1");
 uint32_t nyrt_object_field_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.object.field_outcome_end_v1");
 uint32_t nyrt_object_field_outcome_dispose_v1(void *) __asm__("nyash.object.field_outcome_dispose_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,

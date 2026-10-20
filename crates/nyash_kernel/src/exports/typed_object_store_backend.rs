@@ -17,7 +17,8 @@ use crate::backend_env::{cached_env_choice, panic_unsupported_env_value, try_cac
 #[path = "typed_object_store_residence.rs"]
 mod residence;
 pub(super) use residence::{get_object_residence_checked, install_object_residence_checked,
-    replace_dynamic_field_checked, read_dynamic_field_checked, take_dynamic_field_checked};
+    replace_dynamic_field_checked, read_dynamic_field_checked, take_dynamic_field_checked,
+    install_map_field_checked, read_map_field_checked};
 
 pub(super) const TYPED_OBJECT_STORE_ENV: &str = "HAKO_TYPED_OBJECT_STORE";
 
