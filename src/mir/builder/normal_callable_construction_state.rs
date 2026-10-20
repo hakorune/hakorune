@@ -9,7 +9,7 @@
 
 use super::CallableSemanticLoweringState;
 use crate::mir::normal_callable_semantic_package::{
-    ConstructionEligibilityV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ConstructionEligibilityV1, ConstructionPlanV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 use crate::mir::resolved_semantics::{HomeDemandV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
@@ -34,6 +34,8 @@ pub(super) enum ConstructionState {
     Transferred,
     RetainedUnavailable(ConstructionUnavailableV1),
     Selected {
+        /// SAME source/execution projection retained through artifact replay.
+        plan: ConstructionPlanV1,
         /// Original semantic order; neither field ordinal nor map iteration order.
         steps: Box<[ConstructionSourceStepV1]>,
         next_step: usize,
@@ -289,7 +291,8 @@ impl CallableSemanticLoweringState {
             return Err(fault("source-store-order-drift"));
         }
         let mut stores = BTreeMap::new();
-        for store in plan.stores() {
+        for (ordinal, store) in plan.stores().iter().enumerate() {
+            let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
             if stores
                 .insert(
                     store.assignment().statement_site().node().clone(),
@@ -298,8 +301,8 @@ impl CallableSemanticLoweringState {
                         receiver_site: store.receiver_site().clone(),
                         receiver_binding: store.receiver_binding(),
                         rhs: store.rhs().clone(),
-                        mode: store.mode().map_err(|_| fault("source-or-cleanup-contract"))?,
-                        fault_discharge: store.fault_discharge().into(),
+                        mode: execution.mode(),
+                        fault_discharge: execution.fault_discharge().into(),
                         me_reads: store.me_reads().into(),
                         progress: StoreProgress::Pending,
                     },
@@ -310,6 +313,7 @@ impl CallableSemanticLoweringState {
             }
         }
         self.construction = ConstructionState::Selected {
+            plan: plan.clone(),
             steps: plan.steps().into(), next_step: 0,
             stores, calls: Vec::new(),
             frame: None,

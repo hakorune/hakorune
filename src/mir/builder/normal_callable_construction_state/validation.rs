@@ -73,6 +73,22 @@ impl RetainedConstructionValidation {
         function: &MirFunction,
     ) -> Result<(), String> {
         self.fault_frame.validate(function)?;
+        if let ConstructionState::Selected { plan, steps, stores, .. } = &self.construction {
+            if plan.constructor().map(|(_, owner)| *owner) != Some(self.owner)
+                || plan.steps() != steps.as_ref() || plan.stores().len() != stores.len() {
+                return Err(fault("source-or-cleanup-contract"));
+            }
+            for (ordinal, source) in plan.stores().iter().enumerate() {
+                let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
+                let store = stores.get(source.assignment().statement_site().node()).ok_or_else(|| fault("source-or-cleanup-contract"))?;
+                if source.field() != store.field || source.receiver_site() != &store.receiver_site
+                    || source.receiver_binding() != store.receiver_binding || source.rhs() != &store.rhs
+                    || source.me_reads() != store.me_reads.as_ref() || execution.mode() != store.mode
+                    || execution.fault_discharge() != store.fault_discharge.as_ref() {
+                    return Err(fault("source-or-cleanup-contract"));
+                }
+            }
+        }
         self.construction.finish()?;
         self.construction
             .validate_bindings(function)

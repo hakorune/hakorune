@@ -26,7 +26,9 @@ impl OrdinaryNewClaimLedgerV1 {
             if !birth.source_id().same_as(row.source_id())
                 || row.published_birth_key() != Some(birth.target_ref())
                 || core.object != row.object() || core.arity != row.source_arity() as usize
-                || core.class.as_ref() != row.box_name() || plan.object() != core.object {
+                || core.class.as_ref() != row.box_name() || plan.object() != core.object
+                || !matches!((&core.construction_source, row.construction_source()), (Ok(core), Ok(source))
+                    if Rc::ptr_eq(core, source) && Rc::ptr_eq(core, plan.source_v1())) {
                 return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
             }
             Ok(true)

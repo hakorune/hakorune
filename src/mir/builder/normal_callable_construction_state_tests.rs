@@ -60,7 +60,11 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     fault_block.set_terminator(MirInstruction::ReturnFault { fault_frame: frame });
     function.add_block(fault_block);
     let site = SourcePathV1::function_body().node();
+    let package = crate::mir::normal_callable_semantic_package::issue_source_package_fixture_v1(
+        "box Page { value: i64 birth() { me.value = 7 } }").unwrap();
+    let plan = package.instance_constructors().rows()[0].construction().as_ref().unwrap().clone();
     let mut state = ConstructionState::Selected {
+        plan,
         steps: vec![ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()))].into_boxed_slice(),
         next_step: 1, calls: Vec::new(),
         stores: BTreeMap::from([(
@@ -264,11 +268,14 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
 impl RetainedConstructionValidation {
     /// Physical transport witness only; never source acceptance evidence.
     pub(in crate::mir::builder) fn empty_for_transport_test() -> Self {
-        let mut owners =
-            crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let package = crate::mir::normal_callable_semantic_package::issue_source_package_fixture_v1(
+            "box Transport { birth() {} }").unwrap();
+        let plan = package.instance_constructors().rows()[0].construction().as_ref().unwrap().clone();
+        let owner = plan.constructor().unwrap().1;
         Self {
-            owner: owners.issue().unwrap(),
+            owner,
             construction: ConstructionState::Selected {
+                plan,
                 steps: Box::new([]), next_step: 0, calls: Vec::new(),
                 stores: BTreeMap::new(),
                 frame: None,
@@ -294,11 +301,14 @@ fn artifact_requires_completed_source_construction() {
     RetainedConstructionValidation::empty_for_transport_test()
         .validate_artifact_after_compiler_finishing(&function)
         .unwrap();
+    let retained = RetainedConstructionValidation::empty_for_transport_test();
+    let ConstructionState::Selected { plan, .. } = retained.construction else { unreachable!() };
     for state in [
         ConstructionState::NotConstruction,
         ConstructionState::Transferred,
         ConstructionState::RetainedUnavailable(ConstructionUnavailableV1::BodyCoverageUnsupported),
         ConstructionState::Selected {
+            plan,
             steps: Box::new([]), next_step: 0, calls: Vec::new(),
             stores: BTreeMap::new(),
             frame: None,

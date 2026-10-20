@@ -1,100 +1,92 @@
 # APP-json-stream-aggregator
-Status: Original Birth store uses survive execution ineligibility; source Text Birth and Map publication remain incomplete. Date: 2026-10-21
-Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
+Status: Construction execution and retained final replay share one source-indexed plan; Text Birth and Map publication remain incomplete. Date: 2026-10-21
+Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Latest full suite at preceding Text append connection: 7PASS/4FAIL,
-  actual EXE6 + marker1, 380.560s; no SKIP/timeout. Same required apps remain red.
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 378.740s;
+  no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON passes statsFor Body3 users.push source qualification and now stops at
-  owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
-  No MIR/EXE. CLI37.34s/root73s; runtime unchanged from native install. FieldHas EXE exit7. Suite not rerun.
-- ABI-only Text append12 Normal/Fault runs (borrowed/direct static/owned, empty,
-  Unicode/NUL) and malformed9 refusals PASS; source-backed final publication/EXE remain owed.
+- JSON first stop: owner26 ingestLine Body5 Initializer0 statsFor(user), callee25,
+  lexical-instance-call/source-pending. No MIR/EXE. Four required apps remain red.
+- CLI97s/root143s builds. Existing FieldHas source EXE exit7; runtime unchanged.
+- 23 focused filters retain parent outcomes/failure causes. Comparison excludes
+  only the added execution projection from Debug; raw diagnostics retained.
+  Construction2/collector13 PASS. Root inventory9263 byte-identical; no new warnings.
+- Earlier ABI-only Text append12 runs/9 refusals and Map get8 runs/9 refusals
+  remain narrow ABI evidence; source-backed Text final publication/EXE is owed.
 
-## Retained connected contracts
-- One FieldResidence census carries every Array/Dynamic field, including Empty,
-  through End/Invoke/publication. Whole reverse declaration drain precedes outer
-  End; exact slot cannot stand in for Dynamic, no subset/reused-lifetime credit.
-- Signed I64 keeps all original writer/read, SUM, finalized source and both scans.
-  C shares prepare/commit/old-End/dispose; precommit keeps slot/caller Home,
-  postcommit old-End Fault never rolls back. Nonempty outer End refuses.
-- One synchronous MapEndContext covers detached outcomes and Array children;
-  synthetic Faults enter at encounter, recorded callback Faults are not duplicated,
-  InvalidContract is fatal. Complete End runs outside Map/object locks.
-- First-write I64/Map uses original ConstructionStore/Empty guard; Birth cleanup
-  follows committed prefix, full End reverse declaration. Fixed Array retains full
-  census. Provided stays caller-owned until Normal; partial cleanup remains owed.
-- Native Map: private stable move-only storage, no public Dynamic tag or
-  Home/claim/End/Call/Return grant. has/get check field before Text; missing-only
-  get Normal/0, exact class borrows identity, wrong kind/class Faults, non-Normal
-  keeps out unchanged. Both native profiles PASS; SafeMutex only, child End once.
-- Bool has shares Text comparison's scalar writer and both final consumers,
-  retaining exact Me/input-use and complete original Map Birth replay. Duplicate
-  operand/writer retired. Passive literal/formal Text/short-circuit source EXEs3
-  exit7. Computed key effects stay unadmitted until receiver-first execution closes.
+## Shared source and execution owners
+- One original FieldResidence census retains every Array/Dynamic field, including
+  Empty, through End/Invoke/publication. Full reverse declaration drain precedes
+  outer End; exact-slot/subset/reused lifetime cannot replace Dynamic proof.
+- Birth formal uses come from SAME source ID/owner/object and canonical field
+  declarations, independent of executable plan success. Unqualified stores keep
+  their original sites; mixed/child-call uses and numeric/Object allowlists stay closed.
+- ConstructionPlan now shares one immutable execution projection of field demands,
+  store modes and source-ordered Fault prefixes. Original source remains unchanged.
+  Both normal and late child-call issuers seal through the same residence law;
+  the old source cutpoints must agree. LOCAL/Result late claims check SAME source Rc.
+- Selected construction consumes that projection and retains the same plan.
+  Existing final validation compares original store/receiver/RHS/read membership
+  and execution mode/prefix before replaying actual Invoke/cleanup coordinates.
+  Existing physical test fixtures retain real source plans; no new test functions,
+  files, hooks, checker, guard, card or adapter.
+- First-write I64/Map checks Empty. Birth Fault discharges only committed prefix;
+  Provided stays caller-owned until Normal. Full End drains all declared residences.
+- One synchronous MapEndContext handles detached outcomes/Array children outside
+  locks. Recorded Faults are not duplicated; InvalidContract is fatal. Commit
+  publishes before old End; its later Fault never rolls back the replacement.
+- Signed I64 preserves original SUM, source reads/writes and both final scans.
+  Native Map storage is stable/move-only, SafeMutex-only, with no public tag/Home
+  grant. Field has/get admit receiver before Text; missing get is Normal/0,
+  wrong kind/class Faults and non-Normal keeps output unchanged.
+- FieldHas uses the shared Text/Bool writer and both final consumers with exact
+  Me/input use and complete Map Birth replay. Computed keys still require actual
+  receiver-first execution; no payload-bit inference or duplicate writer.
 
-## Current source connection
-- Result PassB retains SAME field/constructor/entry before SUM. Array/Map share
-  the original whole field-use walk; Array keeps selector/i64 policy. All original
-  declarations/Birth, aliases/escape/foreign/captured uses and mutators are closed.
-- statsFor hit has/get retain same field/key and exact true-arm Return. Miss keeps
-  exact New/set/Return plus disjoint Array push; unknown intervening effects refuse.
-- SAME LOCAL support separates FormalForward from MapSlot: original caller Me
-  holder and key actual substitute independently; every Return root retains identity.
-  Map formal root/ordinal are None. Generic composition still refuses Map; old
-  formal-only ABI issuers reject it or keep pending. No Home/ABI/liveness granted.
-- Map key selects SAME SourceInstance before domain/Completion success. Its exact
-  key Binding uses the existing expression/TextResidence qualification callback;
-  no legacy incoming, raw Binding proof or Text/Integer relabeling is fabricated.
-- Shared Static Text/Bool retains ExactBool target, all actuals/Completion and
-  final publication; source-less API and Rust/C domain/null checks stay strict.
-- Map-only LOCAL receiver keeps the original payload class and same slot loan,
-  independent holder/key and whole Return source. Incoming rechecks this loan;
-  sole initializer, unrebound/uncaptured binding and exact target/arguments apply.
-- SourceInstance retains Scalar actual kind without raw-I64 transport. Existing
-  co-seal, object/borrowed/mixed finishers and Unit publication keep Map pending
-  until slot ABI/lifetime closes. Unit Completion alone grants no receiver packet.
+## Current Map/Text source connection
+- Whole original field-use walk closes declarations/Birth, aliases, capture,
+  escape, foreign uses and mutators. Unknown intervening effects refuse.
+- statsFor hit retains exact has/get/key/true-arm Return. Miss retains exact
+  New/set/Return, candidate acquisition and prior/Normal Home snapshots, plus
+  disjoint Array push. Installed Return borrows the SAME install source.
+- FormalForward and MapSlot keep independent holder/key; Map formal root/ordinal
+  remain None. Generic/formal-only ABI composition still refuses Map storage.
+  Complete original Return witnesses remain required; no Fresh/scalar fallback.
+- SourceInstance key qualification selects the same original source before
+  domain/Completion success. Scalar actual kind is retained without I64 transport;
+  Unit Completion alone grants no receiver/ABI/lifetime packet.
+- Original Map get retains its own receiver read, passive Text key, scope/Copy,
+  FaultFrame and dependencies. Source-only storage grants no new payload Home.
+- Text append retains SAME source frame/Completion, actual Me/ObjectFieldGet
+  before passive Text evaluation, full descriptor and exact references/scope.
+  One Push/cleanup writer and packet serve Integer/Text; collector and both
+  final consumers independently check the same source/provider. Existing JSON
+  Instance draft records get, Text append and both Returns and completes.
+- Native field-entry install shares private key preparation, complete child End
+  descriptor and detached EndOutcome. Precommit keeps candidate; Normal moves
+  once. It grants no source Birth/Map/Call/Return publication or parent Map End.
 
-## Verification and retained reds
-- Map-argument1/2, initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent failures
-  and diagnostics exactly except compilation session IDs. These reds remain owed.
-- Checked Array9/root Array53 PASS; runtime7.04s/root62s builds. Two existing
-  cases cover Text copy/lease/domain/End; existing descriptor/JSON cases cover new source boundaries. No new test
-  function/file/hook/checker/guard/card; root inventory9263 retained.
-- Current 21 filters match parent diagnostics: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8, arguments12/1; Invoke42/JSON-source1/Map13/flow20/read5/Script3/scope3/ingress1/order5 plus named-array/source/state PASS; read-claim7/2 unchanged. Inventory9263 unchanged.
-- Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
-  read-claim2, composition2, scalar1. Keep original source/physical contracts.
-
-## Next and full completion limits
-- Result source shares Formal/MapSlot roles; SAME Map roots cover get/installed Return and Completion. Existing JSON case guards this independent carrier boundary; ABI stays pending.
-- LANDED: SAME whole Map Return source reaches terminal Home observation and
-  entry-use closure; each Present get retains its own receiver/read and Text key.
-  Selected storage never falls through to Fresh/scalar.
-- LANDED: original procedural set retains same candidate/construction/key and
-  prior/Normal Home snapshots; literal and field installs share Home removal.
-  Installed Return borrows the SAME install; entry-use closure counts reads once.
-  Physical map consumption still refuses; no Map New/End or borrowed Call forged.
-- LANDED runtime: checked Text append copies without consuming input lease;
-  boxed append shares structured result/state gate. Text-only End retires once
-  and drops detached contents outside the gate; empty-only End stays strict.
-- LANDED Text append: SAME source frame/Completion selects the statement; original Me/ObjectFieldGet precedes passive Text evaluation. One Push/cleanup writer and packet retain full descriptor, exact dependencies/scope/FaultFrame; collector rechecks SAME frames/providers and both final consumers share the packet.
-- LANDED transport: checked Invoke, witness and marker share Scalar/Text payload;
-  ABI keeps source kind or full descriptor at exact coordinates, SSA/lifetime checks.
-  C shares descriptor/Array writers; numeric native and existing End remain strict.
-- LANDED source get: SAME terminal/get Arc, own receiver read and passive Text key reach shared root ingress/cleanup; get Return records in real selected Instance scope. Existing scope case extends this independent source→writer boundary; no new test function/file/hook. ABI-only runs8/refusals9 retained; current FieldHas EXE exit7.
-- Existing JSON scope case requires get/Text append/both Returns. Existing original-source case additionally checks Birth store-use retention independently from pending execution: unannotated is not I64/Text ABI. This boundary needs the added assertions; no new test function/file/hook. Text final-publication positive remains owed.
-- LANDED Birth census: SAME source ID/owner/object and canonical field declarations replace executable-plan dependency; unqualified stores retain sites, mixed/child-call uses refuse, numeric/Object allowlists unchanged. Next: source SUM→SAME Birth source/formal→late qualified plan, borrowed Text actual→Materialize→Dynamic initialize and committed-prefix cleanup; then original Map FieldInstall/candidate/EndOutcome and Return/Call publication. Complete Text End remains; full JSON source-pending.
-- LANDED native field-entry install: receiver before Text decode, private prepared key, shared install_with_end and explicit detached EndOutcome. Precommit retains candidate; Normal transfers once, old-End Fault never rolls back. No parent Map End or source/Birth/Call/Return grant.
-- Existing native C case extends this independent commit boundary: failed receiver/key/class/profile/overlap preserve candidate, Normal publishes new child before old End Fault, old End once, Text lease intact. No new test function/file/checker.
-- Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
-  Fault cleanup, complete UserStats End and users.push execution remain mandatory.
-- UserStats Text must materialize independently; Provided Box, nullable Dynamic,
-  Shared/carrier and full Dynamic activation remain owed.
-- Array holder/contents/End, exact empty-transfer census, canonical writer, signed SUM/rebind/to_i64 and source/physical prior reds remain. Direct terminal Text Call
-  lacks original argument source; non-Text key inference panic is not a valid refusal.
-- Unboxed native Bool cohort and generic canonical-JSON type profile still refuse.
-- App completion requires all smoke contracts and real EXE/output/exit; full goal
-  requires source/consumer closure, production cutover and physical retirement.
-  Retire replaced exclusive edges; retain shared owners/safety checks.
+## Next and completion limits
+- Next: genuine original NewArgument expression root → existing evaluation and
+  same source SUM/Birth formal → late execution plan. Borrowed Text must
+  Materialize an independent pair before Dynamic initialization. Materialize
+  Fault owes prior prefix; install Fault Ends fresh pair then prefix; later
+  Birth Fault must include every successfully installed Text residence.
+- Then original Map FieldInstall/candidate/EndOutcome, exact prior/Normal cleanup,
+  complete UserStats End, get/set Return and caller lifetime/publication. No fake
+  initializer/MethodCall frame, scalar handle or name-based admission.
+- Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
+  Array holder/contents/End and exact empty-transfer census remain owed.
+- Signed SUM/rebind/to_i64 and direct terminal Text Call original-actual support
+  remain owed; non-Text key inference panic is not a valid refusal. Unboxed native
+  Bool cohort and generic canonical-JSON type profile still refuse.
+- Retained reds: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8,
+  arguments12/1, read-claim7/2; initializer/terminal/callback/plan/admission,
+  brand/composition/scalar reds remain owed. Parent agreement is not completion.
+- App completion requires all existing smoke contracts and real EXE/output/exit.
+  Full finite goal also requires source/consumer closure, production cutover and
+  physical retirement. Retire replaced exclusive edges; retain shared safety owners.
+- Earlier detailed source connections and evidence remain in Git (Birth census:
+  `51e07e4f80`); no transient log paths or evidence counters are authority.

@@ -152,6 +152,23 @@ use std::rc::Rc;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructionPlanV1 {
     source: Rc<ConstructionSourceStructureV1>,
+    /// One immutable execution projection shared by every New claim and the
+    /// retained physical validation. Original source is never rewritten.
+    execution: Rc<ConstructionExecutionV1>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ConstructionExecutionV1 {
+    field_demands: Box<[HomeDemandV1]>,
+    stores: Box<[ConstructionStoreExecutionV1]>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ConstructionStoreExecutionV1 {
+    mode: crate::mir::instruction::FieldSetModeV1,
+    fault_discharge: Box<[OwnedFieldChildV1]>,
+}
+impl ConstructionStoreExecutionV1 {
+    pub(crate) fn mode(&self) -> crate::mir::instruction::FieldSetModeV1 { self.mode }
+    pub(crate) fn fault_discharge(&self) -> &[OwnedFieldChildV1] { &self.fault_discharge }
 }
 pub(crate) type ConstructionEligibilityV1 = Result<ConstructionPlanV1, ConstructionUnavailableV1>;
 pub(crate) type ConstructionSourceEligibilityV1 = Result<Rc<ConstructionSourceStructureV1>, ConstructionUnavailableV1>;
@@ -162,42 +179,17 @@ impl ConstructionPlanV1 {
         self.source.constructor.as_ref()
     }
     pub(crate) fn field_demands(&self) -> &[HomeDemandV1] {
-        self.source.field_demands.as_deref().expect("qualified construction field demands")
+        &self.execution.field_demands
     }
     pub(crate) fn stores(&self) -> &[ConstructionStoreV1] { &self.source.stores }
     pub(crate) const fn reclaims_unpublished_outer_storage(&self) -> bool { true }
-    pub(super) fn qualify_ordered_unit_calls_v1(
-        source: &ConstructionSourceEligibilityV1,
-        mut qualify: impl FnMut(&Rc<ConstructionSourceStructureV1>, &OwnedExprSiteV1) -> Result<bool, String>,
-    ) -> Result<ConstructionEligibilityV1, String> {
-        let source = match source { Ok(source) => source, Err(reason) => return Ok(Err(*reason)) };
-        if let Err(reason) = source.require_initialized_fields() { return Ok(Err(reason)); }
-        let mut saw_call = false;
-        for step in source.steps() {
-            match step {
-                ConstructionSourceStepV1::Store(_) if saw_call => {
-                    // Existing literal folds do not prove reads across opaque
-                    // effects. Keep this source form unavailable until its owner does.
-                    return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported));
-                }
-                ConstructionSourceStepV1::StoredChildCall(call) => {
-                    saw_call = true;
-                    if !qualify(source, call.site())? { return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported)); }
-                }
-                _ => {}
-            }
-        }
-        Ok(Ok(Self { source: Rc::clone(source) }))
+    pub(crate) fn store_execution_v1(&self, ordinal: usize) -> Option<&ConstructionStoreExecutionV1> {
+        self.execution.stores.get(ordinal)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn source_v1(&self) -> &Rc<ConstructionSourceStructureV1> {
+        &self.source
     }
 
-    pub(super) fn without_child_calls(source: &ConstructionSourceEligibilityV1) -> ConstructionEligibilityV1 {
-        let source = source.as_ref().map_err(|reason| *reason)?;
-        source.require_initialized_fields()?;
-        if source.steps.iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
-            return Err(ConstructionUnavailableV1::BodyCoverageUnsupported);
-        }
-        Ok(Self { source: Rc::clone(source) })
-    }
 }
 
 /// Called within the exact declaration loan. Provider arguments, when present,

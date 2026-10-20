@@ -164,39 +164,87 @@ pub(super) fn capture_child_call_source_v1(
     })
 }
 
-pub(super) fn prior_owned_fields_v1(
-    stores: &[ConstructionStoreV1],
-) -> Box<[OwnedFieldChildV1]> {
-    stores
-            .iter()
-            .rev()
-            .filter_map(|prior: &ConstructionStoreV1| {
-                let kind = match prior.mode() {
-                    Ok(crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize |
-                       crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize) =>
-                        OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence),
-                    Err(_) => return None,
-                    Ok(_) => match prior.rhs() {
-                    ConstructionStoreRhsV1::ProviderConstruction {
-                        object: Some(child),
-                        ..
-                    } => OwnedFieldChildKindV1::Object(child.object()),
-                    ConstructionStoreRhsV1::ProviderConstruction {
-                        object: None,
-                        class,
-                        ..
-                    } if class.as_ref() == "ArrayBox" => OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence),
-                    // Provided arguments remain caller-owned until Birth Normal.
-                    // Fault reclaims only unpublished parent storage.
-                    ConstructionStoreRhsV1::Parameter { .. } => return None,
-                    _ => return None,
-                    },
-                };
-                Some(OwnedFieldChildV1 {
-                    field: prior.field(),
-                    kind,
-                })
-            })
-            .collect::<Vec<_>>()
-            .into_boxed_slice()
+/// Shared source/qualified-plan residence law. Provided arguments remain
+/// caller-owned until Birth Normal; only independently acquired residences
+/// join a successful store prefix.
+fn owned_field_after_store_v1(
+    store: &ConstructionStoreV1,
+    mode: crate::mir::instruction::FieldSetModeV1,
+) -> Option<OwnedFieldChildV1> {
+    use crate::mir::instruction::{FieldResidenceEndModeV1 as End, FieldSetModeV1 as Mode};
+    let kind = match mode {
+        Mode::DynamicI64Initialize | Mode::DynamicMapInitialize => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
+        _ => match store.rhs() {
+            ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => OwnedFieldChildKindV1::Object(child.object()),
+            ConstructionStoreRhsV1::ProviderConstruction { object: None, class, .. } if class.as_ref() == "ArrayBox" =>
+                OwnedFieldChildKindV1::Residence(End::ArrayResidence),
+            _ => return None,
+        },
+    };
+    Some(OwnedFieldChildV1 { field: store.field(), kind })
+}
+
+pub(super) fn prior_owned_fields_v1(stores: &[ConstructionStoreV1]) -> Box<[OwnedFieldChildV1]> {
+    stores.iter().rev().filter_map(|store| owned_field_after_store_v1(store, store.mode().ok()?)).collect()
+}
+
+impl ConstructionPlanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn qualify_ordered_unit_calls_v1(
+        source: &ConstructionSourceEligibilityV1,
+        mut qualify: impl FnMut(&Rc<ConstructionSourceStructureV1>, &OwnedExprSiteV1) -> Result<bool, String>,
+    ) -> Result<ConstructionEligibilityV1, String> {
+        let source = match source { Ok(source) => source, Err(reason) => return Ok(Err(*reason)) };
+        if let Err(reason) = source.require_initialized_fields() { return Ok(Err(reason)); }
+        let mut saw_call = false;
+        for step in source.steps() {
+            match step {
+                ConstructionSourceStepV1::Store(_) if saw_call => {
+                    // Existing literal folds do not prove reads across opaque
+                    // effects. Keep this source form unavailable until its owner does.
+                    return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported));
+                }
+                ConstructionSourceStepV1::StoredChildCall(call) => {
+                    saw_call = true;
+                    if !qualify(source, call.site())? { return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported)); }
+                }
+                _ => {}
+            }
+        }
+        Ok(Self::seal_original_execution_v1(source))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn without_child_calls(source: &ConstructionSourceEligibilityV1) -> ConstructionEligibilityV1 {
+        let source = source.as_ref().map_err(|reason| *reason)?;
+        source.require_initialized_fields()?;
+        if source.steps.iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
+            return Err(ConstructionUnavailableV1::BodyCoverageUnsupported);
+        }
+        Self::seal_original_execution_v1(source)
+    }
+
+    /// Move existing source qualification into the sole execution owner. The
+    /// prefix is sealed in original store order, never BTreeMap/field order.
+    fn seal_original_execution_v1(source: &Rc<ConstructionSourceStructureV1>) -> ConstructionEligibilityV1 {
+        source.require_initialized_fields()?;
+        let mut prefix = Vec::new();
+        let mut stores = Vec::with_capacity(source.stores.len());
+        for store in source.stores.iter() {
+            let mode = store.mode()?;
+            let fault_discharge: Box<[_]> = prefix.iter().rev().cloned().collect();
+            // Retained source cutpoints and the shared residence law must
+            // agree before any physical consumer receives this projection.
+            if store.fault_discharge() != fault_discharge.as_ref() {
+                return Err(ConstructionUnavailableV1::SourceRelationMissing);
+            }
+            stores.push(ConstructionStoreExecutionV1 { mode, fault_discharge });
+            if let Some(field) = owned_field_after_store_v1(store, mode) { prefix.push(field); }
+        }
+        Ok(Self {
+            source: Rc::clone(source),
+            execution: Rc::new(ConstructionExecutionV1 {
+                field_demands: source.field_demands.as_ref().map_err(|reason| *reason)?.clone(),
+                stores: stores.into_boxed_slice(),
+            }),
+        })
+    }
 }
