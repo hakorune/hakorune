@@ -371,7 +371,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                         if value_domain::declared_integer_seed_v1(input, contracts, *binding) {
                             let signed = contracts.iter().filter(|row| row.owner == owner).flat_map(|row| &row.parameters)
                                 .any(|row| row.binding == *binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()));
-                            Expansion::Seed(if signed { OriginalFormalActualSeedV1::Integer } else { OriginalFormalActualSeedV1::SourceInteger })
+                            Expansion::Seed(if signed { OriginalFormalActualSeedV1::Scalar(crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer) } else { OriginalFormalActualSeedV1::SourceInteger })
                         } else { Expansion::Entry(*binding) }
                     }
                     Origin::Expression(site) => {

@@ -356,7 +356,8 @@ static int lv4_index_open(hako_lv4_input* in) {
       } else {
         /* The pair ABI is unchanged. Its checked Integer entry projection
            dominates every body use; Copy/Phi transport the projected i64. */
-        param->kind = ordinary && (!lv4_is(row, "representation", "borrowed_kind_payload_v1") ||
+        param->kind = ordinary && yyjson_is_true(yyjson_obj_get(row, "bool_view")) ? LV4_BOOL :
+            ordinary && (!lv4_is(row, "representation", "borrowed_kind_payload_v1") ||
             yyjson_is_true(yyjson_obj_get(row, "integer_view"))) ? LV4_I64 : LV4_TAGGED; param->origin = -1;
       }
     }

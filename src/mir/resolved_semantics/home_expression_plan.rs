@@ -517,7 +517,7 @@ mod installation_tests {
                 let mut batches = 0;
                 let plan = qualify_field_write_expression_v1::<()>(Rc::clone(&source), true, None,
                     &mut |_| integer_reference.then_some(crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer),
-                    &mut |_| None, &mut |_| None, &mut |plan| installation.approve(plan),
+                    &mut |_| None, &mut |_| None, &mut |_| None, &mut |plan| installation.approve(plan),
                     &mut |requests, _| { assert!(requests.is_empty()); batches += 1; Ok(batch_succeeds) }).unwrap();
                 assert_eq!(plan.is_some(), eligible && batch_succeeds, "RHS {rhs}");
                 assert_eq!(batches, usize::from(eligible), "reject wrong RHS before field staging");

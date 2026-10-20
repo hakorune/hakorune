@@ -100,6 +100,22 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(())
     }
 
+    /// Finished condition correspondence for one original entry owner. No new
+    /// source classification or executable operand is issued by this visitor.
+    pub(in crate::mir) fn with_finished_bool_bindings_v1(
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
+        mut visit: impl FnMut((BasicBlockId, usize), MirInstruction) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if symbol != function.signature.name { return Err(freeze("finished-local-call/function")); }
+            self.ledger.visit_finished_bool_bindings_v1(owner, CallValidationContextV1::Finalized(self),
+                function, projection, |binding| {
+                    let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &binding, function)?;
+                    visit(coordinate, binding.1)
+                })
+        })
+    }
+
     pub(in crate::mir) fn visit_finished_construction_writes_v1(
         &self, module: &MirModule,
         mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,

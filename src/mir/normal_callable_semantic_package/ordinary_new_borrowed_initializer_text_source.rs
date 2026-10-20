@@ -40,6 +40,7 @@ impl FiniteEntryReadV1 {
             match alternative {
                 SourceValueAlternativeV1::Text => classes.push(Class::String),
                 SourceValueAlternativeV1::SignedI64 => classes.push(Class::I64),
+                SourceValueAlternativeV1::Bool => classes.push(Class::Bool),
                 SourceValueAlternativeV1::Null if exclusion.is_some_and(|proof|
                     proof.same_entry(&self.flow, self.requirement.formal().1)) => {},
                 _ => return None,
@@ -66,6 +67,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
                 &ledger, input.body_shape().ok_or_else(reject)?, statement).map_err(|_| reject())?;
             value == site.site() && original.as_deref() == Some(plan.as_ref())
         }
+        ExpressionPlanRootV1::Assignment { assignment } => {
+            let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| reject())?;
+            let original = crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1(
+                &ledger, input.body_shape().ok_or_else(reject)?, assignment).map_err(|_| reject())?;
+            assignment.value_site() == site.site() && original.as_ref() == plan.as_ref()
+        }
         ExpressionPlanRootV1::IfCondition { statement, condition, .. } => {
             let original = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
                 input, statement).map_err(|_| reject())?;
@@ -90,8 +97,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     let Some(sum) = prepared.lend_source_value_sum_v1(root) else { return Ok(None) };
     // Keep every original finite alternative. The later initializer joins
     // real current/terminating-branch evidence; this source loan removes none.
-    if sum.alternatives().is_empty() || sum.alternatives().iter().any(|alternative|
-        !matches!(alternative, SourceValueAlternativeV1::Text | SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Null)) {
+    if !sum.finite_input() {
         return Ok(None);
     }
     let requirement = super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(

@@ -192,7 +192,7 @@ fn source_scalar_seed_target_v1(
         // Input membership is not a result class. The SAME passive Return
         // census selects this scalar demand even when scalar proof is missing;
         // Text/object results keep their independent result owner.
-        let finite_input = if crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(
+        let finite_input = if crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_instance_input_request_v1(
             ingress, contracts, target.callee_owner())? {
             match results.original_return_source_v1(&target.callee_owner())? {
                 Some(original) if original.scalar_class_v1().is_some() => {

@@ -51,6 +51,7 @@ pub(super) fn observe<E>(
                                     (node.site().clone(), kind, locals.current_scalar_read_v1(node.site(), local_calls).is_some(), signed_reads.contains_key(node.site()))
                                 }).collect()
                         } else { Vec::new() };
+                        let finite_reads = finite_reads(input, frame.source(), locals, scalar_field)?;
                         let target = assignment.target_site();
                         let mut field_batch_ready = None;
                         let mut installation = locals.expression_installation();
@@ -60,7 +61,8 @@ pub(super) fn observe<E>(
                                 Some(OrdinaryObservation::Bool(_)) => Some(SourceScalarKind::Bool),
                                 Some(OrdinaryObservation::TrivialLocal(_, kind)) => kind,
                                 _ => None,
-                            }, &mut |site| signed_reads.get(site).cloned(), &mut |site| super::field_read::field_read_request(input, site, locals),
+                            }, &mut |site| signed_reads.get(site).cloned(), &mut |site| finite_reads.get(site).cloned(),
+                            &mut |site| super::field_read::field_read_request(input, site, locals),
                             &mut |plan| installation.approve(plan),
                             &mut |requests, demand| {
                                 let ready = fields(requests, demand)?.is_some();
@@ -104,6 +106,7 @@ pub(super) fn observe<E>(
         matches!(binary.operator(), ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide)))
     { return Ok(true); }
     let signed_reads = signed_reads(&source, locals, local_calls, scalar_field);
+    let finite_reads = finite_reads(input, &source, locals, scalar_field)?;
     let mut installation = locals.expression_installation();
     let plan = super::expression_plan::qualify_field_write_expression_v1(source, false, None,
         &mut |site| match locals.observe(site) {
@@ -113,6 +116,7 @@ pub(super) fn observe<E>(
             _ => None,
         },
         &mut |site| signed_reads.get(site).cloned(),
+        &mut |site| finite_reads.get(site).cloned(),
         &mut |site| super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
@@ -282,4 +286,21 @@ fn signed_reads<E>(source: &Rc<crate::mir::resolved_value_profile::expression_pl
             let sum = consult.scalar_read_sum(&read)?;
             Some((node.site().clone(), (read, sum)))
         }).collect()
+}
+
+/// Read loans are gathered before borrowing the transactional plan store. The
+/// existing formal/alias owner supplies roots; receiver identities are skipped.
+fn finite_reads<E>(input: ResolvedFunctionLoweringInputV1<'_>,
+    source: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    locals: &PrefixLocalFlow<'_>, consult: &mut impl HomeFieldSourceConsultV1<E>,
+) -> Result<std::collections::BTreeMap<SourceExprSiteV1, crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>, E> {
+    let mut reads = std::collections::BTreeMap::new();
+    for node in source.nodes() {
+        if !matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)) { continue; }
+        let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
+        if let Some(read) = consult.finite_entry_read(input, source, node.site(), binding, root)? {
+            reads.insert(node.site().clone(), read);
+        }
+    }
+    Ok(reads)
 }

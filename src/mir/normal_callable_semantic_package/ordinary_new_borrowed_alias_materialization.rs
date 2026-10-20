@@ -46,7 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let binding = initializer.binding();
         if binding.owner() != owner { return Err(freeze("borrowed-alias/binding-owner")); }
-        let formal = if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+        let formal = if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
             structure.finite_alias_formal_v1(initializer, source_binding)?
         } else {
             self.checked_entry_owner_view_v1(source, owner)?
@@ -111,7 +111,7 @@ impl OrdinaryNewClaimLedgerV1 {
         source_binding: BindingRefV1,
         formal: BindingRefV1,
     ) -> Result<(), String> {
-        if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+        if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
             return structure.check_finite_alias_source_v1(site, declaration, binding, source_binding, formal);
         }
         let source = self

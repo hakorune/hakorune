@@ -95,15 +95,18 @@ pub(super) fn encode_parameters(
                             row["object_view"] = json!(
                                 input.entry().borrowed_object_view(ordinal, param.0)
                             );
-                            if input.entry().borrowed_formal_domain_v1(ordinal, param.0).is_some_and(|domain| domain.text_only()) {
-                                use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
-                                let text_role = matches!(function.role(), Role::OrdinaryI64 { .. } | Role::OrdinaryText { .. } | Role::OrdinaryBool { .. })
-                                    || function.role().has_receiver()
-                                        && matches!(function.role(), Role::OrdinaryUnit { .. });
-                                if !text_role {
-                                    return Err(fault("borrowed-text/parameter-role"));
+                            if let Some(domain) = input.entry().borrowed_formal_domain_v1(ordinal, param.0) {
+                                let view = if domain.text_only() { Some("text_view") }
+                                    else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.signed_only() { Some("integer_view") }
+                                    else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.bool_only() { Some("bool_view") } else { None };
+                                if let Some(view) = view {
+                                    use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
+                                    if !matches!(function.role(), Role::OrdinaryI64 { .. } | Role::OrdinaryText { .. } | Role::OrdinaryBool { .. })
+                                        && !(function.role().has_receiver() && matches!(function.role(), Role::OrdinaryUnit { .. })) {
+                                        return Err(fault("borrowed-text/parameter-role"));
+                                    }
+                                    row[view] = json!(true);
                                 }
-                                row["text_view"] = json!(true);
                             }
                         }
                         Ok(row)

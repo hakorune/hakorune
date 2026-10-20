@@ -702,7 +702,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
-fn find_finished_producer(
+pub(super) fn find_finished_producer(
     symbol: &str,
     finished: &Binding,
     function: &MirFunction,

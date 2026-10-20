@@ -106,9 +106,7 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
             return requests_condition(input, source.nodes()[0].site());
         }
         return !locals.in_source_loop_v1() && source.nodes().len() == 1
-            && matches!(source.nodes()[0].source(), Node::Reference(ResolvedLexicalRefV1::Local(_)))
-            && matches!(locals.observe(source.nodes()[0].site()),
-                Some(OrdinaryObservation::TrivialLocal(_, Some(SourceScalarKind::Bool))));
+            && matches!(source.nodes()[0].source(), Node::Reference(ResolvedLexicalRefV1::Local(_)));
     };
     // Plain scalar comparisons borrow a complete original read census. Calls
     // and field receivers retain their existing owners; one scalar sibling does

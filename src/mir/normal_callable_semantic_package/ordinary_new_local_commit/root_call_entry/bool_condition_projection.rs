@@ -333,25 +333,51 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    fn visit_verified_condition_groups_v1(
+        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+        projection: &Finished,
+        mut visit: impl FnMut(&EmittedBoolConditionProjectionV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        context.with_local_call_group_tree_v2(owner, |groups| {
+            for group in groups {
+                let Some(packet) = group.bool_condition() else { continue };
+                group.validate_recorded_in_context(context, function, Some(projection))?;
+                visit(packet)?;
+            }
+            Ok(())
+        })
+    }
+
+    /// Lend exact finished prefix and sealed outer Branch, never repair drafts.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_finished_bool_bindings_v1(
+        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+        projection: &Finished, mut visit: impl FnMut(Binding) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.visit_verified_condition_groups_v1(owner, context, function, projection, |packet| {
+            for original in &packet.prefix {
+                if let Some(actual) = mapped(original, Some(projection))? { visit(actual)?; }
+            }
+            let outer = packet.outer.borrow();
+            let actual = mapped(outer.as_ref().expect("verified sealed group"), Some(projection))?
+                .ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+            visit(actual)
+        })
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn visit_map_presence_groups_v1(
         &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>, function: &MirFunction,
         projection: &Finished, module: &crate::mir::MirModule,
         mut visit: impl FnMut(Binding) -> Result<(), String>,
     ) -> Result<(), String> {
-        context.with_local_call_group_tree_v2(owner, |groups| {
-            for group in groups {
-                let Some(packet) = group.bool_condition() else { continue };
-                if !packet.frame.evaluation().cores().values().any(|core| core.field_map().is_some()) { continue; }
-                group.validate_recorded_in_context(context, function, Some(projection))?;
-                for node in &packet.nodes {
-                    let Some(core) = packet.frame.evaluation().cores().get(&node.node) else { continue };
-                    let Some(field) = core.field_map() else { continue };
-                    if let CallValidationContextV1::Finalized(source) = context { field.require_finished_birth_v1(source, module)?; }
-                    let BoolConditionValueProofV1::ScalarInvocation { input_values, receiver, bindings, .. } = &node.proof
-                        else { return Err(freeze("bool-condition/source-proof-kind")) };
-                    let (invoke, _) = packet.text_comparison_producers_v1(node, input_values, receiver.as_ref(), bindings)?;
-                    visit(projection.binding(invoke.0, &invoke.1)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?)?;
-                }
+        self.visit_verified_condition_groups_v1(owner, context, function, projection, |packet| {
+            for node in &packet.nodes {
+                let Some(core) = packet.frame.evaluation().cores().get(&node.node) else { continue };
+                let Some(field) = core.field_map() else { continue };
+                if let CallValidationContextV1::Finalized(source) = context { field.require_finished_birth_v1(source, module)?; }
+                let BoolConditionValueProofV1::ScalarInvocation { input_values, receiver, bindings, .. } = &node.proof
+                    else { return Err(freeze("bool-condition/source-proof-kind")) };
+                let (invoke, _) = packet.text_comparison_producers_v1(node, input_values, receiver.as_ref(), bindings)?;
+                visit(projection.binding(invoke.0, &invoke.1)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?)?;
             }
             Ok(())
         })

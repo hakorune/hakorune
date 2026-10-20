@@ -5,7 +5,7 @@ use crate::mir::normal_callable_semantic_package::QualifiedFieldWriteReceiverV1 
 pub(in super::super) struct OwnedFieldWriteUse {
     instruction: MirInstruction,
     receiver: Receiver,
-    bindings: Vec<(Binding, Coordinate)>,
+    pub(in super::super) bindings: Vec<(Binding, Coordinate)>,
     before_store: Vec<Coordinate>,
     ready_reads: Vec<Coordinate>,
     handle_values: BTreeSet<ValueId>,
@@ -37,6 +37,9 @@ pub(in super::super) fn entry(state: &mut FunctionUses, source: &FinalizedRootSo
 /// Run independently on module and published coordinates, including the whole
 /// RHS, exact New/Normal/copy source and the writer's Normal/Fault graph.
 pub(super) fn guards(state: &FunctionUses, indexed: &[(Coordinate, &MirInstruction)]) -> Result<(), String> {
+    for (coordinate, instruction) in &state.condition_bindings {
+        binding_guards(indexed, *coordinate, instruction)?;
+    }
     for row in state.owned_field_writes.values() {
         if let Receiver::Entry { value, .. } = &row.receiver {
             if indexed.iter().any(|(_, instruction)| instruction.dst_value() == Some(*value)) {
@@ -44,14 +47,7 @@ pub(super) fn guards(state: &FunctionUses, indexed: &[(Coordinate, &MirInstructi
             }
         }
         for (binding, coordinate) in &row.bindings {
-            if indexed.iter().filter(|(site, actual)| site == coordinate && **actual == binding.1).count() != 1 {
-                return Err(fault("owned-write/coordinate-inventory"));
-            }
-            if let Some(dst) = binding.1.dst_value() {
-                if indexed.iter().filter(|(_, actual)| actual.dst_value() == Some(dst)).count() != 1 {
-                    return Err(fault("owned-write/producer-uniqueness"));
-                }
-            }
+            binding_guards(indexed, *coordinate, &binding.1)?;
         }
         for (coordinate, instruction) in indexed {
             if instruction.used_values().iter().any(|value| row.handle_values.contains(value))
@@ -64,10 +60,32 @@ pub(super) fn guards(state: &FunctionUses, indexed: &[(Coordinate, &MirInstructi
     Ok(())
 }
 
-pub(super) fn observe(state: &FunctionUses, coordinate: Coordinate, instruction: &MirInstruction,
+fn binding_guards(indexed: &[(Coordinate, &MirInstruction)], coordinate: Coordinate,
+    instruction: &MirInstruction,
+) -> Result<(), String> {
+    if indexed.iter().filter(|(site, actual)| *site == coordinate && **actual == *instruction).count() != 1 {
+        return Err(fault("owned-write/coordinate-inventory"));
+    }
+    if let Some(dst) = instruction.dst_value() {
+        if indexed.iter().filter(|(_, actual)| actual.dst_value() == Some(dst)).count() != 1 {
+            return Err(fault("owned-write/producer-uniqueness"));
+        }
+    }
+    Ok(())
+}
+
+pub(super) fn observe(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+    coordinate: Coordinate, instruction: &MirInstruction,
     scan: &mut Scan, dominates: &dyn Fn(BasicBlockId, BasicBlockId) -> bool,
 ) -> Result<bool, String> {
-    let Some(expected) = state.owned_field_writes.get(&coordinate) else { return Ok(false) };
+    let Some(expected) = state.owned_field_writes.get(&coordinate) else {
+        return Ok(state.finite_input
+            && matches!(instruction, MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
+                | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. })
+            && state.owned_field_writes.values().any(|write| write.bindings.iter()
+                .any(|(binding, expected)| *expected == coordinate && binding.1 == *instruction))
+            && state.scalar_operands_v1(tracked, views, instruction, BorrowedFormalDomainV1::signed_only));
+    };
     let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { .. }, normal_landing, fault_landing, .. } = instruction
         else { return Err(fault("owned-write/store-shape")); };
     let precedes = |from: Coordinate, to: Coordinate| dominates(from.0, to.0) && (from.0 != to.0 || from.1 < to.1);
@@ -144,7 +162,7 @@ mod tests {
                     (BasicBlockId(0), BasicBlockId(1) | BasicBlockId(2)) | (BasicBlockId(1), BasicBlockId(2))))
                     && !(mutation == 7 && from == bb(2) && to == bb(2))
                     && !(mutation == 8 && from == bb(1) && to == bb(2));
-                assert!(observe(&state, (bb(1), 3), &store, &mut scan, &dominates)?);
+                assert!(observe(&state, &BTreeMap::new(), &ViewScan::default(), (bb(1), 3), &store, &mut scan, &dominates)?);
                 coverage(&state, &scan)
             })();
             if mutation == 0 { result.unwrap(); } else { assert!(result.is_err(), "mutation={mutation}"); }

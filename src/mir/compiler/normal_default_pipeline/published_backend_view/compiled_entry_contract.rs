@@ -104,6 +104,7 @@ pub(super) struct BorrowedCallIncomingV1<'module> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct ClosedBorrowedEntryV1 {
+    pub(super) finite_input: bool,
     pub(super) object_views: BTreeMap<u32, u32>,
     pub(super) domains: BTreeMap<u32, BorrowedFormalDomainV1>,
 }
@@ -285,6 +286,9 @@ impl<'module> CompiledEntryContractV1<'module> {
     }
     pub(crate) fn borrowed_formal_domain_v1(&self, function: u32, param: u32) -> Option<&BorrowedFormalDomainV1> {
         self.borrowed_entries.get(&function)?.domains.get(&param)
+    }
+    pub(crate) fn has_finite_borrowed_input_v1(&self, function: u32) -> bool {
+        self.borrowed_entries.get(&function).is_some_and(|entry| entry.finite_input)
     }
     pub(crate) fn has_borrowed_entry(&self, function: u32) -> bool {
         self.borrowed_entries.contains_key(&function)

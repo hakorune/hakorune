@@ -22,6 +22,12 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
     fn requires_initializer_use_frame(&mut self, _site: &OwnedExprSiteV1) -> Result<bool, E> { Ok(false) }
     fn scalar_read_sum(&mut self, _read: &CurrentScalarReadV1)
         -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> { None }
+    /// Borrow the same original entry read for an Assignment RHS. No view or
+    /// executable carrier is issued by this source-only consultation.
+    fn finite_entry_read(&mut self, _input: ResolvedFunctionLoweringInputV1<'_>,
+        _plan: &Rc<ExpressionSourcePlanV1>, _read: &SourceExprSiteV1,
+        _binding: BindingRefV1, _root: BindingRefV1)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>, E> { Ok(None) }
     /// Preserve the exact original writer inventory for owned LOCAL stores.
     fn original_writer(&mut self, _owner: FunctionOwnerIdV1, _target: &SourceExprSiteV1)
         -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, E> { Ok(None) }

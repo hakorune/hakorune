@@ -45,9 +45,10 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
 - [Call packet source][call-source]は既にInstance/Staticを一つの窓口へ集約する。
   共通操作はここへ寄せ、異なるownership支持元とaffine publicationは保持する。
 - [finite input entry][entry]は全incoming、元formal/uses、SUM、vetoを検査する。
-  現WIPのFiniteInputと[共通reference][reference]は形別の重複を減らす方向に沿う。
-  ただし新FiniteInputが既存source-only Static ownerより先に選択される競合がある。
-  WIP suiteは5PASS/6FAILでmimalloc/allocatorが回帰。共通化の完了とは扱わない。
+  FiniteInputと[共通reference][reference]は形別の重複を減らす方向に沿う。
+  監査時には新FiniteInputが既存source-only Static ownerを先取りする競合があった。
+  監査時のWIP suite5PASS/6FAILでmimalloc/allocatorの回帰を確認した。
+  その後の修正と検証の状態はapp cardに従い、ここへ結果を重複記録しない。
   元source protocolの所属と選択順を保持し、proof未完を別issuerへの迂回条件にしない。
 - [Loop product][loop-product]の`produce_source_loop_recipe_v2`はsource検証、
   execution、typed Recipe、Join closure、incoming、scheduleを接続する。
@@ -74,7 +75,7 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
 
 | 順序・既存owner | 最初の範囲 / 開始条件 | 完了と削除 |
 | --- | --- | --- |
-| 現APP-json-stream-aggregator | 再開後、FiniteInputと既存source-only ownerの選択競合を先に修正。mimalloc/allocatorと固定suiteを回復してからstatsForのMap slot result ABI/lifetimeを閉じる。 | 新規形別分類器を足さずsource→生成物を接続。既存smokeの実EXE/output/exitを確認。置換済みの専有relayは同seriesで削除。全体rewriteをappの前提にしない。 |
+| 現APP-json-stream-aggregator | 共通FiniteInput/referenceと最終operand検証を着地。既存Static scalarの元source優先を保持し、次はstatsForのMap slot result ABI/lifetimeを最終consumerへ接続する。 | 新規形別分類器を足さずsource→生成物を接続。既存smokeの実EXE/output/exitを確認。置換済みの専有relayは同seriesで削除。全体rewriteをappの前提にしない。 |
 | `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | 次に必要なowner境界で、共通source query、入力domain、Call/ownership計画、physical投影の実責務を分ける。まず現appが使う共通入力/referenceから。 | 一つの意味判定・一つのwriter。元source protocolの選択優先を保ち、証明成功によるissuer切替をしない。単なるkind×stageの機械分割を避け、重複した分類・探索・wrapperと専有adapterを実際に減らす。移動行と削除行を別記。 |
 | `MIRBUILDER-PACKET-DISPATCH-COHESION-D0` | 必要なkind拡張時に、同じ操作を繰り返すmatchを一つのownerへ寄せる。既存Call packetを核にtable/private methods/sealed abstractionを比較。 | 正当な段別exhaustive checkと独立final consumerは維持。旧dispatch callerを切替え、不要なexclusive dispatchを削除。trait/table採用自体を完了にしない。 |
 | Call/M7-S → R7 → M8 | 固定製品acceptance後の最初の整理候補は、共有Compatibility一族のcaller切替・停止と専有dead code退役。既に置換済みの局所edgeは全suite待ちにしない。 | 利用root・feature・schema/reader・保持すべき検証を確認し、対象familyだけ削除。既存focused＋必要suiteを通す。未判定候補は一括削除せず、次の利用判定を同じownerに残す。 |

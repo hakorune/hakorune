@@ -74,17 +74,18 @@ impl RawInvocationChildPortV1<'_, '_> {
                 let read = Rc::new(state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?);
                 let value = read.value_for(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?;
                 let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][field-write-rhs/no-function]")?;
-                let signed = match recipe.signed_reference(index) {
-                    Some((original, _)) => {
+                let signed = match recipe.reference_source(index) {
+                    Some(proof) if recipe.signed_reference(index).is_some()
+                        || matches!(proof, crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { .. }) => {
                         let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger);
-                        let observed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::prepare_scalar_read_v2(
-                            source, original, &read, context, function)?.finish_shared(Rc::clone(&read));
-                        if observed.scalar_read_value_v2(source, original, context, function)? != value {
+                        let observed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::prepare_source_reference_v1(
+                            source, index, proof, &read, context, function)?.finish_shared(Rc::clone(&read));
+                        if observed.source_reference_value_v1(source, index, proof, context, function)? != value {
                             return Err("[freeze:contract][field-write-rhs/reference-kind]".into());
                         }
                         Some(Rc::new(observed))
                     },
-                    None => None,
+                    _ => None,
                 };
                 (value, Proof::Reference { read, producer: definition(function, value)?, signed })
             },

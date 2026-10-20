@@ -5,6 +5,24 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use std::rc::Rc;
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Original scalar protocol membership, before any actual or Completion proof.
+    /// Share this selection with entry staging so a newer input family cannot
+    /// take an existing scalar owner's source uses into a different protocol.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_scalar_only_static_input_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.source_only_definitions.get(&owner).is_some_and(|draft| {
+            let mul = draft.uses.iter().any(|row| matches!(row.kind,
+                BorrowedFormalUseDraftKindV1::MulOperand { .. }));
+            let forwards = draft.uses.iter().filter(|row| matches!(row.kind,
+                BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 0, .. })).count();
+            mul || (forwards == 1 && draft.uses.iter().all(|row| matches!(row.kind,
+                BorrowedFormalUseDraftKindV1::Copy { .. }
+                    | BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 0, .. })))
+                || self.is_compare_only_static_input_v1(owner)
+        })
+    }
+
     /// Candidate source family only; executable entry still needs the whole
     /// original input cohort, signature, result and Completion.
     pub(in crate::mir::normal_callable_semantic_package) fn is_compare_only_static_input_v1(

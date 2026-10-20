@@ -34,6 +34,7 @@ impl BorrowedFormalDomainV1 {
     pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(in crate::mir) fn text_only(&self) -> bool { self.sum.text_only() }
     pub(in crate::mir) fn signed_only(&self) -> bool { self.sum.signed_only() }
+    pub(in crate::mir) fn bool_only(&self) -> bool { self.sum.bool_only() }
     #[cfg(test)]
     pub(super) fn source_sum_v1(&self) -> &Rc<super::borrowed_formal_source::SourceValueSumV1> { &self.sum }
 }
@@ -56,6 +57,9 @@ pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
 }
 
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
+    pub(in crate::mir) fn uses_finite_input_v1(&self) -> bool {
+        matches!(self.evidence, EntryStructureEvidenceV1::FiniteInput { .. })
+    }
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -69,7 +73,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
         match &self.evidence {
             EntryStructureEvidenceV1::Uses(view) => &view.definition.origins,
-            EntryStructureEvidenceV1::FiniteText { uses, .. } => uses.roots(),
+            EntryStructureEvidenceV1::FiniteInput { uses, .. } => uses.roots(),
         }
     }
     // Finite input reaches this product only after every original use has a
@@ -298,7 +302,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let values = self.borrowed_ordinary_entry_values_v1(owner);
         self.check_borrowed_ordinary_entry_values_v1(owner, &values)?;
         let values = values?;
-        if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+        if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
             return self.finish_borrowed_entry_source_v1(structure);
         }
         let source = self
@@ -347,7 +351,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        if self.finite_text_entry_for_owner_v1(owner)?.is_some() {
+        if self.finite_entry_for_owner_v1(owner)?.is_some() {
             let mut contracts = self.original_parameter_contracts.as_deref()
                 .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?
                 .iter().filter(|row| row.owner == owner);

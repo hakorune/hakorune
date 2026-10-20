@@ -68,7 +68,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     let core_argument = original_core_argument_input_request_v1(ingress, contracts, site)?;
     let original_call = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)?;
     let finite_input = match original_call.as_ref() {
-        Some(call) => crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(
+        Some(call) => crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_instance_input_request_v1(
             ingress, contracts, call.callee)?,
         None => false,
     };
@@ -447,6 +447,36 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
         return Err(freeze("borrowed-instance/source-snapshot-drift"));
     }
     Ok(Some(rows.ordered_arguments.clone()))
+}
+
+/// Lend scalar read coordinates from the same rechecked original input row.
+/// This counts source uses only; no scalar operand or executable actual is lent.
+pub(in crate::mir::normal_callable_semantic_package) fn source_instance_scalar_reads_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>, pending: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1], target: &LexicalInstanceCallSourceTargetV1,
+    ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+) -> Result<Vec<(SourceExprSiteV1, BindingRefV1, SourceScalarKind)>, String> {
+    let rows = pending.get(target.call_site()).ok_or_else(|| freeze("borrowed-instance/source-actuals-missing"))?
+        .as_ref().map_err(Clone::clone)?;
+    let identity = match &rows.phase {
+        BorrowedCallActualEvidencePhaseV1::SourceInstance(identity)
+        | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(identity) => identity,
+        _ => return Ok(Vec::new()),
+    };
+    if &identity.source != target { return Err(freeze("borrowed-instance/source-identity")); }
+    let Some(arguments) = project_pending_instance_source_arguments_with_array_context_v1(
+        source, pending, contracts, target.call_site(), Some(ledger))? else { return Ok(Vec::new()) };
+    let mut reads = Vec::new();
+    for candidate in &identity.candidates {
+        let BorrowedCallActualValueV1::Scalar(binding, kind) = candidate.value else { continue };
+        if target.argument_sites().get(candidate.ordinal as usize) != Some(&candidate.site)
+            || arguments.get(candidate.ordinal as usize) != Some(&LocalCallArgumentV1::BorrowedActual {
+                ordinal: candidate.ordinal, site: candidate.site.clone() }) {
+            return Err(freeze("borrowed-instance/actual-identity"));
+        }
+        reads.push((candidate.site.clone(), binding, kind));
+    }
+    Ok(reads)
 }
 
 /// Selection remains independent of final transport incoming membership.

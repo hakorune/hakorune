@@ -14,6 +14,7 @@ impl BorrowedCallUses {
     ) -> Result<BTreeMap<u32, ClosedBorrowedEntryV1>, String> {
         let mut object_views = BTreeMap::new();
         for (name, mut state) in self.functions {
+            state.prepare_finite_source_copies_v1()?;
             guarded_arguments::prepare(&mut state)?;
             let function = module
                 .functions
@@ -33,6 +34,7 @@ impl BorrowedCallUses {
                     .position(|function| function.name() == name)
                     .ok_or_else(|| fault("borrowed-use/object-view-function"))?;
                 object_views.insert(index as u32, ClosedBorrowedEntryV1 {
+                    finite_input: state.finite_input,
                     object_views: views, domains: state.domains.iter().map(|(value, domain)| (value.0, domain.clone())).collect(),
                 });
             }

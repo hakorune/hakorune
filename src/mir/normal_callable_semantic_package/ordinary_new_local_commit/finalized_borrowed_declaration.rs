@@ -7,7 +7,7 @@ impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn with_borrowed_parameter_declarations_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction,
         requests: &[(u32, ValueId, Option<&str>)],
-        mut visit: impl FnMut(ValueId, Option<hakorune_mir_defs::CanonicalObjectIdV1>, Option<&crate::mir::normal_callable_semantic_package::BorrowedFormalDomainV1>) -> Result<(), String>,
+        mut visit: impl FnMut(ValueId, Option<hakorune_mir_defs::CanonicalObjectIdV1>, Option<&crate::mir::normal_callable_semantic_package::BorrowedFormalDomainV1>, bool) -> Result<(), String>,
     ) -> Result<(), String> {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Kind;
         let entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
@@ -40,7 +40,7 @@ impl FinalizedRootSourceHandoffV1 {
                 }
                 _ => Err(freeze("borrowed-parameter/declaration-drift")),
             }?;
-            visit(value, object, entry.formal_domain_v1(ordinal, parameter.binding)?)?;
+            visit(value, object, entry.formal_domain_v1(ordinal, parameter.binding)?, entry.uses_finite_input_v1())?;
         }
         Ok(())
     }

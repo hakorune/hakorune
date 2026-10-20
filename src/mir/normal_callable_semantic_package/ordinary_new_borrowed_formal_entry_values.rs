@@ -179,7 +179,7 @@ impl OrdinaryNewClaimLedgerV1 {
         values: &Result<EntryValues, String>,
     ) -> Result<(), String> {
         if let Ok(rows) = values {
-            if let Some(structure) = self.finite_text_entry_for_owner_v1(owner)? {
+            if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
                 return structure.check_finite_entry_values_v1(rows);
             }
             let source = self

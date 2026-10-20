@@ -23,8 +23,9 @@ impl CompiledEntryContractV1<'_> {
             .ok_or_else(|| fault("borrowed-parameter/source-owner"))?;
         let source = self.program.handoff().root_source()
             .ok_or_else(|| fault("borrowed-parameter/source-missing"))?;
-        source.with_borrowed_parameter_declarations_v1(owner, function, requests, |value, object, domain| {
-            if self.borrowed_formal_domain_v1(function_index, value.0) != domain {
+        source.with_borrowed_parameter_declarations_v1(owner, function, requests, |value, object, domain, finite_input| {
+            if self.borrowed_formal_domain_v1(function_index, value.0) != domain
+                || self.has_finite_borrowed_input_v1(function_index) != finite_input {
                 return Err(fault("borrowed-parameter/closed-domain"));
             }
             if let Some(object) = object {

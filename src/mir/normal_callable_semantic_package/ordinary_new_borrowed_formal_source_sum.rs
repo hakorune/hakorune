@@ -20,6 +20,7 @@ pub(in crate::mir)
 enum SourceValueAlternativeV1 {
     Text,
     SignedI64,
+    Bool,
     Null,
     Other,
     Object(Box<str>),
@@ -38,6 +39,14 @@ impl SourceValueSumV1 {
     }
     pub(in crate::mir) fn text_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Text)
+    }
+    pub(in crate::mir) fn bool_only(&self) -> bool {
+        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Bool)
+    }
+    pub(in crate::mir) fn finite_input(&self) -> bool {
+        !self.0.is_empty() && self.0.iter().all(|value| matches!(value,
+            SourceValueAlternativeV1::Text | SourceValueAlternativeV1::SignedI64
+                | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Null))
     }
     fn permits_object(&self, name: &str) -> bool {
         self.0.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
@@ -182,8 +191,11 @@ impl Graph<'_> {
             OriginalFormalActualSeedV1::Text => {
                 row.atoms.insert(Value::Text);
             }
-            OriginalFormalActualSeedV1::Integer => {
-                row.atoms.insert(Value::SignedI64);
+            OriginalFormalActualSeedV1::Scalar(kind) => {
+                row.atoms.insert(match kind {
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => Value::SignedI64,
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => Value::Bool,
+                });
             }
             OriginalFormalActualSeedV1::SourceInteger | OriginalFormalActualSeedV1::Other => {
                 row.atoms.insert(Value::Other);
@@ -241,7 +253,7 @@ impl Graph<'_> {
                         row.atoms.insert(Value::SignedI64);
                     }
                     Some(Rep::ExactBool) => {
-                        row.atoms.insert(Value::Other);
+                        row.atoms.insert(Value::Bool);
                     }
                     Some(Rep::ExactNominalBox { box_name }) => {
                         row.atoms.insert(Value::Object(box_name.into()));

@@ -138,14 +138,17 @@ impl EmittedFieldWriteRhsV1 {
                     if read.value_for(source.owner(), original.site().node(), binding).map_err(|issue| issue.to_string())? != node.value {
                         return Err(freeze("field-write-rhs/reference-value"));
                     }
-                    match (self.recipe.signed_reference(node.node), signed) {
-                        (Some((original, _)), Some(signed)) => {
-                            if signed.validate_scalar_read_v2(source, original, context, function, finishing)? != node.value {
+                    let proof = self.recipe.reference_source(node.node).ok_or_else(|| freeze("field-write-rhs/reference-kind"))?;
+                    let needs_source = self.recipe.signed_reference(node.node).is_some()
+                        || matches!(proof, crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { .. });
+                    match (needs_source, signed) {
+                        (true, Some(signed)) => {
+                            if signed.validate_source_reference_v1(source, node.node, proof, context, function, finishing)? != node.value {
                                 return Err(freeze("field-write-rhs/reference-value"));
                             }
                             for row in signed.dependencies()? { require(&row, false)?; }
                         },
-                        (None, None) => {},
+                        (false, None) => {},
                         _ => return Err(freeze("field-write-rhs/reference-kind")),
                     }
                     if let Some(row) = producer {

@@ -55,11 +55,9 @@ impl EmittedBoolConditionProjectionV1 {
                 },
                 (Node::Reference(_), BoolConditionValueProofV1::OriginalReference(read)) => {
                     if !observed_references.insert(node.node) { return Err(freeze("bool-condition/reference-duplicate")); }
-                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = self.frame.references().get(&node.node)
-                        else { return Err(freeze("bool-condition/reference-source")); };
-                    if reference.original_read().is_none()
-                        || read.operand(self.frame.evaluation(), node.node, context)?
-                            != crate::mir::instruction::StringInvokeOperand::NormalInteger(node.value) {
+                    let reference = self.frame.references().get(&node.node)
+                        .ok_or_else(|| freeze("bool-condition/reference-source"))?;
+                    if read.validate_source_reference_v1(source, node.node, reference, context, function, finishing)? != node.value {
                         return Err(freeze("bool-condition/original-reference-value"));
                     }
                     read.validate_dependencies_v1(self.frame.evaluation(), node.node, context, function, finishing)?;

@@ -25,7 +25,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, String> {
         let owners = std::collections::BTreeSet::from([owner]);
-        let rows = if Self::original_finite_text_instance_input_request_v1(source, catalog, owner)? {
+        let rows = if Self::original_finite_instance_input_request_v1(source, catalog, owner)? {
             source.source_incoming.project_source_v1(&owners)
         } else {
             source.source_incoming.project(&owners)
@@ -41,7 +41,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // Successful source membership only proposes an owner. The checked
         // projection below retains all owner/global scan errors and duplicates.
         if let Some(call) = source.source_incoming.source_rows_v1().find(|row| &row.call == site) {
-            if Self::original_finite_text_instance_input_request_v1(source, catalog, call.callee)? {
+            if Self::original_finite_instance_input_request_v1(source, catalog, call.callee)? {
                 return Ok(Self::original_instance_input_calls_v1(source, catalog, call.callee)?
                     .into_vec().into_iter().find(|row| &row.call == site));
             }
@@ -348,7 +348,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 !source.source_incoming.has_object_input_callee_v1(target)).map(|_| call.callee))
             .collect();
         for contract in contracts {
-            if Self::original_finite_text_instance_input_request_v1(source, contracts, contract.owner)? {
+            if Self::original_finite_instance_input_request_v1(source, contracts, contract.owner)? {
                 owners.insert(contract.owner);
             }
         }

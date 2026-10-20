@@ -92,7 +92,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|(row, _)| row).collect();
         if !source_only.is_empty() {
             let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
-            if Self::original_finite_text_instance_input_request_v1(ingress, catalog, owner)? { incoming.extend(source_only); }
+            if Self::original_finite_instance_input_request_v1(ingress, catalog, owner)? { incoming.extend(source_only); }
         }
         for incoming in incoming {
             let Some(source) = incoming.source.instance() else { continue; };

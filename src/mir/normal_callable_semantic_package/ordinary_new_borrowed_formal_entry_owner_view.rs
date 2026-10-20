@@ -42,7 +42,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<bool, String> {
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        Ok(Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?
+        Ok(Self::original_finite_instance_input_request_v1(source, catalog, owner)?
             || self.checked_source_instance_input_entry_v1(source, owner)?.is_some()
             || self.selected_original_instance_input_kind_v1(source, owner)?
                 == Some(super::super::borrowed_formal_actuals::object_input_finish::OriginalInstanceInputKindV1::SourceInstance))
@@ -211,7 +211,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                     &row.source
                 {
-                    if !matches!(&self.evidence, EntryStructureEvidenceV1::FiniteText { .. })
+                    if !matches!(&self.evidence, EntryStructureEvidenceV1::FiniteInput { .. })
                         && !original.is_qualified_i64_source_v1()
                         && !matches!(self.incoming, BorrowedEntryActualsV1::SelectedTagged)
                         && !((original.is_current_owner_i64_source_v1()
@@ -228,7 +228,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                         original.require_qualified_i64_source_v1()?;
                     }
                     let retained = match &self.evidence {
-                        EntryStructureEvidenceV1::FiniteText { .. } =>
+                        EntryStructureEvidenceV1::FiniteInput { .. } =>
                             super::super::borrowed_formal_actuals::original_static_source_v1(self.source, &row.call)?
                                 .ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?,
                         EntryStructureEvidenceV1::Uses(_) => self.source.source_incoming.static_observations()

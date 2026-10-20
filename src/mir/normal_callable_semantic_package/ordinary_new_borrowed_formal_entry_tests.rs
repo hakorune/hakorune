@@ -351,7 +351,7 @@ fn outside_profile_remains_unselected_before_entry() {
             let owner = contract.owner;
             let binding = contract.parameters[0].binding;
             let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-            let structure = ledger.finite_text_entry_for_owner_v1(owner).unwrap().expect("original finite structure");
+            let structure = ledger.finite_entry_for_owner_v1(owner).unwrap().expect("original finite structure");
             let domain = structure.finite_domain_for_formal_v1(0, binding).unwrap();
             assert_eq!(domain.text_only(), text_only);
             let canonical = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
@@ -365,7 +365,7 @@ fn outside_profile_remains_unselected_before_entry() {
                 let call = source.source_incoming.source_rows_v1().find(|row| row.callee == owner).unwrap().call.clone();
                 if mutation == 1 { source.source_incoming.remove_exact_row_for_test(&call); }
                 else { source.source_incoming.duplicate_object_row_for_test(&call); }
-                assert!(ledger.finite_text_entry_for_owner_v1(owner).unwrap().is_none(), "census drift cannot lend a domain");
+                assert!(ledger.finite_entry_for_owner_v1(owner).unwrap().is_none(), "census drift cannot lend a domain");
                 assert!(ledger.record_borrowed_ordinary_entry_values_v1(owner, Ok(Box::new([(0, binding, crate::mir::ValueId(72))]))).is_err());
             } else {
                 ledger.record_borrowed_ordinary_entry_values_v1(owner, Ok(Box::new([(0, binding, crate::mir::ValueId(72))]))).unwrap();

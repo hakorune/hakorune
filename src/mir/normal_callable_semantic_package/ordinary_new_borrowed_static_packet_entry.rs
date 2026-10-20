@@ -15,7 +15,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(original) = self.borrow_original_static_source_v1(site)? else {
             return self.source_required_static_scalar_call_v1(site);
         };
-        if self.finite_text_entry_for_owner_v1(original.callee_owner())?.is_none() {
+        if self.finite_entry_for_owner_v1(original.callee_owner())?.is_none() {
             // The non-finite scalar family retains its existing source issuer.
             return self.source_required_static_scalar_call_v1(site);
         }

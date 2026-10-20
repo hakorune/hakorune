@@ -34,7 +34,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if contracts.next().is_some() { return Err(freeze("object-input/original-contract-duplicate")); }
         if contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod { return Ok(None); }
         let mut kind = None;
-        let calls = if Self::original_finite_text_instance_input_request_v1(source, catalog, owner)? {
+        let calls = if Self::original_finite_instance_input_request_v1(source, catalog, owner)? {
             Self::original_instance_input_calls_v1(source, catalog, owner)?
         } else {
             source.source_incoming.exact_rows().filter(|call| call.callee == owner)
@@ -65,7 +65,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
-        let finite_input = Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?;
+        let finite_input = Self::original_finite_instance_input_request_v1(source, catalog, owner)?;
         let mut source_result_request = source.original_returned_field_participant_request_v1(owner)?.is_some();
         // Owning selection checks the whole callee, including every target and
         // root; share that result only within this immutable selection scan.
@@ -115,7 +115,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<bool, String> {
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
-        if Self::original_finite_text_instance_input_request_v1(source, catalog, owner)? {
+        if Self::original_finite_instance_input_request_v1(source, catalog, owner)? {
             Self::original_instance_input_calls_v1(source, catalog, owner)?;
             return Ok(true);
         }
@@ -149,7 +149,7 @@ impl OrdinaryNewClaimLedgerV1 {
             core_argument |= original_core_argument_input_request_v1(source, catalog, &call.call)?;
         }
         Ok(!complete_transport || source_forward || core_argument
-            || Self::original_finite_text_instance_input_request_v1(source, catalog, owner)?)
+            || Self::original_finite_instance_input_request_v1(source, catalog, owner)?)
     }
 
     /// Object protocols retain their original, stronger result/source qualification.
@@ -342,7 +342,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // Original result/read requests borrow the common parameter frame.
         // Mixed/Field stay SourceInstance; only the full input verifier can
         // close every incoming/Completion/signature and permit reconstruction.
-        if Self::original_finite_text_instance_input_request_v1(source, catalog, contract.owner)? {
+        if Self::original_finite_instance_input_request_v1(source, catalog, contract.owner)? {
             return Ok(self.checked_input_use_source_v1(contract)?.is_some());
         }
         let mut parameter_frame_request = source.original_returned_field_participant_request_v1(contract.owner)?.is_some();
@@ -449,7 +449,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("object-input/source-missing"))?.as_ref().map_err(Clone::clone)?;
             let catalog = self.original_parameter_contracts.as_deref()
                 .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
-            if Self::original_finite_text_instance_input_request_v1(ingress, catalog, owner)? {
+            if Self::original_finite_instance_input_request_v1(ingress, catalog, owner)? {
                 let incoming = Self::original_instance_input_calls_v1(ingress, catalog, owner)?;
                 if incoming.is_empty() || completion.returns_value() || incoming.iter().any(|row|
                     row.source.unit_discard_source_v1().is_none_or(|original|

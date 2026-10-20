@@ -64,11 +64,11 @@ pub(super) fn guards(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRe
     Ok(())
 }
 
-pub(super) fn observe(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRefV1>,
+pub(super) fn observe(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
     coordinate: Coordinate, instruction: &MirInstruction, scan: &mut Scan,
     dominates: &dyn Fn(BasicBlockId, BasicBlockId) -> bool,
 ) -> Result<bool, String> {
-    if owned::observe(state, coordinate, instruction, scan, dominates)? { return Ok(true); }
+    if owned::observe(state, tracked, views, coordinate, instruction, scan, dominates)? { return Ok(true); }
     let Some(expected) = state.field_writes.get(&coordinate) else { return Ok(false) };
     if instruction != &expected.instruction { return Err(fault("borrowed-write/instruction")); }
     let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base, value }, fault_frame, .. } = instruction

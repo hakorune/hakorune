@@ -119,6 +119,16 @@ where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, 
         -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
         self.ingress.as_ref().ok()?.lend_current_scalar_sum_v1(read)
     }
+    fn finite_entry_read(&mut self, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        read: &SourceExprSiteV1, binding: BindingRefV1, root: BindingRefV1)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>, OrdinaryNewCoSealIssueV1> {
+        let Ok(ingress) = self.ingress else { return Ok(None) };
+        let site = OwnedExprSiteV1::new(input.owner(), plan.nodes()[0].site().clone());
+        lexical_instance_call::lend_finite_entry_read_v1(input, ingress, self.parameter_contracts,
+            &site, plan, read, binding, root).map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })
+    }
     fn original_writer(&mut self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         target: &SourceExprSiteV1) -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, OrdinaryNewCoSealIssueV1> {
         let issue = || OrdinaryNewCoSealIssueV1::SourceNavigation { site: OwnedExprSiteV1::new(owner, target.clone()) };

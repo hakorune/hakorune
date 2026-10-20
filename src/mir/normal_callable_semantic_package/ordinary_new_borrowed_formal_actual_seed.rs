@@ -1,5 +1,6 @@
 //! Sole original actual classifier and its existing checked projections.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 #[path = "ordinary_new_borrowed_actual_method_result.rs"]
 mod method_result;
 pub(super) use method_result::OriginalActualSourceContextV1;
@@ -27,7 +28,7 @@ pub(super) enum OriginalFormalActualSeedV1 {
         lhs: Box<OriginalFormalActualSeedV1>,
         rhs: Box<OriginalFormalActualSeedV1>,
     },
-    Integer,
+    Scalar(SourceScalarKind),
     Text,
     Other,
     /// New source evidence cannot activate any old agreement or transport.
@@ -90,12 +91,12 @@ impl OriginalFormalActualSeedV1 {
             ])),
             Self::Forward { origin, declared_constraint: Some(_) } => FormalActualSeedV1::Forward(*origin),
             Self::Forward { origin, declared_constraint: None } => FormalActualSeedV1::ForwardIntegerOnly(*origin),
-            Self::Integer => FormalActualSeedV1::Integer,
+            Self::Scalar(SourceScalarKind::Integer) => FormalActualSeedV1::Integer,
             Self::SourceInteger => if current_i64 { FormalActualSeedV1::Conflict } else { FormalActualSeedV1::Integer },
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => legacy.project_source_integer_v1(current_i64),
-            Self::Binary { .. } | Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
+            Self::Binary { .. } | Self::Conflict | Self::ProviderStatic(_) | Self::Scalar(SourceScalarKind::Bool) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
         }
     }
 
@@ -110,11 +111,11 @@ impl OriginalFormalActualSeedV1 {
                 FormalActualSeedV1::Class(source.fresh_class().into()),
                 anchor.project_selected_v1(caller, transport_owners),
             ])),
-            Self::Integer | Self::SourceInteger => FormalActualSeedV1::Integer,
+            Self::Scalar(SourceScalarKind::Integer) | Self::SourceInteger => FormalActualSeedV1::Integer,
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => legacy.project_selected_v1(caller, transport_owners),
-            Self::Binary { .. } | Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
+            Self::Binary { .. } | Self::Conflict | Self::ProviderStatic(_) | Self::Scalar(SourceScalarKind::Bool) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
             Self::Forward { origin, declared_constraint } => {
                 let outside = transport_owners.is_some_and(|owners| !owners.contains(&caller));
                 match (outside, declared_constraint) {
@@ -187,7 +188,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
 ) -> OriginalFormalActualSeedV1 {
     if let Some((fact, call, ordinal)) = guarded {
         return if fact.corroborates(input, call, ordinal, site) {
-            OriginalFormalActualSeedV1::Integer
+            OriginalFormalActualSeedV1::Scalar(SourceScalarKind::Integer)
         } else {
             OriginalFormalActualSeedV1::Conflict
         };
@@ -198,8 +199,9 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             return OriginalFormalActualSeedV1::Null;
         }
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_)) => {
-            return OriginalFormalActualSeedV1::Integer;
+            return OriginalFormalActualSeedV1::Scalar(SourceScalarKind::Integer);
         }
+        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Bool(_)) => return OriginalFormalActualSeedV1::Scalar(SourceScalarKind::Bool),
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => return OriginalFormalActualSeedV1::Text,
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::TypedInteger { .. }) => return OriginalFormalActualSeedV1::Conflict,
         Some(_) => return OriginalFormalActualSeedV1::Other,
@@ -210,7 +212,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         .negative_integer_immediate(site)
         .is_some()
     {
-        return OriginalFormalActualSeedV1::Integer;
+        return OriginalFormalActualSeedV1::Scalar(SourceScalarKind::Integer);
     }
     if source_context.is_some_and(OriginalActualSourceContextV1::is_point_premise) {
         // The existing child inventory proves a transparent empty-prelude
@@ -288,7 +290,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
     if value_domain::declared_integer_seed_v1(input, contracts, binding) {
         return if contracts.iter().filter(|row| row.owner == input.owner()).flat_map(|row| &row.parameters)
             .any(|row| row.binding == binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
-        { OriginalFormalActualSeedV1::Integer } else { OriginalFormalActualSeedV1::SourceInteger };
+        { OriginalFormalActualSeedV1::Scalar(SourceScalarKind::Integer) } else { OriginalFormalActualSeedV1::SourceInteger };
     }
     let mut visited = inherited.clone();
     let mut sum_stable = true;

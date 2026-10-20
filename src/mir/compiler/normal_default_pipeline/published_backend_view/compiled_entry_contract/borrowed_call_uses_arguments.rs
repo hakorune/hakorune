@@ -19,6 +19,7 @@ impl BorrowedCallUses {
             .entry(function.signature.name.clone())
             .or_default();
         let entry = source.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        state.finite_input = entry.uses_finite_input_v1();
         for (ordinal, formal, value) in source.borrowed_ordinary_entry_values_v1(owner)?.iter() {
             if let Some(domain) = entry.formal_domain_v1(*ordinal, *formal)? {
                 if state.domains.insert(*value, domain.clone()).is_some_and(|previous| previous != *domain) {
@@ -112,6 +113,15 @@ impl BorrowedCallUses {
         {
             *state.field_admissions.entry(*formal).or_default() += 1;
         }
+        if state.finite_input {
+            source.with_finished_bool_bindings_v1(owner, function, |coordinate, instruction| {
+                if state.condition_bindings.insert(coordinate, instruction.clone())
+                    .is_some_and(|previous| previous != instruction) {
+                    return Err(fault("borrowed-use/coordinate-duplicate"));
+                }
+                Ok(())
+            })?;
+        }
         state.object_views =
             source.borrowed_ordinary_formal_object_views_v1(owner, function)?;
         Ok(())
@@ -136,22 +146,7 @@ impl BorrowedCallUses {
         // The packet has independently validated every copy, including
         // ordinary scalar/receiver dependencies. This closure tracks only
         // descendants of the SAME source-issued borrowed entry roots.
-        let mut borrowed_values: BTreeSet<_> = caller_entry.iter().map(|(_, _, value)| *value).collect();
-        let mut admitted = BTreeSet::new();
-        loop {
-            let mut progressed = false;
-            for (index, (original, finished)) in copies.iter().enumerate() {
-                let MirInstruction::Copy { src, dst } = &original.1 else {
-                    return Err(fault("borrowed-use/copy-instruction"));
-                };
-                if admitted.contains(&index) || !borrowed_values.contains(src) { continue; }
-                state.copy(original, Some(*finished))?;
-                borrowed_values.insert(*dst);
-                admitted.insert(index);
-                progressed = true;
-            }
-            if !progressed { break; }
-        }
+        state.retain_rooted_copies_v1(caller_entry.iter().map(|(_, _, value)| *value).collect(), copies)?;
         for actual in actuals {
             if let Some((_, formal)) = actual.source.caller_formal_origin_v1() {
                 // DeclaredObject also exists outside the selected borrowed
@@ -275,5 +270,40 @@ impl FunctionUses {
             return Err(fault("borrowed-use/string-operand"));
         }
         Ok(())
+    }
+}
+
+impl FunctionUses {
+    fn retain_rooted_copies_v1(&mut self, mut borrowed_values: BTreeSet<ValueId>, copies: &[(Binding, Coordinate)])
+        -> Result<(), String> {
+        let mut admitted = BTreeSet::new();
+        loop {
+            let mut progressed = false;
+            for (index, (original, finished)) in copies.iter().enumerate() {
+                let MirInstruction::Copy { src, dst } = &original.1 else {
+                    return Err(fault("borrowed-use/copy-instruction"));
+                };
+                if admitted.contains(&index) || !borrowed_values.contains(src) { continue; }
+                self.copy(original, Some(*finished))?;
+                borrowed_values.insert(*dst);
+                admitted.insert(index);
+                progressed = true;
+            }
+            if !progressed { break; }
+        }
+        Ok(())
+    }
+
+    /// The same Copy closure keeps source-owned scalar aliases tracked, so a
+    /// finished prefix cannot lend them to an unproved later operand or Return.
+    pub(super) fn prepare_finite_source_copies_v1(&mut self) -> Result<(), String> {
+        if !self.finite_input { return Ok(()); }
+        let mut copies: Vec<_> = self.copies.values().filter_map(|(binding, coordinate)|
+            coordinate.map(|coordinate| (binding.clone(), coordinate))).collect();
+        copies.extend(self.condition_bindings.iter().filter_map(|(coordinate, instruction)|
+            matches!(instruction, MirInstruction::Copy { .. }).then_some(((coordinate.0, instruction.clone()), *coordinate))));
+        copies.extend(self.owned_field_writes.values().flat_map(|write| write.bindings.iter())
+            .filter(|(binding, _)| matches!(binding.1, MirInstruction::Copy { .. })).cloned());
+        self.retain_rooted_copies_v1(self.roots.keys().copied().collect(), &copies)
     }
 }

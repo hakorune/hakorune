@@ -109,10 +109,15 @@ impl FieldWriteSourceLoanV1 {
                 Node::Literal(Literal::TypedInteger { declared_type_name, .. }) if declared_type_name.as_ref() == "i64" => {},
                 Node::Binary(_) => {},
                 Node::Reference(_) => {
-                    let (read, sum) = rhs.signed_reference(index).ok_or_else(fail)?;
-                    let current = ledger.borrowed_formal_source.as_ref().ok_or_else(fail)?.as_ref().map_err(Clone::clone)?
-                        .lend_current_scalar_sum_v1(read).ok_or_else(fail)?;
-                    if !Rc::ptr_eq(sum, &current) || !sum.signed_only() { return Err(fail()); }
+                    let source = ledger.borrowed_formal_source.as_ref().ok_or_else(fail)?.as_ref().map_err(Clone::clone)?;
+                    if let Some((read, sum)) = rhs.signed_reference(index) {
+                        let current = source.lend_current_scalar_sum_v1(read).ok_or_else(fail)?;
+                        if !Rc::ptr_eq(sum, &current) || !sum.signed_only() { return Err(fail()); }
+                    } else if let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { read, exclusion: None })
+                        = rhs.reference_source(index) {
+                        let current = source.lend_source_value_sum_v1(read.requirement().formal().1).ok_or_else(fail)?;
+                        if !read.signed_only() || !read.corroborates_finite_domain_v1(&current) { return Err(fail()); }
+                    } else { return Err(fail()); }
                 },
                 Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {
                     let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(rhs.source().owner(), node.site().clone());

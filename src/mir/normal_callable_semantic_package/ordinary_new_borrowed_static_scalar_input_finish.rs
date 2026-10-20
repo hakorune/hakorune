@@ -100,27 +100,6 @@ pub(super) fn check_exact_usize_scalar_caller_v1(
     Ok(())
 }
 
-fn scalar_source_only_use_v1(
-    draft: &super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
-) -> bool {
-    use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
-    let mul = draft
-        .uses
-        .iter()
-        .any(|row| matches!(row.kind, Use::MulOperand { .. }));
-    let forwards = draft
-        .uses
-        .iter()
-        .filter(|row| matches!(row.kind, Use::UnresolvedArgument { ordinal: 0, .. }))
-        .count();
-    mul || (forwards == 1
-        && draft.uses.iter().all(|row| {
-            matches!(
-                row.kind,
-                Use::Copy { .. } | Use::UnresolvedArgument { ordinal: 0, .. }
-            )
-        }))
-}
 
 /// Keep qualified callers in their already-issued execution protocol. The
 /// existing qualified projection checks original inventory, payload and required
@@ -421,11 +400,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Option<Box<[&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>>,
         String,
     > {
-        if !source
-            .source_only_definitions
-            .get(&owner)
-            .is_some_and(|draft| scalar_source_only_use_v1(draft)
-                || source.is_compare_only_static_input_v1(owner))
+        if !source.is_scalar_only_static_input_v1(owner)
             || source.definitions.contains_key(&owner)
             || source.target_static.contains_key(&owner)
         {
@@ -502,8 +477,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let owners: Vec<_> = source.source_only_definitions.iter()
             .filter(|(owner, draft)| !source.target_static.contains_key(owner)
-                && (scalar_source_only_use_v1(draft)
-                    || source.is_compare_only_static_input_v1(**owner))
+                && source.is_scalar_only_static_input_v1(**owner)
                 && (draft.uses.iter().any(|row| matches!(row.kind,
                     super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }))
                     || source.is_compare_only_static_input_v1(**owner)

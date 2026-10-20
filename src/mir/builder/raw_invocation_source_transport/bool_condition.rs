@@ -60,9 +60,10 @@ impl RawInvocationChildPortV1<'_, '_> {
                 physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index)?
             },
             Node::Reference(_) => {
-                let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = frame.references().get(&index)
-                    else { return Err("[freeze:contract][bool-condition/reference-kind]".into()); };
-                if reference.original_read().is_some() {
+                use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
+                let reference = frame.references().get(&index).ok_or("[freeze:contract][bool-condition/reference-kind]")?;
+                if matches!(reference, Reference::Scalar(read) if read.original_read().is_some())
+                    || matches!(reference, Reference::FiniteEntry { .. }) {
                     use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
                     let mut state = state.borrow_mut();
                     let prepared = state.prepare_exact_lexical_read(source.owner(), site.node(), reference.binding())
@@ -74,11 +75,12 @@ impl RawInvocationChildPortV1<'_, '_> {
                     let read = state.commit_exact_lexical_reads(vec![prepared]).map_err(|error| error.to_string())?
                         .pop().ok_or("[freeze:contract][bool-condition/reference-commit]")?;
                     let observed = producer.finish(read);
-                    let crate::mir::instruction::StringInvokeOperand::NormalInteger(value) = observed.operand(
-                        frame.evaluation(), index, CallValidationContextV1::Lowering(&ledger))?
-                        else { return Err("[freeze:contract][bool-condition/reference-class]".into()); };
+                    let value = observed.source_reference_value_v1(source, index, reference,
+                        CallValidationContextV1::Lowering(&ledger), function)?;
                     (value, Proof::OriginalReference(observed))
                 } else {
+                    let Reference::Scalar(reference) = reference
+                        else { return Err("[freeze:contract][bool-condition/reference-kind]".into()); };
                     let binding = reference.binding();
                     let read = state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding)
                         .map_err(|error| error.to_string())?;

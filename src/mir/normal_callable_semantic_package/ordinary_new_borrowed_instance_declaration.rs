@@ -424,7 +424,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn ori
     owner: FunctionOwnerIdV1,
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     for call in source.source_incoming.source_rows_v1().filter(|row| row.callee == owner) {
-        if OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(source, catalog, owner)
+        if OrdinaryNewClaimLedgerV1::original_finite_instance_input_request_v1(source, catalog, owner)
             .map_err(|issue| (call.call.clone(), issue))? { return Ok(true); }
         if source.original_returned_field_participant_request_v1(owner)
             .map_err(|issue| (call.call.clone(), issue))?.is_some()

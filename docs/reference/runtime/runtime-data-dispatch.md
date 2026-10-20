@@ -588,6 +588,25 @@ rewritten key correspondence. Formal-only root/ordinal accessors return none
 for storage support, and generic Return composition cannot drop this LOCAL
 support. This grants neither a result ABI nor slot liveness: completed Text
 actuals, nonnull/Normal/Fault, holder/slot lifetime and final replay remain owed.
+Finite entry source uses one original SUM for Text, signed I64, Bool and Null.
+Scalar seeds retain their exact kind; Bool literals and canonical ExactBool
+results remain Bool through Forward/Join, never Integer or an object view.
+Every formal and incoming source must close in the existing finite-input owner;
+Other/Object/unknown domains grant no scalar entry. Assignment RHS references
+reuse the same checked-reference proof as other expressions, retaining the
+original formal read and SUM identity. Source qualification alone grants no
+physical operand: entry tag/payload checks, original producer correspondence
+and both final consumers must close before execution is admitted.
+Existing source-only Static scalar protocol membership keeps selection priority;
+actual completion cannot select a different issuer when its proof is missing.
+A singleton source domain alone does not change the old guarded input ABI.
+New Integer/Bool parameter views require the completed FiniteInput purpose,
+corroborated against that same original entry. Scalar-only demand comes from
+original Field RHS/condition uses; an otherwise unsupported direct Return is
+not selected just because its incoming literals have finite domains. Finished
+Field RHS and Bool prefix/outer-Branch bindings retain exact coordinates and
+rooted Copy tracking in both independent scans. Bool entry checks require tag2
+and payload0/1 before body effects; Bool never becomes an Integer view.
 A method receiver may retain that same LOCAL Map-slot correspondence in its
 original lexical target. Its nominal class is the payload class, never the
 holder class or an owning-result projection. Selection requires the exact sole

@@ -36,6 +36,8 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Default)]
 struct FunctionUses {
+    finite_input: bool,
+    condition_bindings: BTreeMap<Coordinate, MirInstruction>,
     domains: BTreeMap<ValueId, BorrowedFormalDomainV1>,
     text_arguments: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
     owned_field_writes: BTreeMap<Coordinate, field_write::OwnedFieldWriteUse>,
@@ -124,6 +126,29 @@ pub(super) struct BorrowedCallUses {
 }
 
 impl FunctionUses {
+    fn scalar_operands_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        instruction: &MirInstruction, accepts: impl Fn(&BorrowedFormalDomainV1) -> bool,
+    ) -> bool {
+        instruction.used_values().iter().all(|value| {
+            let Some(formal) = tracked.get(value).or(views.views.get(value)) else { return true };
+            let mut roots = self.roots.iter().filter(|(_, root)| *root == formal).peekable();
+            roots.peek().is_some() && roots.all(|(value, _)| self.domains.get(value).is_some_and(&accepts))
+        })
+    }
+
+    fn condition_operand_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        coordinate: Coordinate, instruction: &MirInstruction,
+    ) -> bool {
+        if !self.finite_input || self.condition_bindings.get(&coordinate) != Some(instruction) { return false; }
+        match instruction {
+            MirInstruction::Branch { .. } => self.scalar_operands_v1(tracked, views, instruction, BorrowedFormalDomainV1::bool_only),
+            MirInstruction::BinOp { .. } => self.scalar_operands_v1(tracked, views, instruction, BorrowedFormalDomainV1::signed_only),
+            MirInstruction::Copy { .. } | MirInstruction::Phi { .. } | MirInstruction::Compare { .. } =>
+                self.scalar_operands_v1(tracked, views, instruction, |domain| domain.signed_only() || domain.bool_only()),
+            _ => false,
+        }
+    }
+
     fn has_source_integer_compare(&self, coordinate: Coordinate) -> bool {
         self.compare_coordinates.as_ref().is_some_and(|rows| {
             rows.values().any(|uses| uses.iter().any(|(found, _)| *found == coordinate))
@@ -298,7 +323,8 @@ impl FunctionUses {
             }
             *definitions.definitions.entry(dst).or_default() += 1;
         }
-        if field_write::observe(self, tracked, coordinate, instruction, definitions, dominates)? { return Ok(()); }
+        if self.condition_operand_v1(tracked, views, coordinate, instruction) { return Ok(()); }
+        if field_write::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         if array_set::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         match instruction {
             MirInstruction::Copy { dst, src } if tracked.contains_key(src) => {

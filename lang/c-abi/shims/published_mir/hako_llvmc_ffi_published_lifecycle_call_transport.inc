@@ -108,6 +108,9 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
     if (yyjson_is_true(yyjson_obj_get(param, "integer_view")) &&
         (!yyjson_is_uint(yyjson_obj_get(arg, "kind")) ||
          yyjson_get_uint(yyjson_obj_get(arg, "kind")) != 1)) return 0;
+    if (yyjson_is_true(yyjson_obj_get(param, "bool_view")) &&
+        (!yyjson_is_uint(yyjson_obj_get(arg, "kind")) ||
+         yyjson_get_uint(yyjson_obj_get(arg, "kind")) != 2)) return 0;
     if (yyjson_is_true(yyjson_obj_get(param, "text_view")) &&
         (!arg_kind || strcmp(arg_kind, "tagged"))) return 0;
     if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {

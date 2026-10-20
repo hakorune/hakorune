@@ -19,6 +19,7 @@ struct OriginalFormalUseSourceV1
     initializers: Box<[ResolvedInitializerRelationV1]>,
     assignments: Box<[(SourceExprSiteV1, ResolvedAssignmentTargetV1)]>,
     captures: Box<[(OwnedExprSiteV1, BindingRefV1, bool)]>,
+    scalar_expression_use_requested: bool,
 }
 impl OriginalFormalUseSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue(
@@ -107,7 +108,7 @@ impl OriginalFormalUseSourceV1 {
                 }
             }
         }
-        Ok(Rc::new(Self {
+        let mut original = Self {
             owner: input.owner(),
             batch_slot: contract.batch_slot,
             mode: contract.mode,
@@ -126,7 +127,46 @@ impl OriginalFormalUseSourceV1 {
                 .collect(),
             assignments,
             captures: captures.into_boxed_slice(),
-        }))
+            scalar_expression_use_requested: false,
+        };
+        original.scalar_expression_use_requested = original.observe_scalar_expression_use_v1(input)?;
+        Ok(Rc::new(original))
+    }
+    /// Original evaluation purposes select work before domain/use completion.
+    /// A scalar SUM alone cannot activate a previously unsupported Return.
+    fn observe_scalar_expression_use_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>)
+        -> Result<bool, BorrowedFormalUseDraftErrorV1> {
+        use crate::mir::resolved_value_profile::expression_plan::{
+            assignment_expression_source_plan_v1, condition_expression_source_plan_v1, ExpressionNodeSourceV1,
+        };
+        if self.roots.is_empty() { return Ok(false); }
+        let reject = |_| BorrowedFormalUseDraftErrorV1::SourceIdentity;
+        let Some(shape) = input.body_shape() else { return Ok(false) };
+        let ledger = input.forest().callable_source_ledger(input.owner()).map_err(reject)?;
+        let assignments = shape.assignment_sources().iter().filter(|assignment|
+            matches!(input.function().assignment_target(assignment.target_site()),
+                Some(ResolvedAssignmentTargetV1::FieldWrite { .. })))
+            .map(|assignment| assignment_expression_source_plan_v1(&ledger, shape, assignment));
+        let conditions = input.function().if_region_sites()
+            .map(|site| condition_expression_source_plan_v1(input, site));
+        for plan in assignments.chain(conditions) {
+            let plan = plan.map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+            for (_, node) in plan.nodes_outside_calls() {
+                let ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else { continue };
+                if self.reads.iter().filter(|(site, reference)| site == node.site()
+                    && *reference == ResolvedLexicalRefV1::Local(*binding)).count() != 1 {
+                    return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
+                }
+                if self.roots.get(binding) == Some(binding) { return Ok(true); }
+                if self.flow.as_ref().and_then(|flow| flow.read(node.site(), *binding).and_then(|point|
+                    flow.alias_entry_origin(point, |site| input.function().variable_ref(site))))
+                    .is_some_and(|formal| self.roots.get(&formal) == Some(&formal)) { return Ok(true); }
+            }
+        }
+        Ok(false)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn scalar_expression_use_requested_v1(&self) -> bool {
+        self.scalar_expression_use_requested
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn matches_contract(
         &self,

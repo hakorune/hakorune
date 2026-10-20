@@ -96,8 +96,8 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         let source = original_reference(frame, node)?;
         let producer = match source {
-            Reference::Scalar(source) => return Self::prepare_scalar_read_v2(
-                frame.source(), source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, context, function),
+            Reference::Scalar(_) | Reference::FiniteEntry { .. } => return Self::prepare_source_reference_v1(
+                frame.source(), node, source, read, context, function),
             Reference::StaticText(original) => {
                 let value = read.loan_local_initializer_v1(original.definition_binding())?.0;
                 let mut rows = function.blocks.iter().flat_map(|(block, body)| body.all_instructions()
@@ -112,9 +112,7 @@ impl ExpressionReferenceReadV1 {
                 ReferenceProducerV1::Definition(binding)
             }
             Reference::ArgumentEntry(requirement) => ReferenceProducerV1::Entry(
-                prepare_text_entry(requirement, None, read, context, function)?),
-            Reference::FiniteEntry { read: original, .. } => ReferenceProducerV1::Entry(
-                prepare_text_entry(original.requirement(), Some(original), read, context, function)?),
+                prepare_entry(requirement, None, read, context, function)?),
         };
         reference_operand(frame, node, read, &producer, context)?;
         if !matches!(source, Reference::ArgumentEntry(_) | Reference::FiniteEntry { .. }) {
@@ -139,8 +137,8 @@ impl ExpressionReferenceReadV1 {
             validate_entry_layout(original.binding(), original.producer(), &self.producer, context, function)?;
         }
         let entry = match original_reference(frame, node)? {
-            Reference::ArgumentEntry(required) => Some(prepare_text_entry(required, None, &self.read, context, function)?),
-            Reference::FiniteEntry { read, .. } => Some(prepare_text_entry(read.requirement(), Some(read), &self.read, context, function)?),
+            Reference::ArgumentEntry(required) => Some(prepare_entry(required, None, &self.read, context, function)?),
+            Reference::FiniteEntry { read, .. } => Some(prepare_entry(read.requirement(), Some(read), &self.read, context, function)?),
             _ => None,
         };
         if entry.is_some_and(|entry| !matches!(self.producer, ReferenceProducerV1::Entry(original) if original == entry)) {
@@ -220,6 +218,47 @@ impl ExpressionReferenceReadV1 {
         validate_scalar_binding_observation_v1(source.binding(), source.producer(), self.read.binding_observation_v2(),
             &self.producer, context, function, finishing)?;
         Ok(value)
+    }
+    /// The same value reference serves eager RHS and Bool control purposes.
+    /// Bool remains a scalar value, never a StringInvokeOperand or I64 cast.
+    pub(in crate::mir) fn prepare_source_reference_v1(
+        plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        node: usize, source: &Reference, read: &ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<PreparedExpressionReferenceReadV1, String> {
+        if !source.matches_node(plan, node) { return Err(freeze("expression/reference-source-node")); }
+        match source {
+            Reference::Scalar(source) => Self::prepare_scalar_read_v2(plan,
+                source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, context, function),
+            Reference::FiniteEntry { read: original, .. } => Ok(PreparedExpressionReferenceReadV1 {
+                producer: ReferenceProducerV1::Entry(prepare_entry(original.requirement(), Some(original), read, context, function)?),
+            }),
+            _ => Err(freeze("expression/reference-source-node")),
+        }
+    }
+    pub(in crate::mir) fn source_reference_value_v1(&self,
+        plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        node: usize, source: &Reference, context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<ValueId, String> { self.validate_source_reference_v1(plan, node, source, context, function, None) }
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_source_reference_v1(&self,
+        plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        node: usize, source: &Reference, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&Finished>,
+    ) -> Result<ValueId, String> {
+        if !source.matches_node(plan, node) { return Err(freeze("expression/reference-source-node")); }
+        match source {
+            Reference::Scalar(source) => self.validate_scalar_read_v2(plan,
+                source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, context, function, finishing),
+            Reference::FiniteEntry { read, .. } => {
+                let entry = prepare_entry(read.requirement(), Some(read), &self.read, context, function)?;
+                if !matches!(self.producer, ReferenceProducerV1::Entry(original) if original == entry) {
+                    return Err(freeze("expression/reference-text-entry-producer"));
+                }
+                if let Some(finishing) = finishing { self.validate_finished_dependencies_v1(function, finishing)?; }
+                entry_value(read.requirement(), &self.read, &self.producer, context)
+            },
+            _ => Err(freeze("expression/reference-source-node")),
+        }
     }
     /// The SAME scalar producer/provenance check for a loop's original Entry.
     /// No expression frame or read site is synthesized or consumed.
@@ -305,16 +344,24 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
             })
         }
         Reference::ArgumentEntry(required) => text_entry_operand(required, read, producer, context),
-        Reference::FiniteEntry { read: original, .. } => text_entry_operand(original.requirement(), read, producer, context),
+        Reference::FiniteEntry { read: original, .. } => {
+            let value = entry_value(original.requirement(), read, producer, context)?;
+            if original.signed_only() { Ok(Operand::NormalInteger(value)) }
+            else if original.leaf_class(None) == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)) { Ok(Operand::BorrowedText(value)) }
+            else { Err(freeze("expression/reference-execution-pending/text-entry-domain")) }
+        },
     }
 }
-fn prepare_text_entry(
+fn prepare_entry(
     required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
     initializer: Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
     read: &ExactLexicalReadV1, context: CallValidationContextV1<'_>, function: &MirFunction,
 ) -> Result<ValueId, String> {
     let (entry, _, domain) = context.ledger().validate_prepared_finite_entry_read_v1(required, function, read)?;
-    if !domain.text_only() || initializer.is_some_and(|original| !original.corroborates_finite_domain_v1(&domain)) {
+    if initializer.map_or(!domain.text_only(), |original|
+        !original.corroborates_finite_domain_v1(&domain)
+            || !(domain.text_only() || domain.signed_only() || domain.bool_only())) {
         return Err(freeze("expression/reference-execution-pending/text-entry-domain"));
     }
     let (index, count, receivers, symbol) = context.ledger().original_entry_layout_v1(
@@ -330,7 +377,10 @@ fn prepare_text_entry(
 }
 fn text_entry_operand(required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
     read: &ExactLexicalReadV1, producer: &ReferenceProducerV1, context: CallValidationContextV1<'_>,
-) -> Result<Operand, String> {
+) -> Result<Operand, String> { entry_value(required, read, producer, context).map(Operand::BorrowedText) }
+fn entry_value(required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+    read: &ExactLexicalReadV1, producer: &ReferenceProducerV1, context: CallValidationContextV1<'_>,
+) -> Result<ValueId, String> {
     let entries = context.ledger().borrowed_ordinary_entry_values_v1(required.binding().owner())?;
     let mut matching = entries.iter().filter(|(ordinal, formal, _)| (*ordinal, *formal) == required.formal());
     let entry = matching.next().ok_or_else(|| freeze("expression/reference-text-entry-value"))?.2;
@@ -338,8 +388,8 @@ fn text_entry_operand(required: &crate::mir::normal_callable_semantic_package::B
         return Err(freeze("expression/reference-text-entry-producer"));
     }
     read.loan_forwarded_copies(required.formal().1, entry)?;
-    Ok(Operand::BorrowedText(read.value_for(required.binding().owner(), required.read().node(), required.binding())
-        .map_err(|error| error.to_string())?))
+    read.value_for(required.binding().owner(), required.read().node(), required.binding())
+        .map_err(|error| error.to_string())
 }
 fn signed_entry_layout(binding: crate::mir::resolved_semantics::BindingRefV1, formal: crate::mir::resolved_semantics::BindingRefV1,
     context: CallValidationContextV1<'_>,
