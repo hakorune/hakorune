@@ -65,6 +65,14 @@ uint32_t wrap_store(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t,size_t n,i
   if(fail("store",++store_attempts)) return inject(f,s);
   return real_store(f,p,s,h,t,n,v);
 }
+uint32_t real_residence(void*,uint32_t,uint64_t,int64_t,int64_t,size_t,int64_t,int64_t,uint32_t)
+ __asm__("__real_nyash.object.checked_residence_set_v1");
+uint32_t wrap_residence(void*,uint32_t,uint64_t,int64_t,int64_t,size_t,int64_t,int64_t,uint32_t)
+ __asm__("__wrap_nyash.object.checked_residence_set_v1");
+uint32_t wrap_residence(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t,size_t n,int64_t child,int64_t value,uint32_t outcome) {
+  if(fail("store",++store_attempts)) return inject(f,s);
+  return real_residence(f,p,s,h,t,n,child,value,outcome);
+}
 static void drop_object(int64_t h) {
   unsigned i=0; while(i<objects && (!object_live[i] || handles[i]!=h)) ++i;
   assert(i<objects); object_live[i]=0;
@@ -136,7 +144,7 @@ int64_t test_entry(void) {
       assert(!wrap_array(&frame,104,&array));
       assert(!wrap_store(&frame,1,105,child,HAKO_TEST_CHILD_TYPE,a,array));
     }
-    assert(!wrap_store(&frame,1,106,parent,HAKO_TEST_PARENT_TYPE,c+1,child));
+    assert(!wrap_residence(&frame,1,106,parent,HAKO_TEST_PARENT_TYPE,c+1,HAKO_TEST_CHILD_TYPE,child,1));
   }
   uint32_t status=test_complete_end(&frame,parent,107);
   assert(status==(fail_at ? 1u : 0u));

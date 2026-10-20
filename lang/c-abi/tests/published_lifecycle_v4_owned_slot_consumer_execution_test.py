@@ -23,7 +23,8 @@ with tempfile.TemporaryDirectory(prefix='hako owned slots ') as directory:
         '-L' + str(ROOT / 'target/release'), '-lhako_llvmc_ffi',
         '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
     wraps = ['object.checked_new_v1', 'array.checked_new_v1',
-        'object.checked_field_set_v1', 'object.home_release_plain_i64_v1',
+        'object.checked_field_set_v1', 'object.checked_residence_set_v1',
+        'object.home_release_plain_i64_v1',
         'object.reclaim_unpublished_v1', 'fault.frame_init_v1',
         'fault.frame_dispose_v1', 'fault.report_final_v1']
     for capture in sys.argv[1:]:
