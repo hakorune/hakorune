@@ -9,11 +9,98 @@ use std::cell::OnceCell;
 type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
+enum FieldAppendArgumentV1 {
+    Integer(ObservedSourceValueV1),
+    Text(FieldAppendTextProjectionV1),
+}
+/// Original expression observations belong to this append; no second source pool.
+#[derive(Debug)]
+pub(crate) struct FieldAppendTextProjectionV1 {
+    field: Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>,
+    receiver_binding: Binding,
+    values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+    reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
+    frame: ValueId, entry: Binding, terminal: Binding, continuation: Binding,
+    expression_bindings: Vec<Binding>,
+}
+impl FieldAppendTextProjectionV1 {
+    pub(in crate::mir) fn new(field: Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>, receiver_binding: Binding,
+        values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+        reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
+        frame: ValueId, entry: Binding, terminal: Binding, continuation: Binding, expression_bindings: Vec<Binding>,
+    ) -> Self { Self { field, receiver_binding, values, reads, frame, entry, terminal, continuation, expression_bindings } }
+    fn expression<'a>(&'a self, source: &'a FieldArrayAppendSourceLoanV1) -> Result<super::ExpressionPhysicalProjectionRefV1<'a>, String> {
+        let frame = source.text_frame().ok_or_else(|| freeze("field-array-append/source-operands"))?;
+        Ok(super::ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &self.values, &[], &[], &self.reads, &self.expression_bindings))
+    }
+    pub(crate) fn append_dependencies(&self, bindings: &mut Vec<Binding>) -> Result<(), String> {
+        for read in self.reads.values() {
+            for row in read.dependencies()? { if !bindings.contains(&row) { bindings.push(row); } }
+        }
+        Ok(())
+    }
+    fn validate(&self, source: &FieldArrayAppendSourceLoanV1, receiver: &ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&FinishedBindings>, invoke: &Binding,
+    ) -> Result<ValueId, String> {
+        let frame = source.text_frame().ok_or_else(|| freeze("field-array-append/source-operands"))?;
+        let original = context.ledger().text_append_receiver_binding_v1(source, &self.field, context)?;
+        let base = receiver.value_for(source.site().owner(), frame.receiver_read().node(), frame.receiver())
+            .map_err(|issue| issue.to_string())?;
+        let MirInstruction::ObjectFieldGet { dst, base: actual, field } = self.receiver_binding.1
+            else { return Err(freeze("field-array-append/source-operands")) };
+        if original != self.receiver_binding || actual != base || field != frame.source().field() {
+            return Err(freeze("field-array-append/source-operands"));
+        }
+        let expression = self.expression(source)?;
+        expression.validate_source(context)?;
+        let actual = finishing.map(|p| p.bindings(&self.expression_bindings)).transpose()?;
+        expression.validate_recorded(actual.as_deref().unwrap_or(&self.expression_bindings), finishing)?;
+        let covered = expression.validate_local_continuation_v1(context, function, finishing,
+            &self.entry, &self.terminal, &self.continuation, None, None)?;
+        let map = |row: &Binding| match finishing { Some(p) => p.binding(row.0, &row.1)?
+            .ok_or_else(|| freeze("field-array-append/mandatory-binding")), None => Ok(row.clone()) };
+        let read = match finishing { Some(p) => p.relation_binding(function, &self.receiver_binding)?
+            .ok_or_else(|| freeze("field-array-append/mandatory-binding"))?, None => self.receiver_binding.clone() };
+        let invoke = map(invoke)?;
+        if !matches!(invoke.1, MirInstruction::Invoke { fault_frame, .. } if fault_frame == self.frame) {
+            return Err(freeze("field-array-append/invoke-shape"));
+        }
+        let frame_binding = expression.require_unique(|row| matches!(row,
+            MirInstruction::FaultFrameEnter { dst, .. } if *dst == self.frame))?;
+        let frame_binding = map(frame_binding)?;
+        if !super::super::physical_boundary::check_binding(function, None, frame_binding.0, &frame_binding.1)? {
+            return Err(freeze("field-array-append/physical-binding"));
+        }
+        let entry = match finishing {
+            Some(p) => p.structural_jump_binding(function, &self.entry, matches!(context, CallValidationContextV1::Finalized(_)))?,
+            None => Some(self.entry.clone()),
+        };
+        // Source validation restricts this to a passive Text scope. Approved
+        // contraction keeps read-before-append without demanding an empty Jump.
+        super::expression_projection::normal_order(function, &[read, entry.unwrap_or_else(|| invoke.clone())])?;
+        let MirInstruction::Jump { target, edge_args: None } = self.continuation.1
+            else { return Err(freeze("field-array-append/invoke-operands")) };
+        let target = finishing.map_or(Some(target), |p| p.destination(target));
+        if target != Some(invoke.0) { return Err(freeze("field-array-append/invoke-operands")); }
+        if finishing.is_none() {
+            let mut ordered = expression.ordered_bindings_in_context(context)?;
+            ordered.push(self.terminal.clone());
+            expression.validate_original_scope(context.ledger(), function, &covered, &self.entry, &self.terminal, &self.continuation, &ordered)?;
+        }
+        Ok(dst)
+    }
+    fn operand(&self) -> Result<&crate::mir::instruction::StringInvokeOperand, String> {
+        self.values.first().and_then(Option::as_ref).filter(|value| value.is_text())
+            .ok_or_else(|| freeze("field-array-append/source-operands"))
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct EmittedFieldArrayAppendV1 {
     source: FieldArrayAppendSourceLoanV1,
     receiver: Rc<ExactLexicalReadV1>,
-    argument: ObservedSourceValueV1,
-    pins: [Rc<LocalSsaPhysicalRelationV1>; 2],
+    argument: FieldAppendArgumentV1,
+    pins: Vec<Rc<LocalSsaPhysicalRelationV1>>,
     invoke: Binding,
     continuation: Binding,
     original: Vec<Binding>,
@@ -32,7 +119,7 @@ impl EmittedFieldArrayAppendV1 {
     /// before PhysicalBoundary capture; never reconstruct it from final MIR.
     pub(super) fn seal_bindings_v1(&self) -> Result<(), String> {
         if self.completed.get().is_some() { return Ok(()); }
-        self.argument.require_completed_v1()?;
+        if let FieldAppendArgumentV1::Integer(argument) = &self.argument { argument.require_completed_v1()?; }
         for pin in &self.pins { pin.require_completed_v1()?; }
         let mut bindings = Vec::new();
         for original in &self.original {
@@ -42,7 +129,8 @@ impl EmittedFieldArrayAppendV1 {
         self.completed.set(bindings).map_err(|_| freeze("field-array-append/duplicate-seal"))
     }
     pub(super) fn resolve_observed_binding_v1(&self, original: &Binding, require_completed: bool) -> Result<Binding, String> {
-        let mut resolved = self.argument.resolve_binding_v1(original, require_completed)?;
+        let mut resolved = match &self.argument { FieldAppendArgumentV1::Integer(argument) => argument.resolve_binding_v1(original, require_completed)?,
+            FieldAppendArgumentV1::Text(_) => None };
         for pin in &self.pins {
             if resolved.is_none() { resolved = pin.resolve_observed_binding_v1(original, require_completed)?; }
         }
@@ -54,7 +142,17 @@ impl EmittedFieldArrayAppendV1 {
         invoke: Binding, continuation: Binding, original: Vec<Binding>, fault_bindings: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        let packet = Self { source, receiver, argument, pins, invoke, continuation, original, completed: OnceCell::new(), fault_bindings };
+        let packet = Self { source, receiver, argument: FieldAppendArgumentV1::Integer(argument), pins: pins.to_vec(), invoke, continuation, original, completed: OnceCell::new(), fault_bindings };
+        packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
+        Ok(packet)
+    }
+    pub(in crate::mir) fn new_text(source: FieldArrayAppendSourceLoanV1, receiver: Rc<ExactLexicalReadV1>,
+        argument: FieldAppendTextProjectionV1, pin: Rc<LocalSsaPhysicalRelationV1>,
+        invoke: Binding, continuation: Binding, original: Vec<Binding>, fault_bindings: Vec<Binding>,
+        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<Self, String> {
+        let packet = Self { source, receiver, argument: FieldAppendArgumentV1::Text(argument), pins: vec![pin],
+            invoke, continuation, original, completed: OnceCell::new(), fault_bindings };
         packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(packet)
     }
@@ -72,16 +170,25 @@ impl EmittedFieldArrayAppendV1 {
     ) -> Result<(), String> {
         let ledger = context.ledger();
         self.source.validate_source(ledger)?;
-        self.argument.validate_source(self.source.site().owner(), self.source.integer_argument()?)?;
-        let receiver = self.receiver.value_for(self.source.site().owner(), self.source.receiver_site().node(), self.source.integer_requirement()?.binding())
-            .map_err(|issue| issue.to_string())?;
-        if self.pins[0].values().0 != receiver || self.pins[1].values().0 != self.argument.root_value() {
-            return Err(freeze("field-array-append/pin-origin"));
-        }
+        let receiver = match &self.argument {
+            FieldAppendArgumentV1::Integer(argument) => {
+                argument.validate_source(self.source.site().owner(), self.source.integer_argument()?)?;
+                if self.pins.len() != 2 || self.pins[1].values().0 != argument.root_value() { return Err(freeze("field-array-append/pin-origin")); }
+                self.receiver.value_for(self.source.site().owner(), self.source.receiver_site().node(), self.source.integer_requirement()?.binding())
+                    .map_err(|issue| issue.to_string())?
+            }
+            FieldAppendArgumentV1::Text(argument) => {
+                if self.pins.len() != 1 { return Err(freeze("field-array-append/pin-origin")); }
+                argument.validate(&self.source, &self.receiver, context, function, finishing, &self.invoke)?
+            }
+        };
+        if self.pins[0].values().0 != receiver { return Err(freeze("field-array-append/pin-origin")); }
         let mut project_relation = |original: &Binding| -> Result<Option<Binding>, String> {
             match finishing { Some(p) => p.relation_binding(function, original), None => Ok(Some(original.clone())) }
         };
-        self.argument.validate(function, &mut project_relation).map_err(|issue| format!("{issue} field-array-append=argument finishing={}", finishing.is_some()))?;
+        if let FieldAppendArgumentV1::Integer(argument) = &self.argument {
+            argument.validate(function, &mut project_relation).map_err(|issue| format!("{issue} field-array-append=argument finishing={}", finishing.is_some()))?;
+        }
         for pin in &self.pins {
             pin.verify_projected(function, &mut project_relation).map_err(|issue| format!("{issue} field-array-append=pin {:?} finishing={}", pin.values(), finishing.is_some()))?;
         }
@@ -110,7 +217,11 @@ impl EmittedFieldArrayAppendV1 {
             None => Some(self.continuation.clone()),
         };
         let normal_block = finishing.map_or(Some(self.continuation.0), |p| p.destination(self.continuation.0));
-        if *receiver != self.pins[0].values().1 || value.scalar() != Some(self.pins[1].values().1)
+        let value_matches = match &self.argument {
+            FieldAppendArgumentV1::Integer(_) => value.scalar() == Some(self.pins[1].values().1),
+            FieldAppendArgumentV1::Text(argument) => matches!(value, crate::mir::instruction::ArrayElementWriteValueV1::Text(actual) if actual == argument.operand()?),
+        };
+        if *receiver != self.pins[0].values().1 || !value_matches
             || Some(*normal_landing) != normal_block || normal_landing == fault_landing
             || continuation.as_ref().is_some_and(|row| !matches!(row.1, MirInstruction::Jump { edge_args: None, .. })) {
             return Err(freeze("field-array-append/invoke-operands"));
@@ -178,5 +289,19 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn record_field_array_append_bindings_v1(&self, packet: Rc<EmittedFieldArrayAppendV1>) -> Result<(), String> {
         self.prepare_local_call_binding_group(packet.source.site().owner(),
             RootLifecyclePrefixBindingGroupV1::new_field_append(Rc::clone(&packet), packet.bindings().to_vec())?)?.commit()
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn capture_field_text_appends_v1(&self, owner: FunctionOwnerIdV1)
+        -> Result<Vec<crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1>, String> {
+        let groups = self.root_local_call_bindings.borrow();
+        let mut rows = Vec::new();
+        for group in groups.get(&owner).into_iter().flatten() {
+            let Some(packet) = group.field_array_append_packet_v1() else { continue };
+            if packet.source().text_frame().is_none() { continue; }
+            rows.push(crate::mir::normal_callable_semantic_package::core_method_source::emission::EmittedNamedArrayWriteV1::from_checked_text_v1(Rc::clone(packet))?);
+        }
+        Ok(rows)
     }
 }

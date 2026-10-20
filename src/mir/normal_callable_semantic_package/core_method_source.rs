@@ -5,7 +5,7 @@
 //! Checked read contract: [field reads](core_method_source/README.md).
 
 mod collector;
-mod emission;
+pub(in crate::mir::normal_callable_semantic_package) mod emission;
 mod field_append;
 mod ordinary;
 pub(crate) use ordinary::{ExpressionCoreSourceLoanV1, FieldMapReceiverSourceV1};

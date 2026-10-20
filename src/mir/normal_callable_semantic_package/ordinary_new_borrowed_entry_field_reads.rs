@@ -8,6 +8,24 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, ResolvedLexicalRefV1};
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Reborrow the exact recorded receiver of the original Text append.
+    pub(in crate::mir::normal_callable_semantic_package) fn text_append_receiver_binding_v1(&self,
+        source: &crate::mir::normal_callable_semantic_package::FieldArrayAppendSourceLoanV1, descriptor: &Rc<LocalFieldReadSourceV1>,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(BasicBlockId, MirInstruction), String> {
+        source.validate_source(self)?;
+        let frame = source.text_frame().ok_or_else(|| fault("source-descriptor-drift"))?;
+        let rows = self.local_field_reads.borrow();
+        let row = rows.get(frame.source().receiver()).ok_or_else(|| fault("missing-source-site"))?;
+        self.recheck_local_field_source_v1(frame.source().receiver(), row, context)?;
+        let LocalReadProgress::Emitted { block, instruction, source: emitted } = &row.progress else { return Err(fault("unconsumed-read")) };
+        if !Rc::ptr_eq(descriptor, &row.source) || !Rc::ptr_eq(emitted, descriptor)
+            || !matches!(descriptor.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(original)
+                if original.text_append_origin_v1().is_some_and(|original| source.matches_text_frame(original)))
+            || !descriptor.corroborates_instruction(instruction) { return Err(fault("source-descriptor-drift")); }
+        Ok((*block, instruction.clone()))
+    }
+
     pub(in crate::mir) fn stage_source_array_receiver_v1(&self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &OwnedExprSiteV1, name: &str,

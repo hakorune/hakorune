@@ -11,6 +11,7 @@ type Key = (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1);
 enum Expected {
     OwnedHolder(std::rc::Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>),
     Write(FunctionOwnerIdV1),
+    FieldAppend(super::FieldArrayAppendSourceLoanV1),
     Read(std::rc::Rc<super::field_read::FieldArrayReadRecipeV1>),
 }
 #[derive(Debug)]
@@ -42,6 +43,41 @@ impl NamedArrayEmissionCollectorV1 {
             expected: Ok(expected),
             emitted: RefCell::new(BTreeMap::new()),
         }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn with_field_appends(mut self,
+        sources: Result<Vec<super::FieldArrayAppendSourceLoanV1>, String>,
+        providers: &mut super::NamedArrayFieldProviderTableV1,
+    ) -> Self {
+        self.expected = self.expected.and_then(|mut expected| {
+            for source in sources? {
+                let frame = source.text_frame().ok_or_else(|| fault("checked-source-mismatch"))?;
+                let fields = providers.entry(frame.source().provider().clone()).or_default();
+                if fields.get(frame.source().provider_site()).is_some_and(|field| *field != frame.source().field()) {
+                    return Err(fault("read-provider-conflict"));
+                }
+                fields.insert(frame.source().provider_site().clone(), frame.source().field());
+                let key = (frame.source().caller().clone(), source.site().site().clone());
+                if expected.insert(key, Expected::FieldAppend(source)).is_some() { return Err(fault("read-source-conflict")); }
+            }
+            Ok(expected)
+        });
+        self
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_field_appends(&self,
+        sources: Vec<super::FieldArrayAppendSourceLoanV1>,
+    ) -> Result<(), String> {
+        let expected = self.expected.as_ref().map_err(Clone::clone)?;
+        if expected.values().filter(|row| matches!(row, Expected::FieldAppend(_))).count() != sources.len() {
+            return Err(fault("read-source-domain-drift"));
+        }
+        for source in sources {
+            let frame = source.text_frame().ok_or_else(|| fault("checked-source-mismatch"))?;
+            let Some(Expected::FieldAppend(original)) = expected.get(&(frame.source().caller().clone(), source.site().site().clone()))
+                else { return Err(fault("read-source-domain-drift")) };
+            if !original.same_source(&source) { return Err(fault("read-original-source-drift")); }
+        }
+        Ok(())
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn with_field_reads(
@@ -121,6 +157,7 @@ impl NamedArrayEmissionCollectorV1 {
             let expected = self.expected.as_ref().map_err(Clone::clone)?;
             let matches = match (expected.get(&key), &row) {
                 (Some(Expected::Write(owner)), EmittedNamedArrayRequirementV1::Write(_)) => *owner == row.owner(),
+                (Some(Expected::FieldAppend(original)), EmittedNamedArrayRequirementV1::Write(write)) => write.borrows_append_source_v1(original),
                 (Some(Expected::Read(original)), EmittedNamedArrayRequirementV1::Read(read)) => original.same_source(&read.recipe),
                 (Some(Expected::OwnedHolder(original)), EmittedNamedArrayRequirementV1::OwnedHolder(holder)) => std::rc::Rc::ptr_eq(original, holder.recipe()),
                 _ => false,

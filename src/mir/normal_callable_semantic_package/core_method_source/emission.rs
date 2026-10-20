@@ -17,8 +17,19 @@ pub(crate) struct NamedArrayEmissionDraftV1 {
 }
 
 #[derive(Debug)]
+enum NamedArrayWriteSourceV1 {
+    Selected(SelectedSourceCoreMethodCallV1),
+    FieldAppend(super::FieldArrayAppendSourceLoanV1),
+}
+impl NamedArrayWriteSourceV1 {
+    fn selected(&self) -> Option<&SelectedSourceCoreMethodCallV1> {
+        match self { Self::Selected(row) => Some(row), Self::FieldAppend(_) => None }
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct EmittedNamedArrayWriteV1 {
-    source: SelectedSourceCoreMethodCallV1,
+    source: NamedArrayWriteSourceV1,
     marker: NamedArrayWriteMarkerV1,
     checked: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedFieldArrayAppendV1>>,
 }
@@ -30,6 +41,12 @@ pub(crate) enum EmittedNamedArrayRequirementV1 {
     Read(super::field_read::EmittedFieldArrayReadV1),
 }
 impl EmittedNamedArrayRequirementV1 {
+    pub(in crate::mir) fn checked_text_append_marker_v1(
+        packet: &std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedFieldArrayAppendV1>,
+    ) -> Result<NamedArrayWriteMarkerV1, String> {
+        EmittedNamedArrayWriteV1::from_checked_text_v1(std::rc::Rc::clone(packet))?.marker()
+            .ok_or_else(|| fault("write-marker-missing"))
+    }
     pub(crate) fn caller(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
         match self { Self::Write(row) => row.caller(), Self::Read(row) => row.recipe.caller(), Self::OwnedHolder(row) => row.caller() }
     }
@@ -96,7 +113,7 @@ impl NamedArrayEmissionDraftV1 {
         }
         let allocation = self.allocation.clone();
         Ok(EmittedNamedArrayRequirementV1::Write(EmittedNamedArrayWriteV1 {
-            source: self.source,
+            source: NamedArrayWriteSourceV1::Selected(self.source),
             checked: None,
             marker: NamedArrayWriteMarkerV1 {
                 owner,
@@ -121,18 +138,44 @@ impl EmittedNamedArrayWriteV1 {
     pub(in crate::mir) fn borrows_field_residence_v1(
         &self, requirement: &std::rc::Rc<crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1>,
     ) -> bool {
-        matches!(self.source.contract().named_array_requirement(),
+        matches!(self.source.selected().and_then(|source| source.contract().named_array_requirement()),
             Some(NamedArrayRequirementV1::FieldResidence(original))
                 if std::rc::Rc::ptr_eq(original, requirement))
     }
     pub(crate) fn caller(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
-        &self.source.caller
+        match &self.source {
+            NamedArrayWriteSourceV1::Selected(source) => &source.caller,
+            NamedArrayWriteSourceV1::FieldAppend(source) => source.text_frame().expect("Text source issuer").source().caller(),
+        }
     }
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.source.contract().owner()
+        match &self.source { NamedArrayWriteSourceV1::Selected(source) => source.contract().owner(),
+            NamedArrayWriteSourceV1::FieldAppend(source) => source.site().owner() }
     }
     pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
-        self.source.contract().call_site()
+        match &self.source { NamedArrayWriteSourceV1::Selected(source) => source.contract().call_site(),
+            NamedArrayWriteSourceV1::FieldAppend(source) => source.site().site() }
+    }
+    pub(crate) fn borrows_append_source_v1(&self, source: &super::FieldArrayAppendSourceLoanV1) -> bool {
+        match &self.source {
+            NamedArrayWriteSourceV1::Selected(_) => source.integer_requirement().is_ok_and(|requirement| self.borrows_field_residence_v1(requirement)),
+            NamedArrayWriteSourceV1::FieldAppend(original) => original.same_source(source),
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn from_checked_text_v1(
+        packet: std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedFieldArrayAppendV1>,
+    ) -> Result<EmittedNamedArrayRequirementV1, String> {
+        let source = packet.source();
+        let frame = source.text_frame().ok_or_else(|| fault("checked-source-mismatch"))?;
+        let crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+            site_id, receiver, value: value @ crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. }, .. } = &packet.invoke_binding().1
+            else { return Err(fault("checked-source-mismatch")) };
+        let marker = NamedArrayWriteMarkerV1 { owner: source.site().owner(),
+            allocation: NamedArrayAllocationRefV1::FieldResidence { field: frame.source().field(),
+                provider_caller: frame.source().provider().clone(), provider_site: frame.source().provider_site().clone() },
+            receiver: *receiver, argument: value.clone(), write: *site_id };
+        Ok(EmittedNamedArrayRequirementV1::Write(Self { source: NamedArrayWriteSourceV1::FieldAppend(source.clone()),
+            marker, checked: Some(packet) }))
     }
 
     pub(crate) fn marker(&self) -> NamedArrayWriteMarkerV1 {
@@ -144,7 +187,7 @@ impl EmittedNamedArrayWriteV1 {
             return Err(fault("marker-owner-mismatch"));
         }
         let symbol = module
-            .canonical_callable_definition_symbol(&self.source.caller)
+            .canonical_callable_definition_symbol(self.caller())
             .ok_or_else(|| fault("canonical-caller-missing"))?;
         let function = module
             .functions
@@ -154,10 +197,13 @@ impl EmittedNamedArrayWriteV1 {
             return Err(fault("physical-caller-drift"));
         }
         if let Some(packet) = &self.checked {
-            if !packet.source().integer_requirement().is_ok_and(|requirement| self.borrows_field_residence_v1(requirement)) { return Err(fault("checked-source-mismatch")); }
+            if !self.borrows_append_source_v1(packet.source()) { return Err(fault("checked-source-mismatch")); }
             packet.validate_marker(function, &self.marker)?;
             crate::mir::named_array_obligation::validate_array_allocation(module, function, &self.marker.allocation)?;
-        } else { validate_physical_marker(module, function, &self.marker)?; }
+        } else {
+            if matches!(self.source, NamedArrayWriteSourceV1::FieldAppend(_)) { return Err(fault("checked-source-mismatch")); }
+            validate_physical_marker(module, function, &self.marker)?;
+        }
         Ok(symbol)
     }
 }
@@ -190,16 +236,19 @@ pub(crate) fn validate_named_array_coverage(
             claimed_providers.insert((module.canonical_callable_definition_symbol(read.recipe.provider()).ok_or_else(|| fault("provider-symbol-missing"))?.to_owned(), read.recipe.provider_site().clone()));
             continue;
         };
-        let requirement = row
-            .source
-            .contract()
-            .named_array_requirement()
-            .ok_or_else(|| fault("source-requirement-missing"))?;
-        if !source_calls.insert((symbol, requirement.call())) {
-            return Err(fault("duplicate-source-write"));
-        }
+        if !source_calls.insert((symbol, row.call_site())) { return Err(fault("duplicate-source-write")); }
+        let requirement = row.source.selected().and_then(|source| source.contract().named_array_requirement());
+        if let NamedArrayWriteSourceV1::FieldAppend(source) = &row.source {
+            let frame = source.text_frame().ok_or_else(|| fault("checked-source-mismatch"))?;
+            if row.marker.allocation != (NamedArrayAllocationRefV1::FieldResidence {
+                field: frame.source().field(), provider_caller: frame.source().provider().clone(),
+                provider_site: frame.source().provider_site().clone() }) { return Err(fault("provider-binding-mismatch")); }
+            let provider = module.canonical_callable_definition_symbol(frame.source().provider())
+                .ok_or_else(|| fault("provider-symbol-missing"))?;
+            claimed_providers.insert((provider.to_owned(), frame.source().provider_site().clone()));
+        } else if requirement.is_none() { return Err(fault("source-requirement-missing")); }
         match requirement {
-            NamedArrayRequirementV1::Construction(requirement) => {
+            Some(NamedArrayRequirementV1::Construction(requirement)) => {
                 let NamedArrayAllocationRefV1::LocalValue(allocation) =
                     &row.marker.allocation
                 else {
@@ -216,7 +265,7 @@ pub(crate) fn validate_named_array_coverage(
                     return Err(fault("construction-allocation-mismatch"));
                 }
             }
-            NamedArrayRequirementV1::FieldResidence(requirement) => {
+            Some(NamedArrayRequirementV1::FieldResidence(requirement)) => {
                 let NamedArrayAllocationRefV1::FieldResidence {
                     field,
                     provider_caller,
@@ -237,6 +286,7 @@ pub(crate) fn validate_named_array_coverage(
                 claimed_providers
                     .insert((provider_symbol.to_owned(), provider_site.clone()));
             }
+            None => {}
         }
         if !covered.insert((symbol, row.marker.write.0)) {
             return Err(fault("duplicate-retained-write"));

@@ -138,6 +138,7 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
                 .into_inner()
                 .finish_with_named_arrays()?;
             rows.extend(ordinary_new_claim_ledger.capture_owned_array_holders_v1(input.owner())?);
+            rows.extend(ordinary_new_claim_ledger.capture_field_text_appends_v1(input.owner())?);
             match named_array_emissions {
                 Some(collector) => collector.hand_back(rows)?,
                 None if rows.is_empty() => {}

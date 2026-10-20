@@ -1,17 +1,17 @@
 # APP-json-stream-aggregator
-Status: Original Map get reaches shared terminal writer; full result publication/Call/Return remain incomplete. Date: 2026-10-21
+Status: Original Map get and Text append complete the source-scoped draft; Map install/final publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
-- Latest full suite at Map get transport landing: 7PASS/4FAIL,
-  actual EXE6 + marker1, 387.510s; no SKIP/timeout. Same required apps remain red.
+- Latest full suite at original Text append connection: 7PASS/4FAIL,
+  actual EXE6 + marker1, 380.560s; no SKIP/timeout. Same required apps remain red.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON passes statsFor Body3 users.push source qualification and now stops at
   owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
-  No MIR/EXE. current CLI49.21s/root58.50s PASS; frozen Text runtime/C pair retained.
+  No MIR/EXE. current CLI68.6s/root74.9s PASS; frozen Text runtime/C pair retained.
 - ABI-only Text append12 Normal/Fault runs (borrowed/direct static/owned, empty,
-  Unicode/NUL) and malformed9 refusals PASS; Rust source acceptance remains owed.
+  Unicode/NUL) and malformed9 refusals PASS; source-backed final publication/EXE remain owed.
 
 ## Retained connected contracts
 - One FieldResidence census carries every Array/Dynamic field, including Empty,
@@ -63,7 +63,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Checked Array9/root Array53 PASS; runtime7.04s/root62s builds. Two existing
   cases cover Text copy/lease/domain/End; existing descriptor/JSON cases cover new source boundaries. No new test
   function/file/hook/checker/guard/card; root inventory9263 retained.
-- Current 16 filters match parent diagnostics: result49/3, entry64/2, actuals82/4, source33/8, arguments12/1; Invoke42/JSON-source1/Map13/flow20/read5/Script3/scope3/ingress1/order5 PASS. Inventory9263 unchanged.
+- Current 20 filters match parent diagnostics: result49/3, entry64/2, actuals82/4, source33/8, arguments12/1; Invoke42/JSON-source1/Map13/flow20/read5/Script3/scope3/ingress1/order5 plus named-array/source/state PASS; read-claim7/2 unchanged. Inventory9263 unchanged.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep original source/physical contracts.
 
@@ -79,20 +79,20 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - LANDED runtime: checked Text append copies without consuming input lease;
   boxed append shares structured result/state gate. Text-only End retires once
   and drops detached contents outside the gate; empty-only End stays strict.
-- LANDED source: SAME Text frame stages canonical Array receiver through affine read; final read rechecks provider. Integer append packets still refuse Text.
+- LANDED Text append: SAME source frame/Completion selects the statement; original Me/ObjectFieldGet precedes passive Text evaluation. One Push/cleanup writer and packet retain full descriptor, exact dependencies/scope/FaultFrame; collector rechecks SAME frames/providers and both final consumers share the packet.
 - LANDED transport: checked Invoke, witness and marker share Scalar/Text payload;
   ABI keeps source kind or full descriptor at exact coordinates, SSA/lifetime checks.
   C shares descriptor/Array writers; numeric native and existing End remain strict.
 - LANDED source get: SAME terminal/get Arc, own receiver read and passive Text key reach shared root ingress/cleanup; get Return records in real selected Instance scope. Existing scope case extends this independent source→writer boundary; no new test function/file/hook. ABI-only runs8/refusals9 retained; current FieldHas EXE exit7.
-- Next: close remaining callee prefix/set EndOutcome, original Return/Call lifetime and final publication; Text append packet/End remain. Partial callee next stop is local-call-binding-sequence; full JSON remains source-pending.
+- Existing JSON scope case now requires one get, one Text append and both Return records, with draft completion. This independently covers source→Text writer; no new test function/file/hook. Text final-publication positive remains owed.
+- Next: original Map FieldInstall/candidate→InstallIndexed/EndOutcome and prior/Normal cleanup, source Return/Call lifetime/publication; complete Text End. Full JSON remains source-pending.
 - Map physical: shared InstallIndexed/EndOutcome with field/Text-key wrapper,
   prior vs Normal cleanup; no parent Map End. Array Text End needs source selection.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
   Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently; Provided Box, nullable Dynamic,
   Shared/carrier and full Dynamic activation remain owed.
-- Array holder/contents/End, exact empty-transfer census, canonical writer, signed
-  SUM/rebind/to_i64 and source/physical prior reds remain. Direct terminal Text Call
+- Array holder/contents/End, exact empty-transfer census, canonical writer, signed SUM/rebind/to_i64 and source/physical prior reds remain. Direct terminal Text Call
   lacks original argument source; non-Text key inference panic is not a valid refusal.
 - Unboxed native Bool cohort and generic canonical-JSON type profile still refuse.
 - App completion requires all smoke contracts and real EXE/output/exit; full goal

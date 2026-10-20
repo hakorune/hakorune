@@ -477,6 +477,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
                     ordinary_new_claim_ledger.stage_field_array_index_reads_v1(&recipes)?;
                     Ok(recipes)
                 }), &mut named_array_field_providers)
+                .with_field_appends(ordinary_new_claim_ledger.field_array_text_append_sources_v1(), &mut named_array_field_providers)
                 .with_owned_holders(ordinary_new_claim_ledger.owned_array_lifecycle_recipes_v1(&result_contracts)),
         );
         let catalog_brand = catalog.catalog().brand().clone();
@@ -574,6 +575,9 @@ impl InstalledNormalCallableSemanticPackageV1 {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
         }
         self.named_array_emissions.recheck_reads(self.ordinary_new_claim_ledger.field_array_read_recipes_v1()
+            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
+            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
+        self.named_array_emissions.recheck_field_appends(self.ordinary_new_claim_ledger.field_array_text_append_sources_v1()
             .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
             .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
         self.named_array_emissions.recheck_owned_holders(

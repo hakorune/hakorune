@@ -754,7 +754,7 @@ pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectio
 
 #[path = "root_call_entry/field_array_append_projection.rs"]
 mod field_array_append_projection;
-pub(crate) use field_array_append_projection::EmittedFieldArrayAppendV1;
+pub(crate) use field_array_append_projection::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1};
 
 #[path = "root_call_entry/borrowed_field_write_projection.rs"]
 mod borrowed_field_write_projection;

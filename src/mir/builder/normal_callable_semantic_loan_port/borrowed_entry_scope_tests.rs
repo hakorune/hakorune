@@ -246,9 +246,13 @@ fn selected_scope_adopts_existing_borrowed_formal_value() {
         matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Map(
             crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }), .. })).count();
     assert_eq!(gets, 1, "original get producer before the next incomplete boundary: {result:?}");
-    let issue = result.expect_err("full callee publication remains incomplete");
-    assert_eq!(ledger.emitted_root_exit_count_for_test(), 1,
-        "the original get Return must record before the next boundary: {issue}");
+    let appends = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
+        matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+            value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. }, .. })).count();
+    assert_eq!(appends, 1, "original Text argument must reach the shared append writer: {result:?}");
+    assert_eq!(ledger.emitted_root_exit_count_for_test(), 2,
+        "original get and installed Return must both record: {result:?}");
+    result.expect("source-scoped draft completion is separate from final Map Call/Return publication");
 }
 
 #[test]

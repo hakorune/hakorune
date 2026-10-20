@@ -20,6 +20,15 @@ pub(crate) struct FieldArrayAppendSourceLoanV1 {
     completion: Rc<VerifiedFunctionCompletionV1>,
 }
 impl FieldArrayAppendSourceLoanV1 {
+    pub(crate) fn text_frame(&self) -> Option<&Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1>> {
+        match &self.original { FieldArrayAppendOriginalV1::StatementText(frame) => Some(frame), _ => None }
+    }
+    pub(crate) fn same_source(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.completion, &other.completion) && match &other.original {
+            FieldArrayAppendOriginalV1::LoopInteger { proof, index } => self.matches_original(proof, *index),
+            FieldArrayAppendOriginalV1::StatementText(frame) => self.matches_text_frame(frame),
+        }
+    }
     pub(crate) fn receiver_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 { &self.receiver_site }
     pub(crate) fn integer_requirement(&self) -> Result<&Rc<NamedArrayFieldResidenceRequirementV1>, String> {
         match &self.original {
@@ -96,6 +105,15 @@ impl FieldArrayAppendSourceLoanV1 {
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn field_array_text_append_at_v1(&self, site: &OwnedExprSiteV1)
+        -> Result<Option<FieldArrayAppendSourceLoanV1>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
+        let Some(completion) = self.completion_source_for_owner_v1(site.owner()) else { return Ok(None) };
+        let Some(flow) = completion.cleanup().root_flow() else { return Ok(None) };
+        if !flow.named_arrays().iter().any(|row| matches!(row,
+            NamedArrayHomeObservationV1::FieldTextAppend(frame) if frame.source().call() == site)) { return Ok(None); }
+        self.field_array_text_append_source_v1(site).map(Some)
+    }
     /// Borrow the same original statement frame; never fabricate a Loop
     /// contract, Integer expression, Home transfer or physical admission.
     pub(crate) fn field_array_text_append_source_v1(&self, site: &OwnedExprSiteV1) -> Result<FieldArrayAppendSourceLoanV1, String> {

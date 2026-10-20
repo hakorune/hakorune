@@ -303,6 +303,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn field_array_append(&self) -> Option<&field_array_append_projection::EmittedFieldArrayAppendV1> {
         match &self.proof { PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet), _ => None }
     }
+    pub(super) fn field_array_append_packet_v1(&self) -> Option<&Rc<field_array_append_projection::EmittedFieldArrayAppendV1>> {
+        match &self.proof { PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet), _ => None }
+    }
     pub(super) fn new_field_append(packet: Rc<field_array_append_projection::EmittedFieldArrayAppendV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
         Ok(Self { site: packet.source().site().clone(), bindings, proof: PrefixPhysicalProofV1::FieldArrayAppend(packet), projected: false })
@@ -318,6 +321,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
             (PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_), LifecyclePrefixSourceV1::Call { .. }) => true,
             (PrefixPhysicalProofV1::FieldArrayAppend(packet), LifecyclePrefixSourceV1::FieldArrayAppend { proof, index, .. }) =>
                 packet.source().matches_original(proof, *index),
+            (PrefixPhysicalProofV1::FieldArrayAppend(packet), LifecyclePrefixSourceV1::FieldTextAppend { frame, .. }) => packet.source().matches_text_frame(frame),
             (PrefixPhysicalProofV1::BoolCondition(packet), LifecyclePrefixSourceV1::BoolCondition { frame, .. }) =>
                 Rc::ptr_eq(packet.frame(), frame),
             (PrefixPhysicalProofV1::PrintExpression(packet), LifecyclePrefixSourceV1::PrintExpression { frame, .. }) =>

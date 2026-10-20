@@ -71,6 +71,17 @@ physical correspondence and canonical app execution remain required before the
 new local consumer can be accepted. No separate classification map or fallback.
 
 
+Field-resident Push retains one original append loan: Integer Loop source or
+SAME statement Text frame, never a fabricated Loop/Integer contract. Text consumes
+the original Me read and canonical ObjectFieldGet before the shared expression
+writer evaluates the passive argument. The same append packet retains the full
+Text descriptor, expression scope, reference dependencies and FaultFrame; both
+kinds use one Push/cleanup graph. The package collector rechecks original Text
+frames/providers and consumes the SAME checked packet. Handback is pre-seal;
+required seals and independent finishing checks remain at the existing final
+phase. Copying Text grants no input Home/transfer/End. Prior Map installs, result
+Call/Return lifetimes and complete container End remain separate required proofs.
+
 Map presence and stored-object get share the original Map field/entry/Birth
 receiver proof. Each retained get lends its own affine receiver read site rather
 than reusing the earlier has occurrence. Its passive Text key uses the shared
