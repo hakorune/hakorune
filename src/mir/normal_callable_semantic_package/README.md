@@ -4925,8 +4925,12 @@ SAME installed initializer/rebind packet, original acquisition/install and that
 exit's unique Return value. Normal omits only this Home; Fault retains it.
 The original recorder, pending exit, finishing and both final consumers share
 this producer check, including projected bindings and mandatory membership.
-Independent physical String verification transfers only a sole live installed
-Home on a String Normal Return, with no pending replacement/temporary or Fault.
-Ordinary Text Call/result ABI, explicit Return-hold across sibling Text Homes,
-and direct returned-expression execution remain required connections through the
-same Call, Home and Completion owners; a plain install does not grant that hold.
+The same Return owner now issues an explicit hold before its cleanup graph. The
+original hold lives in the existing cleanup order (outside terminator bindings),
+joins the captured physical boundary, and is checked by both final consumers and
+the same publication event lender as Local installs. Normal cleanup omits only
+the held Home; Fault retains its original acquisition rank. Independent Rust/C
+lifetime checks permit only that same remaining Home to transfer on Normal, and
+reject duplicate holds, replacement, String borrowing or Calls while held.
+Ordinary Text Call/result ABI and direct returned-expression execution remain
+required connections through the same Call, Home and Completion owners.

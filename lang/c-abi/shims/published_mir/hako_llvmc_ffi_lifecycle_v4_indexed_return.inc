@@ -15,7 +15,9 @@ static int lv4_indexed_return(const hako_lv4_input* in,
        Normal cleanup. Pending replacements and Fault never publish a pair. */
     if (faulted || !result || result->kind != LV4_OWNED_STRING || result->origin < 0 ||
         (size_t)result->origin >= count || lv4_string_pending(state, count) ||
-        state[result->origin] <= LV4_STRING_HOME_BASE || state[result->origin] >= LV4_STRING_LIMIT)
+        lv4_string_rank(state[result->origin]) <= LV4_STRING_HOME_BASE ||
+        lv4_string_rank(state[result->origin]) >= LV4_STRING_LIMIT ||
+        (lv4_string_held(state, count) && !(state[result->origin] & LV4_STRING_RETURN)))
       return 0;
     state[result->origin] = 0;
   }

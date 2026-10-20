@@ -192,6 +192,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
     if (lv4_string_pending(state, count) && !lv4_is(op, "kind", "string_end")) return 0;
+    if (lv4_string_held(state, count) && (lv4_is(op, "kind", "ordinary_call") ||
+        (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
     } else if (hako_physical_string_operand_count(op)) {

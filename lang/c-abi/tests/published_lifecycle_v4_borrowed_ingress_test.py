@@ -273,6 +273,32 @@ def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱", r
         store = next(b for b in leaf['blocks'] if b['id'] == 3)
         store['terminator']['instruction']['fault'] = 6
         store['edges'] = [{'target': 1, 'args': None}, {'target': 6, 'args': None}]
+        # The returned Home is newer than another installed Home. Normal Ends
+        # only that sibling; Fault retains the original reverse acquisition order.
+        entry = leaf['blocks'][0]
+        original_add = copy.deepcopy(entry['terminator']['instruction']['operation'])
+        entry['terminator']['instruction'] = invoke({'kind': 'string_materialize',
+            'value': {'kind': 'static_text', 'utf8': 'older'}, 'site': 83}, 7, 2)
+        entry['edges'] = [{'target': 7, 'args': None}, {'target': 2, 'args': None}]
+        leaf['blocks'].extend([
+            block(7, [{'op': 'invoke_normal_result', 'invoke_block': 0, 'dst': 12},
+                      {'op': 'string_residence_install', 'value': 12}],
+                  invoke(original_add, 4, 8), (4, 8)),
+            block(8, [], invoke({'kind': 'string_end', 'value': 12, 'site': 84}, 2, 2), (2, 2)),
+            block(9, [], invoke({'kind': 'string_end', 'value': 11, 'site': 85}, 2, 2), (2, 2))])
+        acquired['instructions'][0]['instruction']['invoke_block'] = 7
+        ended['instructions'] = [{'index': 0, 'instruction':
+            {'op': 'string_residence_install', 'value': 11, 'returning': True}}]
+        ended['terminator'] = {'index': 1, 'instruction':
+            invoke({'kind': 'string_end', 'value': 12, 'site': 86}, 3, 9)}
+        ended['edges'] = [{'target': 3, 'args': None}, {'target': 9, 'args': None}]
+        failed_print = next(b for b in leaf['blocks'] if b['id'] == 6)
+        failed_print['terminator']['instruction'] = invoke(
+            {'kind': 'string_end', 'value': 11, 'site': 80}, 8, 8)
+        failed_print['edges'] = [{'target': 8, 'args': None}, {'target': 8, 'args': None}]
+        store['terminator']['instruction']['fault'] = 9
+        store['edges'] = [{'target': 1, 'args': None}, {'target': 9, 'args': None}]
+
         middle['blocks'][0]['terminator']['instruction']['operation']['result'] = 'text'
         normal = middle['blocks'][1]
         normal['instructions'].append({'index': len(normal['instructions']),
@@ -397,20 +423,28 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
                 capture_output=True, text=True)
             assert result.returncode == (70 if fault else 7), (owned, mode, result)
             assert (text + '\n' in result.stdout) == (mode in ['normal', 'fault-first']), result
-            ends = int(owned) + int(mode != 'text-add-fault')
+            ends = int(owned) + int(mode != 'text-add-fault') + int(result_kind == 'text')
             assert 'TEXT_ENDS ' + str(ends) + '\n' in result.stdout, (owned, mode, result)
             stores = int(mode in ['normal', 'fault-first'])
             assert f'COUNTS 1 {stores} 1 0 {int(fault)} 1\n' in result.stdout, result
         if result_kind == 'text':
-            for mutation in ['result-kind', 'spent-result', 'fault-omission']:
+            for mutation in ['result-kind', 'spent-result', 'fault-omission', 'double-hold', 'hold-replaces', 'normal-held-end']:
                 changed = copy.deepcopy(data)
                 leaf, middle = changed['functions'][2:]
                 if mutation == 'result-kind': middle['blocks'][0]['terminator']['instruction']['operation']['result'] = 'i64'
                 elif mutation == 'spent-result':
                     end = next(b for b in leaf['blocks'] if b['id'] == 1)
-                    end['terminator']['instruction'] = invoke({'kind': 'string_end', 'value': 11, 'site': 82}, 7, 2)
-                    end['edges'] = [{'target': 7, 'args': None}, {'target': 2, 'args': None}]
-                    leaf['blocks'].append(block(7, [], {'op': 'return', 'value': 11}))
+                    end['terminator']['instruction'] = invoke({'kind': 'string_end', 'value': 11, 'site': 82}, 10, 2)
+                    end['edges'] = [{'target': 10, 'args': None}, {'target': 2, 'args': None}]
+                    leaf['blocks'].append(block(10, [], {'op': 'return', 'value': 11}))
+                elif mutation in ['double-hold', 'hold-replaces', 'normal-held-end']:
+                    end = next(b for b in leaf['blocks'] if b['id'] == 5)
+                    if mutation == 'double-hold':
+                        end['instructions'].append({'index': 1,
+                            'instruction': copy.deepcopy(end['instructions'][0]['instruction'])})
+                        end['terminator']['index'] = 2
+                    elif mutation == 'hold-replaces': end['instructions'][0]['instruction']['replaces'] = 12
+                    else: end['terminator']['instruction']['operation']['value'] = 11
                 else:
                     end = next(b for b in leaf['blocks'] if b['id'] == 6)
                     end['terminator']['instruction'] = {'op': 'jump', 'target': 2, 'args': None}

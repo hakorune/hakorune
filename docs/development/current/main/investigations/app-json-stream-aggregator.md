@@ -6,10 +6,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Last official fixed suite: current Text Return proof change (base `1708a63402`),
-  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner479.051s.
-  Matching quick opt0 CLI39.64s, frozen quick lifecycle runtime/private C FFI;
-  build/run300s, no Cargo overlap. mimalloc152.331s, allocator176.409s, typed36–39s.
+- Last official fixed suite: Text Return-hold change (base `89bb05b551`),
+  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner481.619s.
+  Matching quick opt0 CLI1m02s, frozen quick lifecycle runtime/private C FFI;
+  build/run300s, no Cargo overlap. mimalloc153.938s, allocator177.829s, typed37–38s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900 --format json`.
 - Existing Self writes retain receiver/whole RHS/full source census through both
@@ -22,16 +22,17 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   original acquisition/install and this exit's unique Return value. Normal omits
   only that Home; Fault retains it. Recorder/pending/finishing/both final consumers
   use the same proof, including projected bindings and mandatory membership.
-- Physical String Return requires a sole live installed Home, String signature,
-  no pending replacement/temporary and non-Fault. Source permission remains separate.
-- Existing source Return case now reaches production document finishing and the
-  final consumer; returning the old, defined pre-rebind value is rejected.
-  Existing physical case covers Normal transfer, stale/Fault/temporary refusal.
-  These case extensions protect independent source-value and ownership boundaries;
-  no test functions/files/hooks/checker/refusal tokens added. Normal projection9PASS;
-  source Return1PASS, physical String1PASS; terminal6PASS/2FAIL, same names/causes
-  reproduced in the retained older test binary (not an exact prior-HEAD rebuild).
-- Matching quick opt0 CLI39.64s; unchanged JSON remains package/MIR generation
+- Explicit Return hold now retains the original Home rank in the existing cleanup
+  order and physical boundary. Both final consumers and the same publication event
+  lender require the original source/packet/unique hold; Normal skips only that Home,
+  Fault unwinds in original order. Rust/C reject double hold, replacement and borrowing.
+- Existing source case includes older/younger Homes, finalized handoff/publication,
+  removed hold and stale Return negatives. Existing Rust/C cases cover protected
+  Normal cleanup and Fault retention. These protect independent ownership boundaries;
+  no test functions/files/hooks/checker/refusal tokens added. Source/publication1,
+  physical String1, projection9 and C Text matrix(profile1/2)PASS; initializer79PASS/
+  2samepriorFAIL; terminal6PASS/2samepriorFAIL. Direct runs need16MiBstack (default overflowed).
+- Matching quick opt0 CLI1m02s; unchanged JSON remains package/MIR generation
   `borrowed-static/text-expression-execution-pending` before EXE/link/runtime.
   Owner26 Body3 intField argument0 line is pending after missing Body1 Ordinary
   Text Local stringField result. Body8 bytes has no current scalar read; owner3
@@ -51,9 +52,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Actual line/"user" arguments materialize owned temporaries: the same Call must
   hold its result below the exact argument suffix until cleanup succeeds, with
   remaining-argument End then result cancellation on Fault; no materialize bypass.
-  Return-hold must preserve original Home order: Normal skips only the held Home,
-  Fault keeps its original rank. Plain install alone cannot handle older Text
-  siblings. Reuse existing cleanup order/Call packet; no fake Local/parallel owner.
+  Existing-residence Return-hold is connected; fresh direct Text expression Return
+  and the same Call's result/argument cleanup remain owed. Reuse the existing
+  evaluation, cleanup order and Call packet; no fake Local or parallel owner.
 - Dynamic physical execution remains explicitly refused. Required next: checked
   Dynamic Integer view/replace preserving Fault-without-mutation, canonical layout
   publication, detached End/destruction and both final consumers. Runtime support

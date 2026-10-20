@@ -379,7 +379,7 @@ impl MirInstruction {
             MirInstruction::KeepAlive { values } => values.clone(),
             MirInstruction::DestroyOwned { value }
             | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
-            MirInstruction::StringResidenceInstall { value, replaces } => std::iter::once(*value).chain(*replaces).collect(),
+            MirInstruction::StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
             MirInstruction::ReleaseStrong { values } => values.clone(),
 
             // Phase 256 P1.5: Select instruction uses cond, then_val, else_val

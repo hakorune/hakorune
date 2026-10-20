@@ -186,7 +186,7 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
                             match mutation {
                                 "missing" => { body.instructions.remove(index); }
                                 "duplicate" => body.instructions.push(original.clone()),
-                                "foreign-root" => body.instructions[index] = crate::mir::MirInstruction::StringResidenceInstall { value: crate::mir::ValueId(99999), replaces: None },
+                                "foreign-root" => body.instructions[index] = crate::mir::MirInstruction::StringResidenceInstall { value: crate::mir::ValueId(99999), replaces: None, returning: false },
                                 "acquisition" => {
                                     let crate::mir::MirInstruction::StringResidenceInstall { value, .. } = original else { unreachable!() };
                                     let producer = changed_function.blocks.values_mut().flat_map(|body| body.instructions.iter_mut())

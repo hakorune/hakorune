@@ -181,7 +181,7 @@ impl JoinIrIdRemapper {
             // Phase 287: Lifecycle management collects all values
             KeepAlive { values } => values.clone(),
             DestroyOwned { value } | ArrayResidenceRelease { value } => vec![*value],
-            StringResidenceInstall { value, replaces } => std::iter::once(*value).chain(*replaces).collect(),
+            StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
             ReleaseStrong { values } => values.clone(),
             Throw { exception, .. } => vec![*exception],
             Catch {

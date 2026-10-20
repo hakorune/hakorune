@@ -1,4 +1,4 @@
-//! Exact installed Text Homes lent by their original evaluated-binding packet.
+//! Exact Text lifecycle events lent by their original binding and Return owners.
 use super::*;
 
 impl FinalizedRootSourceHandoffV1 {
@@ -41,7 +41,27 @@ impl FinalizedRootSourceHandoffV1 {
                         result.push(finished);
                     }
                     Ok(())
-                })
+                })?;
+                let exits = self.ledger.root_exits.borrow();
+                for ((row_owner, exit), progress) in exits.iter() {
+                    if *row_owner != owner { continue; }
+                    let RootHomeExitProgress::Emitted { order, entry, bindings, .. } = progress else { continue };
+                    let Some(original) = order.text_return_hold_binding() else { continue };
+                    let site = exit.explicit_site().ok_or_else(|| freeze("expression/residence-original-pair"))?;
+                    super::finalized_root_cleanup::validate_finished_cleanup_entry(context, owner, site,
+                        function, projection, order, entry, bindings, Some(projection))?;
+                    let finished = projection.binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("root-exit-binding-drift"))?;
+                    let count = function.blocks.iter().flat_map(|(block, body)|
+                        body.all_instructions().map(move |row| (*block, row)))
+                        .filter(|(block, row)| *block == finished.0 && **row == finished.1).count();
+                    if count != 1 || projection.recorded().iter().filter(|row| **row == finished).count() != 1
+                        || result.contains(&finished) {
+                        return Err(freeze("finished-initializer-home/install-membership"));
+                    }
+                    result.push(finished);
+                }
+                Ok(())
             })?;
         }
         Ok(result)

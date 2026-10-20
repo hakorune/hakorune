@@ -4,18 +4,47 @@ use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::ObjectReturnAcquisitionV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Issue the hold from the original Return relation and installed packet.
+    /// The builder emits this same event before entering the cleanup graph.
+    pub(crate) fn bind_root_text_return_hold_v1(
+        &self, owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1,
+        block: BasicBlockId, value: ValueId,
+    ) -> Result<Option<MirInstruction>, String> {
+        let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
+            else { return Ok(None) };
+        let TerminalReturnedSourceV1::TextResidence { acquisition, .. } = terminal.returned()
+            else { return Ok(None) };
+        let packet = CallValidationContextV1::Lowering(self).text_home_for_acquisition_v1(acquisition)?;
+        if terminal.owner() != owner || terminal.return_site() != exit
+            || !packet.acquisition().same_source(acquisition) || packet.value() != value
+            || packet.local_value() != value {
+            return Err(freeze("expression/residence-original-pair"));
+        }
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(RootHomeExitProgress::Emitting(order)) = exits.get_mut(&(owner, exit.clone().into()))
+            else { return Err(freeze("root-exit-record-without-emission")) };
+        if order.text_return_hold.is_some() { return Err(freeze("expression/residence-original-pair")); }
+        let hold = MirInstruction::StringResidenceInstall { value, replaces: None, returning: true };
+        order.text_return_hold = Some((block, hold.clone()));
+        Ok(Some(hold))
+    }
+
     /// A Text Return transfers exactly its original current residence after
     /// Normal cleanup. Its Fault source still owns that SAME acquisition.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_text_return_producer_v1(
         &self, context: CallValidationContextV1<'_>, owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1, entry: &RootHomeExitEntry,
+        exit: &SourceStmtSiteV1, order: &RootHomeCleanupOrderV1, entry: &RootHomeExitEntry,
         bindings: &[(BasicBlockId, MirInstruction)],
         producer_projection: Option<&FinishedBindings>, return_projection: Option<&FinishedBindings>,
     ) -> Result<Option<Vec<(BasicBlockId, MirInstruction)>>, String> {
         let Some(TerminalRelationV1::Value(value)) = self.terminal_relation_for_owner_at(owner, exit)
-            else { return Ok(None) };
+            else {
+                return if order.text_return_hold.is_none() { Ok(None) } else { Err(freeze("expression/residence-original-pair")) };
+            };
         let TerminalReturnedSourceV1::TextResidence { binding, acquisition } = value.returned()
-            else { return Ok(None) };
+            else {
+                return if order.text_return_hold.is_none() { Ok(None) } else { Err(freeze("expression/residence-original-pair")) };
+            };
         let normal = self.normal_exit_projection_v1(owner, exit)?
             .ok_or_else(|| freeze("projection-proof-identity"))?;
         let home = crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone());
@@ -41,9 +70,21 @@ impl OrdinaryNewClaimLedgerV1 {
             });
         }
         if !matches!(mandatory[0].1, MirInstruction::InvokeNormalResult { dst, .. } if dst == packet.value())
-            || !matches!(mandatory[1].1, MirInstruction::StringResidenceInstall { value, .. } if value == packet.value()) {
+            || !matches!(mandatory[1].1, MirInstruction::StringResidenceInstall { value, returning: false, .. } if value == packet.value()) {
             return Err(freeze("expression/residence-original-pair"));
         }
+        let original = order.text_return_hold.as_ref()
+            .ok_or_else(|| freeze("expression/residence-original-pair"))?;
+        if !matches!(original.1, MirInstruction::StringResidenceInstall {
+            value, replaces: None, returning: true } if value == packet.value())
+            || !matches!(bindings.last(), Some((block, MirInstruction::Jump { .. })) if *block == original.0) {
+            return Err(freeze("expression/residence-original-pair"));
+        }
+        mandatory.push(match return_projection {
+            Some(projection) => projection.binding(original.0, &original.1)?
+                .ok_or_else(|| freeze("root-exit-binding-drift"))?,
+            None => original.clone(),
+        });
         let returned = match return_projection { Some(projection) => projection.bindings(bindings)?,
             None => bindings.to_vec() };
         let mut returns = returned.iter().filter_map(|(_, row)| match row {

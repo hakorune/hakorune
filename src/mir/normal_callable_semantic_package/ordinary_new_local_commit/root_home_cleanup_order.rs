@@ -11,6 +11,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
         (crate::mir::BasicBlockId, crate::mir::MirInstruction),
     )>,
     pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
+    pub(super) text_return_hold: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
     direct: Option<(
         super::super::super::completion_index::DirectRootCleanupSourceV1,
         Option<crate::mir::ValueId>,
@@ -115,6 +116,12 @@ pub(crate) fn fault_indices_after_normal_step_v2(
 }
 
 impl RootHomeCleanupOrderV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn text_return_hold_binding(
+        &self,
+    ) -> Option<&(crate::mir::BasicBlockId, crate::mir::MirInstruction)> {
+        self.text_return_hold.as_ref()
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn ordinary(
         full: Vec<RootHomeReleaseOriginV1>,
     ) -> Result<Self, String> {
@@ -186,6 +193,7 @@ impl RootHomeCleanupOrderV1 {
             direct: None,
             scalar: None,
             null_return: None,
+            text_return_hold: None,
             implicit_void: None,
             full: full.into_boxed_slice(),
             normal,
@@ -215,6 +223,7 @@ impl RootHomeCleanupOrderV1 {
         next.direct = self.direct.take();
         next.scalar = self.scalar.take();
         next.null_return = self.null_return.take();
+        next.text_return_hold = self.text_return_hold.take();
         next.implicit_void = self.implicit_void.take();
         *self = next;
         Ok(())
@@ -233,6 +242,7 @@ impl RootHomeCleanupOrderV1 {
         next.direct = self.direct.take();
         next.scalar = self.scalar.take();
         next.null_return = self.null_return.take();
+        next.text_return_hold = self.text_return_hold.take();
         next.implicit_void = self.implicit_void.take();
         *self = next;
         Ok(())

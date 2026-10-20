@@ -488,14 +488,21 @@ the instruction owner's classification for Add and Substring. Print retains its
 own source/terminal permission; the shared prefix does not grant argument, entry,
 cleanup or publication rights.
 
-`StringResidenceInstall { value, replaces }` is an infallible physical lifecycle
-event. It moves exactly the newest owned String temporary into the newest Home
+`StringResidenceInstall { value, replaces, returning }` is an infallible physical
+lifecycle event. Ordinary installation (`returning: false`) moves exactly the
+newest owned String temporary into the newest Home
 without changing its SSA handle/token. Ordinary installation has no replacement;
 owned rebind retains the exact displaced live Home value. After child temporary
 Ends, only that old Home may end out of Home order on Normal. Its attempted End
 removes the old obligation before either successor; a Fault retains the new Home
 and never retries old. Fault unwind instead ends the new Home before old/prior
 Homes. Other effects/installation while replacement is pending are rejected.
+A source-backed Return hold (`returning: true`, no replacement) marks an existing
+Home without changing its acquisition rank. Normal cleanup skips only that Home;
+Fault cleanup includes it in the original reverse acquisition order. It forbids
+another hold, replacement, String borrow or Call before the same Normal Return.
+Both final consumers and publication require the original Return owner, packet
+and exact physical hold; the marker alone is not source permission.
 The event performs no runtime work and grants no source permission. Both final
 source consumers corroborate the exact original purpose and pair relationship;
 generic legacy/VM JSON routes remain fail-closed.

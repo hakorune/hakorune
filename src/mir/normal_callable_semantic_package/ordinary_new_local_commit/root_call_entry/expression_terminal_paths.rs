@@ -279,7 +279,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             }
         }
         let installed = if let Some(original) = residence {
-            let MirInstruction::StringResidenceInstall { value, replaces } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
+            let MirInstruction::StringResidenceInstall { value, replaces, returning: false } = original.1 else { return Err(freeze("expression/residence-install-shape")); };
             let expected_previous = match displaced {
                 Some(InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })) => Some(*value),
                 Some(_) => return Err(freeze("expression/residence-replacement-kind")),

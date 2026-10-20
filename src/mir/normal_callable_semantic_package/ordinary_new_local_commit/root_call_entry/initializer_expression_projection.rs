@@ -54,7 +54,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
         self.frame.is_text_residence() && self.value == self.local && self.copy.is_none()
             && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
-                MirInstruction::StringResidenceInstall { value, replaces: None } if *value == self.value))
+                MirInstruction::StringResidenceInstall { value, replaces: None, returning: false } if *value == self.value))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(&self) -> Result<&Binding, String> {
         if !self.has_text_home() { return Err(freeze("initializer-expression/no-text-home")); }

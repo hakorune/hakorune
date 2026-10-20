@@ -466,7 +466,7 @@ fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressi
             Some(_) => return Err(freeze("expression/residence-replacement-kind")),
             None => None,
         };
-        let install = MirInstruction::StringResidenceInstall { value, replaces };
+        let install = MirInstruction::StringResidenceInstall { value, replaces, returning: false };
         builder.emit_instruction(install.clone())?;
         body.bindings.push((block, install));
         if !materialized { body.acquired.pop(); }

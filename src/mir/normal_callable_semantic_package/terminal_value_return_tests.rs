@@ -139,7 +139,7 @@ fn non_i64_literal_returns_issue_value_relations() {
         ("return \"s\"", Some(TerminalReturnedSourceV1::StringLiteral)),
         ("return null", Some(TerminalReturnedSourceV1::NullLiteral)),
         ("return 1.5", Some(TerminalReturnedSourceV1::FloatLiteral)),
-        ("local text = \"a\" + \"b\" text = text + \"c\" return text", None),
+        ("local older = \"o\" + \"p\" local text = \"a\" + \"b\" text = text + \"c\" local younger = \"y\" + \"z\" return text", None),
     ] {
         let package = issue(&work_program(&format!("local m = %{{\"k\" => 1}} {body}")))
             .expect("literal return package");
@@ -171,8 +171,19 @@ fn non_i64_literal_returns_issue_value_relations() {
             let handoff = ledger.seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort, Vec::new()).unwrap();
             let root = handoff.root_source().unwrap();
             root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(())).unwrap();
+            let events = root.finished_initializer_installs_v1(&module, &module.functions[&key]).unwrap();
+            assert_eq!(events.iter().filter(|(_, row)| matches!(row,
+                crate::mir::MirInstruction::StringResidenceInstall { returning: true, .. })).count(), 1,
+                "publication lends the same source Return hold exactly once");
+            let mut missing_hold = module.clone();
+            for block in missing_hold.functions.get_mut(&key).unwrap().blocks.values_mut() {
+                block.instructions.retain(|row| !matches!(row,
+                    crate::mir::MirInstruction::StringResidenceInstall { returning: true, .. }));
+            }
+            assert!(root.finished_initializer_installs_v1(&missing_hold, &missing_hold.functions[&key]).is_err());
+
             let previous = module.functions[&key].blocks.values().flat_map(|block| &block.instructions)
-                .find_map(|row| match row { crate::mir::MirInstruction::StringResidenceInstall { value, replaces: None } => Some(*value), _ => None })
+                .find_map(|row| match row { crate::mir::MirInstruction::StringResidenceInstall { value, replaces: None, returning: false } => Some(*value), _ => None })
                 .expect("the pre-rebind residence remains an original producer");
             let mut changed = module.clone();
             for block in changed.functions.get_mut(&key).unwrap().blocks.values_mut() {

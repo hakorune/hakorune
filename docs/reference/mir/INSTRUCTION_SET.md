@@ -51,15 +51,25 @@ DOC_SYNC_MIR_VOCABULARY_COUNT=76
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
-### Owned String Local handoff
+### Owned String residence and Return handoff
 
-`StringResidenceInstall { value }` is an infallible WRITE lifecycle instruction
-with no result or runtime call. It moves the exact newest owned temporary pair
-into the newest Home, preserving SSA identity and its handle/token. Temporary
-End precedes Home End; both domains retain reverse order. Fault-side, foreign,
-duplicate, out-of-order and unreachable installs are rejected. Presence creates
-a source-validation obligation; this physical instruction does not authorize
-Local publication or widen generic VM/JSON backend admission.
+`StringResidenceInstall { value, replaces, returning }` is an infallible WRITE
+lifecycle instruction with no result or runtime call. With `returning: false`,
+it moves the exact newest temporary pair into the newest Home, preserving SSA
+identity and handle/token. Optional `replaces` retains the old Home until its End
+attempt; Normal Ends it after child temporaries, while Fault unwinds new before
+old. No other effect or installation may interrupt that pending replacement.
+
+With `returning: true`, it instead holds one existing installed Home at its
+original acquisition rank, with no replacement or live temporary. Normal cleanup
+skips only that Home and transfers it through the exact String Return after all
+siblings End. Fault still Ends it in original reverse acquisition order. Duplicate
+hold, replacement, String borrow or Call while held is rejected. Presence creates
+a source obligation: both final consumers and publication must retain the original
+Return/initializer packet, unique physical event and finished binding. Neither
+purpose grants source permission or widens generic VM/JSON backend admission.
+The selected physical JSON omits `returning` for Local/rebind installs and includes
+`"returning": true` for Return hold; native single-root admission rejects the latter.
 
 ### Selected Script Array lifecycle (MIR cutover; runtime execution pending)
 

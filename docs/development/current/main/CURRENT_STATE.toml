@@ -18,10 +18,10 @@ latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
 APP-json-stream-aggregator: package/MIR停止はborrowed-static/text-expression-execution-pendingのまま。
-TextResidence Returnを同じacquire/install/exit値へ接続し、記録・finishing・両final検証へ統合。
-source Return1/physical String1/projection9PASS、terminal6PASS/旧binary同名同原因2FAIL。
-CLI39.64秒、固定suite7PASS/4FAIL（実EXE6＋marker1）、479.051秒、SKIP/timeoutなし。
-次はCall保持結果＋同じ引数temporary suffixとReturn-holdのFault順序。Dynamic/Endほか必須条件は未完。
+同じReturn ownerのholdを既存cleanup order/両final consumer/出版へ接続。Normal保持・Fault元順序。
+source/publication1・physical String1・projection9・C Text matrix PASS、initializer79PASS/既存2FAIL、terminal6PASS/既存2FAIL。
+CLI1m02s、固定suite7PASS/4FAIL（実EXE6＋marker1）、481.619秒、SKIP/timeoutなし。
+次は同じCallのText結果/引数temporary suffixとfresh Text Return式。Dynamic/Endほか必須条件は未完。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: Source-backed existing TextResidence Return hold joins its original packet, cleanup order and captured physical boundary through both final consumers and the existing publication event lender. Rust/C preserve original Home rank: Normal skips only held Home, Fault retains original reverse order; duplicate hold/replacement/borrow/Call refuse. Existing source/physical/C cases extended for sibling cleanup and missing/stale hold, no new test fn/file/hook/checker/refusal. Source/publication1, physical1, projection9 and C Text matrix(profile1/2)PASS; initializer79PASS/2samepriorFAIL and terminal6PASS/2samepriorFAIL with16MiBstack. Matching CLI1m02s, frozen private C FFI/runtime; fixed suite7PASS/4FAIL, actualEXE6+marker1, noSKIP/timeout, runner481.619s. mimalloc153.938s/allocator177.829sPASS; four red stops unchanged. Ordinary Text Call held result/argument suffix, fresh direct Text Return, Dynamic/End and full finite-goal conditions remain incomplete.",
   "2026-10-20: Same-source TextResidence Return now joins its installed initializer/rebind packet, original acquire/install and unique exit Return through recorder, pending, finishing and both final consumers. Physical String check permits only sole live Home Normal transfer and rejects stale/Fault/temporary returns. Existing cases extended, no new test fn/file/hook/checker/refusal token. Source1/physical1/projection9PASS; terminal6PASS/2samefailasolderretainedbinary. Matching quick opt0 CLI39.64s; fixed suite7PASS/4FAIL, sixEXEs+empty marker, noSKIP/timeout, runner479.051s, mimalloc152.331s/allocator176.409s PASS. Four red stops reconfirmed unchanged. Ordinary Text Call held-result/argument cleanup, explicit Return-hold, direct Text expression Return, Dynamic/End and full finite-goal obligations remain incomplete.",
   "2026-10-20: Finite-input scalar aliases retain the same point SUM/read/Local Copy in the common initializer, with producer forwarding and both final-consumer replays; pure scalar aliases stay generic. Matching CLI54.55s plus diagnostic refresh34.17s. Initializer79PASS/2samepriorFAIL, entry21PASS, Static argument2PASS; no added test cases/files/hooks or weakened acceptance. Unchanged JSON MIR generation now stops at pending owner26 Body3 intField argument0 line, following missing Body1 Ordinary Text Local stringField result. owner20 end=start use closes; owner26 bytes producer and Dynamic/End remain owed. Fixed suite remains last measured7PASS/4FAIL (sixEXEs plus marker), not rerun for this bounded input-family change.",
-  "2026-10-20: Retained Birth source and original-point SUM (base366c1e39e2) — fixed suite7 PASS/4 FAIL, actual EXE6 plus empty marker1, no SKIP/timeout, runner486.381s. Matching quick opt0 CLI1m26s; frozen quick lifecycle runtime/private C FFI, build/run300s and no Cargo overlap. mimalloc153.697s, allocator178.324s and typed37–40s PASS. JSON source rows now survive execution refusal; missing owner26 assignments4→1, total_bytes all-writer value loan closed. First MIR stop advances to unannotated Self owned-field-write/original-source. RHS/current-read, intField alias, Dynamic/End and finite-goal obligations remain. Other three red stops unchanged on direct reruns.",
 ]

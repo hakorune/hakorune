@@ -163,7 +163,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::KeepAlive { values } => values.clone(),
         MirInstruction::DestroyOwned { value }
         | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
-            MirInstruction::StringResidenceInstall { value, replaces } => std::iter::once(*value).chain(*replaces).collect(),
+            MirInstruction::StringResidenceInstall { value, replaces, .. } => std::iter::once(*value).chain(*replaces).collect(),
         MirInstruction::ReleaseStrong { values } => values.clone(),
         MirInstruction::Throw { exception, .. } => vec![*exception],
         MirInstruction::Catch {

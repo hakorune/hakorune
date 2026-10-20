@@ -58,7 +58,7 @@ impl EmittedBindingRebindProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
         self.frame.is_text_residence() && self.receipt.rhs() == self.value()
             && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
-                MirInstruction::StringResidenceInstall { value, .. } if *value == self.value()))
+                MirInstruction::StringResidenceInstall { value, returning: false, .. } if *value == self.value()))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(&self) -> Result<&Binding, String> {
         if !self.has_text_home() { return Err(freeze("rebind-expression/no-text-home")); }

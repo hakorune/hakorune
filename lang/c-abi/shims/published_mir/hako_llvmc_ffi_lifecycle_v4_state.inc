@@ -16,13 +16,31 @@ static hako_lv4_state lv4_map_transfer(int origin) {
  * No origin is encoded: the old/new markers travel with those exact live ranks. */
 #define LV4_STRING_OLD (UINT64_C(1) << 63)
 #define LV4_STRING_NEW (UINT64_C(1) << 62)
+#define LV4_STRING_RETURN (UINT64_C(1) << 61)
 #define LV4_STRING_REPLACEMENT (LV4_STRING_OLD | LV4_STRING_NEW)
 static hako_lv4_state lv4_string_rank(hako_lv4_state state) {
-  return state & ~LV4_STRING_REPLACEMENT;
+  return state & ~(LV4_STRING_REPLACEMENT | LV4_STRING_RETURN);
 }
 static int lv4_string_pending(const hako_lv4_state* state, size_t count) {
   for (size_t i = 0; i < count; i++) if (state[i] & LV4_STRING_REPLACEMENT) return 1;
   return 0;
+}
+static int lv4_string_held(const hako_lv4_state* state, size_t count) {
+  for (size_t i = 0; i < count; i++) if (state[i] & LV4_STRING_RETURN) return 1;
+  return 0;
+}
+/* Holding an existing residence never changes its acquisition rank. */
+static int lv4_string_hold(hako_lv4_state* state, size_t count, int origin) {
+  if (origin < 0 || (size_t)origin >= count || lv4_string_pending(state, count) ||
+      lv4_string_held(state, count)) return 0;
+  hako_lv4_state rank = lv4_string_rank(state[origin]);
+  if (rank <= LV4_STRING_HOME_BASE || rank >= LV4_STRING_LIMIT) return 0;
+  for (size_t i = 0; i < count; i++) {
+    hako_lv4_state other = lv4_string_rank(state[i]);
+    if (other > LV4_STRING_RANK_BASE && other < LV4_STRING_HOME_BASE) return 0;
+  }
+  state[origin] |= LV4_STRING_RETURN;
+  return 1;
 }
 static hako_lv4_state lv4_string_domain_top(const hako_lv4_state* state, size_t count,
     hako_lv4_state base, hako_lv4_state limit) {
@@ -46,7 +64,7 @@ static int lv4_string_push(const hako_lv4_state* state, size_t count,
   return 1;
 }
 static int lv4_string_install(hako_lv4_state* state, size_t count, int origin, int replaces) {
-  if (lv4_string_pending(state, count) || replaces < -1 ||
+  if (lv4_string_pending(state, count) || lv4_string_held(state, count) || replaces < -1 ||
       (replaces >= 0 && ((size_t)replaces >= count || replaces == origin ||
           state[replaces] <= LV4_STRING_HOME_BASE || state[replaces] >= LV4_STRING_LIMIT))) return 0;
   if (origin < 0 || (size_t)origin >= count || state[origin] <= LV4_STRING_RANK_BASE ||
@@ -77,7 +95,17 @@ static int lv4_string_end(hako_lv4_state* state, size_t count, int origin, int f
     if (origin != old || lv4_string_rank(state[newest]) != lv4_string_top(state, count)) return 0;
     state[newest] &= ~LV4_STRING_NEW;
   } else {
-    if (rank <= LV4_STRING_RANK_BASE || rank != lv4_string_top(state, count)) return 0;
+    hako_lv4_state top = lv4_string_top(state, count);
+    if (!faulted) {
+      top = LV4_STRING_HOME_BASE;
+      for (size_t i = 0; i < count; i++) {
+        hako_lv4_state candidate = lv4_string_rank(state[i]);
+        if (!(state[i] & LV4_STRING_RETURN) && candidate > top && candidate < LV4_STRING_LIMIT)
+          top = candidate;
+      }
+      if (state[origin] & LV4_STRING_RETURN) return 0;
+    }
+    if (rank <= LV4_STRING_HOME_BASE || rank != top) return 0;
     if (origin == newest) state[old] &= ~LV4_STRING_OLD;
   }
   state[origin] = 0;

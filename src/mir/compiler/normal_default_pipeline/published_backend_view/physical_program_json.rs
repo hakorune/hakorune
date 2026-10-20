@@ -380,12 +380,13 @@ fn encode_instruction(
         MirInstruction::ArrayRead { dst, receiver,
             operation: crate::mir::instruction::ArrayReadOperationV1::Count, ..
         } => json!({ "op": "array_length", "array": value(receiver), "dst": dst.map(|value| value.0) }),
-        MirInstruction::StringResidenceInstall { value: installed, replaces } => {
+        MirInstruction::StringResidenceInstall { value: installed, replaces, returning } => {
             let input = abi_input.ok_or_else(|| fault("string-residence-input-missing"))?;
             let (_, caller, _) = call_context.ok_or_else(|| fault("string-residence-caller-missing"))?;
             call_transport::corroborate_function(caller, caller_function_index, input)?;
             let mut event = json!({ "op": "string_residence_install", "value": value(installed) });
             if let Some(previous) = replaces { event["replaces"] = json!(value(previous)); }
+            if *returning { event["returning"] = json!(true); }
             event
         }
         MirInstruction::ArrayResidenceRelease { value: released } => {

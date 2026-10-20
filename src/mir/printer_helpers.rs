@@ -555,7 +555,8 @@ pub fn format_instruction(
             s
         }
         MirInstruction::CopyOwned { dst, src } => format!("{} = copy_owned {}", dst, src),
-        MirInstruction::StringResidenceInstall { value, replaces } => match replaces {
+        MirInstruction::StringResidenceInstall { value, returning: true, .. } => format!("string_residence_install {} returning", value),
+        MirInstruction::StringResidenceInstall { value, replaces, returning: false } => match replaces {
             Some(previous) => format!("string_residence_install {} replaces {}", value, previous),
             None => format!("string_residence_install {}", value),
         },

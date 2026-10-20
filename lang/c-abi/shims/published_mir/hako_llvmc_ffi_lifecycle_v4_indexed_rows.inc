@@ -36,7 +36,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       hako_lv4_value* old = previous ? lv4_index_value(fn, lv4_u(ins, "replaces")) : NULL;
       if (faulted || birth || !value || value->kind != LV4_OWNED_STRING ||
           (previous && (!old || old->kind != LV4_OWNED_STRING || old->origin < 0)) ||
-          !lv4_string_install(state, yyjson_arr_size(hako_physical_blocks(fn->function)), value->origin, old ? old->origin : -1)) return 0;
+          (yyjson_is_true(yyjson_obj_get(ins, "returning"))
+              ? (previous || !lv4_is(fn->function, "role", "ordinary_text") ||
+                  !lv4_string_hold(state, fn->block_count, value->origin))
+              : !lv4_string_install(state, fn->block_count, value->origin, old ? old->origin : -1))) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
       if (!root) {

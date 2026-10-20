@@ -331,6 +331,14 @@ fn emit_root_home_exit_payload(
     } else if ingress.is_none() && return_value.is_some() {
         ledger.bind_root_fresh_result_v1(owner, site, statement_result)?;
     }
+    if ingress.is_none() {
+        if let Some(value) = return_value {
+            let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+            if let Some(hold) = ledger.bind_root_text_return_hold_v1(owner, site, block, value)? {
+                builder.emit_instruction(hold)?;
+            }
+        }
+    }
     let fault_sequences = ledger.root_home_fault_sequences(owner, site)?;
     let ingress_operation = match &ingress {
         Some(RootExitIngress::Call(call)) => Some(InvokeOperation::Call {

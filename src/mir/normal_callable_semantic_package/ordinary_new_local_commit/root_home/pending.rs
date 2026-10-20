@@ -70,6 +70,9 @@ impl PendingRootHomeExitV1<'_> {
         for binding in &entry_bindings {
             push(binding);
         }
+        if let Some(original) = &self.order.text_return_hold {
+            push(original);
+        }
         if let Some(original) = self.order.null_return_binding() {
             push(original);
         }
@@ -363,7 +366,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         order.validate_direct_entry(self, owner, &site, &entry, &bindings, None)?;
         order.validate_null_return(&entry, &bindings, None, None)?;
-        self.validate_text_return_producer_v1(CallValidationContextV1::Lowering(self), owner, &site, &entry, &bindings, None, None)?;
+        self.validate_text_return_producer_v1(CallValidationContextV1::Lowering(self), owner, &site, &order, &entry, &bindings, None, None)?;
         self.validate_received_return_producer_v1(owner, &site, &entry, &bindings, None, None)?;
         self.validate_fresh_return_producer_v1(owner, &site, &entry, &bindings, None, None, None)?;
         Ok(PendingRootHomeExitV1 {
