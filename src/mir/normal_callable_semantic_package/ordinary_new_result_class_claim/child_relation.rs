@@ -360,6 +360,7 @@ pub(super) fn class_agrees(
 ) -> bool {
     use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
     let name = match origin {
+        ResultValueOriginV1::MapHeld { .. } => return false,
         ResultValueOriginV1::Null => return true,
         ResultValueOriginV1::Fresh(name) => name,
         ResultValueOriginV1::ForwardFormal { ordinal } => {

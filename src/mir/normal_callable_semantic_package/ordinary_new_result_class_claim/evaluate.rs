@@ -32,6 +32,14 @@ pub(super) fn evaluate_row(
     for exit in exits {
         let mut witnesses = Vec::new();
         match &exit.exit {
+            PendingExitV1::MapStored(source) => {
+                if !source.returns.contains_key(&exit.site) { return ExitVerdictV1::Dead; }
+                legacy_eligible = false;
+                witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                    site: exit.site.clone(), origin: source.origin(),
+                    step: ResultWitnessStepV1::MapStored { source: std::rc::Rc::clone(source) },
+                }));
+            }
             PendingExitV1::New(found) => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
                 site: exit.site.clone(),
                 origin: ResultValueOriginV1::Fresh(found.clone()),
@@ -93,6 +101,7 @@ pub(super) fn evaluate_row(
         for origin in &alternatives {
             match origin {
                 ResultValueOriginV1::Null => nullable = true,
+                ResultValueOriginV1::MapHeld { .. } => legacy_eligible = false,
                 ResultValueOriginV1::Fresh(found) => {
                     // Check before exposing this row to any dependent composition.
                     if coverage.row_for(found).ok().flatten().is_none() {

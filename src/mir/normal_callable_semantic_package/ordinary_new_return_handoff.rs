@@ -250,7 +250,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             }
                         }
                     }
-                    ResultWitnessStepV1::Formal { .. } => {
+                    ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => {
                         missing.get_or_insert(ObjectReturnHandoffUnavailableV1::BorrowedOrigin);
                     }
                 }

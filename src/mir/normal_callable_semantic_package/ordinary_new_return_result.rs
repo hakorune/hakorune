@@ -259,7 +259,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         _ => missing = true,
                     }
                 }
-                ResultWitnessStepV1::Formal { .. } => missing = true,
+                ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => missing = true,
             }
             field_supports.push(ObjectCallFieldSupportRequirementV1 {
                 root: Rc::clone(witness), exit: value.return_site().clone(), supports: supports.into_boxed_slice(),

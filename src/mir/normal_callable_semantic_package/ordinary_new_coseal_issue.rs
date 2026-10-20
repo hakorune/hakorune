@@ -114,7 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             app_main.as_ref(),
             instance_constructors,
             parameter_contracts,
-            field_writers,
+            field_writers, Some(entry_home_loans),
         )?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {

@@ -109,7 +109,7 @@ fn source_witness_rejects_formal_ordinal_disagreement() {
         &package.selected,
         None,
         &package.ordinary_new_claim_ledger.field_write_claims,
-        &package.parameter_contracts,
+        &package.parameter_contracts, &package.instance_constructors, None,
     );
     assert!(facts.outcomes(&key).is_none());
 }
@@ -126,7 +126,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_result_facts_for_
             main,
             constructors,
             parameters,
-            std::rc::Rc::clone(writers),
+            std::rc::Rc::clone(writers), None,
         )
         .unwrap();
         result

@@ -159,7 +159,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             let names: Vec<Box<str>> = batch

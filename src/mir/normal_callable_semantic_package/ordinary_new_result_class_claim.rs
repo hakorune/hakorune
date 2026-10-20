@@ -128,6 +128,7 @@ enum ResultClassExitDraftV1 {
 /// Ordinary declared and opaque formal returns preserve borrowed identity.
 /// `Formal` records the original input ordinal without an owning class.
 enum PendingExitV1 {
+    MapStored(std::rc::Rc<witness::MapStoredResultSourceV1>),
     New(Box<str>),
     Null,
     Fwd {
@@ -561,6 +562,8 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         app_main: Option<&super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
         field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
     ) -> OrdinaryNewResultClassClaimsV1 {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
         let mut pending: BTreeMap<
@@ -588,11 +591,17 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                 let Some(body_shape) = input.body_shape() else {
                     return None;
                 };
+                let stored = entry_home.and_then(|entries| witness::map_stored_result_source_v1(
+                    input, &row, batch, selected, constructors, entries, field_write_claims));
                 row.exits
                     .iter()
                     .map(|(site, exit)| {
                         if site.owner() != input.owner() {
                             return None;
+                        }
+                        if let Some(source) = &stored {
+                            return Some(PendingResultExitV1 { site: site.clone(),
+                                exit: PendingExitV1::MapStored(std::rc::Rc::clone(source)) });
                         }
                         let exit = match exit {
                             ResultClassExitDraftV1::New(class) => {
@@ -745,7 +754,7 @@ mod source_brand_tests {
                 &package.selected,
                 None,
                 &package.ordinary_new_claim_ledger.field_write_claims,
-                &package.parameter_contracts,
+                &package.parameter_contracts, &package.instance_constructors, None,
             );
             assert!(facts.outcomes(&key).is_none());
             assert!(facts

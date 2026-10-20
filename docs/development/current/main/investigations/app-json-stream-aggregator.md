@@ -7,94 +7,90 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner342.642s at Bool connection; not rerun for native-only Map get.
+  runner331.585s on current source change; matching CLI/runtime/FFI frozen.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current quick CLI1.67s/runtime33.47s, root test build48.05s. Frozen matching
-  pair/FFI rechecked JSON: MIR failure, same owner26; no app PASS claimed.
-- JSON still stops at `borrowed-entry/source-use-completion-pending`, owner26
-  JsonStreamAggregator.ingestLine, called at line151 inside ingest Loop.
-  Outer `source-loop-header-after` wraps this callee failure; no JSON EXE is claimed.
-- statsFor BOTH results and stats.add need Map-slot support; Bool keeps exact reads.
-- Other reds: untyped-field activation, binary-trees source-not-i64, boxtorrent child.
+- Current matching frozen pair/FFI: JSON fails MIR at owner26 ingestLine, called at
+  line151 inside ingest Loop. Outer `source-loop-header-after` wraps
+  `borrowed-entry/source-use-completion-pending`; no JSON EXE/PASS claimed.
+- Other reds remain: untyped-field activation, binary-trees source-not-i64,
+  boxtorrent stored-child receiver. Current CLI91s/runtime7.05s; root source test build67s.
 
-## Connected field and Map End
-- Shared FieldResidence mode carries the original complete Array/Dynamic census
-  through End, Invoke and publication; every Dynamic slot, including Empty, drains
-  before outer End. Rust/C require the WHOLE reverse sequence, not a valid subset.
-- ExactSlot cannot replace Dynamic. Signed I64 keeps original all-writer/read,
-  SUM, finalized source image and both final scans. C shares prepare/commit/old-End/
-  dispose: precommit Fault preserves the slot; committed old-End Fault never rolls back.
-- Same lifetime/interval proof requires exact acquisition, field/mode/order and once
-  on every path; no later writes/Calls or previous-lifetime credit. Schema refuses
-  overlapping/unmarked drains and legacy Dynamic stores. Nonempty outer End refuses.
-- Map and detached outcomes now lend ONE synchronous MapEndContext through Array
-  children too. Synthetic errors enter the same frame at encounter time; complete
-  callbacks' Faults are not duplicated; InvalidContract stays fatal.
-- Birth now connects source-issued first-write I64/Map and Normal-committed Dynamic
-  prefixes. Whole-field census grants no early Home; Provided stays caller-owned
-  until Birth Normal. Provided/nullable Dynamic partial cleanup remains unadmitted.
+## Retained connected contracts
 
-## Validation and retained failures
-- Invoke42/construction4/prefix1/Provided1/Map17/binding8+archive1/C14 PASS.
-  Two ignored tests excluded; no previous product failures waived.
-- Prior Map/scalar Fault4 and mixed-Array Fault2 exit70/Fault101/reclaim. The
-  mixed-Array first-store Fault also rechecked with prior frozen pair: same result;
-  C emits candidate release on that edge. Array holder/contents/End remains owed.
-- Core Map15/kernel Map17/binding8+archive1/native both profiles PASS.
-  Existing C case keeps typed-borrow/out/Fault boundaries and once-only child End.
-  No new test entry/file, checker, guard or production test-only hook.
-- Owed prior reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
-  read-claim2, composition2, scalar1. Earlier frozen comparisons do not waive them.
+- One FieldResidence census carries every Array/Dynamic field, including Empty,
+  through End/Invoke/publication. Whole reverse declaration drain precedes outer
+  End; exact slot cannot stand in for Dynamic, no subset/reused-lifetime credit.
+- Signed I64 keeps all original writer/read, SUM, finalized source and both scans.
+  C shares prepare/commit/old-End/dispose; precommit keeps slot/caller Home,
+  postcommit old-End Fault never rolls back. Nonempty outer End refuses.
+- One synchronous MapEndContext covers detached outcomes and Array children;
+  synthetic Faults enter at encounter, recorded callback Faults are not duplicated,
+  InvalidContract is fatal. Complete End runs outside Map/object locks.
+- Source first-write I64/Map uses original ConstructionStore and commit guard Empty.
+  Birth cleanup follows actual committed prefix; full End stays reverse declaration.
+  Canonically source-qualified fixed Array preserves complete census. Provided
+  stays caller-owned until Normal; Provided/nullable partial cleanup remains owed.
+- Native Map is private stable move-only field storage, no public Dynamic Map tag.
+  has/get share field-before-Text admission. Missing-only get Normal/0; exact class
+  borrows identity, wrong kind/class Faults, all non-Normal keeps out unchanged.
+  No Map pointer/Home/claim/End/Call/Return grant. Native both profiles PASS
+  (Map SafeMutex only); original complete child End remains once-only.
+- Bool has shares Text comparison's scalar writer and both final consumers,
+  retaining exact Me/input-use and complete original Map Birth replay. Duplicate
+  operand/writer retired. Passive literal/formal Text/short-circuit source EXEs3
+  exit7. Computed key effects stay unadmitted until receiver-first execution closes.
+- Finite input alone never classifies results: same original scalar Return census
+  selects scalar demand independently of scalar proof success; Text stays separate.
 
-## Next source connection and remaining contracts
-- Stable Map placement uses the SAME private Dynamic move-only field/outcome sum;
-  no public Map tag. SafeMutex install/borrow use stable bytes.
-- Under the destination guard, fallible validation precedes move; rejection keeps
-  caller Home, Normal leaves Unissued. End/dispose follows Map Normal/Fault only.
-- Original ConstructionStore lends first-write coordinates; commit checks Empty.
-- C uses the existing prepare/commit/outcome-End/dispose owner and Birth markers:
-  Map candidate transfers only on Normal; precommit Fault ends it then the original
-  committed prefix, including scalars, in actual commit order. Full End stays reverse
-  declaration order. Canonically source-qualified fixed Array keeps its prior path
-  across construction, owned census, physical ABI and final End; no subset census.
-- Synchronous has/get share one exact field-before-Text decoder. Get delegates
-  to same class-qualified indexed borrow: only missing Normal/0; wrong kind/class
-  Faults, all non-Normal preserves out. No Map view/Home/claim/End grant.
-  Existing C case adds necessary get result/class/lease/out boundaries; both
-  profiles/binding8+archive1/symbol1 PASS (Map SafeMutex only), no new test entry.
-  Prior has source EXE rebuilt/run exit7 with frozen pair; JSON remains owner26.
-- Original Map/key jointly close SAME Core before solving; exact Me/field/sole Map
-  Birth retained. Presence Bool is kind-independent; existing source negatives stay.
-- Bool has now shares scalar-invocation input/writer/final replay with Text compare;
-  the duplicate operand wrapper is retired. Same original Me read and Map Birth
-  provider/store are replayed; both final consumers retain typed borrowed Text use.
-  Literal/formal Text/short-circuit source EXEs build/run exit7 with frozen pair.
-  Borrowed-use27/core-source2/scalar-loan1/terminal8/selected-route1/loop2 PASS;
-  existing Invoke42/expression4/Text-condition1 also PASS. Zero filters excluded.
-- Finite input alone cannot classify results: SAME original scalar Return census
-  selects demand independently of scalar proof success. JSON exposed and verified
-  correction of an overbroad request; Text reportUser keeps its own result owner.
-- Next: statsFor BOTH returns as Map-held borrows through stats.add/users.push.
-  Extend existing result witness/borrowed-local graph with same field/key/class
-  and full operation/holder interval support, never fake formal0/Fresh/HomeToCaller.
-  Set Normal moves Home; precommit keeps candidate cleanup; old-End Fault never
-  rolls back. UserStats full End/users.push remain obligations.
-  Retain exact has/get/set/escape uses and slot/key/class support through last use;
-  Existing result PassB already sees field claims before SUM: thread original
-  entry/constructor there. Share Array field-use walk, checking foreign receiver/
-  alias/escape/unknown uses across package; assignment census alone is insufficient.
-  Key substitution keeps original caller actuals, including Text locals, not result formals.
-- Direct terminal Call with Text actual still lacks original argument source;
-  non-Text key probe panics in type inference, not a verified refusal. Neither waived.
-- UserStats Text materialization (independent value, not copied input Home), Box
-  Provided initialization, Shared/carrier and full Dynamic source
-  activation remain owed. Array holder/contents/End, exact empty-transfer census,
-  canonical writer, signed SUM/rebind/to_i64 and original source/physical reds remain.
-## Completion limits
-- mimalloc PASS includes removal of an obsolete generic-JSON all-Invoke refusal
-  precheck; direct EXE already worked. Publication tests do not prove that same
-  mimalloc closure or every subtype. Preserve this harness/capability distinction.
-- App completion needs every smoke contract and real output/exit. Full goal also
-  needs production cutover, mandatory source/consumer closure and physical retirement.
-  Retire replaced exclusive edges with proof; retain shared owners and safety checks.
+## Current source connection
+
+- Existing result PassB now sees the SAME field/constructor/entry loan before SUM.
+  Whole field-use walk is shared with Array; Array retains its selector/i64 policy.
+  No second Map census/registry. Map closes all package declarations + unselected
+  Birth, rejects foreign/alias/escape/captured receiver/unknown mutator/conflicting
+  payload class, and retains exact original New plus symbolic key identity.
+- statsFor hit retains exact has/get on same field/key, first true-arm Return.
+  Miss retains sole local New, same set before Return, and the full interval;
+  only exact disjoint Array field push effects are retained. Calls, construction,
+  await/QMark/throw/other unowned effects cannot silently invalidate slot support.
+- MapHeld source origin is distinct from Fresh/formal and absent from legacy owned
+  projection. Old Call composition refuses it until receiver/key substitution is
+  connected. Caller Text locals are legitimate key actuals, never fake result formal0.
+- Same existing source test covers new independent origin/escape/class/mutator/
+  Birth/indirect-mutation boundaries and unmodified JSON: BOTH statsFor results
+  are UserStats Map-held origins, no owning qualification. No new test entry/file,
+  hook/checker/guard/card. Source evidence grants no executable borrow or Home.
+
+## Verification and retained reds
+
+- Current source case1 PASS (includes actual JSON). Shared Array family15PASS/2FAIL;
+  result family23PASS/1FAIL. All three reds reproduce with saved prior test binary:
+  Array escape/return pins and real PageHeap required-integer-source-unproved.
+  They remain required work; prior comparison is not a waiver. Array publication
+  3PASS/1FAIL: numeric-field retained-source refusal also fails with prior binary.
+- Earlier Invoke42/construction4/prefix1/Provided1/Map17/binding8+archive1/C14,
+  coreMap15/kernelMap17/native both profiles, borrowed27/core2/scalar1/terminal8/
+  selected-route1/loop2/expression4/condition1 PASS. Ignored/zero filters excluded.
+- Prior Map/scalar Fault4 + mixed-Array Fault2: exit70/Fault101/reclaim; first-store
+  candidate release checked with prior frozen pair. No previous product red waived.
+- Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
+  read-claim2, composition2, scalar1. Keep their original source/physical contracts.
+
+## Next and full completion limits
+
+- Extend SAME LOCAL loan support: formal-forward or Map slot; substitute exact Me
+  receiver and key actual independently. Then entry/return/stats.add and both final
+  consumers must retain holder/field/key/class/slot through final use.
+  Candidate Home transfer, set Normal/Fault, complete UserStats End, and users.push
+  execution remain mandatory; never replace them with source witness membership.
+- UserStats Text must materialize independently, not copy input Home. Provided Box,
+  nullable Dynamic, Shared/carrier and full Dynamic activation remain owed.
+- Array holder/contents/End, exact empty-transfer census, canonical writer, signed
+  SUM/rebind/to_i64 and source/physical prior reds remain. Direct terminal Text Call
+  lacks original argument source; non-Text key inference panic is not a valid refusal.
+- mimalloc PASS removed obsolete generic-JSON Invoke-refusal precheck; direct EXE
+  already worked. Publication tests do not prove its whole closure/every subtype.
+- App completion requires every smoke contract and real EXE/output/exit. Full goal
+  also requires mandatory source/consumer closure, production cutover and physical
+  retirement. Retire replaced exclusive edges; retain shared owners/safety checks.

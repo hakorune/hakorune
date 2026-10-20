@@ -600,7 +600,7 @@ fn stored_object_source_eligible_v1(
         || roots.iter().any(|row| match row.origin() {
             ResultValueOriginV1::Null => false,
             ResultValueOriginV1::Fresh(name) => Some(name.as_ref()) != class.class(),
-            ResultValueOriginV1::ForwardFormal { .. } => true,
+            ResultValueOriginV1::ForwardFormal { .. } | ResultValueOriginV1::MapHeld { .. } => true,
         })
     {
         return Ok(false);

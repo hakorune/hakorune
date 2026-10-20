@@ -10,6 +10,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     field_writers: Rc<field_write_claim::OriginalFieldWriterInventoryV1>,
+    entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
 ) -> Result<
     (
         field_write_claim::OrdinaryNewFieldWriteClaimsV1,
@@ -79,6 +80,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         app_main,
         &field_write_claims,
         parameter_contracts,
+        instance_constructors,
+        entry_home,
     );
     result_class_claim::attach_source_child_relations_v1(
         &mut callable_result_classes,

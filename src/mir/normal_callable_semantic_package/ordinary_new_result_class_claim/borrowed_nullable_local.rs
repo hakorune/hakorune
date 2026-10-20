@@ -371,7 +371,7 @@ mod tests {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             for name in ["probe", "storedProbe"] {
@@ -450,7 +450,7 @@ mod tests {
                         main,
                         constructors,
                         parameters,
-                        std::rc::Rc::clone(writers),
+                        std::rc::Rc::clone(writers), None,
                     )
                     .unwrap();
                 assert!(
@@ -503,7 +503,7 @@ mod tests {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             for (name, arity) in [("alias", 1), ("replaced", 1), ("allocated", 0)] {

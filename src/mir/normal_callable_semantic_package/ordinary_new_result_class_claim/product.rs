@@ -8,6 +8,10 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum ResultValueOriginV1 {
     Null,
+    /// A storage-supported object source; never a Fresh/owning projection.
+    MapHeld { field: hakorune_mir_defs::CanonicalFieldRefV1,
+        key: crate::mir::resolved_semantics::BindingRefV1,
+        object: hakorune_mir_defs::CanonicalObjectIdV1, class: Box<str> },
     Fresh(Box<str>),
     ForwardFormal { ordinal: u32 },
 }

@@ -565,6 +565,21 @@ refusal, and every non-Normal outcome leaves out untouched. This grants no Home,
 claim, retention, Call/Return or End authority. The original source result witness
 must still retain the exact holder, field, key, payload class and slot lifetime
 through the final borrowed use; Map replacement/End invalidates that support.
+
+The original result solver can retain a distinct Map-held source origin after
+the existing field claims, before borrowed SUM or Completion. This origin keeps
+the exact field/entry loan, symbolic key, payload construction class, complete
+original Map-use observations and each get/has or set/local Return derivation.
+The container field-use walk is shared with Array's existing element proof;
+Array keeps its own selector/integer policy. Map closure must additionally
+exclude foreign field receivers, aliases/escapes, captured receivers, unknown
+mutators and conflicting payload classes, including constructor-only Birth.
+The set-to-Return interval retains proved disjoint-field effects and refuses
+unproved calls or constructions; absence of a direct set alone proves nothing.
+This passive origin is absent from legacy owned-result projections and old
+formal-return substitution. Executable entry, Text actuals, committed set/Home,
+complete Normal/Fault cleanup, receiver/key substitution and both final consumers
+remain separate obligations; retaining the source origin does not discharge them.
 A null bytes pointer is allowed at zero length (empty key); other regions must
 be non-null. Returned allocation failure records reason100 and leaves Empty; malformed UTF-8
 or pointer/length contract returns InvalidContract without installing a key.

@@ -39,7 +39,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
                             Some(main),
                             constructors,
                             parameters,
-                            std::rc::Rc::clone(writers),
+                            std::rc::Rc::clone(writers), None,
                         )
                         .unwrap();
                         let root = facts
@@ -100,6 +100,50 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
             }
         }
     }
+    // Storage results must retain their own source origin, never the old
+    // owned-return projection. These boundaries were not exercised by Fresh.
+    for (extra, birth_tail, between, accepted) in [
+        ("", "", "", true),
+        ("escape() { return me.stats }", "", "", false),
+        ("change(key) { me.stats.set(key, new Other()) }", "", "", false),
+        ("clear() { me.stats.clear() }", "", "", false),
+        ("", "me.stats.set(\"seed\", new Other())", "", false),
+        ("", "me.stats.clear()", "", false),
+        ("change(key) { me.stats.set(key, new Item()) }", "", "me.change(key)", false),
+    ] {
+        let text = format!("box Item {{}} box Other {{}} box Holder {{ init {{ stats }} birth() {{ me.stats = new MapBox() {birth_tail} }} find(key) {{ if me.stats.has(key) {{ return me.stats.get(key) }} local item = new Item() me.stats.set(key, item) {between} return item }} {extra} }} static box Main {{ main() {{ return 0 }} }}");
+        with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
+            let common = crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(batch).unwrap();
+            let entries = crate::mir::resolved_semantics::CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(batch, &common).unwrap();
+            let (_, _, facts, _) = prepare_source_claims(batch, selected, main, constructors, parameters,
+                std::rc::Rc::clone(writers), Some(&entries)).unwrap();
+            let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Holder", "find", 1);
+            assert_eq!(facts.outcomes(&key).is_some(), accepted, "Map source boundary: {extra}");
+            assert!(facts.get(&key).is_none());
+            if accepted {
+                let exits = facts.outcomes(&key).unwrap();
+                assert_eq!(exits.len(), 2);
+                for exit in exits {
+                    assert!(exit.alternatives().iter().all(|origin| matches!(origin, ResultValueOriginV1::MapHeld { class, .. } if class.as_ref() == "Item")));
+                    assert!(exit.witnesses().iter().all(|root| matches!(root.step(), ResultWitnessStepV1::MapStored { .. })));
+                    assert!(facts.object_return_qualification(exit.site()).is_none());
+                }
+            }
+        });
+    }
+    let json = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/json-stream-aggregator/main.hako"));
+    with_source_claims_fixture(json, |batch, selected, constructors, parameters, main, writers| {
+        let common = crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(batch).unwrap();
+        let entries = crate::mir::resolved_semantics::CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(batch, &common).unwrap();
+        let (_, _, facts, _) = prepare_source_claims(batch, selected, main, constructors, parameters,
+            std::rc::Rc::clone(writers), Some(&entries)).unwrap();
+        let key = CanonicalSameModuleCallableKeyV1::instance_box_method("JsonStreamAggregator", "statsFor", 1);
+        assert!(facts.get(&key).is_none());
+        let exits = facts.outcomes(&key).expect("unmodified JSON Map-held result source");
+        assert_eq!(exits.len(), 2);
+        assert!(exits.iter().flat_map(|exit| exit.alternatives()).all(|origin|
+            matches!(origin, ResultValueOriginV1::MapHeld { class, .. } if class.as_ref() == "UserStats")));
+    });
 }
 
 #[test]
@@ -108,7 +152,7 @@ fn main_observer_missing_or_foreign_loan_cannot_issue_root_facts() {
     with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
         let main = main.unwrap();
         let (_, _, facts, _) =
-            prepare_source_claims(batch, selected, None, constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
+            prepare_source_claims(batch, selected, None, constructors, parameters, std::rc::Rc::clone(writers), None,).unwrap();
         assert!(facts.outcomes(main.catalog_key()).is_none());
         assert!(
             facts.contains_key(&CanonicalSameModuleCallableKeyV1::instance_box_method(
@@ -126,7 +170,7 @@ fn main_observer_missing_or_foreign_loan_cannot_issue_root_facts() {
                     Some(foreign_main),
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 ),
                 Err(super::super::super::OrdinaryNewCoSealIssueV1::AppMainIdentityMissing)
             ));
@@ -140,7 +184,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
     with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
         let main = main.unwrap();
         let (fields, _, _, _) =
-            prepare_source_claims(batch, selected, Some(main), constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
+            prepare_source_claims(batch, selected, Some(main), constructors, parameters, std::rc::Rc::clone(writers), None,).unwrap();
         let draft = || {
             let mut draft = OrdinaryNewResultClassClaimDraftV1::new();
             for row in batch.declarations() {
@@ -177,7 +221,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
                 selected,
                 Some(main),
                 &fields,
-                parameters
+                parameters, constructors, None,
             )
             .outcomes(main.catalog_key())
             .is_some());
@@ -187,7 +231,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
             selected,
             None,
             &fields,
-            parameters,
+            parameters, constructors, None,
         );
         assert!(missing.outcomes(main.catalog_key()).is_none());
         assert!(missing.contains_key(&callee));
@@ -205,7 +249,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
                 selected,
                 Some(foreign_main),
                 &fields,
-                parameters,
+                parameters, constructors, None,
             );
             assert!(foreign.outcomes(main.catalog_key()).is_none());
             assert!(foreign.contains_key(&callee));
@@ -236,7 +280,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
                     selected,
                     Some(main),
                     &fields,
-                    parameters,
+                    parameters, constructors, None,
                 );
                 assert!(facts.outcomes(main.catalog_key()).is_none());
                 assert!(facts.outcomes(&altered_key).is_none());

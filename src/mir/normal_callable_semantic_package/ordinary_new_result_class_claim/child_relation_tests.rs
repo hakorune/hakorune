@@ -135,7 +135,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             assert_eq!(facts.construction_child_relations().count(), 8);
@@ -279,7 +279,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             assert!(
@@ -335,7 +335,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             let (_, _, foreign, _) =
@@ -345,7 +345,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             let main = main.unwrap();
@@ -487,7 +487,7 @@ fn child_relation_foreign_constructor_source_cannot_issue_same_spelling_field() 
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             assert_eq!(scratch.construction_child_relations().count(), 8);
@@ -519,7 +519,7 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
                     main,
                     constructors,
                     parameters,
-                    std::rc::Rc::clone(writers),
+                    std::rc::Rc::clone(writers), None,
                 )
                 .unwrap();
             assert_eq!(scratch.construction_child_relations().count(), 8);
@@ -589,7 +589,7 @@ fn returned_field_source_closes_original_initializer_dag_and_refuses_incomplete_
             static box Main {{ main() {{ return 0 }} }}");
         super::super::with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
             let (fields, _, facts, _) = super::super::super::coseal_issue::source_claims::prepare_source_claims(
-                batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers)).unwrap();
+                batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers), None,).unwrap();
             let names: Vec<Box<str>> = batch.ordinary_box_coverage().rows().iter()
                 .map(|row| row.name().into()).collect();
             let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(

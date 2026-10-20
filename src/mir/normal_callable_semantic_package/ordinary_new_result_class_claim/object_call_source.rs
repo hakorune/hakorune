@@ -185,7 +185,7 @@ mod tests {
                         main,
                         constructors,
                         parameters,
-                        std::rc::Rc::clone(writers),
+                        std::rc::Rc::clone(writers), None,
                     )
                     .unwrap();
                 let names: Vec<Box<str>> = batch
