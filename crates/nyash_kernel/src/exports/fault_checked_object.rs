@@ -466,7 +466,9 @@ pub unsafe extern "C" fn map_field_has(
     frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
     slot: usize, key: *const super::checked_string::Operand, out: *mut i64,
 ) -> u32 {
-    let (map, key) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key, out) } {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let (map, key) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key,
+        (out as usize, size_of::<i64>()), None) } {
         Ok(value) => value, Err(status) => return status,
     };
     unsafe { super::checked_map::has(frame, site, map, key.as_ptr(), key.len(), out) }
@@ -480,23 +482,62 @@ pub unsafe extern "C" fn map_field_get(
     slot: usize, key: *const super::checked_string::Operand, payload_type_id: i64, out: *mut i64,
 ) -> u32 {
     if payload_type_id <= 0 { return Status::InvalidContract as u32; }
-    let (map, key) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key, out) } {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let (map, key) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key,
+        (out as usize, size_of::<i64>()), None) } {
         Ok(value) => value, Err(status) => return status,
     };
     unsafe { super::checked_map::borrow_indexed(frame, profile, site, map, key.as_ptr(), key.len(), payload_type_id, out) }
+}
+
+/// Synchronous field-entry install shares the existing prepared-key commit
+/// protocol. Normal transfers the candidate and publishes only the detached
+/// old outcome. Its complete End is a separate caller operation; a later End
+/// Fault cannot roll back this install. Descriptor lifetime is the same trusted
+/// published-definition obligation as checked_install_indexed_end_v1.
+#[export_name = "nyash.object.checked_map_field_install_indexed_v1"]
+pub unsafe extern "C" fn map_field_install_indexed(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, key: *const super::checked_string::Operand, candidate: i64, candidate_type_id: i64,
+    descriptor: *const crate::exports::typed_object::DynamicFieldEndDescriptorV1, out: *mut c_void,
+) -> u32 {
+    use super::checked_map::{KeyStorage, OutcomeStorage};
+    if descriptor.is_null() || !descriptor.is_aligned() || out.is_null() || !out.cast::<OutcomeStorage>().is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let (map, text) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key,
+        (out as usize, size_of::<OutcomeStorage>()),
+        Some((descriptor as usize, size_of::<crate::exports::typed_object::DynamicFieldEndDescriptorV1>()))) } {
+        Ok(value) => value, Err(status) => return status,
+    };
+    // Key preparation is local bookkeeping, never a published Map/Home loan.
+    let mut storage = std::mem::MaybeUninit::<KeyStorage>::uninit();
+    let key = storage.as_mut_ptr().cast();
+    if unsafe { super::checked_map::storage::key_init(key) } != Status::Normal as u32 {
+        return Status::InvalidContract as u32;
+    }
+    let prepared = unsafe { super::checked_map::key_prepare(frame, site, key, text.as_ptr(), text.len()) };
+    let status = if prepared == Status::Normal as u32 {
+        unsafe { super::checked_map::install_with_end(frame, profile, site, map, key, candidate, candidate_type_id, descriptor, out) }
+    } else { prepared };
+    if unsafe { super::checked_map::storage::key_dispose(key) } != Status::Normal as u32 {
+        return Status::InvalidContract as u32;
+    }
+    status
 }
 
 /// Shared synchronous input admission, not a published Map view. The copied
 /// Text has released any lease-registry guard before Map/object guards begin.
 unsafe fn map_field_text_input(
     frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
-    slot: usize, key: *const super::checked_string::Operand, out: *mut i64,
+    slot: usize, key: *const super::checked_string::Operand,
+    output: (usize, usize), descriptor_region: Option<(usize, usize)>,
 ) -> Result<(*mut c_void, String), u32> {
-    if key.is_null() || !key.is_aligned() || out.is_null() || !out.is_aligned()
+    if key.is_null() || !key.is_aligned()
         || !separate(&[
             (frame as usize, size_of::<FaultFrame>()),
             (key as usize, size_of::<super::checked_string::Operand>()),
-            (out as usize, size_of::<i64>()),
+            output, descriptor_region.unwrap_or((0, 0)),
         ]) { return Err(Status::InvalidContract as u32); }
     let descriptor = unsafe { *key };
     // Preserve the borrowed static input through the complete synchronous call.
@@ -505,7 +546,7 @@ unsafe fn map_field_text_input(
         (frame as usize, size_of::<FaultFrame>()),
         (key as usize, size_of::<super::checked_string::Operand>()),
         (descriptor.bytes as usize, descriptor.len),
-        (out as usize, size_of::<i64>()),
+        output, descriptor_region.unwrap_or((0, 0)),
     ]) { return Err(Status::InvalidContract as u32); }
     let mut map = std::ptr::null_mut();
     let status = unsafe { map_field_borrow(frame, profile, site, handle, type_id, slot, &mut map) };

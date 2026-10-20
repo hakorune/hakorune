@@ -272,6 +272,15 @@ uint32_t nyrt_object_checked_map_field_has_v1(void *, uint32_t, uint64_t,
 uint32_t nyrt_object_checked_map_field_get_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t, int64_t *)
     __asm__("nyash.object.checked_map_field_get_v1");
+/* Field receiver then Text key, same complete-End indexed install protocol.
+ * Outcome must be initialized/unissued and nonoverlapping. Precommit Fault
+ * keeps candidate caller-owned; Normal transfers it once. Old End is explicit
+ * map.outcome_end: its later Fault never restores the replaced entry.
+ * Descriptor must outlive the installed residence; SafeMutex only. */
+uint32_t nyrt_object_checked_map_field_install_indexed_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t, int64_t,
+    const NyrtDynamicFieldEndDescriptorV1 *, void *)
+    __asm__("nyash.object.checked_map_field_install_indexed_v1");
 uint32_t nyrt_object_field_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.object.field_outcome_end_v1");
 uint32_t nyrt_object_field_outcome_dispose_v1(void *) __asm__("nyash.object.field_outcome_dispose_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,

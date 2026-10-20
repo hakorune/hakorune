@@ -1,15 +1,15 @@
 # APP-json-stream-aggregator
-Status: Original Map get and Text append complete the source-scoped draft; Map install/final publication remain incomplete. Date: 2026-10-21
+Status: Native field-entry install shares complete End/Outcome; source Text Birth and Map publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
-- Latest full suite at original Text append connection: 7PASS/4FAIL,
+- Latest full suite at preceding Text append connection: 7PASS/4FAIL,
   actual EXE6 + marker1, 380.560s; no SKIP/timeout. Same required apps remain red.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON passes statsFor Body3 users.push source qualification and now stops at
   owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
-  No MIR/EXE. current CLI68.6s/root74.9s PASS; frozen Text runtime/C pair retained.
+  No MIR/EXE. root/CLI unchanged; new runtime7.08s build, existing native C cohort2 profiles PASS; FieldHas EXE exit7. Suite not rerun.
 - ABI-only Text append12 Normal/Fault runs (borrowed/direct static/owned, empty,
   Unicode/NUL) and malformed9 refusals PASS; source-backed final publication/EXE remain owed.
 
@@ -85,9 +85,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   C shares descriptor/Array writers; numeric native and existing End remain strict.
 - LANDED source get: SAME terminal/get Arc, own receiver read and passive Text key reach shared root ingress/cleanup; get Return records in real selected Instance scope. Existing scope case extends this independent source→writer boundary; no new test function/file/hook. ABI-only runs8/refusals9 retained; current FieldHas EXE exit7.
 - Existing JSON scope case now requires one get, one Text append and both Return records, with draft completion. This independently covers source→Text writer; no new test function/file/hook. Text final-publication positive remains owed.
-- Next: original Map FieldInstall/candidate→InstallIndexed/EndOutcome and prior/Normal cleanup, source Return/Call lifetime/publication; complete Text End. Full JSON remains source-pending.
-- Map physical: shared InstallIndexed/EndOutcome with field/Text-key wrapper,
-  prior vs Normal cleanup; no parent Map End. Array Text End needs source selection.
+- Next: source SUM→SAME Birth source/formal→late qualified plan, borrowed Text actual→Materialize→Dynamic initialize and committed-prefix cleanup; then original Map FieldInstall/candidate/EndOutcome and Return/Call publication. Complete Text End remains; full JSON source-pending.
+- LANDED native field-entry install: receiver before Text decode, private prepared key, shared install_with_end and explicit detached EndOutcome. Precommit retains candidate; Normal transfers once, old-End Fault never rolls back. No parent Map End or source/Birth/Call/Return grant.
+- Existing native C case extends this independent commit boundary: failed receiver/key/class/profile/overlap preserve candidate, Normal publishes new child before old End Fault, old End once, Text lease intact. No new test function/file/checker.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
   Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently; Provided Box, nullable Dynamic,

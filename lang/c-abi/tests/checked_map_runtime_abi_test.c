@@ -260,6 +260,37 @@ int main(void) {
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key_loan,&value)==0 && value==1);
     assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==child);
     assert(nyrt_string_checked_length_v1(frame,190,&map_key_loan,&value)==0 && value==5);
+    /* A field-entry install must retain caller Home on every precommit error,
+     * then expose the new child BEFORE detached old End (which Faults here).
+     * Reuse the leased Text: install must neither consume nor materialize it. */
+    int64_t replacement=0, old_child=child;
+    assert(nyrt_object_checked_new_v1(frame,1,190,932,child_layout,1,&replacement)==0);
+    assert(nyrt_object_checked_field_set_v1(frame,1,190,replacement,932,0,73)==0);
+    assert(nyrt_map_outcome_init_v1(out)==0);
+    NyrtStringOperandV1 wrong_key={NYRT_STRING_NORMAL_INTEGER_V1,0,NULL,0,0,0,7};
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,2,190,field_parent,940,0,&map_key_loan,replacement,932,&map_child,out)==2);
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,1,190,field_parent,999,0,&wrong_key,replacement,932,&map_child,out)==1);
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,1,190,field_parent,940,0,&wrong_key,replacement,932,&map_child,out)==2);
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,1,190,field_parent,940,0,&map_key_loan,replacement,932,&wrong_map_child,out)==2);
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,1,190,field_parent,940,0,&map_key_loan,replacement,933,&wrong_map_child,out)==1);
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,1,190,field_parent,940,0,&map_key_loan,replacement,932,&map_child,(void*)&map_key_loan)==2);
+    assert(nyrt_object_checked_field_get_i64_v1(1,replacement,932,0,&value)==0 && value==73);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==old_child);
+    assert(nyrt_object_checked_map_field_install_indexed_v1(frame,1,190,field_parent,940,0,&map_key_loan,replacement,932,&map_child,out)==0);
+    assert(complete_map_ends==1); /* install alone never Ends the old child */
+    assert(nyrt_object_checked_field_get_i64_v1(1,old_child,932,0,&value)==0);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==replacement);
+    complete_map=stable;
+    assert(nyrt_map_outcome_dispose_v1(out)==2);
+    assert(nyrt_map_outcome_end_v1(frame,190,out)==1);
+    assert(complete_map_ends==2);
+    assert(nyrt_map_outcome_end_v1(frame,190,out)==2);
+    assert(nyrt_map_outcome_dispose_v1(out)==0);
+    assert(nyrt_object_checked_field_get_i64_v1(1,old_child,932,0,&value)==2);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==replacement);
+    assert(nyrt_string_checked_length_v1(frame,190,&map_key_loan,&value)==0 && value==5);
+    child=replacement;
+
     assert(nyrt_string_checked_end_v1(frame,190,map_key_pair.handle,map_key_pair.token)==0);
     value=777;
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key_loan,&value)==2 && value==777);
@@ -319,7 +350,7 @@ int main(void) {
     assert(nyrt_object_checked_dynamic_replace_v1(frame,1,190,field_parent,940,0,&scalar,NULL,field_outcome)==0);
     complete_map=stable;
     assert(nyrt_object_field_outcome_end_v1(frame,190,field_outcome)==1);
-    assert(complete_map_ends==2);
+    assert(complete_map_ends==3);
     assert(nyrt_object_field_outcome_end_v1(frame,190,field_outcome)==2);
     assert(nyrt_object_field_outcome_dispose_v1(field_outcome)==0);
     assert(nyrt_object_checked_dynamic_get_v1(frame,1,190,field_parent,940,0,NYRT_FIELD_I64_V1,&seen)==0 && seen.value==42);
