@@ -160,6 +160,11 @@ impl BorrowedNullableLocalSourceLoanV1 {
             BorrowedLocalSupportV1::MapSlot(map) => map.holder }
     }
     pub(crate) fn is_map_slot(&self) -> bool { matches!(self.support, BorrowedLocalSupportV1::MapSlot(_)) }
+    /// Nominal payload only; the holder is not this object and owns no result.
+    pub(crate) fn map_payload_v1(&self) -> Option<(&str, hakorune_mir_defs::CanonicalObjectIdV1)> {
+        let BorrowedLocalSupportV1::MapSlot(map) = &self.support else { return None; };
+        Some((&map.source.class, map.source.object))
+    }
     /// Original Map key correspondence only, never a Text or executable grant.
     pub(crate) fn map_key_actual_v1(&self) -> Option<(u32, &OwnedExprSiteV1, BindingRefV1)> {
         let BorrowedLocalSupportV1::MapSlot(map) = &self.support else { return None; };
@@ -211,6 +216,37 @@ impl OrdinaryNewResultClassClaimsV1 {
         else {
             return Ok(None);
         };
+        self.lend_original_local_v1(original, batch, parameters, call, destination)
+    }
+
+    /// Select only Map-backed LOCAL receiver provenance. General formal-forward
+    /// failures must not replace an unrelated unproved receiver with a refusal.
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_map_local_receiver_source_v1(
+        &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
+        destination: BindingRefV1, app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, &'static str> {
+        let Some(source) = self.original_local_call_source_v1(batch, selected, fields,
+            call, destination, parameters, app_main)? else { return Ok(None); };
+        if !self.outcomes(&source.key).is_some_and(|outcomes| outcomes.iter()
+            .flat_map(|outcome| outcome.witnesses()).any(|root| matches!(root.step(), ResultWitnessStepV1::MapStored { .. }))) {
+            return Ok(None);
+        }
+        let roots = self.checked_original_source_roots_v1(&source.key, source.callee_owner)?;
+        if !roots.first().is_some_and(|root| matches!(root.step(), ResultWitnessStepV1::MapStored { .. })) {
+            return Ok(None);
+        }
+        let Some(map) = source.map_slot_substitution_v1(batch, selected, fields, &roots)? else { return Ok(None); };
+        self.lend_original_local_v1(OriginalLocalCallV1 { source, support: BorrowedLocalSupportV1::MapSlot(map) },
+            batch, parameters, call, destination)
+    }
+
+    fn lend_original_local_v1(&self, original: OriginalLocalCallV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1, parameters: &[OwnedCallableParameterContractDeclarationV1],
+        call: &OwnedExprSiteV1, destination: BindingRefV1,
+    ) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, &'static str> {
         let roots = self
             .checked_original_source_roots_v1(&original.source.key, original.source.callee_owner)?;
         if roots.is_empty() {

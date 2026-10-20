@@ -155,7 +155,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
                 else { panic!("original local key actual"); };
             (OwnedExprSiteV1::new(input.owner(), site.clone()), init.binding(), binding)
         }).unwrap();
-        let loan = facts.borrowed_nullable_local_source_v1(batch, selected, &fields, parameters,
+        let loan = facts.borrowed_map_local_receiver_source_v1(batch, selected, &fields, parameters,
             &call, destination, None).unwrap().expect("original Map LOCAL result");
         assert!(loan.is_map_slot());
         assert_eq!(loan.callee_ordinal(), None);

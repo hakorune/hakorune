@@ -1,21 +1,19 @@
 # APP-json-stream-aggregator
 
 Status: JSON selected; common untyped-storage target accepted. Date: 2026-10-21
-Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
-[untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
+Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner326.367s on current shared-source change; matching CLI/runtime/FFI frozen.
+  runner324.680s on current receiver-source change; matching CLI/runtime/FFI frozen.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current pair: JSON fails MIR with owner26 source-use-completion-pending inside
-  source-loop-header-after txn_abort. Earlier Bool Local and Map key source pass;
-  stats.add Unit/Map-held receiver blocks the later If fieldwrites. No JSON EXE.
+- Current pair: JSON fails MIR at owner22 UserStats.add Body0 field RHS,
+  implicit-exit/source-unavailable. Original stats.add target/actuals now select;
+  opaque bytes lacks a qualified scalar reference. No JSON EXE.
 - Other reds: untyped-field activation, binary-trees source-not-i64, boxtorrent
-  stored-child receiver. Current CLI34.68s/runtime2.32s; root test build64s.
-
+  stored-child receiver. Current CLI33.95s/runtime6.42s; root test build91s.
 
 ## Retained connected contracts
 
@@ -28,21 +26,19 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - One synchronous MapEndContext covers detached outcomes and Array children;
   synthetic Faults enter at encounter, recorded callback Faults are not duplicated,
   InvalidContract is fatal. Complete End runs outside Map/object locks.
-- Source first-write I64/Map uses original ConstructionStore and commit guard Empty.
-  Birth cleanup follows actual committed prefix; full End stays reverse declaration.
-  Canonically source-qualified fixed Array preserves complete census. Provided
-  stays caller-owned until Normal; Provided/nullable partial cleanup remains owed.
-- Native Map is private stable move-only field storage, no public Dynamic Map tag.
-  has/get share field-before-Text admission. Missing-only get Normal/0; exact class
-  borrows identity, wrong kind/class Faults, all non-Normal keeps out unchanged.
-  No Map pointer/Home/claim/End/Call/Return grant. Native both profiles PASS
-  (Map SafeMutex only); original complete child End remains once-only.
+- First-write I64/Map uses original ConstructionStore/Empty guard; Birth cleanup
+  follows committed prefix, full End reverse declaration. Fixed Array retains full
+  census. Provided stays caller-owned until Normal; partial cleanup remains owed.
+- Native Map: private stable move-only storage, no public Dynamic tag or
+  Home/claim/End/Call/Return grant. has/get check field before Text; missing-only
+  get Normal/0, exact class borrows identity, wrong kind/class Faults, non-Normal
+  keeps out unchanged. Both native profiles PASS; SafeMutex only, child End once.
 - Bool has shares Text comparison's scalar writer and both final consumers,
   retaining exact Me/input-use and complete original Map Birth replay. Duplicate
   operand/writer retired. Passive literal/formal Text/short-circuit source EXEs3
   exit7. Computed key effects stay unadmitted until receiver-first execution closes.
-- Finite input alone never classifies results: same original scalar Return census
-  selects scalar demand independently of scalar proof success; Text stays separate.
+- Scalar Return source census selects demand independently of proof success;
+  finite input alone grants no result class, Text stays separate.
 
 ## Current source connection
 
@@ -58,43 +54,47 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Map key selects SAME SourceInstance before domain/Completion success. Its exact
   key Binding uses the existing expression/TextResidence qualification callback;
   no legacy incoming, raw Binding proof or Text/Integer relabeling is fabricated.
-- Shared Static result loan retains Text/Bool without a variant per kind. Original
-  ExactBool target supplies source authority; optional call-site evidence must agree.
-  Full ordered actuals/input cohort/Completion precede exact Bool publication and
-  the existing scalar writer. Bool gets no Text Home or I64/String expression frame.
-- Document verification now borrows the same retained final root; source-less API
-  stays strict. Static Bool uses exact final Rust/C Text-domain and null-receiver
-  checks. Original source review found no need for a new solver or proof ledger.
+- Shared Static Text/Bool loan retains ExactBool target, all actuals/Completion,
+  exact publication/scalar writer and Rust/C Text-domain/null-receiver checks.
+  Document verification borrows the same final root; source-less API stays strict.
+- Map-only LOCAL receiver keeps the original payload class and same slot loan,
+  independent holder/key and whole Return source. Incoming rechecks this loan;
+  sole initializer, unrebound/uncaptured binding and exact target/arguments apply.
+- SourceInstance retains Scalar actual kind without raw-I64 transport. Existing
+  co-seal, object/borrowed/mixed finishers and Unit publication keep Map pending
+  until slot ABI/lifetime closes. Unit Completion alone grants no receiver packet.
 
 ## Verification and retained reds
 
 - Static Bool Local in indexed object context: true/false EXEs exit7/3; parser,
-  Invoke42, publication1, Bool result2, covered-prefix1 and original JSON source1 PASS.
-  Actuals82PASS/4FAIL exactly reproduced with saved prior binary; reds stay owed.
+  Invoke42, Bool result2 previously PASS. Current publication1/prefix1/JSONsource1,
+  nullable2/stored2 PASS; existing cases/API reused without a new assertion.
+  Actuals82PASS/4FAIL unchanged; result23/1 reproduced with saved prior binary.
+  All failures stay owed; no safety boundary or expected error was weakened.
 - Prior Array15/2, publication3/1, result23/1, nullable publication2/1 remain owed.
-- Earlier Invoke42/construction4/prefix1/Provided1/Map17/binding8+archive1/C14,
-  coreMap15/kernelMap17/native both profiles, borrowed27/core2/scalar1/terminal8/
-  selected-route1/loop2/expression4/condition1 PASS. Ignored/zero filters excluded.
-- Prior Map/scalar Fault4 + mixed-Array Fault2: exit70/Fault101/reclaim; first-store
-  candidate release checked with prior frozen pair. No previous product red waived.
+- Earlier physical/source checks and Fault reclaim remain recorded in Git;
+  current PASS claims exclude ignored/zero filters and never waive reds.
+- Prior Map/scalar Fault4 + mixed-Array Fault2: exit70/Fault101/reclaim and
+  first-store candidate release checked with prior frozen pair; no red waived.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep their original source/physical contracts.
 
 ## Next and full completion limits
 
-- Next: original Unit discard stats.add(bytes,ok) with Map-held receiver. It can
-  invalidate Body6 prefix before Body9 condition/fieldwrites; retain full source-use
-  closure. Slot result ABI/get+set Return and both final consumers/lifetimes remain.
-  Candidate Home transfer, set Normal/Fault, complete UserStats End, and users.push
-  execution remain mandatory; never replace them with source witness membership.
+- Next: qualify opaque bytes in add's Assignment RHS via shared references/SUM.
+  Finite entry needs Text and maps Bool to Other: normalize true Bool source and
+  complete Integer/Bool cohort, preserving original uses/registry/veto/all inputs.
+  Exact kind/payload entry guards and independent final consumers remain owed.
+- Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
+  Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently, not copy input Home. Provided Box,
   nullable Dynamic, Shared/carrier and full Dynamic activation remain owed.
 - Array holder/contents/End, exact empty-transfer census, canonical writer, signed
   SUM/rebind/to_i64 and source/physical prior reds remain. Direct terminal Text Call
   lacks original argument source; non-Text key inference panic is not a valid refusal.
 - Unboxed native Bool cohort and generic canonical-JSON type profile still refuse.
-- mimalloc PASS removed obsolete generic-JSON Invoke-refusal precheck; direct EXE
-  already worked. Publication tests do not prove its whole closure/every subtype.
-- App completion requires every smoke contract and real EXE/output/exit. Full goal
-  also requires mandatory source/consumer closure, production cutover and physical
-  retirement. Retire replaced exclusive edges; retain shared owners/safety checks.
+- mimalloc PASS removed obsolete generic-JSON Invoke precheck; EXE already worked.
+  Publication tests do not prove whole closure/every subtype.
+- App completion requires all smoke contracts and real EXE/output/exit; full goal
+  requires source/consumer closure, production cutover and physical retirement.
+  Retire replaced exclusive edges; retain shared owners/safety checks.

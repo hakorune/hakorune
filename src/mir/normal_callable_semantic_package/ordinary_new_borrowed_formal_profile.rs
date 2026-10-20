@@ -139,6 +139,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         names,
         field_write_claims,
         callable_result_classes,
+        contracts, app_main.map(|main| main.caller_source_ref_v1()),
         probe,
         Some(constructors),
     );
@@ -298,6 +299,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 }
             }
         }
+        for target in lexical_calls.values() {
+            if let Some(loan) = target.borrowed_receiver_source_v1() {
+                callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected,
+                    field_write_claims, contracts, loan, app_main.map(|main| main.caller_source_ref_v1()))
+                    .map_err(freeze)?;
+            }
+        }
         prepare_original_incoming_v1(
             brands, batch, selected, omitted_static_callers, contracts, &lexical_calls,
             &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
@@ -438,6 +446,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     callee_owner: reference.callee_owner,
                                     argument_sites: reference.argument_sites.clone(),
                                     owning_object_input: owning_object_input.clone(),
+                                    borrowed_receiver_source: None,
                                     result_requirement: result_requirement.clone(),
                                 }))
                             }

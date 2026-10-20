@@ -10,6 +10,8 @@ pub(super) struct LexicalReceiverClassSourceV1<'a> {
     ordinary_box_names: &'a [Box<str>],
     field_write_claims: &'a super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    parameters: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    app_main: Option<AppMainSourceRefV1<'a>>,
 }
 
 impl<'a> LexicalReceiverClassSourceV1<'a> {
@@ -18,12 +20,14 @@ impl<'a> LexicalReceiverClassSourceV1<'a> {
         ordinary_box_names: &'a [Box<str>],
         field_write_claims: &'a super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        parameters: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        app_main: Option<AppMainSourceRefV1<'a>>,
     ) -> Self {
         Self {
             new_classes,
             ordinary_box_names,
             field_write_claims,
-            callable_result_classes,
+            callable_result_classes, parameters, app_main,
         }
     }
 
@@ -206,11 +210,11 @@ impl LexicalReceiverClassSourceV1<'_> {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         need: &LexicalInstanceCallNeedV1,
-    ) -> Result<Option<Box<str>>, String> {
+    ) -> Result<Option<(Box<str>, Option<Box<super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1>>)>, String> {
         batch
             .with_lowering_input(
                 need.callee_slot,
-                |input| -> Result<Option<Box<str>>, String> {
+                |input| -> Result<Option<(Box<str>, Option<Box<super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1>>)>, String> {
                     if input.owner() != need.owner {
                         return Ok(None);
                     }
@@ -228,7 +232,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                     let Some(initializer_site) = initializer.initializer_site() else {
                         return Ok(None);
                     };
-                    let Some(class) = self.initializer_class(
+                    let class = self.initializer_class(
                         batch,
                         selected,
                         need.callee_slot,
@@ -236,9 +240,18 @@ impl LexicalReceiverClassSourceV1<'_> {
                         input,
                         initializer_site,
                         0,
-                    )?
-                    else {
-                        return Ok(None);
+                    )?;
+                    let (class, borrowed) = if let Some(class) = class { (class, None) } else {
+                        if input.function().method_call(initializer_site).is_none()
+                            || need.rebound
+                            || !input.forest().callable_source_ledger(input.owner())
+                                .is_ok_and(|ledger| ledger.uncaptured_binding(need.receiver_binding)) { return Ok(None); }
+                        let call = OwnedExprSiteV1::new(need.owner, initializer_site.clone());
+                        let Some(loan) = self.callable_result_classes.borrowed_map_local_receiver_source_v1(
+                            batch, selected, self.field_write_claims, self.parameters, &call,
+                            need.receiver_binding, self.app_main).map_err(freeze)? else { return Ok(None); };
+                        let (class, _) = loan.map_payload_v1().ok_or_else(|| freeze("borrowed-nullable/source-identity"))?;
+                        (class.into(), Some(Box::new(loan)))
                     };
                     if !self
                         .ordinary_box_names
@@ -247,7 +260,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                     {
                         return Ok(None);
                     }
-                    Ok(Some(class))
+                    Ok(Some((class, borrowed)))
                 },
             )
             .map_err(|_| freeze("lexical-instance-call/batch-loan"))?

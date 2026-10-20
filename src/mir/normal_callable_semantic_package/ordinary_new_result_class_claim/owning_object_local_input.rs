@@ -120,7 +120,7 @@ mod tests {
                 }
                 use super::super::super::lexical_instance_call::{CallTargetReferenceV1, PreparedSourceCallNeedV1};
                 let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
-                    batch, selected, &new_classes, &names, &fields, &facts, &mut |_, _, _| Ok(None), None).unwrap();
+                    batch, selected, &new_classes, &names, &fields, &facts, parameters, main.map(|main| main.caller_source_ref_v1()), &mut |_, _, _| Ok(None), None).unwrap();
                 let target = needs.iter().filter_map(|row| row.as_ref().unwrap().as_ref()).find_map(|need| match need {
                     PreparedSourceCallNeedV1::Lexical(target) if target.call_site() == &call => Some(target),
                     _ => None,

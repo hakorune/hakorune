@@ -202,6 +202,7 @@ mod tests {
                         &names,
                         &fields,
                         &classes,
+                        parameters, main.map(|main| main.caller_source_ref_v1()),
                         &mut |_, _, _| Ok(None),
                         None,
                     )

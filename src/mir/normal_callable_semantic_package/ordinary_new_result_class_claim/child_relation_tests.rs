@@ -594,7 +594,7 @@ fn returned_field_source_closes_original_initializer_dag_and_refuses_incomplete_
                 .map(|row| row.name().into()).collect();
             let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
                 batch, selected, &BTreeMap::new(), &names, &fields, &facts,
-                &mut |_, _, _| Ok(None), None).unwrap();
+                parameters, main.map(|main| main.caller_source_ref_v1()), &mut |_, _, _| Ok(None), None).unwrap();
             let targets: Vec<_> = needs.iter().filter_map(|need| match need.as_ref().unwrap().as_ref()? {
                 super::super::super::lexical_instance_call::PreparedSourceCallNeedV1::Lexical(row) => Some(row),
                 _ => None,

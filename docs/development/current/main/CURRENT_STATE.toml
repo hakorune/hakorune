@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "borrowed-entry/source-use-completion-pending: owner26 ingestLine; missing Body9 If fieldwrites after Map-held stats.add; source-loop-header-after txn_abort"
+current_blocker_token = "ordinary-new/local-commit/implicit-exit/source-unavailable: owner22 UserStats.add Body0 field RHS; opaque bytes scalar source not connected"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: owner26 source-use completion待ち。Bool Local/Map key引数は前進。
-同じStatic結果loanをText/Boolで共有。元source・入力cohort・publication・Rust/C最終検証を保持。
-indexed Bool両分岐EXE exit7/3、Invoke42ほかPASS。actuals82/4の4赤は旧binaryでも一致。
-今回suite7/4（実EXE6＋marker1、326.367s、SKIP/timeoutなし）。CLI34.68s/runtime2.32s/root64s。
-次はstats.addのUnit discardとMap-held receiver。全Home/End/slot ABI/prior redsはcard。
+APP-json-stream-aggregator: stats.add target/actuals接続、owner22 add Body0 field RHSへ停止移動。
+同じMap LOCAL loanをreceiver target/incomingへ保持。旧finishersはslot ABI/lifetime待ち。
+JSONsource1/nullable2/stored2/publication1/prefix1 PASS。actuals82/4・result23/1の赤は保持。
+今回suite7/4（実EXE6＋marker1、324.680s、SKIP/timeoutなし）。CLI33.95s/runtime6.42s/root91s。
+次は元opaque bytesのfinite readとInteger/Bool入力cohort。全Home/End/slot ABI/prior redsはcard。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: SAME Map-backed LOCAL receiver source now retains payload class and exact slot loan in existing lexical target/incoming, with sole initializer/unrebound/uncaptured checks and all Return/holder/key recheck. Unit SourceInstance keeps Scalar kinds without executable I64 transport. Old co-seal/object/borrowed/mixed/Unit promotion remains closed until real slot ABI/lifetime. JSON stop moves owner26 ingestLine to owner22 UserStats.add Body0 opaque bytes RHS. Existing JSONsource1/nullable2/stored2/publication1/prefix1 PASS; actuals82/4 unchanged, result23/1 reproduced with saved prior binary. Frozen suite7/4 actualEXE6+marker1,324.680s,no SKIP/timeout. CLI33.95s/runtime6.42s/root91s. No new test case/assert/file/hook/checker/guard/card. Next normalize original Bool SUM plus shared finite Integer/Bool input/reference owner and exact entry projections; preserve all Home/End/slot ABI/prior reds and finite-goal source/consumer/cutover/retirement.",
   "2026-10-21: SAME Map key purpose selects original SourceInstance Binding expression/TextResidence completion. Shared Static Text/Bool source loan uses canonical ExactBool target; optional callsite agrees, full actuals/cohort/Completion retained. Exact Bool publication/writer and Rust/C Text-domain/null-receiver checks connected. Document verifier replays same retained root, source-less API stays strict. Indexed object-context Bool EXEs exit7/3; parser1/Invoke42/publication1/Bool2/prefix1/JSONsource1 PASS. Actuals82/4 exactly reproduced with prior binary, no reds waived. Suite7/4 actualEXE6+marker1,326.367s,no SKIP/timeout. JSON now owner26 source-use completion at later If fieldwrites; Map-held stats.add Unit receiver next. CLI34.68s/runtime2.32s/root64s, dependencies reused; unlike edit workloads do not prove growth trend. No new verification entry/card; intermediate288MB binary removed. Slot ABI/lifetime, full Home/End/Text, prior reds and finite-goal cutover/retirement remain.",
   "2026-10-20: SAME LOCAL borrowed loan now separates FormalForward and MapSlot support. Original caller Me holder and key actual are substituted independently with exact method/source identities and full callee Return Rc coverage; Map formal root/ordinal are both None. Generic Call composition still refuses Map; old ABI/Return issuers reject it or retain SourcePending. Existing unmodified JSON source case includes local user key and both roots:1PASS; nullable2/stored2 PASS; result23/1 and publication2/1 prior failures retained. No new test entry/file/hook/checker/guard/card. Frozen suite7/4 actualEXE6+marker1,329.841s,no SKIP/timeout. JSON stop now owner26 line129 statsFor(user) source-arguments-missing: SourceInstance input purpose/key Binding expression seam next, no legacy incoming fabrication. CLI66s/runtime6.59s/root test109s; unlike edits are not a causal build trend. Physical slot ABI/lifetime, full Home/End/Text/prior reds and finite goal remain.",
-  "2026-10-20: Original result PassB now derives MapHeld source for both unmodified JSON statsFor exits after SAME field/entry claims, before SUM. Shared original Array/Map use walk retires private Array walk; Array selector/i64 policy retained. Map closes all declarations/Birth, alias/escape/foreign/capture/class/mutator coverage and set-to-Return effects. Distinct source origin never grants owning projection or executable Call/Return. Existing source case1 PASS; Array15/2,result23/1,publication3/1 with matching prior failures retained, no new test entry/file/hook/checker/guard/card. Frozen suite7/4 actualEXE6+marker1,331.585s,no SKIP/timeout; JSON same owner26 line151. CLI91s/runtime7.05s/root test67s. Next SAME LOCAL support with independent receiver/key substitution, slot lifetime and both final consumers. Complete Home/End/Text, prior reds and finite-goal cutover/retirement remain.",
 ]

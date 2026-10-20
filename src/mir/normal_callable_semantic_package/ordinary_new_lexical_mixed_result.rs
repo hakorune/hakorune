@@ -76,7 +76,7 @@ impl OrdinaryNewClaimLedgerV1 {
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
         let pending: Vec<_> = self.lexical_instance_calls.borrow().iter().filter_map(|(site, slot)| match slot {
-            LexicalInstanceCallDispositionSlotV1::SourcePending(source) if source.mixed_local_source().is_some() => Some((site.clone(), source.clone())),
+            LexicalInstanceCallDispositionSlotV1::SourcePending(source) if source.mixed_local_source().is_some() && source.borrowed_receiver_source_v1().is_none() => Some((site.clone(), source.clone())),
             _ => None,
         }).collect();
         let mut upgrades = Vec::new();

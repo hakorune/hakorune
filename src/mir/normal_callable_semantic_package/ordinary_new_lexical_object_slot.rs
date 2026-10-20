@@ -196,6 +196,7 @@ impl OrdinaryNewClaimLedgerV1 {
         )>,
         String,
     > {
+        if source.borrowed_receiver_source_v1().is_some() { return Ok(None); }
         if let Some(qualifications) = source.object_return_sources() {
             let original = self
                 .callable_result_classes

@@ -22,10 +22,14 @@ pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     /// Exact non-receiver argument sites in source order.
     pub(super) argument_sites: Box<[SourceExprSiteV1]>,
     pub(super) owning_object_input: Option<std::rc::Rc<super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
+    pub(super) borrowed_receiver_source: Option<Box<super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1>>,
     pub(super) result_requirement: LexicalCallSourceResultRequirementV1,
 }
 
 impl LexicalInstanceCallSourceTargetV1 {
+    pub(crate) fn borrowed_receiver_source_v1(&self) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
+        self.borrowed_receiver_source.as_deref()
+    }
     pub(crate) fn owning_object_local_input_v1(&self) -> Option<&super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1> {
         self.owning_object_input.as_deref()
     }
@@ -367,6 +371,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     ordinary_box_names: &[Box<str>],
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    app_main: Option<AppMainSourceRefV1<'_>>,
     stored_receiver: &mut impl FnMut(
         OriginalCallSourceCallerV1<'_>,
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -378,7 +384,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
         new_classes,
         ordinary_box_names,
         field_write_claims,
-        callable_result_classes,
+        callable_result_classes, parameters, app_main,
     );
     let mut needs = Vec::new();
     let mut collect = |caller: OriginalCallSourceCallerV1<'_>,
@@ -489,6 +495,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                 return row;
             };
             (|| -> Result<Option<PreparedSourceCallNeedV1>, String> {
+                let mut borrowed_receiver_source = None;
                 let class = if need.self_receiver {
                     // `me.<name>` resolves to a method on the caller's own
                     // box — the caller declaration's selected key is the
@@ -511,7 +518,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                             }
                         }
                         None => match source.claim_local_class(batch, selected, &need)? {
-                            Some(class) => class,
+                            Some((class, borrowed)) => { borrowed_receiver_source = borrowed; class },
                             None => return Ok(None),
                         },
                     }
@@ -556,6 +563,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                         callee_owner,
                         argument_sites: need.argument_sites,
                         owning_object_input: None,
+                        borrowed_receiver_source,
                         result_requirement:
                             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                     },

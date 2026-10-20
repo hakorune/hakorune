@@ -338,8 +338,10 @@ impl OrdinaryNewClaimLedgerV1 {
             let callee_owner = source.callee_owner();
             let borrowed_nullable = source.borrowed_nullable_local_source().is_some();
             let mixed = source.mixed_local_source().is_some();
-            if borrowed_nullable || mixed || self.requires_object_packet_v1(&source)? {
-                if borrowed_nullable || mixed {
+            // Slot result law and holder/key lifetime must precede a packet.
+            let borrowed_receiver = source.borrowed_receiver_source_v1().is_some();
+            if borrowed_nullable || mixed || borrowed_receiver || self.requires_object_packet_v1(&source)? {
+                if borrowed_nullable || mixed || borrowed_receiver {
                     self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
                 }
                 if self

@@ -588,6 +588,14 @@ rewritten key correspondence. Formal-only root/ordinal accessors return none
 for storage support, and generic Return composition cannot drop this LOCAL
 support. This grants neither a result ABI nor slot liveness: completed Text
 actuals, nonnull/Normal/Fault, holder/slot lifetime and final replay remain owed.
+A method receiver may retain that same LOCAL Map-slot correspondence in its
+original lexical target. Its nominal class is the payload class, never the
+holder class or an owning-result projection. Selection requires the exact sole
+initializer and an unrebound, uncaptured destination; all original Map roots,
+holder/key substitution and target/argument identities are rechecked. This is
+source census only: co-seal and every old slot finisher keep this receiver
+pending until the result-slot law and holder/key liveness are complete. Unit
+Completion alone cannot turn this source relation into an executable packet.
 The same retained Map key request selects the existing SourceInstance input
 phase before domain/Completion success. A Binding actual is admitted only at
 that exact original key ordinal/read and an opaque formal; it is not relabeled

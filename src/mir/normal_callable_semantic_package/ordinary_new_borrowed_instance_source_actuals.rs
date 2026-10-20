@@ -304,6 +304,10 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         return Err(freeze("borrowed-instance/field-loan-identity"));
                     }
                 }
+                BorrowedCallActualValueV1::Scalar(binding, _)
+                    if unit_request && target.borrowed_receiver_source_v1().is_some()
+                        && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                        && binding.owner() == site.owner() => {},
                 BorrowedCallActualValueV1::Binding(binding)
                     if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                         && map_key.is_some_and(|(ordinal, read, original)| ordinal == actual.ordinal
