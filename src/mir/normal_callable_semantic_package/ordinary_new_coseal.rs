@@ -197,6 +197,8 @@ pub(crate) use result_class_claim::{
 mod field_array_read_source;
 pub(crate) use field_array_read_source::{CheckedFieldArrayAccessSourceV1, CanonicalArrayFieldReadSourceV1};
 
+#[path = "container_field_uses.rs"]
+mod container_field_uses;
 #[path = "array_i64_fields.rs"]
 mod array_i64_fields;
 #[path = "ordinary_new_root_instance_call.rs"]
