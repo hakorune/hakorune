@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/owned-field-write/original-source: unannotated Self execution; owner26 total_bytes RHS/input completion also owed"
+current_blocker_token = "ordinary-new/borrowed-static/text-expression-execution-pending: owner26 Body3 line argument pending after missing Ordinary Text Local; Dynamic/End owed"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: MIRの最初の停止は未注釈Self field実行のoriginal-source拒否へ移動。
-Birthの元storesを保持し実行demandsと分離。元行欠落解消、owner26未採用代入4→1。
-同じpoint SUMでtotal_bytes全writer値根拠を接続。RHS/current-read・owner20 alias・Dynamic/End未完。
-constructor26/field16/SUM1/numeric1/Return-field1/nested1 PASS、catalog65PASS/旧10FAIL。
-今回のsource保持/point SUM変更でsuite7PASS/4FAIL（実EXE6＋marker1）、486.381秒。
+APP-json-stream-aggregator: package/MIR停止はborrowed-static/text-expression-execution-pending。
+元finite-input契約のscalar aliasを共通initializerへ接続し、owner20 end=start未検証read解消。
+point SUM/read/Copyと両final検証を保持。次はstringFieldのText Local/Call結果と後始末、Dynamic/End未完。
+initializer79PASS/旧2FAIL・entry21PASS・Static引数2PASS、CLI54.55秒。JSON smokeはMIR生成FAIL。
+固定suite直近7PASS/4FAIL（実EXE6＋marker1、source-retention変更時）；今回は未再計測。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: Finite-input scalar aliases retain the same point SUM/read/Local Copy in the common initializer, with producer forwarding and both final-consumer replays; pure scalar aliases stay generic. Matching CLI54.55s plus diagnostic refresh34.17s. Initializer79PASS/2samepriorFAIL, entry21PASS, Static argument2PASS; no added test cases/files/hooks or weakened acceptance. Unchanged JSON MIR generation now stops at pending owner26 Body3 intField argument0 line, following missing Body1 Ordinary Text Local stringField result. owner20 end=start use closes; owner26 bytes producer and Dynamic/End remain owed. Fixed suite remains last measured7PASS/4FAIL (sixEXEs plus marker), not rerun for this bounded input-family change.",
   "2026-10-20: Retained Birth source and original-point SUM (base366c1e39e2) — fixed suite7 PASS/4 FAIL, actual EXE6 plus empty marker1, no SKIP/timeout, runner486.381s. Matching quick opt0 CLI1m26s; frozen quick lifecycle runtime/private C FFI, build/run300s and no Cargo overlap. mimalloc153.697s, allocator178.324s and typed37–40s PASS. JSON source rows now survive execution refusal; missing owner26 assignments4→1, total_bytes all-writer value loan closed. First MIR stop advances to unannotated Self owned-field-write/original-source. RHS/current-read, intField alias, Dynamic/End and finite-goal obligations remain. Other three red stops unchanged on direct reruns.",
   "2026-10-20: Source-owned Self field writes (base11dd3230cb) — fixed suite7 PASS/4 FAIL, actual EXE6 plus empty marker1, no SKIP/timeout, runner484.779s. Matching quick opt0 CLI1m28s, frozen quick runtime/private C FFI, build/run300s and no Cargo overlap. mimalloc152.639s, allocator177.583s and four typed EXEs37–40s PASS. Typed Counter Self update reaches canonical EXE Result8/exit8. JSON remains owner26 source-use completion; direct red reruns retain untyped-field original-source, binary-trees source-not-i64, boxtorrent stored-child. Signed whole-RHS SUM and both final scans connected; Dynamic source/storage/End and finite-goal obligations remain incomplete.",
-  "2026-10-20: Plain scalar If at 9b2538e575 — fixed suite7 PASS/4 FAIL, actual EXE6 plus empty marker1, no SKIP/timeout; runner481.943s/wall483.997s. Matching quick opt0 CLI36.96s, frozen quick runtime/private C FFI, build/run300s, no Cargo overlap. mimalloc154.321s and allocator178.179s PASS; four typed EXEs36–38s. JSON advances past find scalar If to borrowed-entry source-use completion; untyped-field original-source, binary-trees source-not-i64 and boxtorrent stored-child remain red. Later entry diagnostics are outside this measurement.",
 ]

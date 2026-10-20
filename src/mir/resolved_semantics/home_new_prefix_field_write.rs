@@ -39,6 +39,20 @@ pub(super) fn observe<E>(
                     if let Some(entry) = scalar_field.entry_write(input, assignment.target_site())? {
                         let Some(frame) = CheckedFieldWriteFrameV1::for_entry(entry, homes) else { return Ok(false) };
                         let signed_reads = signed_reads(frame.source(), locals, local_calls, scalar_field);
+                        let inputs: Vec<_> = if crate::config::env::builder_debug_enabled() {
+                            frame.source().nodes().iter().filter(|node| matches!(node.source(),
+                                crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+                                .map(|node| {
+                                    let kind = match locals.observe(node.site()) {
+                                        Some(OrdinaryObservation::TrivialLocal(_, Some(SourceScalarKind::Integer))) => "integer-local",
+                                        Some(OrdinaryObservation::Integer(_)) => "integer-literal",
+                                        Some(_) => "non-integer", None => "unavailable",
+                                    };
+                                    (node.site().clone(), kind, locals.current_scalar_read_v1(node.site(), local_calls).is_some(), signed_reads.contains_key(node.site()))
+                                }).collect()
+                        } else { Vec::new() };
+                        let target = assignment.target_site();
+                        let mut field_batch_ready = None;
                         let mut installation = locals.expression_installation();
                         let plan = super::expression_plan::qualify_field_write_expression_v1(Rc::clone(frame.source()), true, Some(frame),
                             &mut |site| match locals.observe(site) {
@@ -48,8 +62,17 @@ pub(super) fn observe<E>(
                                 _ => None,
                             }, &mut |site| signed_reads.get(site).cloned(), &mut |site| super::field_read::field_read_request(input, site, locals),
                             &mut |plan| installation.approve(plan),
-                            &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
-                        if plan.is_none() { return Ok(false) }
+                            &mut |requests, demand| {
+                                let ready = fields(requests, demand)?.is_some();
+                                field_batch_ready = Some(ready);
+                                Ok(ready)
+                            })?;
+                        if plan.is_none() {
+                            if crate::config::env::builder_debug_enabled() {
+                                eprintln!("[field-source] owner={:?} target={target:?} RHS unavailable inputs={inputs:?} field-batch={field_batch_ready:?}", input.owner());
+                            }
+                            return Ok(false);
+                        }
                         installation.commit();
                         return Ok(true);
                     }

@@ -32,8 +32,10 @@ impl TextResidenceReadV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedInitializerExpressionFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
+    signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
 }
 impl CheckedInitializerExpressionFrameV1 {
+    pub(crate) fn signed_root_sum(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> { self.signed_root_sum.as_ref() }
     pub(crate) fn text_acquisition_v1(self: &Rc<Self>) -> TextResidenceAcquisitionV1 {
         TextResidenceAcquisitionV1::from_initializer(Rc::clone(self))
     }
@@ -54,6 +56,7 @@ impl CheckedInitializerExpressionFrameV1 {
 pub(crate) fn qualify_initializer_expression_v1<E>(
     mut prepared: super::leaves::PreparedExpressionCallsV1,
     entry_reads: &[FiniteEntryReadV1],
+    signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Option<Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -89,9 +92,15 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared,
             &mut |_| None, &order, field_request)? else { return Ok(None) };
+    let signed_current = signed_root_sum.as_ref().is_some_and(|sum| sum.signed_only()
+        && matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Reference(_))
+        && matches!(reference_proofs.get(&0), Some(CheckedExpressionReferenceV1::Scalar(read))
+            if read.original_read().is_some_and(|read| read.read() == source.nodes()[0].site())));
+    if signed_root_sum.is_some() && (!signed_current || classes[0] != Leaf::Value(Class::I64)) { return Ok(None); }
     if !references.is_empty() || transferred.contains(&0) || !matches!(classes[0], Leaf::Value(Class::String | Class::I64))
         || (classes[0] == Leaf::Value(Class::I64) && !has_core
-            && !entry_reads.iter().any(|read| read.requirement().node() == 0 && read.signed_only())) { return Ok(None); }
+            && !entry_reads.iter().any(|read| read.requirement().node() == 0 && read.signed_only())
+            && !signed_current) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     // Owned Text transfers one root residence; I64 retains no Home. Its Text
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.
@@ -101,6 +110,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
     let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     let frame = Rc::new(CheckedInitializerExpressionFrameV1 {
+        signed_root_sum,
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), references: reference_proofs, calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
             operations: operations.into_boxed_slice(), owned_results, cores, transferred_inputs: transferred },

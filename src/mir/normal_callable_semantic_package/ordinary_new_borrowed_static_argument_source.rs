@@ -495,6 +495,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         let slot = identity.argument_sources.get(&actual.ordinal)
             .ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
         let ArgumentExpressionV1::Qualified(frame) = slot else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[static-argument] site={site:?} ordinal={} target={:?} actual={:?} pending={slot:?}",
+                    actual.ordinal, identity.source.target(), actual.value);
+            }
             return Err(freeze(if core { "borrowed-static/core-expression-execution-pending" }
                 else { "borrowed-static/text-expression-execution-pending" }));
         };

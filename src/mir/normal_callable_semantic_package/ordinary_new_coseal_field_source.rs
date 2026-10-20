@@ -22,6 +22,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn req
 /// This consult lends syntax; Home qualification still proves each use.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct ScalarFieldsWithOriginalWritesV1<'a, F> {
     reads: F,
+    parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &'a crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     entry: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -32,6 +33,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn scalar_fields_with_original_writes<'a, F>(
+    parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &'a crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     entry: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -43,7 +45,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn sca
 ) -> ScalarFieldsWithOriginalWritesV1<'a, F>
 where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str)
     -> Result<bool, OrdinaryNewCoSealIssueV1> {
-    ScalarFieldsWithOriginalWritesV1 { reads, constructors, receiver, entry, results, ingress, candidates, writes }
+    ScalarFieldsWithOriginalWritesV1 { reads, parameter_contracts, constructors, receiver, entry, results, ingress, candidates, writes }
 }
 
 impl<F> crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<OrdinaryNewCoSealIssueV1>
@@ -104,6 +106,14 @@ where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, 
             receiver, entry, input.owner(), receiver.0, field).map_err(|issue|
                 OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
         Ok(crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1::issue(input, original, root, field, declared, Some(value)))
+    }
+    fn requires_initializer_use_frame(&mut self, site: &OwnedExprSiteV1)
+        -> Result<bool, OrdinaryNewCoSealIssueV1> {
+        let source = self.ingress.as_ref().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(), issue: issue.clone(),
+        })?;
+        OrdinaryNewClaimLedgerV1::original_finite_input_use_request_v1(source, self.parameter_contracts, site.owner())
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })
     }
     fn scalar_read_sum(&mut self, read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1)
         -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {

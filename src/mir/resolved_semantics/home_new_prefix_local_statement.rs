@@ -372,7 +372,7 @@ pub(super) fn observe<'a, E>(
         )? {
             // Source obligation retained; no producer execution is inferred.
         } else if super::initializer_expression::observe(input, &statement, relation, locals, homes,
-            unavailable.is_none(), local_calls, path_calls, local_field_read, borrowed_actuals)? {
+            unavailable.is_none(), local_calls, path_calls, scalar_field, local_field_read, borrowed_actuals)? {
             // The original Normal Text residence retains its acquisition.
         } else if let Some(class) = locals.observe(site) {
             locals.install_observed(binding, class);

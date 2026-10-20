@@ -428,7 +428,8 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
             seed() {{ return Values.caller({actual_input}, 1) }}
         }} static box Main {{ main() {{ return Values.seed() }} }}"#);
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
-            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable)
+            .unwrap_or_else(|error| panic!("{text}: {error:?}"));
         let ledger = &package.ordinary_new_claim_ledger;
         let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
         package.batch().with_lowering_input(contract.batch_slot, |input| {

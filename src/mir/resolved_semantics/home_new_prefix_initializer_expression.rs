@@ -8,6 +8,7 @@ pub(super) fn observe<E>(
     initializer: &super::super::ResolvedInitializerRelationV1,
     locals: &mut PrefixLocalFlow<'_>, homes: &mut Vec<LiveHomeV1>, prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
+    scalar_source: &mut impl HomeFieldSourceConsultV1<E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<bool, E> {
@@ -67,9 +68,13 @@ pub(super) fn observe<E>(
             || locals.text_reference(node.site()).is_some()
     });
     let signed_entry = root_reference && reads.iter().any(|read| read.requirement().node() == 0 && read.signed_only());
-    if !prepared.has_core() && !(root_add && has_parent_text) && !signed_entry { return Ok(false); }
+    let signed_root_sum = if root_reference && !signed_entry && scalar_source.requires_initializer_use_frame(&owned)? {
+        locals.current_scalar_read_v1(site, local_calls).and_then(|read| scalar_source.scalar_read_sum(&read))
+            .filter(|sum| sum.signed_only())
+    } else { None };
+    if !prepared.has_core() && !(root_add && has_parent_text) && !signed_entry && signed_root_sum.is_none() { return Ok(false); }
     let mut installation = None;
-    let plan = qualify_initializer_expression_v1(prepared, &reads,
+    let plan = qualify_initializer_expression_v1(prepared, &reads, signed_root_sum,
         &mut |site| super::argument_expression::text_reference(input, locals, site),
         &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
@@ -118,7 +123,7 @@ pub(crate) fn observe_for_test<E>(
             .find(|row| matches!(row.declaration_site(), SourceBindingSiteV1::Local { statement: site, ordinal: 0 } if site == statement.site())).unwrap();
         let root = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
         local_call_flow::stage_argument_expressions(input, &statement, &root, &locals, known, &homes, &calls, fields, port)?;
-        if !observe(input, &statement, initializer, &mut locals, &mut homes, known, &mut calls, &mut path, fields, port)? {
+        if !observe(input, &statement, initializer, &mut locals, &mut homes, known, &mut calls, &mut path, &mut NoScalarFieldSourceV1, fields, port)? {
             // Same generic alias/scalar installation used by the production
             // Local walker after the Text purpose declines this initializer.
             if known {

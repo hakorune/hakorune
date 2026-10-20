@@ -136,9 +136,11 @@ impl PrefixLocalFlow<'_> {
             if frames.next().is_some() { return None; }
             Some(CurrentScalarProducerV1::BindingRebind(Rc::clone(frame)))
         };
+        // A signed root-reference initializer records the original use/Copy,
+        // but forwards its producer rather than creating another value root.
         let origin = flow.alias_terminal_with_expression_boundary(value, |site| function.variable_ref(site),
             |site| rebind(site).is_some() || self.expression_plans.borrow().iter()
-                .filter_map(|plan| plan.initializer_frame()).any(|frame| frame.is_i64()
+                .filter_map(|plan| plan.initializer_frame()).any(|frame| frame.is_i64() && frame.signed_root_sum().is_none()
                     && frame.source().nodes().first().is_some_and(|node| node.site() == site)))?;
         let producer = if let SourceValueOriginV1::Expression(site) = flow.origin(origin)? {
             rebind(site)

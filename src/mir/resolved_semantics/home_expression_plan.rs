@@ -702,7 +702,7 @@ mod installation_tests {
             let prepared = leaves::prepare_expression_calls_v1::<()>(&source, profile, &Default::default(), &homes,
                 &mut |_| panic!("literal initializer has no Call")).unwrap().unwrap();
             let mut batches = 0;
-            let frame = qualify_initializer_expression_v1::<()>(prepared, &[], &mut |_| None,
+            let frame = qualify_initializer_expression_v1::<()>(prepared, &[], None, &mut |_| None,
                 &mut |_, _, _| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
                 &mut |_| true, &mut |_, _| { batches += 1; Ok(true) }).unwrap();
             assert_eq!(frame.is_some(), profile == leaves::ExpressionLeafProfileV1::LocalInitializer);

@@ -115,6 +115,19 @@ impl EmittedInitializerExpressionProjectionV1 {
         if installs != usize::from(self.has_text_home()) { return Err(freeze("initializer-expression/install-census")); }
         if self.frame.is_i64() && self.copy.as_ref().is_none_or(|(_, row)| !matches!(row, MirInstruction::Copy { dst, src }
             if *dst == self.local && *src == self.value)) { return Err(freeze("initializer-expression/local-copy-receipt")); }
+        if let Some(sum) = self.frame.signed_root_sum() {
+            let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(read))
+                = self.frame.evaluation().references().get(&0) else { return Err(freeze("initializer-expression/source-or-result")); };
+            let read = read.original_read().ok_or_else(|| freeze("initializer-expression/source-or-result"))?;
+            let source = context.ledger().borrowed_formal_source.as_ref()
+                .ok_or_else(|| freeze("initializer-expression/source-or-result"))?.as_ref().map_err(Clone::clone)?;
+            let current = source.lend_current_scalar_sum_v1(read)
+                .ok_or_else(|| freeze("initializer-expression/source-or-result"))?;
+            if !self.frame.is_i64() || self.frame.owns_root() || !sum.signed_only()
+                || !Rc::ptr_eq(sum, &current) || read.read() != self.frame.source().nodes()[0].site() {
+                return Err(freeze("initializer-expression/source-or-result"));
+            }
+        }
         self.expression().validate_source(context)
     }
     pub(super) fn validate_recorded(&self, bindings: &[Binding], finishing: Option<&super::super::physical_boundary::FinishedBindings>) -> Result<(), String> {

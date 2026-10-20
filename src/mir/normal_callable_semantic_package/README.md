@@ -4724,8 +4724,14 @@ identity; invalidating or replacing a root cannot retarget an old alias. Rebind
 execution remains unadmitted until its old-acquisition cleanup is connected.
 Original possible Text Add source demand selects the existing homes-aware
 completion walk, with no second scanner/storage or source-class solver. Bare
-literal/entry alias initializers keep their existing non-owning owner. The
-physical Local consumer selects the SAME retained initializer frame. Core-I64
+literal/entry alias initializers keep their existing non-owning owner. Within
+an original finite-input full-use family, a signed current scalar alias instead
+retains its SAME point-SUM/read in the shared initializer frame and Local Copy.
+This source-family selection is independent of body/actual completion; pure
+scalar owners keep generic aliases. Producer resolution passes through this
+read/Copy frame to the original producer. Both final consumers replay the SAME
+SUM and physical read/Copy; no new classifier or completion exemption is used.
+The physical Local consumer selects the SAME retained initializer frame. Core-I64
 uses the common ordered writer, then moves its observations through the existing
 from-values Local receipt into one lifecycle prefix group. The generic loop
 observation sink owns no packet. Exact scalar entry/Const/Call/prior-initializer
