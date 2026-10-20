@@ -15,6 +15,7 @@ pub(crate) struct CheckedFieldWriteFrameV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum FieldWriteReceiverV1 {
     FormalBorrowed,
+    Entry(crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1),
     OwnedLocal(crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -44,6 +45,16 @@ impl FieldWritePlanV1 {
     }
 }
 impl CheckedFieldWriteFrameV1 {
+    pub(crate) fn entry(&self) -> Option<&crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1> {
+        match &self.receiver { FieldWriteReceiverV1::Entry(source) => Some(source), _ => None }
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn for_entry(
+        entry: crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1, homes: &[LiveHomeV1],
+    ) -> Option<Rc<Self>> {
+        let mut unique = std::collections::BTreeSet::new();
+        if homes.iter().any(|home| home.owner() != entry.source().owner() || !unique.insert(home.binding())) { return None; }
+        Some(Rc::new(Self { source: Rc::clone(entry.source()), prior_homes: homes.into(), receiver: FieldWriteReceiverV1::Entry(entry) }))
+    }
     pub(crate) fn owned_local(&self) -> Option<&crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1> {
         match &self.receiver { FieldWriteReceiverV1::OwnedLocal(source) => Some(source), _ => None }
     }

@@ -24,13 +24,17 @@ pub(crate) use checked_graph::CheckedFieldWriteGraphV1;
 impl EmittedBorrowedFieldWriteV1 {
     pub(crate) fn source(&self) -> &FieldWriteSourceLoanV1 { &self.source }
     pub(crate) fn invoke_binding(&self) -> &Binding { self.graph.invoke_binding() }
+    pub(in crate::mir::normal_callable_semantic_package) fn qualified_rhs_value_v1(&self) -> Option<crate::mir::ValueId> {
+        match &self.value { FieldWriteValueV1::Expression(rhs) => Some(rhs.value()), _ => None }
+    }
+
     pub(in crate::mir) fn pins(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] { self.graph.pins() }
     pub(crate) fn bindings(&self) -> &[Binding] { self.graph.bindings() }
-    pub(in crate::mir::normal_callable_semantic_package) fn owned_operand_bindings_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn qualified_operand_bindings_v1(
         &self, root: BindingRefV1, installed: crate::mir::ValueId,
     ) -> Result<Vec<Binding>, String> {
         let mut rows = self.receiver.loan_forwarded_copies(root, installed)?.to_vec();
-        if let FieldWriteValueV1::Expression(rhs) = &self.value { rows.extend(rhs.bindings()); }
+        if let FieldWriteValueV1::Expression(rhs) = &self.value { rows.extend(rhs.bindings()?); }
         for pin in self.graph.pins() { pin.append_observed_bindings_v1(&mut rows); }
         rows.into_iter().map(|row| self.graph.resolve_observed_binding_v1(&row, true)).collect()
     }
@@ -66,6 +70,10 @@ impl EmittedBorrowedFieldWriteV1 {
         self.source.require_current_execution(ledger)?;
         let (receiver, site) = self.source.receiver()?;
         let base = self.receiver.value_for(site.owner(), site.site().node(), receiver).map_err(|issue| issue.to_string())?;
+        if let Some(entry) = self.source.frame().entry() {
+            let (_, value) = entry.checked_entry_value_v1(ledger, function)?;
+            self.receiver.loan_forwarded_copies(entry.receiver(), value)?;
+        }
         self.graph.validate_operand(0, base, function, finishing)?;
         let field = self.source.field()?;
         let value = match (&self.value, self.source.borrowed()) {
@@ -77,7 +85,9 @@ impl EmittedBorrowedFieldWriteV1 {
                 if self.source.qualified_rhs().is_none_or(|original| !Rc::ptr_eq(original, rhs.recipe())) {
                     return Err(freeze("field-write-rhs/foreign-recipe"));
                 }
-                rhs.validate(context, function, finishing)?;
+                // These are only prefixes issued after immutable RHS capture;
+                // cached pre-existing pins are deliberately absent from this loan.
+                rhs.validate_with_writer_prefix(context, function, finishing, self.graph.post_rhs_prefix())?;
                 rhs.value()
             },
             _ => return Err(freeze("field-write-rhs/operand-origin")),

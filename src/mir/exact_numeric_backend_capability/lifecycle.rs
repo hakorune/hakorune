@@ -188,6 +188,11 @@ fn enforce_contracts(
                 ))?;
             continue;
         }
+        if birth.is_none() && !invoke_usize
+            && input.entry().corroborate_qualified_i64_field_write_v1(module, ordinal as u32,
+                contract.block, contract.instruction_index, row.instruction())? {
+            continue;
+        }
         // Constants already use verifier proofs and do not reach this runtime
         // obligation. Here V4 consumes the retained tagged Birth parameter.
         let birth = birth.ok_or_else(|| fault("not-birth"))?;

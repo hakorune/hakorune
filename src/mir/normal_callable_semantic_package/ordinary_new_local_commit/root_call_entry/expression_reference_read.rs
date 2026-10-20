@@ -23,12 +23,15 @@ impl PartialEq for ReferenceProducerV1 {
 }
 #[derive(Debug)]
 pub(in crate::mir) struct ExpressionReferenceReadV1 {
-    read: ExactLexicalReadV1,
+    read: std::rc::Rc<ExactLexicalReadV1>,
     producer: ReferenceProducerV1,
 }
 pub(in crate::mir) struct PreparedExpressionReferenceReadV1 { producer: ReferenceProducerV1 }
 impl PreparedExpressionReferenceReadV1 {
     pub(in crate::mir) fn finish(self, read: ExactLexicalReadV1) -> ExpressionReferenceReadV1 {
+        self.finish_shared(std::rc::Rc::new(read))
+    }
+    pub(in crate::mir) fn finish_shared(self, read: std::rc::Rc<ExactLexicalReadV1>) -> ExpressionReferenceReadV1 {
         ExpressionReferenceReadV1 { read, producer: self.producer }
     }
 }

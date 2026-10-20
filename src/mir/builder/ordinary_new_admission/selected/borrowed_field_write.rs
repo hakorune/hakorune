@@ -34,7 +34,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
             }
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
             rhs.validate_lowering(ledger, function)?;
-            (rhs.value(), rhs.bindings(), rhs.relations())
+            (rhs.value(), rhs.bindings()?, rhs.relations())
         },
         _ => return Err(freeze("field-write/operand-origin")),
     };

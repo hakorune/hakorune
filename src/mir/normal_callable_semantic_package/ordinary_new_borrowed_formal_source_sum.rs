@@ -70,6 +70,8 @@ pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
     pub(super) values: BTreeMap<BindingRefV1, Rc<SourceValueSumV1>>,
     pub(super) core_calls: BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
+    pub(super) points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), Rc<SourceValueSumV1>>,
+    pub(super) flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
 }
 /// Closed source premises, not an evaluation, ABI or cleanup capability.
 #[derive(Debug)]
@@ -276,6 +278,7 @@ pub(super) fn resolve_original_source_sums_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     initializer_roots: &[OriginalFormalActualSeedV1],
+    flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
     expand: &mut PointExpander<'_>,
 ) -> Result<OriginalSourceSumsV1, String> {
     let mut graph = Graph {
@@ -345,6 +348,9 @@ pub(super) fn resolve_original_source_sums_v1(
     }
     Ok(OriginalSourceSumsV1 {
         new_calls: Rc::clone(&source.new_calls),
+        flows,
+        points: graph.points.into_iter().filter_map(|(point, node)|
+            values[node].clone().map(|value| (point, Rc::new(value)))).collect(),
         core_calls: core_calls.into_iter().filter_map(|(site, value)| value.map(|value| (site, Rc::new(value)))).collect(),
         values: graph
             .formals
@@ -357,6 +363,42 @@ pub(super) fn resolve_original_source_sums_v1(
 #[path = "ordinary_new_borrowed_formal_source_sum_solver.rs"]
 mod solver;
 use solver::solve;
+
+impl PreparedBorrowedFormalIngressV1 {
+    /// Complete source alternatives on Normal, never entry or execution permission.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_value_sum_v1(
+        &self, formal: BindingRefV1,
+    ) -> Option<&SourceValueSumV1> {
+        self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_current_scalar_sum_v1(
+        &self, read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        let product = &self.original_formal_seeds;
+        product.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        let sums = product.source_sums.as_ref()?;
+        let owner = read.binding().owner();
+        let point = read.point_for_original_flow_v1(sums.flows.get(&owner)?)?;
+        sums.points.get(&(owner, point)).map(Rc::clone)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_source_value_sum_v1(
+        &self, formal: BindingRefV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        self.original_formal_seeds.source_sums.as_ref()?.values.get(&formal).map(Rc::clone)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Option<&Rc<ClosedOriginalCoreSourceV1>> {
+        self.original_formal_seeds.closed_core_source_v1(&self.source_incoming, site)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {
+        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        self.original_formal_seeds.ordinary_core.get(site)
+    }
+}
 
 #[cfg(test)]
 mod tests {

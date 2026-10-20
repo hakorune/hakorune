@@ -92,7 +92,7 @@ mod field_reads;
 pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
-pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, ObjectFieldClassSourceV1};
+pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1, ObjectFieldClassSourceV1};
 pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1};
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::no_birth_constructor_disposition;
@@ -210,7 +210,7 @@ pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
 };
 
 pub(crate) use local_commit::{
-    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1, QualifiedFieldWriteReceiverV1,
     TerminalNullReturnSourceLoanV1,
 };
 pub(crate) use root_instance_call::RootInstanceCallDispositionRowV1;
@@ -703,3 +703,5 @@ pub(crate) use lexical_instance_call::{ArgumentExpressionSourceLoanV1, FiniteEnt
 pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
 
 pub(crate) use local_commit::fault_indices_after_normal_step_v2;
+
+pub(in crate::mir) use lexical_instance_call::SourceValueSumV1;

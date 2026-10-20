@@ -56,7 +56,7 @@ mod model;
 mod ordinary_new_coseal;
 pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
 pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
-pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1};
+pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1};
 mod physical_header;
 mod physical_signature;
 mod qualified_static_call_claim;
@@ -188,7 +188,7 @@ pub(in crate::mir) use ordinary_new_coseal::{BorrowedMulMaterializationV1, Borro
 pub(crate) use ordinary_new_coseal::{
     BorrowedNullableLocalSourceLoanV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1,
     BirthAbiHandoffV1, BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
-    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1, QualifiedFieldWriteReceiverV1,
     LexicalInstanceCallDispositionRowV1, LexicalInstanceCallSourceTargetV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
     OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1,
@@ -275,3 +275,5 @@ pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 pub(crate) use ordinary_new_coseal::ObjectFieldClassSourceV1;
 
 pub(crate) use ordinary_new_coseal::fault_indices_after_normal_step_v2;
+
+pub(in crate::mir) use ordinary_new_coseal::SourceValueSumV1;

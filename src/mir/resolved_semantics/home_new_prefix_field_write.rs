@@ -6,6 +6,7 @@
 //! Neither path acquires a Home or issues physical FieldSet permission.
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use std::rc::Rc;
 #[path = "home_new_prefix_owned_field_write.rs"]
 mod owned_local;
 use crate::mir::resolved_semantics::{
@@ -20,14 +21,41 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>, prefix_known: bool,
+    homes: &mut Vec<LiveHomeV1>, prefix_known: bool, local_calls: &[LocalCallObservationV1],
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
-    if let Some(admitted) = owned_local::observe(input, statement, locals, homes, prefix_known, scalar_field, fields)? {
+    if let Some(admitted) = owned_local::observe(input, statement, locals, homes, prefix_known, local_calls, scalar_field, fields)? {
         return Ok(admitted);
+    }
+    // A sealed entry writer uses the same whole-RHS owner as LOCAL. Its
+    // original receiver/source permission is stronger than the neutral probe.
+    if let Some(shape) = input.body_shape() {
+        if let Some(assignment) = shape.assignment_sources().iter().find(|row| row.statement_site() == statement.site()) {
+            if let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) = input.function().assignment_target(assignment.target_site()) {
+                if self_rooted_me(shape, receiver, locals).is_some() {
+                    if let Some(entry) = scalar_field.entry_write(input, assignment.target_site())? {
+                        let Some(frame) = CheckedFieldWriteFrameV1::for_entry(entry, homes) else { return Ok(false) };
+                        let signed_reads = signed_reads(frame.source(), locals, local_calls, scalar_field);
+                        let mut installation = locals.expression_installation();
+                        let plan = super::expression_plan::qualify_field_write_expression_v1(Rc::clone(frame.source()), true, Some(frame),
+                            &mut |site| match locals.observe(site) {
+                                Some(OrdinaryObservation::Integer(_)) => Some(SourceScalarKind::Integer),
+                                Some(OrdinaryObservation::Bool(_)) => Some(SourceScalarKind::Bool),
+                                Some(OrdinaryObservation::TrivialLocal(_, kind)) => kind,
+                                _ => None,
+                            }, &mut |site| signed_reads.get(site).cloned(), &mut |site| super::field_read::field_read_request(input, site, locals),
+                            &mut |plan| installation.approve(plan),
+                            &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
+                        if plan.is_none() { return Ok(false) }
+                        installation.commit();
+                        return Ok(true);
+                    }
+                }
+            }
+        }
     }
     if !observe_receiver_field_write(input, statement, locals, scalar_field, view_use)? { return Ok(false); }
     let shape = input.body_shape().expect("field effect validated its original shape");
@@ -52,6 +80,7 @@ pub(super) fn observe<E>(
     if !source.nodes().iter().any(|node| node.binary().is_some_and(|binary|
         matches!(binary.operator(), ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide)))
     { return Ok(true); }
+    let signed_reads = signed_reads(&source, locals, local_calls, scalar_field);
     let mut installation = locals.expression_installation();
     let plan = super::expression_plan::qualify_field_write_expression_v1(source, false, None,
         &mut |site| match locals.observe(site) {
@@ -60,6 +89,7 @@ pub(super) fn observe<E>(
             Some(OrdinaryObservation::TrivialLocal(_, kind)) => kind,
             _ => None,
         },
+        &mut |site| signed_reads.get(site).cloned(),
         &mut |site| super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
@@ -215,4 +245,18 @@ pub(super) fn observe_receiver_field_write<E>(
         }
     }
     Ok(true)
+}
+
+/// Resolve current producers before the transactional expression installation
+/// borrows the plan store. Only reads in this SAME original RHS are lent.
+fn signed_reads<E>(source: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    locals: &PrefixLocalFlow<'_>, calls: &[LocalCallObservationV1], consult: &mut impl HomeFieldSourceConsultV1<E>,
+) -> std::collections::BTreeMap<SourceExprSiteV1, (CurrentScalarReadV1, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)> {
+    source.nodes().iter().filter(|node| matches!(node.source(),
+        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+        .filter_map(|node| {
+            let read = locals.current_scalar_read_v1(node.site(), calls)?;
+            let sum = consult.scalar_read_sum(&read)?;
+            Some((node.site().clone(), (read, sum)))
+        }).collect()
 }

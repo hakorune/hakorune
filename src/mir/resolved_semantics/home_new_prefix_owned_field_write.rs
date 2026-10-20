@@ -7,7 +7,7 @@ use std::rc::Rc;
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &mut PrefixLocalFlow<'_>, homes: &mut Vec<LiveHomeV1>, prefix_known: bool,
+    locals: &mut PrefixLocalFlow<'_>, homes: &mut Vec<LiveHomeV1>, prefix_known: bool, local_calls: &[LocalCallObservationV1],
     source_consult: &mut impl HomeFieldSourceConsultV1<E>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
         -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
@@ -32,6 +32,7 @@ pub(super) fn observe<E>(
         return Ok(Some(true));
     }
     let source = Rc::clone(frame.source());
+    let signed_reads = super::signed_reads(&source, locals, local_calls, source_consult);
     let mut installation = locals.expression_installation();
     let plan = super::super::expression_plan::qualify_field_write_expression_v1(source, true, Some(Rc::clone(&frame)),
         &mut |site| match locals.observe(site) {
@@ -40,6 +41,7 @@ pub(super) fn observe<E>(
             Some(OrdinaryObservation::TrivialLocal(_, kind)) => kind,
             _ => None,
         },
+        &mut |site| signed_reads.get(site).cloned(),
         &mut |site| super::super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;

@@ -15,6 +15,10 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
         _construction: &Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>,
         _target: &SourceExprSiteV1)
         -> Result<Option<crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1>, E> { Ok(None) }
+    fn entry_write(&mut self, _input: ResolvedFunctionLoweringInputV1<'_>, _target: &SourceExprSiteV1)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1>, E> { Ok(None) }
+    fn scalar_read_sum(&mut self, _read: &CurrentScalarReadV1)
+        -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> { None }
     /// Preserve the exact original writer inventory for owned LOCAL stores.
     fn original_writer(&mut self, _owner: FunctionOwnerIdV1, _target: &SourceExprSiteV1)
         -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, E> { Ok(None) }

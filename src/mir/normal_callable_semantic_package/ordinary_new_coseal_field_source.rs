@@ -1,5 +1,6 @@
 //! Borrow original field sources through the one Home consult.
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call;
 
 /// Select the Home walk from original non-Birth writer syntax. Selection is
 /// not scalar permission: the walk still owes receiver, RHS and field proofs.
@@ -12,9 +13,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn req
         let source = write.source().map_err(|_| OrdinaryNewCoSealIssueV1::SourceNavigation {
             site: OwnedExprSiteV1::new(owner, write.assignment().target_site().clone()),
         })?;
-        required |= source.nodes().iter().any(|node| node.binary().is_some_and(|binary|
-            matches!(binary.operator(), crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract
-                | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Divide)));
+        required |= matches!(source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
+            if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain);
     }
     Ok(required)
 }
@@ -22,18 +22,28 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn req
 /// This consult lends syntax; Home qualification still proves each use.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct ScalarFieldsWithOriginalWritesV1<'a, F> {
     reads: F,
+    constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &'a crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    entry: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
+    results: &'a BorrowedResultCohortV1,
+    ingress: &'a Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
     candidates: &'a [OrdinaryNewCandidate],
     writes: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn scalar_fields_with_original_writes<'a, F>(
+    constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &'a crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    entry: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
+    results: &'a BorrowedResultCohortV1,
+    ingress: &'a Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
     candidates: &'a [OrdinaryNewCandidate],
     writes: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     reads: F,
 ) -> ScalarFieldsWithOriginalWritesV1<'a, F>
 where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str)
     -> Result<bool, OrdinaryNewCoSealIssueV1> {
-    ScalarFieldsWithOriginalWritesV1 { reads, candidates, writes }
+    ScalarFieldsWithOriginalWritesV1 { reads, constructors, receiver, entry, results, ingress, candidates, writes }
 }
 
 impl<F> crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<OrdinaryNewCoSealIssueV1>
@@ -65,6 +75,29 @@ where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, 
             || candidate.object != construction.object() { return Ok(None); }
         let Some(original) = self.original_writer(input.owner(), target)? else { return Ok(None) };
         Ok(original.owned_local_v1(input, acquisition, root, Rc::clone(construction)))
+    }
+    fn entry_write(&mut self, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        target: &SourceExprSiteV1) -> Result<Option<crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1>, OrdinaryNewCoSealIssueV1> {
+        let (Some(receiver), Some(entry)) = (self.receiver, self.entry) else { return Ok(None) };
+        let Some(original) = self.original_writer(input.owner(), target)? else { return Ok(None) };
+        if original.write().in_birth() { return Ok(None); }
+        let site = OwnedExprSiteV1::new(input.owner(), target.clone());
+        let Some((field, declared)) = terminal_home::source_declared_field(self.constructors,
+            receiver.1, &site, original.write().field())? else { return Ok(None) };
+        if !matches!(declared.as_deref(), None | Some("i64")) { return Ok(None); }
+        let Ok(ingress) = self.ingress else { return Ok(None) };
+        // A neutral source-only write is not an executable entry frame. Require
+        // the complete value basis even for a declared slot before selecting it.
+        let Ok(value) = lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
+            self.results, ingress, field, declared.as_deref(), original.write().field()) else { return Ok(None) };
+        let root = terminal_home::ExpressionFieldRootSourceV1::issue_entry_v1(self.constructors,
+            receiver, entry, input.owner(), receiver.0, field).map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
+        Ok(crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1::issue(input, original, root, field, declared, Some(value)))
+    }
+    fn scalar_read_sum(&mut self, read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1)
+        -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
+        self.ingress.as_ref().ok()?.lend_current_scalar_sum_v1(read)
     }
     fn original_writer(&mut self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         target: &SourceExprSiteV1) -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, OrdinaryNewCoSealIssueV1> {

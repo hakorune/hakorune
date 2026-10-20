@@ -144,9 +144,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         let source = match source {
             Some(source) => source,
             None => {
+                // An absent annotation stays Dynamic. Only the SAME complete
+                // all-writer value proof can lend the Integer view of this read.
+                let numeric = if matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) {
+                    match terminal_home::local_read_field_declaration(constructors, candidates, coverage,
+                        receiver_proof, &request.site, request.home, alias_class.as_deref(), &request.field)? {
+                        Some((field, None)) if ingress.as_ref().is_ok_and(|ingress|
+                            super::super::super::lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
+                                results, ingress, field, None, &request.field).is_ok()) =>
+                            Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar, None)),
+                        _ => None,
+                    }
+                } else { None };
+                if let Some(source) = numeric { source } else {
                 let Some(source) = borrow_array_field_source(constructors, candidates, coverage,
                     receiver_proof, request, alias_class.as_deref(), source_core_calls)? else { return Ok(None); };
                 source
+                }
             }
         };
         let scalar_only = match &demand {

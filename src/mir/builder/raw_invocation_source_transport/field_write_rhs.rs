@@ -71,10 +71,22 @@ impl RawInvocationChildPortV1<'_, '_> {
             },
             Node::Reference(_) => {
                 let (binding, _) = recipe.reference(index).ok_or("[freeze:contract][field-write-rhs/reference-kind]")?;
-                let read = state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?;
+                let read = Rc::new(state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?);
                 let value = read.value_for(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?;
                 let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][field-write-rhs/no-function]")?;
-                (value, Proof::Reference { read: Rc::new(read), producer: definition(function, value)? })
+                let signed = match recipe.signed_reference(index) {
+                    Some((original, _)) => {
+                        let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger);
+                        let observed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::prepare_scalar_read_v2(
+                            source, original, &read, context, function)?.finish_shared(Rc::clone(&read));
+                        if observed.scalar_read_value_v2(source, original, context, function)? != value {
+                            return Err("[freeze:contract][field-write-rhs/reference-kind]".into());
+                        }
+                        Some(Rc::new(observed))
+                    },
+                    None => None,
+                };
+                (value, Proof::Reference { read, producer: definition(function, value)?, signed })
             },
             Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) => {
                 let owned = OwnedExprSiteV1::new(source.owner(), site.clone());

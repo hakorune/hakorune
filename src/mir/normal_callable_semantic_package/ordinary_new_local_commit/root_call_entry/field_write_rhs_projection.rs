@@ -15,7 +15,7 @@ pub(in crate::mir) enum FieldWriteValueV1 {
 #[derive(Debug)]
 pub(in crate::mir) enum FieldWriteRhsProofV1 {
     Literal(Binding),
-    Reference { read: Rc<ExactLexicalReadV1>, producer: Option<Binding> },
+    Reference { read: Rc<ExactLexicalReadV1>, producer: Option<Binding>, signed: Option<Rc<crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1>> },
     Field(Vec<Binding>),
     Binary { append: Binding, operands: [Relation; 2], scalar: Option<Rc<OriginalScalarAppendV1>> },
 }
@@ -50,12 +50,15 @@ impl EmittedFieldWriteRhsV1 {
             FieldWriteRhsProofV1::Binary { operands, .. } => Some(operands.iter().cloned()), _ => None,
         }).flatten().collect()
     }
-    pub(in crate::mir) fn bindings(&self) -> Vec<Binding> {
+    pub(in crate::mir) fn bindings(&self) -> Result<Vec<Binding>, String> {
         let mut rows = Vec::new();
         for node in &self.nodes {
             match &node.proof {
                 FieldWriteRhsProofV1::Literal(row) => rows.push(row.clone()),
-                FieldWriteRhsProofV1::Reference { producer, .. } => rows.extend(producer.iter().cloned()),
+                FieldWriteRhsProofV1::Reference { producer, signed, .. } => {
+                    rows.extend(producer.iter().cloned());
+                    if let Some(signed) = signed { rows.extend(signed.dependencies()?); }
+                },
                 FieldWriteRhsProofV1::Field(field) => rows.extend(field.iter().cloned()),
                 FieldWriteRhsProofV1::Binary { append, operands, scalar } => {
                     rows.push(append.clone());
@@ -66,7 +69,7 @@ impl EmittedFieldWriteRhsV1 {
         }
         let mut unique = Vec::new();
         for row in rows { if !unique.contains(&row) { unique.push(row); } }
-        unique
+        Ok(unique)
     }
     fn value_at(&self, site: &SourceExprSiteV1) -> Result<crate::mir::ValueId, String> {
         let index = self.recipe.source().nodes().iter().position(|node| node.site() == site)
@@ -79,6 +82,11 @@ impl EmittedFieldWriteRhsV1 {
     }
     pub(super) fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_with_writer_prefix(context, function, finishing, &[])
+    }
+    pub(super) fn validate_with_writer_prefix(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&FinishedBindings>, post_rhs_prefix: &[Binding],
     ) -> Result<(), String> {
         let source = self.recipe.source();
         if !self.recipe.is_consistent(source) || self.nodes.iter().map(|node| node.node).ne(
@@ -125,10 +133,20 @@ impl EmittedFieldWriteRhsV1 {
                     }
                     require(row, true)?;
                 },
-                (Node::Reference(_), FieldWriteRhsProofV1::Reference { read, producer }) => {
+                (Node::Reference(_), FieldWriteRhsProofV1::Reference { read, producer, signed }) => {
                     let (binding, _) = self.recipe.reference(node.node).ok_or_else(|| freeze("field-write-rhs/reference-kind"))?;
                     if read.value_for(source.owner(), original.site().node(), binding).map_err(|issue| issue.to_string())? != node.value {
                         return Err(freeze("field-write-rhs/reference-value"));
+                    }
+                    match (self.recipe.signed_reference(node.node), signed) {
+                        (Some((original, _)), Some(signed)) => {
+                            if signed.validate_scalar_read_v2(source, original, context, function, finishing)? != node.value {
+                                return Err(freeze("field-write-rhs/reference-value"));
+                            }
+                            for row in signed.dependencies()? { require(&row, false)?; }
+                        },
+                        (None, None) => {},
+                        _ => return Err(freeze("field-write-rhs/reference-kind")),
                     }
                     if let Some(row) = producer {
                         if row.1.dst_value() != Some(node.value) { return Err(freeze("field-write-rhs/reference-producer")); }
@@ -166,7 +184,7 @@ impl EmittedFieldWriteRhsV1 {
             }
         }
         super::super::expression_projection::normal_order(function, &ordered)?;
-        if finishing.is_none() { self.validate_original_scope(function)?; }
+        if finishing.is_none() { self.validate_original_scope(function, post_rhs_prefix)?; }
         Ok(())
     }
 }

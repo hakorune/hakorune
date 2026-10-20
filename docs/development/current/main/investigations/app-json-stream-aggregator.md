@@ -6,75 +6,67 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Last official fixed suite: plain scalar If commit, 7PASS/4FAIL, actual EXE6 +
-  empty marker1, no SKIP/timeout. Runner481.943s/wall483.997s. Matching quick opt0
-  CLI36.96s, frozen quick runtime/private C FFI; build/run300s, no Cargo overlap.
-- mimalloc PASS154.321s; allocator PASS178.179s; four typed EXEs PASS36–38s.
+- Last official fixed suite: this Self field-write change (base `11dd3230cb`),
+  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner484.779s.
+  Matching quick opt0 CLI1m28s, frozen quick runtime/private C FFI; build/run300s,
+  no Cargo overlap. mimalloc PASS152.639s; allocator PASS177.583s; typed EXEs37–40s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --timeout 1900`. Later entry diagnostics are outside this measurement.
-- Matching scalar-If CLI passes find's original `if m == 0` read. Diagnostic
-  CLI42.21s identifies owner26 `ingestLine`: four original Self field assignments
-  (Body7/8 and Body9 Then/Else) are absent from its retained assignment census.
-  JSON fails during MIR construction; no EXE/link/runtime or old-route retry.
-- Common FieldWrite source now owns canonical field/name and qualified RHS access
-  for the sole writer and packet validation. Receiver-specific LOCAL New/readiness
-  checks stay sealed; missing non-formal origins refuse rather than gain permission.
-  Self source/RHS and Dynamic leases remain unconnected. Matching CLI42.39s and
-  unchanged JSON smoke confirm the same owner26 MIR stop; no app advancement.
-- Worker review: reuse entry receiver/root source and all-writer value grounding;
-  separate LOCAL-only New dominance from common packet validation. Unannotated
-  declarations, initial `0`, or source inventory membership grant no I64 lease.
-  Temporary probes removed; owner error retained. Existing field-write16 PASS
-  (RHS2 included); catalog65 PASS/10 FAIL, same ten names/causes on prior binary.
+  --suite real-apps-exe-boundary --timeout 1900 --format json`.
+- Self writes now retain the exact entry receiver, whole RHS and all-writer source.
+  Both final scans validate the same FieldSet packet, producers, pins and Normal/Fault
+  paths; LOCAL keeps its New dominance, Self checks its actual signature lane.
+- Signed RHS references borrow the existing SUM for the SAME uncaptured original
+  flow/read point, then replay the existing physical producer verifier. Class::I64
+  and MIR Integer alone grant no signed permission. Wide unsigned stays refused.
+- Fresh receiver pins/Fault-frame prefixes no longer shift the observed RHS cursor;
+  only the sole writer's exact new rows are excluded, never cached/RHS producers.
+- Matching quick opt0 CLI1m28s: typed Counter `me.value = me.value + 1` now generates
+  an EXE through pure-first/no replay and runs with Result8/exit8. This is a focused
+  connection proof, not JSON acceptance or unannotated-storage activation.
+- Unchanged JSON still fails MIR construction at owner26 `ingestLine` source-use
+  completion; no EXE/link/runtime or old-route retry. Current missing census needs
+  re-identification after the Self connection; do not reuse the old four-write claim.
+- Existing field-write16, signed SUM1 and numeric capability1 PASS. Catalog65 PASS/
+  10 FAIL: same names and normalized causes on prior binary. No new test cases/files.
+- Worker review approved the shared receiver/signed source boundary. Alias point
+  demands retain original anchors and the existing uncaptured-binding gate; signed
+  reads are collected before the transactional plan borrow. Dynamic remains closed.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
 ## Connected source and next execution
 
-- Existing source Loop Call/If retains original condition, argument subtrees, both
-  Normal arms, branch incoming producers and Phi keys through schedule and sole writer.
-  Both final consumers independently validate the same source and cleanup correspondence.
-- Text Return retains its latest initializer/rebind acquisition. Original exit Homes
-  keep it for Fault cleanup; Normal excludes exactly that residence, with transfer
-  committed only after all Normal cleanup succeeds. No ordinary result ABI is granted.
-- Local Call shares scalar/Text result-source identity. Text Argument demand keeps
-  original result/target, whole incoming census and ordered inputs; refusal is terminal.
-- Bool String comparisons share the existing expression body writer and final
-  projection, retaining original Core/read proofs and per-comparison acquisition,
-  Normal End, Fault prefix and remaining End suffix. Logical RHS stays conditional.
-  Source SUM now demands original If/Loop conditions, without new formal incoming.
-  Threading removes only the same orphaned empty Jump, keeping other entries alive.
-- The existing substring tuple now covers Loop Return/root cleanup and changed
-  Return operand refusal; this independent FunctionExit boundary needs the minimal
-  tuple/mutation extension. Its minimal scalar If addition protects a separate read purpose.
-  Prior related364 PASS/36 old failures remain; no new test function/file/hook/checker.
-- Plain scalar comparison selection requires the whole original leaf/read census.
-  Calls/fields keep their existing owner; scalar siblings cannot preempt a Static Call.
-- Core coverage borrows the SAME checked frame loans and exact resolver metadata;
-  full source census/duplicates remain checked. Loop Return is not Header/After
-  incoming. Shared lexical read and existing root cleanup emit once and validate
-  independently. Source liveness is shared with production CFG finishing; Rust
-  Integer entry and Static String Call ABI remain owed.
-- C pair Return reuses `{handle, End token}`, per-Invoke String output slot,
-  Normal projection and String End. Existing borrowed-ingress `--text-only` matrix
-  PASS with quick runtime/private C FFI and `CC="clang -fuse-ld=lld"`.
-  SafeMutex/SingleThread Return cover callee Fault, failed Add without result,
-  exact caller End and result-kind/spent-result/Fault-omission refusals.
-  These minimal case extensions protect the new affine Call boundary; no new test
-  function/file, runtime function or checker. Physical execution is not source cutover.
-- FiniteEntryRead now retains the original SUM/flow/read/plan across initializer
-  and direct Return purposes. Signed-only root initializers keep their checked frame;
-  terminal coverage retains its separate original read, never a binding-to-I64 guess.
-  The same finite proof now serves genuine If/Loop conditions; the existing reference
-  variant is purpose-neutral, with original source/alias census and Null refusal kept.
-  The older opaque draft remains in Git stash pending full adoption/disposal.
-- Entry projection decision from read-only review: retain Opaque declaration and
-  tagged call ABI; a SAME signed-only source domain can authorize an Integer view.
-  C must check kind1 before body effects and independently reject every non-I64
-  incoming. Copy/Phi then use the checked I64 view; forwarding must publish tag1,
-  not a tagged Copy whose kind variable no longer exists. Legacy mixed guards stay.
-  C Static/Instance mutation matrix PASS. Rust requires module/published replay
-  and rejection of root/Copy/Phi uses outside the sealed scope; no domain-only skip.
+- Self field writes retain their original entry receiver, declaration, complete
+  RHS and prior Homes in the shared FieldWrite frame. Unannotated slots require
+  the existing all-writer ClosedNumeric proof and keep their absent annotation.
+- Source-use completion counts only the SAME qualified frame/RHS and original
+  assignment/read census. Source membership alone never closes missing effects.
+- Both final scans share FieldSet coordinates, RHS/pin producers and Normal/Fault
+  packet validation. LOCAL still owes New/Normal dominance; Self owes its actual
+  signature receiver lane/carrier and exact Me read, without LOCAL-only Home closure.
+- Next source diagnosis: establish the current missing assignment/read sites. Worker
+  identified `total_bytes + bytes` as a candidate: ResultExpression Integer basis
+  does not yet borrow arbitrary original-point SUM for `bytes = JsonLine.intField`.
+  Reuse that basis/solver; establish the actual refusal before treating it as the stop.
+- Dynamic physical execution remains explicitly refused. Required next: checked
+  Dynamic Integer view/replace preserving Fault-without-mutation, canonical layout
+  publication, detached End/destruction and both final consumers. Runtime support
+  alone or treating an unannotated slot as I64 layout is insufficient.
+- Read-only worker approved the common receiver split. Structural Jumps use the
+  existing checked contraction projection; effects remain mandatory.
+- Existing source Loop Call/If and Function Return retain original reads, producers,
+  Phi keys and root cleanup through both consumers. Plain scalar If requires the
+  whole leaf/read census so it cannot steal Static Call/field ownership.
+- Text Return retains its latest residence: Normal transfers only after cleanup;
+  Fault retains the original Home. Ordinary Static String Call ABI remains owed.
+- C borrowed-ingress Text/Integer mutation matrices passed; their physical ABI
+  evidence does not activate Rust source entry or publication. Rust Integer view
+  still requires SAME signed-only SUM, module/published replay and rejection of
+  out-of-scope root/Copy/Phi uses. Keep legacy mixed guards and Null refusal.
+- Original source liveness feeds CFG finishing. The existing substring tuple
+  protects Loop Return, changed Return refusal and plain scalar If read purposes;
+  prior related364 PASS/36 old failures remain. Existing opaque draft stays stashed
+  until its intentional adoption/disposal. Detailed completed history is in Git.
 
 ## Shared remaining contracts
 

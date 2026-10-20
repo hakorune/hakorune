@@ -81,6 +81,11 @@ impl PartialEq for CurrentScalarReadV1 {
 }
 impl Eq for CurrentScalarReadV1 {}
 impl CurrentScalarReadV1 {
+    /// Borrow the SAME original point for the independent source SUM solver.
+    pub(crate) fn point_for_original_flow_v1(&self, flow: &Arc<VerifiedSourceValueFlowV1>) -> Option<SourceValueRefV1> {
+        (Arc::ptr_eq(flow, &self.flow) && flow.is_complete() && flow.owner() == self.binding.owner()
+            && flow.read(&self.read, self.binding) == Some(self.value)).then_some(self.value)
+    }
     pub(crate) fn read(&self) -> &SourceExprSiteV1 { &self.read }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn kind(&self) -> SourceScalarKind { SourceScalarKind::Integer }

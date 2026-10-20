@@ -23,6 +23,68 @@ pub(in crate::mir::normal_callable_semantic_package) struct ExpressionFieldRootS
     origin: RootOriginV1,
 }
 impl ExpressionFieldRootSourceV1 {
+    /// Share the original entry receiver owner with reads and writes. This
+    /// lends declaration identity only, never a storage or value-kind lease.
+    pub(in crate::mir::normal_callable_semantic_package) fn issue_entry_v1(
+        constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+        receiver: (BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1),
+        entry: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1,
+        owner: FunctionOwnerIdV1, receiver_read: BindingRefV1, field: CanonicalFieldRefV1,
+    ) -> Result<Rc<Self>, String> {
+        let (binding, box_source) = receiver;
+        if entry.receiver() != binding || entry.owner() != owner || binding.owner() != owner || receiver_read.owner() != owner {
+            return Err("expression-path/entry-root-drift".into());
+        }
+        let (object, _) = constructors.destruction_for(box_source).map_err(|_| "expression-path/root-object")?;
+        if field.object() != object { return Err("expression-path/root-field-object".into()); }
+        Ok(Rc::new(Self { receiver: receiver_read, home: binding, box_source: box_source.clone(), object,
+            origin: RootOriginV1::Entry { slot: entry.batch_slot(), identity: entry.identity().clone() } }))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn entry_receiver_v1(&self) -> Option<BindingRefV1> {
+        (matches!(self.origin, RootOriginV1::Entry { .. }) && self.receiver == self.home).then_some(self.home)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_entry_v1(
+        &self, ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
+    ) -> Result<(), String> {
+        let RootOriginV1::Entry { slot, identity } = &self.origin else {
+            return Err("expression-path/root-entry-drift".into());
+        };
+        let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
+            .ok_or("expression-path/root-entry-issuance")?;
+        let signature = signatures.row(*slot).ok_or("expression-path/root-entry-signature")?;
+        let key = selected.key_for_batch_slot(*slot);
+        if !selected.identity_for_batch_slot(*slot).is_some_and(|actual| actual.same_as(identity))
+            || !matches!(key, Some(SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod && key.owner() == self.class())
+            || signature.owner() != owner || !signature.identity().same_as(identity)
+            || signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
+            return Err("expression-path/root-entry-drift".into());
+        }
+        let mut receivers = signature.lanes().iter().filter(|lane| lane.role()
+            == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver);
+        if receivers.next().is_none_or(|lane| lane.binding() != self.home) || receivers.next().is_some() {
+            return Err("expression-path/root-entry-receiver".into());
+        }
+        Ok(())
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_entry_value_v1(
+        &self, ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1, function: &crate::mir::MirFunction,
+    ) -> Result<(usize, crate::mir::ValueId), String> {
+        self.recheck_entry_v1(ledger, owner)?;
+        let RootOriginV1::Entry { slot, .. } = self.origin else { unreachable!("checked entry root") };
+        let signature = ledger.original_instance_input_issuance.as_ref().ok_or("expression-path/root-entry-issuance")?
+            .1.row(slot).ok_or("expression-path/root-entry-signature")?;
+        let lane = signature.lanes().iter().find(|lane| lane.role()
+            == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver)
+            .ok_or("expression-path/root-entry-receiver")?;
+        let index = lane.index() as usize;
+        let value = *function.params.get(index).ok_or("expression-path/root-entry-receiver")?;
+        if function.metadata.physical_param_carriers.as_ref().and_then(|rows| rows.get(index))
+            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
+            return Err("expression-path/root-entry-receiver".into());
+        }
+        Ok((index, value))
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         candidates: &[OrdinaryNewCandidate], coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
@@ -70,7 +132,8 @@ impl ExpressionFieldRootSourceV1 {
                     if binding != request.home || entry.receiver() != binding || entry.owner() != request.site.owner() {
                         return Err("expression-path/entry-root-drift".into());
                     }
-                    (source, RootOriginV1::Entry { slot: entry.batch_slot(), identity: entry.identity().clone() })
+                    return Self::issue_entry_v1(constructors, (binding, source), entry,
+                        request.site.owner(), request.receiver, field);
                 },
                 _ => return Err("expression-path/root-ambiguous".into()),
             }
@@ -142,24 +205,7 @@ impl ExpressionFieldRootSourceV1 {
                     return Err("expression-path/root-alias-drift".into());
                 }
             },
-            RootOriginV1::Entry { slot, identity } => {
-                let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
-                    .ok_or("expression-path/root-entry-issuance")?;
-                let signature = signatures.row(*slot).ok_or("expression-path/root-entry-signature")?;
-                let key = selected.key_for_batch_slot(*slot);
-                if !selected.identity_for_batch_slot(*slot).is_some_and(|actual| actual.same_as(identity))
-                    || !matches!(key, Some(SelectedNormalCallableKeyV1::Cataloged(key))
-                        if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod && key.owner() == self.class())
-                    || signature.owner() != request.site.owner() || !signature.identity().same_as(identity)
-                    || signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
-                    return Err("expression-path/root-entry-drift".into());
-                }
-                let receivers: Vec<_> = signature.lanes().iter().filter(|lane| lane.role()
-                    == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver).collect();
-                if receivers.len() != 1 || receivers[0].binding() != self.home {
-                    return Err("expression-path/root-entry-receiver".into());
-                }
-            },
+            RootOriginV1::Entry { .. } => self.recheck_entry_v1(ledger, request.site.owner())?,
         }
         Ok(())
     }

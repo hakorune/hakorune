@@ -370,7 +370,7 @@ pub(super) fn stable_source_binding_v1(
         && !input.function().assignment_targets().any(|(_, target)| matches!(target, Target::BindingRebind(actual) if *actual == binding))
 }
 
-fn uncaptured_source_binding_v1(
+pub(super) fn uncaptured_source_binding_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, binding: BindingRefV1,
 ) -> bool {
     input.forest().callable_source_ledger(input.owner())

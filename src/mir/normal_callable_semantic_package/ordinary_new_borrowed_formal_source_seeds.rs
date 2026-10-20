@@ -3,7 +3,7 @@
 use super::*;
 #[path = "ordinary_new_borrowed_formal_source_sum.rs"]
 mod source_sum;
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
+pub(in crate::mir) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
 pub(in crate::mir::normal_callable_semantic_package) use source_sum::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
 mod new_seeds;
@@ -310,6 +310,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
     // These roots demand original expression analysis only. They contribute no
     // incoming argument, formal value or constraint to the source domain.
     let mut expression_roots = Vec::new();
+    let mut source_flows = BTreeMap::new();
     for declaration in batch.declarations().filter(|row| product.source_owners.contains(&row.owner())
         || app_main.is_some_and(|main| main.checked_caller_key(batch, contracts, row.owner(), row.batch_slot()).is_ok())
         || inventory.source_rows_v1().any(|incoming| incoming.call.owner() == row.owner()
@@ -321,6 +322,9 @@ pub(super) fn prepare_original_formal_seeds_v1(
             batch, constructors, declaration.owner(), |context, input| -> Result<(), String> {
                 let Some(source_context) = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
                     static_claims, app_main, omitted)?.map(|context| context.for_point_premise()) else { return Ok(()) };
+                if let Some(flow) = input.function().expression_source().value_flow() {
+                    source_flows.insert(input.owner(), std::sync::Arc::clone(flow));
+                }
                 let local_candidates = context.declaration_slot().and_then(|slot| candidates.get(&slot))
                     .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
                 let receiver = context.declaration_slot().and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
@@ -354,6 +358,26 @@ pub(super) fn prepare_original_formal_seeds_v1(
                                 Some(crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::BindingRebind(binding)) if binding.owner() == input.owner())) {
                         expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                             local_candidates, receiver, definitions, contracts, assignment.value_site(), None, Some(inventory), Some(&source_context)));
+                    }
+                }
+                // Field RHS reads borrow solved original points from this SAME
+                // graph; no new formal incoming or independent classifier.
+                if let Some(shape) = input.body_shape() {
+                    for assignment in shape.assignment_sources().iter().filter(|assignment|
+                        assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+                            && matches!(input.function().assignment_target(assignment.target_site()),
+                                Some(crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::FieldWrite { .. }))) {
+                        let prefix = assignment.value_site().node().segments();
+                        for (site, binding) in input.function().variable_refs().filter(|(site, _)|
+                            site.node().segments().starts_with(prefix)) {
+                            let crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) = binding else { continue };
+                            let legacy = classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                                local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context));
+                            let value = source_flows.get(&input.owner()).filter(|flow| flow.is_complete()
+                                && super::actual_seed::uncaptured_source_binding_v1(input, *binding))
+                                .and_then(|flow| flow.read(site, *binding));
+                            expression_roots.push(OriginalFormalActualSeedV1::PointValue { owner: input.owner(), value, legacy: Box::new(legacy) });
+                        }
                     }
                 }
                 // Static result classification does not walk its actuals.
@@ -409,7 +433,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                 })
             })?
     };
-    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots, &mut expand)?;
+    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots, source_flows, &mut expand)?;
     for (site, operands) in &sums.core_calls {
         let receipt = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, site.owner(), |_, input|
@@ -740,31 +764,6 @@ impl PreparedBorrowedFormalIngressV1 {
     }
 }
 
-impl PreparedBorrowedFormalIngressV1 {
-    /// Complete source alternatives on Normal, never entry or execution permission.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_value_sum_v1(
-        &self, formal: BindingRefV1,
-    ) -> Option<&SourceValueSumV1> {
-        self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_source_value_sum_v1(
-        &self, formal: BindingRefV1,
-    ) -> Option<Rc<SourceValueSumV1>> {
-        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
-        self.original_formal_seeds.source_sums.as_ref()?.values.get(&formal).map(Rc::clone)
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
-        &self, site: &OwnedExprSiteV1,
-    ) -> Option<&Rc<ClosedOriginalCoreSourceV1>> {
-        self.original_formal_seeds.closed_core_source_v1(&self.source_incoming, site)
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
-        &self, site: &OwnedExprSiteV1,
-    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {
-        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
-        self.original_formal_seeds.ordinary_core.get(site)
-    }
-}
 
 impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_formal_uses_v1(

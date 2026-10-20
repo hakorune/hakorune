@@ -2,6 +2,7 @@
 //! These rows precede live-actual proof and never install a physical carrier.
 use super::borrowed_formal_uses::*;
 use super::*;
+pub(in crate::mir) use source_seeds::SourceValueSumV1;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
@@ -30,7 +31,7 @@ use actual_seed::{
 };
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
-pub(super) use source_seeds::{OriginalBorrowedFormalSourceV1, OriginalIntegerBasisV1, OriginalNewI64InputsLoanV1, OriginalNewSourceLoanV1, OriginalFormalObjectBasisV1, SourceValueSumV1, SourceValueAlternativeV1};
+pub(super) use source_seeds::{OriginalBorrowedFormalSourceV1, OriginalIntegerBasisV1, OriginalNewI64InputsLoanV1, OriginalNewSourceLoanV1, OriginalFormalObjectBasisV1, SourceValueAlternativeV1};
 pub(in crate::mir::normal_callable_semantic_package) use source_seeds::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_source_static_cohort.rs"]
 mod static_cohort;

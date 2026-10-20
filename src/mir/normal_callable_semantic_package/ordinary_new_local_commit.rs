@@ -247,6 +247,14 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     construction: crate::mir::builder::RetainedConstructionDrafts,
 }
 
+/// Acquisition-specific premise of the shared finished FieldSet projection.
+/// Entry receivers carry their actual parameter lane, never a fabricated New.
+#[derive(Debug, Clone)]
+pub(crate) enum QualifiedFieldWriteReceiverV1 {
+    LocalNew { invoke: ((BasicBlockId, MirInstruction), (BasicBlockId, usize)) },
+    Entry { parameter: usize, value: crate::mir::ValueId },
+}
+
 #[path = "ordinary_new_local_commit/finalized_source_projection.rs"]
 mod finalized_source_projection;
 pub(in crate::mir) use finalized_source_projection::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};

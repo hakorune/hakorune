@@ -129,6 +129,71 @@ impl OwnedLocalFieldWriteSourceV1 {
         self.original.write().source().expect("sealed original writer source")
     }
 }
+/// An exact Self entry receiver and original assignment, with the declaration
+/// left intact. In particular an absent annotation grants no I64 slot lease.
+#[derive(Debug, Clone)]
+pub(crate) struct EntryFieldWriteSourceV1 {
+    root: Rc<super::terminal_home::ExpressionFieldRootSourceV1>,
+    original: OriginalFieldWriteSourceLoanV1,
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    declared: Option<Box<str>>,
+    value: Option<super::lexical_instance_call::ClosedNumericFieldSourceLoanV1>,
+}
+impl PartialEq for EntryFieldWriteSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.root.same_source(&other.root) && self.original == other.original
+            && self.field == other.field && self.declared == other.declared
+            && match (&self.value, &other.value) { (Some(a), Some(b)) => a.same_source(b), (None, None) => true, _ => false }
+    }
+}
+impl Eq for EntryFieldWriteSourceV1 {}
+impl EntryFieldWriteSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn issue(
+        input: ResolvedFunctionLoweringInputV1<'_>, original: OriginalFieldWriteSourceLoanV1,
+        root: Rc<super::terminal_home::ExpressionFieldRootSourceV1>,
+        field: hakorune_mir_defs::CanonicalFieldRefV1, declared: Option<String>,
+        value: Option<super::lexical_instance_call::ClosedNumericFieldSourceLoanV1>,
+    ) -> Option<Self> {
+        let write = original.write();
+        let source = write.source().ok()?;
+        let shape = input.body_shape()?;
+        let assignment = write.assignment();
+        let binding = root.entry_receiver_v1()?;
+        let ResolvedAssignmentTargetV1::FieldWrite { receiver } = input.function().assignment_target(assignment.target_site())? else { return None };
+        let BodyExpressionShapeV1::FieldAccess { object, field: name, .. } = shape.expression_shape(assignment.target_site())? else { return None };
+        if input.owner() != write.owner() || source.owner() != input.owner() || write.in_birth()
+            || object != receiver || receiver != write.receiver_site() || name.as_ref() != write.field()
+            || write.owner_box() != Some(root.class()) || write.receiver() != Some(binding)
+            || assignment.form() != crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+            || !shape.assignment_sources().iter().any(|row| row == assignment)
+            || !matches!(source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment: own } if own == assignment)
+            || !matches!(shape.expression_shape(receiver), Some(BodyExpressionShapeV1::Me {
+                receiver: BodyMeReceiverV1::Lexical(actual), .. }) if *actual == binding)
+        { return None; }
+        Some(Self { root, original, field, declared: declared.map(Into::into), value })
+    }
+    pub(crate) fn receiver(&self) -> crate::mir::resolved_semantics::BindingRefV1 { self.root.entry_receiver_v1().expect("sealed entry origin") }
+    pub(crate) fn original(&self) -> &OriginalFieldWriteSourceLoanV1 { &self.original }
+    pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
+    pub(crate) fn declared_type(&self) -> Option<&str> { self.declared.as_deref() }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.original.write().source().expect("sealed original writer") }
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_entry_value_v1(
+        &self, ledger: &super::OrdinaryNewClaimLedgerV1, function: &crate::mir::MirFunction,
+    ) -> Result<(usize, crate::mir::ValueId), String> {
+        self.root.checked_entry_value_v1(ledger, self.source().owner(), function)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck(&self, ledger: &super::OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+        ledger.field_write_claims.recheck_original_write_source_v1(&self.original)?;
+        self.root.recheck_entry_v1(ledger, self.source().owner())?;
+        if let Some(value) = &self.value {
+            let ingress = ledger.borrowed_formal_source.as_ref().ok_or("field-write/formal-source-missing")?
+                .as_ref().map_err(Clone::clone)?;
+            value.recheck(&ledger.borrowed_i64_results, ingress)?;
+            if !value.matches_declaration(self.field, self.declared_type()) { return Err("field-write/source-plan".into()); }
+        } else if self.declared_type() != Some("i64") { return Err("field-write/source-plan".into()); }
+        Ok(())
+    }
+}
 impl OriginalFieldWriteSourceLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn owned_local_v1(
         &self, input: ResolvedFunctionLoweringInputV1<'_>,

@@ -27,6 +27,10 @@ impl FieldWriteSourceLoanV1 {
             let (binding, _, site) = formal.receiver();
             return Ok((binding, site.clone()));
         }
+        if let Some(entry) = self.frame().entry() {
+            return Ok((entry.receiver(), crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                self.frame().source().owner(), entry.original().write().receiver_site().clone())));
+        }
         let local = self.frame().owned_local().ok_or_else(|| freeze("field-write/local-origin"))?;
         Ok((local.root(), crate::mir::resolved_semantics::OwnedExprSiteV1::new(
             self.frame().source().owner(), local.original().write().receiver_site().clone())))
@@ -35,11 +39,13 @@ impl FieldWriteSourceLoanV1 {
     /// receiver acquisition. This accessor grants no storage/execution lease.
     pub(crate) fn field(&self) -> Result<CanonicalFieldRefV1, String> {
         if let Some(formal) = self.borrowed() { return Ok(formal.field_source().field()); }
+        if let Some(entry) = self.frame().entry() { return Ok(entry.field()); }
         self.frame().owned_local().map(|local| local.field())
             .ok_or_else(|| freeze("field-write/local-origin"))
     }
     pub(crate) fn field_name(&self) -> Result<&str, String> {
         if let Some(formal) = self.borrowed() { return Ok(formal.field_name()); }
+        if let Some(entry) = self.frame().entry() { return Ok(entry.original().write().field()); }
         self.frame().owned_local().map(|local| local.original().write().field())
             .ok_or_else(|| freeze("field-write/local-origin"))
     }
@@ -58,7 +64,13 @@ impl FieldWriteSourceLoanV1 {
     pub(crate) fn require_current_execution(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         self.validate_source(ledger)?;
         if self.borrowed().is_some() { return Ok(()); }
+        self.require_signed_rhs_v1(ledger)?;
         let fail = || freeze("owned-field-write/original-source");
+        if let Some(entry) = self.frame().entry() {
+            // Dynamic source identity is retained, but its tagged slot and End
+            // execution must be connected before any operand can be consumed.
+            return if entry.declared_type() == Some("i64") { Ok(()) } else { Err(fail()) };
+        }
         let local = self.frame().owned_local().ok_or_else(fail)?;
         if local.construction().allocation_only_i64_field(local.original().write().field()) != Some(local.field()) {
             return Err(fail());
@@ -70,26 +82,64 @@ impl FieldWriteSourceLoanV1 {
             Ok(())
         })?.ok_or_else(fail)
     }
+    /// Discharge an Integer view from SAME source facts, never Class::I64 or
+    /// the eventual MIR carrier. Wide unsigned/exact lanes remain obligations.
+    fn require_signed_rhs_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        use crate::mir::resolved_semantics::ResolvedLiteralSourceV1 as Literal;
+        let fail = || freeze("owned-field-write/original-source");
+        let rhs = self.qualified_rhs().ok_or_else(fail)?;
+        for (index, node) in rhs.source().nodes().iter().enumerate() {
+            if rhs.node_class(index) == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity) { continue; }
+            match node.source() {
+                Node::Literal(Literal::Integer(_)) => {},
+                Node::Literal(Literal::TypedInteger { declared_type_name, .. }) if declared_type_name.as_ref() == "i64" => {},
+                Node::Binary(_) => {},
+                Node::Reference(_) => {
+                    let (read, sum) = rhs.signed_reference(index).ok_or_else(fail)?;
+                    let current = ledger.borrowed_formal_source.as_ref().ok_or_else(fail)?.as_ref().map_err(Clone::clone)?
+                        .lend_current_scalar_sum_v1(read).ok_or_else(fail)?;
+                    if !Rc::ptr_eq(sum, &current) || !sum.signed_only() { return Err(fail()); }
+                },
+                Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {
+                    let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(rhs.source().owner(), node.site().clone());
+                    let required = ledger.source_field_requirement_v1(&site)?.ok_or_else(fail)?;
+                    let reads = ledger.local_field_reads.borrow();
+                    let read = reads.get(&site).ok_or_else(fail)?;
+                    if !Rc::ptr_eq(required.plan(), rhs.source()) || read.source.declared_type_name() != Some("i64") { return Err(fail()); }
+                },
+                _ => return Err(fail()),
+            }
+        }
+        Ok(())
+    }
     pub(crate) fn validate_source(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         let FieldWriteSourceOriginV1::Qualified { frame, completion, rhs } = &self.origin else {
             return self.borrowed().expect("closed formal origin").validate_source(ledger);
         };
         let fail = || freeze("owned-field-write/original-source");
-        let local = frame.owned_local().ok_or_else(fail)?;
         if ledger.completion_source_for_owner_v1(frame.source().owner())
-            .is_none_or(|current| !Rc::ptr_eq(current, completion))
-            || !Rc::ptr_eq(local.source(), frame.source())
-            || local.original().write().owner() != frame.source().owner()
-            || local.construction().allocation_only_field(local.original().write().field()).map(|field| field.field()) != Some(local.field())
-        { return Err(fail()); }
-        ledger.field_write_claims.recheck_original_write_source_v1(local.original()).map_err(|_| fail())?;
-        ledger.with_local_new_source_v1(local.acquisition(), local.root(), |source| {
-            if source.construction != &Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::InitializationContractMissing)
-                || local.construction().allocation_only_fields().is_none()
-                || source.object != local.field().object() || !source.construction_source.as_ref()
-                .is_ok_and(|original| Rc::ptr_eq(original, local.construction())) { return Err(fail()); }
-            Ok(())
-        })?.ok_or_else(fail)?;
+            .is_none_or(|current| !Rc::ptr_eq(current, completion)) { return Err(fail()); }
+        if let Some(entry) = frame.entry() {
+            if !Rc::ptr_eq(entry.source(), frame.source()) || entry.original().write().owner() != frame.source().owner() {
+                return Err(fail());
+            }
+            entry.recheck(ledger)?;
+        } else {
+            let local = frame.owned_local().ok_or_else(fail)?;
+            if !Rc::ptr_eq(local.source(), frame.source())
+                || local.original().write().owner() != frame.source().owner()
+                || local.construction().allocation_only_field(local.original().write().field()).map(|field| field.field()) != Some(local.field())
+            { return Err(fail()); }
+            ledger.field_write_claims.recheck_original_write_source_v1(local.original()).map_err(|_| fail())?;
+            ledger.with_local_new_source_v1(local.acquisition(), local.root(), |source| {
+                if source.construction != &Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::InitializationContractMissing)
+                    || local.construction().allocation_only_fields().is_none()
+                    || source.object != local.field().object() || !source.construction_source.as_ref()
+                    .is_ok_and(|original| Rc::ptr_eq(original, local.construction())) { return Err(fail()); }
+                Ok(())
+            })?.ok_or_else(fail)?;
+        }
         let flow = completion.cleanup().root_flow().ok_or_else(fail)?;
         let mut plans = flow.expression_plans().iter().filter(|plan|
             plan.field_write_frame().is_some_and(|original| Rc::ptr_eq(original, frame)));

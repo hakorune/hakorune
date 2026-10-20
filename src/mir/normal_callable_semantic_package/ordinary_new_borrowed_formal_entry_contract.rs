@@ -150,6 +150,43 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 assignments.insert(assignment.target_site().clone());
             }
+            if let Some(frame) = plan.field_write_frame().filter(|frame| frame.entry().is_some()) {
+                use crate::mir::resolved_value_profile::expression_plan::{ExpressionPlanRootV1, ExpressionNodeSourceV1};
+                let entry = frame.entry().expect("selected entry writer");
+                let ExpressionPlanRootV1::Assignment { assignment } = frame.source().root()
+                    else { return Err(freeze("static-input/qualified-use-identity")) };
+                let Some(rhs) = plan.field_write_rhs() else { return Ok(None) };
+                if !rhs.is_consistent(frame.source()) || !Rc::ptr_eq(entry.source(), frame.source())
+                    || frame.source().owner() != contract.owner || !uses.assignments().iter().any(|(site, target)|
+                        site == assignment.target_site() && matches!(target,
+                            crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::FieldWrite { receiver }
+                                if receiver == entry.original().write().receiver_site()))
+                    || !assignments.insert(assignment.target_site().clone()) {
+                    return Err(freeze("static-input/qualified-use-identity"));
+                }
+                entry.recheck(self)?;
+                let mut reads = vec![(entry.original().write().receiver_site(), entry.receiver())];
+                for (node, original) in frame.source().nodes().iter().enumerate() {
+                    let binding = match original.source() {
+                        ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => {
+                            if rhs.reference(node).is_none() && *binding != entry.receiver() { return Ok(None) }
+                            *binding
+                        },
+                        ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+                            receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. })
+                            if *binding == entry.receiver() => *binding,
+                        _ => continue,
+                    };
+                    reads.push((original.site(), binding));
+                }
+                for (site, binding) in reads {
+                    if origins.contains_key(&binding) { return Ok(None) }
+                    if uses.reads().any(|(at, reference)| at == site && *reference == ResolvedLexicalRefV1::Local(binding))
+                        && !covered.insert((site.clone(), binding)) {
+                        return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                    }
+                }
+            }
             for evaluation in [plan.initializer_frame().map(|frame| frame.evaluation()),
                 plan.argument_frame().map(|frame| frame.evaluation()),
                 plan.print_frame().map(|frame| frame.evaluation()),

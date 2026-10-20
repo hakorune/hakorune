@@ -22,11 +22,16 @@ impl RawInvocationChildPortV1<'_, '_> {
             let (binding, _, site) = formal.value();
             (binding, site.clone())
         };
-        if !matches!(input, ASTNode::Variable { .. }) || self.callable_owner_v1() != Some(site.owner())
+        let entry_receiver = receiver && source.frame().entry().is_some();
+        if !(matches!(input, ASTNode::Variable { .. }) && !entry_receiver
+            || matches!(input, ASTNode::Me { .. }) && entry_receiver) || self.callable_owner_v1() != Some(site.owner())
             || self.current_source_site_v1().as_ref() != Some(site.site().node())
         { return Err("[freeze:contract][borrowed-field-write/read-source]".into()); }
         let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][borrowed-field-write/state]")?;
-        let read = state.borrow_mut().read_variable_with_source_v1(site.site().node())?;
+        let read = if entry_receiver {
+            state.borrow_mut().take_exact_receiver_read(site.owner(), site.site().node(), binding)
+                .map_err(|issue| issue.to_string())?
+        } else { state.borrow_mut().read_variable_with_source_v1(site.site().node())? };
         read.value_for(site.owner(), site.site().node(), binding).map_err(|issue| issue.to_string())?;
         Ok(FieldWriteValueV1::Lexical(Rc::new(read)))
     }

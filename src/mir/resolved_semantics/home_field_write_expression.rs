@@ -8,7 +8,7 @@ use crate::mir::resolved_value_profile::{
     expression_projection::{project_expression_nodes_v1, ExpressionLeafClassV1 as Leaf},
 };
 use std::collections::{BTreeMap, BTreeSet};
-use super::super::SourceScalarKind;
+use super::super::{SourceScalarKind, CurrentScalarReadV1};
 
 /// Original whole-RHS scalar classes or exact Array transfer, never execution
 /// permission. Acquisition, checked commit and End remain physical obligations.
@@ -17,7 +17,8 @@ pub(crate) struct QualifiedFieldWriteRhsV1 {
     source: Rc<ExpressionSourcePlanV1>,
     order: Box<[usize]>,
     classes: Box<[Leaf]>,
-    references: BTreeMap<usize, (crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind)>,
+    references: BTreeMap<usize, (crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind,
+        Option<(CurrentScalarReadV1, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)>)>,
     // A conditional transfer of the exact live holder, not a physical End grant.
     owned_array: Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
 }
@@ -27,7 +28,10 @@ impl QualifiedFieldWriteRhsV1 {
     pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
     pub(crate) fn node_class(&self, node: usize) -> Option<Leaf> { self.classes.get(node).copied() }
     pub(crate) fn reference(&self, node: usize) -> Option<(crate::mir::resolved_semantics::BindingRefV1, SourceScalarKind)> {
-        self.references.get(&node).copied()
+        self.references.get(&node).map(|(binding, kind, _)| (*binding, *kind))
+    }
+    pub(crate) fn signed_reference(&self, node: usize) -> Option<&(CurrentScalarReadV1, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)> {
+        self.references.get(&node)?.2.as_ref()
     }
     pub(crate) fn is_consistent(&self, source: &Rc<ExpressionSourcePlanV1>) -> bool {
         if let Some(array) = self.owned_array() {
@@ -55,6 +59,8 @@ impl QualifiedFieldWriteRhsV1 {
                     || self.node_class(index) != Some(Leaf::Value(match kind {
                         SourceScalarKind::Integer => Class::I64, SourceScalarKind::Bool => Class::Bool,
                     })) { return false; }
+                if self.signed_reference(index).is_some_and(|(read, sum)| read.read() != node.site()
+                    || read.binding() != original || read.kind() != kind || !sum.signed_only()) { return false; }
                 references += 1;
             }
         }
@@ -69,6 +75,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
     require_i64: bool,
     frame: Option<Rc<CheckedFieldWriteFrameV1>>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<SourceScalarKind>,
+    signed_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(CurrentScalarReadV1, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
@@ -78,7 +85,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         || source.nodes().first().is_none_or(|root| root.site() != assignment.value_site())
     { return Ok(None); }
     if frame.as_ref().is_some_and(|frame| !require_i64 || !Rc::ptr_eq(frame.source(), &source)
-        || frame.owned_local().is_none()) { return Ok(None); }
+        || (frame.owned_local().is_none() && frame.entry().is_none())) { return Ok(None); }
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
     let mut requests = Vec::new();
     let mut references = BTreeMap::new();
@@ -108,7 +115,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
             if matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
                 let Some(kind) = scalar_reference(node.site()) else { return Ok(None) };
                 if let ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = node.source() {
-                    references.insert(index, (*binding, kind));
+                    references.insert(index, (*binding, kind, signed_reference(node.site()).filter(|(_, sum)| sum.signed_only())));
                 }
                 leaves[index] = Leaf::Value(match kind { SourceScalarKind::Integer => Class::I64,
                     SourceScalarKind::Bool => Class::Bool });

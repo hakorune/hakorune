@@ -12,12 +12,13 @@ pub(crate) struct CheckedFieldWriteGraphV1 {
     original: Vec<Binding>,
     completed: OnceCell<Vec<Binding>>,
     fault_bindings: Vec<Binding>,
+    post_rhs_prefix: Vec<Binding>,
 }
 impl CheckedFieldWriteGraphV1 {
     pub(in crate::mir) fn new(pins: [Rc<LocalSsaPhysicalRelationV1>; 2], invoke: Binding,
-        continuation: Binding, original: Vec<Binding>, fault_bindings: Vec<Binding>,
+        continuation: Binding, original: Vec<Binding>, fault_bindings: Vec<Binding>, post_rhs_prefix: Vec<Binding>,
     ) -> Self {
-        Self { pins, operand_relations: Vec::new(), invoke, continuation, original, fault_bindings, completed: OnceCell::new() }
+        Self { pins, operand_relations: Vec::new(), invoke, continuation, original, fault_bindings, post_rhs_prefix, completed: OnceCell::new() }
     }
     pub(in crate::mir) fn with_operand_projection(mut self, prefix: Vec<Binding>, relations: Vec<Rc<LocalSsaPhysicalRelationV1>>) -> Self {
         let mut original = prefix;
@@ -29,6 +30,7 @@ impl CheckedFieldWriteGraphV1 {
         self.operand_relations = relations;
         self
     }
+    pub(super) fn post_rhs_prefix(&self) -> &[Binding] { &self.post_rhs_prefix }
     pub(crate) fn invoke_binding(&self) -> &Binding { &self.invoke }
     pub(in crate::mir) fn pins(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] { &self.pins }
     pub(crate) fn bindings(&self) -> &[Binding] { self.completed.get().unwrap_or(&self.original) }
