@@ -1,7 +1,7 @@
 # Hakorune 開発ルール
 
 Status: SSOT
-Date: 2026-10-19
+Date: 2026-10-21
 Scope: 作業選択・実装・検証・退役・再開の唯一の運用ルール。
 Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current/main/design/mirbuilder-final-pipeline-ssot.md)。
 
@@ -91,6 +91,7 @@ commitは短い件名と必要な変更・検証・残件だけにする。通�
 
 - production sourceは760行で分割を検討し800行を上限とする。圧縮で逃げず、必要な責務境界で整理する。testは行数だけで分割しない。
 - 巨大な汎用基盤・並列の分類器/台帳/receiptを作らず、既存ownerに統合する。
+- 形別の再分類・再探索は共通source/論理計画へ寄せ、同じ不変入力の検証結果を再利用する。変換後MIR/ABIの独立検証は保持し、必要なrelease拒否を`debug_assert!`へ落とさない。
 - debug logは既定OFF。無条件`eprintln!`は禁止。dead-code許可には理由・利用予定・再判断条件を持たせる。
 
 ## 9. 完了の定義

@@ -1,858 +1,149 @@
-Status: if_control R0 complete; dynamic aggregate NoSafeSlice; Script direct-static shelf R0 complete; later BoxShape candidates recorded
-Date: 2026-10-17
-Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `CURRENT_STATE.toml` (sole selector; this structure queue is not selected)
----
+Status: reviewed simplification direction; implementation unselected, user pause retained
+Date: 2026-10-21
+Parent: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml)
+Current row: APP-json-stream-aggregator; this queue does not resume implementation
 
 # MirBuilder structure refactor queue D0
 
-This card records the top-down structure review as bounded cleanup work. It
-does not select a new lane, activate a production route, retire a semantic
-owner, or authorize a broad directory move. The current pointer remains the
-sole task selector.
-
 ## Decision
 
-Accept only behavior-neutral `BoxShape` cleanup after the current Callable Loop
-root Ready I0 has its required evidence. Keep the existing source, Facts,
-Recipe, physical writer, and publication authorities unchanged. Each move must
-have a complete caller/visibility/dependency census before the first rename.
+形ごとの分類・再探索・引渡しの重複を、既存の共通ownerへ統合する。
+目標は「関数ごとの一つのsource owner、一つの論理実行計画、一つのphysical draft」。
+全incomingや再帰の解析は同じmodule単位のsource graphを共有する。
+新しい巨大IR、並列コンパイラ、先行wrapper群を追加する計画ではない。
 
-The review contains three different kinds of proposal:
+2026-10-21のユーザー依頼により、Claudeのpipeline再設計案を3 workerで
+read-only照合した。対象はHEAD `78363aa24d` と停止中のFiniteInput WIP。
+Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲は
+[app card](app-json-stream-aggregator.md)に従う。
+型名・行数の全repo再集計は行っていない。
 
-```text
-already true / no-op
-  loop physicalizer is already cfg(test)-only and caller-zero
-  dynamic_v2_aot_activation has no tracked files
+[final pipeline](../design/mirbuilder-final-pipeline-ssot.md#four-stage-reading-view)
+に4段の読み方を集約する。Resolve/Facts/Recipe/Verifyの意味上の境界は保持し、
+同じ不変入力に対する同じ検証だけを共通化する。実際に生成・変換されたMIR、
+公開JSON、C consumerの検証はそれぞれの境界に残す。
 
-bounded BoxShape cleanup
-  focused #[path] child-module grouping
-  test-module extraction from near-limit files
-  live README navigation correction
+## Proposal review
 
-design-stop / later architecture
-  if_control ownership split
-  dynamic_full_body_recipe vocabulary relocation
-  Script direct-static and normal_*/module_* shelving
-  raw-root boundary unification, logger injection, AST view migration
-```
+| 提案 | 判断と必要な修正 |
+| --- | --- |
+| sema → lower → seal → verify | 説明・責務整理として採用。sema内にsource解析と検証済み論理計画を保持し、最終verifyで生成物を検査する。 |
+| 名前の型がgrepで0件だから段が未実装 | 不成立。`VerifiedSourceLoopRecipeProductV2`は既にsource、typed Recipe、Join、scheduleを束ねる。全関数への適用完了は別途必要。 |
+| 呼び出しの直積を共通Callへ | 採用方向。canonical target、receiverの由来、入力mode、result、effect/lifetimeを別の軸として組み合わせる。Tyだけでborrowed/owned/Map-heldを同一視しない。 |
+| 型検査1回、Recipeと再照合を廃止 | sourceの意味判定の一元化は採用。評価順・短絡・Join・Normal/Faultを定める計画責務は残す。immutable productの同じ証明を借り、再構築や全graph再検証を減らす。 |
+| ownershipを1pass、Call/ReturnにEnd列 | 不十分。各operation/edgeの取得済みprefix、scope、commit前後、Normal/Fault transferとcleanupが必要。1 ownerは1巨大ファイルや1物理passを意味しない。 |
+| Loopをcondition/body/flags/carrier集合へ | 共通structured productは採用。zero-trip/Backedge/Continue/Break/Return/After別のpayloadとcleanupを残す。構文観測の統合とSCC固定点の廃止は別。 |
+| Refusalを15種、内部拒否をdebug_assertへ | 分類enum＋source位置は採用方向。15種の十分性は未証明。詳細reason/phase/ownerを保持し、releaseで必要な拒否をassertへ落とさない。 |
+| 約13万行をgrepだけで削除 | 不採用。`raw_*`にもcanonical callerがある。再export・cfg・feature・外部readerを含む実際の利用を確認して限定削除する。 |
+| 11/11後、入口3か所を切りコンパイルエラー側を消す | 不採用。共有Compatibility/schema/backendの既存契約とcaller切替・停止の確認が先。コンパイル成功だけでは挙動不変を証明しない。 |
+| 105k LOC、段2–4で2週、全体8–12週 | 未検証の希望値。削除量・納期・有限goalの完了条件には採用しない。必要な最初の実変更で実測し、見積もりを更新する。 |
 
-## Six-line brief
+## Code evidence and normalization seams
 
-Decision: Run a verified structural cleanup series, not a repository-wide
-reorganization. Start with a census and one behavior-neutral child-module
-move; keep semantic and production cutover rows closed.
-
-Source authority + canonical issuer: None is introduced. Existing module
-owners, source/Facts issuers, Recipe producers, physical writers, and
-publication collectors remain the sole authorities.
-
-Non-authority: directory names, line counts, `#[path]` syntax, `#[allow(dead_code)]`,
-test-only canaries, empty directories, and README claims do not authorize a
-route, semantic product, fallback, or retirement.
-
-Fail-fast boundary: Before each move, prove exact callers, parent `cfg` scope,
-visibility, re-export edges, test ownership, and dependency direction. Any
-new public API, semantic reorder, second dispatcher, fallback, or owner drift
-returns the row to design stop.
-
-Smallest next slice: none selected here. The earlier Script direct-static
-shelf landed at `8b24ea3fbc` / `5c1822e948`; do not reopen it from this brief.
-The following queued candidates need an owner-specific selection and mapping.
-
-Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
-ordinary Outside consumer, no production switch, no legacy semantic retirement,
-no compile-speed claim, and no blanket `pass` fusion.
+- [Call packet source][call-source]は既にInstance/Staticを一つの窓口へ集約する。
+  共通操作はここへ寄せ、異なるownership支持元とaffine publicationは保持する。
+- [finite input entry][entry]は全incoming、元formal/uses、SUM、vetoを検査する。
+  現WIPのFiniteInputと[共通reference][reference]は形別の重複を減らす方向に沿う。
+  未検証のWIPであり、Map slot ABIや実EXE成功の証拠にはしない。
+- [Loop product][loop-product]の`produce_source_loop_recipe_v2`はsource検証、
+  execution、typed Recipe、Join closure、incoming、scheduleを接続する。
+  [Loop lifecycle][loop-lifecycle]は各operationのFaultと途中取得を保持する。
+  [source SUM solver][sum-solver]の循環・再帰固定点は同一graph上の必要な計算。
+- [received Return][return]はNormal transferとFault時の保持を区別する。
+  [final lifecycle coverage][coverage]と[Invoke verifier][invoke]はLower/finish後の
+  実命令の過不足を検査する。sourceでの型一致はこの証拠を代替しない。
+- [constructor admission][constructor]はcanonical経路から
+  `raw_invocation_source_transport`を呼ぶ。`raw_`接頭辞で専用legacyに分類できない。
+- [common-V2 session][session]のcaller-zeroという古いコメントに反し、
+  [physical-entry session][session-caller]にnon-testの内部callerがある。
+  これは1-hop参照ゼロの反例。production rootからの到達性は今回未確定。
+- `allow(dead_code)`付き`root_batch_slot`にも`compiler/source_entry_selection.rs`の
+  callerがある。`invoke_string.rs`のmissing拒否は元sourceの借用権限を守る。
+  許可属性・拒否名の末尾だけでは死亡判定やrelease検証の廃止はできない。
 
 ## 2026-10-17 semantic package and packet follow-up
 
-User-requested task organization; both candidates are **queued, unselected**.
-They refine existing H-3 in
-[the hygiene map](docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md).
-No new worktree, campaign ledger, guard, semantic route or mandatory global
-prerequisite is created. The active object-forward series keeps its required
-acceptance and same-series exclusive-edge retirement.
+既存リンクとtask ownerを維持する。以下は2026-10-21の調査を反映した統合queue。
+ユーザーの実装再開許可までは全て実行しない。再開後もCSTATEは一つのappを選ぶ。
+内部手順ごとのrow/card、checker、台帳、新規testファイルは作らない。
 
-Current scoped observation at `c52e4f1231`: `rg --files
-src/mir/normal_callable_semantic_package -g '*.rs'` yields **470 files /
-147,796 lines**. This is an aggregate including tests, not one105k-line file or
-an ownership/cfg/executable census. It identifies a review area, not a delete set.
-
-| Task | Selection / bounded responsibility | Acceptance and retirement |
+| 順序・既存owner | 最初の範囲 / 開始条件 | 完了と削除 |
 | --- | --- | --- |
-| `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | At the next selected package-owner boundary, map one source issuer -> Recipe -> physical writer -> publication cluster and its actual cross-owner callers. Choose one cohesive responsibility for BoxShape before that owner grows or migrates. | One owner remains for each meaning; exact visibility/cfg/callers and source/failure behavior preserved. Existing focused regressions/guards, resolving module entry, all changed source files below800. Report moves separately from deleted redundant edges. |
-| `MIRBUILDER-PACKET-DISPATCH-COHESION-D0` | At the next required packet-kind extension, identify its exact enum, all consuming operations and genuinely duplicated dispatch. Compare an owner-local operation/kind table with a sealed abstraction using actual affine/source identity constraints. | Localize only shared responsibility. Keep phase-specific exhaustive checks and independent final consumers; no strings/opcodes as semantic authority, cloned affine permission or silent fallback. Existing source/physical/refusal tests and caller switch; remove obsolete exclusive dispatch/adapter when its callers are zero. |
-
-Neither candidate mandates a kind-table/trait rewrite or an all-ncsp directory
-move. An enum with legitimate distinct consumers is not itself a defect. The
-reported21-file fan-out and audit reduction estimates need a scoped revision/
-operation comparison before selection; they establish neither implementation
-cost nor performance gain. Do not fabricate a new kind merely to benchmark a
-refactor. Keep any selected2–5-commit BoxShape series separate from acceptance
-expansion; this queue does not reopen broad Context/barrel cleanup before R7.
-
-Existing obligations remain in their owners:
-
-- `SEMANTIC-PACKAGE-README-CAPSULE-R0` in
-  [physical cleanup](../design/repo-physical-structure-cleanup-ssot.md) reopens at
-  active constructor closeout; no duplicate README campaign here.
-- [TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0](test-guard-responsibility-retirement-task-2026-10-08.md)
-  owns measured one-family equivalence -> shared owner -> real deletion. Do not
-  count source proof, independent final-MIR checks and runtime Fault tests as
-  duplicates or adopt a -59k/-118k LOC target.
-- H-1/H-4 own completed-history and generated/proof retirement; exact campaign
-  caches use `LOCAL-CAMPAIGN-CACHE-RETIRE-R0`. Retain unknown/live consumers and
-  required pins. Closed-history compression preserves live contracts and reds.
-- Selfhost reuse of hako_alloc and canaries follows the existing promotion/
-  authority/selfcompile owners; it adds no preliminary implementation lane.
-
-## Stage 1 proposal review receipt — 2026-08-23
-
-The three proposals do not have the same status and are not one refactor
-series:
-
-| Proposal | Result | Task status |
-| --- | --- | --- |
-| `#6 if_control.rs` analyzer/use-ledger/product split | Safe BoxShape; landed as `7c9ea5944f` with one logical facade and one product/verifier authority | Complete; no follow-up move |
-| `#7 dynamic_full_body_recipe` vocabulary move | Literal compiler-to-Builder relocation rejected. The Recipe/Facts/semantic-program owner is already compiler-side, and the production edge is one-way for this module | Replace with the boundary-shape D0 below; no direct move |
-| `#8 normal_script/direct_static/` consolidation | The broad move is rejected. A narrowed B-prime moved only the byte-identical Recipe and claim-ledger atoms plus test siblings; all other owner flows stay put | Complete at `8b24ea3fbc` / `5c1822e948`; later BoxShape candidates remain unselected |
-
-The review therefore selects one dependency-boundary design task, not a
-repository-wide shelving pass. The second-stage rows (`normal_*`, `module_*`,
-raw-root, logger injection, and AST view migration) remain independent D0s;
-their broad counts are not implementation authorization.
-
-## Local verification of the review
-
-The following facts were checked in the current working tree on 2026-08-23:
-
-| Review claim | Current fact | Disposition |
-| --- | --- | --- |
-| `loop_recipe_physicalizer/` has 24 files that should be isolated | The directory already has 24 focused files, and its parent declaration is `#[cfg(test)]`; the caller-zero card records no non-test issuer caller | Do not move now; retain caller-zero census and open a separate test-home BoxShape card only if a real path benefit remains |
-| `common_v2` is flat and needs a directory | 27 `common_v2*` files are present, and `common_v2_session.rs` already groups child files with `#[path]` declarations | Full directory move needs D0; first map the session cluster, `super` imports, visibility, and re-exports |
-| `dynamic_v2_aot_activation/` is empty noise | The directory has zero entries and zero tracked files | No repository task; do not invent a delete commit |
-| `builder.rs` needs test extraction | 831 lines in the current worktree, with many `#[cfg(test)]` registrations | Valid near-limit BoxShape; split tests only, preserve production barrel and module visibility |
-| `module_lowering_invocation.rs` needs test-home extraction (worker-audited 2026-09-14) | 773 lines: production owner 1-516, inline `#[cfg(test)]` owner 518-773 with 7 tests | Future `MIRBUILDER-INVOCATION-TEST-HOME-R0`: move only the tests to `module_lowering_invocation_tests.rs` via `#[cfg(test)] #[path]`, preserving logical test paths and visibility; do not select until the pointer reopens structure cleanup |
-| `raw_root_eligibility.rs` needs test-home extraction (worker-audited 2026-09-14) | 779 lines: production owner 1-542, inline `#[cfg(test)]` tests 543-779 with 6 tests; four parent test helpers remain required by sibling tests | Future `MIRBUILDER-RAW-ROOT-ELIGIBILITY-TEST-HOME-D0` -> `...-R0`: move only the 6 tests, retain those helpers and `raw_root_eligibility::tests::*` paths via `#[cfg(test)] #[path]`; keep separate from raw-root boundary unification and do not select until the pointer reopens structure cleanup |
-| `compiler/mod.rs` declaration topology needs a near-limit cleanup (worker-audited 2026-09-14) | 770 lines; 48 declarations occupy lines 19-114 (44 test modules plus 4 raw-root production siblings), while the `MirCompiler` body remains one owner | Future `MIRBUILDER-COMPILER-MODULE-TOPOLOGY-D0` -> `...-R0`: census and, if accepted, move only those declarations into `module_registry.in.rs`; keep each sibling as its authority and retain `compiler::tests` in `mod.rs` |
-| `loop_physical_prepare.rs` needs a home before growth | 795 lines and test-only parent registration | Valid prerequisite BoxShape; no semantic changes or production activation |
-| `compiler/tests.rs` is over the hard limit | 849 lines and a test-only owner | Needs a `super`/fixture/filter owner map before the later test-only split |
-| `function/metadata.rs` is over 800 lines | 804 lines and a flat catalog with broad field ownership | Exclude from this queue; line count alone is not a split authority |
-| live README points to `stmts.rs`/`exprs.rs` | `src/mir/builder/README.md` contains stale live-path references; `stmts/` exists, but there is no single `exprs.rs` or `exprs/` owner (the live split uses `raw_expression_dispatch/` and expression siblings) | Narrow documentation fix with an owner census; do not rewrite archive/history/reference claims globally |
-| `normal_*` / `module_*` counts are 95 / 48 | The broad current filename census is 103 / 63; it is not an ownership census | Do not adopt the supplied counts; open a separate owner map before shelving |
-| raw-root boundary is a simple 28 / 9 split | The broad current filename census is 38 files; compiler/builder ownership still needs route classification | D0 only; no directory merge from counts |
-| ring0 has 440 reverse dependencies | A broad current `ring0` filename scan finds 223 files, not dependency edges | Measure actual import edges before injection design |
-| AST direct imports are 617 | A broad current import scan finds 893 files; it includes tests and non-authority uses | Reject the number as a claim; stage a source-view census and isolate the synthetic-AST correctness case |
-
-## Baseline census receipt — 2026-08-23
-
-The baseline row is complete. The current tree confirms the following exact
-owner facts before any move:
-
-```text
-loop physicalizer parent: resolved_lowering/mod.rs:145 #[cfg(test)]
-loop physicalizer outside-tree consumers: test-only generic G0 session only
-loop_physical_prepare parent: compiler/module_registry.in.rs:109 #[cfg(test)]
-dynamic_v2_aot_activation tracked entries: 0
-builder.rs: 831 lines
-loop_physical_prepare.rs: 795 lines, test module begins at line 479
-compiler/tests.rs: 849 lines, test-only owner
-src/mir/function/metadata.rs: 804 lines, explicitly excluded
-operation_emitter.rs: 491 lines, supplied 794-line claim is stale
-if_control.rs: 798 lines, architecture D0, not a mechanical split
-dynamic_full_body_recipe/mod.rs: 287 lines; 54 exact vocabulary occurrences
-  across 31 Rust files; 12 Builder production consumers; no production
-  dynamic_full_body_recipe -> Builder import; four normal-callable package
-  production files import both Builder and the Recipe module
-pre-R0 snapshot: common_v2_session.rs had 12 #[path] child declarations
-```
-
-The live README stale references are limited to
-`src/mir/builder/README.md:502-503,612`; the live tree has `stmts/` and
-`raw_expression_dispatch/`, not a flat `exprs.rs` owner. Broad filename/import
-counts remain informational until an owner/edge census exists.
-
-The first implementation cell was deliberately the test-only
-`binding_id_tests` module at `src/mir/builder.rs:736-831`. It preserves the
-logical module name through an external `#[path]` child, changes no production
-registration or authority, and has a measurable exit: `builder.rs < 760` with
-the pre/post test symbol set unchanged.
-
-## Builder test-home R0 receipt — 2026-08-23
-
-`MIRBUILDER-BUILDER-TEST-HOME-R0` is complete. At the time of that historical
-receipt, the four existing tests remained
-under the logical `mir::builder::binding_id_tests` module, while their bodies
-now live in `src/mir/builder/builder_binding_id_tests.rs` behind the parent
-`#[cfg(test)]` path declaration. No production module registration,
-re-export, semantic owner, fallback, or runtime route changed.
-
-Evidence:
-
-```text
-builder.rs = 738 lines
-builder_binding_id_tests.rs = 99 lines
-focused binding_id_tests = 4 passed
-cargo check --profile quick = passed (existing warning baseline retained)
-builder test-home R0 guard = passed
-focused rustfmt for new file = passed
-git diff --check = passed
-```
-
-The full-workspace formatter still reports unrelated pre-existing formatting
-drift outside this slice; it is not used as a current-change failure. The
-following loop physical prepare test-home receipt records the next cell that
-was selected at that time. `compiler/tests.rs`, README correction, common_v2
-relocation, and all live semantic architecture rows remain separate.
-
-## Loop physical prepare test-home R0 receipt — 2026-08-23
-
-`MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` is complete. The six existing tests
-remain under the logical `mir::compiler::loop_physical_prepare::tests` module,
-while their bodies now live in
-`src/mir/compiler/loop_physical_prepare_tests.rs` behind the parent
-`#[cfg(test)]` path declaration. The owner remains test-only/caller-zero; no
-production registration, semantic owner, fallback, publication, or runtime
-route changed.
-
-Evidence:
-
-```text
-loop_physical_prepare.rs = 481 lines
-loop_physical_prepare_tests.rs = 319 lines
-focused loop_physical_prepare = 6 passed
-cargo check --profile quick = passed (existing warning baseline retained)
-loop physical prepare home R0 guard = passed
-git diff --check = passed
-```
-
-The new guard preserves the parent `#![cfg(test)]`, registry `#[cfg(test)]`,
-logical module path, and all six test symbols. The following README receipt
-records the next cell that was selected at that time; `compiler/tests.rs`,
-common_v2 relocation, and all live semantic architecture rows remain separate.
-
-## Live README path receipt P0 — 2026-08-23
-
-`MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` is complete. Only the current
-`src/mir/builder/README.md` navigation claims were corrected:
-`stmts/mod.rs` is the statement facade and
-`raw_expression_dispatch/mod.rs` is the legacy raw-expression dispatcher.
-No Rust module registration, semantic owner, fallback, publication, or
-runtime route changed.
-
-Evidence:
-
-```text
-two live target paths exist
-stale flat stmts.rs/exprs.rs references = 0
-git diff --check = passed
-```
-
-The next row is the compiler test-home D0. It is an owner/dependency census,
-not permission to split or alter the production compiler module graph.
-
-## Ordered task queue
-
-### P0 — baseline and no-op closure
-
-#### `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0` — complete
-
-Record the exact file counts, parent module declarations, caller classes,
-re-exports, and line-budget values in a reusable guard or receipt. The guard
-must distinguish production, test-only, compatibility, and disconnected
-modules. A count-only guard is insufficient for a move.
-
-Acceptance:
-
-```text
-loop_recipe_physicalizer parent cfg(test) = 1
-loop physicalizer non-test issuer callers = 0
-loop_physical_prepare parent cfg(test) = 1
-dynamic_v2_aot_activation tracked files = 0
-builder.rs / loop_physical_prepare.rs / compiler/tests.rs line counts recorded
-metadata.rs is explicitly excluded with its owner rationale
-live README stale references are enumerated separately from archive references
-```
-
-#### `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` — complete
-
-Correct only current `src/mir/builder/README.md` references that claim
-nonexistent flat `stmts.rs`/`exprs.rs` files. Point to the existing directory
-facades or the current owning module. Do not change archived reports or
-reference text without a separate authority review.
-
-Acceptance: README links resolve; no Rust code, module path, semantic product,
-or production caller changes; `git diff --check` is clean.
-
-Evidence: both live paths resolve, the stale flat-path count is zero, and the
-README-only diff passes `git diff --check`.
-
-#### `MIRBUILDER-LOOP-CALLERZERO-NAVIGATION-P0`
-
-Add a short navigation receipt to `src/mir/README.md` for the test-only Loop
-physicalizer and its caller-zero card. This is documentation only; it must not
-make the canary look production-reachable or authorize deletion.
-
-Acceptance: the README points to the caller census and names the `cfg(test)` /
-caller-zero status; no Rust module graph changes.
-
-### R0 — behavior-neutral BoxShape series
-
-Each row is a separate 2–5 commit refactor series. Do not combine file moves
-with I9, source Facts, Recipe, or physical writer changes.
-
-#### `MIRBUILDER-COMMON-V2-SESSION-HOME-D0` — complete
-
-Audit the child implementation files currently attached to
-`resolved_lowering/common_v2_session.rs` into a `common_v2_session/` directory
-with an explicit `mod.rs` facade. Preserve the logical module names, visibility,
-test paths, and every existing re-export. Start with the session cluster only;
-do not sweep `loop_recipe_contract`, `compiler`, or unrelated `common_v2`
-families into the same commit.
-
-Only after that audit may a separate R0 move be opened. Stop if the move needs
-a public visibility widening, a new route classifier, a second physical/session
-owner, or a semantic reorder.
-
-D0 census receipt:
-
-```text
-scope: src/mir/builder/resolved_lowering/common_v2_session.rs
-parent: 545 lines; registered once as resolved_lowering::common_v2_session
-private path children: 12
-children: length_call, initial_index_seed, return_read, condition_bool,
-  s6c_operand_issuer, s6c_text_eq_occurrence, s6c_substring_v9_issuer,
-  s6c_substring_callout_materializer, session_length, session_segments,
-  s6c_scalar_equality_leaf, s6c_cursor_cfg
-largest child: s6c_cursor_cfg = 687 lines; all scoped files < 800
-external logical consumers: resolved_lowering/mod.rs re-exports, physical_entry_session,
-  physical_entry_draftseal, source/test bridges, and existing test-only modules
-visibility: existing pub(in crate::mir*) scopes; no widening required
-second session owner: none; CommonV2CanonicalSessionRefV1 remains the sole owner
-outside scope: sibling common_v2 modules, test files, compiler admission files,
-  pinned-text/residence owners, and unrelated common_v2 families
-path-dependent evidence: common_v2_s6c_structure_guard.sh and README child references
-```
-
-The audit closes because every child is nested under the same logical parent,
-all external consumers name the parent module rather than a physical child
-file, and the move can preserve the current `pub(in crate::mir*)` scopes. The
-existing compiler↔builder type dependency is pre-existing and is not changed
-by this BoxShape move. The supplied broad `common_v2` file count is therefore
-not a move scope.
-
-#### `MIRBUILDER-COMMON-V2-SESSION-HOME-R0` — complete
-
-Create `src/mir/builder/resolved_lowering/common_v2_session/mod.rs` and move
-the audited parent plus its 12 children into that directory. Replace the
-parent's path glue with ordinary child module declarations, retaining the
-logical module name `resolved_lowering::common_v2_session` and every existing
-re-export. Update only the structure guard and live README paths that refer to
-the moved physical files.
-
-Acceptance:
-
-```text
-common_v2_session/mod.rs remains < 760 lines and every moved child < 800
-resolved_lowering::common_v2_session logical imports compile unchanged
-all existing pub(in crate::mir*) visibility scopes remain unchanged
-parent re-export set and test module paths are unchanged
-common_v2_s6c_structure_guard.sh is updated and green
-focused common_v2 session tests and cargo check --profile quick pass
-git diff --check is clean
-no non-session common_v2 file moves, semantic edits, new authority, route,
-  fallback, physical effect, or production switch
-```
-
-Evidence:
-
-```text
-common_v2_session/mod.rs = 533 lines; 12 moved children, all < 800
-largest moved child: s6c_cursor_cfg.rs = 687 lines
-flat legacy session/child paths = 0; facade path attributes = 0
-logical module/re-export/visibility/owner boundary unchanged
-one moved fixture include_str path adjusted for the new physical depth
-focused common_v2 suite = 63 passed, 0 failed, 0 ignored
-common_v2_s6c_structure_guard.sh = passed
-cargo check --profile quick = passed (existing warning baseline retained)
-focused rustfmt, git diff --check, and current-state pointer guard = passed
-no sibling common_v2 move, semantic edit, route, fallback, or production switch
-```
-
-#### `MIRBUILDER-BUILDER-TEST-HOME-R0` — complete
-
-Extract one coherent `#[cfg(test)]` cluster from `src/mir/builder.rs` while
-keeping `builder.rs` as the production barrel. Preserve test module paths where
-guards or imports rely on them, and add a focused module README/guard only if
-the ownership boundary changes.
-
-Acceptance: production `builder.rs < 760` lines after the extraction, no
-production module registration changes, focused builder tests green, and the
-pre/post test symbol census is equal.
-
-#### `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` — complete
-
-Split `src/mir/compiler/loop_physical_prepare.rs` before semantic growth. Keep
-the existing test-only/caller-zero contract and assign each moved function to
-one owner. This row is not permission to activate the Loop physicalizer.
-
-Acceptance: no file reaches 800 lines; the caller-zero guard, focused canaries,
-and fresh-session discard evidence remain unchanged.
-
-Evidence: the six focused tests, `cargo check --profile quick`, the dedicated
-home guard, and `git diff --check` passed. The parent is 481 lines and the
-test child is 319 lines; the original logical module and `cfg(test)` scope are
-unchanged.
-
-#### `MIRBUILDER-COMPILER-TESTS-HOME-D0` — complete
-
-First map `super` imports, test filters, fixture ownership, and parent
-`#[cfg(test)]` scope for `src/mir/compiler/tests.rs`. Only then split it into
-coherent test child modules in a later R0. Keep the
-production compiler module graph unchanged and preserve all test names,
-fixtures, and imports.
-
-Acceptance for D0: the owner map identifies every moved test group and no
-production module dependency. A later R0 must make `compiler/tests.rs < 760`
-or document a justified remaining-owner exception; focused compiler tests and
-diff/size guards must be green.
-
-Current design-stop brief:
-
-```text
-Decision: map ownership before moving any compiler test group.
-Source authority + canonical issuer: none; tests observe existing production owners.
-Non-authority: filename counts, test names, filters, and line count alone.
-Fail-fast boundary: stop before code movement if a group has unresolved super/fixture/visibility edges.
-Smallest next slice: one owner map for all groups and parent #[cfg(test)] scope.
-Non-claims: no split, production registration change, semantic change, fallback, or new receipt.
-```
-
-D0 census receipt:
-
-```text
-parent: src/mir/compiler/mod.rs:710 #[cfg(test)] mod tests;
-production registration: none; module_registry.in.rs is unchanged
-test count: 25 total, 6 ignored, 19 non-ignored
-shared surface: one super import block; no local helper module or test fixture file
-crate surface: AST/MIR/parser/runtime/config/test-support reads only
-groups: finish-schedule/discard (6), exact-numeric contracts (5), basic/legacy lowering (5), string corridor (2), method-id (1), await (3), throw/loop/try-catch (3)
-external state: ring0 initialization in numeric/try paths; env mutation only in ignored await rewrite
-R0 shape: keep compiler::tests as the parent facade; add test-only child files under compiler/tests/ and retain all function names/attributes
-```
-
-The D0 is complete because every test belongs to one bounded group, the only
-parent-private surface is the existing compiler module import block, and no
-production module dependency was found. The later R0 must preserve the
-`#[cfg(test)]` parent registration and must not alter fixtures, semantics, or
-runtime/compiler ownership.
-
-#### `MIRBUILDER-COMPILER-TESTS-HOME-R0` — complete
-
-Move the seven mapped test groups behind a test-only `compiler::tests` facade.
-This is a behavior-neutral BoxShape refactor, not a test repair or compiler
-production change.
-
-Acceptance: `compiler/tests.rs < 760`, all 25 test names and six ignore
-attributes remain, the parent `#[cfg(test)] mod tests;` remains the only
-production registration, focused compiler tests retain their current result,
-and one reusable size/module guard proves the split.
-
-Evidence:
-
-```text
-compiler/tests.rs facade = 30 lines
-child groups = 7; every child < 800 lines
-test attributes = 25; ignored tests = 6; names preserved exactly once
-focused compiler suite = 5 passed, 14 failed, 6 ignored
-parent 93c5fc3e0a = 5 passed, 14 failed, 6 ignored with the same baseline errors
-cargo check --profile quick = passed (existing warning baseline retained)
-compiler tests home R0 guard = passed
-focused rustfmt check = passed
-git diff --check = passed
-```
-
-The 14 failing tests are recorded as existing baseline debt: normal-program
-admission, instance-constructor source cohort, and script-neutral-window
-contract failures. The split changed only test ownership and preserves the
-test-gated compiler production module graph.
-
-### D0 — deferred architecture decisions
-
-The following are not mechanical moves. They require a separate authority
-brief before implementation:
-
-| Row | Reason for design stop |
+| 現APP-json-stream-aggregator | 再開後、停止中FiniteInput WIPを既存focused検証で確認し、共通referenceからField RHS/Boolの最終operand検証へ接続。その後statsForのMap slot result ABI/lifetimeを閉じる。 | 新規形別分類器を足さずsource→生成物を接続。既存smokeの実EXE/output/exitを確認。置換済みの専有relayは同seriesで削除。全体rewriteをappの前提にしない。 |
+| `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | 次に必要なowner境界で、共通source query、入力domain、Call/ownership計画、physical投影の実責務を分ける。まず現appが使う共通入力/referenceから。 | 一つの意味判定・一つのwriter。単なるkind×stageの機械分割を避け、重複した分類・探索・wrapperと専有adapterを実際に減らす。移動行と削除行を別記。 |
+| `MIRBUILDER-PACKET-DISPATCH-COHESION-D0` | 必要なkind拡張時に、同じ操作を繰り返すmatchを一つのownerへ寄せる。既存Call packetを核にtable/private methods/sealed abstractionを比較。 | 正当な段別exhaustive checkと独立final consumerは維持。旧dispatch callerを切替え、不要なexclusive dispatchを削除。trait/table採用自体を完了にしない。 |
+| Call/M7-S → R7 → M8 | 固定製品acceptance後の最初の整理候補は、共有Compatibility一族のcaller切替・停止と専有dead code退役。既に置換済みの局所edgeは全suite待ちにしない。 | 利用root・feature・schema/reader・保持すべき検証を確認し、対象familyだけ削除。既存focused＋必要suiteを通す。未判定候補は一括削除せず、次の利用判定を同じownerに残す。 |
+| M8内の診断整理 | 最初の削除familyと共通Call ownerが確定したら、そのownerの既存診断だけを構造化。全freezeの機械置換を先行させない。 | category＋元reason＋source位置を保持。既存negative境界、必要な互換Display、release拒否が同じ。不要formatter/relayを削除。分類数は実例で決める。 |
+| package owner-split内のownership整理 | 現appに必要なloan/transfer/cleanupを一つのsource計画へ集める。広い統合はそのfamilyの実行契約が閉じた後。 | operation/edgeごとのNormal/Faultと途中取得・End-once・alias/escapeを保持。physical End ownerと独立検証は残し、二重の計画生成を削除する。 |
+| `LOOP-PRODUCTION-SELECTION-D0` / 既存Loop owner | [Loop共通session][loop-owner]の順序に従い、現appまたは残る必須Loop境界で同じsource product/Join/scheduleを使う。 | 観測・route分類の重複を統合し、全edge payload・短絡・cleanup・固定点を保持。選択旧adapterを削除。source範囲を広げる変更とはcommitを分ける。 |
+
+固定suiteの11/11表示だけで共有schemaを消さない。空marker、SKIP、timeoutを除き、
+全必要EXEと既存negative境界を確認する。MirBuilder完了にはさらに既存の
+source接続・production切替・R6/R7・Loop・物理退役が必要。
+
+## Remaining parked responsibilities
+
+過去の構造調査は再開許可ではない。次の未完責務を保持する。
+古い一律800行test分割・新guard義務・census先行義務はRULESで置き換える。
+
+| 既存候補 | 保持する境界 / reopen |
 | --- | --- |
-| `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` | analyzer, use-ledger, and product ownership must be separated without creating a second control authority |
-| `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` | the exact scan finds 54 occurrences across 31 files; literal compiler-to-Builder relocation would mix semantic Recipe ownership with physical consumption, so the direction decision must precede any move |
-| `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` | consolidation must follow the active Script cutover and old-route retirement, not precede it |
-| `MIRBUILDER-NORMAL-MODULE-SHELF-D0` | broad current filename counts are 103 `normal_*` and 63 `module_*`; an ownership map is needed, not a directory-only rename |
-| `MIRBUILDER-RAW-ROOT-BOUNDARY-D0` | compiler/builder split affects source, physical, and publication edges |
-| `MIRBUILDER-RING0-LOGGER-INJECTION-D0` | a broad scan finds 223 ring0-containing files, not dependency edges; measure the actual graph and forbid a hidden global observer |
-| `MIRBUILDER-AST-VIEW-MIGRATION-D0` | the broad current scan finds 893 AST-importing files, not 617; staged source-view authority is needed, and any synthetic AST construction is a separate correctness review |
-
-#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` — complete
-
-This is the selected next row. It is a BoxShape audit, not permission to edit
-`if_control.rs`. The file is at the 760-line split trigger and just below the
-800-line hard stop, but line count alone does not define the new module
-boundaries.
-
-Six-line brief:
-
-```text
-Decision: preserve one resolved If-control authority; first map a safe split of analyzer, use-ledger, and product surfaces.
-Source authority + canonical issuer: Resolved source/completion input is consumed by the existing IfControlAnalyzerV1; the final VerifiedResolvedFunctionIfControlV1 remains the sole product owner until the audit accepts a split.
-Non-authority: filenames, re-export barrels, compiler projections, loop_owned_if helpers, test fixtures, and line counts cannot issue a second If-control product.
-Fail-fast boundary: stop before any move if private visibility, cfg(test) scope, super imports, or compiler↔builder direction cannot be preserved without duplicate types or a new dispatcher.
-Smallest next slice: produce the symbol/visibility/caller/dependency census and a candidate module graph for analyzer, use-ledger, and product; no code movement.
-Non-claims: no semantic change, new receipt, route classifier, fallback, production switch, I9 work, or broad builder shelving.
-```
-
-Current census receipt:
-
-```text
-source: src/mir/resolved_control_flow/if_control.rs = 798 lines
-registration: resolved_control_flow/mod.rs registers if_control once; tests are cfg(test)
-current logical surfaces: source analyzer + completion/coverage validation,
-  VerifiedResolvedFunctionIfControlV1 / row materialization product,
-  FunctionIfControlUseLedgerV1 + IfControlCoverageUseV1
-production import files: 20 (31 including test-only files)
-adjacent helper: loop_owned_if.rs consumes the existing product and is not a second issuer
-known public surface: 2 verifier entrypoints plus crate-visible product/ledger types
-```
-
-Required D0 output:
-
-```text
-1. exact symbol map: analyzer, coverage validator, product, row materializer,
-   use-ledger, error vocabulary, and test-only helpers
-2. caller map for both verifier entrypoints and every crate-visible type
-3. visibility/re-export/cfg map proving no widening and no duplicate product type
-4. dependency graph proving the split does not deepen compiler↔builder cycles
-5. candidate module graph and one owner for each moved symbol
-6. focused-test and reusable-guard plan; implementation remains forbidden until
-   this Decision is accepted
-```
-
-Decision receipt:
-
-```text
-symbol map complete: analyzer/source navigation/seal; product/row materialization;
-  use-ledger/coverage consumption; error vocabulary; test-only callers
-caller map complete: verifier entrypoints have one production caller in
-  compiler/capability.rs; remaining verifier calls are tests; product/ledger
-  consumers are mapped to canonical_ssa and trivial_ssa lowering
-visibility map complete: resolved_control_flow/mod.rs registers if_control once;
-  no public re-export widening is required; tests remain cfg(test)
-dependency map complete: the split remains inside resolved_control_flow; the
-  existing compiler -> resolved_control_flow -> builder-consumer direction is
-  unchanged and no new compiler↔builder edge is introduced
-accepted module graph: if_control/mod.rs facade -> product.rs, use_ledger.rs,
-  analyzer.rs; source_coverage.rs/function_control.rs/loop_owned_if.rs remain
-  sibling owners; no duplicate product or verifier issuer
-```
-
-The audit closes because the candidate is a pure relocation of existing
-symbols. The product remains `VerifiedResolvedFunctionIfControlV1`, the
-analyzer remains the sole verifier issuer, and use-ledger movement changes no
-consumer contract. The following R0 is the only authorized implementation
-slice; no new semantic type, route, fallback, or production edge is opened.
-
-#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0` — complete
-
-Create `src/mir/resolved_control_flow/if_control/mod.rs` and move the mapped
-symbols into three private children:
-
-```text
-product.rs
-  ResolvedIf* ports, VerifiedLocatedIfControlV1,
-  ResolvedIfControlMaterializationV1,
-  VerifiedResolvedFunctionIfControlV1, coverage partition row
-use_ledger.rs
-  FunctionIfControlUseLedgerV1, IfControlCoverageUseV1,
-  their existing error types
-analyzer.rs
-  IfControlAnalyzerV1, row draft, policy, verifier entrypoints,
-  source navigation and existing analyzer errors
-```
-
-Keep `resolved_control_flow::if_control` as the logical module and re-export
-the existing crate/super-visible symbols from `mod.rs`. `source_coverage.rs`,
-`function_control.rs`, and `loop_owned_if.rs` stay in their current homes.
-
-Acceptance:
-
-```text
-if_control/mod.rs is the only logical facade
-product.rs owns the existing If rows/materialization/product types
-use_ledger.rs owns the existing coverage ledgers and errors
-analyzer.rs owns the existing source navigation/verifier entrypoints
-resolved_control_flow/mod.rs still registers if_control exactly once
-no visibility widening, semantic reorder, route, fallback, or production switch
-```
-
-Evidence:
-
-```text
-if_control/mod.rs = 30 lines
-product.rs = 247 lines; use_ledger.rs = 103 lines; analyzer.rs = 468 lines
-flat legacy if_control.rs = 0; all four owners remain below 800 lines
-product/verifier authority definitions = one each
-resolved_control_flow focused suite = 33 passed, 0 failed
-resolved_value_profile focused suite = 46 passed, 0 failed
-resolved_if_control_structure_r0_guard.sh = passed
-focused rustfmt, cargo check --profile quick, and git diff --check = passed
-logical imports/re-exports, visibility, test paths, and behavior unchanged
-```
-
-Commit: `7c9ea5944f` (`refactor: split resolved if control ownership`).
-The R0 is a BoxShape-only cleanup; it does not activate the disconnected
-If-control analyzer or create a second production authority.
-
-#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` — complete
-
-The exact current census is 54 occurrences across 31 Rust files. The module
-has 287 lines and its largest focused child is 691 lines; the problem is not a
-line-budget emergency. The important ownership facts are:
-
-```text
-dynamic_full_body_recipe production imports Builder = 0
-Builder production files importing dynamic_full_body_recipe = 12
-normal-callable package production files importing both = 4
-test-only dynamic recipe -> Builder import = coseal/tests.rs only
-existing compiler-owned A-prime physical-capability boundary = present
-```
-
-The module README names `dynamic_full_body_recipe` as the compiler-side owner
-of the bounded source-to-Facts/Recipe/Join corridor and explicitly excludes
-Builder, MIR, CFG, PHI, runtime, and fallback authority. A literal move of the
-directory or a type-by-type re-export sweep would therefore make the physical
-consumer own semantic vocabulary, deepen the existing compiler/Builder graph,
-and make a second authority easier to introduce.
-
-Decision receipt:
-
-```text
-Decision: reject literal compiler -> Builder relocation. Keep
-  source/Facts/Recipe/Join/semantic-program authority in compiler-owned
-  dynamic_full_body_recipe. Continue with one narrow transport-boundary audit.
-Source authority + canonical issuer: existing dynamic Recipe/Facts issuers
-  remain sole owners; the existing A-prime capability is the named
-  Builder-free physical-demand boundary and may be reused, not duplicated.
-Non-authority: directory placement, token counts, Builder state, raw ValueId,
-  BasicBlockId, re-export barrels, and physical adapters do not issue Recipe,
-  Join, source, or semantic products.
-Fail-fast boundary: no move if it widens visibility, exposes physical meaning
-  through semantic types, adds a reverse production import, or requires a
-  second issuer/dispatcher. Stop before code and keep direction D0 on failure.
-Smallest next slice: classify the twelve Builder production import surfaces
-  and design one aggregate/HRTB transport boundary, using A-prime where it
-  already owns the demand. No implementation is authorized by this receipt.
-Non-claims: no directory move, rename, re-export sweep, pure-plan conversion,
-  Script consolidation, I9 hardening, production switch, retirement, or
-  performance claim.
-```
-
-The direction D0 is complete because the proposed broad relocation has a
-rejected shape and a narrower next design boundary. This is not permission to
-edit code; it closes the architectural question without inventing a new
-semantic product.
-
-#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` — complete
-
-This D0 determines whether the current twelve Builder imports can be reduced
-to one compiler-owned transport aggregate without hiding semantic ownership.
-It is a design task only. The A-prime module is an existing boundary candidate,
-not automatic permission to add re-exports.
-
-Required tasks:
-
-```text
-1. List the unique symbols used by each of the twelve Builder production files
-   and classify each as semantic source/Facts/Recipe/Join, physical demand,
-   lifecycle/cleanup evidence, or diagnostic-only transport.
-2. Mark which rows are already represented by the A-prime demand/capability
-   boundary and which would require a new aggregate. Do not create that
-   aggregate during this D0.
-3. Prove the production graph remains one-way:
-   compiler Recipe/Facts -> named transport boundary -> Builder physical owner.
-   The dynamic Recipe module must not import Builder in production.
-4. Check visibility, HRTB/loan lifetime, no-Clone movement, and source package
-   identity so a facade cannot permit arbitrary recombination of rows.
-5. Compare one aggregate-boundary candidate with NoSafeSlice. Reject a
-   type-by-type re-export sweep, a Builder-owned Recipe facade, and a second
-   physical issuer.
-6. Select at most one bounded BoxShape implementation only after Decision
-   acceptance; otherwise record NoSafeSlice and keep the current graph.
-```
-
-Acceptance:
-
-```text
-all twelve production import surfaces are symbol-classified
-reverse production imports = 0
-one named transport owner and one physical consumer are identified
-no new semantic Verified*/Prepared* type is invented during D0
-no visibility widening, duplicate issuer, route, fallback, or production
-  switch is required
-the selected candidate has a <760-line owner and focused guard plan
-otherwise the result is NoSafeSlice with the counterexample recorded
-```
-
-Local classification receipt — 2026-08-23:
-
-| Builder surface | Dynamic Recipe symbols | Meaning class | Boundary result |
-| --- | --- | --- | --- |
-| `canonical_ssa/session.rs` | `DynamicCanonicalSessionAuthorityRefV1` | borrowed Completion/Join-control session authority | physical session constructor input; not a Recipe move candidate |
-| `selected_dynamic_physical_abi.rs` | operation refs/effects, placements, item kind, control/arms, fault family, prepared operation program, cleanup rows, source relation | complete physical-input and lifecycle evidence | must remain one demand view; splitting rows would permit recombination |
-| `selected_dynamic_physical_capability.rs` | cleanup action/kind/row views | lifecycle/cleanup evidence | already consumed by the selected capability seam |
-| `body_state_bridge.rs`, `formal_header.rs`, emitter `mod.rs` | `DynamicAPrimeI64SourceRelationViewV1` | source/parameter relation borrowed from the same exit co-seal | source relation must remain tied to A-prime demand |
-| `callout_corridor/emission.rs`, `continuation_backedge.rs`, `i8_i9_control.rs`, `inner_return_then.rs` | prepared operation program and operation refs | physical operation transport | existing A-prime demand already owns the aggregate |
-| `operation_cursor.rs`, `lifecycle_terminal.rs` | operation rows/counts and cleanup kind | preflight/lifecycle consumption | no second cursor or cleanup issuer allowed |
-
-The twelve Builder files therefore use four different borrowed evidence
-families, not one freely pairable vocabulary. The existing
-`VerifiedAPrimeI64PhysicalDemandV1` is already the compiler-owned aggregate,
-but its public-in-crate methods deliberately lend these views to the selected
-physical owner. It is not safe to replace that with a type-by-type facade.
-
-Candidate rejection:
-
-```text
-Builder-owned Recipe directory
-  -> semantic package/compiler would depend on Builder; ownership direction worsens
-
-A-prime type-by-type re-export
-  -> hides imports only; it creates no aggregate and permits no stronger pairing
-
-Move physical_evidence/cleanup/source relation into A-prime
-  -> creates a new cross-owner physical/semantic module boundary or reverse edge
-
-new neutral aggregate with wrapper rows
-  -> new transport authority and broad API/signature rewrite, not a BoxShape
-```
-
-Decision: `NoSafeSlice` for the proposed one-aggregate relocation. Keep the
-current one-way production graph and the existing A-prime demand boundary.
-Do not add a directory move, re-export sweep, wrapper receipt, or second
-issuer. The direction audit is complete; the next structural work, if any,
-must be a separate owner-specific shelf audit.
-
-#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` — complete
-
-The four-flow/six-root audit rejects the broad feature-name shelf and a
-re-export facade. Source/lookup, mixed-owner Join children, transport,
-physical publication/exit, and compiler/backend capability remain in their
-current owner homes.
-
-The accepted B-prime is one behavior-neutral physical shelf containing only:
-
-```text
-normal_script_direct_static_recipe.rs + its test sibling
-normal_script_direct_static_claim_ledger.rs + its test sibling
-```
-
-The production pair is 757 lines total and each file is below 760. The exact
-current types are retained: `VerifiedScriptDirectStaticRecipeV1::issue` is
-the Recipe/key issuer; `ScriptDirectStaticClaimLedgerV1` is the operational
-linear-consumption owner, not a second semantic issuer. Four file hashes,
-caller cardinalities, parent path edits, hard stops, guards, and the three
-commit sequence are frozen in
-[`mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md`](./mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md).
-
-#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` — complete
-
-The four frozen files moved byte-identically in the two atom commits above;
-only the two parent `#[path]` declarations changed. No `mod.rs`, re-export,
-alias, shim, issuer, caller, route, or fallback was added. The dedicated
-shelf card records the hashes, focused tests, structure guard, and closeout
-evidence. The current pointer does not select another structure row yet.
-
-#### `MIRBUILDER-COMPILER-MODULE-TOPOLOGY-D0` — future BoxShape candidate
-
-The worker audit found a bounded declaration-only cleanup for
-`src/mir/compiler/mod.rs`. The file is 770 lines, but its semantic
-`MirCompiler` owner is coherent; the near-limit pressure is the 48-module
-declaration block at lines 19–114. This row is a design/task record only while
-the Call/R7 pointer remains parked at `design_stop`.
-
-Six-line brief:
-
-```text
-Decision: preserve the MirCompiler owner and audit declaration topology as a behavior-neutral BoxShape.
-Source authority + canonical issuer: each existing compiler sibling remains its own authority; module_registry.in.rs only declares placement.
-Non-authority: include location, declaration order, filenames, test names, and line counts cannot issue Facts, Recipe, routes, or fallback.
-Fail-fast boundary: preserve each declaration's cfg/visibility/path and keep compiler::tests as the cfg(test) facade; duplicate names or guard drift stops the row.
-Smallest next slice: census 48 declarations (44 test + 4 raw_root production) and freeze the module_registry.in.rs move/guard plan; no code movement in D0.
-Non-claims: no semantic change, production switch, fallback, route change, legacy retirement, or new receipt.
-```
-
-The bounded R0, if the D0 is accepted after pointer reopening, moves only the
-48 declarations from `compiler/mod.rs` into the existing
-`module_registry.in.rs`. The expected shape is `mod.rs` about 674 lines and
-the registry about 348 lines, both below the 760-line design trigger and the
-800-line hard stop. The R0 must preserve the logical module paths,
-`compiler::tests` registration, visibility, and all existing compiler/header
-guards; it must add a reusable uniqueness/line-budget guard before landing.
-
-## Source line-budget census receipt — 2026-09-14
-
-Scope is the finite source set returned by `rg --files src -g '*.rs'`; generated
-outputs outside `src/` and documentation are excluded. The current result is
-`0` files at or above 800 lines, with `18` files in the 760–799 trigger band.
-The maximum is `797` lines. The trigger-band paths are:
-
-```text
-mir/compiler/legacy_candidate_session_tests.rs (797)
-mir/builder/control_flow/plan/loop_phi_materializer_tests.rs (797)
-mir/builder/control_flow/joinir/route_entry/registry/generic_accepted_plan_reachability_tests.rs (796)
-mir/shared_loop_source_window_tests.rs (792)
-mir/resolved_semantics/owner_forest_tests.rs (783)
-mir/compiler/raw_root_eligibility.rs (779)
-host_providers/llvm_codegen/published_map_source_tests.rs (778)
-mir/resolved_semantics/tests.rs (775); mir/array_text_observer_region_contract/matcher.rs (775)
-mir/builder/module_lowering_invocation.rs (773); mir/loop_route_policy/family_admission.rs (771)
-mir/loop_structural_facts/variable_accum_recurrence.rs (770); mir/compiler/mod.rs (770)
-mir/compiler/raw_root_plan0.rs (769); mir/resolved_semantics/source_projection_tests.rs (768)
-mir/compiler/raw_root_decl_access.rs (767); mir/normal_callable_semantic_package/issuer.rs (765)
-parser/mod.rs (762)
-```
-
-This is a line-budget observation, not permission to split any row. The
-worker-audited candidates above remain future BoxShape tasks and the current
-Call/R7 pointer remains unchanged.
-
-## Guard and closeout contract
-
-Every R0 commit must run:
-
-```text
-cargo check --profile quick
-focused tests for the moved owner
-existing caller-zero/source-Facts guards
-new module/line-budget guard
-git diff --check
-```
-
-Red results are classified as current-change failure, known baseline debt, or
-informational census. A line-count reduction without symbol/dependency
-evidence is not completion. The R0 and architecture rows remain parked until
-the selected baseline census is complete and `CURRENT_STATE.toml` explicitly
-selects one bounded cleanup row.
-
-## Binding-shadow duplicate retirement R0 — selected
-
-`MIR-BUILDER-TEST-INVENTORY-BINDING-SHADOW-DEDUP-R0` selects only the
-positive-only `test_shadowing_binding_restore` for `SupersededDelete`. The
-lexical-scope owner already covers shadowing, BindingId restoration, and
-`variable_map` restoration; its snapshot test plus the existing
-`scoped_transaction_*` tests retain identity and failure contracts. The
-candidate has no production caller.
-
-The row may delete one daily-root test only after its exact inventory,
-known-red partition, test-home guard, and successor filters agree. On landing,
-three binding-id tests remain in the extracted test-home cluster; the deleted
-test remains addressable through Git history and is not counted as daily
-evidence.
+| `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` | 元のliteral compiler→Builder移動とtype-by-type reexport案は不採用。source/cleanup/demandの同じ支持関係を保つ一方向のaggregateが既存owner内で必要になった場合にだけ再検討。今のNoSafeSliceは別appの実装停止理由にしない。 |
+| `MIRBUILDER-NORMAL-MODULE-SHELF-D0` | 次に触る一つのownerと実callerが決まった時に検討。normal_*/module_*という名前だけで全面移動しない。 |
+| `MIRBUILDER-RAW-ROOT-BOUNDARY-D0` | compiler/builderのsource、physical、publication境界を保持。canonicalが使うraw transportをlegacyと誤分類しない。 |
+| `MIRBUILDER-RING0-LOGGER-INJECTION-D0` | 実import/実行境界が阻害になる場合のみ。隠れglobal observerを増やさない。 |
+| `MIRBUILDER-AST-VIEW-MIGRATION-D0` | 実際に必要なsource viewだけ。synthetic AST rewriteでsource意味を補わない。 |
+| `MIRBUILDER-COMPILER-MODULE-TOPOLOGY-D0` | 宣言配置を触る必要がある時だけ。cfg/visibility、compiler::tests、module_registryの各ownerを保持。 |
+| `MIRBUILDER-INVOCATION-TEST-HOME-R0` / `MIRBUILDER-RAW-ROOT-ELIGIBILITY-TEST-HOME-D0` | test行数だけを理由に実行しない。fixture/owner統合で実保守負担が減る時に既存TG ownerで扱う。 |
+| `MIRBUILDER-LOOP-CALLERZERO-NAVIGATION-P0` | 対象ownerの次回必要更新に統合。古いtest-only/caller-zero表記と下記guard前提を現caller・後継契約で確認する。新規cardを作らず、拒否を消すだけでgreenにしない。 |
+| metadata / broad Context・barrel | 行数や配置だけでは移動しない。既存R7/physical cleanupの条件を保持。 |
+
+README圧縮は既存`SEMANTIC-PACKAGE-README-CAPSULE-R0`、test/guard等価統合は
+[TG owner](test-guard-responsibility-retirement-task-2026-10-08.md)、docs/proof整理は
+[H-1/H-4](docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md)、cache整理は
+[physical cleanup](../design/repo-physical-structure-cleanup-ssot.md)へ集約する。
+このqueueから同じ作業を二重登録しない。
+
+## Compressed completed history
+
+旧本文と当時のcommand/resultは `git show 78363aa24d:docs/development/current/main/investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md`。
+完了済みの設計書・guard・証拠を現treeへコピーしない。下記は過去の結果で、
+現WIPの検証や追加実装の許可にはならない。
+
+| 既存row | 保存する結果 |
+| --- | --- |
+| `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0` / `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` | 当時の調査とREADME訂正完了。古い行数・caller数は現状の証拠にしない。 |
+| `MIRBUILDER-BUILDER-TEST-HOME-R0` | test-home移動完了、production登録を保持。 |
+| `MIR-BUILDER-TEST-INVENTORY-BINDING-SHADOW-DEDUP-R0` | 重複shadowing caseは現sourceに存在せず、three binding-id tests remain。lexical-scopeとscoped transactionの安全性契約を保持。 |
+| `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` | test-home移動完了、当時6 tests PASS。production activationの証拠ではない。 |
+| `MIRBUILDER-COMMON-V2-SESSION-HOME-D0/R0` | 同じlogical moduleへの移動完了、当時63 tests PASS。全common-V2 caller-zeroの証拠ではない。 |
+| `MIRBUILDER-COMPILER-TESTS-HOME-R0` | test-home移動完了。当時5PASS/14FAIL/6ignoredで親と一致。赤14を解決扱いにしない。 |
+| `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0/R0` | analyzer/product/use-ledgerを同じfacadeに整理済み。新しいproduction activationはしていない。 |
+| `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` | literal移動は却下。BOUNDARY-SHAPEの調査もNoSafeSliceで完了。将来のaggregate再検討条件は上表に保持。 |
+| `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` / `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` | Recipe/claim-ledger atomsだけの移動完了。source/lookup/Join/publication/backend境界の全面移動は不採用。 |
+
+## Verification boundary
+
+この文書整理は既存pointer guard、参照先、diff、文書を読む既存構造guardで確認する。
+2026-10-21: pointer、builder test-home、compiler tests-home、参照先、diffはPASS。
+`rust_mirbuilder_loop_physical_prepare_home_r0_guard.sh`はtest-only前提でFAILし、
+上記commitの変更前ファイルだけでも同じFAILを再現した。今回の退行ではないが、
+未解決として上表の既存navigation ownerへ残す。Rust/C WIPは変更していない。
+コード変更を選択した時は、対象caller/featureと既存focused検証、必要な実app/suiteを
+その変更に合わせて使う。新しいcheckerや日次censusは作らない。
+独立した拒否・所有権検証は削減量の帳尻で消さない。削減主張には実際の削除を伴わせ、
+移動・rename、検証ケース数、実行結果、build/link時間を混同しない。
+
+[call-source]: ../../../../../src/mir/normal_callable_semantic_package/ordinary_new_local_commit/root_call_entry/call_packet_source.rs
+[entry]: ../../../../../src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_entry_contract.rs
+[reference]: ../../../../../src/mir/normal_callable_semantic_package/ordinary_new_local_commit/root_call_entry/expression_reference_read.rs
+[loop-product]: ../../../../../src/mir/loop_recipe_contract/source_loop_v2.rs
+[loop-lifecycle]: ../../../../../src/mir/loop_recipe_contract/source_loop_execution.rs
+[sum-solver]: ../../../../../src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_source_sum_solver.rs
+[return]: ../../../../../src/mir/normal_callable_semantic_package/ordinary_new_local_commit/root_home_received_return.rs
+[coverage]: ../../../../../src/mir/normal_callable_semantic_package/ordinary_new_local_commit/root_validation.rs
+[invoke]: ../../../../../src/mir/verification/invoke.rs
+[constructor]: ../../../../../src/mir/builder/normal_instance_constructor_admission.rs
+[session]: ../../../../../src/mir/builder/resolved_lowering/common_v2_session/mod.rs
+[session-caller]: ../../../../../src/mir/builder/resolved_lowering/physical_entry_session.rs
+[loop-owner]: ../design/loop-common-physical-demand-and-session-ssot.md

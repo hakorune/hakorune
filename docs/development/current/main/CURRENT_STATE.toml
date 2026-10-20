@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/local-commit/implicit-exit/source-unavailable: owner22 UserStats.add Body0 field RHS; opaque bytes scalar source not connected"
+current_blocker_token = "ordinary-new/lexical-instance-call/source-pending: owner26 ingestLine Body5 statsFor(user), Map-slot result ABI/lifetime not connected"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: stats.add target/actuals接続、owner22 add Body0 field RHSへ停止移動。
-同じMap LOCAL loanをreceiver target/incomingへ保持。旧finishersはslot ABI/lifetime待ち。
-JSONsource1/nullable2/stored2/publication1/prefix1 PASS。actuals82/4・result23/1の赤は保持。
-今回suite7/4（実EXE6＋marker1、324.680s、SKIP/timeoutなし）。CLI33.95s/runtime6.42s/root91s。
-次は元opaque bytesのfinite readとInteger/Bool入力cohort。全Home/End/slot ABI/prior redsはcard。
+設計監査は既存structure queueへ統合。goalは停止、再開許可まで実装/buildを進めない。
+APP-json-stream-aggregator: WIP CLIでadd field RHS/Bool条件を越え、owner26 statsFor source-pending。
+Scalar/SUM Bool・finite入力・共通参照・C Bool viewの38パスを未commit保持。詳細はcard。
+CLI40.80s/C構文PASS。現WIP root test/runtime/FFI実ビルド/suite未実行。直近commit suite7/4。
+再開時はWIP focused検証と最終Rust operand使用の接続、Map slot ABI/lifetime。goal未完。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"

@@ -39,6 +39,11 @@ thin does not mean:
 This is a BoxShape cleanup lane. It must not change route selection, optimizer
 behavior, accepted CorePlan shapes, backend lowering, or perf keeper claims.
 
+2026-10-21のsource/admission/ownership統合は既存の
+[structure queue](../investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md)
+へ集約した。以下の古いguard/report新設案はRULESの増加制限に従い、
+型名・pass数・LOCだけを根拠とする検証削除や新規台帳を先行させない。
+
 ## Child Cleanup SSOTs
 
 This pipeline SSOT is the parent entry for the current compiler-cleanliness

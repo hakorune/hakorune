@@ -22,36 +22,20 @@ Related:
 
 ## Current Capsule
 
-- **Current decision:** the final pipeline remains one-way, and canonical MIR
-  calls converge on a typed structural target before argument or MIR effects.
-- **Current implementation status:** canonical Call and explicit legacy ingress
-  are separated; the direct-loader schema-error retry is retired and the fixed
-  acceptance is classified. LocalSSA materialization was split at
-  `473c006604`, the normal-package Generic G0 consumer now reaches the existing
-  Single publication terminal, and fixed-role Loop topology was retired at
-  `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
-  physical cohort. The G0 I1 witness now uses the source-backed
-  `Main.main -> generic_g0(0, 0)` Call and observes `generic_g0/2` in the same
-  physical view; LLVM18.1.8 is now installed side-by-side with LLVM14. The
-  corrected static witness now compiles and executes the called G0 helper
-  through LLVM18 with exit3, without skip (`16f87f5eeb`). This proves the
-  bounded source-called G0 cohort, not all-family Loop or whole-pipeline completion.
-- **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer for
-  the selected owner; the earlier parser LoopBreak consumer D0 is no longer a
-  live pointer. Its direct source row is parked at the named composite-owner
-  `NoSafeSlice` because the source physical consumer and exclusive delete tuple
-  are still missing. Static, Rust/AOT/public Generic options and named harness
-  ownership have landed; automatic pure-core replay and unused private replay
-  storage are retired through `16329a0da2`. Public compatibility ABI and
-  aggregate Call schema retirement remain separate open boundaries.
-- **Production stop line:** no String formatter, opaque registry, second AST
-  walk, post-argument resolver, optional/empty loan, or backend repair may fill
-  a missing semantic target.
-- **Retirement finish line:** canonical source families use the one pipeline,
-  Call fallback/retry is zero, transitional integration hubs are reduced by
-  finite owner, and each switched family repays its exclusive legacy
-  code/tests/guards/docs before the next family. Closed detail lives in Git,
-  not a copied current-tree archive.
+- **Order:** source meaning and a verified logical plan precede physical effects;
+  one function session seals drafts for atomic module publication.
+- **Implementation and evidence:** [CURRENT_STATE](../CURRENT_STATE.toml) and its
+  app card own the selected work, pause, current stop and measured acceptance.
+  Earlier G0/Loop/static canaries prove only their bounded cohorts.
+- **Remaining completion:** required source/consumer connections, production
+  cutovers, R6/R7, Loop and physical retirement remain part of the finite goal.
+- **No semantic repair:** names, MIR types, optional loans, backend success or
+  retry cannot supply a missing source target or ownership contract.
+- **Retirement:** proved replaced exclusive edges retire in their own series;
+  shared compatibility/schema/backend owners wait for their actual callers.
+- **Simplification:** the four-stage reading view below groups responsibilities.
+  The [existing structure queue](../investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md)
+  owns the reviewed consolidation tasks; this document adds no implementation lane.
 
 ## Decision
 
@@ -102,35 +86,37 @@ Resolve
 -> Atomic Publish
 ```
 
-人間向けの七段projectionは次で固定する。これは上のnormative chainを
-並べ替える第二pipelineではない。
+## Four-stage reading view
+
+2026-10-21の整理判断。上のnormative chainを次の4責務として読む。
+段名はRust型名やディレクトリ名を強制しない。sourceの意味は一度決め、
+同じ不変のsource graphと検証済み計画を後段へ渡す。
 
 ```text
-1. Frontend
-   Source -> AST -> Resolve
-
-2. Semantic Observation
-   Resolve -> Observe -> Facts
-
-3. Verified Recipe
-   Recipe -> Verify
-
-4. Function Lowering Session
-   Lower -> function-local finish
-
-5. DraftSeal
-   Ready -> prepare -> infallible commit
-
-6. Module Transaction
-   Completed drafts -> Collect -> Atomic Publish
-
-7. Backend Boundary
-   published MirModule -> VM / AOT / LLVM / other selected backend
+AST
+ -> sema         Resolve / Observe / Facts / Recipe / pre-effect Verify
+ -> lower        verified logical plan -> sole physical function session
+ -> seal/publish finish -> DraftSeal -> Collect -> atomic publication
+ -> final verify actual MIR / published transport -> selected consumer
 ```
 
-`Verify`をRecipeより前へ移したり、Backendをsource semanticsのrepair ownerに
-したりしない。七段projectionで省略された内部edgeのauthorityは、常に上の
-normative chainが優先する。
+`final verify`は既存compiler/verifier・公開transport・backend入口の検証を
+まとめた表示であり、現在の検証やoptimizerの実行順を移動する指示ではない。
+Backendはsource意味を再決定せず、独立して実表現と実行可能性を確認する。
+
+- `sema`: 関数ごとのsource ownerと一つの論理実行計画へ集約する。全incoming・
+  再帰は共有source graphで閉じる。型に加え評価順、borrow/transfer、各exitの
+  cleanupを保持する。Recipeの格納先・型名は整理できるが、計画責務は残る。
+- `lower`: Call/control/SSAの共通操作を同じownerで実行する。形別の再分類や
+  source意味の再推測をせず、物理IDはこの段のsole ownerだけが発行する。
+- `seal/publish`: Ready/prepare/commit、discard、collectorの契約を保持する。
+- `final verify`: Lower/SSA/finish後の実命令と元計画の一致、過不足、Normal/Fault、
+  ABIを検査する。sourceでの型検査の成功で省略しない。
+
+同じ不変入力の同じ検証は共通ownerで一度行い、その結果を貸す。
+表現の変換・入力差替え・publicationを跨ぐ対応検証は別責務である。
+Loopのsource観測を統合しても、全edgeのpayloadとSCC固定点は必要。
+このprojectionは新IRの並列構築、言語仕様変更、実装再開の許可を与えない。
 
 `MIRBUILDER-INPLACE-REPLACEMENT0`は、この最終形へ現在のproduction
 MirBuilderを移す方法である。replacement cellやstructural measurementsは

@@ -1,19 +1,18 @@
 # APP-json-stream-aggregator
 
-Status: JSON selected; common untyped-storage target accepted. Date: 2026-10-21
-Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
+Status: User-requested pause for design discussion; JSON WIP retained. Date: 2026-10-21
+Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner324.680s on current receiver-source change; matching CLI/runtime/FFI frozen.
+  runner324.680s at committed receiver-source change; current WIP suite not run.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current pair: JSON fails MIR at owner22 UserStats.add Body0 field RHS,
-  implicit-exit/source-unavailable. Original stats.add target/actuals now select;
-  opaque bytes lacks a qualified scalar reference. No JSON EXE.
-- Other reds: untyped-field activation, binary-trees source-not-i64, boxtorrent
-  stored-child receiver. Current CLI33.95s/runtime6.42s; root test build91s.
+- WIP CLI: JSON stops owner26 Body5 statsFor at lexical-instance-call/source-pending;
+  add field RHS/Bool condition and original Scalar actual-use census connect. No EXE.
+- CLI build40.80s and C syntax-only PASS. WIP root tests, C shared library, runtime
+  and suite unrun; prior checks are not WIP evidence. Other reds remain unchanged.
 
 ## Retained connected contracts
 
@@ -72,8 +71,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Actuals82PASS/4FAIL unchanged; result23/1 reproduced with saved prior binary.
   All failures stay owed; no safety boundary or expected error was weakened.
 - Prior Array15/2, publication3/1, result23/1, nullable publication2/1 remain owed.
-- Earlier physical/source checks and Fault reclaim remain recorded in Git;
-  current PASS claims exclude ignored/zero filters and never waive reds.
+- Earlier physical/source/Fault checks remain in Git; zero/ignored filters excluded.
 - Prior Map/scalar Fault4 + mixed-Array Fault2: exit70/Fault101/reclaim and
   first-store candidate release checked with prior frozen pair; no red waived.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
@@ -81,10 +79,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 
 ## Next and full completion limits
 
-- Next: qualify opaque bytes in add's Assignment RHS via shared references/SUM.
-  Finite entry needs Text and maps Bool to Other: normalize true Bool source and
-  complete Integer/Bool cohort, preserving original uses/registry/veto/all inputs.
-  Exact kind/payload entry guards and independent final consumers remain owed.
+- PAUSED: 38 implementation/doc paths kept uncommitted; no new test/assert/checker.
+  WIP normalizes Scalar/SUM Bool, shared finite input and Assignment/condition
+  references, plus C Bool view schema/producer/prologue. No legacy Integer/Object grant.
+- Resume: review/focused-verify WIP; final Rust operand scans must retain exact
+  source-owned Field RHS/Bool prefix+outer coordinates and every tracked operand.
+  Do not drop scalar roots by domain; C Bool view still needs execution validation.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
   Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently, not copy input Home. Provided Box,
