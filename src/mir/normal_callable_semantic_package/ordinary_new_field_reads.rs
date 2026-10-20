@@ -108,8 +108,10 @@ impl LocalFieldReadSourceV1 {
             (LocalFieldReadResultV1::BorrowedArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
                 source.requirement.field() == self.field() && source.requirement.field_name() == field && class == "ArrayBox",
             (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
+            (LocalFieldReadResultV1::ArrayField(source), MirInstruction::ObjectFieldGet { field, .. })
+                if source.text_append_origin_v1().is_some() => source.field() == self.field() && *field == self.field(),
             (LocalFieldReadResultV1::ArrayField(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
-                source.field() == self.field() && source.name() == field && class == "ArrayBox",
+                source.text_append_origin_v1().is_none() && source.field() == self.field() && source.name() == field && class == "ArrayBox",
             (LocalFieldReadResultV1::ArrayField(_), _) => false,
             (_, MirInstruction::ObjectFieldGet { field, .. }) => *field == self.field(),
             _ => false,

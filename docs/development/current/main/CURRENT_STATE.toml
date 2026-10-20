@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Scalar/Text operandをMIR・witness/marker・ABI・C実行へ接続。
-固定suite7PASS/4FAIL（実EXE6＋marker1）、392.823s、SKIP/timeoutなし。
-JSONはowner26 Body5 statsForでsource-pendingのまま。source packet/End/Map未完。
-final CLI41.05s/root70s、19 filtersは親と同じ診断。C append12実行/拒否9、test9263増加なし。
-次はSAME Text評価/field receiverをpacket・collector・両finalへ接続し、全field censusからEnd選択。
+APP-json-stream-aggregator: 元Text append frameからcanonical Array receiverへ接続。
+直近固定suite7PASS/4FAIL（実EXE6＋marker1）。今回は共有suite再計測なし。
+JSONはowner26 Body5 statsForでsource-pendingのまま。Map slot結果公開が直接の停止原因。
+CLI44.48s/root43.82s、source読出し検証PASS。7 filtersは親と同じ診断、test9263増加なし。
+次は元Map get/set・Return・寿命から結果公開、SAME Text append packet/collector/両finalとEnd。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: Original Text append frame lends canonical Array field receiver to existing affine local read. Same frame/caller/Me binding/provider census retained; canonical ObjectFieldGet only, no fake Loop or element-read recipe. Final read borrows source membership and rechecks current provider body without recursive append validation. Existing descriptor case adds independent source-to-read/legacy-refusal boundary, no test function/file/hook/checker/card added. CLI44.48s/root43.82s; 7 focused filters match parent failures/diagnostics; inventory9263 identical. Source read proof is not final artifact/append execution proof. JSON remains owner26 Body5 statsFor source-pending, no MIR/EXE; latest suite7/4 actualEXE6+marker1 not rerun. Direct blocker is Map ReceiverFieldSlot result publication; connect original get/set Return/lifetime before Ready. Text packet/collector/both final/complete End and full finite goal remain owed.",
   "2026-10-21: Array checked Invoke/witness/marker retain Scalar or complete Text descriptor; ABI compares exact source-bound payload/coordinates. Shared serializer and C Array emitter retain scalar behavior; Text copy checks Array receiver plus input liveness, rejects native Text/NormalInteger. Existing Integer packets still refuse Text; no Rust source acceptance grant. CLI41.05s/root70s; 19 focused filters match parent failures/diagnostics, inventory9263 unchanged. ABI-only Text append12 Normal/Fault runs and malformed9 refusals PASS. Final suite7PASS/4FAIL (actualEXE6+marker1),392.823s,noSKIP/timeout. JSON remains owner26 Body5 statsFor source-pending, no MIR/EXE. Next SAME Text/field receiver packet, collector, both final consumers and complete End selection; Map physical slot/Return/lifetime and finite goal remain owed. C Array owner consolidated; shared safety checks retained.",
   "2026-10-21: Existing append source loan retains original Completion with Loop Integer proof/index or SAME statement Text frame. Entry-use borrows same lender: original CallArgument0/Arc, ancestry, exact frame, Text evaluation and provider census. Shared unwind borrows source prior Homes; integer emitter/packet/collector/final refuse Text, no fake Loop/I64 or execution grant. Existing test API migrated after initial compile found old getters; no new cases/assertions. CLI52.68s/root89s; 11 focused filters match parent failures/diagnostics (read-claim7/2, initializer7/1, entry64/2, actuals82/4, result49/3, source33/8); emission5/Array-source1/Map-terminal13/flow20/source-witness1 PASS. Inventory9263 identical. JSON still owner26 Body5 statsFor source-pending, no MIR/EXE; prior suite7/4 not rerun. Next typed Text operand/packet/collector/both final consumers and complete element/End census; Map physical slot/Return/lifetime and finite goal remain owed.",
-  "2026-10-21: Original statement Text Array append shares Count provider/writer and retains original Push/argument evaluation in existing Home field consult. Same source/frame reaches named-Array observation, receiver/input-use closure and mandatory lifecycle prefix; read Recipe refuses Append, missing physical packet remains fail-closed. No Home transfer or execution grant. CLI73s/root123s; 9 focused filters match parent failures/diagnostics (initializer7/1, entry64/2, actuals82/4, result49/3, source33/8); Array-source1/Map-terminal13/flow20/source-witness1 PASS. Inventory9263 identical, no new tests/files/hooks/checkers/cards. JSON advances from statsFor Body3 users.push to owner26 ingestLine Body5 statsFor lexical-instance-call/source-pending; no MIR/EXE. Prior suite7/4 actualEXE6+marker1 not rerun. Next original append packet/collector/both final validators plus ancestry/Fault Text End selection; Map physical slot/get/set Return/lifetime and finite goal remain owed.",
 ]

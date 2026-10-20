@@ -68,6 +68,22 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<Rc<super::super::CanonicalArrayFieldReadSourceV1>>, String> {
         if input.owner() != site.owner() { return Err(array_fault("receiver-source-owner")); }
         let Some(caller) = self.array_field_original_caller_v1(input.owner())? else { return Ok(None); };
+        if let Some(flow) = self.completion_source_for_owner_v1(input.owner())
+            .and_then(|completion| completion.cleanup().root_flow()) {
+            use crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1;
+            let mut frames = flow.named_arrays().iter().filter_map(|row| match row {
+                NamedArrayHomeObservationV1::FieldTextAppend(frame) if frame.source().receiver() == site => Some(frame), _ => None,
+            });
+            if let Some(frame) = frames.next() {
+                let loan = self.field_array_text_append_source_v1(frame.source().call())?;
+                if frames.next().is_some() || !loan.matches_text_frame(frame)
+                    || frame.source().caller() != caller || frame.source().field_name() != name {
+                    return Err(array_fault("receiver-source-owner"));
+                }
+                return super::super::CanonicalArrayFieldReadSourceV1::text_append_v1(input, Rc::clone(frame))
+                    .map(|source| Some(Rc::new(source)));
+            }
+        }
         let Some(source) = self.field_write_claims.array_source(caller.owner(), name) else { return Ok(None); };
         super::super::CanonicalArrayFieldReadSourceV1::fixed_receiver_v1(input, caller.clone(), site, name, source)
             .map(|source| source.map(Rc::new))

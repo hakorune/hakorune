@@ -383,6 +383,39 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
         assert!(ledger.validate_field_reads(site.owner(), &altered).is_err(), "Array physical read drift {mutation}");
     }
 
+
+    // Direct Text append borrows the original canonical field, whereas the
+    // Loop Integer origin above keeps its established FieldGet protocol.
+    let package = issue_with_brand_catalog(r#"box Pool { values: ArrayBox = new ArrayBox() birth() {} seed() {
+        me.values.push("text") return 0
+    } } static box Main { main() { local pool = new Pool() return pool.seed() } }"#).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let frame = package.parameter_contracts.iter().find_map(|contract|
+        ledger.completion_source_for_owner_v1(contract.owner)
+            .and_then(|completion| completion.cleanup().root_flow())
+            .and_then(|flow| flow.named_arrays().iter().find_map(|row| match row {
+                crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldTextAppend(frame) => Some(Rc::clone(frame)),
+                _ => None,
+            }))).expect("original Text append source");
+    let site = frame.source().receiver();
+    let contract = package.parameter_contracts.iter().find(|row| row.owner == site.owner()).unwrap();
+    package.batch().with_lowering_input(contract.batch_slot, |input|
+        ledger.stage_source_array_receiver_v1(input, site, frame.source().field_name())).unwrap().unwrap();
+    let (base, source) = ledger.take_local_field_read(site, |_| Ok(ValueId(10))).unwrap().unwrap();
+    let instruction = MirInstruction::ObjectFieldGet { dst: ValueId(11), base, field: source.field() };
+    let legacy = MirInstruction::FieldGet { dst: ValueId(11), base, field: frame.source().field_name().into(),
+        declared_type: Some(crate::mir::MirType::Box("ArrayBox".into())) };
+    assert!(ledger.record_local_field_read_binding(site, BasicBlockId(0), legacy, &source).is_err(),
+        "original direct source cannot switch to the legacy field reader");
+    ledger.record_local_field_read_binding(site, BasicBlockId(0), instruction.clone(), &source).unwrap();
+    let mut function = MirFunction::new(crate::mir::FunctionSignature {
+        name: "text_array_field_source".into(), params: vec![], return_type: crate::mir::MirType::Void,
+        effects: crate::mir::EffectMask::PURE,
+    }, BasicBlockId(0));
+    function.blocks.get_mut(&BasicBlockId(0)).unwrap().add_instruction(instruction);
+    ledger.validate_field_reads(site.owner(), &function).unwrap();
+    ledger.visit_array_field_read_originals_v1(site.owner(), |_, _, _| Ok(())).unwrap();
+
 }
 
 #[test]

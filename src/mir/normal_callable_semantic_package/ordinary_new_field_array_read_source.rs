@@ -465,6 +465,7 @@ pub(crate) struct CanonicalArrayFieldReadSourceV1 {
 #[derive(Debug)]
 enum ArrayFieldReadOriginV1 {
     BorrowedEntry { call: OwnedExprSiteV1 },
+    TextAppend { frame: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1> },
     FixedReceiver {
         caller: CanonicalSameModuleCallableKeyV1,
         source: Rc<field_write_claim::ObjectFieldClassSourceV1>,
@@ -474,6 +475,7 @@ impl PartialEq for ArrayFieldReadOriginV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::BorrowedEntry { call: left }, Self::BorrowedEntry { call: right }) => left == right,
+            (Self::TextAppend { frame: left }, Self::TextAppend { frame: right }) => Rc::ptr_eq(left, right),
             (Self::FixedReceiver { caller: left, source }, Self::FixedReceiver { caller: right, source: other }) =>
                 left == right && Rc::ptr_eq(source, other),
             _ => false,
@@ -482,6 +484,28 @@ impl PartialEq for ArrayFieldReadOriginV1 {
 }
 impl Eq for ArrayFieldReadOriginV1 {}
 impl CanonicalArrayFieldReadSourceV1 {
+    /// The operation lends its original receiver, not permission to read an
+    /// element or execute an append. Keep the same frame through affine reads.
+    pub(in crate::mir::normal_callable_semantic_package) fn text_append_v1(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        frame: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1>,
+    ) -> Result<Self, String> {
+        let source = frame.source();
+        let Some((receiver, binding)) = Self::original_receiver_v1(input, source.receiver(), source.field_name())? else {
+            return Err(freeze("array-read/receiver-source-binding"));
+        };
+        if !source.matches_original_call_v1(input) || receiver.site() != frame.receiver_read()
+            || binding != frame.receiver() || source.append_method().is_none() {
+            return Err(freeze("array-read/receiver-source-binding"));
+        }
+        Ok(Self { site: source.receiver().clone(), receiver, binding, field: source.field(),
+            name: source.field_name().into(), declared_type_name: None,
+            origin: ArrayFieldReadOriginV1::TextAppend { frame } })
+    }
+    pub(in crate::mir) fn text_append_origin_v1(&self)
+        -> Option<&Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedFieldArrayTextAppendV1>> {
+        match &self.origin { ArrayFieldReadOriginV1::TextAppend { frame } => Some(frame), _ => None }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn fixed_receiver_v1(
         input: ResolvedFunctionLoweringInputV1<'_>, caller: CanonicalSameModuleCallableKeyV1,
         site: &OwnedExprSiteV1, name: &str, source: Rc<field_write_claim::ObjectFieldClassSourceV1>,
@@ -529,7 +553,7 @@ impl CanonicalArrayFieldReadSourceV1 {
             origin: ArrayFieldReadOriginV1::BorrowedEntry { call } }
     }
     pub(in crate::mir) fn entry_call_v1(&self) -> Option<&OwnedExprSiteV1> {
-        match &self.origin { ArrayFieldReadOriginV1::BorrowedEntry { call } => Some(call), ArrayFieldReadOriginV1::FixedReceiver { .. } => None }
+        match &self.origin { ArrayFieldReadOriginV1::BorrowedEntry { call } => Some(call), _ => None }
     }
     pub(in crate::mir) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
     pub(in crate::mir) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }

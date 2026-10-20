@@ -14,7 +14,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         if let Some(row) = self.local_field_reads.borrow().get(site) {
             if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(source) = row.source.result() {
-                if source.fixed_origin_v1().is_some() {
+                if source.fixed_origin_v1().is_some() || source.text_append_origin_v1().is_some() {
                     if !source.matches_original_receiver_v1(input, site, name)? { return Err(fault("fixed-array-original-drift")); }
                     self.recheck_declared_array_read_v1(site, row, source)?;
                 }
@@ -50,6 +50,24 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
         original: &Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
     ) -> Result<(), String> {
+        if let Some(frame) = original.text_append_origin_v1() {
+            let source = frame.source();
+            let loan = self.field_array_text_append_source_v1(source.call())?;
+            if !loan.matches_text_frame(frame) || source.receiver() != site
+                || self.array_field_original_caller_v1(site.owner())? != Some(source.caller())
+                || original.site() != site || original.receiver().site() != frame.receiver_read()
+                || original.receiver().owner() != site.owner() || original.binding() != frame.receiver()
+                || original.field() != source.field() || original.name() != source.field_name()
+                || original.declared_type_name().is_some() || self.source_field_requirement_v1(site)?.is_some()
+                || row.receiver_site != *frame.receiver_read() || row.receiver != frame.receiver()
+                || row.home != row.receiver || row.local.is_some() || row.numeric_source.is_some()
+                || row.source.field() != original.field() || row.source.declared_type_name().is_some()
+                || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(held)
+                    if Rc::ptr_eq(held, original)) {
+                return Err(fault("declared-array-source-drift"));
+            }
+            return Ok(());
+        }
         if let Some((caller, source)) = original.fixed_origin_v1() {
             if self.source_field_requirement_v1(site)?.is_some() { return Err(fault("fixed-array-required-expression-source")); }
             let current = self.field_write_claims.array_source(caller.owner(), original.name())

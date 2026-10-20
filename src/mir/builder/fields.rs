@@ -233,6 +233,12 @@ impl super::MirBuilder {
             },
         };
         if let PreparedExactFieldReadClaimV1::Local(source) = &claim {
+            if matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array)
+                if array.text_append_origin_v1().is_some()) {
+                let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
+                ledger.record_local_field_read_binding(site, binding.0, binding.1.clone(), source)?;
+                return Ok((dst, binding));
+            }
             let array_field = match source.result() {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array) =>
                     Some((array.requirement.owner(), array.requirement.field_site(), array.requirement.field_name())),
