@@ -67,7 +67,7 @@ impl EmittedBorrowedFieldWriteV1 {
         finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
         let ledger = context.ledger();
-        self.source.require_current_execution(ledger)?;
+        self.source.require_current_execution(context)?;
         let (receiver, site) = self.source.receiver()?;
         let base = self.receiver.value_for(site.owner(), site.site().node(), receiver).map_err(|issue| issue.to_string())?;
         if let Some(entry) = self.source.frame().entry() {

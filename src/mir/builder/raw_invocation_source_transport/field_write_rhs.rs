@@ -32,7 +32,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             return Err("[freeze:contract][field-write-rhs/source-scope]".into());
         }
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][field-write-rhs/no-ledger]")?;
-        source.require_current_execution(&ledger)?;
+        source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger))?;
         let emission = Rc::new(RefCell::new(FieldWriteRhsEmissionV1 {
             recipe: Rc::clone(recipe), nodes: Vec::new(), binary: BTreeMap::new(),
         }));

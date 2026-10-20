@@ -126,7 +126,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             let source = package.ordinary_new_claim_ledger.field_write_source_at_v1(frame.source().owner(), frame.source().root().statement())
                 .unwrap().expect("source-origin loan before physical activation");
             source.validate_source(&package.ordinary_new_claim_ledger).unwrap();
-            assert_eq!(source.require_current_execution(&package.ordinary_new_claim_ledger).is_ok(), retained.is_allocation_only_i64());
+            assert_eq!(source.require_current_execution(super::CallValidationContextV1::Lowering(&package.ordinary_new_claim_ledger)).is_ok(), retained.is_allocation_only_i64());
             assert!(source.borrowed().is_none());
             let rhs = plan.field_write_rhs().expect("same qualified whole-RHS source");
             assert!(std::rc::Rc::ptr_eq(source.qualified_rhs().unwrap(), rhs));
@@ -221,7 +221,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let original = ledger.field_write_source_at_v1(transfer.frame().source().owner(),
         transfer.frame().source().root().statement()).unwrap().unwrap();
     original.validate_source(ledger).unwrap();
-    assert!(original.require_current_execution(ledger).is_err(), "source transfer grants no physical lease");
+    assert!(original.require_current_execution(super::CallValidationContextV1::Lowering(ledger)).is_err(), "source transfer grants no physical lease");
     for replacement in ["local alias = items holder.items = alias", "items.push(1) holder.items = items",
         "holder.items = items holder.items = items", "holder.count = items",
         "holder.items = items holder.items.push(1)",

@@ -8,7 +8,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     ledger: &OrdinaryNewClaimLedgerV1, source: FieldWriteSourceLoanV1,
     field_name: &str, reads: [FieldWriteValueV1; 2],
 ) -> Result<(), String> {
-    source.require_current_execution(ledger)?;
+    source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))?;
     let owner = source.frame().source().owner();
     if state.owner() != owner { return Err(freeze("borrowed-field-write/source-site")); }
     let [FieldWriteValueV1::Lexical(receiver), value] = reads else { return Err(freeze("field-write/receiver-proof")) };

@@ -59,13 +59,19 @@ impl FieldWriteSourceLoanV1 {
     pub(crate) fn qualified_rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> {
         match &self.origin { FieldWriteSourceOriginV1::Qualified { rhs, .. } => Some(rhs), _ => None }
     }
+    fn original_source_error(&self, premise: &str) -> String {
+        format!("{} premise={premise} owner={:?} statement={:?} field={:?}",
+            freeze("owned-field-write/original-source"), self.frame().source().owner(),
+            self.frame().source().root().statement(), self.field().ok())
+    }
     /// The existing physical writer is still restricted to its exact I64 lease.
     /// A retained source assignment alone cannot authorize operand evaluation.
-    pub(crate) fn require_current_execution(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+    pub(crate) fn require_current_execution(&self, context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>) -> Result<(), String> {
+        let ledger = context.ledger();
         self.validate_source(ledger)?;
         if self.borrowed().is_some() { return Ok(()); }
-        self.require_signed_rhs_v1(ledger)?;
-        let fail = || freeze("owned-field-write/original-source");
+        self.require_signed_rhs_v1(context)?;
+        let fail = || self.original_source_error("execution-storage");
         if let Some(entry) = self.frame().entry() {
             // Dynamic source identity is retained, but its tagged slot and End
             // execution must be connected before any operand can be consumed.
@@ -84,10 +90,11 @@ impl FieldWriteSourceLoanV1 {
     }
     /// Discharge an Integer view from SAME source facts, never Class::I64 or
     /// the eventual MIR carrier. Wide unsigned/exact lanes remain obligations.
-    fn require_signed_rhs_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+    fn require_signed_rhs_v1(&self, context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>) -> Result<(), String> {
+        let ledger = context.ledger();
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         use crate::mir::resolved_semantics::ResolvedLiteralSourceV1 as Literal;
-        let fail = || freeze("owned-field-write/original-source");
+        let fail = || self.original_source_error("signed-rhs");
         let rhs = self.qualified_rhs().ok_or_else(fail)?;
         for (index, node) in rhs.source().nodes().iter().enumerate() {
             if rhs.node_class(index) == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity) { continue; }
@@ -106,7 +113,14 @@ impl FieldWriteSourceLoanV1 {
                     let required = ledger.source_field_requirement_v1(&site)?.ok_or_else(fail)?;
                     let reads = ledger.local_field_reads.borrow();
                     let read = reads.get(&site).ok_or_else(fail)?;
-                    if !Rc::ptr_eq(required.plan(), rhs.source()) || read.source.declared_type_name() != Some("i64") { return Err(fail()); }
+                    if !Rc::ptr_eq(required.plan(), rhs.source()) || !match read.source.declared_type_name() {
+                        Some("i64") => true,
+                        None => read.numeric_source.is_some(),
+                        _ => false,
+                    } { return Err(fail()); }
+                    // Reuse the same all-writer/read proof; an absent annotation
+                    // remains absent and grants no Dynamic execution lease.
+                    ledger.recheck_local_field_source_v1(&site, read, context)?;
                 },
                 _ => return Err(fail()),
             }
@@ -117,7 +131,7 @@ impl FieldWriteSourceLoanV1 {
         let FieldWriteSourceOriginV1::Qualified { frame, completion, rhs } = &self.origin else {
             return self.borrowed().expect("closed formal origin").validate_source(ledger);
         };
-        let fail = || freeze("owned-field-write/original-source");
+        let fail = || self.original_source_error("source-identity");
         if ledger.completion_source_for_owner_v1(frame.source().owner())
             .is_none_or(|current| !Rc::ptr_eq(current, completion)) { return Err(fail()); }
         if let Some(entry) = frame.entry() {

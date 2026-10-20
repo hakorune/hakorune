@@ -6,28 +6,31 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
+- Last fixed suite at `6189d252de`: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
   runner499.338s. mimalloc156.737s, allocator179.746s, typed38–43s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current quick opt0 CLI built in89s; matching final source verification built48s,
-  ran2.62s/PASS. Final fixture-only retirement rebuild29.94s yields identical CLI.
-  Runtime/private C FFI unchanged; no overlapping Cargo.
+- Current source-normalization CLI34.13s; focused build58.52s/run0.53s.
+  Unchanged quick runtime/private C FFI, no overlapping Cargo. No fixed-suite rerun
+  for this source-proof normalization; Dynamic physical permission remains closed.
 - Matching JSON smoke advances beyond borrowed-static Text-expression pending,
   now stops in MIR at `owned-field-write/original-source`, before EXE/link/runtime.
-  Shared writer requires declared-i64 RHS reads and target; unannotated slots
-  retain ClosedNumeric source proof but need real Dynamic read/replace/End execution.
-  UserStats.add and ingestLine contain affected writes; exact first site is not
-  exposed by this diagnostic. Body8 bytes, StringHelpers.to_i64 Loop, Map/report
-  and remaining full-app composition stay owed.
+  Exact stop: UserStats.add, app line87 `me.ok_count = me.ok_count + 1`, owner22,
+  Body1/IfThen0, canonical object0/field2. Premise is now `execution-storage`:
+  SAME signed RHS/read proof passes; Dynamic read/replace/End execution is still owed.
+  Body8 bytes, StringHelpers.to_i64 Loop, Map/report and full-app composition remain.
 - Other product reds: untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. These are incomplete, not waived baselines.
 
 ## Connected source and next execution
 
-- Self field writes retain original entry receiver, declaration, whole RHS/source
-  census and prior Homes through both final scans. Unannotated slots need existing
-  all-writer ClosedNumeric proof and retain absent annotations. Dynamic stays closed.
+- FieldWrite RHS now reuses the existing ClosedNumeric/read recheck and exact plan;
+  no second proof/index is issued. Signed-only closure preserves absent annotations.
+  Original Lowering/Finalized context is retained through every caller and final scan.
+  Dynamic target permission stays closed until transaction/End and both consumers join.
+- Existing RHS2/field7/write4/entry1/receiver2/brand1/source-mutation2PASS. No new test
+  case/fn/file/hook/checker/token. Canonical typed Self update EXE prints1/Result0/exit0.
+  Read-claim7/2FAIL and composition9/2FAIL reproduce on prior frozen binary.
 - Signed values borrow the SAME uncaptured point SUM and physical producer.
   Finite-input aliases retain SUM/read/Copy and producer forwarding; `end = start`
   closes source-use. Pure scalar aliases remain generic. Prior entry21/Static args2PASS.
@@ -60,9 +63,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   argument-port13PASS. Initializer79/2FAIL and terminal6/2FAIL remain unchanged;
   callback0/1FAIL reproduces identically on prior frozen binary. Plan5/1FAIL and
   admission2/2FAIL previously reproduced on clean HEAD; all remain owed, not waived.
-- Next: retain original ClosedNumeric/all-writer proof through checked Dynamic
-  FieldGet/Set, storage-aware execution and both final consumers. Do not infer an
-  annotation or remove the current gate without tagged layout/End/Fault closure.
+- Next: checked Self read copies use the same ExactLexicalRead, not a received Call.
+  Join Dynamic FieldGet/Set prepare/commit/old-End with both final consumers;
+  retain precommit Fault/no mutation and postcommit Fault/no rollback. No gate-only activation.
 - Existing Loop Call/If and Function Return retain original reads, producers,
   Phi keys and root cleanup through both consumers. Plain scalar If requires
   whole leaf/read census, so it cannot steal Static Call/field ownership.

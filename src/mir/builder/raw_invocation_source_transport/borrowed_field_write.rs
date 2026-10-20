@@ -9,7 +9,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None) };
         let node = self.current_source_site_v1().ok_or("[freeze:contract][borrowed-field-write/statement-site]")?;
         let Some(source) = ledger.field_write_source_at_v1(owner, &SourceStmtSiteV1::from_node(node))? else { return Ok(None) };
-        source.require_current_execution(ledger)?;
+        source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))?;
         Ok(Some(source))
     }
     pub(super) fn read_borrowed_field_write_source_v1(&mut self, builder: &mut MirBuilder, source: &Source, receiver: bool, input: ASTNode,

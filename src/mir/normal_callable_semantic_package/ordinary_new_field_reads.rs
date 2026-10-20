@@ -416,7 +416,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(field)
     }
 
-    fn recheck_local_field_source_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_local_field_source_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
         self.recheck_local_field_source_using_v1(site, row, context,
             || self.recheck_result_path_field_v1(site, row, context))
     }

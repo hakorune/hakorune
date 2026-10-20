@@ -809,9 +809,14 @@ against prior state, commits, then records branch-local Normal readiness. Store
 overwrite changes the latest per-field frame but keeps every occurrence in the
 shared expression inventory. Join requires exact same frames; consume/rebind
 invalidates readiness with the Home. A read of an unwritten allocation-only field
-stays unavailable. The lifecycle collector inspects ALL assignment frames and
-explicitly refuses LOCAL until its physical/final-consumer connection exists;
-it cannot omit the occurrence or retry through formal handling.
+stays unavailable. The lifecycle collector inspects ALL assignment frames;
+physical activation requires their original operand, store and cleanup evidence.
+Qualified RHS field reads reuse the existing all-writer numeric/read loan with
+the caller's actual Lowering/Finalized context. An absent annotation stays absent;
+the signed value proof neither selects I64 storage nor grants Dynamic execution.
+The source diagnostic identifies the failed premise, owner, statement and field.
+Dynamic replacement still requires checked read/commit, detached-old End and both
+final consumers before activation; no occurrence is omitted or retried.
 
 [Constructor issuance](instance_constructor_semantic.rs) retains a non-Clone
 parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals

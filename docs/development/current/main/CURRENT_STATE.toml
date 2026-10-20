@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/owned-field-write/original-source: unannotated field read/write needs checked Dynamic Integer view/replace and End; exact first site not exposed"
+current_blocker_token = "ordinary-new/owned-field-write/original-source: execution-storage at UserStats.add line87 owner22 Body1/IfThen0 object0 field2; signed RHS source proof now passes"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Text式停止を越え、MIRのowned-field-write/original-sourceへ進んだ。
-同じ完成Text契約を一回のcallee先行walk・入力finish・affine publication・最終packetへ接続。
-前方参照/未知formalのsource・negative検証と正規EXE(a/Result0/exit0)PASS。CLI89s、最終source build48s。
-今回suite7PASS/4FAIL（実EXE6＋marker1）、499.338秒、SKIP/timeoutなし。既存の赤は未解決。
-次は未注釈fieldの同じClosedNumeric証拠とchecked Dynamic read/replace/End。残る赤とfinite goalはcard参照。
+APP-json-stream-aggregator: UserStats.addの87行目、owner22/Body1/IfThen0/field2でexecution-storage拒否。
+RHSを同じ全writer numeric/read証拠の共通再検証へ接続。署名NoneとLowering/Finalized contextを保持。
+既存focusedと型付きSelf更新の正規EXE(1/Result0/exit0)PASS。CLI34.13s、test build58.52s。
+直近suite7PASS/4FAIL（実EXE6＋marker1）、499.338秒。今回のsource正規化では再計測せず、既存赤は保持。
+次はDynamic read/replaceのpre/postcommit・旧値End・両final consumer。物理許可とfinite goalは未完。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: FieldWrite RHS reuses the same original ClosedNumeric/read proof and plan through shared recheck; all-writer signed I64 closure is reused without another proof/map. Actual Lowering/Finalized context is preserved at every caller. Existing token now identifies premise/owner/statement/field. JSON exact stop is UserStats.add line87, owner22 Body1/IfThen0 object0 field2: signed source passes, execution-storage remains refused. RHS2/field7/write4/entry1/receiver2/brand1/source-mutation2PASS, canonical typed Self-update EXE1/Result0/exit0PASS. Read-claim7/2 and composition9/2 reproduce prior frozen binary; prior reds remain owed. CLI34.13s, focused build58.52s/run0.53s, unchanged runtime/private C FFI. Last fixed suite7PASS/4FAIL, actualEXE6+marker1, 499.338s; not rerun for source-proof normalization. Dynamic transactional read/replace, detached End and both final consumers remain closed; full finite goal incomplete.",
   "2026-10-20: Original Static input dependencies order Text callees before callers once. Unknown result borrows the same completed Text contract through input finish, same-package affine publication and mandatory final packet; original catalog stays unknown and whole source/uses/domains/actuals stay exact. Replaced source-only production issuer is test-only. Existing forward/unknown-formal source and negative mutations PASS, canonical EXE a/Result0/exit0. Result96/input6/Core11/packet3/dispatch2/received4/Invoke60/final4/port13PASS; initializer79/2 and terminal6/2 unchanged, callback0/1 reproduces prior frozen binary. Suite7PASS/4FAIL, actualEXE6+marker1, noSKIP/timeout, 499.338s. CLI89s, fixture-only rebuild29.94s byte-identical; source build48s/run2.62s. JSON advances to owned-field-write/original-source. Dynamic read/replace/End, prior reds and full finite goal remain owed.",
   "2026-10-20: Fresh Text Return reuses original ReturnValue, shared expression evaluation and existing cleanup/publication. Literal Materialize/Core acquisition joins install, child cleanup, hold, Home cleanup and Fault cancellation through both final consumers. Original consumer demand keeps unused generated/self-only helpers passive; passive Core consultation preserves ordinary Call input ownership. Optimized source/negative mutations and canonical EXE probes abc/a/exit0 PASS. Source96/Invoke42/Core11/input6/Print4/initializer projection1/finished4PASS. Initializer79/2priorFAIL, terminal6/2priorFAIL remain; plan5/1FAIL and admission2/2FAIL reproduce on clean HEAD. Suite7PASS/4FAIL, actualEXE6+marker1, noSKIP/timeout, 523.661s; final SUM contract-presence bound focused-verified separately. No new test fn/file/hook/checker/guard/token. Callee completion ordering, Dynamic/End and finite goal remain incomplete.",
-  "2026-10-20: Zero-argument ExactString source reuses existing Zero evidence, empty actuals, full original Text census, selected target/signature and same Completion/all Text-residence exits. Zero OwnedString callees join mandatory final Text validation. Original I64 census/refusals and passive unselected Text are preserved; read-only review and focused checks caught/corrected selection and duplicate-source regressions. Existing optimized source tuple and canonical --emit-exe/execute PASS (ab, Result: 0, exit0); Zero1/input-source6/Static packet3/expression-input1PASS, initializer79PASS/2samepriorFAIL. No new test fn/file/hook/checker/guard/token. CLI43.69s, unchanged runtime/private C FFI, JSON smoke still same MIR stop. Last fixed suite remains Text Call landing7PASS/4FAIL (actualEXE6+marker1), no rerun for this input-family change. Direct Text Return, unknown callee completion ordering, Dynamic/End and finite-goal conditions remain incomplete.",
 ]
