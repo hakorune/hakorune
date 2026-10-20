@@ -46,7 +46,8 @@ fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
     match operation {
         InvokeOperation::String(operation) => operation.operands(),
         InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(value), .. } => vec![value],
-        InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }) => vec![key],
+        InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }
+            | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { key, .. }) => vec![key],
         _ => Vec::new(),
     }
 }
@@ -99,7 +100,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
         matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
                 if matches!(operation, InvokeOperation::String(_)
-                    | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. })
+                    | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }
+                        | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. })
                     | InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. })
                     || operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))
     };

@@ -72,6 +72,9 @@ pub(super) fn encode_invoke(
                 Map::FieldHas { field, base, key } => json!({"kind":"map_field_has",
                     "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
                     "base":value(base), "key":encode_string_operand_v1(key)}),
+                Map::FieldGetIndexed { field, base, key, object } => json!({"kind":"map_field_get_indexed",
+                    "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
+                    "base":value(base), "key":encode_string_operand_v1(key), "payload_object_id":object.declaration_index()}),
                 Map::PrepareKey { utf8 } => json!({"kind": "map_prepare_key", "utf8": utf8}),
                 Map::InstallIndexed {
                     map,

@@ -1,7 +1,7 @@
 /* Query purpose belongs to the same interval proof, not a source classifier. */
 typedef enum {
   LV4_FIELD_UNCHANGED, LV4_FIELD_SUPPORT_END,
-  LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN
+  LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN, LV4_FIELD_MAP_SLOT
 } hako_lv4_field_interval_kind;
 
 /* One reverse interval owner. Reads require an unchanged residence; wrapper
@@ -10,8 +10,9 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     uint32_t use, uint32_t born, const hako_lv4_value* base,
     uint32_t object, uint32_t field, uint32_t child, hako_lv4_field_interval_kind query,
     unsigned char* seen, size_t* queue) {
-  int released = query != LV4_FIELD_UNCHANGED;
-  int full = query >= LV4_FIELD_ARRAY_DRAIN;
+  int slot = query == LV4_FIELD_MAP_SLOT;
+  int released = query != LV4_FIELD_UNCHANGED && !slot;
+  int full = query >= LV4_FIELD_ARRAY_DRAIN && !slot;
   hako_lv4_block* current = lv4_index_block(fn, use);
   if (!current || !hako_physical_block_dominates(fn->function, born, use)) return 0;
   size_t head = 0, tail = 1;
@@ -26,11 +27,15 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
      * visit that same block's full terminator, just as the read suffix does. */
     if (!prefix) {
       yyjson_val* op = yyjson_obj_get(lv4_term(current->block), "operation");
+      if (slot && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call") ||
+          lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
+          lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
+          lv4_is(op, "kind", "map_install_borrowed_array") || lv4_is(op, "kind", "map_end"))) return 0;
       if (full && !discharged && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")))
         return 0; /* No callee nonmutation proof is lent to this cleanup suffix. */
       int drain = lv4_is(op, "kind", "object_field_release") || lv4_is(op, "kind", "field_residence_release");
       int write = lv4_is(op, "kind", "object_field_set") || lv4_is(op, "kind", "field_set");
-      if (full && (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live") ||
+      if ((full || slot) && (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live") ||
           lv4_is(op, "kind", "reclaim_unpublished"))) {
         int same = lv4_field_borrow_same_path(fn, lv4_value_alias_root(fn,
             lv4_index_value(fn, lv4_u(op, "value"))), base);
@@ -63,7 +68,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     yyjson_val* row;
     while ((row = yyjson_arr_iter_next(&rows))) {
       yyjson_val* ins = yyjson_obj_get(row, "instruction");
-      if (released && (!full || !discharged) && lv4_is(ins, "op", "field_set") && lv4_u(ins, "object_id") == object &&
+      if ((slot || (released && (!full || !discharged))) && lv4_is(ins, "op", "field_set") && lv4_u(ins, "object_id") == object &&
           lv4_u(ins, "field_ordinal") == field &&
           lv4_field_borrow_same_path(fn, lv4_value_alias_root(fn,
               lv4_index_value(fn, lv4_u(ins, "base"))), base) != 0) return 0;

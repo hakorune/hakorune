@@ -390,8 +390,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         } else if ((kind == LV4_I64 || kind == LV4_BOOL) &&
             hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == (kind == LV4_BOOL ? 3 : 2))
           fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
-        else if (kind == LV4_ARRAY_BORROW)
-          fprintf(f, "  %%v%u = load i64, ptr %%owned_get%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if (kind == LV4_SLOT_BORROW)
+          fprintf(f, "  %%v%u = load i64, ptr %%%s%u, align 8\n", dst,
+              lv4_is(producer_op, "kind", "map_field_get_indexed") ? "get_out" : "owned_get", lv4_u(ins, "invoke_block"));
         else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else if ((kind == LV4_BOOL && lv4_is(producer_op, "kind", "map_field_has")) ||
             (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||

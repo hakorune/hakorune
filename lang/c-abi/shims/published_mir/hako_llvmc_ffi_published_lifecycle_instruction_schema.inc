@@ -16,13 +16,13 @@ static int hako_physical_array_text_append(yyjson_val* op) {
 }
 static size_t hako_physical_string_operand_count(yyjson_val* op) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
-  if (hako_physical_array_text_append(op) || (kind && !strcmp(kind, "map_field_has"))) return 1;
+  if (hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op)) return 1;
   if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end")) return 0;
   return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") || !strcmp(kind, "string_index_of") ? 2 : 1;
 }
 static yyjson_val* hako_physical_string_operand_at(yyjson_val* op, size_t ordinal) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
-  if (kind && !strcmp(kind, "map_field_has")) return ordinal ? NULL : yyjson_obj_get(op, "key");
+  if (hako_physical_map_field_text_read(op)) return ordinal ? NULL : yyjson_obj_get(op, "key");
   const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : (ordinal ? "needle" : "value");
   return yyjson_obj_get(op, field);
 }
@@ -63,7 +63,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
       !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_length") || !strcmp(kind, "map_field_has") ||
-      !strcmp(kind, "map_array_index_map") ||
+      !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_array_index_map") ||
       !strcmp(kind, "map_get_text") || !strcmp(kind, "array_owned_get") ||
       (!strcmp(kind, "ordinary_call") && !hako_physical_string(yyjson_obj_get(op, "result"), "unit"));
 }

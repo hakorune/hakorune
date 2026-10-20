@@ -194,12 +194,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     failed = 1;
     if (lv4_string_pending(state, count) && !lv4_is(op, "kind", "string_end")) return 0;
     if ((lv4_string_held(state, count) || lv4_string_call_pending(state, count)) && (lv4_is(op, "kind", "ordinary_call") ||
-        hako_physical_array_text_append(op) || lv4_is(op, "kind", "map_field_has") || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
+        hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op) || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
     } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
       if (birth || faulted || state[bi]) return 0;
-      if (lv4_is(op, "kind", "map_field_has") && (in->profile != LV4_INDEXED_SAFE_MUTEX ||
+      if (hako_physical_map_field_text_read(op) && (in->profile != LV4_INDEXED_SAFE_MUTEX ||
           !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0 ||
           !lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"),
               lv4_u(op, "object_id"), 1))) return 0;
@@ -212,7 +212,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       }
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
-      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2 || lv4_is(op, "kind", "map_field_has")) normal[bi] = LV4_LIVE;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2 || hako_physical_map_field_text_read(op)) normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "string_end")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       if (birth || !value || value->kind != LV4_OWNED_STRING ||
@@ -284,7 +284,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                  borrowed: the Void sentinel or a live lease — never a
                  spent origin, never a forwarded tagged carrier. The ABI
                  owner selects tag 0/3 at runtime. */
-              int array_borrow = value && value->kind == LV4_ARRAY_BORROW;
+              int array_borrow = value && value->kind == LV4_SLOT_BORROW;
               if (value && value->kind == LV4_BORROWED_OBJECT) {
                 if (!lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
                 hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);

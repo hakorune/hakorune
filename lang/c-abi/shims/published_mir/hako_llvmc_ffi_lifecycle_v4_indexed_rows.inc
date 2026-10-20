@@ -65,13 +65,13 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "copy")) {
       hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
       if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
-          source->kind != LV4_HANDLE && source->kind != LV4_TAGGED && source->kind != LV4_ARRAY_BORROW &&
+          source->kind != LV4_HANDLE && source->kind != LV4_TAGGED && source->kind != LV4_SLOT_BORROW &&
           source->kind != LV4_BORROWED_OBJECT && source->kind != LV4_MIXED_OBJECT)) return 0;
       if (source->kind == LV4_MIXED_OBJECT &&
           (faulted || !lv4_mixed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_BORROWED_OBJECT &&
           (faulted || !lv4_borrowed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
-      if (source->kind == LV4_ARRAY_BORROW && (faulted || !lv4_owned_array_borrow_live(fn, source, state))) return 0;
+      if (source->kind == LV4_SLOT_BORROW && (faulted || !lv4_slot_borrow_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_HANDLE &&
           !lv4_handle_alias_readable(in, fn, source, state, lv4_u(block, "id"))) return 0;
     } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
@@ -200,6 +200,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !lv4_mixed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
       if (value->kind == LV4_BORROWED_OBJECT &&
           !lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
+      if (value->kind == LV4_SLOT_BORROW &&
+          !lv4_slot_borrow_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||
           lv4_is(op, "kind", "map_install_value") || lv4_is(op, "kind", "map_install_text") ||
@@ -209,7 +211,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (value->kind == LV4_OUTCOME && (!lv4_is(op, "kind", "map_end_outcome") ||
           lv4_u(op, "outcome") != value->id)) return 0;
       /* Ordinary calls produce a scalar result, not a live storage lease. */
-      if (value->kind == LV4_I64 || value->kind == LV4_BOOL || value->kind == LV4_ARRAY_BORROW) state[value->origin] = 0;
+      if (value->kind == LV4_I64 || value->kind == LV4_BOOL || value->kind == LV4_SLOT_BORROW) state[value->origin] = 0;
     } else return 0;
   }
   return 1;

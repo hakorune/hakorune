@@ -10,8 +10,8 @@ pub enum InvokeNormalResultKind {
     /// sentinel; the caller owes a checked release, never an unconditional
     /// one.
     NullableHandle,
-    /// Borrowed object-or-null from an owned Array slot. The original holder
-    /// and descriptor determine liveness; this projection owns no lease.
+    /// Borrowed object-or-null from an Array or Map slot. The original holder
+    /// and slot support determine liveness; this projection owns no lease.
     BorrowedNullableHandle,
     /// Payload and original Null/Fresh/Forward outcome form one projection.
     MixedHandle,
@@ -48,6 +48,14 @@ pub enum MapInvokeOperation {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,
         key: super::StringInvokeOperand,
+    },
+    /// Nullable object identity borrowed from this exact field/key slot.
+    /// No Map storage or owned payload lease is published.
+    FieldGetIndexed {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        key: super::StringInvokeOperand,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
     },
     PrepareKey {
         utf8: String,
@@ -125,6 +133,7 @@ impl MapInvokeOperation {
         match self {
             Self::New => Some(InvokeNormalResultKind::Map),
             Self::FieldHas { .. } => Some(InvokeNormalResultKind::Bool),
+            Self::FieldGetIndexed { .. } => Some(InvokeNormalResultKind::BorrowedNullableHandle),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
             Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
@@ -142,7 +151,7 @@ impl MapInvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::New | Self::PrepareKey { .. } => EffectMask::CONTROL.add(Effect::Alloc),
-            Self::FieldHas { .. } => EffectMask::READ.add(Effect::Control),
+            Self::FieldHas { .. } | Self::FieldGetIndexed { .. } => EffectMask::READ.add(Effect::Control),
             Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
@@ -165,7 +174,7 @@ impl MapInvokeOperation {
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
             Self::New | Self::PrepareKey { .. } => vec![],
-            Self::FieldHas { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
+            Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
             Self::InstallIndexed {
                 map, key, value, ..
             }
@@ -188,7 +197,7 @@ impl MapInvokeOperation {
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::New | Self::PrepareKey { .. } => {}
-            Self::FieldHas { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
+            Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
             Self::InstallIndexed {
                 map, key, value, ..
             }

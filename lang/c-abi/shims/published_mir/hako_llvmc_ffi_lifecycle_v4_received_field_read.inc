@@ -26,6 +26,9 @@ static int lv4_received_field_readable(const hako_lv4_input* in,
         lv4_owned_value_object(in, fn, base, 1) && base->object_id_set && base->object_id == object &&
         lv4_readable_object(in, fn, base->id, state, use, object, 1);
   }
+  if (base->kind == LV4_SLOT_BORROW)
+    return base->object_id_set && base->object_id == object &&
+        lv4_slot_borrow_readable(in, fn, base, state, use);
   if (base->kind == LV4_MIXED_OBJECT)
     return lv4_mixed_owned_class(in, fn, base, object) &&
         lv4_mixed_result_readable_depth(in, fn, base, state, use, fn->value_count + 1, object, 1);

@@ -96,6 +96,16 @@ Neither outcome consumes the parent lease. A raw I64 payload is never Array prov
 internal Array reads remain refused here until their commit-marker consumer
 is connected. Native Script Array keeps its separate existing claim consumer.
 
+Field Map has/get share the Text operand table and descriptor writer. Indexed
+get retains separate field-object and payload-object identities and calls the
+existing `nyash.object.checked_map_field_get_v1`; no Map pointer escapes.
+Array and Map get use one non-owning slot projection in the existing value
+index. Map Copy/checked scalar reads recheck the original unique Normal, parent
+liveness and unchanged field/slot interval. Replacement, drain, Map mutation
+and unproved Calls in that interval refuse. No key lease is re-decoded after
+get. Raw nullable field access, Map-slot Call/Return and owning End remain
+unadmitted until their original source support consumers close.
+
 Borrowed Text uses the existing kind/payload pair with the closed physical
 formal declaration `text_view: true`, `object_view: null`, and
 `representation: "borrowed_kind_payload_v1"`. It is currently restricted to

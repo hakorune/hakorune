@@ -48,7 +48,7 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
         fprintf(f, "  %%strarg%u_%zu = alloca %%nyrt.string.operand, align 8\n", b, i);
     return;
   }
-  if (lv4_is(op, "kind", "map_field_has") || hako_physical_array_text_append(op)) {
+  if (hako_physical_map_field_text_read(op) || hako_physical_array_text_append(op)) {
     fprintf(f, "  %%strarg%u_0 = alloca %%nyrt.string.operand, align 8\n", b);
     return;
   }

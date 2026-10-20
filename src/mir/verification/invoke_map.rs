@@ -109,7 +109,7 @@ pub(super) fn check(
             {
                 let valid = match operation {
                     Map::New | Map::PrepareKey { .. } => true,
-                    Map::FieldHas { key, base, .. } => key.is_text() && !results.contains_key(base),
+                    Map::FieldHas { key, base, .. } | Map::FieldGetIndexed { key, base, .. } => key.is_text() && !results.contains_key(base),
                     Map::InstallIndexed {
                         map, key, value, ..
                     }
