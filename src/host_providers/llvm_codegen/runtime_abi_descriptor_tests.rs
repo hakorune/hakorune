@@ -60,7 +60,7 @@ fn reads_descriptor_from_actual_runtime_archive() {
         .expect("target-compiled runtime archive descriptor");
     assert!(!descriptor.target_triple.is_empty());
     assert_eq!(field.expect("target-compiled object field extension").revision, 1);
-    require_checked_map_symbols(archive).unwrap();
+    require_checked_map_symbols(archive, true).unwrap();
 }
 
 #[test]

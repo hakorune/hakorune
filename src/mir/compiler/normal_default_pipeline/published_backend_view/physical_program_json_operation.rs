@@ -250,9 +250,12 @@ pub(super) fn encode_invoke(
                 "field_ordinal": field.declaration_ordinal(), "base": value(base), "value": value(stored),
                 "exact_numeric_runtime_check": numeric::range_check(abi_input, caller_function_index, call_context),
             }), required_site(diagnostic_site, abi_input.is_some())?)?;
-            if *mode == crate::mir::instruction::FieldSetModeV1::DynamicI64Replace {
-                // Never erase the postcommit Fault law into an exact slot store.
-                encoded["transaction"] = "dynamic_i64_replace".into();
+            use crate::mir::instruction::FieldSetModeV1 as Mode;
+            match mode {
+                Mode::ExactSlot => {},
+                Mode::DynamicI64Replace => encoded["transaction"] = "dynamic_i64_replace".into(),
+                Mode::DynamicI64Initialize => encoded["transaction"] = "dynamic_i64_initialize".into(),
+                Mode::DynamicMapInitialize => encoded["transaction"] = "dynamic_map_initialize".into(),
             }
             encoded
         },

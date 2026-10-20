@@ -14,6 +14,10 @@ pub enum FieldSetModeV1 {
     /// commit detaches the old residence, then End consumes it. An End Fault
     /// does not roll back the new slot. Both Faults unwind the same caller Homes.
     DynamicI64Replace,
+    /// Birth first-write: runtime checks Empty before committing the scalar.
+    DynamicI64Initialize,
+    /// Birth first-write: Empty validation precedes a move into stable Map storage.
+    DynamicMapInitialize,
 }
 
 /// Source-selected field End law; neither mode creates an owning child Home.
@@ -263,6 +267,8 @@ impl InvokeOperation {
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldGet { .. } => EffectMask::READ.add(Effect::Control),
+            Self::FieldSet { mode: FieldSetModeV1::DynamicMapInitialize, .. } =>
+                EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
             Self::FieldSet { .. }
             | Self::ObjectFieldSet { .. }
             | Self::ArrayStateContractClaim { .. }

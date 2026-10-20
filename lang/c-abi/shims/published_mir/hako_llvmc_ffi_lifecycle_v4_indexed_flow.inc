@@ -445,7 +445,23 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
-      if (lv4_is(op, "transaction", "dynamic_i64_replace")) {
+      if (lv4_is(op, "transaction", "dynamic_i64_initialize") ||
+          lv4_is(op, "transaction", "dynamic_map_initialize")) {
+        int map = lv4_is(op, "transaction", "dynamic_map_initialize");
+        if (!birth || faulted || !value || !lv4_birth_dynamic(in, op) ||
+            !lv4_is(range, "kind", "none") || !lv4_birth_commit(in, fn, op, normal, bi, 0)) return 0;
+        if (map) {
+          if (in->profile != LV4_INDEXED_SAFE_MUTEX || value->kind != LV4_MAP || value->origin < 0 ||
+              !lv4_indexed_live(fn, value->id, LV4_MAP, state, 0, 0)) return 0;
+          yyjson_val* producer = lv4_term(fn->blocks[value->origin].block);
+          /* This source provider is bare new MapBox(), immediately stored.
+           * No borrowed entries or unproved contents escape into a field. */
+          if (!lv4_is(yyjson_obj_get(producer, "operation"), "kind", "map_new") ||
+              lv4_u(producer, "normal") != lv4_u(block, "id") ||
+              hako_physical_predecessor_count(fn->function, lv4_u(block, "id")) != 1) return 0;
+          normal[value->origin] = 0; /* Fault still owns the in-flight candidate. */
+        } else if (value->kind != LV4_I64) return 0;
+      } else if (lv4_is(op, "transaction", "dynamic_i64_replace")) {
         /* This source family carries signed I64 only, never tagged payloads or Homes. */
         if (birth || faulted || !value || value->kind != LV4_I64 ||
             !lv4_is(range, "kind", "none") || !base ||
@@ -496,7 +512,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if ((fi && !ordinary && !birth) || lv4_slot(in, op) < 0 || !base ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
-      if (lv4_is(op, "transaction", "take_dynamic") && (birth || base->origin < 0)) return 0;
+      if (lv4_is(op, "transaction", "take_dynamic") && base->origin < 0 && !birth) return 0;
       if (base->origin < 0 && (!birth ||
           !lv4_birth_discharge(in, fn, op, state, normal, faulted, 0))) return 0;
     } else if (lv4_is(op, "kind", "object_field_set")) {
@@ -640,7 +656,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* value = lv4_index_value(fn, id);
       /* Borrowed storage (-2) is never ended: only an owned live lease or
          outcome may reach this lane and index the state arrays. */
-      if ((fi && !ordinary) || !value || value->origin < 0 ||
+      if ((fi && !ordinary && !birth) || !value || value->origin < 0 ||
           !lv4_indexed_live(fn, id, map_end ? LV4_MAP : LV4_OUTCOME, state, 0, 0)) return 0;
       normal[value->origin] = state[value->origin] = 0;
       if (map_end) for (size_t i = 0; i < count; i++)

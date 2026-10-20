@@ -134,7 +134,11 @@ int main(void) {
   const NyrtDynamicFieldValueV1 scalars[]={scalar,{NYRT_FIELD_BOOL_V1,0,1,0},{NYRT_FIELD_NULL_V1,0,0,0}};
   for (size_t i=0;i<3;i++) {
     assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
-    assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,120,field_parent,940,0,&scalars[i],NULL,field_outcome)==0);
+    if (i==0) {
+      assert(nyrt_object_checked_dynamic_initialize_v1(frame,field_profile,120,field_parent,940,0,&scalars[i],NULL,field_outcome)==0);
+    } else {
+      assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,120,field_parent,940,0,&scalars[i],NULL,field_outcome)==0);
+    }
     assert(nyrt_object_field_outcome_dispose_v1(field_outcome)==2);
     assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,121,field_parent,940,0,scalars[i].kind,&seen)==0);
     assert(!memcmp(&seen,&scalars[i],sizeof(seen)));
@@ -149,6 +153,7 @@ int main(void) {
   const NyrtDynamicFieldValueV1 rejected[]={invalid,{NYRT_FIELD_EMPTY_V1,0,0,0},{7,0,1,0}};
   for (size_t i=0;i<3;i++)
     assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,130,field_parent,940,0,&rejected[i],NULL,field_outcome)==2);
+  assert(nyrt_object_checked_dynamic_initialize_v1(frame,field_profile,130,field_parent,940,0,&scalar,NULL,field_outcome)==1);
   assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,131,field_parent,999,0,&scalar,NULL,field_outcome)==1);
   assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,132,field_parent,940,0,NYRT_FIELD_NULL_V1,&seen)==0);
   assert(nyrt_object_field_outcome_dispose_v1(field_outcome)==0);
@@ -242,6 +247,11 @@ int main(void) {
     assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
     assert(nyrt_object_checked_map_field_install_v1(frame,1,190,field_parent,940,0,stable,field_outcome)==1);
     assert(nyrt_map_storage_dispose_v1(stable)==2); /* borrowed same slot cannot rehome */
+    assert(nyrt_map_storage_init_v1(map)==0);
+    assert(nyrt_map_checked_new_v1(frame,1,190,map)==0);
+    assert(nyrt_object_checked_map_field_install_v1(frame,1,190,field_parent,940,0,map,field_outcome)==1);
+    assert(nyrt_map_checked_end_v1(frame,190,map)==0); /* occupied destination kept caller Home */
+    assert(nyrt_map_storage_dispose_v1(map)==0);
     scalar.value=42;
     assert(nyrt_object_checked_dynamic_replace_v1(frame,1,190,field_parent,940,0,&scalar,NULL,field_outcome)==0);
     complete_map=stable;

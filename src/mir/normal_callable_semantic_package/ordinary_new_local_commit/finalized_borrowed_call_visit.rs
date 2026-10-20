@@ -72,6 +72,20 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(in crate::mir) fn visit_finished_construction_writes_v1(
+        &self, module: &MirModule,
+        mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for (key, validation) in &self.construction {
+            let symbol = module.canonical_callable_definition_symbol(key)
+                .ok_or_else(|| freeze("final-provider/definition-missing"))?;
+            let function = module.functions.get(symbol)
+                .ok_or_else(|| freeze("final-provider/function-missing"))?;
+            validation.visit_finished_field_writes_v1(key, function, |row| visit(function, row))?;
+        }
+        Ok(())
+    }
+
     /// Return loans tied to the retained pool, not the visitor's callback borrow.
     pub(in crate::mir) fn borrowed_finalized_call_actuals_v1(
         &self,

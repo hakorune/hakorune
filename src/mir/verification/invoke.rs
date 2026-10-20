@@ -217,7 +217,7 @@ pub(super) fn check_module_with_source(
                             if module.canonical_field_definition(*field).is_none()
                                 || (*mode == crate::mir::instruction::FieldSetModeV1::ExactSlot
                                     && dynamic_field(module, *field))
-                                || (*mode == crate::mir::instruction::FieldSetModeV1::DynamicI64Replace
+                                || (*mode != crate::mir::instruction::FieldSetModeV1::ExactSlot
                                     && !(dynamic_field(module, *field) && image.field_writes.contains(
                                         &(function.signature.name.clone(), (*id, instruction.clone()))))) =>
                         {

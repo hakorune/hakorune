@@ -70,6 +70,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                 receiver_site,
                 receiver_binding,
                 rhs: ConstructionStoreRhsV1::LiteralI64(7),
+                mode: crate::mir::instruction::FieldSetModeV1::ExactSlot,
                 fault_discharge: Box::new([]),
                 me_reads: Box::new([]),
                 progress: StoreProgress::Emitted {
@@ -215,7 +216,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         let original = stores.get(&site).unwrap();
         let second = SelectedConstructionStore {
             field, receiver_site: original.receiver_site.clone(), receiver_binding,
-            rhs: ConstructionStoreRhsV1::LiteralI64(9), fault_discharge: Box::new([]), me_reads: Box::new([]),
+            rhs: ConstructionStoreRhsV1::LiteralI64(9), mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, fault_discharge: Box::new([]), me_reads: Box::new([]),
             progress: StoreProgress::Emitted {
                 block: normal, normal: second_normal, base, value: second_value, provider: None,
                 provider_child: None, discharge: landing,

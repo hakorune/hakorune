@@ -102,7 +102,7 @@ fn validate_dynamic(objects: &IndexedObjects, candidate: &DynamicFieldStoredV1, 
 /// not the caller's still-owned resource. Old residence leaves the guard by move.
 pub(in crate::exports) fn replace_dynamic_field_checked(
     expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
-    candidate: DynamicFieldStoredV1,
+    candidate: DynamicFieldStoredV1, require_empty: bool,
 ) -> Result<DynamicFieldStoredV1, CheckedStorageError> {
     check_indexed_profile(expected)?;
     with_objects_mut(|objects| {
@@ -113,6 +113,7 @@ pub(in crate::exports) fn replace_dynamic_field_checked(
             return None;
         }
         let old = dynamic_slot_mut(objects, handle, type_id, slot)?;
+        if require_empty && !old.is_empty() { return None; }
         // This profile transfers unique obligations, not independently Shared
         // Homes. A borrowed same-slot read cannot reacquire that obligation.
         if let DynamicFieldStoredV1::Published { value: previous, .. } = old {
@@ -174,9 +175,9 @@ pub(in crate::exports) fn install_map_field_checked(
     if expected != TypedObjectStoreBackend::SafeMutex { return Err(CheckedStorageError::ProfileMismatch); }
     with_objects_mut(|objects| {
         let old = dynamic_slot_mut(objects, handle, type_id, slot)?;
-        if matches!(old, DynamicFieldStoredV1::Map(map) if map.as_ptr().cast_const() == prepared.source_ptr()) {
-            return None;
-        }
+        // Construction first-write is a runtime condition as well: a repeated
+        // Birth or borrowed field pointer cannot turn old-End into a store Fault.
+        if !old.is_empty() { return None; }
         let candidate = DynamicFieldStoredV1::Map(prepared.commit());
         Some(std::mem::replace(old, candidate))
     }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)

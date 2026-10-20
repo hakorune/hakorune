@@ -166,11 +166,15 @@ impl CallableSemanticLoweringState {
                         // The plan only admits a bare `new` of a builtin
                         // class; this physical consumer owns `ArrayBox` and
                         // emits the checked intrinsic itself.
-                        if class.as_ref() != "ArrayBox" {
-                            return Err(fault("provider-class-unsupported"));
-                        }
+                        let operation = match store.mode {
+                            crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize =>
+                                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::New),
+                            crate::mir::instruction::FieldSetModeV1::ExactSlot if class.as_ref() == "ArrayBox" =>
+                                InvokeOperation::IntrinsicArrayNew,
+                            _ => return Err(fault("provider-class-unsupported")),
+                        };
                         builder.emit_instruction(MirInstruction::Invoke {
-                            operation: InvokeOperation::IntrinsicArrayNew,
+                            operation,
                             fault_frame,
                             normal_landing: provider_normal,
                             fault_landing,
@@ -478,6 +482,18 @@ impl CallableSemanticLoweringState {
             .current_block
             .ok_or_else(|| fault("no-block"))?;
         let normal = builder.next_block_id();
+        let candidate_fault = if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+            let tail = builder.next_block_id();
+            let normal = jump_landing(builder, fault_landing)?;
+            let fault_edge = jump_landing(builder, fault_landing)?;
+            let mut block = BasicBlock::new(tail);
+            block.set_terminator(MirInstruction::Invoke {
+                operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map: value }),
+                fault_frame, normal_landing: normal, fault_landing: fault_edge,
+            });
+            builder.function_state.current_function.as_mut().ok_or_else(|| fault("no-function"))?.add_block(block);
+            tail
+        } else { fault_landing };
         let (operation, store_fault_landing) = match &object_child {
             Some((child, teardown)) => {
                 // The checked object-field store consumes the child lease
@@ -524,12 +540,12 @@ impl CallableSemanticLoweringState {
                     fault_landing,
                 ),
                 None => (
-                    InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot,
+                    InvokeOperation::FieldSet { mode: store.mode,
                         field: store.field,
                         base,
                         value,
                     },
-                    fault_landing,
+                    candidate_fault,
                 ),
             },
         };
@@ -571,7 +587,7 @@ None
         };
         *next_step += 1;
         if let Some(site) = provider_site {
-            if object_child.is_some() {
+            if object_child.is_some() || store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
                 return Ok(value);
             }
             // The generic new lane records a claimed provider allocation on

@@ -432,7 +432,7 @@ impl<'module> PublishedMirBackendView<'module> {
             if layout.field_count as usize != layout.fields.len() || definition.fields().len() != layout.fields.len() {
                 return Err(fault("layout-field-count"));
             }
-            if definition.fields().iter().any(|field| field.declared_type_name.is_none()) {
+            if definition.fields().iter().enumerate().any(|(ordinal, field)| field.declared_type_name.is_none() && !definition.is_array_field(ordinal)) {
                 use crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1 as Child;
                 use crate::mir::instruction::FieldResidenceEndModeV1 as Mode;
                 let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(object_id as usize)
@@ -442,7 +442,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 let inventory = source.owned_field_inventory_v1(object)?
                     .ok_or_else(|| fault("object-destruction"))?;
                 let required: Vec<_> = definition.fields().iter().enumerate()
-                    .filter(|(_, field)| field.declared_type_name.is_none())
+                    .filter(|(ordinal, field)| field.declared_type_name.is_none() && !definition.is_array_field(*ordinal))
                     .map(|(ordinal, _)| hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
                         .expect("complete canonical declaration census")).collect();
                 let retained: Vec<_> = inventory.iter().filter(|row| row.kind == Child::Residence(Mode::DynamicResidence))
@@ -459,7 +459,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     // the explicit source-issued view/replace/End protocol.
                     if field.slot != ordinal as u32
                         || (field.storage == TypedObjectFieldStorage::Dynamic)
-                            != definition.fields()[ordinal].declared_type_name.is_none()
+                            != (definition.fields()[ordinal].declared_type_name.is_none() && !definition.is_array_field(ordinal))
                         || !matches!(
                             field.storage,
                             TypedObjectFieldStorage::I8

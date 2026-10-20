@@ -372,6 +372,25 @@ pub unsafe extern "C" fn dynamic_replace(
     slot: usize, value: *const DynamicFieldValueV1,
     descriptor: *const DynamicFieldEndDescriptorV1, outcome: *mut c_void,
 ) -> u32 {
+    unsafe { dynamic_replace_inner(frame, profile, site, handle, type_id, slot, value, descriptor, outcome, false) }
+}
+
+/// First-write preserves the candidate on every Fault, including repeated Birth.
+/// The Empty check shares the SAME slot guard as the eventual commit.
+#[export_name = "nyash.object.checked_dynamic_initialize_v1"]
+pub unsafe extern "C" fn dynamic_initialize(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, value: *const DynamicFieldValueV1,
+    descriptor: *const DynamicFieldEndDescriptorV1, outcome: *mut c_void,
+) -> u32 {
+    unsafe { dynamic_replace_inner(frame, profile, site, handle, type_id, slot, value, descriptor, outcome, true) }
+}
+
+unsafe fn dynamic_replace_inner(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, value: *const DynamicFieldValueV1,
+    descriptor: *const DynamicFieldEndDescriptorV1, outcome: *mut c_void, initialize: bool,
+) -> u32 {
     if value.is_null() || !value.is_aligned() || !separate(&[
         (frame as usize, size_of::<FaultFrame>()),
         (outcome as usize, size_of::<DynamicFieldOutcomeStorageV1>()),
@@ -392,11 +411,12 @@ pub unsafe extern "C" fn dynamic_replace(
         _ => return Status::InvalidContract as u32,
     }
     unsafe { commit_dynamic(frame, profile, site, outcome, |profile|
-        store::replace_dynamic_field_checked(profile, handle, type_id, slot, DynamicFieldStoredV1::Published { value, end })) }
+        store::replace_dynamic_field_checked(profile, handle, type_id, slot, DynamicFieldStoredV1::Published { value, end }, initialize)) }
 }
 
 /// Dedicated source-authorized Map Home transfer. A stack placement is moved
 /// into stable native storage; generic tagged replacement cannot forge it.
+/// Empty is required under the commit guard; every Fault is precommit.
 /// Normal means committed, with the SAME detached-old outcome protocol.
 #[export_name = "nyash.object.checked_map_field_install_v1"]
 pub unsafe extern "C" fn map_field_install(

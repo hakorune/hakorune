@@ -27,6 +27,28 @@ impl RetainedConstructionValidation {
         self.validate_after_compiler_finishing(function)
     }
 
+    /// Lend only original source-issued store coordinates after full replay.
+    pub(in crate::mir) fn visit_finished_field_writes_v1(
+        &self, key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        function: &MirFunction,
+        mut visit: impl FnMut((BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+            || function.signature.name != key.mir_symbol_projection() {
+            return Err(fault("unit-call-birth-owner"));
+        }
+        let ConstructionState::Selected { stores, .. } = &self.construction else { return Ok(()); };
+        self.validate_artifact_after_compiler_finishing(function)?;
+        for store in stores.values() {
+            if store.mode == crate::mir::instruction::FieldSetModeV1::ExactSlot { continue; }
+            let StoreProgress::Emitted { block, .. } = store.progress else { return Err(fault("store-residual")); };
+            let instruction = function.blocks.get(&block).and_then(|body| body.terminator.as_ref())
+                .ok_or_else(|| fault("emission-drift"))?;
+            visit((block, instruction.clone()))?;
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn validate_after_compiler_finishing(
         &self,
         function: &MirFunction,
@@ -124,6 +146,7 @@ impl ConstructionState {
         if actual_count
             != stores.len()
                 + provider_count
+                + stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize).count()
                 + 3 * birth_providers
                 + nobirth_providers
                 + nested_releases
@@ -271,8 +294,18 @@ impl ConstructionState {
                         && fault_landing == discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
                 _ => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
-                    Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
-                    if actual == &field && b == base && v == value && normal_landing == normal && *fault_frame == frame_id && fault_landing == discharge),
+                    Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode, field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
+                    if *mode == store.mode && actual == &field && b == base && v == value
+                        && normal_landing == normal && *fault_frame == frame_id
+                        && if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+                            matches!(function.blocks.get(fault_landing).and_then(|b| b.terminator.as_ref()),
+                                Some(MirInstruction::Invoke {
+                                    operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map }),
+                                    fault_frame: f, normal_landing: n, fault_landing: e })
+                                if map == value && *f == frame_id && n != e
+                                    && jump_target(function, *n) == Some(*discharge)
+                                    && jump_target(function, *e) == Some(*discharge))
+                        } else { fault_landing == discharge }),
             };
             if !store_ok {
                 return Err(fault("emission-drift"));
@@ -287,11 +320,14 @@ impl ConstructionState {
                 ) => {
                     if !matches!(function.blocks.get(provider_origin).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
-                            operation: InvokeOperation::IntrinsicArrayNew,
+                            operation,
                             fault_frame,
                             fault_landing,
                             normal_landing,
-                        }) if *normal_landing == *block
+                        }) if (if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+                                *operation == InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::New)
+                            } else { *operation == InvokeOperation::IntrinsicArrayNew })
+                            && *normal_landing == *block
                             && *fault_frame == frame_id && fault_landing == discharge)
                     {
                         return Err(fault("provider-emission-drift"));
@@ -577,13 +613,13 @@ pub(super) fn field_discharge_chain(
         };
         let matches_source = match (child.kind, operation) {
             (
-                OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence),
+                OwnedFieldChildKindV1::Residence(expected_mode),
                 InvokeOperation::OwnedFieldResidenceRelease {
-                mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence,
+                mode,
                     field,
                     base: released,
                 },
-            ) => *field == child.field && *released == base,
+            ) => *mode == expected_mode && *field == child.field && *released == base,
             (
                 OwnedFieldChildKindV1::Object(object),
                 InvokeOperation::OwnedObjectFieldRelease {

@@ -171,7 +171,12 @@ pub(super) fn prior_owned_fields_v1(
             .iter()
             .rev()
             .filter_map(|prior: &ConstructionStoreV1| {
-                let kind = match prior.rhs() {
+                let kind = match prior.mode() {
+                    Ok(crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize |
+                       crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize) =>
+                        OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence),
+                    Err(_) => return None,
+                    Ok(_) => match prior.rhs() {
                     ConstructionStoreRhsV1::ProviderConstruction {
                         object: Some(child),
                         ..
@@ -185,6 +190,7 @@ pub(super) fn prior_owned_fields_v1(
                     // Fault reclaims only unpublished parent storage.
                     ConstructionStoreRhsV1::Parameter { .. } => return None,
                     _ => return None,
+                    },
                 };
                 Some(OwnedFieldChildV1 {
                     field: prior.field(),

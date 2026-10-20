@@ -53,7 +53,7 @@ pub(super) fn original_call_slots(
                 module.canonical_field_definition(*field).is_some_and(|field|
                     !field.is_weak && field.declared_type_name.is_none()),
             MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
-                mode: crate::mir::instruction::FieldSetModeV1::DynamicI64Replace, .. }, .. } => true,
+                mode, .. }, .. } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
             _ => false,
         });
     if dynamic_fields {
@@ -69,6 +69,10 @@ pub(super) fn original_call_slots(
                 image.field_writes.push((function.signature.name.clone(), row.invoke.0));
                 Ok(())
             })
+        })?;
+        source.visit_finished_construction_writes_v1(module, |function, row| {
+            image.field_writes.push((function.signature.name.clone(), row));
+            Ok(())
         })?;
     }
     let mut callees = BTreeSet::new();

@@ -248,8 +248,12 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) ||
         hako_physical_field_storage(layouts, object_id, ordinal) !=
             (dynamic ? HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC : HAKO_LLVMC_LIFECYCLE_STORAGE_I64)) return 0;
-    if (dynamic && !hako_physical_string(yyjson_obj_get(operation, "transaction"),
-        write ? "dynamic_i64_replace" : "take_dynamic")) return 0;
+    yyjson_val* transaction = yyjson_obj_get(operation, "transaction");
+    if (dynamic && !(write ?
+        (hako_physical_string(transaction, "dynamic_i64_replace") ||
+         hako_physical_string(transaction, "dynamic_i64_initialize") ||
+         hako_physical_string(transaction, "dynamic_map_initialize")) :
+        hako_physical_string(transaction, "take_dynamic"))) return 0;
     if (!write) return hako_physical_drain_matches(layouts, operation);
     yyjson_val* range = yyjson_obj_get(operation, "exact_numeric_runtime_check");
     return hako_physical_field_range_check(range) &&

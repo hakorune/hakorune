@@ -424,7 +424,9 @@ parent, type, slot, source_map, outcome)` moves an initialized live Map into
 fallibly allocated stable native placement owned by the existing Dynamic field.
 Source permission must come from the canonical construction/write issuer.
 Source/frame/outcome separation, source Live, allocation and destination identity
-are checked before movement. The same object guard covers destination validation,
+are checked before movement. The destination must be Empty under that guard;
+this entry implements construction first-write, not general Map replacement.
+The same object guard covers destination validation,
 no-fail source move, slot swap and detached-old publication; rejection preserves
 the caller's Map and leaves the outcome Unissued. Normal leaves source placement
 Unissued and disposable. The usual detached-old End/dispose follows separately;
@@ -438,8 +440,29 @@ replace/get, including kind-zero observations, neither accept nor expose Maps.
 `checked_map_field_borrow_v1` writes a stable nonowning address only on Normal.
 The source retains the exact field loan through last use and excludes replacement
 and End; the address grants no transferable Home. Reinstalling a same-slot borrow
-is refused. This native boundary does not activate unproved source construction,
-partial Birth cleanup, callable results or Map-held mutation permissions.
+is refused. This native boundary does not itself authorize source construction,
+callable results or Map-held mutation permissions.
+
+Canonical construction retains its field mode from the original declaration and
+RHS. Bare `new MapBox()` and literal I64 first writes to unannotated fields select
+`dynamic_map_initialize` and `dynamic_i64_initialize`, respectively. The scalar
+entry `checked_dynamic_initialize_v1` shares replacement's validation/outcome
+owner, additionally checking Empty atomically. Thus every initialization Fault
+is precommit, including an attempted repeated Birth; the caller still owns the
+Map candidate. Only Normal transfers it, after which the emitter disposes the
+source's now-Unissued native placement. The source-selected Fault path ends a
+still-caller-owned candidate, then drains the already committed prefix.
+
+That prefix is the same original source-ordered construction store inventory,
+newest first. Every committed Dynamic slot is taken to Empty, including no-Home
+scalars, so outer reclamation cannot silently discard initialized storage. The
+retained final validator and C Birth commit/discharge markers corroborate each
+same store and both cleanup outcomes. Normal Birth requires every Dynamic field
+initialized exactly once; complete object End still requires the entire original
+field inventory in reverse declaration order. Provided Dynamic and nullable
+received cleanup remain unadmitted; a whole-field census never transfers a
+provided Home before Birth Normal. An advertised optional field ABI must also
+provide its exact functions in the existing archive symbol census.
 
 The value entry uses `(frame, profile:u32, site:u64, map, key, kind:u32,
 payload:i64, outcome)->u32`; pointer regions keep the same opaque contract.

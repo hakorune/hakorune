@@ -83,7 +83,7 @@ impl LifecycleRuntimeSessionV1 {
     pub(crate) fn select(runtime_archive: PathBuf) -> Result<Self, String> {
         let (descriptor, field_descriptor) = read_runtime_abi_descriptors(&runtime_archive)?;
         require_lifecycle_entry_abi(&runtime_archive)?;
-        require_checked_map_symbols(&runtime_archive)?;
+        require_checked_map_symbols(&runtime_archive, field_descriptor.is_some())?;
         if descriptor.target_triple != "x86_64-unknown-linux-gnu" {
             return Err(format!(
                 "lifecycle runtime archive {} targets unsupported {}",

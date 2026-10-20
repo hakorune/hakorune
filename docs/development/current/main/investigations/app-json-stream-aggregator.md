@@ -7,11 +7,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner331.319s (prior340.574s); successes unchanged.
+  runner335.599s (prior331.319s); successes unchanged.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Selected CLI/runtime use `target/quick`; default/private C FFI match current source.
-  CLI remains the verified fast build; current runtime rebuild5.93s, root reused.
+- CLI/runtime use the same quick graph; final CLI33.42s/runtime6.68s, root reused.
+  Suite uses a frozen matching CLI/runtime/private C FFI; default FFI matches it.
 - JSON still stops at `borrowed-entry/source-use-completion-pending`, owner26
   JsonStreamAggregator.ingestLine, called at line152 inside ingest Loop.
   Outer `source-loop-header-after` wraps this callee failure; no JSON EXE is claimed.
@@ -43,29 +43,26 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Complete End runs outside Map/outcome locks and owns outer release as well.
 - Legacy numeric/NoHook ABI remains for its existing callers; canonical C uses
   the new complete entry, required by runtime archive admission. No second registry.
-- Builder Drop no longer invokes End; cancellation is explicit abort(context).
-  Placement init/move/dispose share the existing storage owner; old aggregate
-  post-End reporter is retired. Source permission is unchanged by this connection.
-- Constructor partial Dynamic cleanup remains CLOSED. Whole-field census grants
-  no Home before Birth Normal; Provided Homes remain caller-owned until then.
-  Nullable received Dynamic cleanup remains unadmitted.
+- Explicit cancellation replaces Builder Drop End; placement primitives share the
+  existing owner and the aggregate post-End reporter is retired.
+- Birth now connects source-issued first-write I64/Map and Normal-committed Dynamic
+  prefixes. Whole-field census grants no early Home; Provided stays caller-owned
+  until Birth Normal. Provided/nullable Dynamic partial cleanup remains unadmitted.
 
 ## Validation and retained failures
-
-- Current kernel Map17/storage8/Fault10 PASS; prior root Map15/binding8+archive1 PASS.
-  The isolated-release-only test remains ignored; it is not claimed as PASS.
-- Real C field ABI PASS for both storage profiles (Map ABI is SafeMutex only).
-  Complete callback/reentry, no duplicate Fault, remaining-entry drain and malformed
-  descriptor refusal are checked. Physical-only Dynamic exit30 rechecked in both profiles.
-- Prior C Map execution PASS, including source-issued unchanged map-call exit30 and
-  27 malformed inputs/artifact preservation. V4 execution/14 negatives PASS.
-- Existing C case extends stable Map move/rejection, borrowed same-slot refusal,
-  generic raw-pointer exclusion and old-End Fault without rolling back a new scalar.
-  No new test entry/file, checker, guard or test-only production hook.
-- C execution tests accept explicit CC driver/flags. Same C ABI input links with
-  GNU ld11.98s versus LLD1.41s; final Map/V4 checks take30.88s/36.91s with LLD.
-- Earlier source/Invoke/JSON/owned-slot and malformed/ABI results remain in Git;
-  no wholesale rerun. Native Map additions do not activate source permissions.
+- Current Invoke42/construction4/original-prefix1/Provided1 and kernel Map17 PASS.
+  Runtime binding8+actual archive1 PASS (two ignored not counted); C V4 execution
+  and existing14 negatives/artifact preservation PASS. Prior evidence stays in Git.
+- Native C field ABI PASS in both profiles (Map SafeMutex only), including repeated
+  first-write refusal and preservation of a caller-owned candidate on occupied slot.
+- Three original-source canonical EXEs (Map-first, scalar-first, mixed fixed Array)
+  build/run exit30 with the final matching pair; source/final tests use no fallback.
+- Four Map/scalar source Fault runs plus two final mixed-Array Fault runs exit70,
+  report original Fault101 and reclaim the parent. Mixed Array store1 candidate
+  Fault cleanup was not measured; this does not close Array holder/contents/End.
+- Existing cases only: additions protect independently necessary atomic Empty,
+  advertised field ABI function availability, and source partial-Fault boundaries.
+  No new test entry/file, checker, guard or production test-only hook.
 - Owed prior reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Earlier frozen comparisons do not waive them.
 
@@ -77,11 +74,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Fallible allocation/validation precede source move under the SAME destination guard.
   Rejection keeps caller Home; Normal leaves source Unissued. End/dispose free only
   after Map Normal/Fault, never InvalidContract; generic get/replace refuse Map.
-- SOURCE/C construction still needs existing ProviderConstruction/ConstructionStore/
-  StoreProgress -> first-write Map commit. No fake MapLiteral or second Map ledger.
-- Partial Birth must drain all Normal-committed Dynamic stores, scalars included,
-  using the original fault_discharge prefix and existing C Birth commit markers.
-  Complete End still requires every declared slot; Provided transfer remains separate.
+- Original ConstructionStore selects first-write mode; retained construction replay
+  lends the same final store coordinates to existing source image/final consumers.
+  Runtime Empty is checked under the commit guard, including repeated Birth.
+- C uses the existing prepare/commit/outcome-End/dispose owner and Birth markers:
+  Map candidate transfers only on Normal; precommit Fault ends it then the original
+  committed prefix, including scalars, in actual commit order. Full End stays reverse
+  declaration order. Canonically source-qualified fixed Array keeps its prior path
+  across construction, owned census, physical ABI and final End; no subset census.
 - statsFor hit-get and miss-set-then-return are BOTH nonowning Map-held results.
   Miss is never Fresh/HomeToCaller. Borrow support must retain the same holder,
   key/entry/class through last use, stats.add effects and independent users.push.

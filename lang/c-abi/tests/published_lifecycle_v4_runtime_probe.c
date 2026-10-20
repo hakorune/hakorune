@@ -94,6 +94,28 @@ uint32_t wrap_residence_store(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t,
   uint32_t status = probe_store_status(f,s,v);
   return status ? status : real_residence_store(f,p,s,h,t,slot,child_type,v,outcome);
 }
+#ifdef HAKO_TEST_DYNAMIC_BIRTH
+/* Reuse the same fault-at-store boundary for source-issued first writes. */
+uint32_t real_initialize(void*,uint32_t,uint64_t,int64_t,int64_t,size_t,
+    const NyrtDynamicFieldValueV1*,const NyrtDynamicFieldEndDescriptorV1*,void*)
+    __asm__("__real_nyash.object.checked_dynamic_initialize_v1");
+uint32_t wrap_initialize(void*,uint32_t,uint64_t,int64_t,int64_t,size_t,
+    const NyrtDynamicFieldValueV1*,const NyrtDynamicFieldEndDescriptorV1*,void*)
+    __asm__("__wrap_nyash.object.checked_dynamic_initialize_v1");
+uint32_t wrap_initialize(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t,size_t slot,
+    const NyrtDynamicFieldValueV1* v,const NyrtDynamicFieldEndDescriptorV1* d,void* out) {
+  uint32_t status=probe_store_status(f,s,v->value);
+  return status ? status : real_initialize(f,p,s,h,t,slot,v,d,out);
+}
+uint32_t real_map_initialize(void*,uint32_t,uint64_t,int64_t,int64_t,size_t,void*,void*)
+    __asm__("__real_nyash.object.checked_map_field_install_v1");
+uint32_t wrap_map_initialize(void*,uint32_t,uint64_t,int64_t,int64_t,size_t,void*,void*)
+    __asm__("__wrap_nyash.object.checked_map_field_install_v1");
+uint32_t wrap_map_initialize(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t,size_t slot,void* m,void* out) {
+  uint32_t status=probe_store_status(f,s,0);
+  return status ? status : real_map_initialize(f,p,s,h,t,slot,m,out);
+}
+#endif
 uint32_t real_home(void*,uint32_t,uint64_t,int64_t,int64_t)
     __asm__("__real_nyash.object.home_release_plain_i64_v1");
 uint32_t wrap_home(void*,uint32_t,uint64_t,int64_t,int64_t)

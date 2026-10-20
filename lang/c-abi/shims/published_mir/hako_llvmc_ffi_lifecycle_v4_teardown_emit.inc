@@ -13,6 +13,8 @@ static void lv4_dynamic_declarations(FILE* f) {
       "declare i32 @\"nyash.object.home_release_completed_fields_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.field_outcome_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.object.checked_dynamic_replace_v1\"(ptr, i32, i64, i64, i64, i64, ptr, ptr, ptr)\n"
+      "declare i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr, i32, i64, i64, i64, i64, ptr, ptr, ptr)\n"
+      "declare i32 @\"nyash.object.checked_map_field_install_v1\"(ptr, i32, i64, i64, i64, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.object.checked_dynamic_take_v1\"(ptr, i32, i64, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_dynamic_get_v1\"(ptr, i32, i64, i64, i64, i64, i32, ptr)\n"
       "declare i32 @\"nyash.object.field_outcome_end_v1\"(ptr, i64, ptr)\n"
@@ -46,13 +48,14 @@ static int lv4_field_outcome_alloca(FILE* f, const char* name,
 }
 
 /* One prepare/commit/detached-End owner for replacement and complete slot drain.
- * Candidate has no Home here. Unissued disposal preserves the caller's old slot;
+ * A Map initializer moves its candidate only on Normal; scalar candidates have no Home.
+ * Unissued disposal preserves the caller's old slot;
  * committed End Fault never rolls back. Both exits dispose before continuation. */
 static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t profile,
     const char* site, const char* base, long long type, int slot, const char* candidate,
-    const char* normal, const char* fault) {
+    int initialize, const char* normal, const char* fault) {
   if (slot < 0) return 0;
-  if (candidate) fprintf(f,
+  if (candidate && initialize != 2) fprintf(f,
       "  store { i32, i32, i64, i64 } zeroinitializer, ptr %%%s_candidate, align 8\n"
       "  store i32 2, ptr %%%s_candidate, align 4\n"
       "  %%%s_payload = getelementptr { i32, i32, i64, i64 }, ptr %%%s_candidate, i32 0, i32 2\n"
@@ -62,14 +65,24 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  %%%s_init = call i32 @\"nyash.object.field_outcome_init_v1\"(ptr %%%s_out)\n"
       "  switch i32 %%%s_init, label %%invalid [ i32 0, label %%%s_prepare ]\n%s_prepare:\n",
       name, name, name, name, name);
-  if (candidate) fprintf(f,
-      "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_replace_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr null, ptr %%%s_out)\n",
-      name, profile, site, base, type, slot, name, name);
+  if (initialize == 2) fprintf(f,
+      "  %%%s_commit = call i32 @\"nyash.object.checked_map_field_install_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %s, ptr %%%s_out)\n",
+      name, profile, site, base, type, slot, candidate, name);
+  else if (candidate) fprintf(f,
+      "  %%%s_commit = call i32 @\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr null, ptr %%%s_out)\n",
+      name, initialize ? "checked_dynamic_initialize" : "checked_dynamic_replace",
+      profile, site, base, type, slot, name, name);
   else fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_take_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, name);
   fprintf(f,
-      "  switch i32 %%%s_commit, label %%invalid [ i32 0, label %%%s_end i32 1, label %%%s_unissued ]\n%s_unissued:\n"
+      "  switch i32 %%%s_commit, label %%invalid [ i32 0, label %%%s_%s i32 1, label %%%s_unissued ]\n",
+      name, name, initialize == 2 ? "moved" : "end", name);
+  if (initialize == 2) fprintf(f,
+      "%s_moved:\n  %%%s_source_dispose = call i32 @\"nyash.map.storage_dispose_v1\"(ptr %s)\n"
+      "  switch i32 %%%s_source_dispose, label %%invalid [ i32 0, label %%%s_end ]\n",
+      name, name, candidate, name, name);
+  fprintf(f, "%s_unissued:\n"
       "  %%%s_cancel = call i32 @\"nyash.object.field_outcome_dispose_v1\"(ptr %%%s_out)\n"
       "  switch i32 %%%s_cancel, label %%invalid [ i32 0, label %%%s ]\n%s_end:\n"
       "  %%%s_ended = call i32 @\"nyash.object.field_outcome_end_v1\"(ptr %%frame, i64 %s, ptr %%%s_out)\n"
@@ -77,7 +90,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  %%%s_disposed = call i32 @\"nyash.object.field_outcome_dispose_v1\"(ptr %%%s_out)\n"
       "  switch i32 %%%s_disposed, label %%invalid [ i32 0, label %%%s_finish ]\n%s_finish:\n"
       "  switch i32 %%%s_ended, label %%invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",
-      name, name, name, name, name, name, name, fault, name,
+      name, name, name, name, fault, name,
       name, site, name, name, name, name, name, name, name,
       name, name, name, name, normal, fault);
   return !ferror(f);
@@ -98,7 +111,8 @@ static int lv4_dynamic_alloca(FILE* f, const hako_lv4_input* in, yyjson_val* op,
     return !ferror(f);
   }
   char name[32]; snprintf(name, sizeof(name), "dyn%u", block);
-  return lv4_field_outcome_alloca(f, name, abi, lv4_is(op, "kind", "field_set"));
+  return lv4_field_outcome_alloca(f, name, abi, lv4_is(op, "kind", "field_set") &&
+      !lv4_is(op, "transaction", "dynamic_map_initialize"));
 }
 
 /* -1 is another operation family, 0 is invalid, 1 emitted both existing edges. */
@@ -123,14 +137,17 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
     return !ferror(f);
   }
   int replace = lv4_is(op, "kind", "field_set");
-  if (!lv4_is(op, "transaction", replace ? "dynamic_i64_replace" : "take_dynamic")) return 0;
+  int initialize = lv4_is(op, "transaction", "dynamic_map_initialize") ? 2 :
+      lv4_is(op, "transaction", "dynamic_i64_initialize") ? 1 : 0;
+  if (!(replace ? (initialize || lv4_is(op, "transaction", "dynamic_i64_replace")) :
+      lv4_is(op, "transaction", "take_dynamic"))) return 0;
   char name[32], site[32], base[32], candidate[32];
   snprintf(name, sizeof(name), "dyn%u", block);
   snprintf(site, sizeof(site), "%llu", (unsigned long long)yyjson_get_uint(yyjson_obj_get(op, "site")));
   snprintf(base, sizeof(base), "%%v%u", lv4_u(op, "base"));
   snprintf(candidate, sizeof(candidate), "%%v%u", lv4_u(op, "value"));
   return lv4_emit_dynamic_transaction(f, name, in->profile, site, base,
-      (long long)lv4_type_id(in, op), lv4_slot(in, op), replace ? candidate : NULL, normal, fault);
+      (long long)lv4_type_id(in, op), lv4_slot(in, op), replace ? candidate : NULL, initialize, normal, fault);
 }
 
 /* Source-admitted complete End helpers in the lifecycle-v4 emitter. */
@@ -166,7 +183,7 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
       snprintf(name, sizeof(name), "td_dyn%u", ordinal);
       snprintf(done, sizeof(done), "%s_done", name); snprintf(fault, sizeof(fault), "%s_fault", name);
       if (array_mark || object_mark || !lv4_emit_dynamic_transaction(f, name, in->profile,
-          "%site", "%handle", type, lv4_layout_slot(layout, ordinal), NULL, done, fault)) return 0;
+          "%site", "%handle", type, lv4_layout_slot(layout, ordinal), NULL, 0, done, fault)) return 0;
       fprintf(f, "%s:\n  store i32 1, ptr %%td_status, align 4\n  br label %%%s\n%s:\n", fault, done, done);
       continue;
     }

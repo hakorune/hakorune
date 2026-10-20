@@ -72,7 +72,7 @@ pub(super) fn owned_field_children_of(
                 {
                     continue;
                 }
-                if declared.is_none() && !field.is_weak {
+                if declared.is_none() && !field.is_weak && !definition.is_array_field(ordinal) {
                     // A complete slot drain requirement, not an acquired child
                     // Home. Empty remains a real step in the same source census.
                     children.push(OwnedFieldChildV1 {

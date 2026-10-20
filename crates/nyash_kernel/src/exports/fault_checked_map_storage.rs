@@ -96,9 +96,6 @@ pub(in crate::exports) struct PreparedMapMoveV1<'a> {
     loan: std::marker::PhantomData<&'a mut MapStorage>,
 }
 impl<'a> PreparedMapMoveV1<'a> {
-    pub(in crate::exports) fn source_ptr(&self) -> *const c_void {
-        self.source.as_ptr().cast()
-    }
     pub(in crate::exports) unsafe fn prepare(source: *mut c_void) -> Result<Self, Status> {
         let map = unsafe { admit::<CheckedMap>(source, MAP_TAG) }?;
         map.require_live().map_err(|_| Status::InvalidContract)?;
@@ -115,7 +112,7 @@ impl<'a> PreparedMapMoveV1<'a> {
     /// Call only after destination slot validation under its retained guard.
     /// No allocation, validation, callback or lock acquisition remains here.
     pub(in crate::exports) fn commit(mut self) -> OwnedMapPlacementV1 {
-        // No exclusive reference was formed before the same-slot refusal.
+        // No exclusive reference was formed before the nonempty-slot refusal.
         let source = unsafe { self.source.as_mut() };
         let value = unsafe { source.value.assume_init_read() };
         source.value = MaybeUninit::new(CheckedMap::unissued());

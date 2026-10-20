@@ -5,7 +5,14 @@ static int lv4_birth_marker(hako_lv4_state state) {
 }
 _Static_assert(LV4_BIRTH_FIELD < LV4_TRANSFER_BASE, "Birth/Map marker domains overlap");
 
+static int lv4_birth_dynamic(const hako_lv4_input* in, yyjson_val* op) {
+  yyjson_val* layout = lv4_layout(in, lv4_u(op, "object_id"));
+  return lv4_u(yyjson_arr_get(yyjson_obj_get(layout, "fields"), lv4_u(op, "field_ordinal")),
+      "storage_kind") == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC;
+}
+
 static int lv4_birth_owned(const hako_lv4_input* in, yyjson_val* op, int object) {
+  if (!object && lv4_birth_dynamic(in, op)) return 1;
   yyjson_val* layout = lv4_layout(in, lv4_u(op, "object_id"));
   yyjson_val* rows = yyjson_obj_get(layout,
       object ? "owned_object_residences" : "owned_residences");
@@ -21,6 +28,7 @@ static int lv4_birth_owned(const hako_lv4_input* in, yyjson_val* op, int object)
 /* "Reserved" names any metadata-declared owned slot — array or object —
  * in any caller role; Birth commit/discharge is a separate gate. */
 static int lv4_birth_reserved(const hako_lv4_input* in, yyjson_val* op) {
+  if (lv4_birth_dynamic(in, op)) return 1;
   yyjson_val* layout = lv4_layout(in, lv4_u(op, "object_id"));
   for (int object = 0; object <= 1; object++) {
     yyjson_val* rows = yyjson_obj_get(layout,
@@ -91,6 +99,13 @@ static int lv4_birth_discharge(const hako_lv4_input* in, hako_lv4_function_index
     found = i;
   }
   if (found == fn->block_count) return 0;
+  /* Partial cleanup follows actual commit order, not declaration order.
+   * A still-live later commit must drain before an earlier one. */
+  for (size_t i = 0; i < fn->block_count; i++) {
+    if (i != found && state[i] == LV4_BIRTH_FIELD &&
+        hako_physical_block_dominates(fn->function,
+            lv4_u(fn->blocks[found].block, "id"), lv4_u(fn->blocks[i].block, "id"))) return 0;
+  }
   normal[found] = state[found] = 0;
   return 1;
 }
@@ -116,6 +131,20 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
       if (matched != 1) return 0;
       expected++;
     }
+  }
+  yyjson_val* fields = yyjson_obj_get(layout, "fields");
+  for (size_t ordinal = 0; ordinal < yyjson_arr_size(fields); ordinal++) {
+    if (lv4_u(yyjson_arr_get(fields, ordinal), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC) continue;
+    size_t matched = 0;
+    for (size_t i = 0; i < fn->block_count; i++) {
+      yyjson_val* store = lv4_birth_store(fn, i);
+      if (state[i] == LV4_BIRTH_FIELD && lv4_is(store, "kind", "field_set") &&
+          lv4_birth_base(fn, store) && lv4_u(store, "field_ordinal") == ordinal &&
+          (lv4_is(store, "transaction", "dynamic_i64_initialize") ||
+           lv4_is(store, "transaction", "dynamic_map_initialize"))) matched++;
+    }
+    if (matched != 1) return 0;
+    expected++;
   }
   for (size_t i = 0; i < fn->block_count; i++)
     if (lv4_birth_marker(state[i])) { actual++; state[i] = 0; }

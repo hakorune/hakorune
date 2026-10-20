@@ -100,6 +100,7 @@ pub(crate) struct ConstructionStoreV1 {
     receiver_site: SourceExprSiteV1,
     receiver_binding: BindingRefV1,
     rhs: ConstructionStoreRhsV1,
+    mode: Result<crate::mir::instruction::FieldSetModeV1, ConstructionUnavailableV1>,
     /// Prior Normal-committed residences, sealed newest-first from the
     /// constructor's source-ordered stores. The current store is excluded.
     fault_discharge: Box<[OwnedFieldChildV1]>,
@@ -130,6 +131,8 @@ impl ConstructionStoreV1 {
     pub(crate) const fn rhs(&self) -> &ConstructionStoreRhsV1 {
         &self.rhs
     }
+
+    pub(crate) fn mode(&self) -> Result<crate::mir::instruction::FieldSetModeV1, ConstructionUnavailableV1> { self.mode }
 
     pub(crate) fn fault_discharge(&self) -> &[OwnedFieldChildV1] {
         &self.fault_discharge
@@ -575,6 +578,15 @@ pub(super) fn issue_construction_source_v1(
         ]);
         let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
             .ok_or(U::SourceRelationMissing)?;
+        use crate::mir::instruction::FieldSetModeV1 as Mode;
+        let mode = if field_decls[ordinal].declared_type_name.is_none() && !canonical.is_array_field(ordinal) {
+            match &rhs {
+                ConstructionStoreRhsV1::LiteralI64(_) => Ok(Mode::DynamicI64Initialize),
+                ConstructionStoreRhsV1::ProviderConstruction { class, object: None, .. }
+                    if class.as_ref() == "MapBox" => Ok(Mode::DynamicMapInitialize),
+                _ => Err(U::FieldContractUnsupported),
+            }
+        } else { Ok(Mode::ExactSlot) };
         let fault_discharge = body::prior_owned_fields_v1(&stores);
         steps.push(ConstructionSourceStepV1::Store(statement.site().clone()));
         stores.push(ConstructionStoreV1 {
@@ -583,6 +595,7 @@ pub(super) fn issue_construction_source_v1(
             receiver_site: object.clone(),
             receiver_binding: *receiver,
             rhs,
+            mode,
             fault_discharge,
             me_reads: me_reads.into_boxed_slice(),
         });
@@ -619,6 +632,7 @@ pub(super) fn issue_construction_source_v1(
                 .iter()
                 .find(|store| store.field().declaration_ordinal() as usize == ordinal)
                 .ok_or(U::InitializationContractMissing)?;
+            store.mode()?;
             let supported = match field.declared_type_name.as_deref() {
                 Some("i64") | Some("usize") => matches!(
                     store.rhs(),
@@ -661,7 +675,7 @@ pub(super) fn issue_construction_source_v1(
                 },
                 None => matches!(
                     store.rhs(),
-                    ConstructionStoreRhsV1::ProviderConstruction { .. }
+                    ConstructionStoreRhsV1::ProviderConstruction { .. } | ConstructionStoreRhsV1::LiteralI64(_)
                 ),
             };
             if !supported {
@@ -671,7 +685,7 @@ pub(super) fn issue_construction_source_v1(
                 field.declared_type_name.as_deref(),
                 Some("i64") | Some("usize")
             );
-            if object_field {
+            if object_field && !matches!(store.rhs(), ConstructionStoreRhsV1::LiteralI64(_)) {
                 demands[ordinal] = HomeDemandV1::Handle;
             }
         }

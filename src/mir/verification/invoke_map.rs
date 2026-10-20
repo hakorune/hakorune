@@ -151,6 +151,13 @@ pub(super) fn check(
                 let allowed = matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { map, key, .. } | Map::InstallValue { map, key, .. } | Map::InstallText { map, key, .. } | Map::InstallEmptyArray { map, key }), .. }
                         if value == *map || value == *key)
+                    // Structural role only. The module gate independently
+                    // requires the same retained construction-source store.
+                    || (matches!(instruction, MirInstruction::Invoke {
+                        operation: InvokeOperation::FieldSet {
+                            mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                            value: candidate, .. }, .. } if value == *candidate)
+                        && results[&value].0 == Kind::Map)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallBorrowedArray { map, key, elements }), .. }
                         if value == *map || value == *key || elements.contains(&value))
@@ -265,6 +272,13 @@ fn visit(
         let block = function.blocks.get(&id).ok_or("map-block-missing")?;
         let term = block.terminator.as_ref().ok_or("map-terminator-missing")?;
         if let MirInstruction::Invoke {
+            operation: InvokeOperation::FieldSet {
+                mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                value, .. }, ..
+        } = term {
+            if !live.contains(value) { return Err("map-install-not-live"); }
+        }
+        if let MirInstruction::Invoke {
             operation: InvokeOperation::Map(operation),
             ..
         } = term
@@ -323,6 +337,15 @@ fn visit(
         pending.push((id, BTreeSet::new(), true));
         for target in targets.into_iter().rev() {
             let mut next = live.clone();
+            if let MirInstruction::Invoke {
+                operation: InvokeOperation::FieldSet {
+                    mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                    value, .. }, normal_landing, ..
+            } = term {
+                // Empty validation makes every Fault precommit; only Normal
+                // transfers the candidate to the field's sole residence.
+                if *normal_landing == target { next.remove(value); }
+            }
             if matches!(term, MirInstruction::Invoke {
                 operation, normal_landing, ..
             } if *normal_landing == target && matches!(operation.normal_result_kind(), Some(Kind::Map | Kind::MapView)))

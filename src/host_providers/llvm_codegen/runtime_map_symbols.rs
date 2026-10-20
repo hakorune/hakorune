@@ -1,4 +1,4 @@
-//! Symbols required by the runtime descriptor's checked Map contract.
+//! One symbol census for checked Map and the advertised optional field ABI.
 use std::{path::Path, process::Command};
 const SYMBOLS: &[&str] = &[
     "nyash.map.storage_init_v1",
@@ -22,7 +22,19 @@ const SYMBOLS: &[&str] = &[
     "nyash.map.storage_dispose_v1",
     "nyash.map.storage_move_v1",
 ];
-pub(super) fn require_checked_map_symbols(archive: &Path) -> Result<(), String> {
+const FIELD_SYMBOLS: &[&str] = &[
+    "nyash.object.checked_dynamic_replace_v1",
+    "nyash.object.checked_dynamic_initialize_v1",
+    "nyash.object.checked_dynamic_get_v1",
+    "nyash.object.checked_dynamic_take_v1",
+    "nyash.object.field_outcome_init_v1",
+    "nyash.object.field_outcome_end_v1",
+    "nyash.object.field_outcome_dispose_v1",
+    "nyash.object.home_release_completed_fields_v1",
+    "nyash.object.checked_map_field_install_v1",
+    "nyash.object.checked_map_field_borrow_v1",
+];
+pub(super) fn require_checked_map_symbols(archive: &Path, fields: bool) -> Result<(), String> {
     let output = Command::new("nm")
         .args([
             "--extern-only",
@@ -38,25 +50,27 @@ pub(super) fn require_checked_map_symbols(archive: &Path) -> Result<(), String> 
     }
     let text =
         std::str::from_utf8(&output.stdout).map_err(|_| "checked Map symbols are not UTF-8")?;
-    validate(text)
+    validate(text, fields)
 }
-fn validate(text: &str) -> Result<(), String> {
+fn validate(text: &str, fields: bool) -> Result<(), String> {
     // Read each nm row once. Keep original required-symbol order for diagnostics;
     // splitting/allocating every row once per required entry dominates opt0 builds.
-    let mut inventory = [(0usize, true); SYMBOLS.len()];
+    let active = SYMBOLS.len() + if fields { FIELD_SYMBOLS.len() } else { 0 };
+    let symbols = || SYMBOLS.iter().chain(FIELD_SYMBOLS).take(active);
+    let mut inventory = [(0usize, true); SYMBOLS.len() + FIELD_SYMBOLS.len()];
     for line in text.lines() {
         let mut fields = line.split_whitespace();
         let Some(name) = fields.next() else {
             continue;
         };
-        let Some(index) = SYMBOLS.iter().position(|symbol| *symbol == name) else {
+        let Some(index) = symbols().position(|symbol| *symbol == name) else {
             continue;
         };
         let (count, function) = &mut inventory[index];
         *count += 1;
         *function &= matches!(fields.next(), Some("T" | "W")) && fields.next().is_some();
     }
-    for (symbol, (count, function)) in SYMBOLS.iter().zip(inventory) {
+    for (symbol, (count, function)) in symbols().zip(inventory) {
         if !function {
             return Err(format!("checked Map symbol is not a function: {symbol}"));
         }
@@ -72,15 +86,15 @@ mod tests {
     use super::*;
     #[test]
     fn requires_each_opaque_entry_exactly_once() {
-        let all = SYMBOLS
-            .iter()
-            .map(|name| format!("{name} T 0 1\n"))
-            .collect::<String>();
-        assert!(validate(&all).is_ok());
-        for name in SYMBOLS {
-            assert!(validate(&all.replace(&format!("{name} T"), &format!("{name} D"))).is_err());
-            assert!(validate(&all.replace(&format!("{name} T 0 1\n"), "")).is_err());
-            assert!(validate(&format!("{all}{name} T 0 1\n")).is_err());
+        for fields in [false, true] {
+            let symbols: Vec<_> = SYMBOLS.iter().chain(if fields { FIELD_SYMBOLS } else { &[] }).collect();
+            let all = symbols.iter().map(|name| format!("{name} T 0 1\n")).collect::<String>();
+            assert!(validate(&all, fields).is_ok());
+            for name in symbols {
+                assert!(validate(&all.replace(&format!("{name} T"), &format!("{name} D")), fields).is_err());
+                assert!(validate(&all.replace(&format!("{name} T 0 1\n"), ""), fields).is_err());
+                assert!(validate(&format!("{all}{name} T 0 1\n"), fields).is_err());
+            }
         }
     }
 }

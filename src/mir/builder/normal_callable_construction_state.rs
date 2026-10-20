@@ -145,6 +145,7 @@ pub(super) struct SelectedConstructionStore {
     receiver_site: crate::mir::resolved_semantics::SourceExprSiteV1,
     receiver_binding: crate::mir::resolved_semantics::BindingRefV1,
     rhs: ConstructionStoreRhsV1,
+    mode: crate::mir::instruction::FieldSetModeV1,
     fault_discharge: Box<[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1]>,
     /// `me` receiver sites the sealed RHS reads through — observed
     /// against the receiver object at take time, never a field read.
@@ -297,6 +298,7 @@ impl CallableSemanticLoweringState {
                         receiver_site: store.receiver_site().clone(),
                         receiver_binding: store.receiver_binding(),
                         rhs: store.rhs().clone(),
+                        mode: store.mode().map_err(|_| fault("source-or-cleanup-contract"))?,
                         fault_discharge: store.fault_discharge().into(),
                         me_reads: store.me_reads().into(),
                         progress: StoreProgress::Pending,
