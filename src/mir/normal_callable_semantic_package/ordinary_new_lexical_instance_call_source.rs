@@ -7,6 +7,165 @@ use std::collections::BTreeMap;
 pub(in crate::mir::normal_callable_semantic_package) type PreparedLexicalInstanceCallSourceTargetsV1 =
     Result<Vec<Result<Option<LexicalInstanceCallSourceTargetV1>, String>>, String>;
 
+/// Immutable source-target relation shared by preflight and final issuance.
+/// Result, completion, ABI adoption and affine consumption are not issued here.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct LexicalInstanceCallSourceTargetV1 {
+    pub(super) call_site: OwnedExprSiteV1,
+    pub(super) receiver_site: SourceExprSiteV1,
+    pub(super) receiver: LexicalInstanceCallReceiverV1,
+    pub(super) target: CanonicalSameModuleCallableKeyV1,
+    pub(super) target_batch_slot: u32,
+    /// Owner of the callee declaration the target resolves to — the
+    /// terminal-relation lookup key for the co-sealed result contract.
+    pub(super) callee_owner: FunctionOwnerIdV1,
+    /// Exact non-receiver argument sites in source order.
+    pub(super) argument_sites: Box<[SourceExprSiteV1]>,
+    pub(super) owning_object_input: Option<std::rc::Rc<super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
+    pub(super) result_requirement: LexicalCallSourceResultRequirementV1,
+}
+
+impl LexicalInstanceCallSourceTargetV1 {
+    pub(crate) fn owning_object_local_input_v1(&self) -> Option<&super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1> {
+        self.owning_object_input.as_deref()
+    }
+
+    pub(crate) fn mixed_local_source(&self) -> Option<&super::super::result_class_claim::MixedLocalCallSourceLoanV1> {
+        self.result_requirement.mixed_local_source()
+    }
+    pub(crate) fn is_unit_discard_source_v1(&self) -> bool {
+        matches!(self.result_requirement, LexicalCallSourceResultRequirementV1::UnitDiscardSource(_))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn uses_existing_borrowed_result_v1(
+        &self,
+    ) -> bool {
+        matches!(
+            self.result_requirement,
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+        )
+    }
+    pub(crate) fn has_object_source_requirement(&self) -> bool {
+        self.result_requirement.has_object_source_requirement()
+    }
+    pub(crate) fn borrowed_nullable_local_source(
+        &self,
+    ) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
+        self.result_requirement.borrowed_nullable_local_source()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn object_producer_dependencies(
+        &self,
+    ) -> Option<&[super::super::result_class_claim::ObjectReturnCallQualificationV1]> {
+        self.result_requirement.object_producer_dependencies()
+    }
+    pub(crate) fn object_return_sources(
+        &self,
+    ) -> Option<&[super::super::result_class_claim::ObjectReturnCallQualificationV1]> {
+        self.result_requirement.object_return_sources()
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn object_source_forwards(
+        &self,
+    ) -> Option<&[borrowed_formal_result::ForwardIdentityV1]> {
+        match &self.result_requirement {
+            LexicalCallSourceResultRequirementV1::ObjectReturnSource { forwards, .. } => {
+                forwards.as_deref()
+            }
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
+            | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+            | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+            | LexicalCallSourceResultRequirementV1::MixedLocal(_)
+            | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
+        }
+    }
+
+    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
+        &self.call_site
+    }
+
+    pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
+        &self.receiver_site
+    }
+
+    /// `me.<name>` coverage row — never the local/parameter lane.
+    pub(crate) fn is_self_receiver(&self) -> bool {
+        matches!(
+            self.receiver,
+            LexicalInstanceCallReceiverV1::SelfReceiver(_)
+        )
+    }
+
+    pub(crate) fn receiver_binding(&self) -> Result<BindingRefV1, String> {
+        match self.receiver {
+            LexicalInstanceCallReceiverV1::Lexical(binding)
+            | LexicalInstanceCallReceiverV1::SelfReceiver(binding) => Ok(binding),
+            LexicalInstanceCallReceiverV1::StoredOwnedChild { .. } => Err(freeze(
+                "lexical-instance-call/stored-receiver-outside-terminal",
+            )),
+        }
+    }
+
+    pub(crate) fn stored_receiver(
+        &self,
+    ) -> Option<(
+        BindingRefV1,
+        &SourceExprSiteV1,
+        hakorune_mir_defs::CanonicalFieldRefV1,
+        hakorune_mir_defs::CanonicalObjectIdV1,
+    )> {
+        match &self.receiver {
+            LexicalInstanceCallReceiverV1::StoredOwnedChild {
+                parent_binding,
+                parent_site,
+                field,
+                child,
+            } => Some((*parent_binding, parent_site, *field, *child)),
+            LexicalInstanceCallReceiverV1::Lexical(_)
+            | LexicalInstanceCallReceiverV1::SelfReceiver(_) => None,
+        }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn matches_receiver(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    ) -> bool {
+        if call.receiver_site() != self.receiver_site() {
+            return false;
+        }
+        match &self.receiver {
+            LexicalInstanceCallReceiverV1::Lexical(binding)
+            | LexicalInstanceCallReceiverV1::SelfReceiver(binding) => call.receiver()
+                == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(*binding)),
+            LexicalInstanceCallReceiverV1::StoredOwnedChild { parent_binding, parent_site, .. } => {
+                input.body_shape().is_some_and(|shape| {
+                    matches!(shape.expression_shape(call.receiver_site()),
+                        Some(BodyExpressionShapeV1::FieldAccess { object, .. }) if object == parent_site)
+                    && stored_parent_matches_v1(input, parent_site, *parent_binding)
+                })
+            }
+        }
+    }
+
+    pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+
+    pub(crate) const fn target_batch_slot(&self) -> u32 {
+        self.target_batch_slot
+    }
+
+    pub(crate) const fn callee_owner(&self) -> FunctionOwnerIdV1 {
+        self.callee_owner
+    }
+
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        &self.argument_sites
+    }
+}
+
 /// Borrow the sole original target directly from its canonical preparation.
 /// Borrowed-input inventory membership is not source-call membership.
 pub(in crate::mir::normal_callable_semantic_package) fn original_lexical_target_at_v1<'a>(
