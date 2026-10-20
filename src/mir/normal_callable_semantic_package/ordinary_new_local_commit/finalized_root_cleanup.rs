@@ -14,13 +14,13 @@ impl FinalizedRootSourceHandoffV1 {
         let terminals = self.ledger.terminal_relation_index.get(&owner)
             .ok_or_else(|| freeze("callable-participant/terminals-missing"))?;
         if !terminals.values().any(|relation| matches!(relation,
-            TerminalRelationV1::Value(value) if matches!(value.returned(), TerminalReturnedSourceV1::TextResidence { .. }))) {
+            TerminalRelationV1::Value(value) if matches!(value.returned(), TerminalReturnedSourceV1::TextResidence { .. } | TerminalReturnedSourceV1::TextExpression(_)))) {
             return Ok(false);
         }
         let exits: std::collections::BTreeSet<_> = completion.explicit_sites().iter().cloned().collect();
         if contract.owner() != owner || !std::ptr::eq(contract.completion(), completion)
             || !std::ptr::eq(contract.terminal_relations(), terminals.as_ref())
-            || !contract.has_complete_text_residence_result_v1() {
+            || !contract.has_complete_text_result_v1() {
             return Err(freeze("callable-participant/result-unavailable"));
         }
         self.ledger.with_finished_projection(owner, |symbol, projection| {
@@ -33,9 +33,10 @@ impl FinalizedRootSourceHandoffV1 {
                     .ok_or_else(|| freeze("root-exit-source-missing"))?;
                 let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) = rows.get(&(owner, site.clone().into()))
                     else { return Err(freeze("root-exit-unconsumed")) };
-                let expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+                let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
                     &self.ledger.local_commits.borrow(), &site.clone().into(), source.fault_homes(), source.homes())?
                     .ok_or_else(|| freeze("root-home-end-unavailable"))?;
+                expected.include_fresh_result_prefix_v1(&self.ledger, owner, site, order)?;
                 if order.full() != expected.full() || order.normal() != expected.normal()
                     || order.normal() != origins.iter().map(|origin| origin.origin().clone()).collect::<Vec<_>>() {
                     return Err(freeze("root-exit-origin-order"));
@@ -200,10 +201,7 @@ impl FinalizedRootSourceHandoffV1 {
             self.main_arguments_bindings_v1(module, root).map(|_| ())
         })?;
         let context = CallValidationContextV1::Finalized(self);
-        let text_home_owners = self.local_calls.iter().filter_map(|(owner, roots)|
-            RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()
-                .any(|group| group.text_residence_v1().is_some())
-                .then_some(*owner)).collect::<std::collections::BTreeSet<_>>();
+        let text_home_owners = self.text_home_owners_v1();
         for owner in &text_home_owners {
             context.with_local_call_group_tree_v2(*owner, |groups| {
                 for packet in groups.iter().filter_map(|group| group.text_residence_v1()) {
@@ -347,7 +345,7 @@ pub(super) fn validate_finished_cleanup_entry(
             .ok_or_else(|| freeze("terminal-null/producer-removed"))?;
         mandatory.push(finished);
     }
-    if let Some(producers) = ledger.validate_text_return_producer_v1(context, owner, exit, order, entry, bindings, Some(projection), finishing)? {
+    if let Some(producers) = ledger.validate_text_return_producer_v1(context, owner, exit, order, entry, bindings, Some(projection), finishing, Some(function))? {
         mandatory.extend(producers);
     }
     if let Some(producer) = ledger.validate_received_return_producer_v1(

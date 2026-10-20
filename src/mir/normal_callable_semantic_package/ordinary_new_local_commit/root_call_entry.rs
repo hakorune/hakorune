@@ -735,7 +735,6 @@ mod expression_projection;
 mod print_expression_projection;
 pub(crate) use expression_projection::checked_expression_core_operation_v1;
 pub(in crate::mir) use expression_projection::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
-#[cfg(test)]
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
 pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;

@@ -656,7 +656,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     order.validate_direct_entry(self, owner, expected_exit, entry, bindings, projection)?;
                     order.validate_null_return(entry, bindings, projection, projection)?;
                     if let Some(producers) = self.validate_text_return_producer_v1(CallValidationContextV1::Lowering(self),
-                        owner, expected_exit, order, entry, bindings, projection, projection)? {
+                        owner, expected_exit, order, entry, bindings, projection, projection, Some(function))? {
                         for producer in producers {
                             if !super::physical_boundary::check_binding(function, None, producer.0, &producer.1)? {
                                 return Err(freeze("root-exit-binding-drift"));
@@ -727,7 +727,6 @@ pub(crate) use call_entry::RootLifecyclePrefixBindingGroupV1;
 pub(crate) use call_entry::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use call_entry::checked_expression_core_operation_v1;
 pub(in crate::mir) use call_entry::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
-#[cfg(test)]
 pub(in crate::mir) use call_entry::ExpressionPhysicalProjectionRefV1;
 pub(crate) use call_entry::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 

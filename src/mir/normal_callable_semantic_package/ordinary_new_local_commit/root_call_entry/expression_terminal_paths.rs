@@ -271,7 +271,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             let root = purpose_acquisition.and_then(|pair| pair[1].1.dst_value())
                 .or_else(|| match self.values.first() { Some(Some(Operand::OwnedString(value))) => Some(*value), _ => None })
                 .ok_or_else(|| freeze("argument-expression/deferred-root"))?;
-            if residence.is_some() || (purpose_acquisition.is_none() && !self.frame.owned_result_nodes().contains(&0))
+            if residence.is_some() || (purpose_acquisition.is_none() && self.frame.owned_root_node_v1().is_none())
                 || live.last() != Some(&root)
                 || !matches!(self.frame.source().root(),
                     crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }) {
@@ -453,7 +453,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_continuation_v1(context, function, finishing, entry, terminal, continuation, None, inherited)
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_rebind_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_residence_continuation_v1(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>, entry: &Binding, terminal: &Binding, continuation: &Binding,
         residence: Option<&Binding>, displaced: Option<&InvokeOperation>, purpose_acquisition: Option<&[Binding; 2]>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {

@@ -460,7 +460,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-input/original-target"));
             }
             if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_residence_result_v1()) {
+                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_result_v1()) {
                 return Ok(TypedInputClosureV1::Pending);
             }
             let Some(rows) = self.borrowed_formal_actuals.get(&call.call) else { missing = true; continue };
@@ -567,7 +567,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-zero/original-target"));
             }
             if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_residence_result_v1()) {
+                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_result_v1()) {
                 return Ok(TypedInputClosureV1::Pending);
             }
             let Some(actuals) = self.borrowed_formal_actuals.get(&call.call) else {

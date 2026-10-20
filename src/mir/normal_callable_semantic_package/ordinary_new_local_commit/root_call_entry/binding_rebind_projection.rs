@@ -37,23 +37,10 @@ impl EmittedBindingRebindProjectionV1 {
     pub(crate) fn value(&self) -> ValueId { self.receipt.assigned() }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(&self) -> &ReferenceProducerV1 { &self.root }
     fn validate_effective_root(&self) -> Result<(), String> {
-        let expected = if self.frame.is_text_residence() { Operand::OwnedString(self.value()) } else { Operand::NormalInteger(self.value()) };
-        match &self.purpose_acquisition {
-            Some([invoke, normal]) if self.frame.materializes_root() => {
-                let Some(Some(input)) = self.values.first() else { return Err(freeze("rebind-expression/materialize-input")) };
-                if !input.is_text() || !matches!(&invoke.1, MirInstruction::Invoke {
-                    operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
-                    normal_landing, .. } if value == input && *normal_landing == normal.0)
-                    || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: self.value() })
-                    || !self.original.contains(invoke) || !self.original.contains(normal) {
-                    return Err(freeze("rebind-expression/materialize-result"));
-                }
-            }
-            None if !self.frame.materializes_root() && self.values.first() == Some(&Some(expected)) => {}
-            _ => return Err(freeze("rebind-expression/purpose-result")),
-        }
-        Ok(())
+        self.expression().validate_effective_root_v1(self.value(), self.frame.is_text_residence(),
+            self.frame.materializes_root(), self.purpose_acquisition.as_ref())
     }
+
     pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&Binding> { self.install.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {
         self.frame.is_text_residence() && self.receipt.rhs() == self.value()
@@ -122,7 +109,7 @@ impl EmittedBindingRebindProjectionV1 {
             return Err(freeze("rebind-expression/install-census"));
         }
         let displaced = context.ledger().text_rebind_displaced_end_v1(&self.frame)?;
-        let covered = self.expression().validate_rebind_continuation_v1(context, function, finishing,
+        let covered = self.expression().validate_residence_continuation_v1(context, function, finishing,
             &self.entry, &self.terminal, &self.continuation, self.install.as_ref(), displaced.as_ref(), self.purpose_acquisition.as_ref())?;
         Ok(covered)
     }

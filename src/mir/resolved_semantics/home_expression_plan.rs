@@ -70,6 +70,7 @@ pub(crate) use evaluation::{CheckedExpressionEvaluationV1, CheckedExpressionRefe
 #[path = "home_print_expression.rs"]
 mod print_expression;
 pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};
+pub(super) use print_expression::qualify_statement_evaluation_v1;
 
 #[path = "home_borrowed_field_write.rs"]
 mod field_write;

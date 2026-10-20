@@ -16,6 +16,9 @@ pub(in crate::mir::builder) mod root_graph;
 pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
+#[path = "selected/text_return.rs"]
+mod text_return;
+pub(in crate::mir::builder) use text_return::emit as emit_text_return_expression_v1;
 #[path = "selected/binding_rebind_expression.rs"]
 pub(in crate::mir::builder) mod binding_rebind_expression;
 #[path = "selected/initializer_expression.rs"]

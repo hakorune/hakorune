@@ -487,6 +487,8 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut failures = Vec::new();
         for (methods, body, returned) in [
+            ("static box Values { make() { local older = \"old\" + \"er\" return \"abc\" } }", "local out = Values.make() print(out)", "0"),
+            ("static box Values { make() { return (\"a\" + \"bc\").substring(0,1) } }", "local out = Values.make() print(out)", "0"),
             ("static box Values { make() { local value = \"a\" + \"b\" return value } }", "local out = Values.make() print(out)", "0"),
             ("static box Values { make(text) { local value = \"!\" + text return value } }", "local out = Values.make(\"a\" + \"b\") print(out)", "0"),
             ("", "local n = \"abc\".length()", "0"),
@@ -596,6 +598,26 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
                                 "argument-value" => call.args[0] = crate::mir::ValueId(99999),
                                 "call-fault" => *fault_landing = *normal_landing,
                                 _ => unreachable!(),
+                            }
+                            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
+                        }
+                    }
+                    if methods.contains("make() { return (") || methods.contains("make() { local older") {
+                        let root = view.retained_root_source().unwrap();
+                        let function = view.module().functions.values().find(|function| function.signature.name.contains("make")).unwrap();
+                        for mutation in ["missing-hold", "wrong-return", "missing-install"] {
+                            let mut changed = view.module().clone();
+                            for block in changed.functions.get_mut(&function.signature.name).unwrap().blocks.values_mut() {
+                                match mutation {
+                                    "missing-hold" => block.instructions.retain(|row| !matches!(row,
+                                        crate::mir::MirInstruction::StringResidenceInstall { returning: true, .. })),
+                                    "missing-install" => block.instructions.retain(|row| !matches!(row,
+                                        crate::mir::MirInstruction::StringResidenceInstall { returning: false, .. })),
+                                    "wrong-return" => if let Some(crate::mir::MirInstruction::Return { value }) = &mut block.terminator {
+                                        *value = Some(crate::mir::ValueId(99999));
+                                    },
+                                    _ => unreachable!(),
+                                }
                             }
                             assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
                         }

@@ -108,7 +108,6 @@ impl PreparedBorrowedFormalIngressV1 {
         &self, input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::{local_expression_source_plan_v1, ExpressionNodeSourceV1 as Node};
-        use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
         let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false };
         input.function().expression_source().initializers().any(|initializer| {
             if initializer.initializer_site().is_some_and(|site|
@@ -122,28 +121,59 @@ impl PreparedBorrowedFormalIngressV1 {
                     }
                 }
             }
-            if plan.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
-                && (self.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone())).is_some()
-                    || input.function().method_call_source_v1(node.site()).is_some_and(|method|
-                        super::ordinary_text_argument_source_v1(self,
-                            &OwnedExprSiteV1::new(input.owner(), node.site().clone()), method)
-                            .map_or(true, |source| source.is_some())))) { return true; }
-            if !initializer.initializer_site().and_then(|site| input.function().expression_source().binary(site))
-                .is_some_and(|binary| binary.operator() == ResolvedBinaryOperatorV1::Add) { return false; }
-            let required = plan.nodes_outside_calls().any(|(_, leaf)| {
-                match leaf.source() {
-                    Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => true,
-                    Node::Reference(ResolvedLexicalRefV1::Local(binding)) => {
-                        let Some(flow) = input.function().expression_source().value_flow() else { return false };
-                        let Some(value) = flow.read(leaf.site(), *binding) else { return false };
-                        let Some(root) = flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) else { return false };
-                        self.source_value_sum_v1(root).is_some_and(|sum| sum.alternatives().len() == 1
-                            && sum.alternatives().contains(&SourceValueAlternativeV1::Text))
-                    }
-                    _ => false,
-                }
-            });
-            required
+            self.requires_text_expression_plan_v1(input, &plan)
         })
     }
+
+    /// Original ReturnValue demand selects the same Home walk as Text locals.
+    /// Selection issues no completion, result class or execution permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_text_return_walk_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> bool {
+        // A new lifecycle Return needs an original consumer. Passive generated
+        // methods and self-recursive-only unused helpers keep their prior lane.
+        if !self.source_incoming.source_rows_v1().any(|row|
+            row.callee == input.owner() && row.call.owner() != input.owner()) { return false; }
+        let Some(shape) = input.body_shape() else { return false };
+        let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false };
+        shape.statements().iter().any(|statement| {
+            if !matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }) { return false; }
+            let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                &ledger, shape, statement.site()) else { return false };
+            matches!(plan.nodes().first().map(|node| node.source()),
+                Some(crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(
+                    crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_))))
+                || self.requires_text_expression_plan_v1(input, &plan)
+        })
+    }
+
+    fn requires_text_expression_plan_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>, plan: &ExpressionSourcePlanV1,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
+        if plan.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
+            && (self.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone())).is_some()
+                || input.function().method_call_source_v1(node.site()).is_some_and(|method|
+                super::ordinary_text_argument_source_v1(self,
+                    &OwnedExprSiteV1::new(input.owner(), node.site().clone()), method)
+                    .map_or(true, |source| source.is_some())))) { return true; }
+        if !plan.nodes().first().and_then(|node| input.function().expression_source().binary(node.site()))
+            .is_some_and(|binary| binary.operator() == ResolvedBinaryOperatorV1::Add) { return false; }
+        let required = plan.nodes_outside_calls().any(|(_, leaf)| {
+            match leaf.source() {
+                Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => true,
+                Node::Reference(ResolvedLexicalRefV1::Local(binding)) => {
+                let Some(flow) = input.function().expression_source().value_flow() else { return false };
+                let Some(value) = flow.read(leaf.site(), *binding) else { return false };
+                let Some(root) = flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) else { return false };
+                self.source_value_sum_v1(root).is_some_and(|sum| sum.alternatives().len() == 1
+                    && sum.alternatives().contains(&SourceValueAlternativeV1::Text))
+                }
+                _ => false,
+            }
+        });
+        required
+    }
+
 }

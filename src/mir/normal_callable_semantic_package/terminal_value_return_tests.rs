@@ -148,7 +148,21 @@ fn non_i64_literal_returns_issue_value_relations() {
             panic!("literal return issues a Value relation: {body}");
         };
         if let Some(expected) = expected {
-            assert_eq!(relation.returned(), &expected, "{body}");
+            if expected == TerminalReturnedSourceV1::StringLiteral {
+                let TerminalReturnedSourceV1::TextExpression(evaluation) = relation.returned() else {
+                    panic!("literal Return retains its original evaluation");
+                };
+                assert_eq!(evaluation.source().owner(), relation.owner());
+                assert_eq!(evaluation.source().root().statement(), relation.return_site());
+                assert_eq!(evaluation.source().nodes().len(), 1);
+                assert_eq!(evaluation.source().nodes()[0].site(), relation.value_site());
+                assert!(matches!(evaluation.source().nodes()[0].source(),
+                    crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(
+                        crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(value)) if value.as_ref() == "s"));
+                assert!(evaluation.owned_result_nodes().is_empty(), "literal needs explicit Materialize");
+            } else {
+                assert_eq!(relation.returned(), &expected, "{body}");
+            }
         } else {
             let TerminalReturnedSourceV1::TextResidence { binding, acquisition } = relation.returned() else {
                 panic!("owned Text return retains its current acquisition");

@@ -531,13 +531,20 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
+        let unfinished = || format!("{}: call={:?}, callee={:?}, result={:?}, completion={}, text_exits={:?}",
+            freeze("ordinary-new/borrowed-entry/source-only-static-actuals"), original.call_site(), original.callee_owner(),
+            original.source_result(), self.completion_for_owner(original.callee_owner()).is_some(),
+            self.terminal_relations_for_owner(original.callee_owner()).iter().map(|relation|
+                matches!(relation, TerminalRelationV1::Value(value) if matches!(value.returned(),
+                    TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::TextResidence { .. }))).collect::<Vec<_>>());
         if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString) {
             if original.is_zero_input_source_v1() {
                 self.checked_completed_static_zero_arguments_v1(original)?
-                    .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+                    .ok_or_else(&unfinished)?;
             } else {
                 self.checked_completed_static_expression_input_v1(original)?
-                    .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+                    .ok_or_else(&unfinished)?;
             }
             return self.verify_original_static_source_v1(original);
         }
@@ -551,7 +558,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .is_none()
         {
             self.checked_completed_static_one_actuals_v1(original)?
-                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+                .ok_or_else(&unfinished)?;
         }
         self.verify_original_static_source_v1(original)
     }

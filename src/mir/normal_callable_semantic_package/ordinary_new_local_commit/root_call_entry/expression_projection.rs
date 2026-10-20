@@ -41,6 +41,29 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         self.comparison = Some((node, result));
         Ok(self)
     }
+    /// Shared purpose-acquisition correspondence. The source evaluation's root
+    /// remains unchanged when a destination materializes its independent Text.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_effective_root_v1(
+        &self, value: ValueId, text: bool, materializes: bool, acquisition: Option<&[Binding; 2]>,
+    ) -> Result<(), String> {
+        let expected = if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) };
+        match acquisition {
+            Some([invoke, normal]) if materializes && text => {
+                let Some(Some(input)) = self.values.first() else { return Err(freeze("rebind-expression/materialize-input")) };
+                if !input.is_text() || !matches!(&invoke.1, MirInstruction::Invoke {
+                    operation: InvokeOperation::String(Operation::Materialize { value }), normal_landing, .. }
+                        if value == input && *normal_landing == normal.0)
+                    || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value })
+                    || !self.original.contains(invoke) || !self.original.contains(normal) {
+                    return Err(freeze("rebind-expression/materialize-result"));
+                }
+            }
+            None if !materializes && self.values.first() == Some(&Some(expected)) => {}
+            _ => return Err(freeze("rebind-expression/purpose-result")),
+        }
+        Ok(())
+    }
+
     fn node_selected(&self, node: usize) -> bool {
         self.comparison.is_none_or(|(root, _)| node != root && self.frame.source().nodes()[node].site().node().segments()
             .starts_with(self.frame.source().nodes()[root].site().node().segments()))
@@ -152,6 +175,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             if self.frame.transfers_node(index) {
                 if value.is_some() {
                     return Err(freeze("print-expression/transferred-value"));
+                }
+                continue;
+            }
+            if let Some(tail) = source.transparent_tail_node_v1(index) {
+                if value.is_none() || self.values[index] != self.values[tail] {
+                    return Err(freeze("print-expression/node-value"));
                 }
                 continue;
             }
@@ -312,7 +341,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         }
     }
 
-    pub(super) fn require_unique(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn require_unique(
         &self,
         matches: impl Fn(&MirInstruction) -> bool,
     ) -> Result<&'a Binding, String> {
@@ -349,6 +378,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 ordered.extend([invoke.clone(), result.clone()]);
                 continue;
             }
+            if source.transparent_tail_node_v1(index).is_some() { continue; }
             if matches!(source.nodes()[index].source(), Node::Reference(_)) { continue; }
             if let Some(packet) = self.calls().find(|packet|
                 packet.call_site().site() == source.nodes()[index].site()) {
@@ -396,7 +426,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     /// Check the complete original scope before capture. Final contraction and
     /// insertion detection then belong to the existing PhysicalBoundary's
     /// complete sequence comparison, including these same structural Jumps.
-    pub(super) fn validate_original_scope(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_original_scope(
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
@@ -539,7 +569,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         Ok(())
     }
 
-    pub(super) fn validate_recorded(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded(
         &self,
         bindings: &[Binding],
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,

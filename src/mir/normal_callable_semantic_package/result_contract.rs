@@ -201,7 +201,7 @@ impl<'a> CallableResultContractRefV1<'a> {
 
     /// Complete original Text-residence exits; this grants no physical Call ABI.
     /// Entry finishing and final publication replay the same source correspondence.
-    pub(super) fn has_complete_text_residence_result_v1(&self) -> bool {
+    pub(super) fn has_complete_text_result_v1(&self) -> bool {
         use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
         let exits = self.completion.explicit_sites();
         let unique: std::collections::BTreeSet<_> = exits.iter().collect();
@@ -213,7 +213,16 @@ impl<'a> CallableResultContractRefV1<'a> {
             && exits.iter().all(|site| matches!(self.terminal_relations.get(site),
                 Some(TerminalRelationV1::Value(value)) if value.owner() == self.owner
                     && value.return_site() == site
-                    && matches!(value.returned(), TerminalReturnedSourceV1::TextResidence { .. })))
+                    && match value.returned() {
+                        TerminalReturnedSourceV1::TextResidence { .. } => true,
+                        TerminalReturnedSourceV1::TextExpression(evaluation) => evaluation.source().owner() == self.owner
+                            && evaluation.source().root().statement() == site
+                            && evaluation.source().nodes().first().is_some_and(|node| node.site() == value.value_site())
+                            && evaluation.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
+                            && evaluation.reference_coverage_is_exact(),
+                        _ => false,
+                    }))
     }
 
     /// Agreement with the independent ExactBool source result. An absent

@@ -238,8 +238,10 @@ impl PreparedBorrowedCallActualsV1 {
                 original.source.callee_owner(),
                 original.source.target(),
             )),
-            BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => Err(freeze(
-                "ordinary-new/borrowed-entry/source-only-static-actuals",
+            BorrowedCallActualEvidencePhaseV1::SourceStatic(ref original) => Err(format!(
+                "{}: call={:?}, callee={:?}, target={:?}, result={:?}",
+                freeze("ordinary-new/borrowed-entry/source-only-static-actuals"),
+                original.source.call_site(), original.source.callee_owner(), original.source.target(), original.source.source_result(),
             )),
         }
     }

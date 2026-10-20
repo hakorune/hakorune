@@ -257,6 +257,9 @@ pub(super) fn prepare_original_formal_seeds_v1(
     let mut expression_roots = Vec::new();
     let mut source_flows = BTreeMap::new();
     for declaration in batch.declarations().filter(|row| product.source_owners.contains(&row.owner())
+        || selected.key_for_batch_slot(row.batch_slot()).is_some()
+            && contracts.iter().any(|contract| contract.owner == row.owner() && contract.batch_slot == row.batch_slot())
+            && selected.identity_for_batch_slot(row.batch_slot()).is_some_and(|identity| identity.same_as(row.identity()))
         || app_main.is_some_and(|main| main.checked_caller_key(batch, contracts, row.owner(), row.batch_slot()).is_ok())
         || inventory.source_rows_v1().any(|incoming| incoming.call.owner() == row.owner()
             && matches!(&incoming.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
@@ -281,6 +284,14 @@ pub(super) fn prepare_original_formal_seeds_v1(
                     let Some(site) = initializer.initializer_site() else { continue };
                     expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
                         local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
+                }
+                // Direct ReturnValue uses the same original Core/SUM analysis;
+                // a source result is not a physical Return or ownership grant.
+                if let Some(shape) = input.body_shape() {
+                    for site in shape.return_value_sites() {
+                        expression_roots.push(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                            local_candidates, receiver, definitions, contracts, site, None, Some(inventory), Some(&source_context)));
+                    }
                 }
                 // Conditions demand original Core analysis too; their Bool
                 // root is not an incoming value or execution permission.

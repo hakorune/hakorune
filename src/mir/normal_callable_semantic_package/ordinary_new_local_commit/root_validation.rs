@@ -596,6 +596,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if let Some((_, original)) = &order.implicit_void {
                     result.push(original.clone());
                 }
+                result.extend_from_slice(order.text_expression_bindings_v1());
                 if let Some(original) = order.text_return_hold_binding() {
                     result.push(original.clone());
                 }

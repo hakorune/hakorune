@@ -129,6 +129,18 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
+    /// Structural identity only: an empty-prelude BlockExpr lends its exact
+    /// unique always-evaluated tail, without adding an operation or owner.
+    pub(crate) fn transparent_tail_node_v1(&self, index: usize) -> Option<usize> {
+        let node = self.nodes.get(index)?;
+        if !matches!(node.source(), ExpressionNodeSourceV1::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::BlockExpr { .. })) { return None; }
+        let crate::mir::resolved_value_profile::expression_children::ExpressionChildrenV1::Known(children) = node.children() else { return None };
+        let [child] = children.as_slice() else { return None };
+        if child.role != crate::mir::resolved_semantics::SourcePathSegmentV1::BlockExprTail
+            || child.reach != crate::mir::resolved_value_profile::expression_children::ExpressionChildReachV1::Always { return None; }
+        self.nodes.iter().position(|node| node.site() == &child.site)
+    }
     /// Parent-expression source demand only. Call inputs need their own source
     /// consumer; their literal/read descendants do not select the outer value.
     /// This structural query grants no transfer or execution permission.

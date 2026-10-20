@@ -81,7 +81,9 @@ pub(crate) fn project_expression_nodes_v1(
                 return None;
             }
         }
-        let value = if transferred.contains(&index) { Class::Identity } else { match node.source() {
+        let value = if transferred.contains(&index) { Class::Identity }
+            else if let Some(tail) = plan.transparent_tail_node_v1(index) { nodes[tail] }
+            else { match node.source() {
             ExpressionNodeSourceV1::Literal(literal) => Class::Value(match literal {
                 ResolvedLiteralSourceV1::Integer(_)
                 | ResolvedLiteralSourceV1::TypedInteger { .. } => ExpressionValueClassV1::I64,

@@ -223,6 +223,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             if !frame.node_is_identity(index) { values[index] = Some(Operand::NormalInteger(value)); }
             continue;
         }
+        if let Some(tail) = source.transparent_tail_node_v1(index) {
+            values[index] = Some(values[tail].clone().ok_or_else(|| freeze("print-expression/node-value"))?);
+            continue;
+        }
         let value = match node.source() {
             Node::Literal(Literal::String(text)) => Operand::StaticText { utf8: text.to_string() },
             Node::Literal(Literal::Integer(literal)) => {
@@ -388,7 +392,10 @@ pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &
 pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
     let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
-    if expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
+    let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
+    if materialized != Some(root) && expression.body.acquired.last().is_none_or(|(_, value)| *value != root) {
+        return Err(freeze("expression/residence-acquisition-order"));
+    }
     finish_continuation(builder, expression, Some(root), None)
 }
 

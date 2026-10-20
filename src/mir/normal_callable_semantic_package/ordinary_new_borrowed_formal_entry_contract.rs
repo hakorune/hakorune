@@ -195,6 +195,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
             }
         }
+        for terminal in self.terminal_relations_for_owner(contract.owner) {
+            use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
+            if let TerminalRelationV1::Value(value) = terminal {
+                if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {
+                    if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) {
+                        evaluations.push(evaluation);
+                    }
+                }
+            }
+        }
         for product in &loops {
             let evaluation = product.source.condition.evaluation();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }

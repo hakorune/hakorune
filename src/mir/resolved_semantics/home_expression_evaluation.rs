@@ -76,6 +76,11 @@ impl CheckedExpressionEvaluationV1 {
         (!order.is_empty()).then_some(order)
     }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.transferred_inputs.contains(&node) }
+    pub(crate) fn owned_root_node_v1(&self) -> Option<usize> {
+        let mut node = 0;
+        while let Some(tail) = self.source.transparent_tail_node_v1(node) { node = tail; }
+        self.owned_result_nodes().contains(&node).then_some(node)
+    }
     pub(crate) fn node_is_identity(&self, node: usize) -> bool {
         self.classes.get(node) == Some(&ExpressionLeafClassV1::Identity)
     }

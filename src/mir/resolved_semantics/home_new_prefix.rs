@@ -191,7 +191,7 @@ pub(crate) use map_flow::{
 };
 pub(crate) use terminal_relation::issue_terminal_integer_literal_return_from_completion_v1;
 use terminal_relation::{
-    map_literal_keys, return_scalar, terminal_map_get, terminal_returned_source, finite_entry_return, ReturnScalar,
+    map_literal_keys, return_scalar, terminal_map_get, terminal_returned_source, observe_text_return_expression_v1, finite_entry_return, ReturnScalar,
 };
 pub(crate) use terminal_relation::{
     TerminalBoolLiteralReturnV1, TerminalCallArgumentV1, TerminalI64AddReturnV1,

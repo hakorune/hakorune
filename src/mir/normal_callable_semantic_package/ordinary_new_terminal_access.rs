@@ -41,9 +41,24 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect()
     }
 
+    /// Borrow the original sealed Return evaluation without exposing mutable
+    /// terminal inventories to the physical builder.
+    pub(crate) fn text_return_evaluation_v1(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, String> {
+        let Some(TerminalRelationV1::Value(value)) = self.terminal_relation_for_owner_at(owner, site) else { return Ok(None) };
+        let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::TextExpression(source) = value.returned()
+            else { return Ok(None) };
+        if source.source().owner() != owner || source.source().root().statement() != site
+            || value.owner() != owner || value.return_site() != site
+            || source.source().nodes().first().is_none_or(|node| node.site() != value.value_site()) {
+            return Err("[freeze:contract][expression/residence-original-pair]".into());
+        }
+        Ok(Some(std::rc::Rc::clone(source)))
+    }
+
     /// The retained relation at one exact source exit site for `owner`.
-    /// `None` is not a fallback for "some other exit" — it means this exit
-    /// has no retained relation.
+    /// None means this exit has no relation; never choose a different exit.
     pub(in crate::mir::normal_callable_semantic_package) fn terminal_relation_for_owner_at(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,

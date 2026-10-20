@@ -330,9 +330,15 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 arguments,
                 ..
             } => {
-                let receiver_fact = self.core_receiver_fact(object);
-                let receiver_pending = matches!(object.as_ref(), ASTNode::Variable { name, .. }
-                    if matches!(self.binding(name), Some(I64ExpressionFactV1::PendingDependency)));
+                // Receiver evaluation belongs to the same original expression
+                // walk, before arguments. Preserve its nested call sites and
+                // already-proven result rather than reclassifying only spelling.
+                let receiver_result = self.prove_expression(object,
+                    &Self::child_path(expression, path, ExprChildRoleV1::Receiver))?;
+                let receiver_fact = if matches!(receiver_result, I64ExpressionFactV1::ExactString) {
+                    Some(SourceCoreReceiverFactV1::ExactStringOnSuccess)
+                } else { self.core_receiver_fact(object) };
+                let receiver_pending = matches!(receiver_result, I64ExpressionFactV1::PendingDependency);
                 let arguments = self.prove_arguments(expression, arguments, path)?;
                 let outcome = self.call_proof.prove_method_call(
                     path.expr(),

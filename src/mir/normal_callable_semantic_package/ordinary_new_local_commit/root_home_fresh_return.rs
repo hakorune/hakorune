@@ -7,10 +7,21 @@ impl OrdinaryNewClaimLedgerV1 {
     fn completed_fresh_return_cleanup(
         &self,
         owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
+        exit: &SourceStmtSiteV1, order: &RootHomeCleanupOrderV1,
     ) -> Result<Option<(ValueId, Vec<RootHomeReleaseOriginV1>)>, String> {
         let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
         else { return Ok(None) };
+        if let TerminalReturnedSourceV1::TextExpression(source) = terminal.returned() {
+            let row = order.text_return_expression.as_ref().ok_or_else(|| freeze("expression/residence-original-pair"))?;
+            if !std::rc::Rc::ptr_eq(source, &row.source) || terminal.owner() != owner || terminal.return_site() != exit {
+                return Err(freeze("expression/residence-original-pair"));
+            }
+            let site = OwnedExprSiteV1::new(owner, terminal.value_site().clone());
+            return Ok(Some((row.value, vec![RootHomeReleaseOriginV1 {
+                subject: RootHomeReleaseSubjectV1::DirectResult { site }, exit: exit.clone().into(),
+                operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: row.value }),
+            }])));
+        }
         let TerminalReturnedSourceV1::Construction(site) = terminal.returned()
         else { return Ok(None) };
         if terminal.owner() != owner || terminal.return_site() != exit
@@ -62,7 +73,7 @@ impl OrdinaryNewClaimLedgerV1 {
         else { return Err(freeze("fresh-result-cleanup/not-emitting")) };
         // Without a Normal cleanup step there is no later cleanup Fault.
         if order.normal().is_empty() { return Ok(()) }
-        let Some((original, origins)) = self.completed_fresh_return_cleanup(owner, exit)?
+        let Some((original, origins)) = self.completed_fresh_return_cleanup(owner, exit, order)?
         else { return Ok(()) };
         if original != value { return Err(freeze("fresh-result-cleanup/value")); }
         order.prepend_fault_only_result(origins)
@@ -70,6 +81,17 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl RootHomeCleanupOrderV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn include_fresh_result_prefix_v1(
+        &mut self, ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1, original: &RootHomeCleanupOrderV1,
+    ) -> Result<(), String> {
+        if self.normal().is_empty() { return Ok(()); }
+        if let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit, original)? {
+            self.prepend_fault_only_result(origins)?;
+        }
+        Ok(())
+    }
+
     pub(super) fn validate_fresh_result_cleanup(
         &self,
         ledger: &OrdinaryNewClaimLedgerV1,
@@ -78,7 +100,7 @@ impl RootHomeCleanupOrderV1 {
         entry: &RootHomeExitEntry,
     ) -> Result<(), String> {
         if self.normal().is_empty() { return Ok(()) }
-        let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit)?
+        let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit, self)?
         else { return Ok(()) };
         if !matches!(entry, RootHomeExitEntry::Plain { .. }) {
             return Err(freeze("fresh-result-cleanup/entry"));

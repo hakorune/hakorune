@@ -4949,5 +4949,21 @@ the same publication event lender as Local installs. Normal cleanup omits only
 the held Home; Fault retains its original acquisition rank. Independent Rust/C
 lifetime checks permit only that same remaining Home to transfer on Normal, and
 reject duplicate holds, replacement, String borrowing or Calls while held.
-Ordinary Text Call/result ABI and direct returned-expression execution remain
-required connections through the same Call, Home and Completion owners.
+Fresh Text Return uses the same original ReturnValue plan and checked statement
+evaluation as existing Text expression consumers. The original Return owner retains
+its evaluation and physical observations in the existing cleanup order; no fake Local
+or second result registry is issued. Literal/borrowed roots require explicit Materialize;
+owned operation/Core roots retain their original acquisition. Install precedes child
+cleanup, then hold precedes original Home cleanup. Fault cancels the fresh result;
+Normal transfers it. Both final consumers replay source/effective root, acquisition,
+install, continuation, hold and exact Return value, including optimizer projections.
+The existing publication lender emits each original install/hold once. Transparent
+empty-prelude BlockExpr nodes forward their exact tail value without new acquisition.
+Text initializer and Return source demands select the same single Home walk; plain
+Completion cannot preempt a required original Text evaluation. New Return walk demand
+requires an original non-self caller, so unused generated/self-only helpers stay passive;
+this is consumer membership, not Main reachability. Fresh Return consults passive Core
+sources before strict input demands; ordinary Call Returns retain their existing owner.
+Ordinary Text Call ABI
+and Zero/Uses inputs are connected; unknown-formal callee completion ordering and
+full application acceptance remain required connections through these same owners.

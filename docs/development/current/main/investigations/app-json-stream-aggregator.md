@@ -6,12 +6,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Fixed suite: Text Call source/publication change (base `e84df95343`),
-  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner477.107s.
-  Matching quick opt0 CLI35.68s, frozen quick lifecycle runtime/private C FFI;
-  build/run300s, no Cargo overlap. mimalloc152.332s, allocator177.272s, typed36–37s.
+- Fixed suite: fresh Text Return source/publication series (base `94066c1803`),
+  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner523.661s.
+  Matching quick opt0 CLI43.07s, frozen quick runtime/private C FFI, serial runner;
+  build/run300s, no Cargo overlap. mimalloc180.221s, allocator182.785s, typed37–43s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --timeout 1900 --format json`.
+  --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
+- Final contract-presence bound on newly selected SUM owners is focused-verified;
+  the suite precedes that bound. Final CLI35.76s; newbox PASS and four red stops unchanged.
 - JSON still stops during package/MIR generation at
   `borrowed-static/text-expression-execution-pending`, before EXE/link/runtime.
   Owner26 Body3 intField argument0 line remains pending after missing Body1
@@ -33,37 +35,37 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Home rank through recorder/pending/finishing/both final consumers/publication.
   Normal skips only that Home; Fault retains original reverse order. Plain exits
   remain Emitted. Duplicate/stale hold, replacement and borrowing remain refused.
-- Ordinary Text Call retains its result below the exact argument End suffix.
-  Call Fault acquires no result; argument-End Fault cancels remaining arguments,
-  then result, then outer temporaries/Homes. SSA remapping and Rust/C replay retain
-  these dependencies separately from actual arguments and borrow permission.
+- Ordinary Text Call holds its result below the exact argument End suffix.
+  Call Fault acquires nothing; argument-End Fault cancels remaining args, result,
+  then outer cleanup. SSA/Rust/C retain lifecycle dependencies apart from arguments.
 - Original ExactString Local Call joins full input, affine publication, the same
-  TextResidence result and both final consumers. Entry finishing and final publication
-  replay one complete original residence-exit predicate; no backend type authority.
-- Existing optimized source/publication case passes. Direct canonical `--emit-exe`
-  and execution print `!ab`, `Result: 0`, exit0. This small probe does not establish
-  JSON acceptance or cover every Text-returning function.
-- Existing cases extended only for independent held-result/argument-End Fault and
-  optimized source-publication boundaries; no new test fn/file/hook/checker/token.
-  Source1, projection9, finished4, Invoke42, instruction19, array-read9 and C Text
-  matrix(profile1/2)PASS; initializer79PASS/2samepriorFAIL, terminal6PASS/2samepriorFAIL
-  remain open. Direct test runs require16MiBstack.
-- Zero-argument ExactString now reuses existing Zero input evidence/empty actuals,
-  full original Text source census, same Completion/all residence exits and mandatory
-  final Text callee scan. Existing I64 census stays unchanged; unselected Text stays
-  passive. Worker review caught census/selection regressions; focused tests confirm
-  their correction without weakening duplicate-source or old refusal boundaries.
-- Matching CLI43.69s; optimized source case and direct `--emit-exe`/execution PASS:
-  `ab`, `Result: 0`, exit0. Zero-input1, original input-source6, Static packet3 and
-  whole expression-input1PASS; initializer79PASS/2samepriorFAIL. One existing tuple
-  protects the distinct Zero-to-publication boundary; no new test fn/file/hook/guard.
-  JSON smoke reconfirms the same MIR stop; suite above was not rerun for this family.
-- Next: direct Text Return through existing ReturnValue plan/evaluation/terminal,
-  common result contract and both final consumers. Worker reviewed same-owner
-  Materialize/Core acquire → install → child cleanup → hold → original Home cleanup.
-  Keep the fresh result Fault-only End and publication events joined; no fake Local.
-  Unknown formal/Core callee completion ordering remains a separate required fix;
-  never infer Text from names/MIR types or create another result map.
+  residence and both final consumers. Earlier canonical EXE `!ab`/Result:0/exit0
+  passed; source-only rows or small probes do not establish JSON acceptance.
+- Zero-argument ExactString reuses existing Zero input/empty actuals, full original
+  Text census, selected target/signature, Completion and mandatory final callee scan.
+  Prior canonical EXE `ab`/exit0 passed; I64 census and passive unselected Text stay.
+- Fresh Text Return now retains the original ReturnValue evaluation in the existing
+  Return/cleanup owner. Shared statement qualification and transparent tail projection
+  add no fake Local, second registry or wrapper acquisition. Original non-self
+  consumer demand selects one Home walk; unused generated/self-only helpers stay passive.
+- Literal roots Materialize; computed/Core roots retain their original acquisition.
+  Install -> child cleanup -> hold -> original Home cleanup stays joined. Fault
+  cancels the fresh result; both final consumers and publication replay source/root,
+  projection, install, hold and exact Return value. Existing optimized source case
+  rejects missing install/hold and changed Return; worker reviewed Fault ownership.
+- Canonical `--emit-exe`/execute PASS: literal with older Home `abc`, computed
+  `("a" + "bc").substring(0,1)` `a`; both Result:0/exit0. Matching final
+  CLI/probes rechecked after the scope guard; unchanged quick runtime/private C FFI.
+- Focused: callable result96/Invoke42/Core11/input6/seed1/Print4/initializer projection1/
+  finished4PASS. Initializer79PASS/2samepriorFAIL, terminal6PASS/2samepriorFAIL remain.
+  Expression plan5PASS/1FAIL and lifecycle admission2PASS/2FAIL reproduce on clean
+  HEAD build (callback count/source-sum caller-contract); all remain owed, not waived.
+- Existing source tuples/mutations cover distinct fresh-acquire/hold/Fault and final
+  publication boundaries; no new test fn/file/hook/checker/token. Fresh Return borrows
+  passive Core sources first; ordinary Call Returns keep their existing input owner.
+- Next: same original callee Completion/source-result ordering, then unchanged JSON
+  smoke. Unknown-formal Text must borrow the same completed contract, never a guessed
+  catalog/MIR type or second result map. Dynamic/End and finite goal remain owed.
 - Existing Loop Call/If and Function Return retain original reads, producers,
   Phi keys and root cleanup through both consumers. Plain scalar If requires
   whole leaf/read census, so it cannot steal Static Call/field ownership.

@@ -213,6 +213,25 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         return OriginalFormalActualSeedV1::Integer;
     }
     if source_context.is_some_and(OriginalActualSourceContextV1::is_point_premise) {
+        // The existing child inventory proves a transparent empty-prelude
+        // BlockExpr. Keep the outer Core receiver site; solve only its value
+        // through the same original tail, without rewriting source or effects.
+        if let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) {
+            use crate::mir::resolved_value_profile::{expression_source::{expression_source_v1, ResolvedExpressionSourceV1},
+                expression_children::{expression_children_v1, ExpressionChildrenV1, ExpressionChildReachV1}};
+            if matches!(expression_source_v1(&ledger, input.body_shape(), site), Some(ResolvedExpressionSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::BlockExpr { .. }))) {
+                if let Ok(ExpressionChildrenV1::Known(children)) = expression_children_v1(&ledger, input.body_shape(), site) {
+                    if let [child] = children.as_slice() {
+                        if child.role == crate::mir::resolved_semantics::SourcePathSegmentV1::BlockExprTail
+                            && child.reach == ExpressionChildReachV1::Always {
+                            return classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+                                caller, candidates, receiver, definitions, contracts, &child.site, None, inventory, source_context, inherited);
+                        }
+                    }
+                }
+            }
+        }
         if let Some(source) = function.expression_source().binary(site) {
             let classify = |site: &SourceExprSiteV1| classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
                 caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, inherited);

@@ -357,6 +357,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_print_expression = walk_triggers::has_print_expression_v1(input);
                 let has_condition_expression = walk_triggers::has_condition_expression_v1(input);
                 let has_text_initializer = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input));
+                let has_text_return = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input));
                 let has_array_residence = source_core_calls.is_some_and(|rows| rows.values()
                     .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some()));
                 let seed_completion = (seed_eligible
@@ -371,7 +372,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     && !has_static_source_local && !has_typed_static_walk
                     && !has_print_expression
                     && !has_condition_expression
-                    && !has_text_initializer
+                    && !has_text_initializer && !has_text_return
                     && !has_array_residence
                     && !has_integer_return
                     && !has_formal_field_read
@@ -382,7 +383,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let app_main_integer_result = walk_triggers::plain_main_integer_result_v1(
                     input,
                     is_app_main,
-                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_condition_expression && !has_text_initializer && !has_typed_static_walk,
+                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_condition_expression && !has_text_initializer && !has_text_return && !has_typed_static_walk,
                     !has_map && owner_loan.is_none(),
                     &static_source_sites,
                 );
@@ -398,7 +399,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     &mut top_level_input,
                 )?;
                 let verified_walk = has_print_expression || has_condition_expression || has_typed_static_walk
-                    || has_text_initializer
+                    || has_text_initializer || has_text_return
                     || has_array_residence
                     || owner_loan.is_some()
                     || callable_result_classes.has_object_call_return(owner)

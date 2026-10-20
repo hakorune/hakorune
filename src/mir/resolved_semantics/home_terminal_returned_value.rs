@@ -40,6 +40,8 @@ pub(crate) enum TerminalReturnedSourceV1 {
     Construction(OwnedExprSiteV1),
     /// `return "<literal>"` — a string literal value.
     StringLiteral,
+    /// Same original ReturnValue evaluation; fresh Text is acquired only later.
+    TextExpression(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>),
     /// Exact read of the current owned Text acquisition. The original exit
     /// keeps this residence live for Fault cleanup; Normal transfer is a
     /// downstream disposition, never an Object Home or a new acquisition.
@@ -205,4 +207,76 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn finite_entry_return<E
         input, plan: &plan, read: value_site, binding, root })? else { return Ok(None) };
     Ok(super::TerminalI64ScalarReturnV1::issue(input.owner(), return_site.clone(), value_site.clone())
         .with_entry_read_v1(read))
+}
+
+/// Seal one fresh Text result at its original ReturnValue destination. The
+/// existing residence-return path retains transfers of installed Text Homes.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_expression_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    locals: &PrefixLocalFlow<'_>, homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1], calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<TerminalValueReturnV1>, E> {
+    use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1,
+        expression_root::StatementExpressionRoleV1, expression_children::{ExpressionChildrenV1, ExpressionChildReachV1},
+        expression_class::ExpressionValueClassV1, expression_projection::ExpressionLeafClassV1};
+    let Some(shape) = input.body_shape() else { return Ok(None) };
+    let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(None) };
+    let Ok(Some(source)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+        &ledger, shape, statement.site()) else { return Ok(None) };
+    let ExpressionPlanRootV1::Statement { role: StatementExpressionRoleV1::ReturnValue, value, .. } = source.root()
+        else { return Ok(None) };
+    if locals.text_reference(value).is_some() || source.nodes().first().is_none_or(|node| node.site() != value)
+        || source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
+            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None) }
+    // Scalar/field terminals keep their own observer and pending input phase.
+    // A fresh Core root borrows its original source once before any ordinary
+    // Call demand; unsupported ordinary Text-call Returns remain unselected.
+    use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+    let mut root = 0;
+    while let Some(tail) = source.transparent_tail_node_v1(root) { root = tail; }
+    match source.nodes()[root].source() {
+        Node::MethodCall | Node::Literal(ResolvedLiteralSourceV1::String(_)) | Node::Reference(_) => {},
+        Node::Binary(binary) if binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add => {},
+        _ => return Ok(None),
+    }
+    // Core source consultation is passive. Ordinary Call Returns keep their
+    // existing terminal/input owner until their complete result handoff is sealed.
+    let mut cores = std::collections::BTreeMap::new();
+    for node in source.nodes() {
+        if !matches!(node.source(), Node::MethodCall) { continue; }
+        let site = OwnedExprSiteV1::new(input.owner(), node.site().clone());
+        let Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::ExpressionCoreSource(core)) = actuals(&site,
+            crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan: &source })?
+            else { return Ok(None) };
+        if node.site() == source.nodes()[root].site() && !core.owns_result() { return Ok(None); }
+        cores.insert(site, core);
+    }
+    let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
+        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, &std::collections::BTreeMap::new(), homes,
+        &mut |site| Ok(cores.get(site).cloned().map(
+            crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionCallSourceV1::Core)))? else { return Ok(None) };
+    let mut initial = Vec::new();
+    for (node, original) in source.nodes().iter().enumerate() {
+        if !prepared.is_active_reference(node) { continue; }
+        let Some((binding, root)) = crate::mir::resolved_semantics::home_new_prefix::argument_expression::text_reference(input, locals, original.site()) else { continue };
+        let owned = OwnedExprSiteV1::new(input.owner(), value.clone());
+        if let Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(&owned,
+            crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::FiniteEntryRead { input, plan: &source, read: original.site(), binding, root })? {
+            initial.push((node, crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry {
+                read, exclusion: locals.entry_null_exclusion(original.site(), binding, root),
+            }));
+        }
+    }
+    let Some((evaluation, fields)) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
+        &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
+        &mut |site| locals.current_scalar_read_v1(site, calls), &mut |_| None)? else {
+            return Ok(None);
+        };
+    if !fields.is_empty() || evaluation.root_class() != ExpressionLeafClassV1::Value(ExpressionValueClassV1::String) {
+        return Ok(None);
+    }
+    Ok(Some(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.clone(),
+        TerminalReturnedSourceV1::TextExpression(std::rc::Rc::new(evaluation)))))
 }
