@@ -82,6 +82,7 @@ LOWERING_TIER_RUST_VARIANTS = {
 SEMANTIC_LAW_RUST_VARIANTS = {
     "Unprojected": "Unprojected",
     "ArrayCount": "ArrayCount",
+    "MapKeyPresence": "MapKeyPresence",
     "CodePointCount": "CodePointCount",
     "CodePointHalfOpenClamped": "CodePointHalfOpenClamped",
     "CodePointSearchFromZero": "CodePointSearchFromZero",

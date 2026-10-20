@@ -146,7 +146,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
     ) -> Result<VerifiedResolverOrdinaryCoreMethodSourceV1, ResolverCoreMethodCallableContractRejectV1> {
         let source = verify_source_identity(ledger, call)?;
         verify_arguments(call, &target)?;
-        if target.schema() != CoreMethodHomeSchemaV1::StringBoxText {
+        if !matches!(target.schema(), CoreMethodHomeSchemaV1::StringBoxText | CoreMethodHomeSchemaV1::MapTextPresence) {
             return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
         }
         verify_target(&target, call)?;
@@ -425,6 +425,10 @@ fn verify_target(
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetManifestBrandMismatch);
     }
     let (receiver, effect, receiver_name, abi_profile) = match target.schema() {
+        CoreMethodHomeSchemaV1::MapTextPresence => (
+            CoreMethodHomeReceiverRelationV1::MapReceiver, CoreMethodEffectV1::PureRead,
+            "MapBox", CoreMethodHomeAbiProfileV1::MapTextPresenceV1,
+        ),
         CoreMethodHomeSchemaV1::StringBoxText => (
             CoreMethodHomeReceiverRelationV1::StringBoxReceiver,
             CoreMethodEffectV1::PureRead,
@@ -469,7 +473,8 @@ fn verify_target(
         );
     }
     match (row.op, target.row().arity(), target.result()) {
-        (CoreMethodOp::StringLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
+        (CoreMethodOp::MapHas, 1, CoreMethodHomeResultRelationV1::BoolToCaller)
+        | (CoreMethodOp::StringLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
         | (CoreMethodOp::StringSubstring, 2, CoreMethodHomeResultRelationV1::TextToCaller)
         | (CoreMethodOp::ArrayPush, 1, CoreMethodHomeResultRelationV1::NoValue)
         | (CoreMethodOp::ArrayGet, 1, CoreMethodHomeResultRelationV1::DynamicToCaller)
@@ -487,7 +492,8 @@ fn verify_target(
         CoreMethodOp::ArrayPush => match target.schema() {
             CoreMethodHomeSchemaV1::ArrayTextAppend => &[Parameter::TextRetainedByReceiver],
             CoreMethodHomeSchemaV1::ArrayIntegerAppend => &[Parameter::I64Parameter],
-            CoreMethodHomeSchemaV1::ArrayDynamicRead
+            CoreMethodHomeSchemaV1::MapTextPresence
+            | CoreMethodHomeSchemaV1::ArrayDynamicRead
             | CoreMethodHomeSchemaV1::StringBoxText => {
                 return Err(
                     ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {
@@ -498,7 +504,7 @@ fn verify_target(
             }
         },
         CoreMethodOp::ArrayGet => &[Parameter::I64Parameter],
-        CoreMethodOp::StringIndexOf => &[Parameter::TextParameter],
+        CoreMethodOp::StringIndexOf | CoreMethodOp::MapHas => &[Parameter::TextParameter],
         op => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {

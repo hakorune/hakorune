@@ -7,18 +7,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner335.599s at prior source-first-write commit; not rerun for native-only reads.
+  runner335.599s at source-first-write commit; not rerun for this source-only stage.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current CLI/runtime use the same quick graph: reused CLI1.65s/runtime2.37s;
-  root Map test recompilation62s. JSON rechecked with a frozen matching pair/FFI.
+- Current CLI/runtime use the same quick graph: CLI64s/runtime6.45s, root test
+  compile110s. Frozen matching pair/FFI rechecks JSON: MIR failure, same owner26.
 - JSON still stops at `borrowed-entry/source-use-completion-pending`, owner26
   JsonStreamAggregator.ingestLine, called at line152 inside ingest Loop.
   Outer `source-loop-header-after` wraps this callee failure; no JSON EXE is claimed.
-- Body5 statsFor BOTH results and Body6 stats.add need Map-slot support. Bool uses
-  the original exact read/producer owner; prior canonical probe prints yes/1/Result0.
-- Other product reds: untyped-field source activation, binary-trees source-not-i64,
-  boxtorrent stored-child receiver. These remain incomplete.
+- statsFor BOTH results and stats.add need Map-slot support; Bool keeps exact reads.
+- Other reds: untyped-field activation, binary-trees source-not-i64, boxtorrent child.
 
 ## Connected field and Map End
 - Shared FieldResidence mode carries the original complete Array/Dynamic census
@@ -44,9 +42,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   until Birth Normal. Provided/nullable Dynamic partial cleanup remains unadmitted.
 
 ## Validation and retained failures
-- Current Invoke42/construction4/original-prefix1/Provided1 and kernel Map17 PASS.
-  Runtime binding8+actual archive1 PASS (two ignored not counted); C V4 execution
-  and existing14 negatives/artifact preservation PASS. Prior evidence stays in Git.
+- Invoke42/construction4/prefix1/Provided1/Map17/binding8+archive1/C14 PASS.
+  Two ignored tests excluded; no previous product failures waived.
 - Native C field ABI PASS in both profiles (Map SafeMutex only), including repeated
   first-write refusal and preservation of a caller-owned candidate on occupied slot.
 - Three original-source canonical EXEs (Map-first, scalar-first, mixed fixed Array)
@@ -80,18 +77,21 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   identity, without Home/claim/clone/retain. Map guard ends before object validation.
   Scalar, Array-length and new native reads share admission; former narrow module
   is replaced. No second source/result registry or general Call/Return permission.
-- Next vertical connection: original field Map -> has(Text key) -> Bool condition;
+- Original field Map and Text key now jointly close the SAME Core source before
+  solving; exact Me/field and sole Map Birth writer retained, no Map SSA/entry grant.
+  Manifest MapKeyPresence returns Bool independently of entry kind. Existing source
+  case adds sole-writer/provider/key negatives: independent joint-premise boundary.
+  Source family2/target7/source-ledger9/codegen14 PASS; zero-match filter excluded.
+- Next: connect has Bool condition to physical writer and BOTH final consumers;
   then statsFor BOTH returns as Map-held borrows through stats.add/users.push.
-  Original field assignments alone are NOT all Map writers: retain exact has/get/
-  set/escape uses, slot support and key/class through last use in SAME result witness.
+  Retain exact has/get/set/escape uses and slot/key/class support through last use;
+  field-assignment census alone is NOT all Map writers.
 - UserStats Text materialization (independent value, not copied input Home), Box
   Provided initialization, Shared/carrier and full Dynamic source
   activation remain owed. Array holder/contents/End, exact empty-transfer census,
   canonical writer, signed SUM/rebind/to_i64 and original source/physical reds remain.
   Existing opaque draft stays unselected; no parallel inventory.
-
 ## Completion limits
-
 - mimalloc PASS includes removal of an obsolete generic-JSON all-Invoke refusal
   precheck; direct EXE already worked. Publication tests do not prove that same
   mimalloc closure or every subtype. Preserve this harness/capability distinction.

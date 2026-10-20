@@ -12,6 +12,7 @@ pub(super) enum SourcePointExpansionV1 {
     Seed(OriginalFormalActualSeedV1),
     Unknown,
 }
+type MapReceiverLender<'a> = dyn FnMut(&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>) -> Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>> + 'a;
 type PointExpander<'a> = dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -79,6 +80,7 @@ pub(in crate::mir::normal_callable_semantic_package)
 struct ClosedOriginalCoreSourceV1 {
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     request: OriginalCoreOperandRequestV1,
+    field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
     text: Box<[SourceValueSumV1]>,
     i64: Box<[SourceValueSumV1]>,
 }
@@ -87,15 +89,21 @@ impl ClosedOriginalCoreSourceV1 {
         -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
     pub(in crate::mir::normal_callable_semantic_package) fn manifest(&self)
         -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 { self.request.manifest() }
+    pub(in crate::mir::normal_callable_semantic_package) fn field_map(&self)
+        -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>> { self.field_map.as_ref() }
     fn matches(&self, other: &Self) -> bool {
         std::sync::Arc::ptr_eq(&self.method, &other.method)
             && std::ptr::eq(self.manifest().row(), other.manifest().row())
             && self.manifest().arity() == other.manifest().arity()
             && self.text == other.text && self.i64 == other.i64
+            && match (&self.field_map, &other.field_map) {
+                (None, None) => true, (Some(left), Some(right)) => left.matches_source(right), _ => false,
+            }
     }
 }
 struct CoreRequestNode {
     node: usize,
+    field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
     text: Vec<usize>,
     i64: Vec<usize>,
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
@@ -126,6 +134,7 @@ struct Graph<'a> {
     formals: BTreeMap<BindingRefV1, usize>,
     constructors: &'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     core_requests: Vec<CoreRequestNode>,
+    map_receiver: &'a mut MapReceiverLender<'a>,
 }
 impl Graph<'_> {
     fn point(&mut self, owner: FunctionOwnerIdV1, value: SourceValueRefV1) -> usize {
@@ -242,7 +251,12 @@ impl Graph<'_> {
                 let i64: Vec<_> = source.required_i64().iter().map(|seed| self.seed(seed)).collect();
                 let text: Vec<_> = source.required_text().iter().map(|seed| self.seed(seed)).collect();
                 if let Some(request) = source.core_operand_request() {
-                    self.core_requests.push(CoreRequestNode { node: id,
+                    let field_map = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapHas {
+                        let proof = (self.map_receiver)(source.method());
+                        row.invalid |= proof.is_none();
+                        proof
+                    } else { None };
+                    self.core_requests.push(CoreRequestNode { node: id, field_map,
                         method: std::sync::Arc::clone(source.method()), request,
                         text: text.clone(), i64: i64.clone() });
                 }
@@ -280,13 +294,14 @@ pub(super) fn resolve_original_source_sums_v1(
     initializer_roots: &[OriginalFormalActualSeedV1],
     flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
     expand: &mut PointExpander<'_>,
+    map_receiver: &mut MapReceiverLender<'_>,
 ) -> Result<OriginalSourceSumsV1, String> {
     let mut graph = Graph {
         points: BTreeMap::new(), expand, expansion_error: None,
         nodes: Vec::new(),
         formals: BTreeMap::new(),
         constructors,
-        core_requests: Vec::new(),
+        core_requests: Vec::new(), map_receiver,
     };
     let mut registered = BTreeSet::new();
     for contract in contracts
@@ -333,7 +348,7 @@ pub(super) fn resolve_original_source_sums_v1(
             && request.i64.iter().all(|dependency| values[*dependency].as_ref().is_some_and(SourceValueSumV1::signed_only));
         let closed = values[request.node].as_ref().filter(|_| premises_closed).and_then(|_| {
             Some(ClosedOriginalCoreSourceV1 {
-                method: std::sync::Arc::clone(&request.method), request: request.request,
+                method: std::sync::Arc::clone(&request.method), request: request.request, field_map: request.field_map.clone(),
                 text: request.text.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
                 i64: request.i64.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
             })

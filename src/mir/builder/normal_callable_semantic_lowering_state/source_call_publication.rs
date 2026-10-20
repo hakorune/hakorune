@@ -138,6 +138,7 @@ impl CallableSemanticLoweringState {
             crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::NoValue => {
                 return Err(freeze("no-value-source-call-used-as-value"));
             }
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::BoolToCaller => crate::mir::MirType::Bool,
             crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller => {
                 crate::mir::MirType::Integer
             }

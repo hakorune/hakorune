@@ -258,7 +258,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         }).collect();
         let mut required_text = Vec::new();
         if let Some(request) = core_operand_request {
-            required_text.push(classify(method.receiver_site()));
+            if request.receiver_is_text() { required_text.push(classify(method.receiver_site())); }
             for ordinal in request.text_ordinals() {
                 required_text.push(match method.arguments().get(*ordinal as usize).filter(|arg| arg.ordinal() == *ordinal) {
                     Some(argument) => classify(argument.site()),

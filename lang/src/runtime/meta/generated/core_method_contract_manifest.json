@@ -153,7 +153,7 @@
       "aliases": [],
       "arity": "1",
       "semantic_law": {
-        "1": "Unprojected"
+        "1": "MapKeyPresence"
       },
       "effect": "pure_read",
       "core_op": "MapHas",

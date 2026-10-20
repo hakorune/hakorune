@@ -111,7 +111,7 @@ pub(crate) const CORE_METHOD_CONTRACT_ROWS_V2: &[CoreMethodContractRowV2] = &[
         canonical: "has",
         aliases: &[],
         arities: &[1],
-        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::MapKeyPresence)],
         op: CoreMethodOp::MapHas,
         result_kind: CoreMethodResultKindV1::BoolValue,
         effect: CoreMethodEffectV1::PureRead,

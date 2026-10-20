@@ -100,7 +100,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
         let call = match call {
             ExpressionCallSourceV1::Core(core) => {
                 if !core.matches_plan(source, index) { return Ok(None); }
-                leaves[index] = Leaf::Value(if core.owns_result() { Class::String } else { Class::I64 });
+                let Some(class) = core.result_class() else { return Ok(None) };
+                leaves[index] = Leaf::Value(class);
+                if let Some(field) = core.field_map() {
+                    // Only this exact receiver projection belongs to the Core
+                    // call. Key subtrees keep their own Text/read obligations.
+                    for (child, node) in source.nodes().iter().enumerate() {
+                        if node.site().node().segments().starts_with(field.field_site().node().segments()) {
+                            transferred.insert(child);
+                        }
+                    }
+                }
                 cores.insert(index, core);
                 continue;
             }
@@ -192,7 +202,8 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
     for core in cores.values() {
         let original = core.source().source();
         let class = |site| source.nodes().iter().position(|node| node.site() == site).map(|node| classes[node]);
-        if class(original.receiver_site()) != Some(Leaf::Value(Class::String)) { return Ok(None); }
+        let expected_receiver = if core.field_map().is_some() { Leaf::Identity } else { Leaf::Value(Class::String) };
+        if class(original.receiver_site()) != Some(expected_receiver) { return Ok(None); }
         for (argument, parameter) in original.arguments().iter().zip(core.source().target().parameters()) {
             let expected = match parameter {
                 crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter => Class::I64,

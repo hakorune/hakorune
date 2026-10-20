@@ -101,6 +101,43 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             }).unwrap();
         }).unwrap();
     }
+    // Map presence closes only with BOTH the original stable field writer and
+    // Text key; it never inherits the String receiver's class by selector.
+    for (provider, extra_writer, key, closes) in [
+        ("MapBox", "", "\"a\"", true),
+        ("ArrayBox", "", "\"a\"", false),
+        ("MapBox", "reset() { me.entries = new MapBox() }", "\"a\"", false),
+        ("MapBox", "", "7", false),
+    ] {
+        let text = format!("box Holder {{ init {{ entries }} birth() {{ me.entries = new {provider}() }} \
+            probe() {{ if me.entries.has({key}) {{ return 1 }} return 0 }} {extra_writer} }} \
+            static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        for declaration in package.batch().declarations() {
+            package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+                for (site, method) in input.function().method_calls().filter(|(_, method)| method.selector() == "has") {
+                    let site = OwnedExprSiteV1::new(input.owner(), site.clone());
+                    let closed = ingress.closed_core_source_v1(&site);
+                    assert_eq!(closed.is_some(), closes, "receiver and key are joint source premises: {text}");
+                    let receipt = ingress.ordinary_core_source_v1(&site);
+                    assert_eq!(receipt.is_some(), closes);
+                    if let Some(receipt) = receipt {
+                        assert!(receipt.source().target().checked_map_presence_law_v1());
+                        assert_eq!(receipt.source().target().expression_result_class_v1(),
+                            Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool));
+                        let source = closed.unwrap();
+                        assert!(source.field_map().is_some());
+                        assert!(Rc::ptr_eq(receipt.operands(), source));
+                        assert!(std::sync::Arc::ptr_eq(source.method(), input.function().method_call_source_v1(method.site()).unwrap()));
+                    }
+                }
+            }).unwrap();
+        }
+    }
+
 }
 
 

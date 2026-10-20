@@ -60,6 +60,7 @@ impl CoreMethodResultKindV1 {
 pub(crate) enum CoreMethodSemanticLawV2 {
     Unprojected,
     ArrayCount,
+    MapKeyPresence,
     CodePointCount,
     CodePointHalfOpenClamped,
     CodePointSearchFromZero,
@@ -71,6 +72,7 @@ impl CoreMethodSemanticLawV2 {
         match self {
             Self::Unprojected => "Unprojected",
             Self::ArrayCount => "ArrayCount",
+            Self::MapKeyPresence => "MapKeyPresence",
             Self::CodePointCount => "CodePointCount",
             Self::CodePointHalfOpenClamped => "CodePointHalfOpenClamped",
             Self::CodePointSearchFromZero => "CodePointSearchFromZero",

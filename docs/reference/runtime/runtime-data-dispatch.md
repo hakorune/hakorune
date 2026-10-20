@@ -524,6 +524,14 @@ field, key/entry and class must remain supported through the last use, with
 replacement/End excluded by the source and final consumers. These runtime
 entries alone open no general Call/Return or Map-held-result source permission.
 
+The generated `MapKeyPresence` law records this kind-independent existence
+contract. Its checked Core schema borrows one Text key and yields Bool without
+an acquisition. A receiver-field projection retains the original Me read,
+canonical field and complete assignment/Birth correspondence in the SAME Core
+call. Receiver and key are joint source premises before the source-value solver
+can close that call; a successful key proof cannot substitute for a Map receiver.
+This law does not establish the class, ownership or lifetime of an entry result.
+
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain
 owner. No strlen, String-handle/cache lookup or post-child conversion is allowed.

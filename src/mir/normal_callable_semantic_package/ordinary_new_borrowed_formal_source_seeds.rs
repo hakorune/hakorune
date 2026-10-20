@@ -116,6 +116,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     app_main: Option<AppMainSourceRefV1<'_>>,
     omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
+    fields: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1>,
 ) -> Result<OriginalFormalSeedProductV1, String> {
     let mut rows = Vec::new();
     let mut seen = BTreeSet::new();
@@ -389,7 +390,18 @@ pub(super) fn prepare_original_formal_seeds_v1(
                 })
             })?
     };
-    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots, source_flows, &mut expand)?;
+    let mut map_receiver = |method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>| {
+        crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, method.owner(), |context, input| {
+                let fields = fields?;
+                let key = context.declaration_slot().and_then(|slot| selected.key_for_batch_slot(slot))
+                    .and_then(|key| match key { crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) => Some(key), _ => None })?;
+                crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1::issue(
+                    input, key, method, constructors, fields).ok().map(Rc::new)
+            }).ok().flatten()
+    };
+    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots,
+        source_flows, &mut expand, &mut map_receiver)?;
     for (site, operands) in &sums.core_calls {
         let receipt = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, site.owner(), |_, input|

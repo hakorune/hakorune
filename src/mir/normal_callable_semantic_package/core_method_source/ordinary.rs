@@ -27,11 +27,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         || !input.function().method_call_source_v1(method.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, method))
     { return Err(reject()); }
     let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| reject())?;
-    let mut issuer = CoreMethodInstanceTargetIssuerV1::string_box_text(operands.manifest().brand())
+    let map = operands.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapHas;
+    if map != operands.field_map().is_some() { return Err(reject()); }
+    let mut issuer = if map { CoreMethodInstanceTargetIssuerV1::map_text_presence(operands.manifest().brand()) }
+        else { CoreMethodInstanceTargetIssuerV1::string_box_text(operands.manifest().brand()) }
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     let target = issuer.issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
-    if target.checked_code_point_law_v1().is_none() {
+    if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1() {
         return Err("[freeze:contract][ordinary-core/semantic-law]".to_owned());
     }
     let source = ResolverCoreMethodCallableContractIssuerV1::issue_ordinary_source(&ledger, method, target)
@@ -80,12 +83,85 @@ impl ExpressionCoreSourceLoanV1 {
         Rc::ptr_eq(plan, &self.plan) && node == self.node && self.source().source().owner() == plan.owner()
             && plan.nodes().get(node).is_some_and(|row| row.site() == self.source().source().site()
                 && matches!(row.source(), Node::MethodCall))
-            && self.source().target().checked_code_point_law_v1().is_some()
+            && (self.source().target().checked_code_point_law_v1().is_some()
+                || self.field_map().is_some_and(|field| self.source().target().checked_map_presence_law_v1()
+                    && field.matches_plan(plan)))
             && std::iter::once(self.source().source().receiver_site())
                 .chain(self.source().source().arguments().iter().map(|arg| arg.site()))
                 .all(|site| plan.nodes().iter().filter(|row| row.site() == site).count() == 1)
     }
+    pub(crate) fn result_class(&self) -> Option<crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1> {
+        self.source().target().expression_result_class_v1()
+    }
+    pub(crate) fn field_map(&self) -> Option<&FieldMapReceiverSourceV1> {
+        self.original.operands.field_map().map(Rc::as_ref)
+    }
     pub(crate) fn owns_result(&self) -> bool {
         self.source().target().result() == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
+    }
+}
+
+/// Receiver projection kept inside the SAME Core call, never a Map SSA value.
+/// The immutable all-assignment source proves a sole Map Birth writer. Map
+/// entry mutations are independent; presence grants no entry class or borrow.
+#[derive(Debug)]
+pub(crate) struct FieldMapReceiverSourceV1 {
+    source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::DeclaredFieldValueSourceV1>,
+    receiver: crate::mir::resolved_semantics::BindingRefV1,
+    receiver_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+    field_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+    name: Box<str>,
+}
+impl FieldMapReceiverSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn issue(
+        input: ResolvedFunctionLoweringInputV1<'_>, caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        method: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewFieldWriteClaimsV1,
+    ) -> Result<Self, String> {
+        use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1, BindingKindV1};
+        let reject = || "[freeze:contract][ordinary-core/source-identity]".to_owned();
+        if caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            || input.owner() != method.owner() { return Err(reject()); }
+        let shape = input.body_shape().ok_or_else(reject)?;
+        let Some(Shape::FieldAccess { object, field, .. }) = shape.expression_shape(method.receiver_site())
+            else { return Err(reject()) };
+        let Some(Shape::Me { receiver: BodyMeReceiverV1::Lexical(receiver), .. }) = shape.expression_shape(object)
+            else { return Err(reject()) };
+        if input.function().binding(*receiver).is_none_or(|row| row.kind() != BindingKindV1::Receiver) {
+            return Err(reject());
+        }
+        let source = claims.value_source(caller.owner(), field).ok_or_else(reject)?
+            .as_ref().map_err(|_| reject())?;
+        let writers: Vec<_> = source.writers().collect();
+        let store = source.birth_store(constructors, 0).map_err(|_| reject())?.ok_or_else(reject)?;
+        if writers.len() != 1 || !writers[0].in_birth() || source.declared_type_name().is_some()
+            || store.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
+            || !matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
+                object: None, class, .. } if class.as_ref() == "MapBox") { return Err(reject()); }
+        Ok(Self { source: Rc::clone(source), receiver: *receiver, receiver_site: object.clone(),
+            field_site: method.receiver_site().clone(), name: field.clone() })
+    }
+    pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.source.field() }
+    pub(crate) fn receiver(&self) -> crate::mir::resolved_semantics::BindingRefV1 { self.receiver }
+    pub(crate) fn receiver_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 { &self.receiver_site }
+    pub(crate) fn field_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 { &self.field_site }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_source(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source) && self.receiver == other.receiver
+            && self.receiver_site == other.receiver_site && self.field_site == other.field_site && self.name == other.name
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self,
+        claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewFieldWriteClaimsV1,
+    ) -> bool { self.source.same_inventory(claims) }
+    fn matches_plan(&self, plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1};
+        plan.owner() == self.receiver.owner()
+            && plan.nodes().iter().filter(|node| node.site() == &self.field_site
+                && matches!(node.source(), Node::Shape(Shape::FieldAccess { object, field, .. })
+                    if object == &self.receiver_site && field == &self.name)).count() == 1
+            && plan.nodes().iter().filter(|node| node.site() == &self.receiver_site
+                && matches!(node.source(), Node::Shape(Shape::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
+                    if *binding == self.receiver)).count() == 1
     }
 }

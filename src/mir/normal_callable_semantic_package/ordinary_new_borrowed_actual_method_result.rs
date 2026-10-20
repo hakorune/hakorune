@@ -241,9 +241,11 @@ impl OriginalCoreOperandRequestV1 {
         { return None; }
         use crate::mir::core_method_op::CoreMethodOp;
         use crate::mir::core_method_result_kind::{lookup_core_method_result_row_v2, issue_core_method_manifest_row_ref_v2};
-        let row = lookup_core_method_result_row_v2("StringBox", method.selector(), method.arity())?;
+        let map_field = matches!(input.body_shape().and_then(|shape| shape.expression_shape(method.receiver_site())),
+            Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }));
+        let row = lookup_core_method_result_row_v2(if map_field && method.selector() == "has" { "MapBox" } else { "StringBox" }, method.selector(), method.arity())?;
         if !matches!((row.op, method.arity()), (CoreMethodOp::StringLen, 0)
-            | (CoreMethodOp::StringSubstring, 2) | (CoreMethodOp::StringIndexOf, 1)) { return None; }
+            | (CoreMethodOp::StringSubstring, 2) | (CoreMethodOp::StringIndexOf, 1) | (CoreMethodOp::MapHas, 1)) { return None; }
         let manifest = issue_core_method_manifest_row_ref_v2(row.op, method.arity())?;
         std::ptr::eq(manifest.row(), row).then_some(Self { manifest })
     }
@@ -257,13 +259,17 @@ impl OriginalCoreOperandRequestV1 {
     }
     pub(super) fn text_ordinals(self) -> &'static [u32] {
         match self.manifest.row().op {
-            crate::mir::core_method_op::CoreMethodOp::StringIndexOf => &[0],
+            crate::mir::core_method_op::CoreMethodOp::StringIndexOf | crate::mir::core_method_op::CoreMethodOp::MapHas => &[0],
             _ => &[],
         }
+    }
+    pub(super) fn receiver_is_text(self) -> bool {
+        self.manifest.row().op != crate::mir::core_method_op::CoreMethodOp::MapHas
     }
     fn representation(self) -> VerifiedCallableResultRepresentationV1 {
         match self.manifest.row().op {
             crate::mir::core_method_op::CoreMethodOp::StringSubstring => VerifiedCallableResultRepresentationV1::ExactString,
+            crate::mir::core_method_op::CoreMethodOp::MapHas => VerifiedCallableResultRepresentationV1::ExactBool,
             _ => VerifiedCallableResultRepresentationV1::ExactI64,
         }
     }
