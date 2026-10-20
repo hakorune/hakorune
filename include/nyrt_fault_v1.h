@@ -354,6 +354,15 @@ uint32_t nyrt_map_checked_install_value_v1(void *, uint32_t, uint64_t, void *, v
  * The key is validated UTF-8 caller input — no key storage is consumed.
  * The read never ends, moves, or borrows the map lease. */
 uint32_t nyrt_map_checked_get_i64_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_get_i64_v1");
+/* Presence is kind-independent and writes exactly 0/1. Indexed borrow writes
+ * zero for missing, or the existing nonowning handle of the requested type.
+ * Wrong payload/class records Fault101; every failure leaves out unchanged.
+ * UTF-8 keys share key_prepare normalization. Neither read issues a Home or
+ * exposes the complete-End descriptor. Caller must keep the SAME Map entry
+ * and holder live; instantaneous native identity validation is not that proof.
+ * Indexed borrow supports only profile1 (SafeMutex) and positive type ids. */
+uint32_t nyrt_map_checked_has_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_has_v1");
+uint32_t nyrt_map_checked_borrow_indexed_v1(void *, uint32_t, uint64_t, void *, const uint8_t *, size_t, int64_t, int64_t *) __asm__("nyash.map.checked_borrow_indexed_v1");
 /* T2-alpha borrowed read descriptors. Storage is caller-owned and fresh; the
  * descriptors carry no End authority and are consumed only by the next read.
  * The selected lifecycle emitter allocates these with the target Map storage

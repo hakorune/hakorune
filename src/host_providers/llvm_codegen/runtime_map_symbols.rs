@@ -23,6 +23,8 @@ const SYMBOLS: &[&str] = &[
     "nyash.map.storage_move_v1",
 ];
 const FIELD_SYMBOLS: &[&str] = &[
+    "nyash.map.checked_has_v1",
+    "nyash.map.checked_borrow_indexed_v1",
     "nyash.object.checked_dynamic_replace_v1",
     "nyash.object.checked_dynamic_initialize_v1",
     "nyash.object.checked_dynamic_get_v1",

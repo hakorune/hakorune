@@ -82,6 +82,10 @@ int main(void) {
   assert(nyrt_object_checked_field_set_v1(frame,1,4,child,931,0,42)==0);
   assert(nyrt_map_outcome_init_v1(out)==0);
   assert(nyrt_map_checked_install_indexed_v1(frame,1,5,map,key,child,931,out)==0);
+  assert(nyrt_map_checked_has_v1(frame,5,map,text,sizeof(text),&value)==0 && value==1);
+  assert(nyrt_map_checked_borrow_indexed_v1(frame,1,5,map,text,sizeof(text),931,&value)==0 && value==child);
+  value=91;
+  assert(nyrt_map_checked_borrow_indexed_v1(frame,2,5,map,text,sizeof(text),931,&value)==2 && value==91);
   assert(nyrt_map_outcome_dispose_v1(out)==2);
   assert(nyrt_map_storage_dispose_v1(map)==2);
   assert(nyrt_object_checked_field_get_i64_v1(1,child,931,0,&value)==0 && value==42);
@@ -111,6 +115,8 @@ int main(void) {
   assert(nyrt_object_checked_field_get_i64_v1(1,complete_child,932,0,&value)==2 && value==91);
   value=91;
   assert(nyrt_object_checked_field_get_i64_v1(1,child,931,0,&value)==2 && value==91);
+  assert(nyrt_map_checked_has_v1(frame,7,map,text,sizeof(text),&value)==2 && value==91);
+  assert(nyrt_map_checked_borrow_indexed_v1(frame,1,7,map,text,sizeof(text),931,&value)==2 && value==91);
   assert(nyrt_map_storage_dispose_v1(map)==0);
   assert(nyrt_fault_frame_dispose_v1(frame)==0);
   }
@@ -241,6 +247,31 @@ int main(void) {
     void *stable=NULL, *unchanged=(void*)1;
     assert(nyrt_object_checked_map_field_borrow_v1(frame,1,190,field_parent,999,0,&unchanged)==1 && unchanged==(void*)1);
     assert(nyrt_object_checked_map_field_borrow_v1(frame,1,190,field_parent,940,0,&stable)==0 && stable && stable!=map);
+    assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"child",5,&value)==0 && value==1);
+    assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"child",5,932,&value)==0 && value==child);
+    assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"absent",6,&value)==0 && value==0);
+    assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"absent",6,932,&value)==0 && value==0);
+    value=777;
+    assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"child",5,933,&value)==1 && value==777);
+    assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"child",5,0,&value)==2 && value==777);
+    const uint8_t invalid_utf8[]={0xff};
+    assert(nyrt_map_checked_has_v1(frame,190,stable,invalid_utf8,1,&value)==2 && value==777);
+    assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,invalid_utf8,1,932,&value)==2 && value==777);
+    assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"child",5,(int64_t*)stable)==2);
+    /* Raw handle bits never become an owned indexed residence. Both payload
+     * kinds still count as present; reads preserve the real child's sole End. */
+    for (uint32_t kind=NYRT_MAP_VALUE_I64; kind<=NYRT_MAP_VALUE_BORROWED_HANDLE; kind+=2) {
+      assert(nyrt_map_key_init_v1(key)==0);
+      assert(nyrt_map_key_prepare_utf8_v1(frame,190,key,(const uint8_t*)"snapshot",8)==0);
+      assert(nyrt_map_outcome_init_v1(out)==0);
+      assert(nyrt_map_checked_install_value_v1(frame,1,190,stable,key,kind,child,out)==0);
+      assert(nyrt_map_outcome_end_v1(frame,190,out)==0);
+      assert(nyrt_map_outcome_dispose_v1(out)==0);
+      assert(nyrt_map_key_dispose_v1(key)==0);
+      assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"snapshot",8,&value)==0 && value==1);
+      value=777;
+      assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"snapshot",8,932,&value)==1 && value==777);
+    }
     seen=sentinel;
     assert(nyrt_object_checked_dynamic_get_v1(frame,1,190,field_parent,940,0,0,&seen)==1);
     assert(!memcmp(&seen,&sentinel,sizeof(seen))); /* no generic raw-pointer escape */

@@ -15,8 +15,8 @@ use nyash_rust::boxes::{
     map_key_domain::MapKeyDomain,
 };
 use std::{ffi::c_void, mem::size_of, sync::Mutex};
-#[path = "fault_checked_map_array_length.rs"]
-mod array_length;
+#[path = "fault_checked_map_reads.rs"]
+mod reads;
 #[path = "fault_checked_map_storage.rs"]
 pub(in crate::exports::fault) mod storage;
 use storage::*;
@@ -470,69 +470,6 @@ unsafe fn install_candidate(
                 None => Status::InvalidContract as u32,
             }
         }
-    }
-}
-/// Bounded scalar read for the borrowed-argument lane. The key arrives as
-/// caller-supplied UTF-8 input (validated before use, like install_text) —
-/// no key storage is prepared or consumed. Missing writes `0` and returns
-/// Normal; a present non-i64 payload records Fault; `out` is written only
-/// on Normal. The read consumes nothing and leaves the map live.
-#[export_name = "nyash.map.checked_get_i64_v1"]
-pub unsafe extern "C" fn get_i64(
-    frame: *mut c_void,
-    site: u64,
-    map_ptr: *mut c_void,
-    bytes: *const u8,
-    len: usize,
-    out: *mut i64,
-) -> u32 {
-    if len > isize::MAX as usize
-        || !separate(&[
-            (frame as usize, size_of::<FaultFrame>()),
-            (map_ptr as usize, size_of::<MapStorage>()),
-            (bytes as usize, len),
-            (out as usize, size_of::<i64>()),
-        ])
-        || !unsafe { valid_frame(frame) }
-    {
-        return Status::InvalidContract as u32;
-    }
-    let map = match unsafe { admit::<CheckedMap>(map_ptr, MAP_TAG) } {
-        Ok(v) => v,
-        Err(s) => return s as u32,
-    };
-    if map.require_live().is_err() {
-        return Status::InvalidContract as u32;
-    }
-    let slice = if len == 0 {
-        &[]
-    } else {
-        unsafe { std::slice::from_raw_parts(bytes, len) }
-    };
-    let text = match std::str::from_utf8(slice) {
-        Ok(text) => text,
-        Err(_) => return Status::InvalidContract as u32,
-    };
-    let key = match MapKeyDomain::try_from_text(text) {
-        Ok(key) => key,
-        Err(_) => return unsafe { failed(frame, site, 100) },
-    };
-    match map.read_i64(&key) {
-        Ok(CheckedMapI64Read::Missing) => {
-            unsafe { out.write(0) };
-            Status::Normal as u32
-        }
-        Ok(CheckedMapI64Read::Value(value)) => {
-            unsafe { out.write(value) };
-            Status::Normal as u32
-        }
-        Ok(CheckedMapI64Read::NonScalar) => unsafe {
-            failed(frame, site, MAP_GET_NON_SCALAR_REASON)
-        },
-        Err(error) => match root_reason(error) {
-            Some(reason) => unsafe { failed(frame, site, reason) },
-            None => Status::InvalidContract as u32,
-        },
     }
 }
 

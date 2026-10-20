@@ -506,6 +506,24 @@ and the lease are untouched, so borrowed `MapBox` formals can read without
 owning the map. The compiler's `map_checked_get` op pre-initializes `out`
 to `-1` so a Fault read can never surface uninitialized stack.
 
+`checked_has_v1` shares scalar-read admission and writes exactly `0` or `1`
+for key absence/presence, regardless of payload kind. It establishes no class.
+`checked_borrow_indexed_v1(frame, profile, site, map, bytes, len, type_id, out)`
+uses the SAME live Map and key normalization; profile must be SafeMutex and
+type_id positive. Missing writes zero on Normal. A present owned indexed
+residence lends its existing handle and type, without cloning, retaining,
+claiming, moving or exposing its complete-End descriptor. Plain scalar bits
+and BorrowedHandle snapshots are not indexed residences. Wrong payload/class
+records Fault101; malformed input/state is InvalidContract. All failures leave
+out unchanged. These reads and the Array-length read share one admission owner.
+
+The Map guard is released before validating the borrowed indexed object's
+native identity, avoiding Map-to-object lock inversion. This instantaneous
+identity check does not prove a source borrow lifetime. The original holder,
+field, key/entry and class must remain supported through the last use, with
+replacement/End excluded by the source and final consumers. These runtime
+entries alone open no general Call/Return or Map-held-result source permission.
+
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain
 owner. No strlen, String-handle/cache lookup or post-child conversion is allowed.

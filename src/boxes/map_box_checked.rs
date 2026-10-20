@@ -91,6 +91,12 @@ impl MapEndContext<'_> {
 /// A physical obligation, not a NyashBox. End consumes the attempt on either outcome.
 pub trait CanonicalMapResidence: Send + Sync {
     fn end(self: Box<Self>, context: &mut MapEndContext<'_>);
+
+    /// Immutable physical identity only; no Home, claim, clone or End authority.
+    /// Called under the Map guard: implementations must not reenter storage.
+    /// The runtime validates identity after releasing that guard; the source
+    /// borrow interval must separately keep this exact entry and holder live.
+    fn indexed_identity(&self) -> Option<(i64, i64)> { None }
 }
 
 /// Read-only text result from a checked Map. A present non-text value is a
@@ -371,6 +377,26 @@ impl CheckedMap {
                 _ => CheckedMapI64Read::NonScalar,
             },
         })
+    }
+
+    /// Presence says nothing about the present entry's class or ownership.
+    pub fn contains_key(&self, key: &MapKeyDomain) -> Result<bool, CheckedMapError> {
+        let state = self.state.lock().map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live { return Err(CheckedMapError::InvalidState); }
+        Ok(state.entries.contains_key(key))
+    }
+
+    /// Snapshot the identity of an owned indexed residence without cloning or
+    /// moving it. A plain borrowed-handle payload is deliberately not indexed.
+    pub fn read_indexed(&self, key: &MapKeyDomain) -> Result<Option<(i64, i64)>, CheckedMapError> {
+        let state = self.state.lock().map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live { return Err(CheckedMapError::InvalidState); }
+        match state.entries.get(key) {
+            None => Ok(None),
+            Some(Entry { payload: CheckedMapPayload::Residence(value), .. }) =>
+                value.indexed_identity().map(Some).ok_or(CheckedMapError::ProjectionUnavailable),
+            Some(_) => Err(CheckedMapError::ProjectionUnavailable),
+        }
     }
 
     /// Read a nested Map from an owned Array entry. The returned view keeps

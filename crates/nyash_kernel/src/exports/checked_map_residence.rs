@@ -36,6 +36,10 @@ pub(super) fn prepare(
 }
 
 impl CanonicalMapResidence for IndexedResidence {
+    fn indexed_identity(&self) -> Option<(i64, i64)> {
+        Some((self.handle, self.type_id))
+    }
+
     fn end(self: Box<Self>, context: &mut MapEndContext<'_>) {
         if let Some(descriptor) = self.end {
             let Some((frame, site)) = context.runtime() else {

@@ -7,11 +7,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner335.599s (prior331.319s); successes unchanged.
+  runner335.599s at prior source-first-write commit; not rerun for native-only reads.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- CLI/runtime use the same quick graph; final CLI33.42s/runtime6.68s, root reused.
-  Suite uses a frozen matching CLI/runtime/private C FFI; default FFI matches it.
+- Current CLI/runtime use the same quick graph: reused CLI1.65s/runtime2.37s;
+  root Map test recompilation62s. JSON rechecked with a frozen matching pair/FFI.
 - JSON still stops at `borrowed-entry/source-use-completion-pending`, owner26
   JsonStreamAggregator.ingestLine, called at line152 inside ingest Loop.
   Outer `source-loop-header-after` wraps this callee failure; no JSON EXE is claimed.
@@ -21,7 +21,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   boxtorrent stored-child receiver. These remain incomplete.
 
 ## Connected field and Map End
-
 - Shared FieldResidence mode carries the original complete Array/Dynamic census
   through End, Invoke and publication; every Dynamic slot, including Empty, drains
   before outer End. Rust/C require the WHOLE reverse sequence, not a valid subset.
@@ -37,14 +36,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Map and detached outcomes now lend ONE synchronous MapEndContext through Array
   children too. Synthetic errors enter the same frame at encounter time; complete
   callbacks' already-recorded Faults are not duplicated. InvalidContract stays fatal.
-- Canonical C indexed install retains the SAME immutable complete-End descriptor,
-  tied to the existing layout helper. Kernel validates profile/kind/type/function
-  and descriptor separation before consuming the key; rejection leaves caller Home.
-  Complete End runs outside Map/outcome locks and owns outer release as well.
-- Legacy numeric/NoHook ABI remains for its existing callers; canonical C uses
-  the new complete entry, required by runtime archive admission. No second registry.
-- Explicit cancellation replaces Builder Drop End; placement primitives share the
-  existing owner and the aggregate post-End reporter is retired.
+- Indexed install retains the SAME complete-End descriptor and layout helper;
+  preflight keeps caller Home, complete End runs outside locks and releases outer.
+- Numeric/NoHook callers stay separate; canonical C requires complete End.
 - Birth now connects source-issued first-write I64/Map and Normal-committed Dynamic
   prefixes. Whole-field census grants no early Home; Provided stays caller-owned
   until Birth Normal. Provided/nullable Dynamic partial cleanup remains unadmitted.
@@ -57,17 +51,17 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   first-write refusal and preservation of a caller-owned candidate on occupied slot.
 - Three original-source canonical EXEs (Map-first, scalar-first, mixed fixed Array)
   build/run exit30 with the final matching pair; source/final tests use no fallback.
-- Four Map/scalar source Fault runs plus two final mixed-Array Fault runs exit70,
-  report original Fault101 and reclaim the parent. Mixed Array store1 candidate
-  Fault cleanup was not measured; this does not close Array holder/contents/End.
-- Existing cases only: additions protect independently necessary atomic Empty,
-  advertised field ABI function availability, and source partial-Fault boundaries.
+- Prior Map/scalar Fault4 and mixed-Array Fault2 exit70/Fault101/reclaim. The
+  mixed-Array first-store Fault also rechecked with prior frozen pair: same result;
+  C emits candidate release on that edge. Array holder/contents/End remains owed.
+- Current core Map15/kernel Map17/binding8+actual archive1/native both profiles PASS.
+  Existing C case adds necessary presence/typed-borrow refusal and unchanged-out
+  boundaries; the same child still Ends once. Zero-match extra filter excluded.
   No new test entry/file, checker, guard or production test-only hook.
 - Owed prior reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Earlier frozen comparisons do not waive them.
 
 ## Next source connection and remaining contracts
-
 - Stable Map placement now belongs to the SAME Dynamic field/outcome owner.
   Published scalar/Text/object/Array and native Map are a private move-only sum;
   Map has no public Dynamic tag. Dedicated SafeMutex install/borrow use stable bytes.
@@ -82,10 +76,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   committed prefix, including scalars, in actual commit order. Full End stays reverse
   declaration order. Canonically source-qualified fixed Array keeps its prior path
   across construction, owned census, physical ABI and final End; no subset census.
-- statsFor hit-get and miss-set-then-return are BOTH nonowning Map-held results.
-  Miss is never Fresh/HomeToCaller. Borrow support must retain the same holder,
-  key/entry/class through last use, stats.add effects and independent users.push.
-- UserStats Text/Provided initialization, Shared/carrier and full Dynamic source
+- Same CheckedMap now lends kind-independent presence and class-qualified indexed
+  identity, without Home/claim/clone/retain. Map guard ends before object validation.
+  Scalar, Array-length and new native reads share admission; former narrow module
+  is replaced. No second source/result registry or general Call/Return permission.
+- Next vertical connection: original field Map -> has(Text key) -> Bool condition;
+  then statsFor BOTH returns as Map-held borrows through stats.add/users.push.
+  Original field assignments alone are NOT all Map writers: retain exact has/get/
+  set/escape uses, slot support and key/class through last use in SAME result witness.
+- UserStats Text materialization (independent value, not copied input Home), Box
+  Provided initialization, Shared/carrier and full Dynamic source
   activation remain owed. Array holder/contents/End, exact empty-transfer census,
   canonical writer, signed SUM/rebind/to_i64 and original source/physical reds remain.
   Existing opaque draft stays unselected; no parallel inventory.
