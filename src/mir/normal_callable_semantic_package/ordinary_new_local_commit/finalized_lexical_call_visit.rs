@@ -224,17 +224,8 @@ impl FinalizedRootSourceHandoffV1 {
                                 )?;
                                 continue;
                             }
-                            let source = self
-                                .ledger
-                                .lexical_i64_call_source(packet.call_site())
-                                .or_else(|| {
-                                    self.ledger
-                                        .borrowed_nullable_call_source_v1(packet.call_site())
-                                })
-                                .or_else(|| self.ledger.mixed_call_source_v1(packet.call_site()))
-                                .or_else(|| self.ledger.unit_discard_source_v1(packet.call_site()))
-                                .or_else(|| self.ledger.handle_call_source(packet.call_site()))
-                                .or_else(|| self.ledger.nullable_call_source(packet.call_site()))
+                            let source = self.ledger.local_call_for_owner(
+                                packet.call_site().owner(), packet.call_site().site())
                                 .ok_or_else(|| freeze("final-call-visit/local-source-missing"))?;
                             if source.owner() != owner || packet.call_site() != source.site() {
                                 return Err(freeze("final-call-visit/local-source-identity"));

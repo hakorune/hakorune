@@ -25,7 +25,7 @@ pub(in crate::mir::builder) fn emit(
         }, purpose_acquisition: _,
     } = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
-            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver,
+            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, None,
         ),
     )?;
     let mut writer = RawRootGraphWriterV1;

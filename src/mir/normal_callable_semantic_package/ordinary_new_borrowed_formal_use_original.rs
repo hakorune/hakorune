@@ -190,6 +190,30 @@ impl OriginalFormalUseSourceV1 {
         if initializer.declared_type_name().is_some() || formal == initializer.binding() { return Err(reject()); }
         Ok(Some(formal))
     }
+    /// Corroborate a returned residence through the SAME original alias flow.
+    /// Source membership alone cannot turn a replaced/joined value into this Home.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn corroborates_text_residence_return_v1(
+        &self, returned: &crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1,
+    ) -> bool {
+        use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
+        use crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1;
+        let TerminalReturnedSourceV1::TextResidence { binding, acquisition } = returned.returned()
+            else { return false };
+        let Some(root) = acquisition.source().nodes().first().map(|node| node.site()) else { return false };
+        if returned.owner() != self.owner || binding.owner() != self.owner
+            || acquisition.source().owner() != self.owner || !acquisition.owns_root()
+            || !acquisition.is_text_residence()
+            || self.reads.iter().filter(|(site, reference)| site == returned.value_site()
+                && *reference == ResolvedLexicalRefV1::Local(*binding)).count() != 1 { return false; }
+        let Some(flow) = &self.flow else { return false };
+        flow.read(returned.value_site(), *binding).and_then(|point|
+            flow.alias_origin_with_expression_boundary(point,
+                |site| self.reads.iter().find(|(at, _)| at == site).map(|(_, reference)| *reference),
+                |site| site == root))
+            .and_then(|origin| flow.origin(origin))
+            .is_some_and(|origin| matches!(origin, SourceValueOriginV1::Expression(site) if site == root))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_read(
         self: &Rc<Self>,
         site: &SourceExprSiteV1,

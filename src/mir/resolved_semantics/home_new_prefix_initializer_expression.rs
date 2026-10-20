@@ -35,20 +35,9 @@ pub(super) fn observe<E>(
     let root_reference = matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Reference(_));
     if !root_add && !root_reference && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-    // Root ordinary Calls keep their existing Local owner. Borrow an original
-    // Core receipt first, then transfer it once into the shared preparation.
-    let mut root_core = if root_add || root_reference { None } else {
-        match port(&owned, BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan: &source })? {
-            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) => Some(core),
-            _ => return Ok(false),
-        }
-    };
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(&source,
         super::expression_plan::ExpressionLeafProfileV1::LocalInitializer, &BTreeMap::new(), homes,
         &mut |site| {
-            if site == &owned {
-                if let Some(core) = root_core.take() { return Ok(Some(ExpressionCallSourceV1::Core(core))); }
-            }
             local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
                 &mut |binding| locals.field_alias_call_path(binding), port)
         })? else { return Ok(false) };
@@ -72,7 +61,7 @@ pub(super) fn observe<E>(
         locals.current_scalar_read_v1(site, local_calls).and_then(|read| scalar_source.scalar_read_sum(&read))
             .filter(|sum| sum.signed_only())
     } else { None };
-    if !prepared.has_core() && !(root_add && has_parent_text) && !signed_entry && signed_root_sum.is_none() { return Ok(false); }
+    if !prepared.has_core() && !prepared.has_owned_text_call() && !(root_add && has_parent_text) && !signed_entry && signed_root_sum.is_none() { return Ok(false); }
     let mut installation = None;
     let plan = qualify_initializer_expression_v1(prepared, &reads, signed_root_sum,
         &mut |site| super::argument_expression::text_reference(input, locals, site),

@@ -47,6 +47,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             && !matches!(
                 function.role(),
                 PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { .. }
             ))
             || carriers.len() != function.params().len()
             || callees.insert(key, function).is_some()

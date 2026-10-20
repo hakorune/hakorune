@@ -130,11 +130,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             }
         }
         MirInstruction::Call(call) => {
-            call.callee
-                .rewrite_value_operands(|value| rewrite_value_use(value, from, to));
-            for arg in &mut call.args {
-                rewrite_value_use(arg, from, to);
-            }
+            call.rewrite_value_operands(|value| rewrite_value_use(value, from, to));
         }
         MirInstruction::LegacyCallV0 {
             func, callee, args, ..

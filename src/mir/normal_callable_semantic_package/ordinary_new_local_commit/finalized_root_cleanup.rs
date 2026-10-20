@@ -5,6 +5,48 @@ use crate::mir::MirModule;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(super) fn validate_finalized_text_participant_v1(
+        &self, owner: FunctionOwnerIdV1, module: &MirModule,
+        contract: crate::mir::normal_callable_semantic_package::result_contract::CallableResultContractRefV1<'_>,
+    ) -> Result<bool, String> {
+        let completion = self.ledger.completion_for_owner(owner)
+            .ok_or_else(|| freeze("callable-participant/completion-missing"))?;
+        let terminals = self.ledger.terminal_relation_index.get(&owner)
+            .ok_or_else(|| freeze("callable-participant/terminals-missing"))?;
+        if !terminals.values().any(|relation| matches!(relation,
+            TerminalRelationV1::Value(value) if matches!(value.returned(), TerminalReturnedSourceV1::TextResidence { .. }))) {
+            return Ok(false);
+        }
+        let exits: std::collections::BTreeSet<_> = completion.explicit_sites().iter().cloned().collect();
+        if contract.owner() != owner || !std::ptr::eq(contract.completion(), completion)
+            || !std::ptr::eq(contract.terminal_relations(), terminals.as_ref())
+            || !contract.has_complete_text_residence_result_v1() {
+            return Err(freeze("callable-participant/result-unavailable"));
+        }
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            let function = module.functions.get(symbol).filter(|function| function.signature.name == symbol
+                && function.signature.return_type == crate::mir::MirType::String)
+                .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
+            let rows = self.ledger.root_exits.borrow();
+            for site in &exits {
+                let source = self.ledger.normal_exit_projection_v1(owner, site)?
+                    .ok_or_else(|| freeze("root-exit-source-missing"))?;
+                let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) = rows.get(&(owner, site.clone().into()))
+                    else { return Err(freeze("root-exit-unconsumed")) };
+                let expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+                    &self.ledger.local_commits.borrow(), &site.clone().into(), source.fault_homes(), source.homes())?
+                    .ok_or_else(|| freeze("root-home-end-unavailable"))?;
+                if order.full() != expected.full() || order.normal() != expected.normal()
+                    || order.normal() != origins.iter().map(|origin| origin.origin().clone()).collect::<Vec<_>>() {
+                    return Err(freeze("root-exit-origin-order"));
+                }
+                validate_finished_cleanup_entry(CallValidationContextV1::Finalized(self), owner, site,
+                    function, projection, order, entry, bindings, Some(projection))?;
+            }
+            Ok(true)
+        })
+    }
+
     /// Validate every original Unit endpoint against the retained final pool.
     /// Both explicit and implicit exits keep their source order and bindings;
     /// no caller returns to the affine lowering pool after handoff.

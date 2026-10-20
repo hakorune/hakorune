@@ -60,6 +60,7 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool { self.profile == ExpressionLeafProfileV1::LocalInitializer }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_binding_rebind(&self) -> bool { self.profile == ExpressionLeafProfileV1::BindingRebind }
     pub(super) fn is_bool_condition(&self) -> bool { self.profile == ExpressionLeafProfileV1::BoolCondition }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_owned_text_call(&self) -> bool { self.calls.values().any(|call| matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::OwnedText(_)))) }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool { !self.cores.is_empty() }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(&self, node: usize) -> bool {
         !self.transferred.contains(&node) && self.leaves.get(node) == Some(&Leaf::Unresolved)
@@ -110,7 +111,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
         let class = match result {
             LocalCallResultClassV1::I64 => Class::I64,
             LocalCallResultClassV1::Bool if profile == ExpressionLeafProfileV1::BoolCondition => Class::Bool,
-            LocalCallResultClassV1::Text if profile == ExpressionLeafProfileV1::Argument => Class::String,
+            LocalCallResultClassV1::Text if matches!(profile, ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) => Class::String,
             _ => return Ok(None),
         };
         if call.owner() != source.owner() || call.statement() != statement || call.site() != &site

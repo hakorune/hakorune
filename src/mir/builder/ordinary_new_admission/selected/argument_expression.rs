@@ -18,7 +18,7 @@ pub(in crate::mir::builder) fn emit(
     // The direct caller completes scalar arguments before its Call. Owned Text
     // must enter through the lifecycle caller that retains the ordered packet.
     ledger.argument_expression_frame_v1(call, ordinal, site)?;
-    emit_with_prefix(builder, state, ledger, call, ordinal, site, consume_receiver, None)
+    emit_with_prefix(builder, state, ledger, call, ordinal, site, consume_receiver, None, None)
 }
 
 pub(in crate::mir::builder) fn emit_with_prefix(
@@ -32,6 +32,7 @@ pub(in crate::mir::builder) fn emit_with_prefix(
         &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
     ) -> Result<(), String>,
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<(ValueId, Projection), String> {
     let frame = ledger.qualified_argument_expression_frame_v1(call, ordinal, site)?;
     if state.owner() != call.owner() {
@@ -54,6 +55,7 @@ pub(in crate::mir::builder) fn emit_with_prefix(
                 values,
                 bindings,
                 consume_receiver,
+                static_source,
                 inherited,
             )
         },

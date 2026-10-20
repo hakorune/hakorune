@@ -192,7 +192,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
     if (lv4_string_pending(state, count) && !lv4_is(op, "kind", "string_end")) return 0;
-    if (lv4_string_held(state, count) && (lv4_is(op, "kind", "ordinary_call") ||
+    if ((lv4_string_held(state, count) || lv4_string_call_pending(state, count)) && (lv4_is(op, "kind", "ordinary_call") ||
         (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
@@ -331,7 +331,21 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         }
       }
       if (lv4_is(op, "result", "text")) {
-        if (!lv4_string_push(state, count, &normal[bi])) return 0;
+        yyjson_val* cleanup = yyjson_obj_get(op, "text_argument_cleanup");
+        size_t size = yyjson_arr_size(cleanup);
+        if (!size) {
+          if (!lv4_string_push(state, count, &normal[bi])) return 0;
+        } else {
+          hako_lv4_state top = lv4_string_domain_top(state, count, LV4_STRING_RANK_BASE, LV4_STRING_HOME_BASE);
+          if (size > top - LV4_STRING_RANK_BASE || top + 1 >= LV4_STRING_HOME_BASE) return 0;
+          for (size_t i = 0; i < size; i++) {
+            hako_lv4_value* arg = lv4_index_value(fn, (uint32_t)yyjson_get_uint(yyjson_arr_get(cleanup, i)));
+            if (!arg || arg->kind != LV4_OWNED_STRING || arg->origin < 0 || (size_t)arg->origin >= count ||
+                state[arg->origin] != top - i) return 0;
+            normal[arg->origin] = state[arg->origin] + 1;
+          }
+          normal[bi] = (top - size + 1) | LV4_STRING_CALL_HELD;
+        }
       } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||

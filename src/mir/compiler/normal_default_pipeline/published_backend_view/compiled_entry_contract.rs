@@ -325,6 +325,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         function.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
@@ -425,7 +426,8 @@ impl<'module> PublishedMirBackendView<'module> {
                         birth_functions.push((physical_index, function));
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { .. }
-                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }

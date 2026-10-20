@@ -44,6 +44,7 @@ pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState, ledger: &OrdinaryNewClaimLedgerV1,
     frame: Rc<CheckedInitializerExpressionFrameV1>, ordinal: u32,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<PendingInitializerExpressionV1, String> {
     if !frame.is_i64() && !frame.is_text_residence() { return Err(freeze("text-initializer/execution-pending")); }
     if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(
@@ -53,7 +54,7 @@ pub(in crate::mir::builder) fn emit(
     ledger.validate_initializer_expression_source_v1(&frame)?;
     let mut expression = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
-            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver))?;
+            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, static_source))?;
     let (terminal, continuation) = if frame.is_text_residence() {
         expression_value::finish_residence_continuation(builder, &mut expression)?
     } else { expression_value::finish_scalar_continuation(builder, &mut expression)? };

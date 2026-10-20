@@ -44,12 +44,19 @@ fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     #[derive(Clone, Default, PartialEq, Eq)]
-    struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId>, replacement: Option<(ValueId, ValueId)>, hold: Option<ValueId> }
+    struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId>, replacement: Option<(ValueId, ValueId)>, hold: Option<ValueId>, call_pending: Option<ValueId> }
     impl Live {
         fn contains(&self, value: &ValueId) -> bool { self.temporary.contains(value) || self.homes.contains(value) }
-        fn is_empty(&self) -> bool { self.temporary.is_empty() && self.homes.is_empty() && self.replacement.is_none() && self.hold.is_none() }
+        fn is_empty(&self) -> bool { self.temporary.is_empty() && self.homes.is_empty() && self.replacement.is_none() && self.hold.is_none() && self.call_pending.is_none() }
         fn end(&mut self, value: ValueId, faulted: bool) -> bool {
-            if !self.temporary.is_empty() { return self.temporary.pop() == Some(value); }
+            if let Some(top) = self.temporary.last() {
+                if *top != value { return false; }
+                self.temporary.pop();
+                if self.call_pending.is_some_and(|held| self.temporary.last() == Some(&held)) {
+                    self.call_pending = None;
+                }
+                return true;
+            }
             if let Some((new, old)) = self.replacement {
                 if !faulted {
                     if value != old || self.homes.last() != Some(&new) { return false; }
@@ -66,6 +73,17 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             self.homes.remove(index);
             if self.hold == Some(value) { self.hold = None; }
             true
+        }
+    }
+    // Lifecycle dependencies are not actual arguments. Only an owned Text
+    // Invoke can carry them, even when no other String operation is selected.
+    for row in function.blocks.values().flat_map(|block| block.all_instructions()) {
+        match row {
+            MirInstruction::Call(call) if !call.text_argument_cleanup.is_empty() => return Err("string-owned-escape"),
+            MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. }
+                if !call.text_argument_cleanup.is_empty() && *result != crate::mir::instruction::InvokeCallResultKind::OwnedString =>
+                    return Err("string-owned-escape"),
+            _ => (),
         }
     }
     let selected = |instruction: &MirInstruction| {
@@ -163,6 +181,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 // by the shared verifier; it performs no runtime pair access.
                 let allowed = allowed || matches!(instruction, MirInstruction::KeepAlive { .. })
                     || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed, replaces, .. } if *installed == value || *replaces == Some(value));
+                let allowed = allowed || matches!(instruction,
+                    MirInstruction::Invoke { operation: InvokeOperation::Call { call,
+                        result: crate::mir::instruction::InvokeCallResultKind::OwnedString }, .. }
+                        if call.text_argument_cleanup.contains(&value));
                 if !allowed && !is_call_argument(instruction, value) {
                     return Err("string-owned-escape");
                 }
@@ -197,7 +219,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     live.hold = Some(*value);
                     continue;
                 }
-                if live.hold.is_some() || faulted || live.replacement.is_some() || !results.contains_key(value) || live.homes.contains(value)
+                if live.hold.is_some() || live.call_pending.is_some() || faulted || live.replacement.is_some() || !results.contains_key(value) || live.homes.contains(value)
                     || live.temporary.pop() != Some(*value) { return Err("string-residence-install-not-newest-temporary"); }
                 if let Some(previous) = replaces {
                     if *previous == *value || !live.homes.contains(previous) { return Err("string-residence-replacement-not-live-home"); }
@@ -222,7 +244,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             ..
         } = term
         {
-            if (faulted || live.replacement.is_some() || live.hold.is_some()) && !matches!(operation, Op::End { .. }) {
+            if (faulted || live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some()) && !matches!(operation, Op::End { .. }) {
                 return Err("string-effect-after-fault");
             }
             for operand in operation.operands() {
@@ -237,7 +259,11 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             }
         }
         if let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = term {
-            if live.replacement.is_some() || live.hold.is_some() { return Err("string-effect-before-replacement-end"); }
+            if live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some() { return Err("string-effect-before-replacement-end"); }
+            if call.text_argument_cleanup.len() > live.temporary.len()
+                || !call.text_argument_cleanup.iter().rev().eq(live.temporary[live.temporary.len().saturating_sub(call.text_argument_cleanup.len())..].iter()) {
+                return Err("string-end-order-or-not-live");
+            }
             for value in &call.args {
                 if results.contains_key(value) && (faulted || !live.contains(value)) {
                     return Err("string-call-borrow-not-live");
@@ -273,7 +299,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 if target == *normal_landing
                     && operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString)
                 {
-                    next.temporary.push(*producers.get(&id).ok_or("string-result-missing")?);
+                    let result = *producers.get(&id).ok_or("string-result-missing")?;
+                    let suffix = match operation { InvokeOperation::Call { call, .. } => call.text_argument_cleanup.len(), _ => 0 };
+                    next.temporary.insert(next.temporary.len() - suffix, result);
+                    if suffix != 0 { next.call_pending = Some(result); }
                 }
             }
             pending.push((target, next, next_faulted));
@@ -475,6 +504,32 @@ mod tests {
         assert_eq!(check(&after_end), Err("string-call-borrow-not-live"));
         // A source-backed lifecycle handoff preserves the pair, while moving
         // its cleanup to the Home domain behind remaining expression children.
+        // A Text Call holds its result below its own argument suffix. The
+        // Normal and Call-Fault graphs retain distinct acquisition obligations.
+        let mut text_call = good.clone();
+        let mut returning_call = crate::mir::definitions::MirCall::global(None,
+            key.canonical_global_target_v1().unwrap(), vec![ValueId(2)]);
+        returning_call.text_argument_cleanup = vec![ValueId(2)];
+        let Some(MirInstruction::Invoke { operation, .. }) = text_call.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator.as_mut() else { panic!("Call") };
+        *operation = InvokeOperation::Call { call: returning_call.clone(), result: crate::mir::instruction::InvokeCallResultKind::OwnedString };
+        // End argument first, then use and End the newly available result.
+        text_call.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator = Some(end(2, 1002, 23));
+        text_call.blocks.get_mut(&BasicBlockId(3)).unwrap().terminator = Some(end(3, 1003, 90));
+        text_call.blocks.get_mut(&BasicBlockId(4)).unwrap().terminator =
+            Some(MirInstruction::Return { value: Some(ValueId(1)) });
+        let mut fault = crate::mir::BasicBlock::new(BasicBlockId(23));
+        fault.set_terminator(end(3, 90, 91));
+        text_call.add_block(fault);
+        assert_eq!(check(&text_call), Ok(()));
+        for suffix in [vec![ValueId(1)], vec![ValueId(2), ValueId(2)]] {
+            let mut wrong = text_call.clone();
+            let Some(MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }) = wrong.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator.as_mut() else { unreachable!() };
+            call.text_argument_cleanup = suffix;
+            assert!(check(&wrong).is_err());
+        }
+        let mut early_read = text_call.clone();
+        early_read.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator = good.blocks[&BasicBlockId(2)].terminator.clone();
+        assert!(check(&early_read).is_err(), "held result cannot be borrowed before argument End");
         let mut installed = good.clone();
         installed.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
             MirInstruction::StringResidenceInstall { value: ValueId(3), replaces: None, returning: false });

@@ -497,6 +497,22 @@ impl EmittedLexicalCallProjectionV1 {
         normal_fault_cancellation: &[InvokeOperation],
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         use super::super::super::root_cleanup_graph::ordered_paths as paths;
+        // Every wrapper and nested Call uses the same original result projection.
+        // An outer expression may corroborate this cancellation, never replace it.
+        let text_cancellation = if self.row.loan().result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) {
+            let (block, MirInstruction::InvokeNormalResult { dst, invoke_block }) = self.projection.value()?
+                else { return Err(freeze("call-argument/invoke-shape")) };
+            if *invoke_block != self.invoke.0 || !matches!(&self.invoke.1,
+                MirInstruction::Invoke { normal_landing, operation: InvokeOperation::Call { result: crate::mir::instruction::InvokeCallResultKind::OwnedString, .. }, .. }
+                    if normal_landing == block) { return Err(freeze("call-argument/invoke-shape")); }
+            vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: *dst })]
+        } else { Vec::new() };
+        let normal_fault_cancellation = if text_cancellation.is_empty() { normal_fault_cancellation } else {
+            if !normal_fault_cancellation.is_empty() && normal_fault_cancellation != text_cancellation {
+                return Err(freeze("call-argument/duplicate-acquisition"));
+            }
+            &text_cancellation
+        };
         let ends = self.prepared.deferred_argument_ends_v1(context)?;
         if ends.is_empty() && inherited.is_none() {
             if self.argument_cleanup.is_some() { return Err(freeze("call-argument/unexpected-cleanup")); }

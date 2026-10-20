@@ -406,6 +406,19 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 if !effects.iter().all(|binding| covered.contains(&binding.0)) {
                     return Err(freeze("argument-expression/call-effect-uncovered"));
                 }
+                if operation.normal_result_kind() == Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString) {
+                    let original = call.invoke_binding();
+                    let main = match finishing {
+                        Some(projection) => projection.binding(original.0, &original.1)?
+                            .ok_or_else(|| freeze("argument-expression/enclosing-invoke-removed"))?,
+                        None => original.clone(),
+                    };
+                    if main == (*id, instruction.clone()) {
+                        let (_, projection) = call.outer_bindings()?;
+                        let MirInstruction::InvokeNormalResult { dst, .. } = projection.1 else { return Err(freeze("print-expression/call-value")); };
+                        live.push(dst);
+                    }
+                }
                 continue;
             }
             covered.insert(*id);

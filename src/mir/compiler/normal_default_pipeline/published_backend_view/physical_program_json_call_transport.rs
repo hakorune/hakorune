@@ -97,7 +97,7 @@ pub(super) fn encode_parameters(
                             );
                             if input.entry().borrowed_formal_domain_v1(ordinal, param.0).is_some_and(|domain| domain.text_only()) {
                                 use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
-                                let text_role = matches!(function.role(), Role::OrdinaryI64 { .. })
+                                let text_role = matches!(function.role(), Role::OrdinaryI64 { .. } | Role::OrdinaryText { .. })
                                     || function.role().has_receiver()
                                         && matches!(function.role(), Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. });
                                 if !text_role {
@@ -216,6 +216,7 @@ pub(super) fn encode_ordinary_call(
     if issued_actuals.is_some_and(|proofs| proofs.len() != consumed) {
         return Err(fault("borrowed-carrier-source-residual"));
     }
+    let text_argument_cleanup = &call.text_argument_cleanup;
     let call = match super::super::physical_program::ordinary_call_receiver(&call.callee)? {
         Some(receiver) => json!({
             "target": target,
@@ -237,12 +238,17 @@ pub(super) fn encode_ordinary_call(
             InvokeCallResultKind::MixedHandle { .. } => "mixed_handle",
             InvokeCallResultKind::Bool => "bool",
             InvokeCallResultKind::Map => "map",
+            InvokeCallResultKind::OwnedString => "text",
             InvokeCallResultKind::Handle => "handle",
             InvokeCallResultKind::NullableHandle => "nullable_handle",
             InvokeCallResultKind::I64 => "i64",
             InvokeCallResultKind::Unit => "unit",
         },
     });
+    if !text_argument_cleanup.is_empty() {
+        if result_kind != InvokeCallResultKind::OwnedString { return Err(fault("ordinary-argument-kind")); }
+        wire["text_argument_cleanup"] = json!(text_argument_cleanup.iter().map(|value| value.0).collect::<Vec<_>>());
+    }
     if let InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal }
         | InvokeCallResultKind::MixedHandle { formal_ordinal } = result_kind {
         wire["result_formal_ordinal"] = json!(formal_ordinal);

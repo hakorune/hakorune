@@ -13,8 +13,7 @@ impl OrdinaryNewClaimLedgerV1 {
         -> Result<Option<&Rc<StaticIncomingSourceV1>>, String> {
         let Some(source) = self.borrowed_formal_source.as_ref() else { return Ok(None) };
         let source = source.as_ref().map_err(Clone::clone)?;
-        source.source_incoming.static_observations().get(site)
-            .map(|row| row.as_ref().map_err(Clone::clone)).transpose()
+        super::super::borrowed_formal_actuals::original_static_source_v1(source, site)
     }
 
     /// Bridge the completed original scalar cohort to its ordered packet actuals.
@@ -241,7 +240,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.verify_original_static_packet_source_v1(original)?;
             self.borrowed_static_packet_actuals_v1(original)?
                 .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
-            self.lexical_i64_call_source(site)
+            self.local_call_for_owner(site.owner(), site.site())
                 .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
             return Ok(Some(Rc::clone(original)));
         }
@@ -533,6 +532,11 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
+        if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString) {
+            self.checked_completed_static_expression_input_v1(original)?
+                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+            return self.verify_original_static_source_v1(original);
+        }
         if !original.is_zeroarg_i64_v1()
             && !original.is_qualified_i64_source_v1()
             && self
@@ -569,13 +573,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-static/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let retained = source
-            .source_incoming
-            .static_observations()
-            .get(original.call_site())
-            .ok_or_else(|| freeze("borrowed-static/inventory-site"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
+        let retained = super::super::borrowed_formal_actuals::original_static_source_v1(source, original.call_site())?
+            .ok_or_else(|| freeze("borrowed-static/inventory-site"))?;
         if !Rc::ptr_eq(retained, original) {
             return Err(freeze("borrowed-static/original-source-drift"));
         }

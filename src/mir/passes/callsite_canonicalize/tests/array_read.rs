@@ -51,6 +51,7 @@ fn proven_known_array_get_canonicalizes_to_array_element_read() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Known),
             args: vec![ValueId(1)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));
@@ -92,6 +93,7 @@ fn union_receiver_with_arraybox_origin_canonicalizes() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Union),
             args: vec![ValueId(1)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));
@@ -132,6 +134,7 @@ fn union_receiver_without_arraybox_origin_stays_untouched() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Union),
             args: vec![ValueId(1)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));
@@ -169,7 +172,8 @@ fn non_arraybox_receiver_classes_stay_untouched() {
                     box_kind: CalleeBoxKind::RuntimeData,
                 },
                 args: vec![ValueId(1)],
-                flags: crate::mir::definitions::call_unified::CallFlags::default(),
+                text_argument_cleanup: Vec::new(),
+            flags: crate::mir::definitions::call_unified::CallFlags::default(),
                 effects: EffectMask::PURE,
             }));
         block.instruction_spans.push(Span::unknown());
@@ -231,6 +235,7 @@ fn malformed_arity_stays_untouched() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Known),
             args: vec![ValueId(1), ValueId(3)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));
@@ -261,6 +266,7 @@ fn receiver_duplicated_arg_surface_uses_the_real_index() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Known),
             args: vec![ValueId(10), ValueId(1)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));
@@ -297,6 +303,7 @@ fn canonicalized_read_reaches_the_sole_published_consumer() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Known),
             args: vec![ValueId(1)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));
@@ -335,6 +342,7 @@ fn site_id_continues_above_existing_read_sites() {
             dst: Some(ValueId(2)),
             callee: array_method_get(ValueId(10), TypeCertainty::Known),
             args: vec![ValueId(1)],
+            text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
         }));

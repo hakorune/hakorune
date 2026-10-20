@@ -147,7 +147,8 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
-        (self.is_qualified_i64_source_v1() || self.is_zeroarg_i64_v1())
+        (self.is_qualified_i64_source_v1() || self.is_zeroarg_i64_v1()
+            || matches!(self.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString))
             && self.matches_publication_handoff_identity(handoff)
     }
 
@@ -167,11 +168,17 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
+        use crate::mir::callable_result_representation::{VerifiedCallableResultDispositionV1 as Source, VerifiedCallableResultRepresentationV1 as Representation};
+        let representation = match self.source_result() {
+            Source::ExactI64 { .. } => Representation::ExactI64,
+            Source::ExactString => Representation::ExactString,
+            _ => return false,
+        };
         handoff.catalog_identity() == self.catalog_brand.identity()
             && handoff.caller() == &self.caller
             && handoff.site() == self.call.site()
             && handoff.target() == &self.target
-            && handoff.representation() == &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64
+            && handoff.representation() == &representation
             && handoff.required_callee_i64_arguments() == self.required_i64_arguments()
     }
     pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {

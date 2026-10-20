@@ -71,6 +71,19 @@ purpose grants source permission or widens generic VM/JSON backend admission.
 The selected physical JSON omits `returning` for Local/rebind installs and includes
 `"returning": true` for Return hold; native single-root admission rejects the latter.
 
+For a source-backed ordinary Call with `OwnedString` result, the SAME Call
+retains `text_argument_cleanup` in exact End order (newest to oldest). These
+ValueIds are SSA dependencies, not additional actual arguments or permission to
+borrow. The suffix must be the complete current argument-temporary tail. Normal
+acquires the result below that tail; no String read, further Call or installation
+may use it before every argument End succeeds. Call Fault acquires no result;
+an argument-cleanup Fault Ends the remaining arguments, cancels that result,
+then unwinds the prior expression temporaries and Homes. Empty suffix needs no
+hold. Root Return hold remains the distinct existing-residence protocol above.
+Selected indexed JSON carries the suffix on `ordinary_call`; native single-root
+admission does not accept it. Both final consumers still demand the original
+Call packet, source result and complete argument cleanup graph.
+
 ### Selected Script Array lifecycle (MIR cutover; runtime execution pending)
 
 The selected Script Array physical cutover adds these operations to existing
@@ -184,13 +197,16 @@ Fault-frame operand and distinct Normal/Fault successors. It defines no value.
 `InvokeNormalResult { invoke_block, dst }` is the only result definition, first
 after PHIs in the exclusive Normal landing. Ordinary/Array allocation has one handle result;
 Unit Birth, FieldSet, HomeRelease and ReclaimUnpublished have none.
-`InvokeOperation::Call { call, result }` uses finite `InvokeCallResultKind`
-Unit/I64. Birth requires Unit; only same-module StaticBoxMethod with explicit I64
-and matching arity is structurally valid as an ordinary call. This does not infer
-source result types or authorize execution. I64 requires exactly one Normal
-projection, and no Fault use; the embedded Call destination remains absent.
-The existing selected physical exporter accepts Unit Birth only until the
-ordinary role/ABI consumer is connected.
+`InvokeOperation::Call { call, result }` uses the finite `InvokeCallResultKind`
+contract. Birth requires Unit. Canonical same-module Static/Free calls admit
+I64/Map/Handle structurally; Static also admits OwnedString. Canonical Instance
+calls retain their existing Unit/scalar/object result contracts and exact arity;
+borrowed/mixed results additionally retain their original formal ordinal.
+Each value result requires exactly one exclusive Normal projection and no Fault
+use; the embedded Call destination remains absent. OwnedString additionally
+passes the String affinity and argument-suffix checks above. Structural admission
+never supplies source or execution permission: the selected physical exporter
+separately checks the original participant, result, entry and cleanup ABI.
 HomeRelease carries an exact object ID and a completed Home value; its definition
 must admit destruction. ReclaimUnpublished carries the exact object ID and only
 reclaims incomplete outer storage, without parent fini or recursive field release.

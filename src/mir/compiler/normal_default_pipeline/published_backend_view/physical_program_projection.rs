@@ -189,6 +189,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     (InvokeCallResultKind::Unit, crate::mir::MirType::Void)
                         | (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
                         | (InvokeCallResultKind::Bool, crate::mir::MirType::Bool)
+                        | (InvokeCallResultKind::OwnedString, crate::mir::MirType::String)
                         | (
                             InvokeCallResultKind::Map
                                 | InvokeCallResultKind::Handle
@@ -215,6 +216,9 @@ impl<'module> PublishedMirBackendView<'module> {
                         key: key.clone(), receiver_object, formal_ordinal: *formal_ordinal,
                         returns: object_returns.expect("same result branch projected original Returns"),
                     },
+                InvokeCallResultKind::OwnedString => PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText {
+                    key: key.clone(), receiver_object,
+                },
                 InvokeCallResultKind::I64 => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
                         key: key.clone(),

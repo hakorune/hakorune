@@ -263,7 +263,7 @@ impl ArgumentExpressionSourceLoanV1 {
             let core = receipt.source(); site == core.source().receiver_site()
                 || core.source().arguments().iter().zip(core.target().parameters()).any(|(arg, kind)|
                     *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
-        }) || !self.i64_result && self.resolver_source().is_none() && self.plan.nodes().first().is_some_and(|node| node.site() == site
+        }) || !self.i64_result && self.resolver_source().is_none() && self.plan.nodes_outside_calls().any(|(_, node)| node.site() == site
             && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
     }
     pub(crate) fn resolver_source(&self) -> Option<&crate::mir::resolved_semantics::VerifiedResolverOrdinaryCoreMethodSourceV1> {
@@ -606,6 +606,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
                 if ordinary_text_argument_source_v1(prepared, &OwnedExprSiteV1::new(input.owner(), arg.site().clone()), &method)?.is_none() { return Ok(None); }
             }
             Some(BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_)) => {},
+            _ if identity.slots.get(&ordinal).and_then(|plan| plan.nodes().first())
+                .and_then(|node| node.binary()).is_some_and(|binary|
+                    binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add) => {},
             _ => return Ok(None),
         }
     }

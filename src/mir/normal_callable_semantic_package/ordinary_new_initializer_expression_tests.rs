@@ -487,6 +487,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut failures = Vec::new();
         for (methods, body, returned) in [
+            ("static box Values { make(text) { local value = \"!\" + text return value } }", "local out = Values.make(\"a\" + \"b\") print(out)", "0"),
             ("", "local n = \"abc\".length()", "0"),
             ("", "local text = \"abc\" local n = text.length()", "0"),
             ("", "local start = 1 local alias = start local n = alias + \"abc\".length()", "0"),
@@ -513,7 +514,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
             let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
                 crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source") };
             let mut consumed = false;
-            let result = crate::mir::MirCompiler::with_options(false).compile_normal_with_published(
+            let result = crate::mir::MirCompiler::with_options(methods.contains("make(")).compile_normal_with_published(
                 crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()).for_closed_app_executable(),
                 |view, verification| {
                     verification.as_ref().map_err(|errors| format!("{errors:?}"))?;

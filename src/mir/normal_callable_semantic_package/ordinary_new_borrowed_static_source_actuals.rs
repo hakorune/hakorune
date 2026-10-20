@@ -49,7 +49,7 @@ impl Eq for StaticSourceActualIdentityV1 {}
 
 /// Passive argument plans borrow the complete original source census. They must
 /// not insert omitted callers into the legacy static-observation projection.
-fn original_static_source_v1<'a>(
+pub(in crate::mir::normal_callable_semantic_package) fn original_static_source_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1,
 ) -> Result<Option<&'a Rc<StaticIncomingSourceV1>>, String> {
     let mut rows = prepared.source_incoming.source_rows_v1().filter(|row| &row.call == call);
@@ -188,6 +188,7 @@ pub(super) fn selects_static_expression_source_v1(
         .is_some_and(|source| source.is_qualified_i64_source_v1()
             || source.is_current_owner_i64_source_v1()
             || source.is_current_owner_bool_source_v1()
+            || matches!(source.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
             || prepared.is_static_terminal_source_v1(source)))
 }
 
@@ -281,6 +282,8 @@ pub(super) fn prepare_static_source_actuals_v1(
             BorrowedCallActualValueV1::Integer(_) => true,
             BorrowedCallActualValueV1::Expression if matches!(&formal.kind,
                 CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) => false,
+            BorrowedCallActualValueV1::Expression
+                if source_expression && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) => false,
             BorrowedCallActualValueV1::Bool(_) | BorrowedCallActualValueV1::Null => false,
             BorrowedCallActualValueV1::String(_) if formal.kind.is_ordinary_borrowed_handle() => false,
             BorrowedCallActualValueV1::Binding(binding)

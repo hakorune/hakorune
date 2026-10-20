@@ -83,7 +83,7 @@ impl JoinIrIdRemapper {
                 let mut vals = Vec::new();
                 call.callee.for_each_value_operand(|value| vals.push(value));
                 vals.extend(call.dst.iter().copied());
-                vals.extend(call.args.iter().copied());
+                vals.extend(call.args.iter().chain(&call.text_argument_cleanup).copied());
                 vals
             }
             LegacyCallV0 {

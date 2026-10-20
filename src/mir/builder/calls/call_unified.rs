@@ -55,6 +55,7 @@ pub fn create_mir_call(dst: Option<ValueId>, callee: Callee, args: Vec<ValueId>)
         args,
         flags,
         effects,
+        text_argument_cleanup: Vec::new(),
     }
 }
 

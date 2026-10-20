@@ -230,9 +230,17 @@ impl<'a> CallPacketSourceLoanV1<'a> {
     pub(in crate::mir) fn result(self) -> Option<InvokeCallResultKind> {
         match self {
             Self::Instance(row) => row.result(),
-            Self::Static { .. } | Self::SelectedStaticLoop { .. } => {
-                Some(InvokeCallResultKind::I64)
+            Self::Static { original, observation, publication } => {
+                use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1 as Class, LocalCallResultSourceV1};
+                match observation.result() {
+                    Class::I64 => Some(InvokeCallResultKind::I64),
+                    Class::Text if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
+                        && *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
+                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::OwnedText(source)) if Rc::ptr_eq(source, original)) => Some(InvokeCallResultKind::OwnedString),
+                    _ => None,
+                }
             }
+            Self::SelectedStaticLoop { .. } => Some(InvokeCallResultKind::I64),
         }
     }
 
@@ -260,8 +268,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         if !handoff_agrees
             || observation.owner() != original.call_site().owner()
             || observation.site() != original.call_site()
-            || observation.result()
-                != crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+            || self.result().is_none()
             || observation.arguments().len() != original.argument_sites().len()
             || observation.arguments().len() != original.target().arity() as usize
             || ledger.local_call_for_owner(observation.owner(), observation.site().site())

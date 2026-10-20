@@ -123,7 +123,11 @@ impl PreparedBorrowedFormalIngressV1 {
                 }
             }
             if plan.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
-                && self.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone())).is_some()) { return true; }
+                && (self.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone())).is_some()
+                    || input.function().method_call_source_v1(node.site()).is_some_and(|method|
+                        super::ordinary_text_argument_source_v1(self,
+                            &OwnedExprSiteV1::new(input.owner(), node.site().clone()), method)
+                            .map_or(true, |source| source.is_some())))) { return true; }
             if !initializer.initializer_site().and_then(|site| input.function().expression_source().binary(site))
                 .is_some_and(|binary| binary.operator() == ResolvedBinaryOperatorV1::Add) { return false; }
             let required = plan.nodes_outside_calls().any(|(_, leaf)| {

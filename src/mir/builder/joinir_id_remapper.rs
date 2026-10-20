@@ -298,17 +298,12 @@ impl JoinIrIdRemapper {
                 tag: *tag,
                 payload_type: payload_type.clone(),
             },
-            Call(call) => Call(crate::mir::definitions::MirCall {
-                dst: call.dst.map(remap),
-                callee: {
-                    let mut callee = call.callee.clone();
-                    callee.rewrite_value_operands(|value| *value = remap(*value));
-                    callee
-                },
-                args: call.args.iter().map(|&arg| remap(arg)).collect(),
-                flags: call.flags,
-                effects: call.effects,
-            }),
+            Call(call) => {
+                let mut call = call.clone();
+                call.dst = call.dst.map(remap);
+                call.rewrite_value_operands(|value| *value = remap(*value));
+                Call(call)
+            },
             LegacyCallV0 {
                 dst,
                 func,

@@ -157,6 +157,10 @@ impl FinalizedRootSourceHandoffV1 {
                 }
                 let kind =
                     kind.ok_or_else(|| freeze("callable-participant/real-result-unavailable"))?;
+                if kind == InvokeCallResultKind::OwnedString
+                    && !self.validate_finalized_text_participant_v1(owner, module, contract)? {
+                    return Err(freeze("callable-participant/result-unavailable"));
+                }
                 if kind == InvokeCallResultKind::Unit {
                     let completion = self.ledger.completion_for_owner(owner)
                         .ok_or_else(|| freeze("callable-participant/completion-missing"))?;
@@ -234,6 +238,8 @@ impl FinalizedRootSourceHandoffV1 {
                     }
                 }
                 descriptor.kind
+            } else if self.validate_finalized_text_participant_v1(owner, module, contract)? {
+                InvokeCallResultKind::OwnedString
             } else if let Some(scalar) = self.ledger.callable_scalar_result_source_v1(owner)? {
                 let (kind, agrees) = match scalar.kind() {
                     crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer =>

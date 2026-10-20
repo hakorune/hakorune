@@ -211,7 +211,8 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                     &row.source
                 {
-                    if !original.is_qualified_i64_source_v1()
+                    if !matches!(&self.evidence, EntryStructureEvidenceV1::FiniteText { .. })
+                        && !original.is_qualified_i64_source_v1()
                         && !matches!(self.incoming, BorrowedEntryActualsV1::SelectedTagged)
                         && !((original.is_current_owner_i64_source_v1()
                             || (original.is_current_owner_bool_source_v1()
@@ -226,14 +227,14 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                     {
                         original.require_qualified_i64_source_v1()?;
                     }
-                    let retained = self
-                        .source
-                        .source_incoming
-                        .static_observations()
-                        .get(&row.call)
-                        .ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?
-                        .as_ref()
-                        .map_err(Clone::clone)?;
+                    let retained = match &self.evidence {
+                        EntryStructureEvidenceV1::FiniteText { .. } =>
+                            super::super::borrowed_formal_actuals::original_static_source_v1(self.source, &row.call)?
+                                .ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?,
+                        EntryStructureEvidenceV1::Uses(_) => self.source.source_incoming.static_observations()
+                            .get(&row.call).ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?
+                            .as_ref().map_err(Clone::clone)?,
+                    };
                     if !Rc::ptr_eq(retained, original) {
                         return Err(freeze("borrowed-entry/incoming-source-drift"));
                     }

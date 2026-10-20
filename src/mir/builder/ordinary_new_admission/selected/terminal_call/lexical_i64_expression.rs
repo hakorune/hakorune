@@ -16,8 +16,14 @@ fn in_arguments(arguments: &[LocalCallArgumentV1], site: &OwnedExprSiteV1) -> bo
 
 /// One expression-owned prefix for the same physical Call writer. Bool
 /// conditions own no String temporaries; their existing prior Homes still unwind.
+pub(in crate::mir::builder) type StaticExpressionCallIssuerV1<'a> = dyn Fn(
+    &mut MirBuilder,
+    &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+) -> Result<crate::mir::normal_callable_semantic_package::CallPacketSourceV1, String> + 'a;
+
 pub(super) struct ExpressionCallPrefixV1<'a> {
     kind: ExpressionCallPrefixKindV1<'a>,
+    static_source: Option<&'a StaticExpressionCallIssuerV1<'a>>,
     consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 }
 enum ExpressionCallPrefixKindV1<'a> {
@@ -25,9 +31,10 @@ enum ExpressionCallPrefixKindV1<'a> {
     Bool { frame: &'a CheckedBoolConditionFrameV1, call: &'a LocalCallObservationV1 },
 }
 impl<'a> ExpressionCallPrefixV1<'a> {
-    pub(super) fn for_argument(prefix: ExpressionCallTransientPrefixV1<'a>, consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>) -> Self {
-        Self { kind: ExpressionCallPrefixKindV1::Evaluation(prefix), consume_receiver }
+    pub(super) fn for_argument(prefix: ExpressionCallTransientPrefixV1<'a>, consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>, static_source: Option<&'a StaticExpressionCallIssuerV1<'a>>) -> Self {
+        Self { kind: ExpressionCallPrefixKindV1::Evaluation(prefix), consume_receiver, static_source }
     }
+    pub(super) fn static_source(&self) -> Option<&StaticExpressionCallIssuerV1<'_>> { self.static_source }
     pub(super) fn transient(&self) -> Option<&ExpressionCallTransientPrefixV1<'_>> {
         match &self.kind { ExpressionCallPrefixKindV1::Evaluation(prefix) => Some(prefix), _ => None }
     }
@@ -62,7 +69,7 @@ pub(in crate::mir::builder) fn emit_bool(
         || ledger.lexical_i64_call_source(call.site()) != Some(call)
         || state.owner() != frame.source().owner()
     { return Err(freeze("bool-condition-call/source-drift")); }
-    let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver };
+    let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver, static_source: None };
     let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
         .ok_or_else(|| freeze("bool-condition-call/disposition-missing"))?;
     emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
@@ -81,8 +88,9 @@ pub(in crate::mir::builder) fn emit(
     values: &[Option<StringInvokeOperand>],
     bindings: &mut Vec<Binding>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<EmittedCall, String> {
-    emit_with_prefix(builder, state, ledger, frame, call, acquired, values, bindings, consume_receiver, None)
+    emit_with_prefix(builder, state, ledger, frame, call, acquired, values, bindings, consume_receiver, static_source, None)
 }
 
 pub(in crate::mir::builder) fn emit_with_prefix(
@@ -95,16 +103,21 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     values: &[Option<StringInvokeOperand>],
     bindings: &mut Vec<Binding>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
 ) -> Result<EmittedCall, String> {
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Evaluation(
-        ExpressionCallTransientPrefixV1::from_evaluation(frame, call, acquired, values, function, inherited)?), consume_receiver };
-    if ledger.lexical_i64_call_source(call.site()) != Some(call) || state.owner() != frame.source().owner() {
+        ExpressionCallTransientPrefixV1::from_evaluation(frame, call, acquired, values, function, inherited)?), consume_receiver, static_source };
+    if ledger.local_call_for_owner(call.owner(), call.site().site()) != Some(call) || state.owner() != frame.source().owner() {
         return Err(freeze("expression-call/source-drift"));
     }
-    let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
-        .ok_or_else(|| freeze("expression-call/disposition-missing"))?;
+    let source = match call.result_source() {
+        Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::OwnedText(original)) =>
+            static_source.ok_or_else(|| freeze("expression-call/disposition-missing"))?(builder, original)?,
+        _ => CallSource::instance(ledger.take_lexical_instance_call(call.owner(), call.site().site())?
+            .ok_or_else(|| freeze("expression-call/disposition-missing"))?),
+    };
     emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
-        CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver))
+        source, bindings, Some(&prefix), Some(consume_receiver))
 }

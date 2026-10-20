@@ -270,6 +270,19 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         // Retained scalar terminals own exact Return reads, including Loop After.
         for terminal in self.terminal_relations_for_owner(contract.owner) {
+            if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(row) = terminal {
+                if let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::TextResidence { binding, acquisition } = row.returned() {
+                    if !uses.corroborates_text_residence_return_v1(row) || origins.contains_key(binding) {
+                        return Ok(None);
+                    }
+                    let Some(Ok(exit)) = flow.and_then(|flow| flow.exit_row(row.return_site())) else { return Ok(None) };
+                    if exit.homes().iter().filter(|home| home.binding() == acquisition.binding()).count() != 1
+                        || !exit.homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone()))
+                        || !covered.insert((row.value_site().clone(), *binding)) {
+                        return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                    }
+                }
+            }
             if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(row) = terminal {
                 for (site, reference) in uses.reads().filter(|(site, _)| *site == row.value_site()) {
                     let ResolvedLexicalRefV1::Local(binding) = reference else { return Ok(None) };

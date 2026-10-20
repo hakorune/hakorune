@@ -299,14 +299,36 @@ def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱", r
         store['terminator']['instruction']['fault'] = 9
         store['edges'] = [{'target': 1, 'args': None}, {'target': 9, 'args': None}]
 
-        middle['blocks'][0]['terminator']['instruction']['operation']['result'] = 'text'
+        # The SAME Text Call retains its result below two computed argument
+        # temporaries; only the outer value is passed to the callee.
+        caller = middle['blocks'][0]
+        text_call = copy.deepcopy(caller['terminator']['instruction']['operation'])
+        text_call['result'] = 'text'
+        text_call['call']['args'][0] = {'kind': 'borrowed_text',
+            'operand': {'kind': 'owned_string', 'value': 13}}
+        text_call['text_argument_cleanup'] = [13, 14]
+        caller['terminator']['instruction'] = invoke({'kind': 'string_materialize',
+            'value': {'kind': 'borrowed_text', 'value': 4}, 'site': 87}, 8, 2)
+        caller['edges'] = [{'target': 8, 'args': None}, {'target': 2, 'args': None}]
         normal = middle['blocks'][1]
+        normal['instructions'][0]['instruction']['invoke_block'] = 4
         normal['instructions'].append({'index': len(normal['instructions']),
             'instruction': {'op': 'const_i64', 'dst': 8, 'value': 7}})
         normal['terminator'] = {'index': len(normal['instructions']),
-            'instruction': invoke({'kind': 'string_end', 'value': 5, 'site': 81}, 3, 2)}
-        normal['edges'] = [{'target': 3, 'args': None}, {'target': 2, 'args': None}]
-        middle['blocks'].append(block(3, [], {'op': 'return', 'value': 8}))
+            'instruction': invoke({'kind': 'string_end', 'value': 13, 'site': 89}, 10, 11)}
+        normal['edges'] = [{'target': 10, 'args': None}, {'target': 11, 'args': None}]
+        middle['blocks'].extend([
+            block(3, [], {'op': 'return', 'value': 8}),
+            block(8, [{'op': 'invoke_normal_result', 'invoke_block': 0, 'dst': 14}],
+                invoke({'kind': 'string_materialize', 'value': {'kind': 'owned_string', 'value': 14}, 'site': 88}, 4, 9), (4, 9)),
+            block(4, [{'op': 'invoke_normal_result', 'invoke_block': 8, 'dst': 13}],
+                invoke(text_call, 1, 5), (1, 5)),
+            block(5, [], invoke({'kind': 'string_end', 'value': 13, 'site': 90}, 9, 9), (9, 9)),
+            block(9, [], invoke({'kind': 'string_end', 'value': 14, 'site': 91}, 2, 2), (2, 2)),
+            block(10, [], invoke({'kind': 'string_end', 'value': 14, 'site': 92}, 6, 7), (6, 7)),
+            block(6, [], invoke({'kind': 'string_end', 'value': 5, 'site': 81}, 3, 2), (3, 2)),
+            block(11, [], invoke({'kind': 'string_end', 'value': 14, 'site': 93}, 7, 7), (7, 7)),
+            block(7, [], invoke({'kind': 'string_end', 'value': 5, 'site': 94}, 2, 2), (2, 2))])
         return data, text
     if result != 'i64':
         assert result in ('unit', 'bool') and not add and not two
@@ -423,15 +445,26 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
                 capture_output=True, text=True)
             assert result.returncode == (70 if fault else 7), (owned, mode, result)
             assert (text + '\n' in result.stdout) == (mode in ['normal', 'fault-first']), result
-            ends = int(owned) + int(mode != 'text-add-fault') + int(result_kind == 'text')
+            ends = int(owned) + int(mode != 'text-add-fault') + 3 * int(result_kind == 'text')
             assert 'TEXT_ENDS ' + str(ends) + '\n' in result.stdout, (owned, mode, result)
             stores = int(mode in ['normal', 'fault-first'])
             assert f'COUNTS 1 {stores} 1 0 {int(fault)} 1\n' in result.stdout, result
         if result_kind == 'text':
-            for mutation in ['result-kind', 'spent-result', 'fault-omission', 'double-hold', 'hold-replaces', 'normal-held-end']:
+            for mutation in ['result-kind', 'spent-result', 'fault-omission', 'double-hold', 'hold-replaces', 'normal-held-end', 'suffix-order', 'suffix-duplicate', 'suffix-foreign', 'early-result', 'result-cancel']:
                 changed = copy.deepcopy(data)
                 leaf, middle = changed['functions'][2:]
-                if mutation == 'result-kind': middle['blocks'][0]['terminator']['instruction']['operation']['result'] = 'i64'
+                call_block = next(b for b in middle['blocks']
+                    if b['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
+                if mutation == 'result-kind': call_block['terminator']['instruction']['operation']['result'] = 'i64'
+                elif mutation.startswith('suffix-'):
+                    call_block['terminator']['instruction']['operation']['text_argument_cleanup'] = {
+                        'suffix-order': [14, 13], 'suffix-duplicate': [13, 13], 'suffix-foreign': [4]}[mutation]
+                elif mutation == 'early-result':
+                    middle['blocks'][1]['terminator']['instruction']['operation']['value'] = 5
+                elif mutation == 'result-cancel':
+                    end = next(b for b in middle['blocks'] if b['id'] == 7)
+                    end['terminator']['instruction'] = {'op': 'jump', 'target': 2, 'args': None}
+                    end['edges'] = [{'target': 2, 'args': None}]
                 elif mutation == 'spent-result':
                     end = next(b for b in leaf['blocks'] if b['id'] == 1)
                     end['terminator']['instruction'] = invoke({'kind': 'string_end', 'value': 11, 'site': 82}, 10, 2)

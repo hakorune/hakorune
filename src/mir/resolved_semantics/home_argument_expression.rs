@@ -53,7 +53,9 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         if method.owner() != source.owner() || root.site() != method.site()
             || !matches!(root.source(), ExpressionNodeSourceV1::MethodCall) { return Ok(None); }
     } else if !core.requires_i64_v1() && !core.ordinary_text_call_is(root.site()) && !matches!(root.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
-        | ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_))) { return Ok(None); }
+        | ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_)))
+        && !root.binary().is_some_and(|binary| binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add)
+    { return Ok(None); }
     let mut homes = BTreeSet::new();
     if prior_homes.iter().any(|home| home.owner() != source.owner() || !homes.insert(home.binding())) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };

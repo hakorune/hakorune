@@ -395,16 +395,31 @@ pub struct MirCall {
     pub dst: Option<ValueId>,
     pub callee: Callee,
     pub args: Vec<ValueId>,
+    /// End-order suffix of this Call's owned Text argument temporaries.
+    /// SSA dependencies, never additional runtime arguments or borrow permission.
+    pub text_argument_cleanup: Vec<ValueId>,
     pub flags: CallFlags,
     pub effects: EffectMask,
 }
 
 impl MirCall {
+    /// One operand walk for Call consumers, including lifecycle dependencies.
+    pub fn for_each_value_operand(&self, mut visit: impl FnMut(ValueId)) {
+        self.callee.for_each_value_operand(&mut visit);
+        for value in self.args.iter().chain(&self.text_argument_cleanup) { visit(*value); }
+    }
+
+    pub fn rewrite_value_operands(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
+        self.callee.rewrite_value_operands(&mut rewrite);
+        for value in self.args.iter_mut().chain(&mut self.text_argument_cleanup) { rewrite(value); }
+    }
+
     pub fn new(dst: Option<ValueId>, callee: Callee, args: Vec<ValueId>) -> Self {
         MirCall {
             dst,
             callee,
             args,
+            text_argument_cleanup: Vec::new(),
             flags: CallFlags::new(),
             effects: EffectMask::PURE,
         }

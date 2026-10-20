@@ -238,7 +238,8 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         LocalCallResultSourceV1::Scalar(loan) if loan.kind() == SourceScalarKind::Integer =>
             loan.source().receiver_binding().ok().and_then(receiver_path),
         LocalCallResultSourceV1::OwnedText(_) if matches!(source.root(),
-            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }) => None,
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
+                | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }) => None,
         _ => return Ok(None),
     };
     let mut observation = result_observation_v1(input.owner(), source.root().statement(), site,

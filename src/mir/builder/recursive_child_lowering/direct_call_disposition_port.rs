@@ -2,7 +2,7 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1 as InstanceRow;
 
-impl RawInvocationChildPortV1<'_, '_> {
+impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) fn consume_lexical_self_receiver_locator_v1(
         &self,
         row: &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
@@ -14,7 +14,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     /// callable state. The callback never reads that state or the receiver.
     pub(in crate::mir::builder) fn lexical_self_receiver_locator_consumer_v1(
         &self,
-    ) -> Result<impl Fn(&InstanceRow) -> Result<(), String> + '_, String> {
+    ) -> Result<impl Fn(&InstanceRow) -> Result<(), String> + 'port, String> {
         let owner = self.callable_owner_v1()
             .ok_or("[freeze:contract][terminal-call/owner-missing]")?;
         let locator = self.declared_instance_locator;

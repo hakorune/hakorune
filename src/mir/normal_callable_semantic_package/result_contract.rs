@@ -199,6 +199,23 @@ impl<'a> CallableResultContractRefV1<'a> {
         declared_i64_source_agrees_v1(self.result, self.completion)
     }
 
+    /// Complete original Text-residence exits; this grants no physical Call ABI.
+    /// Entry finishing and final publication replay the same source correspondence.
+    pub(super) fn has_complete_text_residence_result_v1(&self) -> bool {
+        use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
+        let exits = self.completion.explicit_sites();
+        let unique: std::collections::BTreeSet<_> = exits.iter().collect();
+        self.result.is_none()
+            && matches!(self.completion.function_exit_contract().declared_result(), DeclaredFunctionResultContractV1::Unannotated)
+            && self.completion.owner() == self.owner && self.completion.returns_value()
+            && self.completion.implicit_body_end().is_none() && !exits.is_empty()
+            && unique.len() == exits.len() && self.terminal_relations.len() == exits.len()
+            && exits.iter().all(|site| matches!(self.terminal_relations.get(site),
+                Some(TerminalRelationV1::Value(value)) if value.owner() == self.owner
+                    && value.return_site() == site
+                    && matches!(value.returned(), TerminalReturnedSourceV1::TextResidence { .. })))
+    }
+
     /// Agreement with the independent ExactBool source result. An absent
     /// annotation alone never proves Bool or activates its physical ABI.
     pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {

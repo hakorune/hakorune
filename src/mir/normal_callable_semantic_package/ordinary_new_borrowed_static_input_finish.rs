@@ -448,6 +448,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 || original.argument_sites().len() != contract.parameters.len() {
                 return Err(freeze("static-input/original-target"));
             }
+            if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
+                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_residence_result_v1()) {
+                return Ok(TypedInputClosureV1::Pending);
+            }
             let Some(rows) = self.borrowed_formal_actuals.get(&call.call) else { missing = true; continue };
             let rows = match rows { Ok(rows) => rows, Err(issue) => return Ok(TypedInputClosureV1::Refused(issue.clone())) };
             let Some(snapshot) = rows.source_static_snapshot_v1() else { missing = true; continue };

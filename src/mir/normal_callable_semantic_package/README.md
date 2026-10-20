@@ -275,6 +275,18 @@ Explicit Observe invalidates that qualification. This passive projection cannot 
 or construct opaque actuals; executable activation must independently join the
 accepted Home flow and close the physical argument/lifetime obligations.
 
+An Ordinary Text Local initializer borrows the same original Static source from
+the full census (and corroborates any legacy projection), then takes its affine
+publication handoff once through the existing issuer. Source input completion
+requires the same whole incoming tuple, finite domains, qualified uses and all
+original Text-residence exits. Original alias flow corroborates the returned
+residence read. The final callee scan separately requires its original install,
+Return hold and complete Normal/Fault cleanup through both consumers; a String
+signature or ExactString classification alone grants no execution. The same Call
+retains its exact argument-temporary suffix and result-cancellation cleanup.
+Direct literal/Core Return and zero-input Text activation remain separate owed
+connections; no synthetic Local, parallel packet registry or legacy retry is used.
+
 The original AppMain co-seal also lends its direct ReturnValue sites. A
 Qualified call at one of those sites with one OpaqueHandle formal may retain
 source-only ordered actuals and a destination-less Call exit. The statement's

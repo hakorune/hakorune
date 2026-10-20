@@ -104,11 +104,10 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     // Owned Text transfers one root residence; I64 retains no Home. Its Text
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.
-    if classes[0] == Leaf::Value(Class::String)
-        && !owned_results.contains(&0) && !cores.get(&0).is_some_and(|core| core.owns_result()) { return Ok(None); }
+    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
+    if classes[0] == Leaf::Value(Class::String) && !owned_results.contains(&0) { return Ok(None); }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
-    let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     let frame = Rc::new(CheckedInitializerExpressionFrameV1 {
         signed_root_sum,
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),

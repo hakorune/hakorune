@@ -12,7 +12,7 @@ use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 type Binding = (crate::mir::BasicBlockId, MirInstruction);
 #[path = "lexical_i64_expression.rs"]
 mod expression;
-pub(in crate::mir::builder) use expression::{emit as emit_expression_call, emit_with_prefix as emit_expression_call_with_prefix, emit_bool as emit_bool_condition_call};
+pub(in crate::mir::builder) use expression::{emit as emit_expression_call, emit_with_prefix as emit_expression_call_with_prefix, emit_bool as emit_bool_condition_call, StaticExpressionCallIssuerV1};
 use expression::ExpressionCallPrefixV1;
 
 /// Emit one source-issued lexical instance-call local result
@@ -127,7 +127,7 @@ fn emit_lexical_i64_call(
         prefix.consume_receiver(instance)?;
     }
     let kind = match row.result() {
-        Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Unit)) => kind,
+        Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Unit | InvokeCallResultKind::OwnedString)) => kind,
         Some(InvokeCallResultKind::Bool) => match row {
             SourceLoan::Instance(instance)
                 if ledger.checked_local_scalar_call_result_v1(instance)? == InvokeCallResultKind::Bool => InvokeCallResultKind::Bool,
@@ -218,8 +218,13 @@ fn emit_lexical_i64_call(
         Some(source),
         consume_receiver,
     )?;
+    let cancellation = if kind == InvokeCallResultKind::OwnedString {
+        vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
+            value: result.ok_or_else(|| freeze("lexical-i64-result-mismatch"))?,
+        })]
+    } else { Vec::new() };
     let (fault_landing, cleanup) = prepare_argument_cleanup_v1(
-        builder, ledger, &prepared, frame, outward, unwind, &[], bindings)?;
+        builder, ledger, &prepared, frame, outward, unwind, &cancellation, bindings)?;
     if let Some(read) = stored_read { prepared = prepared.with_stored_receiver(read)?; }
     let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
     let packet = if let Some(result) = result {
@@ -402,7 +407,7 @@ fn prepare_arguments_with_prefix(
                     CallValidationContextV1::Lowering(ledger))).collect::<Result<Vec<_>, _>>()?.iter().any(|values| !values.is_empty()) {
                     return Err(freeze("lexical-i64/argument-receiver-scope"));
                 }
-                let scoped = prefix.zip(consume_receiver).map(|(prefix, consumer)| ExpressionCallPrefixV1::for_argument(prefix, consumer));
+                let scoped = prefix.zip(consume_receiver).map(|(prefix, consumer)| ExpressionCallPrefixV1::for_argument(prefix, consumer, expression.and_then(|outer| outer.static_source())));
                 ArgumentProjection::CallResult(Box::new(emit_lexical_i64_call(
                     builder, state, ledger, owner, ArgumentSource::from_nested(inner),
                     CallSource::instance(inner_row), bindings,
@@ -435,7 +440,7 @@ fn prepare_arguments_with_prefix(
                             &arguments, CallValidationContextV1::Lowering(ledger), expression.and_then(|prefix| prefix.transient()))?;
                         let consumer = consume_receiver.ok_or_else(|| freeze("lexical-i64/argument-receiver-scope"))?;
                         let (_, projection) = super::super::argument_expression::emit_with_prefix(
-                            builder, state, ledger, row.call_site(), *ordinal, site, consumer, Some(&prefix))?;
+                            builder, state, ledger, row.call_site(), *ordinal, site, consumer, Some(&prefix), expression.and_then(|outer| outer.static_source()))?;
                         for binding in projection.expression_bindings_v1() {
                             // The function frame is a shared dependency. Every
                             // acquisition/effect remains independently recorded.

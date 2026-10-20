@@ -115,7 +115,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         }
         for (observed, packet) in self.source_calls().zip(self.calls()) {
             if packet.call_site() != observed.site()
-                || ledger.lexical_i64_call_source(packet.call_site()) != Some(observed)
+                || ledger.local_call_for_owner(packet.call_site().owner(), packet.call_site().site()) != Some(observed)
                 || observed.prior_homes() != self.frame.prior_homes()
             {
                 return Err(freeze("print-expression/call-source"));
@@ -126,7 +126,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .position(|node| node.site() == observed.site().site())
                 .ok_or_else(|| freeze("print-expression/call-node"))?;
             let value = packet.value_in_context_v1(source.owner(), observed.arguments(), context)?;
-            if self.values[index] != Some(Operand::NormalInteger(value)) {
+            let expected = match observed.result() {
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text
+                    if packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)
+                        && self.frame.owned_result_nodes().contains(&index) => Operand::OwnedString(value),
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Operand::NormalInteger(value),
+                _ => return Err(freeze("print-expression/call-value")),
+            };
+            if self.values[index] != Some(expected) {
                 return Err(freeze("print-expression/call-value"));
             }
         }
@@ -179,7 +186,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         if actual == &expected && *normal_landing == result.0))?;
                     if invoke.0 != invoke_block || invoke.0 == result.0 { return Err(freeze("expression-core/producer")); }
                 }
-                (Node::MethodCall, Some(Operand::NormalInteger(_)))
+                (Node::MethodCall, Some(Operand::NormalInteger(_) | Operand::OwnedString(_)))
                     if self
                         .calls()
                         .any(|packet| packet.call_site().site() == node.site()) => {}
@@ -343,21 +350,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 continue;
             }
             if matches!(source.nodes()[index].source(), Node::Reference(_)) { continue; }
+            if let Some(packet) = self.calls().find(|packet|
+                packet.call_site().site() == source.nodes()[index].site()) {
+                let call = self.frame.calls().iter().find(|call| call.site() == packet.call_site())
+                    .ok_or_else(|| freeze("print-expression/call-source"))?;
+                ordered.extend(packet.ordered_call_bindings_in_context_v1(
+                    source.owner(), call.arguments(), context)?);
+                continue;
+            }
             match self.values[index].as_ref() {
                 Some(Operand::NormalInteger(value)) => {
-                    if let Some(packet) = self
-                        .calls()
-                        .find(|packet| packet.call_site().site() == source.nodes()[index].site())
-                    {
-                        let call = self
-                            .frame
-                            .calls()
-                            .iter()
-                            .find(|call| call.site() == packet.call_site())
-                            .ok_or_else(|| freeze("print-expression/call-source"))?;
-                        ordered.extend(packet.ordered_call_bindings_in_context_v1(
-                            source.owner(), call.arguments(), context)?);
-                    } else if matches!(source.nodes()[index].source(), Node::Shape(
+                    if matches!(source.nodes()[index].source(), Node::Shape(
                         crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
                         ordered.extend(context.ledger().expression_field_read_bindings_v1(
                             &OwnedExprSiteV1::new(source.owner(), source.nodes()[index].site().clone()), source, context)?);
@@ -439,7 +442,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     calls.extend(
                         self.original
                             .iter()
-                            .filter(|binding| node.has_producer_at(node.call_site(), binding))
+                            .filter(|binding| node.has_original_scope_binding_at(node.call_site(), binding))
                             .cloned(),
                     );
                     Ok(())
@@ -712,8 +715,8 @@ pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
         };
         if producers.next().is_some() || !matches!(function.blocks.get(invoke_block)
             .and_then(|block| block.terminator.as_ref()),
-            Some(MirInstruction::Invoke { operation: InvokeOperation::String(operation), normal_landing, .. })
-                if operation.owns_normal_result() && *normal_landing == landing) {
+            Some(MirInstruction::Invoke { operation, normal_landing, .. })
+                if operation.normal_result_kind() == Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString) && *normal_landing == landing) {
             return Err(freeze("expression-call/acquisition-producer"));
         }
     }

@@ -270,8 +270,13 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     .ok_or_else(|| freeze("print-expression/call-source-missing"))?;
                 let packet = Rc::new(emit_call(builder, state, call, &acquired, &values, &mut bindings)?);
                 let value = packet.value_with_ledger(owner, call.arguments(), ledger)?;
+                let owned = frame.owned_result_nodes().contains(&index);
+                if owned != (packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)) {
+                    return Err(freeze("print-expression/call-source-missing"));
+                }
                 calls.push(packet);
-                Operand::NormalInteger(value)
+                if owned { acquired.push((index, value)); Operand::OwnedString(value) }
+                else { Operand::NormalInteger(value) }
             }
             Node::Binary(binary) => {
                 let operand = |site| source.nodes().iter().position(|node| node.site() == site)

@@ -54,6 +54,8 @@ pub enum FaultFrameMode {
 /// Physical result projection; never source admission or inferred from a name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InvokeCallResultKind {
+    /// Owned checked String pair, acquired only on the Call Normal edge.
+    OwnedString,
     Unit,
     I64,
     /// Exact source Bool; machine storage does not grant Integer semantics.
@@ -190,6 +192,7 @@ impl InvokeOperation {
                 result: InvokeCallResultKind::Bool,
                 ..
             } => Some(InvokeNormalResultKind::Bool),
+            Self::Call { result: InvokeCallResultKind::OwnedString, .. } => Some(InvokeNormalResultKind::OwnedString),
             Self::Call {
                 result: InvokeCallResultKind::Map,
                 ..
@@ -257,9 +260,7 @@ impl InvokeOperation {
             Self::OwnedArray(operation) => operation.used_values(),
             Self::Call { call, .. } => {
                 let mut values = Vec::new();
-                call.callee
-                    .for_each_value_operand(|value| values.push(value));
-                values.extend(call.args.iter().copied());
+                call.for_each_value_operand(|value| values.push(value));
                 values
             }
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => Vec::new(),
@@ -296,10 +297,7 @@ impl InvokeOperation {
             Self::String(operation) => operation.rewrite_values(rewrite),
             Self::OwnedArray(operation) => operation.rewrite_values(rewrite),
             Self::Call { call, .. } => {
-                call.callee.rewrite_value_operands(|value| rewrite(value));
-                for value in &mut call.args {
-                    rewrite(value);
-                }
+                call.rewrite_value_operands(rewrite);
             }
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => {}
             Self::ArrayStateContractClaim { array, .. } => rewrite(array),

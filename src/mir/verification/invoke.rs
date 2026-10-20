@@ -367,7 +367,7 @@ fn check_function_inner(
                         Callee::Global(
                             target @ Global::SameModule(SameModule::StaticBoxMethod { .. }),
                         ),
-                        ResultKind::I64 | ResultKind::Map | ResultKind::Handle,
+                        ResultKind::I64 | ResultKind::Map | ResultKind::Handle | ResultKind::OwnedString,
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),

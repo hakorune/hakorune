@@ -236,8 +236,7 @@ impl MirInstruction {
         match self {
             MirInstruction::Call(call) => {
                 let mut used = Vec::new();
-                call.callee.for_each_value_operand(|value| used.push(value));
-                used.extend(call.args.iter().copied());
+                call.for_each_value_operand(|value| used.push(value));
                 return used;
             }
             MirInstruction::LegacyCallV0 {

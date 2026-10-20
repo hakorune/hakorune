@@ -199,12 +199,24 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     static const char* const borrowed_keys[] = {"kind", "call", "result", "result_formal_ordinal"};
     int borrowed = hako_physical_string(result, "borrowed_nullable_handle") ||
         hako_physical_string(result, "mixed_handle");
+    yyjson_val* cleanup = yyjson_obj_get(operation, "text_argument_cleanup");
+    static const char* const text_keys[] = {"kind", "call", "result", "text_argument_cleanup"};
+    if (cleanup) {
+      if (native || !hako_physical_string(result, "text") || !yyjson_is_arr(cleanup) || !yyjson_arr_size(cleanup)) return 0;
+      for (size_t i = 0; i < yyjson_arr_size(cleanup); i++) {
+        uint32_t value;
+        if (!hako_physical_u32(yyjson_arr_get(cleanup, i), &value) ||
+            !hako_physical_value_available_at(function, value, block, index)) return 0;
+        for (size_t j = 0; j < i; j++)
+          if (yyjson_get_uint(yyjson_arr_get(cleanup, j)) == value) return 0;
+      }
+    }
     uint32_t support = 0, declared = 0;
     const char* want_role = hako_physical_ordinary_result_role(result);
     /* This structural pair is corroborated again by indexed flow. Neither
        classifier may silently fill an unknown result with the i64 role. */
     yyjson_val* call = yyjson_obj_get(operation, "call");
-    return hako_physical_exact_keys(operation, borrowed ? borrowed_keys : ordinary_keys, borrowed ? 4 : 3) && want_role &&
+    return hako_physical_exact_keys(operation, cleanup ? text_keys : borrowed ? borrowed_keys : ordinary_keys, cleanup || borrowed ? 4 : 3) && want_role &&
         hako_physical_validate_ordinary_call(function, functions, call, block, index, want_role) &&
         (!borrowed || (hako_physical_u32(yyjson_obj_get(operation, "result_formal_ordinal"), &support) &&
             hako_physical_u32(yyjson_obj_get(yyjson_arr_get(functions,

@@ -423,7 +423,17 @@ impl PreparedLexicalCallProjectionV1 {
             let value = projection.value_for_source_v1(source, owner, site, Some(row), context)?;
             values.push(value);
         }
-        Ok(MirCall::new(None, callee, values))
+        let mut call = MirCall::new(None, callee, values);
+        if row.result() == Some(InvokeCallResultKind::OwnedString) {
+            let context = context.ok_or_else(|| freeze("static-packet/ledger-missing"))?;
+            call.text_argument_cleanup = self.deferred_argument_ends_v1(context)?.into_iter().map(|operation| {
+                match operation {
+                    InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }) => Ok(value),
+                    _ => Err(freeze("call-argument/duplicate-acquisition")),
+                }
+            }).collect::<Result<_, _>>()?;
+        }
+        Ok(call)
     }
 }
 
@@ -526,6 +536,16 @@ impl EmittedLexicalCallProjectionV1 {
             }
         }
         visit(self, source)
+    }
+
+    /// Scope membership includes the SAME argument expression's cleanup graph.
+    /// It is deliberately separate from the finished value-producer lender.
+    pub(in crate::mir) fn has_original_scope_binding_at(
+        &self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1, binding: &Binding,
+    ) -> bool {
+        self.has_producer_at(site, binding)
+            || self.call_site() == site && self.prepared.arguments.iter()
+                .any(|argument| argument.expression_bindings_v1().contains(binding))
     }
 
     /// Exact original membership, including each nested node's own call site.

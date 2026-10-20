@@ -76,6 +76,7 @@ pub(super) fn issue_birth_calls_for_program(
         let owner = match function.role() {
             PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => Some(root_owner),
             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { key, .. }
+            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryText { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. }

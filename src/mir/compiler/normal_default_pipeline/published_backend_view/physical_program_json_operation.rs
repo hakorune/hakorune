@@ -208,7 +208,7 @@ pub(super) fn encode_invoke(
         InvokeOperation::Call {
             call,
             result:
-                result_kind @ (InvokeCallResultKind::Unit | InvokeCallResultKind::I64
+                result_kind @ (InvokeCallResultKind::Unit | InvokeCallResultKind::I64 | InvokeCallResultKind::OwnedString
                 | InvokeCallResultKind::Bool
                 | InvokeCallResultKind::Map
                 | InvokeCallResultKind::Handle
