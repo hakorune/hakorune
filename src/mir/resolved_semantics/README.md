@@ -170,8 +170,14 @@ through the existing argument port, with current field-inventory identity. A
 Present get retains its own Me-read site and qualifies the original Text-key
 CallArgument through the common Text evaluation owner. Child completion retains
 this source relation explicitly; original entry-use closure counts receiver and
-key reads. This issues no Home, completed result ABI or physical slot lifetime;
-get/set Normal transfer and independent final Return validation remain required.
+key reads. The same original source also lends the exact procedural set and
+construction to `home_map_value_flow`: `MapFieldInstallV1` retains receiver/key,
+precommit Homes and the Normal successor using the literal Map's shared Home
+removal rule. `StoredMapInstalled` borrows this SAME retained install at Return;
+it never restores the candidate Home or fabricates a borrowed Call. Entry-use
+closure counts install receiver/key once. Field installs remain separate from
+literal Map allocation and unconsumed until physical install/EndOutcome/slot
+lifetime and independent final Return validation close.
 Original Static result domains join the existing source SUM/SCC graph through all
 callee Return edges, independently of catalog result representation. The source
 owner validates every incoming identity and retains complete original Return/flow

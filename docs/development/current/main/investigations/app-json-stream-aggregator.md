@@ -1,18 +1,18 @@
 # APP-json-stream-aggregator
 
-Status: Original Static Return domains and Map Return sources connected; Map execution incomplete. Date: 2026-10-21
+Status: Map set Normal source transfer connected; physical execution incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
 
-- Frozen fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, 401.795s; no SKIP/timeout.
+- Latest fixed suite at preceding commit: 7PASS/4FAIL, actual EXE6 + marker1,
+  401.795s; no SKIP/timeout. No full-suite rerun for this internal source connection.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON now refuses `ordinary-new/object-input/callee-exit` with
-  `PrefixNotCovered(Body2)` before MIR/EXE. Callee is absent from this diagnostic;
-  statsFor set and ingestLine condition are candidates, not confirmed source lines.
-- CLI40.30s/root95s PASS; unchanged runtime/C pair reused. Source-domain proof
-  grants no native result ABI; the separate Reader/Sink EXE still refuses entry.
+- JSON `ordinary-new/object-input/callee-exit` now identifies owner25/exitBody4
+  and `PrefixNotCovered(Body3)`: statsFor users.push at line113, after set line112.
+  MIR/EXE is still absent. CLI42s/root122s PASS; runtime/C pair unchanged.
+- Unchanged runtime/C pair reused; source Normal transfer grants no physical ABI.
 
 ## Retained connected contracts
 - One FieldResidence census carries every Array/Dynamic field, including Empty,
@@ -35,8 +35,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   retaining exact Me/input-use and complete original Map Birth replay. Duplicate
   operand/writer retired. Passive literal/formal Text/short-circuit source EXEs3
   exit7. Computed key effects stay unadmitted until receiver-first execution closes.
-- Scalar Return source census selects demand independently of proof success;
-  finite input alone grants no result class, Text stays separate.
 
 ## Current source connection
 - Result PassB retains SAME field/constructor/entry before SUM. Array/Map share
@@ -62,31 +60,33 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   until slot ABI/lifetime closes. Unit Completion alone grants no receiver packet.
 
 ## Verification and retained reds
-- Current JSONsource1, object-return5, borrowed-use27, Map terminal13, nullable2 PASS.
-- Initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent failures
+- Current JSONsource1, object-return5, borrowed-use27, Map terminal13, flow20/nested11 PASS.
+- Map-argument1/2, initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent failures
   and diagnostics exactly except compilation session IDs. These reds remain owed.
 - Existing case extensions protect an independent source-only Static Return domain
   when catalog authority is unavailable, and SAME whole Map-source loan identity.
   No new test/function/file/hook/checker/guard/card; inventory9263 unchanged.
-- Prior Invoke42, publication2/1 and Array15/2 remain prior evidence, not rerun here.
-- Prior native Map/scalar/Array Fault evidence remains; no runtime/C changes here.
+- Prior Invoke42, publication2/1, Array15/2 and native Fault evidence retained;
+  no runtime/C changes here.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep original source/physical contracts.
 
 ## Next and full completion limits
-
 - LANDED: result kind/physical role share Formal or ReceiverFieldSlot support; JSON has one encoder and unchanged Formal wire.
   Map remains SourcePending until physical get/set Normal/Return/lifetime closes.
 - LANDED: SAME whole Map Return source reaches terminal Home observation and
   entry-use closure; each Present get retains its own receiver/read and Text key.
-  Miss set remains unavailable; selected storage never falls through to Fresh/scalar.
+  Selected storage never falls through to Fresh/scalar.
 - LANDED: original Static callee Returns feed the existing SUM/SCC graph once per
   callee. Every incoming Rc/target/contract and sealed omitted mapping is checked;
   complete Return/flow identity retained, independent of old catalog result success.
-- Next: identify callee in the current Body2 refusal, then connect original get/set
-  physical Normal/Return/slot lifetime; preserve receiver-first Text-key evaluation.
-- Next set: reuse TransferHome Normal delta and InstallIndexed/EndOutcome cleanup;
-  after commit retain a slot-supported payload, never the old candidate Home.
+- LANDED: original procedural set retains same candidate/construction/key and
+  prior/Normal Home snapshots; literal and field installs share Home removal.
+  Installed Return borrows the SAME install; entry-use closure counts reads once.
+  Physical map consumption still refuses; no Map New/End or borrowed Call forged.
+- Next source: users.push Text input through existing Array owner. Next physical:
+  reuse InstallIndexed/EndOutcome with receiver-first field/Text-key wrapper,
+  prior-Homes precommit Fault and Normal-Homes old-End Fault; no parent Map End.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
   Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently, not copy input Home. Provided Box,

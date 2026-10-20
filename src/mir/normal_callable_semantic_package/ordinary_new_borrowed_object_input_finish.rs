@@ -459,7 +459,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 match flow.implicit_exit() {
                     None => return Ok(ObjectInputCompletionGateV1::Pending("implicit-exit-missing".into())),
                     Some(Err(issue)) => return Ok(ObjectInputCompletionGateV1::Refused(
-                        format!("{}: {issue:?}", freeze("object-input/callee-exit")))),
+                        format!("{}: callee={owner:?}, implicit-exit: {issue:?}", freeze("object-input/callee-exit")))),
                     Some(Ok(_)) => { self.implicit_root_home_source_v1(owner, completion)?; implicit_ready = true; }
                 }
             }
@@ -471,7 +471,7 @@ impl OrdinaryNewClaimLedgerV1 {
             match flow.exit_row(exit) {
                 Some(Err(issue)) => {
                     return Ok(ObjectInputCompletionGateV1::Refused(format!(
-                        "{}: {issue:?}",
+                        "{}: callee={owner:?}, exit={exit:?}: {issue:?}",
                         freeze("object-input/callee-exit")
                     )))
                 }
@@ -523,7 +523,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let calls = match Self::original_instance_input_calls_v1(source, catalog, owner) {
             Ok(rows) => rows,
-            Err(issue) => return Ok(TypedInputClosureV1::Refused(issue)),
+            Err(issue) => return Ok(TypedInputClosureV1::Refused(format!("{issue}, target={key:?}"))),
         };
         match self.checked_typed_object_input_completion_v1(owner)? {
             ObjectInputCompletionGateV1::Pending(_) => return Ok(TypedInputClosureV1::Pending),

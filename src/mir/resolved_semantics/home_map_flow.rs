@@ -12,7 +12,9 @@ pub(crate) use lifecycle_prefix::LifecyclePrefixSourceV1;
 
 #[path = "home_map_value_flow.rs"]
 mod value_flow;
-use value_flow::{map_value_leaf, observe_array_elements};
+use value_flow::{map_value_leaf, observe_array_elements, transfer_home_v1};
+pub(crate) use value_flow::MapFieldInstallV1;
+pub(super) use value_flow::observe_field_install_v1;
 
 /// One verified explicit exit's site-bound obligation: the live Homes this
 /// path must release (reverse live order) plus the local-call sites the
@@ -147,19 +149,22 @@ impl RootHomeFlow {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum MapHomeObservation {
     Complete(MapHomeFlow),
+    /// Normal source delta for a checked procedural field install, not a Map allocation.
+    FieldInstall(std::rc::Rc<MapFieldInstallV1>),
     Unavailable { site: OwnedExprSiteV1 },
 }
 impl MapHomeObservation {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         match self {
             Self::Complete(row) => row.site(),
+            Self::FieldInstall(row) => row.site(),
             Self::Unavailable { site } => site,
         }
     }
     pub(crate) fn complete(&self) -> Option<&MapHomeFlow> {
         match self {
             Self::Complete(row) => Some(row),
-            Self::Unavailable { .. } => None,
+            Self::FieldInstall(_) | Self::Unavailable { .. } => None,
         }
     }
 }
@@ -615,15 +620,13 @@ pub(super) fn observe_map<E>(
                     child.clone(),
                 )));
             }
-            let Some(position) = remaining.iter().position(|home| home.binding() == binding) else {
-                return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
-            };
-            remaining.remove(position);
             let Some(home) = outer.iter_mut().find(|home| home.home.binding() == binding) else {
                 return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
             };
+            if let Err(issue) = transfer_home_v1(locals, &mut remaining, binding) {
+                return Ok(Err(issue));
+            }
             home.transferred_at = Some(entries.len());
-            locals.consume_home(binding);
             MapEntryOwnership::TransferHome {
                 acquisition,
                 binding,

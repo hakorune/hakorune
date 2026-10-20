@@ -187,7 +187,7 @@ mod map_flow;
 mod terminal_relation;
 pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
-    LifecyclePrefixSourceV1, MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeExitKeyV1, RootHomeFlow,
+    LifecyclePrefixSourceV1, MapFieldInstallV1, MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeExitKeyV1, RootHomeFlow,
 };
 pub(crate) use terminal_relation::issue_terminal_integer_literal_return_from_completion_v1;
 use terminal_relation::{

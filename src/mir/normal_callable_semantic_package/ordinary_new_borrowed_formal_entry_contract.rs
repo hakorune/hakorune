@@ -148,32 +148,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
             }
         }
-        for terminal in self.terminal_relations_for_owner(contract.owner) {
-            use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
-            if let TerminalRelationV1::Value(value) = terminal {
-                let evaluation = match value.returned() {
-                    TerminalReturnedSourceV1::TextExpression(evaluation) => Some(evaluation),
-                    TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } => {
-                        let field = source.receiver_v1();
-                        field.require_entry_source_v1(self)?;
-                        if origins.contains_key(&field.receiver())
-                            || source.present_get_v1(&OwnedExprSiteV1::new(contract.owner, value.value_site().clone())).is_none()
-                            || !uses.reads().any(|(at, original)| at == receiver_read
-                                && *original == ResolvedLexicalRefV1::Local(field.receiver()))
-                            || !covered.insert((receiver_read.clone(), field.receiver())) {
-                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
-                        }
-                        Some(key)
-                    }
-                    _ => None,
-                };
-                if let Some(evaluation) = evaluation {
-                    if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) {
-                        evaluations.push(evaluation);
-                    }
-                }
-            }
-        }
+        self.collect_terminal_input_evaluations_v1(contract.owner, uses, &origins, &mut covered, &mut evaluations)?;
         for product in &loops {
             let evaluation = product.source.condition.evaluation();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }

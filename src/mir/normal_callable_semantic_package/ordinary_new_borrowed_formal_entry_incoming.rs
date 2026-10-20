@@ -294,3 +294,71 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(if missing { None } else { Some(composed.into_boxed_slice()) })
     }
 }
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Terminal and storage purposes contribute their original entry reads to
+    /// the same whole-use closure, without granting physical entry/slot ABI.
+    pub(super) fn collect_terminal_input_evaluations_v1<'a>(
+        &'a self, owner: FunctionOwnerIdV1,
+        uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
+        origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+        covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,
+        evaluations: &mut Vec<&'a crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
+        use crate::mir::resolved_semantics::home_new_prefix::{MapHomeObservation, TerminalReturnedSourceV1};
+        let flow = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow());
+        for install in flow.into_iter().flat_map(|flow| flow.maps()).filter_map(|row| match row {
+            MapHomeObservation::FieldInstall(install) => Some(install), _ => None,
+        }) {
+            let field = install.source().receiver_v1();
+            field.require_entry_source_v1(self)?;
+            let (binding, construction, set) = install.source().installed_local_v1(install.site())
+                .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+            if install.site().owner() != owner || binding != install.binding()
+                || construction.site() != install.acquisition().site() || set.site() != install.site().site()
+                || origins.contains_key(&field.receiver())
+                || !uses.reads().any(|(at, original)| at == install.receiver_read()
+                    && *original == ResolvedLexicalRefV1::Local(field.receiver()))
+                || !covered.insert((install.receiver_read().clone(), field.receiver())) {
+                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+            }
+            let evaluation = install.key().as_ref();
+            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
+        }
+        for terminal in self.terminal_relations_for_owner(owner) {
+            use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
+            if let TerminalRelationV1::Value(value) = terminal {
+                let evaluation = match value.returned() {
+                    TerminalReturnedSourceV1::TextExpression(evaluation) => Some(evaluation),
+                    TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } => {
+                        let field = source.receiver_v1();
+                        field.require_entry_source_v1(self)?;
+                        if origins.contains_key(&field.receiver())
+                            || source.present_get_v1(&OwnedExprSiteV1::new(owner, value.value_site().clone())).is_none()
+                            || !uses.reads().any(|(at, original)| at == receiver_read
+                                && *original == ResolvedLexicalRefV1::Local(field.receiver()))
+                            || !covered.insert((receiver_read.clone(), field.receiver())) {
+                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                        }
+                        Some(key)
+                    }
+                    TerminalReturnedSourceV1::StoredMapInstalled(install) => {
+                        if !flow.is_some_and(|flow| flow.maps().iter().any(|row|
+                            matches!(row, MapHomeObservation::FieldInstall(same) if Rc::ptr_eq(same, install)))) {
+                            return Err(freeze("static-input/qualified-use-identity"));
+                        }
+                        None
+                    }
+                    _ => None,
+                };
+                if let Some(evaluation) = evaluation {
+                    if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) {
+                        evaluations.push(evaluation);
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}

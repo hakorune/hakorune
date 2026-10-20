@@ -235,6 +235,10 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals.record_source_loop_expression_v1(statement.site());
                 continue;
             }
+            if map_flow::observe_field_install_v1(input, &statement, locals, homes, unavailable.is_none(),
+                local_calls, maps, borrowed_actuals)? {
+                continue;
+            }
             if super::named_array::observe_append(
                 input,
                 &statement,

@@ -37,6 +37,8 @@ pub(crate) enum TerminalReturnedSourceV1 {
         source: std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
         key: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     },
+    /// Same payload after a checked field install; no caller Home remains.
+    StoredMapInstalled(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldInstallV1>),
     /// `return new <class>(...)` — the returned value is the fresh
     /// construction at this exact site; the fresh object's ownership
     /// transfers to the caller at the Return edge. This records only the
@@ -255,7 +257,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
 
 /// Shared original Text evaluation for terminal values and passive Map keys.
 /// The purpose chooses the source root; this function grants no result/Home ABI.
-fn qualify_terminal_text_evaluation_v1<E>(
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_terminal_text_evaluation_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     purpose_site: &OwnedExprSiteV1,
@@ -315,6 +317,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>, homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
     calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
+    maps: &[crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation],
     actuals: &mut impl FnMut(&OwnedExprSiteV1, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>)
         -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<Result<TerminalValueReturnV1, super::HomePrefixUnavailableV1>>, E> {
@@ -323,8 +326,24 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
     let Ok(value) = input.source().child_expr_from_stmt(statement, super::ExprChildRoleV1::ReturnValue)
         else { return Ok(None) };
     let site = OwnedExprSiteV1::new(input.owner(), value.site().clone());
-    let Some(Response::StoredReturnSource(source)) = actuals(&site, Request::StoredReturnSource)? else { return Ok(None) };
+    let Some(Response::StoredMapSource(source)) = actuals(&site, Request::StoredMapSource)? else { return Ok(None) };
     let unavailable = || Some(Err(super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone())));
+    if let Some((binding, construction, set)) = source.installed_local_v1(&site) {
+        let mut installs = maps.iter().filter_map(|row| match row {
+            crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation::FieldInstall(row)
+                if std::rc::Rc::ptr_eq(row.source(), &source) && row.binding() == binding
+                    && row.site().owner() == set.owner() && row.site().site() == set.site()
+                    && row.acquisition().site() == construction.site() => Some(row),
+            _ => None,
+        });
+        let Some(install) = installs.next() else { return Ok(unavailable()) };
+        if installs.next().is_some() || homes.iter().any(|home| home.binding() == binding)
+            || input.function().variable_ref(value.site()) != Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) {
+            return Ok(unavailable());
+        }
+        return Ok(Some(Ok(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.site().clone(),
+            TerminalReturnedSourceV1::StoredMapInstalled(std::rc::Rc::clone(install))))));
+    }
     let Some(get) = source.present_get_v1(&site) else { return Ok(unavailable()) };
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1};
     let Some(shape) = input.body_shape() else { return Ok(unavailable()) };

@@ -97,6 +97,18 @@ impl MapStoredResultSourceV1 {
             MapStoredReturnV1::InstalledLocal { .. } => None,
         }
     }
+    /// Exact retained miss-path source, selected by its original set or Return.
+    pub(crate) fn installed_local_v1(&self, at: &OwnedExprSiteV1)
+        -> Option<(BindingRefV1, &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
+            &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>)> {
+        let mut rows = self.returns.iter().filter_map(|(value, row)| match row {
+            MapStoredReturnV1::InstalledLocal { binding, construction, set, .. }
+                if value == at || set.owner() == at.owner() && set.site() == at.site() => Some((*binding, construction, set)),
+            _ => None,
+        });
+        let found = rows.next()?;
+        rows.next().is_none().then_some(found)
+    }
     pub(crate) fn receiver_v1(&self)
         -> &crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1 {
         &self.receiver
@@ -274,9 +286,12 @@ fn original_payload_new_v1(
 impl super::OrdinaryNewResultClassClaimsV1 {
     /// Lend the SAME whole original Return derivation, without Completion,
     /// admission or a Home. Every exit must retain this allocation and origin.
-    pub(crate) fn map_stored_return_source_v1(&self, value: &OwnedExprSiteV1)
+    pub(crate) fn map_stored_source_v1(&self, value: &OwnedExprSiteV1)
         -> Result<Option<Rc<MapStoredResultSourceV1>>, &'static str> {
-        let mut rows = self.source_rows().filter(|(_, exits)| exits.iter().any(|exit| exit.site() == value));
+        let mut rows = self.source_rows().filter(|(_, exits)| exits.iter().any(|exit|
+            exit.site() == value || exit.witnesses().iter().any(|root|
+                matches!(root.step(), ResultWitnessStepV1::MapStored { source }
+                    if source.installed_local_v1(value).is_some()))));
         let Some((key, _)) = rows.next() else { return Ok(None) };
         if rows.next().is_some() { return Err("callee-facts-identity"); }
         let roots = self.checked_original_source_roots_v1(key, value.owner())?;
