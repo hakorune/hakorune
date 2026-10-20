@@ -234,8 +234,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
                 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1 as Class, LocalCallResultSourceV1};
                 match observation.result() {
                     Class::I64 => Some(InvokeCallResultKind::I64),
-                    Class::Text if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-                        && *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
+                    Class::Text if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
                         && matches!(observation.result_source(), Some(LocalCallResultSourceV1::OwnedText(source)) if Rc::ptr_eq(source, original)) => Some(InvokeCallResultKind::OwnedString),
                     _ => None,
                 }
@@ -260,7 +259,12 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             return Ok(());
         };
         ledger.verify_original_static_packet_source_v1(original)?;
+        if observation.result() == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text
+            && !ledger.checked_completed_static_text_result_v1(original)? {
+            return Err(freeze("static-input/completed-source-drift"));
+        }
         let handoff_agrees = original.corroborates_publication_handoff(publication)
+            || ledger.corroborates_completed_static_text_publication_v1(original, publication)?
             || (ledger
                 .borrowed_static_packet_actuals_v1(original)?
                 .is_some()

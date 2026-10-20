@@ -206,18 +206,27 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
         results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
     ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
-        Self::issue_with_selection(declarations, targets, results, None)
+        Self::issue_with_selection(declarations, targets, results, None, None)
     }
 
-    /// Borrow declaration identity and explicit omission from one source seal.
-    /// Complete source targets remain indexed even when their caller has no
-    /// physical publication demand in this artifact.
+    /// Source-only fixtures exercise brand/omission boundaries independently
+    /// of completion. Production uses the same completed package below.
+    #[cfg(test)]
     pub(crate) fn issue_for_selected_source(
         source: &crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1,
         targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
         results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
     ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
-        Self::issue_with_selection(source.catalog(), targets, results, Some(source))
+        Self::issue_with_selection(source.catalog(), targets, results, Some(source), None)
+    }
+
+    pub(crate) fn issue_for_completed_package(
+        package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+        targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
+        let source = package.source_backed_callable_catalog();
+        Self::issue_with_selection(source.catalog(), targets, results, Some(source), Some(package))
     }
 
     fn issue_with_selection(
@@ -225,6 +234,7 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
         results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
         source: Option<&crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1>,
+        package: Option<&crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1>,
     ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
         if !targets.is_branded_by(declarations) {
             return Err(StaticCallResultPublicationOwnerErrorV1::TargetCatalogBrandMismatch);
@@ -301,6 +311,16 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                     })?;
                 insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
                 continue;
+            }
+            if let Some(package) = package {
+                if let Some(handoff) = VerifiedStaticCallResultPublicationHandoffV1::project_completed_text_result(
+                    package, declarations, caller, site, targets, results,
+                ).map_err(|cause| StaticCallResultPublicationOwnerErrorV1::Projection {
+                    caller: caller.clone(), site: site.clone(), cause,
+                })? {
+                    insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
+                    continue;
+                }
             }
             let requirement = match project_static_exact_i64_requirement_v1(
                 declarations,

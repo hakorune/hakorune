@@ -6,20 +6,20 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Fixed suite: fresh Text Return source/publication series (base `94066c1803`),
-  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner523.661s.
-  Matching quick opt0 CLI43.07s, frozen quick runtime/private C FFI, serial runner;
-  build/run300s, no Cargo overlap. mimalloc180.221s, allocator182.785s, typed37–43s.
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
+  runner499.338s. mimalloc156.737s, allocator179.746s, typed38–43s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Final contract-presence bound on newly selected SUM owners is focused-verified;
-  the suite precedes that bound. Final CLI35.76s; newbox PASS and four red stops unchanged.
-- JSON still stops during package/MIR generation at
-  `borrowed-static/text-expression-execution-pending`, before EXE/link/runtime.
-  Owner26 Body3 intField argument0 line remains pending after missing Body1
-  stringField Local. Body8 bytes, owner3 StringHelpers.to_i64 rebind/Loop and
-  owner29 Map/report remain owed. Direct Text Return and completion ordering
-  are required; original ExactString coverage alone does not close this app.
+- Current quick opt0 CLI built in89s; matching final source verification built48s,
+  ran2.62s/PASS. Final fixture-only retirement rebuild29.94s yields identical CLI.
+  Runtime/private C FFI unchanged; no overlapping Cargo.
+- Matching JSON smoke advances beyond borrowed-static Text-expression pending,
+  now stops in MIR at `owned-field-write/original-source`, before EXE/link/runtime.
+  Shared writer requires declared-i64 RHS reads and target; unannotated slots
+  retain ClosedNumeric source proof but need real Dynamic read/replace/End execution.
+  UserStats.add and ingestLine contain affected writes; exact first site is not
+  exposed by this diagnostic. Body8 bytes, StringHelpers.to_i64 Loop, Map/report
+  and remaining full-app composition stay owed.
 - Other product reds: untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. These are incomplete, not waived baselines.
 
@@ -38,34 +38,31 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - Ordinary Text Call holds its result below the exact argument End suffix.
   Call Fault acquires nothing; argument-End Fault cancels remaining args, result,
   then outer cleanup. SSA/Rust/C retain lifecycle dependencies apart from arguments.
-- Original ExactString Local Call joins full input, affine publication, the same
-  residence and both final consumers. Earlier canonical EXE `!ab`/Result:0/exit0
-  passed; source-only rows or small probes do not establish JSON acceptance.
-- Zero-argument ExactString reuses existing Zero input/empty actuals, full original
-  Text census, selected target/signature, Completion and mandatory final callee scan.
-  Prior canonical EXE `ab`/exit0 passed; I64 census and passive unselected Text stay.
-- Fresh Text Return now retains the original ReturnValue evaluation in the existing
-  Return/cleanup owner. Shared statement qualification and transparent tail projection
-  add no fake Local, second registry or wrapper acquisition. Original non-self
-  consumer demand selects one Home walk; unused generated/self-only helpers stay passive.
-- Literal roots Materialize; computed/Core roots retain their original acquisition.
-  Install -> child cleanup -> hold -> original Home cleanup stays joined. Fault
-  cancels the fresh result; both final consumers and publication replay source/root,
-  projection, install, hold and exact Return value. Existing optimized source case
-  rejects missing install/hold and changed Return; worker reviewed Fault ownership.
-- Canonical `--emit-exe`/execute PASS: literal with older Home `abc`, computed
-  `("a" + "bc").substring(0,1)` `a`; both Result:0/exit0. Matching final
-  CLI/probes rechecked after the scope guard; unchanged quick runtime/private C FFI.
-- Focused: callable result96/Invoke42/Core11/input6/seed1/Print4/initializer projection1/
-  finished4PASS. Initializer79PASS/2samepriorFAIL, terminal6PASS/2samepriorFAIL remain.
-  Expression plan5PASS/1FAIL and lifecycle admission2PASS/2FAIL reproduce on clean
-  HEAD build (callback count/source-sum caller-contract); all remain owed, not waived.
-- Existing source tuples/mutations cover distinct fresh-acquire/hold/Fault and final
-  publication boundaries; no new test fn/file/hook/checker/token. Fresh Return borrows
-  passive Core sources first; ordinary Call Returns keep their existing input owner.
-- Next: same original callee Completion/source-result ordering, then unchanged JSON
-  smoke. Unknown-formal Text must borrow the same completed contract, never a guessed
-  catalog/MIR type or second result map. Dynamic/End and finite goal remain owed.
+- Text Local Call retains full original input, affine publication, result residence,
+  install/hold and both final consumers. Canonical prior EXEs `!ab`/`ab`/exit0 passed.
+  Zero-input Text keeps existing Zero evidence; old I64 census/refusals stay intact.
+- Fresh Text Return uses original ReturnValue/shared expression qualification;
+  literal Materialize and Core acquisition join child cleanup, hold, original Home
+  cleanup and Fault cancellation. No fake Local or second result registry.
+- Original Static input dependencies now order required Text callees before callers
+  in one walk. Identity/slot/brand stay original; cycles grant no unfinished result.
+  Callers borrow the same completed Text contract even when old catalog is unknown.
+- Input finishing retains the same Completion/terminal-map Rc in existing evidence.
+  Same-package publication borrows that contract before completed_context install;
+  every Text packet rechecks it with whole input and affine handoff identity.
+  Passive argument observation does not depend on result classification or grant ABI.
+  Replaced declaration-only publication entry has no production caller and is test-only.
+- Existing optimized source tuple covers forward declaration plus unknown-formal
+  Text return through full publication; missing install/hold and changed Return
+  remain rejected. Canonical forward `make(text){return text.substring(0,1)}`
+  EXE builds/runs `a`, Result:0/exit0. No new test fn/file/hook/checker/guard/token.
+- Focused: result96/Core11/input6/packet3/dispatch2/received4/Invoke60/final projection4/
+  argument-port13PASS. Initializer79/2FAIL and terminal6/2FAIL remain unchanged;
+  callback0/1FAIL reproduces identically on prior frozen binary. Plan5/1FAIL and
+  admission2/2FAIL previously reproduced on clean HEAD; all remain owed, not waived.
+- Next: retain original ClosedNumeric/all-writer proof through checked Dynamic
+  FieldGet/Set, storage-aware execution and both final consumers. Do not infer an
+  annotation or remove the current gate without tagged layout/End/Fault closure.
 - Existing Loop Call/If and Function Return retain original reads, producers,
   Phi keys and root cleanup through both consumers. Plain scalar If requires
   whole leaf/read census, so it cannot steal Static Call/field ownership.

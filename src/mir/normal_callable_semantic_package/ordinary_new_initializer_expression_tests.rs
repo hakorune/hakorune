@@ -41,7 +41,7 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, &site,
                     BorrowedCallActualRequestV1::FiniteEntryRead { input, plan, read: read.0, binding: read.1, root },
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap()
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap()
             };
             let row = ask(&plan, contract.parameters[0].binding);
             assert_eq!(row.is_some(), accepted, "{prefix:?}/{actual}");
@@ -112,7 +112,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                     if matches!(request, BorrowedCallActualRequestV1::FiniteEntryRead { .. }) { requests += 1; }
                     borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
                         &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
-                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)
+                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)
                 }).unwrap();
             assert_eq!(plans.len(), if accepted { 2 } else { 0 }, "{annotation}/{actual}/{mutation}");
             assert_eq!(homes.len(), if accepted { 2 } else { 0 });
@@ -327,7 +327,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, site, request,
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();
             let call_site = input.function().method_calls().find(|(_, call)| call.selector() == "sink")
                 .map(|(site, _)| OwnedExprSiteV1::new(input.owner(), site.clone())).unwrap();
             let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Values", "caller", contract.parameters.len() as u32);
@@ -356,7 +356,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
                         &[], None, source, &Ok(Default::default()), &mut unqualified, &ledger.borrowed_i64_results,
                         &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
-                        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
+                        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap();
                     assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::project_pending_static_source_arguments_v1(
                         source, &unqualified, &call_site, claim).unwrap().is_none(), "unqualified SelfRooted does not gain selection");
                 }
@@ -389,7 +389,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
                         &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                         &ledger.borrowed_i64_results, &mut |_| None, site, request,
-                        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+                        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();
                 let repeated = repeated.iter().find_map(|plan| plan.argument_frame()).unwrap();
                 assert!(Rc::ptr_eq(frame.source(), repeated.source()), "source identity survives a fresh Home walk");
                 if let Some(read) = repeated.residence_reads().first() {
@@ -487,6 +487,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut failures = Vec::new();
         for (methods, body, returned) in [
+            ("static box Values { make(text) { return text.substring(0,1) } }", "local out = Values.make(\"abc\") print(out)", "0"),
             ("static box Values { make() { local older = \"old\" + \"er\" return \"abc\" } }", "local out = Values.make() print(out)", "0"),
             ("static box Values { make() { return (\"a\" + \"bc\").substring(0,1) } }", "local out = Values.make() print(out)", "0"),
             ("static box Values { make() { local value = \"a\" + \"b\" return value } }", "local out = Values.make() print(out)", "0"),
@@ -511,7 +512,10 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
             // Declared Main args selects the existing ordinary body consumer;
             // arity-0 qualified Main has a distinct canonical trivial-body route.
             let main_parameters = if methods.is_empty() { "" } else { "args" };
-            let text = format!("{methods} static box Main {{ main({main_parameters}) {{ {body} return {returned} }} }}");
+            let main = format!("static box Main {{ main({main_parameters}) {{ {body} return {returned} }} }}");
+            let text = if methods.contains("make(text) { return text.substring") {
+                format!("{main} {methods}")
+            } else { format!("{methods} {main}") };
             let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
                 &text, crate::parser::ParserBuildConfig::default()).unwrap();
             let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
@@ -602,7 +606,8 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
                             assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "{mutation}");
                         }
                     }
-                    if methods.contains("make() { return (") || methods.contains("make() { local older") {
+                    if methods.contains("make() { return (") || methods.contains("make() { local older")
+                        || methods.contains("make(text) { return text.substring") {
                         let root = view.retained_root_source().unwrap();
                         let function = view.module().functions.values().find(|function| function.signature.name.contains("make")).unwrap();
                         for mutation in ["missing-hold", "wrong-return", "missing-install"] {
@@ -809,7 +814,7 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
             &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
                 &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                 &ledger.borrowed_i64_results, &mut |_| None, site, request,
-                &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims));
+                &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None));
     }).unwrap();
     }
 }

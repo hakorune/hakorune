@@ -184,12 +184,9 @@ pub(super) fn selects_static_expression_source_v1(
     let sibling_source = text_cohort && actuals.iter().all(|actual|
         !matches!(actual.value, BorrowedCallActualValueV1::MethodCall(_)) ||
             prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone())).is_some());
-    Ok((core_source || source_expression || sibling_source) && original
-        .is_some_and(|source| source.is_qualified_i64_source_v1()
-            || source.is_current_owner_i64_source_v1()
-            || source.is_current_owner_bool_source_v1()
-            || matches!(source.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-            || prepared.is_static_terminal_source_v1(source)))
+    // Input observation retains the original target and input demand only.
+    // Result meaning is issued separately from the same completed Return owner.
+    Ok(original.is_some() && (core_source || source_expression || sibling_source))
 }
 
 pub(super) fn prepare_static_source_actuals_v1(

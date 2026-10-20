@@ -189,6 +189,18 @@ impl StaticIncomingSourceV1 {
             && handoff.representation() == &representation
             && handoff.required_callee_i64_arguments() == self.required_i64_arguments()
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_completed_text_publication_v1(
+        &self, handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+        selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        result: &super::super::result_contract::CompletedTextResultSourceV1,
+    ) -> bool {
+        result.corroborates(selected, self)
+            && handoff.catalog_identity() == self.catalog_brand.identity()
+            && handoff.caller() == &self.caller && handoff.site() == self.call.site()
+            && handoff.target() == &self.target
+            && handoff.representation() == &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
+            && handoff.required_callee_i64_arguments() == self.required_i64_arguments()
+    }
     pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
         &self.call
     }

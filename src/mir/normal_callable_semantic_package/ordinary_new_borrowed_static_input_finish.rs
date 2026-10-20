@@ -15,6 +15,7 @@ pub(super) struct StaticInputFinishV1 {
     source: Rc<StaticIncomingSourceV1>,
     completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
     evidence: StaticInputEvidenceV1,
+    text_result: Option<crate::mir::normal_callable_semantic_package::result_contract::CompletedTextResultSourceV1>,
 }
 #[derive(Debug, Clone)]
 enum StaticInputEvidenceV1 {
@@ -39,7 +40,7 @@ impl Eq for StaticInputEvidenceV1 {}
 impl PartialEq for StaticInputFinishV1 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.completion, &other.completion)
-            && self.evidence == other.evidence
+            && self.evidence == other.evidence && self.text_result == other.text_result
     }
 }
 impl Eq for StaticInputFinishV1 {}
@@ -308,6 +309,36 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect::<Option<Vec<_>>>().map(Vec::into_boxed_slice)
     }
 
+    /// Reborrow the same completed Text source retained by whole-input finishing.
+    pub(in crate::mir) fn checked_completed_static_text_result_v1(
+        &self, original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<bool, String> {
+        let Some(rows) = self.borrowed_formal_actuals.get(original.call_site()) else { return Ok(false) };
+        let rows = rows.as_ref().map_err(Clone::clone)?;
+        let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) = &rows.phase else { return Ok(false) };
+        let Some(text) = &finish.text_result else { return Ok(false) };
+        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| freeze("static-input/completed-source-drift"))?;
+        let completion = self.completion_source_for_owner_v1(original.callee_owner()).ok_or_else(|| freeze("static-input/completed-source-drift"))?;
+        let terminals = self.terminal_relation_index.get(&original.callee_owner()).ok_or_else(|| freeze("static-input/completed-source-drift"))?;
+        if !Rc::ptr_eq(&finish.source, original) || !Rc::ptr_eq(&finish.completion, completion)
+            || !text.matches_retained(completion, terminals) || !text.corroborates(selected, original) {
+            return Err(freeze("static-input/completed-source-drift"));
+        }
+        Ok(true)
+    }
+
+    pub(in crate::mir) fn corroborates_completed_static_text_publication_v1(
+        &self, original: &Rc<StaticIncomingSourceV1>,
+        publication: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> Result<bool, String> {
+        if !self.checked_completed_static_text_result_v1(original)? { return Ok(false); }
+        let rows = self.borrowed_formal_actuals[original.call_site()].as_ref().map_err(Clone::clone)?;
+        let BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) = &rows.phase else { return Ok(false) };
+        let Some(text) = &finish.text_result else { return Ok(false) };
+        let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| freeze("static-input/completed-source-drift"))?;
+        Ok(original.corroborates_completed_text_publication_v1(publication, selected, text))
+    }
+
     /// A final entry borrows completed domains; passive staging has none. Any
     /// completed sibling demands the entire original cohort before this loan.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_static_input_domains_for_owner_v1(
@@ -376,6 +407,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 || !Rc::ptr_eq(retained, &uses) || retained_domains != &domains || !matches!(snapshot.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_))
                 || actuals.ordered_arguments != snapshot.ordered_arguments
                 || actuals.opaque_actuals.as_ref() != self.checked_static_expression_actuals_v1(source, call, snapshot)?.as_slice() {
+                return Err(freeze("static-input/completed-source-drift"));
+            }
+            if proof.text_result.is_some() && !self.checked_completed_static_text_result_v1(original)? {
                 return Err(freeze("static-input/completed-source-drift"));
             }
             actuals.ordered_arguments_for_v1(call)?;
@@ -459,10 +493,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 || original.argument_sites().len() != contract.parameters.len() {
                 return Err(freeze("static-input/original-target"));
             }
+            let text_result = results.row(contract.batch_slot)
+                .and_then(|row| row.completed_text_source_v1(selected, original));
             if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_result_v1()) {
-                return Ok(TypedInputClosureV1::Pending);
-            }
+                && text_result.is_none() { return Ok(TypedInputClosureV1::Pending); }
             let Some(rows) = self.borrowed_formal_actuals.get(&call.call) else { missing = true; continue };
             let rows = match rows { Ok(rows) => rows, Err(issue) => return Ok(TypedInputClosureV1::Refused(issue.clone())) };
             let Some(snapshot) = rows.source_static_snapshot_v1() else { missing = true; continue };
@@ -471,7 +505,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => {
                     replacements.push((call.call.clone(), PreparedBorrowedCallActualsV1 {
                         phase: BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(StaticInputFinishV1 {
-                            source: Rc::clone(original), completion: Rc::clone(completion),
+                            source: Rc::clone(original), completion: Rc::clone(completion), text_result,
                             evidence: StaticInputEvidenceV1::Qualified { snapshot: Box::new(snapshot.clone()), uses: Rc::clone(&uses), domains: domains.clone() },
                         }), opaque_actuals: actuals.into_boxed_slice(), ordered_arguments: snapshot.ordered_arguments.clone(),
                     }));
@@ -566,10 +600,10 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("static-zero/original-target"));
             }
+            let text_result = results.row(contract.batch_slot)
+                .and_then(|row| row.completed_text_source_v1(selected, original));
             if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-                && !results.row(contract.batch_slot).is_some_and(|row| row.borrow().has_complete_text_result_v1()) {
-                return Ok(TypedInputClosureV1::Pending);
-            }
+                && text_result.is_none() { return Ok(TypedInputClosureV1::Pending); }
             let Some(actuals) = self.borrowed_formal_actuals.get(&call.call) else {
                 missing = true;
                 continue;
@@ -593,6 +627,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         source: Rc::clone(original),
                         completion: Rc::clone(completion),
                         evidence: StaticInputEvidenceV1::Zero,
+                        text_result,
                     };
                     let regenerated = construct_borrowed_call_actuals_v1(
                         source,

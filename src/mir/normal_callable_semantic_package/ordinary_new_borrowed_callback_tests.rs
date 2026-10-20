@@ -59,7 +59,7 @@ fn borrowed_source_error_demands_parameter_target_but_not_strict_sibling() {
             target.call_site(),
             BorrowedCallActualRequestV1::ScalarArguments,
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims,
+            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
         );
         if borrowed {
             assert!(

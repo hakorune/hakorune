@@ -290,7 +290,17 @@ all Text-residence exits must close before activation. Unselected sources remain
 passive; the old zero-I64 lane retains its executable census and result class.
 Zero-argument OwnedString targets still participate in the mandatory final Text
 callee scan. No fake borrowed entry, synthetic Local or legacy retry is used.
-Direct literal/Core Return and unknown callee result ordering remain owed.
+Fresh literal/Core Return retains the original ReturnValue evaluation, install,
+child cleanup, hold and original Home cleanup through both final consumers.
+Literal roots materialize; computed/Core roots retain their original acquisition.
+The original Static input census orders required Text callees before callers in
+one declaration walk. Cycles and unfinished results remain unissued. A caller
+borrows the same completed result row; unknown source classification stays unknown.
+Whole input finishing retains the same Completion/terminal-map identity inside
+its existing evidence. Publication borrows that package result before completed
+context installation, issues one affine Text handoff, and final packets recheck
+it against the same full input and completed Text proof. No second result index,
+classification rewrite, extra Home walk or legacy retry is introduced.
 
 The original AppMain co-seal also lends its direct ReturnValue sites. A
 Qualified call at one of those sites with one OpaqueHandle formal may retain

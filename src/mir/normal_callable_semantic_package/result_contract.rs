@@ -225,6 +225,23 @@ impl<'a> CallableResultContractRefV1<'a> {
                     }))
     }
 
+    /// The original Static target and this exact completed declaration agree.
+    /// Unknown catalog output stays unknown; only the completed Return owner
+    /// supplies Text meaning, never a name, MIR type or backend result.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_static_text_source_v1(
+        &self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::StaticIncomingSourceV1,
+    ) -> bool {
+        use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1 as Source;
+        let slot = source.target_batch_slot();
+        matches!(source.source_result(), Source::ExactString | Source::Unavailable(_))
+            && source.catalog_brand().is_same(selected.catalog_brand())
+            && selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) == Some(slot)
+            && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
+            && selected.role_for_batch_slot(slot) == Some(self.role)
+            && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
+    }
+
     /// Agreement with the independent ExactBool source result. An absent
     /// annotation alone never proves Bool or activates its physical ABI.
     pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {
@@ -257,6 +274,43 @@ impl<'a> CallableResultContractRefV1<'a> {
     /// from a partial summary or absent Home analysis.
     pub(crate) const fn completion(&self) -> &'a VerifiedFunctionCompletionV1 {
         self.completion
+    }
+}
+
+/// Immutable borrow of the same completed Text result across input finishing.
+/// It shares the original Completion and terminal map; it is not another index.
+#[derive(Debug, Clone)]
+pub(super) struct CompletedTextResultSourceV1 {
+    owner: FunctionOwnerIdV1,
+    identity: CallableDeclarationIdentityV1,
+    role: SelectedCallableConsumptionRoleV1,
+    completion: Rc<VerifiedFunctionCompletionV1>,
+    terminals: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
+}
+impl PartialEq for CompletedTextResultSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.owner == other.owner && self.identity.same_as(&other.identity) && self.role == other.role
+            && Rc::ptr_eq(&self.completion, &other.completion) && Rc::ptr_eq(&self.terminals, &other.terminals)
+    }
+}
+impl Eq for CompletedTextResultSourceV1 {}
+impl CompletedTextResultSourceV1 {
+    pub(super) fn corroborates(&self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::StaticIncomingSourceV1) -> bool {
+        CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
+            &self.completion, &self.terminals).corroborates_static_text_source_v1(selected, source)
+    }
+    pub(super) fn matches_retained(&self, completion: &Rc<VerifiedFunctionCompletionV1>,
+        terminals: &Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>) -> bool {
+        Rc::ptr_eq(&self.completion, completion) && Rc::ptr_eq(&self.terminals, terminals)
+    }
+}
+impl VerifiedCallableResultContractRowV1 {
+    pub(super) fn completed_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::StaticIncomingSourceV1) -> Option<CompletedTextResultSourceV1> {
+        self.borrow().corroborates_static_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {
+            owner: self.owner, identity: self.identity.clone(), role: self.role,
+            completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
+        })
     }
 }
 
@@ -358,6 +412,14 @@ impl VerifiedCallableResultContractBuilderV1 {
                 && candidate.role() == row.role())
             .then_some(candidate.result())
         })
+    }
+
+    /// Borrow one already-issued row during the same single source walk.
+    /// No second completion or result index is constructed.
+    pub(super) fn row(&self, slot: u32) -> Option<&VerifiedCallableResultContractRowV1> {
+        let mut rows = self.rows.iter().filter(|row| row.batch_slot == slot);
+        let row = rows.next()?;
+        rows.next().is_none().then_some(row)
     }
 
     pub(super) fn finish(mut self) -> Self {
@@ -646,3 +708,25 @@ impl VerifiedCallableResultContractCohortV1 {
 #[path = "result_contract_top_level.rs"]
 mod top_level;
 pub(super) use top_level::{issue_top_level_scalar_input_v1, VerifiedTopLevelScalarInputV1};
+
+
+impl super::VerifiedNormalCallableSemanticPackageV1 {
+    /// Borrow the same package's completed Text declaration before installation.
+    pub(crate) fn completed_static_text_result_v1(&self,
+        brand: &crate::mir::builder::SameModuleCallableCatalogBrandV1,
+        target: &CanonicalSameModuleCallableKeyV1,
+    ) -> Option<CallableResultContractRefV1<'_>> {
+        if !brand.is_same(self.selected.catalog_brand()) { return None; }
+        let key = SelectedNormalCallableKeyV1::Cataloged(target.clone());
+        let slot = self.selected.batch_slot(&key)?;
+        let row = self.result_contracts.row(slot)?;
+        if !self.selected.identity_for_batch_slot(slot)?.same_as(row.identity())
+            || self.selected.role_for_batch_slot(slot) != Some(row.role())
+            || !self.batch.declarations().any(|declaration| declaration.batch_slot() == slot
+                && declaration.owner() == row.owner() && declaration.identity().same_as(row.identity())) {
+            return None;
+        }
+        let result = row.borrow();
+        result.has_complete_text_result_v1().then_some(result)
+    }
+}

@@ -62,8 +62,8 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
             _detail: format!("{error:?}").into(),
         })?;
         let publication_owner =
-            VerifiedStaticCallResultPublicationOwnerV1::issue_for_selected_source(
-                package.source_backed_callable_catalog(),
+            VerifiedStaticCallResultPublicationOwnerV1::issue_for_completed_package(
+                package,
                 &targets,
                 &results,
             )

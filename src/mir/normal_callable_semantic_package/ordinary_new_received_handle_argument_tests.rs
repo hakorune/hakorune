@@ -216,7 +216,7 @@ fn received_handle_selected_target_errors_never_change_pending_or_retry_old_lane
             target.call_site(),
             BorrowedCallActualRequestV1::ReceivedHandleArguments(destination),
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims,
+            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
         );
         assert!(format!("{:?}", result.unwrap_err()).contains(reason));
         assert_eq!(pending, snapshot);

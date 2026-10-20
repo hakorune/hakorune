@@ -320,6 +320,16 @@ impl PreparedBorrowedFormalIngressV1 {
         self.source_incoming.static_observations().values().map(|row| row.as_ref().map_err(String::as_str))
     }
 
+    /// Full original Static census, including source-only inputs. This lender
+    /// chooses dependency order only; it grants no input or result admission.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_static_input_sources_v1(&self)
+        -> impl Iterator<Item = &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>> {
+        self.source_incoming.source_rows_v1().filter_map(|row| match &row.source {
+            BorrowedIncomingSourceV1::Static(source) => Some(source),
+            _ => None,
+        })
+    }
+
     /// Existing physical consumers borrow only the admitted transport view.
     /// A retained source-only class cannot activate an entry or field read.
     pub(in crate::mir::normal_callable_semantic_package) fn formal_object_view(

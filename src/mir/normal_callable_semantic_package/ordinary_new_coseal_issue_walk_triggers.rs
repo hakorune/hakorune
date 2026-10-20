@@ -216,3 +216,56 @@ pub(super) fn typed_static_walk_owners_v1(
     }
     Ok(owners)
 }
+
+
+/// One declaration walk, with original Text-result dependencies before callers.
+/// The graph orders existing loans; it creates no Completion or result authority.
+pub(super) fn text_completion_order_v1<'a>(
+    source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
+    batch: &'a crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+) -> Result<Vec<crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'a>>, OrdinaryNewCoSealIssueV1> {
+    let declarations: Vec<_> = batch.declarations().collect();
+    let Ok(source) = source else { return Ok(declarations) };
+    let mut dependencies = std::collections::BTreeMap::<u32, Vec<u32>>::new();
+    for original in source.original_static_input_sources_v1() {
+        let Some(caller) = declarations.iter().find(|row| row.owner() == original.call_site().owner()) else { continue };
+        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.target().clone());
+        if selected.batch_slot(&key) != Some(original.target_batch_slot()) { continue; }
+        let Some(callee) = declarations.iter().find(|row| row.batch_slot() == original.target_batch_slot()) else {
+            return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+        };
+        if callee.owner() != original.callee_owner()
+            || !selected.identity_for_batch_slot(callee.batch_slot()).is_some_and(|identity| identity.same_as(callee.identity()))
+            || !original.catalog_brand().is_same(selected.catalog_brand()) { return Err(OrdinaryNewCoSealIssueV1::BatchLoan); }
+        let caller_key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.caller().clone());
+        let selected_caller = selected.batch_slot(&caller_key) == Some(caller.batch_slot())
+            && selected.identity_for_batch_slot(caller.batch_slot()).is_some_and(|identity| identity.same_as(caller.identity()));
+        let checked_main = main.is_some_and(|main| main.caller_source_ref_v1().checked_caller_key(
+            batch, contracts, caller.owner(), caller.batch_slot()).is_ok_and(|key| key == original.caller()));
+        if !(selected_caller || checked_main) { continue; }
+        let required = batch.with_lowering_input(callee.batch_slot(), |input|
+            source.requires_text_return_walk_v1(input)).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+        if required && caller.batch_slot() != callee.batch_slot() {
+            let children = dependencies.entry(caller.batch_slot()).or_default();
+            if !children.contains(&callee.batch_slot()) { children.push(callee.batch_slot()); }
+        }
+    }
+    fn visit(slot: u32, dependencies: &std::collections::BTreeMap<u32, Vec<u32>>,
+        visited: &mut std::collections::BTreeSet<u32>, order: &mut Vec<u32>) {
+        // Visiting a cycle grants nothing: its unfinished callee still has no
+        // result row. Existing source/result refusals remain responsible for it.
+        if !visited.insert(slot) { return; }
+        if let Some(children) = dependencies.get(&slot) {
+            for &child in children { visit(child, dependencies, visited, order); }
+        }
+        order.push(slot);
+    }
+    let mut visited = std::collections::BTreeSet::new();
+    let mut order = Vec::with_capacity(declarations.len());
+    for declaration in &declarations { visit(declaration.batch_slot(), &dependencies, &mut visited, &mut order); }
+    order.into_iter().map(|slot| declarations.iter().find(|row| row.batch_slot() == slot).copied()
+        .ok_or(OrdinaryNewCoSealIssueV1::BatchLoan)).collect()
+}

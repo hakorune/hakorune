@@ -139,6 +139,35 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         })
     }
 
+    /// Complete an unavailable catalog output from the same package Return owner.
+    /// The old catalog and source target remain unchanged.
+    pub(super) fn project_completed_text_result(
+        package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+        declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+        caller: &CanonicalSameModuleCallableKeyV1, site: &SourceExprSiteV1,
+        targets: &crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        results: &super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> Result<Option<Self>, super::StaticExactI64RequirementErrorV1> {
+        use super::StaticExactI64RequirementErrorV1 as Error;
+        if !targets.is_branded_by(declarations) { return Err(Error::TargetCatalogBrandMismatch); }
+        if !results.is_branded_by(declarations, targets) { return Err(Error::ResultCatalogBrandMismatch); }
+        let caller = declarations.declaration(caller).ok_or(Error::CallerOutsideCatalog)?.key();
+        let target = targets.target(caller, site).ok_or(Error::SourceTargetUnavailable)?.target();
+        if !matches!(results.disposition(target), Some(super::VerifiedCallableResultDispositionV1::Unavailable(_)))
+            || package.completed_static_text_result_v1(declarations.brand(), target).is_none() { return Ok(None); }
+        if target.namespace() != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod {
+            return Err(Error::TargetMustBeStatic);
+        }
+        if results.call_result(caller, site).is_some() { return Err(Error::GeneralCallResultAlreadyAvailable); }
+        Ok(Some(Self {
+            catalog_identity: declarations.brand().identity(),
+            demand: VerifiedStaticCallResultPublicationDemandV1 { caller: caller.clone(), site: site.clone(),
+                target: target.clone(), representation: VerifiedCallableResultRepresentationV1::ExactString,
+                _seal: VerifiedStaticCallResultPublicationDemandSealV1 },
+            required_callee_i64_arguments: Box::new([]),
+        }))
+    }
+
     pub(super) fn from_general_call_result(
         catalog_identity: usize,
         caller: &CanonicalSameModuleCallableKeyV1,

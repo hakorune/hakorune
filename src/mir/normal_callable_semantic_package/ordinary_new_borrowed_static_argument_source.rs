@@ -10,13 +10,18 @@ use crate::mir::resolved_value_profile::expression_plan::{
 pub(in crate::mir::normal_callable_semantic_package) fn source_text_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>, pending: &PendingBorrowedFormalActualsV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1], site: &OwnedExprSiteV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, String> {
     // Preserve scalar's existing unselected behavior when no source inventory
     // exists. Its issuer still reports errors for selected Instance targets.
     let Ok(prepared) = source else { return Ok(None) };
     let Some(original) = original_static_source_v1(prepared, site)? else { return Ok(None) };
-    let Some(original) = ordinary_text_argument_source_v1(prepared, site, original.method_source())?
-        else { return Ok(None) };
+    let catalog_text = ordinary_text_argument_source_v1(prepared, site, original.method_source())?.is_some();
+    let completed_text = completed.and_then(|rows| rows.row(original.target_batch_slot()))
+        .is_some_and(|row| row.borrow().corroborates_static_text_source_v1(selected, original));
+    if !catalog_text && !completed_text { return Ok(None); }
+    let original = Rc::clone(original);
     let reject = || freeze("borrowed-static/core-source-identity");
     let mut matches = contracts.iter().filter(|contract| contract.owner == original.callee_owner());
     let contract = matches.next().ok_or_else(reject)?;

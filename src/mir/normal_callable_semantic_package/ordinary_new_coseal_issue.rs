@@ -176,7 +176,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     )?;
     let mut preissued_static_i64_products = BTreeMap::new();
     let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(&borrowed_formal_source, selected, app_main.as_ref(), batch, parameter_contracts)?;
-    for declaration in batch.declarations() {
+    for declaration in walk_triggers::text_completion_order_v1(
+        &borrowed_formal_source, selected, app_main.as_ref(), batch, parameter_contracts,
+    )? {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
         let source_core_calls = selected.keys().find(|key| selected.batch_slot(key) == Some(batch_slot))
@@ -599,7 +601,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 &mut |binding| lexical::nullable_received_result_class(
                                     selected, batch, &callable_result_classes, &candidates, input, receiver_proof, binding,
                                 ),
-                                site, actuals, &callable_result_classes, &receiver_call_observations, &field_write_claims,
+                                site, actuals, &callable_result_classes, &receiver_call_observations, &field_write_claims, Some(&seeds),
                             )
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source, input, &borrowed_i64_results, &array_i64_field_sets,

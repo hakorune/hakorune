@@ -45,7 +45,7 @@ fn object_argument_request_rejects_foreign_facts_before_missing_target() {
             qualification.call(),
             BorrowedCallActualRequestV1::ObjectArguments(qualification, None),
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims,
+            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
         );
         if accepted {
             assert!(result.unwrap().is_none());
@@ -112,7 +112,7 @@ fn qualified_source_input_generic_demands_stay_passive() {
             qualification.call(),
             request,
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims,
+            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
         )
         .unwrap();
         assert!(
@@ -236,7 +236,7 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
         &mut actuals, &ledger.borrowed_i64_results, &mut |_| None,
         target.call_site(),
         crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(destination),
-        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims,
+        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None,
     )
     };
     let response = request(loan.destination())
@@ -387,7 +387,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     } else { request };
                     borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
                         &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
-                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)
+                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)
                 },
             );
             if mutation == 6 {
@@ -416,7 +416,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 let projected = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
                     &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                     &mut |_| None, &call_site, BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap().unwrap();
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap().unwrap();
                 let BorrowedCallArgumentsV1::StaticSource(projected) = projected else { panic!("canonical source projection") };
                 assert_eq!(projected, expected, "same current qualified source survives callback dispatch without legacy site membership");
                 let reissued = Rc::new(frame.as_ref().clone());
@@ -424,7 +424,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 let retained = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
                     &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                     &mut |_| None, &call_site, BorrowedCallActualRequestV1::CompleteArgumentExpression(&reissued),
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap().unwrap();
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap().unwrap();
                 let BorrowedCallArgumentsV1::ArgumentExpressionFrame(retained) = retained else { panic!("same pending frame") };
                 assert!(Rc::ptr_eq(frame, &retained), "pending actual and Home retain the SAME canonical frame");
                 let actuals = [BorrowedCallActualCandidateV1 { ordinal: 0,
@@ -433,13 +433,13 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
                     &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                     &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap();
                 assert!(project(&pending).unwrap_err().contains("core-expression-execution-pending"),
                     "Observe invalidates old qualification before a new Home walk");
                 let reset = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
                     &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                     &mut |_| None, &call_site, BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
-                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap();
                 assert!(reset.is_none(), "unqualified source retains existing callback selection boundary");
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
                 let repeated = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
@@ -447,7 +447,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     &mut |requests, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(requests.is_empty()); Ok(Some(Vec::new())) },
                     &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
                         &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
-                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();
                 assert!(!Rc::ptr_eq(frame, repeated[0].argument_frame().unwrap()), "explicit Observe requires a fresh current frame");
                 assert!(Rc::ptr_eq(frame.source(), repeated[0].argument_frame().unwrap().source()));
                 assert_eq!(project(&pending).unwrap(), Some(expected), "new current frame closes passive projection again");

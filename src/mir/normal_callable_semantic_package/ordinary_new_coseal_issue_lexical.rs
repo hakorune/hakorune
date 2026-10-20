@@ -311,6 +311,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
     if let BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_) = request {
@@ -365,7 +366,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         BorrowedCallActualRequestV1::SourceResultArguments
     ) {
         if let Some(text) = super::super::lexical_instance_call::source_text_result_arguments_v1(
-            source, pending, contracts, site,
+            source, pending, contracts, site, selected, completed,
         ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })? {
             return Ok(Some(text));
         }

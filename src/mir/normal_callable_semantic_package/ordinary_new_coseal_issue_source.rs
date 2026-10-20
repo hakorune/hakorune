@@ -673,7 +673,7 @@ pub(super) fn probe_source_home_prefixes_v1(
                 site,
                 actuals,
                 callable_result_classes,
-                receiver_rows, field_write_claims,
+                receiver_rows, field_write_claims, None,
             )
         },
         &mut dominated_view_use_consult_v1(borrowed_formal_source, input, borrowed_i64_results, array_i64_field_sets, instance_constructors, batch.ordinary_box_coverage()),
