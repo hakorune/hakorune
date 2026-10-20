@@ -60,11 +60,11 @@ pub(crate) enum RootHomeExitEntry {
         projection: (BasicBlockId, MirInstruction),
         frame: (BasicBlockId, MirInstruction),
     },
-    /// A terminal `return <map>.get("<literal>")` exit. The read invoke and
-    /// its i64 projection are retained exactly like a Call ingress; there is
-    /// no target row or argument list because the key is sealed inline and
-    /// the receiver binding is resolved at prepare time.
+    /// One checked terminal Map read, with its original Invoke and projection.
+    /// The optional stored-object proof retains the exact get receiver/key scope;
+    /// the existing readable-Map I64 relation keeps its sealed inline key.
     MapGet {
+        stored: Option<Box<StoredMapGetReturnEmissionV1>>,
         local_bindings: Vec<super::RootLifecyclePrefixBindingGroupV1>,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
@@ -715,6 +715,7 @@ impl OrdinaryNewClaimLedgerV1 {
 mod call_entry;
 #[path = "root_map_get_entry.rs"]
 mod map_get_entry;
+pub(crate) use map_get_entry::StoredMapGetReturnEmissionV1;
 
 pub(in crate::mir) use call_entry::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,

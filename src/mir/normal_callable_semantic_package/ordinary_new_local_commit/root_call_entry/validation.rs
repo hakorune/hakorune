@@ -113,7 +113,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 RootHomeExitEntry::Call { .. } => Err(freeze("call-source-missing")),
                 RootHomeExitEntry::MapGet {
-                    local_bindings,
+                    stored, local_bindings,
                     invoke,
                     projection,
                     frame,
@@ -126,7 +126,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     invoke,
                     projection,
                     frame,
-                    cleanup,
+                    cleanup, stored.as_deref(), CallValidationContextV1::Lowering(self),
                 ),
             };
         };
@@ -569,15 +569,22 @@ impl OrdinaryNewClaimLedgerV1 {
         groups: &[RootLifecyclePrefixBindingGroupV1],
         pending_routes: &[OwnedExprSiteV1],
     ) -> Result<(), String> {
-        self.validate_local_call_binding_groups_with_pending(
-            owner,
-            exit,
-            groups,
-            pending_routes,
-        )?;
+        self.check_local_call_binding_groups_in_context_v1(CallValidationContextV1::Lowering(self),
+            owner, exit, function, finishing, groups, pending_routes)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn check_local_call_binding_groups_in_context_v1(
+        &self, context: CallValidationContextV1<'_>, owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        groups: &[RootLifecyclePrefixBindingGroupV1], pending_routes: &[OwnedExprSiteV1],
+    ) -> Result<(), String> {
+        if !std::ptr::eq(context.ledger(), self) { return Err(freeze("local-call-binding-sequence")); }
+        self.validate_local_call_binding_groups_with_pending(owner, exit, groups, pending_routes)?;
         for group in groups {
-            group.validate_recorded(self, function, finishing)?;
+            group.validate_recorded_in_context(context, function, finishing)?;
             group.check_physical_bindings_v1(function, finishing)?;
         }
         Ok(())
-    }}
+    }
+}

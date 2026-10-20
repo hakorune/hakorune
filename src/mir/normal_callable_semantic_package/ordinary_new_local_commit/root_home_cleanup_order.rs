@@ -17,6 +17,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
         super::super::super::completion_index::DirectRootCleanupSourceV1,
         Option<crate::mir::ValueId>,
     )>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) stored_map_get: Option<crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1>,
     scalar: Option<(
         super::SourceStmtSiteV1,
         crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
@@ -192,7 +193,7 @@ impl RootHomeCleanupOrderV1 {
         let acquisition_fault = indices(acquisition_fault)?;
         Ok(Self {
             direct: None,
-            scalar: None,
+            scalar: None, stored_map_get: None,
             null_return: None,
             text_return_expression: None,
             text_return_hold: None,

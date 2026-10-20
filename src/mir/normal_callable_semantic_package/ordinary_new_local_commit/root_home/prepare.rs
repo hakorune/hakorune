@@ -81,6 +81,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 order.retain_scalar_source(exit.clone(), loan.clone())?;
             }
         }
+        order.stored_map_get = self.stored_map_get_return_source_v1(owner, &exit)?;
         Ok(RootHomePreparationV1::Prepared {
             order,
             direct_object: direct.is_some(),

@@ -16,6 +16,9 @@ impl RootHomeCleanupOrderV1 {
                 crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => InvokeCallResultKind::Bool,
             };
         }
+        if let Some(source) = &self.stored_map_get {
+            return InvokeCallResultKind::BorrowedNullableHandle { support: source.parts().0.result_support_v1() };
+        }
         self.direct
             .as_ref()
             .map_or(InvokeCallResultKind::I64, |(source, _)| source.kind())

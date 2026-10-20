@@ -740,7 +740,7 @@ pub(in crate::mir) use root_home::{
     PreparedSelectedStaticLoopCallProjectionV1,
 };
 
-pub(crate) use root_home::RootLifecyclePrefixBindingGroupV1;
+pub(crate) use root_home::{RootLifecyclePrefixBindingGroupV1, StoredMapGetReturnEmissionV1};
 pub(crate) use root_home::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(in crate::mir) use root_home::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]

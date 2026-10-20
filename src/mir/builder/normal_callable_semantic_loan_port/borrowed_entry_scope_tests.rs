@@ -9,13 +9,13 @@ use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::{
     CompilationContext, MirBuilder, NormalRootExecutionConsumerV1, SelectedNormalCallableKeyV1,
 };
-use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_v1;
+use crate::mir::normal_callable_semantic_package::{issue_normal_callable_semantic_package_with_selection_v1, PackagePhysicalSelectionV1};
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::ValueId;
 use crate::parser::{NyashParser, ParserBuildConfig};
 use std::{collections::BTreeMap, rc::Rc};
 
-fn installed_source(text: &str) -> Result<(CompilationContext, crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1), String> {
+fn installed_source(text: &str, selection: PackagePhysicalSelectionV1) -> Result<(CompilationContext, crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1), String> {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         text,
         ParserBuildConfig::default(),
@@ -32,10 +32,10 @@ fn installed_source(text: &str) -> Result<(CompilationContext, crate::mir::norma
         .unwrap()
         .into_consumed_source();
     let mut resolver = FunctionSemanticResolverSessionV1::new(992).unwrap();
-    let package = issue_normal_callable_semantic_package_with_brand_catalog_v1(
+    let package = issue_normal_callable_semantic_package_with_selection_v1(
         &mut resolver,
         source,
-        Some(&brands),
+        Some(&brands), crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &[], selection,
     )
     .map_err(|issue| format!("{issue:?}"))?;
     let mut context = CompilationContext::new();
@@ -45,7 +45,7 @@ fn installed_source(text: &str) -> Result<(CompilationContext, crate::mir::norma
 
 fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
     let text = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({actual}) return 0 }} }}");
-    let (context, installed) = installed_source(&text)?;
+    let (context, installed) = installed_source(&text, PackagePhysicalSelectionV1::AllSource)?;
     let ledger = installed.ordinary_new_claim_ledger();
     let mut selected = installed.begin_lowering(&context).unwrap();
     let named_arrays = selected.named_array_emission_collector();
@@ -114,7 +114,7 @@ fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
                     |inner, _transport| {
                         inner.owned_array_source.as_ref().unwrap().require_same_ledger_v1(&ledger)?;
                         let (_, foreign) = installed_source(
-                            "static box Main { main() { return 0 } }")?;
+                            "static box Main { main() { return 0 } }", PackagePhysicalSelectionV1::AllSource)?;
                         assert!(inner.owned_array_source.as_ref().unwrap()
                             .require_same_ledger_v1(&foreign.ordinary_new_claim_ledger()).unwrap_err()
                             .contains("foreign-source-scope"));
@@ -208,6 +208,47 @@ fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
 fn selected_scope_adopts_existing_borrowed_formal_value() {
     let (original, adopted) = scope("0").unwrap();
     assert_eq!(adopted, original);
+    // The unchanged app exercises original get receiver/key -> checked writer,
+    // independently of the outer Call/Return result ABI that remains pending.
+    let source = format!("{}\n{}",
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/src/shared/common/string_helpers.hako")),
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/json-stream-aggregator/main.hako")));
+    let (context, installed) = installed_source(&source, PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+    let ledger = installed.ordinary_new_claim_ledger();
+    let mut selected = installed.begin_lowering(&context).unwrap();
+    let arrays = selected.named_array_emission_collector();
+    let owned = selected.owned_array_lifecycle_source_v1();
+    let key = SelectedNormalCallableKeyV1::Cataloged(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+        "JsonStreamAggregator", "statsFor", 1));
+    let mut builder = MirBuilder::new();
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut builder, ModuleDraftCollectorV1::default());
+    let cores = selected.take_source_core_method_calls(&key);
+    let result = selected.with_selected_lowering_input(&key, |input| {
+        let SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key() else { panic!("selected Instance") };
+        let lineage = RawInvocationRootLineageV1::Cataloged(key.clone());
+        let symbol = key.mir_symbol_projection();
+        let class = key.owner().to_owned();
+        let crate::ast::ASTNode::FunctionDeclaration { params, param_decls, return_type_name, body, uses, attrs, .. } = input.source().source().root()
+            else { panic!("original Instance declaration") };
+        let args = (params.clone(), param_decls.clone(), return_type_name.clone(), body.clone(), uses.clone(), attrs.clone());
+        invocation.with_module_port(|builder, port| {
+            let mut inner = RawInvocationChildPortV1::new(port);
+            with_selected_source_scope(&mut inner, lineage,
+                input, cores, arrays, Rc::clone(&ledger), Some(owned), None, |inner, transport|
+                inner.with_source_transport_v1(transport, |inner, ()|
+                    builder.build_instance_method_draft_with_port_v1(inner, symbol, class,
+                        args.0, args.1, args.2, args.3, args.4, args.5).map(|_| ())))
+        })
+    }).unwrap();
+    drop(invocation);
+    let function = builder.function_state.current_function.as_ref().expect("actual Instance draft retained");
+    let gets = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
+        matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Map(
+            crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }), .. })).count();
+    assert_eq!(gets, 1, "original get producer before the next incomplete boundary: {result:?}");
+    let issue = result.expect_err("full callee publication remains incomplete");
+    assert_eq!(ledger.emitted_root_exit_count_for_test(), 1,
+        "the original get Return must record before the next boundary: {issue}");
 }
 
 #[test]
@@ -236,7 +277,7 @@ fn owned_array_original_construction_installs_real_claim_and_checks_fault_phases
             source.replace("arr.push(me.make(7))", "local i = 0 loop(i < 2) { arr.push(me.make(7)) i = i + 1 }")
         } else { source.clone() };
         full_owned_array_compiler_probe(&full_source);
-        let (context, installed) = installed_source(&source).unwrap();
+        let (context, installed) = installed_source(&source, PackagePhysicalSelectionV1::AllSource).unwrap();
         let ledger = installed.ordinary_new_claim_ledger();
         let mut selected = installed.begin_lowering(&context).unwrap();
         let loan = selected.owned_array_lifecycle_source_v1();

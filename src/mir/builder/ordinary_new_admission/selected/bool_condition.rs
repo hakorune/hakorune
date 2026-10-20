@@ -157,7 +157,7 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
         &mut RawRootGraphWriterV1, operation, body.fault_frame, &pending, &mut body.bindings)?;
     if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
     if let Some(receiver) = &receiver { body.bindings.extend(receiver.original_copy_dependencies_v1()?.iter().cloned()); }
-    let (terminal, continuation) = super::expression_value::finish_comparison_continuation_v1(builder, &mut body)?;
+    let (terminal, continuation) = super::expression_value::finish_value_continuation_v1(builder, &mut body)?;
     Ok((value, Proof::ScalarInvocation { receiver,
         input_values: body.values.into_boxed_slice(), input_reads: body.reference_reads, entry: body.entry,
         terminal, continuation, bindings: body.bindings.into_boxed_slice() }))

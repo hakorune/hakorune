@@ -295,6 +295,11 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .callable_ledger
             .as_ref()
             .ok_or("[ordinary-map-get-return/state-missing]")?;
+        if let Some(source) = ledger.stored_map_get_return_source_v1(owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()))? {
+            return crate::mir::builder::ordinary_new_admission::selected::terminal_map_get::emit(
+                builder, &mut state.borrow_mut(), ledger, source).map(Some);
+        }
         let Some(prepared) =
             ledger.prepare_terminal_map_get_return(owner, &site, |binding, source_site| {
                 let value = state.borrow_mut().read_variable(source_site)?;

@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Map checked get ABIと局所slot借用を接続。元producer/Normal/親field区間を検証。
-固定suite7PASS/4FAIL（実EXE6＋marker1）、387.510s、SKIP/timeoutなし。
-JSONはowner26 Body5 statsForでsource-pending。Rust source発行・Map set/Call/Return寿命が未完。
-CLI55.20s/root94s、13 filtersは親と同じ診断、test9263不変。ABI実行8/拒否9、Array/FieldHas維持。
-次は元receiver/field/keyからget発行・set EndOutcome・Return/Call・両finalへ接続。Text append/Endも残る。
+APP-json-stream-aggregator: 元Map getと独立receiver/key評価を共有root ingressへ接続、実InstanceでReturn記録。
+直近固定suite7PASS/4FAIL（実EXE6＋marker1）。今回はsuite再計測なし。
+全体JSONはowner26 Body5 statsForでsource-pending。callee後段prefix/set・Call/Return寿命・公開は未完。
+CLI49.21s/root58.50s、16 filtersは親と同じ診断、test9263不変。元get記録/既存FieldHas EXE確認。
+次は残るcallee prefixとset EndOutcome、元Return/Call支持・両final公開へ接続。Text append/Endも残る。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: Original stored Map get retains SAME terminal/get Arc, actual get receiver read and passive Text key. Shared expression/root ingress retains scope/Copy/FaultFrame; no fresh Home or fake formal ordinal. Producer checks at record; whole-group seals remain at existing exit/final phase. Finishing captures key/receiver dependencies; shared final field-read visitor checks Birth/get, prefix validator keeps actual context, borrowed Text use shares presence rule. Existing selected-scope case uses unchanged app and genuine staged Instance entry: get Return records before later prefix stop. No new test functions/files/hooks/checkers/cards;inventory9263 identical. CLI49.21s/root58.50s;16 focused filters match parent diagnostics;FieldHas EXE exit7. JSON still owner26 Body5 statsFor source-pending;latest suite7/4 not rerun. Next callee prefix/set EndOutcome, Return/Call lifetime/publication, Text append/End;full finite goal owed.",
   "2026-10-21: Map checked field indexed get ABI reuses Text descriptor/native getter with separate payload class. Existing slot index retains original producer/Normal, parent and same-field interval; Copy/checked read only, no payload Home. Unproved Calls/replacement/End between get and use refuse; Call/Return source support remains pending. No source issuer granted or repo tests/hooks/files/checkers/cards added. CLI55.20s/root94s; 13 focused filters match parent diagnostics, inventory9263 identical. ABI-only8 Normal/Fault runs,9 refusals plus2 before-get controls PASS; Array9 runs/13 refusals and FieldHas EXE exit7 retained. Fixed suite7PASS/4FAIL actualEXE6+marker1,387.510s,noSKIP/timeout. JSON still owner26 Body5 statsFor source-pending. Next original source get/set EndOutcome, Return/Call lifetime and both final consumers. Text append/End and full finite goal remain owed.",
   "2026-10-21: Callable borrowed result source shares Formal or MapSlot role with common original roots/Completion. Map retains SAME whole source, exact selected key/parameter, full Return census, qualified Text get key and SAME installed Return/flow frame; no fake formal ordinal or ABI grant. LOCAL support projection and root correspondence reuse witness owner. Existing formal corruption checks migrated; existing JSON case links real dependency closure and guards new source carrier boundary, no new tests/hooks/files/checkers/cards. CLI38.76s/root58.41s; 12 focused filters match parent failures/diagnostics, inventory9263 identical. JSON still owner26 Body5 statsFor source-pending, no MIR/EXE; latest suite7/4 actualEXE6+marker1 not rerun. Next Map receiver/field/key support through checked get/set, Return/Call lifetime and both final consumers before Ready. Text append packet/collector/both final/complete End, Map cleanup and full finite goal remain owed.",
-  "2026-10-21: Original Text append frame lends canonical Array field receiver to existing affine local read. Same frame/caller/Me binding/provider census retained; canonical ObjectFieldGet only, no fake Loop or element-read recipe. Final read borrows source membership and rechecks current provider body without recursive append validation. Existing descriptor case adds independent source-to-read/legacy-refusal boundary, no test function/file/hook/checker/card added. CLI44.48s/root43.82s; 7 focused filters match parent failures/diagnostics; inventory9263 identical. Source read proof is not final artifact/append execution proof. JSON remains owner26 Body5 statsFor source-pending, no MIR/EXE; latest suite7/4 actualEXE6+marker1 not rerun. Direct blocker is Map ReceiverFieldSlot result publication; connect original get/set Return/lifetime before Ready. Text packet/collector/both final/complete End and full finite goal remain owed.",
 ]

@@ -194,7 +194,7 @@ pub(crate) use ordinary_new_coseal::{
     OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1,
     OwnedFieldChildV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
-    PreparedTerminalMapGetReturnV1, QualifiedStaticCallArgumentKindV1,
+    PreparedTerminalMapGetReturnV1, StoredMapGetReturnSourceLoanV1, QualifiedStaticCallArgumentKindV1,
     ReceiverCallClassObservationV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
     ResultWitnessStepV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
     TerminalNullReturnSourceLoanV1, VerifiedOrdinaryNewBirthRecipeV1,
@@ -250,6 +250,7 @@ pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayRea
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayAccessSourceV1, ArgumentFieldArrayReadSourceV1};
 
 pub(crate) use ordinary_new_coseal::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
+pub(crate) use ordinary_new_coseal::StoredMapGetReturnEmissionV1;
 pub(in crate::mir) use ordinary_new_coseal::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;

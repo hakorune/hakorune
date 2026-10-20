@@ -559,7 +559,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 bindings,
                 entry:
                     RootHomeExitEntry::MapGet {
-                        local_bindings,
+                        stored, local_bindings,
                         invoke,
                         projection,
                         frame,
@@ -570,7 +570,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     origins,
                     bindings,
                     entry: RootHomeExitEntry::MapGet {
-                        local_bindings,
+                        stored, local_bindings,
                         invoke,
                         projection,
                         frame,
@@ -666,6 +666,7 @@ impl RootHomeExitEntry {
                     .map(|(_, copy)| copy),
             );
         }
+        if let Self::MapGet { stored: Some(stored), .. } = self { copies.extend(stored.copy_dependencies()?); }
         Ok(copies)
     }
 
@@ -696,7 +697,7 @@ impl RootHomeExitEntry {
             bindings.push(frame.clone());
         }
         if let Self::MapGet {
-            invoke,
+            stored, invoke,
             projection,
             frame,
             ..
@@ -704,6 +705,9 @@ impl RootHomeExitEntry {
         {
             bindings.push(invoke.clone());
             bindings.push(projection.clone());
+            if let Some(stored) = stored {
+                bindings.extend(stored.bindings().iter().filter(|binding| *binding != frame).cloned());
+            }
             bindings.push(frame.clone());
         }
     }

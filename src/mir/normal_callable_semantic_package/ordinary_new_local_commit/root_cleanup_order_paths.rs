@@ -51,6 +51,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                 InvokeOperation::Map(
                     crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. },
                 ) if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
+                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. })
+                    if matches!(kind, crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
+                        support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
+                    } if original == field && payload == object) => {}
                 _ => return Err(fault("ordered-path/ingress-kind")),
             }
             let MirInstruction::InvokeNormalResult { dst, .. } = projected else {

@@ -18,6 +18,8 @@ pub(in crate::mir::builder) mod bool_condition;
 mod expression_value;
 #[path = "selected/text_return.rs"]
 mod text_return;
+#[path = "selected/terminal_map_get.rs"]
+pub(in crate::mir::builder) mod terminal_map_get;
 pub(in crate::mir::builder) use text_return::emit as emit_text_return_expression_v1;
 #[path = "selected/binding_rebind_expression.rs"]
 pub(in crate::mir::builder) mod binding_rebind_expression;
@@ -301,7 +303,7 @@ pub(in crate::mir::builder) fn emit_root_home_unit_exit(
 /// graph; the ledger entry kind keeps them apart.
 pub(super) enum RootExitIngress {
     Call(terminal_call::Emission),
-    MapGet { map: ValueId, utf8: String },
+    MapGet { operation: InvokeOperation, stored: Option<Box<crate::mir::normal_callable_semantic_package::StoredMapGetReturnEmissionV1>> },
 }
 
 /// Exact physical graph evidence. The ledger wrapper retains its affine
@@ -348,12 +350,7 @@ fn emit_root_home_exit_payload(
             call: call.call.clone(),
             result: call.result,
         }),
-        Some(RootExitIngress::MapGet { map, utf8 }) => Some(InvokeOperation::Map(
-            crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
-                map: *map,
-                utf8: utf8.clone(),
-            },
-        )),
+        Some(RootExitIngress::MapGet { operation, .. }) => Some(operation.clone()),
         None => None,
     };
     let emission = emit_root_graph_v1(
@@ -389,7 +386,7 @@ fn emit_root_home_exit_payload(
                 bindings,
             )?;
         }
-        (Some(RootExitIngress::MapGet { .. }), Some((invoke, projection))) => {
+        (Some(RootExitIngress::MapGet { stored, .. }), Some((invoke, projection))) => {
             let frame = frame.ok_or_else(|| freeze("root-frame-missing"))?;
             let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
             ledger.record_root_map_get_exit(
@@ -399,7 +396,8 @@ fn emit_root_home_exit_payload(
                 projection,
                 frame_binding,
                 origins,
-                bindings,
+                bindings, stored,
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?,
             )?;
         }
         (None, None) => ledger.record_root_home_exit(owner, site, origins, bindings)?,
@@ -614,8 +612,9 @@ pub(in crate::mir::builder) fn emit_terminal_map_get_return(
         Some(value),
         value,
         Some(RootExitIngress::MapGet {
-            map: prepared.map,
-            utf8: prepared.utf8,
+            operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
+                map: prepared.map, utf8: prepared.utf8,
+            }), stored: None,
         }),
     )
 }

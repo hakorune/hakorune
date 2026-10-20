@@ -84,9 +84,9 @@ impl FinalizedRootSourceHandoffV1 {
         validation.require_map_field_source_v1(owner, store, function)
     }
 
-    /// Borrow only mapped original Bool producers, after the same group replay
+    /// Borrow mapped original presence/get producers, after the same group replay
     /// used for Calls. This is an ephemeral verifier image, not a source index.
-    pub(in crate::mir) fn visit_finished_map_presence_v1(
+    pub(in crate::mir) fn visit_finished_map_field_reads_v1(
         &self, module: &MirModule,
         mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,
     ) -> Result<(), String> {
@@ -94,6 +94,8 @@ impl FinalizedRootSourceHandoffV1 {
             self.ledger.with_finished_projection(*owner, |symbol, projection| {
                 let function = module.functions.get(symbol).ok_or_else(|| freeze("final-provider/function-missing"))?;
                 self.ledger.visit_map_presence_groups_v1(*owner, CallValidationContextV1::Finalized(self), function,
+                    projection, module, |row| visit(function, row))?;
+                self.ledger.visit_stored_map_get_groups_v1(*owner, CallValidationContextV1::Finalized(self), function,
                     projection, module, |row| visit(function, row))
             })?;
         }

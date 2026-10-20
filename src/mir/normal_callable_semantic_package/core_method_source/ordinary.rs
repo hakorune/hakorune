@@ -180,11 +180,20 @@ impl FieldMapReceiverSourceV1 {
         context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<crate::mir::ValueId, String> {
+        self.require_receiver_at_v1(context, function, read, &self.receiver_site)
+    }
+    /// Another original use of the SAME field retains its own affine read site.
+    /// The caller must corroborate that use against its retained source frame.
+    pub(in crate::mir::normal_callable_semantic_package) fn require_receiver_at_v1(&self,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
+        function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<crate::mir::ValueId, String> {
         let ledger = context.ledger();
         self.require_entry_source_v1(ledger)?;
         let (_, entry) = self.root.checked_entry_value_v1(ledger, self.receiver.owner(), function)?;
         read.loan_forwarded_copies(self.receiver, entry)?;
-        read.value_for(self.receiver.owner(), self.receiver_site.node(), self.receiver).map_err(|error| error.to_string())
+        read.value_for(self.receiver.owner(), site.node(), self.receiver).map_err(|error| error.to_string())
     }
     fn matches_plan(&self, plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;

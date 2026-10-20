@@ -462,7 +462,7 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
     finish_body_continuation(builder, &mut expression.body, residence, displaced, expression.purpose_acquisition.is_some())
 }
 
-pub(super) fn finish_comparison_continuation_v1(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1)
+pub(super) fn finish_value_continuation_v1(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1)
     -> Result<(Binding, Binding), String> {
     finish_body_continuation(builder, body, None, None, false)
 }

@@ -1,7 +1,7 @@
-# Field Array source and physical owners
+# Field container source and physical owners
 
 Status: active owner; local/Birth connection under construction.
-Scope: checked field Array Get/Count/append sources, original uses and physical emission.
+Scope: field Array Get/Count/append and Map receiver sources, original uses and physical emission.
 Related: [source issuer](../ordinary_new_field_array_read_source.rs),
 [Return use](../ordinary_new_borrowed_field_array_read_source.rs),
 [physical read](field_read.rs), [collector](collector.rs).
@@ -70,6 +70,14 @@ The current extraction preserves Return admission. Local/Birth source retention,
 physical correspondence and canonical app execution remain required before the
 new local consumer can be accepted. No separate classification map or fallback.
 
+
+Map presence and stored-object get share the original Map field/entry/Birth
+receiver proof. Each retained get lends its own affine receiver read site rather
+than reusing the earlier has occurrence. Its passive Text key uses the shared
+expression writer and retains original Copy dependencies and FaultFrame. The
+existing Map terminal ingress owns the checked get and root cleanup; final field
+read visitors recheck the same source, key scope and Birth provider. This lends
+no payload Home and does not activate Map Call/Return support or entry installs.
 
 Ordinary checked String source issuance consumes the exact generated CP law
 through its existing typed target: Length/0 is CodePointCount, Substring/2 is
