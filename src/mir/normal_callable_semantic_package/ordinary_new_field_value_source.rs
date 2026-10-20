@@ -77,7 +77,7 @@ impl DeclaredFieldValueSourceV1 {
             || Some(row.box_name()) != write.owner_box()
             || write.birth_source() != Some(row.source_id())
         { return Err(Issue::ConstructorIdentity); }
-        let plan = row.construction().as_ref().map_err(|_| Issue::ConstructionUnavailable)?;
+        let plan = row.construction_source().as_ref().map_err(|_| Issue::ConstructionUnavailable)?;
         if plan.constructor() != Some(&(reference.constructor.clone(), write.owner()))
             || plan.object() != self.field.object()
         { return Err(Issue::ConstructorIdentity); }
@@ -150,7 +150,7 @@ fn issue_one(
             if constructors.next().is_some() || constructor.kind() != ConstructorSourceKindV1::Birth
                 || constructor.box_name() != class
             { return Err(Issue::ConstructorIdentity); }
-            let construction = constructor.construction().as_ref().map_err(|_| Issue::ConstructionUnavailable)?;
+            let construction = constructor.construction_source().as_ref().map_err(|_| Issue::ConstructionUnavailable)?;
             if construction.constructor() != Some(&(source.clone(), write.owner()))
                 || construction.object() != field.object()
             { return Err(Issue::ConstructorIdentity); }
@@ -170,7 +170,7 @@ fn issue_one(
     for constructor in constructors.rows().iter()
         .filter(|row| row.box_name() == class && row.kind() == ConstructorSourceKindV1::Birth)
     {
-        let plan = constructor.construction().as_ref().map_err(|_| Issue::ConstructionUnavailable)?;
+        let plan = constructor.construction_source().as_ref().map_err(|_| Issue::ConstructionUnavailable)?;
         for store in plan.stores().iter().filter(|store| store.field() == field) {
             if writers.iter().filter(|index| {
                 let write = &inventory.writes[**index];

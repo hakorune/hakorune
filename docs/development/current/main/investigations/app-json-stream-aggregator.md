@@ -6,10 +6,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Last official fixed suite: this Self field-write change (base `11dd3230cb`),
-  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner484.779s.
-  Matching quick opt0 CLI1m28s, frozen quick runtime/private C FFI; build/run300s,
-  no Cargo overlap. mimalloc PASS152.639s; allocator PASS177.583s; typed EXEs37–40s.
+- Last official fixed suite: this source-retention/point-SUM change (base `366c1e39e2`),
+  7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout. Runner486.381s.
+  Matching quick opt0 CLI1m26s, frozen quick lifecycle runtime/private C FFI;
+  build/run300s, no Cargo overlap. mimalloc153.697s, allocator178.324s, typed37–40s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --timeout 1900 --format json`.
 - Self writes now retain the exact entry receiver, whole RHS and all-writer source.
@@ -20,17 +20,27 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   and MIR Integer alone grant no signed permission. Wide unsigned stays refused.
 - Fresh receiver pins/Fault-frame prefixes no longer shift the observed RHS cursor;
   only the sole writer's exact new rows are excluded, never cached/RHS producers.
-- Matching quick opt0 CLI1m28s: typed Counter `me.value = me.value + 1` now generates
-  an EXE through pure-first/no replay and runs with Result8/exit8. This is a focused
+- Earlier typed Self step: Counter `me.value = me.value + 1` generated an EXE
+  through pure-first/no replay and ran with Result8/exit8. This is a focused
   connection proof, not JSON acceptance or unannotated-storage activation.
-- Unchanged JSON still fails MIR construction at owner26 `ingestLine` source-use
-  completion; no EXE/link/runtime or old-route retry. Current missing census needs
-  re-identification after the Self connection; do not reuse the old four-write claim.
-- Existing field-write16, signed SUM1 and numeric capability1 PASS. Catalog65 PASS/
-  10 FAIL: same names and normalized causes on prior binary. No new test cases/files.
-- Worker review approved the shared receiver/signed source boundary. Alias point
-  demands retain original anchors and the existing uncaptured-binding gate; signed
-  reads are collected before the transactional plan borrow. Dynamic remains closed.
+- Complete original Birth stores are retained even when field-demand
+  execution qualification fails. Both ConstructionPlan issuers still require
+  successful demands; Dynamic execution gains no permission from retained source.
+- Field-value evidence now borrows that same source, preserving constructor,
+  field, receiver, store ordinal and the full writer/Birth-store census.
+- Original Integer bases and current reads share one point-SUM lender; same flow,
+  uncaptured read, incoming census, signed-only and final Rc replay remain required.
+  The basis moved to the existing SUM owner; no parallel classifier was added.
+- Matching CLI1m26s: field-source missing rows disappear, owner26 missing writes
+  shrink from four to one. total_bytes now passes its all-writer value loan but
+  its whole-RHS/current-read qualification remains absent. owner20's `end = start`
+  input-use and owner29's Map/field/report reads are still open source obligations.
+- Unchanged JSON now fails MIR at `owned-field-write/original-source` while
+  lowering unannotated Self writes; no EXE/link/runtime or old-route retry.
+- Constructor26, field-write16, SUM1, numeric1, Return-field1 and nested-field1 PASS.
+  Catalog65 PASS/10 FAIL: same names/causes as prior binary. The existing unsupported
+  Birth case checks retained source separately from its unchanged execution refusal;
+  no case/file added. Workers reviewed source/execution separation and point leases.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -41,19 +51,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   the existing all-writer ClosedNumeric proof and keep their absent annotation.
 - Source-use completion counts only the SAME qualified frame/RHS and original
   assignment/read census. Source membership alone never closes missing effects.
-- Both final scans share FieldSet coordinates, RHS/pin producers and Normal/Fault
-  packet validation. LOCAL still owes New/Normal dominance; Self owes its actual
-  signature receiver lane/carrier and exact Me read, without LOCAL-only Home closure.
-- Next source diagnosis: establish the current missing assignment/read sites. Worker
-  identified `total_bytes + bytes` as a candidate: ResultExpression Integer basis
-  does not yet borrow arbitrary original-point SUM for `bytes = JsonLine.intField`.
-  Reuse that basis/solver; establish the actual refusal before treating it as the stop.
+- Next source connection: distinguish Body8 scalar_reference(bytes) from field-read
+  batch refusal; preserve the ordinary Static Call/result owner and full census.
+  intField's `end = start` needs shared initializer admission for the same signed
+  current scalar, retaining its Copy and both final scans; no census-only alias fix.
 - Dynamic physical execution remains explicitly refused. Required next: checked
   Dynamic Integer view/replace preserving Fault-without-mutation, canonical layout
   publication, detached End/destruction and both final consumers. Runtime support
   alone or treating an unannotated slot as I64 layout is insufficient.
-- Read-only worker approved the common receiver split. Structural Jumps use the
-  existing checked contraction projection; effects remain mandatory.
+  Reuse checked get/set's guard; preserve plain-reclaim refusal. Publish Dynamic12
+  and connect source-backed complete End to actual HomeRelease/Fault cleanup.
 - Existing source Loop Call/If and Function Return retain original reads, producers,
   Phi keys and root cleanup through both consumers. Plain scalar If requires the
   whole leaf/read census so it cannot steal Static Call/field ownership.

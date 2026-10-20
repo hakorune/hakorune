@@ -748,6 +748,14 @@ field value. Bare strong fields retain Dynamic known-empty source inventory;
 this does not grant execution, a readable value or complete field End. Non-i64,
 owning, weak or hook-bearing declarations do not qualify for I64 execution.
 
+A complete original Birth store census survives a field-demand execution refusal.
+The same source retains the refusal; both `ConstructionPlan` issuers require its
+successful field-demand qualification. All-writer field-value evidence borrows
+this source's exact stores and constructor identity, retaining the whole census.
+Original Integer bases and current scalar reads share the same source-point SUM
+lender: uncaptured original read, complete original flow, incoming census and SUM
+identity stay bound, with signed-only permission checked separately from storage.
+
 Site resolution, local/result claim cores and the Normal local Home retain that
 same construction source Rc. Overrides retain unavailable source. The existing
 Home field consult lends it only for the exact selected New and destination;

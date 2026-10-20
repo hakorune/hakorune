@@ -88,8 +88,18 @@ where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, 
         let Ok(ingress) = self.ingress else { return Ok(None) };
         // A neutral source-only write is not an executable entry frame. Require
         // the complete value basis even for a declared slot before selecting it.
-        let Ok(value) = lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
-            self.results, ingress, field, declared.as_deref(), original.write().field()) else { return Ok(None) };
+        let value = match lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
+            self.results, ingress, field, declared.as_deref(), original.write().field()) {
+            Ok(value) => value,
+            Err(issue) => {
+                if crate::config::env::builder_debug_enabled() {
+                    let retained = original.write().owner_box().and_then(|class|
+                        self.writes.value_source(class, original.write().field())).map(|source| source.as_ref().err());
+                    eprintln!("[field-source] site={site:?} field={} issue={issue} retained={retained:?}", original.write().field());
+                }
+                return Ok(None);
+            },
+        };
         let root = terminal_home::ExpressionFieldRootSourceV1::issue_entry_v1(self.constructors,
             receiver, entry, input.owner(), receiver.0, field).map_err(|issue|
                 OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;

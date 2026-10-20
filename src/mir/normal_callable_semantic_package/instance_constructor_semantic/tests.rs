@@ -413,6 +413,11 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
                 assert!(!retained.as_ref().unwrap().is_allocation_only_i64());
                 assert!(retained.as_ref().unwrap().allocation_only_i64_field("value").is_none());
             }
+        } else if source == "box Page { value\nbirth() { me.value = 1 } }" {
+            let retained = retained.as_ref().expect("original scalar Birth stores survive execution refusal");
+            assert_eq!(retained.completion(), &ConstructionCompletionV1::InitializedFields);
+            assert!(retained.constructor().is_some() && retained.allocation_only_fields().is_none());
+            assert_eq!(retained.stores().len(), 1);
         } else {
             assert!(retained.is_err(), "unsupported source must not gain allocation-only completion: {source}");
         }

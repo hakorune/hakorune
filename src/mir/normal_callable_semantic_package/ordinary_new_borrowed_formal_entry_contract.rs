@@ -286,7 +286,13 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         if assignments.len() != uses.assignments().len()
-            || uses.assignments().iter().any(|(site, _)| !assignments.contains(site)) { return Ok(None); }
+            || uses.assignments().iter().any(|(site, _)| !assignments.contains(site)) {
+            if crate::config::env::builder_debug_enabled() {
+                let missing: Vec<_> = uses.assignments().iter().filter(|(site, _)| !assignments.contains(site)).collect();
+                eprintln!("[input-use] owner={:?} missing-assignments={missing:?}", contract.owner);
+            }
+            return Ok(None);
+        }
         let missing: Vec<_> = uses.reads().filter(|(site, reference)| match reference {
             ResolvedLexicalRefV1::Local(binding) => !covered.contains(&((*site).clone(), *binding)),
             _ => true,

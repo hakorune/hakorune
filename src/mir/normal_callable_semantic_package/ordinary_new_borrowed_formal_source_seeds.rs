@@ -3,6 +3,7 @@
 use super::*;
 #[path = "ordinary_new_borrowed_formal_source_sum.rs"]
 mod source_sum;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::OriginalIntegerBasisV1;
 pub(in crate::mir) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
 pub(in crate::mir::normal_callable_semantic_package) use source_sum::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
@@ -64,31 +65,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     pub(super) seeds: OriginalFormalSeedProductV1,
 }
 
-#[derive(Debug, Clone)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) enum OriginalIntegerBasisV1 {
-    /// Issued only after exact declaration, ordinal and whole-forest stability checks.
-    Declared { binding: BindingRefV1, abi: crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1 },
-    Incoming { binding: BindingRefV1, origin: BindingRefV1, current_i64: bool },
-    IncomingSourceSum { binding: BindingRefV1, origin: BindingRefV1, sum: Rc<SourceValueSumV1> },
-}
-impl OriginalIntegerBasisV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn binding(&self) -> BindingRefV1 {
-        match self { Self::Declared { binding, .. } | Self::Incoming { binding, .. } | Self::IncomingSourceSum { binding, .. } => *binding }
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn i64_source(&self) -> bool {
-        match self { Self::Declared { abi, .. } => abi.is_i64(), Self::Incoming { current_i64, .. } => *current_i64,
-            Self::IncomingSourceSum { sum, .. } => sum.signed_only() }
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ready(&self, source: &PreparedBorrowedFormalIngressV1) -> bool {
-        match self {
-            Self::Declared { .. } => true,
-            Self::Incoming { origin, current_i64, .. } => source.candidate_integer_agreement(*origin)
-                && (!*current_i64 || source.candidate_i64_source_agreement(*origin)),
-            Self::IncomingSourceSum { origin, sum, .. } => sum.signed_only()
-                && source.lend_source_value_sum_v1(*origin).is_some_and(|current| Rc::ptr_eq(sum, &current)),
-        }
-    }
-}
 
 impl OriginalBorrowedFormalSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn field_bases_available(&self, class: &str) -> bool {
@@ -108,38 +84,7 @@ impl OriginalBorrowedFormalSourceV1 {
         self.seeds.new_calls.lend_i64_inputs_v1(constructor, binding, constructors,
             &self.seeds.source_i64s.as_ref()?.members)
     }
-    /// Source agreement plus the original stable use, not entry agreement alone.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn integer_origin_at_v1(
-        &self,
-        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-        site: &SourceExprSiteV1,
-        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-        definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
-    ) -> Option<OriginalIntegerBasisV1> {
-        if !self.seeds.new_calls.current_provider_sources_match(constructors) { return None; }
-        let binding = arg_site_binding(input, site)?;
-        if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-            let abi = contracts.iter().find(|row| row.owner == input.owner())?.parameters.iter()
-                .find(|row| row.binding == binding).and_then(|row| match row.kind {
-                    CallableParameterContractKindV1::ExactTrivial(abi) => Some(abi), _ => None,
-                })?;
-            return Some(OriginalIntegerBasisV1::Declared { binding, abi });
-        }
-        let origin = definitions.get(&input.owner()).and_then(|draft| draft.origins.get(&binding)).copied()
-            .or_else(|| new_seeds::stable_constructor_formal_v1(input, site, constructors))?;
-        if self.seeds.candidate_integer_agreement_v1(&self.inventory, origin) {
-            return Some(OriginalIntegerBasisV1::Incoming { binding, origin,
-                current_i64: self.seeds.candidate_i64_source_agreement_v1(&self.inventory, origin) });
-        }
-        // Borrow complete source alternatives, without changing the legacy
-        // transport projection or granting an executable entry to this use.
-        self.seeds.corroborate_original_v1(&self.inventory).then_some(())?;
-        let sum = self.seeds.source_sums.as_ref()?.values.get(&origin)?;
-        sum.signed_only().then(|| OriginalIntegerBasisV1::IncomingSourceSum {
-            binding, origin, sum: Rc::clone(sum),
-        })
-    }
+
 }
 
 #[derive(Clone, Copy)]

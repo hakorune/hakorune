@@ -301,7 +301,7 @@ impl FieldCandidatesV1 {
             if !write.source().is_ok_and(|plan| Rc::ptr_eq(plan, row.expression.plan()))
                 || !self.target_ready(key, row, source) { return false; }
             match &row.birth {
-                // These bases came from SAME source-ordered ConstructionPlan
+                // These bases came from SAME source-ordered construction source
                 // stores. A later update to a previously copied field does not
                 // retroactively change the value copied during Birth.
                 Some(BirthBaseV1::Literal(_)) => write.in_birth(),

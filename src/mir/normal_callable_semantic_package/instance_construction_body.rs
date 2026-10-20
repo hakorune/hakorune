@@ -46,7 +46,7 @@ impl ConstructionFieldSourceV1 {
 pub(crate) struct ConstructionSourceStructureV1 {
     pub(super) object: CanonicalObjectIdV1,
     pub(super) completion: ConstructionCompletionV1,
-    pub(super) field_demands: Box<[HomeDemandV1]>,
+    pub(super) field_demands: Result<Box<[HomeDemandV1]>, ConstructionUnavailableV1>,
     pub(super) stores: Box<[ConstructionStoreV1]>,
     pub(super) constructor: Option<(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)>,
     pub(super) steps: Box<[ConstructionSourceStepV1]>,
@@ -79,7 +79,7 @@ impl ConstructionSourceStructureV1 {
 
     pub(super) fn require_initialized_fields(&self) -> Result<(), ConstructionUnavailableV1> {
         match self.completion() {
-            ConstructionCompletionV1::InitializedFields => Ok(()),
+            ConstructionCompletionV1::InitializedFields => self.field_demands.as_ref().map(|_| ()).map_err(|reason| *reason),
             ConstructionCompletionV1::AllocationOnly { .. } =>
                 Err(ConstructionUnavailableV1::InitializationContractMissing),
         }
