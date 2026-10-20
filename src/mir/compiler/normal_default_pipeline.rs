@@ -713,7 +713,8 @@ impl MirCompiler {
                 // arity drift, structural/lifecycle checks — is covered by the
                 // strict document verify here.
                 let document_verification =
-                    super::MirVerifier::new_strict().verify_document_module(&result.module);
+                    super::MirVerifier::new_strict()
+                        .verify_document_module_with_finalized_root(&result.module, retained_root.as_ref());
                 document_verification.as_ref().map_err(|errors| {
                     errors
                         .iter()

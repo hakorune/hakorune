@@ -42,7 +42,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                 return Err(freeze("borrowed-instance/read-original-identity"));
             }
             let candidate = identity.candidates.get(ordinal as usize).ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
-            if matches!(candidate.value, BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_)) {
+            if matches!(candidate.value, BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_)) {
                 return array_ledger.map(|ledger| ledger.borrowed_expression_actual_source_v1(&call.call, ordinal, site)
                     .map(|actual| Some(actual.source))).unwrap_or(Ok(None));
             }

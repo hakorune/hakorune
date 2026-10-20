@@ -113,8 +113,8 @@ pub(in crate::mir::builder) fn emit_with_prefix(
         return Err(freeze("expression-call/source-drift"));
     }
     let source = match call.result_source() {
-        Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::OwnedText(original)) =>
-            static_source.ok_or_else(|| freeze("expression-call/disposition-missing"))?(builder, original)?,
+        Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Static(loan)) =>
+            static_source.ok_or_else(|| freeze("expression-call/disposition-missing"))?(builder, loan.source())?,
         _ => CallSource::instance(ledger.take_lexical_instance_call(call.owner(), call.site().site())?
             .ok_or_else(|| freeze("expression-call/disposition-missing"))?),
     };

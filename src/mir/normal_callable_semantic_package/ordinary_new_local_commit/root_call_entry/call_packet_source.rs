@@ -234,8 +234,11 @@ impl<'a> CallPacketSourceLoanV1<'a> {
                 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1 as Class, LocalCallResultSourceV1};
                 match observation.result() {
                     Class::I64 => Some(InvokeCallResultKind::I64),
+                    Class::Bool if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool
+                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Static(source))
+                            if source.result() == Class::Bool && Rc::ptr_eq(source.source(), original)) => Some(InvokeCallResultKind::Bool),
                     Class::Text if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
-                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::OwnedText(source)) if Rc::ptr_eq(source, original)) => Some(InvokeCallResultKind::OwnedString),
+                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Static(source)) if source.result() == Class::Text && Rc::ptr_eq(source.source(), original)) => Some(InvokeCallResultKind::OwnedString),
                     _ => None,
                 }
             }

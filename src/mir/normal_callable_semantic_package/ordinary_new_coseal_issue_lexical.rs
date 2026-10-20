@@ -365,7 +365,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         request,
         BorrowedCallActualRequestV1::SourceResultArguments
     ) {
-        if let Some(text) = super::super::lexical_instance_call::source_text_result_arguments_v1(
+        if let Some(text) = super::super::lexical_instance_call::source_static_result_arguments_v1(
             source, pending, contracts, site, selected, completed,
         ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })? {
             return Ok(Some(text));

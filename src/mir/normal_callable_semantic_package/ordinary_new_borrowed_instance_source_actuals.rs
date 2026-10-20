@@ -66,11 +66,17 @@ pub(super) fn prepare_instance_source_actuals_v1(
         return Ok(None);
     }
     let core_argument = original_core_argument_input_request_v1(ingress, contracts, site)?;
-    let finite_input = match crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)? {
+    let original_call = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)?;
+    let finite_input = match original_call.as_ref() {
         Some(call) => crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(
             ingress, contracts, call.callee)?,
         None => false,
     };
+    // The SAME LOCAL result's original key purpose selects source input
+    // independently of callee domain/Completion success. It grants no Text.
+    let map_key = original_call.as_ref().and_then(|call| call.source.instance())
+        .and_then(|target| target.borrowed_nullable_local_source())
+        .and_then(|loan| loan.map_key_actual_v1());
     let mut array_loans = Vec::new();
     let mut field_loans = Vec::new();
     for (position, actual) in actuals.iter().enumerate() {
@@ -131,7 +137,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     };
     let draft = ingress.source_definition_for(site.owner());
     let expression_request = ingress.original_signed_expression_argument_request_v1(site);
-    if !finite_input && !core_argument && array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !scalar_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request {
+    if !finite_input && !core_argument && array_loans.is_empty() && field_loans.is_empty() && !zero_request && !unit_request && !scalar_request && !object_producer_request && mixed_request.is_none() && !nullable_request && !expression_request && map_key.is_none() {
         if ingress.definitions.contains_key(&site.owner()) {
             return Ok(None);
         }
@@ -144,7 +150,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
             return Ok(None);
         }
     }
-    let Some(original) = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)? else {
+    let Some(original) = original_call.as_ref() else {
         return Ok(None);
     };
     let Some(target) = original.source.instance() else {
@@ -298,6 +304,11 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         return Err(freeze("borrowed-instance/field-loan-identity"));
                     }
                 }
+                BorrowedCallActualValueV1::Binding(binding)
+                    if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                        && map_key.is_some_and(|(ordinal, read, original)| ordinal == actual.ordinal
+                            && read.owner() == site.owner() && read.site() == &actual.site
+                            && original == binding) => {},
                 BorrowedCallActualValueV1::Expression
                     if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                         && ingress.source_value_sum_v1(formal.binding).is_some_and(|sum| sum.signed_only()) => {}
@@ -305,7 +316,8 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 BorrowedCallActualValueV1::Integer(_)
                 | BorrowedCallActualValueV1::Bool(_)
                 | BorrowedCallActualValueV1::Null => {}
-                _ => return Err(freeze("borrowed-instance/opaque-source-unsupported")),
+                _ => return Err(format!("{}: site={site:?} ordinal={} actual={:?}",
+                    freeze("borrowed-instance/opaque-source-unsupported"), actual.ordinal, actual.value)),
             }
             LocalCallArgumentV1::BorrowedActual {
                 ordinal: actual.ordinal,
@@ -448,6 +460,7 @@ pub(super) fn selected_original_instance_forward_v1(
             return Err(freeze("borrowed-instance/duplicate-source"));
         }
         if let Some(target) = original.source.instance() {
+            if target.borrowed_nullable_local_source().is_some_and(|loan| loan.map_key_actual_v1().is_some()) { return Ok(true); }
             if ingress.original_signed_expression_argument_request_v1(site) { return Ok(true); }
             if ingress.returned_field_argument_selected_v1(site) {
                 for (ordinal, _, _) in original.arguments.iter() {

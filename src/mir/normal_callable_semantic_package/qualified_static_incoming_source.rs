@@ -156,7 +156,8 @@ impl StaticIncomingSourceV1 {
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
         (self.is_qualified_i64_source_v1() || self.is_zeroarg_i64_v1()
-            || matches!(self.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString))
+            || matches!(self.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString
+                | crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool))
             && self.matches_publication_handoff_identity(handoff)
     }
 
@@ -180,6 +181,7 @@ impl StaticIncomingSourceV1 {
         let representation = match self.source_result() {
             Source::ExactI64 { .. } => Representation::ExactI64,
             Source::ExactString => Representation::ExactString,
+            Source::ExactBool => Representation::ExactBool,
             _ => return false,
         };
         handoff.catalog_identity() == self.catalog_brand.identity()

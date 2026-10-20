@@ -67,6 +67,11 @@ pub(super) fn observe<'a, E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<(), E> {
     let function = input.function();
+    if crate::config::env::builder_debug_enabled() {
+        if let Some(issue) = unavailable.as_ref() {
+            eprintln!("[home-prefix/local] owner={:?} statement={:?} prior_issue={issue:?}", input.owner(), statement.site());
+        }
+    }
     let ASTNode::Local { variables, initial_values, .. } = statement.node() else {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(());
@@ -146,6 +151,15 @@ pub(super) fn observe<'a, E>(
             local_calls.push(local_call);
             locals.install_i64_call_result(binding);
             continue;
+        }
+        if unavailable.is_none() {
+            if let Some(local_call) = local_call_flow::issue_static_bool_local_call_v1(input,
+                statement.site(), &owned, declaration.clone(), binding, homes, borrowed_actuals)? {
+                path_calls.insert(local_call.site().clone());
+                local_calls.push(local_call);
+                locals.install_scalar_call_result(binding, SourceScalarKind::Bool);
+                continue;
+            }
         }
         // Qualified `Alias.m(..)` static calls live in the method-call
         // inventory — the package membership index admits only sealed

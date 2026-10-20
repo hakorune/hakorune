@@ -5,9 +5,24 @@ use crate::mir::resolved_value_profile::expression_plan::{
     ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 
-/// Lend the original Text result and input tuple, never Completion or an ABI.
-/// Once Text is selected, missing/refused actuals remain terminal refusals.
-pub(in crate::mir::normal_callable_semantic_package) fn source_text_result_arguments_v1(
+/// Same immutable Static result provenance; no entry, Home or ABI grant.
+#[derive(Debug, Clone)]
+pub(crate) struct StaticResultSourceLoanV1 {
+    source: Rc<StaticIncomingSourceV1>,
+    result: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1,
+}
+impl PartialEq for StaticResultSourceLoanV1 {
+    fn eq(&self, other: &Self) -> bool { self.result == other.result && Rc::ptr_eq(&self.source, &other.source) }
+}
+impl Eq for StaticResultSourceLoanV1 {}
+impl StaticResultSourceLoanV1 {
+    pub(crate) fn source(&self) -> &Rc<StaticIncomingSourceV1> { &self.source }
+    pub(crate) fn result(&self) -> crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 { self.result }
+}
+
+/// Lend the original Static Text/Bool result and input tuple, never an ABI.
+/// Once selected, missing/refused actuals remain terminal refusals.
+pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>, pending: &PendingBorrowedFormalActualsV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1], site: &OwnedExprSiteV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -20,7 +35,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_text_result_argum
     let catalog_text = ordinary_text_argument_source_v1(prepared, site, original.method_source())?.is_some();
     let completed_text = completed.and_then(|rows| rows.row(original.target_batch_slot()))
         .is_some_and(|row| row.borrow().corroborates_static_text_source_v1(selected, original));
-    if !catalog_text && !completed_text { return Ok(None); }
+    use crate::mir::callable_result_representation::{VerifiedCallableResultDispositionV1 as Result, VerifiedCallableResultRepresentationV1 as Representation};
+    use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+    let result = if matches!(original.source_result(), Result::ExactBool) {
+        // Instance callers need not have a general call-site row. The sealed
+        // target result is unconditional, as in project_unconditional_result;
+        // any retained call-site row must agree. Input and ABI checks follow.
+        if original.call_result_evidence().is_some_and(|row| row.static_target_key() != Some(original.target())
+            || row.result_representation() != Representation::ExactBool) { return Err(freeze("borrowed-static/core-source-identity")); }
+        Class::Bool
+    } else if catalog_text || completed_text { Class::Text } else { return Ok(None); };
     let original = Rc::clone(original);
     let reject = || freeze("borrowed-static/core-source-identity");
     let mut matches = contracts.iter().filter(|contract| contract.owner == original.callee_owner());
@@ -48,7 +72,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_text_result_argum
     if !Rc::ptr_eq(&identity.source, &original) { return Err(reject()); }
     validate_qualified_argument_sources_v1(prepared, pending, site, identity)?;
     Ok(Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceResult {
-        loan: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::OwnedText(original),
+        loan: crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Static(StaticResultSourceLoanV1 { source: original, result }),
         arguments: rows.ordered_arguments.clone(),
     }))
 }

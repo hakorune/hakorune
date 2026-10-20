@@ -588,6 +588,23 @@ rewritten key correspondence. Formal-only root/ordinal accessors return none
 for storage support, and generic Return composition cannot drop this LOCAL
 support. This grants neither a result ABI nor slot liveness: completed Text
 actuals, nonnull/Normal/Fault, holder/slot lifetime and final replay remain owed.
+The same retained Map key request selects the existing SourceInstance input
+phase before domain/Completion success. A Binding actual is admitted only at
+that exact original key ordinal/read and an opaque formal; it is not relabeled
+as a forwarded formal, Integer or Text. Completed reconstruction still requires
+the existing argument-expression callback and exact TextResidence frame/source
+validation. No legacy incoming row or result ABI is fabricated by this selection.
+The shared Static result source loan retains Text or Bool explicitly; Bool
+never acquires a Text Home or an I64/String initializer-expression frame.
+Its canonical target's unconditional ExactBool result is the source authority;
+an optional original call-site row must agree, but instance callers need not
+have that auxiliary row. The same ordered arguments, full input cohort and
+callee Completion still precede execution. The ordinary packet additionally
+requires ExactBool publication and the same source loan; the existing Bool
+writer and final consumers remain responsible for the physical result.
+Document publication passes that same retained final root into its existing
+Document-policy verifier, so original Text argument occurrences are replayed.
+Source-less callers retain their strict API and gain no inferred loans.
 
 A null bytes pointer is allowed at zero length (empty key); other regions must
 be non-null. Returned allocation failure records reason100 and leaves Empty; malformed UTF-8

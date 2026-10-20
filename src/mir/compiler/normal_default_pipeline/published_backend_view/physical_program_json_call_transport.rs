@@ -97,9 +97,9 @@ pub(super) fn encode_parameters(
                             );
                             if input.entry().borrowed_formal_domain_v1(ordinal, param.0).is_some_and(|domain| domain.text_only()) {
                                 use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
-                                let text_role = matches!(function.role(), Role::OrdinaryI64 { .. } | Role::OrdinaryText { .. })
+                                let text_role = matches!(function.role(), Role::OrdinaryI64 { .. } | Role::OrdinaryText { .. } | Role::OrdinaryBool { .. })
                                     || function.role().has_receiver()
-                                        && matches!(function.role(), Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. });
+                                        && matches!(function.role(), Role::OrdinaryUnit { .. });
                                 if !text_role {
                                     return Err(fault("borrowed-text/parameter-role"));
                                 }

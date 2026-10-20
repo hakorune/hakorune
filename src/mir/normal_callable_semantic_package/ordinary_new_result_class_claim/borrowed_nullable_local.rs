@@ -160,6 +160,11 @@ impl BorrowedNullableLocalSourceLoanV1 {
             BorrowedLocalSupportV1::MapSlot(map) => map.holder }
     }
     pub(crate) fn is_map_slot(&self) -> bool { matches!(self.support, BorrowedLocalSupportV1::MapSlot(_)) }
+    /// Original Map key correspondence only, never a Text or executable grant.
+    pub(crate) fn map_key_actual_v1(&self) -> Option<(u32, &OwnedExprSiteV1, BindingRefV1)> {
+        let BorrowedLocalSupportV1::MapSlot(map) = &self.support else { return None; };
+        Some((map.source.ordinal, &map.key.site, map.key.binding?))
+    }
     pub(crate) fn witnesses(&self) -> &[Rc<ResultOriginWitnessV1>] {
         &self.witnesses
     }

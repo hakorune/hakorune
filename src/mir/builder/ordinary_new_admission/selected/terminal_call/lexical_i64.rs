@@ -131,6 +131,7 @@ fn emit_lexical_i64_call(
         Some(InvokeCallResultKind::Bool) => match row {
             SourceLoan::Instance(instance)
                 if ledger.checked_local_scalar_call_result_v1(instance)? == InvokeCallResultKind::Bool => InvokeCallResultKind::Bool,
+            SourceLoan::Static { .. } => { row.validate_static(ledger)?; InvokeCallResultKind::Bool },
             _ => return Err(freeze("lexical-scalar/bool-source-missing")),
         },
         Some(kind @ InvokeCallResultKind::BorrowedNullableHandle { .. }) => match row {

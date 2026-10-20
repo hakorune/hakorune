@@ -40,6 +40,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       if ((text && integer) || (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
           (!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
            !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") &&
+           !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") && text) &&
            !(yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
              (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") ||
               hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool"))))))) return 0;
@@ -78,6 +79,8 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
             (!yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
              !((hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
                 hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") ||
+                (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
+                 yyjson_is_true(yyjson_obj_get(param, "text_view"))) ||
                 (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
               hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) &&
                yyjson_is_null(yyjson_obj_get(fn, "receiver")) &&

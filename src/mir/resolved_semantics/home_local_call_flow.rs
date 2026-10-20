@@ -229,7 +229,7 @@ impl LocalCallObservationV1 {
     }
 }
 
-pub(crate) use source_scalar_call::{LocalCallResultClassV1, LocalCallResultSourceV1, issue_source_expression_call_v1, issue_source_scalar_expression_call, issue_source_scalar_frame_call_v1};
+pub(crate) use source_scalar_call::{issue_static_bool_local_call_v1, LocalCallResultClassV1, LocalCallResultSourceV1, issue_source_expression_call_v1, issue_source_scalar_expression_call, issue_source_scalar_frame_call_v1};
 pub(super) use source_scalar_call::{issue_source_scalar_condition_call_v1, SourceScalarConditionCallV1};
 
 #[path = "home_local_source_scalar_call.rs"]

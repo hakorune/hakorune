@@ -33,13 +33,13 @@ pub(crate) enum LocalCallResultClassV1 {
 #[derive(Debug, Clone)]
 pub(crate) enum LocalCallResultSourceV1 {
     Scalar(crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1),
-    OwnedText(std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>),
+    Static(crate::mir::normal_callable_semantic_package::StaticResultSourceLoanV1),
 }
 impl PartialEq for LocalCallResultSourceV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Scalar(a), Self::Scalar(b)) => a == b,
-            (Self::OwnedText(a), Self::OwnedText(b)) => std::rc::Rc::ptr_eq(a, b),
+            (Self::Static(a), Self::Static(b)) => a == b,
             _ => false,
         }
     }
@@ -47,18 +47,18 @@ impl PartialEq for LocalCallResultSourceV1 {
 impl Eq for LocalCallResultSourceV1 {}
 impl LocalCallResultSourceV1 {
     pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
-        match self { Self::Scalar(loan) => loan.source().call_site(), Self::OwnedText(source) => source.call_site() }
+        match self { Self::Scalar(loan) => loan.source().call_site(), Self::Static(loan) => loan.source().call_site() }
     }
     pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
-        match self { Self::Scalar(loan) => loan.source().receiver_site(), Self::OwnedText(source) => source.method_source().receiver_site() }
+        match self { Self::Scalar(loan) => loan.source().receiver_site(), Self::Static(loan) => loan.source().method_source().receiver_site() }
     }
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
-        match self { Self::Scalar(loan) => loan.source().argument_sites(), Self::OwnedText(source) => source.argument_sites() }
+        match self { Self::Scalar(loan) => loan.source().argument_sites(), Self::Static(loan) => loan.source().argument_sites() }
     }
     pub(crate) fn result(&self) -> LocalCallResultClassV1 {
         match self {
             Self::Scalar(loan) => match loan.kind() { SourceScalarKind::Integer => LocalCallResultClassV1::I64, SourceScalarKind::Bool => LocalCallResultClassV1::Bool },
-            Self::OwnedText(_) => LocalCallResultClassV1::Text,
+            Self::Static(loan) => loan.result(),
         }
     }
 }
@@ -115,7 +115,8 @@ fn result_matches_source_v1(input: ResolvedFunctionLoweringInputV1<'_>, site: &O
 ) -> bool {
     let arity = match loan {
         LocalCallResultSourceV1::Scalar(loan) => loan.source().target().arity(),
-        LocalCallResultSourceV1::OwnedText(source) => {
+        LocalCallResultSourceV1::Static(loan) => {
+            let source = loan.source();
             if !input.function().method_call_source_v1(site.site())
                 .is_some_and(|method| std::sync::Arc::ptr_eq(method, source.method_source())) { return false; }
             source.target().arity()
@@ -237,7 +238,7 @@ pub(crate) fn issue_source_expression_call_v1<E>(
     let field_alias = match &loan {
         LocalCallResultSourceV1::Scalar(loan) if loan.kind() == SourceScalarKind::Integer =>
             loan.source().receiver_binding().ok().and_then(receiver_path),
-        LocalCallResultSourceV1::OwnedText(_) if matches!(source.root(),
+        LocalCallResultSourceV1::Static(loan) if loan.result() == LocalCallResultClassV1::Text && matches!(source.root(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }) => None,
         _ => return Ok(None),
@@ -246,4 +247,23 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         LocalCallDestinationV1::ExpressionValue, prior_homes, loan, arguments);
     observation.field_alias = field_alias;
     Ok(Some(Call::Ordinary(observation)))
+}
+
+/// Direct Static Bool Local uses the same result source and ordered Call proof.
+/// It never enters the I64/String initializer expression carrier.
+pub(crate) fn issue_static_bool_local_call_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1, declaration: SourceBindingSiteV1, destination: BindingRefV1,
+    prior_homes: &[LiveHomeV1],
+    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    let Some(BorrowedCallArgumentsV1::SourceResult { loan, arguments }) =
+        port(site, BorrowedCallActualRequestV1::SourceResultArguments)? else { return Ok(None); };
+    if !matches!(&loan, LocalCallResultSourceV1::Static(source) if source.result() == LocalCallResultClassV1::Bool)
+        || !result_matches_source_v1(input, site, &loan, &arguments)
+        || !lexical_local_call::corroborate_local_initializer_v1(input, statement, site, &declaration, destination, prior_homes)
+        || !lexical_local_call::corroborate_received_arguments_v1(input, site, &arguments) { return Ok(None); }
+    Ok(Some(result_observation_v1(input.owner(), statement, site,
+        LocalCallDestinationV1::LocalBinding { declaration, binding: destination }, prior_homes, loan, arguments)))
 }

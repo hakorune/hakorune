@@ -176,6 +176,7 @@ pub(crate) use lexical_instance_call::BorrowedCompareIntegerLiteralLoanV1;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareMaterializationV1;
 pub(crate) use lexical_instance_call::BorrowedCompareSourceLoanV1;
+pub(crate) use lexical_instance_call::StaticResultSourceLoanV1;
 pub(crate) use lexical_instance_call::{LexicalInstanceCallDispositionRowV1, BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1};
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedFormalDomainV1, BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,

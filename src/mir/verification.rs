@@ -88,6 +88,16 @@ impl MirVerifier {
         )
     }
 
+    /// Document policy still replays the original loans when publication has
+    /// retained them. Source-less document callers keep their strict old API.
+    pub(crate) fn verify_document_module_with_finalized_root(
+        &mut self,
+        module: &MirModule,
+        root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+    ) -> Result<(), Vec<VerificationError>> {
+        self.verify_module_with_call_edge_policy(module, invoke::CatalogedCallEdgePolicyV1::Document, root)
+    }
+
     /// Final source-bound gate; the pretransform report remains unchanged.
     pub(crate) fn verify_module_with_finalized_root(
         &mut self,

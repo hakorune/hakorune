@@ -565,7 +565,8 @@ impl OrdinaryNewClaimLedgerV1 {
             self.terminal_relations_for_owner(original.callee_owner()).iter().map(|relation|
                 matches!(relation, TerminalRelationV1::Value(value) if matches!(value.returned(),
                     TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::TextResidence { .. }))).collect::<Vec<_>>());
-        if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
+        if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString
+            | crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool)
             || self.checked_completed_static_text_result_v1(original)? {
             if original.is_zero_input_source_v1() {
                 self.checked_completed_static_zero_arguments_v1(original)?
