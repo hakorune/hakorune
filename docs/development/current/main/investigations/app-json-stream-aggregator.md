@@ -1,20 +1,20 @@
 # APP-json-stream-aggregator
 
-Status: Finite input connection landed; JSON Map result remains incomplete. Date: 2026-10-21
+Status: Borrowed result support normalized; JSON Map execution remains incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner355.919s. The earlier WIP regression was 5PASS/6FAIL; both new failures recover.
+  runner372.713s at support normalization; same app statuses as the finite-input change.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - The source-only scalar protocol is shared by old finishers and finite selection.
   mimalloc-lite and allocator-stress recover native EXE/output PASS individually and in suite.
 - JSON remains owner26 Body5 statsFor at lexical-instance-call/source-pending; no EXE.
-- Current CLI39.08s/runtime2.51s PASS; same C shared source/binary reused. Native
-  finite I64/Bool input probes exit7/6; wrong-domain inputs refuse before EXE.
-  Root build81s; concurrent app compilation means these are not comparable speed trends.
+- Support normalization CLI89s/root165s PASS; unchanged C/runtime pair reused.
+  Finite-input change native probes exit7/6 and wrong-domain rejection remain prior evidence;
+  no runtime or C ABI behavior was added in this normalization.
 
 ## Retained connected contracts
 - One FieldResidence census carries every Array/Dynamic field, including Empty,
@@ -64,14 +64,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   until slot ABI/lifetime closes. Unit Completion alone grants no receiver packet.
 
 ## Verification and retained reds
-- Static Bool Local in indexed object context: true/false EXEs exit7/3; parser,
-  Invoke42, Bool result2 previously PASS. Current publication1/prefix1/JSONsource1,
-  nullable2/stored2 PASS; existing cases/API reused without a new assertion.
-  Entry64PASS/2FAIL, actuals82/4, source33/8 match saved prior binary failures.
-  Borrowed-use27 and Invoke42 PASS; result23/1 remains owed.
-  All failures stay owed; no safety boundary or expected error was weakened.
+- Current Invoke42, nullable lender2 and original JSONsource1 PASS. Borrowed-result
+  publication2PASS/1FAIL and source-result49/3 exactly match the saved parent binary,
+  including failure diagnostics. Test inventory9263 unchanged; no case/assert added.
+- Finite-input change: entry64/2, actuals82/4, source33/8 unchanged; borrowed-use27,
+  owned-write/publication/prefix PASS. Static Bool Local native exits7/3 are prior evidence.
 - Prior Array15/2, publication3/1, result23/1, nullable publication2/1 remain owed.
-- Earlier physical/source/Fault checks remain in Git; zero/ignored filters excluded.
 - Prior Map/scalar Fault4 + mixed-Array Fault2: exit70/Fault101/reclaim and
   first-store candidate release checked with prior frozen pair; no red waived.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
@@ -79,12 +77,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 
 ## Next and full completion limits
 
-- LANDED: Scalar/SUM Bool, shared finite input/reference, final binding/Copy
-  scans and C Bool view verified; no new test/assert/checker. All original roots and
-  independent module/published use scans remain tracked; Bool is never an I64 view.
-- Existing Static scalar membership wins by source, not completed-proof success.
-  Old duplicate membership predicate is removed; completion/actual checks remain.
-- Next: statsFor Map slot result ABI/lifetime connection. No implementation WIP remains.
+- LANDED: finite input/reference and C Bool view; roots/both scans retained, no Bool-to-I64 grant or new test/assert/checker.
+- Original Static scalar membership shared; duplicate predicate removed, actual/completion checks retained.
+- LANDED: result kind/physical role share Formal or ReceiverFieldSlot support; JSON has one encoder and unchanged Formal wire.
+  Map remains SourcePending until physical get/set Normal/Return/lifetime closes.
+- Next get: reuse the same FieldMapReceiverSource and passive Text-key projection
+  with original Present get; do not relabel it as Has/Bool or literal-key I64.
+- Next set: reuse TransferHome Normal delta and InstallIndexed/EndOutcome cleanup;
+  after commit retain a slot-supported payload, never the old candidate Home.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
   Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently, not copy input Home. Provided Box,

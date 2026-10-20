@@ -251,7 +251,7 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
     );
     assert!(ledger.take_receiver_object_packet_v1(call.owner(), call.site(), target.target()).unwrap().is_none());
     let row = ledger.take_lexical_instance_call(call.owner(), call.site()).unwrap().unwrap();
-    let expected = crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: loan.callee_ordinal().unwrap() };
+    let expected = crate::mir::instruction::InvokeCallResultKind::borrowed_nullable_formal(loan.callee_ordinal().unwrap());
     assert_eq!(row.result(), Some(expected));
     assert_eq!(ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap(), expected);
     assert!(!ledger.uses_object_packet_protocol_v1(&row).unwrap());

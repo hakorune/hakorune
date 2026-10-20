@@ -588,6 +588,15 @@ rewritten key correspondence. Formal-only root/ordinal accessors return none
 for storage support, and generic Return composition cannot drop this LOCAL
 support. This grants neither a result ABI nor slot liveness: completed Text
 actuals, nonnull/Normal/Fault, holder/slot lifetime and final replay remain owed.
+Borrowed Call results separate the non-owning payload kind from its support:
+`Formal(ordinal)` or `ReceiverFieldSlot(field, key_ordinal, object)`. The latter
+projects the SAME original Map slot loan; its Text-key ordinal is not a payload
+formal, and its holder is not the payload's nominal class. Physical roles retain
+this same relation. Declaration and Call JSON share one support encoder; the
+current C contract accepts only Formal and explicitly refuses storage support.
+A descriptor alone grants no completed get/set Normal transfer, Home, liveness,
+Return producer or Ready slot. Those original execution and final-consumer
+obligations must close before a storage-supported Call is admitted.
 Finite entry source uses one original SUM for Text, signed I64, Bool and Null.
 Scalar seeds retain their exact kind; Bool literals and canonical ExactBool
 results remain Bool through Forward/Join, never Integer or an object view.

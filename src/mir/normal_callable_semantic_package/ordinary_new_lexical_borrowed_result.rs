@@ -23,8 +23,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = row.source_target();
         let loan = source.borrowed_nullable_local_source()
             .ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
-        let ordinal = loan.callee_ordinal().ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
-        let kind = InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: ordinal };
+        let support = loan.result_support_v1();
+        let ordinal = support.formal_ordinal().ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+        let kind = InvokeCallResultKind::BorrowedNullableHandle { support };
         let roots = self.callable_result_classes.checked_original_source_roots_v1(source.target(), source.callee_owner())
             .map_err(|issue| freeze(issue))?;
         self.callable_result_classes.check_borrowed_nullable_roots_v1(loan, &roots)
@@ -74,7 +75,8 @@ impl OrdinaryNewClaimLedgerV1 {
             let loan = source.borrowed_nullable_local_source().ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
             // A Map source has no formal result ABI. Keep its same source slot
             // pending until the storage-supported physical result law closes.
-            let Some(ordinal) = loan.callee_ordinal() else { continue; };
+            let support = loan.result_support_v1();
+            let Some(_) = support.formal_ordinal() else { continue; };
             self.callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected, &self.field_write_claims, contracts, loan, self.app_main_caller_source_ref_v1())
                 .map_err(|issue| freeze(issue))?;
             let Some(arguments) = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
@@ -91,7 +93,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || signature.source_logical_arity() != source.target().arity() || signature.receiver_lane_count() != 1
             { return Err(freeze("borrowed-nullable-call/contract-signature-drift")); }
             let row = LexicalInstanceCallDispositionRowV1 {
-                source: source.clone(), result: Some(InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: ordinal }),
+                source: source.clone(), result: Some(InvokeCallResultKind::BorrowedNullableHandle { support }),
                 scalar_result: None, unit_completion: None, borrowed_completion: Some(Rc::<VerifiedFunctionCompletionV1>::clone(completion)), object_packet: None, mixed_result: None,
             };
             self.corroborate_borrowed_nullable_call_v1(&row)?;

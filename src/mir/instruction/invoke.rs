@@ -79,6 +79,28 @@ pub enum FaultFrameMode {
     Borrowed,
 }
 
+/// Logical support for a non-owning object result. This descriptor contains
+/// no runtime value, acquired Home, or source admission. The selected producer
+/// and both physical consumers must independently prove the same relation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BorrowedResultSupportV1 {
+    /// Null or the original logical non-receiver argument.
+    Formal(u32),
+    /// The receiver's exact Map field owns the payload at this Text-key
+    /// argument. The key is not a payload formal; holder and payload differ.
+    ReceiverFieldSlot {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        key_ordinal: u32,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
+}
+impl BorrowedResultSupportV1 {
+    /// Formal-only consumers must explicitly decline storage-supported results.
+    pub fn formal_ordinal(self) -> Option<u32> {
+        match self { Self::Formal(ordinal) => Some(ordinal), Self::ReceiverFieldSlot { .. } => None }
+    }
+}
+
 /// Physical result projection; never source admission or inferred from a name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InvokeCallResultKind {
@@ -99,12 +121,18 @@ pub enum InvokeCallResultKind {
     /// object when non-null and owes a checked release — never the
     /// unconditional `Handle` contract.
     NullableHandle,
-    /// Null or the original argument at this logical (non-receiver) ordinal.
-    /// The caller retains ownership; this result creates no Home or lease.
-    BorrowedNullableHandle { formal_ordinal: u32 },
+    /// Non-owning payload with its independently retained lifetime support.
+    /// This result creates no Home or lease.
+    BorrowedNullableHandle { support: BorrowedResultSupportV1 },
     /// Same Normal value carries a source-issued Null/Fresh/Forward outcome.
     /// Non-null does not establish ownership; Forward borrows this actual.
     MixedHandle { formal_ordinal: u32 },
+}
+
+impl InvokeCallResultKind {
+    pub const fn borrowed_nullable_formal(formal_ordinal: u32) -> Self {
+        Self::BorrowedNullableHandle { support: BorrowedResultSupportV1::Formal(formal_ordinal) }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -145,9 +145,18 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(crate) fn callee_owner(&self) -> FunctionOwnerIdV1 {
         self.callee_owner
     }
+    /// Project the SAME original support without completing its physical ABI.
+    pub(crate) fn result_support_v1(&self) -> crate::mir::instruction::BorrowedResultSupportV1 {
+        use crate::mir::instruction::BorrowedResultSupportV1 as Support;
+        match &self.support {
+            BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. } => Support::Formal(*callee_ordinal),
+            BorrowedLocalSupportV1::MapSlot(map) => Support::ReceiverFieldSlot {
+                field: map.source.receiver.field(), key_ordinal: map.source.ordinal, object: map.source.object,
+            },
+        }
+    }
     pub(crate) fn callee_ordinal(&self) -> Option<u32> {
-        match &self.support { BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. } => Some(*callee_ordinal),
-            BorrowedLocalSupportV1::MapSlot(_) => None }
+        self.result_support_v1().formal_ordinal()
     }
     /// The old payload-formal root exists only on the formal-forward lane.
     pub(crate) fn root(&self) -> Option<BindingRefV1> {

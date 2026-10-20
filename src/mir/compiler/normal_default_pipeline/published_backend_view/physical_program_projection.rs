@@ -206,9 +206,9 @@ impl<'module> PublishedMirBackendView<'module> {
             }
             let receiver_object = object_identity::ordinary_receiver_object(self.module(), key)?;
             let role = match result {
-                InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal } =>
+                InvokeCallResultKind::BorrowedNullableHandle { support } =>
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle {
-                        key: key.clone(), receiver_object, formal_ordinal: *formal_ordinal,
+                        key: key.clone(), receiver_object, support: *support,
                         returns: object_returns.expect("same result branch projected original Returns"),
                     },
                 InvokeCallResultKind::MixedHandle { formal_ordinal } =>

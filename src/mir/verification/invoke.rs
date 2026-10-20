@@ -369,7 +369,7 @@ fn check_function_inner(
                 };
                 let valid = match (&call.callee, result) {
                     (Callee::BirthConstructor { .. }, ResultKind::Unit) => true,
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { formal_ordinal }
+                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }
                         | ResultKind::MixedHandle { formal_ordinal }) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len() && *formal_ordinal < key.arity()

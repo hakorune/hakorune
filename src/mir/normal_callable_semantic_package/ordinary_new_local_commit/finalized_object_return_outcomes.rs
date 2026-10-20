@@ -66,7 +66,7 @@ impl FinalizedObjectReturnOutcomeV1 {
         if result != self.result { return Err(freeze("object-return/physical-result")); }
         let ordinal = match result {
             InvokeCallResultKind::MixedHandle { formal_ordinal }
-            | InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal } => formal_ordinal,
+            | InvokeCallResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) } => formal_ordinal,
             InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle => {
                 if !matches!(self.origin, FinalizedObjectReturnOriginV1::Fresh { .. }
                     | FinalizedObjectReturnOriginV1::OwnedCall { .. })
@@ -167,9 +167,7 @@ impl FinalizedRootSourceHandoffV1 {
             if source.target() != key
                 || source.callee_owner() != loan.callee_owner()
                 || row.result()
-                    != Some(InvokeCallResultKind::BorrowedNullableHandle {
-                        formal_ordinal: loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))?,
-                    })
+                    != Some(InvokeCallResultKind::borrowed_nullable_formal(loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))?,))
             {
                 return Err(freeze("borrowed-return/original-contract"));
             }
@@ -263,7 +261,7 @@ impl FinalizedRootSourceHandoffV1 {
                 };
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
-                    result: InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))? },
+                    result: InvokeCallResultKind::borrowed_nullable_formal(loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))?),
                     returned, origin, transport, field_supports: Box::new([]),
                 };
                 if let Some(prior) = outcomes.iter().find(|prior: &&FinalizedObjectReturnOutcomeV1| prior.returned.0 == outcome.returned.0) {
@@ -396,7 +394,7 @@ impl FinalizedRootSourceHandoffV1 {
                         let invoke = checked_projection(function, projection, invoke)?;
                         let producer = checked_projection(function, projection, producer)?;
                         if !matches!(invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
-                            result: InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal }, .. }, .. }
+                            result: InvokeCallResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }, .. }, .. }
                             if Some(formal_ordinal) == borrowed.callee_ordinal()) {
                             return Err(freeze("mixed-return/borrowed-call-contract"));
                         }

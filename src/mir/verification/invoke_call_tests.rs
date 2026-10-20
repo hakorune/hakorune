@@ -85,7 +85,7 @@ fn same_module_instance_call_preserves_result_class_and_source_arity() {
     for (result_kind, normal_kind) in [
         (ResultKind::I64, InvokeNormalResultKind::I64),
         (ResultKind::Bool, InvokeNormalResultKind::Bool),
-        (ResultKind::BorrowedNullableHandle { formal_ordinal: 0 }, InvokeNormalResultKind::BorrowedNullableHandle),
+        (ResultKind::borrowed_nullable_formal(0), InvokeNormalResultKind::BorrowedNullableHandle),
         (ResultKind::MixedHandle { formal_ordinal: 0 }, InvokeNormalResultKind::MixedHandle),
     ] {
         let mut function = call_function();
@@ -121,7 +121,7 @@ fn same_module_instance_call_preserves_result_class_and_source_arity() {
         assert_eq!(operation.normal_result_kind(), Some(normal_kind));
         if matches!(result_kind, ResultKind::BorrowedNullableHandle { .. } | ResultKind::MixedHandle { .. }) {
             for invalid in [1, u32::MAX].map(|formal_ordinal| match result_kind {
-                ResultKind::BorrowedNullableHandle { .. } => ResultKind::BorrowedNullableHandle { formal_ordinal },
+                ResultKind::BorrowedNullableHandle { .. } => ResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) },
                 ResultKind::MixedHandle { .. } => ResultKind::MixedHandle { formal_ordinal },
                 _ => unreachable!(),
             }) {

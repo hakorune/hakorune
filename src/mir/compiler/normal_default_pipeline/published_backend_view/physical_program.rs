@@ -95,7 +95,7 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     OrdinaryBorrowedNullableHandle {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
-        formal_ordinal: u32,
+        support: crate::mir::instruction::BorrowedResultSupportV1,
         returns: Box<[FinalizedObjectReturnOutcomeV1]>,
     },
 }
@@ -169,7 +169,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryHandle { .. } => Some(InvokeCallResultKind::Handle),
             Self::OrdinaryNullableHandle { .. } => Some(InvokeCallResultKind::NullableHandle),
             Self::OrdinaryMixedHandle { formal_ordinal, .. } => Some(InvokeCallResultKind::MixedHandle { formal_ordinal: *formal_ordinal }),
-            Self::OrdinaryBorrowedNullableHandle { formal_ordinal, .. } => Some(InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: *formal_ordinal }),
+            Self::OrdinaryBorrowedNullableHandle { support, .. } => Some(InvokeCallResultKind::BorrowedNullableHandle { support: *support }),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }

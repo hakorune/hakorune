@@ -582,9 +582,9 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle {
                                 key: key.clone(), receiver_object, formal_ordinal, returns: rows.into(),
                             },
-                        crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal } =>
+                        crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { support } =>
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle {
-                                key: key.clone(), receiver_object, formal_ordinal, returns: rows.into(),
+                                key: key.clone(), receiver_object, support, returns: rows.into(),
                             },
                         _ => panic!("exact original object result"),
                     };
@@ -605,7 +605,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                         let changed = match result {
                             crate::mir::instruction::InvokeCallResultKind::MixedHandle { .. } =>
                                 crate::mir::instruction::InvokeCallResultKind::MixedHandle { formal_ordinal: 1 },
-                            _ => crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: 1 },
+                            _ => crate::mir::instruction::InvokeCallResultKind::borrowed_nullable_formal(1),
                         };
                         assert!(row.validate_physical_function_v1(function, changed, true)
                             .unwrap_err().contains("object-return/physical-result"),
@@ -619,8 +619,9 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                     }
                     let mut wrong_ordinal = issued.role().clone();
                     match &mut wrong_ordinal {
-                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle { formal_ordinal, .. }
-                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle { formal_ordinal, .. } => *formal_ordinal = 99,
+                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle { formal_ordinal, .. } => *formal_ordinal = 99,
+                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle { support, .. } =>
+                            *support = crate::mir::instruction::BorrowedResultSupportV1::Formal(99),
                         _ => unreachable!(),
                     }
                     assert!(physical::issue_function_with_module(Some(view.module()), function, wrong_ordinal, false, &calls, Some(view)).is_err());
@@ -715,7 +716,7 @@ fn owned_call_results_publish_original_child_handle_contracts() {
 
                 let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("HakoAllocPage", "resizeInPlace", 2);
                 let rows = source.borrowed_nullable_return_projections_v1(view.module(), &key)?;
-                let retained_role = retain(&key, &rows, crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: 0 })?;
+                let retained_role = retain(&key, &rows, crate::mir::instruction::InvokeCallResultKind::borrowed_nullable_formal(0))?;
                 assert_eq!(rows.len(), 8, "seven explicit null exits and one nullable formal Return");
                 let origins: std::collections::BTreeSet<_> = rows.iter().map(|row| row.origin_name()).collect();
                 assert_eq!(origins, std::collections::BTreeSet::from(["null", "borrowed_formal"]));

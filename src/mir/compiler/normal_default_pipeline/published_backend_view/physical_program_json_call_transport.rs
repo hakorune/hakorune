@@ -252,10 +252,7 @@ pub(super) fn encode_ordinary_call(
         if result_kind != InvokeCallResultKind::OwnedString { return Err(fault("ordinary-argument-kind")); }
         wire["text_argument_cleanup"] = json!(text_argument_cleanup.iter().map(|value| value.0).collect::<Vec<_>>());
     }
-    if let InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal }
-        | InvokeCallResultKind::MixedHandle { formal_ordinal } = result_kind {
-        wire["result_formal_ordinal"] = json!(formal_ordinal);
-    }
+    encode_result_support_v1(result_kind, &mut wire)?;
     Ok(wire)
 }
 
@@ -458,3 +455,17 @@ fn encode_borrowed_actual_kind(source: &Source) -> Result<Value, String> {
 #[cfg(test)]
 #[path = "physical_program_json_borrowed_transport_tests.rs"]
 mod borrowed_transport_tests;
+
+/// Both declaration and Call encode the SAME support law. The current C
+/// consumer accepts formal forwarding only; storage is never omitted or
+/// relabelled as a formal while its physical/lifetime contract is unfinished.
+pub(super) fn encode_result_support_v1(result: InvokeCallResultKind, wire: &mut Value) -> Result<(), String> {
+    let ordinal = match result {
+        InvokeCallResultKind::MixedHandle { formal_ordinal } => Some(formal_ordinal),
+        InvokeCallResultKind::BorrowedNullableHandle { support } => Some(support.formal_ordinal()
+            .ok_or_else(|| fault("borrowed-result/source-missing"))?),
+        _ => None,
+    };
+    if let Some(ordinal) = ordinal { wire["result_formal_ordinal"] = json!(ordinal); }
+    Ok(())
+}

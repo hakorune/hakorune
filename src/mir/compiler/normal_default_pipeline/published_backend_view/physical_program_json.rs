@@ -98,11 +98,8 @@ pub(super) fn emit_lifecycle_physical_program_value(
                 "entry": function.entry().0,
                 "blocks": blocks,
             });
-            match function.role().ordinary_result() {
-                Some(InvokeCallResultKind::MixedHandle { formal_ordinal }
-                    | InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal }) =>
-                    wire["result_formal_ordinal"] = json!(formal_ordinal),
-                _ => {},
+            if let Some(result) = function.role().ordinary_result() {
+                call_transport::encode_result_support_v1(result, &mut wire)?;
             }
             Ok(wire)
         })
