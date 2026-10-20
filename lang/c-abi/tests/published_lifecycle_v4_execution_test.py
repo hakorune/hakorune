@@ -389,7 +389,9 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
     bad_add = copy.deepcopy(copied)
     row = next(r["instruction"] for b in bad_add["functions"][1]["blocks"] for r in b["instructions"]
                if r["instruction"]["op"] == "copy")
-    row.update(op="add", lhs=row.pop("src"), rhs=bad_add["functions"][1]["params"][0]["value"])
+    # TAGGED integer arithmetic has an explicit kind guard. A defined Home
+    # receiver is never an arithmetic operand, even beside that guarded formal.
+    row.update(op="add", lhs=row.pop("src"), rhs=bad_add["functions"][1]["receiver"])
     malformed_inputs.append(bad_add)
     for data in malformed_inputs:
         compile_input(data, False)
