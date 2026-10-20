@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-設計監査は既存structure queueへ統合。goalは停止、再開許可まで実装/buildを進めない。
-APP-json-stream-aggregator: WIP CLIでadd field RHS/Bool条件を越え、owner26 statsFor source-pending。
-Scalar/SUM Bool・finite入力・共通参照・C Bool viewの38パスを未commit保持。詳細はcard。
-CLI40.80s/C構文PASS。現WIP root test/runtime/FFI実ビルド/suite未実行。直近commit suite7/4。
-再開時はWIP focused検証と最終Rust operand使用の接続、Map slot ABI/lifetime。goal未完。
+ユーザーの設計相談で実装・build停止。APP-json-stream-aggregatorのWIPを保持。
+JSONはowner26 statsFor source-pending。Map slot result ABI/lifetimeは未接続。
+最新WIP suite5PASS/6FAIL（実EXE4＋空marker1）。mimalloc/allocatorの新規回帰は未修正。
+CLI56.36s/runtime6.47s、Bool入力EXE exit7/6。focused既知赤はcardへ保持。
+再開後は既存source ownerとFiniteInput選択の競合を修正しsuite回復、その後Map接続。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"

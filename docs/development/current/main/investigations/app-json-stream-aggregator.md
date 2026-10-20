@@ -1,21 +1,21 @@
 # APP-json-stream-aggregator
 
-Status: User-requested pause for design discussion; JSON WIP retained. Date: 2026-10-21
+Status: Paused for user-requested design review; implementation WIP retained. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
 
-- Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner324.680s at committed receiver-source change; current WIP suite not run.
+- Latest WIP fixed suite: 5PASS/6FAIL, actual EXE4 + empty marker1, no SKIP/timeout,
+  runner92.856s. Committed receiver-source baseline was 7PASS/4FAIL (EXE6 + marker1).
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- WIP CLI: JSON stops owner26 Body5 statsFor at lexical-instance-call/source-pending;
-  add field RHS/Bool condition and original Scalar actual-use census connect. No EXE.
-- CLI build40.80s and C syntax-only PASS. WIP root tests, C shared library, runtime
-  and suite unrun; prior checks are not WIP evidence. Other reds remain unchanged.
+- New WIP regressions: mimalloc-lite and allocator-stress both refuse MIR at
+  borrowed-entry/source-use-completion-pending, owner19. Their EXEs are not generated.
+- JSON remains owner26 Body5 statsFor at lexical-instance-call/source-pending; no EXE.
+- WIP CLI56.36s/runtime6.47s and C shared build PASS. Native finite I64/Bool input
+  probes execute exit7/6; these do not prove Map slot ABI or whole-app completion.
 
 ## Retained connected contracts
-
 - One FieldResidence census carries every Array/Dynamic field, including Empty,
   through End/Invoke/publication. Whole reverse declaration drain precedes outer
   End; exact slot cannot stand in for Dynamic, no subset/reused-lifetime credit.
@@ -40,7 +40,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   finite input alone grants no result class, Text stays separate.
 
 ## Current source connection
-
 - Result PassB retains SAME field/constructor/entry before SUM. Array/Map share
   the original whole field-use walk; Array keeps selector/i64 policy. All original
   declarations/Birth, aliases/escape/foreign/captured uses and mutators are closed.
@@ -64,11 +63,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   until slot ABI/lifetime closes. Unit Completion alone grants no receiver packet.
 
 ## Verification and retained reds
-
 - Static Bool Local in indexed object context: true/false EXEs exit7/3; parser,
   Invoke42, Bool result2 previously PASS. Current publication1/prefix1/JSONsource1,
   nullable2/stored2 PASS; existing cases/API reused without a new assertion.
-  Actuals82PASS/4FAIL unchanged; result23/1 reproduced with saved prior binary.
+  Entry64PASS/2FAIL, actuals82/4, source33/8 match saved prior binary failures.
+  Borrowed-use27 and Invoke42 PASS; result23/1 remains owed.
   All failures stay owed; no safety boundary or expected error was weakened.
 - Prior Array15/2, publication3/1, result23/1, nullable publication2/1 remain owed.
 - Earlier physical/source/Fault checks remain in Git; zero/ignored filters excluded.
@@ -79,12 +78,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 
 ## Next and full completion limits
 
-- PAUSED: 38 implementation/doc paths kept uncommitted; no new test/assert/checker.
-  WIP normalizes Scalar/SUM Bool, shared finite input and Assignment/condition
-  references, plus C Bool view schema/producer/prologue. No legacy Integer/Object grant.
-- Resume: review/focused-verify WIP; final Rust operand scans must retain exact
-  source-owned Field RHS/Bool prefix+outer coordinates and every tracked operand.
-  Do not drop scalar roots by domain; C Bool view still needs execution validation.
+- PAUSED: retained implementation WIP; no new test/assert/checker. Scalar/SUM Bool,
+  finite input, shared references, final binding/copy scans and C Bool view are unlanded.
+- First after explicit resume: fix source-owner selection before adding Map support.
+  FiniteInput currently runs before existing source-only Static scalar/Bool/mixed owners.
+  Preserve source-protocol priority; never choose by completed-proof success or retry.
+  Owner19 function identity remains unconfirmed. Then verify both regressed smokes and
+  fixed suite; do not commit this WIP as validated while the regressions remain.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,
   Fault cleanup, complete UserStats End and users.push execution remain mandatory.
 - UserStats Text must materialize independently, not copy input Home. Provided Box,

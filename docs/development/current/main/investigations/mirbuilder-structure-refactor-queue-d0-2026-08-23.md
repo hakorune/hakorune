@@ -1,7 +1,7 @@
-Status: reviewed simplification direction; implementation unselected, user pause retained
+Status: reviewed simplification direction; execution selection belongs to CURRENT_STATE
 Date: 2026-10-21
 Parent: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml)
-Current row: APP-json-stream-aggregator; this queue does not resume implementation
+Current app: see CURRENT_STATE; this queue does not resume implementation
 
 # MirBuilder structure refactor queue D0
 
@@ -17,6 +17,8 @@ read-only照合した。対象はHEAD `78363aa24d` と停止中のFiniteInput WI
 Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲は
 [app card](app-json-stream-aggregator.md)に従う。
 型名・行数の全repo再集計は行っていない。
+同日の再依頼では2 workerで再照合し、下記のsource protocol選択条件を補足した。
+新しいbuildは行わず、app cardには前回実装中に得たWIP検証結果を反映した。
 
 [final pipeline](../design/mirbuilder-final-pipeline-ssot.md#four-stage-reading-view)
 に4段の読み方を集約する。Resolve/Facts/Recipe/Verifyの意味上の境界は保持し、
@@ -29,7 +31,7 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
 | --- | --- |
 | sema → lower → seal → verify | 説明・責務整理として採用。sema内にsource解析と検証済み論理計画を保持し、最終verifyで生成物を検査する。 |
 | 名前の型がgrepで0件だから段が未実装 | 不成立。`VerifiedSourceLoopRecipeProductV2`は既にsource、typed Recipe、Join、scheduleを束ねる。全関数への適用完了は別途必要。 |
-| 呼び出しの直積を共通Callへ | 採用方向。canonical target、receiverの由来、入力mode、result、effect/lifetimeを別の軸として組み合わせる。Tyだけでborrowed/owned/Map-heldを同一視しない。 |
+| 呼び出しの直積を共通Callへ | 採用方向。canonical target、receiverの由来、入力mode、result、effect/lifetimeを別の軸として組み合わせる。Lexicalは参照形、StoredChild/MapSlotは支持元、Static/Instanceはtarget側なので一つの排他的receiver enumへ潰さない。Tyだけでborrowed/owned/Map-heldを同一視しない。 |
 | 型検査1回、Recipeと再照合を廃止 | sourceの意味判定の一元化は採用。評価順・短絡・Join・Normal/Faultを定める計画責務は残す。immutable productの同じ証明を借り、再構築や全graph再検証を減らす。 |
 | ownershipを1pass、Call/ReturnにEnd列 | 不十分。各operation/edgeの取得済みprefix、scope、commit前後、Normal/Fault transferとcleanupが必要。1 ownerは1巨大ファイルや1物理passを意味しない。 |
 | Loopをcondition/body/flags/carrier集合へ | 共通structured productは採用。zero-trip/Backedge/Continue/Break/Return/After別のpayloadとcleanupを残す。構文観測の統合とSCC固定点の廃止は別。 |
@@ -44,7 +46,9 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
   共通操作はここへ寄せ、異なるownership支持元とaffine publicationは保持する。
 - [finite input entry][entry]は全incoming、元formal/uses、SUM、vetoを検査する。
   現WIPのFiniteInputと[共通reference][reference]は形別の重複を減らす方向に沿う。
-  未検証のWIPであり、Map slot ABIや実EXE成功の証拠にはしない。
+  ただし新FiniteInputが既存source-only Static ownerより先に選択される競合がある。
+  WIP suiteは5PASS/6FAILでmimalloc/allocatorが回帰。共通化の完了とは扱わない。
+  元source protocolの所属と選択順を保持し、proof未完を別issuerへの迂回条件にしない。
 - [Loop product][loop-product]の`produce_source_loop_recipe_v2`はsource検証、
   execution、typed Recipe、Join closure、incoming、scheduleを接続する。
   [Loop lifecycle][loop-lifecycle]は各operationのFaultと途中取得を保持する。
@@ -64,13 +68,14 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
 ## 2026-10-17 semantic package and packet follow-up
 
 既存リンクとtask ownerを維持する。以下は2026-10-21の調査を反映した統合queue。
-ユーザーの実装再開許可までは全て実行しない。再開後もCSTATEは一つのappを選ぶ。
+このqueueは実装の選択や再開を指示しない。実行状態はCSTATEとユーザー指示に従い、
+実装時はCSTATEの一つのappに必要な範囲を選ぶ。
 内部手順ごとのrow/card、checker、台帳、新規testファイルは作らない。
 
 | 順序・既存owner | 最初の範囲 / 開始条件 | 完了と削除 |
 | --- | --- | --- |
-| 現APP-json-stream-aggregator | 再開後、停止中FiniteInput WIPを既存focused検証で確認し、共通referenceからField RHS/Boolの最終operand検証へ接続。その後statsForのMap slot result ABI/lifetimeを閉じる。 | 新規形別分類器を足さずsource→生成物を接続。既存smokeの実EXE/output/exitを確認。置換済みの専有relayは同seriesで削除。全体rewriteをappの前提にしない。 |
-| `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | 次に必要なowner境界で、共通source query、入力domain、Call/ownership計画、physical投影の実責務を分ける。まず現appが使う共通入力/referenceから。 | 一つの意味判定・一つのwriter。単なるkind×stageの機械分割を避け、重複した分類・探索・wrapperと専有adapterを実際に減らす。移動行と削除行を別記。 |
+| 現APP-json-stream-aggregator | 再開後、FiniteInputと既存source-only ownerの選択競合を先に修正。mimalloc/allocatorと固定suiteを回復してからstatsForのMap slot result ABI/lifetimeを閉じる。 | 新規形別分類器を足さずsource→生成物を接続。既存smokeの実EXE/output/exitを確認。置換済みの専有relayは同seriesで削除。全体rewriteをappの前提にしない。 |
+| `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | 次に必要なowner境界で、共通source query、入力domain、Call/ownership計画、physical投影の実責務を分ける。まず現appが使う共通入力/referenceから。 | 一つの意味判定・一つのwriter。元source protocolの選択優先を保ち、証明成功によるissuer切替をしない。単なるkind×stageの機械分割を避け、重複した分類・探索・wrapperと専有adapterを実際に減らす。移動行と削除行を別記。 |
 | `MIRBUILDER-PACKET-DISPATCH-COHESION-D0` | 必要なkind拡張時に、同じ操作を繰り返すmatchを一つのownerへ寄せる。既存Call packetを核にtable/private methods/sealed abstractionを比較。 | 正当な段別exhaustive checkと独立final consumerは維持。旧dispatch callerを切替え、不要なexclusive dispatchを削除。trait/table採用自体を完了にしない。 |
 | Call/M7-S → R7 → M8 | 固定製品acceptance後の最初の整理候補は、共有Compatibility一族のcaller切替・停止と専有dead code退役。既に置換済みの局所edgeは全suite待ちにしない。 | 利用root・feature・schema/reader・保持すべき検証を確認し、対象familyだけ削除。既存focused＋必要suiteを通す。未判定候補は一括削除せず、次の利用判定を同じownerに残す。 |
 | M8内の診断整理 | 最初の削除familyと共通Call ownerが確定したら、そのownerの既存診断だけを構造化。全freezeの機械置換を先行させない。 | category＋元reason＋source位置を保持。既存negative境界、必要な互換Display、release拒否が同じ。不要formatter/relayを削除。分類数は実例で決める。 |
