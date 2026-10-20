@@ -1,5 +1,5 @@
 # APP-json-stream-aggregator
-Status: Native field-entry install shares complete End/Outcome; source Text Birth and Map publication remain incomplete. Date: 2026-10-21
+Status: Original Birth store uses survive execution ineligibility; source Text Birth and Map publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
@@ -9,7 +9,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON passes statsFor Body3 users.push source qualification and now stops at
   owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
-  No MIR/EXE. root/CLI unchanged; new runtime7.08s build, existing native C cohort2 profiles PASS; FieldHas EXE exit7. Suite not rerun.
+  No MIR/EXE. CLI37.34s/root73s; runtime unchanged from native install. FieldHas EXE exit7. Suite not rerun.
 - ABI-only Text append12 Normal/Fault runs (borrowed/direct static/owned, empty,
   Unicode/NUL) and malformed9 refusals PASS; source-backed final publication/EXE remain owed.
 
@@ -63,7 +63,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Checked Array9/root Array53 PASS; runtime7.04s/root62s builds. Two existing
   cases cover Text copy/lease/domain/End; existing descriptor/JSON cases cover new source boundaries. No new test
   function/file/hook/checker/guard/card; root inventory9263 retained.
-- Current 20 filters match parent diagnostics: result49/3, entry64/2, actuals82/4, source33/8, arguments12/1; Invoke42/JSON-source1/Map13/flow20/read5/Script3/scope3/ingress1/order5 plus named-array/source/state PASS; read-claim7/2 unchanged. Inventory9263 unchanged.
+- Current 21 filters match parent diagnostics: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8, arguments12/1; Invoke42/JSON-source1/Map13/flow20/read5/Script3/scope3/ingress1/order5 plus named-array/source/state PASS; read-claim7/2 unchanged. Inventory9263 unchanged.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep original source/physical contracts.
 
@@ -84,8 +84,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   ABI keeps source kind or full descriptor at exact coordinates, SSA/lifetime checks.
   C shares descriptor/Array writers; numeric native and existing End remain strict.
 - LANDED source get: SAME terminal/get Arc, own receiver read and passive Text key reach shared root ingress/cleanup; get Return records in real selected Instance scope. Existing scope case extends this independent source→writer boundary; no new test function/file/hook. ABI-only runs8/refusals9 retained; current FieldHas EXE exit7.
-- Existing JSON scope case now requires one get, one Text append and both Return records, with draft completion. This independently covers source→Text writer; no new test function/file/hook. Text final-publication positive remains owed.
-- Next: source SUM→SAME Birth source/formal→late qualified plan, borrowed Text actual→Materialize→Dynamic initialize and committed-prefix cleanup; then original Map FieldInstall/candidate/EndOutcome and Return/Call publication. Complete Text End remains; full JSON source-pending.
+- Existing JSON scope case requires get/Text append/both Returns. Existing original-source case additionally checks Birth store-use retention independently from pending execution: unannotated is not I64/Text ABI. This boundary needs the added assertions; no new test function/file/hook. Text final-publication positive remains owed.
+- LANDED Birth census: SAME source ID/owner/object and canonical field declarations replace executable-plan dependency; unqualified stores retain sites, mixed/child-call uses refuse, numeric/Object allowlists unchanged. Next: source SUM→SAME Birth source/formal→late qualified plan, borrowed Text actual→Materialize→Dynamic initialize and committed-prefix cleanup; then original Map FieldInstall/candidate/EndOutcome and Return/Call publication. Complete Text End remains; full JSON source-pending.
 - LANDED native field-entry install: receiver before Text decode, private prepared key, shared install_with_end and explicit detached EndOutcome. Precommit retains candidate; Normal transfers once, old-End Fault never rolls back. No parent Map End or source/Birth/Call/Return grant.
 - Existing native C case extends this independent commit boundary: failed receiver/key/class/profile/overlap preserve candidate, Normal publishes new child before old End Fault, old End once, Text lease intact. No new test function/file/checker.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,

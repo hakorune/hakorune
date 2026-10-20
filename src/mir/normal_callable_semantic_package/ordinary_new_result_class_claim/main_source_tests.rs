@@ -173,6 +173,17 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
     let linked_source = format!("{}\n{json}", include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/src/shared/common/string_helpers.hako")));
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
         &linked_source, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+    // The original Text-bearing Birth must retain its store uses even though
+    // owned initialization is not executable yet. It must not acquire I64 ABI.
+    let birth = package.instance_constructors().rows().iter()
+        .find(|row| row.box_name() == "UserStats").unwrap();
+    let [formal] = birth.formal_contracts() else { panic!("original Birth formal"); };
+    assert_eq!(formal.declaration(), crate::mir::normal_callable_semantic_package::BirthFormalDeclarationClassV1::Unannotated);
+    assert!(matches!(formal.uses(), crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1::UnqualifiedFieldStores { sites }
+        if sites.len() == 1));
+    assert_eq!(formal.disposition(), crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation);
+    assert!(birth.construction_source().is_ok());
+    assert!(birth.construction().is_err());
     let ledger = &package.ordinary_new_claim_ledger;
     let key = CanonicalSameModuleCallableKeyV1::instance_box_method("JsonStreamAggregator", "statsFor", 1);
     let owner = package.parameter_contracts.iter().find(|row|

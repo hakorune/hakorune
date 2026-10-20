@@ -523,7 +523,9 @@ impl CapturedInstanceConstructorSourcesV1 {
                     };
                     let construction = ConstructionPlanV1::without_child_calls(&construction_source);
                     let formal_contracts = if source.kind == ConstructorSourceKindV1::Birth {
-                        formal_contract::issue_birth_formal_contracts(input.source().root(), &source, &construction)
+                        formal_contract::issue_birth_formal_contracts(input.source().root(), &source, &construction_source,
+                            object_definitions.get(source.object.declaration_index() as usize)
+                                .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?)
                             .map_err(|issue| InstanceConstructorSemanticBatchIssueV1::FormalContract { _issue: issue })?
                     } else { Box::new([]) };
                     Ok((construction_source, construction, provider_static_arguments, formal_contracts))

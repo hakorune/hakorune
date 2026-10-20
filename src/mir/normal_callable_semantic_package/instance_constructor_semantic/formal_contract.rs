@@ -11,7 +11,7 @@ use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, SourceBindingSiteV1,
 };
 
-use super::super::instance_construction::{ConstructionEligibilityV1, ConstructionStoreRhsV1};
+use super::super::instance_construction::{ConstructionSourceEligibilityV1, ConstructionSourceStepV1, ConstructionStoreRhsV1};
 use super::InstanceConstructorSourceDataV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,6 +31,10 @@ pub(crate) enum BirthFormalUseCoverageV1 {
     /// that class authority, so the formal's wire lane admits a nullable
     /// kind/payload actual instead of a scalar-only pair.
     ObjectFieldStores { sites: Box<[SourceExprSiteV1]> },
+    /// Original stores into unannotated, non-Array residences. Their value
+    /// alternatives and owned initialization still require source qualification;
+    /// retaining these uses grants neither an I64 nor a Text wire lane.
+    UnqualifiedFieldStores { sites: Box<[SourceExprSiteV1]> },
     UncoveredSelectedBody,
 }
 
@@ -80,12 +84,14 @@ pub(crate) enum BirthFormalContractIssueV1 {
     ForeignBinding(u32),
     BindingMismatch(u32),
     DuplicateBinding,
+    ConstructionSource,
 }
 
 pub(super) fn issue_birth_formal_contracts(
     declaration: &ASTNode,
     row: &InstanceConstructorSourceDataV1,
-    construction: &ConstructionEligibilityV1,
+    construction: &ConstructionSourceEligibilityV1,
+    definition: &crate::mir::function::CanonicalObjectDefinitionV1,
 ) -> Result<Box<[BirthFormalContractV1]>, BirthFormalContractIssueV1> {
     let ASTNode::FunctionDeclaration {
         params,
@@ -108,6 +114,14 @@ pub(super) fn issue_birth_formal_contracts(
         .forest()
         .semantic_owner(*owner)
         .ok_or(BirthFormalContractIssueV1::Declaration)?;
+    if let Ok(source) = construction {
+        if source.object() != row.object
+            || !matches!(source.constructor(), Some((id, source_owner))
+                if id.same_as(&row.source_id) && *source_owner == owner.owner())
+        {
+            return Err(BirthFormalContractIssueV1::ConstructionSource);
+        }
+    }
     let mut seen = std::collections::BTreeSet::new();
     source_parameters
         .iter()
@@ -134,7 +148,7 @@ pub(super) fn issue_birth_formal_contracts(
                 return Err(BirthFormalContractIssueV1::DuplicateBinding);
             }
             let declaration = classify_declaration(parameter);
-            let uses = classify_uses(construction, binding);
+            let uses = classify_uses(construction, definition, binding);
             Ok(BirthFormalContractV1 {
                 ordinal,
                 binding,
@@ -161,41 +175,55 @@ fn classify_declaration(parameter: &ParamDecl) -> BirthFormalDeclarationClassV1 
 }
 
 fn classify_uses(
-    construction: &ConstructionEligibilityV1,
+    construction: &ConstructionSourceEligibilityV1,
+    definition: &crate::mir::function::CanonicalObjectDefinitionV1,
     binding: BindingRefV1,
 ) -> BirthFormalUseCoverageV1 {
-    let Ok(plan) = construction else {
+    let Ok(source) = construction else {
         return BirthFormalUseCoverageV1::UncoveredSelectedBody;
     };
+    // Child-call argument uses are not covered by the store census. Preserve
+    // their refusal until that same source owner closes the complete use set.
+    if source.steps().iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
+        return BirthFormalUseCoverageV1::UncoveredSelectedBody;
+    }
     let mut scalar_sites = Vec::new();
     let mut object_sites = Vec::new();
-    for store in plan.stores() {
-        match store.rhs() {
-            ConstructionStoreRhsV1::Parameter {
-                site,
-                binding: rhs,
-                provided,
-            } if *rhs == binding => {
-                if provided.is_some() {
-                    object_sites.push(site.clone());
-                } else {
-                    scalar_sites.push(site.clone());
+    let mut unqualified_sites = Vec::new();
+    for store in source.stores() {
+        if let ConstructionStoreRhsV1::Parameter { site, binding: rhs, provided } = store.rhs() {
+            if *rhs != binding { continue; }
+            let ordinal = store.field().declaration_ordinal() as usize;
+            let Some(field) = definition.fields().get(ordinal) else {
+                return BirthFormalUseCoverageV1::UncoveredSelectedBody;
+            };
+            if store.field().object() != source.object() || field.is_weak {
+                return BirthFormalUseCoverageV1::UncoveredSelectedBody;
+            }
+            if provided.is_some() {
+                object_sites.push(site.clone());
+            } else {
+                match field.declared_type_name.as_deref() {
+                    Some("i64" | "usize") => scalar_sites.push(site.clone()),
+                    None if !definition.is_array_field(ordinal) => unqualified_sites.push(site.clone()),
+                    _ => return BirthFormalUseCoverageV1::UncoveredSelectedBody,
                 }
             }
-            _ => {}
         }
     }
-    match (scalar_sites.is_empty(), object_sites.is_empty()) {
-        (true, true) => BirthFormalUseCoverageV1::NoUse,
-        (false, true) => BirthFormalUseCoverageV1::I64FieldStores {
+    match (scalar_sites.is_empty(), object_sites.is_empty(), unqualified_sites.is_empty()) {
+        (true, true, true) => BirthFormalUseCoverageV1::NoUse,
+        (false, true, true) => BirthFormalUseCoverageV1::I64FieldStores {
             sites: scalar_sites.into_boxed_slice(),
         },
-        (true, false) => BirthFormalUseCoverageV1::ObjectFieldStores {
+        (true, false, true) => BirthFormalUseCoverageV1::ObjectFieldStores {
             sites: object_sites.into_boxed_slice(),
         },
-        // A formal feeding both scalar and object fields has no single
-        // wire lane; the mixture stays uncovered rather than guessing.
-        (false, false) => BirthFormalUseCoverageV1::UncoveredSelectedBody,
+        (true, true, false) => BirthFormalUseCoverageV1::UnqualifiedFieldStores {
+            sites: unqualified_sites.into_boxed_slice(),
+        },
+        // Mixed requirements never choose a physical lane by precedence.
+        _ => BirthFormalUseCoverageV1::UncoveredSelectedBody,
     }
 }
 
@@ -206,6 +234,9 @@ fn disposition(
     match declaration {
         BirthFormalDeclarationClassV1::ExplicitUnsupported => {
             BirthFormalPhysicalDispositionV1::UnavailableUnsupportedDeclaration
+        }
+        _ if matches!(uses, BirthFormalUseCoverageV1::UnqualifiedFieldStores { .. }) => {
+            BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
         }
         BirthFormalDeclarationClassV1::ExactText | BirthFormalDeclarationClassV1::Unannotated
             if !matches!(
