@@ -524,7 +524,7 @@ impl CallableSemanticLoweringState {
                     fault_landing,
                 ),
                 None => (
-                    InvokeOperation::FieldSet {
+                    InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot,
                         field: store.field,
                         base,
                         value,

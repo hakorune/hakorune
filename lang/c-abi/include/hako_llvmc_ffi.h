@@ -145,6 +145,17 @@ typedef struct hako_llvmc_lifecycle_target_session_v2 {
   uint32_t outcome_size, outcome_align, outcome_revision;
 } hako_llvmc_lifecycle_target_session_v2;
 
+/* Optional target-compiled field ABI. Zero revision means the entire extension
+ * is absent. Opaque outcome storage must never use host-inferred dimensions. */
+typedef struct hako_llvmc_object_field_abi_v1 {
+  uint32_t revision, value_size, value_align, outcome_size, outcome_align;
+  uint32_t end_descriptor_size, end_descriptor_align;
+} hako_llvmc_object_field_abi_v1;
+typedef struct hako_llvmc_lifecycle_target_session_v3 {
+  hako_llvmc_lifecycle_target_session_v2 base;
+  hako_llvmc_object_field_abi_v1 field;
+} hako_llvmc_lifecycle_target_session_v3;
+
 /* Stable physical query status/consumer vocabulary; no source admission. */
 enum HakoLlvmcNamedQueryStatus {
   NAMED_QUERY_BOUND = 0,

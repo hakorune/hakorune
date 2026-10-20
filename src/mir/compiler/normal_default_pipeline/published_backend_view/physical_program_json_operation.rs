@@ -241,18 +241,18 @@ pub(super) fn encode_invoke(
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,
-        InvokeOperation::FieldSet {
-            field,
-            base,
-            value: stored,
-        } => with_site(
-            json!({
+        InvokeOperation::FieldSet { mode, field, base, value: stored } => {
+            let mut encoded = with_site(json!({
                 "kind": "field_set", "object_id": field.object().declaration_index(),
                 "field_ordinal": field.declaration_ordinal(), "base": value(base), "value": value(stored),
                 "exact_numeric_runtime_check": numeric::range_check(abi_input, caller_function_index, call_context),
-            }),
-            required_site(diagnostic_site, abi_input.is_some())?,
-        )?,
+            }), required_site(diagnostic_site, abi_input.is_some())?)?;
+            if *mode == crate::mir::instruction::FieldSetModeV1::DynamicI64Replace {
+                // Never erase the postcommit Fault law into an exact slot store.
+                encoded["transaction"] = "dynamic_i64_replace".into();
+            }
+            encoded
+        },
         InvokeOperation::ObjectFieldSet {
             field,
             base,

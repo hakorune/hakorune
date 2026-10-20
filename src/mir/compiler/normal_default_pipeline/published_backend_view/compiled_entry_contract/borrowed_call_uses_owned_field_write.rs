@@ -108,7 +108,7 @@ mod tests {
         let v = ValueId;
         let new = MirInstruction::Invoke { operation: InvokeOperation::NewBox { object },
             fault_frame: v(20), normal_landing: bb(1), fault_landing: bb(8) };
-        let store = MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, base: v(2), value: v(3) },
+        let store = MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base: v(2), value: v(3) },
             fault_frame: v(21), normal_landing: bb(2), fault_landing: bb(8) };
         let read = MirInstruction::Invoke { operation: InvokeOperation::FieldGet { field, base: v(2) },
             fault_frame: v(22), normal_landing: bb(3), fault_landing: bb(8) };

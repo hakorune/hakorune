@@ -13,6 +13,8 @@ type CallSlots = BTreeMap<(String, BasicBlockId, usize), BTreeSet<usize>>;
 pub(super) struct OriginalCallSourceImageV1 {
     pub(super) slots: CallSlots,
     pub(super) text: BTreeMap<(String, BasicBlockId, usize, usize), ValueId>,
+    pub(super) field_reads: Vec<(String, (BasicBlockId, MirInstruction))>,
+    pub(super) field_writes: Vec<(String, (BasicBlockId, MirInstruction))>,
 }
 
 pub(super) fn original_call_slots(
@@ -43,6 +45,32 @@ pub(super) fn original_call_slots(
         };
     };
     let mut image = OriginalCallSourceImageV1::default();
+    // Demand selects verification only; no opcode or declaration grants a loan.
+    // Keep the old exact-slot verifier passive when no Dynamic view is requested.
+    let dynamic_fields = module.functions.values().flat_map(|function| function.blocks.values())
+        .flat_map(|body| body.all_instructions()).any(|row| match row {
+            MirInstruction::Invoke { operation: InvokeOperation::FieldGet { field, .. }, .. } =>
+                module.canonical_field_definition(*field).is_some_and(|field|
+                    !field.is_weak && field.declared_type_name.is_none()),
+            MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
+                mode: crate::mir::instruction::FieldSetModeV1::DynamicI64Replace, .. }, .. } => true,
+            _ => false,
+        });
+    if dynamic_fields {
+        // These are borrowed final correspondence rows, not another source index.
+        source.with_checked_field_read_functions_v1(module, |owner, function| {
+            for binding in source.finished_received_field_reads_v1(owner, module, function)? {
+                image.field_reads.push((function.signature.name.clone(), binding));
+            }
+            Ok(())
+        })?;
+        source.with_owned_field_write_functions_v1(module, |owner, function| {
+            source.with_finished_owned_field_writes_v1(owner, function, |row| {
+                image.field_writes.push((function.signature.name.clone(), row.invoke.0));
+                Ok(())
+            })
+        })?;
+    }
     let mut callees = BTreeSet::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();

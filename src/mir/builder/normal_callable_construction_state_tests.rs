@@ -50,7 +50,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         value: ConstValue::Integer(7),
     });
     block.set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::FieldSet { field, base, value },
+        operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base, value },
         fault_frame: frame,
         normal_landing: normal,
         fault_landing: landing,
@@ -173,7 +173,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
             *terminator = Some(MirInstruction::Return { value: None });
         } else {
             let Some(MirInstruction::Invoke {
-                operation: InvokeOperation::FieldSet { field, base, value },
+                operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base, value },
                 fault_frame,
                 normal_landing,
                 fault_landing,
@@ -205,7 +205,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     let second_value = ValueId::new(3);
     second_block.add_instruction(MirInstruction::Const { dst: second_value, value: ConstValue::Integer(9) });
     second_block.set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::FieldSet { field, base, value: second_value },
+        operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base, value: second_value },
         fault_frame: frame, normal_landing: second_normal, fault_landing: landing,
     });
     pair.add_block(second_block);

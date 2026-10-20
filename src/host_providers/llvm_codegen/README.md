@@ -102,7 +102,13 @@ the generated program requires dynamically loaded runtime plugins.
   callers pass the explicit `--emit-exe-nyrt` directory into one runtime session
   selecting `libnyash_lifecycle_kernel.a`. CLI EXE uses `--backend mir --emit-exe`;
   OBJ uses `--backend llvm` and `NYASH_LLVM_OBJ_OUT`. Both require the selected
-  runtime directory for lifecycle inputs. Retained Script admission uses its
+  runtime directory for lifecycle inputs.
+  The same archive traversal also imports an optional unique target-compiled
+  `.nyash.object_field_abi.v1` record. Target-session revision3 preserves the
+  revision2 prefix and transports field value, opaque outcome and End descriptor
+  geometry. C checks version/absence, host C and LLVM target layout before use;
+  this physical extension grants no source or Dynamic execution permission.
+  Retained Script admission uses its
   completed input; the callable view route remains separate. The session OBJ
   entry issues one completed physical input, checks its retained exact numeric
   obligations against the same borrowed module. Native Array additionally matches

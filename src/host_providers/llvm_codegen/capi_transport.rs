@@ -192,6 +192,12 @@ struct LifecycleTargetSessionCRowV2 {
     outcome_revision: u32,
 }
 
+#[repr(C)]
+struct LifecycleTargetSessionCRowV3 {
+    base: LifecycleTargetSessionCRowV2,
+    field: super::runtime_abi_descriptor::ObjectFieldAbiDescriptorV1,
+}
+
 #[cfg(feature = "plugins")]
 fn resolve_ffi_library_path() -> Result<PathBuf, String> {
     let mut candidates: Vec<PathBuf> = Vec::new();
@@ -282,8 +288,8 @@ pub(super) fn compile_published_lifecycle_physical_v4(
     let d = input.session().descriptor();
     let triple =
         CString::new(d.target_triple.as_str()).map_err(|_| "invalid lifecycle target triple")?;
-    let row = LifecycleTargetSessionCRowV2 {
-        revision: 2,
+    let row = LifecycleTargetSessionCRowV3 { base: LifecycleTargetSessionCRowV2 {
+        revision: 3,
         target_triple: triple.as_ptr(),
         endian: d.endian,
         pointer_width: d.pointer_width,
@@ -307,7 +313,7 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         outcome_size: d.outcome_size,
         outcome_align: d.outcome_align,
         outcome_revision: d.outcome_revision,
-    };
+    }, field: input.session().field_descriptor().unwrap_or_default() };
     let json_in = transport_io::prepare_backend_input_json_file(&input.serialize()?)?;
     transport_io::ensure_backend_output_parent(obj_out);
     let result = (|| unsafe {
@@ -326,7 +332,7 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         let output =
             CString::new(obj_out.to_string_lossy().as_bytes()).map_err(|_| "invalid out path")?;
         let mut error: *mut c_char = std::ptr::null_mut();
-        if func(input.as_ptr(), &row, output.as_ptr(), &mut error) != 0 {
+        if func(input.as_ptr(), &row.base, output.as_ptr(), &mut error) != 0 {
             let message = if error.is_null() {
                 "published lifecycle V4 compile failed".into()
             } else {

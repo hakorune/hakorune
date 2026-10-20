@@ -4,6 +4,18 @@
 use crate::mir::definitions::MirCall;
 use crate::mir::{Effect, EffectMask, ValueId};
 
+/// Checked field mutation semantics, selected by the retained source packet.
+/// This mode is not a source capability or a runtime storage classifier.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldSetModeV1 {
+    /// Unit on Normal; validation Fault leaves the slot unchanged.
+    ExactSlot,
+    /// No-Home I64 candidate. Validation Fault leaves the slot unchanged;
+    /// commit detaches the old residence, then End consumes it. An End Fault
+    /// does not roll back the new slot. Both Faults unwind the same caller Homes.
+    DynamicI64Replace,
+}
+
 /// The source-approved complete End body, in execution order. Only the
 /// enclosing operation carries an SSA value; these steps issue no ownership.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -117,8 +129,9 @@ pub enum InvokeOperation {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,
     },
-    /// Exact declaration field; Unit on Normal, no mutation on Fault.
+    /// Checked source-selected mutation; the mode defines its commit/Fault law.
     FieldSet {
+        mode: FieldSetModeV1,
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,
         value: ValueId,

@@ -106,7 +106,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let row = rows.get(site).ok_or_else(|| fault("received/read-missing"))?;
         let LocalReadProgress::CheckedEmitted { read, .. } = &row.progress else { return Err(fault("received/emission-missing")); };
         if row.source.statement_path().is_some() { return Ok(Vec::new()); }
-        let received = row.source.received.as_ref().ok_or_else(|| fault("received/source-missing"))?;
+        let Some(received) = row.source.received.as_ref() else {
+            // checked_field_pair replays the same complete numeric/source loan
+            // and exact lexical receiver. A direct Self read has no Call result.
+            if row.numeric_source.is_none() { return Err(fault("received/source-missing")); }
+            return read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?
+                .original_copy_dependencies_v1().map(<[_]>::to_vec);
+        };
         context.with_taken_packet_v1(received.target().call_site(), |packet| {
             let normal = packet.outer_bindings()?.1;
             let MirInstruction::InvokeNormalResult { dst, .. } = normal.1 else { return Err(fault("received/packet-normal")); };

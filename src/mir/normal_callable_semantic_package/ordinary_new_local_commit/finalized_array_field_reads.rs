@@ -114,6 +114,22 @@ impl FinalizedRootSourceHandoffV1 {
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Enumerate the original checked-read owners, not opcode-shaped functions.
+    pub(in crate::mir) fn with_checked_field_read_functions_v1(
+        &self, module: &crate::mir::MirModule,
+        mut visit: impl FnMut(FunctionOwnerIdV1, &MirFunction) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let owners: std::collections::BTreeSet<_> = self.ledger.completion_index.values()
+            .chain(self.ledger.root_completion.iter()).filter_map(|row| row.as_ref().ok())
+            .map(|row| row.owner()).filter(|owner| self.ledger.has_checked_field_reads_v1(*owner)).collect();
+        for owner in owners {
+            self.ledger.with_finished_projection(owner, |symbol, _| {
+                visit(owner, module.functions.get(symbol).ok_or_else(|| freeze("finished-received-field/function-membership"))?)
+            })?;
+        }
+        Ok(())
+    }
+
     /// The same field rows now borrow their Call packets from the finalized
     /// owner. Both read Invoke and Normal must survive the sole projection.
     pub(in crate::mir) fn finished_received_field_reads_v1(

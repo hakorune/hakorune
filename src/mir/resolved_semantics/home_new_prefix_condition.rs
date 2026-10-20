@@ -13,12 +13,17 @@ pub(super) enum ConditionInstallationV1 { Unselected, Refused, Installed }
 
 /// Request the original verified walk even with no existing Home. This passive
 /// morphology selects no operand class, frame, terminal or physical permission.
+fn requests_condition(input: ResolvedFunctionLoweringInputV1<'_>, condition: &SourceExprSiteV1) -> bool {
+    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    matches!(input.function().variable_ref(condition), Some(ResolvedLexicalRefV1::Local(_)))
+        || input.function().expression_source().binary(condition).is_some_and(|binary| matches!(binary.operator(),
+            Op::And | Op::Or | Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual))
+}
 pub(crate) fn requires_condition_expression_walk_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-    use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, SourcePathV1, SourcePathSegmentV1};
+    use crate::mir::resolved_semantics::{SourcePathV1, SourcePathSegmentV1};
     input.function().if_region_sites().any(|statement| {
         let condition = SourcePathV1::from_node(statement.node()).child(SourcePathSegmentV1::IfCondition).expr();
-        input.function().expression_source().binary(&condition).is_some_and(|binary| matches!(binary.operator(),
-            Op::And | Op::Or | Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual))
+        requests_condition(input, &condition)
     })
 }
 
@@ -90,7 +95,15 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
                 receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(_), .. }))
             .then_some(1)
     }
-    let Some(binary) = source.nodes().first().and_then(|node| node.binary()) else { return false; };
+    let Some(binary) = source.nodes().first().and_then(|node| node.binary()) else {
+        // Borrow the existing Bool condition owner, including its exact lexical
+        // read and final producer correspondence. No scalar/Loop permission is
+        // inferred from a bare reference or from its eventual MIR carrier.
+        return !locals.in_source_loop_v1() && source.nodes().len() == 1
+            && matches!(source.nodes()[0].source(), Node::Reference(ResolvedLexicalRefV1::Local(_)))
+            && matches!(locals.observe(source.nodes()[0].site()),
+                Some(OrdinaryObservation::TrivialLocal(_, Some(SourceScalarKind::Bool))));
+    };
     // Plain scalar comparisons borrow a complete original read census. Calls
     // and field receivers retain their existing owners; one scalar sibling does
     // not authorize selecting their whole expression through another Call lane.
@@ -125,15 +138,7 @@ pub(super) fn observe<E>(
 ) -> Result<ConditionInstallationV1, E> {
     let condition = crate::mir::resolved_semantics::SourcePathV1::from_node(statement.node())
         .child(crate::mir::resolved_semantics::SourcePathSegmentV1::IfCondition).expr();
-    let original_profile = input.function().expression_source().binary(&condition).is_some_and(|binary|
-        matches!(binary.operator(), crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::And
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Or
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Greater
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::LessEqual
-            | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::GreaterEqual));
+    let original_profile = requests_condition(input, &condition);
     let Ok(source) = condition_expression_source_plan_v1(input, statement)
         else { return Ok(ConditionInstallationV1::Refused) };
     if !contains_local_home_field(input, &source, locals)

@@ -3,6 +3,7 @@
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::QualifiedFieldWriteRhsV1;
 use hakorune_mir_defs::CanonicalFieldRefV1;
+use crate::mir::instruction::FieldSetModeV1;
 
 #[derive(Debug, Clone)]
 pub(crate) struct FieldWriteSourceLoanV1 {
@@ -64,18 +65,23 @@ impl FieldWriteSourceLoanV1 {
             freeze("owned-field-write/original-source"), self.frame().source().owner(),
             self.frame().source().root().statement(), self.field().ok())
     }
-    /// The existing physical writer is still restricted to its exact I64 lease.
-    /// A retained source assignment alone cannot authorize operand evaluation.
-    pub(crate) fn require_current_execution(&self, context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>) -> Result<(), String> {
+    /// Lend the checked mutation law from the same retained operand/source proof.
+    /// Dynamic scalar mode transfers no candidate Home; owned replacement requires
+    /// separate pre/postcommit ownership states and is not admitted here.
+    pub(crate) fn require_current_execution(&self, context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>) -> Result<FieldSetModeV1, String> {
         let ledger = context.ledger();
         self.validate_source(ledger)?;
-        if self.borrowed().is_some() { return Ok(()); }
+        if self.borrowed().is_some() { return Ok(FieldSetModeV1::ExactSlot); }
         self.require_signed_rhs_v1(context)?;
         let fail = || self.original_source_error("execution-storage");
         if let Some(entry) = self.frame().entry() {
-            // Dynamic source identity is retained, but its tagged slot and End
-            // execution must be connected before any operand can be consumed.
-            return if entry.declared_type() == Some("i64") { Ok(()) } else { Err(fail()) };
+            // validate_source replays the original all-writer ClosedNumeric loan
+            // for an absent declaration. It remains Dynamic, never an I64 slot.
+            return match entry.declared_type() {
+                Some("i64") => Ok(FieldSetModeV1::ExactSlot),
+                None => Ok(FieldSetModeV1::DynamicI64Replace),
+                _ => Err(fail()),
+            };
         }
         let local = self.frame().owned_local().ok_or_else(fail)?;
         if local.construction().allocation_only_i64_field(local.original().write().field()) != Some(local.field()) {
@@ -86,7 +92,7 @@ impl FieldWriteSourceLoanV1 {
                 return Err(fail());
             }
             Ok(())
-        })?.ok_or_else(fail)
+        })?.ok_or_else(fail).map(|()| FieldSetModeV1::ExactSlot)
     }
     /// Discharge an Integer view from SAME source facts, never Class::I64 or
     /// the eventual MIR carrier. Wide unsigned/exact lanes remain obligations.

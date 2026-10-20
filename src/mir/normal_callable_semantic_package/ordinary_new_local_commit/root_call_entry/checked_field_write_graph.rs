@@ -73,6 +73,7 @@ impl CheckedFieldWriteGraphV1 {
     pub(super) fn validate_paths(&self, ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction, finishing: Option<&FinishedBindings>,
         expected_field: hakorune_mir_defs::CanonicalFieldRefV1,
+        expected_mode: crate::mir::instruction::FieldSetModeV1,
         prior_homes: &[LiveHomeV1],
     ) -> Result<(), String> {
         for original in self.bindings() {
@@ -86,11 +87,11 @@ impl CheckedFieldWriteGraphV1 {
                 None => Ok(original.clone()) }
         };
         let invoke = map(&self.invoke)?;
-        let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, base, value },
+        let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode, field, base, value },
             fault_frame, normal_landing, fault_landing } = &invoke.1 else { return Err(freeze("borrowed-field-write/invoke-shape")); };
         let normal_block = finishing.map_or(Some(self.continuation.0), |p| p.destination(self.continuation.0));
         let continuation = match finishing { Some(p) => p.binding(self.continuation.0, &self.continuation.1)?, None => Some(self.continuation.clone()) };
-        if *field != expected_field || *base != self.pins[0].values().1 || *value != self.pins[1].values().1
+        if *mode != expected_mode || *field != expected_field || *base != self.pins[0].values().1 || *value != self.pins[1].values().1
             || Some(*normal_landing) != normal_block || normal_landing == fault_landing
             || continuation.as_ref().is_some_and(|row| !matches!(row.1, MirInstruction::Jump { edge_args: None, .. }))
         { return Err(freeze("borrowed-field-write/invoke-operands")); }

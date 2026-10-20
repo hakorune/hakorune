@@ -306,6 +306,11 @@ Lifecycle invocation ownership
 - `hako_lts_open` retains the selected LLVM library, TargetMachine, TargetData,
   triple and data-layout in one private call-local session. `hako_lts_close`
   releases it and clears the owner; failed open leaves no retained resources.
+  Target-session revision3 retains the revision2 prefix and adds an optional
+  target-compiled object-field ABI. Revision2 never reads the tail; missing
+  extension is all zero. Value/End geometry must match C and LLVM target layouts;
+  opaque outcome storage retains transported size/alignment. Dynamic activation
+  additionally requires the extension and complete source/End coverage.
 - The selected Rust host now uses V4 and retains the target session through
   `.ll` verification, LLVM18 object generation and atomic output publication.
   V2/V3 pending exports, frame ABI and exclusive validators/tests are retired;

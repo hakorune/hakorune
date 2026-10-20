@@ -67,7 +67,7 @@ impl EmittedBorrowedFieldWriteV1 {
         finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
         let ledger = context.ledger();
-        self.source.require_current_execution(context)?;
+        let mode = self.source.require_current_execution(context)?;
         let (receiver, site) = self.source.receiver()?;
         let base = self.receiver.value_for(site.owner(), site.site().node(), receiver).map_err(|issue| issue.to_string())?;
         if let Some(entry) = self.source.frame().entry() {
@@ -93,7 +93,7 @@ impl EmittedBorrowedFieldWriteV1 {
             _ => return Err(freeze("field-write-rhs/operand-origin")),
         };
         self.graph.validate_operand(1, value, function, finishing)?;
-        self.graph.validate_paths(ledger, function, finishing, field, self.source.frame().prior_homes())
+        self.graph.validate_paths(ledger, function, finishing, field, mode, self.source.frame().prior_homes())
     }
 }
 pub(super) fn validate_fault_inventory_v1(function: &MirFunction, landing: BasicBlockId,

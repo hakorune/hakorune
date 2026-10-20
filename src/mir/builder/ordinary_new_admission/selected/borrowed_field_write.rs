@@ -8,7 +8,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     ledger: &OrdinaryNewClaimLedgerV1, source: FieldWriteSourceLoanV1,
     field_name: &str, reads: [FieldWriteValueV1; 2],
 ) -> Result<(), String> {
-    source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))?;
+    let mode = source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))?;
     let owner = source.frame().source().owner();
     if state.owner() != owner { return Err(freeze("borrowed-field-write/source-site")); }
     let [FieldWriteValueV1::Lexical(receiver), value] = reads else { return Err(freeze("field-write/receiver-proof")) };
@@ -39,7 +39,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
         _ => return Err(freeze("field-write/operand-origin")),
     };
     let operations = ledger.prior_home_unwind_for(source.frame().prior_homes())?;
-    let graph = super::checked_field_write::emit(builder, state, field, base, value_id, operations)?
+    let graph = super::checked_field_write::emit(builder, state, field, mode, base, value_id, operations)?
         .with_operand_projection(prefix, relations);
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let packet = Rc::new(EmittedBorrowedFieldWriteV1::new(source, receiver, value, graph, ledger, function)?);

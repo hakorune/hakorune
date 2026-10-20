@@ -40,6 +40,7 @@ static int hako_lts_test_mode(const char* expected) {
 typedef struct {
   void *lib, *machine, *data;
   char *triple, *data_layout;
+  hako_llvmc_object_field_abi_v1 field;
   hako_lts_dispose_message_fn dispose_message;
   hako_lts_dispose_machine_fn dispose_machine;
   hako_lts_dispose_data_fn dispose_data;
@@ -102,6 +103,20 @@ static int hako_lts_fault_layout_matches(
       abi_size(data, frame) == in->frame_size && abi_align(data, frame) == in->frame_align &&
       element_offset(data, frame, 4u) == in->frame_primary_offset &&
       element_offset(data, frame, 5u) == in->frame_suppressed_offset;
+  if (matched && in->revision == 3u) {
+    const hako_llvmc_object_field_abi_v1* field =
+        &((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
+    if (field->revision) {
+      void* value_fields[4] = {i32, i32, i64, i64};
+      void* end_fields[4] = {i32, i32, i64, pointer};
+      void* value = struct_type(context, value_fields, 4u, 0);
+      void* end = struct_type(context, end_fields, 4u, 0);
+      matched = value && end && abi_size(data, value) == field->value_size &&
+          abi_align(data, value) == field->value_align &&
+          abi_size(data, end) == field->end_descriptor_size &&
+          abi_align(data, end) == field->end_descriptor_align;
+    }
+  }
 done:
   dispose_context(context);
   return matched;
@@ -147,8 +162,25 @@ static int hako_lts_open(
   hako_lts_element_offset_fn element_offset;
   hako_lts_init_fn init_info, init_target, init_mc, init_printer;
   int rc = -1;
-  if (!in || in->revision != 2u || !in->target_triple || !in->target_triple[0])
+  if (!in || (in->revision != 2u && in->revision != 3u) || !in->target_triple || !in->target_triple[0])
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/input]");
+  if (in->revision == 3u) {
+    const hako_llvmc_object_field_abi_v1* field =
+        &((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
+    if (field->revision == 0u) {
+      if (field->value_size || field->value_align || field->outcome_size ||
+          field->outcome_align || field->end_descriptor_size || field->end_descriptor_align)
+        return set_err_owned(err_out, "[freeze:contract][lifecycle-session/runtime-abi]");
+    } else if (field->revision != 1u ||
+        field->value_size != sizeof(NyrtDynamicFieldValueV1) ||
+        field->value_align != _Alignof(NyrtDynamicFieldValueV1) ||
+        field->end_descriptor_size != sizeof(NyrtDynamicFieldEndDescriptorV1) ||
+        field->end_descriptor_align != _Alignof(NyrtDynamicFieldEndDescriptorV1) ||
+        !field->outcome_size || !field->outcome_align ||
+        (field->outcome_align & (field->outcome_align - 1u)) ||
+        field->outcome_size % field->outcome_align)
+      return set_err_owned(err_out, "[freeze:contract][lifecycle-session/runtime-abi]");
+  }
 #if defined(HAKO_LLVMC_LIFECYCLE_TEST_SEAM)
   if (hako_lts_test_mode("missing-library"))
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/test-missing-library]");
@@ -239,6 +271,8 @@ static int hako_lts_open(
   rc = 0;
 cleanup:
   if (rc == 0) {
+    if (in->revision == 3u)
+      out->field = ((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
     out->lib = lib; out->machine = machine; out->data = data;
     out->triple = actual_triple; out->data_layout = data_layout;
     out->dispose_message = dispose_message;

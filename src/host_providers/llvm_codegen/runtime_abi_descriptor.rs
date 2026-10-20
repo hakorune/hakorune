@@ -13,6 +13,36 @@ const RECORD_SIZE: usize = 236;
 const TARGET_CAPACITY: usize = 128;
 const SECTION_NAME: &str = ".nyash.runtime_abi.v2";
 
+/// Target-compiled field values and opaque detached-End outcome storage.
+/// These physical sizes grant no source/storage capability.
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub(crate) struct ObjectFieldAbiDescriptorV1 {
+    pub(crate) revision: u32,
+    pub(crate) value_size: u32,
+    pub(crate) value_align: u32,
+    pub(crate) outcome_size: u32,
+    pub(crate) outcome_align: u32,
+    pub(crate) end_descriptor_size: u32,
+    pub(crate) end_descriptor_align: u32,
+}
+
+impl ObjectFieldAbiDescriptorV1 {
+    fn decode(bytes: &[u8]) -> Result<Self, String> {
+        if bytes.len() != 32 { return Err("invalid object field ABI record size".into()); }
+        let words: Vec<_> = bytes.chunks_exact(4).map(|word|
+            u32::from_le_bytes(word.try_into().expect("four-byte word"))).collect();
+        if words[0] != 32 || words[1] != 1 || [(words[2], words[3]),
+            (words[4], words[5]), (words[6], words[7])].iter().any(|&(size, align)|
+                size == 0 || !align.is_power_of_two() || size % align != 0) {
+            return Err("unsupported object field ABI layout".into());
+        }
+        Ok(Self { revision: words[1], value_size: words[2], value_align: words[3],
+            outcome_size: words[4], outcome_align: words[5],
+            end_descriptor_size: words[6], end_descriptor_align: words[7] })
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct RuntimeAbiDescriptorV2 {
     pub(crate) target_triple: String,
@@ -46,11 +76,12 @@ pub(crate) struct RuntimeAbiDescriptorV2 {
 pub(crate) struct LifecycleRuntimeSessionV1 {
     runtime_archive: PathBuf,
     descriptor: RuntimeAbiDescriptorV2,
+    field_descriptor: Option<ObjectFieldAbiDescriptorV1>,
 }
 
 impl LifecycleRuntimeSessionV1 {
     pub(crate) fn select(runtime_archive: PathBuf) -> Result<Self, String> {
-        let descriptor = read_runtime_abi_descriptor(&runtime_archive)?;
+        let (descriptor, field_descriptor) = read_runtime_abi_descriptors(&runtime_archive)?;
         require_lifecycle_entry_abi(&runtime_archive)?;
         require_checked_map_symbols(&runtime_archive)?;
         if descriptor.target_triple != "x86_64-unknown-linux-gnu" {
@@ -63,6 +94,7 @@ impl LifecycleRuntimeSessionV1 {
         Ok(Self {
             runtime_archive,
             descriptor,
+            field_descriptor,
         })
     }
 
@@ -108,6 +140,9 @@ impl LifecycleRuntimeSessionV1 {
     }
     pub(crate) fn descriptor(&self) -> &RuntimeAbiDescriptorV2 {
         &self.descriptor
+    }
+    pub(crate) fn field_descriptor(&self) -> Option<ObjectFieldAbiDescriptorV1> {
+        self.field_descriptor
     }
 }
 
@@ -184,18 +219,22 @@ fn require_native_array_symbol_inventory(text: &str) -> Result<(), String> {
 
 /// Read the one retained descriptor from every selected archive member. The
 /// descriptor is selected by ELF section name, never by a byte-pattern scan.
-pub(crate) fn read_runtime_abi_descriptor(
-    archive: &Path,
-) -> Result<RuntimeAbiDescriptorV2, String> {
+fn read_runtime_abi_descriptors(archive: &Path)
+    -> Result<(RuntimeAbiDescriptorV2, Option<ObjectFieldAbiDescriptorV1>), String> {
     let mut found = Vec::new();
+    let mut fields = Vec::new();
     visit_archive_members(archive, |bytes| {
         if let Some(section) = elf_section(bytes, SECTION_NAME)? {
             found.push(decode_descriptor(section)?);
         }
+        if let Some(section) = elf_section(bytes, ".nyash.object_field_abi.v1")? {
+            fields.push(ObjectFieldAbiDescriptorV1::decode(section)?);
+        }
         Ok(())
     })?;
+    if fields.len() > 1 { return Err("duplicate object field ABI sections".into()); }
     match found.len() {
-        1 => Ok(found.remove(0)),
+        1 => Ok((found.remove(0), fields.pop())),
         0 => Err(format!(
             "runtime archive {} has no {SECTION_NAME} section",
             archive.display()

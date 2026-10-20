@@ -3,7 +3,8 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::CheckedFieldWriteGraphV1;
 
 pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
-    field: hakorune_mir_defs::CanonicalFieldRefV1, receiver: ValueId, value: ValueId,
+    field: hakorune_mir_defs::CanonicalFieldRefV1, mode: crate::mir::instruction::FieldSetModeV1,
+    receiver: ValueId, value: ValueId,
     operations: Vec<InvokeOperation>,
 ) -> Result<CheckedFieldWriteGraphV1, String> {
     // Pin/cache targets and the Fault frame may be inserted ahead of an
@@ -35,7 +36,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     bindings.extend(fault_bindings.iter().cloned());
     let mut invoke = Vec::new();
     let (result, projection) = super::invoke_operation::emit(builder, frame,
-        InvokeOperation::FieldSet { field, base: pinned_receiver, value: pinned_value }, fault, &mut invoke)?;
+        InvokeOperation::FieldSet { mode, field, base: pinned_receiver, value: pinned_value }, fault, &mut invoke)?;
     if result.is_some() || projection.is_some() { return Err(freeze("borrowed-field-write/unit-result")); }
     let invoke = invoke.pop().ok_or_else(|| freeze("borrowed-field-write/invoke-missing"))?;
     bindings.push(invoke.clone());

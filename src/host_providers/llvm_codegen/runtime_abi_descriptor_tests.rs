@@ -53,12 +53,14 @@ fn rejects_layout_mismatch_before_session_use() {
 }
 
 #[test]
-#[ignore = "requires cargo build --locked --profile quick -p nyash_kernel first"]
+#[ignore = "requires cargo build --locked --profile quick -p nyash_lifecycle_kernel first"]
 fn reads_descriptor_from_actual_runtime_archive() {
-    let descriptor = read_runtime_abi_descriptor(Path::new("target/quick/libnyash_kernel.a"))
+    let archive = Path::new("target/quick/libnyash_lifecycle_kernel.a");
+    let (descriptor, field) = read_runtime_abi_descriptors(archive)
         .expect("target-compiled runtime archive descriptor");
     assert!(!descriptor.target_triple.is_empty());
-    require_checked_map_symbols(Path::new("target/quick/libnyash_kernel.a")).unwrap();
+    assert_eq!(field.expect("target-compiled object field extension").revision, 1);
+    require_checked_map_symbols(archive).unwrap();
 }
 
 #[test]
@@ -331,6 +333,7 @@ fn bound_pair_input_checks_runtime_before_serialization_and_ignores_array_symbol
                 let session = LifecycleRuntimeSessionV1 {
                     runtime_archive: PathBuf::from("fixture-without-array-symbols.a"),
                     descriptor,
+                    field_descriptor: None,
                 };
                 let expected = crate::mir::emit_lifecycle_physical_abi_json(&physical)?;
                 let bound = LifecycleInvocationInputV1::bind(physical.clone(), &session)?;
@@ -400,6 +403,7 @@ fn assert_script_input_binding(archive: &Path, available: bool) {
                         let session = LifecycleRuntimeSessionV1 {
                             runtime_archive: archive.to_owned(),
                             descriptor,
+                            field_descriptor: None,
                         };
                         let bound = LifecycleInvocationInputV1::bind(physical.clone(), &session);
                         assert_eq!(bound.is_ok(), available);
@@ -435,6 +439,16 @@ fn assert_script_input_binding(archive: &Path, available: bool) {
 
 #[test]
 fn rejects_each_bad_opaque_layout_and_old_revision() {
+    let field: Vec<_> = [32u32, 1, 24, 8, 64, 8, 24, 8].into_iter()
+        .flat_map(u32::to_le_bytes).collect();
+    assert!(ObjectFieldAbiDescriptorV1::decode(&field).is_ok());
+    for (offset, value) in [(0, 28u32), (4, 0), (8, 0), (12, 3),
+        (16, 0), (20, 0), (24, 0), (28, 16)] {
+        let mut bad = field.clone();
+        bad[offset..offset + 4].copy_from_slice(&value.to_le_bytes());
+        assert!(ObjectFieldAbiDescriptorV1::decode(&bad).is_err());
+    }
+    assert!(ObjectFieldAbiDescriptorV1::decode(&field[..28]).is_err());
     for base in [200, 212, 224] {
         for (offset, value) in [(base, 0u32), (base + 4, 3), (base + 8, 0)] {
             let mut bytes = descriptor_bytes();

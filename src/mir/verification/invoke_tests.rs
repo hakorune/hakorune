@@ -177,7 +177,7 @@ fn exact_field_store_is_unit_and_requires_published_definition() {
     let MirInstruction::Invoke { operation, .. } = invoke else {
         unreachable!()
     };
-    *operation = InvokeOperation::FieldSet {
+    *operation = InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot,
         field,
         base: ValueId::new(1),
         value: ValueId::new(1),
@@ -570,7 +570,7 @@ fn fault_frame_is_internal_and_rejects_substitution_or_escape() {
                 if let Some(MirInstruction::Invoke { operation, .. }) =
                     &mut function.blocks.get_mut(&origin_id).unwrap().terminator
                 {
-                    *operation = InvokeOperation::FieldSet {
+                    *operation = InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot,
                         field: hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
                             hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0)
                                 .unwrap(),

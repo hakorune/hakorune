@@ -227,7 +227,7 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
                 .find(|(index, _)| *index == contract.instruction_index)
                 .unwrap();
             let crate::mir::MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::FieldSet { field, base, value },
+                operation: crate::mir::instruction::InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base, value },
                 ..
             } = spanned.inst
             else {

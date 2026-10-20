@@ -71,7 +71,7 @@ pub(super) fn observe(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingR
     if owned::observe(state, coordinate, instruction, scan, dominates)? { return Ok(true); }
     let Some(expected) = state.field_writes.get(&coordinate) else { return Ok(false) };
     if instruction != &expected.instruction { return Err(fault("borrowed-write/instruction")); }
-    let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, base, value }, fault_frame, .. } = instruction
+    let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base, value }, fault_frame, .. } = instruction
         else { return Err(fault("borrowed-write/invoke-kind")) };
     if tracked.get(base) != Some(&expected.receiver) || tracked.get(value) != Some(&expected.value)
         || tracked.contains_key(fault_frame)
@@ -116,7 +116,7 @@ mod tests {
             state.compare_coordinates = Some([(value, BTreeSet::from([((BasicBlockId(0), 3), 0)]))].into());
             let null_compare = MirInstruction::Compare { dst: ValueId(92), op: crate::mir::CompareOp::Eq, lhs: ValueId(10), rhs: ValueId(90) };
             let branch = MirInstruction::Branch { condition: ValueId(92), then_bb: BasicBlockId(1), else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None };
-            let store = MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, base: ValueId(10), value: ValueId(11) },
+            let store = MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base: ValueId(10), value: ValueId(11) },
                 fault_frame: ValueId(94), normal_landing: BasicBlockId(3), fault_landing: BasicBlockId(4) };
             function.params = vec![ValueId(10), ValueId(11)];
             function.blocks.clear();

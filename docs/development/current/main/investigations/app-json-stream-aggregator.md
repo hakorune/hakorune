@@ -6,72 +6,71 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Last fixed suite at `6189d252de`: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner499.338s. mimalloc156.737s, allocator179.746s, typed38–43s.
+- Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
+  runner494.034s. mimalloc157.354s, allocator180.018s, typed38–39s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current source-normalization CLI34.13s; focused build58.52s/run0.53s.
-  Unchanged quick runtime/private C FFI, no overlapping Cargo. No fixed-suite rerun
-  for this source-proof normalization; Dynamic physical permission remains closed.
-- Matching JSON smoke advances beyond borrowed-static Text-expression pending,
-  now stops in MIR at `owned-field-write/original-source`, before EXE/link/runtime.
-  Exact stop: UserStats.add, app line87 `me.ok_count = me.ok_count + 1`, owner22,
-  Body1/IfThen0, canonical object0/field2. Premise is now `execution-storage`:
-  SAME signed RHS/read proof passes; Dynamic read/replace/End execution is still owed.
-  Body8 bytes, StringHelpers.to_i64 Loop, Map/report and full-app composition remain.
+- CLI91s; retirement rebuild29s keeps .text/.rodata, only diagnostic line/build-ID delta.
+  Default/private C FFI agree; final EXE yes/1/Result0/exit0; runtime unchanged.
+- Matching JSON smoke now reaches `borrowed-entry/source-use-completion-pending`,
+  owner26 JsonStreamAggregator.ingestLine, called at line152 inside ingest Loop.
+  The outer `source-loop-header-after` abort only wraps that real callee failure.
+  Full use census still retains Body5 statsFor result, Body6 stats.add and Body9
+  ok condition. No EXE/link/runtime success is claimed for JSON.
+- UserStats.add line87 now passes signed source/write lowering. Dynamic execution
+  still needs transactional replace/old-End and complete canonical publication.
+- Read-only review: statsFor returns a Map-held nonowning object on BOTH branches;
+  new stats moves Home at set commit. Precommit Fault keeps caller ownership;
+  postcommit old-End Fault keeps Map ownership. Same-slot invalidation must stay
+  absent through last borrow use, including callee effects; Map live alone is insufficient.
+  Literal-key I64 Map terminal and Fresh/ForwardFormal mixed cannot grant this origin.
 - Other product reds: untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. These are incomplete, not waived baselines.
 
 ## Connected source and next execution
 
-- FieldWrite RHS now reuses the existing ClosedNumeric/read recheck and exact plan;
-  no second proof/index is issued. Signed-only closure preserves absent annotations.
-  Original Lowering/Finalized context is retained through every caller and final scan.
-  Dynamic target permission stays closed until transaction/End and both consumers join.
-- Existing RHS2/field7/write4/entry1/receiver2/brand1/source-mutation2PASS. No new test
-  case/fn/file/hook/checker/token. Canonical typed Self update EXE prints1/Result0/exit0.
-  Read-claim7/2FAIL and composition9/2FAIL reproduce on prior frozen binary.
-- Signed values borrow the SAME uncaptured point SUM and physical producer.
-  Finite-input aliases retain SUM/read/Copy and producer forwarding; `end = start`
-  closes source-use. Pure scalar aliases remain generic. Prior entry21/Static args2PASS.
-- TextResidence Return retains the same packet/acquire/install/hold and original
-  Home rank through recorder/pending/finishing/both final consumers/publication.
-  Normal skips only that Home; Fault retains original reverse order. Plain exits
-  remain Emitted. Duplicate/stale hold, replacement and borrowing remain refused.
+- FieldWrite RHS retains the SAME all-writer ClosedNumeric/read and signed SUM.
+  Explicit ExactSlot/DynamicI64Replace mode preserves pre/postcommit Fault law
+  through writer, finishing, both final scans and JSON. ExactSlot cannot represent
+  Dynamic; source-less/new-mode or foreign final instruction grants no permission.
+- Checked Self read copies reuse original ExactLexicalRead without a received Call.
+  Source image borrows full finalized read/write correspondence, not a new index.
+- NonLoop single local Bool conditions reuse original Bool classification and the
+  existing exact lexical read/final producer owner. No Bool CurrentScalar family.
+- Same archive traversal imports unique optional field ABI; V3 session preserves
+  V2 prefix and transports opaque outcome dimensions. C checks absence/version,
+  C/LLVM target value/End layouts. Dynamic physical gate remains CLOSED.
+- Existing Invoke42/RHS2/field7/write4/construction2/JSON33/runtimeABI8 plus selected
+  actual archive1PASS. Scalar15/1FAIL reproduces prior frozen binary.
+  Existing V4 execution suite reaches its malformed-add negative, accepted by BOTH
+  old/new FFI; earlier execution/Fault checks passed. This red remains owed.
+  No new test fn/file/hook/checker/guard/token. ABI malformed record mutations
+  extend one existing case to protect the independent target-storage boundary.
+- Signed values keep SAME point SUM, physical producer, aliases/read/Copy and
+  producer forwarding; scalar aliases stay generic. Prior entry21/Static args2PASS.
+- TextResidence Return keeps original packet/acquire/install/hold and Home rank
+  through both consumers; Normal skips only that Home, Fault reverses original
+  cleanup. Duplicate/stale holds and borrowing stay refused; plain exits Emitted.
 - Ordinary Text Call holds its result below the exact argument End suffix.
   Call Fault acquires nothing; argument-End Fault cancels remaining args, result,
   then outer cleanup. SSA/Rust/C retain lifecycle dependencies apart from arguments.
-- Text Local Call retains full original input, affine publication, result residence,
-  install/hold and both final consumers. Canonical prior EXEs `!ab`/`ab`/exit0 passed.
-  Zero-input Text keeps existing Zero evidence; old I64 census/refusals stay intact.
+- Text Local Call retains whole input, affine publication, install/hold and both
+  consumers. Prior EXEs !ab/ab passed; Zero evidence and old I64 census stay intact.
 - Fresh Text Return uses original ReturnValue/shared expression qualification;
   literal Materialize and Core acquisition join child cleanup, hold, original Home
   cleanup and Fault cancellation. No fake Local or second result registry.
-- Original Static input dependencies now order required Text callees before callers
-  in one walk. Identity/slot/brand stay original; cycles grant no unfinished result.
-  Callers borrow the same completed Text contract even when old catalog is unknown.
-- Input finishing retains the same Completion/terminal-map Rc in existing evidence.
-  Same-package publication borrows that contract before completed_context install;
-  every Text packet rechecks it with whole input and affine handoff identity.
-  Passive argument observation does not depend on result classification or grant ABI.
-  Replaced declaration-only publication entry has no production caller and is test-only.
-- Existing optimized source tuple covers forward declaration plus unknown-formal
-  Text return through full publication; missing install/hold and changed Return
-  remain rejected. Canonical forward `make(text){return text.substring(0,1)}`
-  EXE builds/runs `a`, Result:0/exit0. No new test fn/file/hook/checker/guard/token.
-- Focused: result96/Core11/input6/packet3/dispatch2/received4/Invoke60/final projection4/
-  argument-port13PASS. Initializer79/2FAIL and terminal6/2FAIL remain unchanged;
-  callback0/1FAIL reproduces identically on prior frozen binary. Plan5/1FAIL and
-  admission2/2FAIL previously reproduced on clean HEAD; all remain owed, not waived.
-- Next: checked Self read copies use the same ExactLexicalRead, not a received Call.
-  Join Dynamic FieldGet/Set prepare/commit/old-End with both final consumers;
-  retain precommit Fault/no mutation and postcommit Fault/no rollback. No gate-only activation.
+- Static Text input ordering borrows SAME completed contract, input finish and
+  affine final packet; unknown catalog stays unknown, replaced issuer test-only.
+- Prior source96/Core11/input6/packet3/dispatch2/received4/Invoke60/final4/port13PASS.
+  Initializer79/2, terminal6/2, callback0/1, plan5/1, admission2/2 failures remain;
+  callback/plan/admission reproduce frozen earlier binaries. No baseline waiver.
+- Next: source-owned Dynamic End/replace through both consumers, and Map holder
+  liveness/retained object view plus both statsFor Return origins. Retain precommit
+  no mutation, postcommit no rollback, reverse old-End and exactly-once Home release.
 - Existing Loop Call/If and Function Return retain original reads, producers,
   Phi keys and root cleanup through both consumers. Plain scalar If requires
   whole leaf/read census, so it cannot steal Static Call/field ownership.
-- Original source liveness feeds CFG finishing. Existing substring tuple protects
-  Loop Return, changed Return refusal and scalar If purposes; prior related364PASS/
-  36oldFAIL remain. Opaque draft stays stashed pending intentional adoption/disposal.
+- CFG scope/order/bindings, related364PASS/36FAIL and stashed opaque draft remain.
 
 ## Shared remaining contracts
 
@@ -82,7 +81,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   signed-only SUM and source/slot/transfer, complete detached End in reverse field
   order to actual HomeRelease/Fault. Runtime support grants no source permission.
   Retain Empty/null distinction, plain-reclaim/Null refusal and legacy mixed guards.
-- Map placement, stored borrow/Shared and carrier forwarding remain unadmitted.
+- Map placement/stored borrow/Shared/carrier remain unadmitted. Transfer requires
+  the SAME complete object End descriptor; current Map residence is numeric-only.
 - Array holder/contents/End, exact empty-transfer census and canonical writer must
   stay joined. Runtime empty End grants no source ownership or physical transfer.
 - Earlier SSA/handoff/Array teardown/synthetic callee and field/count/composition reds

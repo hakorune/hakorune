@@ -195,7 +195,7 @@ mod tests {
             InvokeOperation::HomeReleaseIfLive { object, value: ValueId(5) },
             InvokeOperation::ReclaimUnpublished { object, value: ValueId(6) },
             InvokeOperation::OwnedObjectFieldRelease { base: ValueId(1), field: other, child: object },
-            InvokeOperation::FieldSet { base: ValueId(1), field, value: ValueId(3) },
+            InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, base: ValueId(1), field, value: ValueId(3) },
             InvokeOperation::ObjectFieldSet { base: ValueId(3), field: other, value: ValueId(2), child: object },
         ] {
             let mut changed = function.clone();

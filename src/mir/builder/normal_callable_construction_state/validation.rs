@@ -271,7 +271,7 @@ impl ConstructionState {
                         && fault_landing == discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
                 _ => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
-                    Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
+                    Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
                     if actual == &field && b == base && v == value && normal_landing == normal && *fault_frame == frame_id && fault_landing == discharge),
             };
             if !store_ok {
