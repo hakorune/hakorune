@@ -1,5 +1,5 @@
 # APP-json-stream-aggregator
-Status: Original Text Array receiver connected; Map result and append execution incomplete. Date: 2026-10-21
+Status: Map result source normalized; slot execution/publication and Text append incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
@@ -9,7 +9,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON passes statsFor Body3 users.push source qualification and now stops at
   owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
-  No MIR/EXE. current CLI44.48s/root43.82s PASS; frozen Text runtime/C pair retained.
+  No MIR/EXE. current CLI38.76s/root58.41s PASS; frozen Text runtime/C pair retained.
 - ABI-only Text append12 Normal/Fault runs (borrowed/direct static/owned, empty,
   Unicode/NUL) and malformed9 refusals PASS; Rust source acceptance remains owed.
 
@@ -61,14 +61,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Map-argument1/2, initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent failures
   and diagnostics exactly except compilation session IDs. These reds remain owed.
 - Checked Array9/root Array53 PASS; runtime7.04s/root62s builds. Two existing
-  cases cover Text copy/lease/domain/End; descriptor case adds canonical/legacy read boundary. No new test
+  cases cover Text copy/lease/domain/End; existing descriptor/JSON cases cover new source boundaries. No new test
   function/file/hook/checker/guard/card; root inventory9263 retained.
-- Current 7 filters match parent diagnostics: read5/Array-result1/emission5/Script ABI3/Map13 PASS, Array-source9/3/read-claim7/2. Inventory9263 unchanged.
+- Current 12 filters match parent diagnostics: result49/3, entry64/2, actuals82/4, source33/8, arguments12/1; JSON-source1/Map13/flow20/read5/Script3 PASS. Inventory9263 unchanged.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep original source/physical contracts.
 
 ## Next and full completion limits
-- Result kind/physical role share Formal or ReceiverFieldSlot support; Map remains pending.
+- Result source shares Formal/MapSlot roles; SAME Map roots cover get/installed Return and Completion. Existing JSON case guards this independent carrier boundary; ABI stays pending.
 - LANDED: SAME whole Map Return source reaches terminal Home observation and
   entry-use closure; each Present get retains its own receiver/read and Text key.
   Selected storage never falls through to Fresh/scalar.
@@ -83,8 +83,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - LANDED transport: checked Invoke, witness and marker share Scalar/Text payload;
   ABI keeps source kind or full descriptor at exact coordinates, SSA/lifetime checks.
   C shares descriptor/Array writers; numeric native and existing End remain strict.
-- Next: connect Map slot get/set/Return result publication, then SAME Text append
-  packet/collector/both final validators; preserve ancestry/Fault and complete End.
+- Next: carry Map receiver/field/evaluated-key support through checked get/set,
+  Return/Call lifetime and both final consumers; then Text append packet and End.
 - Map physical: shared InstallIndexed/EndOutcome with field/Text-key wrapper,
   prior vs Normal cleanup; no parent Map End. Array Text End needs source selection.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,

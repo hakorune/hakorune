@@ -89,6 +89,22 @@ pub(super) struct DisjointFieldAppendSourceV1 {
     call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 }
 impl MapStoredResultSourceV1 {
+    /// Logical support from the original slot; this never issues a Call ABI.
+    pub(crate) fn result_support_v1(&self) -> crate::mir::instruction::BorrowedResultSupportV1 {
+        crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot {
+            field: self.receiver.field(), key_ordinal: self.ordinal, object: self.object,
+        }
+    }
+    pub(crate) fn key_binding_v1(&self) -> BindingRefV1 { self.key }
+    pub(crate) fn corroborates_roots_v1(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        roots: &[Rc<ResultOriginWitnessV1>],
+    ) -> bool {
+        let sites: std::collections::BTreeSet<_> = roots.iter().map(|root| root.site()).collect();
+        self.receiver.receiver().owner() == owner && self.key.owner() == owner
+            && !roots.is_empty() && roots.len() == self.returns.len() && sites == self.returns.keys().collect()
+            && roots.iter().all(|root| root.site().owner() == owner && root.origin() == &self.origin()
+                && matches!(root.step(), ResultWitnessStepV1::MapStored { source } if std::ptr::eq(source.as_ref(), self)))
+    }
     /// SAME original get; the source census also retains its guarding has.
     pub(crate) fn present_get_v1(&self, value: &OwnedExprSiteV1)
         -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
@@ -297,11 +313,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         let roots = self.checked_original_source_roots_v1(key, value.owner())?;
         let Some(first) = roots.first() else { return Ok(None) };
         let ResultWitnessStepV1::MapStored { source } = first.step() else { return Ok(None) };
-        let sites: std::collections::BTreeSet<_> = roots.iter().map(|root| root.site()).collect();
-        if roots.len() != source.returns.len() || sites != source.returns.keys().collect()
-            || roots.iter().any(|root| root.origin() != &source.origin()
-                || !matches!(root.step(), ResultWitnessStepV1::MapStored { source: same }
-                    if Rc::ptr_eq(same, source))) {
+        if !source.corroborates_roots_v1(value.owner(), &roots.into_iter().cloned().collect::<Vec<_>>()) {
             return Err("callee-facts-identity");
         }
         Ok(Some(Rc::clone(source)))

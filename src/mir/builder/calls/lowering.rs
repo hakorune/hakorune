@@ -275,8 +275,8 @@ impl MirBuilder {
         if let Some(ref mut f) = self.function_state.current_function {
             if let Some(source) = result_source.and_then(|source| source.borrowed_nullable()) {
                 source.validate_function(f)?;
-                // The original identity result has no concrete class. Preserve
-                // its tagged carrier instead of re-inferring Null as Unit.
+                // Preserve the original non-owning result's tagged carrier;
+                // its source support, not Null inference, owns the result law.
                 f.signature.return_type = MirType::Unknown;
             } else if let Some(source) = result_source.and_then(|source| source.scalar()) {
                 let expected = match source.kind() {

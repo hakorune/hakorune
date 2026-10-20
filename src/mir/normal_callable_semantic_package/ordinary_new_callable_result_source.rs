@@ -27,17 +27,24 @@ impl CallableResultSourceV1 {
     }
 }
 
-/// Same immutable formal Return requirements, all source roots and Completion.
+#[derive(Debug, Clone)]
+enum CallableBorrowedResultOriginV1 {
+    Formal { binding: BindingRefV1, ordinal: u32, returns: Box<[BorrowedFormalReturnSourceLoanV1]> },
+    MapSlot {
+        source: Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
+        returns: Box<[crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1]>,
+    },
+}
+
+/// Same immutable Return requirements, all source roots and Completion.
 /// No new result law, selected input, executable row or ownership is issued.
 #[derive(Debug, Clone)]
 pub(crate) struct CallableBorrowedNullableResultSourceLoanV1 {
     owner: FunctionOwnerIdV1,
     key: CanonicalSameModuleCallableKeyV1,
-    formal: BindingRefV1,
-    ordinal: u32,
+    origin: CallableBorrowedResultOriginV1,
     completion: Rc<VerifiedFunctionCompletionV1>,
     roots: Box<[Rc<ResultOriginWitnessV1>]>,
-    formals: Box<[BorrowedFormalReturnSourceLoanV1]>,
 }
 impl CallableBorrowedNullableResultSourceLoanV1 {
     fn validate_source(&self) -> Result<(), String> {
@@ -45,8 +52,7 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
             || self.completion.implicit_body_end().is_some()
             || !matches!(self.completion.function_exit_contract().declared_result(), DeclaredFunctionResultContractV1::Unannotated)
             || self.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            || self.ordinal >= self.key.arity() || self.formal.owner() != self.owner
-            || self.formals.is_empty() || self.roots.is_empty()
+            || self.roots.is_empty()
         { return Err(freeze("callable-result/nullable-source-contract")); }
         let expected: BTreeSet<_> = self.completion.explicit_sites().iter().map(|site|
             SourcePathV1::from_node(site.node()).child(SourcePathSegmentV1::Value).expr()).collect();
@@ -54,30 +60,74 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
         if expected.is_empty() || actual != expected
             || self.roots.iter().any(|root| root.site().owner() != self.owner)
         { return Err(freeze("callable-result/nullable-return-coverage")); }
-        let mut formal_sites = BTreeSet::new();
-        for source in &self.formals {
-            if source.key() != &self.key || source.formal() != self.formal
-                || source.ordinal() != self.ordinal || source.value().owner() != self.owner
-                || !formal_sites.insert(source.value().site().clone())
-                || source.roots().len() != self.roots.len()
-                || source.roots().iter().zip(self.roots.iter()).any(|(a,b)| !Rc::ptr_eq(a,b))
-            { return Err(freeze("callable-result/nullable-formal-source")); }
-        }
-        let mut actual_formals = BTreeSet::new();
-        for root in &self.roots {
-            match (root.origin(), root.step()) {
-                (ResultValueOriginV1::Null, ResultWitnessStepV1::NullLiteral) => {},
-                (ResultValueOriginV1::Null | ResultValueOriginV1::ForwardFormal { .. },
-                    ResultWitnessStepV1::Formal { binding, ordinal })
-                    if *binding == self.formal && *ordinal == self.ordinal
-                        && (root.origin() == &ResultValueOriginV1::Null
-                            || root.origin() == &ResultValueOriginV1::ForwardFormal { ordinal: self.ordinal }) => {
-                    actual_formals.insert(root.site().site().clone());
-                },
-                _ => return Err(freeze("callable-result/nullable-root-role")),
+        match &self.origin {
+            CallableBorrowedResultOriginV1::Formal { binding, ordinal, returns } => {
+                if *ordinal >= self.key.arity() || binding.owner() != self.owner || returns.is_empty() {
+                    return Err(freeze("callable-result/nullable-source-contract"));
+                }
+                let mut formal_sites = BTreeSet::new();
+                for source in returns.iter() {
+                    if source.key() != &self.key || source.formal() != *binding
+                        || source.ordinal() != *ordinal || source.value().owner() != self.owner
+                        || !formal_sites.insert(source.value().site().clone())
+                        || source.roots().len() != self.roots.len()
+                        || source.roots().iter().zip(self.roots.iter()).any(|(a,b)| !Rc::ptr_eq(a,b))
+                    { return Err(freeze("callable-result/nullable-formal-source")); }
+                }
+                let mut actual_formals = BTreeSet::new();
+                for root in &self.roots {
+                    match (root.origin(), root.step()) {
+                        (ResultValueOriginV1::Null, ResultWitnessStepV1::NullLiteral) => {},
+                        (ResultValueOriginV1::Null | ResultValueOriginV1::ForwardFormal { .. },
+                            ResultWitnessStepV1::Formal { binding: actual_binding, ordinal: actual_ordinal })
+                            if *actual_binding == *binding && *actual_ordinal == *ordinal
+                                && (root.origin() == &ResultValueOriginV1::Null
+                                    || root.origin() == &ResultValueOriginV1::ForwardFormal { ordinal: *ordinal }) => {
+                            actual_formals.insert(root.site().site().clone());
+                        },
+                        _ => return Err(freeze("callable-result/nullable-root-role")),
+                    }
+                }
+                if actual_formals != formal_sites { return Err(freeze("callable-result/nullable-formal-coverage")); }
+            }
+            CallableBorrowedResultOriginV1::MapSlot { source, returns } => {
+                use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1 as Returned;
+                if !source.corroborates_roots_v1(self.owner, &self.roots)
+                    || source.key_binding_v1().owner() != self.owner || returns.len() != expected.len() {
+                    return Err(freeze("callable-result/nullable-root-role"));
+                }
+                let flow = self.completion.cleanup().root_flow()
+                    .ok_or_else(|| freeze("callable-result/nullable-source-contract"))?;
+                let mut sites = BTreeSet::new();
+                for returned in returns {
+                    let at = OwnedExprSiteV1::new(self.owner, returned.value_site().clone());
+                    if returned.owner() != self.owner || !sites.insert(returned.value_site().clone())
+                        || !self.completion.explicit_sites().contains(returned.return_site())
+                        || SourcePathV1::from_node(returned.return_site().node()).child(SourcePathSegmentV1::Value).expr()
+                            != *returned.value_site() {
+                        return Err(freeze("callable-result/nullable-return-coverage"));
+                    }
+                    match returned.returned() {
+                        Returned::StoredMapGet { source: same, key, .. }
+                            if Rc::ptr_eq(source, same) && key.reference_coverage_is_exact()
+                                && key.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                                    crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
+                                && source.present_get_v1(&at).is_some_and(|get|
+                                matches!(key.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                    statement, call, ordinal: 0 } if statement == returned.return_site() && std::sync::Arc::ptr_eq(call, get))) => {},
+                        Returned::StoredMapInstalled(install) if Rc::ptr_eq(install.source(), source)
+                            && source.installed_local_v1(&at).is_some_and(|(binding, construction, set)|
+                                binding == install.binding() && construction.site() == install.acquisition().site()
+                                    && set.owner() == install.site().owner() && set.site() == install.site().site())
+                            && flow.maps().iter().any(|row| matches!(row,
+                                crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation::FieldInstall(same)
+                                    if Rc::ptr_eq(same, install))) => {},
+                        _ => return Err(freeze("callable-result/nullable-root-role")),
+                    }
+                }
+                if sites != expected { return Err(freeze("callable-result/nullable-return-coverage")); }
             }
         }
-        if actual_formals != formal_sites { return Err(freeze("callable-result/nullable-formal-coverage")); }
         Ok(())
     }
 
@@ -111,6 +161,48 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     fn callable_borrowed_nullable_result_source_v1(&self, owner: FunctionOwnerIdV1)
         -> Result<Option<CallableBorrowedNullableResultSourceLoanV1>, String> {
+        let mut map_keys = self.callable_result_classes.source_rows().filter(|(_, exits)|
+            exits.iter().flat_map(|exit| exit.witnesses()).any(|root|
+                root.site().owner() == owner && matches!(root.step(), ResultWitnessStepV1::MapStored { .. })));
+        if let Some((key, _)) = map_keys.next() {
+            if map_keys.next().is_some() { return Err(freeze("callable-result/source-overlap")); }
+            let roots: Box<[_]> = self.callable_result_classes.checked_original_source_roots_v1(key, owner)
+                .map_err(freeze)?.into_iter().cloned().collect();
+            let first = roots.first().ok_or_else(|| freeze("callable-result/nullable-return-coverage"))?;
+            let source = self.callable_result_classes.map_stored_source_v1(first.site()).map_err(freeze)?
+                .ok_or_else(|| freeze("callable-result/nullable-root-role"))?;
+            source.receiver_v1().require_entry_source_v1(self)?;
+            let crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { key_ordinal, .. } = source.result_support_v1()
+                else { return Err(freeze("callable-result/nullable-root-role")); };
+            let catalog = self.original_parameter_contracts.as_deref()
+                .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
+            let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+            let contract = contracts.next().ok_or_else(|| freeze("callable-result/nullable-parameter"))?;
+            let (selected, _) = self.original_instance_input_issuance.as_ref()
+                .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
+            if contracts.next().is_some() || key_ordinal >= key.arity()
+                || selected.key_for_batch_slot(contract.batch_slot)
+                    != Some(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key.clone()))
+                || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+                || contract.parameters.len() != key.arity() as usize
+                || contract.parameters.iter().enumerate().any(|(ordinal, row)| row.ordinal as usize != ordinal || row.binding.owner() != owner)
+                || contract.parameters.get(key_ordinal as usize).is_none_or(|row| row.binding != source.key_binding_v1()) {
+                return Err(freeze("callable-result/nullable-ordinal"));
+            }
+            let completion = self.completion_source_for_owner_v1(owner)
+                .ok_or_else(|| freeze("callable-result/nullable-completion"))?;
+            let mut returns = Vec::new();
+            for relation in self.terminal_relations_for_owner(owner) {
+                let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(returned) = relation
+                    else { return Err(freeze("callable-result/nullable-root-role")); };
+                returns.push(returned.clone());
+            }
+            let result = CallableBorrowedNullableResultSourceLoanV1 { owner, key: key.clone(),
+                origin: CallableBorrowedResultOriginV1::MapSlot { source, returns: returns.into_boxed_slice() },
+                completion: Rc::clone(completion), roots };
+            result.validate_source()?;
+            return Ok(Some(result));
+        }
         let Some(ingress) = &self.borrowed_formal_source else { return Ok(None); };
         let ingress = ingress.as_ref().map_err(Clone::clone)?;
         let Some(definition) = ingress.source_definition_for(owner) else { return Ok(None); };
@@ -153,8 +245,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let roots = self.callable_result_classes.checked_original_source_roots_v1(first.key(), owner)
             .map_err(freeze)?.into_iter().cloned().collect();
         let source = CallableBorrowedNullableResultSourceLoanV1 {
-            owner, key: first.key().clone(), formal: first.formal(), ordinal: first.ordinal(),
-            completion: Rc::clone(completion), roots, formals: formals.into_boxed_slice(),
+            owner, key: first.key().clone(), origin: CallableBorrowedResultOriginV1::Formal {
+                binding: first.formal(), ordinal: first.ordinal(), returns: formals.into_boxed_slice(),
+            }, completion: Rc::clone(completion), roots,
         };
         source.validate_source()?;
         Ok(Some(source))
@@ -167,12 +260,16 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
         self.validate_source().unwrap();
         for drift in ["ordinal", "roots", "formal", "duplicate-formal"] {
             let mut changed = self.clone();
-            match drift {
-                "ordinal" => changed.ordinal += 1,
-                "roots" => { changed.roots = changed.roots[1..].into(); },
-                "formal" => changed.formals = Box::new([]),
-                _ => changed.formals = changed.formals.iter().cloned()
-                    .chain(changed.formals.iter().cloned()).collect(),
+            if drift == "roots" { changed.roots = changed.roots[1..].into(); }
+            else {
+                let CallableBorrowedResultOriginV1::Formal { ordinal, returns, .. } = &mut changed.origin else {
+                    panic!("formal source corruption requires its original role");
+                };
+                match drift {
+                    "ordinal" => *ordinal += 1,
+                    "formal" => *returns = Box::new([]),
+                    _ => *returns = returns.iter().cloned().chain(returns.iter().cloned()).collect(),
+                }
             }
             assert!(changed.validate_source().is_err(), "nullable source {drift}");
         }

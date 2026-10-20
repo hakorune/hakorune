@@ -150,9 +150,7 @@ impl BorrowedNullableLocalSourceLoanV1 {
         use crate::mir::instruction::BorrowedResultSupportV1 as Support;
         match &self.support {
             BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. } => Support::Formal(*callee_ordinal),
-            BorrowedLocalSupportV1::MapSlot(map) => Support::ReceiverFieldSlot {
-                field: map.source.receiver.field(), key_ordinal: map.source.ordinal, object: map.source.object,
-            },
+            BorrowedLocalSupportV1::MapSlot(map) => map.source.result_support_v1(),
         }
     }
     pub(crate) fn callee_ordinal(&self) -> Option<u32> {

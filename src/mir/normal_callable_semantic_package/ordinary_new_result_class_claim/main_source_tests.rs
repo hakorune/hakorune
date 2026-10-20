@@ -168,6 +168,17 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
             ResultValueOriginV1::MapHeld { key, class, .. } if *key == key_binding && class.as_ref() == "UserStats")));
         facts.recheck_borrowed_nullable_local_source_v1(batch, selected, &fields, parameters, &loan, None).unwrap();
     });
+    // The unchanged app's source supports both stored Return roles without
+    // inventing a formal-forward result or granting its pending Call an ABI.
+    let linked_source = format!("{}\n{json}", include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/src/shared/common/string_helpers.hako")));
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        &linked_source, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let key = CanonicalSameModuleCallableKeyV1::instance_box_method("JsonStreamAggregator", "statsFor", 1);
+    let owner = package.parameter_contracts.iter().find(|row|
+        package.selected.key_for_batch_slot(row.batch_slot)
+            == Some(&SelectedNormalCallableKeyV1::Cataloged(key.clone()))).unwrap().owner;
+    assert!(ledger.callable_result_source_v1(owner).unwrap().unwrap().borrowed_nullable().is_some());
 }
 
 #[test]
