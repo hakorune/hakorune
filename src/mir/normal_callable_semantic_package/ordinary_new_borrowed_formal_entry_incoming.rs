@@ -326,6 +326,19 @@ impl OrdinaryNewClaimLedgerV1 {
             let evaluation = install.key().as_ref();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
+        for append in flow.into_iter().flat_map(|flow| flow.named_arrays()).filter_map(|row| match row {
+            crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldTextAppend(frame) => Some(frame), _ => None,
+        }) {
+            if append.source().call().owner() != owner || origins.contains_key(&append.receiver())
+                || !uses.reads().any(|(site, original)| site == append.receiver_read()
+                    && *original == ResolvedLexicalRefV1::Local(append.receiver()))
+                || !covered.insert((append.receiver_read().clone(), append.receiver())) {
+                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+            }
+            append.source().recheck_census(owner, &self.array_i64_fields)?;
+            let evaluation = append.evaluation().as_ref();
+            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
+        }
         for terminal in self.terminal_relations_for_owner(owner) {
             use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
             if let TerminalRelationV1::Value(value) = terminal {

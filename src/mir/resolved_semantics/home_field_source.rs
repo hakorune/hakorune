@@ -17,6 +17,8 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
         -> Result<Option<crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1>, E> { Ok(None) }
     fn entry_write(&mut self, _input: ResolvedFunctionLoweringInputV1<'_>, _target: &SourceExprSiteV1)
         -> Result<Option<crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1>, E> { Ok(None) }
+    fn array_text_append_source(&mut self, _input: ResolvedFunctionLoweringInputV1<'_>, _site: &SourceExprSiteV1)
+        -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, E> { Ok(None) }
     /// Full-use input families retain scalar alias reads in the shared frame.
     /// This selects responsibility, never executable completion or scalar type.
     fn requires_initializer_use_frame(&mut self, _site: &OwnedExprSiteV1) -> Result<bool, E> { Ok(false) }

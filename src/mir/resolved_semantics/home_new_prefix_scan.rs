@@ -282,6 +282,11 @@ pub(super) fn scan_statement_flow<'a, E>(
             // returns `NoValue` and whose arguments are Home-neutral is
             // covered without ledger rows — the raw lane already owns
             // `Callee::Method{RuntimeData}`/`ArrayElementWrite` emission.
+            if let Some(ready) = field_call::observe_text_append(input, &statement, locals, homes, unavailable.is_none(),
+                local_calls, scalar_field, borrowed_actuals)? {
+                if !ready { unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())); }
+                continue;
+            }
             if field_call::observe_statement_field_call(
                 input,
                 &statement,

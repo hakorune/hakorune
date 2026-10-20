@@ -15,6 +15,18 @@ provider; it requires no index or Integer elements. Incomplete, opaque, foreign,
 replacement or null writer evidence cannot establish that residence. The class
 name or runtime payload alone proves neither operation.
 
+Statement Text append shares Count's original Array residence and sole-provider
+writer loan. Its operation retains the original Push Arc and existing
+ArrayTextAppend target; the read Recipe explicitly refuses this operation.
+The same Home field consult selects Text from original SUM/literal evidence and
+qualifies the original argument through shared Text evaluation. A named-Array
+observation retains that same source/evaluation and original statement, including
+ancestry and prior Homes; it transfers no caller lease/Home. Whole input-use
+closure counts its receiver/key reads once. Mandatory lifecycle prefixes retain
+the append even before a physical packet exists, so missing execution cannot
+silently disappear. The physical append packet, continuation/cleanup, collector,
+independent final validators and source-selected Text-array End remain required.
+
 Return use is a separate wrapper retaining all original Return sites and any
 original local initializer relation. It still requires the original scalar
 result/Completion law. The physical read recipe borrows the same inner read Rc;

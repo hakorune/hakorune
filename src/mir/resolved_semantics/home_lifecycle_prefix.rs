@@ -7,6 +7,7 @@ use super::*;
 pub(crate) enum LifecyclePrefixSourceV1 {
     Loop { site: OwnedExprSiteV1, product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2> },
     Call { site: OwnedExprSiteV1, statement: SourceStmtSiteV1 },
+    FieldTextAppend { site: OwnedExprSiteV1, frame: std::rc::Rc<super::CheckedFieldArrayTextAppendV1> },
     FieldArrayAppend {
         site: OwnedExprSiteV1,
         proof: std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
@@ -35,13 +36,14 @@ pub(crate) enum LifecyclePrefixSourceV1 {
 }
 impl LifecyclePrefixSourceV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        match self { Self::Loop { site, .. } | Self::BindingRebind { site, .. } | Self::InitializerExpression { site, .. } | Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
+        match self { Self::Loop { site, .. } | Self::BindingRebind { site, .. } | Self::InitializerExpression { site, .. } | Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::FieldTextAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
     }
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
             Self::Loop { product, .. } => product.source.source.site(),
             Self::Call { statement, .. } | Self::OwnedArrayAppend { statement, .. } => statement,
             Self::FieldArrayAppend { proof, .. } => proof.site(),
+            Self::FieldTextAppend { frame, .. } => frame.statement(),
             Self::BindingRebind { frame, .. } => frame.source().root().statement(),
             Self::InitializerExpression { frame, .. } => frame.source().root().statement(),
             Self::PrintExpression { frame, .. } => frame.source().root().statement(),
@@ -52,7 +54,7 @@ impl LifecyclePrefixSourceV1 {
     pub(crate) fn covered_by(&self, exit: &RootHomeExitV1) -> bool {
         match self {
             Self::Call { site, .. } => exit.covered_calls().contains(site),
-            Self::Loop { .. } | Self::BindingRebind { .. } | Self::InitializerExpression { .. } | Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
+            Self::Loop { .. } | Self::BindingRebind { .. } | Self::InitializerExpression { .. } | Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::FieldTextAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
         }
     }
 }
@@ -130,6 +132,11 @@ impl RootHomeFlow {
                     site: call.clone(), statement: SourceStmtSiteV1::from_node(call.site().node().clone()),
                     holder: source.clone(), candidate: candidate.clone(),
                 });
+            }
+        }
+        for observation in self.named_arrays() {
+            if let super::NamedArrayHomeObservationV1::FieldTextAppend(frame) = observation {
+                prefixes.push(LifecyclePrefixSourceV1::FieldTextAppend { site: frame.source().call().clone(), frame: std::rc::Rc::clone(frame) });
             }
         }
         for proof in self.field_array_loop_sources() {

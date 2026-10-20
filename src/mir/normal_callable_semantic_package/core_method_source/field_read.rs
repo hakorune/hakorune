@@ -24,11 +24,12 @@ impl FieldArrayReadRecipeV1 {
         use crate::mir::instruction::ArrayReadOperationV1 as Operation;
         match (self.is_count(), values) {
             (true, []) => Ok(Operation::Count),
-            (false, [index]) => Ok(Operation::Element { index: *index }),
+            (false, [index]) if self.source.is_element() => Ok(Operation::Element { index: *index }),
             _ => Err(fault("read-argument-cardinality")),
         }
     }
     pub(crate) fn accepts_operation(&self, operation: crate::mir::instruction::ArrayReadOperationV1) -> bool {
+        if !self.source.is_count() && !self.source.is_element() { return false; }
         matches!((self.is_count(), operation), (true, crate::mir::instruction::ArrayReadOperationV1::Count)
             | (false, crate::mir::instruction::ArrayReadOperationV1::Element { .. }))
     }

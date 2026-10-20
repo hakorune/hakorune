@@ -1,17 +1,17 @@
 # APP-json-stream-aggregator
-Status: Native Array Text copy/End verified; source/physical app connections incomplete. Date: 2026-10-21
+Status: Statement Text Array source/Home connected; physical app connections incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
 - Latest full suite at original Static Return SUM landing: 7PASS/4FAIL,
-  actual EXE6 + marker1, 401.795s; no SKIP/timeout. Not rerun for unused Text ABI.
+  actual EXE6 + marker1, 401.795s; no SKIP/timeout. Not rerun for this source step.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON `ordinary-new/object-input/callee-exit` now identifies owner25/exitBody4
-  and `PrefixNotCovered(Body3)`: statsFor users.push at line113, after set line112.
-  MIR/EXE is still absent; selected smoke is checked against the explicit frozen pair.
-- Native C linked with current runtime: Text copy/independent lease End/domain
-  Fault/retire-once PASS. This dependency evidence grants no source/backend packet.
+- JSON passes statsFor Body3 users.push source qualification and now stops at
+  owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
+  No MIR/EXE. CLI73s PASS; current source uses the frozen Text runtime/C pair.
+- Previous native C Text copy/lease/End/domain Fault PASS remains dependency
+  evidence; it grants no source/backend packet. Physical append remains owed.
 
 ## Retained connected contracts
 - One FieldResidence census carries every Array/Dynamic field, including Empty,
@@ -58,13 +58,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   until slot ABI/lifetime closes. Unit Completion alone grants no receiver packet.
 
 ## Verification and retained reds
-- Prior Map-source landing: JSONsource1/object5/use27/Map terminal13/flow20/nested11 PASS.
 - Map-argument1/2, initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent failures
   and diagnostics exactly except compilation session IDs. These reds remain owed.
 - Checked Array9/root Array53 PASS; runtime7.04s/root62s builds. Two existing
   cases extend independent Text copy/lease/domain/End boundaries. No new test
   function/file/hook/checker/guard/card; root inventory9263 retained.
-- Prior Invoke42, publication2/1, Array15/2 and native Fault evidence retained.
+- Current 9 focused filters match parent failures/diagnostics; Array-source1/Map-terminal13/flow20/source-witness1 PASS; CLI73s/root123s.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep original source/physical contracts.
 
@@ -73,8 +72,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - LANDED: SAME whole Map Return source reaches terminal Home observation and
   entry-use closure; each Present get retains its own receiver/read and Text key.
   Selected storage never falls through to Fresh/scalar.
-- Original Static callee Returns feed shared SUM/SCC, retaining every incoming
-  Rc/target/contract, omitted mapping and complete Return/flow identity.
 - LANDED: original procedural set retains same candidate/construction/key and
   prior/Normal Home snapshots; literal and field installs share Home removal.
   Installed Return borrows the SAME install; entry-use closure counts reads once.
@@ -82,9 +79,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - LANDED runtime: checked Text append copies without consuming input lease;
   boxed append shares structured result/state gate. Text-only End retires once
   and drops detached contents outside the gate; empty-only End stays strict.
-- Next source: share Count's original Array provider/writer in access source,
-  retain ArrayTextAppend target and original argument evaluation. Read recipe
-  must refuse Append. Connect existing append packet/collector/final validators.
+- LANDED source: Text append shares Count's original Array provider/writer and
+  retains existing ArrayTextAppend target plus exact argument evaluation/SUM.
+  Named-Array observation and mandatory lifecycle prefix retain same source/frame;
+  receiver/input reads count once, caller Text stays borrowed. Read Recipe refuses Append.
+- Next: connect this source/frame to existing append packet/collector and both
+  final validators, preserving original ancestry/Fault continuation and Text End.
 - Map physical: shared InstallIndexed/EndOutcome with field/Text-key wrapper,
   prior vs Normal cleanup; no parent Map End. Array Text End needs source selection.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,

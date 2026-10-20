@@ -440,3 +440,45 @@ pub(super) fn observe_local_field_call<E>(
         other => Some(other),
     })
 }
+
+/// One original statement Text append and its borrowed input evaluation.
+/// No candidate Home is transferred; source and final physical duties differ.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CheckedFieldArrayTextAppendV1 {
+    source: std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+    evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1>,
+    statement: SourceStmtSiteV1,
+    receiver_read: SourceExprSiteV1,
+    receiver: BindingRefV1,
+}
+impl CheckedFieldArrayTextAppendV1 {
+    pub(crate) fn source(&self) -> &std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1> { &self.source }
+    pub(crate) fn evaluation(&self) -> &std::rc::Rc<super::CheckedExpressionEvaluationV1> { &self.evaluation }
+    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 { &self.statement }
+    pub(crate) fn receiver_read(&self) -> &SourceExprSiteV1 { &self.receiver_read }
+    pub(crate) fn receiver(&self) -> BindingRefV1 { self.receiver }
+}
+
+pub(super) fn observe_text_append<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    locals: &mut PrefixLocalFlow<'_>, homes: &[LiveHomeV1], prefix_known: bool, calls: &[LocalCallObservationV1],
+    fields: &mut impl HomeFieldSourceConsultV1<E>,
+    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<bool>, E> {
+    if !prefix_known || !matches!(statement.node(), ASTNode::MethodCall { .. }) { return Ok(None) }
+    let site = SourceExprSiteV1::from_node(statement.site().node().clone());
+    let Some(source) = fields.array_text_append_source(input, &site)? else { return Ok(None) };
+    let Some(call) = source.append_method() else { return Ok(Some(false)) };
+    let Some(shape) = input.body_shape() else { return Ok(Some(false)) };
+    let Some(BodyExpressionShapeV1::FieldAccess { object, .. }) = shape.expression_shape(call.receiver_site()) else { return Ok(Some(false)) };
+    let Some(ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(object) else { return Ok(Some(false)) };
+    if !locals.is_self_rooted_handle(receiver) || source.call().site() != &site || call.owner() != input.owner() { return Ok(Some(false)) }
+    let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, call, 0) else { return Ok(Some(false)) };
+    let Some(evaluation) = super::terminal_relation::qualify_terminal_text_evaluation_v1(input, plan, source.call(), locals, homes, calls, port)? else { return Ok(Some(false)) };
+    if !evaluation.calls().is_empty() || !evaluation.cores().is_empty() || !evaluation.operations().is_empty()
+        || !evaluation.owned_result_nodes().is_empty() { return Ok(Some(false)); }
+    let frame = std::rc::Rc::new(CheckedFieldArrayTextAppendV1 { source, evaluation,
+        statement: statement.site().clone(), receiver_read: object.clone(), receiver });
+    locals.retain_named_array_observation(super::NamedArrayHomeObservationV1::FieldTextAppend(frame));
+    Ok(Some(true))
+}

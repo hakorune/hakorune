@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/object-input/callee-exit: owner25 statsFor exitBody4 PrefixNotCovered Body3 users.push(user); Map physical install/Return/lifetime incomplete"
+current_blocker_token = "ordinary-new/lexical-instance-call/source-pending: owner26 ingestLine Body5 Initializer0 statsFor(user), callee owner25; Array/Map physical connections incomplete"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Array Textコピーappendと専用Endを既存state/ABIへ接続。
-新runtimeをCからリンク実行PASS。JSONはstatsFor Body3 users.pushで未完、EXEなし。
-直近固定suiteはStatic Return SUM着地時7PASS/4FAIL（実EXE6＋marker1）。
-checked Array9/root Array53 PASS、runtime7.04s/root62s。test関数・ファイル増加なし。
-次は同じArray provider/argumentからappend packet・final検証・End選択まで接続。
+APP-json-stream-aggregator: Text appendの元Array provider/引数を共通Home・入力useへ接続。
+JSONはusers.push解析を通過、owner26 Body5 statsForでsource-pending。MIR/EXEなし。
+直近固定suiteは7PASS/4FAIL（実EXE6＋marker1）、今回は再計測なし。
+CLI73s/root123s、root一覧9263件で親と同一。focused結果はactive card参照。
+次はappend packet・両final検証・source選択Text EndとMap slot/Return/lifetime。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: Original statement Text Array append shares Count provider/writer and retains original Push/argument evaluation in existing Home field consult. Same source/frame reaches named-Array observation, receiver/input-use closure and mandatory lifecycle prefix; read Recipe refuses Append, missing physical packet remains fail-closed. No Home transfer or execution grant. CLI73s/root123s; 9 focused filters match parent failures/diagnostics (initializer7/1, entry64/2, actuals82/4, result49/3, source33/8); Array-source1/Map-terminal13/flow20/source-witness1 PASS. Inventory9263 identical, no new tests/files/hooks/checkers/cards. JSON advances from statsFor Body3 users.push to owner26 ingestLine Body5 statsFor lexical-instance-call/source-pending; no MIR/EXE. Prior suite7/4 actualEXE6+marker1 not rerun. Next original append packet/collector/both final validators plus ancestry/Fault Text End selection; Map physical slot/get/set Return/lifetime and finite goal remain owed.",
   "2026-10-21: Native checked Text Array append copies strict Static/Owned descriptor via shared String decoder into original boxed write gate; caller lease stays owned. Boxed raw append now projects same structured result, preserving numeric promotion/-1. Separate Text-only End validates canonical String/native Text storage, retires/drops detached contents outside gate; empty-only End unchanged. Kernel9/root Array53 PASS; existing cases cover copy/lease/domain/End; C signatures compile. Linked C executable PASS copy/End/Fault; runtime build7.04s/root62s, no new test functions/files/hooks/checkers/cards. JSON explicit base compiler/current runtime still statsFor owner25 Body3 users.push, no MIR/EXE. Prior suite7/4 not rerun; actualEXE6+marker1. Next share original Array access/provider, retain Text argument in existing append packet/collector/final validators and select complete Text End. Map physical slot/Return/lifetime and finite goal remain owed.",
   "2026-10-21: Same original procedural Map set/construction now retains receiver, qualified passive Text key, precommit Homes and Normal-minus-candidate in existing Map source walk. Literal and field installs share Home removal; Installed Return borrows SAME retained install, never revives caller Home. Entry-use closure collects receiver/key once; physical consumption remains closed. No new test cases/files/hooks/checkers/guards/cards; inventory9263 unchanged. CLI42s/root122s PASS. JSON stop advances owner25 statsFor Body2 set to Body3 users.push; no EXE. Map-flow20/nested11/terminal13/source1/use27/object5 PASS; entry64/2, actuals82/4, result49/3, initializer7/1, Map-argument1/2 retain parent diagnostics. Prior suite7/4 actualEXE6+marker1,401.795s not rerun. Next Array Text append source plus receiver-first install_with_end/EndOutcome bridge, prior vs Normal cleanup; no parent Map End. Physical slot result/Return/lifetime and full finite goal remain owed.",
-  "2026-10-21: Suite7/4 actualEXE6+marker1,401.795s,no SKIP/timeout. Original Static complete Return edges connected to the existing SUM/SCC graph without catalog result authority; per-incoming Rc/target/contract and sealed omitted target checks retained, callee body memoized. SAME whole Map Return source reaches terminal/entry-use closure with exact receiver and passive Text key; miss set stays unavailable, no Fresh/scalar fallback or ABI/Home grant. CLI40.30s/root95s; unchanged runtime/C reused. JSONsource1/object-return5/borrowed-use27/Map-terminal13/nullable2 PASS. Initializer7/1, entry64/2, source33/8, actuals82/4, result49/3 match parent diagnostics except compilation session IDs. Existing case extensions cover independent Static Return domain and Map source identity; no new tests/files/hooks/checkers/guards/cards, inventory9263. JSON now object-input/callee-exit PrefixNotCovered Body2, callee unreported; Map/get/set/Return/lifetime and finite goal remain owed.",
 ]

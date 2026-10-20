@@ -442,7 +442,7 @@ use solver::solve;
 
 impl PreparedBorrowedFormalIngressV1 {
     /// Complete source alternatives on Normal, never entry or execution permission.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_value_sum_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn source_value_sum_v1(
         &self, formal: BindingRefV1,
     ) -> Option<&SourceValueSumV1> {
         self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)

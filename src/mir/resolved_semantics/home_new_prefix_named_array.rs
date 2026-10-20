@@ -7,6 +7,7 @@ use crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NamedArrayHomeObservationV1 {
     FieldLoop { source: FieldArrayLoopHomeSourceV1 },
+    FieldTextAppend(std::rc::Rc<super::CheckedFieldArrayTextAppendV1>),
     Initializer {
         source: NamedArrayHolderSourceLoanV1,
         prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,

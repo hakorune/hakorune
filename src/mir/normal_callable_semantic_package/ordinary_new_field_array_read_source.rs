@@ -1,5 +1,5 @@
-//! One source issuer for exact Integer reads of field-resident Arrays.
-//! Return and local/Birth use relations retain this SAME immutable read loan.
+//! Shared original residence/provider authority for field Array accesses.
+//! Element/Count reads and Text append keep distinct operation permissions.
 use super::*;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -15,20 +15,24 @@ struct FieldArrayResidenceSourceV1 {
 }
 
 #[derive(Debug, Clone)]
-struct ArrayCountSourceV1 {
+struct ArrayProviderCallSourceV1 {
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     manifest: crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2,
     writer: field_write_claim::OriginalFieldWriteSourceLoanV1,
+    append_target: Option<Rc<crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1>>,
 }
-impl PartialEq for ArrayCountSourceV1 {
+impl PartialEq for ArrayProviderCallSourceV1 {
     fn eq(&self, other: &Self) -> bool {
         std::sync::Arc::ptr_eq(&self.method, &other.method) && self.writer == other.writer
+            && match (&self.append_target, &other.append_target) {
+                (None, None) => true, (Some(a), Some(b)) => Rc::ptr_eq(a,b), _ => false,
+            }
             && self.manifest.brand() == other.manifest.brand()
             && self.manifest.arity() == other.manifest.arity()
             && std::ptr::eq(self.manifest.row(), other.manifest.row())
     }
 }
-impl Eq for ArrayCountSourceV1 {}
+impl Eq for ArrayProviderCallSourceV1 {}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum FieldArrayReadSourceOperationV1 {
@@ -36,7 +40,8 @@ enum FieldArrayReadSourceOperationV1 {
         index: OwnedExprSiteV1,
         index_field: Option<(BindingRefV1, SourceExprSiteV1, Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>)>,
     },
-    Count(ArrayCountSourceV1),
+    Count(ArrayProviderCallSourceV1),
+    TextAppend(ArrayProviderCallSourceV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -55,7 +60,7 @@ impl CheckedFieldArrayAccessSourceV1 {
         let Some(call) = input.function().method_call_source_v1(self.call.site()) else { return false; };
         if input.owner() != self.call.owner() || call.receiver_site() != self.receiver.site() { return false; }
         match &self.operation {
-            FieldArrayReadSourceOperationV1::Count(source) => std::sync::Arc::ptr_eq(call, &source.method),
+            FieldArrayReadSourceOperationV1::Count(source) | FieldArrayReadSourceOperationV1::TextAppend(source) => std::sync::Arc::ptr_eq(call, &source.method),
             FieldArrayReadSourceOperationV1::Element { index, .. } => call.selector() == "get" && call.arity() == 1
                 && call.arguments().first().is_some_and(|argument| argument.ordinal() == 0 && argument.site() == index.site()),
         }
@@ -64,6 +69,10 @@ impl CheckedFieldArrayAccessSourceV1 {
     pub(crate) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }
     pub(crate) fn index(&self) -> Option<&OwnedExprSiteV1> {
         match &self.operation { FieldArrayReadSourceOperationV1::Element { index, .. } => Some(index), _ => None }
+    }
+    pub(crate) fn is_element(&self) -> bool { matches!(self.operation, FieldArrayReadSourceOperationV1::Element { .. }) }
+    pub(crate) fn append_method(&self) -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
+        match &self.operation { FieldArrayReadSourceOperationV1::TextAppend(source) => Some(&source.method), _ => None }
     }
     pub(crate) fn is_count(&self) -> bool { matches!(self.operation, FieldArrayReadSourceOperationV1::Count(_)) }
     pub(crate) fn field_name(&self) -> &str { &self.residence.field_name }
@@ -87,13 +96,23 @@ impl CheckedFieldArrayAccessSourceV1 {
             FieldArrayReadSourceOperationV1::Count(source) => {
                 use crate::mir::core_method_result_kind::{CoreMethodSemanticLawV2 as Law, CoreMethodEffectV1 as Effect, CoreMethodResultKindV1 as ResultKind};
                 let row = source.manifest.row();
-                source.method.owner() == owner && source.method.site() == self.call.site()
+                source.append_target.is_none() && source.method.owner() == owner && source.method.site() == self.call.site()
                     && source.method.receiver_site() == self.receiver.site() && source.method.arity() == 0
                     && crate::boxes::array::ArrayMethodId::from_name_and_arity(source.method.selector(), source.method.arity() as usize)
                         == Some(crate::boxes::array::ArrayMethodId::Length)
                     && row.op == crate::mir::core_method_op::CoreMethodOp::ArrayLen
                     && row.receiver_box == "ArrayBox" && row.effect == Effect::PureRead && row.result_kind == ResultKind::I64Value
                     && source.manifest.arity() == 0 && source.manifest.semantic_law_for_arity() == Some(Law::ArrayCount)
+                    && source.writer.corroborates_sole_array_provider_v1(&self.residence.owner_box,
+                        self.field_name(), &self.residence.constructor, self.provider_site())
+            }
+            FieldArrayReadSourceOperationV1::TextAppend(source) => {
+                use crate::mir::resolved_semantics::{CoreMethodHomeSchemaV1 as Schema, CoreMethodHomeParameterRelationV1 as Parameter, CoreMethodHomeResultRelationV1 as ResultKind};
+                source.method.owner() == owner && source.method.site() == self.call.site()
+                    && source.method.receiver_site() == self.receiver.site() && source.method.arity() == 1
+                    && source.append_target.as_ref().is_some_and(|target|
+                        target.schema() == Schema::ArrayTextAppend && target.row().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayPush
+                            && target.parameters() == [Parameter::TextRetainedByReceiver] && target.result() == ResultKind::NoValue)
                     && source.writer.corroborates_sole_array_provider_v1(&self.residence.owner_box,
                         self.field_name(), &self.residence.constructor, self.provider_site())
             }
@@ -333,8 +352,44 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
     let source = Rc::new(CheckedFieldArrayAccessSourceV1 {
         caller: caller.clone(), call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
         receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence,
-        operation: FieldArrayReadSourceOperationV1::Count(ArrayCountSourceV1 {
-            method: std::sync::Arc::clone(method), manifest, writer,
+        operation: FieldArrayReadSourceOperationV1::Count(ArrayProviderCallSourceV1 {
+            method: std::sync::Arc::clone(method), manifest, writer, append_target: None,
+        }),
+    });
+    source.recheck_census(input.owner(), &BTreeMap::new())?;
+    Ok(Some(source))
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn capture_text_append(
+    input: ResolvedFunctionLoweringInputV1<'_>, caller: &CanonicalSameModuleCallableKeyV1,
+    box_source: &crate::parser::ParserOrdinaryBoxSourceRowV1, call_site: &SourceExprSiteV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    writers: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+) -> Result<Option<Rc<CheckedFieldArrayAccessSourceV1>>, String> {
+    let Some(method) = input.function().method_call_source_v1(call_site) else { return Ok(None) };
+    if caller.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod || caller.owner() != box_source.name()
+        || crate::boxes::array::ArrayMethodId::from_name_and_arity(method.selector(), method.arity() as usize)
+            != Some(crate::boxes::array::ArrayMethodId::Push) { return Ok(None); }
+    let Some(shape) = input.body_shape() else { return Ok(None) };
+    let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(method.receiver_site()) else { return Ok(None) };
+    let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| freeze("array-read/source-loan"))?;
+    if !super::array_i64_fields::is_self_receiver(&ledger, shape, object) { return Ok(None) }
+    let Some((canonical, _)) = super::terminal_home::source_declared_field(constructors, box_source,
+        &OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), field)
+        .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-result/field-authority")))? else { return Ok(None) };
+    if !constructors.is_array_field(canonical).map_err(|_| freeze("array-read/field-source"))? { return Ok(None); }
+    let residence = capture_residence(constructors, box_source, caller.owner(), field.clone(), canonical)?;
+    let writer = writers.array_provider_source_v1(caller.owner(), &residence.field_name,
+        &residence.constructor, &residence.provider_site).ok_or_else(|| freeze("array-read/provider-writers"))?;
+    let manifest = crate::mir::core_method_result_kind::issue_core_method_manifest_row_ref_v2(crate::mir::core_method_op::CoreMethodOp::ArrayPush,1)
+        .ok_or_else(|| freeze("array-read/count-manifest"))?;
+    let target = crate::mir::resolved_semantics::CoreMethodInstanceTargetIssuerV1::array_text_append(manifest.brand())
+        .and_then(|mut issuer| issuer.issue(manifest)).map_err(|_| freeze("array-read/source-census-drift"))?;
+    let source = Rc::new(CheckedFieldArrayAccessSourceV1 { caller: caller.clone(),
+        call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
+        receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence,
+        operation: FieldArrayReadSourceOperationV1::TextAppend(ArrayProviderCallSourceV1 {
+            method: std::sync::Arc::clone(method), manifest, writer, append_target: Some(Rc::new(target)),
         }),
     });
     source.recheck_census(input.owner(), &BTreeMap::new())?;
