@@ -655,6 +655,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                     order.validate_direct_entry(self, owner, expected_exit, entry, bindings, projection)?;
                     order.validate_null_return(entry, bindings, projection, projection)?;
+                    if let Some(producers) = self.validate_text_return_producer_v1(CallValidationContextV1::Lowering(self),
+                        owner, expected_exit, entry, bindings, projection, projection)? {
+                        for producer in producers {
+                            if !super::physical_boundary::check_binding(function, None, producer.0, &producer.1)? {
+                                return Err(freeze("root-exit-binding-drift"));
+                            }
+                        }
+                    }
                     if let Some(producer) = self.validate_received_return_producer_v1(
                         owner,
                         expected_exit,

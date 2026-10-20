@@ -164,6 +164,24 @@ fn non_i64_literal_returns_issue_value_relations() {
             assert_eq!(projection.homes().len() + 1, homes.len());
             assert!(!projection.homes().iter().any(|home| home.binding() == acquisition.binding()),
                 "only successful Normal exit transfers the returned residence");
+            let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(
+                &format!("static box Main {{ main() {{ {body} }} }}"));
+            let (key, module, same, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
+            assert!(std::rc::Rc::ptr_eq(&same, &ledger));
+            let handoff = ledger.seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort, Vec::new()).unwrap();
+            let root = handoff.root_source().unwrap();
+            root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(())).unwrap();
+            let previous = module.functions[&key].blocks.values().flat_map(|block| &block.instructions)
+                .find_map(|row| match row { crate::mir::MirInstruction::StringResidenceInstall { value, replaces: None } => Some(*value), _ => None })
+                .expect("the pre-rebind residence remains an original producer");
+            let mut changed = module.clone();
+            for block in changed.functions.get_mut(&key).unwrap().blocks.values_mut() {
+                if let Some(crate::mir::MirInstruction::Return { value }) = &mut block.terminator {
+                    assert_ne!(*value, Some(previous));
+                    *value = Some(previous);
+                }
+            }
+            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err());
             assert_eq!(super::direct_call_loan::lifecycle::call_result_kind(Some(&TerminalRelationV1::Value(relation.clone()))), None,
                 "source relation alone cannot grant an I64 or ordinary owned-pair ABI");
         }

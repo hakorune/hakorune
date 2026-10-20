@@ -307,6 +307,11 @@ impl TextResidencePacketV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn local_value(&self) -> ValueId {
         match self { Self::Initializer(packet) => packet.local_value(), Self::Rebind(packet) => packet.value() }
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(&self)
+        -> Result<&(BasicBlockId, MirInstruction), String> {
+        match self { Self::Initializer(packet) => packet.root_acquisition_binding_v1(),
+            Self::Rebind(packet) => packet.root_acquisition_binding_v1() }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self { Self::Initializer(packet) => packet.install_binding(), Self::Rebind(packet) => packet.install_binding() }
     }

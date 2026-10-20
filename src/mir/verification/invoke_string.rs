@@ -2,7 +2,7 @@
 //! Owned pairs may be lent only at source-proved Invoke argument slots; End reverses actual Normal
 //! acquisition order, including every later Fault prefix.
 use crate::mir::instruction::{
-    InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Op,
+    InvokeNormalResultKind, InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Op,
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
@@ -17,7 +17,7 @@ pub(super) fn check_source_uses(
         .filter_map(|row| match row {
             MirInstruction::InvokeNormalResult { dst, invoke_block }
                 if function.blocks.get(invoke_block).and_then(|block| block.terminator.as_ref()).is_some_and(|row|
-                    matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } if operation.owns_normal_result())) => Some(*dst),
+                    matches!(row, MirInstruction::Invoke { operation, .. } if operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))) => Some(*dst),
             _ => None,
         }).collect();
     for (block, body) in &function.blocks {
@@ -65,12 +65,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     }
     let selected = |instruction: &MirInstruction| {
         matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
-            instruction,
-            MirInstruction::Invoke {
-                operation: InvokeOperation::String(_),
-                ..
-            }
-        )
+            instruction, MirInstruction::Invoke { operation, .. }
+                if matches!(operation, InvokeOperation::String(_))
+                    || operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))
     };
     if !function
         .blocks
@@ -90,9 +87,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         .get(invoke_block)
                         .and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke {
-                        operation: InvokeOperation::String(operation),
+                        operation,
                         ..
-                    }) if operation.owns_normal_result()
+                    }) if operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString)
                 ) {
                     if results.insert(*dst, *invoke_block).is_some()
                         || producers.insert(*invoke_block, *dst).is_some()
@@ -153,6 +150,10 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     if matches!(operation, Op::End { value: end } if *end == value)
                         || operation.operands().iter().any(|operand|
                             matches!(operand, Operand::OwnedString(owned) if *owned == value)));
+                // A typed physical Return may transfer only an installed Home;
+                // the path check below requires that exact live pair on Normal.
+                let allowed = allowed || matches!(instruction, MirInstruction::Return { value: Some(returned) }
+                    if *returned == value && function.signature.return_type == crate::mir::MirType::String);
                 // KeepAlive is optimizer metadata, checked for SSA availability
                 // by the shared verifier; it performs no runtime pair access.
                 let allowed = allowed || matches!(instruction, MirInstruction::KeepAlive { .. })
@@ -230,6 +231,16 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 }
             }
         }
+        if let MirInstruction::Return { value: Some(value) } = term {
+            if results.contains_key(value) {
+                if function.signature.return_type != crate::mir::MirType::String || faulted
+                    || live.replacement.is_some() || !live.temporary.is_empty()
+                    || live.homes.as_slice() != [*value] {
+                    return Err("string-owned-escape");
+                }
+                live.homes.pop();
+            }
+        }
         let targets = block.successors_from_terminator();
         if targets.is_empty() && !live.is_empty() {
             return Err("string-missing-end");
@@ -246,7 +257,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             {
                 next_faulted |= target == *fault_landing;
                 if target == *normal_landing
-                    && matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result())
+                    && operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString)
                 {
                     next.temporary.push(*producers.get(&id).ok_or("string-result-missing")?);
                 }
@@ -460,6 +471,26 @@ mod tests {
         }
         assert_eq!(check(&installed), Ok(()));
         assert!(super::super::check_function(&installed).is_ok());
+        // Text Return transfers the same installed Home only after sibling
+        // cleanup; the original Fault suffix still Ends that residence.
+        let mut returned = installed.clone();
+        returned.signature.return_type = crate::mir::MirType::String;
+        returned.blocks.get_mut(&BasicBlockId(4)).unwrap().terminator =
+            Some(MirInstruction::Return { value: Some(ValueId(3)) });
+        returned.blocks.remove(&BasicBlockId(1004));
+        returned.blocks.remove(&BasicBlockId(5));
+        assert_eq!(check(&returned), Ok(()));
+        for (block, value) in [(4, 2), (20, 3)] {
+            let mut wrong = returned.clone();
+            wrong.blocks.get_mut(&BasicBlockId(block)).unwrap().terminator =
+                Some(MirInstruction::Return { value: Some(ValueId(value)) });
+            assert_eq!(check(&wrong), Err("string-owned-escape"));
+        }
+        let mut temporary_return = good.clone();
+        temporary_return.signature.return_type = crate::mir::MirType::String;
+        temporary_return.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator =
+            Some(MirInstruction::Return { value: Some(ValueId(3)) });
+        assert_eq!(check(&temporary_return), Err("string-owned-escape"));
         let mut both_homes = good.clone();
         for (id, value) in [(1, 2), (2, 3)] {
             both_homes.blocks.get_mut(&BasicBlockId(id)).unwrap().instructions.push(

@@ -4920,5 +4920,13 @@ retirement clears that qualification while preserving the same original source
 loan/error. Numeric consumers still see only their old scalar subset, with the
 same order and refusal gates; source-only rows issue no numeric proof or result
 ABI. The original Return owner owns this storage and its projections; there is
-no separate Text result registry. Actual Text Return/Call sealing remains a
-separate required950 connection through checked Home frames and Completion.
+no separate Text result registry. A source TextResidence Return now joins the
+SAME installed initializer/rebind packet, original acquisition/install and that
+exit's unique Return value. Normal omits only this Home; Fault retains it.
+The original recorder, pending exit, finishing and both final consumers share
+this producer check, including projected bindings and mandatory membership.
+Independent physical String verification transfers only a sole live installed
+Home on a String Normal Return, with no pending replacement/temporary or Fault.
+Ordinary Text Call/result ABI, explicit Return-hold across sibling Text Homes,
+and direct returned-expression execution remain required connections through the
+same Call, Home and Completion owners; a plain install does not grant that hold.

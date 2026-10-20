@@ -43,6 +43,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("terminal-null/producer-missing"));
         }
         order.validate_null_return(&entry, &bindings, None, None)?;
+        self.validate_text_return_producer_v1(CallValidationContextV1::Lowering(self), owner, site, &entry, &bindings, None, None)?;
         self.validate_received_return_producer_v1(owner, site, &entry, &bindings, None, None)?;
         self.validate_fresh_return_producer_v1(owner, site, &entry, &bindings, None, None, None)?;
         } else {

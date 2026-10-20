@@ -136,7 +136,7 @@ impl<'a> CallValidationContextV1<'a> {
             check(value, packet.root_acquisition_binding_v1()?)
         })
     }
-    fn text_home_for_acquisition_v1(self,
+    pub(in crate::mir::normal_callable_semantic_package) fn text_home_for_acquisition_v1(self,
         acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
     ) -> Result<TextResidencePacketV1, String> {
         let rows = self.ledger().local_commits.borrow();
