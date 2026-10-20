@@ -292,6 +292,11 @@ uint32_t nyrt_array_checked_new_v1(void *, uint64_t, int64_t *)
  * not a general Array End or a source ownership/emptiness issuer. */
 uint32_t nyrt_array_checked_empty_end_v1(void *, uint64_t, int64_t)
     __asm__("nyash.array.checked_empty_end_v1");
+/* Source-selected Text residence only: canonical String values / native Text
+ * storage, unclaimed, retired once, detached values dropped outside state gate.
+ * Numeric/mixed/object payloads reject without consumption. */
+uint32_t nyrt_array_checked_text_end_v1(void *, uint64_t, int64_t)
+    __asm__("nyash.array.checked_text_end_v1");
 /* Whole immutable Main ingress snapshot. UTF-8 slices may contain NUL.
  * Normal alone publishes out. Before publication all elements stay local RAII. */
 typedef struct { const uint8_t *data; size_t length; } nyrt_script_argument_utf8_v1;
@@ -306,6 +311,11 @@ uint32_t nyrt_array_checked_append_bool_v1(void *, uint64_t, int64_t, uint32_t)
     __asm__("nyash.array.checked_append_bool_v1");
 uint32_t nyrt_array_checked_append_f64_v1(void *, uint64_t, int64_t, double)
     __asm__("nyash.array.checked_append_f64_v1");
+/* Strict Static/Owned Text operand; copies into the Array without consuming
+ * the input pair. Receiver is checked before descriptor decode, and typed
+ * element mismatch records the existing append Fault without mutation. */
+uint32_t nyrt_array_checked_append_text_v1(void *, uint64_t, int64_t,
+    const NyrtStringOperandV1 *) __asm__("nyash.array.checked_append_text_v1");
 /* Source-issued append-only object slots. Descriptor is an immutable live AOT
  * constant; its address and all fields must be identical at every operation.
  * Profiles: 1=SafeMutex, 2=SingleThreadExact; nullable is exactly 0/1.

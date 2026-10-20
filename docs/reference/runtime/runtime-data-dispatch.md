@@ -154,7 +154,9 @@ the end position and returns the committed length under this lock; concurrent
 appends through shared aliases neither overwrite one another nor return duplicate
 positions. Indexed store and append reuse the same primitive mutation owner.
 This guarantee covers the raw integer append caller and the i64/Bool/F64 arms
-of generic kernel append; boxed/string and alternate storage routes are separate.
+of generic kernel append. Boxed append also retains its structured result under
+that same state gate; its existing raw projection still returns committed length
+or -1, including unchanged integer promotion and mixed-storage behavior.
 
 Existing `slot_store_*_raw` booleans and kernel sentinel results keep their
 compatibility meaning. This internal Result boundary introduces no C ABI or
@@ -174,6 +176,8 @@ select an alternate storage backend or decode generic integer/handle carriers.
 | `checked_append_i64_v1` | u64 site, i64 handle, i64 value | Integer append; even a value equal to a handle stays integer |
 | `checked_append_bool_v1` | u64 site, i64 handle, u32 value | Exactly 0/1 Bool append |
 | `checked_append_f64_v1` | u64 site, i64 handle, double value | F64 append with bit-preserving payload transport |
+| `checked_append_text_v1` | u64 site, i64 handle, strict String operand* | Borrow Static/Owned Text and append an independent canonical String copy |
+| `checked_text_end_v1` | u64 site, i64 handle | Retire an unclaimed Text-only Array residence once, then release its handle |
 
 All return u32 Normal=0/Fault=1/InvalidContract=2. Explicit element tags are
 `1=i8, 2=i16, 3=i32, 4=i64, 5=u8, 6=u16, 7=u32`; source enum discriminants
@@ -210,6 +214,23 @@ returned-Fault recovery under the policy below. Native residence cleanup uses
 the existing void `nyrt_handle_release_h` exactly once; there is no new release
 status or Array-specific registry. These exports alone do not activate the
 selected Script C backend.
+
+Text append validates the Array receiver before decoding the shared String
+operand. It accepts only Static/Owned Text, including empty, Unicode and NUL;
+NormalInteger does not stringify. The Text/lease read guard ends before the Array
+state gate is acquired. Validation and append share the original boxed-write
+owner, so a typed element mismatch records the existing Fault202/[1,0] and leaves
+storage unchanged. The input lease remains caller-owned and may End independently
+before the Array copy is read or released.
+
+Text End is a separate source-selected operation. It accepts unclaimed canonical
+StringBox values or native Text storage, atomically replaces storage with Ended,
+then drops detached values and releases the host handle outside the state gate.
+Retained aliases cannot revive storage. Claimed, numeric/mixed, object and record
+storage refuse without consumption. The existing empty-only End remains strict.
+Neither runtime content checks nor these exports issue source ownership, complete
+parent End, an append packet or canonical backend permission; original field
+provider/argument/effect and both final consumers remain required.
 
 ### Lifecycle physical input and runtime session binding
 

@@ -20,21 +20,22 @@ impl ArrayBox {
     /// Raw append helper for substrate/plugin routes.
     /// Visible `push()` semantics stay above this seam.
     pub fn slot_append_box_raw(&self, item: Box<dyn NyashBox>) -> i64 {
+        self.slot_append_box_result(item).map(|length| length as i64).unwrap_or(-1)
+    }
+
+    /// One gate validates the active element contract before changing storage.
+    /// Compatibility projects this same result; checked callers retain its reason.
+    pub fn slot_append_box_result(&self, item: Box<dyn NyashBox>) -> Result<usize, super::super::runtime_contract::ArrayPrimitiveWriteError> {
+        use super::super::runtime_contract::ArrayPrimitiveWriteError as Error;
         let mut state = self.items.state.write();
         if matches!(
             &state.storage,
             ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
         ) {
-            return -1;
+            return Err(Error::UnsupportedStorage);
         }
-        if super::super::runtime_contract::validate_boxed_element(
-            state.element_contract,
-            item.as_ref(),
-        )
-        .is_err()
-        {
-            return -1;
-        }
+        super::super::runtime_contract::validate_boxed_element(state.element_contract, item.as_ref())
+            .map_err(|reason| Error::ElementContract { reason })?;
         let mut items = &mut state.storage;
         // F1: Auto-promote to InlineI64 when pushing an i64 value into
         // an empty or InlineI64-compatible array. Avoids Boxed/visible method dispatch.
@@ -45,7 +46,7 @@ impl ArrayBox {
                     if existing.iter().all(|b| b.as_i64_fast().is_some()) {
                         if let Some(inline) = Self::ensure_inline_i64(&mut items) {
                             inline.push(val);
-                            return inline.len() as i64;
+                            return Ok(inline.len());
                         }
                     }
                 }
@@ -58,13 +59,13 @@ impl ArrayBox {
             // InlineI64 already — push directly
             if let ArrayStorage::InlineI64(inline) = &mut *items {
                 inline.push(val);
-                return inline.len() as i64;
+                return Ok(inline.len());
             }
         }
         // Non-i64 value or mixed storage — ensure boxed
         let boxed = Self::ensure_boxed(&mut items);
         boxed.push(item);
-        boxed.len() as i64
+        Ok(boxed.len())
     }
 
     /// Raw reserve helper for substrate/plugin routes.

@@ -306,7 +306,7 @@ impl OrdinaryNewClaimLedgerV1 {
         evaluations: &mut Vec<&'a crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     ) -> Result<(), String> {
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
-        use crate::mir::resolved_semantics::home_new_prefix::{MapHomeObservation, TerminalReturnedSourceV1};
+        use crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation;
         let flow = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow());
         for install in flow.into_iter().flat_map(|flow| flow.maps()).filter_map(|row| match row {
             MapHomeObservation::FieldInstall(install) => Some(install), _ => None,

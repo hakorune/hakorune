@@ -66,6 +66,28 @@ impl ArrayBox {
         Ok(())
     }
 
+    /// Retire a source-selected Text-value residence. Canonical String values
+    /// own copies, not caller leases or callback-bearing object Homes.
+    pub fn retire_text_residence(&self) -> Result<(), ArrayOwnedSlotError> {
+        let mut state = self.items.state.write();
+        if state.element_contract.is_some() || !match &state.storage {
+            ArrayStorage::Boxed(items) => items.iter().all(|value|
+                value.as_any().is::<crate::box_trait::StringBox>()),
+            ArrayStorage::Text(_) => true,
+            _ => false,
+        } {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        let contents = std::mem::replace(&mut state.storage,
+            ArrayStorage::OwnedObject(ArrayOwnedObjectStorage {
+                descriptor: None, slots: Vec::new(), phase: Phase::Ended,
+            }));
+        drop(state);
+        // Release detached Text storage outside the state gate.
+        drop(contents);
+        Ok(())
+    }
+
     /// Only an empty, uncontracted builtin Array may receive this representation.
     pub fn claim_owned_slots(
         &self,

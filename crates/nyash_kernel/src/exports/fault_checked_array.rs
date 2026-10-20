@@ -33,6 +33,18 @@ const OUT_OF_RANGE: i64 = 3;
 /// and state guards. Runtime emptiness is not source ownership authority.
 #[export_name = "nyash.array.checked_empty_end_v1"]
 pub unsafe extern "C" fn end_empty(storage: *mut c_void, _site: u64, handle: i64) -> u32 {
+    unsafe { end_residence(storage, handle, ArrayBox::retire_empty_residence) }
+}
+
+/// Separate source-selected Text-array End; never promotes arbitrary dynamic
+/// payloads or primitive/owned slot contracts into releasable Text storage.
+#[export_name = "nyash.array.checked_text_end_v1"]
+pub unsafe extern "C" fn end_text(storage: *mut c_void, _site: u64, handle: i64) -> u32 {
+    unsafe { end_residence(storage, handle, ArrayBox::retire_text_residence) }
+}
+
+unsafe fn end_residence(storage: *mut c_void, handle: i64,
+    retire: fn(&ArrayBox) -> Result<(), nyash_rust::boxes::array::ArrayOwnedSlotError>) -> u32 {
     if let Err(status) = unsafe { admit(storage) } {
         return status as u32;
     }
@@ -46,7 +58,7 @@ pub unsafe extern "C" fn end_empty(storage: *mut c_void, _site: u64, handle: i64
     let Some(array) = object.as_any().downcast_ref::<ArrayBox>() else {
         return Status::InvalidContract as u32;
     };
-    if array.retire_empty_residence().is_err() {
+    if retire(array).is_err() {
         return Status::InvalidContract as u32;
     }
     // `get` lent an Arc after dropping the host-registry lock. The retirement
@@ -260,6 +272,25 @@ pub unsafe extern "C" fn append_i64(
         site,
         with_array_box_direct(handle, |array| array.slot_append_i64_result(value)),
     )
+}
+
+/// Borrow a strict Text descriptor and retain an independent String value.
+/// The source pair is never consumed. Receiver validation precedes Text decode;
+/// the copied Text/lease read guard is gone before the Array mutation gate.
+#[export_name = "nyash.array.checked_append_text_v1"]
+pub unsafe extern "C" fn append_text(
+    storage: *mut c_void, site: u64, handle: i64,
+    value: *const super::checked_string::Operand,
+) -> u32 {
+    let frame = match unsafe { admit(storage) } {
+        Ok(frame) => frame, Err(status) => return status as u32,
+    };
+    if with_array_box_direct(handle, |_| ()).is_none() { return Status::InvalidContract as u32; }
+    let text = match unsafe { super::checked_string::text_operand(value) } {
+        Ok(text) => text, Err(status) => return status as u32,
+    };
+    append_result(frame, site, with_array_box_direct(handle, |array|
+        array.slot_append_box_result(Box::new(nyash_rust::box_trait::StringBox::new(text)))))
 }
 
 /// Bool uses exactly 0/1 on the wire. Same trusted frame contract.

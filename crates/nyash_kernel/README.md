@@ -61,7 +61,12 @@ These entries are preparation in the open object-forward series; compiler/final
 bindings and unchanged-app acceptance are not yet established.
 
 `exports/fault_checked_array.rs` exports `nyash.array.checked_new_v1`,
-`checked_claim_v1` and `checked_append_{i64,bool,f64}_v1`.
+`checked_claim_v1` and `checked_append_{i64,bool,f64,text}_v1`.
+Text append borrows the strict String descriptor and copies into the same boxed
+Array write owner, preserving the caller lease. `checked_text_end_v1` retires
+unclaimed canonical Text-only storage once; it preserves the separate empty-only
+End contract and refuses numeric/mixed/object storage without consumption.
+Detached Text values and host handles release outside the state gate.
 The existing Array claim/atomic append owns validation and state; the existing
 FaultFrame owns diagnostics. Direct Array access avoids generic value decoding,
 env-selected storage and name-based allocation. New publishes a nonzero handle

@@ -20,3 +20,8 @@ _Static_assert(_Generic(&nyrt_array_checked_append_bool_v1,
     uint32_t (*)(void *, uint64_t, int64_t, uint32_t): 1, default: 0), "Bool signature");
 _Static_assert(_Generic(&nyrt_array_checked_append_f64_v1,
     uint32_t (*)(void *, uint64_t, int64_t, double): 1, default: 0), "F64 signature");
+_Static_assert(_Generic(&nyrt_array_checked_append_text_v1,
+    uint32_t (*)(void *, uint64_t, int64_t, const NyrtStringOperandV1 *): 1,
+    default: 0), "Text append signature");
+_Static_assert(_Generic(&nyrt_array_checked_text_end_v1,
+    uint32_t (*)(void *, uint64_t, int64_t): 1, default: 0), "Text End signature");

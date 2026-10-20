@@ -49,6 +49,11 @@ mod wire {
         pub fn i64(frame: *mut c_void, site: u64, handle: i64, value: i64) -> u32;
         #[link_name = "nyash.array.checked_append_bool_v1"]
         pub fn bool(frame: *mut c_void, site: u64, handle: i64, value: u32) -> u32;
+        #[link_name = "nyash.array.checked_append_text_v1"]
+        pub fn text(frame: *mut c_void, site: u64, handle: i64,
+            value: *const super::super::super::checked_string::Operand) -> u32;
+        #[link_name = "nyash.array.checked_text_end_v1"]
+        pub fn text_end(frame: *mut c_void, site: u64, handle: i64) -> u32;
         #[link_name = "nyash.array.checked_append_f64_v1"]
         pub fn f64(frame: *mut c_void, site: u64, handle: i64, value: f64) -> u32;
     }
@@ -319,6 +324,37 @@ fn checked_array_payloads_keep_bool_f64_and_integer_distinct() {
             }
         }).unwrap();
     }
+    // Text append copies content, never adopts or consumes the caller's lease.
+    use crate::exports::fault::checked_string::Operand;
+    let text_array = OwnedArray::new(&mut frame);
+    let mut text = Operand { kind: 1, reserved: 0, bytes: std::ptr::null(), len: 0,
+        handle: 0, token: 0, integer: 0 };
+    for value in ["", "猫", "x\0y"] {
+        text.bytes = value.as_ptr(); text.len = value.len();
+        assert_eq!(unsafe { wire::text(ptr, 10, text_array.0, &text) }, 0);
+    }
+    let owned = nyash_rust::runtime::dynamic_v2_lease::publish_end_authorized_text("independent").unwrap();
+    text = Operand { kind: 2, reserved: 0, bytes: std::ptr::null(), len: 0,
+        handle: owned.handle(), token: owned.token().get(), integer: 0 };
+    assert_eq!(unsafe { wire::text(ptr, 11, text_array.0, &text) }, 0);
+    assert_eq!(nyash_rust::runtime::dynamic_v2_lease::with_end_authorized_text_pair(
+        owned.handle(), owned.token(), str::to_owned).unwrap(), "independent");
+    nyash_rust::runtime::dynamic_v2_lease::end_authorized_text_pair(owned.handle(), owned.token()).unwrap();
+    let before = text_array.values();
+    assert_eq!(before, ["", "猫", "x\0y", "independent"]);
+    assert_eq!(unsafe { wire::text(ptr, 12, text_array.0, &text) }, 2);
+    text = Operand { kind: 3, reserved: 0, bytes: std::ptr::null(), len: 0,
+        handle: 0, token: 0, integer: 7 };
+    assert_eq!(unsafe { wire::text(ptr, 13, text_array.0, &text) }, 2);
+    assert_eq!(text_array.values(), before);
+    assert!(frame.diagnostics().unwrap().0.is_none());
+    let mut rejection = FaultFrame::new();
+    let typed = OwnedArray::new(&mut rejection);
+    assert_eq!(unsafe { wire::claim(pointer(&mut rejection), 14, typed.0, 4) }, 0);
+    text.kind = 1; text.integer = 0;
+    assert_eq!(unsafe { wire::text(pointer(&mut rejection), 15, typed.0, &text) }, 1);
+    assert_eq!(primary(&rejection), (ARRAY_APPEND_ELEMENT_MISMATCH, 15, [TYPE_MISMATCH, 0]));
+    assert!(typed.values().is_empty());
     // Reject a malformed later element before publishing any handle. Local
     // Array/String RAII drops the successfully constructed prefix too.
     let invalid = [0xffu8];
@@ -460,6 +496,17 @@ fn checked_array_release_retires_the_published_host_residence() {
         "terminal storage cannot mutate"
     );
     std::mem::forget(checked); // checked End already consumed this residence
+    let text_array = OwnedArray::new(&mut frame);
+    let value = crate::exports::fault::checked_string::Operand { kind: 1, reserved: 0,
+        bytes: "猫".as_ptr(), len: "猫".len(), handle: 0, token: 0, integer: 0 };
+    assert_eq!(unsafe { wire::text(pointer(&mut frame), 3, text_array.0, &value) }, 0);
+    let retained_text = handles::get(text_array.0 as u64).unwrap();
+    assert_eq!(unsafe { wire::text_end(pointer(&mut frame), 4, text_array.0) }, 0);
+    assert!(handles::get(text_array.0 as u64).is_none());
+    let alias = retained_text.as_any().downcast_ref::<ArrayBox>().unwrap();
+    assert!(alias.retire_text_residence().is_err());
+    assert!(alias.slot_append_box_result(Box::new(nyash_rust::box_trait::StringBox::new("late"))).is_err());
+    std::mem::forget(text_array);
     for claimed in [false, true] {
         let rejected = OwnedArray::new(&mut frame);
         if claimed {
@@ -470,6 +517,9 @@ fn checked_array_release_retires_the_published_host_residence() {
         let before = rejected.values();
         assert_eq!(unsafe { wire::empty_end(pointer(&mut frame), 5, rejected.0) }, 2);
         assert!(handles::get(rejected.0 as u64).is_some(), "rejected End retains the owner");
+        assert_eq!(rejected.values(), before);
+        assert_eq!(unsafe { wire::text_end(pointer(&mut frame), 6, rejected.0) }, 2);
+        assert!(handles::get(rejected.0 as u64).is_some());
         assert_eq!(rejected.values(), before);
     }
 }
