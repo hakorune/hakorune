@@ -25,7 +25,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(super) fn lower_whole_field_write_rhs_v1(&mut self, builder: &mut MirBuilder,
         source: &FieldWriteSourceLoanV1, input: ASTNode,
     ) -> Result<Rc<EmittedFieldWriteRhsV1>, String> {
-        let recipe = source.owned_rhs().ok_or("[freeze:contract][field-write-rhs/source-origin]")?;
+        let recipe = source.qualified_rhs().ok_or("[freeze:contract][field-write-rhs/source-origin]")?;
         if self.field_write_rhs_emission.is_some() || self.bool_condition_emission.is_some()
             || self.callable_owner_v1() != Some(recipe.source().owner())
             || self.current_source_site_v1().as_ref() != Some(recipe.source().nodes()[0].site().node()) {

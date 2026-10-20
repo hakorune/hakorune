@@ -14,7 +14,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     }
     pub(super) fn read_borrowed_field_write_source_v1(&mut self, builder: &mut MirBuilder, source: &Source, receiver: bool, input: ASTNode,
     ) -> Result<FieldWriteValueV1, String> {
-        if !receiver && source.owned_rhs().is_some() {
+        if !receiver && source.qualified_rhs().is_some() {
             return self.lower_whole_field_write_rhs_v1(builder, source, input).map(FieldWriteValueV1::Expression);
         }
         let (binding, site) = if receiver { source.receiver()? } else {

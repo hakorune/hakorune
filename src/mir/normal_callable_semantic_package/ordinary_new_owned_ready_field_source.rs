@@ -66,13 +66,13 @@ impl OwnedReadyFieldReadSourceV1 {
             || home != local.root() || receiver != home { return Err(fail()); }
         let source = ledger.field_write_source_at_v1(site.owner(), self.frame.source().root().statement())?
             .ok_or_else(fail)?;
-        if !Rc::ptr_eq(source.frame(), &self.frame) || !source.owned_rhs().zip(
+        if !Rc::ptr_eq(source.frame(), &self.frame) || !source.qualified_rhs().zip(
             self.request.owned_ready.as_ref().and_then(|plan| plan.rhs()))
                 .is_some_and(|(a, b)| Rc::ptr_eq(a, b)) { return Err(fail()); }
         source.require_current_execution(ledger)?;
         context.require_ledger(ledger)?;
         context.with_original_field_write_v1(&self.frame, |packet| {
-            if packet.source().owned_rhs().is_none() { return Err(fail()); }
+            if packet.source().qualified_rhs().is_none() { return Err(fail()); }
             packet.source().validate_source(ledger)
         })
     }

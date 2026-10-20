@@ -129,7 +129,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             assert_eq!(source.require_current_execution(&package.ordinary_new_claim_ledger).is_ok(), retained.is_allocation_only_i64());
             assert!(source.borrowed().is_none());
             let rhs = plan.field_write_rhs().expect("same qualified whole-RHS source");
-            assert!(std::rc::Rc::ptr_eq(source.owned_rhs().unwrap(), rhs));
+            assert!(std::rc::Rc::ptr_eq(source.qualified_rhs().unwrap(), rhs));
             assert!(rhs.is_consistent(frame.source()));
             assert_eq!(rhs.ordered_nodes(), frame.source().ordered_postorder_v1().unwrap());
             assert!(std::rc::Rc::ptr_eq(rhs.source(), frame.source()));

@@ -376,7 +376,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 let contract = catalog.iter().find(|row| row.owner == structure.owner)
                     .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
                 let complete = self.checked_input_use_source_v1(contract)?
-                    .ok_or_else(|| freeze("borrowed-entry/source-use-completion-pending"))?;
+                    .ok_or_else(|| format!("{}: owner={:?}",
+                        freeze("borrowed-entry/source-use-completion-pending"), structure.owner))?;
                 if !Rc::ptr_eq(uses, &complete) { return Err(freeze("static-input/original-use-identity")); }
                 let mut actuals = Vec::new();
                 for call in incoming {

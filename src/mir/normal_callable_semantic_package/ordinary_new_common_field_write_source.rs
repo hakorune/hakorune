@@ -2,6 +2,7 @@
 //! operand, Home installation or Normal/Fault execution permission is lent here.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::QualifiedFieldWriteRhsV1;
+use hakorune_mir_defs::CanonicalFieldRefV1;
 
 #[derive(Debug, Clone)]
 pub(crate) struct FieldWriteSourceLoanV1 {
@@ -10,7 +11,7 @@ pub(crate) struct FieldWriteSourceLoanV1 {
 #[derive(Debug, Clone)]
 enum FieldWriteSourceOriginV1 {
     FormalBorrowed(BorrowedFieldWriteSourceLoanV1),
-    OwnedLocal {
+    Qualified {
         frame: Rc<CheckedFieldWriteFrameV1>,
         completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
         rhs: Rc<QualifiedFieldWriteRhsV1>,
@@ -19,7 +20,7 @@ enum FieldWriteSourceOriginV1 {
 impl FieldWriteSourceLoanV1 {
     pub(crate) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> {
         match &self.origin { FieldWriteSourceOriginV1::FormalBorrowed(source) => source.frame(),
-            FieldWriteSourceOriginV1::OwnedLocal { frame, .. } => frame }
+            FieldWriteSourceOriginV1::Qualified { frame, .. } => frame }
     }
     pub(crate) fn receiver(&self) -> Result<(BindingRefV1, crate::mir::resolved_semantics::OwnedExprSiteV1), String> {
         if let Some(formal) = self.borrowed() {
@@ -30,6 +31,18 @@ impl FieldWriteSourceLoanV1 {
         Ok((local.root(), crate::mir::resolved_semantics::OwnedExprSiteV1::new(
             self.frame().source().owner(), local.original().write().receiver_site().clone())))
     }
+    /// Canonical target comes from the sealed source origin, independently of
+    /// receiver acquisition. This accessor grants no storage/execution lease.
+    pub(crate) fn field(&self) -> Result<CanonicalFieldRefV1, String> {
+        if let Some(formal) = self.borrowed() { return Ok(formal.field_source().field()); }
+        self.frame().owned_local().map(|local| local.field())
+            .ok_or_else(|| freeze("field-write/local-origin"))
+    }
+    pub(crate) fn field_name(&self) -> Result<&str, String> {
+        if let Some(formal) = self.borrowed() { return Ok(formal.field_name()); }
+        self.frame().owned_local().map(|local| local.original().write().field())
+            .ok_or_else(|| freeze("field-write/local-origin"))
+    }
     pub(crate) fn value_site(&self) -> crate::mir::resolved_semantics::OwnedExprSiteV1 {
         let source = self.frame().source();
         crate::mir::resolved_semantics::OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone())
@@ -37,15 +50,16 @@ impl FieldWriteSourceLoanV1 {
     pub(crate) fn borrowed(&self) -> Option<&BorrowedFieldWriteSourceLoanV1> {
         match &self.origin { FieldWriteSourceOriginV1::FormalBorrowed(source) => Some(source), _ => None }
     }
-    pub(crate) fn owned_rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> {
-        match &self.origin { FieldWriteSourceOriginV1::OwnedLocal { rhs, .. } => Some(rhs), _ => None }
+    pub(crate) fn qualified_rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> {
+        match &self.origin { FieldWriteSourceOriginV1::Qualified { rhs, .. } => Some(rhs), _ => None }
     }
     /// The existing physical writer is still restricted to its exact I64 lease.
     /// A retained source assignment alone cannot authorize operand evaluation.
     pub(crate) fn require_current_execution(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         self.validate_source(ledger)?;
-        let Some(local) = self.frame().owned_local() else { return Ok(()) };
+        if self.borrowed().is_some() { return Ok(()); }
         let fail = || freeze("owned-field-write/original-source");
+        let local = self.frame().owned_local().ok_or_else(fail)?;
         if local.construction().allocation_only_i64_field(local.original().write().field()) != Some(local.field()) {
             return Err(fail());
         }
@@ -57,7 +71,7 @@ impl FieldWriteSourceLoanV1 {
         })?.ok_or_else(fail)
     }
     pub(crate) fn validate_source(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
-        let FieldWriteSourceOriginV1::OwnedLocal { frame, completion, rhs } = &self.origin else {
+        let FieldWriteSourceOriginV1::Qualified { frame, completion, rhs } = &self.origin else {
             return self.borrowed().expect("closed formal origin").validate_source(ledger);
         };
         let fail = || freeze("owned-field-write/original-source");
@@ -104,7 +118,7 @@ impl OrdinaryNewClaimLedgerV1 {
             FieldWriteSourceOriginV1::FormalBorrowed(source)
         } else {
             let rhs = plan.field_write_rhs().ok_or_else(|| freeze("field-write/owned-rhs-missing"))?;
-            FieldWriteSourceOriginV1::OwnedLocal { frame: Rc::clone(frame),
+            FieldWriteSourceOriginV1::Qualified { frame: Rc::clone(frame),
                 completion: Rc::clone(completion), rhs: Rc::clone(rhs) }
         };
         let source = FieldWriteSourceLoanV1 { origin };

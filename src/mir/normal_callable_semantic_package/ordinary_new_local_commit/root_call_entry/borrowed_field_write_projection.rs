@@ -67,17 +67,18 @@ impl EmittedBorrowedFieldWriteV1 {
         let (receiver, site) = self.source.receiver()?;
         let base = self.receiver.value_for(site.owner(), site.site().node(), receiver).map_err(|issue| issue.to_string())?;
         self.graph.validate_operand(0, base, function, finishing)?;
-        let (value, field) = match (&self.value, self.source.borrowed()) {
+        let field = self.source.field()?;
+        let value = match (&self.value, self.source.borrowed()) {
             (FieldWriteValueV1::Lexical(read), Some(formal)) => {
                 let (binding, _, site) = formal.value();
-                (read.value_for(site.owner(), site.site().node(), binding).map_err(|issue| issue.to_string())?, formal.field_source().field())
+                read.value_for(site.owner(), site.site().node(), binding).map_err(|issue| issue.to_string())?
             },
             (FieldWriteValueV1::Expression(rhs), None) => {
-                if self.source.owned_rhs().is_none_or(|original| !Rc::ptr_eq(original, rhs.recipe())) {
+                if self.source.qualified_rhs().is_none_or(|original| !Rc::ptr_eq(original, rhs.recipe())) {
                     return Err(freeze("field-write-rhs/foreign-recipe"));
                 }
                 rhs.validate(context, function, finishing)?;
-                (rhs.value(), self.source.frame().owned_local().ok_or_else(|| freeze("field-write-rhs/local-origin"))?.field())
+                rhs.value()
             },
             _ => return Err(freeze("field-write-rhs/operand-origin")),
         };

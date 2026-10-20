@@ -6,21 +6,26 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Product evidence
 
-- Last official fixed suite: Loop Function Return commit, 7PASS/4FAIL, actual EXE6 +
-  empty marker1, no SKIP/timeout. Runner448.163s/wall450.249s. Matching quick opt0
-  CLI59.01s, frozen quick runtime/private C FFI; build/run300s, no Cargo overlap.
-- mimalloc PASS140.112s; allocator PASS159.797s; four typed EXEs PASS36–38s.
-  Totals include compile/link/run; individual phases were not timed.
+- Last official fixed suite: plain scalar If commit, 7PASS/4FAIL, actual EXE6 +
+  empty marker1, no SKIP/timeout. Runner481.943s/wall483.997s. Matching quick opt0
+  CLI36.96s, frozen quick runtime/private C FFI; build/run300s, no Cargo overlap.
+- mimalloc PASS154.321s; allocator PASS178.179s; four typed EXEs PASS36–38s.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --timeout 1900`. Scalar If WIP is outside this measurement.
-- Matching scalar-If CLI36.96s passes find's original `if m == 0` read (line11).
-  JSON still fails during MIR construction: `phi_lifecycle/txn_abort`,
-  source-loop-header-after, `borrowed-entry/source-use-completion-pending`.
-  The next step is to identify the demanded entry owner and retain its SAME source
-  use/completion through ingress. No EXE/link/runtime; no old-route retry.
-- Scalar If retains the whole original scalar read census through both final
-  consumers. Related364 PASS; 36 previous-case failures remain. A matching fixed
-  suite is pending; the last completed suite above is the Return generation.
+  --suite real-apps-exe-boundary --timeout 1900`. Later entry diagnostics are outside this measurement.
+- Matching scalar-If CLI passes find's original `if m == 0` read. Diagnostic
+  CLI42.21s identifies owner26 `ingestLine`: four original Self field assignments
+  (Body7/8 and Body9 Then/Else) are absent from its retained assignment census.
+  JSON fails during MIR construction; no EXE/link/runtime or old-route retry.
+- Common FieldWrite source now owns canonical field/name and qualified RHS access
+  for the sole writer and packet validation. Receiver-specific LOCAL New/readiness
+  checks stay sealed; missing non-formal origins refuse rather than gain permission.
+  Self source/RHS and Dynamic leases remain unconnected. Matching CLI42.39s and
+  unchanged JSON smoke confirm the same owner26 MIR stop; no app advancement.
+- Worker review: reuse entry receiver/root source and all-writer value grounding;
+  separate LOCAL-only New dominance from common packet validation. Unannotated
+  declarations, initial `0`, or source inventory membership grant no I64 lease.
+  Temporary probes removed; owner error retained. Existing field-write16 PASS
+  (RHS2 included); catalog65 PASS/10 FAIL, same ten names/causes on prior binary.
 - Other product reds remain untyped-field source activation, binary-trees source-not-i64,
   boxtorrent stored-child receiver. Do not reinterpret them as completion.
 
@@ -42,16 +47,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 - The existing substring tuple now covers Loop Return/root cleanup and changed
   Return operand refusal; this independent FunctionExit boundary needs the minimal
   tuple/mutation extension. Its minimal scalar If addition protects a separate read purpose.
-  Current related364 PASS; 36 failures reproduce prior cases/causes (root12, Loop21,
-  Static2, source SUM1). New test function/file/hook/checker count remains zero.
+  Prior related364 PASS/36 old failures remain; no new test function/file/hook/checker.
 - Plain scalar comparison selection requires the whole original leaf/read census.
   Calls/fields keep their existing owner; scalar siblings cannot preempt a Static Call.
 - Core coverage borrows the SAME checked frame loans and exact resolver metadata;
   full source census/duplicates remain checked. Loop Return is not Header/After
   incoming. Shared lexical read and existing root cleanup emit once and validate
-  independently. The existing document fixture now lends source liveness to CFG
-  finishing exactly as production does; focused build58.42s. Rust Integer entry
-  and Static String Call ABI remain owed.
+  independently. Source liveness is shared with production CFG finishing; Rust
+  Integer entry and Static String Call ABI remain owed.
 - C pair Return reuses `{handle, End token}`, per-Invoke String output slot,
   Normal projection and String End. Existing borrowed-ingress `--text-only` matrix
   PASS with quick runtime/private C FFI and `CC="clang -fuse-ld=lld"`.
@@ -64,7 +67,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   terminal coverage retains its separate original read, never a binding-to-I64 guess.
   The same finite proof now serves genuine If/Loop conditions; the existing reference
   variant is purpose-neutral, with original source/alias census and Null refusal kept.
-  Minimal existing tuple extension protects independent condition/Return read purposes.
   The older opaque draft remains in Git stash pending full adoption/disposal.
 - Entry projection decision from read-only review: retain Opaque declaration and
   tagged call ABI; a SAME signed-only source domain can authorize an Integer view.
@@ -73,7 +75,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   not a tagged Copy whose kind variable no longer exists. Legacy mixed guards stay.
   C Static/Instance mutation matrix PASS. Rust requires module/published replay
   and rejection of root/Copy/Phi uses outside the sealed scope; no domain-only skip.
-- Existing Loop caller tuple preserves its read into an unused unannotated formal.
 
 ## Shared remaining contracts
 

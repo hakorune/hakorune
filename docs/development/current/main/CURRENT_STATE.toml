@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/borrowed-entry/source-use-completion-pending: ingestion Loop; entry owner to pinpoint"
+current_blocker_token = "ordinary-new/borrowed-entry/source-use-completion-pending: owner26 ingestLine; four original Self field writes absent"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: 元scalar readをplain If条件へ接続、関連364PASS/36件旧binary同失敗。
-Static Call付き比較のownerを保持。CLI36.96秒、JSON findのm比較readは解消。
-次はborrowed-entry/source-use-completion-pending。要求entry ownerと同じsource完了の接続を追う。
-公式suiteはReturn世代7PASS/4FAIL（実EXE6＋marker1）、wall450.25秒。scalar If世代は再計測待ち。
-Integer入口・Static String ABI・common storageなど必須接続は引き続き未完。
+APP-json-stream-aggregator: owner26 ingestLineの元Self field write4か所がsource完了に欠落。
+FieldWriteのcanonical field/RHSを共通ownerへ統合。Self receiver・Dynamic leaseの接続は未完。
+既存field-write16PASS、catalog65PASS/10件は旧binary同失敗。一時診断撤去、要求owner保持。
+直近公式suiteは9b2538e575で7PASS/4FAIL（実EXE6＋marker1）、wall484.00秒。
+次は同じreceiver/source・全writer値根拠から唯一のFieldSetと両final consumerへ接続。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-20: Plain scalar If at 9b2538e575 — fixed suite7 PASS/4 FAIL, actual EXE6 plus empty marker1, no SKIP/timeout; runner481.943s/wall483.997s. Matching quick opt0 CLI36.96s, frozen quick runtime/private C FFI, build/run300s, no Cargo overlap. mimalloc154.321s and allocator178.179s PASS; four typed EXEs36–38s. JSON advances past find scalar If to borrowed-entry source-use completion; untyped-field original-source, binary-trees source-not-i64 and boxtorrent stored-child remain red. Later entry diagnostics are outside this measurement.",
   "2026-10-20: Function Return source Loop at bc5947f045 — fixed suite7 PASS/4 FAIL, actual EXE6 plus empty marker1, no SKIP/timeout; runner448.163s/wall450.249s. Matching quick opt0 CLI59.01s, frozen quick runtime/private C FFI, build/run300s, no Cargo overlap. mimalloc140.112s and allocator159.797s PASS, four typed EXEs36–38s. JSON input cohort still lacks find scalar If read; untyped-field original-source, binary-trees source-not-i64 and boxtorrent stored-child remain red. Later scalar If WIP is outside this measurement.",
   "2026-10-20: Source Loop If/SSA at 2e7b1b1dc0 — fixed suite7 PASS/4 FAIL, 6 actual EXEs plus empty marker1, no SKIP/timeout, duration452.253s. Matching quick opt0 CLI34.70s and frozen quick runtime/private C FFI; build/run300s, no Cargo overlap. mimalloc139.093s and allocator160.642s PASS. JSON advances to Main.sampleStream owned String argument frame; source-slot, binary-trees and boxtorrent reds remain. Later Text return WIP is not part of this measurement.",
-  "2026-10-20: Per-operation original-input cohort and selection folding — unchanged allocator_stress_exe standalone PASS160.247s versus267.063s at common Call landing, about40% less total smoke time; earlier build-timeout300s. Matching quick opt0 CLI build43.24s, same quick runtime/private C FFI, build/run300s, no Cargo/profiler overlap. Smoke total includes compile/link/run; phase timings were not captured separately. Existing focused176 and original-root refusal PASS; no test functions/hooks/cache added. Fixed suite remains last measured6 PASS/5 FAIL; JSON If stop unchanged.",
 ]

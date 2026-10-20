@@ -14,9 +14,10 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     let [FieldWriteValueV1::Lexical(receiver), value] = reads else { return Err(freeze("field-write/receiver-proof")) };
     let (binding, site) = source.receiver()?;
     let base = receiver.value_for(owner, site.site().node(), binding).map_err(|issue| issue.to_string())?;
-    let (value_id, field, prefix, relations) = match (&value, source.borrowed()) {
+    if source.field_name()? != field_name { return Err(freeze("borrowed-field-write/source-site")); }
+    let field = source.field()?;
+    let (value_id, prefix, relations) = match (&value, source.borrowed()) {
         (FieldWriteValueV1::Lexical(read), Some(formal)) => {
-            if formal.field_name() != field_name { return Err(freeze("borrowed-field-write/source-site")); }
             let ty = crate::mir::numeric_substrate::exact_numeric_mir_type_from_declared_name(
                 formal.field_source().declared_type_name(), crate::mir::numeric_substrate::NumericTarget::host())
                 .ok_or_else(|| freeze("borrowed-field-write/numeric-declaration"))?;
@@ -25,17 +26,15 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
             { return Err(freeze("borrowed-field-write/exact-range-check-unavailable")); }
             let (binding, _, site) = formal.value();
             (read.value_for(owner, site.site().node(), binding).map_err(|issue| issue.to_string())?,
-                formal.field_source().field(), Vec::new(), Vec::new())
+                Vec::new(), Vec::new())
         },
         (FieldWriteValueV1::Expression(rhs), None) => {
-            let local = source.frame().owned_local().ok_or_else(|| freeze("field-write/local-source"))?;
-            if field_name != local.original().write().field()
-                || source.owned_rhs().is_none_or(|original| !Rc::ptr_eq(original, rhs.recipe())) {
+            if source.qualified_rhs().is_none_or(|original| !Rc::ptr_eq(original, rhs.recipe())) {
                 return Err(freeze("field-write-rhs/source-drift"));
             }
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
             rhs.validate_lowering(ledger, function)?;
-            (rhs.value(), local.field(), rhs.bindings(), rhs.relations())
+            (rhs.value(), rhs.bindings(), rhs.relations())
         },
         _ => return Err(freeze("field-write/operand-origin")),
     };
