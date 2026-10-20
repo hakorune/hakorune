@@ -26,6 +26,12 @@ closure counts its receiver/key reads once. Mandatory lifecycle prefixes retain
 the append even before a physical packet exists, so missing execution cannot
 silently disappear. The physical append packet, continuation/cleanup, collector,
 independent final validators and source-selected Text-array End remain required.
+The existing append source loan now retains either the original Loop Integer
+proof/index or the same statement Text frame under its original Completion.
+Entry-use lends that same Text frame, original CallArgument(0), provider census
+and ancestry; integer-only emitters/collectors explicitly refuse this variant.
+Both variants lend their own prior Homes to the same unwind-plan owner. This
+normalization supplies no physical Text operand or complete element/End census.
 
 Return use is a separate wrapper retaining all original Return sites and any
 original local initializer relation. It still requires the original scalar

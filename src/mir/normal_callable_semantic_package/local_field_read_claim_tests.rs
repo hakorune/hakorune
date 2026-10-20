@@ -463,7 +463,7 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
     assert!(installed.next().is_none());
     let originals = package.source_core_method_calls.values().find(|rows|
         rows.values().any(|row| row.contract().owner() == site.owner())).unwrap();
-    for row in home.appends() {
+    for (index, row) in home.appends().iter().enumerate() {
         let requirement = row.requirement();
         let fault = row.fault();
         assert_eq!(fault.call().site(), requirement.call());
@@ -476,16 +476,16 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         assert!(std::rc::Rc::ptr_eq(original, requirement));
         let contract = originals.values().find(|row| row.contract().call_site() == requirement.call()).unwrap().contract();
         let append = ledger.field_array_append_source_v1(contract).expect("same original source and canonical Home participation");
-        assert!(std::rc::Rc::ptr_eq(append.proof(), &home));
-        assert!(std::rc::Rc::ptr_eq(append.requirement(), requirement));
+        assert!(append.matches_original(&home, index));
+        assert!(std::rc::Rc::ptr_eq(append.integer_requirement().unwrap(), requirement));
         assert_eq!(append.site(), fault.call());
         append.validate_source(ledger).unwrap();
-        assert!(std::ptr::eq(append.argument(), row.argument()));
-        assert_eq!(append.argument().site(), requirement.argument());
+        assert!(std::ptr::eq(append.integer_argument().unwrap(), row.argument()));
+        assert_eq!(append.integer_argument().unwrap().site(), requirement.argument());
         if requirement.field_name() == "free_stack" {
-            assert!(append.argument().binding().is_some());
+            assert!(append.integer_argument().unwrap().binding().is_some());
         } else {
-            assert_eq!(append.argument().literal(), Some(0));
+            assert_eq!(append.integer_argument().unwrap().literal(), Some(0));
         }
     }
     package.batch().with_lowering_input(declaration.batch_slot(), |input| {

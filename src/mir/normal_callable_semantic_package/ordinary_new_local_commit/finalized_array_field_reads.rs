@@ -86,7 +86,7 @@ impl FinalizedRootSourceHandoffV1 {
                     group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
                     let mut emissions = arrays.iter().filter(|row| matches!(row,
                         EmittedNamedArrayRequirementV1::Write(write)
-                            if write.borrows_field_residence_v1(packet.source().requirement())
+                            if packet.source().integer_requirement().is_ok_and(|requirement| write.borrows_field_residence_v1(requirement))
                                 && write.borrows_checked_field_append_v1(packet)));
                     let emitted = emissions.next().ok_or_else(|| freeze("finished-field-append/residence-missing"))?;
                     if emissions.next().is_some() || emitted.owner() != *owner || emitted.validate(module)? != symbol {

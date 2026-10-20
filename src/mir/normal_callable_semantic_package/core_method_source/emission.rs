@@ -154,7 +154,7 @@ impl EmittedNamedArrayWriteV1 {
             return Err(fault("physical-caller-drift"));
         }
         if let Some(packet) = &self.checked {
-            if !self.borrows_field_residence_v1(packet.source().requirement()) { return Err(fault("checked-source-mismatch")); }
+            if !packet.source().integer_requirement().is_ok_and(|requirement| self.borrows_field_residence_v1(requirement)) { return Err(fault("checked-source-mismatch")); }
             packet.validate_marker(function, &self.marker)?;
             crate::mir::named_array_obligation::validate_array_allocation(module, function, &self.marker.allocation)?;
         } else { validate_physical_marker(module, function, &self.marker)?; }
@@ -390,7 +390,7 @@ impl NamedArrayWriteEmissionPortV1 {
             let state = self.0.borrow();
             let WriteState::Pending(draft) = &*state else { return Err(fault("duplicate-physical-write")); };
             if !matches!(draft.source.contract().named_array_requirement(), Some(NamedArrayRequirementV1::FieldResidence(original))
-                if std::rc::Rc::ptr_eq(original, packet.source().requirement()))
+                if packet.source().integer_requirement().is_ok_and(|requirement| std::rc::Rc::ptr_eq(original, requirement)))
                 || draft.receiver_read.as_ref().is_none_or(|original| !packet.borrows_receiver_read_v1(original)) {
                 return Err(fault("checked-source-mismatch"));
             }

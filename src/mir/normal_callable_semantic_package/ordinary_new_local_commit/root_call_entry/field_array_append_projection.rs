@@ -72,8 +72,8 @@ impl EmittedFieldArrayAppendV1 {
     ) -> Result<(), String> {
         let ledger = context.ledger();
         self.source.validate_source(ledger)?;
-        self.argument.validate_source(self.source.site().owner(), self.source.argument())?;
-        let receiver = self.receiver.value_for(self.source.site().owner(), self.source.receiver_site().node(), self.source.requirement().binding())
+        self.argument.validate_source(self.source.site().owner(), self.source.integer_argument()?)?;
+        let receiver = self.receiver.value_for(self.source.site().owner(), self.source.receiver_site().node(), self.source.integer_requirement()?.binding())
             .map_err(|issue| issue.to_string())?;
         if self.pins[0].values().0 != receiver || self.pins[1].values().0 != self.argument.root_value() {
             return Err(freeze("field-array-append/pin-origin"));
@@ -171,7 +171,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn field_array_append_unwind_v1(&self, source: &FieldArrayAppendSourceLoanV1) -> Result<Vec<InvokeOperation>, String> {
         source.validate_source(self)?;
         let rows = self.local_commits.borrow();
-        let plans = super::source_home_end_plans_v1(&rows, source.proof().prior_homes())?
+        let plans = super::source_home_end_plans_v1(&rows, source.prior_homes())?
             .ok_or_else(|| freeze("field-array-append/end-unavailable"))?;
         Ok(plans.into_iter().map(|(_, _, operation)| operation).collect())
     }

@@ -14,9 +14,9 @@ pub(in crate::mir::builder) fn emit(
 ) -> Result<(), String> {
     source.validate_source(ledger)?;
     if state.owner() != source.site().owner() || argument.root_value() != value
-        || receiver_read.value_for(source.site().owner(), source.receiver_site().node(), source.requirement().binding())
+        || receiver_read.value_for(source.site().owner(), source.receiver_site().node(), source.integer_requirement()?.binding())
             .map_err(|issue| issue.to_string())? != receiver { return Err(freeze("field-array-append/source-operands")); }
-    let argument = argument.observe(builder, state.owner(), source.argument())?;
+    let argument = argument.observe(builder, state.owner(), source.integer_argument()?)?;
     // Reject unavailable End plans before changing the control graph.
     let operations = ledger.field_array_append_unwind_v1(&source)?;
     let pinned_receiver = builder.local_recv(receiver);

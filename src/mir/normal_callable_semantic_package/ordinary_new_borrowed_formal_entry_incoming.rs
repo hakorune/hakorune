@@ -335,7 +335,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 || !covered.insert((append.receiver_read().clone(), append.receiver())) {
                 return Err(freeze("static-input/read-use-duplicate-or-foreign"));
             }
-            append.source().recheck_census(owner, &self.array_i64_fields)?;
+            let source = self.field_array_text_append_source_v1(append.source().call())?;
+            if !source.matches_text_frame(append) { return Err(freeze("static-input/qualified-use-identity")); }
             let evaluation = append.evaluation().as_ref();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
