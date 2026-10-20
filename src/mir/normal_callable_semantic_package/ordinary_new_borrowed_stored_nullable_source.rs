@@ -16,14 +16,12 @@ pub(super) fn original_local_loan_v1(
     facts: &OrdinaryNewResultClassClaimsV1,
  app_main: Option<AppMainSourceRefV1<'_>>) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, String> {
     let reference = need.reference();
-    if need.stored().is_none()
-        || !matches!(
-            facts.get(&reference.target),
-            Some(OrdinaryNewResultClassV1::NullableForwarded { .. })
-        )
-    {
-        return Ok(None);
-    }
+    let formal = need.stored().is_some() && matches!(facts.get(&reference.target),
+        Some(OrdinaryNewResultClassV1::NullableForwarded { .. }));
+    let map = facts.outcomes(&reference.target).is_some_and(|rows| !rows.is_empty()
+        && rows.iter().all(|row| !row.alternatives().is_empty() && row.alternatives().iter().all(|origin|
+            matches!(origin, super::super::super::result_class_claim::ResultValueOriginV1::MapHeld { .. }))));
+    if !formal && !map { return Ok(None); }
     let destination = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
         batch, constructors, reference.call_site.owner(), |context, input| {
             let original = input.function().method_call(reference.call_site.site())
@@ -63,14 +61,14 @@ pub(super) fn recheck_original_local_loan_v1(
     facts: &OrdinaryNewResultClassClaimsV1,
  app_main: Option<AppMainSourceRefV1<'_>>) -> Result<(), String> {
     let reference = need.reference();
-    let stored = need
-        .stored()
-        .ok_or_else(|| freeze("stored-source-missing"))?;
+    // Map source loans retain their own checked Me receiver substitution.
+    // The older formal lane still requires its exact stored-child receiver.
+    if !loan.is_map_slot() && need.stored().is_none() { return Err(freeze("stored-source-missing")); }
     if loan.call() != &reference.call_site
         || loan.receiver() != &reference.receiver_site
         || loan.key() != &reference.target
         || loan.callee_owner() != reference.callee_owner
-        || stored.child_class.as_ref() != reference.target.owner()
+        || need.stored().is_some_and(|stored| stored.child_class.as_ref() != reference.target.owner())
         || selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(
             reference.target.clone(),
         )) != Some(reference.target_batch_slot)

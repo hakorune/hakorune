@@ -56,9 +56,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
         || loan.destination() != destination
         || loan.key() != target.target()
         || loan.receiver() != target.receiver_site()
-        || loan.root().owner() != site.owner()
+        || loan.support_root().owner() != site.owner()
         || target.has_object_source_requirement()
-        || target.stored_receiver().is_none()
+        || (!loan.is_map_slot() && target.stored_receiver().is_none())
     {
         return Err(freeze("source-identity"));
     }

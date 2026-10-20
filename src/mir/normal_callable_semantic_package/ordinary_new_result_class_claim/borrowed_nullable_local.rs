@@ -108,6 +108,13 @@ impl OrdinaryNewResultClassClaimsV1 {
     }
 }
 
+/// Source support is not a result ABI: receiver storage is never a formal.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum BorrowedLocalSupportV1 {
+    FormalForward { callee_ordinal: u32, root: BindingRefV1, caller_ordinal: u32 },
+    MapSlot(call_witness::MapSlotCallSubstitutionV1),
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedNullableLocalSourceLoanV1 {
     declaration: SourceBindingSiteV1,
@@ -116,9 +123,7 @@ pub(crate) struct BorrowedNullableLocalSourceLoanV1 {
     receiver: SourceExprSiteV1,
     key: CanonicalSameModuleCallableKeyV1,
     callee_owner: FunctionOwnerIdV1,
-    callee_ordinal: u32,
-    root: BindingRefV1,
-    caller_ordinal: u32,
+    support: BorrowedLocalSupportV1,
     witnesses: Box<[Rc<ResultOriginWitnessV1>]>,
 }
 impl BorrowedNullableLocalSourceLoanV1 {
@@ -140,12 +145,21 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(crate) fn callee_owner(&self) -> FunctionOwnerIdV1 {
         self.callee_owner
     }
-    pub(crate) fn callee_ordinal(&self) -> u32 {
-        self.callee_ordinal
+    pub(crate) fn callee_ordinal(&self) -> Option<u32> {
+        match &self.support { BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. } => Some(*callee_ordinal),
+            BorrowedLocalSupportV1::MapSlot(_) => None }
     }
-    pub(crate) fn root(&self) -> BindingRefV1 {
-        self.root
+    /// The old payload-formal root exists only on the formal-forward lane.
+    pub(crate) fn root(&self) -> Option<BindingRefV1> {
+        match &self.support { BorrowedLocalSupportV1::FormalForward { root, .. } => Some(*root),
+            BorrowedLocalSupportV1::MapSlot(_) => None }
     }
+    /// Lifetime anchor only. A Map holder is not the returned payload receiver.
+    pub(crate) fn support_root(&self) -> BindingRefV1 {
+        match &self.support { BorrowedLocalSupportV1::FormalForward { root, .. } => *root,
+            BorrowedLocalSupportV1::MapSlot(map) => map.holder }
+    }
+    pub(crate) fn is_map_slot(&self) -> bool { matches!(self.support, BorrowedLocalSupportV1::MapSlot(_)) }
     pub(crate) fn witnesses(&self) -> &[Rc<ResultOriginWitnessV1>] {
         &self.witnesses
     }
@@ -158,9 +172,7 @@ impl PartialEq for BorrowedNullableLocalSourceLoanV1 {
             && self.receiver == other.receiver
             && self.key == other.key
             && self.callee_owner == other.callee_owner
-            && self.callee_ordinal == other.callee_ordinal
-            && self.root == other.root
-            && self.caller_ordinal == other.caller_ordinal
+            && self.support == other.support
             && self.witnesses.len() == other.witnesses.len()
             && self
                 .witnesses
@@ -173,9 +185,7 @@ impl Eq for BorrowedNullableLocalSourceLoanV1 {}
 
 struct OriginalLocalCallV1 {
     source: call_witness::OriginalLocalCallSourceV1,
-    callee_ordinal: u32,
-    root: BindingRefV1,
-    caller_ordinal: u32,
+    support: BorrowedLocalSupportV1,
 }
 
 impl OrdinaryNewResultClassClaimsV1 {
@@ -201,9 +211,10 @@ impl OrdinaryNewResultClassClaimsV1 {
         if roots.is_empty() {
             return Err("borrowed-nullable/callee-roots-empty");
         }
-        let witnesses = original
-            .source
-            .compose_at_v1(call, self, batch, parameters)?;
+        let witnesses = match &original.support {
+            BorrowedLocalSupportV1::FormalForward { .. } => original.source.compose_at_v1(call, self, batch, parameters)?,
+            BorrowedLocalSupportV1::MapSlot(map) => original.source.compose_map_slot_v1(map, &roots)?,
+        };
         let loan = BorrowedNullableLocalSourceLoanV1 {
             declaration: original.source.declaration,
             destination,
@@ -214,9 +225,7 @@ impl OrdinaryNewResultClassClaimsV1 {
                 .ok_or("borrowed-nullable/method-source")?,
             key: original.source.key,
             callee_owner: original.source.callee_owner,
-            callee_ordinal: original.callee_ordinal,
-            root: original.root,
-            caller_ordinal: original.caller_ordinal,
+            support: original.support,
             witnesses: witnesses.into_boxed_slice(),
         };
         self.check_borrowed_nullable_roots_v1(&loan, &roots)?;
@@ -247,9 +256,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             || original.source.receiver.as_ref() != Some(&loan.receiver)
             || original.source.key != loan.key
             || original.source.callee_owner != loan.callee_owner
-            || original.callee_ordinal != loan.callee_ordinal
-            || original.root != loan.root
-            || original.caller_ordinal != loan.caller_ordinal
+            || original.support != loan.support
         {
             return Err("borrowed-nullable/source-identity");
         }
@@ -272,17 +279,15 @@ impl OrdinaryNewResultClassClaimsV1 {
         else {
             return Ok(None);
         };
-        let Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }) = self.get(&source.key)
-        else {
-            return Ok(None);
+        let support = if let Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }) = self.get(&source.key) {
+            let (root, caller_ordinal) = source.formal_actual_v1(batch, parameters, *ordinal)?;
+            BorrowedLocalSupportV1::FormalForward { callee_ordinal: *ordinal, root, caller_ordinal }
+        } else {
+            let roots = self.checked_original_source_roots_v1(&source.key, source.callee_owner)?;
+            let Some(map) = source.map_slot_substitution_v1(batch, selected, fields, &roots)? else { return Ok(None); };
+            BorrowedLocalSupportV1::MapSlot(map)
         };
-        let (root, caller_ordinal) = source.formal_actual_v1(batch, parameters, *ordinal)?;
-        Ok(Some(OriginalLocalCallV1 {
-            source,
-            callee_ordinal: *ordinal,
-            root,
-            caller_ordinal,
-        }))
+        Ok(Some(OriginalLocalCallV1 { source, support }))
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn check_borrowed_nullable_roots_v1(
@@ -293,6 +298,22 @@ impl OrdinaryNewResultClassClaimsV1 {
         if roots.is_empty() || loan.witnesses.len() != roots.len() {
             return Err("borrowed-nullable/root-coverage");
         }
+        if let BorrowedLocalSupportV1::MapSlot(map) = &loan.support {
+            if map.receiver.site() != loan.receiver() || map.receiver.owner() != loan.call().owner()
+                || map.holder.owner() != loan.call().owner() { return Err("borrowed-nullable/source-identity"); }
+            for (witness, root) in loan.witnesses.iter().zip(roots) {
+                if witness.site() != loan.call() || witness.origin() != &map.origin()
+                    || root.origin() != &map.source.origin()
+                    || !map.source.returns.contains_key(root.site())
+                    || !matches!(root.step(), ResultWitnessStepV1::MapStored { source } if Rc::ptr_eq(source, &map.source))
+                    || !matches!(witness.step(), ResultWitnessStepV1::Call { site, key, callee, substitution }
+                        if site == loan.call() && key == loan.key() && Rc::ptr_eq(callee, root) && substitution.is_none())
+                { return Err("borrowed-nullable/witness-identity"); }
+            }
+            return Ok(());
+        }
+        let BorrowedLocalSupportV1::FormalForward { callee_ordinal, root: formal_root, caller_ordinal } = loan.support
+            else { return Err("borrowed-nullable/root-origin"); };
         let mut forwarded = false;
         for (witness, root) in loan.witnesses.iter().zip(roots) {
             let ResultWitnessStepV1::Call {
@@ -316,10 +337,10 @@ impl OrdinaryNewResultClassClaimsV1 {
             match (root.formal_ordinal(), substitution) {
                 (None, None) => {}
                 (Some(ordinal), Some(actual))
-                    if ordinal == loan.callee_ordinal
-                        && actual.binding == loan.root
+                    if ordinal == callee_ordinal
+                        && actual.binding == formal_root
                         && actual.callee_ordinal == ordinal
-                        && actual.caller_ordinal == loan.caller_ordinal =>
+                        && actual.caller_ordinal == caller_ordinal =>
                 {
                     let mut path = loan.call.site().node().segments().to_vec();
                     path.push(
@@ -338,8 +359,8 @@ impl OrdinaryNewResultClassClaimsV1 {
                 (
                     ResultValueOriginV1::ForwardFormal { ordinal },
                     ResultValueOriginV1::ForwardFormal { ordinal: caller },
-                ) if *ordinal == loan.callee_ordinal
-                    && *caller == loan.caller_ordinal
+                ) if *ordinal == callee_ordinal
+                    && *caller == caller_ordinal
                     && root.formal_ordinal() == Some(*ordinal) =>
                 {
                     forwarded = true;
@@ -413,7 +434,7 @@ mod tests {
                     .unwrap()
                     .unwrap();
                 assert_eq!(loan, loan.clone());
-                assert_ne!(loan.destination(), loan.root());
+                assert_ne!(Some(loan.destination()), loan.root());
                 let roots = facts
                     .checked_original_source_roots_v1(loan.key(), loan.callee_owner())
                     .unwrap();
@@ -470,14 +491,14 @@ mod tests {
                                 .into_boxed_slice()
                         }
                         1 => changed.witnesses.reverse(),
-                        2 => changed.root = changed.destination,
-                        3 => changed.callee_ordinal += 1,
+                        2 => { if let BorrowedLocalSupportV1::FormalForward { root, .. } = &mut changed.support { *root = changed.destination; } },
+                        3 => { if let BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. } = &mut changed.support { *callee_ordinal += 1; } },
                         4 => {
                             changed.key = CanonicalSameModuleCallableKeyV1::instance_box_method(
                                 "Door", "fresh", 0,
                             )
                         }
-                        5 => changed.destination = changed.root,
+                        5 => changed.destination = changed.root().unwrap(),
                         _ => unreachable!(),
                     }
                     assert!(

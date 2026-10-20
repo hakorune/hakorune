@@ -208,7 +208,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     || loan.receiver() != &target.receiver_site
                     || loan.callee_owner() != contract.owner
                     || loan.destination().owner() != site.owner()
-                    || loan.root().owner() != site.owner()
+                    || loan.support_root().owner() != site.owner()
             })
             || qualifications.is_some_and(|rows| {
                 rows.is_empty()

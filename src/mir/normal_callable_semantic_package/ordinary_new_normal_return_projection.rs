@@ -106,8 +106,8 @@ impl OrdinaryNewClaimLedgerV1 {
             || value.owner() != owner || value.return_site() != exit
             || value.value_site().node() != &crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node()).child(
                 crate::mir::resolved_semantics::SourcePathSegmentV1::Value).node()
-            || loan.call().owner() != owner || loan.root().owner() != owner
-            || loan.destination().owner() != owner || loan.destination() == loan.root()
+            || loan.call().owner() != owner || loan.root().is_none_or(|root| root.owner() != owner)
+            || loan.destination().owner() != owner || Some(loan.destination()) == loan.root()
             || observation.site() != loan.call()
             || observation.borrowed_nullable() != Some(loan.as_ref())
             || observation.local_binding() != Some((loan.declaration(), loan.destination()))

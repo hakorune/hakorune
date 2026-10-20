@@ -29,7 +29,7 @@ pub(crate) fn issue_borrowed_nullable_local_call<E>(
     if loan.call() != site
         || loan.destination() != destination
         || loan.declaration() != &declaration
-        || loan.root().owner() != input.owner()
+        || loan.support_root().owner() != input.owner()
         || !input
             .function()
             .method_call(site.site())

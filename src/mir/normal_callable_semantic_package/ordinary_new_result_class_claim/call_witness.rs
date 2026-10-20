@@ -23,7 +23,94 @@ pub(super) struct OriginalLocalCallSourceV1 {
     pub(super) call: OwnedExprSiteV1,
 }
 
+/// Receiver and key substitution for the SAME storage-backed LOCAL loan.
+/// This retains original source reads only; Text/slot liveness and execution
+/// remain obligations of the completed borrower and final consumers.
+#[derive(Debug, Clone)]
+pub(super) struct MapSlotCallSubstitutionV1 {
+    pub(super) source: Rc<super::witness::MapStoredResultSourceV1>,
+    pub(super) holder: super::BindingRefV1,
+    pub(super) receiver: OwnedExprSiteV1,
+    pub(super) key: super::ResultActualSourceV1,
+    original: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+}
+impl PartialEq for MapSlotCallSubstitutionV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source) && self.holder == other.holder
+            && self.receiver == other.receiver && self.key == other.key
+            && std::sync::Arc::ptr_eq(&self.original, &other.original)
+    }
+}
+impl Eq for MapSlotCallSubstitutionV1 {}
+impl MapSlotCallSubstitutionV1 {
+    pub(super) fn origin(&self) -> ResultValueOriginV1 {
+        ResultValueOriginV1::MapHeld { field: self.source.receiver.field(),
+            key: self.key.binding.expect("checked original key binding"),
+            object: self.source.object, class: self.source.class.clone() }
+    }
+}
+
 impl OriginalLocalCallSourceV1 {
+    pub(super) fn map_slot_substitution_v1(
+        &self, batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        roots: &[&Rc<ResultOriginWitnessV1>],
+    ) -> Result<Option<MapSlotCallSubstitutionV1>, &'static str> {
+        use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1};
+        let Some(first) = roots.first() else { return Ok(None); };
+        let ResultWitnessStepV1::MapStored { source } = first.step() else { return Ok(None); };
+        if !source.receiver.same_source(fields) || roots.iter().any(|root|
+            root.site().owner() != self.callee_owner || root.origin() != &source.origin()
+                || !source.returns.contains_key(root.site())
+                || !matches!(root.step(), ResultWitnessStepV1::MapStored { source: other } if Rc::ptr_eq(source, other)))
+        { return Err("borrowed-nullable/source-identity"); }
+        let receiver = self.receiver.as_ref().ok_or("borrowed-nullable/method-source")?;
+        let key = self.actuals.get(source.ordinal as usize).ok_or("borrowed-nullable/actual-root")?;
+        let key_binding = key.binding.ok_or("borrowed-nullable/actual-root")?;
+        CallWitnessSourceV1::verify(&self.call, &self.call, &self.key, &self.actuals)
+            .ok_or("borrowed-nullable/substitution")?;
+        batch.with_lowering_input(self.caller_slot, |input| {
+            let Some(super::SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(self.caller_slot)
+                else { return Err("borrowed-nullable/caller-key"); };
+            let shape = input.body_shape().ok_or("borrowed-nullable/body-shape")?;
+            let Some(Shape::Me { receiver: BodyMeReceiverV1::Lexical(holder), .. }) = shape.expression_shape(receiver)
+                else { return Err("borrowed-nullable/method-source"); };
+            let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| "borrowed-nullable/caller-input")?;
+            let original = input.function().method_call_source_v1(self.call.site()).ok_or("borrowed-nullable/method-source")?;
+            if input.owner() != self.call.owner() || caller.owner() != self.key.owner()
+                || caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                || original.receiver_site() != receiver || original.selector() != self.key.name()
+                || original.arguments().get(source.ordinal as usize).map(|arg| arg.site()) != Some(key.site.site())
+                || input.function().binding(*holder).is_none_or(|row| row.kind() != super::BindingKindV1::Receiver)
+                || !ledger.uncaptured_binding(*holder) || !super::binding_is_unrebound(input.function(), *holder)
+                || key_binding.owner() != input.owner() || !ledger.uncaptured_binding(key_binding)
+                || !super::binding_is_unrebound(input.function(), key_binding)
+                || input.function().variable_ref(key.site.site()) != Some(super::ResolvedLexicalRefV1::Local(key_binding))
+            { return Err("borrowed-nullable/source-identity"); }
+            Ok(Some(MapSlotCallSubstitutionV1 { source: Rc::clone(source), holder: *holder,
+                receiver: OwnedExprSiteV1::new(input.owner(), receiver.clone()), key: key.clone(),
+                original: std::sync::Arc::clone(original) }))
+        }).map_err(|_| "borrowed-nullable/caller-input")?
+    }
+
+    pub(super) fn compose_map_slot_v1(
+        &self, support: &MapSlotCallSubstitutionV1,
+        roots: &[&Rc<ResultOriginWitnessV1>],
+    ) -> Result<Vec<Rc<ResultOriginWitnessV1>>, &'static str> {
+        if self.receiver.as_ref() != Some(support.receiver.site())
+            || self.call.owner() != support.receiver.owner()
+            || self.actuals.get(support.source.ordinal as usize) != Some(&support.key)
+            || roots.iter().any(|root| !matches!(root.step(),
+                ResultWitnessStepV1::MapStored { source } if Rc::ptr_eq(source, &support.source)))
+        { return Err("borrowed-nullable/substitution"); }
+        Ok(roots.iter().map(|root| Rc::new(ResultOriginWitnessV1 {
+            site: self.call.clone(), origin: support.origin(),
+            step: ResultWitnessStepV1::Call { site: self.call.clone(), key: self.key.clone(),
+                callee: Rc::clone(root), substitution: None },
+        })).collect())
+    }
+
     pub(super) fn formal_actual_v1(
         &self,
         batch: &super::VerifiedResolvedCallableSemanticBatchV1,

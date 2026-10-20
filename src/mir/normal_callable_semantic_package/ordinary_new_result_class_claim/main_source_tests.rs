@@ -135,7 +135,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
     with_source_claims_fixture(json, |batch, selected, constructors, parameters, main, writers| {
         let common = crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(batch).unwrap();
         let entries = crate::mir::resolved_semantics::CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(batch, &common).unwrap();
-        let (_, _, facts, _) = prepare_source_claims(batch, selected, main, constructors, parameters,
+        let (fields, _, facts, _) = prepare_source_claims(batch, selected, main, constructors, parameters,
             std::rc::Rc::clone(writers), Some(&entries)).unwrap();
         let key = CanonicalSameModuleCallableKeyV1::instance_box_method("JsonStreamAggregator", "statsFor", 1);
         assert!(facts.get(&key).is_none());
@@ -143,6 +143,28 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
         assert_eq!(exits.len(), 2);
         assert!(exits.iter().flat_map(|exit| exit.alternatives()).all(|origin|
             matches!(origin, ResultValueOriginV1::MapHeld { class, .. } if class.as_ref() == "UserStats")));
+        let caller = CanonicalSameModuleCallableKeyV1::instance_box_method("JsonStreamAggregator", "ingestLine", 1);
+        let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(caller)).unwrap();
+        let (call, destination, key_binding) = batch.with_lowering_input(slot, |input| {
+            let init = input.function().expression_source().initializers().find(|init|
+                init.initializer_site().and_then(|site| input.function().method_call(site))
+                    .is_some_and(|call| call.selector() == "statsFor")).unwrap();
+            let site = init.initializer_site().unwrap();
+            let actual = input.function().method_call(site).unwrap().arguments()[0].site();
+            let crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(actual).unwrap()
+                else { panic!("original local key actual"); };
+            (OwnedExprSiteV1::new(input.owner(), site.clone()), init.binding(), binding)
+        }).unwrap();
+        let loan = facts.borrowed_nullable_local_source_v1(batch, selected, &fields, parameters,
+            &call, destination, None).unwrap().expect("original Map LOCAL result");
+        assert!(loan.is_map_slot());
+        assert_eq!(loan.callee_ordinal(), None);
+        assert_eq!(loan.root(), None);
+        assert_ne!(loan.support_root(), key_binding);
+        assert_eq!(loan.witnesses().len(), 2);
+        assert!(loan.witnesses().iter().all(|root| matches!(root.origin(),
+            ResultValueOriginV1::MapHeld { key, class, .. } if *key == key_binding && class.as_ref() == "UserStats")));
+        facts.recheck_borrowed_nullable_local_source_v1(batch, selected, &fields, parameters, &loan, None).unwrap();
     });
 }
 

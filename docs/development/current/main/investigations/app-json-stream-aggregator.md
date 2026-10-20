@@ -7,14 +7,15 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner331.585s on current source change; matching CLI/runtime/FFI frozen.
+  runner329.841s on current shared-loan change; matching CLI/runtime/FFI frozen.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current matching frozen pair/FFI: JSON fails MIR at owner26 ingestLine, called at
-  line151 inside ingest Loop. Outer `source-loop-header-after` wraps
-  `borrowed-entry/source-use-completion-pending`; no JSON EXE/PASS claimed.
-- Other reds remain: untyped-field activation, binary-trees source-not-i64,
-  boxtorrent stored-child receiver. Current CLI91s/runtime7.05s; root source test build67s.
+- Current pair: JSON fails MIR at owner26 ingestLine, line129 statsFor(user):
+  `borrowed-nullable-local/source-arguments-missing`. Target/source substitution
+  is retained; completed original Me/Text actuals are not yet available. No EXE.
+- Other reds: untyped-field activation, binary-trees source-not-i64, boxtorrent
+  stored-child receiver. Current CLI66s/runtime6.59s; root source test build109s.
+
 
 ## Retained connected contracts
 
@@ -54,21 +55,24 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Miss retains sole local New, same set before Return, and the full interval;
   only exact disjoint Array field push effects are retained. Calls, construction,
   await/QMark/throw/other unowned effects cannot silently invalidate slot support.
-- MapHeld source origin is distinct from Fresh/formal and absent from legacy owned
-  projection. Old Call composition refuses it until receiver/key substitution is
-  connected. Caller Text locals are legitimate key actuals, never fake result formal0.
-- Same existing source test covers new independent origin/escape/class/mutator/
-  Birth/indirect-mutation boundaries and unmodified JSON: BOTH statsFor results
-  are UserStats Map-held origins, no owning qualification. No new test entry/file,
-  hook/checker/guard/card. Source evidence grants no executable borrow or Home.
+- SAME LOCAL loan now distinguishes FormalForward from MapSlot support; exact
+  caller Me holder and original key actual substitute separately. Full source
+  root coverage and same method/Map source identities are rechecked on demand.
+  Formal root/ordinal are both absent for Map, holder is never payload receiver.
+- Generic result composition refuses Map; only this LOCAL loan holds its complete
+  storage correspondence. Old formal-only Call ABI/return issuance rejects Map
+  or leaves its source slot pending. No result Home/nonnull/slot lifetime granted.
+- Same source case additionally covers actual JSON statsFor->ingestLine with local
+  user key and both Return roots: independent caller storage substitution was not
+  covered by formal/Fresh tests. No new test entry/file/hook/checker/guard/card.
+
 
 ## Verification and retained reds
 
-- Current source case1 PASS (includes actual JSON). Shared Array family15PASS/2FAIL;
-  result family23PASS/1FAIL. All three reds reproduce with saved prior test binary:
-  Array escape/return pins and real PageHeap required-integer-source-unproved.
-  They remain required work; prior comparison is not a waiver. Array publication
-  3PASS/1FAIL: numeric-field retained-source refusal also fails with prior binary.
+- Source case1, nullable source2, stored nullable2 PASS. Result family23PASS/1FAIL;
+  prior PageHeap failure retained. Nullable publication2PASS/1FAIL: me-receiver
+  frontier is already admitted in saved prior binary too; do not waive the red.
+- Prior shared Array15/2, publication3/1 and matching old-binary failures remain.
 - Earlier Invoke42/construction4/prefix1/Provided1/Map17/binding8+archive1/C14,
   coreMap15/kernelMap17/native both profiles, borrowed27/core2/scalar1/terminal8/
   selected-route1/loop2/expression4/condition1 PASS. Ignored/zero filters excluded.
@@ -79,9 +83,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 
 ## Next and full completion limits
 
-- Extend SAME LOCAL loan support: formal-forward or Map slot; substitute exact Me
-  receiver and key actual independently. Then entry/return/stats.add and both final
-  consumers must retain holder/field/key/class/slot through final use.
+- Select SAME SourceInstance request for Map key Binding(user); reuse original
+  argument-expression/TextResidence completion, never fabricate legacy incoming.
+  Then slot result ABI/get+set Return/stats.add and both final consumers/lifetimes.
   Candidate Home transfer, set Normal/Fault, complete UserStats End, and users.push
   execution remain mandatory; never replace them with source witness membership.
 - UserStats Text must materialize independently, not copy input Home. Provided Box,

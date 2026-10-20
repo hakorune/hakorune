@@ -580,6 +580,15 @@ This passive origin is absent from legacy owned-result projections and old
 formal-return substitution. Executable entry, Text actuals, committed set/Home,
 complete Normal/Fault cleanup, receiver/key substitution and both final consumers
 remain separate obligations; retaining the source origin does not discharge them.
+The same LOCAL borrowed-result loan may retain a storage-backed Call edge.
+Its support separates callee receiver to caller holder from key formal to the
+exact original argument read; a stable caller Text local is not a forwarded
+payload formal. Every original Return root keeps its source identity and the
+rewritten key correspondence. Formal-only root/ordinal accessors return none
+for storage support, and generic Return composition cannot drop this LOCAL
+support. This grants neither a result ABI nor slot liveness: completed Text
+actuals, nonnull/Normal/Fault, holder/slot lifetime and final replay remain owed.
+
 A null bytes pointer is allowed at zero length (empty key); other regions must
 be non-null. Returned allocation failure records reason100 and leaves Empty; malformed UTF-8
 or pointer/length contract returns InvalidContract without installing a key.

@@ -168,7 +168,7 @@ impl FinalizedRootSourceHandoffV1 {
                 || source.callee_owner() != loan.callee_owner()
                 || row.result()
                     != Some(InvokeCallResultKind::BorrowedNullableHandle {
-                        formal_ordinal: loan.callee_ordinal(),
+                        formal_ordinal: loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))?,
                     })
             {
                 return Err(freeze("borrowed-return/original-contract"));
@@ -235,7 +235,7 @@ impl FinalizedRootSourceHandoffV1 {
                         (FinalizedObjectReturnOriginV1::Null { producer }, dst)
                     }
                     (ResultWitnessStepV1::Formal { binding, ordinal }, TerminalReturnedSourceV1::Handle(formal))
-                        if binding == formal && *ordinal == loan.callee_ordinal() => {
+                        if binding == formal && Some(*ordinal) == loan.callee_ordinal() => {
                         let mut uses = formal_returns.iter().filter(|(_, root, at, _)| root == formal && *at == exit);
                         let (_, _, _, retained) = uses.next().ok_or_else(|| freeze("borrowed-return/formal-source"))?;
                         if uses.next().is_some() || retained.key() != source.target()
@@ -263,7 +263,7 @@ impl FinalizedRootSourceHandoffV1 {
                 };
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
-                    result: InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: loan.callee_ordinal() },
+                    result: InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))? },
                     returned, origin, transport, field_supports: Box::new([]),
                 };
                 if let Some(prior) = outcomes.iter().find(|prior: &&FinalizedObjectReturnOutcomeV1| prior.returned.0 == outcome.returned.0) {
@@ -397,14 +397,14 @@ impl FinalizedRootSourceHandoffV1 {
                         let producer = checked_projection(function, projection, producer)?;
                         if !matches!(invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
                             result: InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal }, .. }, .. }
-                            if formal_ordinal == borrowed.callee_ordinal()) {
+                            if Some(formal_ordinal) == borrowed.callee_ordinal()) {
                             return Err(freeze("mixed-return/borrowed-call-contract"));
                         }
                         // The original entry binding, not signature storage or
                         // the final Return operand, establishes the support.
                         let support = self.borrowed_ordinary_entry_values_v1(owner)?;
                         let source_entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-                        let mut values = support.iter().filter(|(_, binding, _)| *binding == borrowed.root());
+                        let mut values = support.iter().filter(|(_, binding, _)| Some(*binding) == borrowed.root());
                         let (ordinal, _, value) = values.next().ok_or_else(|| freeze("mixed-return/borrowed-support"))?;
                         let offset = match source.target().namespace() {
                             hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
@@ -413,7 +413,7 @@ impl FinalizedRootSourceHandoffV1 {
                         };
                         let slot = *ordinal as usize + offset;
                         if values.next().is_some() || *ordinal != loan.callee_ordinal()
-                            || !source_entry.formals().contains(&(*ordinal, borrowed.root()))
+                            || !borrowed.root().is_some_and(|root| source_entry.formals().contains(&(*ordinal, root)))
                             || function.params.get(slot) != Some(value)
                             || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(slot))
                                 != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {

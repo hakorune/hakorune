@@ -246,12 +246,12 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
         matches!(response, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::BorrowedNullableLocalSource { loan: retained, .. } if retained == *loan)
     );
     assert!(
-        request(loan.root()).is_err(),
+        request(loan.root().unwrap()).is_err(),
         "foreign destination cannot borrow the source loan"
     );
     assert!(ledger.take_receiver_object_packet_v1(call.owner(), call.site(), target.target()).unwrap().is_none());
     let row = ledger.take_lexical_instance_call(call.owner(), call.site()).unwrap().unwrap();
-    let expected = crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: loan.callee_ordinal() };
+    let expected = crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: loan.callee_ordinal().unwrap() };
     assert_eq!(row.result(), Some(expected));
     assert_eq!(ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap(), expected);
     assert!(!ledger.uses_object_packet_protocol_v1(&row).unwrap());
@@ -306,7 +306,7 @@ fn stored_nullable_source_branch_retains_exact_return_operand_and_root() {
                                 .local_call_for_owner(input.owner(), loan.call().site())
                                 .unwrap();
                             assert_eq!(observed.borrowed_nullable(), Some(loan.as_ref()));
-                            assert_ne!(loan.destination(), loan.root());
+                            assert_ne!(Some(loan.destination()), loan.root());
                             assert_eq!(
                                 input.function().variable_ref(value.value_site()),
                                 Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(

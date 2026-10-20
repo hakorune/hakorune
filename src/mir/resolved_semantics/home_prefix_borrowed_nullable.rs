@@ -101,7 +101,7 @@ impl PrefixLocalFlow<'_> {
         };
         (loan.destination() == binding
             && self.nonnull.contains(&binding)
-            && self.is_self_rooted_handle(loan.root()))
+            && loan.root().is_some_and(|root| self.is_self_rooted_handle(root)))
         .then_some(loan.as_ref())
     }
 }
