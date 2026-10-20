@@ -10,7 +10,7 @@ fn fixture() -> (MirFunction, NamedArrayWriteMarkerV1) {
             .unwrap(),
         allocation: NamedArrayAllocationRefV1::LocalValue(ValueId::new(1)),
         receiver: ValueId::new(1),
-        argument: ValueId::new(2),
+        argument: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(ValueId::new(2)),
         write: ArrayWriteSiteId(0),
     };
     let mut function = MirFunction::new(
@@ -35,7 +35,7 @@ fn fixture() -> (MirFunction, NamedArrayWriteMarkerV1) {
         producer: ArrayWriteProducerKind::MethodCall,
         receiver: marker.receiver,
         index: None,
-        value: marker.argument,
+        value: marker.argument.scalar().unwrap(),
     });
     (function, marker)
 }

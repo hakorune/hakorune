@@ -1,5 +1,5 @@
-/* Physical projection of admitted immutable descriptor keys. All child End
- * callbacks use the existing complete source-layout thunk, never a registry. */
+/* One physical Array projection: scalar/Text copies and owned-slot moves.
+ * Child End uses the complete source-layout thunk, never a registry. */
 static void lv4_owned_array_globals(FILE* f, const hako_lv4_input* in) {
   fprintf(f,
       "declare i32 @\"nyash.array.checked_owned_claim_v1\"(ptr, i64, i64, ptr)\n"
@@ -44,4 +44,25 @@ static void lv4_owned_array_emit_call(FILE* f, yyjson_val* op,
   if (lv4_is(op, "kind", "array_owned_get"))
     fprintf(f, ", i64 %%v%u, ptr %%owned_get%u", lv4_u(op, "index"), block);
   fprintf(f, ")\n");
+}
+
+/* The instruction schema already fixes numeric vs Text operands. */
+static void lv4_array_primitive_emit_call(FILE* f, yyjson_val* op, uint32_t b, unsigned long long site) {
+  if (lv4_is(op, "kind", "array_new")) {
+    fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
+  } else if (lv4_is(op, "kind", "array_claim")) {
+    fprintf(f, "@\"nyash.array.checked_claim_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i32 %u)\n",
+        site, lv4_u(op, "array"), lv4_u(op, "element_tag"));
+  } else if (hako_physical_array_text_append(op)) {
+    fprintf(f, "@\"nyash.array.checked_append_text_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, ptr %%strarg%u_0)\n",
+        site, lv4_u(op, "array"), b);
+  } else {
+    const char* repr = yyjson_get_str(yyjson_obj_get(op, "representation"));
+    const char* lane = lv4_is(op, "representation", "f64") ? "double" :
+        lv4_is(op, "representation", "bool") ? "i32" : "i64";
+    int boolean = lv4_is(op, "representation", "bool");
+    fprintf(f, "@\"nyash.array.checked_append_%s_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, %s %%%s%u)\n",
+        repr, site, lv4_u(op, "array"), lane, boolean ? "bool" : "v",
+        boolean ? b : lv4_u(op, "value"));
+  }
 }

@@ -18,7 +18,7 @@ pub(super) fn insert_array_write_metadata_json(
                 "producer": witness.producer.as_str(),
                 "receiver": witness.receiver.as_u32(),
                 "index": witness.index.map(|value| value.as_u32()),
-                "value": witness.value.as_u32(),
+                "value": &witness.value,
                 "state_term": witness.state_term.0,
             }))
             .collect::<Vec<_>>()),

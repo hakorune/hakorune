@@ -228,14 +228,25 @@ pub(crate) enum CompiledEntryArrayValueKindV1 {
 }
 
 #[derive(Debug, Clone)]
+pub(crate) enum CompiledEntryArrayWriteValueV1 {
+    Scalar { value: ValueId, kind: CompiledEntryArrayValueKindV1 },
+    Text(crate::mir::instruction::StringInvokeOperand),
+}
+impl CompiledEntryArrayWriteValueV1 {
+    pub(crate) fn operand(&self) -> crate::mir::instruction::ArrayElementWriteValueV1 {
+        use crate::mir::instruction::ArrayElementWriteValueV1 as Operand;
+        match self { Self::Scalar { value, .. } => Operand::Scalar(*value), Self::Text(value) => Operand::Text(value.clone()) }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub(crate) struct CompiledEntryArrayWriteV1 {
     pub(crate) function_index: u32,
     pub(crate) block: crate::mir::BasicBlockId,
     pub(crate) instruction_index: u32,
     pub(crate) site: crate::mir::ArrayWriteSiteId,
     pub(crate) array: ValueId,
-    pub(crate) value: ValueId,
-    pub(crate) kind: CompiledEntryArrayValueKindV1,
+    pub(crate) value: CompiledEntryArrayWriteValueV1,
 }
 
 #[derive(Debug, Clone)]

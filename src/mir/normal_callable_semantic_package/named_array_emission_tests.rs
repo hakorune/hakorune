@@ -99,7 +99,7 @@ fn module(row: &EmittedNamedArrayRequirementV1) -> MirModule {
             producer: ArrayWriteProducerKind::MethodCall,
             receiver: marker.receiver,
             index: None,
-            value: marker.argument,
+            value: marker.argument.scalar().unwrap(),
         },
     ];
     function.metadata.named_array_write_obligations.push(marker);
@@ -230,7 +230,7 @@ fn two_source_writes_share_one_exact_construction() {
             producer: ArrayWriteProducerKind::MethodCall,
             receiver: second.receiver,
             index: None,
-            value: second.argument,
+            value: second.argument.scalar().unwrap(),
         });
     function.metadata.named_array_write_obligations.push(second);
     collector.hand_back(emitted_rows).unwrap();

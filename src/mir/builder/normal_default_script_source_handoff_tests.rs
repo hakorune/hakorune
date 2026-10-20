@@ -188,7 +188,7 @@ fn array_emission_mutations_reject_in_both_finishing_consumers() {
                             ..
                         }) = &mut root.blocks.get_mut(&writes[0]).unwrap().terminator
                         {
-                            *value = ValueId::new(u32::MAX);
+                            *value = crate::mir::instruction::ArrayElementWriteValueV1::Scalar(ValueId::new(u32::MAX));
                         }
                     }
                     3 => root.blocks.get_mut(&writes[0]).unwrap().terminator = None,

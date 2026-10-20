@@ -350,7 +350,7 @@ fn provider_construction_store_reaches_artifact_lane() {
                             site_id, kind, producer, receiver, value, ..
                         } = operation else { panic!("same source append") };
                         match mutation {
-                            0 => *value = crate::mir::ValueId::new(u32::MAX - 1),
+                            0 => *value = crate::mir::instruction::ArrayElementWriteValueV1::Scalar(crate::mir::ValueId::new(u32::MAX - 1)),
                             1 => *receiver = crate::mir::ValueId::new(u32::MAX - 2),
                             2 => *kind = ArrayElementWriteKind::LiteralAppend,
                             3 => *producer = crate::mir::ArrayWriteProducerKind::Literal,
@@ -373,7 +373,7 @@ fn provider_construction_store_reaches_artifact_lane() {
                     assert_eq!(input.entry().array_writes().len(), 4);
                     let mut coordinates = std::collections::BTreeSet::new();
                     for row in input.entry().array_writes() {
-                        assert_eq!(row.kind, super::compiled_entry_contract::CompiledEntryArrayValueKindV1::I64);
+                        assert!(matches!(row.value, super::compiled_entry_contract::CompiledEntryArrayWriteValueV1::Scalar { kind: super::compiled_entry_contract::CompiledEntryArrayValueKindV1::I64, .. }));
                         assert!(coordinates.insert((row.function_index, row.block, row.instruction_index)));
                         assert_eq!(input.program().functions()[row.function_index as usize].name(), "Holder.seed/0");
                     }

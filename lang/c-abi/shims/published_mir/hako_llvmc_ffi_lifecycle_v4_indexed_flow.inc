@@ -194,10 +194,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     failed = 1;
     if (lv4_string_pending(state, count) && !lv4_is(op, "kind", "string_end")) return 0;
     if ((lv4_string_held(state, count) || lv4_string_call_pending(state, count)) && (lv4_is(op, "kind", "ordinary_call") ||
-        lv4_is(op, "kind", "map_field_has") || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
+        hako_physical_array_text_append(op) || lv4_is(op, "kind", "map_field_has") || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
-    } else if (hako_physical_string_operand_count(op)) {
+    } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
       if (birth || faulted || state[bi]) return 0;
       if (lv4_is(op, "kind", "map_field_has") && (in->profile != LV4_INDEXED_SAFE_MUTEX ||
           !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0 ||
@@ -376,11 +376,15 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if ((fi && !ordinary && !birth) || faulted || state[bi]) return 0;
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "array_append")) {
-      hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (faulted || birth || !lv4_is(op, "representation", "i64") ||
-          !value || value->kind != LV4_I64 ||
+      if (faulted || birth ||
           !lv4_field_array_readable(in, fn, lv4_u(op, "array"), state, lv4_u(block, "id"))) return 0;
-      /* Borrow only: both Normal and Fault keep the parent's obligation. */
+      if (hako_physical_array_text_append(op)) {
+        if (!lv4_string_indexed_operand(fn, yyjson_obj_get(op, "value"), state)) return 0;
+      } else {
+        hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+        if (!lv4_is(op, "representation", "i64") || !value || value->kind != LV4_I64) return 0;
+      }
+      /* Copy/borrow only: both outcomes keep parent and input obligations. */
     } else if (lv4_is(op, "kind", "birth_call")) {
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");

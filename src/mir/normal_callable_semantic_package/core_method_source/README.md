@@ -1,7 +1,7 @@
-# Field Array read source and physical owner
+# Field Array source and physical owners
 
 Status: active owner; local/Birth connection under construction.
-Scope: checked field Array Get/Count source, original uses and sole physical emission.
+Scope: checked field Array Get/Count/append sources, original uses and physical emission.
 Related: [source issuer](../ordinary_new_field_array_read_source.rs),
 [Return use](../ordinary_new_borrowed_field_array_read_source.rs),
 [physical read](field_read.rs), [collector](collector.rs).
@@ -31,7 +31,16 @@ proof/index or the same statement Text frame under its original Completion.
 Entry-use lends that same Text frame, original CallArgument(0), provider census
 and ancestry; integer-only emitters/collectors explicitly refuse this variant.
 Both variants lend their own prior Homes to the same unwind-plan owner. This
-normalization supplies no physical Text operand or complete element/End census.
+loan alone supplies no source-selected physical append or complete element/End census.
+
+Checked ArrayElementWrite, its passive witness and marker retain one shared
+Scalar/Text payload sum. StaticText has no fake ValueId; owned/borrowed descriptors
+keep their actual values through uses and SSA rewriting. The String lifetime
+verifier checks Text borrowers; Text copies carry Alloc as well as Write/Control.
+Final ABI writes retain Scalar(value, source kind) or the complete Text descriptor
+at one exact source-issued coordinate. Canonical JSON shares String descriptor
+serialization. Integer-only source packets/collectors still reject Text: the
+transport alone grants no source execution, Home transfer or complete Text End.
 
 Return use is a separate wrapper retaining all original Return sites and any
 original local initializer relation. It still requires the original scalar

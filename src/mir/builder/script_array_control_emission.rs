@@ -108,7 +108,7 @@ where
                 producer: ArrayWriteProducerKind::Literal,
                 receiver: allocation,
                 index: None,
-                value,
+                value: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(value),
             },
         )?;
         outputs.push(ArrayElementEmission {

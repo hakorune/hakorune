@@ -183,25 +183,29 @@ pub(super) fn encode_invoke(
             let mut rows = input.entry().array_writes().iter().filter(|row| {
                 row.function_index == caller_function_index && row.block == block
                     && row.instruction_index == instruction
-                    && row.site == *site_id && row.array == *receiver && row.value == *operand
+                    && row.site == *site_id && row.array == *receiver && row.value.operand() == *operand
             });
             let issued = rows.next().ok_or_else(|| fault("array-write-unissued"))?;
             if rows.next().is_some() {
                 return Err(fault("array-write-duplicate"));
             }
-            use super::super::compiled_entry_contract::CompiledEntryArrayValueKindV1 as Kind;
-            if !native && issued.kind != Kind::I64 { return Err(fault("field-array-write-representation")); }
-            let representation = match issued.kind {
-                Kind::I64 => "i64",
-                Kind::Bool => "bool",
-                Kind::F64 => "f64",
+            use super::super::compiled_entry_contract::{CompiledEntryArrayValueKindV1 as Kind, CompiledEntryArrayWriteValueV1 as Payload};
+            if !operand.valid_for(*kind, *producer, *index) { return Err(fault("array-write-shape")); }
+            let (representation, payload) = match &issued.value {
+                Payload::Scalar { value: scalar, kind } => {
+                    if !native && *kind != Kind::I64 { return Err(fault("field-array-write-representation")); }
+                    (match kind { Kind::I64 => "i64", Kind::Bool => "bool", Kind::F64 => "f64" }, json!(value(scalar)))
+                }
+                Payload::Text(value) if !native && value.is_text() => ("text", json!(value)),
+                _ => return Err(fault("field-array-write-representation")),
             };
             with_site(
                 json!({"kind": "array_append", "array": value(receiver),
-                "value": value(operand), "representation": representation}),
+                "value": payload, "representation": representation}),
                 required_site(diagnostic_site, true)?,
             )?
         }
+
         InvokeOperation::Call {
             call,
             result: InvokeCallResultKind::Unit,
@@ -340,11 +344,5 @@ fn with_site(mut operation: Value, site: Option<u64>) -> Result<Value, String> {
 
 /// Shared descriptor spelling; only the Call/source owners issue an operand.
 pub(super) fn encode_string_operand_v1(operand: &crate::mir::instruction::StringInvokeOperand) -> Value {
-    use crate::mir::instruction::StringInvokeOperand as Operand;
-    match operand {
-        Operand::StaticText { utf8 } => json!({"kind":"static_text", "utf8":utf8}),
-        Operand::BorrowedText(v) => json!({"kind":"borrowed_text", "value":value(v)}),
-        Operand::OwnedString(v) => json!({"kind":"owned_string", "value":value(v)}),
-        Operand::NormalInteger(v) => json!({"kind":"normal_integer", "value":value(v)}),
-    }
+    json!(operand)
 }

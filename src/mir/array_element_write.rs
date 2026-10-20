@@ -265,27 +265,11 @@ fn rebuild(
         .values()
         .flat_map(|block| block.all_instructions())
         .filter_map(|instruction| match instruction {
-            MirInstruction::ArrayElementWrite {
-                site_id,
-                kind,
-                producer,
-                receiver,
-                index,
-                value,
-                ..
-            }
-            | MirInstruction::Invoke {
-                operation:
-                    crate::mir::instruction::InvokeOperation::ArrayElementWrite {
-                        site_id,
-                        kind,
-                        producer,
-                        receiver,
-                        index,
-                        value,
-                    },
-                ..
-            } => Some((*site_id, *kind, *producer, *receiver, *index, *value)),
+            MirInstruction::ArrayElementWrite { site_id, kind, producer, receiver, index, value, .. } =>
+                Some((*site_id, *kind, *producer, *receiver, *index, crate::mir::instruction::ArrayElementWriteValueV1::Scalar(*value))),
+            MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+                site_id, kind, producer, receiver, index, value,
+            }, .. } => Some((*site_id, *kind, *producer, *receiver, *index, value.clone())),
             _ => None,
         })
         .collect::<Vec<_>>();
@@ -336,6 +320,7 @@ fn rebuild(
             ));
         }
         validate_shape(kind, index)?;
+        if !value.valid_for(kind, producer, index) { return Err(format!("{IDENTITY_DRIFT_TAG} operand-domain")); }
         let state_term = if let Some(term_id) = term_by_value.get(&receiver) {
             *term_id
         } else {

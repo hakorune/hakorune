@@ -462,7 +462,7 @@ mod tests {
                         ValueId::new(1),
                     ),
                 receiver: ValueId::new(1),
-                argument: ValueId::new(2),
+                argument: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(ValueId::new(2)),
                 write: ArrayWriteSiteId(0),
             },
         );

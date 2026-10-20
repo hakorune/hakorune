@@ -11,6 +11,18 @@ pub enum StringInvokeOperand {
     BorrowedText(ValueId),
     NormalInteger(ValueId),
 }
+// One descriptor spelling for canonical transport and passive write census.
+impl serde::Serialize for StringInvokeOperand {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let value = match self {
+            Self::StaticText { utf8 } => serde_json::json!({"kind":"static_text", "utf8":utf8}),
+            Self::BorrowedText(value) => serde_json::json!({"kind":"borrowed_text", "value":value.as_u32()}),
+            Self::OwnedString(value) => serde_json::json!({"kind":"owned_string", "value":value.as_u32()}),
+            Self::NormalInteger(value) => serde_json::json!({"kind":"normal_integer", "value":value.as_u32()}),
+        };
+        serde::Serialize::serialize(&value, serializer)
+    }
+}
 impl StringInvokeOperand {
     pub fn value(&self) -> Option<ValueId> {
         match self {

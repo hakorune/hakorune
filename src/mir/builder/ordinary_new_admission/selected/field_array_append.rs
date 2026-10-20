@@ -41,7 +41,7 @@ pub(in crate::mir::builder) fn emit(
     let mut invoke = Vec::new();
     let (result, projection) = super::invoke_operation::emit(builder, frame,
         InvokeOperation::ArrayElementWrite { site_id, kind: crate::mir::ArrayElementWriteKind::Push,
-            producer: crate::mir::ArrayWriteProducerKind::MethodCall, receiver: pinned_receiver, index: None, value: pinned_value }, fault, &mut invoke)?;
+            producer: crate::mir::ArrayWriteProducerKind::MethodCall, receiver: pinned_receiver, index: None, value: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(pinned_value) }, fault, &mut invoke)?;
     if result.is_some() || projection.is_some() { return Err(freeze("field-array-append/unit-result")); }
     let invoke = invoke.pop().ok_or_else(|| freeze("field-array-append/invoke-missing"))?;
     bindings.push(invoke.clone());

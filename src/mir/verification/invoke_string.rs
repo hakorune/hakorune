@@ -45,6 +45,7 @@ fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
 fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
     match operation {
         InvokeOperation::String(operation) => operation.operands(),
+        InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(value), .. } => vec![value],
         InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }) => vec![key],
         _ => Vec::new(),
     }
@@ -98,7 +99,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
         matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
                 if matches!(operation, InvokeOperation::String(_)
-                    | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }))
+                    | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. })
+                    | InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. })
                     || operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))
     };
     if !function
@@ -139,6 +141,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 ..
             } = instruction
             {
+                if let InvokeOperation::ArrayElementWrite { kind, producer, index, value, .. } = operation {
+                    if !value.valid_for(*kind, *producer, *index) { return Err("string-text-operand-domain"); }
+                }
                 if let InvokeOperation::String(operation) = operation {
                     if !operation.valid_operand_domains() {
                         return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });

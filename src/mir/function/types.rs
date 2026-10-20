@@ -187,7 +187,7 @@ pub struct ArrayElementWriteWitness {
     pub producer: crate::mir::ArrayWriteProducerKind,
     pub receiver: ValueId,
     pub index: Option<ValueId>,
-    pub value: ValueId,
+    pub value: crate::mir::instruction::ArrayElementWriteValueV1,
     pub state_term: ArrayStateTermId,
 }
 

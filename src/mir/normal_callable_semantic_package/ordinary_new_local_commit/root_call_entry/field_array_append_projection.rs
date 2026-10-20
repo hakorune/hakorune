@@ -110,7 +110,7 @@ impl EmittedFieldArrayAppendV1 {
             None => Some(self.continuation.clone()),
         };
         let normal_block = finishing.map_or(Some(self.continuation.0), |p| p.destination(self.continuation.0));
-        if *receiver != self.pins[0].values().1 || *value != self.pins[1].values().1
+        if *receiver != self.pins[0].values().1 || value.scalar() != Some(self.pins[1].values().1)
             || Some(*normal_landing) != normal_block || normal_landing == fault_landing
             || continuation.as_ref().is_some_and(|row| !matches!(row.1, MirInstruction::Jump { edge_args: None, .. })) {
             return Err(freeze("field-array-append/invoke-operands"));
@@ -129,7 +129,7 @@ impl EmittedFieldArrayAppendV1 {
     pub(crate) fn validate_marker(&self, function: &MirFunction, marker: &crate::mir::named_array_obligation::NamedArrayWriteMarkerV1) -> Result<(), String> {
         let MirInstruction::Invoke { operation: original @ InvokeOperation::ArrayElementWrite { site_id, receiver, value, .. }, .. } = &self.invoke.1
             else { return Err(freeze("field-array-append/marker-source")); };
-        if marker.owner != self.source.site().owner() || marker.write != *site_id || marker.receiver != *receiver || marker.argument != *value {
+        if marker.owner != self.source.site().owner() || marker.write != *site_id || marker.receiver != *receiver || &marker.argument != value {
             return Err(freeze("field-array-append/marker-drift"));
         }
         let mut found = 0;

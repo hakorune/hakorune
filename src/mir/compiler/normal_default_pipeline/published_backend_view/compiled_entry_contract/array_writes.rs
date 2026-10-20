@@ -29,9 +29,9 @@ pub(super) fn issue<'module>(
                 MirInstruction::Invoke { operation: InvokeOperation::ArrayElementWrite {
                     site_id, kind: ArrayElementWriteKind::LiteralAppend,
                     producer: ArrayWriteProducerKind::Literal, receiver, index: None, value: operand,
-                }, .. } if *site_id == site && *receiver == array && *operand == value))?;
+                }, .. } if *site_id == site && *receiver == array && operand.scalar() == Some(value)))?;
             writes.push(CompiledEntryArrayWriteV1 { function_index: coordinate.0, block: coordinate.1,
-                instruction_index: coordinate.2, site, array, value, kind });
+                instruction_index: coordinate.2, site, array, value: CompiledEntryArrayWriteValueV1::Scalar { value, kind } });
         }
     } else if let Some(source) = view.retained_root_source() {
         for (function_index, physical) in program.functions().iter().enumerate() {
@@ -44,11 +44,18 @@ pub(super) fn issue<'module>(
                 }, .. } = &binding.1 else { return Err(fault("compiled-entry-field-array-shape")); };
                 let coordinate = locate(program, |index, block, row|
                     index as usize == function_index && block == binding.0 && row == &binding.1)?;
-                // I64 comes from the original NoExit expression checked by the
-                // same packet lender, never inferred from physical metadata.
+                // The same finalized packet above independently checks its
+                // original Integer expression or Text evaluation/descriptor.
+                // Opcode shape alone never issues this source-bound payload.
+                let value = match value {
+                    crate::mir::instruction::ArrayElementWriteValueV1::Scalar(value) =>
+                        CompiledEntryArrayWriteValueV1::Scalar { value: *value, kind: CompiledEntryArrayValueKindV1::I64 },
+                    crate::mir::instruction::ArrayElementWriteValueV1::Text(value) if value.is_text() =>
+                        CompiledEntryArrayWriteValueV1::Text(value.clone()),
+                    _ => return Err(fault("compiled-entry-field-array-shape")),
+                };
                 writes.push(CompiledEntryArrayWriteV1 { function_index: coordinate.0, block: coordinate.1,
-                    instruction_index: coordinate.2, site: *site_id, array: *receiver, value: *value,
-                    kind: CompiledEntryArrayValueKindV1::I64 });
+                    instruction_index: coordinate.2, site: *site_id, array: *receiver, value });
             }
         }
     }

@@ -79,13 +79,20 @@ both children and outer storage. home_release_if_live keeps its separate
 outer-only responsibility. Local Mixed field storage without the returned
 construction/source support remains refused.
 
-Field-resident Array Get/Set/Push share one indexed read-only consumer in
+Field-resident Array Get/Set/Push share one indexed residence validator in
 `hako_llvmc_ffi_lifecycle_v4_field_array_flow.inc`. Copy roots must reach the
 original field read, whose canonical tuple is a unique owned Array residence
 with one Birth store from the exact Array allocation. Parent readability and
 field stability are checked at the read and use, including residence release.
-Push accepts the source-issued I64 representation; neither Normal nor Fault
-consumes the parent lease. A raw I64 payload is never Array provenance. Birth
+Push accepts source-issued I64 or an explicit Text descriptor. Text uses the
+shared String operand schema/liveness/global-byte/descriptor writers and
+`nyash.array.checked_append_text_v1`; both parent residence and Text lease are
+checked in the Array branch, never bypassed through generic String flow. Static
+UTF-8 keeps its exact bytes, including NUL; owned/borrowed input stays borrowed
+on both outcomes while runtime copies it independently. Native numeric Array
+and NormalInteger-as-Text remain refused. One Array emitter projects primitive
+copies and owned-slot operations; the same parent/child cleanup owners remain.
+Neither outcome consumes the parent lease. A raw I64 payload is never Array provenance. Birth
 internal Array reads remain refused here until their commit-marker consumer
 is connected. Native Script Array keeps its separate existing claim consumer.
 

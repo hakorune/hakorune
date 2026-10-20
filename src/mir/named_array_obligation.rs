@@ -24,7 +24,7 @@ pub(crate) struct NamedArrayWriteMarkerV1 {
     pub(crate) owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     pub(crate) allocation: NamedArrayAllocationRefV1,
     pub(crate) receiver: ValueId,
-    pub(crate) argument: ValueId,
+    pub(crate) argument: crate::mir::instruction::ArrayElementWriteValueV1,
     pub(crate) write: ArrayWriteSiteId,
 }
 
@@ -96,7 +96,7 @@ pub(crate) fn validate_physical_marker(
                     || *producer != ArrayWriteProducerKind::MethodCall
                     || index.is_some()
                     || *receiver != marker.receiver
-                    || *value != marker.argument
+                    || crate::mir::instruction::ArrayElementWriteValueV1::Scalar(*value) != marker.argument
                 {
                     return Err(fault("write-drift"));
                 }

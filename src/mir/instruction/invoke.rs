@@ -135,6 +135,40 @@ impl InvokeCallResultKind {
     }
 }
 
+/// Physical Array write payload. Text keeps its complete descriptor; a
+/// static byte string has no invented scalar SSA identity or String Home.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ArrayElementWriteValueV1 {
+    Scalar(ValueId),
+    Text(StringInvokeOperand),
+}
+impl serde::Serialize for ArrayElementWriteValueV1 {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            Self::Scalar(value) => serializer.serialize_u32(value.as_u32()),
+            Self::Text(value) => serde::Serialize::serialize(value, serializer),
+        }
+    }
+}
+impl ArrayElementWriteValueV1 {
+    pub fn scalar(&self) -> Option<ValueId> {
+        match self { Self::Scalar(value) => Some(*value), Self::Text(_) => None }
+    }
+    pub fn used_values(&self) -> std::option::IntoIter<ValueId> {
+        match self { Self::Scalar(value) => Some(*value), Self::Text(operand) => operand.value() }.into_iter()
+    }
+    pub fn rewrite_values(&mut self, rewrite: impl FnMut(&mut ValueId)) {
+        match self { Self::Scalar(value) => { let mut rewrite = rewrite; rewrite(value); }, Self::Text(operand) => operand.rewrite_value(rewrite) }
+    }
+    pub fn valid_for(&self, kind: crate::mir::ArrayElementWriteKind, producer: crate::mir::ArrayWriteProducerKind, index: Option<ValueId>) -> bool {
+        match self {
+            Self::Scalar(_) => crate::mir::array_element_write::validate_shape(kind, index).is_ok(),
+            Self::Text(value) => kind == crate::mir::ArrayElementWriteKind::Push
+                && producer == crate::mir::ArrayWriteProducerKind::MethodCall && index.is_none() && value.is_text(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvokeOperation {
     /// The embedded destination must be absent; the Normal projection owns it.
@@ -166,7 +200,7 @@ pub enum InvokeOperation {
         producer: crate::mir::ArrayWriteProducerKind,
         receiver: ValueId,
         index: Option<ValueId>,
-        value: ValueId,
+        value: ArrayElementWriteValueV1,
     },
     /// Exact received-object scalar field; I64 only on Normal, no value on Fault.
     FieldGet {
@@ -295,6 +329,7 @@ impl InvokeOperation {
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldGet { .. } => EffectMask::READ.add(Effect::Control),
+            Self::ArrayElementWrite { value: ArrayElementWriteValueV1::Text(_), .. } => EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
             Self::FieldSet { mode: FieldSetModeV1::DynamicMapInitialize, .. } =>
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
             Self::FieldSet { .. }
@@ -333,7 +368,7 @@ impl InvokeOperation {
             } => {
                 let mut values = vec![*receiver];
                 values.extend(index.iter().copied());
-                values.push(*value);
+                values.extend(value.used_values());
                 values
             }
             Self::FieldSet { base, value, .. } | Self::ObjectFieldSet { base, value, .. } => {
@@ -371,7 +406,7 @@ impl InvokeOperation {
                 if let Some(index) = index {
                     rewrite(index);
                 }
-                rewrite(value);
+                value.rewrite_values(rewrite);
             }
             Self::FieldGet { base, .. }
             | Self::OwnedFieldResidenceRelease { base, .. }

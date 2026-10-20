@@ -155,7 +155,7 @@ impl ArrayEmissionBindings {
                         producer: crate::mir::ArrayWriteProducerKind::Literal,
                         receiver: literal.allocation,
                         index: None,
-                        value: element.value,
+                        value: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(element.value),
                     },
                 )?;
                 ordered(definition.0, write)?;

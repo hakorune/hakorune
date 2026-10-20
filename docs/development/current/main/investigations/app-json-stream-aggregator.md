@@ -1,17 +1,17 @@
 # APP-json-stream-aggregator
-Status: Shared append source loan connected; physical app connections incomplete. Date: 2026-10-21
+Status: Typed Array write transport connected; source packet/app connections incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md), [reviewed simplification tasks](mirbuilder-structure-refactor-queue-d0-2026-08-23.md).
 
 ## Product evidence
-- Latest full suite at original Static Return SUM landing: 7PASS/4FAIL,
-  actual EXE6 + marker1, 401.795s; no SKIP/timeout. Not rerun for this source step.
+- Latest full suite at typed Array transport landing: 7PASS/4FAIL,
+  actual EXE6 + marker1, 392.823s; no SKIP/timeout. Same required apps remain red.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON passes statsFor Body3 users.push source qualification and now stops at
   owner26 ingestLine Body5 statsFor(user): lexical-instance-call/source-pending.
-  No MIR/EXE. CLI52.68s/root89s PASS; current source uses the frozen Text runtime/C pair.
-- Previous native C Text copy/lease/End/domain Fault PASS remains dependency
-  evidence; it grants no source/backend packet. Physical append remains owed.
+  No MIR/EXE. final CLI41.05s/root70s PASS; current source uses the frozen Text runtime/C pair.
+- ABI-only Text append12 Normal/Fault runs (borrowed/direct static/owned, empty,
+  Unicode/NUL) and malformed9 refusals PASS; Rust source acceptance remains owed.
 
 ## Retained connected contracts
 - One FieldResidence census carries every Array/Dynamic field, including Empty,
@@ -63,7 +63,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Checked Array9/root Array53 PASS; runtime7.04s/root62s builds. Two existing
   cases extend independent Text copy/lease/domain/End boundaries. No new test
   function/file/hook/checker/guard/card; root inventory9263 retained.
-- Current 11 focused filters match parent failures/diagnostics, including read-claim7/2; emission5/Array-source1/Map-terminal13/flow20/source-witness1 PASS.
+- Current 19 filters match parent diagnostics, including Array-source9/3/read-claim7/2; Script ABI3/finishing7, Invoke Array2/String1, String transport/source2 PASS.
 - Other owed reds: brand9, initializer2, terminal2, callback1, plan1, admission2,
   read-claim2, composition2, scalar1. Keep original source/physical contracts.
 
@@ -79,12 +79,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - LANDED runtime: checked Text append copies without consuming input lease;
   boxed append shares structured result/state gate. Text-only End retires once
   and drops detached contents outside the gate; empty-only End stays strict.
-- LANDED source: Text append shares Count's original Array provider/writer and
-  retains existing ArrayTextAppend target plus exact argument evaluation/SUM.
-  Shared append loan retains original Completion plus Loop Integer or SAME Text frame;
-  entry-use validates same CallArgument0/ancestry/provider. Integer consumers refuse Text.
-- Next: retain explicit Text operand in the existing append packet/collector and both
-  final validators, preserving original ancestry/Fault continuation and Text End.
+- LANDED source: append retains same provider/Completion/Text frame, exact Argument0/SUM; integer packets refuse Text.
+- LANDED transport: checked Invoke, witness and marker share Scalar/Text payload;
+  ABI keeps source kind or full descriptor at exact coordinates, SSA/lifetime checks.
+  C shares descriptor/Array writers; numeric native and existing End remain strict.
+- Next: connect SAME Text evaluation/descriptor to append packet/collector and both
+  final validators; preserve ancestry/Fault continuation and source-select complete End.
 - Map physical: shared InstallIndexed/EndOutcome with field/Text-key wrapper,
   prior vs Normal cleanup; no parent Map End. Array Text End needs source selection.
 - Map slot result ABI/get+set Return/lifetimes, candidate Home transfer on Normal,

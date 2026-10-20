@@ -102,7 +102,7 @@ impl NamedArrayEmissionDraftV1 {
                 owner,
                 allocation,
                 receiver,
-                argument,
+                argument: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(argument),
                 write,
             },
         }))
@@ -397,7 +397,7 @@ impl NamedArrayWriteEmissionPortV1 {
         }
         let crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite { site_id, receiver, value, .. }, .. } = &packet.invoke_binding().1
             else { return Err(fault("checked-invoke-missing")); };
-        let marker = self.record_write(*site_id, *receiver, *value)?;
+        let marker = self.record_write(*site_id, *receiver, value.scalar().ok_or_else(|| fault("checked-source-mismatch"))?)?;
         let mut state = self.0.borrow_mut();
         let WriteState::Emitted(EmittedNamedArrayRequirementV1::Write(row)) = &mut *state else { return Err(fault("checked-state-drift")); };
         row.checked = Some(packet);

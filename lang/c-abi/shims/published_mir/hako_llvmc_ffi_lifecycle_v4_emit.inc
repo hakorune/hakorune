@@ -62,7 +62,7 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 #include "hako_llvmc_ffi_lifecycle_v4_object_result_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_object_residence_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_teardown_emit.inc"
-#include "hako_llvmc_ffi_lifecycle_v4_owned_array_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_array_emit.inc"
 
 
 #include "hako_llvmc_ffi_lifecycle_v4_return_emit.inc"
@@ -517,6 +517,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           lv4_is(yyjson_obj_get(op, "exact_numeric_runtime_check"), "kind", "dynamic_integer_range"))
         lv4_emit_usize_field_range(f, b, yyjson_get_uint(yyjson_obj_get(yyjson_obj_get(block, "terminator"), "index")),
             lv4_u(op, "value"), site, fault_label);
+      if (hako_physical_array_text_append(op))
+        lv4_string_operand_emit(f, yyjson_obj_get(op, "value"), fi, b, 0);
       if (lv4_is(op, "kind", "array_append") && lv4_is(op, "representation", "bool"))
         fprintf(f, "  %%bool%u = trunc i64 %%v%u to i32\n", b, lv4_u(op, "value"));
       if (lv4_is(op, "kind", "ordinary_call")) {
@@ -667,19 +669,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(op, "kind", "script_arguments_new")) {
         fprintf(f, "@\"nyash.array.checked_script_arguments_new_v1\"(ptr %%frame, i64 %llu, ptr @argv_%zu_%u, i64 %zu, ptr %%new%u)\n",
             site, fi, b, yyjson_arr_size(yyjson_obj_get(op, "values")), b);
-      } else if (lv4_is(op, "kind", "array_new")) {
-        fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
-      } else if (lv4_is(op, "kind", "array_claim")) {
-        fprintf(f, "@\"nyash.array.checked_claim_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i32 %u)\n",
-            site, lv4_u(op, "array"), lv4_u(op, "element_tag"));
-      } else if (lv4_is(op, "kind", "array_append")) {
-        const char* repr = yyjson_get_str(yyjson_obj_get(op, "representation"));
-        const char* lane = lv4_is(op, "representation", "f64") ? "double" :
-            lv4_is(op, "representation", "bool") ? "i32" : "i64";
-        int boolean = lv4_is(op, "representation", "bool");
-        fprintf(f, "@\"nyash.array.checked_append_%s_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, %s %%%s%u)\n",
-            repr, site, lv4_u(op, "array"), lane, boolean ? "bool" : "v",
-            boolean ? b : lv4_u(op, "value"));
+      } else if (lv4_is(op, "kind", "array_new") || lv4_is(op, "kind", "array_claim") ||
+          lv4_is(op, "kind", "array_append")) {
+        lv4_array_primitive_emit_call(f, op, b, site);
       } else if (lv4_is(op, "kind", "birth_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
@@ -773,6 +765,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.array.checked_claim_v1\"(ptr, i64, i64, i32)\n"
       "declare i32 @\"nyash.array.checked_append_i64_v1\"(ptr, i64, i64, i64)\n"
+      "declare i32 @\"nyash.array.checked_append_text_v1\"(ptr, i64, i64, ptr)\n"
       "declare i32 @\"nyash.array.checked_append_bool_v1\"(ptr, i64, i64, i32)\n"
       "declare i32 @\"nyash.array.checked_append_f64_v1\"(ptr, i64, i64, double)\n"
       "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"

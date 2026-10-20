@@ -95,7 +95,7 @@ fn invoke_claim_write_refresh_and_unit_result_rejection() {
             producer: ArrayWriteProducerKind::Literal,
             receiver: ValueId::new(2),
             index: None,
-            value: ValueId::new(1),
+            value: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(ValueId::new(1)),
         },
         fault_frame: ValueId::new(0),
         normal_landing: BasicBlockId::new(5),

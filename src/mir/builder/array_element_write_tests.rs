@@ -34,7 +34,7 @@ fn site_allocator_counts_invoke_terminators_and_standalone_writes_together() {
             producer: ArrayWriteProducerKind::Literal,
             receiver: ValueId::new(0),
             index: None,
-            value: ValueId::new(1),
+            value: crate::mir::instruction::ArrayElementWriteValueV1::Scalar(ValueId::new(1)),
         },
         fault_frame: ValueId::new(2),
         normal_landing: BasicBlockId::new(1),
