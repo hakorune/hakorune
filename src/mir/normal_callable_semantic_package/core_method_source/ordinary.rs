@@ -111,6 +111,10 @@ pub(crate) struct FieldMapReceiverSourceV1 {
     receiver_site: crate::mir::resolved_semantics::SourceExprSiteV1,
     field_site: crate::mir::resolved_semantics::SourceExprSiteV1,
     name: Box<str>,
+    root: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ExpressionFieldRootSourceV1>,
+    birth_key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    birth_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    birth_store: crate::mir::normal_callable_semantic_package::ConstructionStoreV1,
 }
 impl FieldMapReceiverSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
@@ -118,6 +122,8 @@ impl FieldMapReceiverSourceV1 {
         method: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewFieldWriteClaimsV1,
+        receiver_proof: (crate::mir::resolved_semantics::BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1),
+        entry: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1,
     ) -> Result<Self, String> {
         use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1, BindingKindV1};
         let reject = || "[freeze:contract][ordinary-core/source-identity]".to_owned();
@@ -139,8 +145,13 @@ impl FieldMapReceiverSourceV1 {
             || store.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
             || !matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
                 object: None, class, .. } if class.as_ref() == "MapBox") { return Err(reject()); }
+        let root = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ExpressionFieldRootSourceV1::issue_entry_v1(
+            constructors, receiver_proof, entry, input.owner(), *receiver, source.field())?;
+        let birth_key = constructors.published_birth_key(writers[0].birth_source().ok_or_else(reject)?)
+            .ok_or_else(reject)?.clone();
         Ok(Self { source: Rc::clone(source), receiver: *receiver, receiver_site: object.clone(),
-            field_site: method.receiver_site().clone(), name: field.clone() })
+            field_site: method.receiver_site().clone(), name: field.clone(), root,
+            birth_key, birth_owner: writers[0].owner(), birth_store: store.clone() })
     }
     pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.source.field() }
     pub(crate) fn receiver(&self) -> crate::mir::resolved_semantics::BindingRefV1 { self.receiver }
@@ -153,6 +164,28 @@ impl FieldMapReceiverSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self,
         claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewFieldWriteClaimsV1,
     ) -> bool { self.source.same_inventory(claims) }
+    pub(in crate::mir::normal_callable_semantic_package) fn require_finished_birth_v1(
+        &self, source: &crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1,
+        module: &crate::mir::MirModule,
+    ) -> Result<(), String> {
+        source.require_finished_map_birth_v1(module, &self.birth_key, self.birth_owner, &self.birth_store)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn require_entry_source_v1(
+        &self, ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<(), String> {
+        if !ledger.corroborate_field_map_source_v1(self) { return Err("expression-core/source-identity".into()); }
+        self.root.recheck_entry_v1(ledger, self.receiver.owner())
+    }
+    pub(crate) fn require_receiver_v1(&self,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
+        function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
+    ) -> Result<crate::mir::ValueId, String> {
+        let ledger = context.ledger();
+        self.require_entry_source_v1(ledger)?;
+        let (_, entry) = self.root.checked_entry_value_v1(ledger, self.receiver.owner(), function)?;
+        read.loan_forwarded_copies(self.receiver, entry)?;
+        read.value_for(self.receiver.owner(), self.receiver_site.node(), self.receiver).map_err(|error| error.to_string())
+    }
     fn matches_plan(&self, plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1};
@@ -161,7 +194,8 @@ impl FieldMapReceiverSourceV1 {
                 && matches!(node.source(), Node::Shape(Shape::FieldAccess { object, field, .. })
                     if object == &self.receiver_site && field == &self.name)).count() == 1
             && plan.nodes().iter().filter(|node| node.site() == &self.receiver_site
-                && matches!(node.source(), Node::Shape(Shape::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
+                && matches!(node.source(), Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
+                    | Node::Shape(Shape::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
                     if *binding == self.receiver)).count() == 1
     }
 }

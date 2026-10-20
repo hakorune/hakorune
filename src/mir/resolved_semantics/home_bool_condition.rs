@@ -45,7 +45,7 @@ impl CheckedBoolConditionFrameV1 {
         Some([index(binary.lhs())?, index(binary.rhs())?])
     }
     pub(crate) fn text_comparison_input_nodes_v1(&self) -> BTreeSet<usize> {
-        self.ordered_nodes().iter().filter_map(|node| self.evaluation.text_comparison_input_order_v1(*node)).flatten().collect()
+        self.ordered_nodes().iter().filter_map(|node| self.evaluation.scalar_invoke_input_order_v1(*node)).flatten().collect()
     }
 }
 
@@ -177,13 +177,17 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
     let mut input_owners = BTreeMap::new();
     for &node in frame.ordered_nodes() {
-        if frame.text_comparison_children_v1(node).is_none() { continue; }
-        let Some(inputs) = frame.evaluation().text_comparison_input_order_v1(node) else { return Ok(None) };
+        let scalar_core = frame.evaluation().cores().get(&node).is_some_and(|core|
+            core.field_map().is_some() && core.source().target().checked_map_presence_law_v1());
+        if frame.text_comparison_children_v1(node).is_none() && !scalar_core { continue; }
+        let Some(inputs) = frame.evaluation().scalar_invoke_input_order_v1(node) else { return Ok(None) };
         for input in inputs {
             if input_owners.insert(input, node).is_some() { return Ok(None); }
         }
     }
-    if frame.evaluation().cores().keys().any(|node| !input_owners.contains_key(node))
+    if frame.evaluation().cores().iter().any(|(node, core)| !input_owners.contains_key(node)
+        && !(core.field_map().is_some() && core.source().target().checked_map_presence_law_v1()
+            && frame.evaluation().scalar_invoke_input_order_v1(*node).is_some()))
         || frame.evaluation().owned_result_nodes().iter().any(|node| !input_owners.contains_key(node)) { return Ok(None); }
 
     let candidate = HomeExpressionPlanV1 {

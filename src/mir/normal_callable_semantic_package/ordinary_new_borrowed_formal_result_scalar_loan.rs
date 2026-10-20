@@ -189,8 +189,23 @@ fn source_scalar_seed_target_v1(
         let array_input = ingress.original_array_argument_source_v1(target)?;
         let core_input = super::super::borrowed_formal_actuals::original_core_argument_input_request_v1(
             ingress, contracts, target.call_site())?;
-        if core_input { exact_original_target(ingress, target)?; }
-        if !array_input && !core_input { return Ok(false); }
+        // Input membership is not a result class. The SAME passive Return
+        // census selects this scalar demand even when scalar proof is missing;
+        // Text/object results keep their independent result owner.
+        let finite_input = if crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_text_instance_input_request_v1(
+            ingress, contracts, target.callee_owner())? {
+            match results.original_return_source_v1(&target.callee_owner())? {
+                Some(original) if original.scalar_class_v1().is_some() => {
+                    if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
+                        return Err(freeze("scalar-loan/original-return-target"));
+                    }
+                    true
+                }
+                _ => false,
+            }
+        } else { false };
+        if core_input || finite_input { exact_original_target(ingress, target)?; }
+        if !array_input && !core_input && !finite_input { return Ok(false); }
     }
     // Affirmative original non-scalar facts select their own issuer before demand.
     // Absence/Err of selected scalar evidence is never an unselection predicate.

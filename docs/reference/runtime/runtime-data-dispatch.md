@@ -538,6 +538,20 @@ End. Only Normal writes Bool 0/1; refusal/Fault leaves out unchanged. No Map vie
 escapes. This does not authorize evaluating a computed key before its receiver:
 the original source and both final consumers must retain that evaluation order.
 
+Bool conditions use the same scoped scalar-invocation evaluator as Text
+comparisons. Field presence retains its exact entry Me read inside that same
+packet; this receiver read is also accounted for in original input-use closure.
+The current source admission accepts a passive Text leaf (literal or exact
+reference). Computed key effects remain unadmitted until receiver-first
+execution is retained, rather than being moved ahead of the field read.
+Final consumers replay the same original Bool group and the exact Map Birth
+assignment/provider/Normal-Fault store before lending the emitted FieldHas.
+An arbitrary physical FieldHas with no original packet is not source authority.
+A finite Text input protocol selects an ordinary scalar Call source demand only
+with the same passive original scalar Return census. Input membership alone
+cannot classify a result. This does not replace its exact original target,
+scalar-result proof, completed incoming actuals or non-scalar-family veto.
+
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain
 owner. No strlen, String-handle/cache lookup or post-child conversion is allowed.

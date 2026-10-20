@@ -329,7 +329,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             if matches!(
                 original.1,
                 MirInstruction::Invoke {
-                    operation: InvokeOperation::String(_) | InvokeOperation::Call { .. } | InvokeOperation::FieldGet { .. },
+                    operation: InvokeOperation::String(_) | InvokeOperation::Call { .. } | InvokeOperation::FieldGet { .. }
+                        | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }),
                     ..
                 }
             ) {

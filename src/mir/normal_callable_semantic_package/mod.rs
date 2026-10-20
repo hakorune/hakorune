@@ -35,7 +35,7 @@ mod instance_constructor_semantic;
 pub(crate) use instance_constructor_semantic::provider_source::{ProviderStaticArgumentSourceV1, PreparedProviderStaticArgumentV1};
 mod instance_entry_home;
 pub(crate) use instance_construction::{
-    ConstructionEligibilityV1, ConstructionSourceStructureV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ConstructionEligibilityV1, ConstructionSourceStructureV1, ConstructionSourceStepV1, ConstructionStoreV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
     ProviderConstructionChildV1,
 };
 pub(crate) use instance_constructor_semantic::{
@@ -248,7 +248,7 @@ pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
 pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayAccessSourceV1, ArgumentFieldArrayReadSourceV1};
 
-pub(crate) use ordinary_new_coseal::checked_expression_core_operation_v1;
+pub(crate) use ordinary_new_coseal::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(in crate::mir) use ordinary_new_coseal::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
@@ -259,7 +259,7 @@ pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgument
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
+pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 

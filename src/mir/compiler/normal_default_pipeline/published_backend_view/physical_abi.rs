@@ -33,6 +33,7 @@ const HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC: u32 = 12;
 pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     NewBox,
     MapNew,
+    MapFieldHas,
     MapPrepareKey,
     MapInstall,
     MapCheckedGet,
@@ -109,6 +110,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             }),
             InvokeOperation::Map(operation) => Some(match operation {
                 MapInvokeOperation::New => Self::MapNew,
+                MapInvokeOperation::FieldHas { .. } => Self::MapFieldHas,
                 MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
                 MapInvokeOperation::InstallIndexed { .. }
                 | MapInvokeOperation::InstallValue { .. }

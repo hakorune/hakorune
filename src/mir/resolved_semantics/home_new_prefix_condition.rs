@@ -15,7 +15,10 @@ pub(super) enum ConditionInstallationV1 { Unselected, Refused, Installed }
 /// morphology selects no operand class, frame, terminal or physical permission.
 fn requests_condition(input: ResolvedFunctionLoweringInputV1<'_>, condition: &SourceExprSiteV1) -> bool {
     use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
-    matches!(input.function().variable_ref(condition), Some(ResolvedLexicalRefV1::Local(_)))
+    input.function().method_call(condition).is_some_and(|call| call.selector() == "has"
+        && input.body_shape().is_some_and(|shape| matches!(shape.expression_shape(call.receiver_site()),
+            Some(BodyExpressionShapeV1::FieldAccess { .. }))))
+        || matches!(input.function().variable_ref(condition), Some(ResolvedLexicalRefV1::Local(_)))
         || input.function().expression_source().binary(condition).is_some_and(|binary| matches!(binary.operator(),
             Op::And | Op::Or | Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual))
 }
@@ -99,6 +102,9 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
         // Borrow the existing Bool condition owner, including its exact lexical
         // read and final producer correspondence. No scalar/Loop permission is
         // inferred from a bare reference or from its eventual MIR carrier.
+        if source.nodes().first().is_some_and(|node| matches!(node.source(), Node::MethodCall)) {
+            return requests_condition(input, source.nodes()[0].site());
+        }
         return !locals.in_source_loop_v1() && source.nodes().len() == 1
             && matches!(source.nodes()[0].source(), Node::Reference(ResolvedLexicalRefV1::Local(_)))
             && matches!(locals.observe(source.nodes()[0].site()),

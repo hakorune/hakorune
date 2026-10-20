@@ -57,7 +57,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
         let (value, proof) = match source.nodes()[index].source() {
             Node::Binary(_) if frame.text_comparison_children_v1(index).is_some() => {
-                physical::emit_text_comparison_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index)?
+                physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index)?
             },
             Node::Reference(_) => {
                 let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::Scalar(reference)) = frame.references().get(&index)
@@ -96,6 +96,9 @@ impl RawInvocationChildPortV1<'_, '_> {
                 let (value, binding) = builder.complete_exact_field_read_v1(base, read.field(), &owned, &ledger,
                     crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(read))?;
                 (value, Proof::Field(binding))
+            },
+            Node::MethodCall if frame.evaluation().cores().get(&index).is_some_and(|core| core.field_map().is_some()) => {
+                physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index)?
             },
             Node::MethodCall => {
                 let observation = frame.calls().iter().find(|call| call.site().site() == &site)

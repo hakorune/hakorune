@@ -734,6 +734,7 @@ mod expression_projection;
 #[path = "root_call_entry/print_expression_projection.rs"]
 mod print_expression_projection;
 pub(crate) use expression_projection::checked_expression_core_operation_v1;
+pub(crate) use bool_condition_projection::checked_scalar_invoke_operation_v1;
 pub(in crate::mir) use expression_projection::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
@@ -745,7 +746,7 @@ pub(crate) use owned_array_append_projection::{EmittedOwnedArrayAppendV1, OwnedA
 
 #[path = "root_call_entry/bool_condition_projection.rs"]
 mod bool_condition_projection;
-pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
+pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
 
 #[path = "root_call_entry/field_array_append_projection.rs"]
 mod field_array_append_projection;

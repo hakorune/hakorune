@@ -20,7 +20,7 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       int call = lv4_is(op, "kind", "ordinary_call");
-      if (!call && (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end"))) continue;
+      if (!call && ((!lv4_string_operation(op) && !lv4_is(op, "kind", "map_field_has")) || lv4_is(op, "kind", "string_end"))) continue;
       yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
       size_t count = call ? yyjson_arr_size(args) : hako_physical_string_operand_count(op);
       for (unsigned role = 0; role < count; role++) {
@@ -46,6 +46,10 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
     for (size_t i = 0; i < yyjson_arr_size(args); i++)
       if (lv4_is(yyjson_arr_get(args, i), "kind", "borrowed_text"))
         fprintf(f, "  %%strarg%u_%zu = alloca %%nyrt.string.operand, align 8\n", b, i);
+    return;
+  }
+  if (lv4_is(op, "kind", "map_field_has")) {
+    fprintf(f, "  %%strarg%u_0 = alloca %%nyrt.string.operand, align 8\n", b);
     return;
   }
   if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end")) return;

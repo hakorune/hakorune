@@ -177,6 +177,12 @@ pub(super) fn original_call_slots(
             Ok(())
         },
     )?;
+    source.visit_finished_map_presence_v1(module, |function, binding| {
+        let row = (function.signature.name.clone(), binding);
+        if image.field_reads.contains(&row) { return Err("borrowed-source-coordinate-duplicate".into()); }
+        image.field_reads.push(row);
+        Ok(())
+    })?;
     for symbol in selected.difference(&callees) {
         let mut keys = module
             .canonical_callable_definitions

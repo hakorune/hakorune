@@ -42,6 +42,13 @@ pub enum MapValueKind {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MapInvokeOperation {
     New,
+    /// One synchronous exact field borrow + Text-key presence. No Map value
+    /// is produced and the receiver remains supported by the source entry.
+    FieldHas {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        key: super::StringInvokeOperand,
+    },
     PrepareKey {
         utf8: String,
     },
@@ -117,6 +124,7 @@ impl MapInvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
         match self {
             Self::New => Some(InvokeNormalResultKind::Map),
+            Self::FieldHas { .. } => Some(InvokeNormalResultKind::Bool),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
             Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
@@ -134,6 +142,7 @@ impl MapInvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::New | Self::PrepareKey { .. } => EffectMask::CONTROL.add(Effect::Alloc),
+            Self::FieldHas { .. } => EffectMask::READ.add(Effect::Control),
             Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
@@ -156,6 +165,7 @@ impl MapInvokeOperation {
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
             Self::New | Self::PrepareKey { .. } => vec![],
+            Self::FieldHas { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
             Self::InstallIndexed {
                 map, key, value, ..
             }
@@ -178,6 +188,7 @@ impl MapInvokeOperation {
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::New | Self::PrepareKey { .. } => {}
+            Self::FieldHas { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
             Self::InstallIndexed {
                 map, key, value, ..
             }

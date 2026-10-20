@@ -185,7 +185,7 @@ impl EmittedBoolConditionProjectionV1 {
                     allowed.extend_from_slice(completed.bindings());
                     for relation in conditions { relation.append_observed_bindings_v1(&mut allowed); }
                 },
-                Proof::TextComparison { bindings, entry, terminal, continuation, .. } => {
+                Proof::ScalarInvocation { bindings, entry, terminal, continuation, .. } => {
                     let projection = self.comparison_inputs_v1(node)?;
                     let context = CallValidationContextV1::Lowering(ledger);
                     let covered = projection.validate_scalar_continuation_v1(context, function, None,

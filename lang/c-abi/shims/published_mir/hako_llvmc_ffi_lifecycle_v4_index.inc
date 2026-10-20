@@ -102,6 +102,7 @@ static int lv4_operation_result(yyjson_val* op) {
         : lv4_is(op, "result", "mixed_handle") ? LV4_MIXED_OBJECT
         : (lv4_is(op, "result", "handle") || lv4_is(op, "result", "nullable_handle"))
             ? LV4_HANDLE : lv4_is(op, "result", "i64") ? LV4_I64 : LV4_BAD;
+  if (lv4_is(op, "kind", "map_field_has")) return LV4_BOOL;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||

@@ -329,6 +329,10 @@ pub(super) fn validate_finished_cleanup_entry(
     finishing: Option<&physical_boundary::FinishedBindings>,
 ) -> Result<(), String> {
     let ledger = context.ledger();
+    if matches!(context, CallValidationContextV1::Finalized(_)) {
+        ledger.validate_local_call_binding_groups_for_key_v1(owner,
+            &exit.clone().into(), entry.local_call_groups(), &[])?;
+    }
     if let RootHomeExitEntry::Call { row: super::super::RootCallDispositionV1::Lexical(packet), arguments, invoke, projection: result, frame, .. } = entry {
         let mut recorded = arguments.clone();
         recorded.extend([invoke.clone(), result.clone(), frame.clone()]);

@@ -42,6 +42,14 @@ fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
             && matches!(call.callee, crate::mir::Callee::Global(_) | crate::mir::Callee::SameModuleInstance { .. }))
 }
 
+fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
+    match operation {
+        InvokeOperation::String(operation) => operation.operands(),
+        InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }) => vec![key],
+        _ => Vec::new(),
+    }
+}
+
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     #[derive(Clone, Default, PartialEq, Eq)]
     struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId>, replacement: Option<(ValueId, ValueId)>, hold: Option<ValueId>, call_pending: Option<ValueId> }
@@ -89,7 +97,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     let selected = |instruction: &MirInstruction| {
         matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
-                if matches!(operation, InvokeOperation::String(_))
+                if matches!(operation, InvokeOperation::String(_)
+                    | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }))
                     || operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))
     };
     if !function
@@ -126,18 +135,20 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     for block in function.blocks.values() {
         for instruction in block.all_instructions() {
             if let MirInstruction::Invoke {
-                operation: InvokeOperation::String(operation),
+                operation,
                 ..
             } = instruction
             {
-                if !operation.valid_operand_domains() {
-                    return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
+                if let InvokeOperation::String(operation) = operation {
+                    if !operation.valid_operand_domains() {
+                        return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
+                    }
+                    if matches!(operation, Op::Substring { start, end, .. } if results.contains_key(start) || results.contains_key(end)
+                        || check_borrowed_operand(function, *start).is_ok() || check_borrowed_operand(function, *end).is_ok()) {
+                        return Err("string-integer-domain");
+                    }
                 }
-                if matches!(operation, Op::Substring { start, end, .. } if results.contains_key(start) || results.contains_key(end)
-                    || check_borrowed_operand(function, *start).is_ok() || check_borrowed_operand(function, *end).is_ok()) {
-                    return Err("string-integer-domain");
-                }
-                for operand in operation.operands() {
+                for operand in text_operands(operation) {
                     match operand {
                         Operand::OwnedString(value) if !results.contains_key(value) => {
                             return Err("string-owned-result-missing");
@@ -149,7 +160,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         _ => {}
                     }
                 }
-                if matches!(operation, Op::End { value } if !results.contains_key(value)) {
+                if matches!(operation, InvokeOperation::String(Op::End { value }) if !results.contains_key(value)) {
                     return Err("string-end-result-missing");
                 }
             }
@@ -173,6 +184,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     if matches!(operation, Op::End { value: end } if *end == value)
                         || operation.operands().iter().any(|operand|
                             matches!(operand, Operand::OwnedString(owned) if *owned == value)));
+                let allowed = allowed || matches!(instruction, MirInstruction::Invoke { operation, .. }
+                    if text_operands(operation).iter().any(|operand| matches!(operand, Operand::OwnedString(owned) if *owned == value)));
                 // A typed physical Return may transfer only an installed Home;
                 // the path check below requires that exact live pair on Normal.
                 let allowed = allowed || matches!(instruction, MirInstruction::Return { value: Some(returned) }
@@ -240,19 +253,19 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             return Err("string-effect-before-replacement-end");
         }
         if let MirInstruction::Invoke {
-            operation: InvokeOperation::String(operation),
+            operation,
             ..
         } = term
         {
-            if (faulted || live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some()) && !matches!(operation, Op::End { .. }) {
+            if !text_operands(operation).is_empty() && (faulted || live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some()) && !matches!(operation, InvokeOperation::String(Op::End { .. })) {
                 return Err("string-effect-after-fault");
             }
-            for operand in operation.operands() {
+            for operand in text_operands(operation) {
                 if matches!(operand, Operand::OwnedString(value) if !live.contains(value)) {
                     return Err("string-borrow-not-live");
                 }
             }
-            if let Op::End { value } = operation {
+            if let InvokeOperation::String(Op::End { value }) = operation {
                 if !live.end(*value, faulted) {
                     return Err("string-end-order-or-not-live");
                 }

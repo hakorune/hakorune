@@ -2,7 +2,6 @@
 //! This structure grants no executable actual, object view or compiled marker.
 use super::*;
 use super::owner_view::BorrowedEntryOwnerViewV1;
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 
 pub(super) struct BorrowedEntryStructureV1<'a> {
     owner: FunctionOwnerIdV1,
@@ -49,33 +48,6 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?.as_ref().map_err(Clone::clone)?;
         actuals.ordered_arguments_for_v1(call)?;
         Ok(Some(&actuals.opaque_actuals))
-    }
-
-    /// Source-use closure borrows the same finite Static census without
-    /// demanding completed actuals. Execution still belongs to the finisher.
-    fn original_static_input_use_source_v1(
-        &self, site: &OwnedExprSiteV1,
-    ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
-        let Some(original) = self.borrow_original_static_source_v1(site)? else {
-            return self.source_required_static_scalar_call_v1(site);
-        };
-        if self.finite_text_entry_for_owner_v1(original.callee_owner())?.is_none() {
-            // The non-finite scalar family retains its existing source issuer.
-            return self.source_required_static_scalar_call_v1(site);
-        }
-        let source = self.borrowed_formal_source.as_ref()
-            .ok_or_else(|| freeze("borrowed-static/source-missing"))?.as_ref().map_err(Clone::clone)?;
-        let incoming = source.source_incoming.project_source_v1(&[original.callee_owner()].into_iter().collect())
-            .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
-        let mut matching = incoming.iter().filter(|row| &row.call == site);
-        let row = matching.next().ok_or_else(|| freeze("static-input/requested-incoming-missing"))?;
-        if matching.next().is_some() || row.callee != original.callee_owner()
-            || !matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(retained)
-                if Rc::ptr_eq(retained, original)) {
-            return Err(freeze("static-input/requested-source-drift"));
-        }
-        self.verify_original_static_source_v1(original)?;
-        Ok(Some(Rc::clone(original)))
     }
 
     /// Source-use closure shared by the original Static and Instance input owners. Every original
@@ -212,6 +184,20 @@ impl OrdinaryNewClaimLedgerV1 {
         for evaluation in evaluations {
             if evaluation.source().owner() != contract.owner || !evaluation.reference_coverage_is_exact() {
                 return Err(freeze("static-input/qualified-use-identity"));
+            }
+            // Core owns only its exact transferred Me receiver. Account for
+            // that original read here; key references keep their own proofs.
+            for core in evaluation.cores().values() {
+                let Some(field) = core.field_map() else { continue };
+                if !core.matches_plan(evaluation.source(), core.node()) || origins.contains_key(&field.receiver()) {
+                    return Err(freeze("static-input/qualified-use-identity"));
+                }
+                field.require_entry_source_v1(self)?;
+                if !uses.reads().any(|(at, original)| at == field.receiver_site()
+                    && *original == ResolvedLexicalRefV1::Local(field.receiver()))
+                    || !covered.insert((field.receiver_site().clone(), field.receiver())) {
+                    return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                }
             }
             for (&node, reference) in evaluation.references() {
                 let entry = match reference {

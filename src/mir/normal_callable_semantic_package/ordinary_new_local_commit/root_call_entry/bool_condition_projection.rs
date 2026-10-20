@@ -12,36 +12,6 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 type Finished = super::super::super::physical_boundary::FinishedBindings;
 
-/// Exact original Text leaf borrowed by a scalar-producing comparison.
-#[derive(Debug)]
-pub(in crate::mir) struct BoolConditionTextOperandV1 {
-    pub(in crate::mir) node: usize,
-    pub(in crate::mir) operand: crate::mir::instruction::StringInvokeOperand,
-}
-impl BoolConditionTextOperandV1 {
-    pub(in crate::mir) fn comparison_operation_v1(frame: &CheckedBoolConditionFrameV1, node: usize,
-        operands: &[Self; 2],
-    ) -> Result<crate::mir::instruction::StringInvokeOperation, String> {
-        let children = frame.text_comparison_children_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
-        if operands[0].node != children[0] || operands[1].node != children[1]
-            || operands.iter().any(|operand| !operand.operand.is_text()) {
-            return Err(freeze("bool-condition/text-operand-order"));
-        }
-        let op = match frame.source().nodes()[node].binary().map(|binary| binary.operator()) {
-            Some(ResolvedBinaryOperatorV1::Equal) => crate::mir::CompareOp::Eq,
-            Some(ResolvedBinaryOperatorV1::NotEqual) => crate::mir::CompareOp::Ne,
-            Some(ResolvedBinaryOperatorV1::Less) => crate::mir::CompareOp::Lt,
-            Some(ResolvedBinaryOperatorV1::LessEqual) => crate::mir::CompareOp::Le,
-            Some(ResolvedBinaryOperatorV1::Greater) => crate::mir::CompareOp::Gt,
-            Some(ResolvedBinaryOperatorV1::GreaterEqual) => crate::mir::CompareOp::Ge,
-            _ => return Err(freeze("bool-condition/text-operator")),
-        };
-        Ok(crate::mir::instruction::StringInvokeOperation::Compare {
-            op, left: operands[0].operand.clone(), right: operands[1].operand.clone(),
-        })
-    }
-}
-
 #[path = "bool_condition_source.rs"]
 mod source;
 #[path = "bool_condition_control.rs"]
@@ -62,7 +32,7 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     Field(Binding),
     Call { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
     Binary { append: Binding, operands: [Rc<LocalSsaPhysicalRelationV1>; 2] },
-    TextComparison { operands: [BoolConditionTextOperandV1; 2],
+    ScalarInvocation { receiver: Option<ExactLexicalReadV1>,
         input_values: Box<[Option<crate::mir::instruction::StringInvokeOperand>]>,
         input_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, bindings: Box<[Binding]> },
@@ -149,10 +119,10 @@ impl BoolConditionSealV1 {
 impl EmittedBoolConditionProjectionV1 {
     pub(super) fn comparison_inputs_v1<'a>(&'a self, node: &'a BoolConditionNodeProjectionV1)
         -> Result<super::expression_projection::ExpressionPhysicalProjectionRefV1<'a>, String> {
-        let BoolConditionValueProofV1::TextComparison { input_values, input_reads, bindings, .. } = &node.proof
+        let BoolConditionValueProofV1::ScalarInvocation { input_values, input_reads, bindings, receiver, .. } = &node.proof
             else { return Err(freeze("bool-condition/text-comparison-source")); };
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new(self.frame.evaluation(),
-            input_values, &[], &[], input_reads, bindings).for_comparison_inputs(node.node, node.value)
+            input_values, &[], &[], input_reads, bindings).for_comparison_inputs(node.node, node.value, receiver.as_ref())
     }
     pub(in crate::mir) fn prepare(
         frame: Rc<CheckedBoolConditionFrameV1>, nodes: Vec<BoolConditionNodeProjectionV1>,
@@ -360,4 +330,66 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(())
     }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn visit_map_presence_groups_v1(
+        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+        projection: &Finished, module: &crate::mir::MirModule,
+        mut visit: impl FnMut(Binding) -> Result<(), String>,
+    ) -> Result<(), String> {
+        context.with_local_call_group_tree_v2(owner, |groups| {
+            for group in groups {
+                let Some(packet) = group.bool_condition() else { continue };
+                if !packet.frame.evaluation().cores().values().any(|core| core.field_map().is_some()) { continue; }
+                group.validate_recorded_in_context(context, function, Some(projection))?;
+                for node in &packet.nodes {
+                    let Some(core) = packet.frame.evaluation().cores().get(&node.node) else { continue };
+                    let Some(field) = core.field_map() else { continue };
+                    if let CallValidationContextV1::Finalized(source) = context { field.require_finished_birth_v1(source, module)?; }
+                    let BoolConditionValueProofV1::ScalarInvocation { input_values, receiver, bindings, .. } = &node.proof
+                        else { return Err(freeze("bool-condition/source-proof-kind")) };
+                    let (invoke, _) = packet.text_comparison_producers_v1(node, input_values, receiver.as_ref(), bindings)?;
+                    visit(projection.binding(invoke.0, &invoke.1)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?)?;
+                }
+            }
+            Ok(())
+        })
+    }
+}
+
+/// Central terminal operation projection shared by the Bool writer and both
+/// final source consumers. Bool results never enter an Integer/Text operand.
+pub(crate) fn checked_scalar_invoke_operation_v1(
+    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1, node: usize, values: &[Option<crate::mir::instruction::StringInvokeOperand>],
+    receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
+) -> Result<InvokeOperation, String> {
+    use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
+    if values.len() != frame.source().nodes().len() || frame.scalar_invoke_input_order_v1(node).is_none() {
+        return Err(freeze("bool-condition/text-comparison-source"));
+    }
+    if let Some(core) = frame.cores().get(&node) {
+        let field = core.field_map().ok_or_else(|| freeze("expression-core/source-identity"))?;
+        let read = receiver.ok_or_else(|| freeze("expression-core/source-identity"))?;
+        let base = read.value_for(frame.source().owner(), field.receiver_site().node(), field.receiver())
+            .map_err(|error| error.to_string())?;
+        let [argument] = core.source().source().arguments() else { return Err(freeze("expression-core/operand-domain")) };
+        let key = frame.source().nodes().iter().position(|row| row.site() == argument.site())
+            .and_then(|node| values[node].clone()).filter(Operand::is_text)
+            .ok_or_else(|| freeze("expression-core/operand-domain"))?;
+        return Ok(InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { field: field.field(), base, key }));
+    }
+    if receiver.is_some() { return Err(freeze("expression-core/source-identity")); }
+    let binary = frame.source().nodes()[node].binary().ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+    let operand = |site| frame.source().nodes().iter().position(|row| row.site() == site)
+        .and_then(|node| values[node].clone()).filter(Operand::is_text)
+        .ok_or_else(|| freeze("bool-condition/text-operand-order"));
+    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    let op = match binary.operator() {
+        Op::Equal => crate::mir::CompareOp::Eq, Op::NotEqual => crate::mir::CompareOp::Ne,
+        Op::Less => crate::mir::CompareOp::Lt, Op::LessEqual => crate::mir::CompareOp::Le,
+        Op::Greater => crate::mir::CompareOp::Gt, Op::GreaterEqual => crate::mir::CompareOp::Ge,
+        _ => return Err(freeze("bool-condition/text-operator")),
+    };
+    Ok(InvokeOperation::String(Operation::Compare { op, left: operand(binary.lhs())?, right: operand(binary.rhs())? }))
 }

@@ -6,7 +6,7 @@ use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 #[path = "ordinary_new_expression_field_root_source.rs"]
 mod expression_root;
-pub(super) use expression_root::ExpressionFieldRootSourceV1;
+pub(in crate::mir::normal_callable_semantic_package) use expression_root::ExpressionFieldRootSourceV1;
 
 pub(super) fn initialized_integer_field(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,

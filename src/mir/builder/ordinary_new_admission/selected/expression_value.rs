@@ -76,7 +76,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionBodyV1, String> {
     let order = match comparison {
-        Some(node) => frame.text_comparison_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
+        Some(node) => frame.scalar_invoke_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
         None => frame.ordered_nodes().to_vec(),
     };
     let owner = frame.source().owner();
@@ -344,7 +344,7 @@ pub(super) fn emit_string_operation_v1(
     homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind), String> {
     let pending = pending_operations(acquired, homes);
-    let (value, result, _) = emit_string_operation_with_pending_v1(builder, writer, operation,
+    let (value, result, _) = emit_scalar_operation_with_pending_v1(builder, writer, InvokeOperation::String(operation),
         fault_frame, &pending, bindings)?;
     if result == crate::mir::instruction::InvokeNormalResultKind::OwnedString { acquired.push((node, value)); }
     Ok((value, result))
@@ -352,8 +352,8 @@ pub(super) fn emit_string_operation_v1(
 
 /// Physical Invoke/Normal writer shared by source nodes and purpose acquisition.
 /// Only the caller that owns a source node may add it to the source-node stack.
-fn emit_string_operation_with_pending_v1(
-    builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
+pub(super) fn emit_scalar_operation_with_pending_v1(
+    builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: InvokeOperation,
     fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {
     let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
@@ -361,7 +361,7 @@ fn emit_string_operation_with_pending_v1(
     let graph = root_graph::emit_cleanup_suffixes_with_writer(writer, builder, fault_frame,
         normal, &[], pending, &[], &(0..pending.len()).collect::<Vec<_>>(), bindings)?;
     let invoke = writer.emit_current(builder, MirInstruction::Invoke {
-        operation: InvokeOperation::String(operation), fault_frame,
+        operation, fault_frame,
         normal_landing: normal, fault_landing: graph.acquisition_fault,
     })?;
     let value = builder.next_value_id();
@@ -433,8 +433,8 @@ pub(super) fn materialize_text_root(
         return Err(freeze("rebind-expression/materialize-domain"));
     }
     let pending = pending_operations(&expression.body.acquired, &expression.body.homes);
-    let (value, _, pair) = emit_string_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-        Operation::Materialize { value: expression.value.clone() }, expression.body.fault_frame,
+    let (value, _, pair) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
+        InvokeOperation::String(Operation::Materialize { value: expression.value.clone() }), expression.body.fault_frame,
         &pending, &mut expression.body.bindings)?;
     expression.purpose_acquisition = Some(pair);
     expression.value = Operand::OwnedString(value);

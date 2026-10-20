@@ -119,11 +119,24 @@ impl FunctionUses {
     pub(super) fn verify_text_operation_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
         operation: &crate::mir::instruction::StringInvokeOperation, fault_frame: ValueId,
     ) -> Result<(), String> {
+        let scalar_values = match operation {
+            crate::mir::instruction::StringInvokeOperation::Substring { start, end, .. } => vec![*start, *end],
+            crate::mir::instruction::StringInvokeOperation::End { value } => vec![*value],
+            _ => Vec::new(),
+        };
+        self.verify_text_operands_v1(tracked, views, &operation.operands(), &scalar_values, fault_frame)
+    }
+
+    /// One typed operand check for String and synchronous Map field reads.
+    /// Scalar receiver/frame operands cannot smuggle a borrowed tagged value.
+    pub(super) fn verify_text_operands_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        operands: &[&crate::mir::instruction::StringInvokeOperand], scalar_values: &[ValueId], fault_frame: ValueId,
+    ) -> Result<(), String> {
         use crate::mir::instruction::StringInvokeOperand as Operand;
         if tracked.contains_key(&fault_frame) || views.views.contains_key(&fault_frame) {
             return Err(fault("borrowed-use/string-fault-frame"));
         }
-        for operand in operation.operands() {
+        for operand in operands.iter().copied() {
             if let Operand::BorrowedText(value) = operand {
                 let formal = tracked.get(value).ok_or_else(|| fault("borrowed-use/string-formal"))?;
                 let mut roots = self.roots.iter().filter(|(_, original)| *original == formal);
@@ -133,17 +146,12 @@ impl FunctionUses {
                 }
             }
         }
-        for operand in operation.operands() {
+        for operand in operands.iter().copied() {
             if operand.value().is_some_and(|value| tracked.contains_key(&value) || views.views.contains_key(&value))
                 && !matches!(operand, Operand::BorrowedText(_)) {
                 return Err(fault("borrowed-use/string-operand"));
             }
         }
-        let scalar_values = match operation {
-            crate::mir::instruction::StringInvokeOperation::Substring { start, end, .. } => vec![*start, *end],
-            crate::mir::instruction::StringInvokeOperation::End { value } => vec![*value],
-            _ => Vec::new(),
-        };
         if scalar_values.iter().any(|value| tracked.contains_key(value) || views.views.contains_key(value)) {
             return Err(fault("borrowed-use/string-operand"));
         }

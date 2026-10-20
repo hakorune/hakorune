@@ -396,8 +396,11 @@ pub(super) fn prepare_original_formal_seeds_v1(
                 let fields = fields?;
                 let key = context.declaration_slot().and_then(|slot| selected.key_for_batch_slot(slot))
                     .and_then(|key| match key { crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) => Some(key), _ => None })?;
+                let slot = context.declaration_slot()?;
+                let entry = entry_home_loans.for_batch_slot(slot)?;
+                let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(selected, batch, Some(entry), slot)?;
                 crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1::issue(
-                    input, key, method, constructors, fields).ok().map(Rc::new)
+                    input, key, method, constructors, fields, receiver, entry).ok().map(Rc::new)
             }).ok().flatten()
     };
     let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &expression_roots,

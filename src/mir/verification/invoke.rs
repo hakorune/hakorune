@@ -139,6 +139,10 @@ pub(super) fn check_module_with_source(
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
+                        InvokeOperation::Map(MapInvokeOperation::FieldHas { field, key, .. })
+                            if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
+                                || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
+                        { errors.push(error(*id, "object-field-read-definition-invalid")); }
                         InvokeOperation::ObjectEndIfOwned { object, end, .. }
                             if !object_end::check(module, *object, end) =>
                         {

@@ -93,6 +93,7 @@ pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
 pub(super) use field_write_claim::{DeclaredFieldValueSourceV1, OrdinaryNewFieldWriteClaimsV1};
+pub(super) use terminal_home::ExpressionFieldRootSourceV1;
 pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1, ObjectFieldClassSourceV1};
 pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1};
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
@@ -141,7 +142,7 @@ pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::
 pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
-pub(crate) use local_commit::checked_expression_core_operation_v1;
+pub(crate) use local_commit::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(in crate::mir) use local_commit::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
@@ -686,7 +687,7 @@ pub(crate) use local_commit::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArr
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
+pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;
 
@@ -706,3 +707,9 @@ pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
 pub(crate) use local_commit::fault_indices_after_normal_step_v2;
 
 pub(in crate::mir) use lexical_instance_call::SourceValueSumV1;
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborate_field_map_source_v1(
+        &self, source: &super::core_method_source::FieldMapReceiverSourceV1,
+    ) -> bool { source.same_source(&self.field_write_claims) }
+}

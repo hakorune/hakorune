@@ -383,8 +383,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else if (kind == LV4_ARRAY_BORROW)
           fprintf(f, "  %%v%u = load i64, ptr %%owned_get%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
-        else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
-            lv4_is(producer_op, "kind", "map_array_length")))
+        else if ((kind == LV4_BOOL && lv4_is(producer_op, "kind", "map_field_has")) ||
+            (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
+            lv4_is(producer_op, "kind", "map_array_length"))))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (producer_op && lv4_is(producer_op, "kind", "field_get"))
           fprintf(f, "  %%v%u = load i64, ptr %%field_read%u, align 8\n", dst, lv4_u(ins, "invoke_block"));

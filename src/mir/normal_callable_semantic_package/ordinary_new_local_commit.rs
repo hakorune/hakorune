@@ -741,7 +741,7 @@ pub(in crate::mir) use root_home::{
 };
 
 pub(crate) use root_home::RootLifecyclePrefixBindingGroupV1;
-pub(crate) use root_home::checked_expression_core_operation_v1;
+pub(crate) use root_home::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(in crate::mir) use root_home::{BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use root_home::ExpressionPhysicalProjectionRefV1;
@@ -751,7 +751,7 @@ pub(crate) use root_home::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1,
 #[path = "ordinary_new_local_commit/root_return_construction_tests.rs"]
 mod root_return_construction_tests;
 
-pub(in crate::mir) use root_home::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionTextOperandV1, BoolConditionValueProofV1};
+pub(in crate::mir) use root_home::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
 
 pub(crate) use root_home::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use root_home::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};

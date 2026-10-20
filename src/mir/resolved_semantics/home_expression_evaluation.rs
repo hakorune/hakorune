@@ -75,6 +75,25 @@ impl CheckedExpressionEvaluationV1 {
         }
         (!order.is_empty()).then_some(order)
     }
+    /// The same eager-input scope serves Text comparison and synchronous
+    /// field presence. Presence currently requires a passive exact Text leaf:
+    /// computed key effects must not move ahead of receiver field evaluation.
+    pub(crate) fn scalar_invoke_input_order_v1(&self, root: usize) -> Option<Vec<usize>> {
+        if let Some(order) = self.text_comparison_input_order_v1(root) { return Some(order); }
+        let core = self.cores.get(&root)?;
+        if !core.matches_plan(&self.source, root) || core.field_map().is_none()
+            || !core.source().target().checked_map_presence_law_v1() { return None; }
+        let [argument] = core.source().source().arguments() else { return None };
+        let node = self.source.nodes().iter().position(|node| node.site() == argument.site())?;
+        let original = &self.source.nodes()[node];
+        if self.class(node) != Some(ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String))
+            || self.transfers_node(node)
+            || !matches!(original.children(), crate::mir::resolved_value_profile::expression_children::ExpressionChildrenV1::Known(children) if children.is_empty())
+            || !matches!(original.source(), ExpressionNodeSourceV1::Reference(_)
+                | ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::String(_))) { return None; }
+        Some(vec![node])
+    }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.transferred_inputs.contains(&node) }
     pub(crate) fn owned_root_node_v1(&self) -> Option<usize> {
         let mut node = 0;

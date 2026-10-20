@@ -69,6 +69,9 @@ pub(super) fn encode_invoke(
             use crate::mir::instruction::MapInvokeOperation as Map;
             let encoded = match operation {
                 Map::New => json!({"kind": "map_new"}),
+                Map::FieldHas { field, base, key } => json!({"kind":"map_field_has",
+                    "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
+                    "base":value(base), "key":encode_string_operand_v1(key)}),
                 Map::PrepareKey { utf8 } => json!({"kind": "map_prepare_key", "utf8": utf8}),
                 Map::InstallIndexed {
                     map,

@@ -72,6 +72,34 @@ impl<'source> FinalizedBorrowedCallPacketV1<'source> {
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn require_finished_map_birth_v1(
+        &self, module: &MirModule, key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        owner: FunctionOwnerIdV1, store: &crate::mir::normal_callable_semantic_package::ConstructionStoreV1,
+    ) -> Result<(), String> {
+        let mut rows = self.construction.iter().filter(|(actual, _)| actual == key);
+        let (_, validation) = rows.next().ok_or_else(|| freeze("final-provider/definition-missing"))?;
+        if rows.next().is_some() { return Err(freeze("final-provider/definition-missing")); }
+        let function = module.canonical_callable_definition_symbol(key).and_then(|symbol| module.functions.get(symbol))
+            .ok_or_else(|| freeze("final-provider/function-missing"))?;
+        validation.require_map_field_source_v1(owner, store, function)
+    }
+
+    /// Borrow only mapped original Bool producers, after the same group replay
+    /// used for Calls. This is an ephemeral verifier image, not a source index.
+    pub(in crate::mir) fn visit_finished_map_presence_v1(
+        &self, module: &MirModule,
+        mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for owner in self.local_calls.keys() {
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                let function = module.functions.get(symbol).ok_or_else(|| freeze("final-provider/function-missing"))?;
+                self.ledger.visit_map_presence_groups_v1(*owner, CallValidationContextV1::Finalized(self), function,
+                    projection, module, |row| visit(function, row))
+            })?;
+        }
+        Ok(())
+    }
+
     pub(in crate::mir) fn visit_finished_construction_writes_v1(
         &self, module: &MirModule,
         mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,

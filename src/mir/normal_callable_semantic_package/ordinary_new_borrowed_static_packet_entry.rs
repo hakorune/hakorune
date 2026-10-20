@@ -7,6 +7,33 @@ use std::rc::Rc;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Source-use closure borrows the same finite Static census without
+    /// demanding completed actuals. Execution still belongs to the finisher.
+    pub(super) fn original_static_input_use_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
+        let Some(original) = self.borrow_original_static_source_v1(site)? else {
+            return self.source_required_static_scalar_call_v1(site);
+        };
+        if self.finite_text_entry_for_owner_v1(original.callee_owner())?.is_none() {
+            // The non-finite scalar family retains its existing source issuer.
+            return self.source_required_static_scalar_call_v1(site);
+        }
+        let source = self.borrowed_formal_source.as_ref()
+            .ok_or_else(|| freeze("borrowed-static/source-missing"))?.as_ref().map_err(Clone::clone)?;
+        let incoming = source.source_incoming.project_source_v1(&[original.callee_owner()].into_iter().collect())
+            .map_err(|issue| format!("{}: {issue:?}", freeze("static-input/source-cohort-veto")))?;
+        let mut matching = incoming.iter().filter(|row| &row.call == site);
+        let row = matching.next().ok_or_else(|| freeze("static-input/requested-incoming-missing"))?;
+        if matching.next().is_some() || row.callee != original.callee_owner()
+            || !matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(retained)
+                if Rc::ptr_eq(retained, original)) {
+            return Err(freeze("static-input/requested-source-drift"));
+        }
+        self.verify_original_static_source_v1(original)?;
+        Ok(Some(Rc::clone(original)))
+    }
+
     /// Lend the canonical incoming source without exposing its inventory.
     pub(in crate::mir::normal_callable_semantic_package)
     fn borrow_original_static_source_v1(&self, site: &OwnedExprSiteV1)

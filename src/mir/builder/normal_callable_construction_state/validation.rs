@@ -27,6 +27,25 @@ impl RetainedConstructionValidation {
         self.validate_after_compiler_finishing(function)
     }
 
+    /// Corroborate the retained original Map Birth assignment against this
+    /// SAME emitted construction, then replay every provider/store/Fault edge.
+    pub(in crate::mir) fn require_map_field_source_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        source: &crate::mir::normal_callable_semantic_package::ConstructionStoreV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let ConstructionState::Selected { stores, .. } = &self.construction
+            else { return Err(fault("artifact-construction-not-complete")) };
+        let store = stores.get(source.assignment().statement_site().node()).ok_or_else(|| fault("emission-drift"))?;
+        if self.owner != owner || store.field != source.field() || store.receiver_site != *source.receiver_site()
+            || store.receiver_binding != source.receiver_binding() || store.rhs != *source.rhs()
+            || source.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
+            || store.mode != crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+            return Err(fault("emission-drift"));
+        }
+        self.validate_artifact_after_compiler_finishing(function)
+    }
+
     /// Lend only original source-issued store coordinates after full replay.
     pub(in crate::mir) fn visit_finished_field_writes_v1(
         &self, key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,

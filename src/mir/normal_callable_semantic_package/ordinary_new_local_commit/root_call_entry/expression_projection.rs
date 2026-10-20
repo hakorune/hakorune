@@ -25,6 +25,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     original: &'a [Binding],
     comparison: Option<(usize, ValueId)>,
+    scalar_receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>,
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir) fn new(
@@ -34,11 +35,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
         reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
         original: &'a [Binding],
-    ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original, comparison: None } }
+    ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original, comparison: None, scalar_receiver: None } }
 
-    pub(in crate::mir) fn for_comparison_inputs(mut self, node: usize, result: ValueId) -> Result<Self, String> {
-        self.frame.text_comparison_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
+    pub(in crate::mir) fn for_comparison_inputs(mut self, node: usize, result: ValueId, receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>) -> Result<Self, String> {
+        self.frame.scalar_invoke_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
         self.comparison = Some((node, result));
+        self.scalar_receiver = receiver;
         Ok(self)
     }
     /// Shared purpose-acquisition correspondence. The source evaluation's root
@@ -74,20 +76,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     }
     fn comparison_pair(&self) -> Result<Option<[Binding; 2]>, String> {
         let Some((node, result)) = self.comparison else { return Ok(None) };
-        let binary = self.frame.source().nodes()[node].binary().ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
-        let operand = |site| self.frame.source().nodes().iter().position(|row| row.site() == site)
-            .and_then(|node| self.values[node].clone()).filter(Operand::is_text)
-            .ok_or_else(|| freeze("bool-condition/text-operand-order"));
-        use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
-        let op = match binary.operator() {
-            Op::Equal => crate::mir::CompareOp::Eq, Op::NotEqual => crate::mir::CompareOp::Ne,
-            Op::Less => crate::mir::CompareOp::Lt, Op::LessEqual => crate::mir::CompareOp::Le,
-            Op::Greater => crate::mir::CompareOp::Gt, Op::GreaterEqual => crate::mir::CompareOp::Ge,
-            _ => return Err(freeze("bool-condition/text-operator")),
-        };
-        let operation = Operation::Compare { op, left: operand(binary.lhs())?, right: operand(binary.rhs())? };
+        let operation = checked_scalar_invoke_operation_v1(self.frame, node, self.values, self.scalar_receiver)?;
         let invoke = self.require_unique(|row| matches!(row, MirInstruction::Invoke {
-            operation: InvokeOperation::String(actual), .. } if actual == &operation))?;
+            operation: actual, .. } if actual == &operation))?;
         let MirInstruction::Invoke { normal_landing, .. } = invoke.1 else { unreachable!() };
         let projection = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult {
             invoke_block, dst } if *invoke_block == invoke.0 && *dst == result))?;
@@ -715,7 +706,7 @@ pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
         return Err(freeze("expression-call/value-coverage"));
     }
     let order = match comparison {
-        Some(node) => frame.text_comparison_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
+        Some(node) => frame.scalar_invoke_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
         None => frame.ordered_nodes().to_vec(),
     };
     let end = if let Some(call) = before {

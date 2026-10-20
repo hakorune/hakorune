@@ -120,18 +120,17 @@ impl EmittedBoolConditionProjectionV1 {
                 (Node::Binary(binary), BoolConditionValueProofV1::Logical { completed, conditions }) => {
                     self.validate_logical(node, binary, completed, conditions, function, finishing)?;
                 },
-                (Node::Binary(_), BoolConditionValueProofV1::TextComparison { operands, bindings, input_values,
-                    input_reads, entry, terminal, continuation }) => {
-                    self.text_comparison_producers_v1(node, operands, bindings)?;
-                    let inputs = self.frame.evaluation().text_comparison_input_order_v1(node.node)
+                (Node::Binary(_) | Node::MethodCall, BoolConditionValueProofV1::ScalarInvocation { bindings, input_values,
+                    input_reads, entry, terminal, continuation, receiver }) => {
+                    if let Some(core) = self.frame.evaluation().cores().get(&node.node) {
+                        core.field_map().ok_or_else(|| freeze("expression-core/source-identity"))?
+                            .require_receiver_v1(context, function, receiver.as_ref().ok_or_else(|| freeze("expression-core/source-identity"))?)?;
+                    } else if receiver.is_some() { return Err(freeze("expression-core/source-identity")); }
+                    self.text_comparison_producers_v1(node, input_values, receiver.as_ref(), bindings)?;
+                    let inputs = self.frame.evaluation().scalar_invoke_input_order_v1(node.node)
                         .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
                     for input in inputs {
                         if !observed_text.insert(input) { return Err(freeze("bool-condition/text-leaf-duplicate")); }
-                    }
-                    for operand in operands {
-                        if input_values.get(operand.node) != Some(&Some(operand.operand.clone())) {
-                            return Err(freeze("bool-condition/text-operand-order"));
-                        }
                     }
                     for &input in input_reads.keys() {
                         if !observed_references.insert(input) { return Err(freeze("bool-condition/reference-duplicate")); }
@@ -171,11 +170,12 @@ impl EmittedBoolConditionProjectionV1 {
     }
 
     pub(super) fn text_comparison_producers_v1<'a>(&self, node: &BoolConditionNodeProjectionV1,
-        operands: &[BoolConditionTextOperandV1; 2], bindings: &'a [Binding],
+        values: &[Option<crate::mir::instruction::StringInvokeOperand>], receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
+        bindings: &'a [Binding],
     ) -> Result<(&'a Binding, &'a Binding), String> {
-        let operation = BoolConditionTextOperandV1::comparison_operation_v1(&self.frame, node.node, operands)?;
+        let operation = super::checked_scalar_invoke_operation_v1(self.frame.evaluation(), node.node, values, receiver)?;
         let mut invokes = bindings.iter().filter(|(_, row)| matches!(row,
-            MirInstruction::Invoke { operation: InvokeOperation::String(actual), .. } if actual == &operation));
+            MirInstruction::Invoke { operation: actual, .. } if actual == &operation));
         let invoke = invokes.next().ok_or_else(|| freeze("bool-condition/text-compare-invoke"))?;
         if invokes.next().is_some() { return Err(freeze("bool-condition/text-compare-duplicate")); }
         let MirInstruction::Invoke { normal_landing, .. } = invoke.1 else { unreachable!() };

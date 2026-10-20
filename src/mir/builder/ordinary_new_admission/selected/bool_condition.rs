@@ -77,7 +77,7 @@ impl LoweredBoolConditionV1 {
                     prefix.push(append.clone());
                     for relation in operands { relation.append_observed_bindings_v1(&mut prefix); }
                 },
-                Proof::TextComparison { bindings, .. } => prefix.extend_from_slice(bindings),
+                Proof::ScalarInvocation { bindings, .. } => prefix.extend_from_slice(bindings),
                 Proof::Logical { completed, conditions } => {
                     prefix.extend_from_slice(completed.bindings());
                     for relation in conditions { relation.append_observed_bindings_v1(&mut prefix); }
@@ -134,27 +134,33 @@ pub(in crate::mir::builder) fn cursor(builder: &MirBuilder) -> Result<Cursor, St
     Ok(Cursor { block, instruction: body.instructions.len() })
 }
 
-/// The recursive source owner calls this only when the original comparison is
-/// reached. Its shared input scope acquires and Ends only that comparison's
-/// Core temporaries, before the enclosing logical tree can merge or run RHS.
-pub(in crate::mir::builder) fn emit_text_comparison_v1(
+/// The SAME scoped scalar terminal writer serves Text comparison and field
+/// presence. Source reach determines when inputs run; cleanup remains shared.
+pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedBoolConditionFrameV1, node: usize,
 ) -> Result<(ValueId, Proof), String> {
-    use crate::mir::normal_callable_semantic_package::BoolConditionTextOperandV1 as Operand;
+    use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
+    let receiver = if let Some(field) = frame.evaluation().cores().get(&node).and_then(|core| core.field_map()) {
+        let read = state.take_exact_lexical_read(frame.source().owner(), field.receiver_site().node(), field.receiver())
+            .map_err(|error| error.to_string())?;
+        field.require_receiver_v1(CallValidationContextV1::Lowering(ledger),
+            builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, &read)?;
+        Some(read)
+    } else { None };
     let mut body = super::expression_value::emit_comparison_inputs_v1(builder, state, ledger, frame.evaluation(), node)?;
     if !body.calls.is_empty() || !body.path_reads.is_empty() { return Err(freeze("bool-condition/text-operand-order")); }
-    let children = frame.text_comparison_children_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
-    let operand = |node: usize| body.values[node].clone().filter(|value| value.is_text())
-        .map(|operand| Operand { node, operand }).ok_or_else(|| freeze("bool-condition/text-operand-order"));
-    let operands = [operand(children[0])?, operand(children[1])?];
-    let operation = Operand::comparison_operation_v1(frame, node, &operands)?;
-    let (value, kind) = super::expression_value::emit_string_operation_v1(builder, &mut RawRootGraphWriterV1,
-        operation, node, body.fault_frame, &mut body.acquired, &body.homes, &mut body.bindings)?;
+    let operation = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(
+        frame.evaluation(), node, &body.values, receiver.as_ref())?;
+    let pending = super::expression_value::pending_operations(&body.acquired, &body.homes);
+    let (value, kind, _) = super::expression_value::emit_scalar_operation_with_pending_v1(builder,
+        &mut RawRootGraphWriterV1, operation, body.fault_frame, &pending, &mut body.bindings)?;
     if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
+    if let Some(receiver) = &receiver { body.bindings.extend(receiver.original_copy_dependencies_v1()?.iter().cloned()); }
     let (terminal, continuation) = super::expression_value::finish_comparison_continuation_v1(builder, &mut body)?;
-    Ok((value, Proof::TextComparison { operands, input_values: body.values.into_boxed_slice(),
-        input_reads: body.reference_reads, entry: body.entry, terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
+    Ok((value, Proof::ScalarInvocation { receiver,
+        input_values: body.values.into_boxed_slice(), input_reads: body.reference_reads, entry: body.entry,
+        terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {
     let mut definitions = function.blocks.iter().flat_map(|(id, block)| block.all_instructions()
