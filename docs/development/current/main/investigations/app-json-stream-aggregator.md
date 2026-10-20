@@ -7,10 +7,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Product evidence
 
 - Latest fixed suite: 7PASS/4FAIL, actual EXE6 + empty marker1, no SKIP/timeout,
-  runner342.642s with this Bool/source/final-consumer change; no previous red waived.
+  runner342.642s at Bool connection; not rerun for native-only Map get.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current quick CLI35.39s/runtime7.02s, root test build69s. Frozen matching
+- Current quick CLI1.67s/runtime33.47s, root test build48.05s. Frozen matching
   pair/FFI rechecked JSON: MIR failure, same owner26; no app PASS claimed.
 - JSON still stops at `borrowed-entry/source-use-completion-pending`, owner26
   JsonStreamAggregator.ingestLine, called at line151 inside ingest Loop.
@@ -38,7 +38,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
 ## Validation and retained failures
 - Invoke42/construction4/prefix1/Provided1/Map17/binding8+archive1/C14 PASS.
   Two ignored tests excluded; no previous product failures waived.
-- Prior Map-first/scalar-first/mixed Array source EXEs run exit30, no fallback.
 - Prior Map/scalar Fault4 and mixed-Array Fault2 exit70/Fault101/reclaim. The
   mixed-Array first-store Fault also rechecked with prior frozen pair: same result;
   C emits candidate release on that edge. Array holder/contents/End remains owed.
@@ -49,26 +48,24 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   read-claim2, composition2, scalar1. Earlier frozen comparisons do not waive them.
 
 ## Next source connection and remaining contracts
-- Stable Map placement now belongs to the SAME Dynamic field/outcome owner.
-  Published scalar/Text/object/Array and native Map are a private move-only sum;
-  Map has no public Dynamic tag. Dedicated SafeMutex install/borrow use stable bytes.
+- Stable Map placement uses the SAME private Dynamic move-only field/outcome sum;
+  no public Map tag. SafeMutex install/borrow use stable bytes.
 - Under the destination guard, fallible validation precedes move; rejection keeps
   caller Home, Normal leaves Unissued. End/dispose follows Map Normal/Fault only.
-- Original ConstructionStore selects first-write mode and lends the retained final
-  store coordinates; runtime Empty is checked under commit guard, even repeated Birth.
+- Original ConstructionStore lends first-write coordinates; commit checks Empty.
 - C uses the existing prepare/commit/outcome-End/dispose owner and Birth markers:
   Map candidate transfers only on Normal; precommit Fault ends it then the original
   committed prefix, including scalars, in actual commit order. Full End stays reverse
   declaration order. Canonically source-qualified fixed Array keeps its prior path
   across construction, owned census, physical ABI and final End; no subset census.
-- Synchronous field-has borrows field before shared Text decoding, then same Map
-  presence. Existing C case extends the independent Text lease/out/alias boundary;
-  native both profiles/binding8+archive1 PASS (Map SafeMutex only), no new entry.
-  Source/final consumers retain receiver-before-key for admitted passive Text keys.
-- Original field Map and Text key now jointly close the SAME Core source before
-  solving; exact Me/field and sole Map Birth writer retained, no Map SSA/entry grant.
-  Manifest MapKeyPresence returns Bool independently of entry kind. Existing source
-  case adds sole-writer/provider/key negatives: independent joint-premise boundary.
+- Synchronous has/get share one exact field-before-Text decoder. Get delegates
+  to same class-qualified indexed borrow: only missing Normal/0; wrong kind/class
+  Faults, all non-Normal preserves out. No Map view/Home/claim/End grant.
+  Existing C case adds necessary get result/class/lease/out boundaries; both
+  profiles/binding8+archive1/symbol1 PASS (Map SafeMutex only), no new test entry.
+  Prior has source EXE rebuilt/run exit7 with frozen pair; JSON remains owner26.
+- Original Map/key jointly close SAME Core before solving; exact Me/field/sole Map
+  Birth retained. Presence Bool is kind-independent; existing source negatives stay.
 - Bool has now shares scalar-invocation input/writer/final replay with Text compare;
   the duplicate operand wrapper is retired. Same original Me read and Map Birth
   provider/store are replayed; both final consumers retain typed borrowed Text use.
@@ -84,7 +81,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Set Normal moves Home; precommit keeps candidate cleanup; old-End Fault never
   rolls back. UserStats full End/users.push remain obligations.
   Retain exact has/get/set/escape uses and slot/key/class support through last use;
-  field-assignment census alone is NOT all Map writers.
+  Existing result PassB already sees field claims before SUM: thread original
+  entry/constructor there. Share Array field-use walk, checking foreign receiver/
+  alias/escape/unknown uses across package; assignment census alone is insufficient.
+  Key substitution keeps original caller actuals, including Text locals, not result formals.
 - Direct terminal Call with Text actual still lacks original argument source;
   non-Text key probe panics in type inference, not a verified refusal. Neither waived.
 - UserStats Text materialization (independent value, not copied input Home), Box

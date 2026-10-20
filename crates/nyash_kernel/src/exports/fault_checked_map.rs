@@ -17,7 +17,7 @@ use nyash_rust::boxes::{
 use std::{ffi::c_void, mem::size_of, sync::Mutex};
 #[path = "fault_checked_map_reads.rs"]
 mod reads;
-pub(super) use reads::has;
+pub(super) use reads::{has, borrow_indexed};
 #[path = "fault_checked_map_storage.rs"]
 pub(in crate::exports::fault) mod storage;
 use storage::*;

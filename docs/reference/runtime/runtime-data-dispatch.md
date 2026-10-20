@@ -555,6 +555,16 @@ scalar-result proof, completed incoming actuals or non-scalar-family veto.
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain
 owner. No strlen, String-handle/cache lookup or post-child conversion is allowed.
+
+`nyash.object.checked_map_field_get_v1` shares that same synchronous field/Text
+admission with presence, then uses the existing class-qualified indexed Map
+borrow. Receiver class and requested payload class are separate canonical inputs.
+Missing alone returns Normal/zero; exact live indexed payload returns its borrowed
+identity. Wrong kind/class Faults, invalid/stale input preserves its existing
+refusal, and every non-Normal outcome leaves out untouched. This grants no Home,
+claim, retention, Call/Return or End authority. The original source result witness
+must still retain the exact holder, field, key, payload class and slot lifetime
+through the final borrowed use; Map replacement/End invalidates that support.
 A null bytes pointer is allowed at zero length (empty key); other regions must
 be non-null. Returned allocation failure records reason100 and leaves Empty; malformed UTF-8
 or pointer/length contract returns InvalidContract without installing a key.

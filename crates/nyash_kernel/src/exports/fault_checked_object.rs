@@ -466,12 +466,38 @@ pub unsafe extern "C" fn map_field_has(
     frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
     slot: usize, key: *const super::checked_string::Operand, out: *mut i64,
 ) -> u32 {
+    let (map, key) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key, out) } {
+        Ok(value) => value, Err(status) => return status,
+    };
+    unsafe { super::checked_map::has(frame, site, map, key.as_ptr(), key.len(), out) }
+}
+
+/// Nullable borrowed indexed identity from the same live field and exact Text
+/// key. No Home/claim/End is issued; the source keeps the slot alive through use.
+#[export_name = "nyash.object.checked_map_field_get_v1"]
+pub unsafe extern "C" fn map_field_get(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, key: *const super::checked_string::Operand, payload_type_id: i64, out: *mut i64,
+) -> u32 {
+    if payload_type_id <= 0 { return Status::InvalidContract as u32; }
+    let (map, key) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key, out) } {
+        Ok(value) => value, Err(status) => return status,
+    };
+    unsafe { super::checked_map::borrow_indexed(frame, profile, site, map, key.as_ptr(), key.len(), payload_type_id, out) }
+}
+
+/// Shared synchronous input admission, not a published Map view. The copied
+/// Text has released any lease-registry guard before Map/object guards begin.
+unsafe fn map_field_text_input(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, key: *const super::checked_string::Operand, out: *mut i64,
+) -> Result<(*mut c_void, String), u32> {
     if key.is_null() || !key.is_aligned() || out.is_null() || !out.is_aligned()
         || !separate(&[
             (frame as usize, size_of::<FaultFrame>()),
             (key as usize, size_of::<super::checked_string::Operand>()),
             (out as usize, size_of::<i64>()),
-        ]) { return Status::InvalidContract as u32; }
+        ]) { return Err(Status::InvalidContract as u32); }
     let descriptor = unsafe { *key };
     // Preserve the borrowed static input through the complete synchronous call.
     // The shared Text decoder validates kind, UTF-8 and inactive wire fields.
@@ -480,14 +506,14 @@ pub unsafe extern "C" fn map_field_has(
         (key as usize, size_of::<super::checked_string::Operand>()),
         (descriptor.bytes as usize, descriptor.len),
         (out as usize, size_of::<i64>()),
-    ]) { return Status::InvalidContract as u32; }
+    ]) { return Err(Status::InvalidContract as u32); }
     let mut map = std::ptr::null_mut();
     let status = unsafe { map_field_borrow(frame, profile, site, handle, type_id, slot, &mut map) };
-    if status != Status::Normal as u32 { return status; }
+    if status != Status::Normal as u32 { return Err(status); }
     let key = match unsafe { super::checked_string::text_operand(key) } {
-        Ok(key) => key, Err(status) => return status as u32,
+        Ok(key) => key, Err(status) => return Err(status as u32),
     };
-    unsafe { super::checked_map::has(frame, site, map, key.as_ptr(), key.len(), out) }
+    Ok((map, key))
 }
 
 /// Checked read is an observation supported by the still-live slot. It issues

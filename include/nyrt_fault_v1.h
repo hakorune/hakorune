@@ -265,6 +265,13 @@ uint32_t nyrt_object_checked_map_field_borrow_v1(void *, uint32_t, uint64_t,
 uint32_t nyrt_object_checked_map_field_has_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.object.checked_map_field_has_v1");
+/* Same field/Text admission, then class-qualified indexed borrow. Only missing
+ * returns Normal/0; present wrong kind/class Faults. Normal returns a nonowning
+ * handle, with no claim/End authority. Source retains exact holder/key/slot
+ * support through the final use; Fault/Invalid leaves out unchanged. */
+uint32_t nyrt_object_checked_map_field_get_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t, int64_t *)
+    __asm__("nyash.object.checked_map_field_get_v1");
 uint32_t nyrt_object_field_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.object.field_outcome_end_v1");
 uint32_t nyrt_object_field_outcome_dispose_v1(void *) __asm__("nyash.object.field_outcome_dispose_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,

@@ -253,21 +253,31 @@ int main(void) {
      * no Map view and does not acquire or consume the input Text pair. */
     NyrtStringOperandV1 map_key={NYRT_STRING_STATIC_TEXT_V1,0,(const uint8_t*)"child",5,0,0,0};
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key,&value)==0 && value==1);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key,932,&value)==0 && value==child);
     NyrtOwnedStringV1 map_key_pair={0};
     assert(nyrt_string_checked_materialize_v1(frame,190,&map_key,&map_key_pair)==0);
     NyrtStringOperandV1 map_key_loan={NYRT_STRING_OWNED_TEXT_V1,0,NULL,0,map_key_pair.handle,map_key_pair.token,0};
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key_loan,&value)==0 && value==1);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==child);
     assert(nyrt_string_checked_length_v1(frame,190,&map_key_loan,&value)==0 && value==5);
     assert(nyrt_string_checked_end_v1(frame,190,map_key_pair.handle,map_key_pair.token)==0);
     value=777;
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key_loan,&value)==2 && value==777);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==2 && value==777);
     NyrtStringOperandV1 malformed={NYRT_STRING_NORMAL_INTEGER_V1,0,NULL,0,0,0,7};
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&malformed,&value)==2 && value==777);
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,999,0,&malformed,&value)==1 && value==777);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,999,0,&malformed,932,&value)==1 && value==777);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&malformed,932,&value)==2 && value==777);
     assert(nyrt_object_checked_map_field_has_v1(frame,2,190,field_parent,940,0,&map_key,&value)==2 && value==777);
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key,(int64_t*)&map_key)==2);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key,932,(int64_t*)&map_key)==2);
+    assert(nyrt_object_checked_map_field_get_v1(frame,2,190,field_parent,940,0,&map_key,932,&value)==2 && value==777);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key,0,&value)==2 && value==777);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key,933,&value)==1 && value==777);
     map_key.bytes=(const uint8_t*)"absent"; map_key.len=6;
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key,&value)==0 && value==0);
+    assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key,932,&value)==0 && value==0);
 
     assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"absent",6,&value)==0 && value==0);
     assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"absent",6,932,&value)==0 && value==0);
@@ -291,6 +301,8 @@ int main(void) {
       assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"snapshot",8,&value)==0 && value==1);
       value=777;
       assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"snapshot",8,932,&value)==1 && value==777);
+      map_key.bytes=(const uint8_t*)"snapshot"; map_key.len=8;
+      assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key,932,&value)==1 && value==777);
     }
     seen=sentinel;
     assert(nyrt_object_checked_dynamic_get_v1(frame,1,190,field_parent,940,0,0,&seen)==1);
