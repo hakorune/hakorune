@@ -84,6 +84,14 @@ impl StaticIncomingSourceV1 {
                 VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments }
                     if required_i64_arguments.is_empty())
     }
+    /// Original zero-input I64/Text shape only; not an executable input grant.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_zero_input_source_v1(&self) -> bool {
+        self.is_zeroarg_i64_v1() || self.is_zeroarg_text_v1()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn is_zeroarg_text_v1(&self) -> bool {
+        self.target.arity() == 0 && self.argument_sites.is_empty() && self.parameters.is_empty()
+            && matches!(self.source_result(), VerifiedCallableResultDispositionV1::ExactString)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn source_result(
         &self,
     ) -> &VerifiedCallableResultDispositionV1 {

@@ -141,26 +141,18 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(rows.opaque_actuals.as_ref())
     }
 
-    /// Only a cohort with an original CurrentOwner zero-input source selects
-    /// the new protocol. Selection is independent of readiness and Completion.
+    /// Source-only zero Text and CurrentOwner zero I64 use the SAME Zero input
+    /// protocol. Eligibility does not grant readiness or result publication.
     fn is_static_zero_packet_cohort_v1(&self, original: &StaticIncomingSourceV1) -> bool {
-        original.is_zeroarg_i64_v1()
+        original.is_zero_input_source_v1()
             && self.borrowed_formal_source.as_ref().is_some_and(|source| {
-                source.as_ref().is_ok_and(|source| {
-                    source
-                        .source_incoming
-                        .static_observations()
-                        .values()
-                        .any(|row| {
-                            row.as_ref().is_ok_and(|seed| {
-                                seed.current_owner_source().is_some()
-                                    && seed.is_zeroarg_i64_v1()
-                                    && seed.callee_owner() == original.callee_owner()
-                                    && seed.target() == original.target()
-                                    && seed.target_batch_slot() == original.target_batch_slot()
-                            })
-                        })
-                })
+                source.as_ref().is_ok_and(|source| source.source_incoming.source_rows_with_legacy_v1().any(|(row, legacy)|
+                    matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(seed)
+                        if seed.is_zero_input_source_v1()
+                            && ((legacy && seed.current_owner_source().is_some()) || seed.is_zeroarg_text_v1())
+                            && seed.callee_owner() == original.callee_owner()
+                            && seed.target() == original.target()
+                            && seed.target_batch_slot() == original.target_batch_slot())))
             })
     }
 
@@ -172,9 +164,12 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let sites: Vec<_> = source
             .source_incoming
-            .static_observations()
-            .values()
-            .filter_map(|row| row.as_ref().ok())
+            .source_rows_with_legacy_v1()
+            .filter_map(|(row, legacy)| match &row.source {
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                    if legacy || original.is_zeroarg_text_v1() => Some(original),
+                _ => None,
+            })
             .filter(|original| self.is_static_zero_packet_cohort_v1(original))
             .map(|original| original.call_site().clone())
             .collect();
@@ -244,8 +239,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
             return Ok(Some(Rc::clone(original)));
         }
-        if let Some(original) = source.source_incoming.static_observations().get(site) {
-            let original = original.as_ref().map_err(Clone::clone)?;
+        if let Some(original) = super::super::borrowed_formal_actuals::original_static_source_v1(source, site)? {
             let qualified = self.checked_completed_static_expression_input_v1(original)?;
             if qualified.is_some() || self.is_static_expression_input_owner_v1(source, original.callee_owner()) {
                 qualified.ok_or_else(|| format!("{}: call={site:?}; callee={:?}; target={:?}",
@@ -280,8 +274,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 self.verify_original_static_packet_source_v1(original)?;
                 self.borrowed_static_packet_actuals_v1(original)?
                     .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
-                self.lexical_i64_call_source(site)
-                    .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
+                if original.is_zeroarg_i64_v1() {
+                    self.lexical_i64_call_source(site)
+                        .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
+                } else {
+                    self.local_call_for_owner(site.owner(), site.site())
+                        .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
+                }
                 return Ok(Some(Rc::clone(original)));
             }
         }
@@ -358,7 +357,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
-            if !legacy && !applies { continue; }
+            if !legacy && !applies && !original.is_zeroarg_text_v1() { continue; }
             let qualified = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
             let completed = qualified || self
                 .checked_static_scalar_packet_actuals_v1(original)?
@@ -469,7 +468,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
-            if !legacy && !applies { continue; }
+            if !legacy && !applies && !original.is_zeroarg_text_v1() { continue; }
             let qualified = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
             if (qualified || self.is_static_zero_packet_cohort_v1(original)
                 || self
@@ -533,8 +532,13 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
         if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString) {
-            self.checked_completed_static_expression_input_v1(original)?
-                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+            if original.is_zero_input_source_v1() {
+                self.checked_completed_static_zero_arguments_v1(original)?
+                    .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+            } else {
+                self.checked_completed_static_expression_input_v1(original)?
+                    .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+            }
             return self.verify_original_static_source_v1(original);
         }
         if !original.is_zeroarg_i64_v1()

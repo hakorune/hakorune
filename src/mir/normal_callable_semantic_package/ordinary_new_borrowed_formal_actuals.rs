@@ -239,13 +239,14 @@ fn construct_borrowed_call_actuals_v1(
         } else {
             original.require_qualified_i64_source_v1()?;
         }
-        let retained = prepared
-            .source_incoming
-            .static_observations()
-            .get(call)
-            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
+        let retained = if static_zero.is_some() {
+            static_input_finish::original_zero_input_source_v1(prepared, original)?
+                .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+        } else {
+            prepared.source_incoming.static_observations().get(call)
+                .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+                .as_ref().map_err(Clone::clone)?
+        };
         if !std::rc::Rc::ptr_eq(original, retained)
             || original.parameters().len() != contract.parameters.len()
             || original

@@ -487,6 +487,7 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut failures = Vec::new();
         for (methods, body, returned) in [
+            ("static box Values { make() { local value = \"a\" + \"b\" return value } }", "local out = Values.make() print(out)", "0"),
             ("static box Values { make(text) { local value = \"!\" + text return value } }", "local out = Values.make(\"a\" + \"b\") print(out)", "0"),
             ("", "local n = \"abc\".length()", "0"),
             ("", "local text = \"abc\" local n = text.length()", "0"),

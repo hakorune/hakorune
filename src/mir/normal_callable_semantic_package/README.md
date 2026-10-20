@@ -284,8 +284,13 @@ residence read. The final callee scan separately requires its original install,
 Return hold and complete Normal/Fault cleanup through both consumers; a String
 signature or ExactString classification alone grants no execution. The same Call
 retains its exact argument-temporary suffix and result-cancellation cleanup.
-Direct literal/Core Return and zero-input Text activation remain separate owed
-connections; no synthetic Local, parallel packet registry or legacy retry is used.
+Zero-input ExactString sources reuse the same Zero input evidence and empty actuals.
+The whole original source census, selected target/signature, same Completion and
+all Text-residence exits must close before activation. Unselected sources remain
+passive; the old zero-I64 lane retains its executable census and result class.
+Zero-argument OwnedString targets still participate in the mandatory final Text
+callee scan. No fake borrowed entry, synthetic Local or legacy retry is used.
+Direct literal/Core Return and unknown callee result ordering remain owed.
 
 The original AppMain co-seal also lends its direct ReturnValue sites. A
 Qualified call at one of those sites with one OpaqueHandle formal may retain

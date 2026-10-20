@@ -45,7 +45,8 @@ impl FinalizedRootSourceHandoffV1 {
                     else { return Err(freeze("callable-participant/unit-source-kind")); };
                 self.ledger.corroborate_unit_discard_v1(original)?;
             }
-            if unit || scalar_source(packet) || packet.selects_borrowed_source(arguments)
+            if unit || packet.result() == Some(InvokeCallResultKind::OwnedString)
+                || scalar_source(packet) || packet.selects_borrowed_source(arguments)
                 || self.has_borrowed_ordinary_entry_v1(packet.callee_owner())
             {
                 selected_callees.insert(packet.target().clone());

@@ -48,11 +48,22 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Source1, projection9, finished4, Invoke42, instruction19, array-read9 and C Text
   matrix(profile1/2)PASS; initializer79PASS/2samepriorFAIL, terminal6PASS/2samepriorFAIL
   remain open. Direct test runs require16MiBstack.
-- Next: zero-argument Text source input and direct Text Return through existing
-  input/evaluation/cleanup/result owners. Retain same-source callee completion
-  ordering for unknown formal/Core result cases; no name/MIR-type inference or
-  second result map. No fake Local or .hako rewrite. Fresh direct Return and
-  zero-argument Text source activation remain owed.
+- Zero-argument ExactString now reuses existing Zero input evidence/empty actuals,
+  full original Text source census, same Completion/all residence exits and mandatory
+  final Text callee scan. Existing I64 census stays unchanged; unselected Text stays
+  passive. Worker review caught census/selection regressions; focused tests confirm
+  their correction without weakening duplicate-source or old refusal boundaries.
+- Matching CLI43.69s; optimized source case and direct `--emit-exe`/execution PASS:
+  `ab`, `Result: 0`, exit0. Zero-input1, original input-source6, Static packet3 and
+  whole expression-input1PASS; initializer79PASS/2samepriorFAIL. One existing tuple
+  protects the distinct Zero-to-publication boundary; no new test fn/file/hook/guard.
+  JSON smoke reconfirms the same MIR stop; suite above was not rerun for this family.
+- Next: direct Text Return through existing ReturnValue plan/evaluation/terminal,
+  common result contract and both final consumers. Worker reviewed same-owner
+  Materialize/Core acquire → install → child cleanup → hold → original Home cleanup.
+  Keep the fresh result Fault-only End and publication events joined; no fake Local.
+  Unknown formal/Core callee completion ordering remains a separate required fix;
+  never infer Text from names/MIR types or create another result map.
 - Existing Loop Call/If and Function Return retain original reads, producers,
   Phi keys and root cleanup through both consumers. Plain scalar If requires
   whole leaf/read census, so it cannot steal Static Call/field ownership.
