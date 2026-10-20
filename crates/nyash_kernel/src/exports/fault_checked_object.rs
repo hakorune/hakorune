@@ -458,6 +458,38 @@ pub unsafe extern "C" fn map_field_borrow(
     }
 }
 
+/// One synchronous presence read: receiver field precedes decoding the Text
+/// key. The Map placement never escapes and neither input gains an End lease.
+/// Source/final consumers still owe exact receiver and key evaluation order.
+#[export_name = "nyash.object.checked_map_field_has_v1"]
+pub unsafe extern "C" fn map_field_has(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, key: *const super::checked_string::Operand, out: *mut i64,
+) -> u32 {
+    if key.is_null() || !key.is_aligned() || out.is_null() || !out.is_aligned()
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (key as usize, size_of::<super::checked_string::Operand>()),
+            (out as usize, size_of::<i64>()),
+        ]) { return Status::InvalidContract as u32; }
+    let descriptor = unsafe { *key };
+    // Preserve the borrowed static input through the complete synchronous call.
+    // The shared Text decoder validates kind, UTF-8 and inactive wire fields.
+    if descriptor.len > isize::MAX as usize || !separate(&[
+        (frame as usize, size_of::<FaultFrame>()),
+        (key as usize, size_of::<super::checked_string::Operand>()),
+        (descriptor.bytes as usize, descriptor.len),
+        (out as usize, size_of::<i64>()),
+    ]) { return Status::InvalidContract as u32; }
+    let mut map = std::ptr::null_mut();
+    let status = unsafe { map_field_borrow(frame, profile, site, handle, type_id, slot, &mut map) };
+    if status != Status::Normal as u32 { return status; }
+    let key = match unsafe { super::checked_string::text_operand(key) } {
+        Ok(key) => key, Err(status) => return status as u32,
+    };
+    unsafe { super::checked_map::has(frame, site, map, key.as_ptr(), key.len(), out) }
+}
+
 /// Checked read is an observation supported by the still-live slot. It issues
 /// neither a Home nor an independent Text lease and writes only on Normal.
 /// Kind zero requests a tagged observation for an explicit source tag test;

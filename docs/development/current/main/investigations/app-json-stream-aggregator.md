@@ -10,8 +10,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   runner335.599s at source-first-write commit; not rerun for this source-only stage.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Current CLI/runtime use the same quick graph: CLI64s/runtime6.45s, root test
-  compile110s. Frozen matching pair/FFI rechecks JSON: MIR failure, same owner26.
+- Current quick CLI1.86s/runtime33.11s, root binding test build46.96s. Frozen
+  matching pair/FFI rechecked JSON: MIR failure, same owner26; no app PASS claimed.
 - JSON still stops at `borrowed-entry/source-use-completion-pending`, owner26
   JsonStreamAggregator.ingestLine, called at line152 inside ingest Loop.
   Outer `source-loop-header-after` wraps this callee failure; no JSON EXE is claimed.
@@ -36,7 +36,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   callbacks' already-recorded Faults are not duplicated. InvalidContract stays fatal.
 - Indexed install retains the SAME complete-End descriptor and layout helper;
   preflight keeps caller Home, complete End runs outside locks and releases outer.
-- Numeric/NoHook callers stay separate; canonical C requires complete End.
 - Birth now connects source-issued first-write I64/Map and Normal-committed Dynamic
   prefixes. Whole-field census grants no early Home; Provided stays caller-owned
   until Birth Normal. Provided/nullable Dynamic partial cleanup remains unadmitted.
@@ -73,10 +72,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   committed prefix, including scalars, in actual commit order. Full End stays reverse
   declaration order. Canonically source-qualified fixed Array keeps its prior path
   across construction, owned census, physical ABI and final End; no subset census.
-- Same CheckedMap now lends kind-independent presence and class-qualified indexed
-  identity, without Home/claim/clone/retain. Map guard ends before object validation.
-  Scalar, Array-length and new native reads share admission; former narrow module
-  is replaced. No second source/result registry or general Call/Return permission.
+- Same CheckedMap lends presence/typed indexed identity without Home/claim/retain;
+  Map guard ends before object validation. Shared scalar/Array-length/read admission.
+- Synchronous field-has borrows field before shared Text decoding, then same Map
+  presence. Existing C case extends the independent Text lease/out/alias boundary;
+  native both profiles/binding8+archive1 PASS (Map SafeMutex only), no new entry.
+  Source/final consumers must still retain receiver-before-key evaluation effects.
 - Original field Map and Text key now jointly close the SAME Core source before
   solving; exact Me/field and sole Map Birth writer retained, no Map SSA/entry grant.
   Manifest MapKeyPresence returns Bool independently of entry kind. Existing source
@@ -90,7 +91,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml),
   Provided initialization, Shared/carrier and full Dynamic source
   activation remain owed. Array holder/contents/End, exact empty-transfer census,
   canonical writer, signed SUM/rebind/to_i64 and original source/physical reds remain.
-  Existing opaque draft stays unselected; no parallel inventory.
 ## Completion limits
 - mimalloc PASS includes removal of an obsolete generic-JSON all-Invoke refusal
   precheck; direct EXE already worked. Publication tests do not prove that same

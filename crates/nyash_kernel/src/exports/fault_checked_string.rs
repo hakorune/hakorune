@@ -92,7 +92,7 @@ unsafe fn text(value: &Operand) -> Result<String, Status> {
     }
 }
 
-unsafe fn text_operand(value: *const Operand) -> Result<String, Status> {
+pub(super) unsafe fn text_operand(value: *const Operand) -> Result<String, Status> {
     let value = unsafe { operand(value) }?;
     if !matches!(value.kind, STATIC_TEXT | OWNED_TEXT) { return Err(Status::InvalidContract); }
     unsafe { text(value) }

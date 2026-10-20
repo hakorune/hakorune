@@ -531,6 +531,12 @@ canonical field and complete assignment/Birth correspondence in the SAME Core
 call. Receiver and key are joint source premises before the source-value solver
 can close that call; a successful key proof cannot substitute for a Map receiver.
 This law does not establish the class, ownership or lifetime of an entry result.
+The synchronous `checked_map_field_has_v1` ABI borrows the exact field before
+validating/decoding its Text descriptor using the existing String operand owner.
+Static UTF-8 and live owned Text pairs are borrowed without stringify, retain or
+End. Only Normal writes Bool 0/1; refusal/Fault leaves out unchanged. No Map view
+escapes. This does not authorize evaluating a computed key before its receiver:
+the original source and both final consumers must retain that evaluation order.
 
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain

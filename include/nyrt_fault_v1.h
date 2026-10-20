@@ -259,6 +259,12 @@ uint32_t nyrt_object_checked_map_field_install_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, void *, void *) __asm__("nyash.object.checked_map_field_install_v1");
 uint32_t nyrt_object_checked_map_field_borrow_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, void **) __asm__("nyash.object.checked_map_field_borrow_v1");
+/* Synchronous field borrow then exact Text-key presence. Out is Bool 0/1 on
+ * Normal only; no Map view or Text ownership escapes. The caller must evaluate
+ * receiver/key source effects in order and retain the receiver through return. */
+uint32_t nyrt_object_checked_map_field_has_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t *)
+    __asm__("nyash.object.checked_map_field_has_v1");
 uint32_t nyrt_object_field_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.object.field_outcome_end_v1");
 uint32_t nyrt_object_field_outcome_dispose_v1(void *) __asm__("nyash.object.field_outcome_dispose_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,
