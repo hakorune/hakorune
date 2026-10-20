@@ -207,6 +207,41 @@ static int hako_physical_layout_has_field(yyjson_val* layouts, uint32_t object_i
   return 0;
 }
 
+/* Exact field storage in the supplied layout; zero is never a valid field kind. */
+static uint32_t hako_physical_field_storage(yyjson_val* layouts, uint32_t object, uint32_t ordinal) {
+  for (size_t i = 0; i < yyjson_arr_size(layouts); i++) {
+    yyjson_val* layout = yyjson_arr_get(layouts, i);
+    if (yyjson_get_uint(yyjson_obj_get(layout, "object_id")) != object) continue;
+    yyjson_val* fields = yyjson_obj_get(layout, "fields");
+    if (ordinal >= yyjson_arr_size(fields)) return 0;
+    return (uint32_t)yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(fields, ordinal), "storage_kind"));
+  }
+  return 0;
+}
+
+/* Every drain names exactly the supplied residence, never a numeric payload. */
+static int hako_physical_drain_matches(yyjson_val* layouts, yyjson_val* op) {
+  uint32_t object = (uint32_t)yyjson_get_uint(yyjson_obj_get(op, "object_id"));
+  uint32_t ordinal = (uint32_t)yyjson_get_uint(yyjson_obj_get(op, "field_ordinal"));
+  int field = hako_physical_string(yyjson_obj_get(op, "kind"), "field_residence_release");
+  uint32_t storage = hako_physical_field_storage(layouts, object, ordinal);
+  if (storage == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC)
+    return field && hako_physical_string(yyjson_obj_get(op, "transaction"), "take_dynamic");
+  if (storage != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 || yyjson_obj_get(op, "transaction")) return 0;
+  for (size_t i = 0; i < yyjson_arr_size(layouts); i++) {
+    yyjson_val* layout = yyjson_arr_get(layouts, i);
+    if (yyjson_get_uint(yyjson_obj_get(layout, "object_id")) != object) continue;
+    yyjson_val* rows = yyjson_obj_get(layout, field ? "owned_residences" : "owned_object_residences");
+    for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
+      yyjson_val* row = yyjson_arr_get(rows, ri);
+      if (field ? yyjson_get_uint(row) == ordinal :
+          yyjson_get_uint(yyjson_obj_get(row, "field_ordinal")) == ordinal &&
+          yyjson_get_uint(yyjson_obj_get(row, "child_object_id")) == yyjson_get_uint(yyjson_obj_get(op, "child_object_id"))) return 1;
+    }
+  }
+  return 0;
+}
+
 static int hako_physical_values_available_at(yyjson_val* function, yyjson_val* values,
     uint32_t block_id, uint32_t index);
 
@@ -469,14 +504,15 @@ static int hako_physical_validate_layouts(yyjson_val* layouts) {
     yyjson_val* layout = yyjson_arr_get(layouts, i); yyjson_val* fields; yyjson_val* owned; uint32_t object, count;
     if (!(hako_physical_exact_keys(layout, layout_keys, 5) || hako_physical_exact_keys(layout, owned_layout_keys, 6)) || !hako_physical_u32(yyjson_obj_get(layout, "object_id"), &object) || !hako_physical_u32(yyjson_obj_get(layout, "runtime_type_id"), NULL) || !hako_physical_u32(yyjson_obj_get(layout, "field_count"), &count) || !(fields = yyjson_obj_get(layout, "fields")) || !yyjson_is_arr(fields) || yyjson_arr_size(fields) != count || !(owned = yyjson_obj_get(layout, "owned_residences")) || !yyjson_is_arr(owned)) return 0;
     for (j = 0; j < yyjson_arr_size(fields); j++) { uint32_t ordinal, storage; yyjson_val* field = yyjson_arr_get(fields, j);
-      if (!hako_physical_exact_keys(field, field_keys, 3) || !hako_physical_u32(yyjson_obj_get(field, "declaration_ordinal"), &ordinal) || ordinal != j || !hako_physical_u32(yyjson_obj_get(field, "runtime_slot"), &storage) || storage != ordinal || !hako_physical_u32(yyjson_obj_get(field, "storage_kind"), &storage) || storage != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0; }
+      if (!hako_physical_exact_keys(field, field_keys, 3) || !hako_physical_u32(yyjson_obj_get(field, "declaration_ordinal"), &ordinal) || ordinal != j || !hako_physical_u32(yyjson_obj_get(field, "runtime_slot"), &storage) || storage != ordinal || !hako_physical_u32(yyjson_obj_get(field, "storage_kind"), &storage) || (storage != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 && storage != HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC)) return 0; }
     { uint32_t previous = 0;
       for (j = 0; j < yyjson_arr_size(owned); j++) { uint32_t ordinal;
         /* Owned residences are declared `ArrayBox` field ordinals in
            declaration order: unique, ascending, resolving in this
            layout's own field rows — the release consumer walks them
            newest-first. */
-        if (!hako_physical_u32(yyjson_arr_get(owned, j), &ordinal) || ordinal >= count || (j && ordinal <= previous)) return 0;
+        if (!hako_physical_u32(yyjson_arr_get(owned, j), &ordinal) || ordinal >= count || (j && ordinal <= previous) ||
+            hako_physical_field_storage(layouts, object, ordinal) != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
         previous = ordinal; } }
     if (!hako_physical_owned_object_layout(layout, layouts, owned, count)) return 0;
     for (j = i + 1; j < yyjson_arr_size(layouts); j++) { uint32_t other; if (!hako_physical_u32(yyjson_obj_get(yyjson_arr_get(layouts, j), "object_id"), &other) || object == other) return 0; }

@@ -187,7 +187,7 @@ impl LocalCommitV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn end_available(&self) -> bool {
         match self {
             Self::Ordinary(row) => {
-                let destruction_ok = row.destruction.supports_static_execution(row.children.is_some());
+                let destruction_ok = row.destruction.supports_complete_execution(row.children.is_some());
                 destruction_ok && matches!(row.emission, NewEmissionProgress::Emitted { .. })
             }
             // Ownership leaves with the caller; the callee never ends the

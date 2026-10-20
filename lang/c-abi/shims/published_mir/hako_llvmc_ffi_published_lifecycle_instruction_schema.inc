@@ -80,6 +80,8 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   static const char* const ordinary_keys[] = {"kind", "call", "result"};
   static const char* const new_keys[] = {"kind", "object_id", "site"};
   static const char* const field_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "site", "exact_numeric_runtime_check"};
+  static const char* const dynamic_field_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "site", "exact_numeric_runtime_check", "transaction"};
+  static const char* const dynamic_access_keys[] = {"kind", "object_id", "field_ordinal", "base", "site", "transaction"};
   static const char* const field_access_keys[] = {"kind", "object_id", "field_ordinal", "base", "site"};
   static const char* const object_field_release_keys[] = {"kind", "object_id", "field_ordinal", "base", "child_object_id", "site"};
   static const char* const object_field_set_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "child_object_id", "site"};
@@ -233,19 +235,38 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         hako_physical_value_available_at(function, value, block, index) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
         hako_physical_layout_has_field(layouts, object_id, ordinal);
-  if (strcmp(kind, "field_set") == 0)
-    return hako_physical_exact_keys(operation, field_keys, 7) && hako_physical_field_range_check(yyjson_obj_get(operation, "exact_numeric_runtime_check")) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) && hako_physical_u32(yyjson_obj_get(operation, "base"), &value) && hako_physical_value_available_at(function, value, block, index) && hako_physical_u32(yyjson_obj_get(operation, "value"), &value) && hako_physical_value_available_at(function, value, block, index) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_field(layouts, object_id, ordinal);
-  if (strcmp(kind, "field_residence_release") == 0)
-    return hako_physical_exact_keys(operation, field_access_keys, 5) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) && hako_physical_u32(yyjson_obj_get(operation, "base"), &value) && hako_physical_value_available_at(function, value, block, index) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_field(layouts, object_id, ordinal);
+  if (strcmp(kind, "field_set") == 0 || strcmp(kind, "field_residence_release") == 0) {
+    int write = strcmp(kind, "field_set") == 0;
+    int dynamic = yyjson_obj_get(operation, "transaction") != NULL;
+    if (native || !hako_physical_exact_keys(operation,
+        dynamic ? (write ? dynamic_field_keys : dynamic_access_keys) : (write ? field_keys : field_access_keys),
+        dynamic ? (write ? 8 : 6) : (write ? 7 : 5)) ||
+        !hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) ||
+        !hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) ||
+        !hako_physical_u32(yyjson_obj_get(operation, "base"), &value) ||
+        !hako_physical_value_available_at(function, value, block, index) ||
+        !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) ||
+        hako_physical_field_storage(layouts, object_id, ordinal) !=
+            (dynamic ? HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC : HAKO_LLVMC_LIFECYCLE_STORAGE_I64)) return 0;
+    if (dynamic && !hako_physical_string(yyjson_obj_get(operation, "transaction"),
+        write ? "dynamic_i64_replace" : "take_dynamic")) return 0;
+    if (!write) return hako_physical_drain_matches(layouts, operation);
+    yyjson_val* range = yyjson_obj_get(operation, "exact_numeric_runtime_check");
+    return hako_physical_field_range_check(range) &&
+        (!dynamic || hako_physical_string(yyjson_obj_get(range, "kind"), "none")) &&
+        hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
+        hako_physical_value_available_at(function, value, block, index);
+  }
   if (strcmp(kind, "object_field_release") == 0) {
     uint32_t child_id;
     return hako_physical_exact_keys(operation, object_field_release_keys, 6) &&
+        hako_physical_drain_matches(layouts, operation) &&
         hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) &&
         hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) &&
         hako_physical_u32(yyjson_obj_get(operation, "base"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
-        hako_physical_layout_has_field(layouts, object_id, ordinal) &&
+        hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_I64 &&
         hako_physical_u32(yyjson_obj_get(operation, "child_object_id"), &child_id) &&
         hako_physical_layout_has_object(layouts, child_id);
   }
@@ -259,7 +280,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
-        hako_physical_layout_has_field(layouts, object_id, ordinal) &&
+        hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_I64 &&
         hako_physical_u32(yyjson_obj_get(operation, "child_object_id"), &child_id) &&
         hako_physical_layout_has_object(layouts, child_id);
   }
@@ -411,7 +432,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
       if (!hako_physical_exact_keys(item, keys, 2) || !hako_physical_u32(yyjson_obj_get(item, "block"), &b) || !hako_physical_block_has_edge_to(function, b, current_block) || !hako_physical_u32(yyjson_obj_get(item, "value"), &c) || !hako_physical_value_available_on_edge(function, c, b)) return 0; }
     return 1;
   }
-  if (!strcmp(op, "object_field_get")) return hako_physical_exact_keys(instruction, field_get, 5) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "base"), &b) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_u32(yyjson_obj_get(instruction, "object_id"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "field_ordinal"), &c) && hako_physical_layout_has_field(layouts, b, c);
+  if (!strcmp(op, "object_field_get")) return hako_physical_exact_keys(instruction, field_get, 5) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "base"), &b) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_u32(yyjson_obj_get(instruction, "object_id"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "field_ordinal"), &c) && hako_physical_field_storage(layouts, b, c) == HAKO_LLVMC_LIFECYCLE_STORAGE_I64;
   if (!strcmp(op, "field_set")) {
     static const char* const keys[] = {"op", "base", "object_id", "field_ordinal",
         "value", "site", "exact_numeric_runtime_check"};
@@ -422,7 +443,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
         !hako_physical_value_available_at(function, c, current_block, current_index) ||
         !hako_physical_u32(yyjson_obj_get(instruction, "object_id"), &b) ||
         !hako_physical_u32(yyjson_obj_get(instruction, "field_ordinal"), &a) ||
-        !hako_physical_layout_has_field(layouts, b, a) ||
+        hako_physical_field_storage(layouts, b, a) != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 ||
         !hako_physical_u64(yyjson_obj_get(instruction, "site"), NULL))
       return 0;
     return hako_physical_field_range_check(yyjson_obj_get(instruction, "exact_numeric_runtime_check"));

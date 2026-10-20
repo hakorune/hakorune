@@ -128,15 +128,15 @@ fn allocation_identity_requires_definition_and_is_not_a_value_operand() {
         CanonicalObjectDefinitionV1::from_source_declaration("Child".into(), Box::new([]), Ok(()), D::NUMERIC_NO_HOOK, Box::new([]),),
     ].into_boxed_slice());
     end_module.metadata.canonical_object_membership = Some(std::collections::BTreeMap::from([("Owner".into(), root), ("Child".into(), child)]));
-    let body = vec![Step::ObjectField { field: field(1), child }, Step::ArrayField { field: field(0) }, Step::ReleaseOuter];
+    let body = vec![Step::ObjectField { field: field(1), child }, Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(0) }, Step::ReleaseOuter];
     for (steps, valid) in [
         (body.clone(), true), (vec![], false),
-        (vec![Step::ArrayField { field: field(0) }, Step::ObjectField { field: field(1), child }, Step::ReleaseOuter], false),
+        (vec![Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(0) }, Step::ObjectField { field: field(1), child }, Step::ReleaseOuter], false),
         (vec![Step::ReleaseOuter, Step::ReleaseOuter], false),
-        (vec![Step::ArrayField { field: field(0) }], false),
-        (vec![Step::ArrayField { field: field(0) }, Step::ArrayField { field: field(0) }, Step::ReleaseOuter], false),
-        (vec![Step::ArrayField { field: field(2) }, Step::ReleaseOuter], false),
-        (vec![Step::ArrayField { field: field(1) }, Step::ReleaseOuter], false),
+        (vec![Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(0) }], false),
+        (vec![Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(0) }, Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(0) }, Step::ReleaseOuter], false),
+        (vec![Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(2) }, Step::ReleaseOuter], false),
+        (vec![Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: field(1) }, Step::ReleaseOuter], false),
         (vec![Step::ObjectField { field: field(1), child: root }, Step::ReleaseOuter], false),
     ] {
         let mut function = allocation_invoke_function();
@@ -155,6 +155,41 @@ fn allocation_identity_requires_definition_and_is_not_a_value_operand() {
         if valid { checked.unwrap(); }
         else { assert!(format!("{:?}", checked.unwrap_err()).contains("conditional-object-end-invalid")); }
     }
+    // Independent Dynamic boundary: Empty is still a required End step, and
+    // a static Array drain cannot stand in for take/End/dispose of that slot.
+    use crate::mir::function::{TypedObjectPlan, TypedObjectFieldPlan, TypedObjectFieldStorage};
+    use crate::mir::instruction::FieldResidenceEndModeV1 as Mode;
+    let mut dynamic = MirModule::new("dynamic_end_structure".into());
+    dynamic.install_object_definitions_preflighted(vec![
+        CanonicalObjectDefinitionV1::from_source_declaration("DynamicOwner".into(),
+            ["a", "b"].map(|name| UserBoxFieldDecl { name: name.into(), declared_type_name: None, is_weak: false }).into(),
+            Ok(()), D::no_hook_fields(false, false, true), Box::new([])),
+    ].into_boxed_slice());
+    dynamic.install_object_layouts_preflighted(vec![Ok(TypedObjectPlan {
+        box_name: "DynamicOwner".into(), type_id: 41,
+        layout_kind: "runtime_slot_object_v0".into(), field_count: 2,
+        fields: ["a", "b"].into_iter().enumerate().map(|(slot, name)| TypedObjectFieldPlan {
+            name: name.into(), slot: slot as u32, declared_type_name: None,
+            storage: TypedObjectFieldStorage::Dynamic, is_weak: false,
+        }).collect(),
+    })]);
+    let drain = |ordinal| Step::FieldResidence { field: field(ordinal), mode: Mode::DynamicResidence };
+    for (steps, valid) in [
+        (vec![drain(1), drain(0), Step::ReleaseOuter], true),
+        (vec![Step::ReleaseOuter], false),
+        (vec![drain(1), Step::ReleaseOuter], false),
+        (vec![drain(0), drain(1), Step::ReleaseOuter], false),
+        (vec![drain(1), drain(1), drain(0), Step::ReleaseOuter], false),
+        (vec![drain(1), Step::FieldResidence { field: field(0), mode: Mode::ArrayResidence }, Step::ReleaseOuter], false),
+    ] {
+        let mut function = allocation_invoke_function();
+        let Some(MirInstruction::Invoke { operation, .. }) = &mut function.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator else { unreachable!() };
+        *operation = InvokeOperation::ObjectEndIfOwned { object: root, value: ValueId(1), end: steps.into_boxed_slice() };
+        function.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.clear();
+        let mut candidate = dynamic.clone(); candidate.add_function(function);
+        assert_eq!(MirVerifier::new().verify_module(&candidate).is_ok(), valid);
+    }
+
 }
 
 #[test]

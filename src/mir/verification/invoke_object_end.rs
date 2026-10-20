@@ -1,71 +1,40 @@
-//! Structural validation of the retained End body; source correspondence and
-//! permission remain with the original lifecycle owner and finished bindings.
-use crate::mir::instruction::ObjectEndStepV1 as Step;
+//! Structural validation of the SAME complete End body; source correspondence
+//! and permission remain with the lifecycle owner and finished bindings.
+use crate::mir::instruction::{ObjectEndStepV1 as Step, FieldResidenceEndModeV1 as Mode};
 use crate::mir::MirModule;
-use hakorune_mir_defs::CanonicalObjectIdV1;
-use std::collections::BTreeSet;
+use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 
 fn releasable(module: &MirModule, object: CanonicalObjectIdV1) -> bool {
-    module
-        .canonical_object_definition(object)
-        .is_some_and(|row| {
-            (row.destruction_disposition()).supports_static_no_hook()
-        })
+    module.canonical_object_definition(object)
+        .is_some_and(|row| row.destruction_disposition().has_no_hook())
 }
 
 pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step]) -> bool {
-    if !releasable(module, object) || !matches!(end.last(), Some(Step::ReleaseOuter)) {
-        return false;
-    }
-    let disposition = module
-        .canonical_object_definition(object)
-        .unwrap()
-        .destruction_disposition();
-    let mut seen = BTreeSet::new();
-    let mut previous = None;
-    for step in &end[..end.len() - 1] {
-        let field = match step {
-            Step::ArrayField { field } | Step::ObjectField { field, .. } => *field,
-            Step::ReleaseOuter => return false,
+    if !releasable(module, object) { return false; }
+    let definition = module.canonical_object_definition(object).expect("checked above");
+    let mut required = Vec::new();
+    for (ordinal, row) in definition.fields().iter().enumerate() {
+        if row.is_weak { continue; }
+        let Some(field) = CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal) else { return false; };
+        let step = if row.declared_type_name.is_none() {
+            if !super::dynamic_field(module, field) { return false; }
+            Step::FieldResidence { field, mode: Mode::DynamicResidence }
+        } else if module.canonical_array_field(field) {
+            Step::FieldResidence { field, mode: Mode::ArrayResidence }
+        } else if row.declared_type_name.as_deref().and_then(
+            crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type).is_some() {
+            continue;
+        } else {
+            let child = row.declared_type_name.as_deref().and_then(|name|
+                module.metadata.canonical_object_membership.as_ref().and_then(|members| members.get(name)));
+            let Some(child) = child.copied().filter(|child| releasable(module, *child)) else { return false; };
+            Step::ObjectField { field, child }
         };
-        if field.object() != object || !seen.insert(field) {
-            return false;
-        }
-        if previous.is_some_and(|ordinal| ordinal <= field.declaration_ordinal()) {
-            return false;
-        }
-        previous = Some(field.declaration_ordinal());
-        let Some(definition) = module.canonical_field_definition(field) else {
-            return false;
-        };
-        if definition.is_weak {
-            return false;
-        }
-        match step {
-            Step::ArrayField { .. } => {
-                if !module.canonical_array_field(field)
-                    || !(disposition).supports_static_owned_fields()
-                {
-                    return false;
-                }
-            }
-            Step::ObjectField { child, .. } => {
-                let declared = definition.declared_type_name.as_deref().and_then(|name| {
-                    module
-                        .metadata
-                        .canonical_object_membership
-                        .as_ref()
-                        .and_then(|members| members.get(name))
-                });
-                if declared != Some(child)
-                    || !releasable(module, *child)
-                    || !disposition.supports_static_object_fields()
-                {
-                    return false;
-                }
-            }
-            Step::ReleaseOuter => unreachable!("only the last step releases the outer object"),
-        }
+        required.push(step);
     }
-    true
+    required.reverse();
+    required.push(Step::ReleaseOuter);
+    // A valid subset is not a complete End. Equality also retains the original
+    // canonical fields, modes, reverse order, cardinality and outer-last law.
+    end == required
 }

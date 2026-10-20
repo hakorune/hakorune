@@ -141,6 +141,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%owned_get%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
     lv4_string_alloca(f, op, lv4_u(block, "id"));
+    if (!lv4_dynamic_alloca(f, in, op, lv4_u(block, "id"), session)) return 0;
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
       if (lv4_is(ins, "op", "object_field_get"))
@@ -487,6 +488,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         lv4_map_emit_operation(f, in, term, b, fi, normal_label, fault_label);
         continue;
       }
+      int dynamic = lv4_dynamic_emit(f, in, op, b, normal_label, fault_label);
+      if (dynamic == 0) return 0;
+      if (dynamic == 1) continue;
       if (lv4_is(op, "kind", "field_set") &&
           lv4_input_type(in, fn, lv4_u(op, "value")) == LV4_TAGGED) {
         uint32_t value = lv4_u(op, "value");
@@ -714,7 +718,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else {
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
             lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")
-                ? "home_release_plain_i64" : "reclaim_unpublished",
+                ? (lv4_layout_dynamic(lv4_layout(in, lv4_u(op, "object_id")))
+                    ? "home_release_completed_fields" : "home_release_plain_i64") : "reclaim_unpublished",
             in->profile, site, lv4_u(op, "value"), (long long)lv4_type_id(in, op));
       }
       }
@@ -773,20 +778,16 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.object.checked_residence_set_v1\"(ptr, i32, i64, i64, i64, i64, i64, i64, i32)\n"
       "declare i32 @\"nyash.object.checked_residence_get_v1\"(i32, i64, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr, i32, i64, i64, i64)\n"
-      "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n");
+      "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n"
+);
+  lv4_dynamic_declarations(f);
   lv4_map_declarations(f, in);
   lv4_owned_array_globals(f, in);
-  for (size_t li = 0; li < in->layout_count; li++) {
-    yyjson_val* layout = in->layouts[li].row;
-    uint32_t count = lv4_u(layout, "field_count");
-    fprintf(f, "@hako_lifecycle_layout_%u = private constant [%u x i32] [", in->layouts[li].id, count);
-    for (uint32_t i = 0; i < count; i++) fprintf(f, "%si32 %u", i ? ", " : "", HAKO_LLVMC_LIFECYCLE_STORAGE_I64);
-    fprintf(f, "]\n");
-  }
+  lv4_object_layout_globals(f, in);
   /* Complete End symbols cover plain and marked admitted layouts. Recursive
      child calls resolve in this module; no runtime class inference is used. */
   for (size_t li = 0; li < in->layout_count; li++)
-    if (!lv4_emit_end(f, in, in->layouts[li].id, in->layouts[li].row))
+    if (!lv4_emit_end(f, in, in->layouts[li].id, in->layouts[li].row, &session->field))
       return 0;
   for (size_t fi = 1; fi < in->index_count; fi++)
     if (!lv4_emit_function(f, in, abi, fi)) return 0;

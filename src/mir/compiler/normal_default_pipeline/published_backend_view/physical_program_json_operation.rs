@@ -14,7 +14,10 @@ pub(super) fn encode_invoke(
         InvokeOperation::ObjectEndIfOwned { object, value: ended, end } => {
             use crate::mir::instruction::ObjectEndStepV1 as Step;
             let steps = end.iter().map(|step| match step {
-                Step::ArrayField { field } => json!({ "kind": "array_field",
+                Step::FieldResidence { mode, field } => json!({ "kind": match mode {
+                    crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence => "array_field",
+                    crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence => "dynamic_field",
+                },
                     "field_ordinal": field.declaration_ordinal() }),
                 Step::ObjectField { field, child } => json!({ "kind": "object_field",
                     "field_ordinal": field.declaration_ordinal(),
@@ -282,13 +285,16 @@ pub(super) fn encode_invoke(
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,
-        InvokeOperation::OwnedFieldResidenceRelease { field, base } => with_site(
-            json!({ "kind": "field_residence_release",
+        InvokeOperation::OwnedFieldResidenceRelease { mode, field, base } => {
+            let mut encoded = with_site(json!({ "kind": "field_residence_release",
                 "object_id": field.object().declaration_index(),
                 "field_ordinal": field.declaration_ordinal(), "base": value(base),
-            }),
-            required_site(diagnostic_site, abi_input.is_some())?,
-        )?,
+            }), required_site(diagnostic_site, abi_input.is_some())?)?;
+            if *mode == crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence {
+                encoded["transaction"] = "take_dynamic".into();
+            }
+            encoded
+        },
         InvokeOperation::OwnedObjectFieldRelease { field, base, child } => with_site(
             json!({ "kind": "object_field_release",
                 "object_id": field.object().declaration_index(),

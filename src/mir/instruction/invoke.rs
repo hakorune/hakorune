@@ -16,11 +16,23 @@ pub enum FieldSetModeV1 {
     DynamicI64Replace,
 }
 
+/// Source-selected field End law; neither mode creates an owning child Home.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldResidenceEndModeV1 {
+    ArrayResidence,
+    /// Take the current slot to Empty, then consume/End/dispose the detached
+    /// outcome. End Fault does not restore the slot and cleanup continues.
+    DynamicResidence,
+}
+
 /// The source-approved complete End body, in execution order. Only the
 /// enclosing operation carries an SSA value; these steps issue no ownership.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ObjectEndStepV1 {
-    ArrayField { field: hakorune_mir_defs::CanonicalFieldRefV1 },
+    FieldResidence {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        mode: FieldResidenceEndModeV1,
+    },
     ObjectField {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         child: hakorune_mir_defs::CanonicalObjectIdV1,
@@ -173,6 +185,7 @@ pub enum InvokeOperation {
     /// Slots are zero-initialized, so an unwritten field is skipped; the
     /// operation itself only runs for proven provider residences.
     OwnedFieldResidenceRelease {
+        mode: FieldResidenceEndModeV1,
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,
     },

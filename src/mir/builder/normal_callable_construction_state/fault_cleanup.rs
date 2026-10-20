@@ -12,6 +12,13 @@ pub(super) fn emit_discharge(
     fault_frame: ValueId,
     tail: BasicBlockId,
 ) -> Result<BasicBlockId, String> {
+    // A complete Dynamic-slot schedule is not evidence that a constructor
+    // owns a transferred child before Birth Normal. Keep this partial-inventory
+    // family closed until its own commit/fault source owner supplies that proof.
+    if fields.iter().any(|row| matches!(row.kind, OwnedFieldChildKindV1::Residence(
+        crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence))) {
+        return Err(fault("source-or-cleanup-contract"));
+    }
     let mut head = tail;
     // Prepending reverses construction order, so walk the sealed execution
     // inventory backwards to execute its newest-first order unchanged.
@@ -20,10 +27,12 @@ pub(super) fn emit_discharge(
         let normal = jump_landing(builder, head)?;
         let fault_edge = jump_landing(builder, head)?;
         let operation = match field.kind {
-            OwnedFieldChildKindV1::Array => InvokeOperation::OwnedFieldResidenceRelease {
+            OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence) => InvokeOperation::OwnedFieldResidenceRelease {
+                mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence,
                 field: field.field,
                 base,
             },
+            OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence) => unreachable!("rejected before emission"),
             OwnedFieldChildKindV1::Object(child) => InvokeOperation::OwnedObjectFieldRelease {
                 field: field.field,
                 base,

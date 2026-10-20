@@ -120,6 +120,7 @@ int main(void) {
   assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,132,field_parent,940,0,NYRT_FIELD_NULL_V1,&seen)==0);
   assert(nyrt_object_field_outcome_dispose_v1(field_outcome)==0);
   assert(nyrt_object_home_release_plain_i64_v1(frame,field_profile,133,field_parent,940)==1);
+  assert(nyrt_object_home_release_completed_fields_v1(frame,field_profile,133,field_parent,940)==1);
   const uint32_t child_layout[]={1};
   assert(nyrt_object_checked_new_v1(frame,field_profile,140,941,child_layout,1,&child)==0);
   assert(nyrt_object_checked_field_set_v1(frame,field_profile,140,child,941,0,17)==0);
@@ -180,7 +181,7 @@ int main(void) {
   assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,189,field_parent,940,0,field_outcome)==0);
   field_finish(frame,189);
   assert(nyrt_array_checked_empty_end_v1(frame,189,array)==2); /* already consumed */
-  assert(nyrt_object_home_release_plain_i64_v1(frame,field_profile,190,field_parent,940)==0);
+  assert(nyrt_object_home_release_completed_fields_v1(frame,field_profile,190,field_parent,940)==0);
   assert(nyrt_fault_frame_dispose_v1(frame)==0);
   free(field_outcome);
   free(frame); free(map); free(key); free(out);

@@ -130,6 +130,7 @@ typedef struct hako_llvmc_physical_contract_v1 {
 
 /* Physical-program.v2 field storage tag, independent of source value kind. */
 #define HAKO_LLVMC_LIFECYCLE_STORAGE_I64 1u
+#define HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC 12u
 
 /* Invocation-owned physical target facts decoded from the selected runtime
  * archive. This is not MIR/source authority and is consumed by V4. */

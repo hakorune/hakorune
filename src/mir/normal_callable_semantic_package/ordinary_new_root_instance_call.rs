@@ -154,7 +154,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             // home releases through its sealed children
                             // inventory — `Some` never degrades to plain.
                             let releasable = claim.destruction()
-                                .supports_static_execution(claim.children().is_some());
+                                .supports_complete_execution(claim.children().is_some());
                             !releasable
                                 || claim.construction().is_err()
                                 || claim.home_prefix().is_err()

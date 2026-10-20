@@ -15,7 +15,7 @@ pub(super) fn steps_v1(
         .iter()
         .rev()
         .map(|child| match child.kind {
-            OwnedFieldChildKindV1::Array => ObjectEndStepV1::ArrayField { field: child.field },
+            OwnedFieldChildKindV1::Residence(mode) => ObjectEndStepV1::FieldResidence { mode, field: child.field },
             OwnedFieldChildKindV1::Object(object) => ObjectEndStepV1::ObjectField {
                 field: child.field,
                 child: object,
@@ -31,9 +31,9 @@ pub(super) fn operations_v1(
     value: ValueId,
 ) -> impl Iterator<Item = (Option<CanonicalFieldRefV1>, InvokeOperation)> + '_ {
     steps_v1(children).map(move |step| match step {
-        ObjectEndStepV1::ArrayField { field } => (
+        ObjectEndStepV1::FieldResidence { mode, field } => (
             Some(field),
-            InvokeOperation::OwnedFieldResidenceRelease { field, base: value },
+            InvokeOperation::OwnedFieldResidenceRelease { mode, field, base: value },
         ),
         ObjectEndStepV1::ObjectField { field, child } => (
             Some(field),

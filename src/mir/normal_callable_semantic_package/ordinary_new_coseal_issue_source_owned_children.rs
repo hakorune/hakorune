@@ -49,7 +49,7 @@ pub(super) fn owned_field_children_of(
     visiting: &mut BTreeSet<hakorune_mir_defs::CanonicalObjectIdV1>,
 ) -> Result<Option<Box<[OwnedFieldChildV1]>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::function::ObjectDestructionDispositionV1;
-    if !(destruction).supports_static_owned_fields() {
+    if !(destruction).requires_field_end() {
         return Ok(None);
     }
     // The definition-view closure returns `Option`, so a nested seal
@@ -70,6 +70,15 @@ pub(super) fn owned_field_children_of(
                     )
                     .is_some()
                 {
+                    continue;
+                }
+                if declared.is_none() && !field.is_weak {
+                    // A complete slot drain requirement, not an acquired child
+                    // Home. Empty remains a real step in the same source census.
+                    children.push(OwnedFieldChildV1 {
+                        field: hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)?,
+                        kind: OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence),
+                    });
                     continue;
                 }
                 let key = (
@@ -113,7 +122,7 @@ pub(super) fn owned_field_children_of(
                 )
                 .expect("declared field ordinal resolves canonically");
                 let kind = if class == "ArrayBox" {
-                    OwnedFieldChildKindV1::Array
+                    OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence)
                 } else {
                     let child_source = match batch.ordinary_box_coverage().row_for(class) {
                         Ok(Some(row)) => row,
@@ -132,7 +141,7 @@ pub(super) fn owned_field_children_of(
                         };
                     match child_destruction {
                         ObjectDestructionDispositionV1::NUMERIC_NO_HOOK => {}
-                        disposition if disposition.supports_static_owned_fields() && child == object =>
+                        disposition if disposition.requires_field_end() && child == object =>
                         {
                             // Self-reference: the inventory being sealed is
                             // the child's own — no recursion. The emitted
@@ -140,7 +149,7 @@ pub(super) fn owned_field_children_of(
                             // different instance, so the release graph
                             // bottoms out on live children, not types.
                         }
-                        disposition if disposition.supports_static_owned_fields() => {
+                        disposition if disposition.requires_field_end() => {
                             // The nested admission: the child resolves only
                             // when its own teardown inventory seals. The
                             // `OwnedArray` arm additionally requires the
@@ -199,7 +208,7 @@ pub(super) fn owned_field_children_of(
                             if child_destruction
                                 == ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK
                                 && nested.iter().any(|row| {
-                                    !matches!(row.kind, OwnedFieldChildKindV1::Array)
+                                    !matches!(row.kind, OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence))
                                 })
                             {
                                 visiting.remove(&object);

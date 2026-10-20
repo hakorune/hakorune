@@ -448,7 +448,7 @@ fn object_return_actual_instance_matrix_preserves_normal_fault_and_finished_bind
                 let actual_fields: Vec<_> = fault
                     .iter()
                     .filter_map(|operation| match operation {
-                        InvokeOperation::OwnedFieldResidenceRelease { field, base }
+                        InvokeOperation::OwnedFieldResidenceRelease { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field, base }
                             if base == result =>
                         {
                             Some(*field)

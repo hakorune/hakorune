@@ -233,6 +233,11 @@ typedef struct NyrtDynamicFieldEndDescriptorV1 {
     int64_t type_id;
     NyrtDynamicFieldEndV1 end;
 } NyrtDynamicFieldEndDescriptorV1;
+/* Complete source End has attempted every field in reverse order and consumed
+ * detached outcomes, with hook completed or NoHook. This is outer-only and
+ * still refuses nonempty Dynamic slots. PlainI64 admission is unchanged. */
+uint32_t nyrt_object_home_release_completed_fields_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t) __asm__("nyash.object.home_release_completed_fields_v1");
 uint32_t nyrt_object_field_outcome_init_v1(void *) __asm__("nyash.object.field_outcome_init_v1");
 uint32_t nyrt_object_checked_dynamic_replace_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, const NyrtDynamicFieldValueV1 *,

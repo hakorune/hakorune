@@ -222,6 +222,10 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
   if (v4_result != 0 || hako_lts_open(abi, &session, error) != 0) {
     failure = NULL; goto done;
   }
+  for (size_t li = 0; li < input.layout_count; li++)
+    if (lv4_layout_dynamic(input.layouts[li].row) && session.field.revision != 1u) {
+      failure = "dynamic-field-target-abi"; goto done;
+    }
   measurement.native = input.native;
   measurement.profile = input.profile;
   if (session.triple)

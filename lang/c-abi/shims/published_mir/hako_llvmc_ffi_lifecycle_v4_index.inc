@@ -304,8 +304,8 @@ static int lv4_index_open(hako_lv4_input* in) {
     yyjson_val* fields = yyjson_obj_get(row, "fields");
     in->layouts[i] = (hako_lv4_layout_index){lv4_u(row, "object_id"), row};
     for (size_t j = 0; j < yyjson_arr_size(fields); j++)
-      if (lv4_u(yyjson_arr_get(fields, j), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64)
-        return 0;
+      if (lv4_u(yyjson_arr_get(fields, j), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 &&
+          lv4_u(yyjson_arr_get(fields, j), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC) return 0;
   }
   if (in->layout_count) qsort(in->layouts, in->layout_count, sizeof(*in->layouts), lv4_layout_compare);
   for (size_t fi = 0; fi < functions; fi++) {

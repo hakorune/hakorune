@@ -10,7 +10,7 @@ fn prior_committed_cleanup_rejects_missing_reordered_and_duplicate_fields() {
     let fields = [1, 0].map(|ordinal| OwnedFieldChildV1 {
         field: hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
             .unwrap(),
-        kind: OwnedFieldChildKindV1::Array,
+        kind: OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence),
     });
     let base = ValueId::new(0);
     let frame = ValueId::new(1);
@@ -33,6 +33,7 @@ fn prior_committed_cleanup_rejects_missing_reordered_and_duplicate_fields() {
         let mut block = BasicBlock::new(id);
         block.set_terminator(MirInstruction::Invoke {
             operation: InvokeOperation::OwnedFieldResidenceRelease {
+                mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence,
                 field: child.field,
                 base,
             },
@@ -77,6 +78,7 @@ fn prior_committed_cleanup_rejects_missing_reordered_and_duplicate_fields() {
                 unreachable!()
             };
             *operation = InvokeOperation::OwnedFieldResidenceRelease {
+                mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence,
                 field: replacement.field,
                 base,
             };

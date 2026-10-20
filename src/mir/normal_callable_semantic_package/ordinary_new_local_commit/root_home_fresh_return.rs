@@ -45,7 +45,7 @@ impl OrdinaryNewClaimLedgerV1 {
         { return Err(freeze("fresh-result-cleanup/not-completed")); }
         let children = match row.destruction {
             super::super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK => &[][..],
-            disposition if disposition.supports_static_owned_fields() =>
+            disposition if disposition.requires_field_end() =>
                 row.children.as_deref().ok_or_else(|| freeze("fresh-result-cleanup/children"))?,
             _ =>
                 return Err(freeze("fresh-result-cleanup/destruction")),

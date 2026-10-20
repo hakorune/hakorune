@@ -41,11 +41,22 @@ int main(int argc, char** argv) {
   OPAQUE_LAYOUT(outcome, 224);
 #undef OPAQUE_LAYOUT
 #endif
+  hako_llvmc_lifecycle_target_session_v3 extended = { .base = session };
+#ifdef HAKO_TEST_RUNTIME_DESCRIPTOR
+  extended.base.revision = 3;
+  const unsigned char* field = nyash_object_field_abi_descriptor_v1;
+#define FIELD_WORD(index) ((uint32_t)field[4*(index)] | (uint32_t)field[4*(index)+1]<<8 | \
+    (uint32_t)field[4*(index)+2]<<16 | (uint32_t)field[4*(index)+3]<<24)
+  if (FIELD_WORD(0) != 32 || FIELD_WORD(1) != 1) return 2;
+  extended.field = (hako_llvmc_object_field_abi_v1){
+      FIELD_WORD(1), FIELD_WORD(2), FIELD_WORD(3), FIELD_WORD(4), FIELD_WORD(5), FIELD_WORD(6), FIELD_WORD(7)};
+#undef FIELD_WORD
+#endif
   char* error = NULL;
   if (argc != 3 && argc != 4) return 2;
-  if (argc == 4) session.frame_size++; /* Deliberately malformed session. */
+  if (argc == 4) extended.base.frame_size++; /* Deliberately malformed session. */
   int rc = hako_llvmc_compile_published_lifecycle_physical_v4(
-      argv[1], &session, argv[2], &error);
+      argv[1], &extended.base, argv[2], &error);
   if (error) { fprintf(stderr, "%s\n", error); free(error); }
   return rc ? 1 : 0;
 }

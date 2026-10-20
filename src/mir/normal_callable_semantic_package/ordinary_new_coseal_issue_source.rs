@@ -185,7 +185,7 @@ pub(super) fn append_source_claims(
                 &mut visiting,
             )?
         };
-        if (destruction).supports_static_owned_fields() {
+        if (destruction).requires_field_end() {
             match owned_field_children.entry(object) {
                 std::collections::btree_map::Entry::Vacant(entry) => {
                     entry.insert(children.clone());
@@ -270,7 +270,7 @@ pub(super) fn append_source_claims(
                 &mut visiting,
             )?
         };
-        if (destruction).supports_static_owned_fields() {
+        if (destruction).requires_field_end() {
             match owned_field_children.entry(object) {
                 std::collections::btree_map::Entry::Vacant(entry) => {
                     entry.insert(children.clone());

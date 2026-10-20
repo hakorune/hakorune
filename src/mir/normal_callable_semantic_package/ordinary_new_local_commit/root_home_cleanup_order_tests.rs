@@ -304,7 +304,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         assert_eq!((*binding, *object, *value), (home.binding, home.object, home.local().unwrap()));
         use crate::mir::instruction::ObjectEndStepV1 as Step;
         if owned {
-            assert!(matches!(end.as_ref(), [Step::ArrayField { field: second }, Step::ArrayField { field: first }, Step::ReleaseOuter]
+            assert!(matches!(end.as_ref(), [Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: second }, Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: first }, Step::ReleaseOuter]
                 if second.object() == home.object && first.object() == home.object
                     && second.declaration_ordinal() == 1 && first.declaration_ordinal() == 0));
         } else {

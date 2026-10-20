@@ -577,8 +577,9 @@ pub(super) fn field_discharge_chain(
         };
         let matches_source = match (child.kind, operation) {
             (
-                OwnedFieldChildKindV1::Array,
+                OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence),
                 InvokeOperation::OwnedFieldResidenceRelease {
+                mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence,
                     field,
                     base: released,
                 },

@@ -62,6 +62,11 @@ impl ObjectDestructionDispositionV1 {
     /// Declaration eligibility only; does not grant field initialization or End.
     pub(crate) fn has_no_hook(self) -> bool { matches!(self, Self::NoHook(_)) }
 
+    /// Source requirements only. A full separately sealed inventory is still
+    /// needed before any complete End or execution permission is available.
+    pub(crate) fn requires_field_end(self) -> bool {
+        matches!(self, Self::NoHook(fields) if fields.array || fields.object || fields.dynamic)
+    }
     pub(crate) fn supports_static_no_hook(self) -> bool {
         matches!(self, Self::NoHook(fields) if !fields.dynamic)
     }
@@ -72,8 +77,8 @@ impl ObjectDestructionDispositionV1 {
         matches!(self, Self::NoHook(fields) if !fields.dynamic && fields.object)
     }
     /// `Some` is a separately sealed field inventory, never inferred from NoHook.
-    pub(crate) fn supports_static_execution(self, has_children: bool) -> bool {
-        self == Self::NUMERIC_NO_HOOK || (self.supports_static_owned_fields() && has_children)
+    pub(crate) fn supports_complete_execution(self, has_children: bool) -> bool {
+        self == Self::NUMERIC_NO_HOOK || (self.requires_field_end() && has_children)
     }
 }
 

@@ -540,7 +540,7 @@ impl NewLocalCommitV1 {
     /// disposition.
     fn end_plan(&self) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
         let base = self.emission.local().expect("installed Home");
-        assert!(self.destruction.supports_static_execution(self.children.is_some()),
+        assert!(self.destruction.supports_complete_execution(self.children.is_some()),
             "teardown requires a supported profile and sealed field residences");
         let children = self.children.as_deref().unwrap_or(&[]);
         super::object_end::operations_v1(self.object, false, children, base)

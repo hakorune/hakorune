@@ -180,7 +180,7 @@ pub(super) fn prior_owned_fields_v1(
                         object: None,
                         class,
                         ..
-                    } if class.as_ref() == "ArrayBox" => OwnedFieldChildKindV1::Array,
+                    } if class.as_ref() == "ArrayBox" => OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence),
                     // Provided arguments remain caller-owned until Birth Normal.
                     // Fault reclaims only unpublished parent storage.
                     ConstructionStoreRhsV1::Parameter { .. } => return None,

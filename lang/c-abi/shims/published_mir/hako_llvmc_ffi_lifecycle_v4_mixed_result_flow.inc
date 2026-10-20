@@ -51,38 +51,99 @@ static int lv4_mixed_owned_class(const hako_lv4_input* in,
       in->index[target].return_object_state == 2 && in->index[target].return_object == object;
 }
 
-/* Full body must match every marked residence in reverse declaration order,
- * then the outer release. A layout without this original plan grants no End. */
+/* The source End body covers every residence, including Empty Dynamic slots,
+ * in reverse declaration order. No subset, duplicate or extra step grants End. */
 static int lv4_complete_end_body(const hako_lv4_input* in, yyjson_val* op) {
   static const char* const outer_keys[] = {"kind"};
-  static const char* const array_keys[] = {"kind", "field_ordinal"};
+  static const char* const field_keys[] = {"kind", "field_ordinal"};
   static const char* const object_keys[] = {"kind", "field_ordinal", "child_object_id"};
   yyjson_val* layout = lv4_layout(in, lv4_u(op, "object_id"));
   yyjson_val* arrays = yyjson_obj_get(layout, "owned_residences");
   yyjson_val* objects = yyjson_obj_get(layout, "owned_object_residences");
+  yyjson_val* fields = yyjson_obj_get(layout, "fields");
   yyjson_val* end = yyjson_obj_get(op, "end");
   size_t na = yyjson_arr_size(arrays), no = yyjson_arr_size(objects), at = 0;
-  if (!layout || !yyjson_is_arr(end) || yyjson_arr_size(end) != na + no + 1) return 0;
-  while (na || no) {
+  if (!layout || !yyjson_is_arr(end)) return 0;
+  for (size_t remaining = yyjson_arr_size(fields); remaining > 0;) {
+    uint32_t ordinal = (uint32_t)--remaining;
+    int array = na && yyjson_get_uint(yyjson_arr_get(arrays, na - 1)) == ordinal;
+    int object = no && lv4_u(yyjson_arr_get(objects, no - 1), "field_ordinal") == ordinal;
+    int dynamic = lv4_u(yyjson_arr_get(fields, ordinal), "storage_kind") ==
+        HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC;
+    if (!array && !object && !dynamic) continue;
+    if (array + object + dynamic != 1) return 0;
     yyjson_val* step = yyjson_arr_get(end, at++);
-    int array = na && (!no || yyjson_get_uint(yyjson_arr_get(arrays, na - 1)) >
-        lv4_u(yyjson_arr_get(objects, no - 1), "field_ordinal"));
-    uint32_t ordinal;
-    if (!hako_physical_u32(yyjson_obj_get(step, "field_ordinal"), &ordinal)) return 0;
-    if (array) {
-      if (!hako_physical_exact_keys(step, array_keys, 2) || !lv4_is(step, "kind", "array_field") ||
-          ordinal != yyjson_get_uint(yyjson_arr_get(arrays, --na))) return 0;
-    } else {
+    uint32_t actual;
+    if (!hako_physical_u32(yyjson_obj_get(step, "field_ordinal"), &actual) || actual != ordinal) return 0;
+    if (object) {
       yyjson_val* expected = yyjson_arr_get(objects, --no);
       uint32_t child;
       if (!hako_physical_exact_keys(step, object_keys, 3) || !lv4_is(step, "kind", "object_field") ||
-          ordinal != lv4_u(expected, "field_ordinal") ||
           !hako_physical_u32(yyjson_obj_get(step, "child_object_id"), &child) ||
           child != lv4_u(expected, "child_object_id") || !lv4_layout(in, child)) return 0;
+    } else {
+      if (!hako_physical_exact_keys(step, field_keys, 2) ||
+          !lv4_is(step, "kind", dynamic ? "dynamic_field" : "array_field")) return 0;
+      if (array) --na;
     }
   }
   yyjson_val* last = yyjson_arr_get(end, at);
-  return hako_physical_exact_keys(last, outer_keys, 1) && lv4_is(last, "kind", "release_outer");
+  return !na && !no && yyjson_arr_size(end) == at + 1 &&
+      hako_physical_exact_keys(last, outer_keys, 1) && lv4_is(last, "kind", "release_outer");
+}
+
+/* An ordinary outer release must drain this acquisition's complete fields.
+ * Reuse the existing interval owner; never let layout membership grant Home. */
+static int lv4_complete_fields_discharged(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t object, uint32_t use) {
+  yyjson_val* layout = lv4_layout(in, object);
+  yyjson_val* fields = yyjson_obj_get(layout, "fields");
+  int dynamic = 0;
+  for (size_t i = 0; i < yyjson_arr_size(fields); i++)
+    dynamic |= lv4_u(yyjson_arr_get(fields, i), "storage_kind") == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC;
+  if (!dynamic) return 1; /* Existing static ownership proofs remain unchanged. */
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || root->origin < 0 || !lv4_owned_value_object(in, fn, root, 1) ||
+      !root->object_id_set || root->object_id != object) return 0;
+  uint32_t born = 0;
+  if (lv4_received_field_parent(in, fn, root)) {
+    hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+    if (!producer) return 0;
+    born = lv4_u(lv4_term(producer->block), "normal");
+  } else {
+    size_t births = 0;
+    for (size_t bi = 0; bi < fn->block_count; bi++) {
+      yyjson_val* term = lv4_term(fn->blocks[bi].block);
+      yyjson_val* op = yyjson_obj_get(term, "operation");
+      yyjson_val* call = yyjson_obj_get(op, "call");
+      if (!lv4_is(op, "kind", "birth_call") ||
+          lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver"))) != root) continue;
+      uint32_t target = lv4_u(call, "target");
+      if (++births != 1 || target >= in->index_count ||
+          !lv4_is(in->index[target].function, "role", "birth_unit") ||
+          !in->index[target].receiver_object_set || in->index[target].receiver_object != object) return 0;
+      born = lv4_u(term, "normal");
+    }
+    if (births != 1) return 0;
+  }
+  if (hako_physical_predecessor_count(fn->function, born) != 1) return 0;
+  yyjson_val* arrays = yyjson_obj_get(layout, "owned_residences");
+  yyjson_val* objects = yyjson_obj_get(layout, "owned_object_residences");
+  size_t ai = 0, oi = 0;
+  for (uint32_t ordinal = 0; ordinal < yyjson_arr_size(fields); ordinal++) {
+    int array = ai < yyjson_arr_size(arrays) && yyjson_get_uint(yyjson_arr_get(arrays, ai)) == ordinal;
+    yyjson_val* row = yyjson_arr_get(objects, oi);
+    int object_field = row && lv4_u(row, "field_ordinal") == ordinal;
+    int dynamic_field = lv4_u(yyjson_arr_get(fields, ordinal), "storage_kind") == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC;
+    if (!array && !object_field && !dynamic_field) continue;
+    if (array + object_field + dynamic_field != 1) return 0;
+    hako_lv4_field_interval_kind query = dynamic_field ? LV4_FIELD_DYNAMIC_DRAIN :
+        array ? LV4_FIELD_ARRAY_DRAIN : LV4_FIELD_OBJECT_DRAIN;
+    if (!lv4_field_interval(fn, use, born, root, object, ordinal,
+        object_field ? lv4_u(row, "child_object_id") : 0, query)) return 0;
+    ai += array; oi += object_field;
+  }
+  return ai == yyjson_arr_size(arrays) && oi == yyjson_arr_size(objects);
 }
 
 static int lv4_mixed_birth_actual(const hako_lv4_input* in,

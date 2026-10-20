@@ -32,7 +32,7 @@ fn ordinary_new_owned_array_children_seal_in_declaration_order() {
         .map(|child| {
             assert!(matches!(
                 child.kind,
-                crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array
+                crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence)
             ));
             child.field.declaration_ordinal()
         })
@@ -123,7 +123,7 @@ fn ordinary_new_owned_object_children_seal_in_declaration_order() {
     assert_eq!(children.len(), 2);
     assert_eq!(children[0].field.declaration_ordinal(), 0);
     assert!(
-        matches!(children[0].kind, OwnedFieldChildKindV1::Array),
+        matches!(children[0].kind, OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence)),
         "array child keeps the residence-release kind"
     );
     assert_eq!(children[1].field.declaration_ordinal(), 1);

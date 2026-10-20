@@ -150,7 +150,7 @@ pub(super) fn check_module_with_source(
                         InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::HomeReleaseIfLive { object, .. }
                             if !module.canonical_object_definition(*object).is_some_and(|definition|
-                                (definition.destruction_disposition()).supports_static_no_hook()) =>
+                                (definition.destruction_disposition()).has_no_hook()) =>
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
@@ -158,12 +158,12 @@ pub(super) fn check_module_with_source(
                         // declaration — never a name or slot guess. The
                         // field must be a non-weak `ArrayBox` on an object
                         // whose teardown owns it.
-                        InvokeOperation::OwnedFieldResidenceRelease { field, .. }
-                            if !(module.canonical_array_field(*field) && module
-                                .canonical_object_definition(field.object())
-                                .is_some_and(|definition| {
-                                    (definition.destruction_disposition()).supports_static_owned_fields()
-                                })) =>
+                        InvokeOperation::OwnedFieldResidenceRelease { mode, field, .. }
+                            if !module.canonical_object_definition(field.object()).is_some_and(|definition|
+                                definition.destruction_disposition().has_no_hook() && match mode {
+                                    crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence => module.canonical_array_field(*field),
+                                    crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence => dynamic_field(module, *field),
+                                }) =>
                         {
                             errors.push(error(*id, "field-residence-release-invalid"));
                         }

@@ -25,6 +25,7 @@ use super::{
 
 /// Physical-program.v2 field storage tag; mirrored by the C ABI header.
 const HAKO_LLVMC_LIFECYCLE_STORAGE_I64: u32 = 1;
+const HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC: u32 = 12;
 
 /// Runtime diagnostic operation kinds admitted by the selected lifecycle ABI.
 /// These are physical runtime calls, never source-level diagnostic sites.
@@ -420,7 +421,7 @@ impl<'module> PublishedMirBackendView<'module> {
             let definition = definitions
                 .get(object_id as usize)
                 .ok_or_else(|| fault("object-definition-missing"))?;
-            if !(definition.destruction_disposition()).supports_static_no_hook() {
+            if !definition.destruction_disposition().has_no_hook() {
                 return Err(fault("object-destruction"));
             }
             let layout = definition
@@ -428,19 +429,37 @@ impl<'module> PublishedMirBackendView<'module> {
                 .ok_or_else(|| fault("layout-not-issued"))?
                 .as_ref()
                 .map_err(|_| fault("layout-unavailable"))?;
-            if layout.field_count as usize != layout.fields.len() {
+            if layout.field_count as usize != layout.fields.len() || definition.fields().len() != layout.fields.len() {
                 return Err(fault("layout-field-count"));
+            }
+            if definition.fields().iter().any(|field| field.declared_type_name.is_none()) {
+                use crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1 as Child;
+                use crate::mir::instruction::FieldResidenceEndModeV1 as Mode;
+                let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(object_id as usize)
+                    .ok_or_else(|| fault("owned-object-identity"))?;
+                let source = entry.program().handoff().root_source()
+                    .ok_or_else(|| fault("owned-object-source-missing"))?;
+                let inventory = source.owned_field_inventory_v1(object)?
+                    .ok_or_else(|| fault("object-destruction"))?;
+                let required: Vec<_> = definition.fields().iter().enumerate()
+                    .filter(|(_, field)| field.declared_type_name.is_none())
+                    .map(|(ordinal, _)| hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
+                        .expect("complete canonical declaration census")).collect();
+                let retained: Vec<_> = inventory.iter().filter(|row| row.kind == Child::Residence(Mode::DynamicResidence))
+                    .map(|row| row.field).collect();
+                if retained != required { return Err(fault("object-destruction")); }
             }
             let fields = layout
                 .fields
                 .iter()
                 .enumerate()
                 .map(|(ordinal, field)| {
-                    // Every plan storage kind projects onto the same i64
-                    // wire lane — `Handle` fields carry a residence handle
-                    // in the integer lane. Any future non-lane storage is
-                    // rejected here rather than silently tagged I64.
+                    // Retain the canonical physical storage. Dynamic is never
+                    // reinterpreted as an i64 slot; its current residence has
+                    // the explicit source-issued view/replace/End protocol.
                     if field.slot != ordinal as u32
+                        || (field.storage == TypedObjectFieldStorage::Dynamic)
+                            != definition.fields()[ordinal].declared_type_name.is_none()
                         || !matches!(
                             field.storage,
                             TypedObjectFieldStorage::I8
@@ -454,6 +473,7 @@ impl<'module> PublishedMirBackendView<'module> {
                                 | TypedObjectFieldStorage::U64
                                 | TypedObjectFieldStorage::USize
                                 | TypedObjectFieldStorage::Handle
+                                | TypedObjectFieldStorage::Dynamic
                         )
                     {
                         return Err(fault("layout-field-drift"));
@@ -462,7 +482,9 @@ impl<'module> PublishedMirBackendView<'module> {
                         object_id,
                         declaration_ordinal: ordinal as u32,
                         runtime_slot: field.slot,
-                        storage_kind: HAKO_LLVMC_LIFECYCLE_STORAGE_I64,
+                        storage_kind: if field.storage == TypedObjectFieldStorage::Dynamic {
+                            HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC
+                        } else { HAKO_LLVMC_LIFECYCLE_STORAGE_I64 },
                     })
                 })
                 .collect::<Result<Vec<_>, String>>()?;
@@ -480,6 +502,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .collect::<Vec<_>>()
                 .into_boxed_slice();
             let owned_object_residences = if definition.destruction_disposition().supports_static_object_fields()
+                || definition.fields().iter().any(|field| field.declared_type_name.is_none())
             {
                 let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(
                     object_id as usize,
@@ -569,7 +592,7 @@ fn referenced_objects(
                             ids.insert(object.declaration_index());
                             for step in end.iter() {
                                 match step {
-                                    crate::mir::instruction::ObjectEndStepV1::ArrayField { field } => { ids.insert(field.object().declaration_index()); }
+                                    crate::mir::instruction::ObjectEndStepV1::FieldResidence { field, .. } => { ids.insert(field.object().declaration_index()); }
                                     crate::mir::instruction::ObjectEndStepV1::ObjectField { field, child } => {
                                         ids.insert(field.object().declaration_index());
                                         ids.insert(child.declaration_index());

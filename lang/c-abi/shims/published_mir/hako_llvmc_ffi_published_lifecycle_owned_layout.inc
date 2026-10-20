@@ -13,7 +13,9 @@ static int hako_physical_owned_object_layout(yyjson_val* layout, yyjson_val* lay
         !hako_physical_u32(yyjson_obj_get(row, "field_ordinal"), &ordinal) ||
         !hako_physical_u32(yyjson_obj_get(row, "child_object_id"), &child) ||
         ordinal >= count || (i && ordinal <= previous) ||
-        !hako_physical_layout_has_object(layouts, child)) return 0;
+        !hako_physical_layout_has_object(layouts, child) ||
+        yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(yyjson_obj_get(layout, "fields"), ordinal),
+            "storage_kind")) != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
     for (size_t j = 0; j < yyjson_arr_size(arrays); j++)
       if (yyjson_get_uint(yyjson_arr_get(arrays, j)) == ordinal) return 0;
     previous = ordinal;

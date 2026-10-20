@@ -445,6 +445,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
+      if (lv4_is(op, "transaction", "dynamic_i64_replace")) {
+        /* This source family carries signed I64 only, never tagged payloads or Homes. */
+        if (birth || faulted || !value || value->kind != LV4_I64 ||
+            !lv4_is(range, "kind", "none") || !base ||
+            !lv4_readable_object(in, fn, base->id, state, lv4_u(block, "id"), lv4_u(op, "object_id"), 1)) return 0;
+      } else {
       /* The published source-owned usize write borrows two original tagged
          formals. The base retains its sealed class; neither operand owns a
          lease. Runtime kind/range/slot checks precede the store itself. */
@@ -479,6 +485,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           lv4_birth_reserved(in, op)) return 0;
       if (!borrowed_write && !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      }
     } else if (lv4_is(op, "kind", "field_residence_release")) {
       /* An owned field residence release discharges only the child slot.
          The base Home stays live until its own release consumes it, so
@@ -489,6 +496,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if ((fi && !ordinary && !birth) || lv4_slot(in, op) < 0 || !base ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      if (lv4_is(op, "transaction", "take_dynamic") && (birth || base->origin < 0)) return 0;
       if (base->origin < 0 && (!birth ||
           !lv4_birth_discharge(in, fn, op, state, normal, faulted, 0))) return 0;
     } else if (lv4_is(op, "kind", "object_field_set")) {
@@ -558,7 +566,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), !nullable_release)) return 0;
       if (!lv4_is(op, "kind", "reclaim_unpublished") &&
-          !lv4_object_field_dependencies_released(in, fn, value, state, lv4_u(block, "id"))) return 0;
+          (!lv4_object_field_dependencies_released(in, fn, value, state, lv4_u(block, "id")) ||
+           !lv4_complete_fields_discharged(in, fn, value, lv4_u(op, "object_id"), lv4_u(block, "id")))) return 0;
       normal[value->origin] = state[value->origin] = 0;
     } else if (lv4_is(op, "kind", "map_install_text") ||
         lv4_is(op, "kind", "map_install_empty_array")) {

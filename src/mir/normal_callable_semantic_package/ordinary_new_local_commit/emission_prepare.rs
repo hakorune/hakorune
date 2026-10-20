@@ -76,7 +76,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // Owned publication still requires sealed residences for Normal
         // Home teardown. Birth owns partial-field Fault cleanup; its
         // external caller retains only source-backed storage reclaim.
-        available &= destruction.supports_static_execution(children.is_some());
+        available &= destruction.supports_complete_execution(children.is_some());
         match prior_homes {
             None => available = false,
             Some((prior_homes, required_unwind)) => {

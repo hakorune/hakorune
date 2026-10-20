@@ -237,9 +237,8 @@ mod tests {
                     Destruction::no_hook_fields(false, false, true)
                 } else { Destruction::Unavailable(DestructionUnavailable::FieldType) }
             );
-            // A source-declared empty slot is not an executable teardown profile,
-            // even if a caller presents an empty child inventory.
-            assert!(!definition.destruction_disposition().supports_static_execution(true));
+            // Dynamic requirements never acquire a static NoHook profile.
+            assert!(!definition.destruction_disposition().supports_static_no_hook());
         }
         let mut node = declaration("box Plain { value: i64 }");
         let ASTNode::BoxDeclaration { field_decls, .. } = &mut node else {
@@ -292,7 +291,7 @@ mod tests {
         assert!(fields[2].declared_type_name.is_none());
         assert_eq!(definition.local_fields_for_layout(), Ok(fields));
         assert_eq!(definition.destruction_disposition(), Destruction::no_hook_fields(false, false, true));
-        assert!(!definition.destruction_disposition().supports_static_execution(false));
+        assert!(!definition.destruction_disposition().supports_complete_execution(false));
     }
 
     #[test]

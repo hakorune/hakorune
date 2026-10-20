@@ -34,7 +34,7 @@ fn construction_store_fault_inventory_is_prior_committed_source_order() {
             assert_eq!(actual, expected);
             for child in store.fault_discharge() {
                 assert_eq!(
-                    matches!(child.kind, OwnedFieldChildKindV1::Array),
+                    matches!(child.kind, OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence)),
                     class == "ArrayBox"
                 );
             }

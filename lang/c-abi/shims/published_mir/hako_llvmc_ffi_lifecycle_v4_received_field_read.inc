@@ -5,15 +5,14 @@ static int lv4_received_field_readable(const hako_lv4_input* in,
     uint32_t use) {
   uint32_t object = lv4_u(op, "object_id"), ordinal = lv4_u(op, "field_ordinal");
   yyjson_val* fields = yyjson_obj_get(lv4_layout(in, object), "fields");
-  int scalar = 0;
-  for (size_t i = 0; i < yyjson_arr_size(fields); i++) {
-    yyjson_val* field = yyjson_arr_get(fields, i);
-    if (lv4_u(field, "declaration_ordinal") == ordinal &&
-        lv4_u(field, "storage_kind") == HAKO_LLVMC_LIFECYCLE_STORAGE_I64) scalar++;
-  }
-  if (scalar != 1 || lv4_slot(in, op) < 0 || lv4_birth_reserved(in, op)) return 0;
+  yyjson_val* field = yyjson_arr_get(fields, ordinal);
+  uint32_t storage = lv4_u(field, "storage_kind");
+  if (!field || lv4_slot(in, op) < 0 || lv4_birth_reserved(in, op) ||
+      (storage != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 && storage != HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC)) return 0;
   hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
   if (!base) return 0;
+  if (storage == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC && base->kind == LV4_HANDLE)
+    return lv4_readable_object(in, fn, base->id, state, use, object, 1);
   if (base->kind == LV4_HANDLE) {
     hako_lv4_value* root = lv4_value_alias_root(fn, base);
     if (root && root->origin == LV4_OWNED_FIELD_BORROW)

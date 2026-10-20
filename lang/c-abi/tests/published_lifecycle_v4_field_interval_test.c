@@ -27,7 +27,9 @@ static int interval(const char* release, const char* left, const char* right,
     blocks[i].id = (uint32_t)i; blocks[i].ordinal = i;
     blocks[i].block = yyjson_arr_get(yyjson_obj_get(fn.function, "blocks"), i);
   }
-  int valid = discharged ? lv4_field_dependency_discharged(&fn, 4, 0, &parent, 7, 3, 11) :
+  int valid = discharged >= LV4_FIELD_ARRAY_DRAIN ?
+      lv4_field_interval(&fn, 4, 0, &parent, 7, 3, 11, (hako_lv4_field_interval_kind)discharged) :
+      discharged ? lv4_field_dependency_discharged(&fn, 4, 0, &parent, 7, 3, 11) :
       lv4_field_borrow_suffix(&fn, 4, 0, &parent, 7, 3);
   yyjson_doc_free(doc);
   return valid;
@@ -62,6 +64,19 @@ int main(void) {
     assert(!interval(invalid[i], EMPTY, EMPTY, EMPTY, 1));
   /* A different slot's End is legal, but cannot replace this slot's End. */
   assert(interval(END, invalid[1], invalid[1], EMPTY, 1));
+  const char* dynamic = "{\"operation\":{\"kind\":\"field_residence_release\",\"transaction\":\"take_dynamic\",\"base\":1,\"object_id\":7,\"field_ordinal\":3}}";
+  const char* write = "{\"operation\":{\"kind\":\"field_set\",\"base\":1,\"object_id\":7,\"field_ordinal\":3}}";
+  const char* call = "{\"operation\":{\"kind\":\"ordinary_call\"}}";
+  const char* lower = "{\"operation\":{\"kind\":\"field_residence_release\",\"transaction\":\"take_dynamic\",\"base\":1,\"object_id\":7,\"field_ordinal\":2}}";
+  assert(interval(dynamic, EMPTY, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(interval(write, dynamic, dynamic, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(!interval(dynamic, write, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(!interval(dynamic, call, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(!interval(dynamic, dynamic, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(!interval(EMPTY, dynamic, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(!interval(END, EMPTY, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(interval(dynamic, lower, lower, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
+  assert(!interval(lower, dynamic, dynamic, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
   puts("field intervals: strict read and exact per-path Normal/Fault discharge PASS");
   return 0;
 }

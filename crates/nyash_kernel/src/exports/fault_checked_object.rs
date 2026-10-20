@@ -276,6 +276,17 @@ pub unsafe extern "C" fn home_release(
     unsafe { release(storage, profile, site, handle, type_id) }
 }
 
+/// Outer-only completion of the SAME source End: every field drain was
+/// attempted, detached outcomes consumed, and the hook completed or NoHook.
+/// Nonempty Dynamic slots still refuse reclaim; this never repairs a missing
+/// drain, invokes a callback implicitly, or broadens PlainI64 admission.
+#[export_name = "nyash.object.home_release_completed_fields_v1"]
+pub unsafe extern "C" fn home_release_completed_fields(
+    storage: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+) -> u32 {
+    unsafe { release(storage, profile, site, handle, type_id) }
+}
+
 use super::checked_map::storage::{
     Placement, init as placement_init, admit as placement_admit,
     dispose as placement_dispose, separate,
