@@ -15,6 +15,7 @@ use std::collections::BTreeSet;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BindingRebindDestinationV1 {
     Integer,
+    Bool,
     TextStatic(SourceExprSiteV1),
     TextResidence(TextResidenceAcquisitionV1),
 }
@@ -29,7 +30,7 @@ impl CheckedBindingRebindFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn target(&self) -> BindingRefV1 { self.target }
-    pub(crate) fn is_text_residence(&self) -> bool { !matches!(self.destination, BindingRebindDestinationV1::Integer) }
+    pub(crate) fn is_text_residence(&self) -> bool { matches!(self.destination, BindingRebindDestinationV1::TextStatic(_) | BindingRebindDestinationV1::TextResidence(_)) }
     pub(crate) fn materializes_root(&self) -> bool {
         self.is_text_residence() && !self.evaluation.owned_result_nodes().contains(&0)
     }
@@ -68,7 +69,7 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     let mut unique_homes = BTreeSet::new();
     if prior_homes.iter().any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding())) { return Ok(None); }
     match &destination {
-        BindingRebindDestinationV1::Integer | BindingRebindDestinationV1::TextStatic(_)
+        BindingRebindDestinationV1::Integer | BindingRebindDestinationV1::Bool | BindingRebindDestinationV1::TextStatic(_)
             if prior_homes.iter().any(|home| home.binding() == *target) => return Ok(None),
         BindingRebindDestinationV1::TextResidence(previous)
             if previous.binding() != *target || prior_homes.iter().filter(|home|
@@ -86,9 +87,11 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared, &mut |_| None, &order, field_request)?
         else { return Ok(None) };
-    let text = !matches!(destination, BindingRebindDestinationV1::Integer);
+    let class = match destination { BindingRebindDestinationV1::Integer => Class::I64,
+        BindingRebindDestinationV1::Bool => Class::Bool, _ => Class::String };
+    let text = class == Class::String;
     if !references.is_empty() || transferred.contains(&0)
-        || classes[0] != Leaf::Value(if text { Class::String } else { Class::I64 }) { return Ok(None); }
+        || classes[0] != Leaf::Value(class) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
         else { return Ok(None) };
     let owned_results = super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);

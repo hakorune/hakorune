@@ -1,4 +1,5 @@
 //! Checked RHS -> common purpose cleanup -> sole assignment writer -> publication.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 use super::expression_value;
 use crate::mir::instruction::StringInvokeOperand as Operand;
@@ -26,9 +27,15 @@ pub(in crate::mir::builder) fn emit(
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, None))?;
     expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
-    let value = match expression.value {
-        Operand::NormalInteger(value) if !frame.is_text_residence() => value,
-        Operand::OwnedString(value) if frame.is_text_residence() => value,
+    let value = match &expression.value {
+        EvaluatedExpressionValueV1::Bool(value)
+            if frame.evaluation().root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) => *value,
+        EvaluatedExpressionValueV1::Operand(value) => match value {
+        Operand::NormalInteger(value) if !frame.is_text_residence() => *value,
+        Operand::OwnedString(value) if frame.is_text_residence() => *value,
+        _ => return Err(freeze("rebind-expression/result-class")),
+        },
         _ => return Err(freeze("rebind-expression/result-class")),
     };
     let (terminal, continuation) = expression_value::finish_rebind_continuation(builder, &mut expression, &frame, ledger)?;

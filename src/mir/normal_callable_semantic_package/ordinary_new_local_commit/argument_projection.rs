@@ -1,4 +1,5 @@
 //! The existing New emission keeps exact checked read/local Copy/actual loans.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 impl EmittedNewArgumentV1 {
     pub(super) fn validate_field_array_read(
@@ -43,7 +44,7 @@ impl FinalizedRootSourceHandoffV1 {
     }
 }
 
-use crate::mir::instruction::{BirthArgumentV1, StringInvokeOperand as Operand};
+use crate::mir::instruction::{BirthArgumentV1};
 use crate::mir::normal_callable_semantic_package::{
     CallValidationContextV1, EmittedLexicalCallProjectionV1, ExpressionCallTransientPrefixV1,
     ExpressionReferenceReadV1,
@@ -56,7 +57,7 @@ type Binding = (BasicBlockId, MirInstruction);
 #[derive(Debug)]
 pub(in crate::mir) struct EmittedNewExpressionV1 {
     frame: Rc<CheckedExpressionEvaluationV1>,
-    values: Vec<Option<Operand>>,
+    values: Vec<Option<EvaluatedExpressionValueV1>>,
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
@@ -75,7 +76,7 @@ impl Eq for EmittedNewExpressionV1 {}
 impl EmittedNewExpressionV1 {
     pub(in crate::mir) fn new(
         frame: Rc<CheckedExpressionEvaluationV1>,
-        values: Vec<Option<Operand>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>,
         calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
@@ -164,7 +165,7 @@ impl EmittedNewExpressionV1 {
             || *ordinal != source.ordinal()
             || construction.arguments().get(*ordinal as usize) != Some(source.site())
             || self.frame.source().nodes().first().map(|node| node.site()) != Some(source.site())
-            || !matches!((payload, self.values.first()), (BirthArgumentV1::Text(actual), Some(Some(root))) if actual == root && root.is_text())
+            || !matches!((payload, self.values.first()), (BirthArgumentV1::Text(actual), Some(Some(root))) if root.as_operand().is_ok_and(|root| actual == root && root.is_text()))
         {
             return Err(freeze("argument-source-drift"));
         }

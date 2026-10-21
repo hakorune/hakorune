@@ -1,19 +1,21 @@
 # APP-json-stream-aggregator
-Status: Instance Text→Print and cleanup source retention connected; JSON Static actual source and final Map/native incomplete. Date: 2026-10-21
+Status: Bool literal rebind connected through canonical native EXE; JSON arithmetic initializer source and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 435.850s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 427.193s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON moved past reportUser original-input-not-ready and statsFor MapGet ingress
   to borrowed-static/source-actual-unavailable. No MIR/EXE.
-- Source diagnostics include library Unknown actuals and substring arguments;
-  pin the selected demand before choosing a repair. Preparation logs alone do not pin it.
-- CLI36.05s/root67s; 46filters match parent outcomes and strict failure diagnostics.
-  Inventory9263 unchanged; two original source refusals retained.
-- No new test case/file/hook/guard/checker/card/app edit. One existing test pattern
-  follows the request payload. Warning counts1858/920 unchanged; one loan symbol renamed.
+- Final Static demand is to_i64's original _digit_value(ch). Bool rebind arms now
+  close; next Prefix stop is i=one_i64/zero_i64. Unknown remains refused.
+- Independent Bool rebind probe: parent refuses; canonical --emit-exe now builds,
+  prints bool-rebind and exits0. This proves neither JSON nor generic Bool RHS.
+- CLI41.32s/root71s; 46filters match parent outcomes and strict failure diagnostics.
+  Inventory9263 unchanged; 3source/1physical rebind tests PASS; two source refusals stay.
+- Warning counts1858/920 unchanged. No new test case/file/hook/guard/checker/card/app edit. Existing test values only
+  follow the internal evaluated-value wrapper. Temporary probe stays outside repo.
 
 ## Shared source and construction
 - Full original FieldResidence census retains Array/Dynamic fields, including Empty;
@@ -74,15 +76,18 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   OwnedString uses existing Call/Print temporary End/Fault and final callee validation.
 - Cleanup prefixes now replace validated sequences only, retaining every source product
   on the same order. This fixes lost MapGet metadata without relaxing ingress checks.
-- Receiver role predicate moved to existing receiver owner; callback is798lines.
-- Next pin original selected Static call/ordinal/value at source-actual refusal, then
-  connect its existing expression/prefix/actual owner. Unknown never proves Text.
+- Internal evaluated values separate Bool from String/I64 operands. Bool destination
+  uses same owner/noHome; literal→actual ConstBool→assignment receipt→Finished is
+  checked by shared expression and existing final owners. No fake I64/Text Home.
+- Next connect n-n and zero_i64+1 original arithmetic initializer evaluations to
+  existing Local receipts/current scalar producer; reuse Sub law, never SUM-only SSA.
+  Then close i rebinds and original loop actuals. Unknown never proves Text.
 
 ## Completion limits
 - Other Instance Text purposes/terminal Call original actuals require their own full
   consumer closure; Print qualification grants no blanket Text execution permission.
 - Native Text formal/actual/Materialize/store/End/Fault, full Dynamic/Provided/Shared,
-  Array holder/contents/End, exact empty transfer, signed SUM/rebind/to_i64, native Bool
+  Array holder/contents/End, exact empty transfer, signed SUM/rebind/to_i64, generic native Bool
   and generic canonical JSON remain owed under the original goal.
 - Retained reds: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8,
   arguments12/1, read-claim7/2; initializer/terminal/callback/plan/admission,

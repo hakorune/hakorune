@@ -1,4 +1,5 @@
 //! Independent original source/loan to actual producer correspondence.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
@@ -175,7 +176,7 @@ impl EmittedBoolConditionProjectionV1 {
     }
 
     pub(super) fn text_comparison_producers_v1<'a>(&self, node: &BoolConditionNodeProjectionV1,
-        values: &[Option<crate::mir::instruction::StringInvokeOperand>], receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
+        values: &[Option<EvaluatedExpressionValueV1>], receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
         bindings: &'a [Binding],
     ) -> Result<(&'a Binding, &'a Binding), String> {
         let operation = super::checked_scalar_invoke_operation_v1(self.frame.evaluation(), node.node, values, receiver)?;

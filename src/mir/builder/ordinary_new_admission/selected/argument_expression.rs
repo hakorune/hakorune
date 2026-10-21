@@ -61,7 +61,7 @@ pub(in crate::mir::builder) fn emit_with_prefix(
         },
     )?;
     expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
-    let (value, terminal, continuation) = match expression.value {
+    let (value, terminal, continuation) = match expression.value.as_operand()?.clone() {
         Operand::NormalInteger(value) if frame.is_i64() => {
             let (terminal, continuation) = expression_value::finish_scalar_continuation(builder, &mut expression)?;
             (value, terminal, continuation)

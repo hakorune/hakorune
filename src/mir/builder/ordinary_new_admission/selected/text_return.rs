@@ -16,7 +16,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     let materialize = source.owned_root_node_v1().is_none();
     expression_value::materialize_text_root(builder, &mut expression, materialize)?;
     let (terminal, continuation) = expression_value::finish_residence_continuation(builder, &mut expression)?;
-    let crate::mir::instruction::StringInvokeOperand::OwnedString(value) = expression.value
+    let crate::mir::instruction::StringInvokeOperand::OwnedString(value) = expression.value.as_operand()?.clone()
         else { return Err(freeze("expression/residence-root")) };
     let body = expression.body;
     ledger.retain_text_return_expression_v1(source, value, body.values, body.calls,

@@ -5073,3 +5073,12 @@ Fault cancellation and final callee Return validation keep their existing owners
 Cleanup reordering replaces only validated obligation sequences, preserving all
 original source products on the same order rather than hand-copying metadata.
 Full application acceptance remains required through those same owners.
+
+The common expression value table distinguishes raw Bool from String/I64 operands.
+A Bool slot rebind qualifies its original Bool literal through the same assignment
+purpose, Prefix installation and sole assignment writer. Bool never becomes an
+Integer or a String operand: native String/Core/Map/argument projections explicitly
+borrow their existing operand domain and refuse Bool. The independent expression
+checker joins the exact original literal to Const Bool, assigned receipt, cleanup
+paths and Finished projection. Bool-reference/operator RHS still needs its own
+source producer closure; literal admission does not grant it.

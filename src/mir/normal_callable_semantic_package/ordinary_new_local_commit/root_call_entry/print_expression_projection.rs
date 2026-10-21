@@ -1,8 +1,9 @@
 //! Original expression-to-physical correspondence in the existing prefix pool.
 //! This packet never issues fields, calls, input permissions or runtime owners.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
-use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
+use crate::mir::instruction::{StringInvokeOperation as Operation};
 use crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1;
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -10,7 +11,7 @@ type Binding = (BasicBlockId, MirInstruction);
 #[derive(Debug)]
 pub(crate) struct EmittedPrintExpressionProjectionV1 {
     frame: Rc<CheckedPrintExpressionFrameV1>,
-    values: Box<[Option<Operand>]>,
+    values: Box<[Option<EvaluatedExpressionValueV1>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
     path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
@@ -36,7 +37,7 @@ impl EmittedPrintExpressionProjectionV1 {
     /// its exact checked Print and a real continuing edge, never a fake Call.
     pub(in crate::mir) fn new(
         frame: Rc<CheckedPrintExpressionFrameV1>,
-        values: Vec<Option<Operand>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>,
         calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
@@ -74,7 +75,7 @@ impl EmittedPrintExpressionProjectionV1 {
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         self.expression().validate_source(context)?;
         if !matches!((&self.print.1, self.values.first()),
-            (MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { value }), .. }, Some(Some(root))) if value == root)
+            (MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { value }), .. }, Some(Some(root))) if root.as_operand().is_ok_and(|root| value == root))
             || !matches!(self.continuation.1, MirInstruction::Jump { .. })
         {
             return Err(freeze("print-expression/print-or-continuation"));

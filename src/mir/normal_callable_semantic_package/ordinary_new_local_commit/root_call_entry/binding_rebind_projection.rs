@@ -1,8 +1,8 @@
 //! Rebind purpose of the existing evaluated-binding prefix group.
 //! Expression evaluation/cleanup is shared; only the assignment receipt differs.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 use std::{collections::BTreeMap, rc::Rc};
-use crate::mir::instruction::StringInvokeOperand as Operand;
 use crate::mir::builder::CompletedVariableAssignmentV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1;
@@ -16,7 +16,7 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     root: ReferenceProducerV1,
     install: Option<Binding>,
     purpose_acquisition: Option<[Binding; 2]>,
-    values: Vec<Option<Operand>>,
+    values: Vec<Option<EvaluatedExpressionValueV1>>,
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
@@ -53,7 +53,7 @@ impl EmittedBindingRebindProjectionV1 {
     }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedBindingRebindFrameV1>, receipt: CompletedVariableAssignmentV1,
-        values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>, reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, purpose_acquisition: Option<[Binding; 2]>, original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,

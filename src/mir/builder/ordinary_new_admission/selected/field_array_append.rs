@@ -95,9 +95,9 @@ pub(in crate::mir::builder) fn emit_text(builder: &mut MirBuilder, state: &mut C
     let receiver = receiver.ok_or_else(|| freeze("field-array-append/source-operands"))?;
     let expression = super::expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |_, _, _, _, _, _| Err(freeze("field-array-append/source-operands")))?;
-    if !expression.value.is_text() || expression.purpose_acquisition.is_some() || !expression.body.acquired.is_empty()
+    if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some() || !expression.body.acquired.is_empty()
         || !expression.body.calls.is_empty() || !expression.body.path_reads.is_empty() { return Err(freeze("field-array-append/source-operands")); }
-    let payload = crate::mir::instruction::ArrayElementWriteValueV1::Text(expression.value);
+    let payload = crate::mir::instruction::ArrayElementWriteValueV1::Text(expression.value.as_operand()?.clone());
     let mut body = expression.body;
     let (terminal, continuation) = super::expression_value::finish_value_continuation_v1(builder, &mut body)?;
     let argument = crate::mir::normal_callable_semantic_package::FieldAppendTextProjectionV1::new(field, read_binding.clone(),

@@ -1,4 +1,5 @@
 //! Tie an observed argument value to the original lexical argument meaning.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
@@ -109,7 +110,7 @@ pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
     frame: std::rc::Rc<
         crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
     >,
-    values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+    values: Vec<Option<EvaluatedExpressionValueV1>>,
     calls: Vec<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reference_reads: std::collections::BTreeMap<
@@ -182,7 +183,7 @@ impl EmittedArgumentExpressionProjectionV1 {
         let materialized = match &self.purpose_acquisition {
             Some([invoke, normal]) => {
                 let input = self.values.first().and_then(Option::as_ref)
-                    .ok_or_else(|| freeze("argument-expression/result"))?;
+                    .ok_or_else(|| freeze("argument-expression/result"))?.as_operand()?;
                 let value = normal.1.dst_value().ok_or_else(|| freeze("argument-expression/result"))?;
                 if !input.is_text() || !matches!(&invoke.1, MirInstruction::Invoke {
                     operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
@@ -195,11 +196,11 @@ impl EmittedArgumentExpressionProjectionV1 {
             }
             None => None,
         };
-        let value = match (self.completion, self.values.first()) {
-            (ArgumentCompletionV1::ScalarCompleted, Some(Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value))))
+        let value = match (self.completion, self.values.first().and_then(Option::as_ref).map(|value| value.as_operand()).transpose()?) {
+            (ArgumentCompletionV1::ScalarCompleted, Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value)))
                 if self.frame.is_i64() => *value,
             (ArgumentCompletionV1::OwnedTextDeferred, _) if materialized.is_some() => materialized.unwrap(),
-            (ArgumentCompletionV1::OwnedTextDeferred, Some(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value))))
+            (ArgumentCompletionV1::OwnedTextDeferred, Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)))
                 if !self.frame.is_i64() && self.frame.evaluation().owned_result_nodes().contains(&0) => *value,
             _ => return Err(freeze("argument-expression/result")),
         };
@@ -227,7 +228,7 @@ impl LexicalCallArgumentProjectionV1 {
         frame: std::rc::Rc<
             crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
         >,
-        values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>,
         calls: Vec<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: std::collections::BTreeMap<
@@ -286,7 +287,7 @@ impl LexicalCallArgumentProjectionV1 {
         let mut seen = std::collections::BTreeSet::new();
         for &node in packet.frame.evaluation().ordered_nodes() {
             if !packet.frame.evaluation().owned_result_nodes().contains(&node) { continue; }
-            let Some(Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value))) = packet.values.get(node) else {
+            let Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)) = packet.values.get(node).and_then(Option::as_ref).map(|value| value.as_operand()).transpose()? else {
                 return Err(freeze("argument-expression/deferred-value"));
             };
             if !seen.insert(*value) { return Err(freeze("argument-expression/deferred-duplicate")); }

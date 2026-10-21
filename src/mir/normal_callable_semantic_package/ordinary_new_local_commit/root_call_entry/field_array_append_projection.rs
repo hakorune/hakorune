@@ -1,4 +1,5 @@
 //! One original field-Array Push, its exact materialization and outward Fault.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, FieldArrayAppendSourceLoanV1};
 use crate::mir::builder::{ExactLexicalReadV1, ObservedSourceValueV1};
@@ -18,14 +19,14 @@ enum FieldAppendArgumentV1 {
 pub(crate) struct FieldAppendTextProjectionV1 {
     field: Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>,
     receiver_binding: Binding,
-    values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+    values: Vec<Option<EvaluatedExpressionValueV1>>,
     reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
     frame: ValueId, entry: Binding, terminal: Binding, continuation: Binding,
     expression_bindings: Vec<Binding>,
 }
 impl FieldAppendTextProjectionV1 {
     pub(in crate::mir) fn new(field: Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>, receiver_binding: Binding,
-        values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>,
         reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
         frame: ValueId, entry: Binding, terminal: Binding, continuation: Binding, expression_bindings: Vec<Binding>,
     ) -> Self { Self { field, receiver_binding, values, reads, frame, entry, terminal, continuation, expression_bindings } }
@@ -90,7 +91,7 @@ impl FieldAppendTextProjectionV1 {
         Ok(dst)
     }
     fn operand(&self) -> Result<&crate::mir::instruction::StringInvokeOperand, String> {
-        self.values.first().and_then(Option::as_ref).filter(|value| value.is_text())
+        self.values.first().and_then(Option::as_ref).map(|value| value.as_operand()).transpose()?.filter(|value| value.is_text())
             .ok_or_else(|| freeze("field-array-append/source-operands"))
     }
 }

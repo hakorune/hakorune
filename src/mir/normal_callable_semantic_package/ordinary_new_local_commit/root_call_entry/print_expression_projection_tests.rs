@@ -1,5 +1,6 @@
 //! Independent original Print frame / physical membership and topology checks.
 use super::*;
+use crate::mir::instruction::StringInvokeOperand as Operand;
 
 #[test]
 fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes() {
@@ -624,7 +625,7 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
             value: Some(ValueId(91)),
         });
         function.add_block(after);
-        let values = vec![Some(operand)];
+        let values = vec![Some(operand.into())];
         let packet = Rc::new(
             EmittedPrintExpressionProjectionV1::new(
                 Rc::clone(&frame),
@@ -682,7 +683,7 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
         }
         assert!(EmittedPrintExpressionProjectionV1::new(
             frame,
-            vec![Some(Operand::StaticText { utf8: "別".into() })],
+            vec![Some(Operand::StaticText { utf8: "別".into() }.into())],
             vec![],
             vec![],
             Default::default(),

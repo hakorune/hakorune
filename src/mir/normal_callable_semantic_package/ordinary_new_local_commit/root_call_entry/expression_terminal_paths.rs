@@ -1,4 +1,5 @@
 //! Common Normal/Fault temporary cleanup correspondence for expression purposes.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallArgumentV1, LocalCallObservationV1, ArgumentCallObservationV1, CheckedArgumentExpressionFrameV1};
@@ -80,7 +81,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
     pub(in crate::mir) fn from_evaluation(
         frame: &'a CheckedExpressionEvaluationV1,
         call: &'a crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
-        acquired: &'a [(usize, ValueId)], values: &[Option<Operand>], function: &MirFunction,
+        acquired: &'a [(usize, ValueId)], values: &[Option<EvaluatedExpressionValueV1>], function: &MirFunction,
         parent: Option<&'a Self>,
     ) -> Result<Self, String> {
         validate_expression_acquisition_prefix_v1(frame, Some(call), acquired, values, function)?;
@@ -326,8 +327,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             context, function, finishing, &ordered, &homes, fault_frame, inherited,
         )?;
         if defer_owned_argument {
+            let original_root = self.values.first().and_then(Option::as_ref).map(|value| value.as_operand()).transpose()?;
             let root = purpose_acquisition.and_then(|pair| pair[1].1.dst_value())
-                .or_else(|| match self.values.first() { Some(Some(Operand::OwnedString(value))) => Some(*value), _ => None })
+                .or_else(|| match original_root { Some(Operand::OwnedString(value)) => Some(*value), _ => None })
                 .ok_or_else(|| freeze("argument-expression/deferred-root"))?;
             if residence.is_some() || (purpose_acquisition.is_none() && self.frame.owned_root_node_v1().is_none())
                 || live.last() != Some(&root)
@@ -344,8 +346,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 Some(_) => return Err(freeze("expression/residence-replacement-kind")),
                 None => None,
             };
+            let original_root = self.values.first().and_then(Option::as_ref).map(|value| value.as_operand().cloned()).transpose()?;
             let effective = purpose_acquisition.and_then(|pair| pair[1].1.dst_value())
-                .map(Operand::OwnedString).or_else(|| self.values.first().cloned().flatten());
+                .map(Operand::OwnedString).or(original_root);
             if replaces != expected_previous || effective != Some(Operand::OwnedString(value)) || live.pop() != Some(value) {
                 return Err(freeze("expression/residence-original-root"));
             }
@@ -587,11 +590,11 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         let mut values = self.values.to_vec();
         let mut projected = Vec::with_capacity(acquired.len());
         for &(node, value) in acquired {
-            if values.get(node) != Some(&Some(Operand::OwnedString(value))) { return Err(freeze("expression-call/acquisition-node-value")); }
+            if values.get(node) != Some(&Some(Operand::OwnedString(value).into())) { return Err(freeze("expression-call/acquisition-node-value")); }
             let original = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if *dst == value))?;
             let actual = boundary.binding(original.0, &original.1)?.ok_or_else(|| freeze("expression-call/acquisition-projection"))?;
             let MirInstruction::InvokeNormalResult { dst, .. } = actual.1 else { return Err(freeze("expression-call/acquisition-projection")) };
-            projected.push((node, dst)); values[node] = Some(Operand::OwnedString(dst));
+            projected.push((node, dst)); values[node] = Some(Operand::OwnedString(dst).into());
         }
         validate_expression_acquisition_scope_v1(self.frame, None, None, &projected, &values, function)
     }

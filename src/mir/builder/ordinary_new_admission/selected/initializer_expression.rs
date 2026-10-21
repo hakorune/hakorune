@@ -44,7 +44,7 @@ pub(in crate::mir::builder) struct PendingEvaluatedInitializerV1 {
 impl PendingEvaluatedInitializerV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 { self.ordinal }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
-        match self.expression.value { Operand::NormalInteger(value) | Operand::OwnedString(value) => value, _ => unreachable!("checked Local initializer value") }
+        match self.expression.value.as_operand().expect("checked Local initializer operand") { Operand::NormalInteger(value) | Operand::OwnedString(value) => *value, _ => unreachable!("checked Local initializer value") }
     }
     pub(in crate::mir::builder) fn placement(&self, value: ValueId) -> Result<crate::mir::builder::stmts::variable_stmt::LocalValuePlacement, String> {
         if value != self.value() { return Err(freeze("initializer-expression/placement-value")); }

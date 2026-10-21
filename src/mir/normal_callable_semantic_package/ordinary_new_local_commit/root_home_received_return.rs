@@ -1,4 +1,5 @@
 //! Original Received destination joins its existing producer and exact Return.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::super::physical_boundary::FinishedBindings;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::ObjectReturnAcquisitionV1;
@@ -268,7 +269,7 @@ impl OrdinaryNewClaimLedgerV1 {
 pub(super) struct TextReturnExpressionEmissionV1 {
     pub(super) source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     pub(super) value: ValueId,
-    values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+    values: Vec<Option<EvaluatedExpressionValueV1>>,
     calls: Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reads: std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1>,
@@ -314,7 +315,7 @@ impl RootHomeCleanupOrderV1 {
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn retain_text_return_expression_v1(&self,
         source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
-        value: ValueId, values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+        value: ValueId, values: Vec<Option<EvaluatedExpressionValueV1>>,
         calls: Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reads: std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1>,

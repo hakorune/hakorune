@@ -1,5 +1,6 @@
 //! Sole ordered expression descent, independent of the terminal consumer.
 //! Returns live acquisitions; the purpose wrapper owns cleanup and publication.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
@@ -13,7 +14,7 @@ type Binding = (BasicBlockId, MirInstruction);
 /// No independent binding group is published here. Every retained original
 /// receipt and live temporary moves to the checked terminal consumer together.
 pub(super) struct EmittedExpressionValueV1 {
-    pub(super) value: Operand,
+    pub(super) value: EvaluatedExpressionValueV1,
     pub(super) purpose_acquisition: Option<[Binding; 2]>,
     pub(super) body: EmittedExpressionBodyV1,
 }
@@ -21,7 +22,7 @@ pub(super) struct EmittedExpressionValueV1 {
 /// One evaluated source scope. A comparison borrows its inputs without
 /// inventing a root value or re-rooting the original source expression.
 pub(super) struct EmittedExpressionBodyV1 {
-    pub(super) values: Vec<Option<Operand>>,
+    pub(super) values: Vec<Option<EvaluatedExpressionValueV1>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
@@ -39,7 +40,7 @@ pub(super) fn emit(
     frame: &CheckedExpressionEvaluationV1,
     emit_call: &mut impl FnMut(
         &mut MirBuilder, &mut CallableSemanticLoweringState,
-        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
     emit_with_prefix(builder, state, ledger, frame, None, emit_call)
@@ -53,7 +54,7 @@ pub(super) fn emit_with_prefix(
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     emit_call: &mut impl FnMut(
         &mut MirBuilder, &mut CallableSemanticLoweringState,
-        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
     let body = emit_body_with_prefix(builder, state, ledger, frame, None, inherited, emit_call)?;
@@ -72,7 +73,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1,
     comparison: Option<usize>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     emit_call: &mut impl FnMut(&mut MirBuilder, &mut CallableSemanticLoweringState,
-        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>)
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>)
         -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionBodyV1, String> {
     let order = match comparison {
@@ -183,7 +184,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let entry = writer.emit_current(builder, MirInstruction::Jump { target: start, edge_args: None })?;
     bindings.push(entry.clone());
     builder.start_new_block(start)?;
-    let mut values: Vec<Option<Operand>> = vec![None; source.nodes().len()];
+    let mut values: Vec<Option<EvaluatedExpressionValueV1>> = vec![None; source.nodes().len()];
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
     let mut acquired = Vec::new();
     let mut calls = Vec::new();
@@ -226,11 +227,18 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 value
             };
             field_outputs[index] = Some(value);
-            if !frame.node_is_identity(index) { values[index] = Some(Operand::NormalInteger(value)); }
+            if !frame.node_is_identity(index) { values[index] = Some(Operand::NormalInteger(value).into()); }
             continue;
         }
         if let Some(tail) = source.transparent_tail_node_v1(index) {
             values[index] = Some(values[tail].clone().ok_or_else(|| freeze("print-expression/node-value"))?);
+            continue;
+        }
+        if let Node::Literal(Literal::Bool(literal)) = node.source() {
+            let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+            let value = crate::mir::builder::emission::constant::emit_bool(builder, *literal)?;
+            bindings.push((block, MirInstruction::Const { dst: value, value: crate::mir::ConstValue::Bool(*literal) }));
+            values[index] = Some(EvaluatedExpressionValueV1::Bool(value));
             continue;
         }
         let value = match node.source() {
@@ -290,7 +298,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
             Node::Binary(binary) => {
                 let operand = |site| source.nodes().iter().position(|node| node.site() == site)
-                    .and_then(|node| values[node].clone()).ok_or_else(|| freeze("print-expression/operand-missing"));
+                    .and_then(|node| values[node].as_ref()).ok_or_else(|| freeze("print-expression/operand-missing"))
+                    .and_then(|value| value.as_operand().cloned());
                 let left = operand(binary.lhs())?;
                 let right = operand(binary.rhs())?;
                 let operation = frame.operations().iter().find(|loan| loan.node() == index)
@@ -316,7 +325,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
             _ => return Err(freeze("print-expression/source-node")),
         };
-        values[index] = Some(value);
+        values[index] = Some(value.into());
     }
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
@@ -407,7 +416,7 @@ pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &
 /// transfer. Child temporaries remain inside this expression's cleanup scope.
 pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
-    let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
+    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
     let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
     if materialized != Some(root) && expression.body.acquired.last().is_none_or(|(_, value)| *value != root) {
         return Err(freeze("expression/residence-acquisition-order"));
@@ -420,7 +429,7 @@ pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression
 pub(super) fn finish_deferred_argument_continuation(
     builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
 ) -> Result<(Binding, Binding), String> {
-    let Operand::OwnedString(root) = expression.value else {
+    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else {
         return Err(freeze("argument-expression/deferred-root"));
     };
     let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
@@ -445,15 +454,15 @@ pub(super) fn materialize_text_root(
     builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, required: bool,
 ) -> Result<(), String> {
     if !required { return Ok(()); }
-    if !expression.value.is_text() || expression.purpose_acquisition.is_some() {
+    if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }
     let pending = pending_operations(&expression.body.acquired, &expression.body.homes);
     let (value, _, pair) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-        InvokeOperation::String(Operation::Materialize { value: expression.value.clone() }), expression.body.fault_frame,
+        InvokeOperation::String(Operation::Materialize { value: expression.value.as_operand()?.clone() }), expression.body.fault_frame,
         &pending, &mut expression.body.bindings)?;
     expression.purpose_acquisition = Some(pair);
-    expression.value = Operand::OwnedString(value);
+    expression.value = Operand::OwnedString(value).into();
     Ok(())
 }
 
@@ -462,7 +471,7 @@ pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(Binding, Binding), String> {
     if !frame.is_text_residence() { return finish_scalar_continuation(builder, expression); }
-    let Operand::OwnedString(root) = expression.value else { return Err(freeze("expression/residence-root")); };
+    let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
     if expression.purpose_acquisition.is_some() != frame.materializes_root()
         || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
     let displaced = ledger.text_rebind_displaced_end_v1(frame)?;
@@ -472,7 +481,8 @@ pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &
 fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
     residence: Option<ValueId>, displaced: Option<InvokeOperation>)
     -> Result<(Binding, Binding), String> {
-    if residence.is_none() && !matches!(expression.value, Operand::NormalInteger(_)) {
+    if residence.is_none() && !matches!(expression.value, EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_))
+        | EvaluatedExpressionValueV1::Bool(_)) {
         return Err(freeze("expression/scalar-continuation-result"));
     }
     finish_body_continuation(builder, &mut expression.body, residence, displaced, expression.purpose_acquisition.is_some())

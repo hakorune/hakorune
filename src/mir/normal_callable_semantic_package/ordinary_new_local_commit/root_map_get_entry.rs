@@ -3,6 +3,7 @@
 //! The MapGet entry retains the already-emitted checked read exactly like a
 //! Call ingress: the source relation owns the key and receiver class; this
 //! file only records and re-verifies physical coordinates.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -188,7 +189,7 @@ pub(crate) struct StoredMapGetReadEmissionV1 {
     source: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
     key: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     receiver: crate::mir::builder::ExactLexicalReadV1,
-    values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+    values: Vec<Option<EvaluatedExpressionValueV1>>,
     reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
     entry: (BasicBlockId, MirInstruction),
     terminal: (BasicBlockId, MirInstruction), continuation: (BasicBlockId, MirInstruction),
@@ -198,7 +199,7 @@ impl StoredMapGetReadEmissionV1 {
     pub(in crate::mir) fn issue(source: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
         key: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
         receiver: crate::mir::builder::ExactLexicalReadV1,
-        values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>,
         reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
         entry: (BasicBlockId, MirInstruction), terminal: (BasicBlockId, MirInstruction),
         continuation: (BasicBlockId, MirInstruction), original: Vec<(BasicBlockId, MirInstruction)>,
@@ -231,7 +232,7 @@ impl StoredMapGetReadEmissionV1 {
         }
         let base = self.source.receiver().require_receiver_at_v1(context, function, &self.receiver,
             self.source.receiver().receiver_site())?;
-        let key = self.values[0].clone().filter(|key| key.is_text()).ok_or_else(|| freeze("map-get-key-drift"))?;
+        let key = self.values[0].as_ref().map(|key| key.as_operand()).transpose()?.cloned().filter(|key| key.is_text()).ok_or_else(|| freeze("map-get-key-drift"))?;
         Ok(InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed {
             field: self.source.receiver().field(), base, key, object: self.source.storage().payload_object_v1(),
         }))

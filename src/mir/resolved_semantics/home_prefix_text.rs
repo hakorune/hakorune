@@ -114,6 +114,8 @@ impl PrefixLocalFlow<'_> {
         if self.can_rebind_integer_v1(binding, homes) { return Some(BindingRebindDestinationV1::Integer); }
         if binding.owner() != self.input.owner() { return None; }
         match self.locals.get(&binding)? {
+            StoredLocal::Trivial(Some(SourceScalarKind::Bool)) if !homes.iter().any(|home| home.binding() == binding) =>
+                Some(BindingRebindDestinationV1::Bool),
             StoredLocal::StaticText { definition } if !homes.iter().any(|home| home.binding() == binding) =>
                 Some(BindingRebindDestinationV1::TextStatic(definition.clone())),
             StoredLocal::Text { root, acquisition } if *root == binding && acquisition.binding() == binding

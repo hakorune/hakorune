@@ -1,8 +1,8 @@
 //! The existing Call emitter borrows its enclosing expression's live prefix.
 //! No additional source call, Home, or packet inventory is created here.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
-use crate::mir::instruction::StringInvokeOperand;
 use crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1, LocalCallObservationV1,
@@ -85,7 +85,7 @@ pub(in crate::mir::builder) fn emit(
     frame: &CheckedExpressionEvaluationV1,
     call: &LocalCallObservationV1,
     acquired: &[(usize, ValueId)],
-    values: &[Option<StringInvokeOperand>],
+    values: &[Option<EvaluatedExpressionValueV1>],
     bindings: &mut Vec<Binding>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
@@ -100,7 +100,7 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     frame: &CheckedExpressionEvaluationV1,
     call: &LocalCallObservationV1,
     acquired: &[(usize, ValueId)],
-    values: &[Option<StringInvokeOperand>],
+    values: &[Option<EvaluatedExpressionValueV1>],
     bindings: &mut Vec<Binding>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&StaticExpressionCallIssuerV1<'_>>,

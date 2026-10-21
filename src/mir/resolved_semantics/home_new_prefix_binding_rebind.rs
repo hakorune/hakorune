@@ -50,6 +50,12 @@ pub(super) fn observe<E>(
         homes.retain(|home| home.binding() != *target);
         homes.push(LiveHomeV1::Text(frame.text_acquisition_v1()));
         locals.install_text_rebind(Rc::clone(frame));
-    } else { locals.install_i64_call_result(*target); }
+    } else {
+        let kind = if frame.evaluation().root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) {
+            SourceScalarKind::Bool
+        } else { SourceScalarKind::Integer };
+        locals.install_scalar_call_result(*target, kind);
+    }
     Ok(true)
 }

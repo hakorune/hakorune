@@ -15,11 +15,30 @@ pub(in crate::mir) use reference_read::{BranchScalarPhiObservationV1, Expression
 mod terminal_paths;
 pub(in crate::mir) use terminal_paths::{ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1};
 
+/// Internal evaluation values keep Bool separate from String/I64 operands.
+/// Conversion borrows an existing domain; it never casts or stringifies Bool.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum EvaluatedExpressionValueV1 {
+    Operand(Operand),
+    Bool(ValueId),
+}
+impl From<Operand> for EvaluatedExpressionValueV1 {
+    fn from(value: Operand) -> Self { Self::Operand(value) }
+}
+impl EvaluatedExpressionValueV1 {
+    pub(in crate::mir) fn as_operand(&self) -> Result<&Operand, String> {
+        match self { Self::Operand(value) => Ok(value), Self::Bool(_) => Err(freeze("expression/scalar-continuation-result")) }
+    }
+    pub(in crate::mir) fn value(&self) -> Option<ValueId> {
+        match self { Self::Operand(value) => value.value(), Self::Bool(value) => Some(*value) }
+    }
+}
+
 /// A view of the purpose's original observations, never a second packet pool.
 /// Successful correspondence grants no terminal, residence or cleanup rights.
 pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     frame: &'a CheckedExpressionEvaluationV1,
-    values: &'a [Option<Operand>],
+    values: &'a [Option<EvaluatedExpressionValueV1>],
     calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
     path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
     reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
@@ -33,7 +52,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     ) -> Result<(), String> { normal_order(function, ordered) }
     pub(in crate::mir) fn new(
         frame: &'a CheckedExpressionEvaluationV1,
-        values: &'a [Option<Operand>],
+        values: &'a [Option<EvaluatedExpressionValueV1>],
         calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
         path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
         reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
@@ -51,10 +70,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_effective_root_v1(
         &self, value: ValueId, text: bool, materializes: bool, acquisition: Option<&[Binding; 2]>,
     ) -> Result<(), String> {
-        let expected = if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) };
+        let expected = if self.frame.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) {
+            EvaluatedExpressionValueV1::Bool(value)
+        } else { (if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) }).into() };
         match acquisition {
             Some([invoke, normal]) if materializes && text => {
                 let Some(Some(input)) = self.values.first() else { return Err(freeze("rebind-expression/materialize-input")) };
+                let input = input.as_operand()?;
                 if !input.is_text() || !matches!(&invoke.1, MirInstruction::Invoke {
                     operation: InvokeOperation::String(Operation::Materialize { value }), normal_landing, .. }
                         if value == input && *normal_landing == normal.0)
@@ -166,7 +189,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Operand::NormalInteger(value),
                 _ => return Err(freeze("print-expression/call-value")),
             };
-            if self.values[index] != Some(expected) {
+            if self.values[index] != Some(expected.into()) {
                 return Err(freeze("print-expression/call-value"));
             }
         }
@@ -176,7 +199,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .iter()
                 .position(|node| node.site() == site)
                 .and_then(|index| self.values[index].as_ref())
-                .cloned()
+                .map(|value| value.as_operand().cloned()).transpose()?
                 .ok_or_else(|| freeze("print-expression/operand-missing"))
         };
         for &index in self.frame.ordered_nodes().iter().filter(|node| self.node_selected(**node)) {
@@ -194,6 +217,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
                 continue;
             }
+            if let (Node::Literal(Literal::Bool(expected)), Some(EvaluatedExpressionValueV1::Bool(dst))) = (node.source(), value) {
+                self.require_unique(|row| matches!(row, MirInstruction::Const { dst: actual, value: crate::mir::ConstValue::Bool(value) }
+                    if actual == dst && value == expected))?;
+                continue;
+            }
+            let value = value.map(|value| value.as_operand()).transpose()?;
             match (node.source(), value) {
                 (Node::Literal(Literal::String(text)), Some(Operand::StaticText { utf8 }))
                     if utf8.as_str() == text.as_ref() => {}
@@ -368,7 +397,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 continue;
             }
             if self.frame.cores().contains_key(&index) {
-                let value = self.values[index].as_ref().and_then(Operand::value)
+                let value = self.values[index].as_ref().and_then(EvaluatedExpressionValueV1::value)
                     .ok_or_else(|| freeze("expression-core/result-missing"))?;
                 let result = self.require_unique(|row| row.dst_value() == Some(value))?;
                 let MirInstruction::InvokeNormalResult { invoke_block, .. } = result.1 else { return Err(freeze("expression-core/projection")); };
@@ -387,7 +416,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     source.owner(), call.arguments(), context)?);
                 continue;
             }
-            match self.values[index].as_ref() {
+            if let Some(EvaluatedExpressionValueV1::Bool(value)) = self.values[index].as_ref() {
+                ordered.push(self.require_unique(|row| row.dst_value() == Some(*value))?.clone());
+                continue;
+            }
+            match self.values[index].as_ref().map(|value| value.as_operand()).transpose()? {
                 Some(Operand::NormalInteger(value)) => {
                     if matches!(source.nodes()[index].source(), Node::Shape(
                         crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
@@ -671,7 +704,7 @@ pub(super) fn normal_order(function: &MirFunction, ordered: &[Binding]) -> Resul
 /// and both independent source consumers. It does not issue source permission.
 pub(crate) fn checked_expression_core_operation_v1(
     core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
-    values: &[Option<Operand>],
+    values: &[Option<EvaluatedExpressionValueV1>],
 ) -> Result<Operation, String> {
     use crate::mir::core_method_op::CoreMethodOp as Core;
     let source = core.plan();
@@ -680,7 +713,8 @@ pub(crate) fn checked_expression_core_operation_v1(
     }
     let original = core.source().source();
     let operand = |site| source.nodes().iter().position(|node| node.site() == site)
-        .and_then(|node| values[node].clone()).ok_or_else(|| freeze("expression-core/operand-missing"));
+        .and_then(|node| values[node].as_ref()).map(|value| value.as_operand().cloned()).transpose()?
+        .ok_or_else(|| freeze("expression-core/operand-missing"));
     let receiver = operand(original.receiver_site())?;
     let arguments = original.arguments().iter().map(|arg| operand(arg.site())).collect::<Result<Vec<_>, _>>()?;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
@@ -700,7 +734,7 @@ pub(crate) fn checked_expression_core_operation_v1(
 /// acquisitions preceding that SAME source observation in original postorder.
 pub(in crate::mir) fn validate_expression_acquisition_prefix_v1(
     frame: &CheckedExpressionEvaluationV1, before: Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1>,
-    acquired: &[(usize, ValueId)], values: &[Option<Operand>], function: &MirFunction,
+    acquired: &[(usize, ValueId)], values: &[Option<EvaluatedExpressionValueV1>], function: &MirFunction,
 ) -> Result<(), String> {
     validate_expression_acquisition_scope_v1(frame, None, before, acquired, values, function)
 }
@@ -708,7 +742,7 @@ pub(in crate::mir) fn validate_expression_acquisition_prefix_v1(
 pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
     frame: &CheckedExpressionEvaluationV1, comparison: Option<usize>,
     before: Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1>,
-    acquired: &[(usize, ValueId)], values: &[Option<Operand>], function: &MirFunction,
+    acquired: &[(usize, ValueId)], values: &[Option<EvaluatedExpressionValueV1>], function: &MirFunction,
 ) -> Result<(), String> {
     if values.len() != frame.source().nodes().len() {
         return Err(freeze("expression-call/value-coverage"));
@@ -730,7 +764,7 @@ pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
     }
     let mut seen_values = std::collections::BTreeSet::new();
     for (node, value) in acquired {
-        if values.get(*node) != Some(&Some(Operand::OwnedString(*value))) {
+        if values.get(*node) != Some(&Some(Operand::OwnedString(*value).into())) {
             return Err(freeze("expression-call/acquisition-node-value"));
         }
         if !seen_values.insert(*value) || function.params.contains(value) {

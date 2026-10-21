@@ -31,13 +31,13 @@ pub(super) fn materialize_arguments(
                 &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_prefix(
                     builder, state, ledger, evaluation, call, acquired, values, bindings,
                     consume_receiver, static_source, Some(&inherited)))?;
-            if !expression.value.is_text() || expression.purpose_acquisition.is_some() {
+            if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some() {
                 return Err(freeze("argument-source-unavailable"));
             }
             let (terminal, continuation) = if expression.body.acquired.is_empty() {
                 expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
             } else { expression_value::finish_deferred_argument_continuation(builder, &mut expression)? };
-            let payload = BirthArgumentV1::Text(expression.value);
+            let payload = BirthArgumentV1::Text(expression.value.as_operand()?.clone());
             let body = expression.body;
             let packet = Rc::new(EmittedNewExpressionV1::new(Rc::clone(evaluation), body.values, body.calls,
                 body.path_reads.into_values().collect(), body.reference_reads, body.acquired,
@@ -478,7 +478,7 @@ mod tests {
                         return Ok(());
                     }
                     let mut emitted = result.unwrap();
-                    assert!(matches!(emitted.value, Operand::OwnedString(_)));
+                    assert!(matches!(emitted.value.as_operand().unwrap(), Operand::OwnedString(_)));
                     assert_eq!(emitted.body.acquired.len(), frame.evaluation().owned_result_nodes().len(), "all substring acquisitions survive; scalar Core readers acquire none");
                     let function = builder.function_state.current_function.as_ref().unwrap();
                     for mutation in 0..5 {
@@ -495,7 +495,7 @@ mod tests {
                                 let Some(MirInstruction::Invoke { operation, .. }) = &mut changed.blocks.get_mut(&invoke).unwrap().terminator else { unreachable!() };
                                 *operation = InvokeOperation::String(Operation::Length { value: Operand::StaticText { utf8: "wrong-kind".into() } });
                             }
-                            4 => values[acquired[0].0] = Some(Operand::NormalInteger(acquired[0].1)),
+                            4 => values[acquired[0].0] = Some(Operand::NormalInteger(acquired[0].1).into()),
                             _ => unreachable!(),
                         }
                         assert!(crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame.evaluation(), None, &acquired, &values, &changed).is_err(),

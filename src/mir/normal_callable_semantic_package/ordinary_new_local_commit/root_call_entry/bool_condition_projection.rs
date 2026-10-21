@@ -1,6 +1,7 @@
 //! One original Bool condition and its real source-ordered physical producers.
 //! A fixed prefix may be lent during branch descent; final users require the
 //! same affine outer-Branch seal. No semantic permission is inferred from CFG.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::builder::{IfConditionMaterializationV1, ConditionMaterializationV1, ExactLexicalReadV1, LocalSsaPhysicalRelationV1};
@@ -33,7 +34,7 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     Call { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
     Binary { append: Binding, operands: [Rc<LocalSsaPhysicalRelationV1>; 2] },
     ScalarInvocation { receiver: Option<ExactLexicalReadV1>,
-        input_values: Box<[Option<crate::mir::instruction::StringInvokeOperand>]>,
+        input_values: Box<[Option<EvaluatedExpressionValueV1>]>,
         input_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, bindings: Box<[Binding]> },
     Logical { completed: CompletedLogicalShortCircuitV1, conditions: [Rc<LocalSsaPhysicalRelationV1>; 2] },
@@ -435,7 +436,7 @@ impl OrdinaryNewClaimLedgerV1 {
 /// Central terminal operation projection shared by the Bool writer and both
 /// final source consumers. Bool results never enter an Integer/Text operand.
 pub(crate) fn checked_scalar_invoke_operation_v1(
-    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1, node: usize, values: &[Option<crate::mir::instruction::StringInvokeOperand>],
+    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1, node: usize, values: &[Option<EvaluatedExpressionValueV1>],
     receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
 ) -> Result<InvokeOperation, String> {
     use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
@@ -449,14 +450,14 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
             .map_err(|error| error.to_string())?;
         let [argument] = core.source().source().arguments() else { return Err(freeze("expression-core/operand-domain")) };
         let key = frame.source().nodes().iter().position(|row| row.site() == argument.site())
-            .and_then(|node| values[node].clone()).filter(Operand::is_text)
+            .and_then(|node| values[node].as_ref()).map(|value| value.as_operand()).transpose()?.cloned().filter(Operand::is_text)
             .ok_or_else(|| freeze("expression-core/operand-domain"))?;
         return Ok(InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { field: field.field(), base, key }));
     }
     if receiver.is_some() { return Err(freeze("expression-core/source-identity")); }
     let binary = frame.source().nodes()[node].binary().ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
     let operand = |site| frame.source().nodes().iter().position(|row| row.site() == site)
-        .and_then(|node| values[node].clone()).filter(Operand::is_text)
+        .and_then(|node| values[node].as_ref()).map(|value| value.as_operand()).transpose()?.cloned().filter(Operand::is_text)
         .ok_or_else(|| freeze("bool-condition/text-operand-order"));
     use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
     let op = match binary.operator() {

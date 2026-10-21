@@ -1,4 +1,5 @@
 //! Source selection for the same Local initializer physical consumer.
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 use std::rc::Rc;
 use crate::mir::instruction::StringInvokeOperand as Operand;
@@ -30,7 +31,7 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     local: ValueId,
     copy: Option<Binding>,
     install: Option<Binding>,
-    values: Box<[Option<Operand>]>,
+    values: Box<[Option<EvaluatedExpressionValueV1>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
     path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
@@ -64,7 +65,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn receipt_copy_binding_v1(&self) -> Option<&Binding> { self.copy.as_ref() }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedInitializerExpressionFrameV1>, value: ValueId, local: ValueId, copy: Option<Binding>,
-        values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+        values: Vec<Option<EvaluatedExpressionValueV1>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
@@ -92,7 +93,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         let expected = if self.frame.is_i64() { Operand::NormalInteger(self.value) }
             else if self.has_text_home() { Operand::OwnedString(self.value) }
             else { return Err(freeze("initializer-expression/source-or-result")); };
-        if !Rc::ptr_eq(&selected, &self.frame) || self.values.first() != Some(&Some(expected))
+        if !Rc::ptr_eq(&selected, &self.frame) || self.values.first() != Some(&Some(expected.into()))
             || !matches!(self.terminal.1, MirInstruction::Jump { edge_args: None, .. })
             || !matches!(self.continuation.1, MirInstruction::Jump { edge_args: None, .. }) {
             return Err(freeze("initializer-expression/source-or-result"));

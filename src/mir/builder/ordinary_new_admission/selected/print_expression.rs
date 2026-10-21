@@ -40,7 +40,7 @@ pub(in crate::mir::builder) fn emit(
     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
         &normal, &fault, &after, &(0..fault.len()).collect::<Vec<_>>(), &mut bindings)?;
     let print = writer.emit_current(builder, MirInstruction::Invoke {
-        operation: InvokeOperation::String(Operation::Print { value }), fault_frame,
+        operation: InvokeOperation::String(Operation::Print { value: value.as_operand()?.clone() }), fault_frame,
         normal_landing: graph.clean, fault_landing: graph.acquisition_fault,
     })?;
     bindings.push(print.clone());
