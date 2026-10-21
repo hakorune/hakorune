@@ -28,6 +28,9 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     scalar_receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>,
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_normal_order_v1(
+        function: &MirFunction, ordered: &[Binding],
+    ) -> Result<(), String> { normal_order(function, ordered) }
     pub(in crate::mir) fn new(
         frame: &'a CheckedExpressionEvaluationV1,
         values: &'a [Option<Operand>],

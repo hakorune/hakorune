@@ -406,18 +406,23 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
     ) -> Result<crate::mir::ValueId, String> {
         self.check_new_emission_scope(claim.site())?;
-        crate::mir::builder::ordinary_new_admission::selected::emit(
-            builder,
-            &mut self
-                .callable_ledger
-                .as_ref()
-                .expect("checked state")
-                .borrow_mut(),
-            self.ordinary_new_claim_ledger
-                .as_ref()
-                .expect("checked ledger"),
-            claim,
-        )
+        let ledger = self.ordinary_new_claim_ledger.as_ref().expect("checked ledger").clone();
+        let state = self.callable_ledger.as_ref().expect("checked state").clone();
+        let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+        let port = std::cell::RefCell::new(self);
+        let issue_static = |builder: &mut crate::mir::MirBuilder, original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>| {
+            use crate::mir::builder::static_result_publication_ingress::{take_terminal_static_publication_v1, StaticResultPublicationIngressV1};
+            let publication = take_terminal_static_publication_v1(&mut port.borrow_mut(),
+                builder.comp_ctx.callable_declaration_catalog().ok(), original.caller(), original.call_site().site(), original.target())
+                .map_err(|error| error.to_string())?;
+            let StaticResultPublicationIngressV1::Selected(publication) = publication else {
+                return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".to_owned());
+            };
+            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(std::rc::Rc::clone(original), publication, &ledger)
+        };
+        let result = crate::mir::builder::ordinary_new_admission::selected::emit(
+            builder, &mut state.borrow_mut(), &ledger, claim, &consume, Some(&issue_static));
+        result
     }
 
     fn try_take_result_new_claim(
@@ -470,18 +475,23 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     ) -> Result<crate::mir::ValueId, String> {
         self.check_new_emission_scope(claim.site())?;
-        crate::mir::builder::ordinary_new_admission::selected::emit_result(
-            builder,
-            &mut self
-                .callable_ledger
-                .as_ref()
-                .expect("checked state")
-                .borrow_mut(),
-            self.ordinary_new_claim_ledger
-                .as_ref()
-                .expect("checked ledger"),
-            claim,
-        )
+        let ledger = self.ordinary_new_claim_ledger.as_ref().expect("checked ledger").clone();
+        let state = self.callable_ledger.as_ref().expect("checked state").clone();
+        let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+        let port = std::cell::RefCell::new(self);
+        let issue_static = |builder: &mut crate::mir::MirBuilder, original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>| {
+            use crate::mir::builder::static_result_publication_ingress::{take_terminal_static_publication_v1, StaticResultPublicationIngressV1};
+            let publication = take_terminal_static_publication_v1(&mut port.borrow_mut(),
+                builder.comp_ctx.callable_declaration_catalog().ok(), original.caller(), original.call_site().site(), original.target())
+                .map_err(|error| error.to_string())?;
+            let StaticResultPublicationIngressV1::Selected(publication) = publication else {
+                return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".to_owned());
+            };
+            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(std::rc::Rc::clone(original), publication, &ledger)
+        };
+        let result = crate::mir::builder::ordinary_new_admission::selected::emit_result(
+            builder, &mut state.borrow_mut(), &ledger, claim, &consume, Some(&issue_static));
+        result
     }
 
     fn prepare_owned_array_construction(

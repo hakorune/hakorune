@@ -184,7 +184,7 @@ impl FinalizedRootSourceHandoffV1 {
             self.ledger.with_finished_projection(row.owner(), |symbol, projection| {
                 if symbol != function.signature.name { return Ok(()); }
                 self.ledger.validate_ordinary_new_row_emission_projected(row.owner(), site,
-                    row, function, Some(projection))?;
+                    row, function, Some(projection), CallValidationContextV1::Finalized(self))?;
                 lend_conditional_end_bindings(&mut result, function, projection,
                     bindings, Some(projection))
             })?;

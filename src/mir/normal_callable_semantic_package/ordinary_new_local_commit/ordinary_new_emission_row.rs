@@ -8,6 +8,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, owner: FunctionOwnerIdV1, site: &OwnedExprSiteV1, row: &LocalCommitV1,
         function: &MirFunction,
         projection: Option<&super::super::physical_boundary::FinishedBindings>,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let (row_object, row_birth_target, row_construction, row_argument_rows) = match row {
             LocalCommitV1::Ordinary(row) => (
@@ -36,6 +37,7 @@ impl OrdinaryNewClaimLedgerV1 {
             NewEmissionProgress::Emitted {
                 result,
                 arguments,
+                argument_cleanup,
                 reclaim,
                 bindings,
                 ..
@@ -93,7 +95,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 for (index, emitted) in arguments.iter().enumerate() {
                     let source = &emitted.source;
-                    if source.owner() != owner
+                    if source != &source_arguments[index] || source.owner() != owner
                         || source.new_site() != site
                         || source.ordinal()
                             != u32::try_from(index)
@@ -102,8 +104,18 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("argument-source-drift"));
                     }
                     emitted.validate_field_array_read(function, projection)?;
-                    self.validate_argument_definition(function, source, emitted.value_only_v1()?)?;
+                    if let Some(expression) = emitted.expression_v1() {
+                        let inherited = crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(
+                            source, &arguments[..index], source_arguments)?;
+                        expression.validate_v1(source, emitted.payload(),
+                            context, function, projection, Some(&inherited))?;
+                    } else { self.validate_argument_definition(function, source, emitted.value_only_v1()?)?; }
                 }
+                let cleanup_covered = match argument_cleanup {
+                    Some(cleanup) => cleanup.validate_v1(context, site, *result, arguments, function, projection)?,
+                    None if arguments.iter().all(|argument| argument.expression_v1().is_none()) => std::collections::BTreeSet::new(),
+                    None => return Err(freeze("argument-source-unavailable")),
+                };
                 let allocation = match row {
                     LocalCommitV1::Ordinary(row) => {
                         if row.allocation_execution.as_ref().is_some_and(|lease| !lease.matches_source(&row.construction_source)) {
@@ -188,7 +200,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
                         // These selected New bindings may reclaim storage,
                         // but never repeat Birth's field-residence discharge.
-                        if bindings.iter().any(|(_, instruction)| matches!(instruction,
+                        if bindings.iter().any(|(block, instruction)| !cleanup_covered.contains(&projection.and_then(|boundary| boundary.destination(*block)).unwrap_or(*block)) && matches!(instruction,
                             MirInstruction::Invoke {
                                 operation: crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease { base, .. }
                                     | crate::mir::instruction::InvokeOperation::OwnedObjectFieldRelease { base, .. },

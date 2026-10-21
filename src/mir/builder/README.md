@@ -542,25 +542,31 @@ compatibility route, but they cannot consume or manufacture a source claim.
 Package completion rejects any unconsumed ordinary claim, so source-backed
 admission has no retry or post-lowering target inference.
 
-For the selected direct-`New` scalar profile, the already-issued ordered
-integer/bool/trivial-local/handle/bound-value rows are the only argument
-authority. A local bound to an inventoried call carries `BoundValue`
-provenance — the exact call inventories authorize the binding, not any
-expression re-classification — and the row materializes through the same
-exact-binding lane as Local/Handle. The selected emitter consumes and
-materializes those rows without raw argument descent, then records the
-non-semantic `(source row, typed Birth actual)` snapshot in the existing
-claim. The root finalizer checks that snapshot against literal
-definitions and the exact target/receiver/ordered actuals of `InvokeOperation::Birth`.
-Checked Birth is Unit-only and owns one `Value`/`Text` argument array; ordinary
-`Call` with a Birth callee is rejected. Text actuals remain closed until their
-retained source and lifetime checks are connected. Scalar/object and field-read
-consumers explicitly require `Value`; a Text descriptor with the same SSA
-dependency cannot inherit that admission. The finalizer rejects residual
-rows or physical value/order/Birth drift; it does not reclassify source expressions. The selected physical consumer admits Integer/Bool actuals
-for its retained formal contract; Local/Handle/BoundValue actuals still
-stop. Source argument retention alone does not authorize a physical
-representation.
+For selected direct `New`, the original ordered argument rows remain the only
+argument authority. Scalar Local/Handle/BoundValue retains its exact binding
+lane. Expression actuals use the SAME original New/site/ordinal/evaluation and
+the shared expression writer. Static bytes, borrowed Text and computed owned
+Text stay distinct typed Birth actuals; there is no caller Materialize solely
+to invent an SSA argument.
+The same argument row retains all original operands, Calls, reads, acquisitions,
+entry/continuation and bindings. Each later argument borrows the complete earlier
+stack. NewBox/Birth Fault ends that stack newest-first before prior Homes;
+Birth Fault first reclaims only unpublished storage. After Birth Normal, argument
+temporaries end before Local/Return publication. Their End Fault performs the
+candidate's complete End, then remaining temporaries and Normal-side Homes.
+LOCAL's Normal snapshot comes from the same source argument moves before adding
+the destination, so a Provided Home is not ended twice.
+Retained replay checks original evaluations, all argument/allocation/Birth Normal
+ordering, duplicate acquisitions, both cleanup phases and finishing relations.
+The finalized consumer uses its moved packet context. Scalar/object/Array readers
+still require `Value`; a Text descriptor with the same SSA dependency inherits
+no scalar admission. The old parallel actual/read arrays and value-only recording
+adapter are retired from production. Checked Birth remains Unit-only with one
+ordered Value/Text array. Callee Text Materialize/first-write/cleanup and final
+Text ABI/JSON permission remain closed until their source-backed replay is
+connected; source-scoped New emission alone does not grant them. The original
+final call-tree visitor still needs to enumerate nested New-argument Calls from
+this same row, including whole-row preflight for zero-Call String expressions.
 
 ### RawCompatibility child terminal I1 (2026-08-27)
 

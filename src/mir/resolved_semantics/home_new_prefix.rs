@@ -104,11 +104,13 @@ pub(crate) enum HomePrefixUnavailableV1 {
 pub(crate) struct CallerNewHomePrefixV1 {
     destination: BindingRefV1,
     prior_homes: Box<[LiveHomeV1]>,
+    normal_homes: Box<[LiveHomeV1]>,
     outward_fault: NewFaultContinuationV1,
     covered_statements: Box<[SourceStmtSiteV1]>,
 }
 
 impl CallerNewHomePrefixV1 {
+    pub(crate) fn normal_homes(&self) -> &[LiveHomeV1] { &self.normal_homes }
     pub(crate) fn destination(&self) -> BindingRefV1 {
         self.destination
     }

@@ -92,7 +92,7 @@ impl FinalizedRootSourceHandoffV1 {
                     if new.binding != local.root() || new.object != local.field().object()
                         || new.allocation_execution.as_ref().is_none_or(|lease| !std::rc::Rc::ptr_eq(lease.source(), local.construction()))
                     { return Err(freeze("owned-write/new-source")); }
-                    self.ledger.validate_ordinary_new_row_emission_projected(owner, local.acquisition(), row, function, Some(projection))?;
+                    self.ledger.validate_ordinary_new_row_emission_projected(owner, local.acquisition(), row, function, Some(projection), CallValidationContextV1::Finalized(self))?;
                     let NewEmissionProgress::Emitted { result, bindings: new_bindings,
                         progress: EmittedLocalProgress::Checked { local: installed }, .. } = &new.emission
                         else { return Err(freeze("owned-write/new-unconsumed")); };

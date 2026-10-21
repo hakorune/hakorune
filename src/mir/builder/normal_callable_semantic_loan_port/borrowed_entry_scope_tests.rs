@@ -213,46 +213,52 @@ fn selected_scope_adopts_existing_borrowed_formal_value() {
     let source = format!("{}\n{}",
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/src/shared/common/string_helpers.hako")),
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/json-stream-aggregator/main.hako")));
-    let (context, installed) = installed_source(&source, PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
-    let ledger = installed.ordinary_new_claim_ledger();
-    let mut selected = installed.begin_lowering(&context).unwrap();
-    let arrays = selected.named_array_emission_collector();
-    let owned = selected.owned_array_lifecycle_source_v1();
-    let key = SelectedNormalCallableKeyV1::Cataloged(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
-        "JsonStreamAggregator", "statsFor", 1));
-    let mut builder = MirBuilder::new();
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut builder, ModuleDraftCollectorV1::default());
-    let cores = selected.take_source_core_method_calls(&key);
-    let result = selected.with_selected_lowering_input(&key, |input| {
-        let SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key() else { panic!("selected Instance") };
-        let lineage = RawInvocationRootLineageV1::Cataloged(key.clone());
-        let symbol = key.mir_symbol_projection();
-        let class = key.owner().to_owned();
-        let crate::ast::ASTNode::FunctionDeclaration { params, param_decls, return_type_name, body, uses, attrs, .. } = input.source().source().root()
-            else { panic!("original Instance declaration") };
-        let args = (params.clone(), param_decls.clone(), return_type_name.clone(), body.clone(), uses.clone(), attrs.clone());
-        invocation.with_module_port(|builder, port| {
-            let mut inner = RawInvocationChildPortV1::new(port);
-            with_selected_source_scope(&mut inner, lineage,
-                input, cores, arrays, Rc::clone(&ledger), Some(owned), None, |inner, transport|
-                inner.with_source_transport_v1(transport, |inner, ()|
-                    builder.build_instance_method_draft_with_port_v1(inner, symbol, class,
-                        args.0, args.1, args.2, args.3, args.4, args.5).map(|_| ())))
-        })
-    }).unwrap();
-    drop(invocation);
-    let function = builder.function_state.current_function.as_ref().expect("actual Instance draft retained");
-    let gets = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
-        matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Map(
-            crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }), .. })).count();
-    assert_eq!(gets, 1, "original get producer before the next incomplete boundary: {result:?}");
-    let appends = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
-        matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
-            value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. }, .. })).count();
-    assert_eq!(appends, 1, "original Text argument must reach the shared append writer: {result:?}");
-    assert_eq!(ledger.emitted_root_exit_count_for_test(), 2,
-        "original get and installed Return must both record: {result:?}");
-    result.expect("source-scoped draft completion is separate from final Map Call/Return publication");
+    // The second source keeps the same app protocol and independently checks
+    // computed Text's argument lifetime; the unchanged source remains mandatory.
+    let computed = source.replace("new UserStats(user)", "new UserStats(user + \"\")");
+    assert_ne!(computed, source);
+    for source in [&source, &computed] {
+        let (context, installed) = installed_source(&source, PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+        let ledger = installed.ordinary_new_claim_ledger();
+        let mut selected = installed.begin_lowering(&context).unwrap();
+        let arrays = selected.named_array_emission_collector();
+        let owned = selected.owned_array_lifecycle_source_v1();
+        let key = SelectedNormalCallableKeyV1::Cataloged(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "JsonStreamAggregator", "statsFor", 1));
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut builder, ModuleDraftCollectorV1::default());
+        let cores = selected.take_source_core_method_calls(&key);
+        let result = selected.with_selected_lowering_input(&key, |input| {
+            let SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key() else { panic!("selected Instance") };
+            let lineage = RawInvocationRootLineageV1::Cataloged(key.clone());
+            let symbol = key.mir_symbol_projection();
+            let class = key.owner().to_owned();
+            let crate::ast::ASTNode::FunctionDeclaration { params, param_decls, return_type_name, body, uses, attrs, .. } = input.source().source().root()
+                else { panic!("original Instance declaration") };
+            let args = (params.clone(), param_decls.clone(), return_type_name.clone(), body.clone(), uses.clone(), attrs.clone());
+            invocation.with_module_port(|builder, port| {
+                let mut inner = RawInvocationChildPortV1::new(port);
+                with_selected_source_scope(&mut inner, lineage,
+                    input, cores, arrays, Rc::clone(&ledger), Some(owned), None, |inner, transport|
+                    inner.with_source_transport_v1(transport, |inner, ()|
+                        builder.build_instance_method_draft_with_port_v1(inner, symbol, class,
+                            args.0, args.1, args.2, args.3, args.4, args.5).map(|_| ())))
+            })
+        }).unwrap();
+        drop(invocation);
+        let function = builder.function_state.current_function.as_ref().expect("actual Instance draft retained");
+        let gets = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
+            matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Map(
+                crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }), .. })).count();
+        assert_eq!(gets, 1, "original get producer before the next incomplete boundary: {result:?}");
+        let appends = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|row|
+            matches!(row, crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+                value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. }, .. })).count();
+        assert_eq!(appends, 1, "original Text argument must reach the shared append writer: {result:?}");
+        assert_eq!(ledger.emitted_root_exit_count_for_test(), 2,
+            "original get and installed Return must both record: {result:?}");
+        result.expect("source-scoped draft completion is separate from final Map Call/Return publication");
+    }
 }
 
 #[test]

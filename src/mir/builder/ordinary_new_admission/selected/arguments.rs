@@ -2,7 +2,10 @@
 //! the sole argument-value owner inside the selected `new` admission: it
 //! validates the row/source relation, then emits the physical operand for
 //! each kind — never a second issuer of argument meaning.
-use super::freeze;
+use super::{freeze, expression_value, terminal_call};
+use std::rc::Rc;
+use crate::mir::instruction::BirthArgumentV1;
+use crate::mir::normal_callable_semantic_package::{EmittedNewArgumentV1, EmittedNewExpressionV1, ExpressionCallTransientPrefixV1};
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
@@ -16,10 +19,35 @@ pub(super) fn materialize_arguments(
     site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     arity: usize,
     rows: &[OrdinaryNewTrivialArgumentV1],
-) -> Result<Vec<crate::mir::instruction::BirthArgumentV1>, String> {
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
+) -> Result<Vec<EmittedNewArgumentV1>, String> {
     validate_argument_rows_v1(site.owner(), site, arity, rows)?;
-    rows.iter()
-        .map(|row| { let value = match row.kind() {
+    let mut arguments = Vec::with_capacity(rows.len());
+    for row in rows {
+        if let OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = row.kind() {
+            let inherited = ExpressionCallTransientPrefixV1::for_prepared_new_argument_v1(row, &arguments, rows)?;
+            let mut expression = expression_value::emit_with_prefix(builder, state, ledger, evaluation, Some(&inherited),
+                &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_prefix(
+                    builder, state, ledger, evaluation, call, acquired, values, bindings,
+                    consume_receiver, static_source, Some(&inherited)))?;
+            if !expression.value.is_text() || expression.purpose_acquisition.is_some() {
+                return Err(freeze("argument-source-unavailable"));
+            }
+            let (terminal, continuation) = if expression.body.acquired.is_empty() {
+                expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
+            } else { expression_value::finish_deferred_argument_continuation(builder, &mut expression)? };
+            let payload = BirthArgumentV1::Text(expression.value);
+            let body = expression.body;
+            let packet = Rc::new(EmittedNewExpressionV1::new(Rc::clone(evaluation), body.values, body.calls,
+                body.path_reads.into_values().collect(), body.reference_reads, body.acquired,
+                body.entry, terminal, continuation, body.bindings));
+            packet.validate_emitted_v1(row, &payload, ledger,
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, Some(&inherited))?;
+            arguments.push(EmittedNewArgumentV1::new_v1(row.clone(), payload, None, Some(packet)));
+            continue;
+        }
+        let value = match row.kind() {
             OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
                 crate::mir::builder::emission::constant::emit_integer(builder, *value)
             }
@@ -86,8 +114,14 @@ pub(super) fn materialize_arguments(
                 ledger.record_argument_field_read(&read_site, block, dst, base, field)?;
                 Ok(dst)
             }
-        }; value.map(crate::mir::instruction::BirthArgumentV1::Value) })
-        .collect()
+        }?;
+        let read = row.field_array_read().map(|source| {
+            state.field_array_read_argument_v1(source,
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, value)
+        }).transpose()?;
+        arguments.push(EmittedNewArgumentV1::new_v1(row.clone(), BirthArgumentV1::Value(value), read, None));
+    }
+    Ok(arguments)
 }
 
 fn validate_argument_rows_v1(
@@ -530,4 +564,43 @@ mod tests {
             ).unwrap();
         }
     }
+}
+
+/// Every actual is a synchronous loan through Birth. Computed Text stays owned
+/// by its argument packet; only the field's independent materialization moves.
+pub(super) fn temporary_ends_v1(arguments: &[EmittedNewArgumentV1]) -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
+    let mut operations = Vec::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for argument in arguments.iter().rev() {
+        for value in argument.deferred_text_values_v1()?.into_iter().rev() {
+            if !seen.insert(value) { return Err(freeze("argument-expression/prefix-duplicate-acquisition")); }
+            operations.push(crate::mir::instruction::InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }));
+        }
+    }
+    Ok(operations)
+}
+
+pub(super) fn finish_new_arguments_v1(builder: &mut MirBuilder, ledger: &OrdinaryNewClaimLedgerV1,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1, result: crate::mir::ValueId,
+    frame: crate::mir::ValueId, arguments: &[EmittedNewArgumentV1],
+    bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
+) -> Result<(), String> {
+    use super::{RawRootGraphWriterV1, RootGraphWriterPortV1};
+    let normal = temporary_ends_v1(arguments)?;
+    if normal.is_empty() { return Ok(()); }
+    let (_, mut fault) = ledger.new_argument_object_cleanup_v1(site, result)?;
+    let first = fault.len();
+    fault.extend(normal.iter().cloned());
+    fault.extend(ledger.new_argument_home_unwind_v1(site, true)?);
+    let indices = (first..first+normal.len()).collect::<Vec<_>>();
+    let residuals = (0..normal.len()).map(|step|
+        crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &indices, step))
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut writer = RawRootGraphWriterV1;
+    let clean = writer.reserve_block(builder)?;
+    builder.ensure_block_exists(clean)?;
+    let graph = super::root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, frame,
+        clean, &normal, &fault, &residuals, &[], bindings)?;
+    bindings.push(writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?);
+    builder.start_new_block(clean)
 }

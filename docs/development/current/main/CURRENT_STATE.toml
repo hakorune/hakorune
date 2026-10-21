@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "construction-store/source-or-cleanup-contract: original UserStats Birth Text initialization; New Expression actual/lifetime and Map publication incomplete"
+current_blocker_token = "construction-store/source-or-cleanup-contract: original UserStats Birth Text initialization; New final-call walk, callee Text ABI/cleanup and Map publication incomplete"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: 同じ元SUM/Birth formal→共有Text実行計画。元source不変、両claimへtake前反映。
-固定suite7PASS/4FAIL（実EXE6＋marker1）、389.927s、SKIP/timeoutなし。mimalloc/allocator PASS維持。
+APP-json-stream-aggregator: 元New/evaluation→全引数packet・一時Text取得stack・Normal/Fault cleanupを共有ownerへ接続。
+固定suite7PASS/4FAIL（実EXE6＋marker1）、380.143s、SKIP/timeoutなし。mimalloc/allocator PASS維持。
 JSONは元UserStats Birthのconstruction-store/source-or-cleanup-contractで停止、MIR/EXEなし。
-CLI30.74s/root49.07s。34 filters中33は親同等、新source_scope赤2/1はNew Expression未接続、期待値保持。
-次は同じNew評価→retained Text actual＋取得stack、Birth初期化/全cleanup、Map/Call/Return公開。
+CLI39.66s/root57.62s。source_scope3PASSへ回復、他33filtersは親同等、inventory9263不変。
+次は同じNew行の最終call visitor→callee Text生成/保存/ABI/全cleanup→Map/Call/Return公開。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: SAME original New/evaluation owns complete typed argument packets, Calls/reads/acquisitions and shared expression emission. Full temporary stack spans later arguments/NewBox/Birth. Fault uses prior Homes; post-Birth End Fault uses candidate End and Normal Homes excluding Provided moves. Finalized replay checks source/order/cleanup/finishing. Parallel actual/read recorder retired from production; old fixture adapter test-only. Existing JSON+computed-Text and Provided cases cover independent lifetime boundaries; no new test functions/files/hooks/guards/cards. Rust+749, inventory9263 unchanged. Final CLI39.66s/root57.62s; no new warning kinds. 34 filters:33 same outcomes/strict failures;source_scope2/1→3PASS. Suite7PASS/4FAIL actualEXE6+marker1,380.143s,noSKIP/timeout;mimalloc/allocator PASS. JSON same Birth Text fence,no MIR/EXE. Next same-row final NewArgument call visitor→callee Text lifetime/ABI→Map publication. Broad52 unconfirmed. Full goal active.",
   "2026-10-21: Same original Birth formal/site/ordinal and Text-only SUM qualify DynamicTextInitialize in one shared execution plan. Full field demands/sealer shared with initial/child-call paths; source modes/cutpoints unchanged, qualified prefix includes Text. Both LOCAL/Result claims updated before take; no physical Text grant. Existing JSON case verifies same source/loan/claim and Text-before-I64 Fault prefix. No new tests/files/hooks/checkers/cards;Rust+131,inventory9263 unchanged. CLI30.74s/root49.07s,no new warning headlines. 34 filters:33 preserve outcomes/causes (absent-loan Debug excluded);NEW source_scope red2/1 because New Expression is unconnected before append/Return;positive expectations kept. Suite7PASS/4FAIL actualEXE6+marker1,389.927s,noSKIP/timeout;mimalloc/allocator PASS. JSON now construction-store cleanup boundary,no MIR/EXE. Next full New expression/temporary stack→Birth Text Materialize/install/cleanup→Map/publication. Broad52 unconfirmed;full goal active.",
   "2026-10-21: Emitted/retained Birth actuals preserve original source and exact Value/Text payload through sole issuer, retained scans and transport. Scalar/object ABI, field reads and received bound values require Value; same-SSA Text cannot inherit admission. Old value-only comparison adapter retired. Existing source/publication mutation adds independent kind boundary; no new test functions/files/hooks/checkers/cards. Rust -16; inventory9263 unchanged. CLI45.60s/root82s, no new warning headlines;34 filters match parent outcomes and strict failure bodies. Suite7PASS/4FAIL actualEXE6+marker1,397.135s,noSKIP/timeout; mimalloc/allocator PASS. JSON same owner26 Body5 statsFor source-pending/no MIR/EXE. Broad52 remains unconfirmed. Text emission/admission stays closed. Next same source SUM/formal late plan in both claim cores, complete Text lifetime and Map/result publication; full goal active.",
-  "2026-10-21: Checked Birth owns canonical key, receiver, Unit and one ordered Value/Text array. Both canonical issuers, retained actuals, independent final scans and transport migrated; generic checked Birth Call and duplicate dominance branch retired. Raw Compatibility preserves dst. Value dependencies exclude hidden FaultFrame. Text admission stays closed pending SAME source/evaluation and lifetime closure. Existing positive/mutation fixtures migrated; no new test functions/files/hooks/checkers/cards. Rust -127; inventory9263 unchanged. CLI32.97s/root63s, no new warnings; Invoke42/JSON35/borrow31 PASS;33 filters match parent outcomes/causes. Suite7PASS/4FAIL actualEXE6+marker1,395.641s,noSKIP/timeout. JSON same owner26 Body5 statsFor source-pending/no MIR/EXE. Broad52 parent timeout180/current stopped539s remains unconfirmed. Next retained typed actuals→source SUM/formal→Text Birth/Map lifetime/publication; full goal active.",
 ]

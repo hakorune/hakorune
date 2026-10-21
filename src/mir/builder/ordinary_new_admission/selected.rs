@@ -75,6 +75,8 @@ pub(in crate::mir::builder) fn emit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     claim: OrdinaryNewAdmissionClaimV1,
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     if state.owner() != claim.site().owner() {
         return Err(freeze("owner-or-argument-count"));
@@ -97,7 +99,7 @@ pub(in crate::mir::builder) fn emit(
         class,
         arity,
         constructor,
-        &rows,
+        &rows, consume_receiver, static_source,
     )
 }
 
@@ -109,6 +111,8 @@ pub(in crate::mir::builder) fn emit_result(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     if state.owner() != claim.site().owner() {
         return Err(freeze("owner-or-argument-count"));
@@ -131,7 +135,7 @@ pub(in crate::mir::builder) fn emit_result(
         class,
         arity,
         constructor,
-        &rows,
+        &rows, consume_receiver, static_source,
     )
 }
 
@@ -146,19 +150,14 @@ fn emit_selected_new(
     arity: usize,
     constructor: OrdinaryNewConstructorDispositionV1,
     argument_rows: &[OrdinaryNewTrivialArgumentV1],
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
-    let arguments =
-        arguments::materialize_arguments(builder, state, ledger, &site, arity, argument_rows)?;
-    let field_array_reads = argument_rows.iter().zip(&arguments).map(|(source, value)| {
-        source.field_array_read().map(|read| {
-            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("argument-read-function-missing"))?;
-            let crate::mir::instruction::BirthArgumentV1::Value(value) = value else {
-                return Err(freeze("argument-source-unavailable"));
-            };
-            state.field_array_read_argument_v1(read, function, *value)
-        }).transpose()
-    }).collect::<Result<Vec<_>, String>>()?;
-    let (prior, reclaim_origin) = ledger.begin_new_emission(&site)?;
+    let arguments = arguments::materialize_arguments(builder, state, ledger, &site, arity,
+        argument_rows, consume_receiver, static_source)?;
+    let (mut prior, reclaim_origin) = ledger.begin_new_emission(&site)?;
+    let argument_ends = arguments::temporary_ends_v1(&arguments)?;
+    prior.splice(0..0, argument_ends);
     let frame = state.borrow_fault_frame(builder)?;
     let result = builder.next_value_id();
     let frame_binding = fault_frame_binding(builder, state, frame)?;
@@ -211,7 +210,8 @@ fn emit_selected_new(
         fault_landing: allocation_fault,
     };
     builder.emit_instruction(allocation.clone())?;
-    bindings.push((origin, allocation));
+    let allocation_binding = (origin, allocation);
+    bindings.push(allocation_binding.clone());
     builder.start_new_block(normal)?;
     let projection = MirInstruction::InvokeNormalResult {
         invoke_block: origin,
@@ -230,10 +230,11 @@ fn emit_selected_new(
         .type_ctx
         .value_origin_newbox
         .insert(result, class);
+    let mut birth_binding = None;
     if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
         let effects = recipe.physical_effect_mask();
         let call = crate::mir::instruction::BirthInvokeV1 {
-            key: recipe.target(), receiver: result, arguments: arguments.clone().into_boxed_slice(), effects,
+            key: recipe.target(), receiver: result, arguments: arguments.iter().map(|argument| argument.payload().clone()).collect(), effects,
         };
         let after_birth = builder.next_block_id();
         let birth = MirInstruction::Invoke {
@@ -243,10 +244,27 @@ fn emit_selected_new(
             fault_landing: birth_fault,
         };
         builder.emit_instruction(birth.clone())?;
+        birth_binding = Some((normal, birth.clone()));
         bindings.push((normal, birth));
         builder.start_new_block(after_birth)?;
     }
-    ledger.record_new_emission_with_field_array_reads(&site, result, arguments, field_array_reads, reclaim, bindings)?;
+    arguments::finish_new_arguments_v1(builder, ledger, &site, result, frame, &arguments, &mut bindings)?;
+    let continuation = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let cleanup = if arguments.iter().any(|argument| argument.expression_v1().is_some()) {
+        Some(crate::mir::normal_callable_semantic_package::NewArgumentCleanupV1::new(allocation_binding, birth_binding, continuation))
+    } else { None };
+    for argument in &arguments {
+        if let Some(expression) = argument.expression_v1() {
+            for binding in expression.bindings() {
+                if bindings.contains(binding) {
+                    if matches!(binding.1, MirInstruction::FaultFrameEnter { .. }) { continue; }
+                    return Err(freeze("emission-binding-drift"));
+                }
+                bindings.push(binding.clone());
+            }
+        }
+    }
+    ledger.record_new_argument_emission_v1(&site, result, arguments, cleanup, reclaim, bindings)?;
     Ok(result)
 }
 

@@ -67,6 +67,7 @@ pub(super) fn observe_selected_new_local<E>(
             .map(|outward_fault| CallerNewHomePrefixV1 {
                 destination: binding,
                 prior_homes: homes.iter().rev().cloned().collect(),
+                normal_homes: homes.iter().rev().filter(|home| !moved_arguments.contains(&home.binding())).cloned().collect(),
                 outward_fault,
                 covered_statements: covered_statements.to_vec().into_boxed_slice(),
             }),

@@ -79,11 +79,13 @@ use progress::{EmittedLocalProgress, NewEmissionProgress, UnavailableLocalProgre
 pub(crate) struct EmittedNewArgumentV1 {
     source: super::OrdinaryNewTrivialArgumentV1,
     payload: crate::mir::instruction::BirthArgumentV1,
+    expression: Option<Rc<EmittedNewExpressionV1>>,
     field_array_read: Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>,
 }
 
-#[path = "ordinary_new_local_commit/argument_field_array_read.rs"]
-mod argument_field_array_read;
+#[path = "ordinary_new_local_commit/argument_projection.rs"]
+mod new_argument_projection;
+pub(in crate::mir) use new_argument_projection::{EmittedNewExpressionV1, NewArgumentCleanupV1};
 
 impl EmittedNewArgumentV1 {
     pub(crate) fn source(&self) -> &super::OrdinaryNewTrivialArgumentV1 {

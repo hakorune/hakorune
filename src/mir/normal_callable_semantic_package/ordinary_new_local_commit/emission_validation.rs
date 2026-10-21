@@ -67,7 +67,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {}
             }
-            self.validate_ordinary_new_row_emission_projected(owner, site, row, function, projection)?;
+            self.validate_ordinary_new_row_emission_projected(owner, site, row, function, projection, CallValidationContextV1::Lowering(self))?;
         }
         Ok(())
     }

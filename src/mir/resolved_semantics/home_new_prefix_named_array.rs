@@ -85,6 +85,7 @@ pub(super) fn observe_initializer<E>(
             .map(|outward_fault| CallerNewHomePrefixV1 {
                 destination: binding,
                 prior_homes: homes.iter().rev().cloned().collect(),
+                normal_homes: homes.iter().rev().cloned().collect(),
                 outward_fault,
                 covered_statements: covered.to_vec().into_boxed_slice(),
             }),

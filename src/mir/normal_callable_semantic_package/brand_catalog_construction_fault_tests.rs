@@ -59,6 +59,9 @@ fn caller_provided_object_store_seals_prior_owned_cleanup() {
         .values()
         .find(|claim| claim.class() == "Holder")
         .expect("Holder source claim");
+    // The provided child moves only on Birth Normal; Fault still owes it.
+    assert_eq!(claim.home_prefix().unwrap().prior_homes().len(), 1);
+    assert!(claim.home_prefix().unwrap().normal_homes().is_empty());
     let plan = claim.construction().as_ref().unwrap();
     assert_eq!(plan.stores().len(), 4);
     for (store, expected) in plan.stores().iter().zip([vec![], vec![0], vec![1, 0], vec![1, 0]]) {

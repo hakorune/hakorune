@@ -37,6 +37,10 @@ impl PublishedMirBackendView<'_> {
                 .functions()
                 .get(call.caller_function_index() as usize)
                 .ok_or_else(|| fault("birth-caller-missing"))?;
+            if let Some(source) = entry.program().handoff().root_source() {
+                let function = self.module().functions.get(caller.name()).ok_or_else(|| fault("birth-caller-draft-missing"))?;
+                source.validate_new_birth_expression_actuals_v1(call.actual(), function)?;
+            }
             let uses = entry
                 .program()
                 .handoff()

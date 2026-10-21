@@ -16,6 +16,7 @@ pub(super) enum NewEmissionProgress {
     Emitted {
         result: ValueId,
         arguments: Box<[EmittedNewArgumentV1]>,
+        argument_cleanup: Option<NewArgumentCleanupV1>,
         reclaim: Option<ReclaimUnpublishedEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         progress: EmittedLocalProgress,

@@ -236,6 +236,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// These are validation snapshots of actual instructions, not metadata
     /// operands used for liveness. The physical instructions own every use.
     /// Shared by ordinary and result rows.
+    #[cfg(test)]
     pub(crate) fn record_new_emission(
         &self,
         site: &OwnedExprSiteV1,
@@ -244,13 +245,19 @@ impl OrdinaryNewClaimLedgerV1 {
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        let reads = (0..arguments.len()).map(|_| None).collect();
-        self.record_new_emission_with_field_array_reads(site, result, arguments.into_iter().map(crate::mir::instruction::BirthArgumentV1::Value).collect(), reads, reclaim, bindings)
+        let source = { let rows = self.local_commits.borrow();
+            rows.get(site).and_then(LocalCommitV1::new_argument_rows)
+                .ok_or_else(|| freeze("record-without-take"))?.as_ref()
+                .map_err(|_| freeze("argument-source-unavailable"))?.to_vec() };
+        if source.len() != arguments.len() { return Err(freeze("argument-count-drift")); }
+        let arguments = source.into_iter().zip(arguments).map(|(source, value)|
+            EmittedNewArgumentV1::new_v1(source, crate::mir::instruction::BirthArgumentV1::Value(value), None, None)).collect();
+        self.record_new_argument_emission_v1(site, result, arguments, None, reclaim, bindings)
     }
 
-    pub(crate) fn record_new_emission_with_field_array_reads(
-        &self, site: &OwnedExprSiteV1, result: ValueId, arguments: Vec<crate::mir::instruction::BirthArgumentV1>,
-        reads: Vec<Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>>,
+    pub(in crate::mir) fn record_new_argument_emission_v1(
+        &self, site: &OwnedExprSiteV1, result: ValueId, arguments: Vec<EmittedNewArgumentV1>,
+        argument_cleanup: Option<NewArgumentCleanupV1>,
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
@@ -264,7 +271,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(|_| freeze("argument-source-unavailable"))?
             .to_vec();
-        if source_arguments.len() != arguments.len() || reads.len() != arguments.len() {
+        if source_arguments.len() != arguments.len() {
             return Err(freeze("argument-count-drift"));
         }
         let emission = row
@@ -273,22 +280,22 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(emission, NewEmissionProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("record-without-emission-or-duplicate"));
         }
-        let arguments = source_arguments
-            .iter()
-            .cloned()
-            .zip(arguments).zip(reads)
-            .map(|((source, payload), field_array_read)| {
-                match (source.field_array_read(), &field_array_read, &payload) {
-                    (None, None, _) => {},
-                    (Some(original), Some(read), crate::mir::instruction::BirthArgumentV1::Value(value)) if read.matches(original, *value) => {},
-                    _ => return Err(freeze("argument-read-record-drift")),
-                }
-                Ok(EmittedNewArgumentV1 { source, payload, field_array_read })
-            })
-            .collect::<Result<_, String>>()?;
+        for (source, argument) in source_arguments.iter().zip(&arguments) {
+            if source != argument.source() { return Err(freeze("argument-source-drift")); }
+            match (source.field_array_read(), &argument.field_array_read, argument.payload()) {
+                (None, None, _) => {},
+                (Some(original), Some(read), crate::mir::instruction::BirthArgumentV1::Value(value)) if read.matches(original, *value) => {},
+                _ => return Err(freeze("argument-read-record-drift")),
+            }
+            argument.deferred_text_values_v1()?;
+        }
+        if arguments.iter().any(|row| row.expression.is_some()) && argument_cleanup.is_none() {
+            return Err(freeze("argument-source-unavailable"));
+        }
         *emission = NewEmissionProgress::Emitted {
             result,
-            arguments,
+            arguments: arguments.into_boxed_slice(),
+            argument_cleanup,
             reclaim: reclaim.map(
                 |(origin, block, instruction)| ReclaimUnpublishedEmissionV1 {
                     origin,
@@ -325,7 +332,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("provider-birth-argument-drift"));
             }
             if source.field_array_read().is_some() { return Err(freeze("provider-argument-read-unconnected")); }
-            emitted.push(EmittedNewArgumentV1 { source, payload: crate::mir::instruction::BirthArgumentV1::Value(value), field_array_read: None });
+            emitted.push(EmittedNewArgumentV1 { source, payload: crate::mir::instruction::BirthArgumentV1::Value(value), field_array_read: None, expression: None });
         }
         self.provider_births.borrow_mut().push(ProviderBirthRecordV1 {
             site,
