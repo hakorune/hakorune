@@ -140,6 +140,10 @@ impl FunctionUses {
         coordinate: Coordinate, instruction: &MirInstruction,
     ) -> bool {
         if !self.finite_input || self.condition_bindings.get(&coordinate) != Some(instruction) { return false; }
+        // Raw tag equality must consume the exact null-use admission even for
+        // a signed-only/Bool-only incoming SUM. Scalar permission cannot skip it.
+        if matches!(instruction, MirInstruction::Compare { op: crate::mir::CompareOp::Eq, lhs, rhs, .. }
+            if views.null_consts.contains(lhs) || views.null_consts.contains(rhs)) { return false; }
         match instruction {
             MirInstruction::Branch { .. } => self.scalar_operands_v1(tracked, views, instruction, BorrowedFormalDomainV1::bool_only),
             MirInstruction::BinOp { .. } => self.scalar_operands_v1(tracked, views, instruction, BorrowedFormalDomainV1::signed_only),

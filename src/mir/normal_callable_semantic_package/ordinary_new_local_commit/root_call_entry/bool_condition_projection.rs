@@ -397,6 +397,31 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
+    /// Admission comes from the same source guard and its sealed, finished
+    /// execution. This lends no typed payload or successor non-null permission.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_finished_null_compare_uses_v1(
+        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>, function: &MirFunction,
+        projection: &Finished,
+        mut visit: impl FnMut(BindingRefV1, BindingRefV1, &OwnedExprSiteV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.visit_verified_condition_groups_v1(owner, context, function, projection, |packet| {
+            for (&node, reference) in packet.frame.references() {
+                let crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry {
+                    read, exclusion: None,
+                } = reference else { continue };
+                let Some(binary) = read.null_compare_v1() else { continue };
+                let source = packet.frame.source();
+                if !Rc::ptr_eq(read.requirement().source_plan(), source) || binary.owner() != owner
+                    || source.nodes().get(node).is_none_or(|node| node.site() != read.requirement().read())
+                    || !matches!(&packet.node(node)?.proof, BoolConditionValueProofV1::OriginalReference(_)) {
+                    return Err(freeze("bool-condition/reference-source"));
+                }
+                visit(read.requirement().binding(), read.requirement().formal().1, binary)?;
+            }
+            Ok(())
+        })
+    }
+
     /// Lend exact finished prefix and sealed outer Branch, never repair drafts.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_finished_bool_bindings_v1(
         &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>, function: &MirFunction,

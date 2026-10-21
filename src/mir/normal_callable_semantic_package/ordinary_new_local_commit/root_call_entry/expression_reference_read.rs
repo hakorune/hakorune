@@ -365,6 +365,9 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
         }
         Reference::ArgumentEntry(required) => text_entry_operand(required, read, producer, context),
         Reference::FiniteEntry { read: original, .. } => {
+            if original.null_compare_v1().is_some() {
+                return Err(freeze("expression/reference-execution-pending/text-entry-domain"));
+            }
             let value = entry_value(original.requirement(), read, producer, context)?;
             if original.signed_only() { Ok(Operand::NormalInteger(value)) }
             else if original.leaf_class(None) == Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
@@ -381,7 +384,7 @@ fn prepare_entry(
     let (entry, _, domain) = context.ledger().validate_prepared_finite_entry_read_v1(required, function, read)?;
     if initializer.map_or(!domain.text_only(), |original|
         !original.corroborates_finite_domain_v1(&domain)
-            || !(domain.text_only() || domain.signed_only() || domain.bool_only())) {
+            || !(original.null_compare_v1().is_some() || domain.text_only() || domain.signed_only() || domain.bool_only())) {
         return Err(freeze("expression/reference-execution-pending/text-entry-domain"));
     }
     let (index, count, receivers, symbol) = context.ledger().original_entry_layout_v1(

@@ -582,10 +582,23 @@ impl FinalizedRootSourceHandoffV1 {
         function: &MirFunction,
     ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
         let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        Ok(source
-            .null_compare_uses()
-            .map(|(binding, formal, binary)| (binding, formal, binary.clone()))
-            .collect())
+        let mut uses: Vec<_> = source.null_compare_uses()
+            .map(|(binding, formal, binary)| (binding, formal, binary.clone())).collect();
+        if source.uses_finite_input_v1() {
+            self.ledger.with_finished_projection(owner, |_, projection| {
+                self.ledger.visit_finished_null_compare_uses_v1(owner, CallValidationContextV1::Finalized(self),
+                    function, projection, |binding, formal, binary| {
+                        if source.origins().get(&binding) != Some(&formal)
+                            || !source.formals().iter().any(|(_, original)| *original == formal)
+                            || uses.iter().any(|prior| prior == &(binding, formal, binary.clone())) {
+                            return Err(freeze("bool-condition/reference-source"));
+                        }
+                        uses.push((binding, formal, binary.clone()));
+                        Ok(())
+                    })
+            })?;
+        }
+        Ok(uses.into_boxed_slice())
     }
 
     /// Same finalized entry proof, projecting only the admitted dominated

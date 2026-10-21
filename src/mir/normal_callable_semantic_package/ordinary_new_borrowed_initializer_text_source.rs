@@ -13,17 +13,20 @@ pub(crate) struct FiniteEntryReadV1 {
     sum: Rc<SourceValueSumV1>,
     flow: std::sync::Arc<VerifiedSourceValueFlowV1>,
     value: SourceValueRefV1,
+    null_compare: Option<OwnedExprSiteV1>,
 }
 impl PartialEq for FiniteEntryReadV1 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.sum, &other.sum) && std::sync::Arc::ptr_eq(&self.flow, &other.flow)
-            && self.value == other.value && self.requirement == other.requirement
+            && self.value == other.value && self.null_compare == other.null_compare
+            && self.requirement == other.requirement
             && Rc::ptr_eq(self.requirement.source_plan(), other.requirement.source_plan())
     }
 }
 impl Eq for FiniteEntryReadV1 {}
 impl FiniteEntryReadV1 {
     pub(crate) fn requirement(&self) -> &BorrowedTextEntryReadRequirementV1 { &self.requirement }
+    pub(crate) fn null_compare_v1(&self) -> Option<&OwnedExprSiteV1> { self.null_compare.as_ref() }
     pub(crate) fn signed_only(&self) -> bool { self.sum.signed_only() }
     pub(in crate::mir) fn corroborates_finite_domain_v1(&self, domain: &Rc<SourceValueSumV1>) -> bool {
         Rc::ptr_eq(&self.sum, domain)
@@ -35,6 +38,9 @@ impl FiniteEntryReadV1 {
         -> Option<crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1> {
         use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf};
+        // The raw guard observes only the tag. It proves no typed value or
+        // non-null branch fact and cannot consume a null-exclusion loan.
+        if self.null_compare.is_some() { return exclusion.is_none().then_some(Leaf::Value(Class::Opaque)); }
         let mut classes = Vec::new();
         for alternative in self.sum.alternatives() {
             match alternative {
@@ -113,7 +119,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     let requirement = super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(
         contracts, plan, read, binding, root,
         prepared.original_formal_read_v1(input.owner(), read, binding, root)?)?;
-    Ok(Some(FiniteEntryReadV1 { requirement, sum, flow: std::sync::Arc::clone(flow), value }))
+    let null_compare = if let ExpressionPlanRootV1::IfCondition { condition, .. } = plan.root() {
+        use super::super::super::borrowed_formal_uses::{null_compare_operand_kind, BorrowedFormalUseDraftKindV1};
+        match null_compare_operand_kind(input, read).map_err(|_| reject())? {
+            Some(BorrowedFormalUseDraftKindV1::NullCompareOperand { binary })
+                if binary.site() == condition => Some(binary),
+            _ => None,
+        }
+    } else { None };
+    Ok(Some(FiniteEntryReadV1 { requirement, sum, flow: std::sync::Arc::clone(flow), value, null_compare }))
 }
 
 impl PreparedBorrowedFormalIngressV1 {

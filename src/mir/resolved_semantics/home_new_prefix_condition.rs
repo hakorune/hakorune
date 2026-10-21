@@ -149,11 +149,32 @@ pub(super) fn observe<E>(
     let original_profile = requests_condition(input, &condition);
     let Ok(source) = condition_expression_source_plan_v1(input, statement)
         else { return Ok(ConditionInstallationV1::Refused) };
-    if !contains_local_home_field(input, &source, locals)
+    // Original finite-input membership selects this owner before execution.
+    // Other borrowed profiles keep their existing null-guard owner; a selected
+    // finite-input failure never retries that owner.
+    let mut entry_guard = Vec::new();
+    if let Some(binary) = source.nodes().first().and_then(|node| node.binary()) {
+        if binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal {
+            for (read, null) in [(binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs())] {
+                if !source.nodes().iter().any(|node| node.site() == null && matches!(node.source(),
+                    Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null))) { continue; }
+                let Some((binding, root)) = super::argument_expression::text_reference(input, locals, read) else { continue };
+                let owned = OwnedExprSiteV1::new(input.owner(), source.nodes()[0].site().clone());
+                if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(original)) = actuals(&owned,
+                    BorrowedCallActualRequestV1::FiniteEntryRead { input, plan: &source, read, binding, root })? {
+                    if original.null_compare_v1().is_some() {
+                        let Some(index) = source.nodes().iter().position(|node| node.site() == read) else { return Ok(ConditionInstallationV1::Refused) };
+                        entry_guard.push((index, CheckedExpressionReferenceV1::FiniteEntry { read: original, exclusion: None }));
+                    }
+                }
+            }
+        }
+    }
+    if entry_guard.is_empty() && !contains_local_home_field(input, &source, locals)
         && !(original_profile && selects(input, &source, locals, local_calls))
     { return Ok(ConditionInstallationV1::Unselected); }
     if !prefix_known { return Ok(ConditionInstallationV1::Refused); }
-    Ok(if install_source(input, source, locals, homes, local_calls, path_calls, fields, actuals)?.is_some() {
+    Ok(if install_source(input, source, &entry_guard, locals, homes, local_calls, path_calls, fields, actuals)?.is_some() {
         ConditionInstallationV1::Installed
     } else { ConditionInstallationV1::Refused })
 }
@@ -169,11 +190,12 @@ pub(super) fn observe_loop<E>(
 ) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, E> {
     if !locals.in_source_loop_v1() { return Ok(None); }
     let Some(condition) = source.condition_source_v1(input) else { return Ok(None); };
-    install_source(input, Rc::clone(condition), locals, homes, local_calls, path_calls, fields, actuals)
+    install_source(input, Rc::clone(condition), &[], locals, homes, local_calls, path_calls, fields, actuals)
 }
 
 fn install_source<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, source: Rc<ExpressionSourcePlanV1>,
+    source_references: &[(usize, CheckedExpressionReferenceV1)],
     locals: &PrefixLocalFlow<'_>, homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>, path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
@@ -194,11 +216,11 @@ fn install_source<E>(
                 homes, &mut |binding| locals.field_alias_call_path(binding), actuals)
                 .map(|call| call.map(ExpressionCallSourceV1::Ordinary))
         })? else { return Ok(None) };
-    let mut initial_references = Vec::new();
+    let mut initial_references = source_references.to_vec();
     let owned = OwnedExprSiteV1::new(input.owner(), source.nodes()[0].site().clone());
     // Core inputs remain active; Ordinary Calls own their transferred children.
     for (index, node) in source.nodes().iter().enumerate() {
-        if !prepared.is_active_reference(index) { continue; }
+        if !prepared.is_active_reference(index) || initial_references.iter().any(|(original, _)| *original == index) { continue; }
         if !matches!(node.source(), Node::Reference(_)) { continue; }
         if let Some(frame) = locals.stored_get_reference_v1(node.site()) {
             initial_references.push((index, CheckedExpressionReferenceV1::StoredMapGet(frame)));

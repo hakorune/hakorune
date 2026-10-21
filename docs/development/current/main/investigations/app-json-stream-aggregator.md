@@ -1,18 +1,18 @@
 # APP-json-stream-aggregator
-Status: Readonly Text/Mul native probe PASS; JSON Loop Recipe closes, finite input/terminal and final Map/native incomplete. Date: 2026-10-21
+Status: Original raw entry null guard connected; ReturnValue Sub and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 425.934s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 442.343s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON still stops at borrowed-entry/finite-domain-unclosed before MIR/EXE, but
-  to_i64's original Loop Recipe now closes. Only two reads remain uncovered:
-  original x==null and return0-acc. Source/physical/Finished obligations stay.
-- Independent owned-Text Loop/Mul probe: parent refuses; canonical EXE builds,
-  prints33 and exits0. Outer Text rebind remains refused. This is not JSON completion.
-- 46filters match parent outcomes and strict failure diagnostics; existing Loop
-  boundary1 and typed schema23 PASS. Inventory9263 and two source refusals retained.
+  to_i64's original Loop Recipe and x==null read now close. Only return0-acc's
+  original RHS remains uncovered. Source/physical/Finished obligations stay.
+- Native null fixture: integer0/null/reversed null==0 exit3/7/3; earlier Text/Mul
+  probe prints33. These are not JSON completion.
+- 46filters match parent outcomes and strict failure diagnostics. Null filter7/1
+  also matches parent; inventory9263 and two source refusals retained.
 - No new test case/file/hook/guard/checker/card/app edit. Probe stays outside repo.
 
 ## Shared source and construction
@@ -70,23 +70,23 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Source qualification never finishes executable input. Late disposition, actuals and
   final Normal result require SAME Completion/terminal Rc, all incoming and signature.
   OwnedString uses existing Call/Print temporary End/Fault and final callee validation.
-- Cleanup replaces validated sequences only, retaining source products and MapGet metadata.
 - Bool stays separate: same owner/noHome, literal ConstBool, Assignment receipt and Finished.
 - Requested I64 Add/Mul/Sub initializers keep checked references and the common
   evaluation/Local receipt; Sub shares the Local/root law and Div limits stay.
-- Dedicated Static I64 Loop selection shares original call roles; either keeps
-  selection, both are required. Other loans stay; selected failures never retry.
-- Cohorts follow original scope; completed expression input retains whole incoming/
-  Completion/signature/actuals even with I64 output. Final result checking stays.
+- Dedicated Static I64 Loop keeps original roles and scope; partial selection refuses.
+  Whole incoming/Completion/signature/actuals and final result checking stay.
 - Readonly Text now requires exact original role, outside-loop acquisition and one
   SAME live entry Home. Independent schedule rechecks reference/node/binding/input;
   existing child writer and Original/Finished read/cleanup checks own physical proof.
 - Loop Mul borrows the existing integer-operation law and expression writer. Shared
   logical mapping and independent operator/left/right/result checks prevent drift;
   dedicated Add-only emitters remain closed. No new physical lane or receipt.
-- Next reuse null_compare_operand_kind for the exact raw entry guard plus final
-  admission coverage; retain ReturnValue Sub/LoopAfter through the common evaluation.
-  Do not exempt reads, fake Local roots or replace subtraction with addition.
+- Entry guard borrows existing null_compare_operand_kind and SAME finite source loan
+  before selection. Legacy guard owners stay; selected failure never retries.
+- Raw purpose grants no typed payload or exclusion; same tagged entry/Copy and sealed
+  Bool group feed Finished null-use admissions. Exact Null Eq cannot skip counting.
+- Next genuine ReturnValue Sub/LoopAfter through common evaluation, physical Return
+  and final coverage. No read exemptions, fake Local roots or arithmetic rewrite.
 
 ## Completion limits
 - Other Instance Text purposes/terminal actuals still require their own full consumer closure.

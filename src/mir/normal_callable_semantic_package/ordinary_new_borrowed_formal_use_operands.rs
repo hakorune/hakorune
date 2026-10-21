@@ -227,7 +227,7 @@ pub(super) fn add_operand_kind(
 /// `!=` and general tagged equality stay outside the profile, and the
 /// admitted compare proves nothing about class, lifetime or the Integer
 /// lane — the false successor supplies non-null only.
-pub(super) fn null_compare_operand_kind(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn null_compare_operand_kind(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
 ) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {

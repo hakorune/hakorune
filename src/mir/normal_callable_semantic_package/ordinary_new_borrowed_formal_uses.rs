@@ -38,7 +38,7 @@ mod call_operand;
 mod operands;
 use call_operand::IntegerCallOperandSourceV1;
 pub(super) use call_operand::StaticOperandContextV1;
-pub(super) use operands::compare_operand_kind;
+pub(super) use operands::{compare_operand_kind, null_compare_operand_kind};
 
 #[path = "ordinary_new_borrowed_guarded_actual.rs"]
 mod guarded_actual;
@@ -49,7 +49,7 @@ mod mul_source;
 pub(in crate::mir) use mul_source::{BorrowedMulSideV1, BorrowedMulSourceV1};
 
 use operands::{
-    add_operand_kind, is_call_argument, normal_integer_operand, null_compare_operand_kind,
+    add_operand_kind, is_call_argument, normal_integer_operand,
     use_dominated_by_if,
 };
 

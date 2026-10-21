@@ -157,6 +157,28 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 continue;
             }
         }
+        // Only the original entry guard loan admits raw tagged equality. The
+        // sibling remains the exact source null; no payload view is issued.
+        if binary.operator() == Op::Equal {
+            let entry_null = [(left, right), (right, left)].into_iter().any(|(reference, null)| {
+                matches!(reference_proofs.get(&reference),
+                    Some(CheckedExpressionReferenceV1::FiniteEntry { read, exclusion: None })
+                    if read.null_compare_v1().is_some_and(|original|
+                        original.owner() == source.owner() && original.site() == node.site())
+                        && Rc::ptr_eq(read.requirement().source_plan(), &source))
+                    && classes[reference] == Leaf::Value(Class::Opaque)
+                    && matches!(source.nodes()[null].source(), ExpressionNodeSourceV1::Literal(
+                        super::super::ResolvedLiteralSourceV1::Null))
+            });
+            if entry_null {
+                let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
+                    family, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Null,
+                )) else { return Ok(None) };
+                operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index,
+                    proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])) }));
+                continue;
+            }
+        }
         let class = match (classes[left], classes[right]) {
             (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => DynamicOperatorValueClassV1::NormalInteger,
             (Leaf::Value(Class::Bool), Leaf::Value(Class::Bool))
