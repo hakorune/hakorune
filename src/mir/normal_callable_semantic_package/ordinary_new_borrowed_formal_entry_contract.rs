@@ -194,6 +194,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
+        if let EntryStructureEvidenceV1::FiniteInput { incoming, .. } = &structure.evidence {
+            if uses.cover_exact_bool_static_return_reads_v1(contract.owner, contract.batch_slot,
+                incoming, &origins, &mut covered)? == Some(false) { return Ok(None); }
+        }
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
         for observation in calls {

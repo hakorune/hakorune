@@ -1,10 +1,10 @@
-date = "2026-10-21"
+date = "2026-10-22"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "borrowed-entry/source-use-completion-pending in original int_to_str Text carrier; Div/Mod source→Loop→Finished/native connected; JSON MIR/EXE and final Map/native incomplete"
-current_design_stop = "none"
+current_blocker_token = "ordinary-new/borrowed-static/source-actual-unavailable: StringHelpers.skip_ws passes a substring temporary to is_space; TEXT-CALL-ACTUAL-ORIGIN-D0 rejects temporary Text actuals"
+current_design_stop = "Existing TEXT-CALL-ACTUAL-ORIGIN-D0 requires a call-complete lifetime owner before admitting call-result/Substring/temporary Text actuals; reopening direction pending"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: int_to_str Text carrier remains at borrowed-entry/source-use-completion-pending before MIR/EXE; positive Div/Mod numeric Loop connects through Finished/native.
-SAME positive literal law/evaluation census/SSA/writer/Loop schedule; Recipe and final/C independently check exact operands/divisor. Initializer/Rebind/Return operand prefixes stay DCE roots; JSON BinOp output shares one mapping; runtime ABI/archive unchanged.
-Native Div countdown4/Div+Mod sum10 exit0; parent refuses; source/C zero/negative divisor and 2Map refusals retained; Sub67/Main Fault70/Text0.46filters+8extra match parent outcomes/strict diagnostics;typed Loop43/rebind3 PASS;inventory9263;no new tests/cases/hooks/guards/checkers/cards/app edits.
-CLI34.98s/root81s;warnings1858/920 unchanged. Suite7/4(actualEXE6+marker1),397.733s,no SKIP/timeout;mimalloc-lite/allocator-stress PASS. Code21files net+19;intermediate binaries overwritten;keep final pins/provenance.
-Next SAME Text Header/After immutable Static/Owned descriptor and conditional End; preserve zero-iteration/Fault order, no eager Materialize/fake initializer/borrowed-formal ownership. Full Map/native/source/cutover/retirement goal active.
+APP-json-stream-aggregator focused EXE passes the prior owner-slot-9 source-use stop and now stops at borrowed-static/source-actual-unavailable: StringHelpers.skip_ws passes a substring temporary to is_space. Existing TEXT-CALL-ACTUAL-ORIGIN-D0 rejects call-result/Substring/temporary Text actuals until a call-complete lifetime owner exists.
+BorrowedText across a read-only Loop is a read-only operand; preserve the exact view, with no descriptor PHI, Home/End, or materialization.
+quick-build-fast PASS (39.25s); focused smoke still FAILS at the same refusal. lib-test compile blocked by 21 unrelated fixture API mismatches; no tests ran.
+Fixed suite last measured 7/11 (EXE6 + marker1); not rerun. Design direction pending for the temporary Text actual origin.
+Next decision: preserve the D0 refusal or reopen one source-backed temporary Text actual with a call-complete Normal/Fault lifetime owner. No bypass until decided; full goal remains active.
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"

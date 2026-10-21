@@ -3,6 +3,7 @@
 use super::*;
 use crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1;
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
+use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -15,6 +16,7 @@ struct OriginalFormalUseSourceV1
     parameters: Box<[(u32, BindingRefV1, CallableParameterContractKindV1)]>,
     roots: BTreeMap<BindingRefV1, BindingRefV1>,
     reads: Box<[(SourceExprSiteV1, ResolvedLexicalRefV1)]>,
+    return_plans: Option<Box<[std::rc::Rc<ExpressionSourcePlanV1>]>>,
     flow: Option<Arc<VerifiedSourceValueFlowV1>>,
     initializers: Box<[ResolvedInitializerRelationV1]>,
     assignments: Box<[(SourceExprSiteV1, ResolvedAssignmentTargetV1)]>,
@@ -64,6 +66,19 @@ impl OriginalFormalUseSourceV1 {
             .assignment_targets()
             .map(|(site, target)| (site.clone(), target.clone()))
             .collect();
+        let return_plans = input.body_shape().and_then(|shape| {
+            let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+            let mut plans = Vec::new();
+            for statement in shape.statements() {
+                if !matches!(statement,
+                    crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }) {
+                    continue;
+                }
+                plans.push(crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                    &ledger, shape, statement.site()).ok()??);
+            }
+            Some(plans.into_boxed_slice())
+        });
         let mut captures = Vec::new();
         for (owner, descendant) in input.forest().semantic_owners() {
             let mut retain_assignment =
@@ -119,6 +134,7 @@ impl OriginalFormalUseSourceV1 {
                 .collect(),
             roots: origins,
             reads,
+            return_plans,
             flow: function.expression_source().value_flow().map(Arc::clone),
             initializers: function
                 .expression_source()
@@ -191,6 +207,50 @@ impl OriginalFormalUseSourceV1 {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedLexicalRefV1)> {
         self.reads.iter().map(|(site, reference)| (site, reference))
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+    fn cover_exact_bool_static_return_reads_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        batch_slot: u32,
+        incoming: &[&super::BorrowedIncomingCallDraftV1],
+        origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+        covered: &mut std::collections::BTreeSet<(SourceExprSiteV1, BindingRefV1)>,
+    ) -> Result<Option<bool>, String> {
+        let exact_bool_static = !incoming.is_empty() && incoming.iter().all(|call| match &call.source {
+            super::BorrowedIncomingSourceV1::Static(source) => source.call_site() == &call.call
+                && source.callee_owner() == owner && source.target_batch_slot() == batch_slot
+                && matches!(source.source_result(),
+                    crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool),
+            _ => false,
+        });
+        if !exact_bool_static { return Ok(None); }
+        let Some(plans) = self.return_plans.as_deref() else { return Ok(Some(false)); };
+        use crate::mir::resolved_value_profile::{
+            expression_children::ExpressionChildrenV1,
+            expression_plan::{ExpressionNodeSourceV1, ExpressionPlanRootV1},
+            expression_root::StatementExpressionRoleV1,
+        };
+        for plan in plans {
+            let ExpressionPlanRootV1::Statement { role: StatementExpressionRoleV1::ReturnValue, value, .. }
+                = plan.root() else { return Err(super::super::freeze("static-input/qualified-use-identity")) };
+            if plan.owner() != owner || plan.nodes().first().is_none_or(|node| node.site() != value)
+                || plan.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(_))) {
+                return Err(super::super::freeze("static-input/qualified-use-identity"));
+            }
+            for (_, node) in plan.nodes_outside_calls() {
+                let ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source()
+                    else { continue; };
+                if !origins.contains_key(binding) { continue; }
+                let site = node.site().clone();
+                if self.reads().filter(|(at, reference)| *at == &site
+                    && **reference == ResolvedLexicalRefV1::Local(*binding)).count() != 1
+                    || !covered.insert((site, *binding)) {
+                    return Err(super::super::freeze("static-input/read-use-duplicate-or-foreign"));
+                }
+            }
+        }
+        Ok(Some(true))
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn initializers(
         &self,
