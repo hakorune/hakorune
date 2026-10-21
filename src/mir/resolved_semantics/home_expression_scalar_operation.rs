@@ -17,6 +17,8 @@ impl ExpressionScalarOperationLoanV1 {
         let root = source.nodes().first()?;
         let original_value = match source.root() {
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { initializer, .. } => initializer.initializer_site()?,
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
+                if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain => assignment.value_site(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                 role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value, ..
             } if positive_divisor.is_none() => value,
@@ -25,7 +27,7 @@ impl ExpressionScalarOperationLoanV1 {
         if root.binary()? != binary || original_value != root.site() { return None; }
         match binary.operator() {
             ResolvedBinaryOperatorV1::Subtract if positive_divisor.is_none() => {}
-            ResolvedBinaryOperatorV1::Divide
+            ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo
                 if positive_divisor.is_some_and(|n| n > 0)
                     && source.nodes().iter().any(|node| {
                         node.site() == binary.rhs()
@@ -46,6 +48,7 @@ impl ExpressionScalarOperationLoanV1 {
         match self.binary().operator() {
             ResolvedBinaryOperatorV1::Subtract if self.positive_divisor.is_none() => Some(crate::mir::BinaryOp::Sub),
             ResolvedBinaryOperatorV1::Divide if self.positive_divisor.is_some_and(|n| n > 0) => Some(crate::mir::BinaryOp::Div),
+            ResolvedBinaryOperatorV1::Modulo if self.positive_divisor.is_some_and(|n| n > 0) => Some(crate::mir::BinaryOp::Mod),
             _ => None,
         }
     }

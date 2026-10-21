@@ -170,7 +170,7 @@ static int lv4_index_seed(const hako_lv4_input* in,
   if (value->kind != LV4_BAD) { value->seed_state = 2; return 1; }
   if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
       lv4_is(ins, "op", "mul") || lv4_is(ins, "op", "sub") ||
-      lv4_is(ins, "op", "div") ||
+      lv4_is(ins, "op", "div") || lv4_is(ins, "op", "mod") ||
       lv4_is(ins, "op", "array_get") || lv4_is(ins, "op", "array_length"))
     value->kind = LV4_I64;
   else if (lv4_is(ins, "op", "object_field_get")) {

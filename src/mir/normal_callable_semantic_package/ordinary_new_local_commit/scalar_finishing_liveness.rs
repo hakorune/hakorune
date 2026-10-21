@@ -55,17 +55,21 @@ impl OrdinaryNewClaimLedgerV1 {
         // This same source packet consumes its complete original prefix,
         // including auxiliary Const/Copy producers. Lend those exact values to
         // the existing DCE owner rather than inventing an omission permission.
-        // Return evaluations own their complete original operand prefix too.
+        // Return and evaluated bindings own their complete original operand prefix.
         // In particular, scalar SSA adapters can leave the source Const unused
         // while its recorded source/physical correspondence remains mandatory.
-        let mut returns = Vec::new();
+        let mut expressions = Vec::new();
         for ((original_owner, _), progress) in self.root_exits.borrow().iter() {
             if *original_owner != owner { continue; }
             if let RootHomeExitProgress::Emitted { order, .. } = progress {
-                returns.extend_from_slice(order.return_expression_bindings_v1());
+                expressions.extend_from_slice(order.return_expression_bindings_v1());
             }
         }
-        required.extend(validated_roots_with_auxiliary(function, boundary, returns, true)?);
+        let groups = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+        for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&groups) {
+            if group.initializer().is_some() || group.rebind().is_some() { expressions.extend_from_slice(group.bindings()); }
+        }
+        required.extend(validated_roots_with_auxiliary(function, boundary, expressions, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
             self.original_condition_bindings_v1(owner)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,

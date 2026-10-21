@@ -249,30 +249,14 @@ fn encode_instruction(
             dst,
             value: ConstValue::Void,
         } => json!({ "op": "const_unit", "dst": value(dst) }),
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Add,
-            lhs,
-            rhs,
-        } => json!({ "op": "add", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Mul,
-            lhs,
-            rhs,
-        } => json!({ "op": "mul", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Sub,
-            lhs,
-            rhs,
-        } => json!({ "op": "sub", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Div,
-            lhs,
-            rhs,
-        } => json!({ "op": "div", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
+        MirInstruction::BinOp { dst, op, lhs, rhs } => {
+            let operator = match op {
+                BinaryOp::Add => "add", BinaryOp::Mul => "mul", BinaryOp::Sub => "sub",
+                BinaryOp::Div => "div", BinaryOp::Mod => "mod",
+                _ => return Err(fault("instruction-unsupported")),
+            };
+            json!({ "op": operator, "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) })
+        }
         MirInstruction::Compare { dst, op, lhs, rhs } => {
             let predicate = match op {
                 crate::mir::CompareOp::Eq => "eq",

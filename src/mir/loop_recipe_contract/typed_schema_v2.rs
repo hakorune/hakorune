@@ -477,6 +477,18 @@ fn check_blocks_and_items(
         }
         // Canonical recursive item order visits arm definitions before the
         // continuation's SSA join. Block allocation is not definition order.
+        if let LoopRecipeItemV2::Operation { operation: super::schema_v2::LoopOperationV2::BinaryI64 {
+            op: super::schema_v2::LoopBinaryI64OpV2::Div | super::schema_v2::LoopBinaryI64OpV2::Mod, right, ..
+        } } = &row.item {
+            // A type alone proves neither nonzero nor absence of MIN / -1.
+            // Keep the logical NonFaulting claim tied to its actual definition.
+            let constant = definitions.get(right).and_then(|item| item.as_ref()).and_then(|item| items.get(item));
+            if !matches!(constant, Some(LoopRecipeItemV2::Operation {
+                operation: super::schema_v2::LoopOperationV2::ConstI64 { result, value }
+            }) if result == right && *value > 0) {
+                return Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: row.key });
+            }
+        }
         check_item(&row.key, &row.item, &blocks, &loops, &exits,
             bindings, values, &mut definitions)?;
     }

@@ -137,7 +137,7 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
       strcmp(op, "const_bool") == 0 || strcmp(op, "const_string") == 0 ||
       strcmp(op, "const_unit") == 0 || strcmp(op, "const_null") == 0 ||
       strcmp(op, "add") == 0 || strcmp(op, "mul") == 0 ||
-      strcmp(op, "sub") == 0 || strcmp(op, "div") == 0 ||
+      strcmp(op, "sub") == 0 || strcmp(op, "div") == 0 || strcmp(op, "mod") == 0 ||
       strcmp(op, "compare") == 0 ||
       strcmp(op, "borrowed_null_compare") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||

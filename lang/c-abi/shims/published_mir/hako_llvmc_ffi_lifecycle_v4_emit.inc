@@ -308,11 +308,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               arhs, b, ri, arhs, arhs, b, ri, arhs, b, ri, arhs, b, ri);
         fprintf(f, "  %%v%u = %s i64 %%v%u, %%v%u\n", dst,
             lv4_is(ins, "op", "mul") ? "mul" : "add", alhs, arhs);
-      } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div")) {
+      } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div") || lv4_is(ins, "op", "mod")) {
         /* Admission requires two I64 operands and a positive literal divisor.
            Plain instructions preserve current-I64 wrap/truncation policy. */
         fprintf(f, "  %%v%u = %s i64 %%v%u, %%v%u\n", dst,
-            lv4_is(ins, "op", "sub") ? "sub" : "sdiv",
+            lv4_is(ins, "op", "sub") ? "sub" : lv4_is(ins, "op", "div") ? "sdiv" : "srem",
             lv4_u(ins, "lhs"), lv4_u(ins, "rhs"));
       } else if (lv4_is(ins, "op", "compare")) {
         uint32_t clhs = lv4_u(ins, "lhs"), crhs = lv4_u(ins, "rhs");

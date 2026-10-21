@@ -16,7 +16,7 @@ pub(super) fn validate_selected_scalar_operations(
                 matches!(
                     row,
                     MirInstruction::BinOp {
-                        op: BinaryOp::Sub | BinaryOp::Div,
+                        op: BinaryOp::Sub | BinaryOp::Div | BinaryOp::Mod,
                         ..
                     }
                 )
@@ -56,10 +56,10 @@ pub(super) fn validate_selected_scalar_operations(
             let MirInstruction::BinOp { op, rhs, .. } = &binding.1 else {
                 return Err(fault("scalar-source-shape"));
             };
-            if !matches!(op, BinaryOp::Sub | BinaryOp::Div) {
+            if !matches!(op, BinaryOp::Sub | BinaryOp::Div | BinaryOp::Mod) {
                 return Err(fault("scalar-source-operator"));
             }
-            if matches!(op, BinaryOp::Div) {
+            if matches!(op, BinaryOp::Div | BinaryOp::Mod) {
                 let positive = original
                     .source()
                     .positive_divisor()

@@ -200,6 +200,8 @@ pub(super) fn integer_operation_v2(frame: &Evaluation, node: usize) -> Option<Lo
     match loan.integer_operator_v1()? {
         crate::mir::BinaryOp::Add => Some(LoopBinaryI64OpV2::Add),
         crate::mir::BinaryOp::Mul => Some(LoopBinaryI64OpV2::Mul),
+        crate::mir::BinaryOp::Div => Some(LoopBinaryI64OpV2::Div),
+        crate::mir::BinaryOp::Mod => Some(LoopBinaryI64OpV2::Mod),
         _ => None,
     }
 }
@@ -410,7 +412,7 @@ impl Projector<'_> {
                 Node::Literal(Literal::String(value)) if value_class == LoopValueClassV2::Text => {
                     let result = self.value(value_class); self.operation(block, source, LoopOperationV2::ConstText { result, value: value.to_string() }); result
                 }
-                Node::Binary(binary) if matches!(binary.operator(), Binary::Add | Binary::Multiply)
+                Node::Binary(binary) if matches!(binary.operator(), Binary::Add | Binary::Multiply | Binary::Divide | Binary::Modulo)
                     && value_class == LoopValueClassV2::I64 => {
                     let op = integer_operation_v2(frame, node).ok_or_else(|| reject("add-domain"))?;
                     let left = by_site(binary.lhs())?; let right = by_site(binary.rhs())?;

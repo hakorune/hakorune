@@ -1,17 +1,17 @@
 # APP-json-stream-aggregator
-Status: original finite-input membership/forwarding connected; JSON Loop source updates and final Map/native incomplete. Date: 2026-10-21
+Status: positive Div/Mod source→Loop→Finished/native connected; JSON Text carrier and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 392.351s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 397.733s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON stops at borrowed-entry/source-use-completion-pending in int_to_str:
-  Loop Text carrier and Divide Assignment source updates remain before MIR/EXE.
+  Loop Text carrier remains before MIR/EXE; Div/Mod law is connected independently.
   Original to_i64 Loop/null/ReturnValue reads stay closed; full app is owed.
-- Native Sub67/negative Main Fault70/Text prints a exits0; not JSON completion.
-- 46filters+8extra match parent outcomes/strict remaining diagnostics; original
-  ungrounded-SCC SUM test PASS. Inventory9263; two source refusals stay.
+- Native Div countdown4/Div+Mod sum10 exit0; Sub67/Fault70/Text0 stay; not JSON completion.
+- 46filters+8extra match parent outcomes/strict remaining diagnostics; typed Loop43 PASS.
+  Inventory9263; C parser/nonpositive divisor and two Map source refusals stay.
 - No new test case/file/hook/guard/checker/card/app edit. Probe stays outside repo.
 
 ## Shared source and construction
@@ -54,8 +54,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Normal/LocalSSA/Copy. Slot replacement and callee Text-write inputs still refuse.
 - Local get retains actual Local receipt/Copy, Fault Homes, mandatory prefix and Finished
   capture. Annotations refuse; a borrowed get never acquires an owning result Home.
-- Raw Eq-Null source keeps SAME get reference/frame; Entry/Initializer remain distinct.
-  Numeric field roots close original guard/use flow without inventing a Home.
+- Eq-Null keeps SAME get/frame; Entry/Initializer differ; numeric roots invent no Home.
 - Checked path purposes share SAME committed ExactRead; nested parent proof remains.
   Common physical/final dependencies require actual get Normal/Copy, original If/null
   frame, sealed Bool Branch, nonNull dominance and SAME Finished projection. App's local
@@ -65,8 +64,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Instance Text borrows existing completed Return row and exact original Instance role,
   target/identity/slot. SAME original Print expression purpose selects the request;
   scalar-only requests keep their original issuer/refusal. Stored origins stay separate.
-- Source qualification never finishes executable input. Late disposition, actuals and
-  final Normal result require SAME Completion/terminal Rc, all incoming and signature.
+- Late disposition/actuals/result require SAME Completion/terminal Rc/full incoming/signature.
   OwnedString uses existing Call/Print temporary End/Fault and final callee validation.
 - Bool stays separate: same owner/noHome, literal ConstBool, Assignment receipt and Finished.
 - I64 Add/Mul/Sub initializers share original evaluation/Local/root; Div limits stay.
@@ -75,22 +73,24 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Readonly Text now requires exact original role, outside-loop acquisition and one
   SAME live entry Home. Independent schedule rechecks reference/node/binding/input;
   existing child writer and Original/Finished read/cleanup checks own physical proof.
-- Loop Mul borrows the existing integer-operation law and expression writer. Shared
-  logical mapping and independent operator/left/right/result checks prevent drift;
-  dedicated Add-only emitters remain closed. No new physical lane or receipt.
+- Loop Mul shares the integer law/writer; independent operand/result checks and Add-only fences stay.
 - Entry guard retains same null law/tagged read and sealed Bool/Finished admissions.
-- ReturnValue Sub retains SAME evaluation/reference/LoopAfter and scalar append/SSA;
-  full original operands stay DCE roots. Text/scalar share the existing Return packet.
-  Record/pending/lowering/Finished and projected Return independently recheck source.
+- ReturnValue Sub shares SAME evaluation/LoopAfter/SSA/DCE roots and Text/scalar Return;
+  record/pending/lowering/Finished/projected checks independently recheck source.
 - Finite read/entry share full original SUM census; missing siblings stay unselected.
   Forward-only purpose shares observer/entry/finish and SAME Static fact/read/snapshot;
   caller SUM, Mul/compare and physical/final checks stay; no domain/entry/ABI grant.
-- External mixed append probe reaches finite-envelope refusal, not EXE success.
-  Next SAME Loop Divide Assignment and Text carrier Normal/End/backedge/After owner.
+- Positive literal Div/Mod share SAME scalar source law in Local/Plain Assignment,
+  evaluation census/writer/SSA and Loop schedule; independent Recipe verifies exact
+  positive Const RHS. Finished/publication/C recheck source/op/operands/divisor.
+- Initializer/Rebind/Return keep exact operand-prefix DCE roots; no omission waiver.
+  JSON BinOp output shares one mapping; native C reuses positive-divisor check/srem.
+- External mixed append remains refused. Next SAME Text Loop Header/After descriptor
+  and conditional End; immutable Static/Owned incoming preserves zero-iteration/Fault
+  order. No eager Materialize, fake initializer or borrowed-formal ownership grant.
 
 ## Completion limits
-- Other Instance Text purposes/terminal actuals still require their own full consumer closure.
-- Native Text formal/actual/Materialize/store/End/Fault, full Dynamic/Provided/Shared,
+- Other Text purposes/terminal actuals and native formal/actual/Materialize/store/End/Fault, full Dynamic/Provided/Shared,
   Array holder/contents/End, exact empty transfer, signed SUM/rebind/to_i64, generic native Bool
   and generic canonical JSON remain owed under the original goal.
 - Retained reds: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8,

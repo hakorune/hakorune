@@ -125,7 +125,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         for source in flow.into_iter().flat_map(|flow| flow.scalar_operations()) { lend(source)?; }
         for evaluation in flow.into_iter().flat_map(|flow| flow.expression_plans())
-            .filter_map(|plan| plan.initializer_frame()).map(|frame| frame.evaluation())
+            .filter_map(|plan| plan.evaluation())
             .chain(self.terminal_relations_for_owner(owner).into_iter().filter_map(|row| match row {
                 TerminalRelationV1::I64Scalar(row) => row.evaluation().map(|frame| frame.as_ref()), _ => None,
             })) {

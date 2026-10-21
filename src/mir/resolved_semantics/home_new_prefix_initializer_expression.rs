@@ -36,8 +36,11 @@ pub(super) fn observe<E>(
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
     let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
         super::super::ResolvedBinaryOperatorV1::Add | super::super::ResolvedBinaryOperatorV1::Multiply
-            | super::super::ResolvedBinaryOperatorV1::Subtract))
-        && scalar_source.requires_initializer_use_frame(&owned)?;
+            | super::super::ResolvedBinaryOperatorV1::Subtract | super::super::ResolvedBinaryOperatorV1::Divide
+            | super::super::ResolvedBinaryOperatorV1::Modulo))
+        // A selected source Loop consumes a complete evaluation frame, too.
+        // This purpose does not classify leaves or grant executable input.
+        && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
     if !arithmetic_requested && !root_add && !root_reference && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(&source,
         super::expression_plan::ExpressionLeafProfileV1::LocalInitializer, &BTreeMap::new(), homes,

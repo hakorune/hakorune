@@ -57,7 +57,7 @@ impl FinalizedRootSourceHandoffV1 {
                                     Ok(())
                                 }
                                 MirInstruction::BinOp {
-                                    op: crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div,
+                                    op: crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod,
                                     ..
                                 } => lend(original, target),
                                 _ => Err(freeze("finished-scalar/derived-operation")),

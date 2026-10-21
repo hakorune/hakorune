@@ -111,7 +111,7 @@ pub(super) fn preflight<E>(
         {
             (Kind::Integer, Kind::Integer)
         }
-        Op::Divide
+        Op::Divide | Op::Modulo
             if local_initializer_profile
                 && is_root
                 && matches!(input.function().expression_source().literal(row.rhs()),
@@ -197,7 +197,7 @@ pub(super) fn preflight<E>(
     if lhs != operand || rhs != operand {
         return Ok(None);
     }
-    if local_initializer_profile && is_root && matches!(row.operator(), Op::Subtract | Op::Divide) {
+    if local_initializer_profile && is_root && matches!(row.operator(), Op::Subtract | Op::Divide | Op::Modulo) {
         let mut initializers = input
             .function()
             .expression_source()
@@ -214,7 +214,7 @@ pub(super) fn preflight<E>(
         {
             return Ok(None);
         }
-        let positive_divisor = if row.operator() == Op::Divide {
+        let positive_divisor = if matches!(row.operator(), Op::Divide | Op::Modulo) {
             match input.function().expression_source().literal(row.rhs()) {
                 Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
                 _ => return Ok(None),

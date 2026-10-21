@@ -244,6 +244,10 @@ pub(crate) enum LoopBinaryI64OpV2 {
     Add,
     Sub,
     Mul,
+    /// NonFaulting only with an independently verified positive ConstI64 RHS.
+    Div,
+    /// Same positive constant divisor law; no zero or MIN % -1 case.
+    Mod,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

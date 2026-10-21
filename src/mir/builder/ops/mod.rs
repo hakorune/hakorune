@@ -182,7 +182,7 @@ impl super::MirBuilder {
         &mut self, operator: BinaryOperator, lhs_raw: ValueId, rhs_raw: ValueId,
     ) -> Result<(CompletedOrdinaryBinaryV1, [std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1>; 2]), String> {
         let op = match converters::convert_binary_operator(operator)? {
-            BinaryOpType::Arithmetic(op @ (crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div)) => op,
+            BinaryOpType::Arithmetic(op @ (crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod)) => op,
             _ => return Err("[freeze:contract][scalar-original/operator]".into()),
         };
         let (lhs, left_relation) = crate::mir::builder::ssa::local::checked_scalar_arg(self, lhs_raw)?;

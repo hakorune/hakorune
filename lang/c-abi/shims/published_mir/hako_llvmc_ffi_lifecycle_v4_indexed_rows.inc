@@ -83,11 +83,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (!lhs || !rhs ||
           (lhs->kind != LV4_I64 && !(lhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, lhs))) ||
           (rhs->kind != LV4_I64 && !(rhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, rhs)))) return 0;
-    } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div")) {
+    } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div") || lv4_is(ins, "op", "mod")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
       if (!lhs || !rhs || lhs->kind != LV4_I64 || rhs->kind != LV4_I64 ||
-          (lv4_is(ins, "op", "div") &&
+          (!lv4_is(ins, "op", "sub") &&
            !hako_physical_positive_divisor(fn->function, lv4_u(ins, "rhs")))) return 0;
     } else if (lv4_is(ins, "op", "compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),

@@ -21,11 +21,16 @@ pub(super) fn qualify_arithmetic_operations_v1(
         let operand = |site| source.nodes().iter().position(|node| node.site() == site)
             .and_then(|index| classes[index].value_classes());
         let (Some(lhs), Some(rhs)) = (operand(binary.lhs()), operand(binary.rhs())) else { return None };
-        if binary.operator() == ResolvedBinaryOperatorV1::Subtract {
+        if matches!(binary.operator(), ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo) {
             if index != 0 || classes.first() != Some(&Leaf::Value(Class::I64))
                 || [binary.lhs(), binary.rhs()].iter().any(|site| source.nodes().iter().position(|node| node.site() == *site)
                     .is_none_or(|index| classes[index] != Leaf::Value(Class::I64))) { return None; }
-            let scalar = ExpressionScalarOperationLoanV1::issue_root(Rc::clone(source), binary, None)?;
+            let divisor = if matches!(binary.operator(), ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo) {
+                source.nodes().iter().find_map(|node| (node.site() == binary.rhs()).then(|| match node.source() {
+                    ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(value)) => Some(*value), _ => None,
+                }).flatten())
+            } else { None };
+            let scalar = ExpressionScalarOperationLoanV1::issue_root(Rc::clone(source), binary, divisor)?;
             operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(source), node: index,
                 proof: CheckedExpressionOperationProofV1::Scalar(scalar) }));
             continue;
