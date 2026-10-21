@@ -194,9 +194,6 @@ pub struct BirthInvokeV1 {
     pub effects: EffectMask,
 }
 impl BirthInvokeV1 {
-    pub fn value_arguments_match(&self, values: impl IntoIterator<Item = ValueId>) -> bool {
-        self.arguments.iter().cloned().eq(values.into_iter().map(BirthArgumentV1::Value))
-    }
     pub fn from_value_arguments(key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver: ValueId, arguments: Vec<ValueId>, effects: EffectMask) -> Self {
         Self { key, receiver, arguments: arguments.into_iter().map(BirthArgumentV1::Value).collect(), effects }

@@ -62,6 +62,7 @@ impl PublishedMirBackendView<'_> {
                 .transpose()?
                 .unwrap_or_default();
             for actual in call.actual().arguments() {
+                let value = actual.value_only_v1()?;
                 // The bound formal's contract is the sole capability
                 // authority: an object-field formal admits the nullable
                 // pair lane — `Null` or an owned `Handle` actual whose
@@ -125,7 +126,7 @@ impl PublishedMirBackendView<'_> {
                     "{error} branch={branch} caller={} caller_index={} callee_index={} site={:?} ordinal={} kind={:?} value={:?} type={:?} object_formal={object_formal} object_actual={object_actual} admitted={admitted}",
                     caller.name(), call.caller_function_index(), call.function_index(),
                     actual.source().new_site(), actual.source().ordinal(),
-                    actual.source().kind(), actual.value(), caller.value_types().get(&actual.value()),
+                    actual.source().kind(), value, caller.value_types().get(&value),
                 );
                 if object_formal != object_actual {
                     return Err(contextualize(fault("actual-kind-unavailable"), "object-formal-mismatch"));
@@ -142,7 +143,7 @@ impl PublishedMirBackendView<'_> {
                     }
                     continue;
                 }
-                scalar_actual_kind(actual.source().kind(), actual.value(), caller.value_types())
+                scalar_actual_kind(actual.source().kind(), value, caller.value_types())
                     .map_err(|error| contextualize(error, "scalar-kind"))?;
             }
         }

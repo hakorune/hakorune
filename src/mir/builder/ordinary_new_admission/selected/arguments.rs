@@ -7,7 +7,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewClaimLedgerV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
 };
-use crate::mir::{MirBuilder, MirInstruction, MirType, ValueId};
+use crate::mir::{MirBuilder, MirInstruction, MirType};
 
 pub(super) fn materialize_arguments(
     builder: &mut MirBuilder,
@@ -16,10 +16,10 @@ pub(super) fn materialize_arguments(
     site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     arity: usize,
     rows: &[OrdinaryNewTrivialArgumentV1],
-) -> Result<Vec<ValueId>, String> {
+) -> Result<Vec<crate::mir::instruction::BirthArgumentV1>, String> {
     validate_argument_rows_v1(site.owner(), site, arity, rows)?;
     rows.iter()
-        .map(|row| match row.kind() {
+        .map(|row| { let value = match row.kind() {
             OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
                 crate::mir::builder::emission::constant::emit_integer(builder, *value)
             }
@@ -86,7 +86,7 @@ pub(super) fn materialize_arguments(
                 ledger.record_argument_field_read(&read_site, block, dst, base, field)?;
                 Ok(dst)
             }
-        })
+        }; value.map(crate::mir::instruction::BirthArgumentV1::Value) })
         .collect()
 }
 
@@ -116,6 +116,7 @@ fn validate_argument_rows_v1(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::ValueId;
     use crate::mir::resolved_semantics::{
         FunctionOwnerIssuerV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
     };

@@ -245,11 +245,11 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
         let reads = (0..arguments.len()).map(|_| None).collect();
-        self.record_new_emission_with_field_array_reads(site, result, arguments, reads, reclaim, bindings)
+        self.record_new_emission_with_field_array_reads(site, result, arguments.into_iter().map(crate::mir::instruction::BirthArgumentV1::Value).collect(), reads, reclaim, bindings)
     }
 
     pub(crate) fn record_new_emission_with_field_array_reads(
-        &self, site: &OwnedExprSiteV1, result: ValueId, arguments: Vec<ValueId>,
+        &self, site: &OwnedExprSiteV1, result: ValueId, arguments: Vec<crate::mir::instruction::BirthArgumentV1>,
         reads: Vec<Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>>,
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
@@ -277,13 +277,13 @@ impl OrdinaryNewClaimLedgerV1 {
             .iter()
             .cloned()
             .zip(arguments).zip(reads)
-            .map(|((source, value), field_array_read)| {
-                match (source.field_array_read(), &field_array_read) {
-                    (None, None) => {},
-                    (Some(original), Some(read)) if read.matches(original, value) => {},
+            .map(|((source, payload), field_array_read)| {
+                match (source.field_array_read(), &field_array_read, &payload) {
+                    (None, None, _) => {},
+                    (Some(original), Some(read), crate::mir::instruction::BirthArgumentV1::Value(value)) if read.matches(original, *value) => {},
                     _ => return Err(freeze("argument-read-record-drift")),
                 }
-                Ok(EmittedNewArgumentV1 { source, value, field_array_read })
+                Ok(EmittedNewArgumentV1 { source, payload, field_array_read })
             })
             .collect::<Result<_, String>>()?;
         *emission = NewEmissionProgress::Emitted {
@@ -325,7 +325,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("provider-birth-argument-drift"));
             }
             if source.field_array_read().is_some() { return Err(freeze("provider-argument-read-unconnected")); }
-            emitted.push(EmittedNewArgumentV1 { source, value, field_array_read: None });
+            emitted.push(EmittedNewArgumentV1 { source, payload: crate::mir::instruction::BirthArgumentV1::Value(value), field_array_read: None });
         }
         self.provider_births.borrow_mut().push(ProviderBirthRecordV1 {
             site,

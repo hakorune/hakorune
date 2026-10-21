@@ -1,19 +1,18 @@
 # APP-json-stream-aggregator
-Status: Checked Birth has one ordered typed argument census; physical Text admission and Map publication remain incomplete. Date: 2026-10-21
+Status: Retained Birth actuals preserve exact typed payloads; physical Text admission and Map publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 395.641s;
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 397.135s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --jobs 2 --timeout 1900 --format json`.
+  --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - JSON first stop: owner26 ingestLine Body5 Initializer0 statsFor(user), callee25,
   lexical-instance-call/source-pending. No MIR/EXE. Four required apps remain red.
-- CLI32.97s/root63s; Invoke42/JSON35/borrowed-use31 PASS; runtime/FFI unchanged.
-- 33 focused filters retain parent outcomes/causes; inventory9263 byte-identical.
+- CLI45.60s/root82s; Invoke42/JSON35/borrowed-use31 PASS; runtime/FFI unchanged.
+- 34 focused filters retain parent outcomes/causes; inventory9263 byte-identical.
 - Broad52: parent timeout180s; current explicitly stopped539s. Unconfirmed,
   not a baseline waiver. Earlier FieldHas EXE exit7 is not remeasured.
-- Earlier Text/Map ABI evidence is narrow; source-backed publication/EXE is owed.
 
 ## Shared source and execution owners
 - One original FieldResidence census retains every Array/Dynamic field, including
@@ -35,10 +34,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   argument walk; Text borrows input Homes. Physical/ABI admission remains closed.
 - Checked Birth replaces both generic Call issuers: canonical key, receiver,
   Unit-only result and one ordered Value/Text actual array; no parallel argv.
-  Retained/source-final scans and transport compare exact Value actuals; Text
-  remains refused pending source/lifetime closure; hidden frame stays separate.
-- Existing fixtures/mutations now check the same Birth target/order/read/cleanup;
-  no new tests/hooks/checkers. Duplicate argument walks and generic Birth edge removed.
+  Emitted/retained/source-final scans compare full typed payloads; scalar/object
+  ABI and field reads explicitly require Value. Text admission remains closed.
+- Existing mutation now rejects Value→Text with identical SSA: kind is an
+  independent authority boundary. No new test functions/hooks/checkers; old
+  value-only comparison adapter deleted; Rust net -16 lines.
 - First-write I64/Map checks Empty. Birth Fault discharges only committed prefix;
   Provided stays caller-owned until Normal. Full End drains all declared residences.
 - One synchronous MapEndContext handles detached outcomes/Array children outside
@@ -76,9 +76,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   once. It grants no source Birth/Map/Call/Return publication or parent Map End.
 
 ## Next and completion limits
-- Next: retained/emitted typed Birth actuals retain SAME New evaluation; StaticText
-  has no fake SSA or caller Materialize. Same source SUM/Birth formal → late plan.
-  Borrowed Text must
+- Next: same original SUM/Birth formal → late execution plan in both LOCAL/Result
+  cores before take; preserve source and recompute complete qualified prefix. Text
+  must
   Materialize an independent pair before Dynamic initialization. Materialize
   Fault owes prior prefix; install Fault Ends fresh pair then prefix; later
   Birth Fault must include every successfully installed Text residence.

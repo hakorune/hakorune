@@ -141,7 +141,7 @@ pub(super) fn issue_birth_calls_for_program(
                 .filter(|(_, actual)| {
                     actual.target() == key
                         && actual.receiver() == *receiver
-                        && call.value_arguments_match(actual.arguments().iter().map(|argument| argument.value()))
+                        && call.arguments.iter().eq(actual.arguments().iter().map(|argument| argument.payload()))
                 })
                 .map(|(index, _)| *index)
                 .collect::<Vec<_>>();

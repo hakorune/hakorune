@@ -272,7 +272,7 @@ pub(super) fn encode_birth_call(
         issued.caller_function_index() == caller_function_index
             && issued.function_index() == *target
             && issued.receiver() == *receiver
-            && call.value_arguments_match(issued.arguments())
+            && call.arguments.iter().eq(issued.arguments())
     });
     let issued = matches
         .next()
@@ -296,7 +296,7 @@ pub(super) fn encode_birth_call(
             // spelling hands the callee its proven kind==1 payload.
             if input.tagged_birth_actual(argument.source().new_site(), argument.source().ordinal())
             {
-                return Ok(json!({ "kind": "tagged", "value": argument.value().0 }));
+                return Ok(json!({ "kind": "tagged", "value": argument.value_only_v1()?.0 }));
             }
             // An `ObjectFieldStores` formal rides the nullable pair lane:
             // the sealed source kind selects (0,0) for `null` or
@@ -305,12 +305,12 @@ pub(super) fn encode_birth_call(
             if let Some(transport) = input.object_birth_actual(
                 argument.source().new_site(), argument.source().ordinal(),
             ) {
-                return Ok(json!({ "kind": transport.wire_kind(), "value": argument.value().0 }));
+                return Ok(json!({ "kind": transport.wire_kind(), "value": argument.value_only_v1()?.0 }));
             }
             Ok(
                 json!({ "kind": super::super::physical_abi::scalar_actual_kind(
-                    argument.source().kind(), argument.value(), caller.value_types())?,
-            "value": argument.value().0 }),
+                    argument.source().kind(), argument.value_only_v1()?, caller.value_types())?,
+            "value": argument.value_only_v1()?.0 }),
             )
         })
         .collect::<Result<Vec<Value>, String>>()?;

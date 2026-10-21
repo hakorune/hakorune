@@ -141,68 +141,39 @@ fn dominated_new_argument_view_publishes_tagged_birth_actual() {
 /// its admission: mutating the published birth-call actual rejects at the
 /// same projection boundary as the compare/add/set lanes.
 fn reject_drifted_ctor_view(input: &super::super::super::PublishedLifecyclePhysicalAbiInputV1<'_>) {
-    let mut drifted = 0;
+    use crate::mir::instruction::{BirthArgumentV1 as Actual, StringInvokeOperand};
+    let mut drifted = [0, 0];
     for (fi, function) in input.program().functions().iter().enumerate() {
         for (bi, block) in function.blocks().iter().enumerate() {
-            for (ri, row) in block
-                .instructions()
-                .iter()
-                .chain(std::iter::once(&block.terminator()))
-                .enumerate()
-            {
-                let changed = match row.instruction() {
-                    MirInstruction::Call(call)
-                        if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) =>
-                    {
-                        let mut call = call.clone();
-                        if call.args.is_empty() {
-                            continue;
+            for (ri, row) in block.instructions().iter().chain(std::iter::once(&block.terminator())).enumerate() {
+                for text_kind in [false, true] {
+                    let mut changed = row.instruction().clone();
+                    match &mut changed {
+                        MirInstruction::Call(call) if !text_kind
+                            && matches!(call.callee, crate::mir::Callee::BirthConstructor { .. })
+                            && !call.args.is_empty() => call.args[0] = ValueId(998),
+                        MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } => {
+                            let Some(Actual::Value(value)) = call.arguments.first() else { continue };
+                            // Same SSA dependency, different logical kind: Text
+                            // must not inherit the original Integer admission.
+                            call.arguments[0] = if text_kind { Actual::Text(StringInvokeOperand::BorrowedText(*value)) }
+                                else { Actual::Value(ValueId(998)) };
                         }
-                        call.args[0] = ValueId(998);
-                        MirInstruction::Call(call)
+                        _ => continue,
                     }
-                    MirInstruction::Invoke {
-                        operation,
-                        fault_frame,
-                        normal_landing,
-                        fault_landing,
-                    } => {
-                        let InvokeOperation::Birth(call) = operation else { continue; };
-                        let mut call = call.clone();
-                        if call.arguments.is_empty() { continue; }
-                        call.arguments[0] = crate::mir::instruction::BirthArgumentV1::Value(ValueId(998));
-                        MirInstruction::Invoke {
-                            operation: InvokeOperation::Birth(call),
-                            fault_frame: *fault_frame,
-                            normal_landing: *normal_landing,
-                            fault_landing: *fault_landing,
-                        }
-                    }
-                    _ => continue,
-                };
-                let mut program = input.program().clone();
-                let block_mut = &mut program.functions[fi].blocks[bi];
-                if ri < block_mut.instructions.len() {
-                    block_mut.instructions[ri].instruction = &changed;
-                } else {
-                    block_mut.terminator.instruction = &changed;
+                    let mut program = input.program().clone();
+                    let block_mut = &mut program.functions[fi].blocks[bi];
+                    if ri < block_mut.instructions.len() { block_mut.instructions[ri].instruction = &changed; }
+                    else { block_mut.terminator.instruction = &changed; }
+                    let error = super::super::super::physical_program_json::emit_lifecycle_physical_program_value(
+                        &program, Some(input)).unwrap_err();
+                    assert!(error.contains("borrowed-carrier-projection-drift") || error.contains("borrowed-use/"), "{error}");
+                    drifted[usize::from(text_kind)] += 1;
                 }
-                let error =
-                    super::super::super::physical_program_json::emit_lifecycle_physical_program_value(
-                        &program,
-                        Some(input),
-                    )
-                    .unwrap_err();
-                assert!(
-                    error.contains("borrowed-carrier-projection-drift")
-                        || error.contains("borrowed-use/"),
-                    "{error}"
-                );
-                drifted += 1;
             }
         }
     }
-    assert!(drifted > 0, "birth-call actual rows present");
+    assert!(drifted.iter().all(|count| *count > 0), "value and same-SSA Text mutations must both hit original Birth actuals");
 }
 
 #[test]

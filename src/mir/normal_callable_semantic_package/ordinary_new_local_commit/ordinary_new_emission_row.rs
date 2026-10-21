@@ -102,7 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("argument-source-drift"));
                     }
                     emitted.validate_field_array_read(function, projection)?;
-                    self.validate_argument_definition(function, source, emitted.value)?;
+                    self.validate_argument_definition(function, source, emitted.value_only_v1()?)?;
                 }
                 let allocation = match row {
                     LocalCommitV1::Ordinary(row) => {
@@ -209,7 +209,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         MirInstruction::Invoke {
                             operation: crate::mir::instruction::InvokeOperation::Birth(call), ..
                         } if call.receiver == *result && row_birth_target.as_ref() == Some(&call.key)
-                            && call.value_arguments_match(arguments.iter().map(|argument| argument.value))
+                            && call.arguments.iter().eq(arguments.iter().map(|argument| argument.payload()))
                     ))
                     .count();
                 let expected_birth_calls = usize::from(row_birth_target.is_some());

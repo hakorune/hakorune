@@ -160,11 +160,11 @@ impl CompiledEntryBirthCallV1 {
     pub(crate) fn actual(&self) -> &FinalizedBirthActualsV1 {
         &self.actual
     }
-    pub(crate) fn arguments(&self) -> impl ExactSizeIterator<Item = ValueId> + '_ {
+    pub(crate) fn arguments(&self) -> impl ExactSizeIterator<Item = &crate::mir::instruction::BirthArgumentV1> + '_ {
         self.actual
             .arguments()
             .iter()
-            .map(|argument| argument.value())
+            .map(|argument| argument.payload())
     }
 }
 
@@ -611,7 +611,7 @@ fn issue_birth_calls_for_owner_at(
                 .filter(|(_, actual)| {
                     actual.target() == key
                         && actual.receiver() == *receiver
-                        && call.value_arguments_match(actual.arguments().iter().map(|argument| argument.value()))
+                        && call.arguments.iter().eq(actual.arguments().iter().map(|argument| argument.payload()))
                 })
                 .map(|(i, _)| i)
                 .collect::<Vec<_>>();

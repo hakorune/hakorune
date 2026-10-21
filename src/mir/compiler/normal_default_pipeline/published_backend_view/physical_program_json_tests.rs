@@ -668,7 +668,7 @@ fn bool_actuals_keep_kind_and_do_not_specialize_the_birth_definition() {
                         assert_eq!(
                             super::super::physical_abi::scalar_actual_kind(
                                 args[ordinal].source().kind(),
-                                args[ordinal].value(),
+                                args[ordinal].value_only_v1()?,
                                 caller.value_types(),
                             )?,
                             2

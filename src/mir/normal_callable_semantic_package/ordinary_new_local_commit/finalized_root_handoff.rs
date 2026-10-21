@@ -385,7 +385,7 @@ impl FinalizedBirthActualsV1 {
     pub(crate) fn with_argument_value_for_test(&self, ordinal: u32, value: ValueId) -> Self {
         let mut actual = self.clone();
         actual.arguments.iter_mut().find(|argument| argument.source.ordinal() == ordinal)
-            .expect("original actual ordinal").value = value;
+            .expect("original actual ordinal").payload = crate::mir::instruction::BirthArgumentV1::Value(value);
         actual
     }
 

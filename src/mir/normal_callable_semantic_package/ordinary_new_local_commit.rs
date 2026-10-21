@@ -78,7 +78,7 @@ use progress::{EmittedLocalProgress, NewEmissionProgress, UnavailableLocalProgre
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct EmittedNewArgumentV1 {
     source: super::OrdinaryNewTrivialArgumentV1,
-    value: ValueId,
+    payload: crate::mir::instruction::BirthArgumentV1,
     field_array_read: Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>,
 }
 
@@ -89,8 +89,16 @@ impl EmittedNewArgumentV1 {
     pub(crate) fn source(&self) -> &super::OrdinaryNewTrivialArgumentV1 {
         &self.source
     }
-    pub(crate) fn value(&self) -> ValueId {
-        self.value
+    pub(crate) fn payload(&self) -> &crate::mir::instruction::BirthArgumentV1 {
+        &self.payload
+    }
+    /// Scalar/object consumers must not reinterpret a Text descriptor's SSA
+    /// dependency as an I64 or handle actual.
+    pub(crate) fn value_only_v1(&self) -> Result<ValueId, String> {
+        match self.payload {
+            crate::mir::instruction::BirthArgumentV1::Value(value) => Ok(value),
+            crate::mir::instruction::BirthArgumentV1::Text(_) => Err(freeze("argument-source-unavailable")),
+        }
     }
 }
 

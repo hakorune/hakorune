@@ -4,10 +4,10 @@ impl EmittedNewArgumentV1 {
     pub(super) fn validate_field_array_read(
         &self, function: &MirFunction, projection: Option<&physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
-        match (self.source.field_array_read(), &self.field_array_read) {
-            (None, None) => Ok(()),
-            (Some(source), Some(read)) if read.matches(source, self.value) => {
-                read.validate(function, self.value, |original| match projection {
+        match (self.source.field_array_read(), &self.field_array_read, self.payload()) {
+            (None, None, _) => Ok(()),
+            (Some(source), Some(read), crate::mir::instruction::BirthArgumentV1::Value(value)) if read.matches(source, *value) => {
+                read.validate(function, *value, |original| match projection {
                     Some(projection) => projection.relation_binding(function, original),
                     None => Ok(Some(original.clone())),
                 })

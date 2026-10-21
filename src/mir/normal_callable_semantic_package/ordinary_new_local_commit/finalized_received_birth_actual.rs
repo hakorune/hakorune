@@ -24,6 +24,7 @@ impl FinalizedRootSourceHandoffV1 {
         let OrdinaryNewTrivialArgumentKindV1::BoundValue { binding } = argument.source().kind()
             else { return Ok(None) };
         let binding = *binding;
+        let argument_value = argument.value_only_v1()?;
         if actual.destination().is_some() || actual.owner() != binding.owner() {
             return Err(freeze("received-birth/result-source-required"));
         }
@@ -111,7 +112,7 @@ impl FinalizedRootSourceHandoffV1 {
                 || !bindings.contains(producer) { return Err(freeze("received-birth/original-producer")); }
             let final_producer = finishing.binding(producer.0, &producer.1)?
                 .ok_or_else(|| freeze("received-birth/producer-removed"))?;
-            if !matches!(&final_producer.1, MirInstruction::InvokeNormalResult { dst, .. } if *dst == argument.value())
+            if !matches!(&final_producer.1, MirInstruction::InvokeNormalResult { dst, .. } if *dst == argument_value)
                 || function.blocks.get(&final_producer.0).into_iter().flat_map(|block| block.all_instructions())
                     .filter(|instruction| **instruction == final_producer.1).count() != 1
             { return Err(freeze("received-birth/finished-producer")); }
@@ -151,7 +152,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let mut birth = construction_bindings.iter().filter(|(_, row)| matches!(row,
                     MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(call), .. }
                     if &call.key == actual.target() && call.receiver == actual.receiver()
-                        && call.value_arguments_match(actual.arguments().iter().map(|arg| arg.value()))));
+                        && call.arguments.iter().eq(actual.arguments().iter().map(|arg| arg.payload()))));
                 let original_birth = birth.next().ok_or_else(|| freeze("received-birth/original-birth"))?;
                 if birth.next().is_some() { return Err(freeze("received-birth/duplicate-birth")); }
                 let birth = finishing.binding(original_birth.0, &original_birth.1)?

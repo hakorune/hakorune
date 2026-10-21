@@ -61,9 +61,9 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
                 for argument in call.actual().arguments() {
                     assert!(!input.tagged_birth_actual(call.actual().site(), argument.source().ordinal()));
                     assert_eq!(super::super::physical_abi::scalar_actual_kind(
-                        argument.source().kind(), argument.value(), caller.value_types())?, 1);
+                        argument.source().kind(), argument.value_only_v1().unwrap(), caller.value_types())?, 1);
                     assert!(super::super::physical_abi::scalar_actual_kind(
-                        argument.source().kind(), argument.value(), &BTreeMap::new())
+                        argument.source().kind(), argument.value_only_v1().unwrap(), &BTreeMap::new())
                         .unwrap_err().contains("actual-kind-unavailable"));
                 }
             }

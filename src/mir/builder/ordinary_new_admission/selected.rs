@@ -152,6 +152,9 @@ fn emit_selected_new(
     let field_array_reads = argument_rows.iter().zip(&arguments).map(|(source, value)| {
         source.field_array_read().map(|read| {
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("argument-read-function-missing"))?;
+            let crate::mir::instruction::BirthArgumentV1::Value(value) = value else {
+                return Err(freeze("argument-source-unavailable"));
+            };
             state.field_array_read_argument_v1(read, function, *value)
         }).transpose()
     }).collect::<Result<Vec<_>, String>>()?;
@@ -229,7 +232,9 @@ fn emit_selected_new(
         .insert(result, class);
     if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
         let effects = recipe.physical_effect_mask();
-        let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(recipe.target(), result, arguments.clone(), effects);
+        let call = crate::mir::instruction::BirthInvokeV1 {
+            key: recipe.target(), receiver: result, arguments: arguments.clone().into_boxed_slice(), effects,
+        };
         let after_birth = builder.next_block_id();
         let birth = MirInstruction::Invoke {
             operation: InvokeOperation::Birth(call),

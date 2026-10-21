@@ -541,12 +541,14 @@ provenance — the exact call inventories authorize the binding, not any
 expression re-classification — and the row materializes through the same
 exact-binding lane as Local/Handle. The selected emitter consumes and
 materializes those rows without raw argument descent, then records the
-non-semantic `(source row, emitted ValueId)` snapshot in the existing
+non-semantic `(source row, typed Birth actual)` snapshot in the existing
 claim. The root finalizer checks that snapshot against literal
 definitions and the exact target/receiver/ordered actuals of `InvokeOperation::Birth`.
 Checked Birth is Unit-only and owns one `Value`/`Text` argument array; ordinary
 `Call` with a Birth callee is rejected. Text actuals remain closed until their
-retained source and lifetime checks are connected. The finalizer rejects residual
+retained source and lifetime checks are connected. Scalar/object and field-read
+consumers explicitly require `Value`; a Text descriptor with the same SSA
+dependency cannot inherit that admission. The finalizer rejects residual
 rows or physical value/order/Birth drift; it does not reclassify source expressions. The selected physical consumer admits Integer/Bool actuals
 for its retained formal contract; Local/Handle/BoundValue actuals still
 stop. Source argument retention alone does not authorize a physical
