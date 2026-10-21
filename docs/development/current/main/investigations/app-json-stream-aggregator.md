@@ -9,7 +9,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Selected JSON passes `reportUser` source-use closure; its direct get LOCAL stops
   at ordinary-new/emission/map-get-source-missing (main.hako:160): physical packet
   and same-value null Branch remain owed. No MIR/EXE; final Map/native also owed.
-- Current CLI39.08s/root59.11s. Runtime/FFI unchanged; no new test functions/files.
+- Current CLI55.20s/root~84s. Runtime/FFI unchanged; no new test functions/files.
 - Prior six Birth Text source→MIR/ABI/JSON cases pass; foreign-source refusal stays.
 - Former unsupported-Text negatives now use Float/Map with the same named refusal
   and consumer topology; Text positives remain. Inventory9263, no new files/hooks/guards/cards.
@@ -84,9 +84,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Direct get retains SAME census/get/current receiver, key/Homes and pure caller
   in existing Map/prefix/lifecycle. Source null proof distinguishes Entry/Initializer;
   Entry rejects LOCAL. Guard/use flow and numeric field roots close without a Home.
-- Next same get Normal/LOCALSSA/Copy + nullable Bool/Branch; no callable ordinal.
-- Temporary refusal owners: Local materialization/field root; retire_when both
-  checked consumers connect. Final Map/ABI/native remain required.
+- Shared physical get read checks original get/key/receiver/Invoke-Normal pair and
+  Finished; only Return lends callable support. Next LOCAL receipt/Fault/prefix,
+  then same-value Bool/Branch. Retire Local/field fences when both consumers close.
 - Native Text formal/actual/Materialize/store/End/Fault closure remains required.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
   Array holder/contents/End and exact empty-transfer census remain owed.
