@@ -455,6 +455,14 @@ impl PreparedBorrowedFormalIngressV1 {
         read.point_for_original_flow_v1(flow)?;
         lend_original_point_sum(product, &self.source_incoming, flow, read.read(), read.binding())
     }
+    /// Lend the SAME complete original input census without choosing a protocol.
+    /// Known nonfinite alternatives are retained; missing roots remain unselected.
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_original_input_sums_v1(
+        &self, parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
+    ) -> Option<Vec<Rc<SourceValueSumV1>>> {
+        parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
+            .map(|row| self.lend_source_value_sum_v1(row.binding)).collect()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn lend_source_value_sum_v1(
         &self, formal: BindingRefV1,
     ) -> Option<Rc<SourceValueSumV1>> {

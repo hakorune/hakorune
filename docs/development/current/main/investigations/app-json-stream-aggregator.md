@@ -1,18 +1,17 @@
 # APP-json-stream-aggregator
-Status: ReturnValue Sub source/physical/final connected; JSON lexical entry domain and final Map/native incomplete. Date: 2026-10-21
+Status: original finite-input membership/forwarding connected; JSON Loop source updates and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 431.480s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 392.351s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON passes package forwarding but stops in lexical scope at
-  borrowed-entry/finite-domain-unclosed before MIR/EXE. Original to_i64 Loop,
-  null guard and ReturnValue Sub RHS source reads close; full app is owed.
-- Native LoopAfter/Sub returns67; negative Main correctly Faults/exits70;
-  existing Text return prints a/exits0. These are not JSON completion.
-- 46filters+5extra match parent outcomes/strict remaining diagnostics; two newly
-  exposed regressions corrected. Inventory9263; two source refusals stay.
+- JSON stops at borrowed-entry/source-use-completion-pending in int_to_str:
+  Loop Text carrier and Divide Assignment source updates remain before MIR/EXE.
+  Original to_i64 Loop/null/ReturnValue reads stay closed; full app is owed.
+- Native Sub67/negative Main Fault70/Text prints a exits0; not JSON completion.
+- 46filters+8extra match parent outcomes/strict remaining diagnostics; original
+  ungrounded-SCC SUM test PASS. Inventory9263; two source refusals stay.
 - No new test case/file/hook/guard/checker/card/app edit. Probe stays outside repo.
 
 ## Shared source and construction
@@ -70,8 +69,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   final Normal result require SAME Completion/terminal Rc, all incoming and signature.
   OwnedString uses existing Call/Print temporary End/Fault and final callee validation.
 - Bool stays separate: same owner/noHome, literal ConstBool, Assignment receipt and Finished.
-- Requested I64 Add/Mul/Sub initializers keep checked references and the common
-  evaluation/Local receipt; Sub shares the Local/root law and Div limits stay.
+- I64 Add/Mul/Sub initializers share original evaluation/Local/root; Div limits stay.
 - Dedicated Static I64 Loop keeps original roles and scope; partial selection refuses.
   Whole incoming/Completion/signature/actuals and final result checking stay.
 - Readonly Text now requires exact original role, outside-loop acquisition and one
@@ -84,9 +82,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - ReturnValue Sub retains SAME evaluation/reference/LoopAfter and scalar append/SSA;
   full original operands stay DCE roots. Text/scalar share the existing Return packet.
   Record/pending/lowering/Finished and projected Return independently recheck source.
-- Static forwarding joins SAME saved SourceStatic/fact/candidate/UnresolvedArgument;
-  no domain/entry/ABI grant. Strong witness and full cohort checks stay; worker agreed.
-- Next pin lexical refusal owner/formal/SUM, then SAME source→physical entry.
+- Finite read/entry share full original SUM census; missing siblings stay unselected.
+  Forward-only purpose shares observer/entry/finish and SAME Static fact/read/snapshot;
+  caller SUM, Mul/compare and physical/final checks stay; no domain/entry/ABI grant.
+- External mixed append probe reaches finite-envelope refusal, not EXE success.
+  Next SAME Loop Divide Assignment and Text carrier Normal/End/backedge/After owner.
 
 ## Completion limits
 - Other Instance Text purposes/terminal actuals still require their own full consumer closure.

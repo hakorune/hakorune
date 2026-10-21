@@ -95,7 +95,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let parameters: Vec<_> = declaration.parameters.iter().map(|row|
             (row.ordinal, row.binding, row.kind.clone())).collect();
         let structure = self.borrowed_entry_structure_for_contract(owner, &parameters)?
-            .ok_or_else(|| freeze("borrowed-text-entry/finite-structure-required"))?;
+            .ok_or_else(|| {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[input-domain] read owner={owner:?} ordinal={} binding={:?} formal={:?} read={:?}",
+                        requirement.ordinal, requirement.binding, requirement.formal, requirement.read);
+                }
+                freeze("borrowed-text-entry/finite-structure-required")
+            })?;
         let entries = self.borrowed_ordinary_entry_values_v1(owner)?;
         structure.check_finite_entry_values_v1(&entries)?;
         let domain = structure.source_domain_for_formal_v1(requirement.ordinal, requirement.formal)?;

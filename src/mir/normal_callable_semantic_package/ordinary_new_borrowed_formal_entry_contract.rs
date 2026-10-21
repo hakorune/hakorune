@@ -238,6 +238,16 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             for (argument, site) in observation.arguments().iter().zip(argument_sites) {
                 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1 as Argument;
+                if let (Argument::BorrowedActual { ordinal, site: actual }, Some(original)) = (argument, scalar_static.as_ref()) {
+                    if actual != site { return Err(freeze("static-input/qualified-use-identity")); }
+                    if let Some((binding, formal)) = Self::original_static_forwarded_use_v1(
+                        structure.source, uses, original, *ordinal, site)? {
+                        if origins.get(&binding) != Some(&formal) || !covered.insert((site.clone(), binding)) {
+                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                        }
+                        continue;
+                    }
+                }
                 let binding = match argument {
                     Argument::Scalar(binding) => Some(*binding),
                     Argument::BorrowedActual { site: actual, .. } if actual == site => scalar_reads.iter()
@@ -540,8 +550,10 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let borrowed: Vec<_> = contract.parameters.iter()
             .filter(|row| row.kind.is_ordinary_borrowed_handle()).collect();
-        let sums: Vec<_> = borrowed.iter().map(|row| source.lend_source_value_sum_v1(row.binding)).collect();
-        let text_requested = sums.iter().flatten().any(|sum| sum.alternatives().contains(
+        // The source read lender uses this SAME full original membership.
+        // One Text formal cannot select an ungrounded sibling or grant entry.
+        let Some(sums) = source.lend_original_input_sums_v1(&contract.parameters) else { return Ok(None) };
+        let text_requested = sums.iter().any(|sum| sum.alternatives().contains(
             &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
         // Original Text domains select the same finite source structure even
         // when a legacy Uses definition exists. Full uses and incoming still
@@ -553,10 +565,10 @@ impl OrdinaryNewClaimLedgerV1 {
         // Preserve the existing Text refusal boundary. New scalar families
         // select only a complete original cohort, never one convenient formal.
         if !text_requested && ((contract.mode == Mode::StaticBoxMethod
-            && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum|
-                sum.as_ref().is_some_and(|sum| sum.finite_input()))) { return Ok(None); }
+            && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum| sum.finite_input())) { return Ok(None); }
         let uses = Rc::clone(source.original_formal_uses_v1(owner)?);
-        if !text_requested && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
+        if !text_requested && !source.original_finite_forward_input_request_v1(owner)
+            && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
         if parameters.len() != contract.parameters.len()
             || parameters.iter().zip(&contract.parameters).enumerate().any(|(index, ((ordinal, binding, kind), original))|
                 *ordinal as usize != index || *ordinal != original.ordinal || *binding != original.binding
@@ -568,8 +580,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if !uses.matches_contract(contract) { return Err(freeze("borrowed-entry/original-use-contract")); }
         let mut domains = BTreeMap::new();
         for (formal, sum) in borrowed.iter().zip(sums) {
-            let sum = sum.ok_or_else(|| freeze("borrowed-entry/finite-domain-unclosed"))?;
             if !sum.finite_input() {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[input-domain] finite owner={owner:?} formal={:?} alternatives={:?}", formal.binding, sum.alternatives());
+                }
                 return Err(freeze("borrowed-entry/finite-domain-unclosed"));
             }
             domains.insert(formal.binding, sum);
@@ -714,6 +728,9 @@ impl BorrowedEntryStructureV1<'_> {
         let sum = self.source.lend_source_value_sum_v1(formal)
             .ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))?;
         if !sum.finite_input() {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[input-domain] uses owner={:?} formal={formal:?} alternatives={:?}", self.owner, sum.alternatives());
+            }
             return Err(freeze("borrowed-entry/finite-domain-unclosed"));
         }
         Ok(sum)

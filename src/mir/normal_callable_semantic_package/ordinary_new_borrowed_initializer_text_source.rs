@@ -110,6 +110,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     let Some(flow) = input.function().expression_source().value_flow() else { return Ok(None) };
     let Some(value) = flow.read(read, binding) else { return Ok(None) };
     if flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) != Some(root) { return Ok(None); }
+    // A source read must select the same whole original entry membership as
+    // its physical consumer. This grants no domain or completed actuals.
+    let mut declarations = contracts.iter().filter(|row| row.owner == input.owner());
+    let contract = declarations.next().ok_or_else(reject)?;
+    if declarations.next().is_some() { return Err(reject()); }
+    if prepared.lend_original_input_sums_v1(&contract.parameters).is_none() { return Ok(None); }
     let Some(sum) = prepared.lend_source_value_sum_v1(root) else { return Ok(None) };
     // Keep every original finite alternative. The later initializer joins
     // real current/terminating-branch evidence; this source loan removes none.

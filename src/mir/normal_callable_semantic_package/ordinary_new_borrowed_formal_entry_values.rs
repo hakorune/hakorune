@@ -265,7 +265,12 @@ impl OrdinaryNewClaimLedgerV1 {
         self.borrowed_entry_values
             .borrow()
             .get(&owner)
-            .ok_or_else(|| freeze("borrowed-entry/entry-values-missing"))?
+            .ok_or_else(|| {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[input-domain] physical entry missing owner={owner:?}");
+                }
+                freeze("borrowed-entry/entry-values-missing")
+            })?
             .values
             .clone()
     }

@@ -248,7 +248,8 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn is_static_expression_input_owner_v1(&self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1) -> bool {
         source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row|
             matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                if original.parameters().iter().any(|formal| matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                if source.original_finite_forward_input_request_v1(owner)
+                    || original.parameters().iter().any(|formal| matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                     && source.source_value_sum_v1(formal.binding).is_some_and(|sum|
                         sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))))
             && self.borrowed_formal_actuals.get(&row.call).is_some_and(|rows|

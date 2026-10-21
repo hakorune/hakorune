@@ -3,6 +3,27 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Join a forwarded source use to the SAME original Static argument fact.
+    /// Physical entry/read/Copy and completed actuals remain independent duties.
+    pub(super) fn original_static_forwarded_use_v1(
+        source: &PreparedBorrowedFormalIngressV1,
+        uses: &Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
+        original: &Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>,
+        ordinal: u32, site: &SourceExprSiteV1,
+    ) -> Result<Option<(BindingRefV1, BindingRefV1)>, String> {
+        let Some(fact) = source.static_arguments.get(&(original.call_site().clone(), ordinal)) else { return Ok(None) };
+        if !Rc::ptr_eq(fact.retained_call_source(), original)
+            || fact.call() != original.call_site() || fact.ordinal() != ordinal
+            || fact.use_site().owner() != original.call_site().owner() || fact.use_site().site() != site
+            || original.argument_sites().get(ordinal as usize) != Some(site)
+            || original.parameters().get(ordinal as usize).is_none_or(|formal|
+                formal.ordinal != ordinal || formal.binding != fact.target_formal() || !formal.kind.is_ordinary_borrowed_handle())
+            || uses.lend_read(site, fact.binding(), fact.formal()).is_none() {
+            return Err(freeze("static-input/qualified-use-identity"));
+        }
+        Ok(Some((fact.binding(), fact.formal())))
+    }
+
     /// Lend completed finite inputs through the same entry-use and incoming
     /// closure. This is an actual loan, never an artificial legacy Uses draft.
     pub(super) fn completed_finite_entry_call_actuals_v1(

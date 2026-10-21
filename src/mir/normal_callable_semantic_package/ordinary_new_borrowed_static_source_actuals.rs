@@ -65,6 +65,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn original_static_source_v
     Ok(Some(source))
 }
 
+impl PreparedBorrowedFormalIngressV1 {
+    /// Source projection uses the same original destination purpose as admission.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_finite_forward_source_call_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Result<bool, String> {
+        Ok(original_static_source_v1(self, site)?.is_some_and(|source|
+            self.original_finite_forward_input_request_v1(source.callee_owner())))
+    }
+}
+
 /// The SAME original ordinary Text call source; classification only, never an
 /// executable result/ABI grant. A genuine method is selected before Array/Core.
 pub(super) fn ordinary_text_argument_source_v1(
@@ -178,10 +188,12 @@ pub(super) fn selects_static_expression_source_v1(
         _ => false,
     });
     let original = original_static_source_v1(prepared, call)?;
-    let text_cohort = original.is_some_and(|source| source.parameters().iter().any(|formal|
+    let finite_cohort = original.is_some_and(|source|
+        prepared.original_finite_forward_input_request_v1(source.callee_owner())
+            || source.parameters().iter().any(|formal|
         matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) && prepared.source_value_sum_v1(formal.binding)
             .is_some_and(|sum| sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))));
-    let sibling_source = text_cohort && actuals.iter().all(|actual|
+    let sibling_source = finite_cohort && actuals.iter().all(|actual|
         !matches!(actual.value, BorrowedCallActualValueV1::MethodCall(_)) ||
             prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone())).is_some());
     // Input observation retains the original target and input demand only.
@@ -549,11 +561,13 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
                 || rows.has_qualified_static_argument_source_v1()
                 || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
     let retained = original_static_source_v1(prepared, site)?;
+    let has_finite_forward_source = prepared.has_finite_forward_source_call_v1(site)?;
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
     let has_static_terminal_source = !current_owner
         && retained.is_some_and(|row| prepared.is_static_terminal_source_v1(row));
     if !has_source_fact
         && !has_final_static
+        && !has_finite_forward_source
         && !has_static_terminal_source
         && source_qualified.is_none()
         && !has_expression_source
@@ -597,7 +611,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         )
         .map(|arguments| Some(arguments.into()));
     }
-    if !has_source_fact && !current_owner && !has_static_terminal_source && source_qualified.is_none() && !has_expression_source {
+    if !has_source_fact && !current_owner && !has_static_terminal_source && source_qualified.is_none() && !has_expression_source && !has_finite_forward_source {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {

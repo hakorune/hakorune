@@ -521,10 +521,10 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 issue: issue.clone(),
             }
         })?;
-        // Main's exact terminal loan permits source projection only. It does
-        // not add the site to executable Static route membership.
+        // Original purpose permits source projection, never executable membership.
         let scalar_source = source.as_ref().ok().map(|prepared|
-            prepared.has_scalar_qualified_source_call_v1(site)).transpose()
+            prepared.has_scalar_qualified_source_call_v1(site).and_then(|scalar|
+                Ok(scalar || prepared.has_finite_forward_source_call_v1(site)?))).transpose()
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(), issue,
             })?.unwrap_or(false);

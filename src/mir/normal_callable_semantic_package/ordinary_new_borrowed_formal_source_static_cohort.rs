@@ -5,6 +5,21 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use std::rc::Rc;
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// A source forwarding purpose into the existing finite Text input family.
+    /// The caller keeps its own SUM; this lends no Text view or executable input.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_finite_forward_input_request_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> bool {
+        // Use the same original formal-use shape at observation, entry and
+        // finishing. Existing Mul/compare protocols keep their own authority.
+        if !self.source_only_definitions.get(&owner).is_some_and(forward_only_static_input_v1) { return false; }
+        self.static_arguments.values().filter(|fact| fact.call().owner() == owner).any(|fact| {
+            let Some(sums) = self.lend_original_input_sums_v1(fact.call_source().parameters()) else { return false };
+            sums.iter().all(|sum| sum.finite_input()) && sums.iter().any(|sum|
+                sum.alternatives().contains(&SourceValueAlternativeV1::Text))
+        })
+    }
+
     /// Original scalar protocol membership, before any actual or Completion proof.
     /// Share this selection with entry staging so a newer input family cannot
     /// take an existing scalar owner's source uses into a different protocol.
@@ -14,11 +29,10 @@ impl PreparedBorrowedFormalIngressV1 {
         self.source_only_definitions.get(&owner).is_some_and(|draft| {
             let mul = draft.uses.iter().any(|row| matches!(row.kind,
                 BorrowedFormalUseDraftKindV1::MulOperand { .. }));
-            let forwards = draft.uses.iter().filter(|row| matches!(row.kind,
-                BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 0, .. })).count();
-            mul || (forwards == 1 && draft.uses.iter().all(|row| matches!(row.kind,
-                BorrowedFormalUseDraftKindV1::Copy { .. }
-                    | BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 0, .. })))
+            // Keep existing Mul/compare owners. Only the forward-only protocol
+            // chooses its family from the original destination input domain.
+            mul || (forward_only_static_input_v1(draft)
+                && !self.original_finite_forward_input_request_v1(owner))
                 || self.is_compare_only_static_input_v1(owner)
         })
     }
@@ -140,4 +154,13 @@ impl PreparedBorrowedFormalIngressV1 {
         }
         Ok(Some(row))
     }
+}
+
+/// The existing forward-only source family, shared before protocol selection.
+fn forward_only_static_input_v1(draft: &BorrowedFormalUsesDraftV1) -> bool {
+    draft.uses.iter().filter(|row| matches!(row.kind,
+        BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 0, .. })).count() == 1
+        && draft.uses.iter().all(|row| matches!(row.kind,
+            BorrowedFormalUseDraftKindV1::Copy { .. }
+                | BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 0, .. }))
 }
