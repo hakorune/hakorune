@@ -564,9 +564,13 @@ no scalar admission. The old parallel actual/read arrays and value-only recordin
 adapter are retired from production. Checked Birth remains Unit-only with one
 ordered Value/Text array. Callee Text Materialize/first-write/cleanup and final
 Text ABI/JSON permission remain closed until their source-backed replay is
-connected; source-scoped New emission alone does not grant them. The original
-final call-tree visitor still needs to enumerate nested New-argument Calls from
-this same row, including whole-row preflight for zero-Call String expressions.
+connected; source-scoped New emission alone does not grant them. Both final
+module/JSON call visitors now replay the same complete New row, including
+zero-Call String expressions, before lending nested Calls in their original
+NewArgument context. Exact source-node containment selects the New argument
+before any physical lookup; a missing packet refuses without trying another
+pool. Producer/read/Copy coordinates require membership in that same packet
+and the existing finished binding authority. No parallel String registry exists.
 
 ### RawCompatibility child terminal I1 (2026-08-27)
 

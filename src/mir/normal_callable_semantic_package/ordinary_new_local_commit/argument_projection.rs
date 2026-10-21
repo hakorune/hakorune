@@ -108,6 +108,38 @@ impl EmittedNewExpressionV1 {
             &self.original,
         )
     }
+    pub(super) fn calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        self.calls.iter().map(Rc::as_ref)
+    }
+    pub(super) fn with_call_node_v1<R>(&self, site: &OwnedExprSiteV1,
+        read: impl FnOnce(&EmittedLexicalCallProjectionV1) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let mut found = None;
+        for root in self.calls_v1() {
+            if let Some(packet) = root.retained_node_at_v1(site)? {
+                if found.replace(packet).is_some() {
+                    return Err(freeze("mixed-result/borrowed-consumed-packet-duplicate"));
+                }
+            }
+        }
+        read(found.ok_or_else(|| freeze("mixed-result/borrowed-consumed-packet-missing"))?)
+    }
+    pub(super) fn visit_calls_v1(
+        &self,
+        mut visit: impl FnMut(&EmittedLexicalCallProjectionV1,
+            &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]) -> Result<(), String>,
+    ) -> Result<(), String> {
+        if self.frame.calls().len() != self.calls.len() {
+            return Err(freeze("print-expression/source-coverage"));
+        }
+        for (source, packet) in self.frame.calls().iter().zip(&self.calls) {
+            if source.site() != packet.call_site() {
+                return Err(freeze("print-expression/call-source"));
+            }
+            visit(packet, source.arguments())?;
+        }
+        Ok(())
+    }
     pub(in crate::mir) fn bindings(&self) -> &[Binding] {
         &self.original
     }
@@ -545,5 +577,45 @@ impl FinalizedRootSourceHandoffV1 {
             self.ledger.validate_ordinary_new_row_emission_projected(actual.owner(), actual.site(), row, function,
                 Some(projection), CallValidationContextV1::Finalized(self))
         })
+    }
+}
+
+impl FinalizedRootSourceHandoffV1 {
+    /// Coordinates may be lent only by the original New argument's own packet.
+    pub(super) fn finished_new_argument_call_binding_v1(
+        &self, owner: FunctionOwnerIdV1, new_site: &OwnedExprSiteV1, ordinal: u32,
+        node_site: &OwnedExprSiteV1, original: &Binding, function: &MirFunction,
+        copy: bool,
+    ) -> Result<(BasicBlockId, usize), String> {
+        if new_site.owner() != owner || node_site.owner() != owner {
+            return Err(freeze("finished-local-call/owner"));
+        }
+        let rows = self.ledger.local_commits.borrow();
+        let arguments = match rows.get(new_site).and_then(LocalCommitV1::new_emission) {
+            Some(NewEmissionProgress::Emitted { arguments, .. }) => arguments,
+            _ => return Err(freeze("argument-source-unavailable")),
+        };
+        let argument = arguments.get(ordinal as usize)
+            .filter(|row| row.source().ordinal() == ordinal && row.source().new_site() == new_site)
+            .ok_or_else(|| freeze("argument-source-drift"))?;
+        let expression = argument.expression_v1().ok_or_else(|| freeze("argument-source-drift"))?;
+        expression.require_source_v1(argument.source(), argument.payload())?;
+        let mut found = None;
+        for packet in expression.calls_v1() {
+            let member = if copy {
+                packet.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?
+                    .iter().any(|(site, binding)| site == node_site && binding == original)
+            } else { packet.has_producer_at(node_site, original) };
+            if member && found.replace(packet).is_some() {
+                return Err(freeze("finished-copy/packet-duplicate"));
+            }
+        }
+        let packet = found.ok_or_else(|| freeze("finished-local-call/original-producer"))?;
+        if copy {
+            self.finished_packet_copy(owner, packet, node_site, original, function)
+        } else {
+            let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
+            super::finalized_source_projection::find_finished_producer(&symbol, &finished, function)
+        }
     }
 }

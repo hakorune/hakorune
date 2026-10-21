@@ -247,6 +247,34 @@ impl<'a> CallValidationContextV1<'a> {
         self, site: &OwnedExprSiteV1,
         check: impl FnOnce(&EmittedLexicalCallProjectionV1) -> Result<R, String>,
     ) -> Result<R, String> {
+        // Select the original source container before consulting any physical
+        // state. A missing New packet must never retry the local-group pool.
+        let rows = self.ledger().local_commits.borrow();
+        let mut selected = None;
+        for (new_site, row) in rows.iter().filter(|(new_site, _)| new_site.owner() == site.owner()) {
+            let Some(Ok(arguments)) = row.new_argument_rows() else { continue };
+            for argument in arguments.iter() {
+                let super::super::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = argument.kind() else { continue };
+                if evaluation.source().contains_call_site_v1(site)
+                    && selected.replace((new_site, row, argument)).is_some() {
+                    return Err(freeze("call-validation/duplicate-source-node"));
+                }
+            }
+        }
+        if let Some((new_site, row, source)) = selected {
+            if source.new_site() != new_site || source.owner() != site.owner() {
+                return Err(freeze("argument-source-drift"));
+            }
+            let argument = match row.new_emission() {
+                Some(NewEmissionProgress::Emitted { arguments, .. }) => arguments.get(source.ordinal() as usize)
+                    .filter(|argument| argument.source() == source),
+                _ => None,
+            }.ok_or_else(|| freeze("argument-source-unavailable"))?;
+            let expression = argument.expression_v1().ok_or_else(|| freeze("argument-source-drift"))?;
+            expression.require_source_v1(source, argument.payload())?;
+            return expression.with_call_node_v1(site, check);
+        }
+        drop(rows);
         self.with_local_call_group_tree_v2(site.owner(), |groups| {
             let mut found = None;
             for group in groups {

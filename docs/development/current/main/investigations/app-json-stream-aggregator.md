@@ -1,17 +1,17 @@
 # APP-json-stream-aggregator
-Status: Original New expression/lifetime connected; callee Text and Map publication incomplete. Date: 2026-10-21
+Status: New arguments connected to existing final Call visitor; callee Text and Map publication incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 380.143s;
+- Last fixed suite at `2ac568b31a`: 7PASS/4FAIL, actual EXE6 + marker1, 380.143s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - Final CLI JSON stop: construction-store/source-or-cleanup-contract at original
   UserStats Text initialization; no MIR/EXE. Four required apps remain red.
-- Final CLI39.66s/root57.62s; runtime/FFI unchanged, no new warning kinds.
-- Final34 filters: 33 preserve exact outcomes/failure bodies; source_scope improves
-  parent2/1 → 3PASS with original JSON expectations retained. Inventory9263 unchanged.
+- Current CLI79s/root130s; runtime/FFI unchanged, no new warning kinds.
+- Current36 filters match parent outcomes/strict failures; source_scope3PASS,
+  final Call4PASS, Copy4/1 (same missing callee). Inventory9263 unchanged.
 - Broad52 remains unconfirmed (parent timeout180/current stopped539), no waiver.
   Earlier FieldHas EXE exit7 is not remeasured.
 
@@ -68,13 +68,18 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Precommit keeps candidate; Normal moves once. No automatic source publication.
 
 ## Next and completion limits
-- Existing final call-tree visitor must preflight every New expression, including
-  zero-Call String expressions, then lend nested Calls with exact NewArgument
-  context. Worker confirms existing visitor/FinishedBindings owner; no new registry
-  or local-group disguise. Text ABI permission remains closed.
-- Then shared String writer → independent callee Materialize pair → Text initialize
+- Both final module/JSON Call visitors now preflight the same complete New row,
+  including zero-Call String expressions, then lend nested Calls with NewArgument
+  context. Exact original node membership selects the sole source container before
+  packet lookup; missing packet refuses. Producer/read/Copy uses same packet and
+  finished binding owner; no registry or local-group disguise. No new tests/guards.
+- Full New Text final-publication positive remains unproven while callee Text is
+  closed. Existing final Call/Copy cases cover retained consumer behavior only.
+- Next shared String writer → independent callee Materialize pair → Text initialize
   and both final replays. Materialize Fault owes prior prefix; install Fault ends
   fresh pair then prefix; later Birth Fault includes committed Text residences.
+  Worker: shared String writer must accept the existing constructor Fault tail;
+  no fake expression frame or fresh ReturnFault that bypasses field discharge.
 - Then original Map FieldInstall/candidate/EndOutcome, exact prior/Normal cleanup,
   complete UserStats End, get/set Return and caller lifetime/publication. No fake
   initializer/MethodCall frame, scalar handle or name-based admission.
@@ -89,4 +94,4 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - App requires every smoke contract and real EXE/output/exit. Full goal additionally
   requires source/consumer closure, production cutover and physical retirement.
   Retire replaced exclusive edges; retain shared safety owners. Earlier history
-  remains in Git (`8be074e7da`); no log or backend result becomes source authority.
+  remains in Git; no log or backend result becomes source authority.

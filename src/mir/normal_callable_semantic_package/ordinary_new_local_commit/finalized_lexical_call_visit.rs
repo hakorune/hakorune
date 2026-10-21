@@ -20,6 +20,10 @@ pub(in crate::mir) enum FinalizedLexicalCallContextV1<'source> {
     Expression {
         group_site: &'source OwnedExprSiteV1,
     },
+    NewArgument {
+        new_site: &'source OwnedExprSiteV1,
+        ordinal: u32,
+    },
     Return {
         exit: &'source SourceStmtSiteV1,
     },
@@ -84,47 +88,13 @@ impl FinalizedRootSourceHandoffV1 {
                         .ok_or_else(|| freeze("final-call-visit/function-missing"))?;
                     self.ledger
                         .validate_field_alias_function_v1(node.call_site(), function)?;
-                    let coordinate = match context {
-                        FinalizedLexicalCallContextV1::Local { group_site, .. }
-                        | FinalizedLexicalCallContextV1::Discard { group_site }
-                        | FinalizedLexicalCallContextV1::Expression { group_site } => self
-                            .finished_local_call_producer_v1(
-                                owner,
-                                group_site,
-                                node.call_site(),
-                                node.invoke_binding(),
-                                function,
-                            )?,
-                        FinalizedLexicalCallContextV1::Return { exit } => self
-                            .finished_terminal_call_producer_v1(
-                                owner,
-                                exit,
-                                node.call_site(),
-                                node.invoke_binding(),
-                                function,
-                            )?,
-                    };
+                    let coordinate = context.finished_binding_v1(
+                        self, owner, node.call_site(), node.invoke_binding(), function, false,
+                    )?;
                     if let Some(read) = node.stored_receiver_read_v1() {
-                        let read_coordinate = match context {
-                            FinalizedLexicalCallContextV1::Local { group_site, .. }
-                            | FinalizedLexicalCallContextV1::Discard { group_site }
-                            | FinalizedLexicalCallContextV1::Expression { group_site } => self
-                                .finished_local_call_producer_v1(
-                                    owner,
-                                    group_site,
-                                    node.call_site(),
-                                    read,
-                                    function,
-                                )?,
-                            FinalizedLexicalCallContextV1::Return { exit } => self
-                                .finished_terminal_call_producer_v1(
-                                    owner,
-                                    exit,
-                                    node.call_site(),
-                                    read,
-                                    function,
-                                )?,
-                        };
+                        let read_coordinate = context.finished_binding_v1(
+                            self, owner, node.call_site(), read, function, false,
+                        )?;
                         if !coordinates.insert((symbol.clone(), read_coordinate)) {
                             return Err(freeze("final-call-visit/coordinate-duplicate"));
                         }
@@ -155,26 +125,9 @@ impl FinalizedRootSourceHandoffV1 {
                         {
                             continue;
                         }
-                        let finished = match context {
-                            FinalizedLexicalCallContextV1::Local { group_site, .. }
-                            | FinalizedLexicalCallContextV1::Discard { group_site }
-                            | FinalizedLexicalCallContextV1::Expression { group_site } => self
-                                .finished_local_call_copy_v1(
-                                    owner,
-                                    group_site,
-                                    node.call_site(),
-                                    &original,
-                                    function,
-                                )?,
-                            FinalizedLexicalCallContextV1::Return { exit } => self
-                                .finished_terminal_call_copy_v1(
-                                    owner,
-                                    exit,
-                                    node.call_site(),
-                                    &original,
-                                    function,
-                                )?,
-                        };
+                        let finished = context.finished_binding_v1(
+                            self, owner, node.call_site(), &original, function, true,
+                        )?;
                         copies.push((original, finished));
                     }
                     if self
@@ -198,6 +151,28 @@ impl FinalizedRootSourceHandoffV1 {
                 },
             )
         };
+        // Every New expression is replayed, including String-only arguments
+        // with no nested Call. No separate final String or Call registry exists.
+        for (site, row) in self.ledger.local_commits.borrow().iter() {
+            let Some(NewEmissionProgress::Emitted { arguments, .. }) = row.new_emission() else { continue };
+            if arguments.iter().all(|argument| argument.expression_v1().is_none()) { continue; }
+            self.ledger.with_finished_projection(site.owner(), |symbol, projection| {
+                let function = module.functions.get(symbol)
+                    .filter(|function| function.signature.name == symbol)
+                    .ok_or_else(|| freeze("final-call-visit/function-missing"))?;
+                self.ledger.validate_ordinary_new_row_emission_projected(site.owner(), site,
+                    row, function, Some(projection), CallValidationContextV1::Finalized(self))?;
+                for argument in arguments.iter() {
+                    if let Some(expression) = argument.expression_v1() {
+                        expression.visit_calls_v1(|packet, original| walk(site.owner(),
+                            FinalizedLexicalCallContextV1::NewArgument {
+                                new_site: site, ordinal: argument.source().ordinal(),
+                            }, packet, original))?;
+                    }
+                }
+                Ok(())
+            })?;
+        }
         for owner in self.local_calls.keys().copied() {
             CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(
                 owner,
@@ -320,5 +295,29 @@ impl FinalizedRootSourceHandoffV1 {
             })?;
         }
         Ok(())
+    }
+}
+
+impl FinalizedLexicalCallContextV1<'_> {
+    fn finished_binding_v1(
+        self, source: &FinalizedRootSourceHandoffV1, owner: FunctionOwnerIdV1,
+        site: &OwnedExprSiteV1, original: &(BasicBlockId, MirInstruction),
+        function: &MirFunction, copy: bool,
+    ) -> Result<(BasicBlockId, usize), String> {
+        match self {
+            Self::NewArgument { new_site, ordinal } => source.finished_new_argument_call_binding_v1(
+                owner, new_site, ordinal, site, original, function, copy),
+            Self::Local { group_site, .. } | Self::Discard { group_site }
+                | Self::Expression { group_site } => if copy {
+                    source.finished_local_call_copy_v1(owner, group_site, site, original, function)
+                } else {
+                    source.finished_local_call_producer_v1(owner, group_site, site, original, function)
+                },
+            Self::Return { exit } => if copy {
+                source.finished_terminal_call_copy_v1(owner, exit, site, original, function)
+            } else {
+                source.finished_terminal_call_producer_v1(owner, exit, site, original, function)
+            },
+        }
     }
 }

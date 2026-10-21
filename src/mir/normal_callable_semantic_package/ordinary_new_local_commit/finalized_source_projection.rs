@@ -185,7 +185,7 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
-    fn finished_packet_copy(
+    pub(super) fn finished_packet_copy(
         &self,
         owner: FunctionOwnerIdV1,
         packet: &EmittedLexicalCallProjectionV1,

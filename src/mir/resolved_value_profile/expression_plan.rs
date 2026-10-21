@@ -135,6 +135,13 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
+    /// Exact original containment, including inputs delegated to another Call.
+    /// This locates a source container; it grants no execution or packet loan.
+    pub(crate) fn contains_call_site_v1(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {
+        site.owner() == self.owner && self.nodes.iter().any(|node|
+            node.site() == site.site() && matches!(node.source(),
+                ExpressionNodeSourceV1::MethodCall | ExpressionNodeSourceV1::DirectCall))
+    }
     /// Structural identity only: an empty-prelude BlockExpr lends its exact
     /// unique always-evaluated tail, without adding an operation or owner.
     pub(crate) fn transparent_tail_node_v1(&self, index: usize) -> Option<usize> {

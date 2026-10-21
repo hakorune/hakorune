@@ -133,8 +133,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
             TransientPrefixOriginV1::NewArguments { current, .. } => {
                 let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = current.kind()
                     else { return Err(freeze("argument-source-drift")) };
-                current.new_site() == site || evaluation.calls().iter().any(|call|
-                    call.site() == site || in_arguments(call.arguments(), site))
+                current.new_site() == site || evaluation.source().contains_call_site_v1(site)
             },
             TransientPrefixOriginV1::Emitted { call, .. } => call.retained_node_at_v1(site)?.is_some(),
             TransientPrefixOriginV1::Evaluation { call, .. } => call.site() == site || in_arguments(call.arguments(), site),
