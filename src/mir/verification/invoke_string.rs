@@ -45,6 +45,9 @@ fn is_call_argument(instruction: &MirInstruction, value: ValueId) -> bool {
 fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
     match operation {
         InvokeOperation::String(operation) => operation.operands(),
+        InvokeOperation::Birth(call) => call.arguments.iter().filter_map(|argument| match argument {
+            crate::mir::instruction::BirthArgumentV1::Text(operand) => Some(operand), _ => None,
+        }).collect(),
         InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(value), .. } => vec![value],
         InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }
             | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { key, .. }) => vec![key],
@@ -99,7 +102,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     let selected = |instruction: &MirInstruction| {
         matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
-                if matches!(operation, InvokeOperation::String(_)
+                if matches!(operation, InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, .. }
+                    | InvokeOperation::String(_)
                     | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }
                         | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. })
                     | InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. })
@@ -146,6 +150,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 if let InvokeOperation::ArrayElementWrite { kind, producer, index, value, .. } = operation {
                     if !value.valid_for(*kind, *producer, *index) { return Err("string-text-operand-domain"); }
                 }
+                if matches!(operation, InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value, .. }
+                    if !results.contains_key(value)) { return Err("string-owned-result-missing"); }
                 if let InvokeOperation::String(operation) = operation {
                     if !operation.valid_operand_domains() {
                         return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
@@ -195,6 +201,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     if text_operands(operation).iter().any(|operand| matches!(operand, Operand::OwnedString(owned) if *owned == value)));
                 // A typed physical Return may transfer only an installed Home;
                 // the path check below requires that exact live pair on Normal.
+                let allowed = allowed || matches!(instruction, MirInstruction::Invoke {
+                    operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value: stored, .. }, .. }
+                    if *stored == value);
                 let allowed = allowed || matches!(instruction, MirInstruction::Return { value: Some(returned) }
                     if *returned == value && function.signature.return_type == crate::mir::MirType::String);
                 // KeepAlive is optimizer metadata, checked for SSA availability
@@ -316,6 +325,14 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             } = term
             {
                 next_faulted |= target == *fault_landing;
+                // Source corroboration remains mandatory in the module checker.
+                // The physical transfer happens only on FieldSet Normal; Fault
+                // retains the newest temporary for its explicit candidate End.
+                if let InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value, .. } = operation {
+                    if faulted || live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some()
+                        || live.temporary.last() != Some(value) { return Err("string-borrow-not-live"); }
+                    if target == *normal_landing { next.temporary.pop(); }
+                }
                 if target == *normal_landing
                     && operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString)
                 {

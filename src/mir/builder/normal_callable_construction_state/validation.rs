@@ -102,6 +102,7 @@ impl ConstructionState {
             return Ok(());
         };
         self.validate_step_coverage()?;
+        self.validate_text_materializations_v1(function)?;
         for block in function.blocks.values() {
             for instruction in block.all_instructions() {
                 if matches!(instruction, MirInstruction::ObjectFieldGet { .. })
@@ -181,6 +182,7 @@ impl ConstructionState {
         if actual_count
             != stores.len()
                 + provider_count
+                + 2 * stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize).count()
                 + stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize).count()
                 + 3 * birth_providers
                 + nobirth_providers
@@ -214,6 +216,8 @@ impl ConstructionState {
                         // landing for an argument, the store block for a
                         // builtin provider).
                         let proven = stores.values().any(|store| {
+                            if matches!(&store.progress, StoreProgress::Emitted { text: Some(text), .. }
+                                if text.is_projection(block.id, instruction)) { return true; }
                             let StoreProgress::Emitted {
                                 block: home,
                                 value,
@@ -270,7 +274,7 @@ impl ConstructionState {
                 value,
                 provider,
                 provider_child,
-                discharge,
+                discharge, ..
             } = progress
             else {
                 return Err(fault("store-residual"));
@@ -340,6 +344,9 @@ impl ConstructionState {
                                 if map == value && *f == frame_id && n != e
                                     && jump_target(function, *n) == Some(*discharge)
                                     && jump_target(function, *e) == Some(*discharge))
+                        } else if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize {
+                            // The same-row Text replay above checks fresh End and both Fault edges.
+                            true
                         } else { fault_landing == discharge }),
             };
             if !store_ok {
@@ -573,10 +580,10 @@ impl ConstructionState {
             let (entry, normal) = match step {
                 ConstructionSourceStepV1::Store(site) => {
                     let store = stores.get(site.node()).ok_or_else(|| fault("step-store-missing"))?;
-                    let StoreProgress::Emitted { block, normal, provider, .. } = store.progress else {
+                    let StoreProgress::Emitted { block, normal, provider, ref text, .. } = store.progress else {
                         return Err(fault("store-residual"));
                     };
-                    (provider.unwrap_or(block), normal)
+                    (text.as_ref().map(|text| text.entry()).or(provider).unwrap_or(block), normal)
                 }
                 ConstructionSourceStepV1::StoredChildCall(_) => {
                     let call = actual_calls.next().ok_or_else(|| fault("step-call-unconsumed"))?;
@@ -604,7 +611,7 @@ fn lands_on(
 
 /// The unique jump target of a dedicated landing block, or `None` when
 /// the block is missing or carries any other terminator shape.
-fn jump_target(
+pub(super) fn jump_target(
     function: &crate::mir::MirFunction,
     landing: BasicBlockId,
 ) -> Option<BasicBlockId> {

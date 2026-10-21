@@ -26,6 +26,8 @@ mod fault_cleanup;
 mod child_call;
 #[path = "normal_callable_construction_state/validation.rs"]
 mod validation;
+#[path = "normal_callable_construction_state/text_materialization.rs"]
+mod text_materialization;
 
 #[derive(Debug)]
 pub(super) enum ConstructionState {
@@ -36,6 +38,8 @@ pub(super) enum ConstructionState {
     Selected {
         /// SAME source/execution projection retained through artifact replay.
         plan: ConstructionPlanV1,
+        /// Original constructor parameters from the same resolved source owner.
+        parameters: Box<[crate::mir::resolved_semantics::BindingRefV1]>,
         /// Original semantic order; neither field ordinal nor map iteration order.
         steps: Box<[ConstructionSourceStepV1]>,
         next_step: usize,
@@ -73,6 +77,8 @@ pub(super) enum StoreProgress {
         /// Invoke origin of the proven provider `new` — present only for
         /// `ProviderConstruction` stores.
         provider: Option<BasicBlockId>,
+        /// Independent Text acquisition from this original formal, not a provider New.
+        text: Option<text_materialization::TextStoreAcquisitionV1>,
         /// A user-class provider child's emitted coordinates — `Birth`
         /// carries the `birth_call`/`reclaim_unpublished`/`home_release`
         /// chain; `NoBirthZero` carries only the store-discharge head —
@@ -320,7 +326,7 @@ impl CallableSemanticLoweringState {
             }
         }
         self.construction = ConstructionState::Selected {
-            plan: plan.clone(),
+            plan: plan.clone(), parameters: self.parameters.clone(),
             steps: plan.steps().into(), next_step: 0,
             stores, calls: Vec::new(),
             frame: None,

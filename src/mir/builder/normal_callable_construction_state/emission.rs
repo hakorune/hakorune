@@ -16,10 +16,7 @@ impl CallableSemanticLoweringState {
         provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
         self.construction.require_next_store(&taken.site)?;
-        if matches!(&self.construction, ConstructionState::Selected { stores, .. }
-            if stores.get(&taken.site).is_some_and(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize)) {
-            return Err(fault("source-or-cleanup-contract"));
-        }
+        let text_input = self.prepare_construction_text_input_v1(&taken, builder)?;
         let source_ready = matches!(
             &self.construction,
             ConstructionState::Selected { stores, completed: false, .. }
@@ -469,12 +466,16 @@ impl CallableSemanticLoweringState {
                 allocation
             }
         };
+        let text = text_input.map(|input| input.materialize_v1(builder, value, fault_frame, fault_landing)).transpose()?;
+        let value = text.as_ref().map_or(value, |text| text.value());
         let origin = builder
             .function_state
             .current_block
             .ok_or_else(|| fault("no-block"))?;
         let normal = builder.next_block_id();
-        let candidate_fault = if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+        let candidate_fault = if let Some(text) = &text {
+            text.candidate_fault_v1(builder, fault_frame, fault_landing)?
+        } else if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
             let tail = builder.next_block_id();
             let normal = jump_landing(builder, fault_landing)?;
             let fault_edge = jump_landing(builder, fault_landing)?;
@@ -554,6 +555,7 @@ impl CallableSemanticLoweringState {
             base,
             value,
             provider: provider_origin,
+            text,
             discharge: fault_landing,
             provider_child: if let Some((entry, birth_call, call_args, reclaim)) = provider_birth {
                 Some(super::ProviderChildEmissionV1::Birth(

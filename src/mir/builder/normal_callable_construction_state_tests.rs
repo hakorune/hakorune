@@ -64,7 +64,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         "box Page { value: i64 birth() { me.value = 7 } }").unwrap();
     let plan = package.instance_constructors().rows()[0].construction().as_ref().unwrap().clone();
     let mut state = ConstructionState::Selected {
-        plan,
+        plan, parameters: Box::new([]),
         steps: vec![ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()))].into_boxed_slice(),
         next_step: 1, calls: Vec::new(),
         stores: BTreeMap::from([(
@@ -82,7 +82,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                     normal,
                     base,
                     value,
-                    provider: None,
+                    provider: None, text: None,
                     provider_child: None,
                     discharge: landing,
                 },
@@ -222,7 +222,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
             field, receiver_site: original.receiver_site.clone(), receiver_binding,
             rhs: ConstructionStoreRhsV1::LiteralI64(9), mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, fault_discharge: Box::new([]), me_reads: Box::new([]),
             progress: StoreProgress::Emitted {
-                block: normal, normal: second_normal, base, value: second_value, provider: None,
+                block: normal, normal: second_normal, base, value: second_value, provider: None, text: None,
                 provider_child: None, discharge: landing,
             },
         };
@@ -275,7 +275,7 @@ impl RetainedConstructionValidation {
         Self {
             owner,
             construction: ConstructionState::Selected {
-                plan,
+                plan, parameters: Box::new([]),
                 steps: Box::new([]), next_step: 0, calls: Vec::new(),
                 stores: BTreeMap::new(),
                 frame: None,
@@ -308,7 +308,7 @@ fn artifact_requires_completed_source_construction() {
         ConstructionState::Transferred,
         ConstructionState::RetainedUnavailable(ConstructionUnavailableV1::BodyCoverageUnsupported),
         ConstructionState::Selected {
-            plan,
+            plan, parameters: Box::new([]),
             steps: Box::new([]), next_step: 0, calls: Vec::new(),
             stores: BTreeMap::new(),
             frame: None,

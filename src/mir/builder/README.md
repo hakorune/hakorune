@@ -562,9 +562,14 @@ The finalized consumer uses its moved packet context. Scalar/object/Array reader
 still require `Value`; a Text descriptor with the same SSA dependency inherits
 no scalar admission. The old parallel actual/read arrays and value-only recording
 adapter are retired from production. Checked Birth remains Unit-only with one
-ordered Value/Text array. Callee Text Materialize/first-write/cleanup and final
-Text ABI/JSON permission remain closed until their source-backed replay is
-connected; source-scoped New emission alone does not grant them. Both final
+ordered Value/Text array. The callee borrows the original formal through the
+same execution SUM and resolved parameter list, then uses the shared String
+Invoke/Normal writer with the constructor's existing Fault discharge. A fresh
+Materialize pair becomes the stored value. Store Fault ends that pair before
+prior fields; Normal transfers it to the field. Retained replay and the
+independent String checker enforce that split. BorrowedTaggedValue here is only
+a physical entry projection: final Text ABI/JSON/module/native permission stays
+closed until the same source handoff reaches those consumers. Both final
 module/JSON call visitors now replay the same complete New row, including
 zero-Call String expressions, before lending nested Calls in their original
 NewArgument context. Exact source-node containment selects the New argument

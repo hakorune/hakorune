@@ -24,7 +24,7 @@ pub(in crate::mir::builder) trait RootGraphWriterPortV1 {
     ) -> Result<(), String>;
 }
 
-pub(super) struct RawRootGraphWriterV1;
+pub(in crate::mir::builder) struct RawRootGraphWriterV1;
 
 impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
     fn reserve_block(&mut self, builder: &mut MirBuilder) -> Result<BasicBlockId, String> {

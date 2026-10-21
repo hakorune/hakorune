@@ -16,6 +16,7 @@ pub(in crate::mir::builder) mod root_graph;
 pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
+pub(in crate::mir::builder) use expression_value::emit_scalar_operation_to_landing_v1;
 #[path = "selected/text_return.rs"]
 mod text_return;
 #[path = "selected/terminal_map_get.rs"]

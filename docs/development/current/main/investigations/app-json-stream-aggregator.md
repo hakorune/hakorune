@@ -1,97 +1,94 @@
 # APP-json-stream-aggregator
-Status: New arguments connected to existing final Call visitor; callee Text and Map publication incomplete. Date: 2026-10-21
+Status: Callee Text acquisition/store/cleanup emitted; Text ABI/native and Map publication incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Last fixed suite at `2ac568b31a`: 7PASS/4FAIL, actual EXE6 + marker1, 380.143s;
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 381.409s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Final CLI JSON stop: construction-store/source-or-cleanup-contract at original
-  UserStats Text initialization; no MIR/EXE. Four required apps remain red.
-- Current CLI79s/root130s; runtime/FFI unchanged, no new warning kinds.
-- Current36 filters match parent outcomes/strict failures; source_scope3PASS,
-  final Call4PASS, Copy4/1 (same missing callee). Inventory9263 unchanged.
-- Broad52 remains unconfirmed (parent timeout180/current stopped539), no waiver.
-  Earlier FieldHas EXE exit7 is not remeasured.
+- Final CLI JSON passes the original UserStats Birth initialization stop, then
+  fails at ordinary-new/lexical-instance-call/source-pending: processLine's
+  `me.statsFor(user)` (apps/json-stream-aggregator/main.hako:129), owner26 Body5
+  Initializer0 → callee25. Still no MIR/EXE; no app completion claim.
+- Final CLI41.63s/root61s; runtime/FFI unchanged, no new warning kinds.
+- Final36 filters match parent outcomes/strict failures; source_scope3PASS,
+  constructor2PASS, final Call4PASS, Copy4/1 retained missing callee. Inventory9263.
+- Initial new non-Text fixture regression corrected without changing expectations;
+  obsolete suite interrupted, not accepted. Broad52 remains unconfirmed
+  (parent timeout180/current stopped539), no waiver. Earlier FieldHas not remeasured.
 
-## Shared source and execution owners
-- One original FieldResidence census keeps all declared Array/Dynamic fields,
+## Shared source and construction
+- One original FieldResidence census keeps every declared Array/Dynamic field,
   including Empty. Full reverse declaration drain precedes outer End; no subset proof.
 - Birth formal uses derive from SAME original source/owner/declarations, independent
-  of execution-plan success. Unqualified stores retain sites and raw cutpoints.
+  of execution-plan success. Unqualified stores retain raw sites and cutpoints.
 - One immutable ConstructionPlan execution projection supplies demands, modes and
   Fault prefixes. Initial/late child-call/Text share checker/sealer. Text-only SUM
   qualifies same formal/site/ordinal in both claims before take; source unchanged.
-- Selected emission and final replay retain that same plan and exact store/RHS/read
-  membership. Text-qualified prefixes include all committed Text/I64/Map stores.
-- NewArgument retains SAME New/site/ordinal/evaluation and full emitted values,
-  Calls/reads/acquisitions in one row. Local/result share the expression writer
-  and original earlier-argument prefix; no fake Call frame or invented SSA actual.
-- Full temporary stack survives Birth. NewBox Fault ends it before prior Homes;
-  Birth Fault first reclaims unpublished storage. Normal ends temporaries before
-  publication; End Fault cleans candidate, remaining temporaries and Normal Homes.
-  Normal Home snapshot excludes Provided moves, from the same original source.
-- Replay checks source, complete order/cleanup, duplicate acquisition refusal and
-  finishing relations with Finalized context. Parallel read/actual recording
-  adapter retired from production; existing scalar fixture adapter remains test-only.
-- Checked Birth has canonical key/receiver, Unit result and one ordered Value/Text
-  array. Source/retained scans compare full payloads. Scalar/object/Array consumers
-  require Value; same-SSA Text inherits no scalar authority. Text ABI remains closed.
-- Existing source_scope case keeps original JSON and adds computed Text actual to
-  guard full acquisition lifetime; existing Provided case guards Normal/Fault Home
-  divergence. Independent boundaries; no new test functions/files/hooks/guards/cards.
-- First-write I64/Map requires Empty. Birth Fault drains committed prefix only;
-  Provided moves on Normal. Full End drains every declared residence.
+- Callee keeps the same original resolved parameter list and execution SUM. Exact
+  original Parameter binding selects its existing constructor ABI lane/SSA; the
+  physical BorrowedTaggedValue marker grants no ordinary borrowed-entry authority.
+- Shared String Invoke/Normal writer accepts the constructor's existing discharge.
+  BorrowedText formal → independent Materialize pair → fresh FieldSet Text value.
+  Materialize Fault drains prior fields; store Fault ends fresh pair then drains
+  prior fields on both End outcomes; store Normal transfers once into the field.
+- SAME StoreProgress retains source SUM and acquisition pair. Draft/final replay
+  checks input/formal/SSA, fresh output, full step order/count and both cleanup
+  edges. Non-Text physical fixtures keep their existing protocol. Independent
+  String checker pops newest temporary only on store Normal, retains it on Fault.
+- Subsequent Fault uses the qualified prefix including all committed Text/I64/Map.
+  Provided remains caller-owned until Normal. Full End drains every residence.
+- No new test functions/files/hooks/checkers/guards/cards; existing physical fixture
+  records only populate the new optional fields. No application source changes.
 
-## Current Map/Text connection
+## New arguments and final consumers
+- NewArgument keeps SAME New/site/ordinal/evaluation, full values/Calls/reads/
+  acquisitions and earlier-argument prefix. Local/result share one expression writer.
+- Full temporary stack spans Birth. NewBox Fault ends it before prior Homes;
+  Birth Fault first reclaims unpublished storage. Normal ends temporaries before
+  publication; End Fault cleans candidate/remaining stack/Normal Homes excluding
+  Provided moves. Replay validates finishing relations and duplicate acquisition.
+- Checked Birth has canonical key/receiver, Unit result and one ordered Value/Text
+  array. Scalar/object/Array readers require Value; same-SSA Text grants nothing.
+- Both module/JSON final Call visitors preflight the SAME complete New row, even
+  zero-Call String expressions. Original node membership selects its sole source
+  container before packet lookup; missing packet refuses without group retry.
+  Nested Call/read/Copy coordinates use that packet and existing finishing owner.
+- Text ABI/JSON/module/native permission and full New Text final positive remain
+  unproven. Current callee draft progress is not a published Text transport grant.
+
+## Map/Text connection
 - Whole original field-use walk closes declarations, aliases, capture/escape,
-  foreign uses and mutators. Unknown intervening effects refuse.
+  foreign uses and mutators; unknown intervening effects refuse.
 - statsFor hit retains exact has/get/key/true Return; miss exact New/set/Return,
   candidate acquisition, prior/Normal Homes and disjoint Array push. Installed
   Return borrows SAME install source; complete Return witnesses remain mandatory.
-- FormalForward and MapSlot retain independent holder/key. Map formal root/ordinal
+- FormalForward and MapSlot keep holder/key independently. Map formal root/ordinal
   remain None; generic/formal-only ABI refuses storage. No Fresh/scalar fallback.
-- SourceInstance key qualification selects original source before domain/Completion
-  success. Scalar kind retains no I64 transport; Unit alone grants no lifetime/ABI.
-- Original Map get keeps receiver read, passive Text key, Copy/scope, FaultFrame and
-  dependencies. Source-only storage grants no new payload Home.
-- Text append uses SAME frame/Completion, actual Me/ObjectFieldGet before passive
-  Text evaluation, full descriptor/references/scope. Shared Integer/Text Push writer
-  and packet serve collector/both final consumers. JSON draft records get/append/
-  both Returns and completes; this is source-scoped evidence, not published EXE.
-- Native Map storage is stable/move-only/SafeMutex-only. Field has/get check receiver
-  before key: missing get Normal/0, wrong kind/class Fault, failed output unchanged.
-- One MapEndContext handles detached outcomes/Array children outside locks. Commit
-  publishes before old End; later End Fault does not roll back. No duplicate Fault.
-- Native install shares key preparation, complete child descriptor and EndOutcome.
-  Precommit keeps candidate; Normal moves once. No automatic source publication.
+- SourceInstance qualification selects original source before Completion success;
+  Unit alone grants no receiver/ABI/lifetime. Get retains read/key/Copy/FaultFrame.
+- Text append shares Integer/Text Push writer and full frame/Completion/descriptor;
+  receiver is evaluated before passive key. JSON draft records get/append/Returns.
+- Native Map is stable/move-only/SafeMutex-only. One MapEndContext handles detached
+  outcomes/Array children outside locks; commit publishes before old End, with no
+  rollback on later End Fault. Native install uses complete child End descriptor;
+  precommit keeps candidate, Normal moves once, no automatic source publication.
 
 ## Next and completion limits
-- Both final module/JSON Call visitors now preflight the same complete New row,
-  including zero-Call String expressions, then lend nested Calls with NewArgument
-  context. Exact original node membership selects the sole source container before
-  packet lookup; missing packet refuses. Producer/read/Copy uses same packet and
-  finished binding owner; no registry or local-group disguise. No new tests/guards.
-- Full New Text final-publication positive remains unproven while callee Text is
-  closed. Existing final Call/Copy cases cover retained consumer behavior only.
-- Next shared String writer → independent callee Materialize pair → Text initialize
-  and both final replays. Materialize Fault owes prior prefix; install Fault ends
-  fresh pair then prefix; later Birth Fault includes committed Text residences.
-  Worker: shared String writer must accept the existing constructor Fault tail;
-  no fake expression frame or fresh ReturnFault that bypasses field discharge.
+- Existing BirthAbiHandoff must retain SAME late-qualified execution plan. Update
+  LOCAL/Result and early handoff copies together; keep UnqualifiedFieldStores raw.
+  Join formal/actual Text loans, retained callee replay, module/JSON/native transport
+  and End descriptor. Source formal grants permission; names/MIR types do not.
 - Then original Map FieldInstall/candidate/EndOutcome, exact prior/Normal cleanup,
-  complete UserStats End, get/set Return and caller lifetime/publication. No fake
-  initializer/MethodCall frame, scalar handle or name-based admission.
+  complete UserStats End, get/set Return and caller lifetime/publication.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
   Array holder/contents/End and exact empty-transfer census remain owed.
-- Signed SUM/rebind/to_i64 and direct terminal Text Call original-actual support
-  remain owed; non-Text key inference panic is not a valid refusal. Unboxed native
-  Bool cohort and generic canonical-JSON type profile still refuse.
+- Signed SUM/rebind/to_i64, direct terminal Text Call original actuals, non-Text key
+  panic→proper refusal, unboxed native Bool and generic canonical JSON remain owed.
 - Retained reds: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8,
   arguments12/1, read-claim7/2; initializer/terminal/callback/plan/admission,
   brand/composition/scalar reds remain owed. Parent agreement is not completion.
-- App requires every smoke contract and real EXE/output/exit. Full goal additionally
-  requires source/consumer closure, production cutover and physical retirement.
-  Retire replaced exclusive edges; retain shared safety owners. Earlier history
-  remains in Git; no log or backend result becomes source authority.
+- App requires all smoke contracts and real EXE/output/exit. Full goal also requires
+  source/consumer closure, production cutover and physical retirement. Retire
+  replaced exclusive edges; retain shared safety owners. Earlier history is in Git.

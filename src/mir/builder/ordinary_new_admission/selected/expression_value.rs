@@ -356,13 +356,23 @@ pub(super) fn emit_scalar_operation_with_pending_v1(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: InvokeOperation,
     fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {
-    let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
+    operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
     let normal = writer.reserve_block(builder)?;
     let graph = root_graph::emit_cleanup_suffixes_with_writer(writer, builder, fault_frame,
         normal, &[], pending, &[], &(0..pending.len()).collect::<Vec<_>>(), bindings)?;
+    emit_scalar_operation_to_landing_v1(builder, writer, operation, fault_frame,
+        normal, graph.acquisition_fault, bindings)
+}
+
+/// The purpose lends its already checked Fault continuation. This sole writer
+/// never replaces constructor field discharge with an expression ReturnFault.
+pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
+    builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: InvokeOperation,
+    fault_frame: ValueId, normal: BasicBlockId, fault: BasicBlockId, bindings: &mut Vec<Binding>,
+) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {
+    let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
     let invoke = writer.emit_current(builder, MirInstruction::Invoke {
-        operation, fault_frame,
-        normal_landing: normal, fault_landing: graph.acquisition_fault,
+        operation, fault_frame, normal_landing: normal, fault_landing: fault,
     })?;
     let value = builder.next_value_id();
     builder.start_new_block(normal)?;
