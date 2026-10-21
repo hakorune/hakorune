@@ -594,20 +594,10 @@ fn issue_birth_calls_for_owner_at(
             .copied()
             .chain(std::iter::once(block.terminator()))
         {
-            let MirInstruction::Invoke {
-                operation:
-                    InvokeOperation::Call {
-                        call,
-                        result: InvokeCallResultKind::Unit,
-                    },
-                ..
-            } = row.instruction()
-            else {
-                continue;
-            };
-            let Callee::BirthConstructor { key, receiver } = &call.callee else {
-                continue;
-            };
+            let MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } = row.instruction()
+                else { continue; };
+            let key = &call.key;
+            let receiver = &call.receiver;
             let index = births
                 .iter()
                 .position(|(_, birth)| {
@@ -621,11 +611,7 @@ fn issue_birth_calls_for_owner_at(
                 .filter(|(_, actual)| {
                     actual.target() == key
                         && actual.receiver() == *receiver
-                        && actual
-                            .arguments()
-                            .iter()
-                            .map(|argument| argument.value())
-                            .eq(call.args.iter().copied())
+                        && call.value_arguments_match(actual.arguments().iter().map(|argument| argument.value()))
                 })
                 .map(|(i, _)| i)
                 .collect::<Vec<_>>();
@@ -635,7 +621,7 @@ fn issue_birth_calls_for_owner_at(
             if std::mem::replace(&mut consumed[*actual_index], true) {
                 return Err(fault("compiled-entry-call-duplicate"));
             }
-            if call.args.len() != births[index].1.params().len().saturating_sub(1) {
+            if call.arguments.len() != births[index].1.params().len().saturating_sub(1) {
                 return Err(fault("compiled-entry-call-arity"));
             }
             referenced[index] = true;

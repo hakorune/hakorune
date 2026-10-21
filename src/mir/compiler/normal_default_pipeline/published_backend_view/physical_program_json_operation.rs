@@ -209,10 +209,7 @@ pub(super) fn encode_invoke(
             )?
         }
 
-        InvokeOperation::Call {
-            call,
-            result: InvokeCallResultKind::Unit,
-        } if matches!(&call.callee, crate::mir::Callee::BirthConstructor { .. }) => {
+        InvokeOperation::Birth(call) => {
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-birth-call"));
             }

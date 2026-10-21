@@ -122,7 +122,7 @@ pub(super) struct ProviderBirthEmission {
     /// qualified-static argument call extends the chain from here;
     /// with no call arguments the head is `birth_call` itself.
     entry: BasicBlockId,
-    /// Block whose terminator is `Invoke{Call{BirthConstructor}}`.
+    /// Block whose terminator is `Invoke{Birth}`.
     birth_call: BasicBlockId,
     /// Qualified-static argument invokes in emitted (source) order:
     /// `entry`'s terminator is the first, each `landing` carries the

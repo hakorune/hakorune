@@ -464,9 +464,9 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                                 MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { index }, .. } if drift == 0 => { *index = crate::mir::ValueId(99991); mutations += 1; },
                                 MirInstruction::Copy { dst, src } if drift == 1 && *dst == argument.value() => { *src = crate::mir::ValueId(99992); mutations += 1; },
                                 MirInstruction::FieldGet { field, .. } if drift == 2 && field == "free_stack" => { *field = "foreign".into(); mutations += 1; },
-                                MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. }
-                                    if drift == 3 && matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) => {
-                                        call.args[1] = crate::mir::ValueId(99993); mutations += 1;
+                                MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(call), .. }
+                                    if drift == 3 => {
+                                        call.arguments[1] = crate::mir::instruction::BirthArgumentV1::Value(crate::mir::ValueId(99993)); mutations += 1;
                                     },
                                 _ => {},
                             }
@@ -497,17 +497,20 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                     let mut mutations = 0;
                     if drift == 2 { changed.params[1] = crate::mir::ValueId::new(99991); mutations += 1; }
                     for block in changed.blocks.values_mut() {
-                        let Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. })
-                            = block.terminator.as_mut() else { continue };
-                        let ordinal = match &call.callee {
-                            crate::mir::Callee::SameModuleInstance { key, .. }
-                                if drift == 0 && key.mir_symbol_projection() == "HakoAllocHeap.realloc/2" => Some(0),
-                            crate::mir::Callee::BirthConstructor { key, .. }
-                                if drift == 1 && key.mir_symbol_projection() == "HakoAllocHandleResult.birth/3"
-                                    && call.args.get(2).is_some_and(|value| changed.params.get(1) != Some(value)) => Some(2),
-                            _ => None,
-                        };
-                        if let Some(ordinal) = ordinal { call.args[ordinal] = crate::mir::ValueId::new(99992); mutations += 1; }
+                        match block.terminator.as_mut() {
+                            Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. })
+                                if drift == 0 && matches!(&call.callee, crate::mir::Callee::SameModuleInstance { key, .. }
+                                    if key.mir_symbol_projection() == "HakoAllocHeap.realloc/2") => {
+                                call.args[0] = crate::mir::ValueId::new(99992); mutations += 1;
+                            }
+                            Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(call), .. })
+                                if drift == 1 && call.key.mir_symbol_projection() == "HakoAllocHandleResult.birth/3"
+                                    && call.arguments.get(2).is_some_and(|value| !matches!(value,
+                                        crate::mir::instruction::BirthArgumentV1::Value(value) if changed.params.get(1) == Some(value))) => {
+                                call.arguments[2] = crate::mir::instruction::BirthArgumentV1::Value(crate::mir::ValueId::new(99992)); mutations += 1;
+                            }
+                            _ => {},
+                        }
                     }
                     assert!(mutations > 0, "original field-support drift{drift} must change its own source binding");
                     assert!(super::super::super::physical_program::validate_object_return_census(

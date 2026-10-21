@@ -426,7 +426,16 @@ fn encode_instruction(
             wire
         }
         MirInstruction::Call(call) => {
-            json!({ "op": "birth_call", "call": call_transport::encode_birth_call(call, births, caller_function_index, abi_input)? })
+            let Callee::BirthConstructor { key, receiver } = &call.callee else {
+                return Err(fault("call-not-birth"));
+            };
+            let birth = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+                key.clone(), *receiver, call.args.clone(), call.effects);
+            let mut wire = call_transport::encode_birth_call(&birth, births, caller_function_index, abi_input)?;
+            // Preserve the raw Compatibility row exactly; its destination is
+            // never silently erased by the checked Unit-only representation.
+            wire["dst"] = json!(call.dst.map(|value| value.0));
+            json!({ "op": "birth_call", "call": wire })
         }
         _ => return Err(fault("instruction-unsupported")),
     })

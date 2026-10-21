@@ -57,19 +57,8 @@ pub(super) fn issue_birth_calls_for_program(
                                 callee: Callee::BirthConstructor { .. },
                                 ..
                             })
-                        ) || matches!(
-                            row.instruction(),
-                            MirInstruction::Invoke {
-                                operation: InvokeOperation::Call {
-                                    call: crate::mir::definitions::MirCall {
-                                        callee: Callee::BirthConstructor { .. },
-                                        ..
-                                    },
-                                    result: InvokeCallResultKind::Unit,
-                                },
-                                ..
-                            }
-                        )
+                        ) || matches!(row.instruction(), MirInstruction::Invoke {
+                            operation: InvokeOperation::Birth(_), .. })
                     })
             })
         };
@@ -119,17 +108,11 @@ pub(super) fn issue_birth_calls_for_program(
                     MirInstruction::Call(call)
                         if matches!(call.callee, Callee::BirthConstructor { .. }) =>
                     {
-                        owner_calls.push((call, caller_function_index));
+                        let Callee::BirthConstructor { key, receiver } = &call.callee else { unreachable!() };
+                        owner_calls.push((crate::mir::instruction::BirthInvokeV1::from_value_arguments(key.clone(), *receiver, call.args.clone(), call.effects), caller_function_index));
                     }
-                    MirInstruction::Invoke {
-                        operation:
-                            InvokeOperation::Call {
-                                call,
-                                result: InvokeCallResultKind::Unit,
-                            },
-                        ..
-                    } if matches!(call.callee, Callee::BirthConstructor { .. }) => {
-                        owner_calls.push((call, caller_function_index));
+                    MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } => {
+                        owner_calls.push((call.clone(), caller_function_index));
                     }
                     _ => {}
                 }
@@ -145,9 +128,8 @@ pub(super) fn issue_birth_calls_for_program(
             }
         }
         for (call, caller_function_index) in owner_calls {
-            let Callee::BirthConstructor { key, receiver } = &call.callee else {
-                unreachable!()
-            };
+            let key = &call.key;
+            let receiver = &call.receiver;
             let birth_index = indexed
                 .iter()
                 .position(|(_, birth)| {
@@ -159,11 +141,7 @@ pub(super) fn issue_birth_calls_for_program(
                 .filter(|(_, actual)| {
                     actual.target() == key
                         && actual.receiver() == *receiver
-                        && actual
-                            .arguments()
-                            .iter()
-                            .map(|argument| argument.value())
-                            .eq(call.args.iter().copied())
+                        && call.value_arguments_match(actual.arguments().iter().map(|argument| argument.value()))
                 })
                 .map(|(index, _)| *index)
                 .collect::<Vec<_>>();
@@ -173,7 +151,7 @@ pub(super) fn issue_birth_calls_for_program(
             if std::mem::replace(&mut consumed[*actual_index], true) {
                 return Err(fault("compiled-entry-call-duplicate"));
             }
-            if call.args.len() != indexed[birth_index].1.params().len().saturating_sub(1) {
+            if call.arguments.len() != indexed[birth_index].1.params().len().saturating_sub(1) {
                 return Err(fault("compiled-entry-call-arity"));
             }
             referenced[birth_index] = true;

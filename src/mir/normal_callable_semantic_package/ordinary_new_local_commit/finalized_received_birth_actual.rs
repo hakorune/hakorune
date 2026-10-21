@@ -149,11 +149,9 @@ impl FinalizedRootSourceHandoffV1 {
                 let NewEmissionProgress::Emitted { bindings: construction_bindings, .. } = &outer.emission
                     else { return Err(freeze("received-birth/construction-bindings")); };
                 let mut birth = construction_bindings.iter().filter(|(_, row)| matches!(row,
-                    MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
-                        call, result: InvokeCallResultKind::Unit }, .. }
-                    if matches!(&call.callee, crate::mir::Callee::BirthConstructor { key, receiver }
-                        if key == actual.target() && *receiver == actual.receiver())
-                        && call.args == actual.arguments().iter().map(|arg| arg.value()).collect::<Vec<_>>()));
+                    MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(call), .. }
+                    if &call.key == actual.target() && call.receiver == actual.receiver()
+                        && call.value_arguments_match(actual.arguments().iter().map(|arg| arg.value()))));
                 let original_birth = birth.next().ok_or_else(|| freeze("received-birth/original-birth"))?;
                 if birth.next().is_some() { return Err(freeze("received-birth/duplicate-birth")); }
                 let birth = finishing.binding(original_birth.0, &original_birth.1)?

@@ -729,13 +729,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::OwnedFieldResidenceRelease { .. }
                         | InvokeOperation::OwnedObjectFieldRelease { .. }
                         | InvokeOperation::ReclaimUnpublished { .. }
-                        | InvokeOperation::Call {
-                            call: MirCall {
-                                callee: Callee::BirthConstructor { .. },
-                                ..
-                            },
-                            result: InvokeCallResultKind::Unit
-                        },
+                        | InvokeOperation::Birth(_),
                     ..
                 }
                 | MirInstruction::InvokeNormalResult { .. }

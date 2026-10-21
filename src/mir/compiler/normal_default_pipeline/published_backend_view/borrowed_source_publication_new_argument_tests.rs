@@ -167,25 +167,12 @@ fn reject_drifted_ctor_view(input: &super::super::super::PublishedLifecyclePhysi
                         normal_landing,
                         fault_landing,
                     } => {
-                        let InvokeOperation::Call { call, result } = operation else {
-                            continue;
-                        };
-                        if !matches!(
-                            call.callee,
-                            crate::mir::Callee::BirthConstructor { .. }
-                        ) {
-                            continue;
-                        }
+                        let InvokeOperation::Birth(call) = operation else { continue; };
                         let mut call = call.clone();
-                        if call.args.is_empty() {
-                            continue;
-                        }
-                        call.args[0] = ValueId(998);
+                        if call.arguments.is_empty() { continue; }
+                        call.arguments[0] = crate::mir::instruction::BirthArgumentV1::Value(ValueId(998));
                         MirInstruction::Invoke {
-                            operation: InvokeOperation::Call {
-                                call,
-                                result: *result,
-                            },
+                            operation: InvokeOperation::Birth(call),
                             fault_frame: *fault_frame,
                             normal_landing: *normal_landing,
                             fault_landing: *fault_landing,

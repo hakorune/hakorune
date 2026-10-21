@@ -120,6 +120,14 @@ pub(super) fn check_module_with_source(
                         &mut errors,
                     );
                 }
+                if let MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } = instruction {
+                    let target = module.canonical_callable_definition_symbol(&call.key)
+                        .and_then(|symbol| module.functions.get(symbol));
+                    if target.is_none_or(|target| target.params.len() != call.arguments.len() + 1)
+                        || call.arguments.iter().any(|argument| matches!(argument, crate::mir::instruction::BirthArgumentV1::Text(_))) {
+                        errors.push(error(*id, "call-result-contract-not-connected"));
+                    }
+                }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
                         InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. } | MapInvokeOperation::FieldGetIndexed { object, .. })
@@ -359,6 +367,15 @@ fn check_function_inner(
             if *normal_landing == function.entry_block || normal_landing == id {
                 errors.push(error(*id, "normal-landing-before-invocation"));
             }
+            if let InvokeOperation::Birth(call) = operation {
+                if call.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+                    || call.key.arity() as usize != call.arguments.len()
+                    || call.receiver == crate::mir::ValueId::INVALID
+                    || call.arguments.iter().any(|argument| matches!(argument,
+                        crate::mir::instruction::BirthArgumentV1::Text(text) if !text.is_text())) {
+                    errors.push(error(*id, "call-result-contract-not-connected"));
+                }
+            }
             if let InvokeOperation::Call { call, result } = operation {
                 if call.dst.is_some() {
                     errors.push(error(*id, "embedded-call-destination"));
@@ -369,7 +386,7 @@ fn check_function_inner(
                     CanonicalSameModuleGlobalTargetV1 as SameModule, SameModuleCallableNamespaceV1,
                 };
                 let valid = match (&call.callee, result) {
-                    (Callee::BirthConstructor { .. }, ResultKind::Unit) => true,
+                    (Callee::BirthConstructor { .. }, _) => false,
                     (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }
                         | ResultKind::MixedHandle { formal_ordinal }) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod

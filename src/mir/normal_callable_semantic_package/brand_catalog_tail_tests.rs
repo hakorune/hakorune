@@ -292,31 +292,18 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             .flat_map(|block| block.all_instructions())
         {
             if let crate::mir::MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
-                ..
-            } = instruction
-            {
-                if let crate::mir::Callee::BirthConstructor {
-                    key: target,
-                    receiver,
-                } = &call.callee
-                {
-                    assert_eq!(target, &key);
-                    assert_eq!(call.dst, None);
-                    assert_eq!(call.args.len(), 2, "receiver is not a source argument");
-                    assert!(main.metadata.value_types.contains_key(receiver));
-                    for effect in [
-                        crate::mir::Effect::WriteHeap,
-                        crate::mir::Effect::ReadHeap,
-                        crate::mir::Effect::Panic,
-                        crate::mir::Effect::Barrier,
-                    ] {
-                        assert!(call.effects.contains(effect));
-                    }
-                    assert!(!call.effects.contains(crate::mir::Effect::Pure));
-                    assert!(!call.effects.is_moveable());
-                    birth_count += 1;
+                operation: crate::mir::instruction::InvokeOperation::Birth(call), ..
+            } = instruction {
+                assert_eq!(&call.key, &key);
+                assert_eq!(call.arguments.len(), 2, "receiver is not a source argument");
+                assert!(main.metadata.value_types.contains_key(&call.receiver));
+                for effect in [crate::mir::Effect::WriteHeap, crate::mir::Effect::ReadHeap,
+                    crate::mir::Effect::Panic, crate::mir::Effect::Barrier] {
+                    assert!(call.effects.contains(effect));
                 }
+                assert!(!call.effects.contains(crate::mir::Effect::Pure));
+                assert!(!call.effects.is_moveable());
+                birth_count += 1;
             }
             let dst = match instruction {
                 crate::mir::MirInstruction::ObjectFieldGet { dst, field, .. } => {

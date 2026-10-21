@@ -41,7 +41,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{
-    BasicBlock, BasicBlockId, Callee, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
+    BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
 };
 use root_graph::{cleanup_step_with_writer, RawRootGraphWriterV1, RootGraphWriterPortV1};
 
@@ -229,23 +229,10 @@ fn emit_selected_new(
         .insert(result, class);
     if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
         let effects = recipe.physical_effect_mask();
-        let MirInstruction::Call(call) = MirInstruction::call(
-            None,
-            Callee::BirthConstructor {
-                key: recipe.target(),
-                receiver: result,
-            },
-            arguments.clone(),
-            effects,
-        ) else {
-            unreachable!("canonical Call constructor")
-        };
+        let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(recipe.target(), result, arguments.clone(), effects);
         let after_birth = builder.next_block_id();
         let birth = MirInstruction::Invoke {
-            operation: InvokeOperation::Call {
-                call,
-                result: InvokeCallResultKind::Unit,
-            },
+            operation: InvokeOperation::Birth(call),
             fault_frame: frame,
             normal_landing: after_birth,
             fault_landing: birth_fault,

@@ -35,12 +35,7 @@ fn selected_new_arguments_reach_birth_in_issued_order() {
             .filter_map(|instruction| match instruction {
                 crate::mir::MirInstruction::Invoke {
                     operation:
-                        crate::mir::instruction::InvokeOperation::Call {
-                            call,
-                            result: InvokeCallResultKind::Unit,
-                        },
-                    ..
-                } if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) => {
+                        crate::mir::instruction::InvokeOperation::Birth(call), .. } => {
                     Some(call)
                 }
                 _ => None,
@@ -49,7 +44,7 @@ fn selected_new_arguments_reach_birth_in_issued_order() {
         let [call] = calls.as_slice() else {
             panic!("expected exactly one Birth Call");
         };
-        let [integer, boolean, local_value] = call.args.as_slice() else {
+        let [crate::mir::instruction::BirthArgumentV1::Value(integer), crate::mir::instruction::BirthArgumentV1::Value(boolean), crate::mir::instruction::BirthArgumentV1::Value(local_value)] = call.arguments.as_ref() else {
             panic!("Birth Call argument arity drifted");
         };
         let constants: Vec<_> = main
@@ -280,12 +275,7 @@ fn selected_new_null_argument_reaches_birth_call() {
             .filter_map(|instruction| match instruction {
                 crate::mir::MirInstruction::Invoke {
                     operation:
-                        crate::mir::instruction::InvokeOperation::Call {
-                            call,
-                            result: InvokeCallResultKind::Unit,
-                        },
-                    ..
-                } if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) => {
+                        crate::mir::instruction::InvokeOperation::Birth(call), .. } => {
                     Some(call)
                 }
                 _ => None,
@@ -294,7 +284,7 @@ fn selected_new_null_argument_reaches_birth_call() {
         let [call] = calls.as_slice() else {
             panic!("expected exactly one Birth Call");
         };
-        let [argument] = call.args.as_slice() else {
+        let [crate::mir::instruction::BirthArgumentV1::Value(argument)] = call.arguments.as_ref() else {
             panic!("Birth Call argument arity drifted");
         };
         assert!(constants.iter().any(|(dst, value)| {
@@ -408,19 +398,14 @@ fn selected_new_i64_field_argument_materializes_object_field_get() {
             .filter_map(|instruction| match instruction {
                 crate::mir::MirInstruction::Invoke {
                     operation:
-                        crate::mir::instruction::InvokeOperation::Call {
-                            call,
-                            result: InvokeCallResultKind::Unit,
-                        },
-                    ..
-                } if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) => {
-                    Some(call.args.clone())
+                        crate::mir::instruction::InvokeOperation::Birth(call), .. } => {
+                    Some(call.arguments.clone())
                 }
                 _ => None,
             })
             .collect();
         assert!(
-            birth_args.iter().any(|args| args.as_slice() == [read_dst]),
+            birth_args.iter().any(|args| args.as_ref() == [crate::mir::instruction::BirthArgumentV1::Value(read_dst)]),
             "field read result must feed the Birth Call argument"
         );
     });

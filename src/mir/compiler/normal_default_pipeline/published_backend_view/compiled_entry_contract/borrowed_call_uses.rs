@@ -235,11 +235,12 @@ impl FunctionUses {
                     value,
                     ..
                 } => vec![*value],
-                MirInstruction::Invoke {
-                    operation: InvokeOperation::Call { call, .. },
-                    ..
+                MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } => {
+                    call.arguments.iter().filter_map(|argument| match argument {
+                        crate::mir::instruction::BirthArgumentV1::Value(value) => Some(*value), _ => None,
+                    }).collect()
                 }
-                | MirInstruction::Call(call)
+                MirInstruction::Call(call)
                     if matches!(call.callee, Callee::BirthConstructor { .. }) =>
                 {
                     call.args.clone()
@@ -352,6 +353,24 @@ impl FunctionUses {
                 | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { base, key, .. }), fault_frame, .. } => {
                 self.verify_text_operands_v1(tracked, views, &[key], &[*base], *fault_frame)?;
             }
+            MirInstruction::Invoke { operation: InvokeOperation::Birth(call), fault_frame, .. } => {
+                if tracked.contains_key(fault_frame) || views.views.contains_key(fault_frame)
+                    || tracked.contains_key(&call.receiver) || views.views.contains_key(&call.receiver) {
+                    return Err(fault("borrowed-use/callee-or-fault-frame"));
+                }
+                for argument in &call.arguments {
+                    let crate::mir::instruction::BirthArgumentV1::Value(value) = argument else {
+                        return Err(fault("borrowed-use/callee-operand"));
+                    };
+                    if let Some(formal) = tracked.get(value).or(views.views.get(value)) {
+                        if !views.compares.get(formal).is_some_and(|sites| sites.iter().any(|&(block, index)|
+                            dominates(block, coordinate.0) && (block != coordinate.0 || index < coordinate.1))) {
+                            return Err(fault("borrowed-use/undominated-view"));
+                        }
+                        definitions.ctor_uses.entry(*formal).or_default().insert(*value);
+                    }
+                }
+            }
             MirInstruction::Call(call)
                 if matches!(call.callee, Callee::BirthConstructor { .. }) =>
             {
@@ -400,60 +419,36 @@ impl FunctionUses {
                     return Err(fault("borrowed-use/callee-or-fault-frame"));
                 }
                 if matches!(call.callee, Callee::BirthConstructor { .. }) {
-                    // A `new <Child>(...)` argument may read the same lent
-                    // view only inside the admitted compare's dominance cone;
-                    // the receiver and sibling scalar actuals never carry a
-                    // borrowed lane.
-                    for value in &call.args {
-                        if let Some(formal) =
-                            tracked.get(value).or(views.views.get(value))
-                        {
-                            let dominated = views.compares.get(formal).is_some_and(|sites| {
-                                sites.iter().any(|&(block, index)| {
-                                    dominates(block, coordinate.0)
-                                        && (block != coordinate.0 || index < coordinate.1)
-                                })
-                            });
-                            if !dominated {
-                                return Err(fault("borrowed-use/undominated-view"));
+                    return Err(fault("borrowed-use/callee-or-fault-frame"));
+                }
+                for (ordinal, value) in call.args.iter().enumerate() {
+                    match (
+                        tracked.get(value),
+                        self.arguments.get(&(coordinate.0, coordinate.1, ordinal)),
+                    ) {
+                        (Some(formal), Some(expected)) if formal == expected => {
+                            guarded_arguments::observe(self, coordinate, ordinal, *formal, dominates)?;
+                            if self
+                                .copies
+                                .get(value)
+                                .is_some_and(|(_, coordinate)| coordinate.is_none())
+                            {
+                                return Err(fault("borrowed-use/omitted-copy-argument"));
                             }
                             definitions
-                                .ctor_uses
-                                .entry(*formal)
-                                .or_default()
-                                .insert(*value);
+                                .arguments
+                                .insert((coordinate.0, coordinate.1, ordinal));
                         }
+                        (None, None) => {}
+                        _ => return Err(format!("{} coordinate={coordinate:?} ordinal={ordinal} value={value:?} tracked={:?} expected={:?} instruction={instruction:?}",
+                            fault("borrowed-use/argument"), tracked.get(value),
+                            self.arguments.get(&(coordinate.0, coordinate.1, ordinal)))),
                     }
-                } else {
-                    for (ordinal, value) in call.args.iter().enumerate() {
-                        match (
-                            tracked.get(value),
-                            self.arguments.get(&(coordinate.0, coordinate.1, ordinal)),
-                        ) {
-                            (Some(formal), Some(expected)) if formal == expected => {
-                                guarded_arguments::observe(self, coordinate, ordinal, *formal, dominates)?;
-                                if self
-                                    .copies
-                                    .get(value)
-                                    .is_some_and(|(_, coordinate)| coordinate.is_none())
-                                {
-                                    return Err(fault("borrowed-use/omitted-copy-argument"));
-                                }
-                                definitions
-                                    .arguments
-                                    .insert((coordinate.0, coordinate.1, ordinal));
-                            }
-                            (None, None) => {}
-                            _ => return Err(format!("{} coordinate={coordinate:?} ordinal={ordinal} value={value:?} tracked={:?} expected={:?} instruction={instruction:?}",
-                                fault("borrowed-use/argument"), tracked.get(value),
-                                self.arguments.get(&(coordinate.0, coordinate.1, ordinal)))),
-                        }
-                    }
-                    if self.arguments.keys().any(|(block, index, ordinal)| {
-                        (*block, *index) == coordinate && *ordinal >= call.args.len()
-                    }) {
-                        return Err(fault("borrowed-use/argument-missing"));
-                    }
+                }
+                if self.arguments.keys().any(|(block, index, ordinal)| {
+                    (*block, *index) == coordinate && *ordinal >= call.args.len()
+                }) {
+                    return Err(fault("borrowed-use/argument-missing"));
                 }
             }
             MirInstruction::Compare {

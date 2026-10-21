@@ -543,9 +543,11 @@ exact-binding lane as Local/Handle. The selected emitter consumes and
 materializes those rows without raw argument descent, then records the
 non-semantic `(source row, emitted ValueId)` snapshot in the existing
 claim. The root finalizer checks that snapshot against literal
-definitions and the ordered Birth Call arguments. It rejects residual
-rows or physical value/order/Call drift; it does not reclassify source
-expressions. The selected physical consumer admits Integer/Bool actuals
+definitions and the exact target/receiver/ordered actuals of `InvokeOperation::Birth`.
+Checked Birth is Unit-only and owns one `Value`/`Text` argument array; ordinary
+`Call` with a Birth callee is rejected. Text actuals remain closed until their
+retained source and lifetime checks are connected. The finalizer rejects residual
+rows or physical value/order/Birth drift; it does not reclassify source expressions. The selected physical consumer admits Integer/Bool actuals
 for its retained formal contract; Local/Handle/BoundValue actuals still
 stop. Source argument retention alone does not authorize a physical
 representation.

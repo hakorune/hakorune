@@ -399,22 +399,10 @@ impl CallableSemanticLoweringState {
                             .current_block
                             .ok_or_else(|| fault("no-block"))?;
                         let effects = recipe.physical_effect_mask();
-                        let MirInstruction::Call(call) = MirInstruction::call(
-                            None,
-                            crate::mir::Callee::BirthConstructor {
-                                key: recipe.target(),
-                                receiver: allocation,
-                            },
-                            arg_values,
-                            effects,
-                        ) else {
-                            unreachable!("canonical Call constructor")
-                        };
+                        let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+                            recipe.target(), allocation, arg_values, effects);
                         builder.emit_instruction(MirInstruction::Invoke {
-                            operation: InvokeOperation::Call {
-                                call,
-                                result: crate::mir::instruction::InvokeCallResultKind::Unit,
-                            },
+                            operation: InvokeOperation::Birth(call),
                             fault_frame,
                             normal_landing: store_entry,
                             fault_landing: reclaim,

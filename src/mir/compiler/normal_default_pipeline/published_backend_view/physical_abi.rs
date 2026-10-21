@@ -142,7 +142,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::ScriptArgumentsNew { .. } => Some(Self::ScriptArgumentsNew),
             InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
             InvokeOperation::ArrayElementWrite { .. } => Some(Self::ArrayWrite),
-            InvokeOperation::Call { .. } => None,
+            InvokeOperation::Birth(_) | InvokeOperation::Call { .. } => None,
         }
     }
 }
@@ -618,7 +618,8 @@ fn referenced_objects(
                         InvokeOperation::OwnedArray(operation) => {
                             ids.insert(operation.descriptor().object().declaration_index());
                         }
-                        InvokeOperation::Call { .. } | InvokeOperation::Map(_) | InvokeOperation::String(_) => {}
+                        InvokeOperation::Birth(_)
+                        | InvokeOperation::Call { .. } | InvokeOperation::Map(_) | InvokeOperation::String(_) => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ScriptArgumentsNew { .. }
                         | InvokeOperation::ArrayStateContractClaim { .. }

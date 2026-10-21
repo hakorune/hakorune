@@ -482,16 +482,11 @@ impl ConstructionState {
                     }
                     if !matches!(function.blocks.get(&birth.birth_call).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
-                            operation: InvokeOperation::Call {
-                                call,
-                                result: crate::mir::instruction::InvokeCallResultKind::Unit,
-                            },
-                            fault_frame,
-                            fault_landing,
-                            normal_landing,
-                        }) if matches!(call.callee, crate::mir::Callee::BirthConstructor { ref receiver, .. } if *receiver == *value)
+                            operation: InvokeOperation::Birth(call),
+                            fault_frame, fault_landing, normal_landing,
+                        }) if call.receiver == *value
                             && birth.call_args.iter().all(|argument|
-                                call.args.get(argument.ordinal as usize) == Some(&argument.value))
+                                call.arguments.get(argument.ordinal as usize) == Some(&crate::mir::instruction::BirthArgumentV1::Value(argument.value)))
                             && *normal_landing == *block
                             && *fault_landing == birth.reclaim
                             && frame.is_some_and(|(id, _)| *fault_frame == id))

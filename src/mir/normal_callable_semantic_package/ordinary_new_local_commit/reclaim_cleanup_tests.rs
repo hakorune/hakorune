@@ -1,6 +1,6 @@
 //! A coordinated old-caller cleanup cannot evade the retained New validator.
 use super::*;
-use crate::mir::instruction::{FaultFrameMode, InvokeCallResultKind};
+use crate::mir::instruction::{FaultFrameMode};
 use crate::mir::normal_callable_semantic_package::{
     ConstructionStoreRhsV1, OrdinaryNewConstructorDispositionV1,
 };
@@ -86,22 +86,10 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
     let OrdinaryNewConstructorDispositionV1::Birth(recipe) = claim.constructor() else {
         panic!("Birth")
     };
-    let MirInstruction::Call(call) = MirInstruction::call(
-        None,
-        crate::mir::Callee::BirthConstructor {
-            key: recipe.target_ref().clone(),
-            receiver: result,
-        },
-        vec![],
-        recipe.physical_effect_mask(),
-    ) else {
-        unreachable!()
-    };
+    let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+        recipe.target_ref().clone(), result, vec![], recipe.physical_effect_mask());
     let birth = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call,
-            result: InvokeCallResultKind::Unit,
-        },
+        operation: InvokeOperation::Birth(call),
         fault_frame: frame,
         normal_landing: BasicBlockId(2),
         fault_landing: BasicBlockId(3),

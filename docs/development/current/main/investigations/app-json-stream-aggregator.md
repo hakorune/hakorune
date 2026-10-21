@@ -1,19 +1,19 @@
 # APP-json-stream-aggregator
-Status: Original New argument evaluation is retained through co-seal; physical Text Birth and Map publication remain incomplete. Date: 2026-10-21
+Status: Checked Birth has one ordered typed argument census; physical Text admission and Map publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 380.497s;
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 395.641s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
+  --suite real-apps-exe-boundary --jobs 2 --timeout 1900 --format json`.
 - JSON first stop: owner26 ingestLine Body5 Initializer0 statsFor(user), callee25,
   lexical-instance-call/source-pending. No MIR/EXE. Four required apps remain red.
-- CLI64s/root106s builds; runtime/FFI unchanged. Earlier FieldHas EXE exit7.
-- 25 focused filters retain parent outcomes/failure causes; raw diagnostics kept.
-  Original JSON source case PASS; inventory9263 byte-identical, root warnings unchanged.
-- Earlier ABI-only Text append12 runs/9 refusals and Map get8 runs/9 refusals
-  remain narrow ABI evidence; source-backed Text final publication/EXE is owed.
+- CLI32.97s/root63s; Invoke42/JSON35/borrowed-use31 PASS; runtime/FFI unchanged.
+- 33 focused filters retain parent outcomes/causes; inventory9263 byte-identical.
+- Broad52: parent timeout180s; current explicitly stopped539s. Unconfirmed,
+  not a baseline waiver. Earlier FieldHas EXE exit7 is not remeasured.
+- Earlier Text/Map ABI evidence is narrow; source-backed publication/EXE is owed.
 
 ## Shared source and execution owners
 - One original FieldResidence census retains every Array/Dynamic field, including
@@ -29,13 +29,16 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Selected construction consumes that projection and retains the same plan.
   Existing final validation compares original store/receiver/RHS/read membership
   and execution mode/prefix before replaying actual Invoke/cleanup coordinates.
-  Existing physical test fixtures retain real source plans; no new test functions,
-  files, hooks, checker, guard, card or adapter.
+  Existing physical test fixtures retain real source plans.
 - NewArgument evaluation retains the original New, exact ordinal/site and SAME
   checked evaluation Rc through co-seal. Local/return-New share one source-order
   argument walk; Text borrows input Homes. Physical/ABI admission remains closed.
-- Existing JSON case extends the independent original-New purpose/loan boundary;
-  no new test functions/files/hooks/checkers. Duplicate argument walks removed.
+- Checked Birth replaces both generic Call issuers: canonical key, receiver,
+  Unit-only result and one ordered Value/Text actual array; no parallel argv.
+  Retained/source-final scans and transport compare exact Value actuals; Text
+  remains refused pending source/lifetime closure; hidden frame stays separate.
+- Existing fixtures/mutations now check the same Birth target/order/read/cleanup;
+  no new tests/hooks/checkers. Duplicate argument walks and generic Birth edge removed.
 - First-write I64/Map checks Empty. Birth Fault discharges only committed prefix;
   Provided stays caller-owned until Normal. Full End drains all declared residences.
 - One synchronous MapEndContext handles detached outcomes/Array children outside
@@ -73,7 +76,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   once. It grants no source Birth/Map/Call/Return publication or parent Map End.
 
 ## Next and completion limits
-- Next: typed checked Birth actuals retaining the same New evaluation; StaticText
+- Next: retained/emitted typed Birth actuals retain SAME New evaluation; StaticText
   has no fake SSA or caller Materialize. Same source SUM/Birth formal → late plan.
   Borrowed Text must
   Materialize an independent pair before Dynamic initialization. Materialize

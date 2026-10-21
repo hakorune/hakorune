@@ -50,6 +50,8 @@ impl PhysicalBoundary {
                         values.push(*dst);
                         values.extend(inputs.iter().map(|(_, value)| *value));
                     }
+                    MirInstruction::Invoke { operation: operation @ crate::mir::instruction::InvokeOperation::Birth(_), .. } =>
+                        values.extend(operation.used_values()),
                     MirInstruction::Call(call) => values.extend(call.args.iter().copied()),
                     MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. } =>
                         values.extend(call.args.iter().copied()),

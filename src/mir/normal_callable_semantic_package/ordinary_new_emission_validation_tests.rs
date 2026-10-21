@@ -1,7 +1,6 @@
 use super::*;
-use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
-use crate::mir::{BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature};
+use crate::mir::{BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature};
 
 const INTEGER: crate::mir::ValueId = crate::mir::ValueId(10);
 const BOOLEAN: crate::mir::ValueId = crate::mir::ValueId(11);
@@ -86,17 +85,9 @@ pub(super) fn fixture() -> EmissionFixture {
         dst: RESULT,
     };
     let birth = crate::mir::MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Call {
-            call: crate::mir::definitions::MirCall::new(
-                None,
-                Callee::BirthConstructor {
-                    key: target,
-                    receiver: RESULT,
-                },
-                vec![INTEGER, BOOLEAN],
-            ),
-            result: InvokeCallResultKind::Unit,
-        },
+        operation: crate::mir::instruction::InvokeOperation::Birth(
+            crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+                target, RESULT, vec![INTEGER, BOOLEAN], EffectMask::PURE)),
         fault_frame: FRAME,
         normal_landing: BasicBlockId::new(0),
         fault_landing: BasicBlockId::new(0),
@@ -194,10 +185,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     let mut order = fixture.function.clone();
     let Some(crate::mir::MirInstruction::Invoke {
         operation:
-            crate::mir::instruction::InvokeOperation::Call {
-                call: birth_call,
-                result: InvokeCallResultKind::Unit,
-            },
+            crate::mir::instruction::InvokeOperation::Birth(birth_call),
         ..
     }) = order
         .blocks
@@ -208,7 +196,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     else {
         panic!("fixture Birth call must be the block terminator");
     };
-    birth_call.args.swap(0, 1);
+    birth_call.arguments.swap(0, 1);
     assert!(fixture
         .ledger
         .validate_new_emissions(fixture.owner, &order)
@@ -218,10 +206,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     let mut call = fixture.function.clone();
     let Some(crate::mir::MirInstruction::Invoke {
         operation:
-            crate::mir::instruction::InvokeOperation::Call {
-                call: birth_call,
-                result: InvokeCallResultKind::Unit,
-            },
+            crate::mir::instruction::InvokeOperation::Birth(birth_call),
         ..
     }) = call
         .blocks
@@ -232,7 +217,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
     else {
         panic!("fixture Birth call must be the block terminator");
     };
-    birth_call.args.clear();
+    birth_call.arguments = Box::new([]);
     assert!(fixture
         .ledger
         .validate_new_emissions(fixture.owner, &call)

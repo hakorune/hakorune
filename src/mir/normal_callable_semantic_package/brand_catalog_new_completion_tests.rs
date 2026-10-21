@@ -1,7 +1,6 @@
 //! Source-issued New/Home progress and finishing coverage, including multiple Homes.
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::issue_with_brand_catalog;
-use crate::mir::instruction::InvokeCallResultKind;
 
 #[test]
 fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
@@ -133,23 +132,11 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         else {
             panic!("source-issued Birth")
         };
-        let crate::mir::MirInstruction::Call(call) = crate::mir::MirInstruction::call(
-            None,
-            crate::mir::Callee::BirthConstructor {
-                key: recipe.target_ref().clone(),
-                receiver: initializer,
-            },
-            vec![],
-            recipe.physical_effect_mask(),
-        ) else {
-            unreachable!()
-        };
+        let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+            recipe.target_ref().clone(), initializer, vec![], recipe.physical_effect_mask());
         let birth_id = crate::mir::BasicBlockId(200 + index as u32);
         let birth = crate::mir::MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::Call {
-                call,
-                result: InvokeCallResultKind::Unit,
-            },
+            operation: crate::mir::instruction::InvokeOperation::Birth(call),
             fault_frame: ValueId(100),
             normal_landing: block_id,
             fault_landing: reclaim_block,

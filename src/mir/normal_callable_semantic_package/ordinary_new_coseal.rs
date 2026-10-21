@@ -505,7 +505,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     // Destination-less verified `Birth` recipes for `new` sites outside the
     // local-commit claim lane (non-`[Body, Initializer]` positions). An entry
-    // admits only the typed `Callee::BirthConstructor` edge at that site; it
+    // admits only the checked `InvokeOperation::Birth` edge at that site; it
     // issues no destination, home, or lifecycle authority.
     birth_site_index:
         RefCell<BTreeMap<OwnedExprSiteV1, (VerifiedOrdinaryNewBirthRecipeV1, BirthAbiHandoffV1)>>,

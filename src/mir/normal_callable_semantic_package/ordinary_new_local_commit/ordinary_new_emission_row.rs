@@ -207,15 +207,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     .filter(|instruction| matches!(
                         instruction,
                         MirInstruction::Invoke {
-                            operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
-                            ..
-                        } if matches!(&call.callee,
-                            crate::mir::Callee::BirthConstructor { receiver, .. } if receiver == result)
-                            && call.args
-                                == arguments
-                                    .iter()
-                                    .map(|argument| argument.value)
-                                    .collect::<Vec<_>>()
+                            operation: crate::mir::instruction::InvokeOperation::Birth(call), ..
+                        } if call.receiver == *result && row_birth_target.as_ref() == Some(&call.key)
+                            && call.value_arguments_match(arguments.iter().map(|argument| argument.value))
                     ))
                     .count();
                 let expected_birth_calls = usize::from(row_birth_target.is_some());

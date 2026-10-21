@@ -230,11 +230,10 @@ fn provider_static_call_argument_seals_target_and_literal_actuals() {
                         }
                         _ => {
                             let call = function.blocks.values_mut().find_map(|block| match block.terminator.as_mut() {
-                                Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. })
-                                    if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) => Some(call),
+                                Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(call), .. }) => Some(call),
                                 _ => None,
                             }).unwrap();
-                            call.args[1] = crate::mir::ValueId(99999);
+                            call.arguments[1] = crate::mir::instruction::BirthArgumentV1::Value(crate::mir::ValueId(99999));
                         }
                     }
                     assert!(source.visit_finalized_borrowed_call_nodes_v1(&altered, |_, _, _, _, _| Ok(())).is_err(),

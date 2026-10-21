@@ -257,14 +257,13 @@ pub(super) fn encode_ordinary_call(
 }
 
 pub(super) fn encode_birth_call(
-    call: &crate::mir::definitions::MirCall,
+    call: &crate::mir::instruction::BirthInvokeV1,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     caller_function_index: u32,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
-    let Callee::BirthConstructor { key, receiver } = &call.callee else {
-        return Err(fault("call-not-birth"));
-    };
+    let key = &call.key;
+    let receiver = &call.receiver;
     let target = births
         .get(key)
         .ok_or_else(|| fault("birth-target-foreign"))?;
@@ -273,7 +272,7 @@ pub(super) fn encode_birth_call(
         issued.caller_function_index() == caller_function_index
             && issued.function_index() == *target
             && issued.receiver() == *receiver
-            && issued.arguments().eq(call.args.iter().copied())
+            && call.value_arguments_match(issued.arguments())
     });
     let issued = matches
         .next()
@@ -316,7 +315,7 @@ pub(super) fn encode_birth_call(
         })
         .collect::<Result<Vec<Value>, String>>()?;
     Ok(json!({ "target": target, "receiver": value(receiver),
-        "args": args, "dst": call.dst.map(|value| value.0) }))
+        "args": args, "dst": Value::Null }))
 }
 
 /// A removed column still requires its original source loan. Compare before

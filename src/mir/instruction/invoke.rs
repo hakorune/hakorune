@@ -169,8 +169,43 @@ impl ArrayElementWriteValueV1 {
     }
 }
 
+/// One logical Birth actual. Static Text has no invented SSA value.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BirthArgumentV1 {
+    Value(ValueId),
+    Text(StringInvokeOperand),
+}
+impl BirthArgumentV1 {
+    pub fn value(&self) -> Option<ValueId> {
+        match self { Self::Value(value) => Some(*value), Self::Text(text) => text.value() }
+    }
+    pub fn rewrite_value(&mut self, rewrite: impl FnMut(&mut ValueId)) {
+        match self { Self::Value(value) => { let mut rewrite = rewrite; rewrite(value); }, Self::Text(text) => text.rewrite_value(rewrite) }
+    }
+}
+
+/// Checked Birth is Unit-only. Its ordered actuals are the sole operand census;
+/// no ordinary Call destination, result classification or parallel argv exists.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BirthInvokeV1 {
+    pub key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    pub receiver: ValueId,
+    pub arguments: Box<[BirthArgumentV1]>,
+    pub effects: EffectMask,
+}
+impl BirthInvokeV1 {
+    pub fn value_arguments_match(&self, values: impl IntoIterator<Item = ValueId>) -> bool {
+        self.arguments.iter().cloned().eq(values.into_iter().map(BirthArgumentV1::Value))
+    }
+    pub fn from_value_arguments(key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId, arguments: Vec<ValueId>, effects: EffectMask) -> Self {
+        Self { key, receiver, arguments: arguments.into_iter().map(BirthArgumentV1::Value).collect(), effects }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvokeOperation {
+    Birth(BirthInvokeV1),
     /// The embedded destination must be absent; the Normal projection owns it.
     Call {
         call: MirCall,
@@ -308,6 +343,7 @@ impl InvokeOperation {
                 result: InvokeCallResultKind::Unit,
                 ..
             }
+            | Self::Birth(_)
             | Self::FieldSet { .. }
             | Self::ObjectFieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
@@ -326,6 +362,7 @@ impl InvokeOperation {
             Self::Map(operation) => operation.effects(),
             Self::String(operation) => operation.effects(),
             Self::OwnedArray(operation) => operation.effects(),
+            Self::Birth(call) => call.effects.add(Effect::Control),
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldGet { .. } => EffectMask::READ.add(Effect::Control),
@@ -353,6 +390,7 @@ impl InvokeOperation {
             Self::Map(operation) => operation.used_values(),
             Self::String(operation) => operation.used_values(),
             Self::OwnedArray(operation) => operation.used_values(),
+            Self::Birth(call) => std::iter::once(call.receiver).chain(call.arguments.iter().filter_map(BirthArgumentV1::value)).collect(),
             Self::Call { call, .. } => {
                 let mut values = Vec::new();
                 call.for_each_value_operand(|value| values.push(value));
@@ -391,6 +429,10 @@ impl InvokeOperation {
             Self::Map(operation) => operation.rewrite_values(rewrite),
             Self::String(operation) => operation.rewrite_values(rewrite),
             Self::OwnedArray(operation) => operation.rewrite_values(rewrite),
+            Self::Birth(call) => {
+                rewrite(&mut call.receiver);
+                for argument in &mut call.arguments { argument.rewrite_value(&mut rewrite); }
+            }
             Self::Call { call, .. } => {
                 call.rewrite_value_operands(rewrite);
             }

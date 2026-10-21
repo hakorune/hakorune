@@ -20,7 +20,7 @@ pub use construction_target::ConstructionTarget;
 
 mod invoke;
 pub use invoke::{
-    ArrayElementWriteValueV1, FieldSetModeV1, FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1, InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
+    BirthArgumentV1, BirthInvokeV1, ArrayElementWriteValueV1, FieldSetModeV1, FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1, InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
     MapInvokeOperation, MapValueKind, OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1,
 };
 

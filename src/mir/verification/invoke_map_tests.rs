@@ -586,7 +586,7 @@ fn map_argument_borrow_rejects_uncorroborated_callees() {
     // A birth() argument edge corroborates nothing: the constructor's
     // formals sit outside `check_call_edge`, so the lease is an escape,
     // never a borrow — at every layer.
-    let function = map_argument_call_function(
+    let mut function = map_argument_call_function(
         Callee::BirthConstructor {
             key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
                 "Worker", 1,
@@ -595,6 +595,11 @@ fn map_argument_borrow_rejects_uncorroborated_callees() {
         },
         InvokeCallResultKind::Unit,
     );
+    let Some(MirInstruction::Invoke { operation, .. }) = &mut function.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator
+        else { unreachable!() };
+    *operation = InvokeOperation::Birth(crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Worker", 1),
+        ValueId(1), vec![ValueId(2)], EffectMask::CONTROL));
     let errors = MirVerifier::new().verify_function(&function).unwrap_err();
     assert!(
         format!("{errors:?}").contains("map-opaque-escape"),

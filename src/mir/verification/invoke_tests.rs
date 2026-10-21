@@ -461,17 +461,8 @@ fn cleanup_is_unit_and_requires_definition_owned_home_disposition() {
 fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
     use crate::mir::{BasicBlockId, Callee, MirVerifier};
     let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Object", 1);
-    let mut operation = InvokeOperation::Call {
-        call: crate::mir::definitions::MirCall::new(
-            None,
-            Callee::BirthConstructor {
-                key: key.clone(),
-                receiver: ValueId::new(1),
-            },
-            vec![ValueId::new(1)],
-        ),
-        result: InvokeCallResultKind::Unit,
-    };
+    let mut operation = InvokeOperation::Birth(crate::mir::instruction::BirthInvokeV1::from_value_arguments(
+        key.clone(), ValueId::new(1), vec![ValueId::new(1)], crate::mir::EffectMask::CONTROL));
     assert_eq!(
         operation.used_values(),
         vec![ValueId::new(1), ValueId::new(1)]
@@ -481,14 +472,8 @@ fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
         operation.used_values(),
         vec![ValueId::new(5), ValueId::new(5)]
     );
-    let InvokeOperation::Call {
-        call,
-        result: InvokeCallResultKind::Unit,
-    } = &operation
-    else {
-        unreachable!()
-    };
-    assert!(matches!(&call.callee, Callee::BirthConstructor { key: after, .. } if after == &key));
+    let InvokeOperation::Birth(call) = &operation else { unreachable!() };
+    assert_eq!(&call.key, &key);
     let mut function = allocation_invoke_function();
     let origin = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
     let MirInstruction::Invoke {
@@ -504,18 +489,14 @@ fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
     normal.instruction_spans.clear();
     MirVerifier::new().verify_function(&function).unwrap();
     let origin = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
-    let MirInstruction::Invoke {
-        operation:
-            InvokeOperation::Call {
-                call,
-                result: InvokeCallResultKind::Unit,
-            },
-        ..
-    } = origin.terminator.as_mut().unwrap()
-    else {
-        unreachable!()
+    let MirInstruction::Invoke { operation, .. } = origin.terminator.as_mut().unwrap()
+        else { unreachable!() };
+    // The old generic Call form must still reject an embedded destination.
+    *operation = InvokeOperation::Call {
+        call: crate::mir::definitions::MirCall::new(Some(ValueId::new(2)),
+            Callee::BirthConstructor { key, receiver: ValueId::new(1) }, vec![ValueId::new(1)]),
+        result: InvokeCallResultKind::Unit,
     };
-    call.dst = Some(ValueId::new(2));
     let errors = MirVerifier::new().verify_function(&function).unwrap_err();
     assert!(format!("{errors:?}").contains("embedded-call-destination"));
 }

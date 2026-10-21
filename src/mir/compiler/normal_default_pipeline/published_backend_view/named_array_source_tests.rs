@@ -501,8 +501,7 @@ fn user_object_provider_construction_reaches_artifact_lane() {
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { .. }, .. })).count();
                     assert_eq!(new_boxes, 1, "provider emits the checked NewBox");
                     let birth_calls = instructions().filter(|i| matches!(i,
-                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. }
-                            if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))).count();
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(_), .. })).count();
                     assert_eq!(birth_calls, 1, "provider emits the canonical BirthConstructor call");
                     let field_sets = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectFieldSet { .. }, .. })).count();
