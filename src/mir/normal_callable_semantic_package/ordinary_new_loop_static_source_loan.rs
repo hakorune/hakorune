@@ -429,6 +429,7 @@ pub(super) fn issue_loop_static_source_loans_v1(
         return Ok(IssuedLoopStaticSourceLoansV1::default());
     };
     let mut rows = std::collections::BTreeMap::new();
+    let mut selected_sites = std::collections::BTreeSet::new();
     let mut entry_rows = std::collections::BTreeMap::new();
     let mut tail_rows = std::collections::BTreeMap::new();
     let mut home_rows = std::collections::BTreeMap::new();
@@ -443,6 +444,13 @@ pub(super) fn issue_loop_static_source_loans_v1(
         batch
                 .with_lowering_input(slot, |input| {
                     for loop_site in input.function().loop_sites() {
+                        let (header, body) =
+                            super::loop_static_preissue::original_search_call_sites_v2(input, loop_site);
+                        // A partially present specialized protocol stays selected and
+                        // refuses in its producer; it never retries the generic route.
+                        if header.is_some() || body.is_some() {
+                            selected_sites.insert((input.owner(), loop_site.clone()));
+                        }
                         let tail = issue_loop_tail_static_i64_source_loan_v1(
                             claims, incoming, selected, contracts, &caller, input, loop_site,
                         );
@@ -520,10 +528,6 @@ pub(super) fn issue_loop_static_source_loans_v1(
                 })
                 .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     }
-    let selected_sites = rows
-        .keys()
-        .map(|(loop_site, call)| (call.owner(), loop_site.clone()))
-        .collect();
     Ok(IssuedLoopStaticSourceLoansV1 {
         selected_sites,
         rows,

@@ -1,21 +1,19 @@
 # APP-json-stream-aggregator
-Status: Bool literal rebind connected through canonical native EXE; JSON arithmetic initializer source and final Map/native incomplete. Date: 2026-10-21
+Status: Original arithmetic initializer and Loop actual source connected; JSON finite input/Loop and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 427.193s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 419.004s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON moved past reportUser original-input-not-ready and statsFor MapGet ingress
-  to borrowed-static/source-actual-unavailable. No MIR/EXE.
-- Final Static demand is to_i64's original _digit_value(ch). Bool rebind arms now
-  close; next Prefix stop is i=one_i64/zero_i64. Unknown remains refused.
-- Independent Bool rebind probe: parent refuses; canonical --emit-exe now builds,
-  prints bool-rebind and exits0. This proves neither JSON nor generic Bool RHS.
-- CLI41.32s/root71s; 46filters match parent outcomes and strict failure diagnostics.
-  Inventory9263 unchanged; 3source/1physical rebind tests PASS; two source refusals stay.
-- Warning counts1858/920 unchanged. No new test case/file/hook/guard/checker/card/app edit. Existing test values only
-  follow the internal evaluated-value wrapper. Temporary probe stays outside repo.
+- JSON now stops at borrowed-entry/finite-domain-unclosed, before MIR/EXE.
+  Original n-n / zero_i64+1 initializer proofs close i rebinds. Loop body now stages
+  _digit_value(ch)'s exact Text residence argument; source permission is not execution.
+- Source Loop still refuses the outer Text acquisition's missing logical input;
+  readonly role alone never substitutes its actual producer/cleanup/Finished checks.
+- 46filters match parent outcomes and strict failure diagnostics. Existing scalar,
+  initializer and dedicated Loop boundary tests: 11PASS. Inventory9263 unchanged.
+- Two original source refusals retained. No new test case/file/hook/guard/checker/card/app edit.
 
 ## Shared source and construction
 - Full original FieldResidence census retains Array/Dynamic fields, including Empty;
@@ -40,7 +38,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   mandatory for zero-Call Text. Original all-incoming/uses/Completion must close.
 - Full-use census borrows SAME New evaluations from claims or taken commits. Duplicate
   locations refuse; final Birth owner→symbol loan precedes function-local SSA checks.
-- No AST/app workaround, backend inference, fake Home/formal/SSA/ordinal or retry.
 
 ## Map/Text connection
 - Whole original field-use walk closes declarations, aliases, capture/escape, foreign
@@ -76,16 +73,23 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   OwnedString uses existing Call/Print temporary End/Fault and final callee validation.
 - Cleanup prefixes now replace validated sequences only, retaining every source product
   on the same order. This fixes lost MapGet metadata without relaxing ingress checks.
-- Internal evaluated values separate Bool from String/I64 operands. Bool destination
-  uses same owner/noHome; literal→actual ConstBool→assignment receipt→Finished is
-  checked by shared expression and existing final owners. No fake I64/Text Home.
-- Next connect n-n and zero_i64+1 original arithmetic initializer evaluations to
-  existing Local receipts/current scalar producer; reuse Sub law, never SUM-only SSA.
-  Then close i rebinds and original loop actuals. Unknown never proves Text.
+- Bool stays separate from String/I64: same owner/noHome, literal ConstBool, Assignment
+  receipt and Finished remain checked by shared expression and existing final owners.
+- Original requested I64 Add/Mul/Sub initializers now use checked references and the
+  common evaluation/Local receipt. Sub borrows the same Local/root scalar law;
+  Divide admission and final source/producer matching stay unchanged.
+- Dedicated Static I64 Loop selection shares its original header/body call roles;
+  either role keeps selection, both remain required by its sole Recipe producer.
+  Unrelated calls retain generic loans; selected failures never retry another route.
+- Cohorts follow original legacy registration or SourceOnly scope before projection;
+  completed expression input retains whole incoming/Completion/signature/actuals even
+  with I64 output. Result publication remains independently checked.
+- Next connect original outer Text residence to existing readonly Loop input through
+  its same live acquisition/physical producer; close finite uses/Recipe without fake
+  Home, SUM-only SSA or blanket readonly Text permission.
 
 ## Completion limits
-- Other Instance Text purposes/terminal Call original actuals require their own full
-  consumer closure; Print qualification grants no blanket Text execution permission.
+- Other Instance Text purposes/terminal actuals still require their own full consumer closure.
 - Native Text formal/actual/Materialize/store/End/Fault, full Dynamic/Provided/Shared,
   Array holder/contents/End, exact empty transfer, signed SUM/rebind/to_i64, generic native Bool
   and generic canonical JSON remain owed under the original goal.

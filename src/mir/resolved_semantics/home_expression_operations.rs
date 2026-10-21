@@ -1,4 +1,4 @@
-//! Existing checked Add/Mul envelopes shared by expression purposes.
+//! Checked arithmetic laws shared by expression purposes.
 use super::*;
 use crate::mir::dynamic_operator_contract::{issue_dynamic_operator_execution_envelope_v1,
     DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorNormalResultV1, DynamicOperatorValueClassV1};
@@ -18,14 +18,23 @@ pub(super) fn qualify_arithmetic_operations_v1(
     for &index in order {
         if transferred.contains(&index) { continue; }
         let Some(binary) = source.nodes()[index].binary() else { continue };
+        let operand = |site| source.nodes().iter().position(|node| node.site() == site)
+            .and_then(|index| classes[index].value_classes());
+        let (Some(lhs), Some(rhs)) = (operand(binary.lhs()), operand(binary.rhs())) else { return None };
+        if binary.operator() == ResolvedBinaryOperatorV1::Subtract {
+            if index != 0 || classes.first() != Some(&Leaf::Value(Class::I64))
+                || [binary.lhs(), binary.rhs()].iter().any(|site| source.nodes().iter().position(|node| node.site() == *site)
+                    .is_none_or(|index| classes[index] != Leaf::Value(Class::I64))) { return None; }
+            let scalar = ExpressionScalarOperationLoanV1::issue_root(Rc::clone(source), binary, None)?;
+            operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(source), node: index,
+                proof: CheckedExpressionOperationProofV1::Scalar(scalar) }));
+            continue;
+        }
         let family = match binary.operator() {
             ResolvedBinaryOperatorV1::Add => DynamicOperatorFamilyV1::Add,
             ResolvedBinaryOperatorV1::Multiply => DynamicOperatorFamilyV1::Mul,
             _ => return None,
         };
-        let operand = |site| source.nodes().iter().position(|node| node.site() == site)
-            .and_then(|index| classes[index].value_classes());
-        let (Some(lhs), Some(rhs)) = (operand(binary.lhs()), operand(binary.rhs())) else { return None };
         let mut envelopes = Vec::new();
         for lhs in lhs.iter() {
             for rhs in rhs.iter() {

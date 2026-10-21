@@ -21,6 +21,7 @@ pub(crate) struct CheckedExpressionOperationLoanV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum CheckedExpressionOperationProofV1 {
     Dynamic(Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>),
+    Scalar(Rc<ExpressionScalarOperationLoanV1>),
     NullableNull { reference: usize, null: usize, frame: Rc<super::MapFieldGetLocalV1> },
 }
 impl CheckedExpressionOperationLoanV1 {
@@ -31,6 +32,13 @@ impl CheckedExpressionOperationLoanV1 {
     }
     pub(crate) fn single_envelope(&self) -> Option<&'static VerifiedDynamicOperatorExecutionEnvelopeV1> {
         match self.envelopes() { [envelope] => Some(*envelope), _ => None }
+    }
+    pub(crate) fn normal_result_v1(&self) -> Option<crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1> {
+        use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
+        match &self.proof {
+            CheckedExpressionOperationProofV1::Scalar(_) => self.integer_operator_v1().map(|_| ResultKind::NormalInteger),
+            _ => self.single_envelope().map(|envelope| envelope.normal_result()),
+        }
     }
     pub(crate) fn nullable_null_v1(&self) -> Option<(usize, usize, &Rc<super::MapFieldGetLocalV1>)> {
         let CheckedExpressionOperationProofV1::NullableNull { reference, null, frame } = &self.proof else { return None };
@@ -56,6 +64,11 @@ impl CheckedExpressionOperationLoanV1 {
     pub(crate) fn integer_operator_v1(&self) -> Option<crate::mir::BinaryOp> {
         use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
             DynamicOperatorValueClassV1 as Class, DynamicOperatorNormalResultV1 as ResultKind};
+        if let CheckedExpressionOperationProofV1::Scalar(source) = &self.proof {
+            if !Rc::ptr_eq(source.plan(), &self.plan)
+                || self.plan.nodes().get(self.node).and_then(|node| node.binary()) != Some(source.binary()) { return None; }
+            return source.integer_operator_v1();
+        }
         let envelope = self.single_envelope()?;
         let domain = envelope.domain();
         if domain.left() != Class::NormalInteger || domain.right() != Class::NormalInteger
@@ -103,34 +116,9 @@ pub(super) use print_expression::qualify_statement_evaluation_v1;
 mod field_write;
 pub(crate) use field_write::{CheckedFieldWriteFrameV1, FieldWritePlanV1};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ExpressionScalarOperationLoanV1 {
-    plan: Rc<ExpressionSourcePlanV1>,
-    node: usize,
-    positive_divisor: Option<i64>,
-}
-impl ExpressionScalarOperationLoanV1 {
-    pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {
-        &self.plan
-    }
-    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.plan.owner()
-    }
-    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
-        self.plan.root().statement()
-    }
-    pub(crate) fn initializer(&self) -> Option<&ResolvedInitializerRelationV1> {
-        self.plan.root().initializer()
-    }
-    pub(crate) fn binary(&self) -> &ResolvedBinaryExpressionSourceV1 {
-        self.plan.nodes()[self.node]
-            .binary()
-            .expect("qualified original binary node")
-    }
-    pub(crate) fn positive_divisor(&self) -> Option<i64> {
-        self.positive_divisor
-    }
-}
+#[path = "home_expression_scalar_operation.rs"]
+mod scalar_operation;
+pub(crate) use scalar_operation::ExpressionScalarOperationLoanV1;
 
 /// A mandatory source read of this SAME complete expression, independent of
 /// whether its physical row or optional leaf loan later survives. No layout,
@@ -178,31 +166,7 @@ impl HomeExpressionPlanV1 {
         binary: &ResolvedBinaryExpressionSourceV1,
         positive_divisor: Option<i64>,
     ) -> Option<Self> {
-        if source.has_opaque_obligations() || source.root().initializer().is_none() {
-            return None;
-        }
-        let root = source.nodes().first()?;
-        if root.binary()? != binary
-            || source.root().initializer()?.initializer_site() != Some(root.site())
-        {
-            return None;
-        }
-        match binary.operator() {
-            ResolvedBinaryOperatorV1::Subtract if positive_divisor.is_none() => {}
-            ResolvedBinaryOperatorV1::Divide
-                if positive_divisor.is_some_and(|n| n > 0)
-                    && source.nodes().iter().any(|node| {
-                        node.site() == binary.rhs()
-                            && matches!(node.source(), ExpressionNodeSourceV1::Literal(
-                        ResolvedLiteralSourceV1::Integer(n)) if Some(*n) == positive_divisor)
-                    }) => {}
-            _ => return None,
-        }
-        let loan = Rc::new(ExpressionScalarOperationLoanV1 {
-            plan: Rc::clone(&source),
-            node: 0,
-            positive_divisor,
-        });
+        let loan = ExpressionScalarOperationLoanV1::issue_root(Rc::clone(&source), binary, positive_divisor)?;
         Some(Self {
             source,
             scalar_operations: vec![loan],

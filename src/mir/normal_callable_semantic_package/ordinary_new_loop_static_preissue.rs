@@ -24,6 +24,31 @@ impl super::OrdinaryNewClaimLedgerV1 {
     }
 }
 
+/// Select this protocol from its original call roles, before any loan is
+/// consumed. An arbitrary Static call in a Loop does not select an I64 search.
+/// Once selected, missing or refused evidence remains a terminal error.
+pub(super) fn original_search_call_sites_v2(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    loop_site: &SourceStmtSiteV1,
+) -> (Option<OwnedExprSiteV1>, Option<OwnedExprSiteV1>) {
+    let owned = |relative: &[Segment]| {
+        let mut path = loop_site.node().segments().to_vec();
+        path.extend_from_slice(relative);
+        OwnedExprSiteV1::new(input.owner(),
+            SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(path)))
+    };
+    let header = owned(&[Segment::LoopCondition, Segment::Rhs]);
+    let body = owned(&[Segment::LoopBody(0), Segment::IfCondition, Segment::Rhs]);
+    let current_owner_call = |site: &OwnedExprSiteV1| {
+        input.function().method_calls().any(|(observed, call)| {
+            observed == site.site()
+                && call.receiver() == ResolvedMethodCallReceiverSourceV1::CurrentOwner
+        })
+    };
+    (current_owner_call(&header).then_some(header),
+        current_owner_call(&body).then_some(body))
+}
+
 pub(super) fn issue_selected_product_v2(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
@@ -48,21 +73,8 @@ pub(super) fn issue_selected_product_v2(
         path.extend_from_slice(relative);
         SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(path))
     };
-    let header_site =
-        OwnedExprSiteV1::new(input.owner(), site(&[Segment::LoopCondition, Segment::Rhs]));
-    let body_site = OwnedExprSiteV1::new(
-        input.owner(),
-        site(&[Segment::LoopBody(0), Segment::IfCondition, Segment::Rhs]),
-    );
-    let has_current_owner_call = |site: &OwnedExprSiteV1| {
-        input.function().method_calls().any(|(observed, call)| {
-            observed == site.site()
-                && call.receiver() == ResolvedMethodCallReceiverSourceV1::CurrentOwner
-        })
-    };
-    if !has_current_owner_call(&header_site) || !has_current_owner_call(&body_site) {
-        return Err(reject());
-    }
+    let (Some(header_site), Some(body_site)) =
+        original_search_call_sites_v2(input, loop_site) else { return Err(reject()); };
     let header = loans
         .rows
         .remove(&(loop_site.clone(), header_site))

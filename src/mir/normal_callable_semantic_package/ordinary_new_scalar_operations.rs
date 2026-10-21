@@ -2,7 +2,6 @@
 //! This is physical correspondence, not execution or derived-reuse authority.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1 as Source;
-use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
 use crate::mir::{BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, ValueId};
 
 use crate::mir::builder::LocalSsaPhysicalRelationV1;
@@ -370,13 +369,7 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 fn source_operator(source: &Source) -> Result<BinaryOp, String> {
-    match source.binary().operator() {
-        ResolvedBinaryOperatorV1::Subtract => Ok(BinaryOp::Sub),
-        ResolvedBinaryOperatorV1::Divide if source.positive_divisor().is_some_and(|n| n > 0) => {
-            Ok(BinaryOp::Div)
-        }
-        _ => Err(reject("source-operator")),
-    }
+    source.integer_operator_v1().ok_or_else(|| reject("source-operator"))
 }
 
 fn unique_definition(function: &MirFunction, value: ValueId) -> Result<Binding, String> {

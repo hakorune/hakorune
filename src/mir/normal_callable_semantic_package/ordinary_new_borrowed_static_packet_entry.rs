@@ -565,6 +565,12 @@ impl OrdinaryNewClaimLedgerV1 {
             self.terminal_relations_for_owner(original.callee_owner()).iter().map(|relation|
                 matches!(relation, TerminalRelationV1::Value(value) if matches!(value.returned(),
                     TerminalReturnedSourceV1::TextExpression(_) | TerminalReturnedSourceV1::TextResidence { .. }))).collect::<Vec<_>>());
+        // A completed expression input retains the same whole incoming cohort,
+        // signature, result and Completion for every supported result class.
+        // I64 output does not turn its Text input into the scalar-only protocol.
+        if self.checked_completed_static_expression_input_v1(original)?.is_some() {
+            return self.verify_original_static_source_v1(original);
+        }
         if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString
             | crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool)
             || self.checked_completed_static_text_result_v1(original)? {

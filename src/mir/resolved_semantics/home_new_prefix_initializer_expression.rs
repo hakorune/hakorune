@@ -33,8 +33,12 @@ pub(super) fn observe<E>(
     let root_add = source.nodes().first().and_then(|node| node.binary()).is_some_and(|binary|
         binary.operator() == super::super::ResolvedBinaryOperatorV1::Add);
     let root_reference = matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Reference(_));
-    if !root_add && !root_reference && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
+        super::super::ResolvedBinaryOperatorV1::Add | super::super::ResolvedBinaryOperatorV1::Multiply
+            | super::super::ResolvedBinaryOperatorV1::Subtract))
+        && scalar_source.requires_initializer_use_frame(&owned)?;
+    if !arithmetic_requested && !root_add && !root_reference && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(&source,
         super::expression_plan::ExpressionLeafProfileV1::LocalInitializer, &BTreeMap::new(), homes,
         &mut |site| {
@@ -61,7 +65,7 @@ pub(super) fn observe<E>(
         locals.current_scalar_read_v1(site, local_calls).and_then(|read| scalar_source.scalar_read_sum(&read))
             .filter(|sum| sum.signed_only())
     } else { None };
-    if !prepared.has_core() && !prepared.has_owned_text_call() && !(root_add && has_parent_text) && !signed_entry && signed_root_sum.is_none() { return Ok(false); }
+    if !prepared.has_core() && !prepared.has_owned_text_call() && !(root_add && has_parent_text) && !signed_entry && signed_root_sum.is_none() && !arithmetic_requested { return Ok(false); }
     let mut installation = None;
     let plan = qualify_initializer_expression_v1(prepared, &reads, signed_root_sum,
         &mut |site| super::argument_expression::text_reference(input, locals, site),

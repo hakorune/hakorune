@@ -100,7 +100,8 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     if !references.is_empty() || transferred.contains(&0) || !matches!(classes[0], Leaf::Value(Class::String | Class::I64))
         || (classes[0] == Leaf::Value(Class::I64) && !has_core
             && !entry_reads.iter().any(|read| read.requirement().node() == 0 && read.signed_only())
-            && !signed_current) { return Ok(None); }
+            && !signed_current && !source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
+                ResolvedBinaryOperatorV1::Add | ResolvedBinaryOperatorV1::Multiply | ResolvedBinaryOperatorV1::Subtract))) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     // Owned Text transfers one root residence; I64 retains no Home. Its Text
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.

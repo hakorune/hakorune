@@ -98,7 +98,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
         }
     }
-    if frame.operations().iter().any(|operation| operation.single_envelope().is_none()) {
+    if frame.operations().iter().any(|operation| operation.normal_result_v1().is_none()) {
         return Err(freeze("expression/finite-envelope-execution-pending"));
     }
     for &index in &order {
@@ -304,7 +304,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let right = operand(binary.rhs())?;
                 let operation = frame.operations().iter().find(|loan| loan.node() == index)
                     .ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
-                match operation.single_envelope().ok_or_else(|| freeze("expression/finite-envelope-execution-pending"))?.normal_result() {
+                match operation.normal_result_v1().ok_or_else(|| freeze("expression/finite-envelope-execution-pending"))? {
                     ResultKind::NormalInteger => {
                         let (Operand::NormalInteger(lhs), Operand::NormalInteger(rhs)) = (left, right) else {
                             return Err(freeze("print-expression/integer-operands"));

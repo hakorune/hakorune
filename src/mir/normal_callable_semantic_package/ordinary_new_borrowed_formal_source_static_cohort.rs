@@ -45,10 +45,15 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         selected: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Box<[Rc<StaticIncomingSourceV1>]>, String> {
-        let rows = self
-            .source_incoming
-            .project(&BTreeSet::from([selected.callee_owner()]))
-            .map_err(|error| format!("{}: {error:?}", freeze("static-cohort/incoming-veto")))?;
+        let owners = BTreeSet::from([selected.callee_owner()]);
+        // Original scan participation selects the protocol before projection.
+        // LegacyOnly and SourceOnly are distinct scopes, not weaker/stronger
+        // views; neither a refusal nor missing evidence may switch them.
+        let rows = if self.source_incoming.registered_owners_v1().contains(&selected.callee_owner()) {
+            self.source_incoming.project(&owners)
+        } else {
+            self.source_incoming.project_source_v1(&owners)
+        }.map_err(|error| format!("{}: {error:?}", freeze("static-cohort/incoming-veto")))?;
         let mut sites = BTreeSet::new();
         let mut includes_selected = false;
         let mut original = Vec::with_capacity(rows.len());
