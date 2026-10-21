@@ -1,19 +1,19 @@
 # APP-json-stream-aggregator
-Status: Original arithmetic initializer and Loop actual source connected; JSON finite input/Loop and final Map/native incomplete. Date: 2026-10-21
+Status: Readonly Text/Mul native probe PASS; JSON Loop Recipe closes, finite input/terminal and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 419.004s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 425.934s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON now stops at borrowed-entry/finite-domain-unclosed, before MIR/EXE.
-  Original n-n / zero_i64+1 initializer proofs close i rebinds. Loop body now stages
-  _digit_value(ch)'s exact Text residence argument; source permission is not execution.
-- Source Loop still refuses the outer Text acquisition's missing logical input;
-  readonly role alone never substitutes its actual producer/cleanup/Finished checks.
-- 46filters match parent outcomes and strict failure diagnostics. Existing scalar,
-  initializer and dedicated Loop boundary tests: 11PASS. Inventory9263 unchanged.
-- Two original source refusals retained. No new test case/file/hook/guard/checker/card/app edit.
+- JSON still stops at borrowed-entry/finite-domain-unclosed before MIR/EXE, but
+  to_i64's original Loop Recipe now closes. Only two reads remain uncovered:
+  original x==null and return0-acc. Source/physical/Finished obligations stay.
+- Independent owned-Text Loop/Mul probe: parent refuses; canonical EXE builds,
+  prints33 and exits0. Outer Text rebind remains refused. This is not JSON completion.
+- 46filters match parent outcomes and strict failure diagnostics; existing Loop
+  boundary1 and typed schema23 PASS. Inventory9263 and two source refusals retained.
+- No new test case/file/hook/guard/checker/card/app edit. Probe stays outside repo.
 
 ## Shared source and construction
 - Full original FieldResidence census retains Array/Dynamic fields, including Empty;
@@ -63,30 +63,30 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   get/nonNull field proof is still unobserved; passing statsFor ingress does not prove it.
 
 ## Current connection and next
-- One ordinary result loan has private Static/Instance origins; outer packet variants
-  do not increase. Static catalog Text/Bool keeps original early source ordering.
+- Private Static/Instance result origins preserve outer variants and catalog Text/Bool ordering.
 - Instance Text borrows existing completed Return row and exact original Instance role,
   target/identity/slot. SAME original Print expression purpose selects the request;
   scalar-only requests keep their original issuer/refusal. Stored origins stay separate.
 - Source qualification never finishes executable input. Late disposition, actuals and
   final Normal result require SAME Completion/terminal Rc, all incoming and signature.
   OwnedString uses existing Call/Print temporary End/Fault and final callee validation.
-- Cleanup prefixes now replace validated sequences only, retaining every source product
-  on the same order. This fixes lost MapGet metadata without relaxing ingress checks.
-- Bool stays separate from String/I64: same owner/noHome, literal ConstBool, Assignment
-  receipt and Finished remain checked by shared expression and existing final owners.
-- Original requested I64 Add/Mul/Sub initializers now use checked references and the
-  common evaluation/Local receipt. Sub borrows the same Local/root scalar law;
-  Divide admission and final source/producer matching stay unchanged.
-- Dedicated Static I64 Loop selection shares its original header/body call roles;
-  either role keeps selection, both remain required by its sole Recipe producer.
-  Unrelated calls retain generic loans; selected failures never retry another route.
-- Cohorts follow original legacy registration or SourceOnly scope before projection;
-  completed expression input retains whole incoming/Completion/signature/actuals even
-  with I64 output. Result publication remains independently checked.
-- Next connect original outer Text residence to existing readonly Loop input through
-  its same live acquisition/physical producer; close finite uses/Recipe without fake
-  Home, SUM-only SSA or blanket readonly Text permission.
+- Cleanup replaces validated sequences only, retaining source products and MapGet metadata.
+- Bool stays separate: same owner/noHome, literal ConstBool, Assignment receipt and Finished.
+- Requested I64 Add/Mul/Sub initializers keep checked references and the common
+  evaluation/Local receipt; Sub shares the Local/root law and Div limits stay.
+- Dedicated Static I64 Loop selection shares original call roles; either keeps
+  selection, both are required. Other loans stay; selected failures never retry.
+- Cohorts follow original scope; completed expression input retains whole incoming/
+  Completion/signature/actuals even with I64 output. Final result checking stays.
+- Readonly Text now requires exact original role, outside-loop acquisition and one
+  SAME live entry Home. Independent schedule rechecks reference/node/binding/input;
+  existing child writer and Original/Finished read/cleanup checks own physical proof.
+- Loop Mul borrows the existing integer-operation law and expression writer. Shared
+  logical mapping and independent operator/left/right/result checks prevent drift;
+  dedicated Add-only emitters remain closed. No new physical lane or receipt.
+- Next reuse null_compare_operand_kind for the exact raw entry guard plus final
+  admission coverage; retain ReturnValue Sub/LoopAfter through the common evaluation.
+  Do not exempt reads, fake Local roots or replace subtraction with addition.
 
 ## Completion limits
 - Other Instance Text purposes/terminal actuals still require their own full consumer closure.

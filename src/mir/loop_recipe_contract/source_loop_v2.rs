@@ -175,6 +175,35 @@ pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtS
     }
     find(source.control.as_ref().ok()?, site)
 }
+/// A borrowed outer Text input retains the original live acquisition. A
+/// readonly role alone cannot turn an iteration-local residence into an input.
+pub(super) fn is_outer_text_reference_v2(source: &Summary, proof: &Reference) -> bool {
+    use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
+    let Reference::Residence(read) = proof else { return false; };
+    let acquisition = read.acquisition();
+    read.binding().owner() == source.source.owner()
+        && read.root() == acquisition.binding()
+        && acquisition.source().owner() == source.source.owner()
+        && acquisition.is_text_residence() && acquisition.owns_root()
+        && source.source.bindings().bindings().any(|(binding, role)|
+            binding == read.binding() && role == Role::ReadOnlyOperand)
+        && !acquisition.source().root().statement().node().segments()
+            .starts_with(source.source.site().node().segments())
+        && source.condition.prior_homes().iter().filter(|home| home.binding() == read.root())
+            .eq(std::iter::once(&LiveHomeV1::Text(acquisition.clone())))
+}
+
+pub(super) fn integer_operation_v2(frame: &Evaluation, node: usize) -> Option<LoopBinaryI64OpV2> {
+    let mut loans = frame.operations().iter().filter(|loan| loan.node() == node);
+    let loan = loans.next()?;
+    if loans.next().is_some() || !Rc::ptr_eq(loan.source(), frame.source()) { return None; }
+    match loan.integer_operator_v1()? {
+        crate::mir::BinaryOp::Add => Some(LoopBinaryI64OpV2::Add),
+        crate::mir::BinaryOp::Mul => Some(LoopBinaryI64OpV2::Mul),
+        _ => None,
+    }
+}
+
 /// Resolve only an original immutable producer already present in this product.
 /// Shared by projection and independent source/schedule checking.
 pub(super) fn producer_value_v2(producer: &Producer, recipe: &LoopRecipeV2,
@@ -322,7 +351,8 @@ impl Projector<'_> {
         if let Some(value) = local_result {
             return (self.recipe.values[value.raw() as usize].class == class).then_some(value).ok_or_else(|| reject("local-result-class"));
         }
-        if role == Role::IterationLocal || matches!(proof, Reference::Residence(_)) {
+        if role == Role::IterationLocal || (matches!(proof, Reference::Residence(_))
+            && !(class == LoopValueClassV2::Text && is_outer_text_reference_v2(self.source, proof))) {
             return Err(reject("local-result-unavailable"));
         }
         if role == Role::Carrier && !matches!(proof,
@@ -380,18 +410,12 @@ impl Projector<'_> {
                 Node::Literal(Literal::String(value)) if value_class == LoopValueClassV2::Text => {
                     let result = self.value(value_class); self.operation(block, source, LoopOperationV2::ConstText { result, value: value.to_string() }); result
                 }
-                Node::Binary(binary) if binary.operator() == Binary::Add && value_class == LoopValueClassV2::I64 => {
-                    use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family, DynamicOperatorValueClassV1 as Operand};
-                    let mut loans = frame.operations().iter().filter(|loan| loan.node() == node);
-                    let loan = loans.next().ok_or_else(|| reject("add-loan"))?;
-                    let domain = loan.single_envelope().ok_or_else(|| reject("add-domain"))?.domain();
-                    if loans.next().is_some() || !Rc::ptr_eq(loan.source(), source) || domain.family() != Family::Add
-                        || domain.left() != Operand::NormalInteger || domain.right() != Operand::NormalInteger {
-                        return Err(reject("add-identity"));
-                    }
+                Node::Binary(binary) if matches!(binary.operator(), Binary::Add | Binary::Multiply)
+                    && value_class == LoopValueClassV2::I64 => {
+                    let op = integer_operation_v2(frame, node).ok_or_else(|| reject("add-domain"))?;
                     let left = by_site(binary.lhs())?; let right = by_site(binary.rhs())?;
                     let result = self.value(value_class);
-                    self.operation(block, source, LoopOperationV2::BinaryI64 { op: LoopBinaryI64OpV2::Add, left, right, result }); result
+                    self.operation(block, source, LoopOperationV2::BinaryI64 { op, left, right, result }); result
                 }
                 Node::MethodCall => {
                     let core = frame.cores().get(&node).ok_or_else(|| reject("core-loan"))?;

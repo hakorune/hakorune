@@ -29,6 +29,14 @@ impl SourceLoopScheduledFrameV2 {
             _ => unreachable!("source projector frame"),
         }
     }
+    fn evaluation(&self) -> &super::source_loop_v2::Evaluation {
+        match &self.prefix {
+            Prefix::BoolCondition { frame, .. } => frame.evaluation(),
+            Prefix::InitializerExpression { frame, .. } => frame.evaluation(),
+            Prefix::BindingRebind { frame, .. } => frame.evaluation(),
+            _ => unreachable!("source projector frame"),
+        }
+    }
     pub(crate) fn source(&self) -> &Rc<Source> {
         match &self.prefix {
             Prefix::BoolCondition { frame, .. } => frame.source(),
@@ -195,6 +203,46 @@ struct ScheduleCheck<'a, 'source> {
     control: Vec<(SourceStmtSiteV1, LoopItemKeyV1)>,
 }
 impl ScheduleCheck<'_, '_> {
+    fn integer_operation(&self, frame: &SourceLoopScheduledFrameV2, op: LoopBinaryI64OpV2,
+        left: LoopValueKeyV1, right: LoopValueKeyV1, result: LoopValueKeyV1) -> Result<(), String> {
+        let mut results = self.values.iter().filter(|value| value.value == result
+            && Rc::ptr_eq(&value.source, frame.source()));
+        let value = results.next().ok_or_else(|| reject("schedule-operation-source"))?;
+        let binary = frame.source().nodes().get(value.node).and_then(|node| node.binary())
+            .ok_or_else(|| reject("schedule-operation-source"))?;
+        let operand_matches = |site, key| self.values.iter().filter(|value|
+            Rc::ptr_eq(&value.source, frame.source()) && value.value == key
+                && frame.source().nodes().get(value.node).is_some_and(|node| node.site() == site)).count() == 1;
+        if results.next().is_some()
+            || super::source_loop_v2::integer_operation_v2(frame.evaluation(), value.node) != Some(op)
+            || !operand_matches(binary.lhs(), left) || !operand_matches(binary.rhs(), right) {
+            return Err(reject("schedule-operation-source"));
+        }
+        Ok(())
+    }
+    fn text_read(&self, frame: &SourceLoopScheduledFrameV2, binding: LoopBindingKeyV1,
+        result: LoopValueKeyV1) -> Result<(), String> {
+        let mut references = frame.references().iter().filter(|(node, _)| self.values.iter().any(|value|
+            value.node == **node && value.value == result && Rc::ptr_eq(&value.source, frame.source())));
+        let (_, reference) = references.next().ok_or_else(|| reject("schedule-operation-source"))?;
+        // Static and entry reads keep their existing source owners. Only the
+        // newly imported outer residence requires this acquisition contract.
+        if !matches!(reference, super::source_loop_v2::Reference::Residence(_)) { return Ok(()); }
+        if references.next().is_some()
+            || self.bindings.get(&reference.binding()) != Some(&binding)
+            || !super::source_loop_v2::is_outer_text_reference_v2(self.source, reference) {
+            return Err(reject("schedule-operation-source"));
+        }
+        let mut inputs = self.recipe.read_only_inputs.iter().filter(|input| input.binding == binding);
+        let input = inputs.next().ok_or_else(|| reject("schedule-operation-source"))?;
+        if inputs.next().is_some() || input.owner_loop != self.recipe.root_loop
+            || input.class != LoopValueClassV2::Text || !self.recipe.inputs.contains(&input.entry_value)
+            || self.recipe.values.get(input.entry_value.raw() as usize)
+                .is_none_or(|value| value.key != input.entry_value || value.class != LoopValueClassV2::Text) {
+            return Err(reject("schedule-operation-source"));
+        }
+        Ok(())
+    }
     fn block(&mut self, key: LoopBlockKeyV1, mut available: BTreeSet<LoopValueKeyV1>)
         -> Result<Option<BTreeSet<LoopValueKeyV1>>, String> {
         if !self.blocks.insert(key) { return Err(reject("schedule-block-repeat")); }
@@ -243,6 +291,15 @@ impl ScheduleCheck<'_, '_> {
                         }
                         if matches!(operation, LoopOperationV2::BranchPhi { .. }) {
                             return Err(reject("schedule-operation-source"));
+                        }
+                        if let LoopOperationV2::BinaryI64 { op, left, right, result } = operation {
+                            self.integer_operation(frame, *op, *left, *right, *result)?;
+                        }
+                        if let LoopOperationV2::ReadBinding { binding, result } = operation {
+                            if self.recipe.values.get(result.raw() as usize)
+                                .is_some_and(|value| value.class == LoopValueClassV2::Text) {
+                                self.text_read(frame, *binding, *result)?;
+                            }
                         }
                         if let LoopOperationV2::WriteBinding { binding, value } = operation {
                             if !matches!(frame.prefix(), Prefix::BindingRebind { frame: rebind, .. }

@@ -243,6 +243,7 @@ impl LoopOperationV2 {
 pub(crate) enum LoopBinaryI64OpV2 {
     Add,
     Sub,
+    Mul,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
