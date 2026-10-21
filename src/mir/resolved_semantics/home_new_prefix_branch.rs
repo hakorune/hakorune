@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::{
 
 #[path = "home_new_prefix_null_exclusion.rs"]
 mod null_exclusion;
-pub(crate) use null_exclusion::EntryNullExclusionV1;
+pub(crate) use null_exclusion::SourceNullExclusionV1;
 
 /// One path's Home/local state during a branch walk. A terminated path
 /// (one that reached an explicit Return) does not join the continuation.
@@ -701,7 +701,7 @@ pub(super) fn observe_if_statement<'a, E>(
     if prefix_known && both_paths_available && branch_issue.is_none() {
         if let Some(proof) = null_exclusion::issue(input, statement.site(), condition.site(),
             then_path.terminated, else_path.terminated) {
-            join_locals.retain_entry_null_exclusion(proof);
+            join_locals.retain_null_exclusion(proof);
         }
     }
     *locals = join_locals;

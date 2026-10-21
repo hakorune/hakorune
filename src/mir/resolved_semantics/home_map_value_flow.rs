@@ -193,3 +193,75 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     maps.push(MapHomeObservation::FieldInstall(row));
     Ok(true)
 }
+
+/// Exact original get initializer, its current holder/key and unchanged Homes.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct MapFieldGetLocalV1 {
+    site: OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
+    binding: BindingRefV1,
+    source: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
+    key: std::rc::Rc<CheckedExpressionEvaluationV1>,
+    prior: Box<[LiveHomeV1]>,
+}
+impl MapFieldGetLocalV1 {
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
+    pub(crate) fn declaration(&self) -> &SourceBindingSiteV1 { &self.declaration }
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(crate) fn source(&self) -> &crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1 { &self.source }
+    pub(crate) fn key(&self) -> &std::rc::Rc<CheckedExpressionEvaluationV1> { &self.key }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior }
+    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
+        let SourceBindingSiteV1::Local { statement, .. } = &self.declaration else { unreachable!("original Local") };
+        statement
+    }
+    /// A passive caller cannot replace, escape or mutate the supporting slot.
+    /// This is source/lifetime evidence only, not execution or null exclusion.
+    pub(crate) fn matches_input(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        let Some(shape) = input.body_shape() else { return false };
+        let Ok(uses) = input.forest().callable_source_ledger(input.owner()) else { return false };
+        let get = self.source.get();
+        let mut initializers = input.function().expression_source().initializers().filter(|row| row.binding() == self.binding);
+        let exact = initializers.next().is_some_and(|row| row.initializer_site() == Some(self.site.site())
+            && row.declaration_site() == self.declaration()) && initializers.next().is_none();
+        input.owner() == self.site.owner() && self.binding.owner() == input.owner() && exact
+            && input.function().method_call_source_v1(self.site.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, get))
+            && uses.uncaptured_binding(self.binding) && uses.capture_demands().is_empty()
+            && !uses.direct_call_observations().any(|_| true)
+            && uses.method_calls().all(|(site, _)| site == get.site())
+            && input.function().expression_source().constructions().next().is_none()
+            && self.key.prior_homes() == self.prior_homes()
+            && shape.effects().iter().all(|effect| match effect.kind {
+                crate::mir::resolved_semantics::BodyEffectKindV1::Call => &effect.site == get.site(),
+                crate::mir::resolved_semantics::BodyEffectKindV1::NonLocalControl => shape.statements().iter().any(|row|
+                    matches!(row, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { site, .. }
+                        if site.node() == effect.site.node())),
+                _ => false,
+            })
+    }
+}
+
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_local_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, at: &OwnedExprSiteV1,
+    declaration: &SourceBindingSiteV1, binding: BindingRefV1,
+    locals: &mut PrefixLocalFlow<'_>, homes: &[LiveHomeV1], prefix_known: bool,
+    calls: &[LocalCallObservationV1], maps: &mut Vec<MapHomeObservation>,
+    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<Result<(), HomePrefixUnavailableV1>>, E> {
+    let Some(original) = input.function().method_call_source_v1(at.site()) else { return Ok(None) };
+    if original.selector() != "get" || original.arity() != 1 { return Ok(None); }
+    let Some(BorrowedCallArgumentsV1::StoredMapGetSource(source)) = port(at, BorrowedCallActualRequestV1::StoredMapGetSource)? else { return Ok(None) };
+    let unavailable = || Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(
+        match declaration { SourceBindingSiteV1::Local { statement, .. } => statement.clone(), _ => unreachable!("Local declaration") })));
+    if !prefix_known || !locals.is_self_rooted_handle(source.receiver().receiver())
+        || maps.iter().any(|row| row.site() == at) { return Ok(unavailable()); }
+    let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, source.get(), 0) else { return Ok(unavailable()) };
+    if plan.nodes().len() != 1 || !matches!(plan.nodes()[0].source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)) { return Ok(unavailable()); }
+    let Some(key) = super::super::terminal_relation::qualify_terminal_text_evaluation_v1(input, plan, at, locals, homes, calls, port)? else { return Ok(unavailable()) };
+    if !key.calls().is_empty() || !key.cores().is_empty() || !key.operations().is_empty() || !key.owned_result_nodes().is_empty() { return Ok(unavailable()); }
+    let frame = std::rc::Rc::new(MapFieldGetLocalV1 { site: at.clone(), declaration: declaration.clone(), binding, source, key, prior: homes.into() });
+    if !frame.matches_input(input) { return Ok(unavailable()); }
+    locals.install_stored_get_v1(std::rc::Rc::clone(&frame));
+    maps.push(MapHomeObservation::FieldGet(frame));
+    Ok(Some(Ok(())))
+}

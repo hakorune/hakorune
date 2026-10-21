@@ -673,7 +673,7 @@ pub(in crate::mir::builder) fn append_block(
     RawRootGraphWriterV1.append_terminated(builder, id, terminator, bindings)
 }
 
-fn freeze(reason: &str) -> String {
+pub(in crate::mir::builder) fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/emission/{reason}]")
 }
 

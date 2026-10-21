@@ -98,6 +98,7 @@ pub(super) fn observe_local_field_read<E>(
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ReceivedFieldReadRequestV1 {
     Object { acquisition: OwnedExprSiteV1, nullable: bool },
+    StoredMapGet { frame: std::rc::Rc<super::MapFieldGetLocalV1>, exclusion: std::rc::Rc<super::SourceNullExclusionV1> },
     Mixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
 }
 
@@ -187,6 +188,9 @@ pub(super) fn field_read_request(
         }
         local_flow::FieldReadReceiverV1::GuardedFormal => (receiver, None, false, true),
     };
+    if let Some(ReceivedFieldReadRequestV1::StoredMapGet { frame, exclusion }) = &received {
+        if frame.binding() != receiver || !exclusion.corroborates_initializer(input, receiver, frame.site().site(), object) { return None; }
+    }
     let owned_ready = locals.ready_field_read(home, field)?;
     Some(LocalFieldReadRequestV1 {
         site: OwnedExprSiteV1::new(input.owner(), site.clone()),
@@ -213,7 +217,11 @@ pub(super) fn expression_field_read_request(
 ) -> Option<LocalFieldReadRequestV1> {
     let path = crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1::issue(
         std::rc::Rc::clone(plan), site)?;
-    if !path.is_nested_component() { return field_read_request(input, site, locals); }
+    if !path.is_nested_component() {
+        let mut request = field_read_request(input, site, locals)?;
+        if matches!(request.received, Some(ReceivedFieldReadRequestV1::StoredMapGet { .. })) { request.path = Some(path); }
+        return Some(request);
+    }
     let mut request = field_read_request(input, path.first_site(), locals)?;
     if request.receiver != path.root() || input.owner() != plan.owner() { return None; }
     if request.alias_class.is_some() { request.alias_path = Some(Box::new(locals.field_alias_call_path(request.receiver)?)); }

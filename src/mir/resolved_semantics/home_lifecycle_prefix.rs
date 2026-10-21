@@ -6,6 +6,7 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(crate) enum LifecyclePrefixSourceV1 {
     Loop { site: OwnedExprSiteV1, product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2> },
+    StoredMapGet { site: OwnedExprSiteV1, frame: std::rc::Rc<MapFieldGetLocalV1> },
     Call { site: OwnedExprSiteV1, statement: SourceStmtSiteV1 },
     FieldTextAppend { site: OwnedExprSiteV1, frame: std::rc::Rc<super::CheckedFieldArrayTextAppendV1> },
     FieldArrayAppend {
@@ -36,10 +37,11 @@ pub(crate) enum LifecyclePrefixSourceV1 {
 }
 impl LifecyclePrefixSourceV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        match self { Self::Loop { site, .. } | Self::BindingRebind { site, .. } | Self::InitializerExpression { site, .. } | Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::FieldTextAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
+        match self { Self::StoredMapGet { site, .. } | Self::Loop { site, .. } | Self::BindingRebind { site, .. } | Self::InitializerExpression { site, .. } | Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::FieldTextAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
     }
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
+            Self::StoredMapGet { frame, .. } => frame.statement(),
             Self::Loop { product, .. } => product.source.source.site(),
             Self::Call { statement, .. } | Self::OwnedArrayAppend { statement, .. } => statement,
             Self::FieldArrayAppend { proof, .. } => proof.site(),
@@ -54,7 +56,7 @@ impl LifecyclePrefixSourceV1 {
     pub(crate) fn covered_by(&self, exit: &RootHomeExitV1) -> bool {
         match self {
             Self::Call { site, .. } => exit.covered_calls().contains(site),
-            Self::Loop { .. } | Self::BindingRebind { .. } | Self::InitializerExpression { .. } | Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::FieldTextAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
+            Self::StoredMapGet { .. } | Self::Loop { .. } | Self::BindingRebind { .. } | Self::InitializerExpression { .. } | Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::FieldTextAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
         }
     }
 }
@@ -150,6 +152,11 @@ impl RootHomeFlow {
             site: OwnedExprSiteV1::new(product.source.source.owner(), product.source.condition.source().nodes()[0].site().clone()),
             product: std::rc::Rc::clone(product),
         }));
+        for observation in &self.maps {
+            if let MapHomeObservation::FieldGet(frame) = observation {
+                prefixes.push(LifecyclePrefixSourceV1::StoredMapGet { site: frame.site().clone(), frame: std::rc::Rc::clone(frame) });
+            }
+        }
         prefixes.sort_by(|a, b| a.statement().cmp(b.statement()));
         if prefixes.windows(2).any(|pair| pair[0].site() == pair[1].site()) {
             return Err("lifecycle-prefix/source-duplicate");

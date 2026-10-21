@@ -45,6 +45,7 @@ impl ReceivedFieldReadSourceV1 {
             || request.home != request.receiver || request.site.owner() != request.receiver.owner()
         { return Err(fault("received/provenance-overlap")); }
         let acquisition = match original {
+            ReceivedFieldReadRequestV1::StoredMapGet { .. } => return Err(fault("received/provenance-overlap")),
             ReceivedFieldReadRequestV1::Object { acquisition, .. } => acquisition,
             ReceivedFieldReadRequestV1::Mixed(loan) => loan.call(),
         };
@@ -60,6 +61,7 @@ impl ReceivedFieldReadSourceV1 {
         }).map_err(|_| fault("received/caller-input"))?;
         if !exact || acquisition.owner() != request.site.owner() { return Err(fault("received/initializer")); }
         match original {
+            ReceivedFieldReadRequestV1::StoredMapGet { .. } => Err(fault("received/provenance-overlap")),
             ReceivedFieldReadRequestV1::Object { nullable, .. } => {
                 let loan = classes.object_call_source_v1(batch, selected, target).map_err(fault)?;
                 if !matches!((loan.result_class(), *nullable),

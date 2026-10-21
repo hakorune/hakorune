@@ -65,6 +65,10 @@ impl PrefixLocalFlow<'_> {
             }
         }
     }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_stored_get_v1(&mut self,
+        frame: std::rc::Rc<super::super::MapFieldGetLocalV1>,
+    ) { self.store(frame.binding(), StoredLocal::StoredMapGet(frame)); }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_borrowed_nullable(
         &mut self,
         loan: BorrowedNullableLocalSourceLoanV1,
@@ -81,7 +85,7 @@ impl PrefixLocalFlow<'_> {
     ) {
         if matches!(
             self.locals.get(&binding),
-            Some(StoredLocal::BorrowedNullable(_))
+            Some(StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_))
         ) {
             self.mark_nonnull(binding);
         }

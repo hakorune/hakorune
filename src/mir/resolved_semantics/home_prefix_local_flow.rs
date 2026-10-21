@@ -92,6 +92,7 @@ enum StoredLocal {
     BorrowedNullable(
         Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
     ),
+    StoredMapGet(std::rc::Rc<super::MapFieldGetLocalV1>),
     ReceivedMixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
     Map,
     /// A `: MapBox` declared formal — caller-owned map storage borrowed
@@ -203,6 +204,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         ) => a == b,
         (StoredLocal::Map, StoredLocal::Map) => true,
         (StoredLocal::BorrowedNullable(a), StoredLocal::BorrowedNullable(b)) => a == b,
+        (StoredLocal::StoredMapGet(a), StoredLocal::StoredMapGet(b)) => std::rc::Rc::ptr_eq(a, b),
         (StoredLocal::ReceivedMixed(a), StoredLocal::ReceivedMixed(b)) => a == b,
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
@@ -221,7 +223,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 
 #[derive(Clone)]
 pub(super) struct PrefixLocalFlow<'source> {
-    entry_null_exclusions: BTreeMap<BindingRefV1, std::rc::Rc<super::EntryNullExclusionV1>>,
+    null_exclusions: BTreeMap<BindingRefV1, std::rc::Rc<super::SourceNullExclusionV1>>,
     signed_formals: BTreeSet<BindingRefV1>,
     source_loop: Option<std::rc::Rc<source_loop::SourceLoopHeaderEnvironmentV1>>,
     named_arrays:
@@ -293,7 +295,7 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
         Self {
-            entry_null_exclusions: Default::default(),
+            null_exclusions: Default::default(),
             signed_formals: Default::default(),
             source_loop: None,
             named_arrays: Default::default(),
@@ -321,7 +323,7 @@ impl<'source> PrefixLocalFlow<'source> {
     /// rebound or consumed binding must never inherit an old proof.
     fn store(&mut self, binding: BindingRefV1, value: StoredLocal) {
         self.nonnull.remove(&binding);
-        self.entry_null_exclusions.remove(&binding);
+        self.null_exclusions.remove(&binding);
         self.locals.insert(binding, value);
     }
 
@@ -332,7 +334,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn mark_nonnull(&mut self, binding: BindingRefV1) {
         let narrowable = match self.locals.get(&binding) {
             Some(StoredLocal::ReceivedNullable { .. }) => true,
-            Some(StoredLocal::BorrowedNullable(_)) => true,
+            Some(StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_)) => true,
             Some(StoredLocal::ReceivedMixed(_)) => true,
             Some(StoredLocal::Handle(root)) => *root == binding,
             _ => false,
@@ -404,7 +406,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 self.store(*binding, StoredLocal::Uninitialized);
             }
         }
-        self.entry_null_exclusions.retain(|root, proof| other.entry_null_exclusions.get(root) == Some(proof));
+        self.null_exclusions.retain(|root, proof| other.null_exclusions.get(root) == Some(proof));
         // Narrowing is path-sensitive: a mark survives the join only when
         // both siblings carried it.
         self.nonnull
@@ -489,7 +491,7 @@ impl<'source> PrefixLocalFlow<'source> {
             // fail-closed while `new` argument observation can still name
             // the binding's value.
             StoredLocal::ReceivedNullable { .. } => Some(OrdinaryObservation::BoundValue(binding)),
-            StoredLocal::BorrowedNullable(_) => Some(OrdinaryObservation::BoundValue(binding)),
+            StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::ReceivedMixed(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>

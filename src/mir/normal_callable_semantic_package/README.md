@@ -2111,8 +2111,17 @@ method Arc, with a receiver issued from the get function's own entry and the SAM
 all-writer field source. A Return keeps its exact original producer; other gets
 require a unique supporting source, never an arbitrary same-class producer.
 Return lowering and final consumers retain this loan and recheck get/receiver/key
-identity. This source loan supplies no LOCAL installation, null exclusion, Home
-or executable permission; those consumers must close independently.
+identity. The Home walk retains direct LOCAL get in the same Map observations and
+nonowning prefix state, outside ordinary Calls and owning Handles. Original key
+and unchanged Homes remain in the frame. Whole caller effects admit only this get
+and source Return control; writes, other Calls, New and captures refuse.
+`SourceNullExclusionV1` shares the existing proof/map while distinguishing Entry
+from original Initializer roots. Entry projections reject Initializer; LOCAL
+reads recheck the same complete flow, guard/use values and exact original get.
+The existing field-path owner retains this frame/proof and closed numeric writer
+source. A get is mandatory lifecycle membership, not a Map allocation. Its checked
+LOCAL packet and same-value physical nonnull Branch remain unconnected and refuse
+before ordinary descent/field execution; this source does not grant a Home/End.
 The Object finisher never upgrades it into an owning result. Physical Return,
 final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.

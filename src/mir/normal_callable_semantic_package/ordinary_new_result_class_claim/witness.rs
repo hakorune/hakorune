@@ -89,6 +89,8 @@ pub(super) struct DisjointFieldAppendSourceV1 {
     call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 }
 impl MapStoredResultSourceV1 {
+    pub(crate) fn payload_class_v1(&self) -> &str { &self.class }
+    pub(crate) fn payload_object_v1(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.object }
     /// Logical support from the original slot; this never issues a Call ABI.
     pub(crate) fn result_support_v1(&self) -> crate::mir::instruction::BorrowedResultSupportV1 {
         crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot {

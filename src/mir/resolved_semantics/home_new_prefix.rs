@@ -189,7 +189,7 @@ mod map_flow;
 mod terminal_relation;
 pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
-    LifecyclePrefixSourceV1, MapFieldInstallV1, MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeExitKeyV1, RootHomeFlow,
+    LifecyclePrefixSourceV1, MapFieldGetLocalV1, MapFieldInstallV1, MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeExitKeyV1, RootHomeFlow,
 };
 pub(crate) use terminal_relation::issue_terminal_integer_literal_return_from_completion_v1;
 use terminal_relation::{
@@ -252,7 +252,7 @@ pub(crate) use arguments::{
 };
 #[path = "home_new_prefix_branch.rs"]
 mod branch;
-pub(crate) use branch::EntryNullExclusionV1;
+pub(crate) use branch::SourceNullExclusionV1;
 #[path = "home_new_prefix_field_call.rs"]
 mod field_call;
 pub(crate) use field_call::CheckedFieldArrayTextAppendV1;

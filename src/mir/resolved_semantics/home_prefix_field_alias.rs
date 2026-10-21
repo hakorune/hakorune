@@ -46,6 +46,14 @@ impl PrefixLocalFlow<'_> {
                         acquisition: acquisition.clone(), nullable,
                     }))
             },
+            StoredLocal::StoredMapGet(frame) if self.nonnull.contains(&binding)
+                && frame.matches_input(self.input) && self.is_self_rooted_handle(frame.source().receiver().receiver()) => {
+                let exclusion = self.null_exclusions.get(&binding)?;
+                // The request later supplies the exact field receiver use.
+                Some(FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet {
+                    frame: std::rc::Rc::clone(frame), exclusion: std::rc::Rc::clone(exclusion),
+                }))
+            },
             StoredLocal::ReceivedMixed(loan) if self.is_received_mixed_v1(binding) =>
                 Some(FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Mixed(loan.clone()))),
             _ => None,

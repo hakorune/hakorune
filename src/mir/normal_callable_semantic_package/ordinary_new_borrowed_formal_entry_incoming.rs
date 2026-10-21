@@ -373,6 +373,18 @@ impl OrdinaryNewClaimLedgerV1 {
             let evaluation = install.key().as_ref();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
+        for get in flow.into_iter().flat_map(|flow| flow.maps()).filter_map(|row| match row {
+            MapHomeObservation::FieldGet(frame) => Some(frame), _ => None,
+        }) {
+            get.source().recheck_v1(self)?;
+            let field = get.source().receiver();
+            if origins.contains_key(&field.receiver()) || !uses.reads().any(|(at, original)|
+                at == field.receiver_site() && *original == ResolvedLexicalRefV1::Local(field.receiver()))
+                || !covered.insert((field.receiver_site().clone(), field.receiver())) {
+                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+            }
+            evaluations.push(get.key().as_ref());
+        }
         for append in flow.into_iter().flat_map(|flow| flow.named_arrays()).filter_map(|row| match row {
             crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::FieldTextAppend(frame) => Some(frame), _ => None,
         }) {

@@ -31,7 +31,7 @@ impl FiniteEntryReadV1 {
     }
     /// Finite original alternatives for this source read, not a runtime
     /// carrier. Null removal requires the SAME covered branch/entry proof.
-    pub(crate) fn leaf_class(&self, exclusion: Option<&crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>)
+    pub(crate) fn leaf_class(&self, exclusion: Option<&crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>)
         -> Option<crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1> {
         use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf};

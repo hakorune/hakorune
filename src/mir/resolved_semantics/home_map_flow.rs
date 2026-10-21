@@ -13,8 +13,8 @@ pub(crate) use lifecycle_prefix::LifecyclePrefixSourceV1;
 #[path = "home_map_value_flow.rs"]
 mod value_flow;
 use value_flow::{map_value_leaf, observe_array_elements, transfer_home_v1};
-pub(crate) use value_flow::MapFieldInstallV1;
-pub(super) use value_flow::observe_field_install_v1;
+pub(crate) use value_flow::{MapFieldInstallV1, MapFieldGetLocalV1};
+pub(super) use value_flow::{observe_field_install_v1, observe_field_get_local_v1};
 
 /// One verified explicit exit's site-bound obligation: the live Homes this
 /// path must release (reverse live order) plus the local-call sites the
@@ -151,6 +151,7 @@ pub(crate) enum MapHomeObservation {
     Complete(MapHomeFlow),
     /// Normal source delta for a checked procedural field install, not a Map allocation.
     FieldInstall(std::rc::Rc<MapFieldInstallV1>),
+    FieldGet(std::rc::Rc<MapFieldGetLocalV1>),
     Unavailable { site: OwnedExprSiteV1 },
 }
 impl MapHomeObservation {
@@ -158,13 +159,14 @@ impl MapHomeObservation {
         match self {
             Self::Complete(row) => row.site(),
             Self::FieldInstall(row) => row.site(),
+            Self::FieldGet(row) => row.site(),
             Self::Unavailable { site } => site,
         }
     }
     pub(crate) fn complete(&self) -> Option<&MapHomeFlow> {
         match self {
             Self::Complete(row) => Some(row),
-            Self::FieldInstall(_) | Self::Unavailable { .. } => None,
+            Self::FieldGet(_) | Self::FieldInstall(_) | Self::Unavailable { .. } => None,
         }
     }
 }

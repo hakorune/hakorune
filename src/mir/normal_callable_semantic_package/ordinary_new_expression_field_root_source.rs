@@ -4,6 +4,8 @@ use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1;
 
 #[derive(Debug, Clone)]
 enum RootOriginV1 {
+    StoredMapGet { frame: Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        exclusion: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1> },
     New(Rc<super::super::LocalNewRootSourceV1>),
     Received(super::super::field_reads::ReceivedFieldReadSourceV1),
     Entry { slot: u32, identity: crate::parser::CallableDeclarationIdentityV1 },
@@ -93,7 +95,17 @@ impl ExpressionFieldRootSourceV1 {
         received: Option<&super::super::field_reads::ReceivedFieldReadSourceV1>,
         request: &LocalFieldReadRequestV1, field: CanonicalFieldRefV1,
     ) -> Result<Rc<Self>, String> {
-        let (box_source, origin) = if let Some(source) = received {
+        let (box_source, origin) = if let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, exclusion }) = &request.received {
+            if received.is_some() || request.receiver != frame.binding() || request.home != frame.binding()
+                || request.nullable || request.formal || request.alias_class.is_some() {
+                return Err("expression-path/received-root-kind".into());
+            }
+            let storage = frame.source().storage();
+            let source = coverage.row_for(storage.payload_class_v1()).map_err(|_| "expression-path/root-object")?
+                .ok_or("expression-path/root-object")?;
+            if storage.payload_object_v1() != field.object() { return Err("expression-path/root-field-object".into()); }
+            (source, RootOriginV1::StoredMapGet { frame: Rc::clone(frame), exclusion: Rc::clone(exclusion) })
+        } else if let Some(source) = received {
             if source.object_result_kind_v1() != Some(crate::mir::instruction::InvokeCallResultKind::Handle)
                 || request.receiver != request.home || request.received.as_ref() != Some(source.request()) {
                 return Err("expression-path/received-root-kind".into());
@@ -151,6 +163,11 @@ impl ExpressionFieldRootSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn validate_read_v1(
         &self, read: &crate::mir::builder::ExactLexicalReadV1, context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
+        // A source/null exclusion is not a physical borrow. The SAME get Normal
+        // and original nonnull Branch must be connected before this can execute.
+        if matches!(self.origin, RootOriginV1::StoredMapGet { .. }) {
+            return Err("expression-path/received-result".into());
+        }
         if let RootOriginV1::Received(source) = &self.origin {
             let ledger = context.ledger();
             context.with_taken_packet_v1(source.target().call_site(), |packet| {
@@ -170,6 +187,7 @@ impl ExpressionFieldRootSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self, other: &Self) -> bool {
         self.receiver == other.receiver && self.home == other.home && self.object == other.object
             && self.box_source.same_source_as(&other.box_source) && match (&self.origin, &other.origin) {
+                (RootOriginV1::StoredMapGet { frame: a, exclusion: x }, RootOriginV1::StoredMapGet { frame: b, exclusion: y }) => Rc::ptr_eq(a, b) && x == y,
                 (RootOriginV1::New(a), RootOriginV1::New(b)) => a == b,
                 (RootOriginV1::Received(a), RootOriginV1::Received(b)) => a == b,
                 (RootOriginV1::Entry { slot: a, identity: x }, RootOriginV1::Entry { slot: b, identity: y }) => a == b && x.same_as(y),
@@ -187,6 +205,15 @@ impl ExpressionFieldRootSourceV1 {
             return Err("expression-path/root-source-drift".into());
         }
         match &self.origin {
+            RootOriginV1::StoredMapGet { frame, exclusion } => {
+                let retained = ledger.stored_map_get_local_source_v1(request.site.owner(), frame.statement().node())?
+                    .ok_or("expression-path/root-source-drift")?;
+                if !Rc::ptr_eq(&retained, frame) || !matches!(&request.received,
+                    Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame: actual, exclusion: proof })
+                        if Rc::ptr_eq(actual, frame) && proof == exclusion) {
+                    return Err("expression-path/root-source-drift".into());
+                }
+            },
             RootOriginV1::Received(source) => {
                 let ingress = ledger.borrowed_formal_source.as_ref().ok_or("expression-path/received-ingress")?
                     .as_ref().map_err(Clone::clone)?;

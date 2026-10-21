@@ -82,6 +82,9 @@ impl StoredMapGetSourceLoanV1 {
         classes: &super::result_class_claim::OrdinaryNewResultClassClaimsV1,
         fields: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     ) -> Result<Option<Self>, String> {
+        if at.owner() != input.owner() { return Err(fault("source-drift")); }
+        let Some(original) = input.function().method_call_source_v1(at.site()) else { return Ok(None) };
+        if original.selector() != "get" || original.arity() != 1 { return Ok(None); }
         let Some(storage) = classes.map_stored_get_source_v1(at).map_err(fault)? else { return Ok(None) };
         let get = storage.original_get_v1(at).ok_or_else(|| fault("source-drift"))?;
         let (Some(receiver), Some(entry)) = (receiver, entry) else { return Err(fault("source-drift")) };
@@ -96,7 +99,7 @@ impl StoredMapGetSourceLoanV1 {
         if !receiver.same_field_source_v1(storage.receiver_v1()) { return Err(fault("source-drift")); }
         Ok(Some(Self { get: std::sync::Arc::clone(get), storage, receiver: std::rc::Rc::new(receiver) }))
     }
-    fn recheck_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         let at = OwnedExprSiteV1::new(self.get.owner(), self.get.site().clone());
         let retained = ledger.callable_result_classes.map_stored_get_source_v1(&at).map_err(fault)?
             .ok_or_else(|| fault("source-drift"))?;
@@ -163,5 +166,21 @@ impl OrdinaryNewClaimLedgerV1 {
             || !key.operations().is_empty() || !key.owned_result_nodes().is_empty()
         { return Err(fault("source-drift")); }
         Ok(Some(StoredMapGetReturnSourceLoanV1 { terminal: terminal.clone() }))
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn stored_map_get_local_source_v1(&self, owner: FunctionOwnerIdV1,
+        statement: &SourceNodeSiteV1,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation;
+        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else { return Ok(None) };
+        let mut rows = flow.maps().iter().filter_map(|row| match row {
+            MapHomeObservation::FieldGet(frame) if frame.statement().node() == statement => Some(frame), _ => None,
+        });
+        let Some(frame) = rows.next() else { return Ok(None) };
+        if rows.next().is_some() || frame.site().owner() != owner { return Err(fault("source-drift")); }
+        frame.source().recheck_v1(self)?;
+        Ok(Some(std::rc::Rc::clone(frame)))
     }
 }

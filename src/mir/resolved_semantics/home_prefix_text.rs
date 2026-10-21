@@ -147,15 +147,15 @@ impl PrefixLocalFlow<'_> {
         Some(StaticTextReadV1 { read: site.clone(), binding, value, origin, definition: original.clone(), definition_binding,
             utf8: utf8.clone(), flow: Arc::clone(flow) })
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn retain_entry_null_exclusion(&mut self,
-        proof: Rc<super::super::EntryNullExclusionV1>) {
-        self.entry_null_exclusions.insert(proof.formal(), proof);
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn retain_null_exclusion(&mut self,
+        proof: Rc<super::super::SourceNullExclusionV1>) {
+        self.null_exclusions.insert(proof.root_binding(), proof);
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn entry_null_exclusion(&self, site: &SourceExprSiteV1,
-        binding: BindingRefV1, root: BindingRefV1) -> Option<Rc<super::super::EntryNullExclusionV1>> {
+        binding: BindingRefV1, root: BindingRefV1) -> Option<Rc<super::super::SourceNullExclusionV1>> {
         let flow = self.input.function().expression_source().value_flow()?;
         let value = flow.read(site, binding)?;
-        self.entry_null_exclusions.get(&root).filter(|proof|
+        self.null_exclusions.get(&root).filter(|proof|
             proof.corroborates(flow, value, root, |site| self.input.function().variable_ref(site))).map(Rc::clone)
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn text_reference(&self, site: &SourceExprSiteV1)

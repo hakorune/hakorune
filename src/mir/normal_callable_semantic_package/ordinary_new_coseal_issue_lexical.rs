@@ -313,6 +313,9 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    // The constructor/current-entry Home adapters issue this source loan.
+    // A generic source-only caller has no such context and grants nothing.
+    if matches!(request, BorrowedCallActualRequestV1::StoredMapGetSource) { return Ok(None); }
     if matches!(request, BorrowedCallActualRequestV1::StoredMapSource) {
         return classes.map_stored_source_v1(site)
             .and_then(|source| {

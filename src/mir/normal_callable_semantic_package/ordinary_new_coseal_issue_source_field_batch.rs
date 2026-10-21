@@ -80,12 +80,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 return Ok(None);
             }
         }
-        if request.received.is_some() && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
+        let stored_get = matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }));
+        if request.received.is_some() && !stored_get && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
             if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                 role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })) {
             return Ok(None);
         }
-        let received = if request.received.is_some() {
+        let received = if request.received.is_some() && !stored_get {
             let context = received_context.ok_or_else(|| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: request.site.clone(), issue: "received-field/context-missing".into(),
             })?;
@@ -100,6 +101,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             let Some((_, row)) = rows.iter().find(|(actual, _)| *actual == site) else { return Ok(None); };
             let LocalFieldReadResultV1::Alias(class) = row.source.result() else { return Ok(None); };
             Some(class.clone())
+        } else if let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, .. }) = &request.received {
+            Some(frame.source().storage().payload_class_v1().into())
         } else if let Some(source) = &received { Some(source.class().into()) } else if request.nullable {
             match nullable_class(request.home) {
                 Some(class) => Some(class),

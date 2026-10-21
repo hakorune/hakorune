@@ -117,7 +117,9 @@ impl OrdinaryNewClaimLedgerV1 {
         self.completion_for_owner(site.owner())
             .and_then(|c| c.cleanup().root_flow())
             .is_some_and(|flow| {
-                flow.maps().iter().any(|row| row.site() == site)
+                flow.maps().iter().any(|row| row.site() == site && matches!(row,
+                    crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation::Complete(_)
+                        | crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation::Unavailable { .. }))
                     || flow.local_calls().iter().any(|call| {
                         call.site() == site && call.result() == LocalCallResultClassV1::Map
                     })

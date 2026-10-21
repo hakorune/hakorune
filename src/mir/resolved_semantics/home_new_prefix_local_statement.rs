@@ -107,6 +107,11 @@ pub(super) fn observe<'a, E>(
             continue;
         };
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+        if let Some(result) = map_flow::observe_field_get_local_v1(input, &owned, &declaration, binding,
+            locals, homes, unavailable.is_none(), local_calls, maps, borrowed_actuals)? {
+            if let Err(issue) = result { unavailable.get_or_insert(issue); }
+            continue;
+        }
         local_call_flow::stage_argument_expressions(input, &statement, &owned, locals,
             unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
         if mixed_call::observe(input, statement.site(), &owned, &declaration, binding,
