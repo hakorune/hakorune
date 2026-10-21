@@ -21,7 +21,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     frame: &'a CheckedExpressionEvaluationV1,
     values: &'a [Option<Operand>],
     calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
-    path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
+    path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
     reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     original: &'a [Binding],
     comparison: Option<(usize, ValueId)>,
@@ -35,7 +35,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         frame: &'a CheckedExpressionEvaluationV1,
         values: &'a [Option<Operand>],
         calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
-        path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
+        path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
         reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
         original: &'a [Binding],
     ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original, comparison: None, scalar_receiver: None } }
@@ -93,6 +93,27 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         self.calls.iter().map(Rc::as_ref)
     }
 
+    /// One transient census of original field geometry, shared by source and
+    /// physical dependencies. It grants no receiver or nonnull permission.
+    fn original_field_roots_v1(&self, context: CallValidationContextV1<'_>) -> Result<
+        std::collections::BTreeMap<OwnedExprSiteV1, (crate::mir::resolved_semantics::BindingRefV1, OwnedExprSiteV1)>, String,
+    > {
+        let source = self.frame.source();
+        let ledger = context.ledger();
+        let mut roots = std::collections::BTreeMap::new();
+        for (_, node) in source.nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
+            let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
+            if let Some(path) = ledger.statement_field_path_v1(&site, context)? {
+                let root_site = OwnedExprSiteV1::new(source.owner(), path.root_site().clone());
+                let expected = (path.root(), OwnedExprSiteV1::new(source.owner(), path.first_site().clone()));
+                if roots.insert(root_site, expected.clone()).is_some_and(|prior| prior != expected) {
+                    return Err(freeze("print-expression/path-root-source"));
+                }
+            }
+        }
+        Ok(roots)
+    }
+
     pub(in crate::mir) fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let ledger = context.ledger();
         let source = self.frame.source();
@@ -106,17 +127,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             || self.values.iter().enumerate().any(|(node, value)| !self.node_selected(node) && value.is_some()) {
             return Err(freeze("expression/reference-read-census"));
         }
-        let mut roots = std::collections::BTreeMap::new();
-        for (_, node) in source.nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
-            let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
-            if let Some(path) = ledger.statement_field_path_v1(&site, context)? {
-                let root_site = OwnedExprSiteV1::new(source.owner(), path.root_site().clone());
-                let expected = (path.root(), OwnedExprSiteV1::new(source.owner(), path.first_site().clone()));
-                if roots.insert(root_site, expected.clone()).is_some_and(|prior| prior != expected) {
-                    return Err(freeze("print-expression/path-root-source"));
-                }
-            }
-        }
+        let roots = self.original_field_roots_v1(context)?;
         if roots.len() != self.path_reads.len() { return Err(freeze("print-expression/path-root-census")); }
         let mut seen = std::collections::BTreeSet::new();
         for read in self.path_reads {
@@ -125,8 +136,13 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             if !seen.insert(site.clone()) { return Err(freeze("print-expression/path-root-duplicate")); }
             let value = read.value_for(source.owner(), site.site().node(), *binding).map_err(|error| error.to_string())?;
             ledger.validate_statement_field_root_read_v1(first, read, context)?;
-            let emitted = ledger.expression_field_read_emission_v1(first, source, context)?;
-            if !matches!(emitted.1, MirInstruction::ObjectFieldGet { base, .. } if base == value) {
+            let emitted = ledger.expression_field_read_bindings_v1(first, source, context)?;
+            let mut operations = emitted.iter().filter_map(|(_, row)| match row {
+                MirInstruction::ObjectFieldGet { base, .. }
+                | MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base, .. }, .. } => Some(*base),
+                _ => None,
+            });
+            if operations.next() != Some(value) || operations.next().is_some() {
                 return Err(freeze("print-expression/path-root-value"));
             }
         }
@@ -298,17 +314,6 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         &self, context: CallValidationContextV1<'_>, function: &MirFunction,
     ) -> Result<(), String> {
         self.validate_reference_dependencies(context, function, None)
-    }
-
-    pub(super) fn validate_reference_dependencies(
-        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
-        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-    ) -> Result<(), String> {
-        self.validate_source(context)?;
-        for (&node, observed) in self.reference_reads {
-            observed.validate_dependencies_v1(self.frame, node, context, function, finishing)?;
-        }
-        Ok(())
     }
 
     #[cfg(test)]

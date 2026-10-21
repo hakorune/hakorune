@@ -227,6 +227,54 @@ impl EmittedBoolConditionProjectionV1 {
         require_binding(function, original, finishing)
     }
 }
+impl CallValidationContextV1<'_> {
+    /// Physical nonnull borrow uses the original get and the existing sealed
+    /// Bool group. Source proof alone never selects a block or grants a read.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_stored_get_nonnull_read_v1(
+        self, frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        exclusion: &crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1,
+        read: &ExactLexicalReadV1, function: &MirFunction, finishing: Option<&Finished>, consumer: &Binding,
+    ) -> Result<(), String> {
+        let (_, normal) = self.stored_map_get_read_v1(frame, read, function, finishing)?;
+        self.with_local_call_group_tree_v2(frame.site().owner(), |groups| {
+            let mut matches = groups.iter().filter_map(|group| {
+                let packet = group.bool_condition()?;
+                let guard = exclusion.condition_read_v1(packet.frame.source())?;
+                Some((group, packet, guard))
+            });
+            let (group, packet, guard) = matches.next().ok_or_else(|| freeze("bool-condition/reference-source"))?;
+            if matches.next().is_some() || exclusion.root_binding() != frame.binding()
+                || !matches!(packet.materialization, BoolConditionOuterV2::If(_)) {
+                return Err(freeze("bool-condition/reference-source"));
+            }
+            let operation = packet.frame.operations().iter().find(|loan| loan.node() == 0)
+                .ok_or_else(|| freeze("bool-condition/operator-loan"))?;
+            let (reference, _, original) = operation.nullable_null_v1()
+                .ok_or_else(|| freeze("bool-condition/operator-loan"))?;
+            if !Rc::ptr_eq(original, frame) || packet.frame.source().nodes()[reference].site() != guard
+                || !matches!(packet.node(reference)?.proof, BoolConditionValueProofV1::OriginalReference(_)) {
+                return Err(freeze("bool-condition/reference-source"));
+            }
+            group.validate_recorded_in_context(self, function, finishing)?;
+            let outer = packet.outer.borrow();
+            let outer = outer.as_ref().ok_or_else(|| freeze("bool-condition/outer-branch-pending"))?;
+            packet.verify_outer(function, outer, finishing)?;
+            require_binding(function, &normal, finishing)?;
+            require_binding(function, consumer, finishing)?;
+            let branch = mapped(outer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+            let normal = mapped(&normal, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+            let field = mapped(consumer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+            let MirInstruction::Branch { else_bb: nonnull, .. } = branch.1 else {
+                return Err(freeze("bool-condition/outer-branch-source"));
+            };
+            let dom = crate::mir::verification::utils::compute_dominators(function);
+            if !dom.dominates(normal.0, branch.0) || !dom.dominates(nonnull, field.0) {
+                return Err(freeze("bool-condition/outer-branch-source"));
+            }
+            Ok(())
+        })
+    }
+}
 fn mapped(original: &Binding, finishing: Option<&Finished>) -> Result<Option<Binding>, String> {
     match finishing { Some(view) => view.binding(original.0, &original.1), None => Ok(Some(original.clone())) }
 }

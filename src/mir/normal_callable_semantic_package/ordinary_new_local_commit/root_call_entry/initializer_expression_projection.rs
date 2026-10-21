@@ -32,7 +32,7 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     install: Option<Binding>,
     values: Box<[Option<Operand>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
-    path_reads: Box<[crate::mir::builder::ExactLexicalReadV1]>,
+    path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
     entry: Binding,
     terminal: Binding,
@@ -65,7 +65,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedInitializerExpressionFrameV1>, value: ValueId, local: ValueId, copy: Option<Binding>,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-        path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
+        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,

@@ -596,3 +596,31 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         validate_expression_acquisition_scope_v1(self.frame, None, None, &projected, &values, function)
     }
 }
+
+impl ExpressionPhysicalProjectionRefV1<'_> {
+    pub(super) fn validate_reference_dependencies(
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_source(context)?;
+        for (&node, observed) in self.reference_reads {
+            observed.validate_dependencies_v1(self.frame, node, context, function, finishing)?;
+        }
+        let source = self.frame.source();
+        let roots = self.original_field_roots_v1(context)?;
+        for read in self.path_reads {
+            let (site, _, _) = read.source_value();
+            let (_, first) = roots.get(&site).ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            let bindings = context.ledger().expression_field_read_bindings_v1(first, source, context)?;
+            let mut operations = bindings.iter().filter(|(_, row)| matches!(row,
+                MirInstruction::ObjectFieldGet { .. } | MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }, .. }));
+            let consumer = operations.next().ok_or_else(|| freeze("print-expression/path-root-value"))?;
+            if operations.next().is_some() { return Err(freeze("print-expression/path-root-value")); }
+            if let Some((frame, exclusion)) = context.ledger().stored_get_field_root_source_v1(first, read, context)? {
+                context.validate_stored_get_nonnull_read_v1(&frame, &exclusion, read, function, finishing, consumer)?;
+            }
+        }
+        Ok(())
+    }
+
+}

@@ -1,16 +1,16 @@
 # APP-json-stream-aggregator
-Status: Original get/null Bool, Text Return source-use and Print argument qualification connected; physical field read/nonnull Branch and final Map/native incomplete. Date: 2026-10-21
+Status: Same-read and nonnull physical owner connections implemented; reportUser entry incoming and final Map/native incomplete, app guard verification unobserved. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 417.748s,
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 414.977s,
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Selected JSON passes source package issue, then lexical physical lowering refuses
-  ordinary-field-read/received/exact-read-missing. Direct checked field-path root
-  drops its committed read; nested parent uses a separate existing proof. No MIR/EXE.
-- CLI38.47s/root66s; no new warnings/tests/files/hooks/guards/cards/app edits; superseded own binaries removed.
-- 44filters match parent outcomes/strict failures; inventory9263 unchanged and 2source refusals retained.
+- Selected JSON now refuses borrowed-entry/original-input-not-ready. Debug pins
+  reportUser owner29/Main32 first call: Completion ready, input cohort unfinished.
+  Actual app get/nonNull physical proof remains unobserved; no MIR/EXE.
+- CLI35.57s/root145s; 44filters match parent outcomes/strict failures; inventory9263 unchanged.
+- Two source refusals retained; no new warning symbols/tests/files/hooks/guards/cards/app edits.
 
 ## Shared source and construction
 - One original FieldResidence census keeps every declared Array/Dynamic field,
@@ -46,8 +46,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   taken commits. Duplicate New locations refuse; original read coverage stays exact.
 - Final Birth matching first checks the original finished caller owner→symbol loan;
   physical SSA numbers are function-local and never select the semantic owner.
-- Original Binary class transfer grants no Text+i64 execution without a full frame.
-- No application source edits, new semantic registry, fallback/retry or fake Home/SSA.
+- Binary transfer needs a full frame; no app edits/new registry/fallback/retry/fake Home/SSA.
 
 ## Map/Text connection
 - Whole original field-use walk closes declarations, aliases, capture/escape,
@@ -74,20 +73,21 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Direct get retains SAME census/get/current receiver, key/Homes and pure caller
   in existing Map/prefix/lifecycle. Source null proof distinguishes Entry/Initializer;
   Entry rejects LOCAL. Guard/use flow and numeric field roots close without a Home.
-- Shared get writer now transports raw Normal to real Local receipt/Copy, original
-  Fault Homes, mandatory prefix and final get visitor. Copy law/capture shared;
-  annotation contracts refuse early. Local fence retired; field fence stays.
-- Existing Bool source retains SAME stored-get ref plus raw Equal-Null law;
-  physical reference requires actual get Normal/Local receipt/Copy, with Finished
-  checks. No scalar/tagged permission. Text Return shares existing atomic field
-  batch/full census and evaluation; original stored-get field roots cover reads.
-- Print now stages original unconditional Call actuals through shared argument
-  owner in source order, deduplicated per operation; whole Print/Fault still required.
-  Retained unqualified Source slots stay pending after original identity checks;
-  missing/foreign slots and direct execution demand refuse. Next share the SAME
-  direct root read with its existing checked row; keep nested parent proof and
-  stored-get physical fence until same get Normal/nonNull Branch close. Instance
-  Text result still needs original result owner, never Static/I64 substitution.
+- Shared get writer retains actual Local receipt/Copy, Fault Homes and Finished
+  capture. Annotation refusal remains; no Home/owning result permission is granted.
+- Direct checked paths now share SAME committed ExactRead with checked rows and
+  purpose projections; nested parent proof stays. One transient root census and
+  existing checked Invoke/Normal accessor serve source and physical validation.
+- Passive stored-get root/read source grants no execution. Every physical purpose
+  passes common dependencies: same get Normal, original If/raw Eq-Null/frame,
+  sealed Bool Branch, Normal→Branch/nonNull arm→field dominance and SAME Finished
+  projection. Worker checked all purpose/final routes; app proof remains unobserved.
+- Print argument staging remains source-ordered and locally deduplicated; original
+  unqualified Source slots stay pending; missing/foreign/direct demands refuse.
+- Next connect Instance Text source-result from existing completed callee row and
+  original target identity/slot. Source stage must not require executable input;
+  physical stage must require full incoming, same Text proof and signature before
+  OwnedString. Preserve all incoming; never fake Static or I64 to break the cycle.
 - Native Text formal/actual/Materialize/store/End/Fault closure remains required.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
   Array holder/contents/End and exact empty-transfer census remain owed.

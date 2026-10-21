@@ -163,10 +163,15 @@ impl ExpressionFieldRootSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn validate_read_v1(
         &self, read: &crate::mir::builder::ExactLexicalReadV1, context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
-        // A source/null exclusion is not a physical borrow. The SAME get Normal
-        // and original nonnull Branch must be connected before this can execute.
-        if matches!(self.origin, RootOriginV1::StoredMapGet { .. }) {
-            return Err("expression-path/received-result".into());
+        // Passive correspondence grants no physical nonnull permission. Every
+        // executable purpose must also validate its same Normal/nonNull Branch.
+        if let RootOriginV1::StoredMapGet { frame, exclusion } = &self.origin {
+            frame.source().recheck_v1(context.ledger())?;
+            if self.receiver != frame.binding() || self.home != frame.binding()
+                || exclusion.root_binding() != frame.binding() {
+                return Err("expression-path/root-source-drift".into());
+            }
+            read.loan_local_initializer_v1(frame.binding())?;
         }
         if let RootOriginV1::Received(source) = &self.origin {
             let ledger = context.ledger();
@@ -183,6 +188,14 @@ impl ExpressionFieldRootSourceV1 {
             })?;
         }
         Ok(())
+    }
+    /// Original source loan only; execution still requires the Bool owner's
+    /// independent same-Normal/nonNull-Branch check in every physical purpose.
+    pub(in crate::mir::normal_callable_semantic_package) fn stored_get_v1(&self) -> Option<(
+        &Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
+    )> {
+        match &self.origin { RootOriginV1::StoredMapGet { frame, exclusion } => Some((frame, exclusion)), _ => None }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self, other: &Self) -> bool {
         self.receiver == other.receiver && self.home == other.home && self.object == other.object

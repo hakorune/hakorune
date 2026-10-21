@@ -18,7 +18,7 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     purpose_acquisition: Option<[Binding; 2]>,
     values: Vec<Option<Operand>>,
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-    path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
+    path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
     entry: Binding,
     terminal: Binding,
@@ -54,7 +54,7 @@ impl EmittedBindingRebindProjectionV1 {
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedBindingRebindFrameV1>, receipt: CompletedVariableAssignmentV1,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-        path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>, reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
+        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>, reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, purpose_acquisition: Option<[Binding; 2]>, original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {

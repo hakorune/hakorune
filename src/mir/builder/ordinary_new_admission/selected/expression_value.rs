@@ -23,7 +23,7 @@ pub(super) struct EmittedExpressionValueV1 {
 pub(super) struct EmittedExpressionBodyV1 {
     pub(super) values: Vec<Option<Operand>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-    pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, crate::mir::builder::ExactLexicalReadV1>,
+    pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     pub(super) acquired: Vec<(usize, ValueId)>,
     pub(super) homes: Vec<InvokeOperation>,
@@ -171,7 +171,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         .into_iter().map(Some).collect();
     let mut path_reads = std::collections::BTreeMap::new();
     for (site, slot) in path_slots {
-        path_reads.insert(site, reads[slot].take().ok_or_else(|| freeze("expression-value/read-slot"))?);
+        path_reads.insert(site, Rc::new(reads[slot].take().ok_or_else(|| freeze("expression-value/read-slot"))?));
     }
     let reference_reads = reference_slots.into_iter().map(|(node, (slot, producer))| {
         Ok((node, producer.finish(reads[slot].take().ok_or_else(|| freeze("expression-value/reference-slot"))?)))
@@ -210,7 +210,13 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
                 let (value, pair) = builder.append_checked_received_field_read_v1(base, &descriptor,
                     fault_frame, normal, graph.acquisition_fault)?;
-                ledger.record_enclosed_checked_local_field_read_v1(&site, &descriptor, None, pair[0].clone(), pair[1].clone())?;
+                // A direct path uses the SAME committed root read. Nested
+                // paths retain their existing checked-parent Normal proof.
+                let read = if path.parent().is_none() {
+                    let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
+                    Some(Rc::clone(path_reads.get(&root_site).ok_or_else(|| freeze("print-expression/path-root-missing"))?))
+                } else { None };
+                ledger.record_enclosed_checked_local_field_read_v1(&site, &descriptor, read, pair[0].clone(), pair[1].clone())?;
                 bindings.extend(pair);
                 value
             } else {

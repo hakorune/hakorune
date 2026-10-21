@@ -248,6 +248,19 @@ impl OrdinaryNewClaimLedgerV1 {
         if source.parent.is_some() { return Err(fault("expression-path/root-read-parent")); }
         source.root.validate_read_v1(read, context)
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn stored_get_field_root_source_v1(
+        &self, site: &OwnedExprSiteV1, read: &crate::mir::builder::ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Option<(
+        Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
+    )>, String> {
+        self.validate_statement_field_root_read_v1(site, read, context)?;
+        let rows = self.local_field_reads.borrow();
+        let source = rows.get(site).and_then(|row| row.source.statement_path())
+            .ok_or_else(|| fault("expression-path/root-source-missing"))?;
+        Ok(source.root.stored_get_v1().map(|(frame, exclusion)| (Rc::clone(frame), Rc::clone(exclusion))))
+    }
     pub(in crate::mir) fn statement_field_path_v1(&self, site: &OwnedExprSiteV1, context: CallValidationContextV1<'_>)
         -> Result<Option<OriginalExpressionFieldPathV1>, String> {
         let rows = self.local_field_reads.borrow();

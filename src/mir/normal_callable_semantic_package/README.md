@@ -2142,9 +2142,17 @@ owner in source order; operation-local deduplication grants no temporary Home or
 execution. Original Instance Expression/String/Binding slots remain pending until
 Qualified, after source/snapshot/ledger checks. Missing/foreign slots and direct
 execution demand retain strict refusal; no executable phase is issued for pending.
-Same-value physical nonnull Branch and field execution remain owed; the field
-execution fence stays. No Home/End
-is granted, and the Object finisher never upgrades it into an owning result. Physical Return,
+Direct checked field paths share the SAME committed ExactLexicalRead through
+Rc with their existing checked row and purpose projection; nested paths retain
+the parent Normal proof. One transient original field-root census serves source
+and physical checks; checked FieldGet uses the existing Invoke/Normal accessor.
+Passive stored-get root/read correspondence grants no execution. Every physical
+purpose passes the common reference-dependency validator: the existing Bool owner
+requires the same get Normal/Local Copy, original If/null law/frame and sealed
+Branch, with Normal dominating that Branch and its nonnull arm dominating the
+sole field operation. Original and Finished coordinates use the same captured
+projection. No new proof inventory is created, and no Home/End is granted. The
+Object finisher never upgrades the borrow into an owning result. Physical Return,
 final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.
 

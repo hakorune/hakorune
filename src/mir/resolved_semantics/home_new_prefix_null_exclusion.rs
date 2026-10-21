@@ -29,6 +29,18 @@ impl PartialEq for SourceNullExclusionV1 {
 }
 impl Eq for SourceNullExclusionV1 {}
 impl SourceNullExclusionV1 {
+    /// Borrow only the original If identity; physical nonnull permission is
+    /// checked independently by the existing Bool/Branch owner.
+    pub(crate) fn condition_read_v1(&self,
+        source: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+    ) -> Option<&SourceExprSiteV1> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
+        (source.owner() == self.binding.owner()
+            && matches!(source.root(), ExpressionPlanRootV1::IfCondition { statement, condition, bundle }
+                if statement == &self.statement && condition == self.condition.site() && bundle == &self.bundle)
+            && source.nodes().first().and_then(|node| node.binary()) == Some(&self.condition))
+            .then_some(&self.guard_read)
+    }
     pub(crate) fn root_binding(&self) -> BindingRefV1 {
         match self.root { NullRootV1::Entry(binding) | NullRootV1::Initializer { binding, .. } => binding }
     }

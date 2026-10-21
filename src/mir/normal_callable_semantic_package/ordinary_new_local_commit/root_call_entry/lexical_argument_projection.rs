@@ -111,7 +111,7 @@ pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
     >,
     values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
     calls: Vec<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
-    path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
+    path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reference_reads: std::collections::BTreeMap<
         usize,
         super::super::expression_projection::ExpressionReferenceReadV1,
@@ -229,7 +229,7 @@ impl LexicalCallArgumentProjectionV1 {
         >,
         values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
         calls: Vec<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
-        path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
+        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: std::collections::BTreeMap<
             usize,
             super::super::expression_projection::ExpressionReferenceReadV1,

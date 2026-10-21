@@ -427,12 +427,21 @@ impl OrdinaryNewClaimLedgerV1 {
                             let (selected, signatures) = self.original_instance_input_issuance.as_ref()
                                 .ok_or_else(|| freeze("borrowed-entry/original-issuance-missing"))?;
                             if self.checked_completed_original_instance_target_arguments_v1(target, selected, catalog, signatures)?.is_none() {
+                                if crate::config::env::builder_debug_enabled() {
+                                    eprintln!("[entry-input] owner={:?} call={:?} pending={:?}", structure.owner, call.call,
+                                        self.typed_object_input_completion_diagnostic_v1(structure.owner));
+                                }
                                 return Err(freeze("borrowed-entry/original-input-not-ready"));
                             }
                         }
                         super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) => {
                             self.checked_completed_static_expression_input_v1(original)?
-                                .ok_or_else(|| freeze("borrowed-entry/original-input-not-ready"))?;
+                                .ok_or_else(|| {
+                                    if crate::config::env::builder_debug_enabled() {
+                                        eprintln!("[entry-input] owner={:?} static-call={:?}", structure.owner, call.call);
+                                    }
+                                    freeze("borrowed-entry/original-input-not-ready")
+                                })?;
                         }
                         _ => return Err(freeze("borrowed-entry/incoming-source-identity")),
                     }
