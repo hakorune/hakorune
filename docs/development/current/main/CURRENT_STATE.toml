@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/lexical-instance-call/source-pending: processLine stats.add borrowed receiver/input; final Map and native Text incomplete"
+current_blocker_token = "ordinary-new/borrowed-entry/source-use-completion-pending: reportUser direct Map get/null/field to Text; final Map and native Text incomplete"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Map LOCAL CallがSAME Completion/full Return/lifetimeを照合。最終Map/native未完。
-直近full suite（親）7PASS/4FAIL（実EXE6＋marker1）、413.286s。mimalloc/allocator PASS。
-JSONはstatsForを通過→processLine:130 stats.add(bytes,ok) source-pending。MIR/EXEなし。
-元installのset値/Return readをall-useへ接続。37filters親同等、inventory9263不変。CLI41s/root66s。
-次はSAME借用receiver/input→add、最終Map Return/ABI/native。新test/hook/guard/cardなし。全goal未完。
+APP-json-stream-aggregator: SAME Map borrower→Unit receiver/physical Normal/Copy接続。最終Map/native未完。
+固定suite7PASS/4FAIL（実EXE6＋marker1）、419.936s、SKIP/timeoutなし。mimalloc/allocator PASS。
+JSONはstats.add通過→owner29 reportUser direct get/null/field→Textのsource-use未接続。MIR/EXEなし。
+source区間/全numeric writer/空exit Homesを再照合。37filters親同等、inventory9263不変。CLI40s/root84s。
+次はSAME Map censusのget→LOCAL nullable/field→Text、最終Map/ABI/native。新test/guard/cardなし。全goal未完。
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: Map borrower Unit receiver joins original source interval, exact Prefix borrower/holder, SAME producer witness graph and complete Entry numeric writes/empty exit Homes. Canonicalization before incoming census removes duplicate Call graphs; no new registry/receipt. Physical Lowering/Finalized use SAME producer Normal and original LocalSSA/Copy membership, never holder as payload or new Home/End. Worker reviewed source/phase/lifetime/final copies. Unchanged JSON passes stats.add→reportUser owner29 source-use pending,no MIR/EXE. Same-class slot replacement and callee Text-write inputs refuse. 37filters match parent outcomes/strict failures;inventory9263 unchanged,no test files/functions/hooks/guards/cards. Root84s/CLI40.01s,no new warnings. Suite7/4 actualEXE6+marker1,419.936s,noSKIP/timeout;mimalloc/allocator PASS. Own superseded CLIs3 removed485MB. Next direct Map get/nullable field→Text,final Map/ABI/native;full goal active.",
   "2026-10-21: MapSlot LOCAL Call closes SAME whole-result source/Completion/roots, all ready exits, candidate prior→Normal move and absence at Return. Carrier classification retains unfinished source; readiness stays in Call finish. Original full-use census covers same install value argument and installed Return reads, rejecting formal aliases/duplicates. Worker reviewed phase/source/ownership. No formal ordinal, Fresh/scalar fallback, new registry/test functions/files/hooks/guards/cards. 37filters match parent per-test outcomes/strict failures; inventory9263 unchanged. Root66s/CLI41.41s,no new warning symbols. Selected JSON passes statsFor→processLine:130 stats.add source-pending,no MIR/EXE. Latest full suite is parent7PASS/4FAIL actualEXE6+marker1,413.286s. Next borrowed receiver/input→add and final Map Return/ABI/native. Full goal remains active.",
   "2026-10-21: SAME retained construction SUM lends Birth Text formal/actual through callee replay, module, compiled entry, ABI and JSON; native C stays closed. Original Text SUM selects finite entry; SAME New evaluations survive exclusive claim→commit take with full-use census. Original finished caller owner precedes local SSA matching. Broad lookup experiment reverted. Six source→JSON cases incl two callers and same-key foreign-source refusal PASS. Former unsupported-Text negatives use Float/Map, same refusal. 37 filters match parent per-test outcomes/strict failures;inventory9263,no new test functions/files/hooks/guards/cards. CLI41.11s/root68s,no new warnings. Suite7/4 actualEXE6+marker1,413.286s,noSKIP/timeout;mimalloc/allocator PASS. JSON statsFor source-pending,no MIR/EXE. Next SAME Completion→MapSlot full Return/lifetime→final consumers;native Text/full goal owed. Own superseded binaries5 removed,1.197GB;final/parent retained.",
-  "2026-10-21: Birth ABI handoff retains SAME original construction source/execution. Late installer preflights LOCAL/Result claims and both early ABI indexes before mutation; emitted local/provider records forbid replacement. Raw formal census/lanes unchanged; final Eq requires same source+execution Rc. Worker confirmed no other persistent early copy. Existing ABI-lane case checks repeat issuance, no new fixtures/test functions/files/hooks/checkers/guards/cards. Final root145s/CLI100s, no new warning symbols. 37 filters match frozen parent per-test outcomes and strict failures; inventory9263. Suite7PASS/4FAIL actualEXE6+marker1,377.153s,noSKIP/timeout;mimalloc/allocator PASS. JSON unchanged processLine:129 statsFor source-pending,no MIR/EXE. Text ABI/module/JSON/native remain closed. Next retained plan→formal/actual source loans and callee replay→final consumers→Map publication. Broad52/retained reds owed; full goal active.",
 ]

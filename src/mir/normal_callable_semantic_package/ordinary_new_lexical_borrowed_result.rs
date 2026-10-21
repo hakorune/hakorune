@@ -20,7 +20,18 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn corroborate_borrowed_nullable_call_v1(
         &self, row: &LexicalInstanceCallDispositionRowV1,
     ) -> Result<InvokeCallResultKind, String> {
-        let source = row.source_target();
+        let (kind, completion) = self.checked_borrowed_nullable_call_source_v1(row.source_target())?;
+        if row.result() != Some(kind) || row.scalar_result.is_some() || row.unit_completion.is_some()
+            || row.object_packet.is_some()
+            || row.borrowed_completion.as_ref().is_none_or(|held| !Rc::ptr_eq(held, completion)) {
+            return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+        }
+        Ok(kind)
+    }
+
+    fn checked_borrowed_nullable_call_source_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<(InvokeCallResultKind, &Rc<VerifiedFunctionCompletionV1>), String> {
         let loan = source.borrowed_nullable_local_source()
             .ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
         let support = loan.result_support_v1();
@@ -31,27 +42,26 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(|issue| freeze(issue))?;
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-nullable-call/ingress-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let mut originals = ingress.source_incoming.exact_rows().filter(|incoming| &incoming.call == source.call_site());
-        let incoming = originals.next().ok_or_else(|| freeze("borrowed-nullable-call/incoming-missing"))?;
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+        let incoming = Self::original_instance_input_call_v1(ingress, catalog, source.call_site())?
+            .ok_or_else(|| freeze("borrowed-nullable-call/incoming-missing"))?;
         let completion = self.completion_source_for_owner_v1(source.callee_owner())
             .ok_or_else(|| freeze("borrowed-nullable-call/completion-missing"))?;
         let observed = self.borrowed_nullable_call_source_v1(source.call_site())
             .ok_or_else(|| freeze("borrowed-nullable-call/observation-missing"))?;
         let (selected, signatures) = self.original_instance_input_issuance.as_ref()
             .ok_or_else(|| freeze("borrowed-nullable-call/input-issuance-missing"))?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+
         let arguments = self.checked_completed_original_instance_target_arguments_v1(source, selected, catalog, signatures)?
             .ok_or_else(|| freeze("borrowed-nullable-call/input-incomplete"))?;
-        if originals.next().is_some() || incoming.callee != source.callee_owner()
+        if incoming.callee != source.callee_owner()
             || incoming.source.require_instance()? != source || loan.call() != source.call_site()
             || loan.key() != source.target() || loan.callee_owner() != source.callee_owner()
             || support.formal_ordinal().is_some_and(|ordinal| ordinal >= source.target().arity())
             || observed.borrowed_nullable() != Some(loan) || observed.arguments() != arguments
             || observed.local_binding().map(|(_, binding)| binding) != Some(loan.destination())
-            || row.result() != Some(kind) || row.scalar_result.is_some() || row.unit_completion.is_some()
-            || row.object_packet.is_some() || !completion.returns_value()
-            || row.borrowed_completion.as_ref().is_none_or(|held| !Rc::ptr_eq(held, completion))
+            || !completion.returns_value()
             || !self.root_home_flow_ready_v1(completion)?
         { return Err(freeze("borrowed-nullable-call/source-completion-drift")); }
         if loan.is_map_slot() {
@@ -64,7 +74,61 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("borrowed-nullable-call/source-completion-drift"));
             }
         }
-        Ok(kind)
+        Ok((kind, completion))
+    }
+
+    /// Structural receiver source was checked at original target issuance.
+    /// Complete numeric write proofs now exclude slot replacement and old-End
+    /// callbacks throughout this Unit callee; the holder remains caller-owned.
+    pub(crate) fn checked_borrowed_map_receiver_source_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        let Some(loan) = source.borrowed_receiver_source_v1() else { return Ok(false); };
+        let Some((class, object)) = loan.map_payload_v1() else {
+            return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+        };
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+        let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-nullable-call/ingress-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let producer = Self::original_instance_input_call_v1(ingress, catalog, loan.call())?
+            .ok_or_else(|| freeze("borrowed-nullable-call/incoming-missing"))?;
+        let producer = producer.source.require_instance()?;
+        if producer.borrowed_nullable_local_source() != Some(loan)
+            || loan.destination() != source.receiver_binding()? || source.call_site().owner() != loan.call().owner()
+            || source.target().owner() != class || !source.is_unit_discard_source_v1() {
+            return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+        }
+        self.checked_borrowed_nullable_call_source_v1(producer)?;
+        let completion = self.completion_source_for_owner_v1(source.callee_owner())
+            .ok_or_else(|| freeze("borrowed-nullable-call/completion-missing"))?;
+        let flow = completion.cleanup().root_flow()
+            .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+        let originals: Vec<_> = self.field_write_claims.writes().iter()
+            .filter(|write| write.owner() == source.callee_owner()).collect();
+        let mut writes = std::collections::BTreeSet::new();
+        for plan in flow.expression_plans() {
+            let Some(frame) = plan.field_write_frame() else { continue; };
+            let Some(entry) = frame.entry() else { return Err(freeze("borrowed-nullable-call/source-completion-drift")); };
+            let rhs = plan.field_write_rhs().ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+            entry.recheck(self)?;
+            if !rhs.is_consistent(frame.source()) || !Rc::ptr_eq(entry.source(), frame.source())
+                || entry.field().object() != object || entry.field() == match loan.result_support_v1() {
+                    crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, .. } => field,
+                    _ => return Err(freeze("borrowed-nullable-call/source-completion-drift")),
+                }
+                || !originals.iter().any(|write| std::ptr::eq(*write, entry.original().write()))
+                || !writes.insert(entry.original().write().assignment().statement_site().clone()) {
+                return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+            }
+        }
+        if writes.len() != originals.len() || !flow.maps().is_empty() || !flow.named_arrays().is_empty()
+            || completion.returns_value() || !completion.explicit_sites().is_empty()
+            || !flow.implicit_exit().is_some_and(|exit| exit.is_ok_and(|exit| exit.homes().is_empty()))
+            || !self.root_home_flow_ready_v1(completion)? {
+            return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+        }
+        Ok(true)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn finish_borrowed_nullable_slots_v1(
@@ -118,6 +182,59 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         for (site, row) in upgrades { slots.insert(site, LexicalInstanceCallDispositionSlotV1::Ready(row)); }
+        drop(slots);
+        self.finish_borrowed_map_receiver_slots_v1(selected, contracts, signatures, results)
+    }
+    fn finish_borrowed_map_receiver_slots_v1(
+        &mut self, selected: &VerifiedSelectedCallableBatchMapV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<(), String> {
+        let pending: Vec<_> = self.lexical_instance_calls.borrow().iter().filter_map(|(site, slot)| match slot {
+            LexicalInstanceCallDispositionSlotV1::SourcePending(source)
+                if source.borrowed_receiver_source_v1().is_some() && source.is_unit_discard_source_v1() => Some((site.clone(), source.clone())),
+            _ => None,
+        }).collect();
+        let mut upgrades = Vec::new();
+        for (site, source) in &pending {
+            let loan = source.borrowed_receiver_source_v1().expect("selected borrowed receiver");
+            {
+                let slots = self.lexical_instance_calls.borrow();
+                let Some(LexicalInstanceCallDispositionSlotV1::Ready(producer)) = slots.get(loan.call()) else { continue; };
+                self.corroborate_borrowed_nullable_call_v1(producer)?;
+                if producer.source_target().borrowed_nullable_local_source() != Some(loan) {
+                    return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+                }
+            }
+            let Some(arguments) = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)? else { continue; };
+            let observed = self.unit_discard_source_v1(site)
+                .ok_or_else(|| freeze("unit-call/discard-observation-missing"))?;
+            if observed.unit_source() != Some(source) || observed.arguments() != arguments {
+                return Err(freeze("unit-call/original-discard-drift"));
+            }
+            let completion = self.original_unit_completion_v1(source)?;
+            let contract = results.row(source.target_batch_slot()).ok_or_else(|| freeze("unit-call/result-contract-missing"))?;
+            let signature = signatures.row(source.target_batch_slot()).ok_or_else(|| freeze("borrowed-nullable-call/signature-missing"))?;
+            if contract.owner() != source.callee_owner() || contract.result().is_some()
+                || !std::ptr::eq(contract.borrow().completion(), completion.as_ref())
+                || signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+                || signature.source_logical_arity() != source.target().arity() || signature.receiver_lane_count() != 1 {
+                return Err(freeze("unit-call/result-completion-drift"));
+            }
+            let row = LexicalInstanceCallDispositionRowV1 { source: source.clone(), result: Some(InvokeCallResultKind::Unit),
+                scalar_result: None, unit_completion: Some(completion), borrowed_completion: None, object_packet: None, mixed_result: None };
+            self.corroborate_unit_discard_v1(&row)?;
+            upgrades.push((site.clone(), row));
+        }
+        let mut slots = self.lexical_instance_calls.borrow_mut();
+        for (site, source) in &pending {
+            if !matches!(slots.get(site), Some(LexicalInstanceCallDispositionSlotV1::SourcePending(held)) if held == source) {
+                return Err(freeze("borrowed-nullable-call/slot-drift"));
+            }
+        }
+        for (site, row) in upgrades { slots.insert(site, LexicalInstanceCallDispositionSlotV1::Ready(row)); }
         Ok(())
     }
+
 }

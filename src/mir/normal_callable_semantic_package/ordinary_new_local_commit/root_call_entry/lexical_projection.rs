@@ -368,15 +368,14 @@ impl PreparedLexicalCallProjectionV1 {
                         .recheck_stored_local_new_parent_v1(instance.source_target())?;
                 }
                 let receiver = match (&self.receiver, instance.source_target().stored_receiver()) {
-                    (LexicalReceiverProjectionV1::Lexical(read), None) => read
-                        .value_for(
-                            owner,
-                            instance.receiver_site().node(),
-                            instance.receiver_binding()?,
-                        )
-                        .map_err(|error| {
-                            format!("[freeze:contract][lexical-i64/receiver/{error:?}]")
-                        })?,
+                    (LexicalReceiverProjectionV1::Lexical(read), None) => {
+                        if instance.source_target().borrowed_receiver_source_v1().is_some() {
+                            context.ok_or_else(|| freeze("borrowed-return/original-loan"))?
+                                .require_borrowed_map_receiver_v1(instance, read)?;
+                        }
+                        read.value_for(owner, instance.receiver_site().node(), instance.receiver_binding()?)
+                            .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?
+                    },
                     (
                         LexicalReceiverProjectionV1::StoredChild { parent, read },
                         Some((binding, site, field, child)),
@@ -449,6 +448,13 @@ impl EmittedLexicalCallProjectionV1 {
         &self, context: CallValidationContextV1<'_>,
     ) -> Result<Vec<(crate::mir::resolved_semantics::OwnedExprSiteV1, Binding)>, String> {
         let mut dependencies = Vec::new();
+        if let (CallPacketSourceLoanV1::Instance(row), LexicalReceiverProjectionV1::Lexical(read)) = (self.row.loan(), &self.prepared.receiver) {
+            if row.source_target().borrowed_receiver_source_v1().is_some() {
+                context.require_borrowed_map_receiver_v1(row, read)?;
+                dependencies.extend(read.original_copy_dependencies_v1()?.iter()
+                    .map(|copy| (self.call_site().clone(), copy.clone())));
+            }
+        }
         if let LexicalReceiverProjectionV1::StoredChild { parent, .. } = &self.prepared.receiver {
             dependencies.extend(parent.original_copy_dependencies_v1()?.iter()
                 .map(|copy| (self.row.loan().call_site().clone(), copy.clone())));

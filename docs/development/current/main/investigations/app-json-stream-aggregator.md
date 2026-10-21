@@ -1,20 +1,18 @@
 # APP-json-stream-aggregator
-Status: Map LOCAL Call closes original Return/lifetime proof; final Map/native incomplete. Date: 2026-10-21
+Status: Map borrowed Unit receiver reaches physical Call; reportUser/final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Latest full suite (parent): 7PASS/4FAIL, actual EXE6 + marker1, 413.286s,
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 419.936s,
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Selected JSON passes `processLine` → `me.statsFor(user)`; next source-pending is
-  `stats.add(bytes, ok)` (apps/json-stream-aggregator/main.hako:130),
-  owner26 Body6 → callee22. No MIR/EXE; final Map/native gates remain owed.
-- Current CLI41.41s/root66s. Runtime/FFI unchanged; no new test functions/files.
-- Six source→MIR verification→ABI→JSON cases pass: declared/inferred Birth Text,
-  literal/computed/forwarded inputs; forwarding includes two independent callers.
-- Same-key foreign-source handoff refusal passes; existing tests extended only for
-  original-source/transport and caller-identity boundaries, no new test functions.
+- Selected JSON passes `processLine` → `stats.add(bytes, ok)` physical receiver;
+  next is borrowed-entry/source-use-completion-pending owner29 (`reportUser`,
+  apps/json-stream-aggregator/main.hako:160-165). No MIR/EXE; final Map/native owed.
+- Current CLI40.01s/root84s. Runtime/FFI unchanged; no new test functions/files.
+- Previous six Birth Text source→MIR/ABI/JSON cases pass, including two independent
+  callers; same-key foreign-source refusal remains. No new test functions.
 - Former unsupported-Text negatives now use Float/Map with the same named refusal
   and consumer topology; Text positives remain. Inventory9263, no new files/hooks/guards/cards.
 - Current37 filters match parent per-test outcomes/strict failures; source_scope3PASS,
@@ -80,9 +78,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Carrier classification keeps unfinished source; logical Call finishing owns readiness.
   Original-use census adds same install value argument/Return read, rejecting formal
   aliases/duplicates. Worker reviewed phase/source/ownership; no new registry or tests.
-- Next connect `stats.add` through original borrowed receiver/input proof, then final
-  Map Return outcomes/ABI/publication with exact get/install/EndOutcome/cleanup.
-  Map support has no formal index and cannot become Fresh/scalar/owning.
+- Map Unit receiver now requires exact Prefix borrower/holder, source interval
+  without unknown effects, whole callee Entry numeric writes and empty exit Homes.
+  Producer/receiver share one rechecked original witness graph before incoming census.
+  Physical/final consumers join SAME producer Normal/LocalSSA and every Copy dependency.
+  Intermediate slot replacement and callee Text-write inputs refuse; worker reviewed.
+- Next borrow reportUser's exact get from SAME Map whole-use census, then LOCAL
+  null/field→Text uses and final Map Return/ABI. No fake ordinary Call or owned Handle.
 - Native Text formal/actual/Materialize/store/End/Fault consumer closure also remains
   required; Rust JSON success does not imply native execution.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,

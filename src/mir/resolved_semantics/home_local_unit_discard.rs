@@ -11,6 +11,7 @@ pub(super) fn demand_v1<E>(
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     site: &OwnedExprSiteV1,
     prior_homes: &[LiveHomeV1],
+    locals: &PrefixLocalFlow<'_>,
     borrowed_arguments: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
         -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<UnitDiscardDemandV1, E> {
@@ -25,6 +26,10 @@ pub(super) fn demand_v1<E>(
             call.owner() == input.owner() && call.arity() == source.target().arity()
                 && call.arguments().iter().map(|argument| argument.site()).eq(source.argument_sites().iter())
                 && call.selector() == source.target().name() && call.receiver_site() == source.receiver_site()) {
+        return Ok(UnitDiscardDemandV1::Refused);
+    }
+    if source.borrowed_receiver_source_v1().is_some_and(|loan|
+        !locals.borrowed_map_receiver_v1(source.receiver_site(), loan)) {
         return Ok(UnitDiscardDemandV1::Refused);
     }
     Ok(UnitDiscardDemandV1::Ready(LocalCallObservationV1 {

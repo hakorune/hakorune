@@ -548,6 +548,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                     return Ok(None);
                 };
 
+                if let Some(loan) = &borrowed_receiver_source {
+                    if !source.borrowed_receiver_interval_v1(batch, &need, target_batch_slot, loan)? {
+                        return Ok(None);
+                    }
+                }
                 let receiver = if need.self_receiver {
                     LexicalInstanceCallReceiverV1::SelfReceiver(need.receiver_binding)
                 } else {

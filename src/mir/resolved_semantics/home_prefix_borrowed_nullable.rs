@@ -87,6 +87,17 @@ impl PrefixLocalFlow<'_> {
         }
     }
 
+    /// Exact stored Map borrower on the current source path. This lends no
+    /// generic Handle observation and never substitutes the holder as payload.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_map_receiver_v1(
+        &self, site: &SourceExprSiteV1, loan: &BorrowedNullableLocalSourceLoanV1,
+    ) -> bool {
+        self.input.function().variable_ref(site) == Some(ResolvedLexicalRefV1::Local(loan.destination()))
+            && loan.is_map_slot() && loan.destination().owner() == self.input.owner()
+            && self.is_self_rooted_handle(loan.support_root())
+            && matches!(self.locals.get(&loan.destination()), Some(StoredLocal::BorrowedNullable(same)) if same.as_ref() == loan)
+    }
+
     /// Only the exact result binding on this non-null path lends its loan.
     /// General argument/field observation stays BoundValue, even after narrowing.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_nullable_return(

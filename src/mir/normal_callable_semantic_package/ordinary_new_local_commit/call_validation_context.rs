@@ -229,6 +229,36 @@ impl<'a> CallValidationContextV1<'a> {
         self.with_taken_packet_v1(site, |packet| check(packet.original_row()?))
     }
 
+    /// Borrow the payload's SAME producer Normal and original LocalSSA chain.
+    /// The lifetime holder never supplies the payload value; no Home is issued.
+    pub(in crate::mir) fn require_borrowed_map_receiver_v1(
+        self, row: &LexicalInstanceCallDispositionRowV1,
+        read: &crate::mir::builder::ExactLexicalReadV1,
+    ) -> Result<(), String> {
+        let Some(loan) = row.source_target().borrowed_receiver_source_v1() else { return Ok(()); };
+        self.ledger().corroborate_unit_discard_v1(row)?;
+        let source = self.ledger().borrowed_nullable_call_source_v1(loan.call())
+            .ok_or_else(|| freeze("borrowed-return/original-loan"))?;
+        if source.borrowed_nullable() != Some(loan)
+            || source.local_binding().map(|(_, binding)| binding) != Some(loan.destination()) {
+            return Err(freeze("borrowed-return/original-contract"));
+        }
+        read.value_for(row.call_site().owner(), row.receiver_site().node(), loan.destination())
+            .map_err(|_| freeze("borrowed-return/original-contract"))?;
+        let (initializer, _) = read.loan_local_initializer_v1(loan.destination())?;
+        self.with_taken_packet_v1(loan.call(), |packet| {
+            let original = packet.original_row()?;
+            let result = crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { support: loan.result_support_v1() };
+            if original.source_target().borrowed_nullable_local_source() != Some(loan)
+                || self.ledger().corroborate_borrowed_nullable_call_v1(original)?
+                    != result
+                || packet.value_in_context_v1(source.owner(), source.arguments(), self)? != initializer {
+                return Err(freeze("borrowed-return/original-contract"));
+            }
+            Ok(())
+        })
+    }
+
     pub(in crate::mir) fn original_scalar_call_result_v1(self,
         source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
     ) -> Result<ValueId, String> {

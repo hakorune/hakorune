@@ -175,7 +175,13 @@ fn emit_lexical_i64_call(
                 observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments
                     && observation.mixed() == instance.source_target().mixed_local_source())
             && (instance.source_target().is_self_receiver() || instance.source_target().stored_receiver().is_some());
-        if !borrowed_self && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
+        let borrowed_map_receiver = instance.source_target().borrowed_receiver_source_v1().is_some()
+            && kind == InvokeCallResultKind::Unit
+            && ledger.unit_discard_source_v1(row.call_site()).is_some_and(|observation|
+                observation.unit_source() == Some(instance.source_target())
+                    && observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments)
+            && ledger.checked_borrowed_map_receiver_source_v1(instance.source_target())?;
+        if !borrowed_self && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
             return Err(freeze("lexical-i64-receiver-home-missing"));
         }
     }

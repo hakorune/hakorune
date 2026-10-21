@@ -198,6 +198,56 @@ impl LexicalReceiverClassSourceV1<'_> {
         }
     }
 
+    /// Structural source precondition only. Numeric writer closure and every
+    /// physical borrow still belong to the late Call and final consumers.
+    pub(super) fn borrowed_receiver_interval_v1(
+        &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        need: &LexicalInstanceCallNeedV1, callee_slot: u32,
+        loan: &super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1,
+    ) -> Result<bool, String> {
+        use crate::mir::resolved_semantics::{BodyEffectKindV1 as Effect,
+            BodyExpressionShapeV1 as Shape, BodyMeReceiverV1, ResolvedAssignmentTargetV1,
+            ResolvedLexicalRefV1 as Ref, SourcePathSegmentV1 as Part};
+        if !loan.is_map_slot() || loan.destination() != need.receiver_binding
+            || loan.call().owner() != need.owner { return Ok(false); }
+        let caller = batch.with_lowering_input(need.callee_slot, |input| {
+            let Some(shape) = input.body_shape() else { return false; };
+            let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false; };
+            let [Part::Body(start), Part::Initializer(_)] = loan.call().site().node().segments() else { return false; };
+            let [Part::Body(end)] = need.call_site.node().segments() else { return false; };
+            let inside = |site: &SourceExprSiteV1| matches!(site.node().segments().first(),
+                Some(Part::Body(index)) if start <= index && index <= end);
+            let boundary = |site: &SourceExprSiteV1| site == loan.call().site() || site == &need.call_site;
+            input.owner() == need.owner && start < end
+                && input.function().variable_ref(&need.receiver_site) == Some(Ref::Local(loan.destination()))
+                && ledger.uncaptured_binding(loan.destination())
+                && shape.effects().iter().filter(|effect| inside(&effect.site))
+                    .all(|effect| effect.kind == Effect::Call && boundary(&effect.site))
+                && !ledger.direct_call_observations().any(|(site, _)| inside(site))
+                && ledger.method_calls().filter(|(site, _)| inside(site)).all(|(site, _)| boundary(site))
+                && !input.function().expression_source().constructions().any(|new| inside(new.site()))
+                && ledger.capture_demands().is_empty()
+        }).map_err(|_| freeze("lexical-instance-call/batch-loan"))?;
+        if !caller { return Ok(false); }
+        batch.with_lowering_input(callee_slot, |input| {
+            let Some(shape) = input.body_shape() else { return false; };
+            let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false; };
+            if ledger.method_calls().next().is_some() || ledger.direct_call_observations().next().is_some()
+                || !ledger.capture_demands().is_empty()
+                || input.function().expression_source().constructions().next().is_some()
+                || shape.effects().iter().any(|effect| effect.kind != Effect::Write) { return false; }
+            let assignments = shape.assignment_sources();
+            let writes: Vec<_> = self.field_write_claims.writes().iter().filter(|write| write.owner() == input.owner()).collect();
+            if assignments.len() != writes.len() { return false; }
+            assignments.iter().all(|assignment| {
+                let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) = input.function().assignment_target(assignment.target_site())
+                    else { return false; };
+                matches!(shape.expression_shape(receiver), Some(Shape::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
+                    if writes.iter().filter(|write| write.assignment() == assignment && write.receiver() == Some(*binding)).count() == 1)
+            })
+        }).map_err(|_| freeze("lexical-instance-call/batch-loan"))
+    }
+
     /// Prove one claim-local receiver's class from its sole initializer
     /// inside the callee itself: an ordinary-new claim (`local x = new
     /// C()`), a `me.f` field read whose field carries a field-write

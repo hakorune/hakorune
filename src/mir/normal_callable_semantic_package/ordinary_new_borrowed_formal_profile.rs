@@ -283,6 +283,38 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             ))
         }
     };
+    // Receiver provenance was discovered before LOCAL result qualification.
+    // Reborrow the producer's SAME witness graph now; never keep a second
+    // equal-content Call graph as the consumer's lifetime source.
+    if let Ok(rows) = &mut needs {
+        let mut producers = BTreeMap::new();
+        for need in rows.iter().filter_map(|row| row.as_ref().ok().and_then(Option::as_ref)) {
+            if let LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(loan) = need.result_requirement() {
+                if producers.insert(loan.call().clone(), loan.clone()).is_some() {
+                    return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: loan.call().clone(), issue: freeze("borrowed-formal/duplicate-source-call"),
+                    });
+                }
+            }
+        }
+        for need in rows.iter_mut().filter_map(|row| row.as_mut().ok().and_then(Option::as_mut)) {
+            let PreparedSourceCallNeedV1::Lexical(target) = need else { continue; };
+            let Some(proposed) = target.borrowed_receiver_source.as_deref() else { continue; };
+            let check = || -> Result<_, String> {
+                let original = producers.get(proposed.call()).ok_or_else(|| freeze("borrowed-nullable/source-missing"))?;
+                for loan in [proposed, original.as_ref()] {
+                    callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected,
+                        field_write_claims, contracts, loan, app_main.map(|main| main.caller_source_ref_v1())).map_err(freeze)?;
+                }
+                if proposed.destination() != original.destination() || proposed.declaration() != original.declaration() {
+                    return Err(freeze("borrowed-nullable/source-identity"));
+                }
+                Ok(original.clone())
+            };
+            target.borrowed_receiver_source = Some(check().map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: target.call_site.clone(), issue })?);
+        }
+    }
     let mut static_source_sites: Result<BTreeSet<OwnedExprSiteV1>, String> = Ok(static_arguments
         .iter()
         .filter(|(_, fact)| fact.call_source().is_qualified_i64_source_v1())

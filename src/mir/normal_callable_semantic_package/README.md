@@ -2111,9 +2111,19 @@ final role and ABI/JSON/C remain required; unconnected publication stays refused
 also accepts a rechecked completed input row without lending result execution.
 
 Borrowed nullable LOCAL observation retains the SAME source loan in a separate
-non-owning local slot. General observation stays BoundValue; only the exact null
-comparison successor may lend a typed terminal retaining both destination and
-original root. Joins/rebinds retain existing liveness laws. The shared source-only Normal
+non-owning local slot. General observation stays BoundValue. A MapSlot Unit receiver
+must retain that exact stored borrower and live holder. Original target issuance
+checks the source interval and complete callee effect structure; late finishing
+requires the producer Ready and all callee writes to match qualified Entry numeric
+RHS sources, with empty implicit-exit Homes. Unknown effects and nonnumeric writes
+remain refused. Receiver discovery reborrows the producer's SAME Call witness graph
+before the original incoming inventory, after checking both against the unique source.
+The physical receiver must be the same producer Normal through its original LocalSSA
+initializer/Copy chain. Lowering and finalized consumers share that correspondence;
+Copy dependencies remain in final scope validation. The holder is never the payload,
+and this path creates no Home or End. Formal-forward terminals still require the
+exact null-comparison successor, destination and original root.
+Joins/rebinds retain existing liveness laws. The shared source-only Normal
 projection now rechecks the exact original observation, LOCAL declaration,
 destination, root, Return value site, covered Call and complete original result
 witness Rc roots. It preserves every original Home on both Normal and Fault;

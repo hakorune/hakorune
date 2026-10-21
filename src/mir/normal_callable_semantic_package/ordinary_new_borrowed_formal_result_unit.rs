@@ -137,7 +137,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(completion))
     }
 
-    fn original_unit_completion_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn original_unit_completion_v1(
         &self, source: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>, String> {
         let LexicalCallSourceResultRequirementV1::UnitDiscardSource(original) = &source.result_requirement
@@ -225,9 +225,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(crate) fn corroborate_unit_discard_v1(&self, row: &LexicalInstanceCallDispositionRowV1) -> Result<(), String> {
-        if row.source_target().borrowed_receiver_source_v1().is_some() {
-            return Err(freeze("unit-call/retained-completion-drift"));
-        }
+        self.checked_borrowed_map_receiver_source_v1(row.source_target())?;
         let completion = self.original_unit_completion_v1(row.source_target())?;
         if row.result() != Some(InvokeCallResultKind::Unit) || row.scalar_result.is_some() || row.object_packet.is_some()
             || row.unit_completion.as_ref().is_none_or(|retained| !Rc::ptr_eq(retained, &completion)) {

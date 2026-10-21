@@ -511,7 +511,7 @@ pub(crate) fn issue_lexical_i64_discard_call<E>(
         input.owner(),
         SourceExprSiteV1::from_node(statement.site().node().clone()),
     );
-    match unit_discard::demand_v1(input, statement, &site, prior_homes, borrowed_arguments)? {
+    match unit_discard::demand_v1(input, statement, &site, prior_homes, locals, borrowed_arguments)? {
         unit_discard::UnitDiscardDemandV1::Unselected => {},
         unit_discard::UnitDiscardDemandV1::Refused => return Ok(None),
         unit_discard::UnitDiscardDemandV1::Ready(observation) => return Ok(Some(observation)),
