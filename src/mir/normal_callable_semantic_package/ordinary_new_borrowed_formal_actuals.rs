@@ -707,8 +707,11 @@ mod discard_tests;
 mod static_source;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::{original_static_source_v1, project_current_owner_loop_scalar_source_v1, bind_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_finite_entry_read_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_current_owner_static_source_arguments_v1;
-pub(crate) use static_source::StaticResultSourceLoanV1;
-pub(in crate::mir::normal_callable_semantic_package) use static_source::{project_pending_static_source_arguments_v1, source_static_result_arguments_v1};
+#[path = "ordinary_new_borrowed_call_result_source.rs"]
+mod call_result_source;
+pub(crate) use call_result_source::OrdinaryResultSourceLoanV1;
+pub(in crate::mir::normal_callable_semantic_package) use call_result_source::source_ordinary_result_arguments_v1;
+pub(in crate::mir::normal_callable_semantic_package) use static_source::{project_pending_static_source_arguments_v1};
 
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_actual_source_atom_tests.rs"]

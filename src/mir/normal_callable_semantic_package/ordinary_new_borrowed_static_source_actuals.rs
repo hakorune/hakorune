@@ -10,8 +10,8 @@ use std::rc::Rc;
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
 pub(super) use argument_source::{validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1, source_static_result_arguments_v1};
-pub(crate) use argument_source::{ArgumentExpressionSourceLoanV1, StaticResultSourceLoanV1};
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
+pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::{complete_argument_expression_v1, stage_observed_call_actuals_v1};
 
 #[path = "ordinary_new_borrowed_initializer_text_source.rs"]
@@ -275,6 +275,12 @@ pub(super) fn prepare_static_source_actuals_v1(
                 return Err(freeze("borrowed-static/forward-source-identity"));
             }
         }
+        let unavailable = || {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[static-actual/source] call={call:?} ordinal={} formal={:?} value={:?}", actual.ordinal, formal.kind, actual.value);
+            }
+            freeze("borrowed-static/source-actual-unavailable")
+        };
         let integer = match &actual.value {
             BorrowedCallActualValueV1::Integer(_) => true,
             BorrowedCallActualValueV1::Expression if matches!(&formal.kind,
@@ -310,11 +316,11 @@ pub(super) fn prepare_static_source_actuals_v1(
                     continue;
                 }
                 let receipt = core_argument_source_v1(prepared, &site, method, &formal.kind)?
-                    .ok_or_else(|| freeze("borrowed-static/source-actual-unavailable"))?;
+                    .ok_or_else(unavailable)?;
                 core_arguments.insert(actual.ordinal, receipt);
                 false
             }
-            _ => return Err(freeze("borrowed-static/source-actual-unavailable")),
+            _ => return Err(unavailable()),
         };
         let argument = match &formal.kind {
             kind if kind.is_ordinary_borrowed_handle() => LocalCallArgumentV1::BorrowedActual {

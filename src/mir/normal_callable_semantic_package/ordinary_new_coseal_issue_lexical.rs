@@ -377,12 +377,9 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     }
     super::super::lexical_instance_call::recheck_pending_array_source_actuals_v1(source, pending, classes, targets, site)
         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
-    if matches!(
-        request,
-        BorrowedCallActualRequestV1::SourceResultArguments
-    ) {
-        if let Some(text) = super::super::lexical_instance_call::source_static_result_arguments_v1(
-            source, pending, contracts, site, selected, completed,
+    if let BorrowedCallActualRequestV1::SourceResultArguments { expression } = request {
+        if let Some(text) = super::super::lexical_instance_call::source_ordinary_result_arguments_v1(
+            source, pending, contracts, site, targets, selected, completed, expression,
         ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })? {
             return Ok(Some(text));
         }
@@ -632,7 +629,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(_)
         | BorrowedCallActualRequestV1::MixedLocalArguments(_)
-        | BorrowedCallActualRequestV1::SourceResultArguments
+        | BorrowedCallActualRequestV1::SourceResultArguments { .. }
         | BorrowedCallActualRequestV1::SourceUnitDiscardArguments
         | BorrowedCallActualRequestV1::ObjectArguments(..) => {
             unreachable!("observation handled before demand")
@@ -790,19 +787,7 @@ pub(super) fn has_stored_terminal_v1(
 #[path = "ordinary_new_borrowed_static_dispatch_tests.rs"]
 mod static_dispatch_tests;
 
-/// Same entry-receiver observation, restricted to its original non-null role.
-pub(super) fn has_object_receiver_call_at_v1(
-    observations: &BTreeMap<
-        OwnedExprSiteV1,
-        super::super::receiver_call_observation::ReceiverCallClassObservationV1,
-    >,
-    site: &OwnedExprSiteV1,
-) -> bool {
-    matches!(
-        observations.get(site).map(|row| row.class()),
-        Some(super::super::result_class_claim::OrdinaryNewResultClassV1::Object(_))
-    )
-}
+pub(super) use super::super::receiver_call_observation::has_object_receiver_call_at_v1;
 
 #[cfg(test)]
 #[path = "ordinary_new_receiver_source_role_tests.rs"]

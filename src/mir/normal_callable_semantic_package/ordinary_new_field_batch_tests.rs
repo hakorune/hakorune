@@ -360,7 +360,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                         &mut |site| crate::mir::resolved_semantics::home_new_prefix::issue_source_scalar_expression_call(
                             input, statement.site(), site, &homes, &mut |_| None,
                             &mut |site, request| {
-                                assert!(matches!(request, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::SourceResultArguments));
+                                assert!(matches!(request, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::SourceResultArguments { .. }));
                                 super::super::super::lexical_instance_call::source_scalar_result_arguments_v1(
                                     &prepared, &package.parameter_contracts,
                                     ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_formal_actuals,

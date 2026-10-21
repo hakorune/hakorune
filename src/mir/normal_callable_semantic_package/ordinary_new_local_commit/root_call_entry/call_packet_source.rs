@@ -235,10 +235,10 @@ impl<'a> CallPacketSourceLoanV1<'a> {
                 match observation.result() {
                     Class::I64 => Some(InvokeCallResultKind::I64),
                     Class::Bool if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool
-                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Static(source))
-                            if source.result() == Class::Bool && Rc::ptr_eq(source.source(), original)) => Some(InvokeCallResultKind::Bool),
+                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Ordinary(source))
+                            if source.result() == Class::Bool && source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, original))) => Some(InvokeCallResultKind::Bool),
                     Class::Text if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
-                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Static(source)) if source.result() == Class::Text && Rc::ptr_eq(source.source(), original)) => Some(InvokeCallResultKind::OwnedString),
+                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Ordinary(source)) if source.result() == Class::Text && source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, original))) => Some(InvokeCallResultKind::OwnedString),
                     _ => None,
                 }
             }

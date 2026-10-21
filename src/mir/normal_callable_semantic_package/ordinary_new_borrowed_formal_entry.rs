@@ -674,6 +674,10 @@ impl OrdinaryNewClaimLedgerV1 {
             self.corroborate_mixed_call_using_v1(row, context)?;
             return Ok(Some(actuals));
         }
+        if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) {
+            self.corroborate_local_instance_text_call_v1(row)?;
+            return Ok(Some(actuals));
+        }
         let proof = self
             .borrowed_i64_results
             .get(&row.callee_owner())

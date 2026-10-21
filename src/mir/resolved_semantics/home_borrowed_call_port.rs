@@ -28,7 +28,10 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     StoredMapGetSource,
     ScalarArguments,
     I64ResultArguments,
-    SourceResultArguments,
+    SourceResultArguments {
+        /// The SAME original expression purpose; scalar-only requests carry None.
+        expression: Option<&'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    },
     SourceUnitDiscardArguments,
     ReceivedObjectArguments(
         crate::mir::resolved_semantics::BindingRefV1,

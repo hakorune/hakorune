@@ -55,7 +55,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                     if matches!(kind, crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
                         support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
                     } if original == field && payload == object) => {}
-                _ => return Err(fault("ordered-path/ingress-kind")),
+                _ => {
+                    if crate::config::env::builder_debug_enabled() {
+                        let entry_kind = if matches!(entry, RootHomeExitEntry::Call { .. }) { "Call" } else { "MapGet" };
+                        eprintln!("[root-cleanup/ingress] function={} entry={entry_kind} expected={kind:?} operation={operation:?}", function.signature.name);
+                    }
+                    return Err(fault("ordered-path/ingress-kind"));
+                },
             }
             let MirInstruction::InvokeNormalResult { dst, .. } = projected else {
                 return Err(fault("ordered-path/result"));

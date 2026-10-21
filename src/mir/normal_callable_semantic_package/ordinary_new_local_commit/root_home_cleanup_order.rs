@@ -222,15 +222,7 @@ impl RootHomeCleanupOrderV1 {
         normal.extend(self.normal());
         let mut acquisition_fault = prefix;
         acquisition_fault.extend(self.acquisition_fault());
-        let mut next = Self::from_sequences(full, &normal, &acquisition_fault)?;
-        next.direct = self.direct.take();
-        next.scalar = self.scalar.take();
-        next.null_return = self.null_return.take();
-        next.text_return_expression = self.text_return_expression.take();
-        next.text_return_hold = self.text_return_hold.take();
-        next.implicit_void = self.implicit_void.take();
-        *self = next;
-        Ok(())
+        self.replace_sequences(full, &normal, &acquisition_fault)
     }
 
     /// A completed pending Return result transfers only after prior cleanup.
@@ -242,14 +234,19 @@ impl RootHomeCleanupOrderV1 {
         if prefix.is_empty() { return Err(freeze("result-cleanup/empty-plan")); }
         let mut full = prefix;
         full.extend_from_slice(&self.full);
-        let mut next = Self::from_sequences(full, &self.normal(), &self.acquisition_fault())?;
-        next.direct = self.direct.take();
-        next.scalar = self.scalar.take();
-        next.null_return = self.null_return.take();
-        next.text_return_expression = self.text_return_expression.take();
-        next.text_return_hold = self.text_return_hold.take();
-        next.implicit_void = self.implicit_void.take();
-        *self = next;
+        self.replace_sequences(full, &self.normal(), &self.acquisition_fault())
+    }
+
+    /// Reorder obligations atomically without replacing their original source
+    /// products. New source fields must not require another hand-copy list.
+    fn replace_sequences(
+        &mut self, full: Vec<RootHomeReleaseOriginV1>, normal: &[RootHomeReleaseOriginV1],
+        acquisition_fault: &[RootHomeReleaseOriginV1],
+    ) -> Result<(), String> {
+        let next = Self::from_sequences(full, normal, acquisition_fault)?;
+        self.full = next.full;
+        self.normal = next.normal;
+        self.acquisition_fault = next.acquisition_fault;
         Ok(())
     }
 

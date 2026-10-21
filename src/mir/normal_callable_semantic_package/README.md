@@ -5059,6 +5059,17 @@ Completion cannot preempt a required original Text evaluation. New Return walk d
 requires an original non-self caller, so unused generated/self-only helpers stay passive;
 this is consumer membership, not Main reachability. Fresh Return consults passive Core
 sources before strict input demands; ordinary Call Returns retain their existing owner.
-Ordinary Text Call ABI
-and Zero/Uses inputs are connected; unknown-formal callee completion ordering and
-full application acceptance remain required connections through these same owners.
+Ordinary Text Call sources share one result loan with private Static/Instance
+origins; the outer scalar/result consumers gain no extra packet variant. Static
+catalog Text/Bool keeps its original early source rules. Instance Text borrows
+only the original ordinary Instance role, canonical target and completed Text
+Return source, before executable-input finishing. Its request carries the SAME
+original Print expression purpose; scalar requests retain their original issuer
+and refusal. Stored origins do not project into that role. Print shares the existing
+expression/Call writer and temporary cleanup. Late execution and both final result/actual consumers require the SAME
+Completion/terminal map, whole original incoming cohort and physical signature;
+source-only qualification grants no OwnedString permission. Text Invoke/Normal,
+Fault cancellation and final callee Return validation keep their existing owners.
+Cleanup reordering replaces only validated obligation sequences, preserving all
+original source products on the same order rather than hand-copying metadata.
+Full application acceptance remains required through those same owners.

@@ -56,7 +56,7 @@ mod model;
 mod ordinary_new_coseal;
 pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
 pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
-pub(crate) use ordinary_new_coseal::StaticResultSourceLoanV1;
+pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
 pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1};
 mod physical_header;
 mod physical_signature;

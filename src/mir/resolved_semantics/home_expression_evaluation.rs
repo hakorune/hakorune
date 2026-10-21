@@ -114,7 +114,7 @@ pub(super) fn owned_result_nodes(
 ) -> Box<[usize]> {
     order.iter().copied().filter(|node| add.contains(node) || cores.get(node).is_some_and(|core| core.owns_result())
         || calls.get(node).is_some_and(|call| call.result() == super::super::LocalCallResultClassV1::Text
-            && matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Static(loan)) if loan.result() == super::super::LocalCallResultClassV1::Text))).collect()
+            && matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Ordinary(loan)) if loan.result() == super::super::LocalCallResultClassV1::Text))).collect()
 }
 
 /// Existing purpose proofs live once, at the exact active source node. These

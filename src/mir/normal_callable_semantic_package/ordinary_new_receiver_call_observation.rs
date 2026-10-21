@@ -196,3 +196,17 @@ pub(super) fn observe_receiver_call_sites(
         );
     }
 }
+
+/// Same entry-receiver observation, restricted to its original non-null role.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn has_object_receiver_call_at_v1(
+    observations: &BTreeMap<
+        OwnedExprSiteV1,
+        ReceiverCallClassObservationV1,
+    >,
+    site: &OwnedExprSiteV1,
+) -> bool {
+    matches!(
+        observations.get(site).map(|row| row.class()),
+        Some(super::result_class_claim::OrdinaryNewResultClassV1::Object(_))
+    )
+}

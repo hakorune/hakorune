@@ -85,7 +85,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         && call.owner() == site.owner()
                         && (call.result() == LocalCallResultClassV1::I64 ||
                             call.result() == LocalCallResultClassV1::Bool && (call.borrowed_scalar().is_some()
-                                || matches!(call.result_source(), Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Static(source))
+                                || matches!(call.result_source(), Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(source))
                                     if source.result() == LocalCallResultClassV1::Bool)))
                 })
             })

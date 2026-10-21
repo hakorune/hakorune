@@ -242,6 +242,18 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
+    /// Original Instance target agreement, independent of executable input closure.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_instance_text_source_v1(
+        &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
+    ) -> bool {
+        let slot = source.target_batch_slot();
+        source.target().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            && selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) == Some(slot)
+            && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
+            && selected.role_for_batch_slot(slot) == Some(self.role)
+            && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
+    }
+
     /// Agreement with the independent ExactBool source result. An absent
     /// annotation alone never proves Bool or activates its physical ABI.
     pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {
@@ -299,12 +311,24 @@ impl CompletedTextResultSourceV1 {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
             &self.completion, &self.terminals).corroborates_static_text_source_v1(selected, source)
     }
+    pub(super) fn corroborates_instance(&self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
+        CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
+            &self.completion, &self.terminals).corroborates_instance_text_source_v1(selected, source)
+    }
     pub(super) fn matches_retained(&self, completion: &Rc<VerifiedFunctionCompletionV1>,
         terminals: &Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>) -> bool {
         Rc::ptr_eq(&self.completion, completion) && Rc::ptr_eq(&self.terminals, terminals)
     }
 }
 impl VerifiedCallableResultContractRowV1 {
+    pub(super) fn completed_instance_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::LexicalInstanceCallSourceTargetV1) -> Option<CompletedTextResultSourceV1> {
+        self.borrow().corroborates_instance_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {
+            owner: self.owner, identity: self.identity.clone(), role: self.role,
+            completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
+        })
+    }
     pub(super) fn completed_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
         source: &super::StaticIncomingSourceV1) -> Option<CompletedTextResultSourceV1> {
         self.borrow().corroborates_static_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {

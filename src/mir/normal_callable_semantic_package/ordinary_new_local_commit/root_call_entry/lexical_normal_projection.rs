@@ -188,6 +188,9 @@ impl EmittedLexicalCallProjectionV1 {
                 let context = context.ok_or_else(|| freeze("mixed-call/ledger-missing"))?;
                 context.ledger().corroborate_mixed_call_using_v1(row, context)?;
             }
+            if row.result() == Some(InvokeCallResultKind::OwnedString) {
+                ledger.ok_or_else(|| freeze("borrowed-call/source-missing"))?.corroborate_local_instance_text_call_v1(row)?;
+            }
             if row.result() == Some(InvokeCallResultKind::Unit) {
                 ledger.ok_or_else(|| freeze("unit-call/ledger-missing"))?.corroborate_unit_discard_v1(row)?;
             }
