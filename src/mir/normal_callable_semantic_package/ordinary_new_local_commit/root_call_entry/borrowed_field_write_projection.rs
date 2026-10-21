@@ -126,7 +126,8 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn validate_source_field_fault_v1(
         &self, function: &MirFunction, invoke: &Binding, rows: &[Binding], homes: &[LiveHomeV1],
     ) -> Result<(), String> {
-        let MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { .. },
+        let MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { .. }
+            | crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }),
             fault_landing, fault_frame, .. } = &invoke.1 else { return Err(freeze("field-read/fault-invoke")); };
         let operations = self.prior_home_unwind_for(homes)?;
         super::super::super::root_cleanup_graph::ordered_paths::pending_operations(

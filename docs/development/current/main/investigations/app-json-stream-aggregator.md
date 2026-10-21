@@ -1,28 +1,25 @@
 # APP-json-stream-aggregator
-Status: Direct get LOCAL/null/field source closes; physical LOCAL/Branch and final Map/native incomplete. Date: 2026-10-21
+Status: Checked get LOCAL transport connected; whole condition/Return source-use, Branch and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
 - Latest full suite (earlier commit): 7PASS/4FAIL, actual EXE6 + marker1, 419.936s,
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Selected JSON passes `reportUser` source-use closure; its direct get LOCAL stops
-  at ordinary-new/emission/map-get-source-missing (main.hako:160): physical packet
-  and same-value null Branch remain owed. No MIR/EXE; final Map/native also owed.
-- Current CLI55.20s/root~84s. Runtime/FFI unchanged; no new test functions/files.
+- Selected JSON now reaches get key issuance, then borrowed-entry/source-use-
+  completion-pending in reportUser. Original null guard + next Return reads remain
+  uncovered; actual app get Normal/receipt not yet observed. No MIR/EXE.
+- Current CLI27.11s/root~60s. Runtime/FFI unchanged; no new test functions/files.
 - Prior six Birth Text source→MIR/ABI/JSON cases pass; foreign-source refusal stays.
-- Former unsupported-Text negatives now use Float/Map with the same named refusal
-  and consumer topology; Text positives remain. Inventory9263, no new files/hooks/guards/cards.
-- Current40 filters match parent per-test outcomes/strict failures; source_scope3PASS,
-  constructor2PASS. Retained reds stay owed. Broad52 remains unconfirmed;
-  earlier FieldHas not remeasured, no waiver.
+- Inventory9263 unchanged; no new files/hooks/guards/cards. Source negatives retained.
+- Current42 filters match parent outcomes/strict diagnostics; retained reds stay owed.
+  Broad52 and earlier FieldHas remain unconfirmed, no waiver.
 
 ## Shared source and construction
 - One original FieldResidence census keeps every declared Array/Dynamic field,
   including Empty. Full reverse declaration drain precedes outer End; no subset proof.
-- Original Birth formal declarations, raw uses and unqualified store sites remain
-  unchanged. SAME immutable ConstructionPlan execution supplies modes and Fault
-  prefixes. Full formal/site census and Text-only SUM qualify Text, not MIR types.
+- Original Birth formal/use/store sites and SAME ConstructionPlan retain modes,
+  Fault prefixes and complete census; Text-only SUM qualifies Text, not MIR types.
 - Birth ABI retains SAME source/execution. Late update preflights LOCAL/Result and
   both early handoff indexes; emitted local/provider records forbid replacement.
 - The original Parameter binding selects its constructor ABI lane. Shared String
@@ -84,9 +81,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Direct get retains SAME census/get/current receiver, key/Homes and pure caller
   in existing Map/prefix/lifecycle. Source null proof distinguishes Entry/Initializer;
   Entry rejects LOCAL. Guard/use flow and numeric field roots close without a Home.
-- Shared physical get read checks original get/key/receiver/Invoke-Normal pair and
-  Finished; only Return lends callable support. Next LOCAL receipt/Fault/prefix,
-  then same-value Bool/Branch. Retire Local/field fences when both consumers close.
+- Shared get writer now transports raw Normal to real Local receipt/Copy, original
+  Fault Homes, mandatory prefix and final get visitor. Copy law/capture shared;
+  annotation contracts refuse early. Local fence retired; field fence stays.
+- Next same stored-get reference + Null law in existing Bool source/physical owner.
+  Missing Bool marks branch unavailable, so next Text Return is not collected;
+  close that cause, never exempt the five reads. App Normal/receipt still unproven.
 - Native Text formal/actual/Materialize/store/End/Fault closure remains required.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
   Array holder/contents/End and exact empty-transfer census remain owed.

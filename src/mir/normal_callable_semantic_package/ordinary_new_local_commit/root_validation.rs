@@ -501,14 +501,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("source-copy-local-unavailable"))?;
             result.push((local, *emitted));
         }
-        // Scalar expression locals use the same completed source receipt and
-        // the same boundary law as ordinary local Copies; Text reuse has none.
+        // Evaluated and nonowning get Locals retain the same completed receipt
+        // and boundary Copy law. Text reuse has no Copy.
         let roots = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
         let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&roots);
-        for packet in groups.iter().filter_map(|group| group.initializer()) {
-            if packet.receipt_copy_binding_v1().is_some() {
-                result.push((packet.local_value(), packet.value()));
-            }
+        for (local, value, _) in groups.iter().filter_map(|group| group.initializer_copy_receipt_v1()) {
+            result.push((local, value));
         }
         Ok(result)
     }

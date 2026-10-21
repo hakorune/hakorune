@@ -160,6 +160,20 @@ impl FinishedBindings {
         Ok(mapped)
     }
 
+    /// One completed Local receipt owns any permitted source-Copy omission.
+    pub(in super::super) fn validate_initializer_copy_observation_v1(
+        &self, observed: &(BasicBlockId, MirInstruction), function: &MirFunction,
+        projected: bool, copy: &(BasicBlockId, MirInstruction), local: ValueId, value: ValueId,
+    ) -> Result<bool, String> {
+        let expected = if projected { self.binding(copy.0, &copy.1)? } else { Some(copy.clone()) };
+        if expected.as_ref() != Some(observed) { return Ok(false); }
+        if self.captured_definition(local)? != copy
+            || self.source_local_copy_binding_v1(function, local, value)?.as_ref() != Some(copy) {
+            return Err(super::super::freeze("initializer-expression/local-copy-correspondence"));
+        }
+        Ok(true)
+    }
+
     /// Lend the captured local producer through the same exact Copy contract.
     pub(in super::super) fn source_local_copy_binding_v1(
         &self, function: &MirFunction, local: ValueId, result: ValueId,

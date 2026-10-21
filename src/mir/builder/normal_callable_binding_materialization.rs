@@ -151,10 +151,23 @@ impl RawInvocationChildPortV1<'_, '_> {
     ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> {
         let (Some(claims), Some(state)) = (self.ordinary_new_claim_ledger.clone(), self.callable_ledger.clone()) else { return Ok(None) };
         let site = self.current_callable_site_v1("initializer-expression/statement-site")?;
-        if claims.stored_map_get_local_source_v1(state.borrow().owner(), &site)?.is_some() {
-            // The exact source is selected. Do not descend through an ordinary
-            // Call/Map allocation until its own checked Local packet is connected.
-            return Err(super::ordinary_new_admission::selected::freeze("map-get-source-missing"));
+        let owner = state.borrow().owner();
+        if let Some(frame) = claims.stored_map_get_local_source_v1(owner, &site)? {
+            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+                return Err(freeze("initializer-expression/exact-source-required"));
+            };
+            let relation = state.borrow().expression_initializer(frame.site().site().node())?;
+            if context.site() != Some(frame.site().site().node()) || relation.binding() != frame.binding()
+                || relation.declaration_site() != frame.declaration()
+                || !matches!(frame.declaration(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal) {
+                return Err(freeze("initializer-expression/source-drift"));
+            }
+            if relation.declared_type_name().is_some() {
+                return Err(freeze("initializer-expression/local-contract-receipt-pending"));
+            }
+            let pending = super::ordinary_new_admission::selected::terminal_map_get::emit_local(
+                builder, &mut state.borrow_mut(), &claims, frame, ordinal)?;
+            return Ok(Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::StoredMapGet(pending)));
         }
         let Some(frame) = claims.initializer_expression_frame_v1(state.borrow().owner(), &site)? else { return Ok(None) };
         let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {

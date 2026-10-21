@@ -1,6 +1,6 @@
 //! The existing source-ordered binding group retains its original physical proof.
 //! Sharing a prefix between exits shares the packet, never its affine row.
-use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
+use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, StoredMapGetLocalEmissionV1};
 use super::*;
 use std::rc::Rc;
 #[path = "direct_scalar_call.rs"]
@@ -21,6 +21,7 @@ enum PrefixPhysicalProofV1 {
     Call(Option<Rc<EmittedLexicalCallProjectionV1>>),
     DirectScalar(Rc<DirectScalarCallProjectionV1>),
     EvaluatedBinding(EvaluatedBindingProjectionV1),
+    StoredMapGet(Rc<StoredMapGetLocalEmissionV1>),
     BoolCondition(Rc<EmittedBoolConditionProjectionV1>),
     PrintExpression(Rc<print_expression_projection::EmittedPrintExpressionProjectionV1>),
     OwnedArrayAppend(Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>),
@@ -175,8 +176,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
             let observed = match (self.projected, self.borrowed_field_write()) {
                 (false, Some(packet)) => packet.resolve_observed_binding_v1(&observed, false)?, _ => observed,
             };
-            if let (Some(packet), Some(boundary)) = (self.initializer(), finishing) {
-                if packet.validates_receipt_copy_v1(&observed, function, boundary, self.projected)? { continue; }
+            if let (Some((local, value, copy)), Some(boundary)) = (self.initializer_copy_receipt_v1(), finishing) {
+                if boundary.validate_initializer_copy_observation_v1(&observed, function, self.projected, copy, local, value)? { continue; }
             }
             if !super::super::physical_boundary::check_binding(function, finishing, observed.0, &observed.1)? {
                 return Err(format!("{} function={} site={:?} projected={} finishing={} binding={observed:?}",
@@ -199,7 +200,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn lexical(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.proof {
             PrefixPhysicalProofV1::Call(packet) => packet.as_deref(),
-            PrefixPhysicalProofV1::Loop(_) | PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::EvaluatedBinding(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
+            PrefixPhysicalProofV1::StoredMapGet(_) | PrefixPhysicalProofV1::Loop(_) | PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::EvaluatedBinding(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
         }
     }
 
@@ -252,6 +253,21 @@ impl RootLifecyclePrefixBindingGroupV1 {
         packet.validate_recorded(&bindings, None)?;
         Ok(Self { site: OwnedExprSiteV1::new(packet.frame().source().owner(), packet.frame().source().nodes()[0].site().clone()),
             bindings, proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)), projected: false })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn stored_map_get(&self) -> Option<&StoredMapGetLocalEmissionV1> {
+        match &self.proof { PrefixPhysicalProofV1::StoredMapGet(packet) => Some(packet), _ => None }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn initializer_copy_receipt_v1(&self)
+        -> Option<(ValueId, ValueId, &(BasicBlockId, MirInstruction))> {
+        if let Some(packet) = self.stored_map_get() { return Some(packet.copy_receipt()); }
+        let packet = self.initializer()?;
+        Some((packet.local_value(), packet.value(), packet.receipt_copy_binding_v1()?))
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn new_stored_map_get(packet: Rc<StoredMapGetLocalEmissionV1>) -> Result<Self, String> {
+        packet.validate_recorded(packet.bindings(), None)?;
+        Ok(Self { site: packet.frame().site().clone(), bindings: packet.bindings().to_vec(),
+            proof: PrefixPhysicalProofV1::StoredMapGet(packet), projected: false })
     }
 
     pub(in crate::mir) fn rebind(&self) -> Option<&binding_rebind_projection::EmittedBindingRebindProjectionV1> {
@@ -313,6 +329,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn matches_source(&self, source: &LifecyclePrefixSourceV1) -> bool {
         if self.site() != source.site() { return false; }
         match (&self.proof, source) {
+            (PrefixPhysicalProofV1::StoredMapGet(packet), LifecyclePrefixSourceV1::StoredMapGet { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
             (PrefixPhysicalProofV1::Loop(packet), LifecyclePrefixSourceV1::Loop { product, .. }) => Rc::ptr_eq(packet.product(), product),
             (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)), LifecyclePrefixSourceV1::InitializerExpression { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
             (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)), LifecyclePrefixSourceV1::BindingRebind { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
@@ -365,6 +382,10 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 packet.validate_expression_arguments_v1(context, function, finishing, &self.bindings, coordinates).map(drop)
             },
             PrefixPhysicalProofV1::Call(None) => Ok(()),
+            PrefixPhysicalProofV1::StoredMapGet(packet) => {
+                packet.validate_recorded(&self.bindings, coordinates)?;
+                packet.validate_paths(context, function, finishing)
+            },
             PrefixPhysicalProofV1::DirectScalar(packet) => packet.validate(context, function, finishing, &self.bindings, coordinates),
             PrefixPhysicalProofV1::BoolCondition(packet) =>
                 packet.validate_recorded(&self.bindings, context, function, coordinates, finishing),
@@ -395,5 +416,24 @@ impl RootLifecyclePrefixBindingGroupV1 {
             proof: self.proof.clone(),
             projected: true,
         }
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn validate_stored_map_get_local_source_v1(&self,
+        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+    ) -> Result<(), String> {
+        let retained = self.stored_map_get_local_source_v1(frame.site().owner(), frame.statement().node())?
+            .ok_or_else(|| freeze("map-get-source-missing"))?;
+        let next = self.next_prefix_source_v2(frame.site().owner(), frame.site())?;
+        if !std::rc::Rc::ptr_eq(&retained, frame)
+            || !matches!(next.as_ref(), Some(crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1::StoredMapGet { frame: original, .. }) if std::rc::Rc::ptr_eq(&original, frame)) {
+            return Err(freeze("initializer-expression/source-prefix-order"));
+        }
+        Ok(())
+    }
+    pub(crate) fn record_stored_map_get_local_bindings_v1(&self, packet: std::rc::Rc<StoredMapGetLocalEmissionV1>) -> Result<(), String> {
+        self.prepare_local_call_binding_group(packet.frame().site().owner(),
+            RootLifecyclePrefixBindingGroupV1::new_stored_map_get(packet)?)?.commit()
     }
 }

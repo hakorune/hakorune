@@ -62,20 +62,6 @@ impl EmittedInitializerExpressionProjectionV1 {
             MirInstruction::InvokeNormalResult { dst, .. } if *dst == self.value))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn receipt_copy_binding_v1(&self) -> Option<&Binding> { self.copy.as_ref() }
-    /// Only this completed receipt can borrow the existing source-Copy omission
-    /// law. Finalized validate_paths still requires sealed relation_binding.
-    pub(super) fn validates_receipt_copy_v1(&self, observed: &Binding, function: &MirFunction,
-        boundary: &super::super::physical_boundary::FinishedBindings, projected: bool,
-    ) -> Result<bool, String> {
-        let Some(copy) = &self.copy else { return Ok(false) };
-        let expected = if projected { boundary.binding(copy.0, &copy.1)? } else { Some(copy.clone()) };
-        if expected.as_ref() != Some(observed) { return Ok(false); }
-        if boundary.captured_definition(self.local)? != copy
-            || boundary.source_local_copy_binding_v1(function, self.local, self.value)?.as_ref() != Some(copy) {
-            return Err(freeze("initializer-expression/local-copy-correspondence"));
-        }
-        Ok(true)
-    }
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedInitializerExpressionFrameV1>, value: ValueId, local: ValueId, copy: Option<Binding>,
         values: Vec<Option<Operand>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
@@ -144,26 +130,8 @@ impl EmittedInitializerExpressionProjectionV1 {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
-        if let Some(copy) = &self.copy {
-            let actual = match (finishing, context) {
-                (Some(boundary), CallValidationContextV1::Finalized(_)) => boundary.relation_binding(function, copy)?,
-                (Some(boundary), CallValidationContextV1::Lowering(_)) => {
-                    if boundary.captured_definition(self.local)? != copy { return Err(freeze("initializer-expression/local-copy-capture")); }
-                    None
-                }
-                (None, _) => Some(copy.clone()),
-            };
-            if let Some((block, instruction)) = actual {
-                let mut definitions = function.blocks.iter().flat_map(|(id, body)| body.all_instructions()
-                    .map(move |row| (*id, row))).filter(|(_, row)| row.dst_value() == Some(self.local));
-                if function.params.contains(&self.local) || definitions.next() != Some((block, &instruction)) || definitions.next().is_some() {
-                    return Err(freeze("initializer-expression/local-definition-identity"));
-                }
-                if !super::super::physical_boundary::check_binding(function, None, block, &instruction)? {
-                    return Err(freeze("initializer-expression/local-copy-missing"));
-                }
-            }
-        }
+        context.ledger().validate_initializer_local_copy_v1(context, function, finishing,
+            self.value, self.local, self.copy.as_ref())?;
         self.expression().validate_local_continuation_v1(context, function, finishing, &self.entry, &self.terminal, &self.continuation, self.install.as_ref(), None)
     }
 }
@@ -189,3 +157,38 @@ impl OrdinaryNewClaimLedgerV1 {
 #[cfg(test)]
 #[path = "initializer_expression_projection_tests.rs"]
 mod tests;
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Same completed Local Copy law for scalar/Text and nonowning get purposes.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_initializer_local_copy_v1(
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        value: ValueId, local: ValueId, copy: Option<&Binding>,
+    ) -> Result<Option<Binding>, String> {
+        if let Some(copy) = copy {
+            if !matches!(copy.1, MirInstruction::Copy { dst, src } if dst == local && src == value) {
+                return Err(freeze("initializer-expression/local-copy-receipt"));
+            }
+            let actual = match (finishing, context) {
+                (Some(boundary), CallValidationContextV1::Finalized(_)) => boundary.relation_binding(function, copy)?,
+                (Some(boundary), CallValidationContextV1::Lowering(_)) => {
+                    if boundary.captured_definition(local)? != copy { return Err(freeze("initializer-expression/local-copy-capture")); }
+                    None
+                }
+                (None, _) => Some(copy.clone()),
+            };
+            if let Some((block, instruction)) = &actual {
+                let mut definitions = function.blocks.iter().flat_map(|(id, body)| body.all_instructions()
+                    .map(move |row| (*id, row))).filter(|(_, row)| row.dst_value() == Some(local));
+                if function.params.contains(&local) || definitions.next() != Some((*block, instruction)) || definitions.next().is_some() {
+                    return Err(freeze("initializer-expression/local-definition-identity"));
+                }
+                if !super::super::physical_boundary::check_binding(function, None, *block, instruction)? {
+                    return Err(freeze("initializer-expression/local-copy-missing"));
+                }
+            }
+            return Ok(actual);
+        }
+        Ok(None)
+    }
+}

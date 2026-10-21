@@ -2124,9 +2124,14 @@ from original Initializer roots. Entry projections reject Initializer; LOCAL
 reads recheck the same complete flow, guard/use values and exact original get.
 The existing field-path owner retains this frame/proof and closed numeric writer
 source. A get is mandatory lifecycle membership, not a Map allocation. Its checked
-LOCAL packet and same-value physical nonnull Branch remain unconnected and refuse
-before ordinary descent/field execution; this source does not grant a Home/End.
-The Object finisher never upgrades it into an owning result. Physical Return,
+LOCAL transport uses the same passive key/receiver writer and sole Invoke writer.
+The raw borrowed Normal waits for the actual Local receipt, then joins the existing
+mandatory prefix group with its Copy, prior-Homes Fault graph and Finished capture.
+Scalar and get Locals share the same receipt/Copy law; only Return lends callable
+support. Annotation contracts remain refused before emission. The final get visitor
+checks the same constructor source and module image. Full condition/Return source-use
+and same-value nonnull Branch remain owed; field execution stays refused. No Home/End
+is granted, and the Object finisher never upgrades it into an owning result. Physical Return,
 final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.
 

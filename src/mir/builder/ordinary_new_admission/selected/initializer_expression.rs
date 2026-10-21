@@ -7,14 +7,41 @@ use crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressio
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
-pub(in crate::mir::builder) struct PendingInitializerExpressionV1 {
+/// One pending Local transport, with purpose-specific value and publication laws.
+pub(in crate::mir::builder) enum PendingInitializerExpressionV1 {
+    Expression(PendingEvaluatedInitializerV1),
+    StoredMapGet(terminal_map_get::PendingLocalV1),
+}
+impl PendingInitializerExpressionV1 {
+    pub(in crate::mir::builder) fn ordinal(&self) -> u32 {
+        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal() }
+    }
+    pub(in crate::mir::builder) fn value(&self) -> ValueId {
+        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value() }
+    }
+    pub(in crate::mir::builder) fn placement(&self, value: ValueId) -> Result<crate::mir::builder::stmts::variable_stmt::LocalValuePlacement, String> {
+        match self {
+            Self::Expression(p) => p.placement(value),
+            Self::StoredMapGet(p) if p.value() == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
+            _ => Err(freeze("initializer-expression/placement-value")),
+        }
+    }
+    pub(in crate::mir::builder) fn publish(self,
+        receipt: &crate::mir::builder::stmts::CompletedLocalBindingV1,
+        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<(), String> {
+        match self { Self::Expression(p) => p.publish(receipt, ledger, function), Self::StoredMapGet(p) => p.publish(receipt, ledger, function) }
+    }
+}
+
+pub(in crate::mir::builder) struct PendingEvaluatedInitializerV1 {
     ordinal: u32,
     frame: Rc<CheckedInitializerExpressionFrameV1>,
     expression: EmittedExpressionValueV1,
     terminal: Binding,
     continuation: Binding,
 }
-impl PendingInitializerExpressionV1 {
+impl PendingEvaluatedInitializerV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 { self.ordinal }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
         match self.expression.value { Operand::NormalInteger(value) | Operand::OwnedString(value) => value, _ => unreachable!("checked Local initializer value") }
@@ -58,5 +85,5 @@ pub(in crate::mir::builder) fn emit(
     let (terminal, continuation) = if frame.is_text_residence() {
         expression_value::finish_residence_continuation(builder, &mut expression)?
     } else { expression_value::finish_scalar_continuation(builder, &mut expression)? };
-    Ok(PendingInitializerExpressionV1 { ordinal, frame, expression, terminal, continuation })
+    Ok(PendingInitializerExpressionV1::Expression(PendingEvaluatedInitializerV1 { ordinal, frame, expression, terminal, continuation }))
 }

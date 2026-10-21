@@ -132,12 +132,7 @@ impl StoredMapGetReturnSourceLoanV1 {
             else { unreachable!("source-issued stored get loan") };
         source
     }
-    pub(crate) fn require_receiver(&self, context: super::CallValidationContextV1<'_>,
-        function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
-    ) -> Result<ValueId, String> {
-        let (_, _, site) = self.parts();
-        self.get_source().receiver().require_receiver_at_v1(context, function, read, site)
-    }
+
 }
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn stored_map_get_return_source_v1(&self, owner: FunctionOwnerIdV1,

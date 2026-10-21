@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/emission/map-get-source-missing: reportUser checked LOCAL get Normal/Copy and same null Branch not connected; final Map/native incomplete"
+current_blocker_token = "ordinary-new/borrowed-entry/source-use-completion-pending: reportUser get key issuance needs original nullable Bool and following Text Return source-use; no app get Normal/receipt yet, final Map/native incomplete"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: shared physical get read separates original get/key/current receiver from Return-only callable support.
-Exact Invoke/Normal origin+landing and Finished binding checks retained; LOCAL receipt/Fault/prefix and nullable Branch remain unconnected.
-40filters match parent outcomes/strict failures; inventory9263 unchanged; two source refusals retained. CLI55.20s/root~84s,no new warnings.
-New CLI selected JSON still LOCAL map-get-source-missing,no MIR/EXE. Latest full suite earlier7PASS/4FAIL(actualEXE6+marker1),not rerun.
-Next reuse same read for real LOCAL receipt/Copy/Fault/prefix, then same-value Bool/Branch and final Map/ABI/native. No new tests/guards/cards/app edits.
+APP-json-stream-aggregator: checked get LOCAL transport joins same key/receiver writer, real receipt/Copy, original Fault Homes and mandatory/final group.
+New CLI passes Local fence to get-key source-use-completion-pending: original null guard + next Text Return uncollected; app Normal/receipt unproven,no MIR/EXE.
+42filters match parent outcomes/strict failures;inventory9263 unchanged,two source refusals retained. CLI27.11s/root~60s,no new warning symbols.
+Latest full suite earlier7PASS/4FAIL(actualEXE6+marker1),not rerun. No new tests/files/hooks/guards/cards/app edits; superseded own binaries removed.
+Next seed same stored-get ref/Null law in existing Bool source/physical owner; branch unavailable suppresses next Text Return. No read exemption; final Map/ABI/native owed.
 """
 next_design_card = "APP-json-stream-aggregator"
 next_design_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-21: Local get shares original key/receiver and sole Invoke writer; raw borrowed Normal waits for actual Local receipt/Copy. Same frame/key, prior-Homes Fault, mandatory prefix, Finished Copy capture and final get visitor retained. Scalar/get share existing Copy law; annotations refuse early. Removed Local fence and redundant Return receiver adapter; field/null proof still owed. Fixed RefCell scope bug found by smoke.42filters match parent outcomes/strict diagnostics;inventory9263 unchanged,two source refusals retain. CLI27.11s/root~60s,no new warning symbols. JSON now get-key source-use-completion-pending; debug proves original null guard and next Return reads uncovered, so app get Normal/receipt still unproven,no MIR/EXE. Worker identified Bool refusal→branch unavailable→Text Return skipped; next same get ref and Null law on existing Bool owner, never exempt reads. Latest suite earlier7/4 actualEXE6+marker1;goal active.",
   "2026-10-21: Shared physical stored-get read retains SAME source/get/key/current receiver without Return policy or callable ordinal. FieldGetIndexed uses original field and payload object; exact Invoke/Normal origin/landing and original/Finished binding checks precede key/Copy/continuation validation. Return wrapper retains original terminal/key and alone lends callable support; no second writer/verifier or new registry. Worker found no source/Finished regression. Existing Map13PASS;40filters match parent outcomes/strict failures;inventory9263 unchanged,two source refusals retained. CLI55.20s/root~84s,no new warnings. Selected JSON remains LOCAL map-get-source-missing,no MIR/EXE. Latest suite earlier7/4 actualEXE6+marker1,419.936s,not rerun. Next actual LOCAL receipt/Copy/priorHomes Fault/prefix on same read, then nullable Bool/Branch and final Map/ABI/native;goal active.",
   "2026-10-21: Direct get joins existing Map observation/nonowning prefix and mandatory lifecycle with SAME get/current receiver/key/Homes. Pure caller admits exact get/source Returns, excluding writes/other Calls/New/captures. SourceNullExclusion closes Entry/Initializer roots; guard/use same flow and initializer recheck, Entry rejects LOCAL. Numeric field-path retains frame/proof; field execution refuses until get Normal and nullable Branch close. Map allocation excludes borrowed get. Selected get refuses before ordinary descent while packet missing. Fixed unrelated initializer query regression without test edits.40filters match parent outcomes/strict failures;inventory9263 unchanged,two source refusals retain. CLI39.08s/root59.11s,no new warnings. JSON passes reportUser source-use to LOCAL map-get-source-missing,no MIR/EXE. Latest suite earlier7/4 actualEXE6+marker1,419.936s. Next physical get/Bool Branch,final Map/ABI/native;goal active.",
-  "2026-10-21: Shared stored-get source retains SAME Map whole-use census/original get Arc plus current function entry receiver and SAME all-writer field authority. Exact Return producer takes precedence; other gets require unique Rc support, no failed-source retry. Existing Return, physical receiver and finalized Birth consumers use the loan; key/get/receiver sites recheck. Removed repeated Return shape scan. Worker reviewed crossowner/ambiguity; LOCAL support must use original get/key/holder, not producer callable ordinal. 37filters match parent test outcomes/strict diagnostics;inventory9263 unchanged,existing two source-boundary negatives refuse. No new test functions/files/hooks/guards/cards/app edits. CLI38.03s/root62s,no new warning symbols. Selected JSON still reportUser owner29 source-use pending,no MIR/EXE. Latest suite remains parent7/4 actualEXE6+marker1,419.936s. Next LOCAL lifecycle/nonnull/field-to-Text and final Map/ABI/native;full goal active.",
 ]

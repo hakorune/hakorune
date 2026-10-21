@@ -715,7 +715,7 @@ impl OrdinaryNewClaimLedgerV1 {
 mod call_entry;
 #[path = "root_map_get_entry.rs"]
 mod map_get_entry;
-pub(crate) use map_get_entry::StoredMapGetReturnEmissionV1;
+pub(crate) use map_get_entry::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1};
 
 pub(in crate::mir) use call_entry::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,

@@ -149,20 +149,10 @@ pub(crate) struct StoredMapGetReturnEmissionV1 {
 }
 impl StoredMapGetReturnEmissionV1 {
     pub(crate) fn issue(source: crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1,
-        receiver: crate::mir::builder::ExactLexicalReadV1,
-        values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
-        reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
-        entry: (BasicBlockId, MirInstruction), terminal: (BasicBlockId, MirInstruction),
-        continuation: (BasicBlockId, MirInstruction), original: Vec<(BasicBlockId, MirInstruction)>,
-        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+        read: StoredMapGetReadEmissionV1, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        let read = StoredMapGetReadEmissionV1 {
-            source: source.get_source().clone(), key: std::rc::Rc::clone(source.parts().1),
-            receiver, values, reads, entry, terminal, continuation, original,
-        };
         let packet = Self { source, read };
         packet.operation(CallValidationContextV1::Lowering(ledger), function)?;
-        packet.read.expression().validate_source(CallValidationContextV1::Lowering(ledger))?;
         Ok(packet)
     }
     pub(super) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] { &self.read.original }
@@ -194,7 +184,7 @@ impl StoredMapGetReturnEmissionV1 {
 /// Physical observations of the SAME original get, passive key and receiver.
 /// This read owns no Return policy, callable ordinal or payload Home.
 #[derive(Debug)]
-struct StoredMapGetReadEmissionV1 {
+pub(crate) struct StoredMapGetReadEmissionV1 {
     source: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
     key: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     receiver: crate::mir::builder::ExactLexicalReadV1,
@@ -205,6 +195,22 @@ struct StoredMapGetReadEmissionV1 {
     original: Vec<(BasicBlockId, MirInstruction)>,
 }
 impl StoredMapGetReadEmissionV1 {
+    pub(in crate::mir) fn issue(source: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
+        key: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+        receiver: crate::mir::builder::ExactLexicalReadV1,
+        values: Vec<Option<crate::mir::instruction::StringInvokeOperand>>,
+        reads: std::collections::BTreeMap<usize, super::ExpressionReferenceReadV1>,
+        entry: (BasicBlockId, MirInstruction), terminal: (BasicBlockId, MirInstruction),
+        continuation: (BasicBlockId, MirInstruction), original: Vec<(BasicBlockId, MirInstruction)>,
+        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<Self, String> {
+        if !key.calls().is_empty() || !key.cores().is_empty() || !key.operations().is_empty()
+            || !key.owned_result_nodes().is_empty() { return Err(freeze("map-get-shape")); }
+        let read = Self { source, key, receiver, values, reads, entry, terminal, continuation, original };
+        read.operation(CallValidationContextV1::Lowering(ledger), function)?;
+        read.expression().validate_source(CallValidationContextV1::Lowering(ledger))?;
+        Ok(read)
+    }
     fn copy_dependencies(&self) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
         let mut rows = self.receiver.original_copy_dependencies_v1()?.to_vec();
         for read in self.reads.values() { rows.extend_from_slice(read.original_copy_dependencies_v1()?); }
@@ -213,7 +219,7 @@ impl StoredMapGetReadEmissionV1 {
     fn expression(&self) -> super::ExpressionPhysicalProjectionRefV1<'_> {
         super::ExpressionPhysicalProjectionRefV1::new(&self.key, &self.values, &[], &[], &self.reads, &self.original)
     }
-    fn operation(&self, context: CallValidationContextV1<'_>, function: &MirFunction) -> Result<InvokeOperation, String> {
+    pub(in crate::mir) fn operation(&self, context: CallValidationContextV1<'_>, function: &MirFunction) -> Result<InvokeOperation, String> {
         self.source.recheck_v1(context.ledger())?;
         let get = self.source.get();
         if self.values.len() != 1 || self.key.source().nodes().len() != 1
@@ -296,6 +302,18 @@ impl OrdinaryNewClaimLedgerV1 {
         module: &crate::mir::MirModule,
         mut visit: impl FnMut((BasicBlockId, MirInstruction)) -> Result<(), String>,
     ) -> Result<(), String> {
+        context.with_local_call_group_tree_v2(owner, |groups| {
+            for group in groups {
+                let Some(packet) = group.stored_map_get() else { continue };
+                group.validate_recorded_in_context(context, function, Some(finishing))?;
+                if let CallValidationContextV1::Finalized(source) = context {
+                    packet.frame.source().receiver().require_finished_birth_v1(source, module)?;
+                }
+                visit(finishing.binding(packet.invoke.0, &packet.invoke.1)?
+                    .ok_or_else(|| freeze("map-get-binding-missing"))?)?;
+            }
+            Ok(())
+        })?;
         let exits = self.root_exits.borrow();
         for ((actual, exit), row) in exits.iter().filter(|((actual, _), _)| *actual == owner) {
             let RootHomeExitProgress::Emitted { entry: RootHomeExitEntry::MapGet {
@@ -310,5 +328,79 @@ impl OrdinaryNewClaimLedgerV1 {
             visit(finishing.binding(invoke.0, &invoke.1)?.ok_or_else(|| freeze("map-get-binding-missing"))?)?;
         }
         Ok(())
+    }
+}
+
+/// A get becomes a Local group only after the sole Local writer's real receipt.
+/// No payload Home/End, callable support or replacement source index is issued.
+#[derive(Debug)]
+pub(crate) struct StoredMapGetLocalEmissionV1 {
+    frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+    read: StoredMapGetReadEmissionV1,
+    value: ValueId, local: ValueId, copy: (BasicBlockId, MirInstruction),
+    invoke: (BasicBlockId, MirInstruction), normal: (BasicBlockId, MirInstruction),
+    faults: Vec<(BasicBlockId, MirInstruction)>,
+    original: Vec<(BasicBlockId, MirInstruction)>,
+}
+impl StoredMapGetLocalEmissionV1 {
+    pub(crate) fn issue(frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        read: StoredMapGetReadEmissionV1, value: ValueId, local: ValueId, copy: (BasicBlockId, MirInstruction),
+        invoke: (BasicBlockId, MirInstruction), normal: (BasicBlockId, MirInstruction),
+        faults: Vec<(BasicBlockId, MirInstruction)>, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<Self, String> {
+        let mut original = read.copy_dependencies()?;
+        for row in read.original.iter().chain([&invoke, &normal, &copy]).chain(faults.iter()) {
+            if !original.contains(row) { original.push(row.clone()); }
+        }
+        let packet = Self { frame, read, value, local, copy, invoke, normal, faults, original };
+        packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
+        Ok(packet)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn frame(&self)
+        -> &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1> { &self.frame }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn bindings(&self)
+        -> &[(BasicBlockId, MirInstruction)] { &self.original }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn copy_receipt(&self)
+        -> (ValueId, ValueId, &(BasicBlockId, MirInstruction)) { (self.local, self.value, &self.copy) }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded(
+        &self, bindings: &[(BasicBlockId, MirInstruction)],
+        coordinates: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.read.expression().validate_recorded(bindings, coordinates)?;
+        for row in [&self.invoke, &self.normal].into_iter().chain(self.faults.iter()) {
+            let actual = match coordinates { Some(p) => p.binding(row.0, &row.1)?, None => Some(row.clone()) };
+            if actual.as_ref().is_some_and(|row| bindings.iter().filter(|b| *b == row).count() != 1) {
+                return Err(freeze("map-get-binding-drift"));
+            }
+        }
+        if coordinates.is_none() && bindings.iter().filter(|row| **row == self.copy).count() != 1 {
+            return Err(freeze("initializer-expression/local-copy-membership"));
+        }
+        Ok(())
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_paths(
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        let ledger = context.ledger();
+        let retained = ledger.stored_map_get_local_source_v1(self.frame.site().owner(), self.frame.statement().node())?
+            .ok_or_else(|| freeze("map-get-source-missing"))?;
+        if !std::rc::Rc::ptr_eq(&retained, &self.frame) || self.frame.source() != &self.read.source
+            || !std::rc::Rc::ptr_eq(self.frame.key(), &self.read.key)
+            || !matches!(self.copy.1, MirInstruction::Copy { dst, src } if dst == self.local && src == self.value)
+            || self.read.validate(context, function, finishing, &self.invoke, &self.normal)? != self.value {
+            return Err(freeze("map-get-shape"));
+        }
+        let copy = ledger.validate_initializer_local_copy_v1(context, function, finishing,
+            self.value, self.local, Some(&self.copy))?;
+        let map = |row: &(BasicBlockId, MirInstruction)| match finishing {
+            Some(p) => p.binding(row.0, &row.1)?.ok_or_else(|| freeze("map-get-binding-missing")),
+            None => Ok(row.clone()),
+        };
+        if let Some(copy) = copy {
+            super::ExpressionPhysicalProjectionRefV1::validate_normal_order_v1(function, &[map(&self.normal)?, copy])?;
+        }
+        let faults = match finishing { Some(p) => p.bindings(&self.faults)?, None => self.faults.clone() };
+        ledger.validate_source_field_fault_v1(function, &map(&self.invoke)?, &faults, self.frame.prior_homes())
     }
 }
