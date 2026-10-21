@@ -542,6 +542,12 @@ compatibility route, but they cannot consume or manufacture a source claim.
 Package completion rejects any unconsumed ordinary claim, so source-backed
 admission has no retry or post-lowering target inference.
 
+Birth ABI handoffs retain the same immutable construction execution as their
+source row. Late qualification preflights LOCAL/Result claims and both early
+handoff indexes before changing any entry; it is forbidden after a physical
+claim/provider take. Raw formal-use contracts remain unchanged. Final handoff
+equality requires the same source/execution loan, not a reconstructed equal plan.
+
 For selected direct `New`, the original ordered argument rows remain the only
 argument authority. Scalar Local/Handle/BoundValue retains its exact binding
 lane. Expression actuals use the SAME original New/site/ordinal/evaluation and

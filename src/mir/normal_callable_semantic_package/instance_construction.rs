@@ -175,6 +175,11 @@ impl ConstructionStoreExecutionV1 {
 pub(crate) type ConstructionEligibilityV1 = Result<ConstructionPlanV1, ConstructionUnavailableV1>;
 pub(crate) type ConstructionSourceEligibilityV1 = Result<Rc<ConstructionSourceStructureV1>, ConstructionUnavailableV1>;
 impl ConstructionPlanV1 {
+    /// A clone lends the same source and sealed execution, not an equivalent
+    /// independently reconstructed permission.
+    pub(super) fn same_execution_v1(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.execution, &other.execution)
+    }
     pub(crate) fn steps(&self) -> &[ConstructionSourceStepV1] { self.source.steps() }
     pub(crate) fn object(&self) -> CanonicalObjectIdV1 { self.source.object }
     pub(crate) fn constructor(&self) -> Option<&(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)> {

@@ -1,9 +1,9 @@
 # APP-json-stream-aggregator
-Status: Callee Text acquisition/store/cleanup emitted; Text ABI/native and Map publication incomplete. Date: 2026-10-21
+Status: SAME construction retained in Birth ABI handoffs; Text transport and Map publication incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 381.409s;
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 377.153s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
@@ -11,12 +11,11 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   fails at ordinary-new/lexical-instance-call/source-pending: processLine's
   `me.statsFor(user)` (apps/json-stream-aggregator/main.hako:129), owner26 Body5
   Initializer0 → callee25. Still no MIR/EXE; no app completion claim.
-- Final CLI41.63s/root61s; runtime/FFI unchanged, no new warning kinds.
-- Final36 filters match parent outcomes/strict failures; source_scope3PASS,
+- Final CLI100s/root145s; runtime/FFI unchanged, no new warning symbols.
+- Final37 filters match parent per-test outcomes/strict failures; source_scope3PASS,
   constructor2PASS, final Call4PASS, Copy4/1 retained missing callee. Inventory9263.
-- Initial new non-Text fixture regression corrected without changing expectations;
-  obsolete suite interrupted, not accepted. Broad52 remains unconfirmed
-  (parent timeout180/current stopped539), no waiver. Earlier FieldHas not remeasured.
+- Broad52 remains unconfirmed (parent timeout180/current stopped539), no waiver.
+  Earlier FieldHas not remeasured; retained reds remain required.
 
 ## Shared source and construction
 - One original FieldResidence census keeps every declared Array/Dynamic field,
@@ -26,6 +25,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - One immutable ConstructionPlan execution projection supplies demands, modes and
   Fault prefixes. Initial/late child-call/Text share checker/sealer. Text-only SUM
   qualifies same formal/site/ordinal in both claims before take; source unchanged.
+- Birth ABI retains SAME source/execution; equality rejects reconstructed plans.
+  Late update preflights LOCAL/Result plus both early handoff indexes before
+  mutation; emitted provider/local records forbid late replacement. Raw formals stay.
 - Callee keeps the same original resolved parameter list and execution SUM. Exact
   original Parameter binding selects its existing constructor ABI lane/SSA; the
   physical BorrowedTaggedValue marker grants no ordinary borrowed-entry authority.
@@ -39,6 +41,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   String checker pops newest temporary only on store Normal, retains it on Fault.
 - Subsequent Fault uses the qualified prefix including all committed Text/I64/Map.
   Provided remains caller-owned until Normal. Full End drains every residence.
+- Existing ABI-lane case also checks reissued handoff equality: same execution
+  identity is a loan boundary; no new source fixtures or test functions.
 - No new test functions/files/hooks/checkers/guards/cards; existing physical fixture
   records only populate the new optional fields. No application source changes.
 
@@ -76,9 +80,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   precommit keeps candidate, Normal moves once, no automatic source publication.
 
 ## Next and completion limits
-- Existing BirthAbiHandoff must retain SAME late-qualified execution plan. Update
-  LOCAL/Result and early handoff copies together; keep UnqualifiedFieldStores raw.
-  Join formal/actual Text loans, retained callee replay, module/JSON/native transport
+- Join retained Birth execution to formal/actual Text loans, retained callee
+  replay, module/JSON/native transport
   and End descriptor. Source formal grants permission; names/MIR types do not.
 - Then original Map FieldInstall/candidate/EndOutcome, exact prior/Normal cleanup,
   complete UserStats End, get/set Return and caller lifetime/publication.

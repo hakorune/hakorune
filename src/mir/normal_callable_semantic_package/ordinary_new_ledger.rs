@@ -34,13 +34,16 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     /// Existing source New claims already cloned initial eligibility. Update
-    /// both families before any physical take, retaining all other core products.
+    /// both families and every early ABI copy before any physical take,
+    /// retaining all other core products.
     pub(in crate::mir::normal_callable_semantic_package) fn install_late_constructor_plan_v1(
         &mut self,
         row: &VerifiedInstanceConstructorSemanticRowV1,
         plan: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionPlanV1,
     ) -> Result<(), String> {
-        if !self.local_commits.get_mut().is_empty() { return Err("[freeze:contract][constructor-unit/late-after-take]".into()); }
+        if !self.local_commits.get_mut().is_empty() || !self.provider_births.get_mut().is_empty() {
+            return Err("[freeze:contract][constructor-unit/late-after-take]".into());
+        }
         let matches = |core: &OrdinaryNewClaimCoreV1| -> Result<bool, String> {
             if !core.box_source.same_source_as(row.box_source_v1())
                 || &core.construction != row.construction() { return Ok(false); }
@@ -60,11 +63,27 @@ impl OrdinaryNewClaimLedgerV1 {
         // Preflight both maps before either mutates.
         for claim in self.claims.get_mut().values() { matches(&claim.core)?; }
         for claim in self.result_claims.get_mut().values() { matches(&claim.core)?; }
+        // Providers retain another early handoff in their destination-less
+        // index. Prepare every replacement before mutating any claim or index.
+        let handoffs = self.birth_abi_handoffs.get_mut().iter()
+            .filter(|(_, handoff)| handoff.source_id().same_as(row.source_id()))
+            .map(|(site, handoff)| Ok((site.clone(), handoff.with_late_construction_plan_v1(row, plan)?)))
+            .collect::<Result<Vec<_>, String>>()?;
+        let providers = self.birth_site_index.get_mut().iter()
+            .filter(|(_, (_, handoff))| handoff.source_id().same_as(row.source_id()))
+            .map(|(site, (_, handoff))| Ok((site.clone(), handoff.with_late_construction_plan_v1(row, plan)?)))
+            .collect::<Result<Vec<_>, String>>()?;
         for claim in self.claims.get_mut().values_mut() {
             if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
         }
         for claim in self.result_claims.get_mut().values_mut() {
             if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
+        }
+        for (site, handoff) in handoffs {
+            *self.birth_abi_handoffs.get_mut().get_mut(&site).expect("preflight retained ABI site") = handoff;
+        }
+        for (site, handoff) in providers {
+            self.birth_site_index.get_mut().get_mut(&site).expect("preflight retained provider site").1 = handoff;
         }
         Ok(())
     }

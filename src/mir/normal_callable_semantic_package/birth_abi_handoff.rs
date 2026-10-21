@@ -6,6 +6,7 @@
 
 use super::super::instance_constructor_semantic::BirthFormalContractV1;
 use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticRowV1;
+use super::super::instance_construction::{ConstructionEligibilityV1, ConstructionPlanV1};
 use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ReceiverPolicyV1, SemanticOwnerRootProfileV1,
@@ -40,7 +41,7 @@ impl BirthFormalLaneV1 {
 }
 
 /// Immutable source-to-ABI relation for one exact declared instance Birth.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub(crate) struct BirthAbiHandoffV1 {
     source_id: crate::parser::ConstructorSourceIdV1,
     object: CanonicalObjectIdV1,
@@ -50,10 +51,51 @@ pub(crate) struct BirthAbiHandoffV1 {
     receiver: BirthFormalLaneV1,
     parameters: Box<[BirthFormalLaneV1]>,
     formal_contracts: Box<[BirthFormalContractV1]>,
+    construction: ConstructionEligibilityV1,
     result: BirthResultAbiV1,
 }
 
+impl PartialEq for BirthAbiHandoffV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.source_id == other.source_id && self.object == other.object
+            && self.target == other.target && self.owner == other.owner
+            && self.abi == other.abi && self.receiver == other.receiver
+            && self.parameters == other.parameters && self.formal_contracts == other.formal_contracts
+            && self.result == other.result && self.matches_construction_v1(&other.construction)
+    }
+}
+impl Eq for BirthAbiHandoffV1 {}
+
 impl BirthAbiHandoffV1 {
+    fn matches_construction_v1(&self, other: &ConstructionEligibilityV1) -> bool {
+        match (&self.construction, other) {
+            (Ok(left), Ok(right)) => left.same_execution_v1(right),
+            (Err(left), Err(right)) => left == right,
+            _ => false,
+        }
+    }
+
+    /// Prepare a replacement before any ledger entry is changed. The raw
+    /// formal-use census and ABI lanes remain the original declaration loan.
+    pub(super) fn with_late_construction_plan_v1(
+        &self, row: &VerifiedInstanceConstructorSemanticRowV1, plan: &ConstructionPlanV1,
+    ) -> Result<Self, &'static str> {
+        if !self.source_id.same_as(row.source_id()) || self.object != row.object()
+            || row.published_birth_key() != Some(&self.target)
+            || self.formal_contracts.as_ref() != row.formal_contracts()
+            || !self.matches_construction_v1(row.construction())
+            || plan.object() != self.object
+            || !matches!(plan.constructor(), Some((source, owner))
+                if source.same_as(&self.source_id) && *owner == self.owner)
+            || !row.construction_source().as_ref().is_ok_and(|source|
+                std::rc::Rc::ptr_eq(source, plan.source_v1())) {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]");
+        }
+        let mut updated = self.clone();
+        updated.construction = Ok(plan.clone());
+        Ok(updated)
+    }
+
     pub(crate) fn issue(
         row: &VerifiedInstanceConstructorSemanticRowV1,
         target: CanonicalSameModuleCallableKeyV1,
@@ -149,6 +191,7 @@ impl BirthAbiHandoffV1 {
             receiver,
             parameters,
             formal_contracts: row.formal_contracts().to_vec().into_boxed_slice(),
+            construction: row.construction().clone(),
             result: BirthResultAbiV1::Unit,
         })
     }
@@ -230,5 +273,10 @@ mod tests {
             vec![(Some(0), 1), (Some(1), 2)]
         );
         assert_eq!(handoff.result(), BirthResultAbiV1::Unit);
+        // Reissuing from this same source row lends its existing execution;
+        // the final provider/claim join must not reconstruct that permission.
+        assert_eq!(handoff, BirthAbiHandoffV1::issue(
+            row, target, InstanceConstructorAbiV1::issue(2).expect("same ABI"),
+        ).expect("same source loan"));
     }
 }
