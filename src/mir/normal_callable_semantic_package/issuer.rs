@@ -618,7 +618,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &mut ordinary_new_claim_ledger,
     )?;
 
-    instance_constructors.finish_ordered_unit_plans_v1(&mut ordinary_new_claim_ledger)
+    instance_constructors.finish_execution_plans_v1(&mut ordinary_new_claim_ledger)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {

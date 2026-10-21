@@ -16,6 +16,10 @@ impl CallableSemanticLoweringState {
         provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
         self.construction.require_next_store(&taken.site)?;
+        if matches!(&self.construction, ConstructionState::Selected { stores, .. }
+            if stores.get(&taken.site).is_some_and(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize)) {
+            return Err(fault("source-or-cleanup-contract"));
+        }
         let source_ready = matches!(
             &self.construction,
             ConstructionState::Selected { stores, completed: false, .. }

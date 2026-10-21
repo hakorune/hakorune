@@ -165,8 +165,10 @@ struct ConstructionExecutionV1 {
 pub(crate) struct ConstructionStoreExecutionV1 {
     mode: crate::mir::instruction::FieldSetModeV1,
     fault_discharge: Box<[OwnedFieldChildV1]>,
+    text_input: Option<Rc<super::SourceValueSumV1>>,
 }
 impl ConstructionStoreExecutionV1 {
+    pub(in crate::mir) fn text_input_v1(&self) -> Option<&Rc<super::SourceValueSumV1>> { self.text_input.as_ref() }
     pub(crate) fn mode(&self) -> crate::mir::instruction::FieldSetModeV1 { self.mode }
     pub(crate) fn fault_discharge(&self) -> &[OwnedFieldChildV1] { &self.fault_discharge }
 }
@@ -617,72 +619,9 @@ pub(super) fn issue_construction_source_v1(
     }
     // Retain the original stores even when their executable Home contract is
     // unavailable. ConstructionPlan still requires this SAME qualification.
-    plan.field_demands = (|| -> Result<Box<[HomeDemandV1]>, U> {
-        let mut demands = vec![HomeDemandV1::Trivial; fields.len()];
-        for (ordinal, field) in field_decls.iter().enumerate() {
-            let store = stores
-                .iter()
-                .find(|store| store.field().declaration_ordinal() as usize == ordinal)
-                .ok_or(U::InitializationContractMissing)?;
-            store.mode()?;
-            let supported = match field.declared_type_name.as_deref() {
-                Some("i64") | Some("usize") => matches!(
-                    store.rhs(),
-                    ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Parameter { .. }
-                ),
-                Some(name) => match store.rhs() {
-                    ConstructionStoreRhsV1::ProviderConstruction {
-                        class, object, ..
-                    } => {
-                        class.as_ref() == name
-                            && object.is_some()
-                                == (crate::runtime::CoreBoxId::from_name(name).is_none())
-                    }
-                    // Caller-provided object store: birth formals are
-                    // unannotated, so the declared field class is the sole
-                    // class authority and it must resolve to a releasable
-                    // user class — self-reference included: the emitted
-                    // teardown call graph recurses on the instance, not the
-                    // type. The disposition bound matches the release op's
-                    // child admission exactly.
-                    ConstructionStoreRhsV1::Parameter { .. } => {
-                        if crate::runtime::CoreBoxId::from_name(name).is_some() {
-                            false
-                        } else {
-                            let mut resolved = objects
-                                .iter()
-                                .filter_map(|(own, id)| (own.name() == name).then_some(*id));
-                            match (resolved.next(), resolved.next()) {
-                                (Some(child), None) => definitions
-                                    .get(child.declaration_index() as usize)
-                                    .map(|definition| definition.destruction_disposition())
-                                    .is_some_and(|disposition| {
-                                        (disposition).supports_static_no_hook()
-                                    }),
-                                _ => false,
-                            }
-                        }
-                    }
-                    _ => false,
-                },
-                None => matches!(
-                    store.rhs(),
-                    ConstructionStoreRhsV1::ProviderConstruction { .. } | ConstructionStoreRhsV1::LiteralI64(_)
-                ),
-            };
-            if !supported {
-                return Err(U::FieldContractUnsupported);
-            }
-            let object_field = !matches!(
-                field.declared_type_name.as_deref(),
-                Some("i64") | Some("usize")
-            );
-            if object_field && !matches!(store.rhs(), ConstructionStoreRhsV1::LiteralI64(_)) {
-                demands[ordinal] = HomeDemandV1::Handle;
-            }
-        }
-        Ok(demands.into_boxed_slice())
-    })();
+    plan.field_demands = body::qualified_field_demands_v1(
+        field_decls, &stores, &stores.iter().map(ConstructionStoreV1::mode).collect::<Vec<_>>(), objects, definitions,
+    );
     plan.stores = stores.into_boxed_slice();
     plan.steps = steps.into_boxed_slice();
     Ok(Rc::new(plan))

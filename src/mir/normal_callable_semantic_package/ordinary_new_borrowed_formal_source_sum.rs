@@ -455,7 +455,7 @@ impl PreparedBorrowedFormalIngressV1 {
         read.point_for_original_flow_v1(flow)?;
         lend_original_point_sum(product, &self.source_incoming, flow, read.read(), read.binding())
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_source_value_sum_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_source_value_sum_v1(
         &self, formal: BindingRefV1,
     ) -> Option<Rc<SourceValueSumV1>> {
         self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;

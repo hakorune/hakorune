@@ -432,6 +432,14 @@ through the existing callable-state observer before it emits Unit
 not re-lower assignment target or RHS AST. Unavailable construction retains its existing publication/backend fence;
 it is not a retry after selected emission. The state validates actual emitted
 bindings/frame role before preparation and after finalization, rejects extra Invoke/frame/Fault-return sites, and forbids Unit construction result carriers. The existing completed-root owner also owns artifact-only source eligibility and module-wide coverage in `normal_default_root_final_validation.rs`; diagnostic success is not permission. Exact App Main source entry selects RootOwned, not direct-call presence.
+Late Text store qualification borrows the SAME original Birth formal/SUM, not
+its physical representation. The full declaration census and execution sealer
+are shared with initial construction; original stores and raw cutpoints remain
+unchanged. Qualified Fault prefixes include every committed Text residence.
+Both LOCAL/Result claims receive the same plan before take. This grants no Text
+ABI or physical store: Materialize, first-write transfer and all Normal/Fault
+cleanup still require independent retained replay; emitter, module verifier and
+JSON transport keep that boundary closed.
 The same construction state retains the plan's original typed Store/Call steps
 and one consumption cursor. Install corroborates the Store subsequence against
 all exact assignment sites; default and explicit scalar stores to the same field

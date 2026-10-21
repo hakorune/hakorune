@@ -1,5 +1,6 @@
 //! Construction, affine takes and root identity access for the New ledger.
 use super::*;
+use crate::mir::normal_callable_semantic_package::{BirthFormalDeclarationClassV1, BirthFormalUseCoverageV1};
 
 impl OrdinaryNewClaimLedgerV1 {
     /// An original New requires lifecycle context even while its execution
@@ -7,6 +8,29 @@ impl OrdinaryNewClaimLedgerV1 {
     /// neither membership nor this query grants construction permission.
     pub(in crate::mir::normal_callable_semantic_package) fn requires_new_context_v1(&self, owner: FunctionOwnerIdV1) -> bool {
         self.claims.borrow().keys().chain(self.result_claims.borrow().keys()).any(|site| site.owner() == owner)
+    }
+
+    /// Borrow the original SUM only for this original Birth formal and store.
+    /// Its use census stays Unqualified; this is not a physical ABI grant.
+    pub(in crate::mir::normal_callable_semantic_package) fn constructor_text_store_sum_v1(
+        &self, row: &VerifiedInstanceConstructorSemanticRowV1,
+        store: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreV1,
+    ) -> Option<Rc<super::SourceValueSumV1>> {
+        let crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreRhsV1::Parameter { site, binding, provided: None } = store.rhs() else { return None };
+        let source = row.construction_source().as_ref().ok()?;
+        let (constructor, owner) = source.constructor()?;
+        if !constructor.same_as(row.source_id()) || *owner != binding.owner()
+            || source.object() != row.object() || !source.stores().iter().any(|original| std::ptr::eq(original, store)) {
+            return None;
+        }
+        let formal = row.formal_contracts().iter().enumerate().find_map(|(index, formal)|
+            (formal.binding() == *binding && formal.ordinal() as usize == index).then_some(formal))?;
+        if !matches!(formal.declaration(), BirthFormalDeclarationClassV1::Unannotated | BirthFormalDeclarationClassV1::ExactText)
+            || !matches!(formal.uses(), BirthFormalUseCoverageV1::UnqualifiedFieldStores { sites } if sites.contains(site)) {
+            return None;
+        }
+        self.borrowed_formal_source.as_ref()?.as_ref().ok()?.lend_source_value_sum_v1(*binding)
+            .filter(|sum| sum.text_only())
     }
 
     /// Existing source New claims already cloned initial eligibility. Update
@@ -19,7 +43,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !self.local_commits.get_mut().is_empty() { return Err("[freeze:contract][constructor-unit/late-after-take]".into()); }
         let matches = |core: &OrdinaryNewClaimCoreV1| -> Result<bool, String> {
             if !core.box_source.same_source_as(row.box_source_v1())
-                || core.construction != Err(ConstructionUnavailableV1::BodyCoverageUnsupported) { return Ok(false); }
+                || &core.construction != row.construction() { return Ok(false); }
             let OrdinaryNewConstructorDispositionV1::Birth(birth) = &core.constructor else {
                 return Err("[freeze:contract][constructor-unit/new-birth-missing]".into());
             };

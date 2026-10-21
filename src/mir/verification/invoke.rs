@@ -227,7 +227,8 @@ pub(super) fn check_module_with_source(
                             errors.push(error(*id, "field-read-definition-invalid"));
                         }
                         InvokeOperation::FieldSet { mode, field, .. }
-                            if module.canonical_field_definition(*field).is_none()
+                            if *mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize
+                                || module.canonical_field_definition(*field).is_none()
                                 || (*mode == crate::mir::instruction::FieldSetModeV1::ExactSlot
                                     && dynamic_field(module, *field))
                                 || (*mode != crate::mir::instruction::FieldSetModeV1::ExactSlot

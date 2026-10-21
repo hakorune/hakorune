@@ -130,21 +130,32 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
-    pub(super) fn finish_ordered_unit_plans_v1(
+    pub(super) fn finish_execution_plans_v1(
         &mut self,
         ledger: &mut super::OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
         for row in self.rows.iter_mut() {
-            if row.kind != ConstructorSourceKindV1::Birth || row.source_arity != 0
-                || row.construction != Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
-                || !row.construction_source.as_ref().is_ok_and(|source| source.steps().iter().any(|step|
+            use super::instance_construction::ConstructionUnavailableV1 as U;
+            if row.kind != ConstructorSourceKindV1::Birth { continue; }
+            let qualified = if row.source_arity == 0 && row.construction == Err(U::BodyCoverageUnsupported)
+                && row.construction_source.as_ref().is_ok_and(|source| source.steps().iter().any(|step|
                     matches!(step, super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)))) {
-                continue;
-            }
-            let qualified = ConstructionPlanV1::qualify_ordered_unit_calls_v1(
-                &row.construction_source,
-                |source, site| ledger.constructor_unit_step_ready_v1(source, site),
-            )?;
+                ConstructionPlanV1::qualify_ordered_unit_calls_v1(&row.construction_source,
+                    |source, site| ledger.constructor_unit_step_ready_v1(source, site))?
+            } else if row.construction == Err(U::FieldContractUnsupported) {
+                let definitions = self.object_definitions.borrow();
+                let definitions = definitions.as_deref().ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+                let definition = definitions.get(row.object().declaration_index() as usize)
+                    .ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+                let declarations = definition.local_fields_for_layout()
+                    .map_err(|_| "[freeze:contract][constructor-unit/new-source-drift]")?;
+                // Fixed Array residences never acquire a Dynamic Text meaning.
+                if row.construction_source.as_ref().is_ok_and(|source| source.stores().iter().any(|store|
+                    definition.is_array_field(store.field().declaration_ordinal() as usize)
+                        && store.mode().is_err())) { continue; }
+                ConstructionPlanV1::qualify_text_stores_v1(&row.construction_source, declarations,
+                    &self.object_sources, definitions, |store| ledger.constructor_text_store_sum_v1(row, store))
+            } else { continue; };
             let Ok(plan) = qualified else {
                 continue;
             };

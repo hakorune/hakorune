@@ -18,6 +18,8 @@ pub enum FieldSetModeV1 {
     DynamicI64Initialize,
     /// Birth first-write: Empty validation precedes a move into stable Map storage.
     DynamicMapInitialize,
+    /// Birth first-write of an independently materialized Text residence.
+    DynamicTextInitialize,
 }
 
 /// Source-selected field End law; neither mode creates an owning child Home.

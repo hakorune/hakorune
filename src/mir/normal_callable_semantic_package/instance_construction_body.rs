@@ -173,7 +173,7 @@ fn owned_field_after_store_v1(
 ) -> Option<OwnedFieldChildV1> {
     use crate::mir::instruction::{FieldResidenceEndModeV1 as End, FieldSetModeV1 as Mode};
     let kind = match mode {
-        Mode::DynamicI64Initialize | Mode::DynamicMapInitialize => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
+        Mode::DynamicI64Initialize | Mode::DynamicMapInitialize | Mode::DynamicTextInitialize => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
         _ => match store.rhs() {
             ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => OwnedFieldChildKindV1::Object(child.object()),
             ConstructionStoreRhsV1::ProviderConstruction { object: None, class, .. } if class.as_ref() == "ArrayBox" =>
@@ -213,6 +213,39 @@ impl ConstructionPlanV1 {
         Ok(Self::seal_original_execution_v1(source))
     }
 
+    pub(in crate::mir::normal_callable_semantic_package) fn qualify_text_stores_v1(
+        source: &ConstructionSourceEligibilityV1,
+        declarations: &[crate::mir::function::UserBoxFieldDecl],
+        objects: &[(crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)],
+        definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
+        mut qualify: impl FnMut(&ConstructionStoreV1) -> Option<Rc<super::super::SourceValueSumV1>>,
+    ) -> ConstructionEligibilityV1 {
+        use ConstructionUnavailableV1 as U;
+        let source = source.as_ref().map_err(|reason| *reason)?;
+        if !matches!(source.completion(), ConstructionCompletionV1::InitializedFields)
+            || source.steps().iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
+            return Err(U::BodyCoverageUnsupported);
+        }
+        let mut qualified = Vec::with_capacity(source.stores.len());
+        for store in source.stores.iter() {
+            let field = declarations.get(store.field().declaration_ordinal() as usize).ok_or(U::SourceRelationMissing)?;
+            if store.field().object() != source.object() { return Err(U::SourceRelationMissing); }
+            let next = match store.mode() {
+                Ok(mode) => (mode, None),
+                Err(U::FieldContractUnsupported) if field.declared_type_name.is_none() && !field.is_weak
+                    && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. }) => {
+                    let sum = qualify(store).filter(|sum| sum.text_only()).ok_or(U::FieldContractUnsupported)?;
+                    (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum))
+                }
+                Err(reason) => return Err(reason),
+            };
+            qualified.push(next);
+        }
+        let modes = qualified.iter().map(|(mode, _)| Ok(*mode)).collect::<Vec<_>>();
+        let demands = qualified_field_demands_v1(declarations, &source.stores, &modes, objects, definitions)?;
+        Self::seal_execution_v1(source, demands, qualified)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn without_child_calls(source: &ConstructionSourceEligibilityV1) -> ConstructionEligibilityV1 {
         let source = source.as_ref().map_err(|reason| *reason)?;
         source.require_initialized_fields()?;
@@ -226,25 +259,120 @@ impl ConstructionPlanV1 {
     /// prefix is sealed in original store order, never BTreeMap/field order.
     fn seal_original_execution_v1(source: &Rc<ConstructionSourceStructureV1>) -> ConstructionEligibilityV1 {
         source.require_initialized_fields()?;
+        Self::seal_execution_v1(source, source.field_demands.as_ref().map_err(|reason| *reason)?.clone(),
+            source.stores.iter().map(|store| store.mode().map(|mode| (mode, None))).collect::<Result<Vec<_>, _>>()?)
+    }
+
+    fn seal_execution_v1(
+        source: &Rc<ConstructionSourceStructureV1>,
+        field_demands: Box<[HomeDemandV1]>,
+        qualified: Vec<(crate::mir::instruction::FieldSetModeV1, Option<Rc<super::super::SourceValueSumV1>>)>,
+    ) -> ConstructionEligibilityV1 {
+        if qualified.len() != source.stores.len() { return Err(ConstructionUnavailableV1::SourceRelationMissing); }
         let mut prefix = Vec::new();
         let mut stores = Vec::with_capacity(source.stores.len());
-        for store in source.stores.iter() {
-            let mode = store.mode()?;
+        for (index, (store, (mode, text_input))) in source.stores.iter().zip(qualified).enumerate() {
+            if !match (mode, text_input.as_ref()) {
+                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum)) => sum.text_only(),
+                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) => false,
+                (_, loan) => loan.is_none(),
+            } {
+                return Err(ConstructionUnavailableV1::SourceRelationMissing);
+            }
             let fault_discharge: Box<[_]> = prefix.iter().rev().cloned().collect();
             // Retained source cutpoints and the shared residence law must
             // agree before any physical consumer receives this projection.
-            if store.fault_discharge() != fault_discharge.as_ref() {
+            if store.fault_discharge() != prior_owned_fields_v1(&source.stores[..index]).as_ref() {
                 return Err(ConstructionUnavailableV1::SourceRelationMissing);
             }
-            stores.push(ConstructionStoreExecutionV1 { mode, fault_discharge });
+            stores.push(ConstructionStoreExecutionV1 { mode, fault_discharge, text_input });
             if let Some(field) = owned_field_after_store_v1(store, mode) { prefix.push(field); }
         }
         Ok(Self {
             source: Rc::clone(source),
             execution: Rc::new(ConstructionExecutionV1 {
-                field_demands: source.field_demands.as_ref().map_err(|reason| *reason)?.clone(),
+                field_demands,
                 stores: stores.into_boxed_slice(),
             }),
         })
     }
+}
+
+/// Full declaration census shared by initial and late-qualified execution.
+pub(super) fn qualified_field_demands_v1(
+    field_decls: &[crate::mir::function::UserBoxFieldDecl],
+    stores: &[ConstructionStoreV1],
+    modes: &[Result<crate::mir::instruction::FieldSetModeV1, ConstructionUnavailableV1>],
+    objects: &[(crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)],
+    definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
+) -> Result<Box<[HomeDemandV1]>, ConstructionUnavailableV1> {
+    use ConstructionUnavailableV1 as U;
+    let mut demands = vec![HomeDemandV1::Trivial; field_decls.len()];
+    for (ordinal, field) in field_decls.iter().enumerate() {
+        let (index, store) = stores
+            .iter().enumerate()
+            .find(|(_, store)| store.field().declaration_ordinal() as usize == ordinal)
+            .ok_or(U::InitializationContractMissing)?;
+        modes.get(index)
+            .ok_or(U::SourceRelationMissing)?.as_ref().map_err(|reason| *reason)?;
+        let text = modes[index] == Ok(crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize);
+        let supported = if text { field.declared_type_name.is_none() && !field.is_weak
+            && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. })
+        } else { match field.declared_type_name.as_deref() {
+            Some("i64") | Some("usize") => matches!(
+                store.rhs(),
+                ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Parameter { .. }
+            ),
+            Some(name) => match store.rhs() {
+                ConstructionStoreRhsV1::ProviderConstruction {
+                    class, object, ..
+                } => {
+                    class.as_ref() == name
+                        && object.is_some()
+                            == (crate::runtime::CoreBoxId::from_name(name).is_none())
+                }
+                // Caller-provided object store: birth formals are
+                // unannotated, so the declared field class is the sole
+                // class authority and it must resolve to a releasable
+                // user class — self-reference included: the emitted
+                // teardown call graph recurses on the instance, not the
+                // type. The disposition bound matches the release op's
+                // child admission exactly.
+                ConstructionStoreRhsV1::Parameter { .. } => {
+                    if crate::runtime::CoreBoxId::from_name(name).is_some() {
+                        false
+                    } else {
+                        let mut resolved = objects
+                            .iter()
+                            .filter_map(|(own, id)| (own.name() == name).then_some(*id));
+                        match (resolved.next(), resolved.next()) {
+                            (Some(child), None) => definitions
+                                .get(child.declaration_index() as usize)
+                                .map(|definition| definition.destruction_disposition())
+                                .is_some_and(|disposition| {
+                                    (disposition).supports_static_no_hook()
+                                }),
+                            _ => false,
+                        }
+                    }
+                }
+                _ => false,
+            },
+            None => matches!(
+                store.rhs(),
+                ConstructionStoreRhsV1::ProviderConstruction { .. } | ConstructionStoreRhsV1::LiteralI64(_)
+            ),
+        } };
+        if !supported {
+            return Err(U::FieldContractUnsupported);
+        }
+        let object_field = !matches!(
+            field.declared_type_name.as_deref(),
+            Some("i64") | Some("usize")
+        );
+        if object_field && !matches!(store.rhs(), ConstructionStoreRhsV1::LiteralI64(_)) {
+            demands[ordinal] = HomeDemandV1::Handle;
+        }
+    }
+    Ok(demands.into_boxed_slice())
 }

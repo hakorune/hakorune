@@ -1,18 +1,20 @@
 # APP-json-stream-aggregator
-Status: Retained Birth actuals preserve exact typed payloads; physical Text admission and Map publication remain incomplete. Date: 2026-10-21
+Status: Original Text SUM now qualifies the shared Birth plan; physical Text lifetime and Map publication remain incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 397.135s;
+- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 389.927s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON first stop: owner26 ingestLine Body5 Initializer0 statsFor(user), callee25,
-  lexical-instance-call/source-pending. No MIR/EXE. Four required apps remain red.
-- CLI45.60s/root82s; Invoke42/JSON35/borrowed-use31 PASS; runtime/FFI unchanged.
-- 34 focused filters retain parent outcomes/causes; inventory9263 byte-identical.
-- Broad52: parent timeout180s; current explicitly stopped539s. Unconfirmed,
-  not a baseline waiver. Earlier FieldHas EXE exit7 is not remeasured.
+- JSON first stop: construction-store/source-or-cleanup-contract at the original
+  UserStats Text initialization; no MIR/EXE. Four required apps remain red.
+- CLI30.74s/root49.07s; Invoke42/JSON35/borrowed-use31 PASS; runtime/FFI unchanged.
+- 34 filters: 33 preserve outcomes/causes (new absent-loan Debug excluded).
+  Inventory9263 unchanged. New source_scope red2/1: Text plan exposes unconnected New Expression before
+  append/second Return. Keep positive expectations; resolve with physical hookup.
+- Broad52 remains unconfirmed (parent timeout180/current stopped539), no waiver.
+  Earlier FieldHas EXE exit7 is not remeasured.
 
 ## Shared source and execution owners
 - One original FieldResidence census retains every Array/Dynamic field, including
@@ -23,8 +25,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   their original sites; mixed/child-call uses and numeric/Object allowlists stay closed.
 - ConstructionPlan now shares one immutable execution projection of field demands,
   store modes and source-ordered Fault prefixes. Original source remains unchanged.
-  Both normal and late child-call issuers seal through the same residence law;
-  the old source cutpoints must agree. LOCAL/Result late claims check SAME source Rc.
+  Initial/late child-call/Text use the same full field-demand checker and sealer.
+  Original source cutpoints remain unchanged; qualified prefix includes Text.
+  Same original formal/site/ordinal/Text-only SUM; both claim families before take.
 - Selected construction consumes that projection and retains the same plan.
   Existing final validation compares original store/receiver/RHS/read membership
   and execution mode/prefix before replaying actual Invoke/cleanup coordinates.
@@ -36,9 +39,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Unit-only result and one ordered Value/Text actual array; no parallel argv.
   Emitted/retained/source-final scans compare full typed payloads; scalar/object
   ABI and field reads explicitly require Value. Text admission remains closed.
-- Existing mutation now rejects Value→Text with identical SSA: kind is an
-  independent authority boundary. No new test functions/hooks/checkers; old
-  value-only comparison adapter deleted; Rust net -16 lines.
+- Existing unchanged JSON case checks same source/loan/claim and Text-before-I64
+  Fault prefix: independent qualification boundary. No new test functions/hooks.
 - First-write I64/Map checks Empty. Birth Fault discharges only committed prefix;
   Provided stays caller-owned until Normal. Full End drains all declared residences.
 - One synchronous MapEndContext handles detached outcomes/Array children outside
@@ -76,10 +78,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   once. It grants no source Birth/Map/Call/Return publication or parent Map End.
 
 ## Next and completion limits
-- Next: same original SUM/Birth formal → late execution plan in both LOCAL/Result
-  cores before take; preserve source and recompute complete qualified prefix. Text
-  must
-  Materialize an independent pair before Dynamic initialization. Materialize
+- Next: original New evaluation → retained Text actual, shared String writer →
+  independent Materialize pair → DynamicTextInitialize, plus both final replays.
+  Materialize
   Fault owes prior prefix; install Fault Ends fresh pair then prefix; later
   Birth Fault must include every successfully installed Text residence.
 - Then original Map FieldInstall/candidate/EndOutcome, exact prior/Normal cleanup,
@@ -96,5 +97,4 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - App completion requires all existing smoke contracts and real EXE/output/exit.
   Full finite goal also requires source/consumer closure, production cutover and
   physical retirement. Retire replaced exclusive edges; retain shared safety owners.
-- Earlier detailed source connections and evidence remain in Git (Birth census:
-  `51e07e4f80`); no transient log paths or evidence counters are authority.
+- Earlier source connections/evidence remain in Git (`51e07e4f80`); no log authority.

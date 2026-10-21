@@ -293,6 +293,13 @@ impl CallableSemanticLoweringState {
         let mut stores = BTreeMap::new();
         for (ordinal, store) in plan.stores().iter().enumerate() {
             let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
+            if !match (execution.mode(), execution.text_input_v1()) {
+                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum)) => sum.text_only(),
+                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) => false,
+                (_, loan) => loan.is_none(),
+            } {
+                return Err(fault("source-or-cleanup-contract"));
+            }
             if stores
                 .insert(
                     store.assignment().statement_site().node().clone(),

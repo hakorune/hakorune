@@ -183,7 +183,18 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
         if sites.len() == 1));
     assert_eq!(formal.disposition(), crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation);
     assert!(birth.construction_source().is_ok());
-    assert!(birth.construction().is_err());
+    let plan = birth.construction().as_ref().expect("original Text-only Birth execution projection");
+    let original = birth.construction_source().as_ref().unwrap();
+    assert!(Rc::ptr_eq(plan.source_v1(), original));
+    assert_eq!(original.stores()[0].mode(), Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::FieldContractUnsupported));
+    let text = plan.store_execution_v1(0).unwrap();
+    assert_eq!(text.mode(), crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize);
+    assert!(text.text_input_v1().unwrap().text_only());
+    assert!(text.fault_discharge().is_empty());
+    let next = plan.store_execution_v1(1).unwrap();
+    assert_eq!(next.fault_discharge().len(), 1);
+    assert_eq!(next.fault_discharge()[0].field, original.stores()[0].field());
+    assert!(original.stores()[1].fault_discharge().is_empty());
     let ledger = &package.ordinary_new_claim_ledger;
     let key = CanonicalSameModuleCallableKeyV1::instance_box_method("JsonStreamAggregator", "statsFor", 1);
     let owner = package.parameter_contracts.iter().find(|row|
@@ -193,6 +204,9 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
     // Original New actual and the same borrowed evaluation survive co-seal.
     let claims = ledger.pending_claims_for_test();
     let claim = claims.values().find(|claim| claim.site().owner() == owner && claim.core.class.as_ref() == "UserStats").unwrap();
+    assert_eq!(claim.construction().as_ref().unwrap(), plan);
+    let sum = ledger.constructor_text_store_sum_v1(birth, &original.stores()[0]).unwrap();
+    assert!(Rc::ptr_eq(text.text_input_v1().unwrap(), &sum));
     let [argument] = claim.argument_rows().unwrap() else { panic!("original New actual"); };
     let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = argument.kind()
         else { panic!("Text must not become a raw scalar/object argument: {:?}", argument.kind()); };
