@@ -393,10 +393,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 let evaluation = match value.returned() {
                     TerminalReturnedSourceV1::TextExpression(evaluation) => Some(evaluation),
                     TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } => {
-                        let field = source.receiver_v1();
+                        let field = source.receiver();
                         field.require_entry_source_v1(self)?;
                         if origins.contains_key(&field.receiver())
-                            || source.present_get_v1(&OwnedExprSiteV1::new(owner, value.value_site().clone())).is_none()
+                            || source.storage().present_get_v1(&OwnedExprSiteV1::new(owner, value.value_site().clone())).is_none()
                             || !uses.reads().any(|(at, original)| at == receiver_read
                                 && *original == ResolvedLexicalRefV1::Local(field.receiver()))
                             || !covered.insert((receiver_read.clone(), field.receiver())) {

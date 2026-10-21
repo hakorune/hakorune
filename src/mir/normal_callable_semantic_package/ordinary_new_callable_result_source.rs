@@ -109,10 +109,10 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
                     }
                     match returned.returned() {
                         Returned::StoredMapGet { source: same, key, .. }
-                            if Rc::ptr_eq(source, same) && key.reference_coverage_is_exact()
+                            if Rc::ptr_eq(source, same.storage()) && key.reference_coverage_is_exact()
                                 && key.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                                     crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
-                                && source.present_get_v1(&at).is_some_and(|get|
+                                && source.present_get_v1(&at).is_some_and(|get| std::sync::Arc::ptr_eq(same.get(), get) &&
                                 matches!(key.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
                                     statement, call, ordinal: 0 } if statement == returned.return_site() && std::sync::Arc::ptr_eq(call, get))) => {},
                         Returned::StoredMapInstalled(install) if Rc::ptr_eq(install.source(), source)

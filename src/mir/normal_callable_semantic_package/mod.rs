@@ -194,7 +194,7 @@ pub(crate) use ordinary_new_coseal::{
     OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1,
     OwnedFieldChildV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
-    PreparedTerminalMapGetReturnV1, StoredMapGetReturnSourceLoanV1, QualifiedStaticCallArgumentKindV1,
+    PreparedTerminalMapGetReturnV1, StoredMapGetSourceLoanV1, StoredMapGetReturnSourceLoanV1, QualifiedStaticCallArgumentKindV1,
     ReceiverCallClassObservationV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
     ResultWitnessStepV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
     TerminalNullReturnSourceLoanV1, VerifiedOrdinaryNewBirthRecipeV1,

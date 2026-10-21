@@ -157,6 +157,10 @@ impl FieldMapReceiverSourceV1 {
     pub(crate) fn receiver(&self) -> crate::mir::resolved_semantics::BindingRefV1 { self.receiver }
     pub(crate) fn receiver_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 { &self.receiver_site }
     pub(crate) fn field_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 { &self.field_site }
+    /// Same all-writer field authority across distinct original method owners.
+    pub(in crate::mir::normal_callable_semantic_package) fn same_field_source_v1(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_source(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.source, &other.source) && self.receiver == other.receiver
             && self.receiver_site == other.receiver_site && self.field_site == other.field_site && self.name == other.name

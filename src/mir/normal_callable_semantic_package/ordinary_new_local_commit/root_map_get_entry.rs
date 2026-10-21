@@ -248,7 +248,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }, bindings, .. } = row else { continue };
             let exit = exit.explicit_site().ok_or_else(|| freeze("map-get-source-missing"))?;
             if let CallValidationContextV1::Finalized(source) = context {
-                stored.source.parts().0.receiver_v1().require_finished_birth_v1(source, module)?;
+                stored.source.get_source().receiver().require_finished_birth_v1(source, module)?;
             }
             self.validate_map_get_entry(*actual, exit, function, Some(finishing), local_bindings,
                 invoke, projection, frame, bindings, Some(stored), context)?;

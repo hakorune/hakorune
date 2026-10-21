@@ -8,8 +8,8 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
 ) -> Result<ValueId, String> {
     let owner = source.terminal().owner();
     let exit = source.terminal().return_site().clone();
-    let (map, key, receiver_site) = source.parts();
-    let receiver = state.take_exact_lexical_read(owner, receiver_site.node(), map.receiver_v1().receiver())
+    let (_, key, receiver_site) = source.parts();
+    let receiver = state.take_exact_lexical_read(owner, receiver_site.node(), source.get_source().receiver().receiver())
         .map_err(|error| error.to_string())?;
     source.require_receiver(CallValidationContextV1::Lowering(ledger),
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, &receiver)?;

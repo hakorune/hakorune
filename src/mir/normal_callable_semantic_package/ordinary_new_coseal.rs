@@ -110,7 +110,7 @@ mod terminal_field_return;
 pub(crate) use terminal_field_return::PreparedTerminalI64FieldReturnV1;
 #[path = "ordinary_new_terminal_map_get_return.rs"]
 mod terminal_map_get_return;
-pub(crate) use terminal_map_get_return::{PreparedTerminalMapGetReturnV1, StoredMapGetReturnSourceLoanV1};
+pub(crate) use terminal_map_get_return::{PreparedTerminalMapGetReturnV1, StoredMapGetSourceLoanV1, StoredMapGetReturnSourceLoanV1};
 #[path = "birth_abi_handoff.rs"]
 mod birth_abi_handoff;
 #[path = "ordinary_new_candidate.rs"]

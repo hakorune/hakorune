@@ -2106,6 +2106,13 @@ also checks the same install value argument and returned-local read, in addition
 to receiver/key; neither formal aliases nor duplicate reads are silently covered.
 Take and argument materialization re-demand that same source and Completion.
 Missing input leaves the same cell pending.
+Direct stored get source uses that SAME whole-field census and exact original
+method Arc, with a receiver issued from the get function's own entry and the SAME
+all-writer field source. A Return keeps its exact original producer; other gets
+require a unique supporting source, never an arbitrary same-class producer.
+Return lowering and final consumers retain this loan and recheck get/receiver/key
+identity. This source loan supplies no LOCAL installation, null exclusion, Home
+or executable permission; those consumers must close independently.
 The Object finisher never upgrades it into an owning result. Physical Return,
 final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.

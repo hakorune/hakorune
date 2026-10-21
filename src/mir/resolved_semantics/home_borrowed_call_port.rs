@@ -24,6 +24,8 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     },
     /// Original whole storage-supported Return source; never an owning call.
     StoredMapSource,
+    /// Exact get with its current original entry receiver; no execution grant.
+    StoredMapGetSource,
     ScalarArguments,
     I64ResultArguments,
     SourceResultArguments,
@@ -44,6 +46,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
+    StoredMapGetSource(crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1),
     StoredMapSource(std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>),
     ExpressionCoreSource(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
     FiniteEntryRead(crate::mir::normal_callable_semantic_package::FiniteEntryReadV1),

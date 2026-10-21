@@ -53,6 +53,62 @@ fn fault(reason: &str) -> String {
     format!("[freeze:contract][ordinary-terminal-map-get/{reason}]")
 }
 
+/// One get from the shared whole-field source, with THIS function's entry
+/// receiver. The producer's key ordinal and receiver are never substituted.
+#[derive(Debug, Clone)]
+pub(crate) struct StoredMapGetSourceLoanV1 {
+    storage: std::rc::Rc<super::MapStoredResultSourceV1>,
+    get: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    receiver: std::rc::Rc<super::super::core_method_source::FieldMapReceiverSourceV1>,
+}
+impl PartialEq for StoredMapGetSourceLoanV1 {
+    fn eq(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.storage, &other.storage)
+            && std::sync::Arc::ptr_eq(&self.get, &other.get)
+            && self.receiver.matches_source(&other.receiver)
+    }
+}
+impl Eq for StoredMapGetSourceLoanV1 {}
+impl StoredMapGetSourceLoanV1 {
+    pub(crate) fn storage(&self) -> &std::rc::Rc<super::MapStoredResultSourceV1> { &self.storage }
+    pub(crate) fn get(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.get }
+    pub(crate) fn receiver(&self) -> &super::super::core_method_source::FieldMapReceiverSourceV1 { &self.receiver }
+    pub(in crate::mir::normal_callable_semantic_package) fn issue_for_site_v1(
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        at: &OwnedExprSiteV1, selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        constructors: &super::super::VerifiedInstanceConstructorSemanticBatchV1,
+        receiver: Option<(crate::mir::resolved_semantics::BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+        entry: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
+        classes: &super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        fields: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    ) -> Result<Option<Self>, String> {
+        let Some(storage) = classes.map_stored_get_source_v1(at).map_err(fault)? else { return Ok(None) };
+        let get = storage.original_get_v1(at).ok_or_else(|| fault("source-drift"))?;
+        let (Some(receiver), Some(entry)) = (receiver, entry) else { return Err(fault("source-drift")) };
+        let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(entry.batch_slot())
+            else { return Err(fault("source-drift")) };
+        if at.owner() != input.owner() || entry.owner() != input.owner()
+            || !input.function().method_call_source_v1(at.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, get)) {
+            return Err(fault("source-drift"));
+        }
+        let receiver = super::super::core_method_source::FieldMapReceiverSourceV1::issue(
+            input, key, get, constructors, fields, receiver, entry)?;
+        if !receiver.same_field_source_v1(storage.receiver_v1()) { return Err(fault("source-drift")); }
+        Ok(Some(Self { get: std::sync::Arc::clone(get), storage, receiver: std::rc::Rc::new(receiver) }))
+    }
+    fn recheck_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+        let at = OwnedExprSiteV1::new(self.get.owner(), self.get.site().clone());
+        let retained = ledger.callable_result_classes.map_stored_get_source_v1(&at).map_err(fault)?
+            .ok_or_else(|| fault("source-drift"))?;
+        if !std::rc::Rc::ptr_eq(&retained, &self.storage)
+            || !retained.original_get_v1(&at).is_some_and(|get| std::sync::Arc::ptr_eq(get, &self.get))
+            || !self.receiver.same_field_source_v1(retained.receiver_v1()) {
+            return Err(fault("source-drift"));
+        }
+        self.receiver.require_entry_source_v1(ledger)
+    }
+}
+
 /// The original stored-object Return, with its independent get receiver use.
 /// This source loan owns neither a payload Home nor a physical result ABI.
 #[derive(Debug, Clone)]
@@ -66,13 +122,18 @@ impl StoredMapGetReturnSourceLoanV1 {
         &crate::mir::resolved_semantics::SourceExprSiteV1) {
         let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } = self.terminal.returned()
             else { unreachable!("source-issued stored get loan") };
-        (source, key, receiver_read)
+        (source.storage(), key, receiver_read)
+    }
+    pub(crate) fn get_source(&self) -> &StoredMapGetSourceLoanV1 {
+        let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::StoredMapGet { source, .. } = self.terminal.returned()
+            else { unreachable!("source-issued stored get loan") };
+        source
     }
     pub(crate) fn require_receiver(&self, context: super::CallValidationContextV1<'_>,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<ValueId, String> {
-        let (source, _, site) = self.parts();
-        source.receiver_v1().require_receiver_at_v1(context, function, read, site)
+        let (_, _, site) = self.parts();
+        self.get_source().receiver().require_receiver_at_v1(context, function, read, site)
     }
 }
 impl OrdinaryNewClaimLedgerV1 {
@@ -82,15 +143,18 @@ impl OrdinaryNewClaimLedgerV1 {
         use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
         let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
             else { return Ok(None) };
-        let TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read: _ } = terminal.returned()
+        let TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } = terminal.returned()
             else { return Ok(None) };
         let site = OwnedExprSiteV1::new(owner, terminal.value_site().clone());
         let retained = self.callable_result_classes.map_stored_source_v1(&site).map_err(fault)?
             .ok_or_else(|| fault("source-drift"))?;
-        let get = source.present_get_v1(&site).ok_or_else(|| fault("source-drift"))?;
+        source.recheck_v1(self)?;
+        let get = source.storage().present_get_v1(&site).ok_or_else(|| fault("source-drift"))?;
         let completion = self.completion_source_for_owner_v1(owner).ok_or_else(|| fault("completion-missing"))?;
         if terminal.owner() != owner || terminal.return_site() != exit || !completion.explicit_sites().contains(exit)
-            || !std::rc::Rc::ptr_eq(&retained, source)
+            || !std::rc::Rc::ptr_eq(&retained, source.storage())
+            || !std::sync::Arc::ptr_eq(source.get(), get)
+            || receiver_read != source.receiver().receiver_site()
             || key.source().owner() != owner || key.source().nodes().len() != 1
             || get.arguments().len() != 1 || key.source().nodes()[0].site() != get.arguments()[0].site()
             || !matches!(key.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal: 0, .. }
@@ -98,7 +162,6 @@ impl OrdinaryNewClaimLedgerV1 {
             || !key.reference_coverage_is_exact() || !key.calls().is_empty() || !key.cores().is_empty()
             || !key.operations().is_empty() || !key.owned_result_nodes().is_empty()
         { return Err(fault("source-drift")); }
-        source.receiver_v1().require_entry_source_v1(self)?;
         Ok(Some(StoredMapGetReturnSourceLoanV1 { terminal: terminal.clone() }))
     }
 }

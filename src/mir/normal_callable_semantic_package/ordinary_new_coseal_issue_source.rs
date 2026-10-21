@@ -644,6 +644,12 @@ pub(super) fn probe_source_home_prefixes_v1(
             .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.source.result().clone()).collect()))
         },
         &mut |site, actuals| {
+            if matches!(actuals, BorrowedCallActualRequestV1::StoredMapGetSource) {
+                return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(input, site, selected,
+                    instance_constructors, receiver_proof, entry_home, callable_result_classes, field_write_claims)
+                    .map(|loan| loan.map(BorrowedCallArgumentsV1::StoredMapGetSource))
+                    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            }
             if let (BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding), Ok(source)) = (actuals, borrowed_formal_source) {
                 return named_array_initializer_source_v1(input, batch, brands, source, site, binding)
                     .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));

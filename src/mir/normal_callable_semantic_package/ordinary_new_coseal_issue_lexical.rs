@@ -615,7 +615,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             )
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
-        BorrowedCallActualRequestV1::StoredMapSource
+        BorrowedCallActualRequestV1::StoredMapGetSource
+        | BorrowedCallActualRequestV1::StoredMapSource
         | BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
         | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }

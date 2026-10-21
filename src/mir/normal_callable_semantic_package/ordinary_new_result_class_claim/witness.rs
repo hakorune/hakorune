@@ -113,6 +113,16 @@ impl MapStoredResultSourceV1 {
             MapStoredReturnV1::InstalledLocal { .. } => None,
         }
     }
+    /// One exact original get in the WHOLE field-use census, including callers
+    /// outside the result-producing function. This lends source, never a Home.
+    pub(crate) fn original_get_v1(&self, at: &OwnedExprSiteV1)
+        -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
+        let mut calls = self.uses.calls.iter().filter_map(|(_, call)|
+            (call.owner() == at.owner() && call.site() == at.site()
+                && call.selector() == "get" && call.arity() == 1).then_some(call));
+        let call = calls.next()?;
+        calls.next().is_none().then_some(call)
+    }
     /// Exact retained miss-path source, selected by its original set or Return.
     pub(crate) fn installed_local_v1(&self, at: &OwnedExprSiteV1)
         -> Option<(BindingRefV1, &crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
@@ -300,6 +310,30 @@ fn original_payload_new_v1(
 }
 
 impl super::OrdinaryNewResultClassClaimsV1 {
+    /// Select storage by its exact original get, then independently recheck
+    /// the producer's WHOLE Return roots. Caller and producer owners may differ.
+    pub(crate) fn map_stored_get_source_v1(&self, at: &OwnedExprSiteV1)
+        -> Result<Option<Rc<MapStoredResultSourceV1>>, &'static str> {
+        // A Return already has an exact original result owner. Do not replace
+        // that authority with a search over other producers of the same field.
+        if let Some(source) = self.map_stored_source_v1(at)? {
+            return Ok(source.original_get_v1(at).map(|_| Rc::clone(&source)));
+        }
+        let mut selected: Option<Rc<MapStoredResultSourceV1>> = None;
+        for (key, exits) in self.source_rows() {
+            let Some(source) = exits.iter().flat_map(|exit| exit.witnesses()).find_map(|root|
+                match root.step() { ResultWitnessStepV1::MapStored { source }
+                    if source.original_get_v1(at).is_some() => Some(source), _ => None }) else { continue };
+            let owner = source.receiver.receiver().owner();
+            let roots = self.checked_original_source_roots_v1(key, owner)?;
+            if !source.corroborates_roots_v1(owner, &roots.into_iter().cloned().collect::<Vec<_>>())
+                || selected.as_ref().is_some_and(|old| !Rc::ptr_eq(old, source)) {
+                return Err("callee-facts-identity");
+            }
+            selected = Some(Rc::clone(source));
+        }
+        Ok(selected)
+    }
     /// Lend the SAME whole original Return derivation, without Completion,
     /// admission or a Home. Every exit must retain this allocation and origin.
     pub(crate) fn map_stored_source_v1(&self, value: &OwnedExprSiteV1)

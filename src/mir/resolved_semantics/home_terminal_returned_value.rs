@@ -34,7 +34,7 @@ pub(crate) enum TerminalReturnedSourceV1 {
     /// Original guarded Map get plus its qualified passive Text-key read.
     StoredMapGet {
         receiver_read: SourceExprSiteV1,
-        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
+        source: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
         key: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     },
     /// Same payload after a checked field install; no caller Home remains.
@@ -344,17 +344,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
         return Ok(Some(Ok(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.site().clone(),
             TerminalReturnedSourceV1::StoredMapInstalled(std::rc::Rc::clone(install))))));
     }
-    let Some(get) = source.present_get_v1(&site) else { return Ok(unavailable()) };
-    use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1};
-    let Some(shape) = input.body_shape() else { return Ok(unavailable()) };
-    let Some(Shape::FieldAccess { object: receiver_read, field, .. }) = shape.expression_shape(get.receiver_site())
+    let Some(Response::StoredMapGetSource(get_source)) = actuals(&site, Request::StoredMapGetSource)?
         else { return Ok(unavailable()) };
-    let Some(Shape::FieldAccess { field: original, .. }) = shape.expression_shape(source.receiver_v1().field_site())
-        else { return Ok(unavailable()) };
-    if field != original || !matches!(shape.expression_shape(receiver_read),
-        Some(Shape::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
-            if *binding == source.receiver_v1().receiver()) { return Ok(unavailable()) }
-    let receiver_read = receiver_read.clone();
+    if !std::rc::Rc::ptr_eq(&source, get_source.storage()) { return Ok(unavailable()) }
+    let get = get_source.get();
+    let receiver_read = get_source.receiver().receiver_site().clone();
     let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, get, 0)
         else { return Ok(unavailable()) };
     // Source currently admits an exact symbolic parameter key only. Computed
@@ -368,5 +362,5 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
     if !key.calls().is_empty() || !key.cores().is_empty() || !key.operations().is_empty()
         || !key.owned_result_nodes().is_empty() { return Ok(unavailable()) }
     Ok(Some(Ok(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.site().clone(),
-        TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read }))))
+        TerminalReturnedSourceV1::StoredMapGet { source: get_source, key, receiver_read }))))
 }

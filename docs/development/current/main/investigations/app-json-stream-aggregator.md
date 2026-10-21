@@ -1,18 +1,16 @@
 # APP-json-stream-aggregator
-Status: Map borrowed Unit receiver reaches physical Call; reportUser/final Map/native incomplete. Date: 2026-10-21
+Status: Shared stored-get source reaches Return consumers; LOCAL/final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 419.936s,
+- Latest full suite (parent commit): 7PASS/4FAIL, actual EXE6 + marker1, 419.936s,
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
-- Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
-  --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
+- Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
 - Selected JSON passes `processLine` → `stats.add(bytes, ok)` physical receiver;
   next is borrowed-entry/source-use-completion-pending owner29 (`reportUser`,
   apps/json-stream-aggregator/main.hako:160-165). No MIR/EXE; final Map/native owed.
-- Current CLI40.01s/root84s. Runtime/FFI unchanged; no new test functions/files.
-- Previous six Birth Text source→MIR/ABI/JSON cases pass, including two independent
-  callers; same-key foreign-source refusal remains. No new test functions.
+- Current CLI38.03s/root62s. Runtime/FFI unchanged; no new test functions/files.
+- Prior six Birth Text source→MIR/ABI/JSON cases pass; foreign-source refusal stays.
 - Former unsupported-Text negatives now use Float/Map with the same named refusal
   and consumer topology; Text positives remain. Inventory9263, no new files/hooks/guards/cards.
 - Current37 filters match parent per-test outcomes/strict failures; source_scope3PASS,
@@ -83,10 +81,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Producer/receiver share one rechecked original witness graph before incoming census.
   Physical/final consumers join SAME producer Normal/LocalSSA and every Copy dependency.
   Intermediate slot replacement and callee Text-write inputs refuse; worker reviewed.
-- Next borrow reportUser's exact get from SAME Map whole-use census, then LOCAL
-  null/field→Text uses and final Map Return/ABI. No fake ordinary Call or owned Handle.
-- Native Text formal/actual/Materialize/store/End/Fault consumer closure also remains
-  required; Rust JSON success does not imply native execution.
+- Shared get source now lends SAME Map census/get Arc with this function's entry
+  receiver. Existing Return/physical/final consumers recheck it; original Return
+  producer wins, otherwise ambiguous producers refuse. No source grants a Home.
+- Next retain direct get in LOCAL lifecycle, null/field→Text and final Map/ABI.
+  LOCAL key uses its own original evaluation, never the producer's callable ordinal.
+- Native Text formal/actual/Materialize/store/End/Fault closure remains required.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
   Array holder/contents/End and exact empty-transfer census remain owed.
 - Signed SUM/rebind/to_i64, direct terminal Text Call original actuals, non-Text key
