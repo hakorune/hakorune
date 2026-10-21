@@ -24,7 +24,6 @@ impl OrdinaryNewClaimLedgerV1 {
         let loan = source.borrowed_nullable_local_source()
             .ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
         let support = loan.result_support_v1();
-        let ordinal = support.formal_ordinal().ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
         let kind = InvokeCallResultKind::BorrowedNullableHandle { support };
         let roots = self.callable_result_classes.checked_original_source_roots_v1(source.target(), source.callee_owner())
             .map_err(|issue| freeze(issue))?;
@@ -47,7 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if originals.next().is_some() || incoming.callee != source.callee_owner()
             || incoming.source.require_instance()? != source || loan.call() != source.call_site()
             || loan.key() != source.target() || loan.callee_owner() != source.callee_owner()
-            || ordinal >= source.target().arity()
+            || support.formal_ordinal().is_some_and(|ordinal| ordinal >= source.target().arity())
             || observed.borrowed_nullable() != Some(loan) || observed.arguments() != arguments
             || observed.local_binding().map(|(_, binding)| binding) != Some(loan.destination())
             || row.result() != Some(kind) || row.scalar_result.is_some() || row.unit_completion.is_some()
@@ -55,6 +54,16 @@ impl OrdinaryNewClaimLedgerV1 {
             || row.borrowed_completion.as_ref().is_none_or(|held| !Rc::ptr_eq(held, completion))
             || !self.root_home_flow_ready_v1(completion)?
         { return Err(freeze("borrowed-nullable-call/source-completion-drift")); }
+        if loan.is_map_slot() {
+            let result = self.callable_result_source_v1(source.callee_owner())?
+                .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+            let borrowed = result.borrowed_nullable()
+                .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+            borrowed.require_local_source_v1(loan, completion, &roots)?;
+            if self.checked_completed_object_callee_target_exits_v1(source)?.is_none() {
+                return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+            }
+        }
         Ok(kind)
     }
 
@@ -73,10 +82,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut upgrades = Vec::new();
         for (site, source) in &pending {
             let loan = source.borrowed_nullable_local_source().ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
-            // A Map source has no formal result ABI. Keep its same source slot
-            // pending until the storage-supported physical result law closes.
+            // A storage result keeps its own support. Its SAME whole-result
+            // source/Completion must close before this logical Call is ready;
+            // final physical Return/ABI consumers still verify their packets.
             let support = loan.result_support_v1();
-            let Some(_) = support.formal_ordinal() else { continue; };
+            if loan.is_map_slot() && self.checked_completed_object_callee_target_exits_v1(source)?.is_none() {
+                continue;
+            }
             self.callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected, &self.field_write_claims, contracts, loan, self.app_main_caller_source_ref_v1())
                 .map_err(|issue| freeze(issue))?;
             let Some(arguments) = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?

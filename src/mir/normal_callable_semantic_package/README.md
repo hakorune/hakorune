@@ -2095,10 +2095,17 @@ lifecycle route even while unavailable. The dedicated borrower finisher upgrades
 that same cell only after its whole original input cohort finishes, all original
 result roots and substitutions recheck, and the same canonical callee Completion
 matches its result contract. The retained row lends a distinct
-`BorrowedNullableHandle { support: Formal(formal_ordinal) }` Call result and the existing borrowed
-Normal projection, with no owning packet, Home or result End. Take and argument
-materialization re-demand that same source and Completion; the ordinal belongs
-to the callee, not a caller Return. Missing input leaves the same cell pending.
+`BorrowedNullableHandle { support }` Call result and the existing borrowed Normal
+projection, with no owning packet, Home or result End. Formal support retains the
+callee ordinal. MapSlot retains ReceiverFieldSlot support and has no formal root
+or ordinal. Its SAME Completion, complete Return roots and original install must
+close: candidate occurs once before install, Normal removes it, and Return no
+longer owns it. Source classification does not require completed exits; this
+readiness gate belongs to logical Call finishing. Original source-use coverage
+also checks the same install value argument and returned-local read, in addition
+to receiver/key; neither formal aliases nor duplicate reads are silently covered.
+Take and argument materialization re-demand that same source and Completion.
+Missing input leaves the same cell pending.
 The Object finisher never upgrades it into an owning result. Physical Return,
 final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.

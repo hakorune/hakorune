@@ -1,23 +1,23 @@
 # APP-json-stream-aggregator
-Status: Original-source Text Birth reaches final Rust consumers; native Text/Map incomplete. Date: 2026-10-21
+Status: Map LOCAL Call closes original Return/lifetime proof; final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current fixed suite: 7PASS/4FAIL, actual EXE6 + marker1, 413.286s,
+- Latest full suite (parent): 7PASS/4FAIL, actual EXE6 + marker1, 413.286s,
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration
   --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Final selected JSON still fails at ordinary-new/lexical-instance-call/source-pending:
-  `processLine` → `me.statsFor(user)` (apps/json-stream-aggregator/main.hako:129),
-  owner26 Body5 Initializer0 → callee25. No MIR/EXE; app not complete.
-- Final CLI41.11s/root68s, no new warning symbols. Runtime/FFI unchanged.
+- Selected JSON passes `processLine` → `me.statsFor(user)`; next source-pending is
+  `stats.add(bytes, ok)` (apps/json-stream-aggregator/main.hako:130),
+  owner26 Body6 → callee22. No MIR/EXE; final Map/native gates remain owed.
+- Current CLI41.41s/root66s. Runtime/FFI unchanged; no new test functions/files.
 - Six source→MIR verification→ABI→JSON cases pass: declared/inferred Birth Text,
   literal/computed/forwarded inputs; forwarding includes two independent callers.
 - Same-key foreign-source handoff refusal passes; existing tests extended only for
   original-source/transport and caller-identity boundaries, no new test functions.
 - Former unsupported-Text negatives now use Float/Map with the same named refusal
   and consumer topology; Text positives remain. Inventory9263, no new files/hooks/guards/cards.
-- Final37 filters match parent per-test outcomes/strict failures; source_scope3PASS,
+- Current37 filters match parent per-test outcomes/strict failures; source_scope3PASS,
   constructor2PASS. Retained reds stay owed. Broad52 remains unconfirmed;
   earlier FieldHas not remeasured, no waiver.
 
@@ -75,11 +75,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Native install needs complete child End; precommit keeps candidate, Normal moves once.
 
 ## Next and completion limits
-- Next source connection: finish_borrowed_nullable_slots_v1 must borrow the SAME
-  Completion's full Return/lifetime proof for ReceiverFieldSlot: hit StoredMapGet,
-  miss StoredMapInstalled Normal/Home transfer/EndOutcome/cleanup. Then join existing
-  corroboration, final Return outcomes and publication. Do not merely remove the
-  formal_ordinal gate or invent a formal index for MapSlot.
+- Map LOCAL finisher now rechecks SAME Completion/full roots and every ready exit;
+  installed candidate occurs once before set, moves on Normal and is absent at Return.
+  Carrier classification keeps unfinished source; logical Call finishing owns readiness.
+  Original-use census adds same install value argument/Return read, rejecting formal
+  aliases/duplicates. Worker reviewed phase/source/ownership; no new registry or tests.
+- Next connect `stats.add` through original borrowed receiver/input proof, then final
+  Map Return outcomes/ABI/publication with exact get/install/EndOutcome/cleanup.
+  Map support has no formal index and cannot become Fresh/scalar/owning.
 - Native Text formal/actual/Materialize/store/End/Fault consumer closure also remains
   required; Rust JSON success does not imply native execution.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,

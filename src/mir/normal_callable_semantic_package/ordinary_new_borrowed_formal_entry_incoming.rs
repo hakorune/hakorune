@@ -360,6 +360,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 || !covered.insert((install.receiver_read().clone(), field.receiver())) {
                 return Err(freeze("static-input/read-use-duplicate-or-foreign"));
             }
+            // The same installed candidate owns this source read. The Map
+            // receiver/key do not cover its original value argument.
+            let value = set.arguments().get(1)
+                .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+            if origins.contains_key(&binding)
+                || !uses.reads().any(|(at, original)| at == value.site()
+                    && *original == ResolvedLexicalRefV1::Local(binding))
+                || !covered.insert((value.site().clone(), binding)) {
+                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+            }
             let evaluation = install.key().as_ref();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
@@ -398,6 +408,17 @@ impl OrdinaryNewClaimLedgerV1 {
                         if !flow.is_some_and(|flow| flow.maps().iter().any(|row|
                             matches!(row, MapHomeObservation::FieldInstall(same) if Rc::ptr_eq(same, install)))) {
                             return Err(freeze("static-input/qualified-use-identity"));
+                        }
+                        let at = OwnedExprSiteV1::new(owner, value.value_site().clone());
+                        let (binding, construction, set) = install.source().installed_local_v1(&at)
+                            .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+                        if binding != install.binding() || construction.site() != install.acquisition().site()
+                            || set.owner() != install.site().owner() || set.site() != install.site().site()
+                            || origins.contains_key(&binding)
+                            || !uses.reads().any(|(site, original)| site == value.value_site()
+                                && *original == ResolvedLexicalRefV1::Local(binding))
+                            || !covered.insert((value.value_site().clone(), binding)) {
+                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                         }
                         None
                     }

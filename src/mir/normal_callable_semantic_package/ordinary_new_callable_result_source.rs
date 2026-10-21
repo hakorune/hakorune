@@ -131,6 +131,45 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
         Ok(())
     }
 
+    /// Join the existing whole-result loan to its original LOCAL caller.
+    /// Require logical Call completion here; physical Return packets keep their gate.
+    pub(in crate::mir::normal_callable_semantic_package) fn require_local_source_v1(
+        &self, local: &super::super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1,
+        completion: &Rc<VerifiedFunctionCompletionV1>, roots: &[&Rc<ResultOriginWitnessV1>],
+    ) -> Result<(), String> {
+        self.validate_source()?;
+        let support = match &self.origin {
+            CallableBorrowedResultOriginV1::Formal { ordinal, .. } =>
+                crate::mir::instruction::BorrowedResultSupportV1::Formal(*ordinal),
+            CallableBorrowedResultOriginV1::MapSlot { source, .. } => source.result_support_v1(),
+        };
+        if self.owner != local.callee_owner() || self.key != *local.key()
+            || !Rc::ptr_eq(&self.completion, completion) || support != local.result_support_v1()
+            || matches!(self.origin, CallableBorrowedResultOriginV1::MapSlot { .. }) != local.is_map_slot()
+            || roots.len() != self.roots.len()
+            || roots.iter().zip(&self.roots).any(|(a, b)| !Rc::ptr_eq(a, b)) {
+            return Err(freeze("callable-result/nullable-source-contract"));
+        }
+        if let CallableBorrowedResultOriginV1::MapSlot { returns, .. } = &self.origin {
+            let flow = self.completion.cleanup().root_flow()
+                .ok_or_else(|| freeze("callable-result/nullable-source-contract"))?;
+            for returned in returns {
+                let exit = flow.exit_row(returned.return_site())
+                    .ok_or_else(|| freeze("callable-result/nullable-return-coverage"))?
+                    .map_err(|_| freeze("callable-result/nullable-return-coverage"))?;
+                if let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::StoredMapInstalled(install) = returned.returned() {
+                    if install.prior_homes().iter().filter(|home| home.binding() == install.binding()).count() != 1
+                        || !install.normal_homes().iter().eq(install.prior_homes().iter()
+                            .filter(|home| home.binding() != install.binding()))
+                        || exit.homes().iter().any(|home| home.binding() == install.binding()) {
+                        return Err(freeze("callable-result/nullable-root-role"));
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Structural correspondence only. Existing source exit/FinishedBindings
     /// validators still prove each Return operand and its exact original origin.
     pub(crate) fn validate_function(&self, function: &crate::mir::MirFunction) -> Result<(), String> {
