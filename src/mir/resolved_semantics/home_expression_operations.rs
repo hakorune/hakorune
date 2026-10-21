@@ -39,7 +39,7 @@ pub(super) fn qualify_arithmetic_operations_v1(
         let result = envelopes.first()?.normal_result();
         if result == DynamicOperatorNormalResultV1::OwnedStringValue { owned_results.push(index); }
         operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(source), node: index,
-            envelopes: envelopes.into_boxed_slice() }));
+            proof: CheckedExpressionOperationProofV1::Dynamic(envelopes.into_boxed_slice()) }));
     }
     Some((operations, owned_results))
 }

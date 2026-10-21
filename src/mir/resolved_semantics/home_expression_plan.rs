@@ -15,14 +15,41 @@ use crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvel
 pub(crate) struct CheckedExpressionOperationLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
     node: usize,
-    envelopes: Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>,
+    proof: CheckedExpressionOperationProofV1,
+}
+/// Raw nullable identity is a separate closed law, never a tagged operator.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum CheckedExpressionOperationProofV1 {
+    Dynamic(Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>),
+    NullableNull { reference: usize, null: usize, frame: Rc<super::MapFieldGetLocalV1> },
 }
 impl CheckedExpressionOperationLoanV1 {
     pub(crate) fn node(&self) -> usize { self.node }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
-    pub(crate) fn envelopes(&self) -> &[&'static VerifiedDynamicOperatorExecutionEnvelopeV1] { &self.envelopes }
+    pub(crate) fn envelopes(&self) -> &[&'static VerifiedDynamicOperatorExecutionEnvelopeV1] {
+        match &self.proof { CheckedExpressionOperationProofV1::Dynamic(rows) => rows, _ => &[] }
+    }
     pub(crate) fn single_envelope(&self) -> Option<&'static VerifiedDynamicOperatorExecutionEnvelopeV1> {
-        match self.envelopes.as_ref() { [envelope] => Some(*envelope), _ => None }
+        match self.envelopes() { [envelope] => Some(*envelope), _ => None }
+    }
+    pub(crate) fn nullable_null_v1(&self) -> Option<(usize, usize, &Rc<super::MapFieldGetLocalV1>)> {
+        let CheckedExpressionOperationProofV1::NullableNull { reference, null, frame } = &self.proof else { return None };
+        let binary = self.plan.nodes().get(self.node)?.binary()?;
+        let read = self.plan.nodes().get(*reference)?;
+        let empty = self.plan.nodes().get(*null)?;
+        if binary.operator() != ResolvedBinaryOperatorV1::Equal || frame.site().owner() != self.plan.owner()
+            || !matches!(read.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == frame.binding())
+            || !matches!(empty.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null))
+            || !((read.site() == binary.lhs() && empty.site() == binary.rhs())
+                || (read.site() == binary.rhs() && empty.site() == binary.lhs())) { return None; }
+        Some((*reference, *null, frame))
+    }
+    pub(crate) fn matches_nullable_null_reference_v1(&self,
+        references: &std::collections::BTreeMap<usize, CheckedExpressionReferenceV1>,
+    ) -> bool {
+        let Some((reference, _, frame)) = self.nullable_null_v1() else { return false };
+        matches!(references.get(&reference), Some(CheckedExpressionReferenceV1::StoredMapGet(original))
+            if Rc::ptr_eq(original, frame) && references[&reference].matches_node(&self.plan, reference))
     }
     /// One canonical numeric operation, tied to its original source node.
     /// The writer and independent physical matcher consume this same loan.
@@ -202,10 +229,9 @@ impl HomeExpressionPlanV1 {
     /// Existing declaration-only roots keep an empty requirement list. The
     /// caller cannot qualify a subset or attach an unrelated receiver node.
     pub(crate) fn with_source_field_requirements(
-        mut self, requests: &[LocalFieldReadRequestV1],
+        self, requests: &[LocalFieldReadRequestV1],
     ) -> Option<Self> {
         if !self.source_fields.is_empty() { return None; }
-        let mut seen = std::collections::BTreeSet::new();
         let prior_homes: Rc<[_]> = self.initializer_homes.clone().unwrap_or_else(|| Rc::from(
             self.print_frame().map(|frame| frame.prior_homes())
                 .or_else(|| self.argument_frame().map(|frame| frame.prior_homes()))
@@ -213,6 +239,28 @@ impl HomeExpressionPlanV1 {
                 .or_else(|| self.rebind_frame().map(|frame| frame.evaluation().prior_homes()))
                 .or_else(|| self.condition_frame().map(|frame| frame.prior_homes()))
                 .or_else(|| self.field_write_frame().map(|frame| frame.prior_homes())).unwrap_or(&[])));
+        let transferred = self.evaluation().map(|evaluation| evaluation.ordered_nodes().iter().copied()
+            .filter(|node| evaluation.transfers_node(*node)).collect()).unwrap_or_default();
+        self.with_source_field_basis_v1(requests, prior_homes, &transferred)
+    }
+    /// Return owns its evaluation in TerminalReturnedSource. This existing plan
+    /// retains only the SAME original field requirements and their Home basis.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_fields_v1(
+        evaluation: &CheckedExpressionEvaluationV1, requests: &[LocalFieldReadRequestV1],
+    ) -> Option<Self> {
+        if !matches!(evaluation.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+            role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })
+            || !evaluation.reference_coverage_is_exact() { return None; }
+        let plan = Self { source: Rc::clone(evaluation.source()), scalar_operations: Vec::new(), source_fields: Vec::new(),
+            print_frame: None, argument_frame: None, initializer_frame: None, rebind_frame: None,
+            condition_frame: None, loop_recipe: None, field_write: None, initializer_homes: None };
+        let transferred = evaluation.ordered_nodes().iter().copied().filter(|node| evaluation.transfers_node(*node)).collect();
+        plan.with_source_field_basis_v1(requests, Rc::from(evaluation.prior_homes()), &transferred)
+    }
+    fn with_source_field_basis_v1(mut self, requests: &[LocalFieldReadRequestV1], prior_homes: Rc<[LiveHomeV1]>,
+        transferred: &std::collections::BTreeSet<usize>,
+    ) -> Option<Self> {
+        let mut seen = std::collections::BTreeSet::new();
         let mut fields = Vec::with_capacity(requests.len());
         for request in requests {
             let node = request.node_in_plan(&self.source)?;
@@ -223,11 +271,7 @@ impl HomeExpressionPlanV1 {
             fields.push(field);
         }
         let original: std::collections::BTreeSet<_> = self.source.nodes().iter().enumerate()
-            .filter(|(index, _)| self.print_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
-                && self.condition_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
-                && self.argument_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
-                && self.initializer_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
-                && self.rebind_frame.as_ref().is_none_or(|frame| !frame.evaluation().transfers_node(*index)))
+            .filter(|(index, _)| !transferred.contains(index))
             .filter_map(|(index, node)| matches!(node.source(), ExpressionNodeSourceV1::Shape(
                 crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })).then_some(index))
             .collect();

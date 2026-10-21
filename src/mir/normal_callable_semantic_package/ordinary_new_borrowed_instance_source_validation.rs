@@ -33,6 +33,27 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
             if ledger.retained_owned_array_read_source_v1(loan)?.is_none() { return Ok(None); }
         }
     }
+    // An original source slot is not a qualified executable actual. Preserve
+    // the existing pending phase when the real Prefix cannot yet qualify it;
+    // missing/foreign source and direct execution demands still refuse.
+    let mut pending_expression = false;
+    for candidate in &identity.candidates {
+        if !matches!(candidate.value, BorrowedCallActualValueV1::Expression
+            | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_)) { continue; }
+        match identity.argument_sources.get(&candidate.ordinal) {
+            Some(model::ArgumentExpressionV1::Source(_)) => pending_expression = true,
+            Some(model::ArgumentExpressionV1::Qualified(_)) => {},
+            None => return Err(freeze("borrowed-instance/source-identity")),
+        }
+    }
+    if pending_expression {
+        if let Some(ledger) = array_ledger {
+            let retained = ledger.borrowed_formal_source.as_ref()
+                .ok_or_else(|| freeze("borrowed-object/source-ledger-missing"))?.as_ref().map_err(Clone::clone)?;
+            if !std::ptr::eq(retained, ingress) { return Err(freeze("borrowed-object/source-ledger-drift")); }
+        }
+        return Ok(None);
+    }
     let Some(mut result) = super::object_source::reconstruct_original_argument_protocol_with_sources_v1(
         ingress, contracts, call, &identity.candidates,
         &mut |ordinal, site, formal| {

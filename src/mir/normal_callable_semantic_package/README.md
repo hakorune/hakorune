@@ -2129,8 +2129,21 @@ The raw borrowed Normal waits for the actual Local receipt, then joins the exist
 mandatory prefix group with its Copy, prior-Homes Fault graph and Finished capture.
 Scalar and get Locals share the same receipt/Copy law; only Return lends callable
 support. Annotation contracts remain refused before emission. The final get visitor
-checks the same constructor source and module image. Full condition/Return source-use
-and same-value nonnull Branch remain owed; field execution stays refused. No Home/End
+checks the same constructor source and module image. The existing Bool owner now
+retains the SAME stored-get reference and a closed raw Equal-Null law. Its physical
+reference must join that get's actual Normal, Local receipt and complete Copy chain;
+generic scalar/tagged operands cannot borrow this permission. Original and Finished
+verification retain the same source operation and dependencies. Terminal Text field
+qualification shares the existing atomic field batch and complete field census,
+with the original evaluation, Home basis and transferred nodes. Only source-qualified
+stored-get field roots enter that Return's read coverage; foreign/duplicate roots
+refuse. Print qualifies original unconditional Call actuals through the same argument
+owner in source order; operation-local deduplication grants no temporary Home or
+execution. Original Instance Expression/String/Binding slots remain pending until
+Qualified, after source/snapshot/ledger checks. Missing/foreign slots and direct
+execution demand retain strict refusal; no executable phase is issued for pending.
+Same-value physical nonnull Branch and field execution remain owed; the field
+execution fence stays. No Home/End
 is granted, and the Object finisher never upgrades it into an owning result. Physical Return,
 final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.

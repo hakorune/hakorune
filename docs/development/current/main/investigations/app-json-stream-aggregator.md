@@ -1,19 +1,16 @@
 # APP-json-stream-aggregator
-Status: Checked get LOCAL transport connected; whole condition/Return source-use, Branch and final Map/native incomplete. Date: 2026-10-21
+Status: Original get/null Bool, Text Return source-use and Print argument qualification connected; physical field read/nonnull Branch and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Latest full suite (earlier commit): 7PASS/4FAIL, actual EXE6 + marker1, 419.936s,
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 417.748s,
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- Selected JSON now reaches get key issuance, then borrowed-entry/source-use-
-  completion-pending in reportUser. Original null guard + next Return reads remain
-  uncovered; actual app get Normal/receipt not yet observed. No MIR/EXE.
-- Current CLI27.11s/root~60s. Runtime/FFI unchanged; no new test functions/files.
-- Prior six Birth Text source→MIR/ABI/JSON cases pass; foreign-source refusal stays.
-- Inventory9263 unchanged; no new files/hooks/guards/cards. Source negatives retained.
-- Current42 filters match parent outcomes/strict diagnostics; retained reds stay owed.
-  Broad52 and earlier FieldHas remain unconfirmed, no waiver.
+- Selected JSON passes source package issue, then lexical physical lowering refuses
+  ordinary-field-read/received/exact-read-missing. Direct checked field-path root
+  drops its committed read; nested parent uses a separate existing proof. No MIR/EXE.
+- CLI38.47s/root66s; no new warnings/tests/files/hooks/guards/cards/app edits; superseded own binaries removed.
+- 44filters match parent outcomes/strict failures; inventory9263 unchanged and 2source refusals retained.
 
 ## Shared source and construction
 - One original FieldResidence census keeps every declared Array/Dynamic field,
@@ -49,8 +46,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   taken commits. Duplicate New locations refuse; original read coverage stays exact.
 - Final Birth matching first checks the original finished caller owner→symbol loan;
   physical SSA numbers are function-local and never select the semantic owner.
-- Binary observation uses the original source and shared expression-class transfer;
-  Text+i64 adds no execution permission without its complete expression frame.
+- Original Binary class transfer grants no Text+i64 execution without a full frame.
 - No application source edits, new semantic registry, fallback/retry or fake Home/SSA.
 
 ## Map/Text connection
@@ -68,11 +64,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   Native install needs complete child End; precommit keeps candidate, Normal moves once.
 
 ## Next and completion limits
-- Map LOCAL finisher now rechecks SAME Completion/full roots and every ready exit;
-  installed candidate occurs once before set, moves on Normal and is absent at Return.
-  Carrier classification keeps unfinished source; logical Call finishing owns readiness.
-  Original-use census adds same install value argument/Return read, rejecting formal
-  aliases/duplicates. Worker reviewed phase/source/ownership; no new registry or tests.
+- Map LOCAL retains full Completion/roots, exact install/Return uses and Normal
+  transfer once; logical finishing owns readiness. Aliases/duplicate uses refuse.
 - Map Unit receiver now requires exact Prefix borrower/holder, source interval
   without unknown effects, whole callee Entry numeric writes and empty exit Homes.
   Producer/receiver share one rechecked original witness graph before incoming census.
@@ -84,9 +77,17 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Shared get writer now transports raw Normal to real Local receipt/Copy, original
   Fault Homes, mandatory prefix and final get visitor. Copy law/capture shared;
   annotation contracts refuse early. Local fence retired; field fence stays.
-- Next same stored-get reference + Null law in existing Bool source/physical owner.
-  Missing Bool marks branch unavailable, so next Text Return is not collected;
-  close that cause, never exempt the five reads. App Normal/receipt still unproven.
+- Existing Bool source retains SAME stored-get ref plus raw Equal-Null law;
+  physical reference requires actual get Normal/Local receipt/Copy, with Finished
+  checks. No scalar/tagged permission. Text Return shares existing atomic field
+  batch/full census and evaluation; original stored-get field roots cover reads.
+- Print now stages original unconditional Call actuals through shared argument
+  owner in source order, deduplicated per operation; whole Print/Fault still required.
+  Retained unqualified Source slots stay pending after original identity checks;
+  missing/foreign slots and direct execution demand refuse. Next share the SAME
+  direct root read with its existing checked row; keep nested parent proof and
+  stored-get physical fence until same get Normal/nonNull Branch close. Instance
+  Text result still needs original result owner, never Static/I64 substitution.
 - Native Text formal/actual/Materialize/store/End/Fault closure remains required.
 - Provided Box, nullable Dynamic, Shared/carrier and full Dynamic activation,
   Array holder/contents/End and exact empty-transfer census remain owed.
@@ -95,6 +96,5 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Retained reds: Birth24/1, result49/3, entry64/2, actuals82/4, source33/8,
   arguments12/1, read-claim7/2; initializer/terminal/callback/plan/admission,
   brand/composition/scalar reds remain owed. Parent agreement is not completion.
-- App needs all smoke contracts and real EXE/output/exit. Full goal also needs
-  source/consumer closure, production cutover and physical retirement. Retire
-  replaced exclusive edges; retain shared safety owners. Earlier history is in Git.
+- App requires full smoke/real EXE/output/exit; full goal also requires source closure,
+  production cutover and physical retirement. Shared safety stays; history is in Git.

@@ -22,6 +22,8 @@ pub(super) fn observe<E>(
     let Ok(source_ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(false) };
     let Ok(Some(source)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
         &source_ledger, shape, statement.site()) else { return Ok(false) };
+    if !local_call_flow::stage_expression_actuals_v1(input, statement, &source, locals,
+        prefix_known, homes, local_calls, fields, actuals)? { return Ok(false); }
     let mut installation = None;
     let plan = qualify_print_expression_v1(std::rc::Rc::clone(&source), homes,
         &mut |site| locals.static_text_reference(site),

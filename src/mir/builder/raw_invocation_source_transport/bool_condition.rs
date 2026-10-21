@@ -63,7 +63,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
                 let reference = frame.references().get(&index).ok_or("[freeze:contract][bool-condition/reference-kind]")?;
                 if matches!(reference, Reference::Scalar(read) if read.original_read().is_some())
-                    || matches!(reference, Reference::FiniteEntry { .. }) {
+                    || matches!(reference, Reference::FiniteEntry { .. } | Reference::StoredMapGet(_)) {
                     use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
                     let mut state = state.borrow_mut();
                     let prepared = state.prepare_exact_lexical_read(source.owner(), site.node(), reference.binding())

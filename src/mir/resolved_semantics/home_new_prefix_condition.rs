@@ -72,7 +72,7 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
                         receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(_), .. })));
         }
         matches!(node.source(), Node::MethodCall
-            | Node::Literal(Literal::Integer(_) | Literal::Bool(_) | Literal::String(_))
+            | Node::Literal(Literal::Integer(_) | Literal::Bool(_) | Literal::String(_) | Literal::Null)
             | Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_)))
     }
     // Only direct expression Calls participate here. A Call owns its receiver
@@ -116,7 +116,11 @@ fn selects(input: ResolvedFunctionLoweringInputV1<'_>, source: &ExpressionSource
         Node::Reference(_) => locals.current_scalar_read_v1(node.site(), local_calls).is_some(),
         _ => false,
     }) && source.nodes().iter().any(|node| matches!(node.source(), Node::Reference(_)));
-    let selected = locals.in_source_loop_v1()
+    let nullable_null = binary.operator() == Op::Equal && [
+        (binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs()),
+    ].into_iter().any(|(read, null)| locals.stored_get_reference_v1(read).is_some()
+        && source.nodes().iter().any(|node| node.site() == null && matches!(node.source(), Node::Literal(Literal::Null))));
+    let selected = nullable_null || locals.in_source_loop_v1()
             && matches!(binary.operator(), Op::Equal | Op::NotEqual | Op::Less | Op::Greater
                 | Op::LessEqual | Op::GreaterEqual)
         || (plain_scalar && matches!(binary.operator(), Op::Equal | Op::NotEqual | Op::Less | Op::Greater
@@ -190,20 +194,24 @@ fn install_source<E>(
                 homes, &mut |binding| locals.field_alias_call_path(binding), actuals)
                 .map(|call| call.map(ExpressionCallSourceV1::Ordinary))
         })? else { return Ok(None) };
-    let mut entry_reads = Vec::new();
+    let mut initial_references = Vec::new();
     let owned = OwnedExprSiteV1::new(input.owner(), source.nodes()[0].site().clone());
     // Core inputs remain active; Ordinary Calls own their transferred children.
     for (index, node) in source.nodes().iter().enumerate() {
         if !prepared.is_active_reference(index) { continue; }
         if !matches!(node.source(), Node::Reference(_)) { continue; }
+        if let Some(frame) = locals.stored_get_reference_v1(node.site()) {
+            initial_references.push((index, CheckedExpressionReferenceV1::StoredMapGet(frame)));
+            continue;
+        }
         let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
         if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(&owned,
             BorrowedCallActualRequestV1::FiniteEntryRead { input, plan: &source, read: node.site(), binding, root })? {
-            entry_reads.push(read);
+            initial_references.push((index, CheckedExpressionReferenceV1::FiniteEntry { read, exclusion: None }));
         }
     }
     let mut installation = None;
-    let plan = qualify_condition_expression_v1(prepared, &entry_reads,
+    let plan = qualify_condition_expression_v1(prepared, &initial_references,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| {
             let Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) = locals.observe(site) else { return None; };

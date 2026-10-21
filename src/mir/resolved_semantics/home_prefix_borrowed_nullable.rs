@@ -69,6 +69,18 @@ impl PrefixLocalFlow<'_> {
         frame: std::rc::Rc<super::super::MapFieldGetLocalV1>,
     ) { self.store(frame.binding(), StoredLocal::StoredMapGet(frame)); }
 
+    /// Borrow the same original stored get on the current path, without
+    /// inventing an entry/scalar view or granting a non-null observation.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn stored_get_reference_v1(
+        &self, site: &SourceExprSiteV1,
+    ) -> Option<std::rc::Rc<super::super::MapFieldGetLocalV1>> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None };
+        let StoredLocal::StoredMapGet(frame) = self.locals.get(&binding)? else { return None };
+        (binding == frame.binding() && frame.matches_input(self.input)
+            && self.is_self_rooted_handle(frame.source().receiver().receiver()))
+            .then(|| std::rc::Rc::clone(frame))
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_borrowed_nullable(
         &mut self,
         loan: BorrowedNullableLocalSourceLoanV1,

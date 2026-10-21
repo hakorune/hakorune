@@ -166,6 +166,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 object_return,
                 local_calls,
                 local_static_call,
+                local_field_read,
             )?;
             locals.record_source_loop_return_v1(statement.site(), terminal_relations.get(statement.site()),
                 exit_homes.get(statement.site()), local_calls);

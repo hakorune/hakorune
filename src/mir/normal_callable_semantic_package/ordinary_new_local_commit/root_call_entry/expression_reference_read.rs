@@ -43,6 +43,9 @@ impl ExpressionReferenceReadV1 {
         finishing: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.validate_layout(frame, node, context, function)?;
+        if let source @ Reference::StoredMapGet(_) = original_reference(frame, node)? {
+            self.validate_source_reference_v1(frame.source(), node, source, context, function, finishing)?;
+        }
         if let Reference::Scalar(read) = original_reference(frame, node)? {
             if let Some(source) = read.original_read() {
                 if matches!(source.producer(), Producer::BranchNormal(_)) {
@@ -96,7 +99,7 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         let source = original_reference(frame, node)?;
         let producer = match source {
-            Reference::Scalar(_) | Reference::FiniteEntry { .. } => return Self::prepare_source_reference_v1(
+            Reference::Scalar(_) | Reference::FiniteEntry { .. } | Reference::StoredMapGet(_) => return Self::prepare_source_reference_v1(
                 frame.source(), node, source, read, context, function),
             Reference::StaticText(original) => {
                 let value = read.loan_local_initializer_v1(original.definition_binding())?.0;
@@ -228,6 +231,12 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<PreparedExpressionReferenceReadV1, String> {
         if !source.matches_node(plan, node) { return Err(freeze("expression/reference-source-node")); }
         match source {
+            Reference::StoredMapGet(frame) => {
+                let (_, normal) = context.stored_map_get_read_v1(frame, read, function, None)?;
+                let producer = ReferenceProducerV1::Definition(normal);
+                validate_dependencies(read.binding_observation_v2(), &producer, function)?;
+                Ok(PreparedExpressionReferenceReadV1 { producer })
+            },
             Reference::Scalar(source) => Self::prepare_scalar_read_v2(plan,
                 source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, read, context, function),
             Reference::FiniteEntry { read: original, .. } => Ok(PreparedExpressionReferenceReadV1 {
@@ -247,6 +256,16 @@ impl ExpressionReferenceReadV1 {
     ) -> Result<ValueId, String> {
         if !source.matches_node(plan, node) { return Err(freeze("expression/reference-source-node")); }
         match source {
+            Reference::StoredMapGet(frame) => {
+                let (value, normal) = context.stored_map_get_read_v1(frame, &self.read, function, finishing)?;
+                if !matches!(&self.producer, ReferenceProducerV1::Definition(original) if original == &normal) {
+                    return Err(freeze("expression/reference-source-node"));
+                }
+                self.read.value_for(plan.owner(), plan.nodes()[node].site().node(), frame.binding())
+                    .map_err(|error| error.to_string())?;
+                if let Some(finishing) = finishing { self.validate_finished_dependencies_v1(function, finishing)?; }
+                Ok(value)
+            },
             Reference::Scalar(source) => self.validate_scalar_read_v2(plan,
                 source.original_read().ok_or_else(|| freeze("expression/reference-scalar-obligation"))?, context, function, finishing),
             Reference::FiniteEntry { read, .. } => {
@@ -319,6 +338,7 @@ fn reference_operand(frame: &CheckedExpressionEvaluationV1, node: usize, read: &
     let site = &frame.source().nodes()[node];
     read.value_for(frame.source().owner(), site.site().node(), reference.binding()).map_err(|error| error.to_string())?;
     match reference {
+        Reference::StoredMapGet(_) => Err(freeze("expression/reference-source-node")),
         Reference::StaticText(original) => {
             let value = read.loan_local_initializer_v1(original.definition_binding())?.0;
             if !matches!(producer, ReferenceProducerV1::Definition((_, MirInstruction::Const {

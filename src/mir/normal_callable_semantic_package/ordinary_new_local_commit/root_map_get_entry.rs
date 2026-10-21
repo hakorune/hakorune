@@ -404,3 +404,27 @@ impl StoredMapGetLocalEmissionV1 {
         ledger.validate_source_field_fault_v1(function, &map(&self.invoke)?, &faults, self.frame.prior_homes())
     }
 }
+impl CallValidationContextV1<'_> {
+    /// Borrow the original get Normal through the actual Local receipt and
+    /// its complete read Copy chain. This grants no scalar/tagged operand.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn stored_map_get_read_v1(
+        self, frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        read: &crate::mir::builder::ExactLexicalReadV1, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<(ValueId, (BasicBlockId, MirInstruction)), String> {
+        self.with_local_call_group_tree_v2(frame.site().owner(), |groups| {
+            let mut rows = groups.iter().filter_map(|group| group.stored_map_get().map(|packet| (group, packet)))
+                .filter(|(_, packet)| std::rc::Rc::ptr_eq(&packet.frame, frame));
+            let (group, packet) = rows.next().ok_or_else(|| freeze("map-get-source-missing"))?;
+            if rows.next().is_some() { return Err(freeze("map-get-shape")); }
+            group.validate_recorded_in_context(self, function, finishing)?;
+            let (value, copies) = read.loan_local_initializer_v1(frame.binding())?;
+            if value != packet.value || copies.first() != Some(&packet.copy)
+                || copies.iter().filter(|row| **row == packet.copy).count() != 1 {
+                return Err(freeze("initializer-expression/local-copy-correspondence"));
+            }
+            let value = read.source_value().2;
+            Ok((value, packet.normal.clone()))
+        })
+    }
+}

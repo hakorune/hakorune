@@ -225,6 +225,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
     locals: &PrefixLocalFlow<'_>, homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1], calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
     actuals: &mut impl FnMut(&OwnedExprSiteV1, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>)
         -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, E>,
+    fields: &mut impl FnMut(&[super::super::LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1)
+        -> Result<Option<Vec<super::super::LocalFieldReadResultV1>>, E>,
 ) -> Result<Option<TerminalValueReturnV1>, E> {
     use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1,
         expression_root::StatementExpressionRoleV1, expression_children::{ExpressionChildrenV1, ExpressionChildReachV1}};
@@ -249,8 +251,22 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         _ => return Ok(None),
     }
     let purpose_site = OwnedExprSiteV1::new(input.owner(), value.clone());
-    let Some(evaluation) = qualify_terminal_text_evaluation_v1(input, std::rc::Rc::clone(&source), &purpose_site, locals, homes, calls, actuals)?
+    let Some((evaluation, requests)) = prepare_terminal_text_evaluation_v1(input, std::rc::Rc::clone(&source),
+        &purpose_site, locals, homes, calls, actuals,
+        &mut |site| {
+            let request = super::super::field_read::expression_field_read_request(input, &source, site, locals)?;
+            matches!(request.received, Some(super::super::ReceivedFieldReadRequestV1::StoredMapGet { .. })).then_some(request)
+        })?
         else { return Ok(None) };
+    if !requests.is_empty() {
+        let Some(candidate) = super::super::HomeExpressionPlanV1::terminal_fields_v1(&evaluation, &requests) else { return Ok(None) };
+        let mut installation = locals.expression_installation();
+        if !installation.approve(&candidate) { return Ok(None); }
+        if fields(&requests, super::super::LocalFieldReadDemandV1::SourceExpression { plan: std::rc::Rc::clone(&source) })?.is_none() {
+            return Ok(None);
+        }
+        installation.commit();
+    }
     Ok(Some(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.clone(),
         TerminalReturnedSourceV1::TextExpression(evaluation))))
 }
@@ -266,6 +282,21 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_terminal_text
     actuals: &mut impl FnMut(&OwnedExprSiteV1, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>)
         -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, E> {
+    let Some((evaluation, fields)) = prepare_terminal_text_evaluation_v1(input, source, purpose_site,
+        locals, homes, calls, actuals, &mut |_| None)? else { return Ok(None) };
+    Ok(fields.is_empty().then_some(evaluation))
+}
+
+fn prepare_terminal_text_evaluation_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    source: std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    purpose_site: &OwnedExprSiteV1,
+    locals: &PrefixLocalFlow<'_>, homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+    calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, E>,
+    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LocalFieldReadRequestV1>,
+) -> Result<Option<(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>, Vec<super::super::LocalFieldReadRequestV1>)>, E> {
     use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1,
         expression_projection::ExpressionLeafClassV1};
     use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
@@ -301,13 +332,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_terminal_text
     }
     let Some((evaluation, fields)) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
-        &mut |site| locals.current_scalar_read_v1(site, calls), &mut |_| None)? else {
+        &mut |site| locals.current_scalar_read_v1(site, calls), field_request)? else {
             return Ok(None);
         };
-    if !fields.is_empty() || evaluation.root_class() != ExpressionLeafClassV1::Value(ExpressionValueClassV1::String) {
+    if evaluation.root_class() != ExpressionLeafClassV1::Value(ExpressionValueClassV1::String) {
         return Ok(None);
     }
-    Ok(Some(std::rc::Rc::new(evaluation)))
+    Ok(Some((std::rc::Rc::new(evaluation), fields)))
 }
 
 /// Selected storage Return never falls through to Fresh/object or scalar rules.

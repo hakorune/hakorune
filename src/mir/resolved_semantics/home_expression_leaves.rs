@@ -178,7 +178,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
                 if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer | ExpressionLeafProfileV1::BindingRebind) => {},
-            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
+            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_) | ResolvedLiteralSourceV1::Null)
                 if profile == ExpressionLeafProfileV1::BoolCondition => {},
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),
             ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {},

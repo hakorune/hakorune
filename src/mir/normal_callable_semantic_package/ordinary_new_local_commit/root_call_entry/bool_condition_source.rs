@@ -32,6 +32,8 @@ impl EmittedBoolConditionProjectionV1 {
                         && !matches!((literal, &binding.1),
                         (Literal::Bool(expected), MirInstruction::Const { dst, value: crate::mir::ConstValue::Bool(actual) })
                             if *dst == node.value && expected == actual)
+                        && !matches!((literal, &binding.1), (Literal::Null, MirInstruction::Const {
+                            dst, value: crate::mir::ConstValue::Null }) if *dst == node.value)
                     { return Err(freeze("bool-condition/literal-source")); }
                     // The captured finisher alone may remove a redundant Const.
                     if mapped(binding, finishing)?.is_some() { require_binding(function, binding, finishing)?; }
@@ -89,6 +91,11 @@ impl EmittedBoolConditionProjectionV1 {
                     let loan = self.frame.operations().iter().find(|loan| loan.node() == node.node)
                         .ok_or_else(|| freeze("bool-condition/operator-loan"))?;
                     if !Rc::ptr_eq(loan.source(), source) { return Err(freeze("bool-condition/operator-source")); }
+                    if loan.nullable_null_v1().is_some() {
+                        if !loan.matches_nullable_null_reference_v1(self.frame.references()) {
+                            return Err(freeze("bool-condition/operator-source"));
+                        }
+                    } else if loan.single_envelope().is_none() { return Err(freeze("bool-condition/operator-loan")); }
                     let lhs = self.value_at(binary.lhs())?;
                     let rhs = self.value_at(binary.rhs())?;
                     let expected = match binary.operator() {

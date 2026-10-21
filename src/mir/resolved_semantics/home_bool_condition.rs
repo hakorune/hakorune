@@ -76,7 +76,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
 /// This shares qualification only; it grants no outer control-flow completion.
 pub(crate) fn qualify_condition_expression_v1<E>(
     mut prepared: super::leaves::PreparedExpressionCallsV1,
-    entry_reads: &[crate::mir::normal_callable_semantic_package::FiniteEntryReadV1],
+    initial_references: &[(usize, CheckedExpressionReferenceV1)],
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, TextResidenceAcquisitionV1)>,
@@ -99,8 +99,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     };
     if source.nodes().first().is_none_or(|node| node.site() != condition) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
-    let initial = entry_reads.iter().map(|read| (read.requirement().node(),
-        CheckedExpressionReferenceV1::FiniteEntry { read: read.clone(), exclusion: None })).collect();
+    let initial = initial_references.to_vec();
     let Some(reference_proofs) = super::evaluation::seed_current_expression_references_v1(&mut prepared, initial, &order,
         static_reference, residence_reference,
         scalar_reference)
@@ -144,6 +143,20 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         };
         let child = |site| source.nodes().iter().position(|node| node.site() == site);
         let (Some(left), Some(right)) = (child(lhs), child(rhs)) else { return Ok(None); };
+        if binary.operator() == Op::Equal {
+            let nullable = [(left, right), (right, left)].into_iter().find_map(|(reference, null)| {
+                let Some(CheckedExpressionReferenceV1::StoredMapGet(frame)) = reference_proofs.get(&reference) else { return None };
+                (classes[reference] == Leaf::Value(Class::Opaque) && classes[null] == Leaf::Value(Class::Null))
+                    .then(|| (reference, null, Rc::clone(frame)))
+            });
+            if let Some((reference, null, frame)) = nullable {
+                let loan = CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index,
+                    proof: CheckedExpressionOperationProofV1::NullableNull { reference, null, frame } };
+                if !loan.matches_nullable_null_reference_v1(&reference_proofs) { return Ok(None); }
+                operations.push(Rc::new(loan));
+                continue;
+            }
+        }
         let class = match (classes[left], classes[right]) {
             (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => DynamicOperatorValueClassV1::NormalInteger,
             (Leaf::Value(Class::Bool), Leaf::Value(Class::Bool))
@@ -158,7 +171,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
             family, class, class,
         )) else { return Ok(None) };
-        operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, envelopes: Box::new([envelope]) }));
+        operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])) }));
     }
     // Primitive result loans cannot introduce a conditional owning temporary.
     if calls.values().any(|call| !matches!(call.result(), LocalCallResultClassV1::I64 | LocalCallResultClassV1::Bool)) {

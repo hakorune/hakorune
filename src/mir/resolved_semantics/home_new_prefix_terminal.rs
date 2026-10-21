@@ -46,6 +46,8 @@ pub(super) fn observe_terminal_statement<'a, E>(
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
     local_calls: &mut Vec<LocalCallObservationV1>,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    local_field_read: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
+        -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<(), E> {
     let mut relation: Option<TerminalRelationV1> = None;
     // Qualified object returns are exclusive, including unavailable support.
@@ -78,7 +80,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         None
     };
     let text_terminal = if object_terminal.is_none() && unavailable.is_none() {
-        observe_text_return_expression_v1(input, statement, locals, homes, local_calls, borrowed_actuals)?
+        observe_text_return_expression_v1(input, statement, locals, homes, local_calls, borrowed_actuals, local_field_read)?
     } else { None };
     if let Some(value) = &text_terminal {
         if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {

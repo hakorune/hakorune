@@ -121,6 +121,7 @@ pub(super) fn owned_result_nodes(
 /// obligations are not physical operands; entry/residence fulfillment is later.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CheckedExpressionReferenceV1 {
+    StoredMapGet(Rc<super::super::MapFieldGetLocalV1>),
     StaticText(super::super::StaticTextReadV1),
     Residence(super::initializer_expression::TextResidenceReadV1),
     ArgumentEntry(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
@@ -133,6 +134,7 @@ pub(crate) enum CheckedExpressionReferenceV1 {
 impl CheckedExpressionReferenceV1 {
     pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
         match self {
+            Self::StoredMapGet(frame) => frame.binding(),
             Self::StaticText(read) => read.binding(),
             Self::Residence(read) => read.binding(),
             Self::ArgumentEntry(read) => read.binding(),
@@ -146,6 +148,9 @@ impl CheckedExpressionReferenceV1 {
             ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
                 if *binding == self.binding()) { return false; }
         match self {
+            Self::StoredMapGet(frame) => frame.site().owner() == source.owner()
+                && frame.source().get().owner() == source.owner()
+                && frame.site().site() == frame.source().get().site(),
             Self::StaticText(read) => read.read() == original.site(),
             Self::Residence(read) => read.node() == node && read.root() == read.acquisition().binding()
                 && read.acquisition().source().owner() == source.owner() && read.acquisition().is_text_residence(),
@@ -211,6 +216,10 @@ fn seed_reference_v1(
         expression_projection::ExpressionLeafClassV1 as Leaf};
     if proofs.contains_key(&node) || !proof.matches_node(source, node) { return None; }
     let class = match &proof {
+        CheckedExpressionReferenceV1::StoredMapGet(frame) => {
+            if !prepared.is_bool_condition() || prepared.prior_homes() != frame.prior_homes() { return None; }
+            Leaf::Value(Class::Opaque)
+        },
         CheckedExpressionReferenceV1::Scalar(read) => Leaf::Value(match read.kind() {
             super::super::SourceScalarKind::Integer => Class::I64,
             super::super::SourceScalarKind::Bool => Class::Bool,

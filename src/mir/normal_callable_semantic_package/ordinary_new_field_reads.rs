@@ -418,6 +418,22 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(field)
     }
 
+    /// Source-use closure borrows the same complete declaration/path loan.
+    /// No emitted field value or physical permission is issued here.
+    pub(in crate::mir::normal_callable_semantic_package) fn check_original_expression_field_source_v1(
+        &self, required: &crate::mir::resolved_semantics::home_new_prefix::ExpressionFieldRequirementV1,
+    ) -> Result<(), String> {
+        let request = required.request();
+        let original = self.source_field_requirement_v1(&request.site)?
+            .ok_or_else(|| fault("expression-source-requirement-missing"))?;
+        if !std::ptr::eq(original, required) || request.node_in_plan(required.plan()).is_none() {
+            return Err(fault("expression-source-plan"));
+        }
+        let rows = self.local_field_reads.borrow();
+        let row = rows.get(&request.site).ok_or_else(|| fault("required-source-read-missing"))?;
+        self.recheck_local_field_source_v1(&request.site, row, CallValidationContextV1::Lowering(self))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_local_field_source_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
         self.recheck_local_field_source_using_v1(site, row, context,
             || self.recheck_result_path_field_v1(site, row, context))
