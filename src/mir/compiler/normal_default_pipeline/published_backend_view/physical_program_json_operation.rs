@@ -262,7 +262,10 @@ pub(super) fn encode_invoke(
                 Mode::ExactSlot => {},
                 Mode::DynamicI64Replace => encoded["transaction"] = "dynamic_i64_replace".into(),
                 Mode::DynamicI64Initialize => encoded["transaction"] = "dynamic_i64_initialize".into(),
-                Mode::DynamicTextInitialize => return Err("[freeze:contract][construction-store/source-or-cleanup-contract]".into()),
+                Mode::DynamicTextInitialize => {
+                    if abi_input.is_none() { return Err("[freeze:contract][construction-store/source-or-cleanup-contract]".into()); }
+                    encoded["transaction"] = "dynamic_text_initialize".into();
+                },
                 Mode::DynamicMapInitialize => encoded["transaction"] = "dynamic_map_initialize".into(),
             }
             encoded

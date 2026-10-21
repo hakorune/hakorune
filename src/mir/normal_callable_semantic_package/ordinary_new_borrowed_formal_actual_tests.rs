@@ -142,7 +142,7 @@ fn formal_copy_forward_preserves_the_original_formal_and_actual_binding() {
 
 #[test]
 fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
-    for argument in ["1.5", "\"text\"", "%{\"key\"=>1}"] {
+    for argument in ["1.5", "1.5 + 1", "%{\"key\"=>1}"] {
         let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({argument}) return 0 }} }}");
         let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected unsupported domain stops package issue");
         let error = format!("{error:?}");
@@ -721,7 +721,7 @@ fn nested_failed_actuals_remain_terminal_for_real_consumers() {
     for (parameters, call, expected) in [
         (
             "p",
-            "recv.wrap(recv.probe(\"unsupported\"))",
+            "recv.wrap(recv.probe(1.5))",
             "borrowed-actual/unsupported-or-unavailable",
         ),
         (
@@ -731,7 +731,7 @@ fn nested_failed_actuals_remain_terminal_for_real_consumers() {
         ),
         (
             "p",
-            "recv.pair(recv.probe(true), recv.probe(\"unsupported\"))",
+            "recv.pair(recv.probe(true), recv.probe(1.5))",
             "borrowed-actual/unsupported-or-unavailable",
         ),
     ] {

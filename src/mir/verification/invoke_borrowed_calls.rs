@@ -15,6 +15,7 @@ pub(super) struct OriginalCallSourceImageV1 {
     pub(super) text: BTreeMap<(String, BasicBlockId, usize, usize), ValueId>,
     pub(super) field_reads: Vec<(String, (BasicBlockId, MirInstruction))>,
     pub(super) field_writes: Vec<(String, (BasicBlockId, MirInstruction))>,
+    pub(super) births: BTreeSet<(String, BasicBlockId, usize)>,
 }
 
 pub(super) fn original_call_slots(
@@ -25,7 +26,7 @@ pub(super) fn original_call_slots(
     let Some(root) = root else {
         return Ok(OriginalCallSourceImageV1::default());
     };
-    let selected: BTreeSet<_> = module
+    let mut selected: BTreeSet<_> = module
         .functions
         .values()
         .filter(|function| {
@@ -71,9 +72,36 @@ pub(super) fn original_call_slots(
             })
         })?;
         source.visit_finished_construction_writes_v1(module, |function, row| {
+            // Only the retained whole-constructor replay can distinguish this
+            // formal from an ordinary borrowed entry with the same carrier.
+            if matches!(&row.1, MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
+                mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, .. }, .. }) {
+                selected.remove(&function.signature.name);
+            }
             image.field_writes.push((function.signature.name.clone(), row));
             Ok(())
         })?;
+    }
+    for function in module.functions.values() {
+        for (block, body) in &function.blocks {
+            for (index, row) in body.all_instructions().enumerate() {
+                let MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. } = row else { continue };
+                if !call.arguments.iter().any(|arg| matches!(arg, crate::mir::instruction::BirthArgumentV1::Text(_))) { continue; }
+                let mut actual = None;
+                for candidate in root.birth_actuals().into_iter().flatten().filter(|candidate|
+                    candidate.target() == &call.key && candidate.receiver() == call.receiver
+                        && candidate.arguments().iter().map(|arg| arg.payload()).eq(call.arguments.iter())) {
+                    if source.birth_actual_belongs_to_function_v1(candidate, function)?
+                        && actual.replace(candidate).is_some() { return Err("borrowed-source-coordinate-duplicate".into()); }
+                }
+                let actual = actual.ok_or("call-result-contract-not-connected")?;
+                let mut abis = root.births().into_iter().flatten().filter(|abi| abi.target() == &call.key);
+                let abi = abis.next().ok_or("call-result-contract-not-connected")?;
+                if abis.next().is_some() { return Err("borrowed-source-coordinate-duplicate".into()); }
+                source.validate_birth_text_actuals_v1(abi, actual, function)?;
+                image.births.insert((function.signature.name.clone(), *block, index));
+            }
+        }
     }
     let mut callees = BTreeSet::new();
     let mut incoming = BTreeSet::new();

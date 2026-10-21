@@ -37,9 +37,13 @@ impl PublishedMirBackendView<'_> {
                 .functions()
                 .get(call.caller_function_index() as usize)
                 .ok_or_else(|| fault("birth-caller-missing"))?;
+            let callee = entry.program().functions().get(call.function_index() as usize)
+                .ok_or_else(|| fault("birth-actual-formal-missing"))?;
+            let super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = callee.role()
+                else { return Err(fault("birth-actual-formal-missing")) };
             if let Some(source) = entry.program().handoff().root_source() {
                 let function = self.module().functions.get(caller.name()).ok_or_else(|| fault("birth-caller-draft-missing"))?;
-                source.validate_new_birth_expression_actuals_v1(call.actual(), function)?;
+                source.validate_birth_text_actuals_v1(abi, call.actual(), function)?;
             }
             let uses = entry
                 .program()
@@ -66,6 +70,13 @@ impl PublishedMirBackendView<'_> {
                 .transpose()?
                 .unwrap_or_default();
             for actual in call.actual().arguments() {
+                if matches!(actual.payload(), crate::mir::instruction::BirthArgumentV1::Text(_)) {
+                    if abi.text_formal_source_v1(actual.source().ordinal())?.is_none()
+                        || entry.program().handoff().root_source().is_none() {
+                        return Err(fault("actual-kind-unavailable"));
+                    }
+                    continue;
+                }
                 let value = actual.value_only_v1()?;
                 // The bound formal's contract is the sole capability
                 // authority: an object-field formal admits the nullable

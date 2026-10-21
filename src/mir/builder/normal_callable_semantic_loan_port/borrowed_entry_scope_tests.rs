@@ -263,7 +263,7 @@ fn selected_scope_adopts_existing_borrowed_formal_value() {
 
 #[test]
 fn selected_scope_rejects_failed_actual_before_raw_carrier_activation() {
-    let error = scope("\"unsupported\"").unwrap_err();
+    let error = scope("1.5").unwrap_err();
     assert!(
         error.contains("borrowed-actual/unsupported-or-unavailable"),
         "{error}"

@@ -4,6 +4,7 @@ use super::*;
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1 as Source;
 use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
+use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 
 pub(super) fn encode_parameters(
     function: &PublishedLifecyclePhysicalFunctionV1<'_>,
@@ -24,6 +25,14 @@ pub(super) fn encode_parameters(
                                 carriers.get(index + usize::from(function.role().has_receiver()))
                             })
                             .copied();
+                        let birth_text = match function.role() {
+                            PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } =>
+                                abi.text_formal_source_v1(index as u32)?.is_some(),
+                            _ => false,
+                        };
+                        if birth_text && carrier != Some(Carrier::BorrowedTaggedValue) {
+                            return Err(fault("param-carrier-drift"));
+                        }
                         let named_map = matches!(
                             param_type,
                             crate::mir::MirType::Box(name) if name == "MapBox"
@@ -32,7 +41,7 @@ pub(super) fn encode_parameters(
                             (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue), _) => {
                                 let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
                                 corroborate_function(function, ordinal, input)?;
-                                if !input.entry().has_borrowed_entry(ordinal) {
+                                if !birth_text && !input.entry().has_borrowed_entry(ordinal) {
                                     return Err(fault("borrowed-carrier-source-missing"));
                                 }
                                 "borrowed_kind_payload_v1"
@@ -95,6 +104,9 @@ pub(super) fn encode_parameters(
                             row["object_view"] = json!(
                                 input.entry().borrowed_object_view(ordinal, param.0)
                             );
+                            if birth_text {
+                                row["text_view"] = json!(true);
+                            }
                             if let Some(domain) = input.entry().borrowed_formal_domain_v1(ordinal, param.0) {
                                 let view = if domain.text_only() { Some("text_view") }
                                     else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.signed_only() { Some("integer_view") }
@@ -291,6 +303,16 @@ pub(super) fn encode_birth_call(
         .arguments()
         .iter()
         .map(|argument| {
+            if let crate::mir::instruction::BirthArgumentV1::Text(operand) = argument.payload() {
+                let callee = input.program().functions().get(*target as usize)
+                    .ok_or_else(|| fault("birth-target-foreign"))?;
+                let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = callee.role()
+                    else { return Err(fault("birth-actual-formal-missing")) };
+                if abi.text_formal_source_v1(argument.source().ordinal())?.is_none() {
+                    return Err(fault("actual-kind-unavailable"));
+                }
+                return Ok(json!({"kind":"borrowed_text", "operand":super::operation::encode_string_operand_v1(operand)}));
+            }
             // An admitted dominated `new`-argument use carries the same lent
             // Integer view as a checked compare operand; the `"tagged"`
             // spelling hands the callee its proven kind==1 payload.
@@ -329,7 +351,9 @@ pub(super) fn verify_borrowed_projection(
             .param_carriers()
             .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue))
     });
-    let original = input.is_some_and(|input| input.entry().has_borrowed_entries());
+    let original = input.is_some_and(|input| input.entry().has_borrowed_entries()
+        || input.program().functions().iter().any(|function| function.param_carriers()
+            .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue))));
     if !current && !original {
         return Ok(());
     }
@@ -363,6 +387,9 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
         || function.role().object_return_outcomes() != original.role().object_return_outcomes()
         || function.role().ordinary_target() != original.role().ordinary_target()
         || function.role().birth_target() != original.role().birth_target()
+        || matches!((function.role(), original.role()),
+            (PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: left },
+             PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: right }) if left != right)
         || function.role().receiver_object() != original.role().receiver_object()
         || function.role().has_receiver() != original.role().has_receiver()
         || function.params() != original.params()

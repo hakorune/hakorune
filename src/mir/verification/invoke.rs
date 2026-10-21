@@ -124,7 +124,8 @@ pub(super) fn check_module_with_source(
                     let target = module.canonical_callable_definition_symbol(&call.key)
                         .and_then(|symbol| module.functions.get(symbol));
                     if target.is_none_or(|target| target.params.len() != call.arguments.len() + 1)
-                        || call.arguments.iter().any(|argument| matches!(argument, crate::mir::instruction::BirthArgumentV1::Text(_))) {
+                        || (call.arguments.iter().any(|argument| matches!(argument, crate::mir::instruction::BirthArgumentV1::Text(_)))
+                            && !image.births.contains(&(function.signature.name.clone(), *id, index))) {
                         errors.push(error(*id, "call-result-contract-not-connected"));
                     }
                 }
@@ -227,8 +228,7 @@ pub(super) fn check_module_with_source(
                             errors.push(error(*id, "field-read-definition-invalid"));
                         }
                         InvokeOperation::FieldSet { mode, field, .. }
-                            if *mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize
-                                || module.canonical_field_definition(*field).is_none()
+                            if module.canonical_field_definition(*field).is_none()
                                 || (*mode == crate::mir::instruction::FieldSetModeV1::ExactSlot
                                     && dynamic_field(module, *field))
                                 || (*mode != crate::mir::instruction::FieldSetModeV1::ExactSlot

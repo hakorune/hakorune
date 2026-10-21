@@ -148,6 +148,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
             }
         }
+        let new_evaluations = self.new_input_evaluations_v1(contract.owner)?;
+        for evaluation in &new_evaluations {
+            if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) { evaluations.push(evaluation); }
+        }
         self.collect_terminal_input_evaluations_v1(contract.owner, uses, &origins, &mut covered, &mut evaluations)?;
         for product in &loops {
             let evaluation = product.source.condition.evaluation();
@@ -514,10 +518,6 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
-        // Existing admitted owners keep their original use/actual authority.
-        if source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner) {
-            return Ok(None);
-        }
         let catalog = catalog
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
         let mut matching = catalog.iter().filter(|row| row.owner == owner);
@@ -532,6 +532,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let sums: Vec<_> = borrowed.iter().map(|row| source.lend_source_value_sum_v1(row.binding)).collect();
         let text_requested = sums.iter().flatten().any(|sum| sum.alternatives().contains(
             &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+        // Original Text domains select the same finite source structure even
+        // when a legacy Uses definition exists. Full uses and incoming still
+        // require their original proof; non-Text owners keep that selection.
+        if !text_requested
+            && (source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner)) {
+            return Ok(None);
+        }
         // Preserve the existing Text refusal boundary. New scalar families
         // select only a complete original cohort, never one convenient formal.
         if !text_requested && ((contract.mode == Mode::StaticBoxMethod

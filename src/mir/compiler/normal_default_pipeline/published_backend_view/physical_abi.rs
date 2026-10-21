@@ -363,21 +363,38 @@ impl<'module> PublishedMirBackendView<'module> {
         use crate::mir::normal_callable_semantic_package::{
             BirthFormalDeclarationClassV1 as Declaration, BirthFormalUseCoverageV1 as Uses,
         };
-        for formal in entry.births().iter().flat_map(|birth| birth.formals()) {
-            if formal.kind() == CompiledEntryFormalKindV1::Receiver {
-                continue;
+        for birth in entry.births() {
+            let function = entry.program().functions().get(birth.function_index() as usize)
+                .ok_or_else(|| fault("birth-caller-missing"))?;
+            let super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = function.role()
+                else { return Err(fault("formal-contract-missing")) };
+            let mut text_birth = false;
+            for formal in birth.formals() {
+                if formal.kind() == CompiledEntryFormalKindV1::Receiver {
+                    continue;
+                }
+                if abi.text_formal_source_v1(formal.source_ordinal().ok_or_else(|| fault("formal-contract-missing"))?)?.is_some() {
+                    text_birth = true;
+                    continue;
+                }
+                let contract = formal
+                    .contract()
+                    .ok_or_else(|| fault("formal-contract-missing"))?;
+                if contract.declaration() != Declaration::Unannotated {
+                    return Err(fault("formal-declaration-unavailable"));
+                }
+                if !matches!(
+                    contract.uses(),
+                    Uses::NoUse | Uses::I64FieldStores { .. } | Uses::ObjectFieldStores { .. }
+                ) {
+                    return Err(fault("formal-use-unavailable"));
+                }
             }
-            let contract = formal
-                .contract()
-                .ok_or_else(|| fault("formal-contract-missing"))?;
-            if contract.declaration() != Declaration::Unannotated {
-                return Err(fault("formal-declaration-unavailable"));
-            }
-            if !matches!(
-                contract.uses(),
-                Uses::NoUse | Uses::I64FieldStores { .. } | Uses::ObjectFieldStores { .. }
-            ) {
-                return Err(fault("formal-use-unavailable"));
+            if text_birth {
+                // Recheck even when a cloned module lost its demand marker.
+                let callee = self.module().functions.get(function.name()).ok_or_else(|| fault("birth-caller-draft-missing"))?;
+                entry.program().handoff().root_source().ok_or_else(|| fault("formal-contract-missing"))?
+                    .validate_birth_text_entry_v1(abi, callee)?;
             }
         }
         // Exact call identity, arity and ordering were checked by compiled-entry.

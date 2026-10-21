@@ -177,7 +177,7 @@ pub(crate) type ConstructionSourceEligibilityV1 = Result<Rc<ConstructionSourceSt
 impl ConstructionPlanV1 {
     /// A clone lends the same source and sealed execution, not an equivalent
     /// independently reconstructed permission.
-    pub(super) fn same_execution_v1(&self, other: &Self) -> bool {
+    pub(in crate::mir) fn same_execution_v1(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.execution, &other.execution)
     }
     pub(crate) fn steps(&self) -> &[ConstructionSourceStepV1] { self.source.steps() }

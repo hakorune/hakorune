@@ -3783,9 +3783,19 @@ seeds, Array argument discovery and nullable LOCAL discovery share the original
 input lender; constructor inputs never borrow a fictional declaration slot. Stored child source retains the SAME structure Rc and
 step. Pending incoming and selected receiver issuance share its corroborator,
 then independently check the canonical field/child. A structurally equal reissued
-source Rc is rejected. Source retention and selected call rows do not upgrade
-call-bearing constructor plans: ordered physical calls, result/discard, committed
-field cleanup, final correspondence and C consumption must close first.
+source Rc is rejected. Birth Text formals borrow the SAME retained construction
+execution SUM only when every original formal store is covered; raw declaration,
+use census and deferred disposition stay unchanged. Callee replay checks the
+same source/execution and physical lanes. Typed New actuals retain their original
+caller evaluation, ordinal and whole cleanup; the original finished caller scope
+is selected before function-local SSA matching. Module/ABI/JSON consumers join
+these original products without treating a carrier marker as permission.
+Text source domains select the existing finite entry even for a prior Uses owner.
+Its full-use census borrows New evaluations from the original claim or its taken
+commit, rejecting duplicate locations; all original reads still need exact entry
+proof. Non-Text selection is unchanged. Literal/computed/forwarded Text share the
+String operand writer. Native C admission remains a separate required connection;
+source retention never upgrades call-bearing construction or incomplete cleanup.
 
 Original parameterless instance results retain Unit source candidates in the same
 original-return map: original body/end and bare Return sites, never an invented

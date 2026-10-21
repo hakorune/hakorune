@@ -69,7 +69,9 @@ impl PreparedTextInputV1 {
         let function = builder.function_state.current_function.as_mut().ok_or_else(|| fault("no-function"))?;
         let lane = self.ordinal + 1; // The existing instance-constructor ABI is receiver then source parameters.
         if function.params.get(lane) != Some(&input) || !self.sum.text_only()
-            || !matches!(function.signature.params.get(lane), Some(MirType::Unknown | MirType::Integer | MirType::String)) {
+            || !(matches!(function.signature.params.get(lane), Some(MirType::Unknown | MirType::Integer | MirType::String))
+                || matches!(function.signature.params.get(lane), Some(MirType::Box(name))
+                    if crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::classify(name).is_some())) {
             return Err(fault("source-or-cleanup-contract"));
         }
         function.metadata.physical_param_carriers.as_mut().ok_or_else(|| fault("emission-state"))?[lane] = Carrier::BorrowedTaggedValue;

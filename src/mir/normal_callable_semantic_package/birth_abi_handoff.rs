@@ -67,6 +67,50 @@ impl PartialEq for BirthAbiHandoffV1 {
 impl Eq for BirthAbiHandoffV1 {}
 
 impl BirthAbiHandoffV1 {
+    pub(in crate::mir) fn construction_plan_v1(&self) -> Option<&ConstructionPlanV1> {
+        self.construction.as_ref().ok()
+    }
+
+    /// Borrow the sealed Text demand without rewriting the original formal's
+    /// declaration, use census or deferred physical disposition. Every original
+    /// store of this binding must be covered by the SAME execution projection.
+    pub(in crate::mir) fn text_formal_source_v1(
+        &self, ordinal: u32,
+    ) -> Result<Option<&std::rc::Rc<super::super::SourceValueSumV1>>, String> {
+        use super::super::instance_constructor_semantic::{BirthFormalDeclarationClassV1 as D, BirthFormalUseCoverageV1 as U};
+        use super::super::instance_construction::ConstructionStoreRhsV1;
+        use crate::mir::instruction::FieldSetModeV1;
+        let lane = self.parameters.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+        let formal = self.formal_contracts.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
+            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        if !matches!(formal.declaration(), D::Unannotated | D::ExactText) { return Ok(None); }
+        let U::UnqualifiedFieldStores { sites } = formal.uses() else { return Ok(None) };
+        let Ok(plan) = &self.construction else { return Ok(None) };
+        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
+            if source.same_as(&self.source_id) && *owner == self.owner) {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        let mut covered = std::collections::BTreeSet::new();
+        let mut input = None;
+        for (index, store) in plan.stores().iter().enumerate() {
+            let ConstructionStoreRhsV1::Parameter { site, binding, provided } = store.rhs() else { continue };
+            if *binding != formal.binding() { continue; }
+            let execution = plan.store_execution_v1(index).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+            let Some(sum) = execution.text_input_v1() else { return Ok(None) };
+            if provided.is_some() || !sites.contains(site) || !covered.insert(site)
+                || execution.mode() != FieldSetModeV1::DynamicTextInitialize || !sum.text_only()
+                || input.is_some_and(|prior| !std::rc::Rc::ptr_eq(prior, sum)) {
+                return Ok(None);
+            }
+            input = Some(sum);
+        }
+        if covered.len() != sites.len() || sites.is_empty() { return Ok(None); }
+        Ok(input)
+    }
+
     fn matches_construction_v1(&self, other: &ConstructionEligibilityV1) -> bool {
         match (&self.construction, other) {
             (Ok(left), Ok(right)) => left.same_execution_v1(right),

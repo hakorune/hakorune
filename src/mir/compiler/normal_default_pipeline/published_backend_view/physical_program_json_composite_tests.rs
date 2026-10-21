@@ -369,6 +369,40 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
         json!({"kind":"string_substring", "site":42, "value":{"kind":"owned_string", "value":9}, "start":1, "end":2}));
     assert_eq!(encode(Op::IndexOf { value: Operand::OwnedString(ValueId(9)), needle: Operand::StaticText { utf8:"界".into() } }),
         json!({"kind":"string_index_of", "site":42, "value":{"kind":"owned_string", "value":9}, "needle":{"kind":"static_text", "utf8":"界"}}));
+    // Cross the original-source boundary as well as the wire projection:
+    // declared and inferred Text both borrow, materialize and transfer once.
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for formal in ["name", "name: StringBox"] {
+            for actual in ["\"猫\"", "\"猫\" + 7", "name"] {
+                let caller = if actual == "name" {
+                    "box Factory { make(name) { local label = new Label(name) return 0 } again(name) { local label = new Label(name) return 0 } } static box Main { main() { local factory = new Factory() local second = factory.again(\"猫\") local out = factory.make(\"猫\") return out } }".to_owned()
+                } else { format!("static box Main {{ main() {{ local label = new Label({actual}) return 0 }} }}") };
+                let source = format!("box Label {{ init {{ text }} birth({formal}) {{ me.text = name }} }} {caller}");
+                MirCompiler::with_options(false).compile_normal_with_published(request(&source), |view, verification| {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let json: Value = serde_json::from_str(&emit_lifecycle_physical_abi_json(&input)?).unwrap();
+                    let functions = json["functions"].as_array().unwrap();
+                    let birth = functions.iter().find(|row| row["role"] == "birth_unit").unwrap();
+                    assert_eq!(birth["params"][0]["representation"], "borrowed_kind_payload_v1");
+                    assert_eq!(birth["params"][0]["text_view"], true);
+                    assert!(birth["params"][0]["object_view"].is_null());
+                    let operations: Vec<_> = functions.iter().flat_map(|function|
+                        function["blocks"].as_array().unwrap().iter()).flat_map(|block|
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"])))
+                        .filter(|row| row["op"] == "invoke").map(|row| &row["operation"]).collect();
+                    assert_eq!(operations.iter().filter(|row| row["kind"] == "field_set"
+                        && row["transaction"] == "dynamic_text_initialize").count(), 1);
+                    let call = &operations.iter().find(|row| row["kind"] == "birth_call").unwrap()["call"];
+                    assert_eq!(call["args"][0]["kind"], "borrowed_text");
+                    assert_eq!(call["args"][0]["operand"]["kind"], match actual { "name" => "borrowed_text", "\"猫\"" => "static_text", _ => "owned_string" });
+                    Ok(())
+                }).unwrap_or_else(|error| panic!("Birth Text {formal}, {actual}: {error}"));
+            }
+        }
+    });
 }
 
 

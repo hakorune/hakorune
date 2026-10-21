@@ -234,12 +234,12 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 }
             }
         }
-        if let Some(source) = function.expression_source().binary(site) {
-            let classify = |site: &SourceExprSiteV1| classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
-                caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, inherited);
-            return OriginalFormalActualSeedV1::Binary { owner: input.owner(), source: source.clone(),
-                lhs: Box::new(classify(source.lhs())), rhs: Box::new(classify(source.rhs())) };
-        }
+    }
+    if let Some(source) = function.expression_source().binary(site) {
+        let classify = |site: &SourceExprSiteV1| classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+            caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, inherited);
+        return OriginalFormalActualSeedV1::Binary { owner: input.owner(), source: source.clone(),
+            lhs: Box::new(classify(source.lhs())), rhs: Box::new(classify(source.rhs())) };
     }
     if let Some(method) = function.method_call_source_v1(site) {
         let (proof, core_operand_request) = match source_context.map(|context| context.resolve(input, method, inventory)) {

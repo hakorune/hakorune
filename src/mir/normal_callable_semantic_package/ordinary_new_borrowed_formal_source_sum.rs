@@ -549,26 +549,29 @@ mod tests {
         assert!(solve(&nodes)[0].is_none(), "Text bounds are not signed I64");
         // A binary contributes no speculative atom. External operands may
         // ground it; a cyclic operand plus a spare literal may not.
-        let binary = |lhs, rhs| {
-            use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1 as Path, ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1};
+        use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+        let binary = |lhs, rhs, operator| {
+            use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1 as Path, ResolvedBinaryExpressionSourceV1};
             let site = |roles| SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(roles));
             Node { binary: Some(SourceBinaryTransferV1 {
                 owner: FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap(),
                 source: ResolvedBinaryExpressionSourceV1::from_parts_for_test(
-                    site(vec![Path::Body(0)]), ResolvedBinaryOperatorV1::Add,
+                    site(vec![Path::Body(0)]), operator,
                     site(vec![Path::Body(0), Path::Lhs]), site(vec![Path::Body(0), Path::Rhs])),
                 operands: [lhs, rhs],
             }), ..Default::default() }
         };
-        let nodes = vec![binary(1, 2), atom(Text), atom(Text)];
+        let nodes = vec![binary(1, 2, Op::Add), atom(Text), atom(Text)];
         assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
-        let mut nodes = vec![Node { union: vec![1], ..Default::default() }, binary(0, 2), atom(Text)];
+        let mut nodes = vec![Node { union: vec![1], ..Default::default() }, binary(0, 2, Op::Add), atom(Text)];
         assert!(solve(&nodes)[0].is_none(), "cyclic concatenation has no initial source value");
         nodes[0].union.push(3);
         nodes.push(atom(Text));
         assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
         nodes[2].atoms.insert(Other);
         assert!(solve(&nodes)[0].is_none(), "unsupported reachable pair cannot be dropped");
+        // This refusal is multiplication, not the now-proven Text+I64 Add.
+        nodes[1] = binary(0, 2, Op::Multiply);
         nodes[2] = atom(SignedI64);
         assert!(solve(&nodes)[0].is_none(), "String*Dynamic is not selected");
         nodes[3] = atom(SignedI64);

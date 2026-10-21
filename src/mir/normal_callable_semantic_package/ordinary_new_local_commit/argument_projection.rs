@@ -554,6 +554,62 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Select only the original finished caller scope. This lends no actual
+    /// execution proof and never guesses an owner from local physical IDs.
+    pub(in crate::mir) fn birth_actual_belongs_to_function_v1(
+        &self, actual: &FinalizedBirthActualsV1, function: &MirFunction,
+    ) -> Result<bool, String> {
+        self.ledger.with_finished_projection(actual.owner(), |symbol, _|
+            Ok(symbol == function.signature.name))
+    }
+
+    pub(in crate::mir) fn validate_birth_text_entry_v1(
+        &self, abi: &BirthAbiHandoffV1, function: &MirFunction,
+    ) -> Result<(), String> {
+        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        let retained = self.construction.iter().find(|(key, _)| key == abi.target())
+            .map(|(_, retained)| retained).ok_or_else(|| freeze("argument-source-unavailable"))?;
+        if function.params.len() != abi.abi().physical_arity() { return Err(freeze("argument-source-drift")); }
+        let carriers = function.metadata.physical_param_carriers.as_deref().ok_or_else(|| freeze("argument-source-drift"))?;
+        if carriers.len() != function.params.len() || carriers.first() != Some(&Carrier::ExistingCallableI64) {
+            return Err(freeze("argument-source-drift"));
+        }
+        for (ordinal, lane) in abi.parameters().iter().enumerate() {
+            let expected = if abi.text_formal_source_v1(ordinal as u32)?.is_some() {
+                Carrier::BorrowedTaggedValue
+            } else { Carrier::ExistingCallableI64 };
+            if carriers.get(lane.physical_lane() as usize) != Some(&expected) { return Err(freeze("argument-source-drift")); }
+        }
+        retained.require_birth_abi_source_v1(abi, function)
+    }
+
+    /// Join original callee demands to this exact caller's typed New row. The
+    /// two source products are distinct; physical Text bits never issue either.
+    pub(in crate::mir) fn validate_birth_text_actuals_v1(
+        &self, abi: &BirthAbiHandoffV1, actual: &FinalizedBirthActualsV1, function: &MirFunction,
+    ) -> Result<(), String> {
+        if actual.target() != abi.target() || actual.arguments().len() != abi.parameters().len() {
+            return Err(freeze("argument-source-drift"));
+        }
+        for (ordinal, argument) in actual.arguments().iter().enumerate() {
+            if argument.source().ordinal() as usize != ordinal || argument.source().new_site() != actual.site()
+                || argument.source().owner() != actual.owner() { return Err(freeze("argument-source-drift")); }
+            let formal = abi.text_formal_source_v1(ordinal as u32)?;
+            match (argument.payload(), formal) {
+                (BirthArgumentV1::Text(_), Some(_)) => {
+                    let expression = argument.expression_v1().ok_or_else(|| freeze("argument-source-drift"))?;
+                    use crate::mir::resolved_value_profile::{expression_projection::ExpressionLeafClassV1 as L,
+                        expression_class::ExpressionValueClassV1 as V};
+                    if expression.frame.root_class() != L::Value(V::String) { return Err(freeze("argument-source-unavailable")); }
+                    expression.require_source_v1(argument.source(), argument.payload())?;
+                }
+                (BirthArgumentV1::Value(_), None) => (),
+                _ => return Err(freeze("argument-source-unavailable")),
+            }
+        }
+        self.validate_new_birth_expression_actuals_v1(actual, function)
+    }
+
     pub(in crate::mir) fn validate_new_birth_expression_actuals_v1(
         &self,
         actual: &FinalizedBirthActualsV1,

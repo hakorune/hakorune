@@ -34,6 +34,12 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
         if !carriers.contains(&Carrier::BorrowedTaggedValue) {
             continue;
         }
+        if let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = function.role() {
+            let source = program.handoff().root_source().ok_or_else(|| fault("borrowed-incoming/source-missing"))?;
+            let callee = module.functions.get(function.name()).ok_or_else(|| fault("birth-caller-draft-missing"))?;
+            source.validate_birth_text_entry_v1(abi, callee)?;
+            continue;
+        }
         let key = function
             .role()
             .ordinary_target()

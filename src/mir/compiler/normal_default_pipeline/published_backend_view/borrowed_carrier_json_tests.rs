@@ -9,23 +9,19 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = "static box Helpers { read_k(m: MapBox): i64 { return m.get(\"k\") } } static box Main { main() { return read_k(%{\"k\" => 7}) } }";
-        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-            source,
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .unwrap();
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
-            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
-        else {
-            panic!("source-backed")
+        let request = |text: &str| {
+            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                text, crate::parser::ParserBuildConfig::default(),
+            ).unwrap();
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+            else { panic!("source-backed") };
+            NormalCompileRequestV1::for_mir_mode_callable_source(
+                source, None, std::collections::HashMap::new(),
+            )
         };
-        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
-            source,
-            None,
-            std::collections::HashMap::new(),
-        );
         MirCompiler::with_options(false)
-            .compile_normal_with_published(request, |view, verification| -> Result<(), String> {
+            .compile_normal_with_published(request(source), |view, verification| -> Result<(), String> {
                 assert!(verification.is_ok(), "{verification:?}");
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 // A real immutable published snapshot exercises the shared
@@ -126,23 +122,9 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
         // Swapping two canonical Birth targets must not silently redirect
         // the original new_box constructor ordinals during JSON projection.
         let source = "box Pair { left: i64 birth(left) { me.left = left } } box Other { right: i64 birth(right) { me.right = right } } static box Main { main() { local pair = new Pair(7) local other = new Other(8) return pair.left + other.right } }";
-        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-            source,
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .unwrap();
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
-            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
-        else {
-            panic!("source-backed")
-        };
-        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
-            source,
-            None,
-            std::collections::HashMap::new(),
-        );
+        let source_text = source;
         MirCompiler::with_options(false)
-            .compile_normal_with_published(request, |view, verification| -> Result<(), String> {
+            .compile_normal_with_published(request(source), |view, verification| -> Result<(), String> {
                 assert!(verification.is_ok(), "{verification:?}");
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let births: Vec<_> = input.program().functions().iter().enumerate()
@@ -155,6 +137,22 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
                     assert!(super::super::physical_program_json::corroborate_borrowed_function_snapshot(
                         &changed, births[from].0 as u32, &input,
                     ).unwrap_err().contains("function-drift"));
+                }
+                // The same canonical target from another original program
+                // cannot substitute its independent construction permission.
+                let mut foreign = Vec::new();
+                MirCompiler::with_options(false).compile_normal_with_published(request(source_text), |view, verification| {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    foreign = input.program().handoff().births().unwrap().to_vec();
+                    Ok(())
+                })?;
+                for (index, original) in births {
+                    let abi = foreign.iter().find(|abi| Some(abi.target()) == original.role().birth_target()).unwrap().clone();
+                    let mut changed = original.clone();
+                    changed.role = PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi };
+                    assert!(super::super::physical_program_json::corroborate_borrowed_function_snapshot(
+                        &changed, index as u32, &input).is_err());
                 }
                 Ok(())
             })

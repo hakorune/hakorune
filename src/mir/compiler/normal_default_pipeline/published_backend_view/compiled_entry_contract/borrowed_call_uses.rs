@@ -359,6 +359,10 @@ impl FunctionUses {
                     return Err(fault("borrowed-use/callee-or-fault-frame"));
                 }
                 for argument in &call.arguments {
+                    if let crate::mir::instruction::BirthArgumentV1::Text(operand) = argument {
+                        self.verify_text_operands_v1(tracked, views, &[operand], &[call.receiver], *fault_frame)?;
+                        continue;
+                    }
                     let crate::mir::instruction::BirthArgumentV1::Value(value) = argument else {
                         return Err(fault("borrowed-use/callee-operand"));
                     };

@@ -8,6 +8,23 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::MirInstruction;
 
 impl RetainedConstructionValidation {
+    /// Join the SAME source/execution and original parameter order to the
+    /// retained callee before lending a Text ABI entry. Then replay its body.
+    pub(in crate::mir) fn require_birth_abi_source_v1(
+        &self, abi: &crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let ConstructionState::Selected { plan, parameters, .. } = &self.construction
+            else { return Err(fault("artifact-source-unavailable")) };
+        if self.owner != abi.owner() || !abi.construction_plan_v1().is_some_and(|original| original.same_execution_v1(plan))
+            || function.signature.name != abi.target().mir_symbol_projection()
+            || parameters.len() != abi.parameters().len()
+            || parameters.iter().zip(abi.parameters()).any(|(binding, lane)| *binding != lane.binding()) {
+            return Err(fault("source-or-cleanup-contract"));
+        }
+        self.validate_artifact_after_compiler_finishing(function)
+    }
+
     pub(in crate::mir) fn validate_artifact_after_compiler_finishing(
         &self,
         function: &MirFunction,
