@@ -16,10 +16,10 @@ pub(super) fn emit_terminal_i64_call_exit(
         .current_source_site_v1()
         .ok_or("[freeze:contract][terminal-call/site-missing]")?;
     let stmt_site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
-    if let Some(source) = ledger.text_return_evaluation_v1(owner, &stmt_site)? {
+    if let Some(source) = ledger.return_expression_evaluation_v1(owner, &stmt_site)? {
         let consume = port.lexical_self_receiver_locator_consumer_v1()?;
         let state = port.callable_ledger.as_ref().ok_or("[freeze:contract][terminal-call/state-missing]")?;
-        return crate::mir::builder::ordinary_new_admission::selected::emit_text_return_expression_v1(
+        return crate::mir::builder::ordinary_new_admission::selected::emit_return_expression_v1(
             builder, &mut state.borrow_mut(), ledger, source,
             &consume).map(Some);
     }

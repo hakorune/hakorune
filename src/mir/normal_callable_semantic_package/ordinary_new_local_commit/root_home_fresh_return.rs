@@ -12,7 +12,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
         else { return Ok(None) };
         if let TerminalReturnedSourceV1::TextExpression(source) = terminal.returned() {
-            let row = order.text_return_expression.as_ref().ok_or_else(|| freeze("expression/residence-original-pair"))?;
+            let row = order.return_expression.as_ref().ok_or_else(|| freeze("expression/residence-original-pair"))?;
             if !std::rc::Rc::ptr_eq(source, &row.source) || terminal.owner() != owner || terminal.return_site() != exit {
                 return Err(freeze("expression/residence-original-pair"));
             }

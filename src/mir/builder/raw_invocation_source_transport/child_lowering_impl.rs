@@ -108,7 +108,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         &mut self, operator: &crate::ast::BinaryOperator,
     ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>>, String> {
         let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None); };
-        if !ledger.has_scalar_operation_source_v1(owner) { return Ok(None); }
+        if !ledger.has_scalar_operation_source_v1(owner)? { return Ok(None); }
         let node = self.current_source_site_v1()
             .ok_or_else(|| "[freeze:contract][scalar-original/source-site-missing]".to_owned())?;
         let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,

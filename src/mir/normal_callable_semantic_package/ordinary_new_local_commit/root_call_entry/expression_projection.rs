@@ -286,11 +286,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                             Operand::NormalInteger(lhs),
                             Operand::NormalInteger(rhs),
                         ) => {
-                            let operation = self.frame.operations().iter().find(|loan| loan.node() == index
-                                && Rc::ptr_eq(loan.source(), source)).and_then(|loan| loan.integer_operator_v1())
-                                .ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
-                            self.require_unique(|row| matches!(row, MirInstruction::BinOp { dst: actual, op, lhs: a, rhs: b }
-                                if actual == dst && *op == operation && *a == lhs && *b == rhs))?;
+                            let loan = self.frame.operations().iter().find(|loan| loan.node() == index
+                                && Rc::ptr_eq(loan.source(), source)).ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
+                            let operation = loan.integer_operator_v1().ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
+                            if let Some(scalar) = loan.scalar_source_v1() {
+                                let original = context.ledger().scalar_operation_original_v1(scalar)?;
+                                original.validate_expression_operands_v1((lhs, rhs), *dst, self.original)?;
+                                self.require_unique(|row| row == &original.original().1)?;
+                            } else {
+                                self.require_unique(|row| matches!(row, MirInstruction::BinOp { dst: actual, op, lhs: a, rhs: b }
+                                    if actual == dst && *op == operation && *a == lhs && *b == rhs))?;
+                            }
                         }
                         (Operand::OwnedString(dst), left, right)
                             if self.frame.owned_result_nodes().contains(&index) =>
@@ -427,6 +433,13 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         ordered.extend(context.ledger().expression_field_read_bindings_v1(
                             &OwnedExprSiteV1::new(source.owner(), source.nodes()[index].site().clone()), source, context)?);
                     } else {
+                        if let Some(scalar) = self.frame.operations().iter().find(|loan| loan.node() == index)
+                            .and_then(|loan| loan.scalar_source_v1()) {
+                            let original = context.ledger().scalar_operation_original_v1(scalar)?;
+                            for relation in original.operand_relations() {
+                                if let Some(target) = relation.target_binding() { if !ordered.contains(target) { ordered.push(target.clone()); } }
+                            }
+                        }
                         ordered.push(
                             self.require_unique(|row| row.dst_value() == Some(*value))?
                                 .clone(),

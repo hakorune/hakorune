@@ -17,11 +17,11 @@ pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
 pub(in crate::mir::builder) use expression_value::emit_scalar_operation_to_landing_v1;
-#[path = "selected/text_return.rs"]
-mod text_return;
+#[path = "selected/return_expression.rs"]
+mod return_expression;
 #[path = "selected/terminal_map_get.rs"]
 pub(in crate::mir::builder) mod terminal_map_get;
-pub(in crate::mir::builder) use text_return::emit as emit_text_return_expression_v1;
+pub(in crate::mir::builder) use return_expression::emit as emit_return_expression_v1;
 #[path = "selected/binding_rebind_expression.rs"]
 pub(in crate::mir::builder) mod binding_rebind_expression;
 #[path = "selected/initializer_expression.rs"]

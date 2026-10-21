@@ -94,16 +94,52 @@ impl OriginalScalarAppendV1 {
     pub(in crate::mir) fn operand_relations(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] {
         &self.operand_relations
     }
+    /// Expression wrappers consume the same recorded operands and their SSA
+    /// dependencies; direct arithmetic equality cannot erase a pinned Copy.
+    pub(in crate::mir) fn validate_expression_operands_v1(&self, children: (ValueId, ValueId),
+        destination: ValueId, bindings: &[Binding],
+    ) -> Result<(), String> {
+        if self.children != children || self.original.1.dst_value() != Some(destination)
+            || !matches!(self.original.1, MirInstruction::BinOp { op, .. } if Some(op) == self.source.integer_operator_v1())
+            || !bindings.contains(&self.original) { return Err(reject("operand-correspondence")); }
+        for relation in &self.operand_relations {
+            if relation.target_binding().is_some_and(|target| !bindings.contains(target)) { return Err(reject("operand-correspondence")); }
+        }
+        Ok(())
+    }
     pub(in crate::mir) fn divisor(&self) -> Option<&Binding> {
         self.divisor.as_ref()
     }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir) fn has_scalar_operation_source_v1(&self, owner: FunctionOwnerIdV1) -> bool {
-        self.completion_for_owner(owner)
-            .and_then(|row| row.cleanup().root_flow())
-            .is_some_and(|flow| flow.scalar_operations().next().is_some())
+    fn scalar_operation_sources_v1(&self, owner: FunctionOwnerIdV1) -> Result<Vec<Rc<Source>>, String> {
+        let flow = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow());
+        let mut sources = Vec::<Rc<Source>>::new();
+        let mut lend = |source: &Rc<Source>| -> Result<(), String> {
+            if source.owner() != owner { return Err(reject("source-membership")); }
+            if let Some(prior) = sources.iter().find(|prior| prior.binary().site() == source.binary().site()) {
+                if !Rc::ptr_eq(prior, source) { return Err(reject("source-membership")); }
+            } else { sources.push(Rc::clone(source)); }
+            Ok(())
+        };
+        for source in flow.into_iter().flat_map(|flow| flow.scalar_operations()) { lend(source)?; }
+        for evaluation in flow.into_iter().flat_map(|flow| flow.expression_plans())
+            .filter_map(|plan| plan.initializer_frame()).map(|frame| frame.evaluation())
+            .chain(self.terminal_relations_for_owner(owner).into_iter().filter_map(|row| match row {
+                TerminalRelationV1::I64Scalar(row) => row.evaluation().map(|frame| frame.as_ref()), _ => None,
+            })) {
+            for operation in evaluation.operations() {
+                if let Some(source) = operation.scalar_source_v1() {
+                    if !Rc::ptr_eq(source.plan(), evaluation.source()) { return Err(reject("source-membership")); }
+                    lend(source)?;
+                }
+            }
+        }
+        Ok(sources)
+    }
+    pub(in crate::mir) fn has_scalar_operation_source_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {
+        self.scalar_operation_sources_v1(owner).map(|sources| !sources.is_empty())
     }
 
     pub(in crate::mir) fn prepare_scalar_operation_source_v1(
@@ -115,15 +151,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if site.owner() != owner {
             return Err(reject("owner"));
         }
-        let Some(flow) = self
-            .completion_for_owner(owner)
-            .and_then(|row| row.cleanup().root_flow())
-        else {
-            return Ok(None);
-        };
-        let mut rows = flow
-            .scalar_operations()
-            .filter(|row| row.binary().site() == site.site());
+        let sources = self.scalar_operation_sources_v1(owner)?;
+        let mut rows = sources.iter().filter(|row| row.binary().site() == site.site());
         let Some(row) = rows.next() else {
             return Ok(None);
         };
@@ -134,6 +163,16 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(reject("operator"));
         }
         Ok(Some(Rc::clone(row)))
+    }
+
+    /// The already recorded append of this exact source law. No MIR search or
+    /// equal-shaped source can substitute for the original affine receipt.
+    pub(in crate::mir) fn scalar_operation_original_v1(&self, source: &Rc<Source>) -> Result<Rc<OriginalScalarAppendV1>, String> {
+        let site = OwnedExprSiteV1::new(source.owner(), source.binary().site().clone());
+        let rows = self.scalar_operation_appends.borrow();
+        let row = rows.get(&site).ok_or_else(|| reject("append-missing"))?;
+        if !Rc::ptr_eq(row.source(), source) { return Err(reject("source-membership")); }
+        Ok(Rc::clone(row))
     }
 
     pub(in crate::mir) fn record_scalar_operation_append_v1(
@@ -210,11 +249,7 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         index: &crate::mir::builder::LocalSsaPhysicalIndexV1,
     ) -> Result<(), String> {
-        let expected = self
-            .completion_for_owner(owner)
-            .and_then(|row| row.cleanup().root_flow())
-            .map(|flow| flow.scalar_operations().cloned().collect::<Vec<_>>())
-            .unwrap_or_default();
+        let expected = self.scalar_operation_sources_v1(owner)?;
         let originals: Vec<_> = index.scalar_originals().collect();
         if originals.len() != expected.len() {
             return Err(reject("original-coverage"));
@@ -346,7 +381,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let consumers = self.scalar_operation_consumers.borrow();
         let Some(rows) = consumers.get(&owner) else {
-            if self.has_scalar_operation_source_v1(owner) {
+            if self.has_scalar_operation_source_v1(owner)? {
                 return Err(reject("consumer-handoff-missing"));
             }
             return Ok(());

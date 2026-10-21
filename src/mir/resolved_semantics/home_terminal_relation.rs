@@ -14,8 +14,8 @@ use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 
 #[path = "home_terminal_returned_value.rs"]
 mod returned_value;
-pub(super) use returned_value::{terminal_returned_source, qualify_terminal_text_evaluation_v1, observe_text_return_expression_v1, observe_stored_return_v1, finite_entry_return};
-pub(crate) use returned_value::{TerminalReturnedSourceV1, TerminalValueReturnV1};
+pub(super) use returned_value::{observe_scalar_return_expression_v1 as returned_scalar_expression_v1, terminal_returned_source, qualify_terminal_text_evaluation_v1, observe_text_return_expression_v1, observe_stored_return_v1, finite_entry_return};
+pub(crate) use returned_value::{TerminalReturnedSourceV1, TerminalValueReturnV1, TerminalI64ScalarReturnV1};
 
 /// Source-only terminal shape for the selected ordinary-`New` root.
 ///
@@ -110,54 +110,6 @@ impl TerminalBoolLiteralReturnV1 {
     }
     pub(crate) const fn value(&self) -> bool {
         self.value
-    }
-}
-
-/// Exact source relation for a Completion-backed `return <expr>` whose
-/// scalar classifier proves an i64 value that is neither a literal nor a
-/// field read: a local bound to a proven-i64 source (literal store, exact
-/// formal, field-read result, or classified call result) or a trivial
-/// integer expression. Ordinary scalar proof stays in the source inventory and
-/// current flow; a direct finite entry read retains its original source loan.
-/// Neither form grants a physical result ABI.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64ScalarReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    value_site: SourceExprSiteV1,
-    entry_read: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
-}
-
-impl TerminalI64ScalarReturnV1 {
-    pub(super) fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        value_site: SourceExprSiteV1,
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            value_site,
-            entry_read: None,
-        }
-    }
-    pub(super) fn with_entry_read_v1(mut self, read: crate::mir::normal_callable_semantic_package::FiniteEntryReadV1) -> Option<Self> {
-        let required = read.requirement();
-        if !read.signed_only() || required.node() != 0 || required.read() != &self.value_site
-            || required.source_plan().owner() != self.owner
-            || required.source_plan().root().statement() != &self.return_site { return None; }
-        self.entry_read = Some(read);
-        Some(self)
-    }
-    pub(crate) fn entry_read(&self) -> Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1> { self.entry_read.as_ref() }
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
     }
 }
 
@@ -732,7 +684,7 @@ impl TerminalRelationV1 {
             Self::IntegerLiteral(row) => row.owner,
             Self::BoolLiteral(row) => row.owner,
             Self::I64Field(row) => row.owner,
-            Self::I64Scalar(row) => row.owner,
+            Self::I64Scalar(row) => row.owner(),
             Self::Value(row) => row.owner(),
             Self::OpaqueCall(row) => row.owner,
             Self::MapGet(row) => row.owner,

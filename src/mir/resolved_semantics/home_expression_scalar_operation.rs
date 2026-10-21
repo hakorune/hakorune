@@ -13,15 +13,16 @@ impl ExpressionScalarOperationLoanV1 {
     pub(super) fn issue_root(source: Rc<ExpressionSourcePlanV1>,
         binary: &ResolvedBinaryExpressionSourceV1, positive_divisor: Option<i64>,
     ) -> Option<Rc<Self>> {
-        if source.has_opaque_obligations() || source.root().initializer().is_none() {
-            return None;
-        }
+        if source.has_opaque_obligations() { return None; }
         let root = source.nodes().first()?;
-        if root.binary()? != binary
-            || source.root().initializer()?.initializer_site() != Some(root.site())
-        {
-            return None;
-        }
+        let original_value = match source.root() {
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { initializer, .. } => initializer.initializer_site()?,
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value, ..
+            } if positive_divisor.is_none() => value,
+            _ => return None,
+        };
+        if root.binary()? != binary || original_value != root.site() { return None; }
         match binary.operator() {
             ResolvedBinaryOperatorV1::Subtract if positive_divisor.is_none() => {}
             ResolvedBinaryOperatorV1::Divide
@@ -68,5 +69,15 @@ impl ExpressionScalarOperationLoanV1 {
     }
     pub(crate) fn positive_divisor(&self) -> Option<i64> {
         self.positive_divisor
+    }
+}
+
+impl CheckedExpressionOperationLoanV1 {
+    /// Lend the SAME scalar law to ordinary append/SSA/final correspondence.
+    pub(crate) fn scalar_source_v1(&self) -> Option<&Rc<ExpressionScalarOperationLoanV1>> {
+        let CheckedExpressionOperationProofV1::Scalar(source) = &self.proof else { return None };
+        (Rc::ptr_eq(source.plan(), &self.plan)
+            && self.plan.nodes().get(self.node).and_then(|node| node.binary()) == Some(source.binary()))
+            .then_some(source)
     }
 }

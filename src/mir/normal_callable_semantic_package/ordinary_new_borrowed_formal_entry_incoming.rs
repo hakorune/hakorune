@@ -401,6 +401,11 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for terminal in self.terminal_relations_for_owner(owner) {
             use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
+            if let TerminalRelationV1::I64Scalar(row) = terminal {
+                if let Some(evaluation) = row.evaluation() {
+                    if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) { evaluations.push(evaluation); }
+                }
+            }
             if let TerminalRelationV1::Value(value) = terminal {
                 let evaluation = match value.returned() {
                     TerminalReturnedSourceV1::TextExpression(evaluation) => {

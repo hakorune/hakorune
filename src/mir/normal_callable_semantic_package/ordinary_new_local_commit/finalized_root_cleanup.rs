@@ -349,7 +349,7 @@ pub(super) fn validate_finished_cleanup_entry(
             .ok_or_else(|| freeze("terminal-null/producer-removed"))?;
         mandatory.push(finished);
     }
-    if let Some(producers) = ledger.validate_text_return_producer_v1(context, owner, exit, order, entry, bindings, Some(projection), finishing, Some(function))? {
+    if let Some(producers) = ledger.validate_return_expression_producer_v1(context, owner, exit, order, entry, bindings, Some(projection), finishing, Some(function))? {
         mandatory.extend(producers);
     }
     if let Some(producer) = ledger.validate_received_return_producer_v1(

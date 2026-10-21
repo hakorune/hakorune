@@ -11,7 +11,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
         (crate::mir::BasicBlockId, crate::mir::MirInstruction),
     )>,
     pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
-    pub(super) text_return_expression: Option<Box<super::received_return::TextReturnExpressionEmissionV1>>,
+    pub(super) return_expression: Option<Box<super::received_return::ReturnExpressionEmissionV1>>,
     pub(super) text_return_hold: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
     direct: Option<(
         super::super::super::completion_index::DirectRootCleanupSourceV1,
@@ -195,7 +195,7 @@ impl RootHomeCleanupOrderV1 {
             direct: None,
             scalar: None, stored_map_get: None,
             null_return: None,
-            text_return_expression: None,
+            return_expression: None,
             text_return_hold: None,
             implicit_void: None,
             full: full.into_boxed_slice(),

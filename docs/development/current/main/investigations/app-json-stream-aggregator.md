@@ -1,18 +1,18 @@
 # APP-json-stream-aggregator
-Status: Original raw entry null guard connected; ReturnValue Sub and final Map/native incomplete. Date: 2026-10-21
+Status: ReturnValue Sub source/physical/final connected; JSON lexical entry domain and final Map/native incomplete. Date: 2026-10-21
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [untyped-slot D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
-- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 442.343s;
+- Current full suite: 7PASS/4FAIL, actual EXE6 + marker1, 431.480s;
   no SKIP/timeout. mimalloc-lite and allocator-stress PASS.
 - Command: `tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --jobs 1 --timeout 1900 --format json`.
-- JSON still stops at borrowed-entry/finite-domain-unclosed before MIR/EXE, but
-  to_i64's original Loop Recipe and x==null read now close. Only return0-acc's
-  original RHS remains uncovered. Source/physical/Finished obligations stay.
-- Native null fixture: integer0/null/reversed null==0 exit3/7/3; earlier Text/Mul
-  probe prints33. These are not JSON completion.
-- 46filters match parent outcomes and strict failure diagnostics. Null filter7/1
-  also matches parent; inventory9263 and two source refusals retained.
+- JSON passes package forwarding but stops in lexical scope at
+  borrowed-entry/finite-domain-unclosed before MIR/EXE. Original to_i64 Loop,
+  null guard and ReturnValue Sub RHS source reads close; full app is owed.
+- Native LoopAfter/Sub returns67; negative Main correctly Faults/exits70;
+  existing Text return prints a/exits0. These are not JSON completion.
+- 46filters+5extra match parent outcomes/strict remaining diagnostics; two newly
+  exposed regressions corrected. Inventory9263; two source refusals stay.
 - No new test case/file/hook/guard/checker/card/app edit. Probe stays outside repo.
 
 ## Shared source and construction
@@ -63,7 +63,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
   get/nonNull field proof is still unobserved; passing statsFor ingress does not prove it.
 
 ## Current connection and next
-- Private Static/Instance result origins preserve outer variants and catalog Text/Bool ordering.
 - Instance Text borrows existing completed Return row and exact original Instance role,
   target/identity/slot. SAME original Print expression purpose selects the request;
   scalar-only requests keep their original issuer/refusal. Stored origins stay separate.
@@ -81,12 +80,13 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [un
 - Loop Mul borrows the existing integer-operation law and expression writer. Shared
   logical mapping and independent operator/left/right/result checks prevent drift;
   dedicated Add-only emitters remain closed. No new physical lane or receipt.
-- Entry guard borrows existing null_compare_operand_kind and SAME finite source loan
-  before selection. Legacy guard owners stay; selected failure never retries.
-- Raw purpose grants no typed payload or exclusion; same tagged entry/Copy and sealed
-  Bool group feed Finished null-use admissions. Exact Null Eq cannot skip counting.
-- Next genuine ReturnValue Sub/LoopAfter through common evaluation, physical Return
-  and final coverage. No read exemptions, fake Local roots or arithmetic rewrite.
+- Entry guard retains same null law/tagged read and sealed Bool/Finished admissions.
+- ReturnValue Sub retains SAME evaluation/reference/LoopAfter and scalar append/SSA;
+  full original operands stay DCE roots. Text/scalar share the existing Return packet.
+  Record/pending/lowering/Finished and projected Return independently recheck source.
+- Static forwarding joins SAME saved SourceStatic/fact/candidate/UnresolvedArgument;
+  no domain/entry/ABI grant. Strong witness and full cohort checks stay; worker agreed.
+- Next pin lexical refusal owner/formal/SUM, then SAME source→physical entry.
 
 ## Completion limits
 - Other Instance Text purposes/terminal actuals still require their own full consumer closure.

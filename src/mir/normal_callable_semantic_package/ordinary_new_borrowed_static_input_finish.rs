@@ -446,6 +446,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 BorrowedCallActualValueV1::Bool(value) => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Bool(*value) },
                 BorrowedCallActualValueV1::Null => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Null },
                 BorrowedCallActualValueV1::Scalar(binding, kind) => PreparedBorrowedFormalActualV1 { ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding, source: BorrowedFormalActualSourceV1::Scalar { binding: *binding, kind: *kind } },
+                BorrowedCallActualValueV1::SelfRooted { .. }
+                    if source.static_arguments.contains_key(&(call.call.clone(), formal.ordinal)) =>
+                    super::static_selected_actual::original_static_forwarded_source_actual_v1(
+                        source, snapshot, original, formal.ordinal)?,
                 _ => self.borrowed_expression_actual_source_v1(&call.call, formal.ordinal, &candidate.site)?,
             };
             actuals.push(actual);

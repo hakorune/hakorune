@@ -55,6 +55,17 @@ impl OrdinaryNewClaimLedgerV1 {
         // This same source packet consumes its complete original prefix,
         // including auxiliary Const/Copy producers. Lend those exact values to
         // the existing DCE owner rather than inventing an omission permission.
+        // Return evaluations own their complete original operand prefix too.
+        // In particular, scalar SSA adapters can leave the source Const unused
+        // while its recorded source/physical correspondence remains mandatory.
+        let mut returns = Vec::new();
+        for ((original_owner, _), progress) in self.root_exits.borrow().iter() {
+            if *original_owner != owner { continue; }
+            if let RootHomeExitProgress::Emitted { order, .. } = progress {
+                returns.extend_from_slice(order.return_expression_bindings_v1());
+            }
+        }
+        required.extend(validated_roots_with_auxiliary(function, boundary, returns, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,
             self.original_condition_bindings_v1(owner)?, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,

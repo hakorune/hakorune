@@ -79,7 +79,16 @@ pub(super) fn observe_terminal_statement<'a, E>(
     } else {
         None
     };
-    let text_terminal = if object_terminal.is_none() && unavailable.is_none() {
+    let scalar_terminal = if object_terminal.is_none() && unavailable.is_none() {
+        super::terminal_relation::returned_scalar_expression_v1(input, statement, locals, homes, local_calls, borrowed_actuals, local_field_read)?
+    } else { None };
+    if let Some(Ok(terminal)) = &scalar_terminal {
+        if let Some(evaluation) = terminal.evaluation() {
+            path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
+            local_calls.extend_from_slice(evaluation.calls());
+        }
+    }
+    let text_terminal = if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
         observe_text_return_expression_v1(input, statement, locals, homes, local_calls, borrowed_actuals, local_field_read)?
     } else { None };
     if let Some(value) = &text_terminal {
@@ -89,7 +98,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         }
     }
     let mut static_terminal = None;
-    if object_terminal.is_none() && text_terminal.is_none() {
+    if object_terminal.is_none() && scalar_terminal.is_none() && text_terminal.is_none() {
         if let Ok(value) = input
             .source()
             .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
@@ -174,7 +183,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
             }
         }
     }
-    let borrowed_terminal = if object_terminal.is_none() && text_terminal.is_none() && static_terminal.is_none() {
+    let borrowed_terminal = if object_terminal.is_none() && scalar_terminal.is_none() && text_terminal.is_none() && static_terminal.is_none() {
         local_call_flow::issue_borrowed_i64_terminal_call(
             input,
             statement,
@@ -196,6 +205,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 unavailable.get_or_insert(issue);
                 false
             }
+        }
+    } else if let Some(terminal) = scalar_terminal {
+        match terminal {
+            Ok(value) => { relation = Some(TerminalRelationV1::I64Scalar(value)); true },
+            Err(issue) => { unavailable.get_or_insert(issue); false },
         }
     } else if let Some(terminal) = text_terminal {
         relation = Some(TerminalRelationV1::Value(terminal));

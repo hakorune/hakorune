@@ -269,6 +269,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
             if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(row) = terminal {
+                // The same evaluation's references were covered above, including LoopAfter.
+                if row.evaluation().is_some() { continue; }
                 for (site, reference) in uses.reads().filter(|(site, _)| *site == row.value_site()) {
                     let ResolvedLexicalRefV1::Local(binding) = reference else { return Ok(None) };
                     if let Some(original) = row.entry_read() {
