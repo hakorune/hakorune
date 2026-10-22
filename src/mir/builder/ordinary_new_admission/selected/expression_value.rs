@@ -544,6 +544,42 @@ pub(super) fn finish_value_continuation_v1(builder: &mut MirBuilder, body: &mut 
     finish_body_continuation(builder, body, None, None, false)
 }
 
+/// Transfer the exact Normal Dynamic carrier result into its Local receipt.
+/// The carrier is intentionally left live here; its Local scope owner must
+/// later discharge it with DynamicCarrierEnd on every exit path.
+pub(super) fn finish_dynamic_initializer_continuation(
+    builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1,
+) -> Result<(Binding, Binding), String> {
+    let Operand::DynamicCarrier(value) = expression.value.as_operand()? else {
+        return Err(freeze("initializer-expression/dynamic-carrier-result"));
+    };
+    let projection = expression.body.bindings.iter().find(|(_, row)| {
+        matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if *dst == *value)
+    }).cloned().ok_or_else(|| freeze("initializer-expression/dynamic-carrier-projection"))?;
+    if expression.body.bindings.iter().filter(|(_, row)| {
+        matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if *dst == *value)
+    }).count() != 1 {
+        return Err(freeze("initializer-expression/dynamic-carrier-projection"));
+    }
+    let MirInstruction::InvokeNormalResult { invoke_block, .. } = projection.1 else {
+        return Err(freeze("initializer-expression/dynamic-carrier-projection"));
+    };
+    let invoke = expression.body.bindings.iter().find(|(block, row)| {
+        *block == invoke_block && matches!(row, MirInstruction::Invoke {
+            operation: InvokeOperation::DynamicInvocation(_), normal_landing, ..
+        } if *normal_landing == projection.0)
+    }).ok_or_else(|| freeze("initializer-expression/dynamic-carrier-invoke"))?;
+    if expression.body.bindings.iter().filter(|(block, row)| {
+        *block == invoke_block && matches!(row, MirInstruction::Invoke {
+            operation: InvokeOperation::DynamicInvocation(_), ..
+        })
+    }).count() != 1 || !expression.body.bindings.contains(invoke) {
+        return Err(freeze("initializer-expression/dynamic-carrier-invoke"));
+    }
+    finish_body_continuation(builder, &mut expression.body, None, None, false)
+}
+
 fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1,
     residence: Option<ValueId>, displaced: Option<InvokeOperation>, materialized: bool,
 ) -> Result<(Binding, Binding), String> {

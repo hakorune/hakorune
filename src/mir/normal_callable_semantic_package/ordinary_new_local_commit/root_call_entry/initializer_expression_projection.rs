@@ -61,6 +61,13 @@ impl EmittedInitializerExpressionProjectionV1 {
             && self.install.as_ref().is_some_and(|(_, row)| matches!(row,
                 MirInstruction::StringResidenceInstall { value, replaces: None, returning: false } if *value == self.value))
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn has_dynamic_carrier(&self) -> bool {
+        self.frame.is_dynamic_invocation_result()
+            && self.value == self.local
+            && self.copy.is_none()
+            && self.install.is_none()
+            && self.values.first() == Some(&Some(Operand::DynamicCarrier(self.value).into()))
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn root_acquisition_binding_v1(&self) -> Result<&Binding, String> {
         if !self.has_text_home() { return Err(freeze("initializer-expression/no-text-home")); }
         self.expression().require_unique(|row| matches!(row,
@@ -95,6 +102,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         let selected = context.ledger().initializer_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?
             .ok_or_else(|| freeze("initializer-expression/source-missing"))?;
         let expected = if self.frame.is_i64() { Operand::NormalInteger(self.value) }
+            else if self.has_dynamic_carrier() { Operand::DynamicCarrier(self.value) }
             else if self.has_text_home() { Operand::OwnedString(self.value) }
             else { return Err(freeze("initializer-expression/source-or-result")); };
         if !Rc::ptr_eq(&selected, &self.frame) || self.values.first() != Some(&Some(expected.into()))
@@ -104,6 +112,9 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         let installs = self.original.iter().filter(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).count();
         if installs != usize::from(self.has_text_home()) { return Err(freeze("initializer-expression/install-census")); }
+        if self.frame.is_dynamic_invocation_result() && !self.has_dynamic_carrier() {
+            return Err(freeze("initializer-expression/dynamic-carrier-local-handoff"));
+        }
         if self.frame.is_i64() && self.copy.as_ref().is_none_or(|(_, row)| !matches!(row, MirInstruction::Copy { dst, src }
             if *dst == self.local && *src == self.value)) { return Err(freeze("initializer-expression/local-copy-receipt")); }
         if let Some(sum) = self.frame.signed_root_sum() {

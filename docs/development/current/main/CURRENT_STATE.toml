@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/emission/text-initializer/execution-pending: source-bound Dynamic CallSlot, carrier local publication/read, and source cleanup are not connected"
+current_blocker_token = "ordinary-new/emission/expression-call/disposition-missing: source-bound Dynamic CallSlot emission and path-complete carrier lifecycle remain unwired"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,12 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Fresh explicit `target/quick` smoke stops at `ordinary-new/emission/text-initializer/execution-pending`; no EXE.
-`StringHelpers.json_quote` has an exact Dynamic initializer frame. MIR operation JSON now reaches the checked C V4 caller and opaque carrier lifecycle; build plus temporary physical LLVM compile pass.
-Source-bound Dynamic CallSlot, carrier local publication/read, carrier-aware String operations, and source cleanup remain unwired; no app workaround or fallback.
-The app's `i < n` requires `Less(I64, Dynamic)`; the symmetric integer-only comparison contract and source admission are now recorded in the app card and language SSOT.
-Next issue the source-bound CallSlot and publish/read the exact carrier local, then wire carrier-aware operators and Normal/Fault End/forward.
-Quick build passes; root lib-test still stops at 68 unrelated compile errors, so the focused operator test did not run. Fresh EXE smoke still fails at the same source stop; no `.hako` workaround/fallback.
+APP-json-stream-aggregator: Fresh explicit `target/quick` smoke reaches `ordinary-new/emission/expression-call/disposition-missing`; no EXE.
+Dynamic initializer value now reaches the existing Local projection receipt as the same carrier, without a copy; this handoff is not lifecycle-complete.
+Source-bound Dynamic CallSlot, carrier read/operators, and path-complete Normal/Fault End or forward remain unwired; no app workaround or fallback.
+`Less(I64, Dynamic)` contract and source admission remain recorded in the app card and language SSOT; `cargo quick-build-fast --jobs 4` passes for this WIP.
+Next connect the source-bound call issuer and carrier lifecycle, then rerun the same EXE smoke. Full app, suite, and finite goal remain incomplete.
 """
 next_design_card = "none"
 next_design_card_path = "none"
