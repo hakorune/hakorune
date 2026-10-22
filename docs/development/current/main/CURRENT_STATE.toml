@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/object-return/normal-projection-exit: PrefixNotCovered(Body(3)) at string_helpers.hako:53; generic ordinary-expression Dynamic invocation is not connected"
+current_blocker_token = "ordinary-new/emission/text-initializer/execution-pending: Dynamic initializer source frame is admitted, but selected emitter has no Dynamic physical/runtime invocation"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: explicit focused smoke fails during MIR emission at `PrefixNotCovered(Body(3))`; no EXE.
-Source is `StringHelpers.json_quote`: unannotated Dynamic formal `s`, expression `s.length()` at string_helpers.hako:53.
-Source target and language envelope exist; ordinary-expression CallSlot through physical/runtime invocation is absent.
-Implement the generic Dynamic invocation path with exact source identity, immutable admitted registry, lease, and Normal/Fault lifecycle.
-Do not infer String from selector/callers, edit `.hako`, or use Loop/TextScan/plugin fallback paths.
+APP-json-stream-aggregator: `target/quick` focused smoke passes source planning and stops at `ordinary-new/emission/text-initializer/execution-pending`; no EXE.
+`StringHelpers.json_quote` at `string_helpers.hako:53` now has an exact Dynamic initializer frame; selected emission remains i64/Text only.
+Next connect the ordinary Dynamic CallSlot through provider admission, immutable registry, lease, physical/runtime invocation, and Normal/Fault lifecycle.
+Keep the source tag; do not infer String from selector/callers, edit `.hako`, or use Loop/TextScan/plugin fallback paths.
+CLI quick build passes; lib-test compile failed before test execution (70 compile errors).
 """
 next_design_card = "none"
 next_design_card_path = "none"

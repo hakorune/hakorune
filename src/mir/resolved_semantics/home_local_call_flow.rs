@@ -244,6 +244,31 @@ impl LocalCallObservationV1 {
     pub(crate) fn result_source(&self) -> Option<&LocalCallResultSourceV1> {
         self.result_source.as_ref()
     }
+    /// The exact Dynamic invocation result lifecycle, if this expression call
+    /// publishes the language-wide opaque carrier. This is source evidence
+    /// only; it does not authorize a provider, physical slot, or runtime call.
+    pub(crate) fn dynamic_invocation_result_lifecycle_v1(
+        &self,
+    ) -> Option<crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1> {
+        let Some(LocalCallResultSourceV1::DynamicInvocation(loan)) = self.result_source.as_ref()
+        else {
+            return None;
+        };
+        let target = loan.target();
+        let envelope = loan.envelope();
+        (self.result == LocalCallResultClassV1::Dynamic
+            && self.is_expression_value()
+            && self.owner == self.site.owner()
+            && target.owner() == self.owner
+            && target.call_site() == self.site.site()
+            && target.result_site() == self.site.site()
+            && loan.call_site() == &self.site
+            && envelope.outcome()
+                == crate::mir::dynamic_invocation_contract::DynamicInvocationOutcomeV1::NormalSelfContainedDynamicCarrierOrFault
+            && envelope.input_home()
+                == crate::mir::dynamic_invocation_contract::DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation)
+            .then(|| envelope.result_lifecycle())
+    }
     pub(crate) fn borrowed_nullable(
         &self,
     ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>

@@ -119,6 +119,11 @@ enum StoredLocal {
     ReceivedNullable {
         acquisition: OwnedExprSiteV1,
     },
+    /// An opaque Dynamic invocation result retained with its exact source
+    /// frame and lifecycle. It grants no read or move classification.
+    DynamicInvocationResult {
+        frame: std::rc::Rc<super::CheckedInitializerExpressionFrameV1>,
+    },
     /// Original call result and borrowed root remain distinct, owning nothing.
     BorrowedNullable(
         Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
@@ -392,6 +397,10 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
             StoredLocal::ReceivedNullable { acquisition: a },
             StoredLocal::ReceivedNullable { acquisition: b },
         ) => a == b,
+        (
+            StoredLocal::DynamicInvocationResult { frame: a },
+            StoredLocal::DynamicInvocationResult { frame: b },
+        ) => std::rc::Rc::ptr_eq(a, b),
         (StoredLocal::Map, StoredLocal::Map) => true,
         (StoredLocal::BorrowedNullable(a), StoredLocal::BorrowedNullable(b)) => a == b,
         (StoredLocal::StoredMapGet(a), StoredLocal::StoredMapGet(b)) => std::rc::Rc::ptr_eq(a, b),
@@ -754,6 +763,9 @@ impl<'source> PrefixLocalFlow<'source> {
             // fail-closed while `new` argument observation can still name
             // the binding's value.
             StoredLocal::ReceivedNullable { .. } => Some(OrdinaryObservation::BoundValue(binding)),
+            // Preserve the exact lifecycle owner but do not grant this
+            // opaque carrier a read, scalar, or movable-root classification.
+            StoredLocal::DynamicInvocationResult { .. } => None,
             StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_) => {
                 Some(OrdinaryObservation::BoundValue(binding))
             }
@@ -1001,6 +1013,14 @@ impl<'source> PrefixLocalFlow<'source> {
             binding,
             StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
         );
+    }
+
+    pub(super) fn install_dynamic_invocation_result(
+        &mut self,
+        binding: BindingRefV1,
+        frame: std::rc::Rc<super::CheckedInitializerExpressionFrameV1>,
+    ) {
+        self.store(binding, StoredLocal::DynamicInvocationResult { frame });
     }
 
     /// A `me.<ArrayBox field>.m(..)` result proven scalar by the generated

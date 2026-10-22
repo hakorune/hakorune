@@ -150,6 +150,13 @@ impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn is_text_residence(&self) -> bool {
         self.evaluation.root_class() == Leaf::Value(Class::String) && self.owns_root()
     }
+    pub(crate) fn is_dynamic_invocation_result(&self) -> bool {
+        self.evaluation.root_class() == Leaf::Value(Class::Dynamic)
+            && self.evaluation.calls().iter().any(|call| {
+                call.site().site() == self.source().nodes()[0].site()
+                    && call.dynamic_invocation_result_lifecycle_v1().is_some()
+            })
+    }
     pub(crate) fn owns_root(&self) -> bool {
         self.evaluation.owned_result_nodes().contains(&0)
     }
@@ -292,9 +299,16 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     if signed_root_sum.is_some() && (!signed_current || classes[0] != Leaf::Value(Class::I64)) {
         return Ok(None);
     }
+    let dynamic_invocation_root = classes[0] == Leaf::Value(Class::Dynamic)
+        && calls.get(&0).is_some_and(|call| {
+            call.site().owner() == source.owner()
+                && call.site().site() == source.nodes()[0].site()
+                && call.dynamic_invocation_result_lifecycle_v1().is_some()
+        });
     if !references.is_empty()
         || transferred.contains(&0)
-        || !matches!(classes[0], Leaf::Value(Class::String | Class::I64))
+        || (!matches!(classes[0], Leaf::Value(Class::String | Class::I64))
+            && !dynamic_invocation_root)
         || (classes[0] == Leaf::Value(Class::I64)
             && !has_core
             && !entry_reads

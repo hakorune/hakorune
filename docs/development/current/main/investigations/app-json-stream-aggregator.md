@@ -4,17 +4,20 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 
 ## Product evidence
 - Last full suite: 7/11 PASS (EXE6 + marker1), 397.733s; historical, not rerun.
-- Explicit `target/quick` focused smoke reaches MIR emission, then fails with `PrefixNotCovered(Body(3))`; no EXE is produced.
-- `Body(3)` is `local n = s.length()` in `StringHelpers.json_quote` (`string_helpers.hako:53`). `s` is an unannotated Dynamic formal.
+- `cargo quick-build-fast` succeeded for the current source.
+- `cargo quick-test-fast dynamic_invocation_initializer_retains_opaque_carrier_lifecycle` did not reach execution: the lib-test target fails to compile (70 errors); no test result is claimed.
+- The explicit `target/quick` focused smoke now passes the source-plan stop and fails at `ordinary-new/emission/text-initializer/execution-pending`; no EXE is produced.
+- The passed source-plan stop was `local n = s.length()` in `StringHelpers.json_quote` (`string_helpers.hako:53`), where `s` is an unannotated Dynamic formal.
+- The remaining refusal is in `src/mir/builder/ordinary_new_admission/selected/initializer_expression.rs:76`.
 
 ## Current stop and contract
-- Exact Dynamic source target and the language-wide execution envelope already exist. The production path has no ordinary-expression Dynamic CallSlot, provider-admitted immutable registry, leased executable plan, physical/runtime invocation, or carrier Normal/Fault publication.
+- The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text, so Dynamic has no physical/runtime invocation or carrier Normal/Fault publication.
 - This is an ordinary Dynamic invocation even when the runtime receiver may be String. Keep the source tag and selector/arity relation; do not infer String from `length`, caller behavior, or a MIR type.
 - The existing bounded Dynamic Loop CallSlot and TextScan entries are not generic invocation owners. Do not route through plugin per-call snapshots, arity retry, compatibility fallback, or a selector-specific Text operation.
 - The accepted contract remains `OpaqueObservable`, synchronous/non-detached, `Normal(SelfContainedDynamicCarrier) | Fault`, borrowed-no-escape inputs, and exactly-once result forwarding or End.
 
 ## Next work
-- Extend the existing source-bound Dynamic call owner into a generic checked ordinary-expression CallSlot, then connect it through provider admission, one immutable registry, a leased plan, one physical/runtime invocation, and Normal/Fault lifecycle publication.
+- Continue from the selected initializer-emission owner: extend the source-bound Dynamic call into a generic checked ordinary-expression CallSlot, then connect it through provider admission, one immutable registry, a leased plan, one physical/runtime invocation, and Normal/Fault lifecycle publication.
 - Use the current expression source plan for receiver/argument evaluation order and exact source identity. Preserve terminal Fault, input ownership, and complete cleanup; no `.hako` rewrite or app/name branch.
 - Re-run the explicit focused smoke after the complete route reaches its physical/runtime consumer. Keep other app work and the full suite at the existing gate.
 

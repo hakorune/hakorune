@@ -99,6 +99,13 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_owned_text_call(&self) -> bool {
         self.calls.values().any(|call| matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Ordinary(loan)) if loan.result() == super::super::LocalCallResultClassV1::Text))
     }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_dynamic_invocation_call(
+        &self,
+    ) -> bool {
+        self.calls
+            .values()
+            .any(|call| call.dynamic_invocation_result_lifecycle_v1().is_some())
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool {
         !self.cores.is_empty()
     }
@@ -195,7 +202,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
                 Class::Bool
             }
             LocalCallResultClassV1::Dynamic
-                if matches!(profile, ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) =>
+                if matches!(
+                    profile,
+                    ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer
+                ) =>
             {
                 Class::Dynamic
             }

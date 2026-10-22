@@ -123,8 +123,12 @@ pub(super) fn observe<E>(
             continue;
         }
         let formal = super::argument_expression::text_reference(input, locals, node.site())
-            .or_else(|| super::argument_expression::dynamic_formal_reference(input, locals, node.site()));
-        let Some((binding, root)) = formal else { continue };
+            .or_else(|| {
+                super::argument_expression::dynamic_formal_reference(input, locals, node.site())
+            });
+        let Some((binding, root)) = formal else {
+            continue;
+        };
         if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = port(
             &owned,
             BorrowedCallActualRequestV1::FiniteEntryRead {
@@ -176,6 +180,7 @@ pub(super) fn observe<E>(
     };
     if !prepared.has_core()
         && !prepared.has_owned_text_call()
+        && !prepared.has_dynamic_invocation_call()
         && !(root_add && has_parent_text)
         && !signed_entry
         && signed_root_sum.is_none()
@@ -190,8 +195,9 @@ pub(super) fn observe<E>(
         &dynamic_reads,
         signed_root_sum,
         &mut |site| {
-            super::argument_expression::text_reference(input, locals, site)
-                .or_else(|| super::argument_expression::dynamic_formal_reference(input, locals, site))
+            super::argument_expression::text_reference(input, locals, site).or_else(|| {
+                super::argument_expression::dynamic_formal_reference(input, locals, site)
+            })
         },
         &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
@@ -219,13 +225,17 @@ pub(super) fn observe<E>(
         .commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
-    if frame.owns_root() {
+    if frame.is_text_residence() {
         homes.push(LiveHomeV1::Text(frame.text_acquisition_v1()));
     }
     if frame.is_i64() {
         locals.install_i64_call_result(frame.binding());
-    } else {
+    } else if frame.is_dynamic_invocation_result() {
+        locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));
+    } else if frame.is_text_residence() {
         locals.install_text_initializer(frame);
+    } else {
+        return Ok(false);
     }
     Ok(true)
 }
