@@ -7,6 +7,7 @@ pub(super) fn format_mir_type_label(ty: &MirType) -> String {
         MirType::Bool => "i1".to_string(),
         MirType::String => "str".to_string(),
         MirType::TextOperand => "text_operand".to_string(),
+        MirType::DynamicCarrier => "dynamic_carrier".to_string(),
         MirType::Box(name) => format!("box<{}>", name),
         MirType::Array(inner) => format!("[{}]", format_mir_type_label(inner)),
         MirType::Future(inner) => format!("future<{}>", format_mir_type_label(inner)),

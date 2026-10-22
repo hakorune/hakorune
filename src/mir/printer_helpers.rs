@@ -8,6 +8,7 @@ pub fn format_type(mir_type: &MirType) -> String {
         MirType::Bool => "i1".to_string(),
         MirType::String => "str".to_string(),
         MirType::TextOperand => "text_operand".to_string(),
+        MirType::DynamicCarrier => "dynamic_carrier".to_string(),
         MirType::Box(name) => format!("box<{}>", name),
         MirType::Array(elem_type) => format!("[{}]", format_type(elem_type)),
         MirType::Future(inner_type) => {

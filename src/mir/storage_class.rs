@@ -100,9 +100,12 @@ fn infer_storage_class(ty: &MirType) -> StorageClass {
             _ => StorageClass::Opaque,
         },
         MirType::Box(_) => StorageClass::BoxRef,
-        MirType::Future(_) | MirType::Array(_) | MirType::WeakRef | MirType::Void | MirType::TextOperand => {
-            StorageClass::Opaque
-        }
+        MirType::Future(_)
+        | MirType::Array(_)
+        | MirType::WeakRef
+        | MirType::Void
+        | MirType::TextOperand
+        | MirType::DynamicCarrier => StorageClass::Opaque,
         MirType::Unknown => StorageClass::Opaque,
     }
 }

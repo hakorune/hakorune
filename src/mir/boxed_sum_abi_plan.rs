@@ -406,7 +406,7 @@ fn payload_storage_from_mir_type(ty: &MirType) -> Option<BoxedSumPayloadStorage>
         | MirType::Array(_)
         | MirType::Future(_)
         | MirType::WeakRef => Some(BoxedSumPayloadStorage::Handle),
-        MirType::Unknown | MirType::TextOperand => None,
+        MirType::Unknown | MirType::TextOperand | MirType::DynamicCarrier => None,
     }
 }
 

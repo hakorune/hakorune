@@ -435,6 +435,7 @@ fn format_user_box_method_type_label(ty: &MirType) -> String {
         MirType::Float => "f64".to_string(),
         MirType::String => "StringBox".to_string(),
         MirType::TextOperand => "TextOperand".to_string(),
+        MirType::DynamicCarrier => "DynamicCarrier".to_string(),
         MirType::Void => "void".to_string(),
         MirType::Box(name) => name.clone(),
         MirType::Array(_) => "ArrayBox".to_string(),

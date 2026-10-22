@@ -66,7 +66,7 @@ impl Region {
             MirType::Integer | MirType::Float | MirType::Bool | MirType::String => {
                 RefSlotKind::NonRef
             }
-            MirType::Void | MirType::Unknown => RefSlotKind::NonRef,
+            MirType::Void | MirType::Unknown | MirType::DynamicCarrier => RefSlotKind::NonRef,
         }
     }
 }

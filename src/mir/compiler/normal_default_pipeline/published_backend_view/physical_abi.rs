@@ -51,6 +51,9 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     StringIndexOf,
     StringPrint,
     StringEnd,
+    DynamicInvocation,
+    DynamicCarrierInteger,
+    DynamicCarrierEnd,
     ArrayNew,
     ScriptArgumentsNew,
     ArrayClaim,
@@ -109,6 +112,9 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 crate::mir::instruction::StringInvokeOperation::Print { .. } => Self::StringPrint,
                 crate::mir::instruction::StringInvokeOperation::End { .. } => Self::StringEnd,
             }),
+            InvokeOperation::DynamicInvocation(_) => Some(Self::DynamicInvocation),
+            InvokeOperation::DynamicCarrierInteger { .. } => Some(Self::DynamicCarrierInteger),
+            InvokeOperation::DynamicCarrierEnd { .. } => Some(Self::DynamicCarrierEnd),
             InvokeOperation::Map(operation) => Some(match operation {
                 MapInvokeOperation::New => Self::MapNew,
                 MapInvokeOperation::FieldHas { .. } => Self::MapFieldHas,
@@ -636,7 +642,12 @@ fn referenced_objects(
                             ids.insert(operation.descriptor().object().declaration_index());
                         }
                         InvokeOperation::Birth(_)
-                        | InvokeOperation::Call { .. } | InvokeOperation::Map(_) | InvokeOperation::String(_) => {}
+                        | InvokeOperation::Call { .. }
+                        | InvokeOperation::Map(_)
+                        | InvokeOperation::String(_)
+                        | InvokeOperation::DynamicInvocation(_)
+                        | InvokeOperation::DynamicCarrierInteger { .. }
+                        | InvokeOperation::DynamicCarrierEnd { .. } => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ScriptArgumentsNew { .. }
                         | InvokeOperation::ArrayStateContractClaim { .. }

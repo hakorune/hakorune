@@ -136,7 +136,12 @@ fn type_hint_to_json(ty: &MirType) -> Option<serde_json::Value> {
         MirType::String => Some(json!("String")),
         MirType::Void => Some(json!("Void")),
         MirType::Box(name) => Some(json!(name)),
-        MirType::Array(_) | MirType::Future(_) | MirType::WeakRef | MirType::Unknown | MirType::TextOperand => None,
+        MirType::Array(_)
+        | MirType::Future(_)
+        | MirType::WeakRef
+        | MirType::Unknown
+        | MirType::TextOperand
+        | MirType::DynamicCarrier => None,
     }
 }
 

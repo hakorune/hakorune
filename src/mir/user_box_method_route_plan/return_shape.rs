@@ -354,7 +354,11 @@ fn value_class_from_type(ty: &MirType) -> Option<ValueClass> {
         MirType::Box(name) if name == "StringBox" => Some(ValueClass::StringHandle),
         MirType::Box(_) | MirType::Array(_) | MirType::WeakRef => Some(ValueClass::ObjectHandle),
         MirType::Void => Some(ValueClass::VoidSentinel),
-        MirType::Float | MirType::Future(_) | MirType::Unknown | MirType::TextOperand => None,
+        MirType::Float
+        | MirType::Future(_)
+        | MirType::Unknown
+        | MirType::TextOperand
+        | MirType::DynamicCarrier => None,
     }
 }
 

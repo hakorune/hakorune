@@ -55,6 +55,9 @@ pub use owned_array::{OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1};
 #[path = "invoke_string.rs"]
 mod string;
 pub use string::{StringInvokeOperand, StringInvokeOperation};
+#[path = "invoke_dynamic.rs"]
+mod dynamic;
+pub use dynamic::{DynamicInvocationOperandV1, DynamicInvocationOperationV1};
 pub use map::{InvokeNormalResultKind, MapInvokeOperation, MapValueKind};
 
 impl crate::mir::MirInstruction {
@@ -223,6 +226,15 @@ pub enum InvokeOperation {
     Map(MapInvokeOperation),
     /// Checked expression String operations; never an Object handle lane.
     String(StringInvokeOperation),
+    /// Source-selected ordinary Dynamic invocation. The selector and
+    /// ordered operands are issued from the exact source-call loan; Normal
+    /// publishes one opaque carrier, Fault publishes none.
+    DynamicInvocation(DynamicInvocationOperationV1),
+    /// Borrow an integer payload from the exact opaque carrier. The source
+    /// operator owns the resulting type check; the carrier remains live.
+    DynamicCarrierInteger { carrier: ValueId },
+    /// End exactly one opaque Dynamic result carrier.
+    DynamicCarrierEnd { carrier: ValueId },
     /// Source-owned object slots; distinct from numeric Array state.
     OwnedArray(OwnedArrayInvokeOperation),
     /// Adopt the source-issued numeric state contract; Unit on Normal.
@@ -309,6 +321,8 @@ impl InvokeOperation {
             Self::FieldGet { .. } => Some(InvokeNormalResultKind::I64),
             Self::Map(operation) => operation.normal_result_kind(),
             Self::String(operation) => operation.normal_result_kind(),
+            Self::DynamicInvocation(_) => Some(InvokeNormalResultKind::DynamicCarrier),
+            Self::DynamicCarrierInteger { .. } => Some(InvokeNormalResultKind::I64),
             Self::OwnedArray(operation) => operation.normal_result_kind(),
             Self::Call {
                 result: InvokeCallResultKind::I64,
@@ -343,6 +357,7 @@ impl InvokeOperation {
                 ..
             }
             | Self::Birth(_)
+            | Self::DynamicCarrierEnd { .. }
             | Self::FieldSet { .. }
             | Self::ObjectFieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
@@ -360,6 +375,9 @@ impl InvokeOperation {
         match self {
             Self::Map(operation) => operation.effects(),
             Self::String(operation) => operation.effects(),
+            Self::DynamicInvocation(_) => EffectMask::READ.add(Effect::Control),
+            Self::DynamicCarrierInteger { .. } => EffectMask::READ.add(Effect::Control),
+            Self::DynamicCarrierEnd { .. } => EffectMask::WRITE.add(Effect::Control),
             Self::OwnedArray(operation) => operation.effects(),
             Self::Birth(call) => call.effects.add(Effect::Control),
             Self::Call { call, .. } => call.effects.add(Effect::Control),
@@ -388,6 +406,8 @@ impl InvokeOperation {
         match self {
             Self::Map(operation) => operation.used_values(),
             Self::String(operation) => operation.used_values(),
+            Self::DynamicInvocation(operation) => operation.used_values(),
+            Self::DynamicCarrierInteger { carrier } | Self::DynamicCarrierEnd { carrier } => vec![*carrier],
             Self::OwnedArray(operation) => operation.used_values(),
             Self::Birth(call) => std::iter::once(call.receiver).chain(call.arguments.iter().filter_map(BirthArgumentV1::value)).collect(),
             Self::Call { call, .. } => {
@@ -427,6 +447,8 @@ impl InvokeOperation {
         match self {
             Self::Map(operation) => operation.rewrite_values(rewrite),
             Self::String(operation) => operation.rewrite_values(rewrite),
+            Self::DynamicInvocation(operation) => operation.rewrite_values(rewrite),
+            Self::DynamicCarrierInteger { carrier } | Self::DynamicCarrierEnd { carrier } => rewrite(carrier),
             Self::OwnedArray(operation) => operation.rewrite_values(rewrite),
             Self::Birth(call) => {
                 rewrite(&mut call.receiver);

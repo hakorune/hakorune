@@ -280,7 +280,7 @@ fn value_scalar_or_mixed_type(ty: Option<&MirType>) -> Option<MirType> {
             Some(MirType::Unknown)
         }
         Some(MirType::String) | Some(MirType::Box(_)) | Some(MirType::Unknown)
-        | Some(MirType::TextOperand) | None => None,
+        | Some(MirType::TextOperand | MirType::DynamicCarrier) | None => None,
     }
 }
 

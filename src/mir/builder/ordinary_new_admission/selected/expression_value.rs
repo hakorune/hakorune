@@ -445,6 +445,7 @@ pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
         crate::mir::instruction::InvokeNormalResultKind::OwnedString => MirType::String,
         crate::mir::instruction::InvokeNormalResultKind::I64 => MirType::Integer,
         crate::mir::instruction::InvokeNormalResultKind::Bool => MirType::Bool,
+        crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier => MirType::DynamicCarrier,
         _ => return Err(freeze("expression/string-result")),
     };
     builder.function_state.type_ctx.value_types.insert(value, kind);

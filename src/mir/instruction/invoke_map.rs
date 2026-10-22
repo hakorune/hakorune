@@ -5,6 +5,10 @@ use crate::mir::{Effect, EffectMask, ValueId};
 pub enum InvokeNormalResultKind {
     I64,
     Bool,
+    /// Opaque token issued by an admitted Dynamic invocation. Its payload is
+    /// never interpreted as tagged `(kind, payload)` data and must be ended or
+    /// forwarded under the source carrier lifecycle contract.
+    DynamicCarrier,
     Handle,
     /// A `NullableObject` claim result: `BoxRef` or the `Void` null
     /// sentinel; the caller owes a checked release, never an unconditional

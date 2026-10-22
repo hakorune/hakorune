@@ -65,6 +65,23 @@ pub(super) fn encode_invoke(
             };
             with_site(encoded, required_site(diagnostic_site, abi_input.is_some())?)?
         }
+        InvokeOperation::DynamicInvocation(operation) => with_site(
+            json!({
+                "kind": "dynamic_invoke",
+                "selector": operation.selector(),
+                "receiver": operation.receiver(),
+                "arguments": operation.arguments(),
+            }),
+            required_site(diagnostic_site, true)?,
+        )?,
+        InvokeOperation::DynamicCarrierInteger { carrier } => with_site(
+            json!({"kind":"dynamic_carrier_integer", "carrier":value(carrier)}),
+            required_site(diagnostic_site, true)?,
+        )?,
+        InvokeOperation::DynamicCarrierEnd { carrier } => with_site(
+            json!({"kind":"dynamic_carrier_end", "carrier":value(carrier)}),
+            required_site(diagnostic_site, true)?,
+        )?,
         InvokeOperation::Map(operation) => {
             use crate::mir::instruction::MapInvokeOperation as Map;
             let encoded = match operation {

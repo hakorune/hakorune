@@ -145,6 +145,7 @@ fn layout_from_payload_type(
         | Some(MirType::WeakRef)
         | Some(MirType::Unknown)
         | Some(MirType::TextOperand)
+        | Some(MirType::DynamicCarrier)
         | None => SumLocalAggregateLayout::TagHandlePayload,
     }
 }

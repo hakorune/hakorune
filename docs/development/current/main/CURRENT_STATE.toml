@@ -18,9 +18,9 @@ latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
 APP-json-stream-aggregator: Fresh explicit `target/quick` smoke stops at `ordinary-new/emission/text-initializer/execution-pending`; no EXE.
-`StringHelpers.json_quote` has an exact Dynamic initializer frame; selected emission remains i64/Text only. Runtime checked invoke/end passes its focused kernel test, but compiler caller/publication/cleanup remain unwired.
+`StringHelpers.json_quote` has an exact Dynamic initializer frame; emitter remains i64/Text only. Opaque carrier MIR type/operation/JSON encoding compile; source read, C caller, publication, and cleanup remain unwired.
 The app's `i < n` requires `Less(I64, Dynamic)`; the symmetric integer-only comparison contract and source admission are now recorded in the app card and language SSOT.
-Next add a distinct opaque carrier value/read and source-bound CallSlot, connect the checked C emitter, then finish carrier-aware operators and Normal/Fault End/forward.
+Next add source-local carrier reads and a source-bound CallSlot, connect the checked C emitter, then finish carrier-aware operators and Normal/Fault End/forward.
 Quick build passes; root lib-test still stops at 68 unrelated compile errors, so the focused operator test did not run. EXE smoke still fails at the same stop; no `.hako` workaround/fallback.
 """
 next_design_card = "none"

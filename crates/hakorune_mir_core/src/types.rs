@@ -88,6 +88,9 @@ pub enum MirType {
     /// Internal by-value tagged Static/Owned Text operand used by typed
     /// source Loop PHIs. This is not a language String or an owned Home.
     TextOperand,
+    /// Opaque token for one source Dynamic call result. This is distinct
+    /// from both tagged Dynamic input and any language-level scalar/handle.
+    DynamicCarrier,
     Box(String), // Box type with name
     Array(Box<MirType>),
     Future(Box<MirType>), // Future containing a type
