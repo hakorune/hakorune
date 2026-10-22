@@ -24,6 +24,7 @@ pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
 pub mod core_services; // Phase 91: CoreServices trait 定義
 pub mod deprecations;
+pub mod dynamic_invocation;
 pub mod dynamic_v2_lease;
 pub(crate) mod exact_numeric_contract;
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ

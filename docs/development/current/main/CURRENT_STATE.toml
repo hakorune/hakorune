@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-json-stream
 latest_card_summary = """
 APP-json-stream-aggregator: `target/quick` focused smoke passes source planning and stops at `ordinary-new/emission/text-initializer/execution-pending`; no EXE.
 `StringHelpers.json_quote` at `string_helpers.hako:53` now has an exact Dynamic initializer frame; selected emission remains i64/Text only.
-Next connect the ordinary Dynamic CallSlot through provider admission, immutable registry, lease, physical/runtime invocation, and Normal/Fault lifecycle.
-Keep the source tag; do not infer String from selector/callers, edit `.hako`, or use Loop/TextScan/plugin fallback paths.
-CLI quick build passes; focused Dynamic operator tests 8/8; lib-test cannot compile (68 existing errors).
+Runtime now has an immutable class/selector/arity provider registry and opaque carrier End owner, but no source/MIR/AOT caller is wired.
+Next connect the source-bound Dynamic CallSlot through checked C invocation, operators, and Normal/Fault cleanup; preserve exact End/forward.
+Keep source tags; no `.hako` or fallback route. Quick build and direct runtime checks pass; lib-test cannot compile (68 existing errors).
 """
 next_design_card = "none"
 next_design_card_path = "none"

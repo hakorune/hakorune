@@ -1,5 +1,5 @@
 # APP-json-stream-aggregator
-Status: focused EXE stops in ordinary Dynamic method invocation before MIR publication. Date: 2026-10-22
+Status: focused EXE stops in ordinary Dynamic method invocation before MIR publication. Date: 2026-10-23
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation contract](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Product evidence
@@ -9,9 +9,10 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 - The explicit `target/quick` focused smoke now passes the source-plan stop and fails at `ordinary-new/emission/text-initializer/execution-pending`; no EXE is produced.
 - The passed source-plan stop was `local n = s.length()` in `StringHelpers.json_quote` (`string_helpers.hako:53`), where `s` is an unannotated Dynamic formal.
 - The remaining refusal is in `src/mir/builder/ordinary_new_admission/selected/initializer_expression.rs:76`.
+- A runtime base now provides one immutable class/selector/arity registry, frozen single-use plans, and an opaque carrier owner. Direct runtime checks passed for codepoint length/substring, borrowing a carrier as a receiver, exactly-once End, and missing-provider refusal; no compiler or AOT consumer is connected yet.
 
 ## Current stop and contract
-- The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text, so Dynamic has no physical/runtime invocation or carrier Normal/Fault publication.
+- The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text; the new runtime provider/carrier owner has no physical caller or Normal/Fault publication path yet.
 - The existing `CheckedCallOut`/Dynamic V2 route is TextScan-specific: its site plans and C lowering admit fixed entries, and its wire cannot represent the full trivial/owner-bearing/weak carrier contract. Do not widen the initializer gate or reuse that route as generic dispatch.
 - The Dynamic/String comparison envelopes are now issued for both operand orders; they still have no physical execution consumer.
 - This is an ordinary Dynamic invocation even when the runtime receiver may be String. Keep the source tag and selector/arity relation; do not infer String from `length`, caller behavior, or a MIR type.
@@ -19,9 +20,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 - The accepted contract remains `OpaqueObservable`, synchronous/non-detached, `Normal(SelfContainedDynamicCarrier) | Fault`, borrowed-no-escape inputs, and exactly-once result forwarding or End.
 
 ## Next work
-- Issue one immutable provider plan from runtime class plus exact source selector/arity; the final C consumer must execute that frozen entry once, not choose a provider.
-- Preserve the complete Dynamic carrier categories and exactly-once forwarding/end lifecycle. After invocation, this helper also needs `I64 < Dynamic` and Dynamic/String operator consumers.
-- Continue from the selected initializer-emission owner: extend the source-bound Dynamic call into a generic checked ordinary-expression CallSlot, then connect it through provider admission, one immutable registry, a leased plan, one physical/runtime invocation, and Normal/Fault lifecycle publication.
+- Continue from the selected initializer-emission owner: issue a distinct source-bound Dynamic CallSlot from the exact receiver/argument evaluation frame, then connect it through the runtime provider plan to the checked C invocation and Normal/Fault lifecycle publication.
+- Connect carrier values to the accepted `I64 < Dynamic`, Dynamic/String comparison, and String + Dynamic operator envelopes; preserve exactly-once forwarding/end on all exits.
 - Use the current expression source plan for receiver/argument evaluation order and exact source identity. Preserve terminal Fault, input ownership, and complete cleanup; no `.hako` rewrite or app/name branch.
 - Re-run the explicit focused smoke after the complete route reaches its physical/runtime consumer. Keep other app work and the full suite at the existing gate.
 
