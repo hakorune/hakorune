@@ -1,8 +1,8 @@
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 
 use super::{
-    DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorNormalResultV1,
-    DynamicOperatorSuspensionV1, DynamicOperatorValueClassV1,
+    DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorFaultV1,
+    DynamicOperatorNormalResultV1, DynamicOperatorSuspensionV1, DynamicOperatorValueClassV1,
     VerifiedDynamicOperatorExecutionEnvelopeV1,
 };
 
@@ -110,6 +110,110 @@ const LESS_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         DynamicOperatorSuspensionV1::MaySuspend,
         None,
     );
+
+const fn dynamic_string_comparison(
+    family: DynamicOperatorFamilyV1,
+    left: DynamicOperatorValueClassV1,
+    right: DynamicOperatorValueClassV1,
+) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
+    let equality = matches!(
+        family,
+        DynamicOperatorFamilyV1::Equal | DynamicOperatorFamilyV1::NotEqual
+    );
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed_with_fault(
+        DynamicOperatorDomainV1::new(family, left, right),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        if equality {
+            DynamicOperatorSuspensionV1::NonSuspending
+        } else {
+            DynamicOperatorSuspensionV1::MaySuspend
+        },
+        None,
+        if equality {
+            DynamicOperatorFaultV1::MalformedCarrierBeforeResultNoOperandMutationNoRebind
+        } else {
+            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+        },
+    )
+}
+
+const DYNAMIC_STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::Equal,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::NotEqual,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::Less,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::Greater,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::GreaterEqual,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::LessEqual,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
+    ),
+];
+
+const STRING_DYNAMIC_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::Equal,
+        DynamicOperatorValueClassV1::String,
+        DynamicOperatorValueClassV1::Dynamic,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::NotEqual,
+        DynamicOperatorValueClassV1::String,
+        DynamicOperatorValueClassV1::Dynamic,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::Less,
+        DynamicOperatorValueClassV1::String,
+        DynamicOperatorValueClassV1::Dynamic,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::Greater,
+        DynamicOperatorValueClassV1::String,
+        DynamicOperatorValueClassV1::Dynamic,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::GreaterEqual,
+        DynamicOperatorValueClassV1::String,
+        DynamicOperatorValueClassV1::Dynamic,
+    ),
+    dynamic_string_comparison(
+        DynamicOperatorFamilyV1::LessEqual,
+        DynamicOperatorValueClassV1::String,
+        DynamicOperatorValueClassV1::Dynamic,
+    ),
+];
+
+const fn comparison_index(family: DynamicOperatorFamilyV1) -> Option<usize> {
+    match family {
+        DynamicOperatorFamilyV1::Equal => Some(0),
+        DynamicOperatorFamilyV1::NotEqual => Some(1),
+        DynamicOperatorFamilyV1::Less => Some(2),
+        DynamicOperatorFamilyV1::Greater => Some(3),
+        DynamicOperatorFamilyV1::GreaterEqual => Some(4),
+        DynamicOperatorFamilyV1::LessEqual => Some(5),
+        _ => None,
+    }
+}
 
 const EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
@@ -242,6 +346,20 @@ pub(crate) enum DynamicOperatorEnvelopeIssueV1 {
 pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
     domain: DynamicOperatorDomainV1,
 ) -> Result<&'static VerifiedDynamicOperatorExecutionEnvelopeV1, DynamicOperatorEnvelopeIssueV1> {
+    if let Some(index) = comparison_index(domain.family()) {
+        let mixed_comparisons = match (domain.left(), domain.right()) {
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String) => {
+                Some(&DYNAMIC_STRING_COMPARISONS)
+            }
+            (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic) => {
+                Some(&STRING_DYNAMIC_COMPARISONS)
+            }
+            _ => None,
+        };
+        if let Some(comparisons) = mixed_comparisons {
+            return Ok(&comparisons[index]);
+        }
+    }
     if matches!((domain.left(), domain.right()),
         (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String)) {
         let index = match domain.family() {

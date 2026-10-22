@@ -5,13 +5,14 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 ## Product evidence
 - Last full suite: 7/11 PASS (EXE6 + marker1), 397.733s; historical, not rerun.
 - `cargo quick-build-fast` succeeded for the current source.
-- `cargo quick-test-fast dynamic_invocation_initializer_retains_opaque_carrier_lifecycle` did not reach execution: the lib-test target fails to compile (70 errors); no test result is claimed.
+- The filtered `cargo quick-test-fast` did not reach execution: the lib-test target fails to compile (68 errors in unrelated existing test modules); no crate-level test result is claimed. The focused Dynamic operator contract tests pass 8/8 in isolation.
 - The explicit `target/quick` focused smoke now passes the source-plan stop and fails at `ordinary-new/emission/text-initializer/execution-pending`; no EXE is produced.
 - The passed source-plan stop was `local n = s.length()` in `StringHelpers.json_quote` (`string_helpers.hako:53`), where `s` is an unannotated Dynamic formal.
 - The remaining refusal is in `src/mir/builder/ordinary_new_admission/selected/initializer_expression.rs:76`.
 
 ## Current stop and contract
 - The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text, so Dynamic has no physical/runtime invocation or carrier Normal/Fault publication.
+- The Dynamic/String comparison envelopes are now issued for both operand orders; they still have no physical execution consumer.
 - This is an ordinary Dynamic invocation even when the runtime receiver may be String. Keep the source tag and selector/arity relation; do not infer String from `length`, caller behavior, or a MIR type.
 - The existing bounded Dynamic Loop CallSlot and TextScan entries are not generic invocation owners. Do not route through plugin per-call snapshots, arity retry, compatibility fallback, or a selector-specific Text operation.
 - The accepted contract remains `OpaqueObservable`, synchronous/non-detached, `Normal(SelfContainedDynamicCarrier) | Fault`, borrowed-no-escape inputs, and exactly-once result forwarding or End.

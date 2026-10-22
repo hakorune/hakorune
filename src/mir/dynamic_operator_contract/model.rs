@@ -105,6 +105,9 @@ pub(crate) enum DynamicOperatorNormalResultV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorFaultV1 {
     TypeErrorBeforeResultNoOperandMutationNoRebind,
+    /// Malformed carriers Fault, but well-formed values outside the compared
+    /// source class still produce the contract's ordinary equality result.
+    MalformedCarrierBeforeResultNoOperandMutationNoRebind,
 }
 
 /// One complete language-wide Dynamic operator contract.
@@ -116,6 +119,7 @@ pub(crate) struct VerifiedDynamicOperatorExecutionEnvelopeV1 {
     normal_result: DynamicOperatorNormalResultV1,
     suspension: DynamicOperatorSuspensionV1,
     lifecycle: Option<DynamicCarrierLifecycleObligationV1>,
+    fault: DynamicOperatorFaultV1,
     _sealed: (),
 }
 
@@ -126,11 +130,28 @@ impl VerifiedDynamicOperatorExecutionEnvelopeV1 {
         suspension: DynamicOperatorSuspensionV1,
         lifecycle: Option<DynamicCarrierLifecycleObligationV1>,
     ) -> Self {
+        Self::sealed_with_fault(
+            domain,
+            normal_result,
+            suspension,
+            lifecycle,
+            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind,
+        )
+    }
+
+    pub(super) const fn sealed_with_fault(
+        domain: DynamicOperatorDomainV1,
+        normal_result: DynamicOperatorNormalResultV1,
+        suspension: DynamicOperatorSuspensionV1,
+        lifecycle: Option<DynamicCarrierLifecycleObligationV1>,
+        fault: DynamicOperatorFaultV1,
+    ) -> Self {
         Self {
             domain,
             normal_result,
             suspension,
             lifecycle,
+            fault,
             _sealed: (),
         }
     }
@@ -164,7 +185,7 @@ impl VerifiedDynamicOperatorExecutionEnvelopeV1 {
     }
 
     pub(crate) const fn fault(&self) -> DynamicOperatorFaultV1 {
-        DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+        self.fault
     }
 
     pub(crate) const fn lifecycle(&self) -> Option<DynamicCarrierLifecycleObligationV1> {

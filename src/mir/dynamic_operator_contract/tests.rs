@@ -60,26 +60,53 @@ fn add_issues_complete_owned_result_contracts() {
 }
 
 #[test]
-fn less_domains_issue_trivial_bool_without_carrier_lifecycle() {
-    for right in [
-        DynamicOperatorValueClassV1::Dynamic,
-        DynamicOperatorValueClassV1::I64,
-    ] {
-        let envelope = issue(
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::Dynamic,
-            right,
-        )
-        .unwrap();
+fn dynamic_less_and_mixed_string_comparisons_keep_complete_contracts() {
+    let dynamic = DynamicOperatorValueClassV1::Dynamic;
+    let string = DynamicOperatorValueClassV1::String;
+    let i64 = DynamicOperatorValueClassV1::I64;
+    for (left, right) in [(dynamic, dynamic), (dynamic, i64), (dynamic, string), (string, dynamic)] {
+        let envelope = issue(DynamicOperatorFamilyV1::Less, left, right).unwrap();
         assert_eq!(
             envelope.normal_result(),
             DynamicOperatorNormalResultV1::TrivialBool
         );
+        assert_eq!(envelope.domain(), DynamicOperatorDomainV1::new(DynamicOperatorFamilyV1::Less, left, right));
         assert_eq!(envelope.lifecycle(), None);
         assert_eq!(
             envelope.fault(),
             DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
         );
+    }
+
+    for family in [
+        DynamicOperatorFamilyV1::Equal,
+        DynamicOperatorFamilyV1::NotEqual,
+        DynamicOperatorFamilyV1::Greater,
+        DynamicOperatorFamilyV1::GreaterEqual,
+        DynamicOperatorFamilyV1::LessEqual,
+    ] {
+        for (left, right) in [(dynamic, string), (string, dynamic)] {
+            let envelope = issue(family, left, right).unwrap();
+            assert_eq!(envelope.domain(), DynamicOperatorDomainV1::new(family, left, right));
+            assert_eq!(envelope.normal_result(), DynamicOperatorNormalResultV1::TrivialBool);
+            assert_eq!(envelope.lifecycle(), None);
+            assert_eq!(
+                envelope.suspension(),
+                if matches!(family, DynamicOperatorFamilyV1::Equal | DynamicOperatorFamilyV1::NotEqual) {
+                    DynamicOperatorSuspensionV1::NonSuspending
+                } else {
+                    DynamicOperatorSuspensionV1::MaySuspend
+                }
+            );
+            assert_eq!(
+                envelope.fault(),
+                if matches!(family, DynamicOperatorFamilyV1::Equal | DynamicOperatorFamilyV1::NotEqual) {
+                    DynamicOperatorFaultV1::MalformedCarrierBeforeResultNoOperandMutationNoRebind
+                } else {
+                    DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+                }
+            );
+        }
     }
 }
 
@@ -147,11 +174,6 @@ fn equal_dynamic_null_issues_non_suspending_trivial_bool() {
 #[test]
 fn unsupported_domains_fail_without_fallback() {
     for domain in [
-        (
-            DynamicOperatorFamilyV1::Add,
-            DynamicOperatorValueClassV1::String,
-            DynamicOperatorValueClassV1::Dynamic,
-        ),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::String,
@@ -357,6 +379,12 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
                     && matches!((left, right),
                         (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Null)
                         | (DynamicOperatorValueClassV1::Null, DynamicOperatorValueClassV1::Dynamic)))
+                    || (matches!(family, DynamicOperatorFamilyV1::Equal | DynamicOperatorFamilyV1::NotEqual
+                        | DynamicOperatorFamilyV1::Less | DynamicOperatorFamilyV1::Greater
+                        | DynamicOperatorFamilyV1::GreaterEqual | DynamicOperatorFamilyV1::LessEqual)
+                        && matches!((left, right),
+                            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String)
+                            | (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic)))
                     || (family == DynamicOperatorFamilyV1::Less
                         && left == DynamicOperatorValueClassV1::Dynamic
                         && matches!(right, DynamicOperatorValueClassV1::Dynamic | DynamicOperatorValueClassV1::I64))

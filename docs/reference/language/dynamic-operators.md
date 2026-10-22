@@ -27,6 +27,16 @@ DynamicLess(Dynamic, Dynamic|I64):
   same effect/order/suspension/control/operand law
   outcome     = Normal(TrivialBool) | Fault(TypeError)
   lifecycle   = none
+
+Dynamic/String comparison:
+  Equal/NotEqual(Dynamic, String) | (String, Dynamic):
+    Normal(TrivialBool); a well-formed non-String Dynamic tag compares unequal
+    Fault only for a malformed carrier
+    lifecycle = none
+  Less/Greater/LessEqual/GreaterEqual(Dynamic, String) | (String, Dynamic):
+    if the Dynamic tag is String, use the exact String comparison law;
+    otherwise Fault(TypeError)
+    Normal(TrivialBool) | Fault(TypeError); lifecycle = none
 ```
 
 `SelfContainedNonAliasingDynamicCarrier` means that the published Normal
@@ -89,6 +99,23 @@ execution envelope.
 This semantic envelope alone does not admit a Text read or activate Bool,
 Loop, ABI, runtime comparison or cleanup. Source correspondence, conditional
 RHS reach, exact Text lifetime and both final consumers remain required.
+
+## Mixed Dynamic and String comparisons
+
+The `types.md` comparison table also covers a tagged Dynamic value compared
+with an exact source String, in either operand order. `Equal` and `NotEqual`
+inspect a well-formed Dynamic tag: String values use the exact String content
+law, while other well-formed tags return false/true respectively. They do not
+raise TypeError for a well-formed non-String tag. Malformed carriers still
+Fault before a result. Relational operators use the same String ordering when
+the Dynamic tag is String and Fault with TypeError otherwise. These profiles
+borrow both operands in source order and publish only TrivialBool; they create
+no carrier lifecycle.
+
+This is a source-class pair, not permission to infer String from a selector,
+provider, caller, runtime tag, or MIR representation. The Dynamic operand
+remains tagged through source admission; runtime tag inspection occurs only
+inside the admitted comparison operation.
 
 ## Checked Integer comparisons
 

@@ -9,7 +9,8 @@ mod model;
 
 pub(crate) use issuer::issue_dynamic_operator_execution_envelope_v1;
 pub(crate) use model::{
-    DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorNormalResultV1,
+    DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorFaultV1,
+    DynamicOperatorNormalResultV1,
     DynamicOperatorSuspensionV1, DynamicOperatorValueClassV1,
     VerifiedDynamicOperatorExecutionEnvelopeV1,
 };
