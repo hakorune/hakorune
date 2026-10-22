@@ -17,6 +17,9 @@ pub(super) use checked_map::storage::PreparedMapMoveV1;
 #[path = "fault_checked_string.rs"]
 mod checked_string;
 
+#[path = "fault_checked_dynamic.rs"]
+mod checked_dynamic;
+
 mod runtime_abi_target {
     include!(concat!(env!("OUT_DIR"), "/runtime_abi_target.rs"));
 }

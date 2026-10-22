@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/emission/text-initializer/execution-pending: Dynamic initializer source frame is admitted, but selected emitter has no Dynamic physical/runtime invocation"
+current_blocker_token = "ordinary-new/emission/text-initializer/execution-pending: checked Dynamic runtime entry exists, but the selected emitter has no source-bound physical call, carrier publication, or cleanup path"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: `target/quick` focused smoke passes source planning and stops at `ordinary-new/emission/text-initializer/execution-pending`; no EXE.
+APP-json-stream-aggregator: Fresh explicit `target/quick` smoke stops at `ordinary-new/emission/text-initializer/execution-pending`; no EXE.
 `StringHelpers.json_quote` at `string_helpers.hako:53` now has an exact Dynamic initializer frame; selected emission remains i64/Text only.
-Runtime provider selection checks exact Rust type identity with an immutable selector/arity table; physical invocation and Normal/Fault publication remain unwired.
-Next connect the source-bound Dynamic CallSlot through checked C invocation, operators, and Normal/Fault cleanup; preserve exact End/forward.
-Keep source tags; no `.hako` or fallback route. Quick build passes; lib-test cannot start (68 existing errors), and the focused smoke remains at the same stop.
+Runtime owner uses exact Rust type identity; checked invoke/end C ABI passes its focused test, but compiler physical caller, publication, and cleanup remain unwired.
+Next connect the source-bound CallSlot to the emitter and operator carriers, then complete Normal/Fault cleanup; preserve exact End/forward.
+Keep source tags; no `.hako` or fallback. Quick build and focused kernel test pass; EXE smoke still stops here; root lib-test has 68 unrelated errors.
 """
 next_design_card = "none"
 next_design_card_path = "none"

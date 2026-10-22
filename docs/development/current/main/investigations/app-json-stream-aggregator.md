@@ -1,31 +1,27 @@
 # APP-json-stream-aggregator
-Status: focused EXE stops in ordinary Dynamic method invocation before MIR publication. Date: 2026-10-23
+Status: selected app; source planning reaches the Dynamic initializer emitter, which still refuses before EXE generation. Date: 2026-10-23
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation contract](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Product evidence
-- Last full suite: 7/11 PASS (EXE6 + marker1), 397.733s; historical, not rerun.
-- `cargo quick-build-fast` succeeded for the current source.
-- The filtered `cargo quick-test-fast` did not reach execution: the lib-test target fails to compile (68 errors in unrelated existing test modules); no crate-level test result is claimed. The focused Dynamic operator contract tests pass 8/8 in isolation.
-- The explicit `target/quick` focused smoke now passes the source-plan stop and fails at `ordinary-new/emission/text-initializer/execution-pending`; no EXE is produced.
-- The passed source-plan stop was `local n = s.length()` in `StringHelpers.json_quote` (`string_helpers.hako:53`), where `s` is an unannotated Dynamic formal.
-- The remaining refusal is in `src/mir/builder/ordinary_new_admission/selected/initializer_expression.rs:76`.
-- Runtime provider matching now checks exact Rust runtime type identity instead of the diagnostic `type_name()` string; the immutable selector/arity table and opaque carrier owner remain unchanged. No compiler or AOT consumer is connected yet.
-- `cargo quick-build-fast` passes after that change; the focused EXE smoke still stops at `text-initializer/execution-pending`. The focused library test cannot start because the existing lib-test target has 68 unrelated compile errors.
+## Current stop
+- Fresh `target/quick` smoke fails at `ordinary-new/emission/text-initializer/execution-pending` in `StringHelpers.json_quote`; no EXE is produced.
+- The exact Dynamic source target and initializer frame are admitted. The selected emitter still accepts only i64/Text.
+- The checked runtime C entry now invokes the immutable provider table and issues/ends an opaque carrier, but no selected compiler physical caller, source publication, or cleanup path is connected.
+- Provider selection uses exact Rust runtime type identity, source selector, and arity. Keep the source tag; never infer String from `length`, caller behavior, or MIR type.
+- The existing `CheckedCallOut`/Dynamic V2 route is TextScan-specific and cannot represent the full trivial/owner-bearing/weak carrier contract. The existing bounded Dynamic Loop CallSlot is not a generic invocation owner.
+- The accepted contract is `OpaqueObservable`, synchronous/non-detached, `Normal(SelfContainedDynamicCarrier) | Fault`, borrowed-no-escape inputs, and exactly-once forwarding or End.
 
-## Current stop and contract
-- The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text; the new runtime provider/carrier owner has no physical caller or Normal/Fault publication path yet.
-- The existing `CheckedCallOut`/Dynamic V2 route is TextScan-specific: its site plans and C lowering admit fixed entries, and its wire cannot represent the full trivial/owner-bearing/weak carrier contract. Do not widen the initializer gate or reuse that route as generic dispatch.
-- The Dynamic/String comparison envelopes are now issued for both operand orders; they still have no physical execution consumer.
-- This is an ordinary Dynamic invocation even when the runtime receiver may be String. Keep the source tag and selector/arity relation; do not infer String from `length`, caller behavior, or a MIR type.
-- The existing bounded Dynamic Loop CallSlot and TextScan entries are not generic invocation owners. Do not route through plugin per-call snapshots, arity retry, compatibility fallback, or a selector-specific Text operation.
-- The accepted contract remains `OpaqueObservable`, synchronous/non-detached, `Normal(SelfContainedDynamicCarrier) | Fault`, borrowed-no-escape inputs, and exactly-once result forwarding or End.
+## Verification
+- `cargo quick-build-fast`: PASS after the runtime entry change.
+- `cargo test --profile quick -p nyash_kernel --lib checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier --jobs 4`: 1/1 PASS; checks Normal publication/End, Fault leaves output unchanged, and later End Fault is suppressed behind the primary Fault.
+- The new header passes Clang C11 and C++17 syntax checks; both exported symbol names are present in the linked focused-test executable.
+- Fresh `json_stream_aggregator_exe_runtime_boundary.sh` with `NYASH_BIN=target/quick/hakorune`: FAIL at the stop above; no EXE parity result.
+- Last full suite is historical: 7/11 PASS (6 EXE results plus one marker). The root `cargo quick-test-fast` target still has 68 unrelated compile errors; this does not affect the focused `nyash_kernel` test result.
 
 ## Next work
-- Continue from the selected initializer-emission owner: issue a distinct source-bound Dynamic CallSlot from the exact receiver/argument evaluation frame, then connect it through the runtime provider plan to the checked C invocation and Normal/Fault lifecycle publication.
-- Connect carrier values to the accepted `I64 < Dynamic`, Dynamic/String comparison, and String + Dynamic operator envelopes; preserve exactly-once forwarding/end on all exits.
-- Use the current expression source plan for receiver/argument evaluation order and exact source identity. Preserve terminal Fault, input ownership, and complete cleanup; no `.hako` rewrite or app/name branch.
-- Re-run the explicit focused smoke after the complete route reaches its physical/runtime consumer. Keep other app work and the full suite at the existing gate.
+- Issue the source-bound Dynamic CallSlot from the exact receiver/argument evaluation frame, then connect its descriptors to the checked C invocation and selected physical emitter.
+- Carry the opaque result through the accepted i64/Dynamic, Dynamic/String comparison, and String + Dynamic operator envelopes; preserve ordered cleanup and exactly-once forwarding/End on Normal and Fault.
+- Re-run the same explicit EXE smoke only after the full source-to-physical path is connected. Do not widen the initializer gate, rewrite `.hako`, add an app/name branch, or use fallback/retry.
 
-## Existing app obligations retained
-- Continue String, Map, ArrayBox, Birth, and loop work only as the focused smoke exposes them; preserve their current canonical owners and lifecycle checks.
-- App completion requires the existing smoke to produce and execute the EXE with expected output/exit. Fixed-suite status remains separate from the full MirBuilder goal.
+## Remaining app obligations
+- Continue String, Map, ArrayBox, Birth, and loop work only as the focused smoke exposes it; preserve their canonical owners and lifecycle checks.
+- App completion requires the existing smoke to generate and execute the EXE with expected output/exit. Fixed-suite status and full MirBuilder completion remain separate gates.

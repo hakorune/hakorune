@@ -604,3 +604,73 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         assert_eq!(dynamic_frame.diagnostics().unwrap().0.unwrap().reason, 302);
     }
 }
+
+#[test]
+fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
+    use super::checked_dynamic::{self as api, Operand};
+    use nyash_rust::{box_trait::StringBox, runtime::host_handles};
+    use std::sync::Arc;
+
+    let handle = host_handles::to_handle_arc(Arc::new(StringBox::new("猫x")));
+    let receiver = Operand {
+        kind: 1,
+        tag: 3,
+        payload: handle,
+    };
+    let selector = b"length";
+    let mut frame = FaultFrame::new();
+    let pointer = (&mut frame as *mut FaultFrame).cast();
+    let mut carrier = 0x1234;
+    unsafe {
+        assert_eq!(
+            api::invoke(
+                pointer,
+                41,
+                &receiver,
+                selector.as_ptr(),
+                selector.len(),
+                std::ptr::null(),
+                0,
+                &mut carrier
+            ),
+            0
+        );
+        let token =
+            nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(carrier)
+                .expect("Normal publishes a branded carrier");
+        let carrier_raw = carrier;
+        assert_eq!(token.integer_payload_v1().unwrap(), 2);
+        assert_eq!(api::end(pointer, 42, carrier_raw), 0);
+
+        carrier = 0x5678;
+        assert_eq!(
+            api::invoke(
+                pointer,
+                43,
+                &receiver,
+                b"missing".as_ptr(),
+                7,
+                std::ptr::null(),
+                0,
+                &mut carrier
+            ),
+            1
+        );
+        assert_eq!(carrier, 0x5678, "Fault publishes no carrier");
+        assert_eq!(api::end(pointer, 44, carrier_raw), 1);
+    }
+    let (primary, suppressed, _) = frame.diagnostics().unwrap();
+    assert_eq!((primary.unwrap().reason, primary.unwrap().site), (400, 43));
+    assert_eq!(
+        primary.unwrap().details[0],
+        2,
+        "missing provider is retained as a terminal Fault"
+    );
+    assert_eq!(
+        suppressed.len(),
+        1,
+        "a later cleanup Fault is suppressed behind the first"
+    );
+    assert_eq!(suppressed[0].site, 44);
+    host_handles::drop_handle(handle);
+}

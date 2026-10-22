@@ -80,3 +80,10 @@ is empty), and CP search index with empty=0/miss=-1 Normal. Copies end their lea
 read scope before any publication. Invalid descriptor/pair/output contracts leave
 outputs and Fault diagnostics untouched. Generated source/Core/profile authority,
 ordered cleanup and final correspondence remain compiler obligations.
+
+`fault_checked_dynamic.rs` is the checked C entry into the ordinary Dynamic
+invocation runtime owner. It decodes explicit tagged/scalar/carrier descriptors,
+issues the exact selector/arity once, writes one opaque carrier only on Normal,
+and consumes that carrier through the same owner. Source CallSlot issuance,
+operand construction, physical publication, and exactly-once cleanup remain
+compiler obligations.
