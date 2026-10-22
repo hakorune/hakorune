@@ -154,6 +154,20 @@ static int lv4_string_indexed_integer_operand(hako_lv4_function_index* fn,
       value->kind == LV4_TAGGED && lv4_borrowed_tagged_formal(fn, value);
 }
 
+static int lv4_dynamic_operand_live(hako_lv4_function_index* fn, yyjson_val* operand,
+    const hako_lv4_state* state) {
+  if (lv4_is(operand, "kind", "null")) return 1;
+  hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
+  if (!value) return 0;
+  if (lv4_is(operand, "kind", "integer")) return value->kind == LV4_I64;
+  if (lv4_is(operand, "kind", "bool")) return value->kind == LV4_BOOL;
+  if (lv4_is(operand, "kind", "tagged_dynamic"))
+    return value->kind == LV4_TAGGED && lv4_borrowed_tagged_formal(fn, value);
+  return lv4_is(operand, "kind", "dynamic_carrier") &&
+      value->kind == LV4_DYNAMIC_CARRIER && value->origin >= 0 &&
+      state[value->origin] == LV4_DYNAMIC_CARRIER_LIVE;
+}
+
 #include "hako_llvmc_ffi_lifecycle_v4_borrowed_result_anchor.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_field_dependency_liveness.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_mixed_result_flow.inc"
@@ -363,6 +377,25 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         }
       } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_invoke")) {
+      yyjson_val* arguments = yyjson_obj_get(op, "arguments");
+      if ((fi && !ordinary && !birth) || birth || faulted || state[bi] ||
+          !lv4_dynamic_operand_live(fn, yyjson_obj_get(op, "receiver"), state)) return 0;
+      for (size_t i = 0; i < yyjson_arr_size(arguments); i++)
+        if (!lv4_dynamic_operand_live(fn, yyjson_arr_get(arguments, i), state)) return 0;
+      normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_carrier_integer")) {
+      hako_lv4_value* carrier = lv4_index_value(fn, lv4_u(op, "carrier"));
+      if (birth || faulted || state[bi] || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER ||
+          carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
+      normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_carrier_end")) {
+      hako_lv4_value* carrier = lv4_index_value(fn, lv4_u(op, "carrier"));
+      if (birth || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER || carrier->origin < 0 ||
+          state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
+      /* Runtime End consumes even when it records Fault; the Fault edge must
+         never retry this same carrier. */
+      normal[carrier->origin] = state[carrier->origin] = 0;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
       /* A provider `new <Child>` inside a birth unit issues the child

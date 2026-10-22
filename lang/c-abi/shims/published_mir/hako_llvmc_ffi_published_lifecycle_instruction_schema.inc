@@ -56,10 +56,29 @@ static int hako_physical_string_operand(yyjson_val* function, yyjson_val* operan
       hako_physical_value_available_at(function, value, block, index);
 }
 
+/* Opaque Dynamic call operands keep their source-issued class. In particular,
+ * an opaque carrier is never accepted as a tagged kind/payload pair. */
+static int hako_physical_dynamic_operand(yyjson_val* function, yyjson_val* operand,
+    uint32_t block, uint32_t index) {
+  static const char* const null_keys[] = {"kind"};
+  static const char* const value_keys[] = {"kind", "value"};
+  uint32_t value;
+  if (hako_physical_string(yyjson_obj_get(operand, "kind"), "null"))
+    return hako_physical_exact_keys(operand, null_keys, 1);
+  if (!(hako_physical_string(yyjson_obj_get(operand, "kind"), "integer") ||
+      hako_physical_string(yyjson_obj_get(operand, "kind"), "bool") ||
+      hako_physical_string(yyjson_obj_get(operand, "kind"), "tagged_dynamic") ||
+      hako_physical_string(yyjson_obj_get(operand, "kind"), "dynamic_carrier"))) return 0;
+  return hako_physical_exact_keys(operand, value_keys, 2) &&
+      hako_physical_u32(yyjson_obj_get(operand, "value"), &value) &&
+      hako_physical_value_available_at(function, value, block, index);
+}
+
 static int hako_physical_result_operation(yyjson_val* op, int native) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (!kind) return 0;
   if (hako_physical_string_result(kind)) return 1;
+  if (!strcmp(kind, "dynamic_invoke") || !strcmp(kind, "dynamic_carrier_integer")) return 1;
   if (native) return !strcmp(kind, "array_new");
   if (!strcmp(kind, "field_get")) return 1;
   /* `array_new` outside the native lane is the proven provider `new
@@ -102,6 +121,25 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   const char* kind = operation ? yyjson_get_str(yyjson_obj_get(operation, "kind")) : NULL;
   uint32_t object_id, ordinal, value;
   if (!kind) return 0;
+  if (!strcmp(kind, "dynamic_invoke")) {
+    static const char* const keys[] = {"kind", "selector", "receiver", "arguments", "site"};
+    yyjson_val* arguments = yyjson_obj_get(operation, "arguments");
+    if (native || !hako_physical_exact_keys(operation, keys, 5) ||
+        !yyjson_is_str(yyjson_obj_get(operation, "selector")) ||
+        !yyjson_get_len(yyjson_obj_get(operation, "selector")) ||
+        !hako_physical_dynamic_operand(function, yyjson_obj_get(operation, "receiver"), block, index) ||
+        !yyjson_is_arr(arguments) || !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
+    for (size_t i = 0; i < yyjson_arr_size(arguments); i++)
+      if (!hako_physical_dynamic_operand(function, yyjson_arr_get(arguments, i), block, index)) return 0;
+    return 1;
+  }
+  if (!strcmp(kind, "dynamic_carrier_integer") || !strcmp(kind, "dynamic_carrier_end")) {
+    static const char* const keys[] = {"kind", "carrier", "site"};
+    return !native && hako_physical_exact_keys(operation, keys, 3) &&
+        hako_physical_u32(yyjson_obj_get(operation, "carrier"), &value) &&
+        hako_physical_value_available_at(function, value, block, index) &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
+  }
   if (!strcmp(kind, "string_compare")) {
     static const char* const keys[] = {"kind", "comparison", "left", "right", "site"};
     return hako_physical_exact_keys(operation, keys, 5) && hako_physical_string_comparison(operation) >= 0 &&

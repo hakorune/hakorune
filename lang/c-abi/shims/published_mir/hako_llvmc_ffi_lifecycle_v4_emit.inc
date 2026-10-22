@@ -57,6 +57,7 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 
 #include "hako_llvmc_ffi_lifecycle_v4_map_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_string_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_invocation_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_script_arguments_emit.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_object_result_emit.inc"
@@ -141,6 +142,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%owned_get%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
     lv4_string_alloca(f, op, lv4_u(block, "id"));
+    lv4_invocation_alloca(f, op, lv4_u(block, "id"));
     if (!lv4_dynamic_alloca(f, in, op, lv4_u(block, "id"), session)) return 0;
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
@@ -387,7 +389,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
               "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
               dst, producer_id, dst, producer_id, dst, dst);
-        } else if ((kind == LV4_I64 || kind == LV4_BOOL) &&
+        } else if (kind == LV4_DYNAMIC_CARRIER && lv4_is(producer_op, "kind", "dynamic_invoke"))
+          fprintf(f, "  %%v%u = load i64, ptr %%dynout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if (kind == LV4_I64 && lv4_is(producer_op, "kind", "dynamic_carrier_integer"))
+          fprintf(f, "  %%v%u = load i64, ptr %%dynint%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if ((kind == LV4_I64 || kind == LV4_BOOL) &&
             hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == (kind == LV4_BOOL ? 3 : 2))
           fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_SLOT_BORROW)
@@ -496,6 +502,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         lv4_string_emit(f, op, fi, b, normal_label, fault_label);
         continue;
       }
+      int invocation = lv4_invocation_emit(f, op, fi, b, normal_label, fault_label);
+      if (invocation == 0) return 0;
+      if (invocation == 1) continue;
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
         lv4_map_emit_operation(f, in, term, b, fi, normal_label, fault_label);
         continue;
@@ -760,6 +769,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.fault.frame_dispose_v1\"(ptr)\n"
       "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n");
   lv4_string_globals(f, in);
+  lv4_invocation_globals(f, in);
   lv4_script_arguments_globals(f, in);
   /* Plain Array operations share one external ABI in both physical profiles. */
   fprintf(f,
@@ -786,6 +796,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n"
 );
   lv4_dynamic_declarations(f);
+  lv4_invocation_declarations(f);
   lv4_map_declarations(f, in);
   lv4_owned_array_globals(f, in);
   lv4_object_layout_globals(f, in);

@@ -195,7 +195,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          block reached only by the invoke's Normal edge. */
       if (faulted || !first_non_phi || !value || value->origin < 0 ||
           (result_requires_live && (value->kind == LV4_OWNED_STRING
-              ? state[value->origin] <= LV4_STRING_RANK_BASE : state[value->origin] != LV4_LIVE))) return 0;
+              ? state[value->origin] <= LV4_STRING_RANK_BASE
+              : value->kind == LV4_DYNAMIC_CARRIER
+                  ? state[value->origin] != LV4_DYNAMIC_CARRIER_LIVE
+                  : state[value->origin] != LV4_LIVE))) return 0;
       if (value->kind == LV4_MIXED_OBJECT &&
           !lv4_mixed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
       if (value->kind == LV4_BORROWED_OBJECT &&
