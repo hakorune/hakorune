@@ -115,25 +115,30 @@ type ProviderV1 = fn(
     &CarrierPayloadV1,
     &[CarrierPayloadV1],
 ) -> Result<CarrierPayloadV1, DynamicInvocationFailureV1>;
+type RuntimeClassMatchV1 = fn(&dyn NyashBox) -> bool;
 
 struct ProviderEntryV1 {
-    runtime_class: &'static str,
+    matches_runtime_class: RuntimeClassMatchV1,
     selector: &'static str,
     arity: usize,
     invoke: ProviderV1,
+}
+
+fn is_string_box_v1(value: &dyn NyashBox) -> bool {
+    value.as_any().is::<StringBox>()
 }
 
 /// Provider behavior is registered as immutable data. Selection uses only
 /// the exact runtime class, source selector, and source arity.
 static PROVIDERS_V1: &[ProviderEntryV1] = &[
     ProviderEntryV1 {
-        runtime_class: "StringBox",
+        matches_runtime_class: is_string_box_v1,
         selector: "length",
         arity: 0,
         invoke: string_length_v1,
     },
     ProviderEntryV1 {
-        runtime_class: "StringBox",
+        matches_runtime_class: is_string_box_v1,
         selector: "substring",
         arity: 2,
         invoke: string_substring_v1,
@@ -163,15 +168,13 @@ pub fn plan_dynamic_invocation_v1(
     arguments: Vec<DynamicInvocationValueV1>,
 ) -> Result<DynamicInvocationPlanV1, DynamicInvocationFailureV1> {
     let receiver = receiver.resolve()?;
-    let runtime_class = match &receiver {
-        CarrierPayloadV1::Object(value) => value.type_name(),
-        CarrierPayloadV1::Weak(_) => "Weak",
-        CarrierPayloadV1::Null => "Null",
-        CarrierPayloadV1::Integer(_) => "Integer",
-        CarrierPayloadV1::Bool(_) => "Bool",
+    let runtime_object = match &receiver {
+        CarrierPayloadV1::Object(value) => Some(value.as_ref()),
+        CarrierPayloadV1::Weak(_) | CarrierPayloadV1::Null
+        | CarrierPayloadV1::Integer(_) | CarrierPayloadV1::Bool(_) => None,
     };
     let mut matches = PROVIDERS_V1.iter().filter(|entry| {
-        entry.runtime_class == runtime_class
+        runtime_object.is_some_and(|value| (entry.matches_runtime_class)(value))
             && entry.selector == selector
             && entry.arity == arguments.len()
     });

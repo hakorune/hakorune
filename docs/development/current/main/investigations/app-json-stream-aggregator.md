@@ -9,7 +9,8 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 - The explicit `target/quick` focused smoke now passes the source-plan stop and fails at `ordinary-new/emission/text-initializer/execution-pending`; no EXE is produced.
 - The passed source-plan stop was `local n = s.length()` in `StringHelpers.json_quote` (`string_helpers.hako:53`), where `s` is an unannotated Dynamic formal.
 - The remaining refusal is in `src/mir/builder/ordinary_new_admission/selected/initializer_expression.rs:76`.
-- A runtime base now provides one immutable class/selector/arity registry, frozen single-use plans, and an opaque carrier owner. Direct runtime checks passed for codepoint length/substring, borrowing a carrier as a receiver, exactly-once End, and missing-provider refusal; no compiler or AOT consumer is connected yet.
+- Runtime provider matching now checks exact Rust runtime type identity instead of the diagnostic `type_name()` string; the immutable selector/arity table and opaque carrier owner remain unchanged. No compiler or AOT consumer is connected yet.
+- `cargo quick-build-fast` passes after that change; the focused EXE smoke still stops at `text-initializer/execution-pending`. The focused library test cannot start because the existing lib-test target has 68 unrelated compile errors.
 
 ## Current stop and contract
 - The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text; the new runtime provider/carrier owner has no physical caller or Normal/Fault publication path yet.
