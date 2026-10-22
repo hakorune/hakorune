@@ -64,6 +64,92 @@ impl<'a> CallValidationContextV1<'a> {
         Ok(product)
     }
 
+    /// Borrow the same source product for a Text Header/After coordinate.
+    /// Text remains a distinct source class: this path cannot issue a scalar
+    /// read, and Static/Residence producers are not loop-point capabilities.
+    pub(in crate::mir) fn source_loop_text_point_product_v2(self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 as Producer;
+        let (product, binding, after) = match source {
+            Producer::Header(basis) => {
+                let product = self.ledger().retained_source_loop_recipe_v2(basis.binding().owner(), basis.source().site())?
+                    .ok_or_else(|| freeze("source-loop/header-product-missing"))?;
+                if !std::rc::Rc::ptr_eq(&product.source.source, basis.source())
+                    || product.source.headers.get(&basis.binding()).is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis))
+                    || !matches!(basis.entry_producer(), crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(_)) {
+                    return Err(freeze("source-loop/header-basis-drift"));
+                }
+                (std::rc::Rc::clone(product), basis.binding(), false)
+            }
+            Producer::After { product, binding } => {
+                let original = self.ledger().retained_source_loop_recipe_v2(binding.owner(), product.source.source.site())?
+                    .ok_or_else(|| freeze("source-loop/after-product-missing"))?;
+                if !std::rc::Rc::ptr_eq(original, product)
+                    || product.source.headers.get(binding).is_none_or(|basis|
+                        !matches!(basis.entry_producer(), crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(_)))
+                    || product.source.incoming.as_ref().map_err(|_| freeze("source-loop/after-incoming"))?
+                        .iter().filter(|row| row.basis.binding() == *binding).count() != 1 {
+                    return Err(freeze("source-loop/after-source-drift"));
+                }
+                (std::rc::Rc::clone(product), *binding, true)
+            }
+            Producer::Static { .. } | Producer::Residence(_) => return Err(freeze("source-loop/point-purpose")),
+        };
+        if product.source.headers.get(&binding).is_none_or(|basis|
+            !matches!(basis.entry_producer(), crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(_))) {
+            return Err(freeze("source-loop/text-point-binding"));
+        }
+        self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
+        Ok(product)
+    }
+
+    /// Borrow the same source product for a tagged-Dynamic Header/After.
+    /// Dynamic remains a pair-valued carrier; it never lends a scalar or Text
+    /// view, and the original source SUM stays attached to the producer.
+    pub(in crate::mir) fn source_loop_dynamic_point_product_v2(self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
+    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            SourceLoopDynamicProducerV1 as Producer,
+            SourceLoopValueProducerV1 as ValueProducer,
+        };
+        let (product, binding, after) = match source {
+            Producer::Header(basis) => {
+                let product = self.ledger().retained_source_loop_recipe_v2(
+                    basis.binding().owner(), basis.source().site(),
+                )?.ok_or_else(|| freeze("source-loop/header-product-missing"))?;
+                if !std::rc::Rc::ptr_eq(&product.source.source, basis.source())
+                    || product.source.headers.get(&basis.binding())
+                        .is_none_or(|original| !std::rc::Rc::ptr_eq(original, basis))
+                    || !matches!(basis.entry_producer(), ValueProducer::Dynamic(_)) {
+                    return Err(freeze("source-loop/dynamic-header-basis-drift"));
+                }
+                (std::rc::Rc::clone(product), basis.binding(), false)
+            }
+            Producer::After { product, binding } => {
+                let original = self.ledger().retained_source_loop_recipe_v2(
+                    binding.owner(), product.source.source.site(),
+                )?.ok_or_else(|| freeze("source-loop/after-product-missing"))?;
+                if !std::rc::Rc::ptr_eq(original, product)
+                    || product.source.headers.get(binding).is_none_or(|basis|
+                        !matches!(basis.entry_producer(), ValueProducer::Dynamic(_)))
+                    || product.source.incoming.as_ref().map_err(|_| freeze("source-loop/after-incoming"))?
+                        .iter().filter(|row| row.basis.binding() == *binding).count() != 1 {
+                    return Err(freeze("source-loop/dynamic-after-source-drift"));
+                }
+                (std::rc::Rc::clone(product), *binding, true)
+            }
+            Producer::Source(_) => return Err(freeze("source-loop/dynamic-point-purpose")),
+        };
+        if product.source.headers.get(&binding).is_none_or(|basis|
+            !matches!(basis.entry_producer(), ValueProducer::Dynamic(_))) {
+            return Err(freeze("source-loop/dynamic-point-binding"));
+        }
+        self.require_source_loop_parent_v2(&product, after || matches!(self, Self::Finalized(_)))?;
+        Ok(product)
+    }
+
     /// Borrow the same source-owned write after the packet pool's affine move.
     /// Membership is safe during read take; full RHS validation is a later phase.
     pub(in crate::mir::normal_callable_semantic_package) fn with_original_field_write_v1<R>(
@@ -135,6 +221,31 @@ impl<'a> CallValidationContextV1<'a> {
             if value != packet.value() || home.local_value() != value { return Err(freeze("expression/residence-original-pair")); }
             check(value, packet.root_acquisition_binding_v1()?)
         })
+    }
+    /// Resolve an existing Text residence from the current immutable binding
+    /// observation. This is used by Loop Entry verification where there is no
+    /// additional lexical read site to consume.
+    pub(in crate::mir) fn with_text_residence_binding_v1<R>(self,
+        acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
+        read: &crate::mir::builder::BindingValueObservationV2,
+        check: impl FnOnce(ValueId, &(BasicBlockId, MirInstruction)) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let binding = acquisition.binding();
+        if read.binding_value().0 != binding || !acquisition.is_text_residence() {
+            return Err(freeze("expression/residence-binding"));
+        }
+        let home = self.text_home_for_acquisition_v1(acquisition)?;
+        let value = if acquisition.initializer_origin_v1().is_some() {
+            read.loan_local_initializer_v1(binding)?.0
+        } else if let Some(frame) = acquisition.rebind_origin_v1() {
+            read.loan_checked_rebind_v1(frame)?.0
+        } else {
+            return Err(freeze("expression/residence-origin"));
+        };
+        if value != read.binding_value().1 || home.local_value() != value {
+            return Err(freeze("expression/residence-original-pair"));
+        }
+        check(value, home.root_acquisition_binding_v1()?)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn text_home_for_acquisition_v1(self,
         acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,

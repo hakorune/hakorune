@@ -32,7 +32,7 @@ pub(crate) struct LoopJoinBranchExitRefV1<'sig> {
 pub(crate) enum LoopJoinBranchArmTransferRefV1<'sig> {
     Exit(LoopJoinBranchExitRefV1<'sig>),
     Fallthrough {
-        continuation: super::model::LoopJoinNextItemV1,
+        continuation: Option<super::model::LoopJoinNextItemV1>,
         payload: &'sig [LoopJoinPayloadV1],
     },
 }
@@ -266,10 +266,10 @@ mod tests {
                 payload: &[],
             }),
             else_arm: LoopJoinBranchArmTransferRefV1::Fallthrough {
-                continuation: super::super::model::LoopJoinNextItemV1 {
+                continuation: Some(super::super::model::LoopJoinNextItemV1 {
                     block: LoopBlockKeyV1::new(9),
                     item: LoopItemKeyV1::new(10),
-                },
+                }),
                 payload: &[],
             },
         }

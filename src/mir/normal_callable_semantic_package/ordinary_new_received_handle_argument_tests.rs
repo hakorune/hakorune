@@ -203,7 +203,9 @@ fn received_handle_selected_target_errors_never_change_pending_or_retry_old_lane
         .unwrap_err();
         assert!(error.contains(reason), "{error}");
         assert_eq!(projected, 0);
-        let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
+        let result = borrowed_call_arguments_callback_v1(
+            package.batch(),
+            &package.selected,
             &targets,
             &package.parameter_contracts,
             &candidates,
@@ -216,7 +218,9 @@ fn received_handle_selected_target_errors_never_change_pending_or_retry_old_lane
             target.call_site(),
             BorrowedCallActualRequestV1::ReceivedHandleArguments(destination),
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
+            &ledger.receiver_call_observations,
+            &ledger.field_write_claims,
+            None,
         );
         assert!(format!("{:?}", result.unwrap_err()).contains(reason));
         assert_eq!(pending, snapshot);
@@ -295,7 +299,9 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
             LocalCallResultClassV1::Handle
         };
         let targets = Ok(vec![Ok(Some(target.clone()))]);
-        let result = received_producer_arguments_v1(package.batch(), &package.selected,
+        let result = received_producer_arguments_v1(
+            package.batch(),
+            &package.selected,
             source,
             &package.parameter_contracts,
             pending,
@@ -319,7 +325,9 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         } else {
             LocalCallResultClassV1::Nullable
         };
-        assert!(received_producer_arguments_v1(package.batch(), &package.selected,
+        assert!(received_producer_arguments_v1(
+            package.batch(),
+            &package.selected,
             source,
             &package.parameter_contracts,
             pending,
@@ -342,7 +350,9 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
                 Err("late-target-error".into()),
             ]),
         ] {
-            assert!(received_producer_arguments_v1(package.batch(), &package.selected,
+            assert!(received_producer_arguments_v1(
+                package.batch(),
+                &package.selected,
                 source,
                 &package.parameter_contracts,
                 pending,
@@ -352,12 +362,14 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
                 target.call_site(),
                 destination,
                 kind,
-                    &ledger.field_write_claims,
+                &ledger.field_write_claims,
             )
             .is_err());
         }
         let own_object_input = target.owning_object_local_input_v1().is_some();
-        let without_new_candidates = received_producer_arguments_v1(package.batch(), &package.selected,
+        let without_new_candidates = received_producer_arguments_v1(
+            package.batch(),
+            &package.selected,
             source,
             &package.parameter_contracts,
             pending,
@@ -379,10 +391,14 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
                         | ObjectCallSourceSupportV1::Observed(_),
                 }) if result == kind));
         } else {
-            assert!(without_new_candidates.unwrap_err().contains("claim-local-missing"));
+            assert!(without_new_candidates
+                .unwrap_err()
+                .contains("claim-local-missing"));
         }
         let empty = result_class_claim::OrdinaryNewResultClassClaimsV1::new();
-        assert!(received_producer_arguments_v1(package.batch(), &package.selected,
+        assert!(received_producer_arguments_v1(
+            package.batch(),
+            &package.selected,
             source,
             &package.parameter_contracts,
             pending,
@@ -395,14 +411,20 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
             &ledger.field_write_claims,
         )
         .unwrap_err()
-        .contains(if own_object_input { "nullable-input/result-class-drift" } else { "producer-dependency-missing" }));
+        .contains(if own_object_input {
+            "nullable-input/result-class-drift"
+        } else {
+            "producer-dependency-missing"
+        }));
         let mut poisoned = pending.clone();
         poisoned.insert(
             target.call_site().clone(),
             Err("original-actual-error".into()),
         );
         assert_eq!(
-            received_producer_arguments_v1(package.batch(), &package.selected,
+            received_producer_arguments_v1(
+                package.batch(),
+                &package.selected,
                 source,
                 &package.parameter_contracts,
                 &poisoned,
@@ -412,7 +434,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
                 target.call_site(),
                 destination,
                 kind,
-                    &ledger.field_write_claims,
+                &ledger.field_write_claims,
             )
             .unwrap_err(),
             "original-actual-error"

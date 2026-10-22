@@ -93,7 +93,7 @@ fn validate_view<'rows, 'product>(
     }
     if !matches!(
         branch.else_arm,
-        LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. }
+        LoopJoinBranchArmTransferRefV2::Fallthrough { continuation: Some(continuation), .. }
             if continuation.block == LoopBlockKeyV1::new(1)
                 && continuation.item == LoopItemKeyV1::new(11)
     ) {

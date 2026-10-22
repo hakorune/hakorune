@@ -18,11 +18,11 @@
 //! `ArrayElementWrite` emission already owns the instruction, and neither
 //! is lifecycle-required. Anything outside the manifest contract keeps
 //! `PrefixNotCovered`.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::core_method_result_kind::{
     lookup_core_method_result_row_v2, CoreMethodResultKindV1,
 };
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, VerifiedResolvedBodyShapeInventoryV1};
 
 /// The shared proof for one `me.<field>.m(..)` call site: the sealed
@@ -90,25 +90,39 @@ fn proven_field_call<E>(
     )? {
         return Ok(None);
     }
-    let Some(row) = lookup_core_method_result_row_v2(
-        "ArrayBox",
-        call.selector(),
-        call.arity(),
-    ) else {
+    let Some(row) = lookup_core_method_result_row_v2("ArrayBox", call.selector(), call.arity())
+    else {
         return Ok(None);
     };
     for argument in call.arguments() {
         if call.selector() == "set" && call.arity() == 2 && argument.ordinal() == 1 {
             if let Some(index) = call.arguments().first() {
-                if let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(index.site()) {
-                    if let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(object) {
+                if let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
+                    shape.expression_shape(index.site())
+                {
+                    if let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(
+                        binding,
+                    )) = input.function().variable_ref(object)
+                    {
                         if let Some(root) = locals.field_home(object) {
-                            if view_use(&OwnedExprSiteV1::new(input.owner(), argument.site().clone()),
+                            if view_use(
+                                &OwnedExprSiteV1::new(input.owner(), argument.site().clone()),
                                 BorrowedViewUseRequestV1::ArrayElementFieldIndexValue {
-                                    call: call_site, index: index.site(), binding, root,
-                                })? {
-                                if !formal_i64_field(&OwnedExprSiteV1::new(input.owner(), index.site().clone()),
-                                    object, binding, root, field)? { return Ok(None); }
+                                    call: call_site,
+                                    index: index.site(),
+                                    binding,
+                                    root,
+                                },
+                            )? {
+                                if !formal_i64_field(
+                                    &OwnedExprSiteV1::new(input.owner(), index.site().clone()),
+                                    object,
+                                    binding,
+                                    root,
+                                    field,
+                                )? {
+                                    return Ok(None);
+                                }
                                 continue;
                             }
                         }
@@ -246,12 +260,24 @@ fn argument_subtree_neutral<E>(
     // second scalar Operand use. Keep the issuer predicate as the sole authority.
     let mut proven_formal_receivers = std::collections::BTreeSet::new();
     for expression in &subtree {
-        if let BodyExpressionShapeV1::FieldAccess { site, object, field } = expression {
+        if let BodyExpressionShapeV1::FieldAccess {
+            site,
+            object,
+            field,
+        } = expression
+        {
             if let Some(BodyExpressionShapeV1::Variable {
-                resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding), ..
-            }) = shape.expression_shape(object) {
-                if formal_i64_field(&OwnedExprSiteV1::new(input.owner(), site.clone()),
-                    object, *binding, *binding, field)? {
+                resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+                ..
+            }) = shape.expression_shape(object)
+            {
+                if formal_i64_field(
+                    &OwnedExprSiteV1::new(input.owner(), site.clone()),
+                    object,
+                    *binding,
+                    *binding,
+                    field,
+                )? {
                     proven_formal_receivers.insert(object);
                 }
             }
@@ -445,40 +471,135 @@ pub(super) fn observe_local_field_call<E>(
 /// No candidate Home is transferred; source and final physical duties differ.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedFieldArrayTextAppendV1 {
-    source: std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+    source:
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
     evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1>,
     statement: SourceStmtSiteV1,
     receiver_read: SourceExprSiteV1,
     receiver: BindingRefV1,
 }
 impl CheckedFieldArrayTextAppendV1 {
-    pub(crate) fn source(&self) -> &std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1> { &self.source }
-    pub(crate) fn evaluation(&self) -> &std::rc::Rc<super::CheckedExpressionEvaluationV1> { &self.evaluation }
-    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 { &self.statement }
-    pub(crate) fn receiver_read(&self) -> &SourceExprSiteV1 { &self.receiver_read }
-    pub(crate) fn receiver(&self) -> BindingRefV1 { self.receiver }
+    pub(crate) fn source(
+        &self,
+    ) -> &std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>
+    {
+        &self.source
+    }
+    pub(crate) fn evaluation(&self) -> &std::rc::Rc<super::CheckedExpressionEvaluationV1> {
+        &self.evaluation
+    }
+    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
+        &self.statement
+    }
+    pub(crate) fn receiver_read(&self) -> &SourceExprSiteV1 {
+        &self.receiver_read
+    }
+    pub(crate) fn receiver(&self) -> BindingRefV1 {
+        self.receiver
+    }
 }
 
 pub(super) fn observe_text_append<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &mut PrefixLocalFlow<'_>, homes: &[LiveHomeV1], prefix_known: bool, calls: &[LocalCallObservationV1],
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    locals: &mut PrefixLocalFlow<'_>,
+    homes: &[LiveHomeV1],
+    prefix_known: bool,
+    calls: &[LocalCallObservationV1],
     fields: &mut impl HomeFieldSourceConsultV1<E>,
-    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+    port: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<bool>, E> {
-    if !prefix_known || !matches!(statement.node(), ASTNode::MethodCall { .. }) { return Ok(None) }
+    if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
+        let name = match input.source().root() {
+            ASTNode::FunctionDeclaration { name, .. } => name.as_str(),
+            _ => "<root>",
+        };
+        eprintln!("[field-text-append] scan owner={:?} function={name}", input.owner());
+    }
+    macro_rules! refuse_text_append {
+        ($reason:literal) => {{
+            if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
+                eprintln!("[field-text-append] owner={:?} reason={}", input.owner(), $reason);
+            }
+            return Ok(Some(false));
+        }};
+    }
+    if !prefix_known || !matches!(statement.node(), ASTNode::MethodCall { .. }) {
+        return Ok(None);
+    }
     let site = SourceExprSiteV1::from_node(statement.site().node().clone());
-    let Some(source) = fields.array_text_append_source(input, &site)? else { return Ok(None) };
-    let Some(call) = source.append_method() else { return Ok(Some(false)) };
-    let Some(shape) = input.body_shape() else { return Ok(Some(false)) };
-    let Some(BodyExpressionShapeV1::FieldAccess { object, .. }) = shape.expression_shape(call.receiver_site()) else { return Ok(Some(false)) };
-    let Some(ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(object) else { return Ok(Some(false)) };
-    if !locals.is_self_rooted_handle(receiver) || source.call().site() != &site || call.owner() != input.owner() { return Ok(Some(false)) }
-    let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, call, 0) else { return Ok(Some(false)) };
-    let Some(evaluation) = super::terminal_relation::qualify_terminal_text_evaluation_v1(input, plan, source.call(), locals, homes, calls, port)? else { return Ok(Some(false)) };
-    if !evaluation.calls().is_empty() || !evaluation.cores().is_empty() || !evaluation.operations().is_empty()
-        || !evaluation.owned_result_nodes().is_empty() { return Ok(Some(false)); }
-    let frame = std::rc::Rc::new(CheckedFieldArrayTextAppendV1 { source, evaluation,
-        statement: statement.site().clone(), receiver_read: object.clone(), receiver });
-    locals.retain_named_array_observation(super::NamedArrayHomeObservationV1::FieldTextAppend(frame));
+    let Some(source) = fields.array_text_append_source(input, &site)? else {
+        return Ok(None);
+    };
+    if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
+        eprintln!("[field-text-append] owner={:?} candidate={site:?}", input.owner());
+    }
+    let Some(call) = source.append_method() else {
+        refuse_text_append!("append-method-missing");
+    };
+    let Some(shape) = input.body_shape() else {
+        refuse_text_append!("body-shape-missing");
+    };
+    let Some(BodyExpressionShapeV1::FieldAccess { object, .. }) =
+        shape.expression_shape(call.receiver_site())
+    else {
+        refuse_text_append!("receiver-field-missing");
+    };
+    let Some(ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(object) else {
+        refuse_text_append!("receiver-local-missing");
+    };
+    if !locals.is_self_rooted_handle(receiver)
+        || source.call().site() != &site
+        || call.owner() != input.owner()
+    {
+        refuse_text_append!("receiver-source-mismatch");
+    }
+    let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, call, 0) else { refuse_text_append!("argument-plan-missing") };
+    if !matches!(plan.root(),
+        crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+            statement: original_statement,
+            call: original_call,
+            ordinal: 0,
+        } if original_statement == statement.site()
+            && std::sync::Arc::ptr_eq(original_call, call)
+            && plan.owner() == input.owner())
+    {
+        refuse_text_append!("argument-plan-mismatch");
+    }
+    let Some(evaluation) = super::terminal_relation::qualify_terminal_text_evaluation_v1(
+        input,
+        std::rc::Rc::clone(&plan),
+        source.call(),
+        locals,
+        homes,
+        calls,
+        port,
+        Some(source.as_ref()),
+    )?
+    else {
+        refuse_text_append!("text-evaluation-missing");
+    };
+    if !evaluation.calls().is_empty()
+        || !evaluation.cores().is_empty()
+        || !evaluation.operations().is_empty()
+        || !evaluation.owned_result_nodes().is_empty()
+    {
+        refuse_text_append!("text-evaluation-has-effects");
+    }
+    let frame = std::rc::Rc::new(CheckedFieldArrayTextAppendV1 {
+        source,
+        evaluation,
+        statement: statement.site().clone(),
+        receiver_read: object.clone(),
+        receiver,
+    });
+    locals
+        .retain_named_array_observation(super::NamedArrayHomeObservationV1::FieldTextAppend(frame));
+    if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
+        eprintln!("[field-text-append] owner={:?} covered={site:?}", input.owner());
+    }
     Ok(Some(true))
 }

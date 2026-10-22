@@ -3,6 +3,7 @@
 use super::borrowed_formal_uses::*;
 use super::*;
 pub(in crate::mir) use source_seeds::SourceValueSumV1;
+pub(in crate::mir) use source_seeds::TaggedDynamicSourcePointsV1;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };

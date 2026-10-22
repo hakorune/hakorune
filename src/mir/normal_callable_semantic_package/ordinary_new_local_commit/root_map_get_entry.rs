@@ -402,7 +402,9 @@ impl StoredMapGetLocalEmissionV1 {
             super::ExpressionPhysicalProjectionRefV1::validate_normal_order_v1(function, &[map(&self.normal)?, copy])?;
         }
         let faults = match finishing { Some(p) => p.bindings(&self.faults)?, None => self.faults.clone() };
-        ledger.validate_source_field_fault_v1(function, &map(&self.invoke)?, &faults, self.frame.prior_homes())
+        ledger.validate_source_field_fault_v1(
+            self.frame.site().owner(), function, &map(&self.invoke)?, &faults, self.frame.prior_homes(),
+        )
     }
 }
 impl CallValidationContextV1<'_> {

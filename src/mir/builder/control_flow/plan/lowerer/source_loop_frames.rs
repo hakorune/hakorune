@@ -93,7 +93,7 @@ pub(super) fn emit_call(
         return Err(freeze("call-source-drift"));
     }
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
-    let value = if let Some((declaration, binding)) = observation.local_binding() {
+        let value = if let Some((declaration, binding)) = observation.local_binding() {
         let SourceBindingSiteV1::Local { statement: original_statement, ordinal } = declaration
             else { return Err(freeze("call-local-declaration")); };
         if original_statement != statement || input.function().declaration_binding(declaration) != Some(binding) {
@@ -112,26 +112,29 @@ pub(super) fn emit_call(
                 function, receipt.initializer(), receipt.local(), *block)?;
         }
         Some((receipt.initializer(), receipt.local()))
-    } else {
+        } else {
         let original = input.function().method_calls().find(|(site, _)| *site == observation.site().site())
             .map(|(_, call)| call).ok_or_else(|| freeze("call-original-missing"))?;
         let source = context(port, observation.site().site().node())?;
         port.with_prepared_child_source_v1(source, |port| {
             if observation.result() == Class::Unit {
+                    if observation.is_expression_value() {
+                        return Err(freeze("call-unit-expression-result"));
+                    }
                 if !port.try_emit_unit_discard(builder, original.selector(), original.arity() as usize)? {
                     return Err(freeze("call-source-missing"));
                 }
+                    Ok(None)
             } else if let Some(selected) = claims.selected_static_local_source_v1(observation.site())? {
-                if port.emit_local_static_lifecycle_call_v1(builder, selected.target().owner(),
-                    original.selector(), original.arity() as usize)?.is_none() {
-                    return Err(freeze("call-source-missing"));
+                    let value = port.emit_local_static_lifecycle_call_v1(builder, selected.target().owner(),
+                        original.selector(), original.arity() as usize)?.ok_or_else(|| freeze("call-source-missing"))?;
+                    Ok(observation.is_expression_value().then_some((value, value)))
+                } else {
+                    let value = port.emit_local_lexical_lifecycle_call_v1(builder, original.selector())?
+                        .ok_or_else(|| freeze("call-source-missing"))?;
+                    Ok(observation.is_expression_value().then_some((value, value)))
                 }
-            } else if port.emit_local_lexical_lifecycle_call_v1(builder, original.selector())?.is_none() {
-                return Err(freeze("call-source-missing"));
-            }
-            Ok(())
-        })?;
-        None
+            })?
     };
     let packet = claims.source_loop_effect_group_v2(product, observation.site())?;
     Ok((packet, value))

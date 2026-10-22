@@ -32,9 +32,14 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
         Some(groups) => groups.as_slice(),
         None => rows.get(&prepared.owner).map(Vec::as_slice).unwrap_or(&[]),
     };
+    let repeated_site = groups.iter().any(|recorded| recorded.site() == prepared.group.site());
     if groups.len() != prepared.preceding_sites.len()
         || groups.iter().map(|recorded| recorded.site()).ne(prepared.preceding_sites.iter())
-        || groups.iter().any(|recorded| recorded.site() == prepared.group.site()) {
+        || (repeated_site && !prepared.destination.allows_same_site_neighbor_v2(
+            &expected,
+            groups,
+            &prepared.group,
+        )) {
         return Err(freeze("local-call-binding-preflight-stale"));
     }
     // All checks precede both mutations, with both destination maps borrowed.

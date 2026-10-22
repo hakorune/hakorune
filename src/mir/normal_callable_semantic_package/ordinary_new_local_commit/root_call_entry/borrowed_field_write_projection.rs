@@ -105,7 +105,7 @@ pub(super) fn validate_fault_inventory_v1(function: &MirFunction, landing: Basic
             if !seen.insert(block) { continue; }
             let body = function.blocks.get(&block).ok_or_else(|| freeze(&format!("{family}/fault-block")))?;
             for row in body.all_instructions() {
-                if !matches!(row, MirInstruction::Invoke { .. } | MirInstruction::Jump { .. } | MirInstruction::ReturnFault { .. }) {
+                if !matches!(row, MirInstruction::Invoke { .. } | MirInstruction::Jump { .. } | MirInstruction::ReturnFault { .. } | MirInstruction::ArrayResidenceRelease { .. }) {
                     return Err(freeze(&format!("{family}/fault-unexpected-effect")));
                 }
                 if expected.iter().filter(|binding| binding.0 == block && &binding.1 == row).count() != 1 {
@@ -124,7 +124,8 @@ pub(super) fn validate_fault_inventory_v1(function: &MirFunction, landing: Basic
 }
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn validate_source_field_fault_v1(
-        &self, function: &MirFunction, invoke: &Binding, rows: &[Binding], homes: &[LiveHomeV1],
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction, invoke: &Binding,
+        rows: &[Binding], homes: &[LiveHomeV1],
     ) -> Result<(), String> {
         let MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { .. }
             | crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }),
@@ -132,7 +133,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let operations = self.prior_home_unwind_for(homes)?;
         super::super::super::root_cleanup_graph::ordered_paths::pending_operations(
             function, *fault_landing, &operations, Some(*fault_frame))?;
-        validate_fault_inventory_v1(function, *fault_landing, *fault_frame, rows, "field-read")
+        let mut expected = rows.to_vec();
+        expected.extend(self.main_arguments_release_suffix_v1(owner, function)?);
+        validate_fault_inventory_v1(function, *fault_landing, *fault_frame, &expected, "field-read")
     }
     pub(crate) fn record_borrowed_field_write_bindings_v1(&self, packet: Rc<EmittedBorrowedFieldWriteV1>) -> Result<(), String> {
         let source = packet.source.frame().source();

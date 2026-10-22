@@ -1,8 +1,8 @@
 //! Existing Local statement walk, shared by root, branch and Loop scans.
 //! The running scanner owns ordering; this owner retains the same initializer,
 //! Call, field, map and Home installation algorithms without a second evaluator.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn observe<'a, E>(
@@ -69,10 +69,19 @@ pub(super) fn observe<'a, E>(
     let function = input.function();
     if crate::config::env::builder_debug_enabled() {
         if let Some(issue) = unavailable.as_ref() {
-            eprintln!("[home-prefix/local] owner={:?} statement={:?} prior_issue={issue:?}", input.owner(), statement.site());
+            eprintln!(
+                "[home-prefix/local] owner={:?} statement={:?} prior_issue={issue:?}",
+                input.owner(),
+                statement.site()
+            );
         }
     }
-    let ASTNode::Local { variables, initial_values, .. } = statement.node() else {
+    let ASTNode::Local {
+        variables,
+        initial_values,
+        ..
+    } = statement.node()
+    else {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(());
     };
@@ -107,15 +116,47 @@ pub(super) fn observe<'a, E>(
             continue;
         };
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-        if let Some(result) = map_flow::observe_field_get_local_v1(input, &owned, &declaration, binding,
-            locals, homes, unavailable.is_none(), local_calls, maps, borrowed_actuals)? {
-            if let Err(issue) = result { unavailable.get_or_insert(issue); }
+        if let Some(result) = map_flow::observe_field_get_local_v1(
+            input,
+            &owned,
+            &declaration,
+            binding,
+            locals,
+            homes,
+            unavailable.is_none(),
+            local_calls,
+            maps,
+            borrowed_actuals,
+        )? {
+            if let Err(issue) = result {
+                unavailable.get_or_insert(issue);
+            }
             continue;
         }
-        local_call_flow::stage_argument_expressions(input, &statement, &owned, locals,
-            unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
-        if mixed_call::observe(input, statement.site(), &owned, &declaration, binding,
-            homes, locals, local_calls, path_calls, unavailable, borrowed_actuals)? {
+        local_call_flow::stage_argument_expressions(
+            input,
+            &statement,
+            &owned,
+            locals,
+            unavailable.is_none(),
+            homes,
+            local_calls,
+            local_field_read,
+            borrowed_actuals,
+        )?;
+        if mixed_call::observe(
+            input,
+            statement.site(),
+            &owned,
+            &declaration,
+            binding,
+            homes,
+            locals,
+            local_calls,
+            path_calls,
+            unavailable,
+            borrowed_actuals,
+        )? {
             continue;
         }
         if let Some(selected) = local_call_flow::issue_borrowed_nullable_local_call(
@@ -158,8 +199,15 @@ pub(super) fn observe<'a, E>(
             continue;
         }
         if unavailable.is_none() {
-            if let Some(local_call) = local_call_flow::issue_static_bool_local_call_v1(input,
-                statement.site(), &owned, declaration.clone(), binding, homes, borrowed_actuals)? {
+            if let Some(local_call) = local_call_flow::issue_static_bool_local_call_v1(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                homes,
+                borrowed_actuals,
+            )? {
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 locals.install_scalar_call_result(binding, SourceScalarKind::Bool);
@@ -392,9 +440,24 @@ pub(super) fn observe<'a, E>(
             borrowed_actuals,
         )? {
             // Source obligation retained; no producer execution is inferred.
-        } else if super::initializer_expression::observe(input, &statement, relation, locals, homes,
-            unavailable.is_none(), local_calls, path_calls, scalar_field, local_field_read, borrowed_actuals)? {
+        } else if super::initializer_expression::observe(
+            input,
+            &statement,
+            relation,
+            locals,
+            homes,
+            unavailable.is_none(),
+            local_calls,
+            path_calls,
+            scalar_field,
+            local_field_read,
+            borrowed_actuals,
+        )? {
             // The original Normal Text residence retains its acquisition.
+        } else if let Some(formal) = locals.opaque_formal_binding(site) {
+            // A direct unannotated-formal alias preserves its tagged carrier
+            // even when no caller SUM materialized this local read point.
+            locals.install_observed(binding, OrdinaryObservation::TaggedDynamicLocal(formal));
         } else if let Some(class) = locals.observe(site) {
             locals.install_observed(binding, class);
         } else if let Some(result_kind) = field_call::observe_local_field_call(
@@ -417,10 +480,7 @@ pub(super) fn observe<'a, E>(
                     locals.install_i64_call_result(binding);
                 }
                 CoreMethodResultKindV1::BoolValue => {
-                    locals.install_scalar_call_result(
-                        binding,
-                        local_flow::SourceScalarKind::Bool,
-                    );
+                    locals.install_scalar_call_result(binding, local_flow::SourceScalarKind::Bool);
                 }
                 _ => locals.install_bound_value(binding),
             }
@@ -429,7 +489,12 @@ pub(super) fn observe<'a, E>(
             field_read::observe_local_field_read(input, site, locals, homes, local_field_read)?
         {
             field_read::install_local_field_read_result(
-                input, site, binding, locals, unavailable, result,
+                input,
+                site,
+                binding,
+                locals,
+                unavailable,
+                result,
             );
             continue;
         } else if let Some((kind, calls)) = {
@@ -441,13 +506,19 @@ pub(super) fn observe<'a, E>(
                 locals,
                 local_field_read,
                 statement.site(),
-                homes, unavailable.is_none(),
+                homes,
+                unavailable.is_none(),
                 local_static_call,
                 view_use,
                 borrowed_actuals,
             )?;
             if let Some(operation) = operation {
-                if operation.source().root().initializer().map(|row| row.binding()) != Some(binding)
+                if operation
+                    .source()
+                    .root()
+                    .initializer()
+                    .map(|row| row.binding())
+                    != Some(binding)
                     || !locals.retain_expression_plan(operation)
                 {
                     unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);

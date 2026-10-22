@@ -27,6 +27,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
             // owned-pair ABI. Keep it closed until that transfer is admitted.
             TerminalReturnedSourceV1::TextResidence { .. } | TerminalReturnedSourceV1::TextExpression(_) => None,
             TerminalReturnedSourceV1::BorrowedNullableLocal(_) => None,
+            // Tagged Dynamic preserves its value at Return but does not
+            // publish a concrete Invoke result ABI.
+            TerminalReturnedSourceV1::TaggedDynamic(_) => None,
             TerminalReturnedSourceV1::Construction(_) => Some(InvokeCallResultKind::Handle),
             TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_) => {
                 Some(InvokeCallResultKind::Map)

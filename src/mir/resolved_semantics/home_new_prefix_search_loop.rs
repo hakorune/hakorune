@@ -1,8 +1,8 @@
 //! Home walk for the sole verified Static I64 search-loop source role.
 //! Source topology and the I64 step were verified by the existing V2
 //! product; this walk observes calls and site-specific exits, not Recipe IDs.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::BodyChildRoleV1;
 
 #[allow(clippy::too_many_arguments)]

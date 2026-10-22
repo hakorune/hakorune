@@ -10,12 +10,23 @@ pub(crate) struct ExpressionScalarOperationLoanV1 {
 impl ExpressionScalarOperationLoanV1 {
     /// The existing exact Local/root law; value-class qualification stays with
     /// its caller. This issues no physical append or derived reuse permission.
-    pub(super) fn issue_root(source: Rc<ExpressionSourcePlanV1>,
-        binary: &ResolvedBinaryExpressionSourceV1, positive_divisor: Option<i64>,
+    pub(super) fn issue_root(
+        source: Rc<ExpressionSourcePlanV1>,
+        binary: &ResolvedBinaryExpressionSourceV1,
+        positive_divisor: Option<i64>,
     ) -> Option<Rc<Self>> {
-        if source.has_opaque_obligations() { return None; }
+        if source.has_opaque_obligations() {
+            return None;
+        }
         let root = source.nodes().first()?;
         let original_value = match source.root() {
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                statement, call, ordinal,
+            } if positive_divisor.is_none()
+                && call.owner() == source.owner()
+                && call.arguments().get(*ordinal as usize).is_some_and(|argument|
+                    argument.ordinal() == *ordinal && argument.site() == root.site())
+                && call.site().node().segments().starts_with(statement.node().segments()) => root.site(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { initializer, .. } => initializer.initializer_site()?,
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
                 if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain => assignment.value_site(),
@@ -24,7 +35,9 @@ impl ExpressionScalarOperationLoanV1 {
             } if positive_divisor.is_none() => value,
             _ => return None,
         };
-        if root.binary()? != binary || original_value != root.site() { return None; }
+        if root.binary()? != binary || original_value != root.site() {
+            return None;
+        }
         match binary.operator() {
             ResolvedBinaryOperatorV1::Subtract if positive_divisor.is_none() => {}
             ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo
@@ -46,9 +59,15 @@ impl ExpressionScalarOperationLoanV1 {
     /// One source operator law shared by original scalar and expression users.
     pub(crate) fn integer_operator_v1(&self) -> Option<crate::mir::BinaryOp> {
         match self.binary().operator() {
-            ResolvedBinaryOperatorV1::Subtract if self.positive_divisor.is_none() => Some(crate::mir::BinaryOp::Sub),
-            ResolvedBinaryOperatorV1::Divide if self.positive_divisor.is_some_and(|n| n > 0) => Some(crate::mir::BinaryOp::Div),
-            ResolvedBinaryOperatorV1::Modulo if self.positive_divisor.is_some_and(|n| n > 0) => Some(crate::mir::BinaryOp::Mod),
+            ResolvedBinaryOperatorV1::Subtract if self.positive_divisor.is_none() => {
+                Some(crate::mir::BinaryOp::Sub)
+            }
+            ResolvedBinaryOperatorV1::Divide if self.positive_divisor.is_some_and(|n| n > 0) => {
+                Some(crate::mir::BinaryOp::Div)
+            }
+            ResolvedBinaryOperatorV1::Modulo if self.positive_divisor.is_some_and(|n| n > 0) => {
+                Some(crate::mir::BinaryOp::Mod)
+            }
             _ => None,
         }
     }
@@ -78,9 +97,16 @@ impl ExpressionScalarOperationLoanV1 {
 impl CheckedExpressionOperationLoanV1 {
     /// Lend the SAME scalar law to ordinary append/SSA/final correspondence.
     pub(crate) fn scalar_source_v1(&self) -> Option<&Rc<ExpressionScalarOperationLoanV1>> {
-        let CheckedExpressionOperationProofV1::Scalar(source) = &self.proof else { return None };
+        let CheckedExpressionOperationProofV1::Scalar(source) = &self.proof else {
+            return None;
+        };
         (Rc::ptr_eq(source.plan(), &self.plan)
-            && self.plan.nodes().get(self.node).and_then(|node| node.binary()) == Some(source.binary()))
-            .then_some(source)
+            && self
+                .plan
+                .nodes()
+                .get(self.node)
+                .and_then(|node| node.binary())
+                == Some(source.binary()))
+        .then_some(source)
     }
 }

@@ -1,7 +1,7 @@
 //! Cached-site drift and duplicate rejection must not commit an earlier row.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, ResolvedLexicalRefV1, SourcePathSegmentV1, SourcePathV1,
 };
@@ -33,7 +33,8 @@ fn rows() -> Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> {
                         .expect("staged read");
                     rows.push((
                         owned,
-                        field_reads::LocalFieldRead { local: None,
+                        field_reads::LocalFieldRead {
+                            local: None,
                             receiver_site: object.clone(),
                             receiver,
                             home: receiver,
@@ -55,15 +56,26 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
     for metadata_drift in [false, true] {
         let mut rows = rows();
         let (site, old) = rows.pop().unwrap();
-        let mut drift = field_reads::LocalFieldRead { local: None,
-            receiver_site: if metadata_drift { old.receiver_site.clone() } else {
-                SourcePathV1::from_node(old.receiver_site.node()).child(SourcePathSegmentV1::Lhs).expr()
+        let mut drift = field_reads::LocalFieldRead {
+            local: None,
+            receiver_site: if metadata_drift {
+                old.receiver_site.clone()
+            } else {
+                SourcePathV1::from_node(old.receiver_site.node())
+                    .child(SourcePathSegmentV1::Lhs)
+                    .expr()
             },
             receiver: old.receiver,
             home: old.home,
             source: if metadata_drift {
-                LocalFieldReadSourceV1::from_declaration(old.source.field(), old.source.result().clone(), Some("usize".into()))
-            } else { Rc::clone(&old.source) },
+                LocalFieldReadSourceV1::from_declaration(
+                    old.source.field(),
+                    old.source.result().clone(),
+                    Some("usize".into()),
+                )
+            } else {
+                Rc::clone(&old.source)
+            },
             numeric_source: None,
             progress: field_reads::LocalReadProgress::Pending,
         };
@@ -80,10 +92,12 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
         assert_eq!(staged[&site].receiver_site, original_site);
         let original_source = Rc::clone(&staged[&site].source);
         staged.get_mut(&site).unwrap().progress = field_reads::LocalReadProgress::Taken {
-            base: crate::mir::ValueId(42), source: Rc::clone(&original_source),
+            base: crate::mir::ValueId(42),
+            source: Rc::clone(&original_source),
         };
         // Equal descriptors preserve the old row (including its affine progress).
-        drift = field_reads::LocalFieldRead { local: None,
+        drift = field_reads::LocalFieldRead {
+            local: None,
             receiver_site: original_site,
             receiver: staged[&site].receiver,
             home: staged[&site].home,
@@ -98,9 +112,17 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
             1
         );
         assert_eq!(staged.len(), 1);
-        assert!(Rc::ptr_eq(&staged.values().next().unwrap().source, &original_source));
-        assert!(matches!(staged.values().next().unwrap().progress,
-            field_reads::LocalReadProgress::Taken { base: crate::mir::ValueId(42), .. }));
+        assert!(Rc::ptr_eq(
+            &staged.values().next().unwrap().source,
+            &original_source
+        ));
+        assert!(matches!(
+            staged.values().next().unwrap().progress,
+            field_reads::LocalReadProgress::Taken {
+                base: crate::mir::ValueId(42),
+                ..
+            }
+        ));
     }
     // A real whole initializer supplies the SAME source plan and qualified
     // receiver declaration. This is a batch/physical-state test, not a claim
@@ -186,92 +208,255 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
     // The state fixture keeps the genuinely verified whole root and SAME
     // original operation loans; only its strict batch refines field demands.
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-    let original_completion = ledger.completion_index.insert(site.owner(), Ok(Rc::new(completion))).unwrap();
+    let original_completion = ledger
+        .completion_index
+        .insert(site.owner(), Ok(Rc::new(completion)))
+        .unwrap();
     *ledger.local_field_reads.borrow_mut() = qualified;
-    let original_loan = ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().numeric_source.take().unwrap();
-    assert!(ledger.take_local_field_read(&site, |_| panic!("missing mandatory loan before base lookup"))
-        .unwrap_err().contains("required-source-loan-missing"));
-    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().numeric_source = Some(original_loan.clone());
+    let original_loan = ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .numeric_source
+        .take()
+        .unwrap();
+    assert!(ledger
+        .take_local_field_read(&site, |_| panic!(
+            "missing mandatory loan before base lookup"
+        ))
+        .unwrap_err()
+        .contains("required-source-loan-missing"));
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .numeric_source = Some(original_loan.clone());
     let descriptor = Rc::clone(&ledger.local_field_reads.borrow()[&site].source);
-    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source =
-        LocalFieldReadSourceV1::from_declaration(descriptor.field(), descriptor.result().clone(), Some("usize".into()));
-    assert!(ledger.take_local_field_read(&site, |_| panic!("source refused before base lookup"))
-        .unwrap_err().contains("receiver-declaration"));
-    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = Rc::clone(&descriptor);
-    let (base, descriptor) = ledger.take_local_field_read(&site, |_| Ok(crate::mir::ValueId(10))).unwrap().unwrap();
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .source = LocalFieldReadSourceV1::from_declaration(
+        descriptor.field(),
+        descriptor.result().clone(),
+        Some("usize".into()),
+    );
+    assert!(ledger
+        .take_local_field_read(&site, |_| panic!("source refused before base lookup"))
+        .unwrap_err()
+        .contains("receiver-declaration"));
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .source = Rc::clone(&descriptor);
+    let (base, descriptor) = ledger
+        .take_local_field_read(&site, |_| Ok(crate::mir::ValueId(10)))
+        .unwrap()
+        .unwrap();
     let field = descriptor.field();
-    let wrong = LocalFieldReadSourceV1::from_declaration(field, descriptor.result().clone(), Some("usize".into()));
+    let wrong = LocalFieldReadSourceV1::from_declaration(
+        field,
+        descriptor.result().clone(),
+        Some("usize".into()),
+    );
     {
         let mut reads = ledger.local_field_reads.borrow_mut();
         let row = reads.get_mut(&site).unwrap();
         row.source = Rc::clone(&wrong);
-        let field_reads::LocalReadProgress::Taken { source, .. } = &mut row.progress else { panic!("taken") };
+        let field_reads::LocalReadProgress::Taken { source, .. } = &mut row.progress else {
+            panic!("taken")
+        };
         *source = Rc::clone(&wrong);
     }
-    assert!(ledger.record_local_field_read(&site, crate::mir::BasicBlockId(0), crate::mir::ValueId(11), base, field, &wrong)
-        .unwrap_err().contains("receiver-declaration"));
+    assert!(ledger
+        .record_local_field_read(
+            &site,
+            crate::mir::BasicBlockId(0),
+            crate::mir::ValueId(11),
+            base,
+            field,
+            &wrong
+        )
+        .unwrap_err()
+        .contains("receiver-declaration"));
     {
         let mut reads = ledger.local_field_reads.borrow_mut();
         let row = reads.get_mut(&site).unwrap();
         row.source = Rc::clone(&descriptor);
-        let field_reads::LocalReadProgress::Taken { source, .. } = &mut row.progress else { panic!("taken") };
+        let field_reads::LocalReadProgress::Taken { source, .. } = &mut row.progress else {
+            panic!("taken")
+        };
         *source = Rc::clone(&descriptor);
     }
-    ledger.record_local_field_read(&site, crate::mir::BasicBlockId(0), crate::mir::ValueId(11), base, field, &descriptor).unwrap();
-    let mut function = crate::mir::MirFunction::new(crate::mir::FunctionSignature {
-        name: "qualified_field_state".into(), params: vec![], return_type: crate::mir::MirType::Void,
-        effects: crate::mir::EffectMask::CONTROL,
-    }, crate::mir::BasicBlockId(0));
-    function.blocks.get_mut(&crate::mir::BasicBlockId(0)).unwrap().add_instruction(
-        crate::mir::MirInstruction::ObjectFieldGet { dst: crate::mir::ValueId(11), base, field });
-    let (other_base, other_source) = ledger.take_local_field_read(&other, |_| Ok(crate::mir::ValueId(10))).unwrap().unwrap();
-    ledger.record_local_field_read(&other, crate::mir::BasicBlockId(0), crate::mir::ValueId(12), other_base,
-        other_source.field(), &other_source).unwrap();
-    function.blocks.get_mut(&crate::mir::BasicBlockId(0)).unwrap().add_instruction(
-        crate::mir::MirInstruction::ObjectFieldGet { dst: crate::mir::ValueId(12), base: other_base, field: other_source.field() });
-    ledger.validate_field_reads(site.owner(), &function).unwrap();
+    ledger
+        .record_local_field_read(
+            &site,
+            crate::mir::BasicBlockId(0),
+            crate::mir::ValueId(11),
+            base,
+            field,
+            &descriptor,
+        )
+        .unwrap();
+    let mut function = crate::mir::MirFunction::new(
+        crate::mir::FunctionSignature {
+            name: "qualified_field_state".into(),
+            params: vec![],
+            return_type: crate::mir::MirType::Void,
+            effects: crate::mir::EffectMask::CONTROL,
+        },
+        crate::mir::BasicBlockId(0),
+    );
+    function
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId(0))
+        .unwrap()
+        .add_instruction(crate::mir::MirInstruction::ObjectFieldGet {
+            dst: crate::mir::ValueId(11),
+            base,
+            field,
+        });
+    let (other_base, other_source) = ledger
+        .take_local_field_read(&other, |_| Ok(crate::mir::ValueId(10)))
+        .unwrap()
+        .unwrap();
+    ledger
+        .record_local_field_read(
+            &other,
+            crate::mir::BasicBlockId(0),
+            crate::mir::ValueId(12),
+            other_base,
+            other_source.field(),
+            &other_source,
+        )
+        .unwrap();
+    function
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId(0))
+        .unwrap()
+        .add_instruction(crate::mir::MirInstruction::ObjectFieldGet {
+            dst: crate::mir::ValueId(12),
+            base: other_base,
+            field: other_source.field(),
+        });
+    ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap();
     // The immutable frame survives deletion of both the row and its physical
     // read. An erased optional loan or equal-source foreign plan also refuses.
-    let removed = ledger.local_field_reads.borrow_mut().remove(&other).unwrap();
-    let removed_instruction = function.blocks.get_mut(&crate::mir::BasicBlockId(0)).unwrap().instructions.pop().unwrap();
-    assert!(ledger.take_local_field_read(&other, |_| panic!("missing required read"))
-        .unwrap_err().contains("required-source-read-missing"));
-    assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err().contains("required-source-read-missing"));
-    ledger.local_field_reads.borrow_mut().insert(other.clone(), removed);
-    function.blocks.get_mut(&crate::mir::BasicBlockId(0)).unwrap().instructions.push(removed_instruction);
-    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().numeric_source = None;
-    assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err().contains("required-source-loan-missing"));
-    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().numeric_source = Some(foreign_loan);
-    assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err().contains("required-source-read-drift"));
-    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().numeric_source = Some(original_loan);
-    let refined_completion = ledger.completion_index.insert(site.owner(), original_completion).unwrap();
-    assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err().contains("orphan-source-read"));
-    ledger.completion_index.insert(site.owner(), refined_completion);
-    ledger.validate_field_reads(site.owner(), &function).unwrap();
+    let removed = ledger
+        .local_field_reads
+        .borrow_mut()
+        .remove(&other)
+        .unwrap();
+    let removed_instruction = function
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .pop()
+        .unwrap();
+    assert!(ledger
+        .take_local_field_read(&other, |_| panic!("missing required read"))
+        .unwrap_err()
+        .contains("required-source-read-missing"));
+    assert!(ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap_err()
+        .contains("required-source-read-missing"));
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .insert(other.clone(), removed);
+    function
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(removed_instruction);
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .numeric_source = None;
+    assert!(ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap_err()
+        .contains("required-source-loan-missing"));
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .numeric_source = Some(foreign_loan);
+    assert!(ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap_err()
+        .contains("required-source-read-drift"));
+    ledger
+        .local_field_reads
+        .borrow_mut()
+        .get_mut(&site)
+        .unwrap()
+        .numeric_source = Some(original_loan);
+    let refined_completion = ledger
+        .completion_index
+        .insert(site.owner(), original_completion)
+        .unwrap();
+    assert!(ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap_err()
+        .contains("orphan-source-read"));
+    ledger
+        .completion_index
+        .insert(site.owner(), refined_completion);
+    ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap();
     // Consistent row/progress substitution must retain BOTH raw declaration
     // and Scalar result. Keeping "i64" while forging Alias is still refused.
     for replacement in [
-        LocalFieldReadSourceV1::from_declaration(field, descriptor.result().clone(), Some("usize".into())),
-        LocalFieldReadSourceV1::from_declaration(field,
-            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias("Counter".into()), Some("i64".into())),
+        LocalFieldReadSourceV1::from_declaration(
+            field,
+            descriptor.result().clone(),
+            Some("usize".into()),
+        ),
+        LocalFieldReadSourceV1::from_declaration(
+            field,
+            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(
+                "Counter".into(),
+            ),
+            Some("i64".into()),
+        ),
     ] {
         {
             let mut reads = ledger.local_field_reads.borrow_mut();
             let row = reads.get_mut(&site).unwrap();
             row.source = Rc::clone(&replacement);
-            let field_reads::LocalReadProgress::Emitted { source, .. } = &mut row.progress else { panic!("emitted") };
+            let field_reads::LocalReadProgress::Emitted { source, .. } = &mut row.progress else {
+                panic!("emitted")
+            };
             *source = replacement;
         }
-        assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err().contains("receiver-declaration"));
+        assert!(ledger
+            .validate_field_reads(site.owner(), &function)
+            .unwrap_err()
+            .contains("receiver-declaration"));
     }
-
 }
 
 #[test]
 fn scalar_expression_batch_duplicate_rejects_without_commit() {
     let mut rows = rows();
     let (site, row) = rows.pop().unwrap();
-    let duplicate = field_reads::LocalFieldRead { local: None,
+    let duplicate = field_reads::LocalFieldRead {
+        local: None,
         receiver_site: row.receiver_site.clone(),
         receiver: row.receiver,
         home: row.home,
@@ -291,21 +476,38 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
     // Whole Print producer, using real source rows/field closure/result loans.
     // The candidate is not a claim that checked native Print already exists.
     for expression in [
-        "\"hello\"", "\"\"", "7", "\"sum=\" + (7 + 9)", "\"x\" + \"y\"", "\"n=\" + c.n",
-        "(\"n=\" + c.n) + (\" m=\" + c.other)", "\"n=\" + c.read()", "\"bad=\" + c.echo(9)", "\"p=\" + c.run(h)",
-        "\"bad=\" + c", "\"bad=\" + true", "\"bad=\" + null", "c.n + \"bad\"", "(\"bad=\" + c.n) + c", "(\"bad=\" + c.read()) + true", "\"bad=\" + c.plain(9)", "\"bad-store=\" + c.other + c.n",
+        "\"hello\"",
+        "\"\"",
+        "7",
+        "\"sum=\" + (7 + 9)",
+        "\"x\" + \"y\"",
+        "\"n=\" + c.n",
+        "(\"n=\" + c.n) + (\" m=\" + c.other)",
+        "\"n=\" + c.read()",
+        "\"bad=\" + c.echo(9)",
+        "\"p=\" + c.run(h)",
+        "\"bad=\" + c",
+        "\"bad=\" + true",
+        "\"bad=\" + null",
+        "c.n + \"bad\"",
+        "(\"bad=\" + c.n) + c",
+        "(\"bad=\" + c.read()) + true",
+        "\"bad=\" + c.plain(9)",
+        "\"bad-store=\" + c.other + c.n",
     ] {
         let wrong_store = expression.contains("bad-store");
         let text = if wrong_store {
             format!("box Counter {{ n: i64 other: i64 birth() {{ me.other = 0 me.n = true }} }}
                 static box Main {{ main() {{ local c = new Counter() print({expression}) return 0 }} }}")
         } else if expression.contains("run(h)") {
-            format!("box Handle {{ block_id: i64 birth() {{ me.block_id = 0 }} }}
+            format!(
+                "box Handle {{ block_id: i64 birth() {{ me.block_id = 0 }} }}
                 box Leaf {{ probe(p: Handle) {{ if p == null {{ return 0 }} return 7 }} }}
                 box Parent {{ child: Leaf birth() {{ me.child = new Leaf() }} run(p: Handle) {{
                     if p == null {{ return 0 }} return me.child.probe(p) }} }}
                 static box Main {{ main() {{ local c = new Parent() local h = new Handle()
-                    print({expression}) return 0 }} }}")
+                    print({expression}) return 0 }} }}"
+            )
         } else {
             format!("box Counter {{ n: i64 other: i64 birth() {{ me.n = 7 me.other = 0 }} read() {{ return me.n }} echo(p) {{ return me.read() }} plain(p) {{ return p }} }}
             static box Main {{ main() {{ local c = new Counter() print({expression}) return 0 }} }}")
@@ -316,8 +518,10 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
             // package issuance. The invalid Birth refuses the entire package,
             // before any caller can obtain a partially staged expression.
             let issue = issued.expect_err("declared i64 cannot authorize a Bool Birth store");
-            assert!(format!("{issue:?}").contains("[ordinary-new/integer-field/source-missing]"),
-                "{expression}: {issue:?}");
+            assert!(
+                format!("{issue:?}").contains("[ordinary-new/integer-field/source-missing]"),
+                "{expression}: {issue:?}"
+            );
             continue;
         }
         let package = issued.unwrap_or_else(|issue| panic!("{expression}: {issue:?}"));

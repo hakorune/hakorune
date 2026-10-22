@@ -17,11 +17,16 @@ static int lv4_native_live(yyjson_val* fn, uint32_t value,
   return origin >= 0 && state[origin] != 0;
 }
 
-static int lv4_string_native_operand(yyjson_val* fn, yyjson_val* operand,
-    const hako_lv4_state* state, size_t budget) {
+static int lv4_string_native_operand(yyjson_val* fn, yyjson_val* operation, unsigned role,
+    yyjson_val* operand, const hako_lv4_state* state, size_t budget) {
   if (lv4_is(operand, "kind", "static_text")) return 1;
   uint32_t value = lv4_u(operand, "value");
   int kind = lv4_type(fn, value, budget);
+  if (lv4_is(operand, "kind", "tagged_dynamic"))
+    return ((lv4_is(operation, "kind", "string_add") && role == 1) ||
+        (lv4_is(operation, "kind", "string_substring") && role > 0)) &&
+        kind == LV4_TAGGED &&
+        lv4_borrowed_tagged_formal(fn, lv4_index_value(fn, value));
   if (lv4_is(operand, "kind", "normal_integer")) return kind == LV4_I64;
   int origin = lv4_native_origin(fn, value, budget);
   return kind == LV4_OWNED_STRING && origin >= 0 && state[origin] > LV4_STRING_RANK_BASE;
@@ -102,9 +107,8 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
     } else if (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
       if (state[bi]) return 0;
       for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)
-        if (!lv4_string_native_operand(fn, hako_physical_string_operand_at(op, role), state, budget)) return 0;
-      if (lv4_is(op, "kind", "string_substring") &&
-          (lv4_type(fn, lv4_u(op, "start"), budget) != LV4_I64 || lv4_type(fn, lv4_u(op, "end"), budget) != LV4_I64)) return 0;
+        if (!lv4_string_native_operand(fn, op, (unsigned)role,
+            hako_physical_string_operand_at(op, role), state, budget)) return 0;
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2) normal[bi] = 1;

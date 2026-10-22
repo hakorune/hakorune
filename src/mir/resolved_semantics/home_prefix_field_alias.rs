@@ -12,7 +12,10 @@ pub(crate) struct FieldAliasPathV1 {
 }
 
 impl PrefixLocalFlow<'_> {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_read_receiver(&self, binding: BindingRefV1) -> Option<FieldReadReceiverV1> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_read_receiver(
+        &self,
+        binding: BindingRefV1,
+    ) -> Option<FieldReadReceiverV1> {
         match self.locals.get(&binding)? {
             StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
             StoredLocal::Handle(root) if self.field_root_is_live(*root) => {
@@ -60,28 +63,59 @@ impl PrefixLocalFlow<'_> {
         }
     }
 
-
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_field_alias(
-        &mut self, binding: BindingRefV1, class: Box<str>, request: LocalFieldReadRequestV1,
+        &mut self,
+        binding: BindingRefV1,
+        class: Box<str>,
+        request: LocalFieldReadRequestV1,
     ) {
         let root = request.home;
         let mut borrow = match self.locals.get(&request.receiver) {
-            Some(StoredLocal::Home { acquisition, .. }) if request.receiver == root =>
-                Some(FieldAliasPathV1 { root, acquisition: acquisition.clone(), edges: Vec::new() }),
+            Some(StoredLocal::Home { acquisition, .. }) if request.receiver == root => {
+                Some(FieldAliasPathV1 {
+                    root,
+                    acquisition: acquisition.clone(),
+                    edges: Vec::new(),
+                })
+            }
             Some(StoredLocal::FieldAlias { borrow, .. }) => borrow.clone(),
             _ => None,
         };
-        if let Some(path) = &mut borrow { path.edges.push((binding, request)); }
-        self.store(binding, StoredLocal::FieldAlias { class, root, borrow });
+        if let Some(path) = &mut borrow {
+            path.edges.push((binding, request));
+        }
+        self.store(
+            binding,
+            StoredLocal::FieldAlias {
+                class,
+                root,
+                borrow,
+            },
+        );
     }
 
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_alias_call_path(&self, receiver: BindingRefV1) -> Option<FieldAliasPathV1> {
-        let StoredLocal::FieldAlias { borrow: Some(path), .. } = self.locals.get(&receiver)? else { return None };
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_alias_call_path(
+        &self,
+        receiver: BindingRefV1,
+    ) -> Option<FieldAliasPathV1> {
+        let StoredLocal::FieldAlias {
+            borrow: Some(path), ..
+        } = self.locals.get(&receiver)?
+        else {
+            return None;
+        };
         if self.home_acquisition(path.root) != Some(&path.acquisition)
             || path.edges.last().map(|edge| edge.0) != Some(receiver)
-            || self.input.function().assignment_targets().any(|(_, target)| matches!(target,
+            || self
+                .input
+                .function()
+                .assignment_targets()
+                .any(|(_, target)| {
+                    matches!(target,
                 crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::BindingRebind(binding)
-                if *binding == path.root || path.edges.iter().any(|edge| edge.0 == *binding))) {
+                if *binding == path.root || path.edges.iter().any(|edge| edge.0 == *binding))
+                })
+        {
             return None;
         }
         Some(path.clone())
@@ -93,5 +127,4 @@ impl PrefixLocalFlow<'_> {
             _ => false,
         }
     }
-
 }

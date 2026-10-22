@@ -384,6 +384,7 @@ impl<'program> DynamicV2RecipeOperationCursorV1<'program> {
             }
             LoopOperationV2::BranchPhi { .. }
             | LoopOperationV2::ConstText { .. }
+            | LoopOperationV2::TextAdd { .. }
             | LoopOperationV2::BoolExpression { .. }
             | LoopOperationV2::DynamicAdd { .. }
             | LoopOperationV2::DynamicLess { .. }

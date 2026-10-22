@@ -50,7 +50,7 @@ pub(in crate::mir) enum DynamicMemberSourceIssueV1 {
     Rejected(DynamicMemberSourceRejectV1),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct DynamicMemberDispatchKeyV1 {
     selector: Box<str>,
     arity: u32,
@@ -66,7 +66,7 @@ impl DynamicMemberDispatchKeyV1 {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct DynamicMemberArgumentSourceV1 {
     ordinal: u32,
     site: SourceExprSiteV1,
@@ -83,7 +83,7 @@ impl DynamicMemberArgumentSourceV1 {
 }
 
 /// Exact Dynamic member message/source relation for one call site.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedSourceBoundDynamicMemberCallV1 {
     owner: FunctionOwnerIdV1,
     call_site: SourceExprSiteV1,

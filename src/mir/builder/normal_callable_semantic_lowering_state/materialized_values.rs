@@ -6,6 +6,8 @@ use crate::mir::{BasicBlockId, MirInstruction};
 #[derive(Debug, Clone)]
 enum LocalProducerPurposeV1 {
     ScalarJoin(Rc<ScalarJoinPointValueV1>),
+    TextJoin(Rc<TextJoinPointValueV1>),
+    DynamicJoin(Rc<DynamicJoinPointValueV1>),
     Initializer,
     BindingRebind(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>),
 }
@@ -14,6 +16,8 @@ impl PartialEq for LocalProducerPurposeV1 {
         match (self, other) {
             (Self::Initializer, Self::Initializer) => true,
             (Self::ScalarJoin(a), Self::ScalarJoin(b)) => Rc::ptr_eq(a, b),
+            (Self::TextJoin(a), Self::TextJoin(b)) => Rc::ptr_eq(a, b),
+            (Self::DynamicJoin(a), Self::DynamicJoin(b)) => Rc::ptr_eq(a, b),
             (Self::BindingRebind(a), Self::BindingRebind(b)) => std::rc::Rc::ptr_eq(a, b),
             _ => false,
         }
@@ -64,12 +68,136 @@ impl ScalarJoinPointValueV1 {
     pub(in crate::mir) fn relation(&self) -> &Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1> { &self.relation }
 }
 
+/// The exact typed Text descriptor PHI associated with one source Loop
+/// Header/After. Its relation is by value; no pointer borrow or Home is issued.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct TextJoinPointValueV1 {
+    source: crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+    relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+}
+impl PartialEq for TextJoinPointValueV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.source == other.source && Rc::ptr_eq(&self.relation, &other.relation)
+    }
+}
+impl TextJoinPointValueV1 {
+    pub(in crate::mir::builder) fn new(
+        source: crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+        relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+        function: &crate::mir::MirFunction,
+    ) -> Result<Rc<Self>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 as Producer;
+        if !matches!(source, Producer::Header(_) | Producer::After { .. }) {
+            return Err("[freeze:contract][local-read/text-loop-point-source-kind]".into());
+        }
+        relation.identity_phi_binding_v1()?;
+        if matches!(source, Producer::After { .. }) { relation.require_completed_v1()?; }
+        relation.verify(function)?;
+        Ok(Rc::new(Self { source, relation }))
+    }
+    pub(in crate::mir) fn binding(&self) -> BindingRefV1 {
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 as Producer;
+        match &self.source {
+            Producer::Header(basis) => basis.binding(),
+            Producer::After { binding, .. } => *binding,
+            Producer::Static { .. } | Producer::Residence(_) => unreachable!("constructor checked Loop purpose"),
+        }
+    }
+    pub(in crate::mir) fn value(&self) -> ValueId { self.relation.values().0 }
+    pub(in crate::mir) fn source(&self) -> &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 { &self.source }
+    pub(in crate::mir) fn relation(&self) -> &Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1> { &self.relation }
+}
+
+/// The exact tagged pair PHI associated with one source Loop Header/After.
+/// This is a physical correspondence only; source SUM remains the class owner.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct DynamicJoinPointValueV1 {
+    source: crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
+    relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+}
+impl PartialEq for DynamicJoinPointValueV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.source == other.source && Rc::ptr_eq(&self.relation, &other.relation)
+    }
+}
+impl DynamicJoinPointValueV1 {
+    pub(in crate::mir::builder) fn new(
+        source: crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
+        relation: Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>,
+        function: &crate::mir::MirFunction,
+    ) -> Result<Rc<Self>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1 as Producer;
+        if !matches!(source, Producer::Header(_) | Producer::After { .. }) {
+            return Err("[freeze:contract][local-read/dynamic-loop-point-source-kind]".into());
+        }
+        relation.identity_phi_binding_v1()?;
+        if matches!(source, Producer::After { .. }) { relation.require_completed_v1()?; }
+        relation.verify(function)?;
+        Ok(Rc::new(Self { source, relation }))
+    }
+    pub(in crate::mir) fn binding(&self) -> BindingRefV1 {
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1 as Producer;
+        match &self.source {
+            Producer::Header(basis) => basis.binding(),
+            Producer::After { binding, .. } => *binding,
+            Producer::Source(_) => unreachable!("constructor checked Loop purpose"),
+        }
+    }
+    pub(in crate::mir) fn value(&self) -> ValueId { self.relation.values().0 }
+    pub(in crate::mir) fn source(&self) -> &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1 { &self.source }
+    pub(in crate::mir) fn relation(&self) -> &Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1> { &self.relation }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct LocalInitializerProofV1 {
+    binding: BindingRefV1,
+    value: ValueId,
+    copies: Vec<(BasicBlockId, MirInstruction)>,
+}
+
+impl LocalInitializerProofV1 {
+    fn from_completed(binding: BindingRefV1, row: &CompletedLocalBindingV1) -> Option<Self> {
+        let copies = match row.copy() {
+            Some(copy) => {
+                if !matches!(&copy.1, MirInstruction::Copy { src, dst }
+                    if *src == row.initializer() && *dst == row.local()) {
+                    return None;
+                }
+                vec![copy.clone()]
+            }
+            None if row.initializer() == row.local() => Vec::new(),
+            None => return None,
+        };
+        Some(Self { binding, value: row.initializer(), copies })
+    }
+
+    fn loan(&self, binding: BindingRefV1, result: ValueId)
+        -> Result<(ValueId, &[(BasicBlockId, MirInstruction)]), String> {
+        if self.binding != binding {
+            return Err("[freeze:contract][forwarded-copy/root]".into());
+        }
+        let mut current = self.value;
+        for (index, copy) in self.copies.iter().enumerate() {
+            let MirInstruction::Copy { dst, src } = &copy.1 else {
+                return Err("[freeze:contract][forwarded-copy/instruction]".into());
+            };
+            if *src != current || self.copies[..index].contains(copy) {
+                return Err("[freeze:contract][forwarded-copy/chain]".into());
+            }
+            current = *dst;
+        }
+        if current != result { return Err("[freeze:contract][forwarded-copy/result]".into()); }
+        Ok((self.value, &self.copies))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(in crate::mir) struct LocalProvenanceV1 {
     purpose: LocalProducerPurposeV1,
     root: BindingRefV1,
     root_value: ValueId,
     copies: Vec<(BasicBlockId, MirInstruction)>,
+    local_initializer: Option<LocalInitializerProofV1>,
 }
 
 impl LocalProvenanceV1 {
@@ -84,6 +212,28 @@ impl LocalProvenanceV1 {
         self.loan_copies(point.binding(), point.value(), result)?;
         Ok(point)
     }
+    pub(in crate::mir) fn loan_text_join_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+        result: ValueId,
+    ) -> Result<&Rc<TextJoinPointValueV1>, String> {
+        let LocalProducerPurposeV1::TextJoin(point) = &self.purpose else {
+            return Err("[freeze:contract][local-read/text-loop-point-purpose]".into());
+        };
+        if point.source() != source { return Err("[freeze:contract][local-read/text-loop-point-source]".into()); }
+        self.loan_copies(point.binding(), point.value(), result)?;
+        Ok(point)
+    }
+    pub(in crate::mir) fn loan_dynamic_join_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
+        result: ValueId,
+    ) -> Result<&Rc<DynamicJoinPointValueV1>, String> {
+        let LocalProducerPurposeV1::DynamicJoin(point) = &self.purpose else {
+            return Err("[freeze:contract][local-read/dynamic-loop-point-purpose]".into());
+        };
+        if point.source() != source { return Err("[freeze:contract][local-read/dynamic-loop-point-source]".into()); }
+        self.loan_copies(point.binding(), point.value(), result)?;
+        Ok(point)
+    }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self, result: ValueId)
         -> Result<&[(BasicBlockId, MirInstruction)], String> {
         self.loan_copies(self.root, self.root_value, result)
@@ -92,11 +242,49 @@ impl LocalProvenanceV1 {
     /// The caller still owes the original source initializer and actual producer.
     pub(in crate::mir) fn loan_initializer_v1(&self, root: BindingRefV1, result: ValueId)
         -> Result<(ValueId, &[(BasicBlockId, MirInstruction)]), String> {
-        if !matches!(self.purpose, LocalProducerPurposeV1::Initializer) {
-            return Err("[freeze:contract][local-read/rebind-not-initializer]".into());
+        self.local_initializer.as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+            .loan(root, result)
+    }
+    /// Resolve an aliased local initializer to its source producer value.
+    /// The source and this local's initializer operand must occur in that
+    /// order on the same verified physical copy chain.
+    pub(in crate::mir) fn loan_forwarded_initializer_v1(
+        &self,
+        local_binding: BindingRefV1,
+        result: ValueId,
+        expected_source_value: Option<ValueId>,
+    ) -> Result<ValueId, String> {
+        let (initializer, _) = self.local_initializer.as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+            .loan(local_binding, result)?;
+        self.loan_copies(self.root, self.root_value, result)?;
+        let Some(source_value) = expected_source_value else { return Ok(initializer) };
+        let mut current = self.root_value;
+        let mut source_position = (current == source_value).then_some(0usize);
+        let mut initializer_position = (current == initializer).then_some(0usize);
+        for (index, (_, row)) in self.copies.iter().enumerate() {
+            let MirInstruction::Copy { src, dst } = row else {
+                return Err("[freeze:contract][local-read/forwarded-initializer-instruction]".into());
+            };
+            if *src != current {
+                return Err("[freeze:contract][local-read/forwarded-initializer-chain]".into());
+            }
+            current = *dst;
+            let position = index + 1;
+            if current == source_value && source_position.is_none() { source_position = Some(position); }
+            if current == initializer && initializer_position.is_none() { initializer_position = Some(position); }
         }
-        let copies = self.loan_copies(root, self.root_value, result)?;
-        Ok((self.root_value, copies))
+        if source_position.zip(initializer_position).is_none_or(|(source, target)| source > target) {
+            return Err("[freeze:contract][local-read/forwarded-initializer-source]".into());
+        }
+        Ok(source_value)
+    }
+    pub(super) fn with_local_initializer_v1(mut self, binding: BindingRefV1,
+        row: &CompletedLocalBindingV1,
+    ) -> Option<Self> {
+        self.local_initializer = Some(LocalInitializerProofV1::from_completed(binding, row)?);
+        Some(self)
     }
     pub(in crate::mir) fn loan_checked_rebind_v1(&self,
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>, result: ValueId,
@@ -105,6 +293,29 @@ impl LocalProvenanceV1 {
             return Err("[freeze:contract][local-read/rebind-purpose]".into());
         }
         Ok((self.root_value, self.loan_copies(frame.target(), self.root_value, result)?))
+    }
+    pub(in crate::mir) fn source_dynamic_rebind_v1(
+        &self,
+        root: BindingRefV1,
+        result: ValueId,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
+        let LocalProducerPurposeV1::BindingRebind(frame) = &self.purpose else {
+            return Ok(None);
+        };
+        let dynamic = crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic,
+        );
+        if self.root != root
+            || self.root_value != result
+            || frame.target() != root
+            || !frame.is_dynamic_loop_carrier_v1()
+            || frame.evaluation().root_class() != dynamic
+            || frame.source().nodes().first().is_none_or(|node| node.site() != site)
+        {
+            return Err("[freeze:contract][local-read/dynamic-rebind-source]".into());
+        }
+        Ok(Some(std::rc::Rc::clone(frame)))
     }
     pub(super) fn matches(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.root == binding && self.root_value == value
@@ -117,6 +328,10 @@ impl LocalProvenanceV1 {
         result: ValueId,
     ) -> Result<&[(BasicBlockId, MirInstruction)], String> {
         if !self.matches(binding, value) {
+            if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                eprintln!("[local-call-bindings] copy-root expected=({binding:?},{value:?}) actual=({:?},{:?}) result={result:?} purpose={:?} backtrace={}",
+                    self.root, self.root_value, self.purpose, std::backtrace::Backtrace::force_capture());
+            }
             return Err("[freeze:contract][forwarded-copy/root]".into());
         }
         let mut current = value;
@@ -189,6 +404,7 @@ impl MaterializedValuesV1 {
             root: source,
             root_value: entry.value,
             copies: Vec::new(),
+            local_initializer: None,
         });
         Self::append_local_copy(proof, row)
     }
@@ -196,8 +412,10 @@ impl MaterializedValuesV1 {
     pub(super) fn initializer_provenance(
         binding: BindingRefV1, row: &CompletedLocalBindingV1,
     ) -> Option<LocalProvenanceV1> {
-        Self::append_local_copy(LocalProvenanceV1 { purpose: LocalProducerPurposeV1::Initializer, root: binding,
-            root_value: row.initializer(), copies: Vec::new() }, row)
+        let proof = LocalProvenanceV1 { purpose: LocalProducerPurposeV1::Initializer, root: binding,
+            root_value: row.initializer(), copies: Vec::new(),
+            local_initializer: Some(LocalInitializerProofV1::from_completed(binding, row)?) };
+        Self::append_local_copy(proof, row)
     }
 
     fn append_local_copy(mut proof: LocalProvenanceV1, row: &CompletedLocalBindingV1) -> Option<LocalProvenanceV1> {
@@ -217,6 +435,32 @@ impl MaterializedValuesV1 {
         self.attach_provenance(binding, Some(LocalProvenanceV1 {
             root: binding, root_value: point.value(), copies: Vec::new(),
             purpose: LocalProducerPurposeV1::ScalarJoin(point),
+            local_initializer: None,
+        }));
+        Ok(())
+    }
+
+    pub(super) fn attach_text_join_v1(&mut self, point: Rc<TextJoinPointValueV1>) -> Result<(), String> {
+        let binding = point.binding();
+        if self.get(&binding) != Some(&point.value()) {
+            return Err("[freeze:contract][local-read/text-loop-point-publication]".into());
+        }
+        self.attach_provenance(binding, Some(LocalProvenanceV1 {
+            root: binding, root_value: point.value(), copies: Vec::new(),
+            purpose: LocalProducerPurposeV1::TextJoin(point),
+            local_initializer: None,
+        }));
+        Ok(())
+    }
+
+    pub(super) fn attach_dynamic_join_v1(&mut self, point: Rc<DynamicJoinPointValueV1>) -> Result<(), String> {
+        let binding = point.binding();
+        if self.get(&binding) != Some(&point.value()) {
+            return Err("[freeze:contract][local-read/dynamic-loop-point-publication]".into());
+        }
+        self.attach_provenance(binding, Some(LocalProvenanceV1 {
+            root: binding, root_value: point.value(), copies: Vec::new(),
+            purpose: LocalProducerPurposeV1::DynamicJoin(point), local_initializer: None,
         }));
         Ok(())
     }
@@ -227,6 +471,7 @@ impl MaterializedValuesV1 {
         let binding = frame.target();
         self.attach_provenance(binding, Some(LocalProvenanceV1 {
             purpose: LocalProducerPurposeV1::BindingRebind(frame), root: binding, root_value: value, copies: Vec::new(),
+            local_initializer: None,
         }));
     }
 
@@ -285,6 +530,7 @@ mod copy_loan_tests {
                     },
                 ),
             ],
+            local_initializer: None,
         }
     }
 

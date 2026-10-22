@@ -545,6 +545,9 @@ impl super::MirBuilder {
             .ok_or_else(|| {
                 "[freeze:contract][mir/finalize-canonical/root-definition-missing]".to_owned()
             })?;
+        if let Some(source) = phi_source {
+            source.finish_main_arguments_after_phi_materialization_v1(root)?;
+        }
         let observation = validate_root(root)?;
         root.install_root_ordinary_new_observation(observation)?;
         self.function_state = Default::default();
@@ -763,6 +766,9 @@ impl super::MirBuilder {
             .functions
             .get_mut(&root_function_key)
             .ok_or_else(|| "[freeze:contract][mir/finalize/root-definition-missing]".to_owned())?;
+        if let Some(source) = phi_source {
+            source.finish_main_arguments_after_phi_materialization_v1(root)?;
+        }
         let observation = validate_root(root)?;
         root.install_root_ordinary_new_observation(observation)?;
         self.function_state = Default::default();

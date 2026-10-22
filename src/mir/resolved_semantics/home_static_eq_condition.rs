@@ -1,7 +1,7 @@
 //! One composed If Eq Home source: checked one-input Static Lhs and
 //! zero-input Static RHS. No execution, operator envelope or packet is issued.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::SourcePathV1;
 
 struct StaticEqPairV1 {

@@ -80,6 +80,8 @@ impl VerifiedCallableLoopBreakSourceCandidateV1 {
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        preissued_source_plan: Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>,
+        loop_facts_policy: crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1,
         declared_instance_locator: Option<
             crate::mir::normal_callable_semantic_package::
                 DeclaredInstanceCallLocatorScopeV1<'ledger>,
@@ -98,6 +100,8 @@ impl VerifiedCallableLoopBreakSourceCandidateV1 {
             source_items,
             source_target_probe,
             source_ledger,
+            preissued_source_plan,
+            loop_facts_policy,
             declared_instance_locator,
         )
     }
@@ -125,6 +129,8 @@ pub(in crate::mir::builder) struct SourceLoopBreakPhysicalInputV1<'source, 'ledg
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target: CallableLoopSourceTargetRelationV1,
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
+    preissued_source_plan: Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>,
+    loop_facts_policy: crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1,
 }
 
 impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
@@ -143,6 +149,8 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        preissued_source_plan: Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>,
+        loop_facts_policy: crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1,
         declared_instance_locator: Option<
             crate::mir::normal_callable_semantic_package::
                 DeclaredInstanceCallLocatorScopeV1<'ledger>,
@@ -166,6 +174,15 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
             return Err(
                 "[freeze:contract][callable-loop/loop-break/candidate-source-mismatch]".to_owned(),
             );
+        }
+        if let Some(plan) = &preissued_source_plan {
+            plan.validate_loop_break_physical_handoff_v1(
+                owner,
+                &parent_site,
+                function_origin,
+                source_kind,
+                loop_facts_policy,
+            )?;
         }
         if source_ledger.borrow().owner() != owner {
             return Err(
@@ -208,6 +225,8 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
                 source_ledger,
                 declared_instance_locator,
             ),
+            preissued_source_plan,
+            loop_facts_policy,
         })
     }
 
@@ -237,6 +256,15 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
 
     /// Recheck all source relations before the shared physical owner allocates.
     pub(in crate::mir::builder) fn validate_for_source_port(&self) -> Result<(), String> {
+        if let Some(plan) = &self.preissued_source_plan {
+            plan.validate_loop_break_physical_handoff_v1(
+                self.owner,
+                &self.parent_site,
+                self.function_origin,
+                self.source_kind,
+                self.loop_facts_policy,
+            )?;
+        }
         if self.projection.owner() != self.owner
             || self.forest_projection.owner() != self.owner
             || self.projection.forest() != &self.forest_projection

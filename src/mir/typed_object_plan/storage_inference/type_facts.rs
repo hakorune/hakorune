@@ -88,7 +88,7 @@ pub(super) fn storage_for_mir_type(ty: &MirType) -> Option<TypedObjectFieldStora
         MirType::String | MirType::Box(_) | MirType::Array(_) | MirType::Future(_) => {
             Some(TypedObjectFieldStorage::Handle)
         }
-        MirType::Float | MirType::WeakRef | MirType::Void | MirType::Unknown => None,
+        MirType::Float | MirType::WeakRef | MirType::Void | MirType::Unknown | MirType::TextOperand => None,
     }
 }
 
@@ -103,7 +103,8 @@ pub(super) fn box_origin_from_mir_type(ty: &MirType) -> Option<String> {
         | MirType::Future(_)
         | MirType::WeakRef
         | MirType::Void
-        | MirType::Unknown => None,
+        | MirType::Unknown
+        | MirType::TextOperand => None,
     }
 }
 

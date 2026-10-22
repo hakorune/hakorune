@@ -235,6 +235,7 @@ mod borrowed_formal_uses;
 mod borrowed_formal_source;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::ClosedOriginalCoreSourceV1;
 pub(in crate::mir) use borrowed_formal_source::SourceValueSumV1;
+pub(in crate::mir) use borrowed_formal_source::TaggedDynamicSourcePointsV1;
 
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;
@@ -267,7 +268,7 @@ mod borrowed_formal_entry;
 pub(crate) use borrowed_formal_actuals::OrdinaryResultSourceLoanV1;
 pub(super) use borrowed_formal_actuals::{
     corroborate_received_object_receiver_v1, issue_original_static_forwarded_actual_v1,
-    prepare_borrowed_call_actuals_v1, bind_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_finite_entry_read_v1, lend_text_entry_read_v1, project_current_owner_loop_scalar_source_v1,
+    prepare_borrowed_call_actuals_v1, bind_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_dynamic_entry_read_v1, lend_finite_entry_read_v1, lend_text_entry_read_v1, lend_field_array_text_entry_read_v1, project_current_owner_loop_scalar_source_v1,
     project_pending_borrowed_i64_arguments_v1,
     project_pending_current_owner_static_source_arguments_v1,
     project_pending_i64_result_arguments_v1, project_pending_instance_source_arguments_v1,
@@ -643,6 +644,7 @@ pub(in crate::mir::normal_callable_semantic_package) use app_main_source::{
 
 pub(super) use borrowed_formal_entry::original_borrowed_instance_input_completion_needed_v1;
 
-pub(crate) use borrowed_formal_actuals::{ArgumentExpressionSourceLoanV1, FiniteEntryReadV1};
+pub(crate) use borrowed_formal_actuals::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
 
 pub(crate) use borrowed_formal_entry::BorrowedTextEntryReadRequirementV1;
+pub(crate) use borrowed_formal_entry::BorrowedFormalEntryReadRequirementV1;

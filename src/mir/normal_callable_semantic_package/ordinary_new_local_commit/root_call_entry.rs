@@ -750,7 +750,7 @@ pub(crate) use owned_array_append_projection::{EmittedOwnedArrayAppendV1, OwnedA
 
 #[path = "root_call_entry/bool_condition_projection.rs"]
 mod bool_condition_projection;
-pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 #[path = "root_call_entry/field_array_append_projection.rs"]
 mod field_array_append_projection;

@@ -433,11 +433,33 @@ conform to that contract; it is not the semantic authority.
   - `Integer + Float` / `Float + Integer` → `Float` (promote int→float)
 - String concatenation:
   - Decision: accepted (Phase 29bq selfhost unblock; keep fail-fast for Void/Null)
-  - `String + <any>` → `String` (right operand is `to_string()`-coerced)
+  - `String + <any>` → `String` (the right operand is formatted by the runtime display table below)
   - `Void`/`Null` on either side → **TypeError** (fail-fast)
   - source-style note: new code should still prefer explicit `x.toString()` when stringify intent matters; broad `"" + x` residue is legacy compatibility still used by selfhost/compiler owners
 - Other combinations are `TypeError` (e.g., `Integer + Bool`, `Bool + Bool`, `BoxRef + ...`).
   - Backends that do not implement `String + <any>` must fail-fast with a `TypeError`.
+
+#### Runtime display for `String + any`
+
+This table is the language contract for the right operand of String addition;
+it is shared by the VM and checked physical operators. Null and Void are
+rejected before display and produce TypeError without a result. The current
+runtime tags display as follows:
+
+| Runtime tag | String contribution |
+| --- | --- |
+| Integer | Base-10 signed decimal |
+| ExactNumeric | Its exact base-10 integer value |
+| Float | The runtime's shortest round-trip decimal representation |
+| Bool | `true` or `false` in lowercase |
+| String | Its contents unchanged |
+| BoxRef | `to_string_box().value` |
+| Future | `to_string_box().value` |
+| WeakBox | `WeakRef(alive)` while its target is usable; otherwise `WeakRef(dead)` |
+
+BoxRef and Future formatting uses the box's display operation; it does not
+invoke a source-level `toString` method. WeakBox display does not stringify or
+retain its target. A nullish BoxRef is rejected by the same TypeError rule.
 
 Dev-only note:
 - `NYASH_VM_TOLERATE_VOID=1` (or `--dev` paths) may tolerate `Void` in some arithmetic as a safety valve; do not rely on it for spec.

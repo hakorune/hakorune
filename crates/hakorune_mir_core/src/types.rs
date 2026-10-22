@@ -85,6 +85,9 @@ pub enum MirType {
     Float,
     Bool,
     String,
+    /// Internal by-value tagged Static/Owned Text operand used by typed
+    /// source Loop PHIs. This is not a language String or an owned Home.
+    TextOperand,
     Box(String), // Box type with name
     Array(Box<MirType>),
     Future(Box<MirType>), // Future containing a type

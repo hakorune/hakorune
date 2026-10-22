@@ -156,7 +156,7 @@ fn loop_true_branch_exit_join_sig_records_implicit_else_fallthrough() {
     ));
     assert!(matches!(
         branch.else_arm,
-        LoopJoinBranchArmV1::Fallthrough { continuation, .. }
+        LoopJoinBranchArmV1::Fallthrough { continuation: Some(continuation), .. }
             if continuation.block == LoopBlockKeyV1::new(0)
                 && continuation.item == LoopItemKeyV1::new(2)
     ));
@@ -173,6 +173,35 @@ fn loop_true_branch_exit_join_sig_records_implicit_else_fallthrough() {
             LoopJoinEdgeRoleV1::Backedge,
         ]
     );
+}
+
+#[test]
+fn terminal_if_records_block_end_as_its_fallthrough() {
+    let mut recipe = branch_recipe();
+    recipe.blocks.pop();
+    recipe.items.pop();
+    recipe.exits.pop();
+    recipe.items[0].item = LoopRecipeItemV1::If {
+        condition: LoopValueKeyV1::new(0),
+        then_block: LoopBlockKeyV1::new(1),
+        else_block: None,
+    };
+
+    let verified = LoopRecipeVerifierV1::verify(recipe).expect("terminal if shape verifies");
+    let sig = LoopJoinSigElaboratorV1::elaborate(&verified)
+        .expect("block-end fallthrough is a loop continuation");
+    let branch = &sig.as_sig().branches[0];
+    assert!(matches!(
+        branch.else_arm,
+        LoopJoinBranchArmV1::Fallthrough {
+            continuation: None,
+            ..
+        }
+    ));
+    assert!(sig.as_sig().loops[0]
+        .edges
+        .iter()
+        .any(|edge| edge.role == LoopJoinEdgeRoleV1::Backedge));
 }
 
 #[test]

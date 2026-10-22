@@ -1,10 +1,9 @@
 //! Claim-local `recv.m(...)` lexical call probes for the co-seal walk.
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::super::lexical_instance_call::{
-    PreparedBorrowedFormalIngressV1,
-    PreparedLexicalInstanceCallSourceTargetsV1,
+    PreparedBorrowedFormalIngressV1, PreparedLexicalInstanceCallSourceTargetsV1,
 };
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
 };
@@ -298,6 +297,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
     candidates: &[OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
@@ -315,72 +315,260 @@ pub(super) fn borrowed_call_arguments_callback_v1(
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
     // The constructor/current-entry Home adapters issue this source loan.
     // A generic source-only caller has no such context and grants nothing.
-    if matches!(request, BorrowedCallActualRequestV1::StoredMapGetSource) { return Ok(None); }
+    if matches!(request, BorrowedCallActualRequestV1::StoredMapGetSource) {
+        return Ok(None);
+    }
     if matches!(request, BorrowedCallActualRequestV1::StoredMapSource) {
-        return classes.map_stored_source_v1(site)
+        return classes
+            .map_stored_source_v1(site)
             .and_then(|source| {
-                if source.as_ref().is_some_and(|source| !source.receiver_v1().same_source(field_write_claims)) {
+                if source
+                    .as_ref()
+                    .is_some_and(|source| !source.receiver_v1().same_source(field_write_claims))
+                {
                     return Err("callee-facts-identity");
                 }
                 Ok(source)
             })
             .map(|source| source.map(BorrowedCallArgumentsV1::StoredMapSource))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                site: site.clone(), issue: issue.to_owned(),
+                site: site.clone(),
+                issue: issue.to_owned(),
             });
     }
     if let BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
-        | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_) = request {
+    | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_) = request
+    {
         let (binding, initializer) = match request {
             BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding) => (binding, true),
             BorrowedCallActualRequestV1::NamedArrayAppendStatement(binding) => (binding, false),
             _ => unreachable!("named Array request selected above"),
         };
-        return source.as_ref().map_err(Clone::clone)
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
             .and_then(|source| source.named_array_holder_source_v1(site, binding, initializer))
             .map(|loan| loan.map(BorrowedCallArgumentsV1::NamedArrayHolderSource))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
     }
     if let BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan } = request {
-        return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::lend_expression_core_source_v1(input, source, plan, site))
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::lend_expression_core_source_v1(
+                    input, source, contracts, plan, site,
+                )
+            })
             .map(|loan| loan.map(BorrowedCallArgumentsV1::ExpressionCoreSource))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
+    }
+    if let BorrowedCallActualRequestV1::DynamicInvocationSource { input, plan } = request {
+        let mut candidates = dynamic_source_calls.iter().filter(|target| {
+            target.owner() == input.owner() && target.call_site() == site.site()
+        });
+        let Some(target) = candidates.next() else {
+            return Ok(None);
+        };
+        let issue = || OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(),
+            issue: "dynamic-source-target-identity".to_owned(),
+        };
+        let Some(call) = input.function().method_call(site.site()) else {
+            return Err(issue());
+        };
+        if candidates.next().is_some()
+            || input.owner() != site.owner()
+            || plan.owner() != input.owner()
+            || !plan.contains_call_site_v1(site)
+            || call.owner() != input.owner()
+            || target.result_site() != site.site()
+            || target.receiver_binding().owner() != input.owner()
+            || target.dynamic_origin().owner() != input.owner()
+            || call.receiver_site() != target.receiver_site()
+            || call.arity() != target.dispatch().arity()
+            || call.arguments().len() != target.arguments().len()
+            || call.arguments().iter().zip(target.arguments()).any(|(actual, source)| {
+                actual.ordinal() != source.ordinal() || actual.site() != source.site()
+            })
+        {
+            return Err(issue());
+        }
+        let arguments = target
+            .arguments()
+            .iter()
+            .map(|argument| crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Expression {
+                ordinal: argument.ordinal(),
+                site: argument.site().clone(),
+            })
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+        return Ok(Some(BorrowedCallArgumentsV1::DynamicInvocationSource {
+            loan: crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1::from_admitted_target_v1(target),
+            arguments,
+        }));
     }
     if let BorrowedCallActualRequestV1::ArgumentExpressionSource(input, ordinal) = request {
-        return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::observed_argument_source_v1(input, source, pending, contracts, site, ordinal))
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::observed_argument_source_v1(
+                    input, source, pending, contracts, site, ordinal,
+                )
+            })
             .map(|loan| loan.map(BorrowedCallArgumentsV1::ArgumentExpressionSource))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
     }
     if let BorrowedCallActualRequestV1::CompleteArgumentExpression(frame) = request {
-        return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::complete_argument_expression_v1(source, pending, contracts, site, frame))
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::complete_argument_expression_v1(
+                    source, pending, contracts, site, frame,
+                )
+            })
             .map(|frame| Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
     }
-    if let BorrowedCallActualRequestV1::ArgumentTextEntryRead { source: loan, read, binding, root } = request {
-        return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::lend_text_entry_read_v1(source, pending, contracts, site, loan, read, binding, root))
+    if let BorrowedCallActualRequestV1::ArgumentTextEntryRead {
+        source: loan,
+        read,
+        binding,
+        root,
+    } = request
+    {
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::lend_text_entry_read_v1(
+                    source, pending, contracts, site, loan, read, binding, root,
+                )
+            })
             .map(|row| Some(BorrowedCallArgumentsV1::TextEntryRead(row)))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
     }
-    if let BorrowedCallActualRequestV1::FiniteEntryRead { input, plan, read, binding, root } = request {
-        return source.as_ref().map_err(Clone::clone)
-            .and_then(|source| super::super::lexical_instance_call::lend_finite_entry_read_v1(input, source, contracts, site, plan, read, binding, root))
+    if let BorrowedCallActualRequestV1::FieldArrayTextEntryRead {
+        input,
+        source: field_source,
+        plan,
+        read,
+        binding,
+        root,
+    } = request
+    {
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::lend_field_array_text_entry_read_v1(
+                    source,
+                    contracts,
+                    input,
+                    site,
+                    field_source,
+                    plan,
+                    read,
+                    binding,
+                    root,
+                )
+            })
+            .map(|row| Some(BorrowedCallArgumentsV1::TextEntryRead(row)))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
+    }
+    if let BorrowedCallActualRequestV1::FiniteEntryRead {
+        input,
+        plan,
+        read,
+        binding,
+        root,
+    } = request
+    {
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::lend_finite_entry_read_v1(
+                    input, source, contracts, site, plan, read, binding, root,
+                )
+            })
             .map(|row| row.map(BorrowedCallArgumentsV1::FiniteEntryRead))
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
     }
-    if matches!(request, BorrowedCallActualRequestV1::SourceUnitDiscardArguments) {
-        return super::super::lexical_instance_call::source_unit_discard_v1(targets, contracts, source, pending, site)
-            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+    if let BorrowedCallActualRequestV1::DynamicEntryRead {
+        input,
+        plan,
+        read,
+        binding,
+        root,
+    } = request
+    {
+        return source
+            .as_ref()
+            .map_err(Clone::clone)
+            .and_then(|source| {
+                super::super::lexical_instance_call::lend_dynamic_entry_read_v1(
+                    input, source, contracts, site, plan, read, binding, root,
+                )
+            })
+            .map(|row| row.map(BorrowedCallArgumentsV1::DynamicEntryRead))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
     }
-    super::super::lexical_instance_call::recheck_pending_array_source_actuals_v1(source, pending, classes, targets, site)
-        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
+    if matches!(
+        request,
+        BorrowedCallActualRequestV1::SourceUnitDiscardArguments
+    ) {
+        return super::super::lexical_instance_call::source_unit_discard_v1(
+            targets, contracts, source, pending, site,
+        )
+        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(),
+            issue,
+        });
+    }
+    super::super::lexical_instance_call::recheck_pending_array_source_actuals_v1(
+        source, pending, classes, targets, site,
+    )
+    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+        site: site.clone(),
+        issue,
+    })?;
     if let BorrowedCallActualRequestV1::SourceResultArguments { expression } = request {
-        if let Some(text) = super::super::lexical_instance_call::source_ordinary_result_arguments_v1(
-            source, pending, contracts, site, targets, selected, completed, expression,
-        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })? {
+        if let Some(text) =
+            super::super::lexical_instance_call::source_ordinary_result_arguments_v1(
+                source, pending, contracts, site, targets, selected, completed, expression,
+            )
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            })?
+        {
             return Ok(Some(text));
         }
         return super::super::lexical_instance_call::source_scalar_result_arguments_v1(
@@ -408,11 +596,23 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     }
     if let BorrowedCallActualRequestV1::MixedLocalArguments(destination) = request {
         return super::super::lexical_instance_call::mixed_local_arguments_v1(
-            targets, contracts, source, pending, classes, site, destination,
-        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+            targets,
+            contracts,
+            source,
+            pending,
+            classes,
+            site,
+            destination,
+        )
+        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(),
+            issue,
+        });
     }
     if let BorrowedCallActualRequestV1::ReceivedObjectArguments(destination, result) = request {
-        return super::super::lexical_instance_call::received_producer_arguments_v1(batch, selected,
+        return super::super::lexical_instance_call::received_producer_arguments_v1(
+            batch,
+            selected,
             source,
             contracts,
             pending,
@@ -421,7 +621,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             classes,
             site,
             destination,
-            result, field_write_claims,
+            result,
+            field_write_claims,
         )
         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
             site: site.clone(),
@@ -437,8 +638,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             destination,
             &mut |target, loan| {
                 super::super::lexical_instance_call::project_pending_object_arguments_v1(
-                    source, contracts, pending, target, loan,
-                    None,
+                    source, contracts, pending, target, loan, None,
                 )
             },
         )
@@ -480,8 +680,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             }
             let arguments =
                 super::super::lexical_instance_call::project_pending_object_arguments_v1(
-                    source, contracts, pending, target, loan,
-                    None,
+                    source, contracts, pending, target, loan, None,
                 )?;
             Ok(Some(BorrowedCallArgumentsV1::Object {
                 qualification: loan.clone(),
@@ -502,8 +701,16 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             candidates,
             receiver,
             nullable_class,
-        ).and_then(|mut rows| {
-            super::super::lexical_instance_call::bind_argument_sources_v1(input, source.as_ref().map_err(Clone::clone)?, Some(contracts), site, pending.get(site), rows.as_mut())?;
+        )
+        .and_then(|mut rows| {
+            super::super::lexical_instance_call::bind_argument_sources_v1(
+                input,
+                source.as_ref().map_err(Clone::clone)?,
+                Some(contracts),
+                site,
+                pending.get(site),
+                rows.as_mut(),
+            )?;
             Ok(rows)
         });
         super::super::lexical_instance_call::stage_observed_call_actuals_v1(
@@ -522,15 +729,27 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             }
         })?;
         // Original purpose permits source projection, never executable membership.
-        let scalar_source = source.as_ref().ok().map(|prepared|
-            prepared.has_scalar_qualified_source_call_v1(site).and_then(|scalar|
-                Ok(scalar || prepared.has_finite_forward_source_call_v1(site)?))).transpose()
+        let scalar_source = source
+            .as_ref()
+            .ok()
+            .map(|prepared| {
+                prepared
+                    .has_scalar_qualified_source_call_v1(site)
+                    .and_then(|scalar| {
+                        Ok(scalar || prepared.has_finite_forward_source_call_v1(site)?)
+                    })
+            })
+            .transpose()
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                site: site.clone(), issue,
-            })?.unwrap_or(false);
+                site: site.clone(),
+                issue,
+            })?
+            .unwrap_or(false);
         if !sites.contains(site)
-            && !pending.get(site).is_some_and(|row| row.as_ref()
-                .is_ok_and(|row| row.has_qualified_static_argument_source_v1()))
+            && !pending.get(site).is_some_and(|row| {
+                row.as_ref()
+                    .is_ok_and(|row| row.has_qualified_static_argument_source_v1())
+            })
             && !scalar_source
             && !source
                 .as_ref()
@@ -620,10 +839,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
         | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }
+        | BorrowedCallActualRequestV1::DynamicInvocationSource { .. }
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)
         | BorrowedCallActualRequestV1::CompleteArgumentExpression(..)
         | BorrowedCallActualRequestV1::ArgumentTextEntryRead { .. }
+        | BorrowedCallActualRequestV1::FieldArrayTextEntryRead { .. }
         | BorrowedCallActualRequestV1::FiniteEntryRead { .. }
+        | BorrowedCallActualRequestV1::DynamicEntryRead { .. }
         | BorrowedCallActualRequestV1::Observe(..)
         | BorrowedCallActualRequestV1::ReceivedObjectArguments(_, _)
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
@@ -650,7 +872,10 @@ pub(super) fn prepare_source_preflight_v1(
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
+    omitted_static_callers: &BTreeMap<
+        FunctionOwnerIdV1,
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    >,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
     static_call_claims: &super::super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
@@ -755,22 +980,38 @@ pub(super) fn has_stored_terminal_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
     let owner = input.owner();
-    let Some(rows) = rows.as_ref().ok() else { return Ok(false); };
-    let candidates = || rows.iter().filter_map(|row| row.as_ref().ok()?.as_ref())
-        .filter(|row| row.call_site().owner() == owner && row.stored_receiver().is_some()
-            && row.uses_existing_borrowed_result_v1());
-    let Some(first) = candidates().next() else { return Ok(false); };
-    let shape = input.body_shape().filter(|shape| shape.owner() == owner)
+    let Some(rows) = rows.as_ref().ok() else {
+        return Ok(false);
+    };
+    let candidates = || {
+        rows.iter()
+            .filter_map(|row| row.as_ref().ok()?.as_ref())
+            .filter(|row| {
+                row.call_site().owner() == owner
+                    && row.stored_receiver().is_some()
+                    && row.uses_existing_borrowed_result_v1()
+            })
+    };
+    let Some(first) = candidates().next() else {
+        return Ok(false);
+    };
+    let shape = input
+        .body_shape()
+        .filter(|shape| shape.owner() == owner)
         .ok_or_else(|| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
             site: first.call_site().clone(),
             issue: "[freeze:contract][stored-child/original-return-shape]".into(),
         })?;
     // Source membership selects this obligation, never result-proof availability
     // or Completion success. Print/local operands keep their own consumers.
-    let Some(row) = candidates().find(|row| shape.statements().iter().any(|statement|
-        matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return {
-            value: Some(value), .. } if value == row.call_site().site())))
-    else { return Ok(false); };
+    let Some(row) = candidates().find(|row| {
+        shape.statements().iter().any(|statement| {
+            matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return {
+            value: Some(value), .. } if value == row.call_site().site())
+        })
+    }) else {
+        return Ok(false);
+    };
     let demand = results
         .get(&owner)
         .ok_or_else(|| "[freeze:contract][stored-child/result-source-missing]".to_owned())

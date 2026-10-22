@@ -9,7 +9,9 @@ use crate::mir::resolved_semantics::{BindingRefV1, ResolvedLiteralSourceV1 as Li
 pub(super) use crate::mir::resolved_semantics::home_new_prefix::{SourceLoopScanSummaryV1 as Summary,
     CheckedSourceLoopBodyV1 as Body, CheckedSourceLoopStatementV1 as Statement,
     CheckedExpressionEvaluationV1 as Evaluation, CheckedExpressionReferenceV1 as Reference,
-    CurrentScalarProducerV1 as Producer};
+    CurrentScalarProducerV1 as Producer, SourceLoopValueProducerV1 as SourceProducer,
+    SourceLoopTextProducerV1 as TextProducer,
+    SourceLoopDynamicProducerV1 as DynamicProducer};
 pub(super) use crate::mir::resolved_value_profile::{expression_plan::{ExpressionSourcePlanV1 as Source, ExpressionNodeSourceV1 as Node},
     expression_projection::ExpressionLeafClassV1 as Leaf, expression_class::ExpressionValueClassV1 as Value};
 use super::{ids::*, schema_v2::*, typed_schema_v2::{LoopRecipeVerifierV2, VerifiedLoopRecipeV2},
@@ -154,7 +156,21 @@ pub(super) fn source_call_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
         } }
         None
     }
-    visit(source.control.as_ref().ok()?, site)
+    visit(source.control.as_ref().ok()?, site).or_else(|| {
+        std::iter::once(&source.condition)
+            .chain(source.body_expressions.iter().filter_map(|frame| frame.condition_frame()))
+            .flat_map(|frame| frame.calls().iter())
+            .find(|call| call.statement() == site)
+    })
+}
+pub(super) fn source_condition_call_v2(
+    source: &Summary,
+    observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+) -> bool {
+    std::iter::once(&source.condition)
+        .chain(source.body_expressions.iter().filter_map(|frame| frame.condition_frame()))
+        .flat_map(|frame| frame.calls().iter())
+        .any(|call| call.site() == observation.site())
 }
 pub(super) fn source_array_append_v2<'a>(source: &'a Summary, site: &SourceStmtSiteV1)
     -> Option<&'a crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
@@ -208,7 +224,7 @@ pub(super) fn integer_operation_v2(frame: &Evaluation, node: usize) -> Option<Lo
 
 /// Resolve only an original immutable producer already present in this product.
 /// Shared by projection and independent source/schedule checking.
-pub(super) fn producer_value_v2(producer: &Producer, recipe: &LoopRecipeV2,
+pub(super) fn producer_value_v2(producer: &Producer, source: &Summary, recipe: &LoopRecipeV2,
     values: &[SourceLoopValueV2], bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
     schedule: &SourceLoopScheduleDraftV2,
 ) -> Option<LoopValueKeyV1> {
@@ -227,6 +243,17 @@ pub(super) fn producer_value_v2(producer: &Producer, recipe: &LoopRecipeV2,
                 && matches!(node.source(), Node::Literal(Literal::Integer(_))))) .map(|row| row.value),
         Producer::SignedEntry(binding) => recipe.read_only_inputs.iter()
             .find(|row| bindings.get(binding) == Some(&row.binding)).map(|row| row.entry_value),
+        Producer::LoopHeader(basis) => {
+            if !Rc::ptr_eq(basis.source(), &source.source)
+                || source.headers.get(&basis.binding()).is_none_or(|original| !Rc::ptr_eq(original, basis))
+                || basis.entry_producer().class() != Value::I64 {
+                return None;
+            }
+            let binding = *bindings.get(&basis.binding())?;
+            recipe.carriers.iter().find(|row| row.owner_loop == recipe.root_loop
+                && row.binding == binding && row.class == LoopValueClassV2::I64)
+                .map(|row| row.entry_value)
+        }
         _ => None,
     }
 }
@@ -259,6 +286,18 @@ pub(super) fn demanded_branch_joins_v2(source: &Summary)
         }
     }
     for source in source_returns_v2(source) { visit(source.read.producer(), &mut output); }
+    for carrier in source.incoming.as_ref().map_err(|reason| reject(reason))? {
+        for incoming in carrier.header_incoming.iter().chain(carrier.after_incoming.iter()) {
+            if matches!(incoming.edge,
+                crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::LoopEntry
+                    | crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1::ConditionFalse) {
+                continue;
+            }
+            if let SourceProducer::Scalar(producer) = &incoming.producer {
+                visit(producer, &mut output);
+            }
+        }
+    }
     Ok(output)
 }
 impl std::fmt::Debug for VerifiedSourceLoopRecipeProductV2 {
@@ -271,10 +310,80 @@ pub(super) fn reject(reason: &str) -> String { format!("[freeze:contract][source
 fn class(leaf: Option<Leaf>) -> Result<LoopValueClassV2, String> {
     match leaf {
         Some(Leaf::Value(Value::I64)) => Ok(LoopValueClassV2::I64),
+        Some(Leaf::Value(Value::Dynamic)) => Ok(LoopValueClassV2::Dynamic),
         Some(Leaf::Value(Value::Bool)) => Ok(LoopValueClassV2::Bool),
         Some(Leaf::Value(Value::String)) => Ok(LoopValueClassV2::Text),
         _ => Err(reject("value-class")),
     }
+}
+fn verify_dynamic_add_source_v2(
+    frame: &Evaluation,
+    node: usize,
+    binary: &crate::mir::resolved_semantics::ResolvedBinaryExpressionSourceV1,
+) -> Result<(), String> {
+    use crate::mir::dynamic_operator_contract::{
+        DynamicOperatorFamilyV1 as Family, DynamicOperatorNormalResultV1 as ResultKind,
+        DynamicOperatorValueClassV1 as Operand,
+    };
+    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    let class_at = |site| frame.source().nodes().iter().position(|row| row.site() == site)
+        .and_then(|index| frame.class(index));
+    if binary.operator() != Op::Add
+        || frame.class(node) != Some(Leaf::Value(Value::Dynamic))
+        || frame.owned_result_nodes().contains(&node)
+        || class_at(binary.lhs()) != Some(Leaf::Value(Value::Dynamic))
+        || class_at(binary.rhs()) != Some(Leaf::Value(Value::I64))
+    {
+        return Err(reject("dynamic-add-source"));
+    }
+    let mut loans = frame.operations().iter().filter(|loan| loan.node() == node);
+    let loan = loans.next().ok_or_else(|| reject("dynamic-add-loan"))?;
+    if loans.next().is_some() || !Rc::ptr_eq(loan.source(), frame.source()) {
+        return Err(reject("dynamic-add-loan"));
+    }
+    let envelope = loan.single_envelope().ok_or_else(|| reject("dynamic-add-envelope"))?;
+    let domain = envelope.domain();
+    if domain.family() != Family::Add
+        || domain.left() != Operand::Dynamic
+        || domain.right() != Operand::I64
+        || envelope.normal_result() != ResultKind::SelfContainedNonAliasingDynamicCarrier
+    {
+        return Err(reject("dynamic-add-domain"));
+    }
+    Ok(())
+}
+pub(super) fn verify_text_add_source_v2(frame: &Evaluation, node: usize,
+    binary: &crate::mir::resolved_semantics::ResolvedBinaryExpressionSourceV1) -> Result<(), String> {
+    use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+        DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorValueClassV1 as Class};
+    if !frame.owned_result_nodes().contains(&node)
+        || frame.class(node) != Some(Leaf::Value(Value::String))
+        || binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add {
+        return Err(reject("text-add-result"));
+    }
+    let mut loans = frame.operations().iter().filter(|loan| loan.node() == node);
+    let loan = loans.next().ok_or_else(|| reject("text-add-loan"))?;
+    if loans.next().is_some() || !Rc::ptr_eq(loan.source(), frame.source()) {
+        return Err(reject("text-add-loan"));
+    }
+    let envelope = loan.single_envelope().ok_or_else(|| reject("text-add-envelope"))?;
+    let operand_class = |site| {
+        frame.source().nodes().iter().position(|candidate| candidate.site() == site)
+            .and_then(|index| frame.class(index)).and_then(|leaf| match leaf {
+                Leaf::Value(Value::String) => Some(Class::String),
+                Leaf::Value(Value::I64) => Some(Class::NormalInteger),
+                _ => None,
+            })
+    };
+    let domain = envelope.domain();
+    if domain.family() != Family::Add || envelope.normal_result() != ResultKind::OwnedStringValue
+        || operand_class(binary.lhs()) != Some(domain.left())
+        || operand_class(binary.rhs()) != Some(domain.right())
+        || !matches!((domain.left(), domain.right()),
+            (Class::String, Class::String | Class::NormalInteger)) {
+        return Err(reject("text-add-domain"));
+    }
+    Ok(())
 }
 struct Projector<'a> {
     source: &'a Summary,
@@ -327,6 +436,64 @@ impl Projector<'_> {
             .ok_or_else(|| reject("reference-role"))?;
         let local_result = match proof {
             Reference::Residence(read) => self.result(read.acquisition().source()),
+            Reference::LoopText(read) => {
+                let TextProducer::Header(basis) = read.producer() else {
+                    return Err(reject("after-text-read-in-loop-body"));
+                };
+                let node = source.nodes().iter().position(|original| original.site() == read.read())
+                    .ok_or_else(|| reject("header-text-read-node"))?;
+                if class != LoopValueClassV2::Text || role != Role::Carrier
+                    || !read.matches_source_node(source, node)
+                    || !Rc::ptr_eq(basis.source(), &self.source.source)
+                    || basis.binding() != binding
+                    || self.source.headers.get(&binding).is_none_or(|actual| !Rc::ptr_eq(actual, basis)) {
+                    return Err(reject("header-text-identity"));
+                }
+                None
+            }
+            Reference::LoopDynamic(read) => {
+                let node = source.nodes().iter().position(|original| original.site() == read.read())
+                    .ok_or_else(|| reject("dynamic-read-node"))?;
+                if class != LoopValueClassV2::Dynamic || !read.matches_source_node(source, node) {
+                    return Err(reject("dynamic-read-identity"));
+                }
+                match read.producer() {
+                    DynamicProducer::Header(basis) => {
+                        if role != Role::Carrier
+                            || !Rc::ptr_eq(basis.source(), &self.source.source)
+                            || basis.binding() != binding
+                            || self.source.headers.get(&binding).is_none_or(|actual| !Rc::ptr_eq(actual, basis))
+                        {
+                            return Err(reject("dynamic-header-identity"));
+                        }
+                    }
+                    DynamicProducer::Source(point) => {
+                        if role == Role::Carrier {
+                            return Err(reject("dynamic-carrier-source-producer"));
+                        }
+                        if let Some(site) = point.expression_site_v1() {
+                            let mut produced = self.values.iter().filter(|row| {
+                                row.source.owner() == source.owner()
+                                    && row.source.nodes().get(row.node).is_some_and(|original| original.site() == site)
+                            });
+                            let row = produced.next().ok_or_else(|| reject("dynamic-source-result"))?;
+                            if produced.next().is_some()
+                                || self.recipe.values.get(row.value.raw() as usize).is_none_or(|value| value.class != class)
+                            {
+                                return Err(reject("dynamic-source-result"));
+                            }
+                            return Ok(row.value);
+                        }
+                        if role != Role::ReadOnlyOperand
+                            || !point.proves_source_value_v1(binding, read.value())
+                        {
+                            return Err(reject("dynamic-entry-source"));
+                        }
+                    }
+                    DynamicProducer::After { .. } => return Err(reject("dynamic-after-read-in-loop-body")),
+                }
+                None
+            }
             Reference::Scalar(read) => {
                 let original = read.original_read().ok_or_else(|| reject("scalar-obligation"))?;
                 match original.producer() {
@@ -341,10 +508,10 @@ impl Projector<'_> {
                         if !join.corroborates_original() || join.binding() != binding {
                             return Err(reject("scalar-obligation"));
                         }
-                        producer_value_v2(original.producer(), &self.recipe, &self.values,
+                        producer_value_v2(original.producer(), self.source, &self.recipe, &self.values,
                             &self.bindings, &self.schedule)
                     }
-                    producer => producer_value_v2(producer, &self.recipe, &self.values,
+                    producer => producer_value_v2(producer, self.source, &self.recipe, &self.values,
                         &self.bindings, &self.schedule),
                 }
             }
@@ -357,8 +524,13 @@ impl Projector<'_> {
             && !(class == LoopValueClassV2::Text && is_outer_text_reference_v2(self.source, proof))) {
             return Err(reject("local-result-unavailable"));
         }
-        if role == Role::Carrier && !matches!(proof,
-            Reference::Scalar(read) if matches!(read.original_read().map(|read| read.producer()), Some(Producer::LoopHeader(_)))) {
+        let loop_header_read = match proof {
+            Reference::Scalar(read) => matches!(read.original_read().map(|read| read.producer()), Some(Producer::LoopHeader(_))),
+            Reference::LoopText(read) => matches!(read.producer(), TextProducer::Header(_)),
+            Reference::LoopDynamic(read) => matches!(read.producer(), DynamicProducer::Header(_)),
+            _ => false,
+        };
+        if role == Role::Carrier && !loop_header_read {
             return Err(reject("carrier-read-producer"));
         }
         let key = self.binding(binding, class)?;
@@ -374,13 +546,54 @@ impl Projector<'_> {
     }
     fn condition(&mut self, block: LoopBlockKeyV1,
         frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>) -> Result<LoopValueKeyV1, String> {
-        let start = self.recipe.blocks[block.raw() as usize].items.len();
         let projection = self.source.bool_expressions.as_ref().map_err(|_| reject("condition-projection"))?
             .iter().find(|projection| projection.matches_frame(frame)).ok_or_else(|| reject("condition-identity"))?;
+        let mut call_values = BTreeMap::new();
+        // Calls are separate source-owned CallSlots; references below are
+        // effect-free reads, so emit every unconditional call before the
+        // closed BoolExpression frame while retaining import order in inputs.
+        for &(node, class) in projection.imports() {
+            let original = frame.source().nodes().get(node).ok_or_else(|| reject("condition-import"))?;
+            if !matches!(original.source(), Node::MethodCall) {
+                continue;
+            }
+            let mut calls = frame.calls().iter().filter(|call| call.site().site() == original.site());
+            let call = calls.next().ok_or_else(|| reject("condition-call-import"))?;
+            let call_class = match call.result() {
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => LoopValueClassV2::I64,
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => LoopValueClassV2::Bool,
+                _ => return Err(reject("condition-call-class")),
+            };
+            if calls.next().is_some() || call_class != class || call.owner() != frame.source().owner()
+                || call.statement() != frame.source().root().statement()
+                || !call.is_expression_value() || call.result_source().is_none() {
+                return Err(reject("condition-call-source"));
+            }
+            let result = self.value(call_class);
+            let item = self.item(block, LoopRecipeItemV2::Operation {
+                operation: LoopOperationV2::CallSlot { receiver: None, args: Vec::new(), result: Some(result) },
+            });
+            self.schedule.step(block, SourceLoopScheduledStepV2::Call {
+                item,
+                site: call.statement().clone(),
+                observation: call.clone(),
+                result: Some(result),
+            });
+            self.control.push(SourceLoopItemV2 { site: call.statement().clone(), item });
+            if call_values.insert(node, result).is_some() {
+                return Err(reject("condition-call-duplicate"));
+            }
+        }
+        let frame_start = self.recipe.blocks[block.raw() as usize].items.len();
         let mut inputs = Vec::new();
         for &(node, class) in projection.imports() {
-            let proof = frame.references().get(&node).ok_or_else(|| reject("condition-import"))?;
-            let value = self.reference(block, frame.source(), proof, class)?;
+            let original = frame.source().nodes().get(node).ok_or_else(|| reject("condition-import"))?;
+            let value = if matches!(original.source(), Node::MethodCall) {
+                *call_values.get(&node).ok_or_else(|| reject("condition-call-value"))?
+            } else {
+                let proof = frame.references().get(&node).ok_or_else(|| reject("condition-import"))?;
+                self.reference(block, frame.source(), proof, class)?
+            };
             if node != 0 { self.remember(frame.source(), node, value)?; }
             inputs.push(value);
         }
@@ -389,7 +602,7 @@ impl Projector<'_> {
         self.remember(frame.source(), 0, result)?;
         let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone());
         self.schedule.frame(Prefix::BoolCondition { site, frame: Rc::clone(frame) }, block,
-            start..self.recipe.blocks[block.raw() as usize].items.len(), result);
+            frame_start..self.recipe.blocks[block.raw() as usize].items.len(), result);
         Ok(result)
     }
     fn evaluation(&mut self, block: LoopBlockKeyV1, frame: &Evaluation) -> Result<LoopValueKeyV1, String> {
@@ -418,6 +631,18 @@ impl Projector<'_> {
                     let left = by_site(binary.lhs())?; let right = by_site(binary.rhs())?;
                     let result = self.value(value_class);
                     self.operation(block, source, LoopOperationV2::BinaryI64 { op, left, right, result }); result
+                }
+                Node::Binary(binary) if binary.operator() == Binary::Add && value_class == LoopValueClassV2::Text => {
+                    verify_text_add_source_v2(frame, node, binary)?;
+                    let left = by_site(binary.lhs())?; let right = by_site(binary.rhs())?;
+                    let result = self.value(value_class);
+                    self.operation(block, source, LoopOperationV2::TextAdd { left, right, result }); result
+                }
+                Node::Binary(binary) if binary.operator() == Binary::Add && value_class == LoopValueClassV2::Dynamic => {
+                    verify_dynamic_add_source_v2(frame, node, binary)?;
+                    let left = by_site(binary.lhs())?; let right = by_site(binary.rhs())?;
+                    let result = self.value(value_class);
+                    self.operation(block, source, LoopOperationV2::DynamicAdd { left, right, result }); result
                 }
                 Node::MethodCall => {
                     let core = frame.cores().get(&node).ok_or_else(|| reject("core-loan"))?;
@@ -480,17 +705,28 @@ impl Projector<'_> {
                             block, start..self.recipe.blocks[block.raw() as usize].items.len(), result);
                     } else if let Some(rebind) = frame.rebind_frame() {
                         let value = self.evaluation(block, rebind.evaluation())?;
+                        let role = self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
+                            .map(|(_, role)| role).ok_or_else(|| reject("rebind-role"))?;
                         if rebind.is_text_residence() {
-                            if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
-                                .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("text-rebind-role")); }
-                        } else if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
-                            .is_some_and(|(_, role)| role == Role::Carrier) {
+                            match role {
+                                Role::Carrier => {
+                                    let binding = self.bindings.get(&rebind.target()).copied().ok_or_else(|| reject("text-rebind-carrier"))?;
+                                    if !self.recipe.carriers.iter().any(|row|
+                                        row.binding == binding && row.class == LoopValueClassV2::Text) {
+                                        return Err(reject("text-rebind-carrier-class"));
+                                    }
+                                    let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
+                                    self.control.push(SourceLoopItemV2 { site: site.clone(), item });
+                                }
+                                Role::IterationLocal => {},
+                                _ => return Err(reject("text-rebind-role")),
+                            }
+                        } else if role == Role::Carrier {
                             let binding = self.bindings.get(&rebind.target()).copied().ok_or_else(|| reject("rebind-carrier"))?;
                             if !self.recipe.carriers.iter().any(|row| row.binding == binding) { return Err(reject("rebind-readonly")); }
                             let item = self.operation(block, rebind.source(), LoopOperationV2::WriteBinding { binding, value });
                             self.control.push(SourceLoopItemV2 { site: site.clone(), item });
-                        } else if self.source.source.bindings().bindings().find(|(binding, _)| *binding == rebind.target())
-                            .is_none_or(|(_, role)| role != Role::IterationLocal) {
+                        } else if role != Role::IterationLocal {
                             return Err(reject("rebind-readonly"));
                         }
                         self.schedule.frame(Prefix::BindingRebind { site: prefix_site, frame: Rc::clone(rebind) },
@@ -514,10 +750,10 @@ impl Projector<'_> {
                     for source in demanded_branch_joins_v2(self.source)?.into_iter().filter(|source| source.site() == site) {
                         if !source.corroborates_original() { return Err(reject("scalar-obligation")); }
                         let [(_, _, yes), (_, _, no)] = source.incoming() else { return Err(reject("scalar-obligation")); };
-                        let then_value = producer_value_v2(yes, &self.recipe, &self.values, &self.bindings,
-                            &self.schedule).ok_or_else(|| reject("local-result-unavailable"))?;
-                        let else_value = producer_value_v2(no, &self.recipe, &self.values, &self.bindings,
-                            &self.schedule).ok_or_else(|| reject("local-result-unavailable"))?;
+                        let then_value = producer_value_v2(yes, self.source, &self.recipe, &self.values,
+                            &self.bindings, &self.schedule).ok_or_else(|| reject("local-result-unavailable"))?;
+                        let else_value = producer_value_v2(no, self.source, &self.recipe, &self.values,
+                            &self.bindings, &self.schedule).ok_or_else(|| reject("local-result-unavailable"))?;
                         if [then_value, else_value].iter().any(|value|
                             self.recipe.values[value.raw() as usize].class != LoopValueClassV2::I64) {
                             return Err(reject("local-result-class"));
@@ -527,7 +763,15 @@ impl Projector<'_> {
                         let phi = self.item(block, LoopRecipeItemV2::Operation {
                             operation: LoopOperationV2::BranchPhi { source_if: item, then_value, else_value, result },
                         });
-                        joins.push(super::source_loop_schedule::SourceLoopBranchPhiV2 { source, item: phi, result });
+                        let binding = self.source.headers.contains_key(&source.binding())
+                            .then(|| self.bindings.get(&source.binding()).copied())
+                            .flatten();
+                        let write_item = binding.map(|binding| self.item(block, LoopRecipeItemV2::Operation {
+                            operation: LoopOperationV2::WriteBinding { binding, value: result },
+                        }));
+                        joins.push(super::source_loop_schedule::SourceLoopBranchPhiV2 {
+                            source, item: phi, result, binding, write_item,
+                        });
                     }
                     self.schedule.step(block, SourceLoopScheduledStepV2::If { item, site: site.clone(), bundle: *bundle,
                         condition: condition_frame, then_block, else_block, joins });
@@ -577,11 +821,17 @@ pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInput
     }, bindings: BTreeMap::new(), values: Vec::new(), control: Vec::new() };
     for (binding, basis) in &source.headers {
         if basis.binding() != *binding || !Rc::ptr_eq(basis.source(), &source.source) { return Err(reject("carrier-basis")); }
-        let key = projector.binding(*binding, LoopValueClassV2::I64)?;
-        let entry_value = projector.value(LoopValueClassV2::I64);
+        let class = match basis.entry_producer().class() {
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64 => LoopValueClassV2::I64,
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic => LoopValueClassV2::Dynamic,
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String => LoopValueClassV2::Text,
+            _ => return Err(reject("carrier-class")),
+        };
+        let key = projector.binding(*binding, class)?;
+        let entry_value = projector.value(class);
         projector.recipe.inputs.push(entry_value);
         projector.recipe.carriers.push(LoopRecipeCarrierV2 { key: LoopCarrierKeyV1::new(projector.recipe.carriers.len() as u32),
-            owner_loop: root, binding: key, class: LoopValueClassV2::I64, entry_value });
+            owner_loop: root, binding: key, class, entry_value });
     }
     let condition_block = projector.block();
     let predicate = projector.condition(condition_block, &source.condition)?;
@@ -592,7 +842,8 @@ pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInput
     let recipe = LoopRecipeVerifierV2::verify(projector.recipe).map_err(|reason| format!("{} {reason:?}", reject("typed")))?;
     let closure = super::join_sig::issue_root_carrier_join_closure_v2(&recipe)
         .map_err(|reason| format!("{} {reason:?}", reject("join")))?;
-    validate_incoming(&source, &recipe, &closure, &projector.values, &projector.control, &projector.bindings)?;
+    validate_incoming(&source, &recipe, &closure, &projector.schedule,
+        &projector.values, &projector.control, &projector.bindings)?;
     let schedule = projector.schedule.finish(input, &source, &recipe, &execution,
         &projector.values, &projector.control, &projector.bindings)?;
     let values = projector.values.into_boxed_slice();
@@ -605,7 +856,7 @@ pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInput
 /// A carrier entry key is JoinSig's logical Header token, never a permission to
 /// substitute the pre-loop runtime value for a physical Header Phi.
 fn validate_incoming(source: &Summary, recipe: &VerifiedLoopRecipeV2, closure: &Closure,
-    values: &[SourceLoopValueV2], control: &[SourceLoopItemV2],
+    schedule: &SourceLoopScheduleDraftV2, values: &[SourceLoopValueV2], control: &[SourceLoopItemV2],
     bindings: &BTreeMap<BindingRefV1, LoopBindingKeyV1>,
 ) -> Result<(), String> {
     let view = closure.logical_transfer_view().map_err(|reason| format!("{} {reason:?}", reject("transfer-view")))?;
@@ -639,15 +890,49 @@ fn validate_incoming(source: &Summary, recipe: &VerifiedLoopRecipeV2, closure: &
             return Err(reject("incoming-after-identity"));
         }
         for original in source_row.header_incoming.iter().chain(source_row.after_incoming.iter()) {
-            let expected = match &original.producer {
-                Producer::LoopHeader(basis) if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
-                producer if producer == source_row.basis.entry_producer() => carrier.entry_value,
-                Producer::Initializer(frame) => values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
+            let expected = if original.producer == *source_row.basis.entry_producer() {
+                carrier.entry_value
+            } else { match &original.producer {
+                SourceProducer::Scalar(Producer::LoopHeader(basis)) if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
+                SourceProducer::Scalar(Producer::Initializer(frame)) => values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
                     .map(|row| row.value).ok_or_else(|| reject("incoming-initializer-result"))?,
-                Producer::BindingRebind(frame) => values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
+                SourceProducer::Scalar(Producer::BindingRebind(frame)) => values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, frame.source()))
                     .map(|row| row.value).ok_or_else(|| reject("incoming-rebind-result"))?,
+                SourceProducer::Scalar(Producer::BranchNormal(join)) => schedule.joins_v2()
+                    .find(|row| row.source == *join && row.binding == Some(*binding))
+                    .map(|row| row.result).ok_or_else(|| reject("incoming-branch-join-result"))?,
+                SourceProducer::Text(TextProducer::Header(basis)) if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
+                SourceProducer::Text(TextProducer::Residence(acquisition)) => {
+                    let source = acquisition.source();
+                    values.iter().find(|row| row.node == 0 && Rc::ptr_eq(&row.source, source))
+                        .map(|row| row.value).ok_or_else(|| reject("incoming-rebind-result"))?
+                }
+                SourceProducer::Text(TextProducer::Static { definition, .. }) => {
+                    values.iter().find(|row| row.source.nodes().get(row.node).is_some_and(|node| node.site() == definition))
+                        .map(|row| row.value).ok_or_else(|| reject("incoming-rebind-result"))?
+                }
+                SourceProducer::Dynamic(DynamicProducer::Header(basis))
+                    if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
+                SourceProducer::Dynamic(DynamicProducer::Source(point)) => {
+                    if point.binding() != source_row.basis.binding()
+                        || point.value() != original.value
+                        || !point.proves_source_value_v1(point.binding(), original.value)
+                    {
+                        return Err(reject("incoming-dynamic-source"));
+                    }
+                    let site = point.expression_site_v1().ok_or_else(|| reject("incoming-dynamic-origin"))?;
+                    let mut rows = values.iter().filter(|row| {
+                        row.source.owner() == source_row.basis.binding().owner()
+                            && row.source.nodes().get(row.node).is_some_and(|node| node.site() == site)
+                            && recipe.as_recipe().values.get(row.value.raw() as usize)
+                                .is_some_and(|value| value.class == LoopValueClassV2::Dynamic)
+                    });
+                    let row = rows.next().ok_or_else(|| reject("incoming-dynamic-result"))?;
+                    if rows.next().is_some() { return Err(reject("incoming-dynamic-result")); }
+                    row.value
+                }
                 _ => return Err(reject("incoming-producer")),
-            };
+            }};
             with_incoming_payload_v2(recipe, closure, control, &original.edge, |payload|
                 validate_payload_value_v2(payload, *binding, expected, carrier.class, incoming.len()))?;
         }

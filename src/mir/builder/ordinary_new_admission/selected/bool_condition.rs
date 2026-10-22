@@ -58,12 +58,28 @@ impl LoweredBoolConditionV1 {
 impl LoweredBoolConditionV1 {
     fn take_projection_v2(&mut self, function: &MirFunction,
         physical: &crate::mir::builder::ConditionMaterializationV1,
+        expected_product: Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     ) -> Result<(Vec<Node>, Vec<Binding>), String> {
         let nodes = self.nodes.take().ok_or_else(|| freeze("bool-condition/duplicate-condition-materialization"))?;
         let mut prefix = vec![self.entry.clone()];
         for node in &nodes {
             match &node.proof {
-                Proof::Literal(binding) | Proof::Field(binding) => prefix.push(binding.clone()),
+                Proof::Literal(binding) => prefix.push(binding.clone()),
+                Proof::Field(binding) => {
+                    let source = self.frame.source().nodes().get(node.node)
+                        .ok_or_else(|| freeze("bool-condition/field-node"))?;
+                    let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                        self.frame.source().owner(), source.site().clone());
+                    if let Some(pair) = self.ledger.checked_field_pair_v1(&site,
+                        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&self.ledger))? {
+                        let rows = self.ledger.checked_field_normal_prefix_v1(&site)?.into_iter()
+                            .chain(pair)
+                            .chain(self.ledger.checked_field_cleanup_bindings_v1(&site)?);
+                        for row in rows { if !prefix.contains(&row) { prefix.push(row); } }
+                    } else {
+                        prefix.push(binding.clone());
+                    }
+                }
                 Proof::Reference { producer, .. } => prefix.extend(producer.iter().cloned()),
                 // Retain the shared producer/Copy dependency census without reissuing it.
                 Proof::OriginalReference(read) => prefix.extend(read.dependencies()?),
@@ -73,6 +89,10 @@ impl LoweredBoolConditionV1 {
                         else { return Err(freeze("bool-condition/call-frame")) };
                     prefix.push(definition(function, fault_frame)?.ok_or_else(|| freeze("bool-condition/frame-definition"))?);
                 },
+                // The enclosing source Loop emitted this CallSlot before the
+                // condition frame. Keep the packet as a value proof without
+                // importing its effect bindings into the condition prefix.
+                Proof::ScheduledSourceLoopCall { .. } => {},
                 Proof::Binary { append, operands } => {
                     prefix.push(append.clone());
                     for relation in operands { relation.append_observed_bindings_v1(&mut prefix); }
@@ -86,8 +106,17 @@ impl LoweredBoolConditionV1 {
         }
         prefix.extend_from_slice(physical.bindings());
         physical.relation().append_observed_bindings_v1(&mut prefix);
+        let borrowed_reads: Vec<_> = nodes.iter().flat_map(|node| match &node.proof {
+            Proof::OriginalReference(read) => vec![read],
+            Proof::ScalarInvocation { input_reads, .. } => input_reads.values().collect(),
+            _ => Vec::new(),
+        }).collect();
+        let borrowed_loop_phis = crate::mir::normal_callable_semantic_package::borrowed_source_loop_phi_relations_v2(
+            &self.frame, &nodes, &self.ledger, expected_product)?;
         let prefix = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
-            prefix, nodes.iter().filter_map(|node| match &node.proof { Proof::OriginalReference(read) => Some(read), _ => None }))?;
+            prefix, borrowed_reads.into_iter())?;
+        let prefix = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_source_loop_phis_v2(
+            prefix, &borrowed_loop_phis)?;
         let mut unique = Vec::new();
         for binding in prefix { if !unique.contains(&binding) { unique.push(binding); } }
         Ok((nodes, unique))
@@ -101,7 +130,7 @@ impl LoweredBoolConditionV1 {
         product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, index: usize,
         materialization: Rc<crate::mir::builder::ConditionMaterializationV1>, targets: (BasicBlockId, BasicBlockId),
     ) -> Result<(), String> {
-        let (nodes, prefix) = self.take_projection_v2(function, &materialization)?;
+        let (nodes, prefix) = self.take_projection_v2(function, &materialization, Some(&product))?;
         let (packet, seal) = EmittedBoolConditionProjectionV1::prepare_source_loop_v2(Rc::clone(&self.frame), nodes,
             self.entry.clone(), prefix, materialization, product, index, targets, &self.ledger, function)?;
         self.publish_projection_v2(packet, seal)
@@ -115,7 +144,7 @@ impl LoweredBoolConditionV1 {
 }
 impl IfFormPhysicalObserverV1 for LoweredBoolConditionV1 {
     fn before_branches(&mut self, function: &MirFunction, pending: Rc<IfConditionMaterializationV1>) -> Result<(), String> {
-        let (nodes, prefix) = self.take_projection_v2(function, pending.materialization())?;
+        let (nodes, prefix) = self.take_projection_v2(function, pending.materialization(), None)?;
         let (packet, seal) = EmittedBoolConditionProjectionV1::prepare(Rc::clone(&self.frame), nodes,
             self.entry.clone(), prefix, pending, &self.ledger, function)?;
         self.publish_projection_v2(packet, seal)

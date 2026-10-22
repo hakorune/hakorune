@@ -146,6 +146,14 @@ static int lv4_string_indexed_operand(hako_lv4_function_index* fn, yyjson_val* o
       state[value->origin] > LV4_STRING_RANK_BASE;
 }
 
+static int lv4_string_indexed_integer_operand(hako_lv4_function_index* fn,
+    yyjson_val* operand) {
+  hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
+  if (lv4_is(operand, "kind", "normal_integer")) return value && value->kind == LV4_I64;
+  return lv4_is(operand, "kind", "tagged_dynamic") && value &&
+      value->kind == LV4_TAGGED && lv4_borrowed_tagged_formal(fn, value);
+}
+
 #include "hako_llvmc_ffi_lifecycle_v4_borrowed_result_anchor.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_field_dependency_liveness.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_mixed_result_flow.inc"
@@ -203,12 +211,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0 ||
           !lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"),
               lv4_u(op, "object_id"), 1))) return 0;
-      for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)
-        if (!lv4_string_indexed_operand(fn, hako_physical_string_operand_at(op, role), state)) return 0;
-      if (lv4_is(op, "kind", "string_substring")) {
-        hako_lv4_value* start = lv4_index_value(fn, lv4_u(op, "start"));
-        hako_lv4_value* end = lv4_index_value(fn, lv4_u(op, "end"));
-        if (!start || !end || start->kind != LV4_I64 || end->kind != LV4_I64) return 0;
+      for (size_t role = 0; role < hako_physical_string_operand_count(op); role++) {
+        yyjson_val* operand = hako_physical_string_operand_at(op, role);
+        int integer_index = lv4_is(op, "kind", "string_substring") && role > 0;
+        if (!(integer_index ? lv4_string_indexed_integer_operand(fn, operand) :
+            lv4_string_indexed_operand(fn, operand, state))) return 0;
       }
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;

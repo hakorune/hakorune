@@ -1,7 +1,7 @@
 //! Ordered lexical I64 argument sealing inside the existing source-flow owner.
 //! Borrowed demand, strict scalar sealing and nested calls share one recursion.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 pub(super) fn seal_lexical_i64_arguments_at<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -54,7 +54,14 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
         return Ok(borrowed_arguments(site, request)?
             .and_then(|row| match row {
                 BorrowedCallArgumentsV1::Scalar(arguments) => Some(arguments),
-                BorrowedCallArgumentsV1::StoredMapGetSource(_) | BorrowedCallArgumentsV1::StoredMapSource(_) | BorrowedCallArgumentsV1::ExpressionCoreSource(_) | BorrowedCallArgumentsV1::FiniteEntryRead(_) | BorrowedCallArgumentsV1::TextEntryRead(_) | BorrowedCallArgumentsV1::ArgumentExpressionSource(_) | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_)
+                BorrowedCallArgumentsV1::StoredMapGetSource(_)
+                | BorrowedCallArgumentsV1::StoredMapSource(_)
+                | BorrowedCallArgumentsV1::ExpressionCoreSource(_)
+                | BorrowedCallArgumentsV1::FiniteEntryRead(_)
+                | BorrowedCallArgumentsV1::DynamicEntryRead(_)
+                | BorrowedCallArgumentsV1::TextEntryRead(_)
+                | BorrowedCallArgumentsV1::ArgumentExpressionSource(_)
+                | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_)
                 | BorrowedCallArgumentsV1::NamedArrayHolderSource(_)
                 | BorrowedCallArgumentsV1::SourceInstance(_)
                 | BorrowedCallArgumentsV1::StaticSource(_)
@@ -62,6 +69,7 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
                 | BorrowedCallArgumentsV1::SourceObject { .. }
                 | BorrowedCallArgumentsV1::SourceUnitDiscard { .. }
                 | BorrowedCallArgumentsV1::SourceResult { .. }
+                | BorrowedCallArgumentsV1::DynamicInvocationSource { .. }
                 | BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
                 | BorrowedCallArgumentsV1::MixedLocalSource { .. }
                 | BorrowedCallArgumentsV1::Object { .. } => None,
@@ -104,16 +112,28 @@ fn seal_i64_call_arguments<E>(
     let owned = OwnedExprSiteV1::new(input.owner(), call.site().clone());
     match borrowed_arguments(&owned, request)? {
         Some(BorrowedCallArgumentsV1::Scalar(arguments)) => return Ok(Some(arguments.into_vec())),
-        Some(BorrowedCallArgumentsV1::StoredMapGetSource(_) | BorrowedCallArgumentsV1::StoredMapSource(_) | BorrowedCallArgumentsV1::ExpressionCoreSource(_) | BorrowedCallArgumentsV1::FiniteEntryRead(_)) | Some(BorrowedCallArgumentsV1::TextEntryRead(_)) | Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_) | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_))
-            | Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
+        Some(
+            BorrowedCallArgumentsV1::StoredMapGetSource(_)
+            | BorrowedCallArgumentsV1::StoredMapSource(_)
+            | BorrowedCallArgumentsV1::ExpressionCoreSource(_)
+            | BorrowedCallArgumentsV1::FiniteEntryRead(_)
+            | BorrowedCallArgumentsV1::DynamicEntryRead(_),
+        )
+        | Some(BorrowedCallArgumentsV1::TextEntryRead(_))
+        | Some(
+            BorrowedCallArgumentsV1::ArgumentExpressionSource(_)
+            | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_),
+        )
+        | Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
         | Some(BorrowedCallArgumentsV1::SourceInstance(_))
         | Some(BorrowedCallArgumentsV1::StaticSource(_))
         | Some(BorrowedCallArgumentsV1::HandleSource(_))
         | Some(BorrowedCallArgumentsV1::SourceObject { .. })
         | Some(BorrowedCallArgumentsV1::SourceUnitDiscard { .. })
         | Some(BorrowedCallArgumentsV1::SourceResult { .. })
+        | Some(BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
         | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
-            | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
+        | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
         | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
         None => {}
     }

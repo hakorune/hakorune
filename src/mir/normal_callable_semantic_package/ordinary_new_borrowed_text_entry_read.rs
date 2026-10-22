@@ -3,7 +3,7 @@ use super::*;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct BorrowedTextEntryReadRequirementV1 {
+pub(crate) struct BorrowedFormalEntryReadRequirementV1 {
     original: super::super::borrowed_formal_uses::OriginalFormalReadLoanV1,
     source_plan: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     node: usize,
@@ -15,7 +15,7 @@ pub(crate) struct BorrowedTextEntryReadRequirementV1 {
     mode: crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1,
     kind: CallableParameterContractKindV1,
 }
-impl BorrowedTextEntryReadRequirementV1 {
+impl BorrowedFormalEntryReadRequirementV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn corroborates_original_uses_v1(
         &self, uses: &Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
     ) -> bool {
@@ -28,13 +28,17 @@ impl BorrowedTextEntryReadRequirementV1 {
     pub(crate) fn formal(&self) -> (u32, BindingRefV1) { (self.ordinal, self.formal) }
 }
 
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue_text_entry_read_requirement_v1(
+/// Compatibility name for the existing Text-only consumer. The underlying
+/// loan proves original formal identity; each consumer applies its own domain.
+pub(crate) type BorrowedTextEntryReadRequirementV1 = BorrowedFormalEntryReadRequirementV1;
+
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue_formal_entry_read_requirement_v1(
     contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, read: &SourceExprSiteV1,
     binding: BindingRefV1, root: BindingRefV1,
     original: super::super::borrowed_formal_uses::OriginalFormalReadLoanV1,
-) -> Result<BorrowedTextEntryReadRequirementV1, String> {
-    let reject = || freeze("borrowed-text-entry/source-identity");
+) -> Result<BorrowedFormalEntryReadRequirementV1, String> {
+    let reject = || freeze("borrowed-formal-entry/source-identity");
     if binding.owner() != plan.owner() || root.owner() != binding.owner()
         || !original.matches(read, binding, root) {
         return Err(reject());
@@ -48,12 +52,85 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let formal = formals.next().ok_or_else(reject)?;
     if formals.next().is_some() || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
         || declaration.parameters.get(formal.ordinal as usize).is_none_or(|row| row.binding != root) { return Err(reject()); }
-    Ok(BorrowedTextEntryReadRequirementV1 { original, source_plan: Rc::clone(plan), node, read: read.clone(), binding,
+    Ok(BorrowedFormalEntryReadRequirementV1 { original, source_plan: Rc::clone(plan), node, read: read.clone(), binding,
         formal: root, ordinal: formal.ordinal, batch_slot: declaration.batch_slot,
         mode: declaration.mode, kind: formal.kind.clone() })
 }
 
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue_text_entry_read_requirement_v1(
+    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, read: &SourceExprSiteV1,
+    binding: BindingRefV1, root: BindingRefV1,
+    original: super::super::borrowed_formal_uses::OriginalFormalReadLoanV1,
+) -> Result<BorrowedTextEntryReadRequirementV1, String> {
+    issue_formal_entry_read_requirement_v1(contracts, plan, read, binding, root, original)
+}
+
 impl OrdinaryNewClaimLedgerV1 {
+    /// Preserve the original tag/payload for an explicitly untyped formal.
+    /// This checks the whole borrowed-entry layout and source caller cohort,
+    /// but deliberately asks for no finite source SUM.
+    pub(in crate::mir) fn validate_prepared_dynamic_entry_read_v1(
+        &self, requirement: &BorrowedFormalEntryReadRequirementV1,
+        function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
+    ) -> Result<(crate::mir::ValueId, crate::mir::ValueId), String> {
+        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+        let owner = requirement.source_plan.owner();
+        let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-dynamic-entry/source-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-dynamic-entry/catalog-missing"))?;
+        let mut declarations = catalog.iter().filter(|row| row.owner == owner);
+        let declaration = declarations.next().ok_or_else(|| freeze("borrowed-dynamic-entry/declaration-missing"))?;
+        if declarations.next().is_some() || requirement.batch_slot != declaration.batch_slot
+            || requirement.mode != declaration.mode || !requirement.original.matches_contract(declaration)
+            || source.original_formal_read_v1(owner, &requirement.read, requirement.binding, requirement.formal)? != requirement.original
+            || declaration.parameters.get(requirement.ordinal as usize).is_none_or(|row|
+                row.ordinal != requirement.ordinal || row.binding != requirement.formal || row.kind != requirement.kind)
+            || requirement.kind != CallableParameterContractKindV1::OpaqueHandle
+            || requirement.source_plan.nodes().get(requirement.node).is_none_or(|node|
+                node.site() != &requirement.read || !matches!(node.source(), ExpressionNodeSourceV1::Reference(
+                    crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == requirement.binding)) {
+            return Err(freeze("borrowed-dynamic-entry/original-read-identity"));
+        }
+        let carriers = function.metadata.physical_param_carriers.as_deref()
+            .ok_or_else(|| freeze("borrowed-dynamic-entry/carriers-missing"))?;
+        let source_layout = |ordinal: u32, formal: BindingRefV1| match declaration.mode {
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod =>
+                Ok((ordinal as usize, declaration.parameters.len(), 0, None)),
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod =>
+                self.original_entry_layout_v1(formal, formal, |kind| kind.is_ordinary_borrowed_handle())
+                    .map(|(index, count, receivers, symbol)| (index, count, receivers, Some(symbol))),
+        };
+        let (index, count, receivers, symbol) = source_layout(requirement.ordinal, requirement.formal)?;
+        if symbol.as_ref().is_some_and(|symbol| &function.signature.name != symbol) || function.params.len() != count
+            || function.signature.params.len() != count || carriers.len() != count
+            || receivers == 1 && function.metadata.declared_param_decls.len() != count
+            || function.metadata.declared_param_decls.iter().enumerate().any(|(index, row)|
+                row.implicit_receiver != (receivers == 1 && index == 0))
+            || receivers == 1 && carriers.first() != Some(&Carrier::ExistingCallableI64)
+            || carriers.get(index) != Some(&Carrier::BorrowedTaggedValue)
+            || function.params.iter().copied().collect::<BTreeSet<_>>().len() != count
+            || function.blocks.values().flat_map(|block| block.all_instructions()).any(|row|
+                row.dst_value().is_some_and(|dst| function.params.contains(&dst))) {
+            return Err(freeze("borrowed-dynamic-entry/physical-formal"));
+        }
+        let entry_value = *function.params.get(index).ok_or_else(|| freeze("borrowed-dynamic-entry/formal-value-missing"))?;
+        let value = read.value_for(owner, requirement.read.node(), requirement.binding).map_err(|error| error.to_string())?;
+        let copies = read.loan_forwarded_copies(requirement.formal, entry_value)?;
+        if value != entry_value && copies.last().and_then(|(_, instruction)| instruction.dst_value()) != Some(value) {
+            return Err(freeze("borrowed-dynamic-entry/read-value"));
+        }
+        for (block, instruction) in copies {
+            let dst = instruction.dst_value().ok_or_else(|| freeze("borrowed-dynamic-entry/copy-dst"))?;
+            let mut definitions = function.blocks.iter().flat_map(|(block, body)|
+                body.all_instructions().map(move |row| (*block, row))).filter(|(_, row)| row.dst_value() == Some(dst));
+            if definitions.next() != Some((*block, instruction)) || definitions.next().is_some() {
+                return Err(freeze("borrowed-dynamic-entry/physical-copy"));
+            }
+        }
+        Ok((entry_value, value))
+    }
+
     /// Corroborate a required Text read against the installed physical entry.
     /// Structural source domains avoid the caller-actual/completed-entry cycle.
     /// This lends only a ValueId correspondence, not a String operand, entry

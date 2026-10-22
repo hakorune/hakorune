@@ -2,8 +2,8 @@
 use super::*;
 use crate::mir::instruction::{InvokeCallResultKind, MapInvokeOperation as Map};
 use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallObservationV1, LocalCallResultClassV1, MapEntryBorrowKindV1, MapHomeEntry,
-    MapHomeFlow, MapValueSource, SourceScalarKind,
+    LocalCallObservationV1, LocalCallResultClassV1, MapEntryBorrowKindV1, MapFieldInstallV1,
+    MapHomeEntry, MapHomeFlow, MapValueSource, SourceScalarKind,
 };
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 use std::rc::Rc;
@@ -229,10 +229,31 @@ impl OrdinaryNewClaimLedgerV1 {
             .iter()
             .filter_map(|completion| completion.cleanup().root_flow())
             .all(|flow| {
-                flow.maps().iter().all(|m| {
-                    m.complete().is_some()
-                        && matches!(rows.get(m.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
-                }) && flow
+                let maps = flow.maps().iter().all(|observation| {
+                    use crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation;
+                    let consumed = match observation {
+                        MapHomeObservation::Complete(map) => matches!(
+                            rows.get(map.site()),
+                            Some(LocalCommitV1::Map(row)) if row.is_complete()
+                        ),
+                        // A stored field install is not a MapLiteral allocation.
+                        // Its result-class witness owns this exact original set
+                        // and construction; the map allocation ledger must not
+                        // claim it as a literal commit.
+                        MapHomeObservation::FieldInstall(install) => {
+                            self.map_field_install_consumed_v1(install)
+                        }
+                        // Field reads and unavailable map sources have no
+                        // MapLiteral commit. Keep them closed until their
+                        // distinct consumer is present.
+                        MapHomeObservation::FieldGet(frame) => {
+                            self.map_field_get_consumed_v1(frame)
+                        }
+                        MapHomeObservation::Unavailable { .. } => false,
+                    };
+                    consumed
+                });
+                let calls = flow
                     .local_calls()
                     .iter()
                     .filter(|call| {
@@ -243,8 +264,46 @@ impl OrdinaryNewClaimLedgerV1 {
                         Some(LocalCommitV1::Map(row)) => row.is_complete(),
                         Some(LocalCommitV1::CallReceived(row)) => row.is_complete(),
                         _ => false,
-                    })
+                    });
+                maps && calls
             })
+    }
+
+    fn map_field_install_consumed_v1(&self, install: &MapFieldInstallV1) -> bool {
+        let Ok(Some(source)) = self
+            .callable_result_classes
+            .map_stored_source_v1(install.site())
+        else {
+            return false;
+        };
+        let Some((binding, construction, set)) = source.installed_local_v1(install.site()) else {
+            return false;
+        };
+        Rc::ptr_eq(&source, install.source())
+            && install.site().owner() == install.binding().owner()
+            && binding == install.binding()
+            && construction.site() == install.acquisition().site()
+            && set.owner() == install.site().owner()
+            && set.site() == install.site().site()
+    }
+
+    fn map_field_get_consumed_v1(
+        &self,
+        frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+    ) -> bool {
+        let source_valid = self
+            .stored_map_get_local_source_v1(frame.site().owner(), frame.statement().node())
+            .ok()
+            .flatten()
+            .is_some_and(|retained| Rc::ptr_eq(&retained, frame));
+        let matching = super::CallValidationContextV1::Lowering(self)
+            .with_local_call_group_tree_v2(frame.site().owner(), |groups| {
+                Ok(groups.iter().filter_map(|group| {
+                    group.stored_map_get().filter(|packet| Rc::ptr_eq(packet.frame(), frame))
+                }).count())
+            })
+            .unwrap_or(0);
+        source_valid && matching == 1
     }
     pub(crate) fn begin_map_emission(
         &self,

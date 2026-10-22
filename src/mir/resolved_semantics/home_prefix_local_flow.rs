@@ -23,14 +23,19 @@ mod field_readiness;
 mod scalar;
 #[path = "home_prefix_source_loop.rs"]
 pub(super) mod source_loop;
-pub(crate) use source_loop::LoopHeaderScalarBasisV1;
-pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, BranchNormalScalarSourceV1, SourceScalarKind};
+pub(crate) use scalar::{
+    BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, SourceScalarKind,
+};
+pub(crate) use source_loop::{
+    LoopDynamicReadV1, LoopHeaderValueBasisV1, LoopTextReadV1, SourceLoopDynamicProducerV1,
+    SourceLoopTextProducerV1, SourceLoopValueProducerV1,
+};
 #[path = "home_prefix_text.rs"]
 mod text;
-pub(crate) use text::{StaticTextReadV1, TextResidenceAcquisitionV1, LiveHomeV1};
+pub(crate) use field_alias::FieldAliasPathV1;
 #[cfg(test)]
 pub(crate) use text::assert_identity_for_test as assert_text_residence_identity_for_test;
-pub(crate) use field_alias::FieldAliasPathV1;
+pub(crate) use text::{LiveHomeV1, StaticTextReadV1, TextResidenceAcquisitionV1};
 
 /// Exact pre-Loop scalar-class snapshot minted by the running Home walk.
 /// Source shape and post-Loop values are deliberately outside this loan.
@@ -50,15 +55,27 @@ impl LoopI64PreStateRequestV1 {
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
     }
-    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
-    pub(crate) fn same_snapshot(&self, other: &Self) -> bool {
-        self.owner == other.owner && self.site == other.site
-            && self.integer_bindings == other.integer_bindings && self.prior_homes == other.prior_homes
-            && self.borrowed_arrays.len() == other.borrowed_arrays.len()
-            && self.borrowed_arrays.iter().all(|(binding, source)| other.borrowed_arrays.get(binding)
-                .is_some_and(|other| std::rc::Rc::ptr_eq(&source.requirement, &other.requirement)))
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
+        &self.prior_homes
     }
-    pub(crate) fn borrowed_array(&self, binding: BindingRefV1) -> Option<&super::field_read::BorrowedArrayFieldSourceV1> { self.borrowed_arrays.get(&binding) }
+    pub(crate) fn same_snapshot(&self, other: &Self) -> bool {
+        self.owner == other.owner
+            && self.site == other.site
+            && self.integer_bindings == other.integer_bindings
+            && self.prior_homes == other.prior_homes
+            && self.borrowed_arrays.len() == other.borrowed_arrays.len()
+            && self.borrowed_arrays.iter().all(|(binding, source)| {
+                other.borrowed_arrays.get(binding).is_some_and(|other| {
+                    std::rc::Rc::ptr_eq(&source.requirement, &other.requirement)
+                })
+            })
+    }
+    pub(crate) fn borrowed_array(
+        &self,
+        binding: BindingRefV1,
+    ) -> Option<&super::field_read::BorrowedArrayFieldSourceV1> {
+        self.borrowed_arrays.get(&binding)
+    }
     pub(crate) fn proves_integer(&self, binding: BindingRefV1) -> bool {
         binding.owner() == self.owner && self.integer_bindings.contains(&binding)
     }
@@ -66,13 +83,27 @@ impl LoopI64PreStateRequestV1 {
 
 #[derive(Clone)]
 enum StoredLocal {
-    StaticText { definition: SourceExprSiteV1 },
-    Text { root: BindingRefV1, acquisition: TextResidenceAcquisitionV1 },
+    StaticText {
+        definition: SourceExprSiteV1,
+    },
+    Text {
+        root: BindingRefV1,
+        acquisition: TextResidenceAcquisitionV1,
+    },
+    /// A Text carrier after a verified Loop. The exact product owns the
+    /// Static/Owned predecessor choice; this state grants no independent Home.
+    LoopText {
+        product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    },
     NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,
         /// Immutable declaration source; branch-local readiness is not shared here.
-        construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
+        construction_source: Option<
+            std::rc::Rc<
+                crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1,
+            >,
+        >,
         ready: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, super::FieldWritePlanV1>,
     },
     /// A call-result handle the caller received as an owned Home. It owes
@@ -113,7 +144,10 @@ enum StoredLocal {
         root: BindingRefV1,
         borrow: Option<FieldAliasPathV1>,
     },
-    BorrowedArray { source: super::field_read::BorrowedArrayFieldSourceV1, root: BindingRefV1 },
+    BorrowedArray {
+        source: super::field_read::BorrowedArrayFieldSourceV1,
+        root: BindingRefV1,
+    },
     Trivial(Option<SourceScalarKind>),
     /// A binding produced by an inventoried call expression. The value
     /// exists at later sites but carries no scalar/rooted-storage class —
@@ -122,6 +156,9 @@ enum StoredLocal {
     /// A binding or site holding the exact source `null` literal. It is
     /// neither a trivial scalar nor a handle root — only its own fact.
     Null,
+    /// A local whose complete original source SUM is the tagged Dynamic
+    /// carrier. The source-point proof remains required at each read.
+    TaggedDynamic,
     Uninitialized,
 }
 
@@ -136,7 +173,10 @@ pub(super) enum FieldReadReceiverV1 {
     RootedHandle(BindingRefV1),
     /// A binding produced by an earlier proven field read — the payload is
     /// the field's declared class name.
-    Alias { class: Box<str>, root: BindingRefV1 },
+    Alias {
+        class: Box<str>,
+        root: BindingRefV1,
+    },
     /// A received nullable call result whose `== null` arm terminated —
     /// the surviving join marked it non-null, so the binding is its own
     /// live base. The issuer resolves the class from the sealed call's
@@ -157,14 +197,123 @@ pub(super) enum OrdinaryObservation {
     Null,
     TrivialLocal(BindingRefV1, Option<SourceScalarKind>),
     Handle(BindingRefV1),
+    TaggedDynamicLocal(BindingRefV1),
     BoundValue(BindingRefV1),
+}
+
+/// One exact lexical read whose original source SUM is the tagged Dynamic
+/// carrier. This proof preserves the runtime tag and carries no ownership or
+/// concrete payload view.
+#[derive(Debug, Clone)]
+pub(crate) struct TaggedDynamicReadV1 {
+    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>,
+    read: SourceExprSiteV1,
+    binding: BindingRefV1,
+    value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+}
+impl PartialEq for TaggedDynamicReadV1 {
+    fn eq(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.points, &other.points)
+            && self.read == other.read
+            && self.binding == other.binding
+            && self.value == other.value
+    }
+}
+impl Eq for TaggedDynamicReadV1 {}
+
+/// Exact source-flow point classified as tagged Dynamic by the original SUM.
+/// It carries no concrete payload tag, conversion, or ownership permission.
+#[derive(Debug, Clone)]
+pub(crate) struct TaggedDynamicValueV1 {
+    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>,
+    flow: std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+    binding: BindingRefV1,
+    value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+}
+impl PartialEq for TaggedDynamicValueV1 {
+    fn eq(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.points, &other.points)
+            && std::sync::Arc::ptr_eq(&self.flow, &other.flow)
+            && self.binding == other.binding
+            && self.value == other.value
+    }
+}
+impl Eq for TaggedDynamicValueV1 {}
+impl TaggedDynamicValueV1 {
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(crate) fn value(&self) -> crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1 {
+        self.value
+    }
+    pub(crate) fn expression_site_v1(&self) -> Option<&SourceExprSiteV1> {
+        match self.flow.origin(self.value)? {
+            crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(site) => Some(site),
+            _ => None,
+        }
+    }
+    pub(crate) fn proves_source_value_v1(&self, binding: BindingRefV1,
+        value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+    ) -> bool {
+        self.binding == binding && self.value == value && self.points.proves_value(&self.flow, value)
+    }
+    pub(crate) fn proves(
+        &self,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        binding: BindingRefV1,
+        value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+    ) -> bool {
+        self.binding == binding
+            && self.value == value
+            && std::sync::Arc::ptr_eq(&self.flow, flow)
+            && self.points.proves_value(flow, value)
+    }
+}
+impl TaggedDynamicReadV1 {
+    pub(crate) fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+    pub(crate) fn read(&self) -> &SourceExprSiteV1 {
+        &self.read
+    }
+    pub(crate) fn is_formal(&self) -> bool {
+        self.points.proves_formal(self.binding)
+    }
+    pub(crate) fn value(&self) -> crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1 {
+        self.value
+    }
+    pub(crate) fn leaf_class(
+        &self,
+    ) -> crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1 {
+        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic,
+        )
+    }
+    pub(crate) fn matches_source_node(
+        &self,
+        source: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        node: usize,
+    ) -> bool {
+        let Some(original) = source.nodes().get(node) else {
+            return false;
+        };
+        source.owner() == self.binding.owner()
+            && original.site() == &self.read
+            && matches!(
+                original.source(),
+                crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(
+                    ResolvedLexicalRefV1::Local(binding)
+                ) if *binding == self.binding
+            )
+            && self.points.proves_value(self.points.flow(), self.value)
+            && self.points.proves_read(self.points.flow(), &self.read, self.binding)
+                == Some(self.value)
+    }
 }
 
 impl OrdinaryObservation {
     pub(super) fn is_trivial(&self) -> bool {
         match self {
             Self::Integer(_) | Self::Bool(_) | Self::TrivialLocal(..) => true,
-            Self::Null | Self::Handle(_) | Self::BoundValue(_) => false,
+            Self::Null | Self::Handle(_) | Self::TaggedDynamicLocal(_) | Self::BoundValue(_) => false,
         }
     }
 
@@ -175,6 +324,9 @@ impl OrdinaryObservation {
             Self::Null => Some(SelectedNewArgumentKindV1::Null),
             Self::TrivialLocal(binding, _) => Some(SelectedNewArgumentKindV1::Local { binding }),
             Self::Handle(root) => Some(SelectedNewArgumentKindV1::Handle { binding: root }),
+            Self::TaggedDynamicLocal(binding) => {
+                Some(SelectedNewArgumentKindV1::BoundValue { binding })
+            }
             Self::BoundValue(binding) => Some(SelectedNewArgumentKindV1::BoundValue { binding }),
         }
     }
@@ -182,18 +334,56 @@ impl OrdinaryObservation {
 
 fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
-        (StoredLocal::StaticText { definition: a }, StoredLocal::StaticText { definition: b }) => a == b,
-        (StoredLocal::Text { root: a, acquisition: ap }, StoredLocal::Text { root: b, acquisition: bp }) => a == b && ap.same_source(bp),
-        (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
-        (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
-        (StoredLocal::Home { acquisition: a, construction_source: ac, ready: ar },
-            StoredLocal::Home { acquisition: b, construction_source: bc, ready: br }) =>
-            a == b && ar.len() == br.len() && ar.iter().all(|(field, frame)|
-                br.get(field).is_some_and(|other| frame.same_source(other))) && match (ac, bc) {
-                (None, None) => true,
-                (Some(a), Some(b)) => std::rc::Rc::ptr_eq(a, b),
-                _ => false,
+        (StoredLocal::StaticText { definition: a }, StoredLocal::StaticText { definition: b }) => {
+            a == b
+        }
+        (
+            StoredLocal::Text {
+                root: a,
+                acquisition: ap,
             },
+            StoredLocal::Text {
+                root: b,
+                acquisition: bp,
+            },
+        ) => a == b && ap.same_source(bp),
+        (StoredLocal::LoopText { product: a }, StoredLocal::LoopText { product: b }) => {
+            std::rc::Rc::ptr_eq(a, b)
+        }
+        (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
+        (
+            StoredLocal::BorrowedArray {
+                source: a,
+                root: ar,
+            },
+            StoredLocal::BorrowedArray {
+                source: b,
+                root: br,
+            },
+        ) => a == b && ar == br,
+        (
+            StoredLocal::Home {
+                acquisition: a,
+                construction_source: ac,
+                ready: ar,
+            },
+            StoredLocal::Home {
+                acquisition: b,
+                construction_source: bc,
+                ready: br,
+            },
+        ) => {
+            a == b
+                && ar.len() == br.len()
+                && ar.iter().all(|(field, frame)| {
+                    br.get(field).is_some_and(|other| frame.same_source(other))
+                })
+                && match (ac, bc) {
+                    (None, None) => true,
+                    (Some(a), Some(b)) => std::rc::Rc::ptr_eq(a, b),
+                    _ => false,
+                }
+        }
         (
             StoredLocal::ReceivedHandle { acquisition: a },
             StoredLocal::ReceivedHandle { acquisition: b },
@@ -210,11 +400,20 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
         (
-            StoredLocal::FieldAlias { class: a, root: ar, borrow: ab },
-            StoredLocal::FieldAlias { class: b, root: br, borrow: bb },
+            StoredLocal::FieldAlias {
+                class: a,
+                root: ar,
+                borrow: ab,
+            },
+            StoredLocal::FieldAlias {
+                class: b,
+                root: br,
+                borrow: bb,
+            },
         ) => a == b && ar == br && ab == bb,
         (StoredLocal::Trivial(a), StoredLocal::Trivial(b)) => a == b,
         (StoredLocal::BoundValue, StoredLocal::BoundValue) => true,
+        (StoredLocal::TaggedDynamic, StoredLocal::TaggedDynamic) => true,
         (StoredLocal::Null, StoredLocal::Null) => true,
         (StoredLocal::Uninitialized, StoredLocal::Uninitialized) => true,
         _ => false,
@@ -225,6 +424,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 pub(super) struct PrefixLocalFlow<'source> {
     null_exclusions: BTreeMap<BindingRefV1, std::rc::Rc<super::SourceNullExclusionV1>>,
     signed_formals: BTreeSet<BindingRefV1>,
+    opaque_formals: BTreeSet<BindingRefV1>,
     source_loop: Option<std::rc::Rc<source_loop::SourceLoopHeaderEnvironmentV1>>,
     named_arrays:
         std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
@@ -238,6 +438,7 @@ pub(super) struct PrefixLocalFlow<'source> {
     nonnull: std::collections::BTreeSet<BindingRefV1>,
     // Branch clones share source inventory, never the path-sensitive local classes.
     expression_plans: std::rc::Rc<std::cell::RefCell<Vec<super::HomeExpressionPlanV1>>>,
+    dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
 }
 
 impl<'source> PrefixLocalFlow<'source> {
@@ -294,24 +495,40 @@ impl<'source> PrefixLocalFlow<'source> {
     }
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
+        Self::with_tagged_dynamic_source_points(input, None)
+    }
+
+    pub(super) fn with_tagged_dynamic_source_points(
+        input: ResolvedFunctionLoweringInputV1<'source>,
+        dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
+    ) -> Self {
         Self {
             null_exclusions: Default::default(),
             signed_formals: Default::default(),
+            opaque_formals: Default::default(),
             source_loop: None,
             named_arrays: Default::default(),
             input,
             locals: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
             expression_plans: Default::default(),
+            dynamic_source_points,
         }
     }
 
-    pub(super) fn expression_installation(&self) -> super::expression_plan::ExpressionPlanInstallationV1<'_> {
-        super::expression_plan::ExpressionPlanInstallationV1::new(self.input.owner(), self.expression_plans.borrow_mut())
+    pub(super) fn expression_installation(
+        &self,
+    ) -> super::expression_plan::ExpressionPlanInstallationV1<'_> {
+        super::expression_plan::ExpressionPlanInstallationV1::new(
+            self.input.owner(),
+            self.expression_plans.borrow_mut(),
+        )
     }
     pub(super) fn retain_expression_plan(&mut self, plan: super::HomeExpressionPlanV1) -> bool {
         let mut installation = self.expression_installation();
-        if !installation.approve(&plan) { return false; }
+        if !installation.approve(&plan) {
+            return false;
+        }
         installation.commit();
         true
     }
@@ -324,6 +541,7 @@ impl<'source> PrefixLocalFlow<'source> {
     fn store(&mut self, binding: BindingRefV1, value: StoredLocal) {
         self.nonnull.remove(&binding);
         self.null_exclusions.remove(&binding);
+        self.opaque_formals.remove(&binding);
         self.locals.insert(binding, value);
     }
 
@@ -388,7 +606,9 @@ impl<'source> PrefixLocalFlow<'source> {
     /// `Uninitialized`, which keeps `observe` and every `is_*` probe
     /// fail-closed if a future shape ever does resolve it.
     pub(super) fn join_branch(&mut self, other: &Self) -> bool {
-        if !source_loop::same_context(&self.source_loop, &other.source_loop) { return false; }
+        if !source_loop::same_context(&self.source_loop, &other.source_loop) {
+            return false;
+        }
         for (binding, value) in &other.locals {
             if let Some(own) = self.locals.get(binding) {
                 if !stored_local_same(own, value) {
@@ -406,11 +626,14 @@ impl<'source> PrefixLocalFlow<'source> {
                 self.store(*binding, StoredLocal::Uninitialized);
             }
         }
-        self.null_exclusions.retain(|root, proof| other.null_exclusions.get(root) == Some(proof));
+        self.null_exclusions
+            .retain(|root, proof| other.null_exclusions.get(root) == Some(proof));
         // Narrowing is path-sensitive: a mark survives the join only when
         // both siblings carried it.
         self.nonnull
             .retain(|binding| other.nonnull.contains(binding));
+        self.opaque_formals
+            .retain(|binding| other.opaque_formals.contains(binding));
         true
     }
 
@@ -439,8 +662,21 @@ impl<'source> PrefixLocalFlow<'source> {
                 return false;
             }
             use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-            if matches!(&kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) { self.signed_formals.insert(binding); }
-            let value = match kind {
+            let is_opaque_formal = matches!(&kind, CallableParameterContractKindV1::OpaqueHandle);
+            if matches!(&kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) {
+                self.signed_formals.insert(binding);
+            }
+            let tagged_dynamic = matches!(
+                &kind,
+                CallableParameterContractKindV1::OpaqueHandle
+            ) && self
+                .dynamic_source_points
+                .as_ref()
+                .is_some_and(|points| points.proves_formal(binding));
+            let value = if tagged_dynamic {
+                StoredLocal::TaggedDynamic
+            } else {
+                match kind {
                 CallableParameterContractKindV1::ExactTrivial(abi)
                     if abi.mir_type() == crate::mir::MirType::Integer =>
                 {
@@ -452,8 +688,12 @@ impl<'source> PrefixLocalFlow<'source> {
                 | CallableParameterContractKindV1::DeclaredHandle
                 | CallableParameterContractKindV1::DeclaredObject(_)
                 | CallableParameterContractKindV1::ExactText(_) => StoredLocal::Handle(binding),
+                }
             };
             self.store(binding, value);
+            if is_opaque_formal {
+                self.opaque_formals.insert(binding);
+            }
             count += 1;
         }
         count
@@ -463,6 +703,29 @@ impl<'source> PrefixLocalFlow<'source> {
                 .declaration_sites()
                 .filter(|site| matches!(site, super::SourceBindingSiteV1::Parameter { .. }))
                 .count()
+    }
+
+    /// Exact unannotated formal identity at this source read. This is a
+    /// Dynamic source classification only; the downstream entry-read issuer
+    /// still verifies the original formal contract and physical entry.
+    pub(super) fn opaque_formal_binding(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<BindingRefV1> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
+            return None;
+        };
+        if !self.opaque_formals.contains(&binding) {
+            return None;
+        }
+        let crate::mir::resolved_semantics::BindingKindV1::Parameter { index } =
+            self.input.function().binding(binding)?.kind()
+        else {
+            return None;
+        };
+        (self.input.function().declaration_binding(&super::SourceBindingSiteV1::Parameter { index })
+            == Some(binding))
+            .then_some(binding)
     }
 
     pub(super) fn observe(&self, site: &SourceExprSiteV1) -> Option<OrdinaryObservation> {
@@ -491,7 +754,9 @@ impl<'source> PrefixLocalFlow<'source> {
             // fail-closed while `new` argument observation can still name
             // the binding's value.
             StoredLocal::ReceivedNullable { .. } => Some(OrdinaryObservation::BoundValue(binding)),
-            StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_) => Some(OrdinaryObservation::BoundValue(binding)),
+            StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_) => {
+                Some(OrdinaryObservation::BoundValue(binding))
+            }
             StoredLocal::ReceivedMixed(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
@@ -499,14 +764,64 @@ impl<'source> PrefixLocalFlow<'source> {
                 Some(OrdinaryObservation::Handle(*root))
             }
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
+            StoredLocal::TaggedDynamic => self
+                .tagged_dynamic_read_v1(site)
+                .map(|_| OrdinaryObservation::TaggedDynamicLocal(binding)),
             // A field-read alias names borrowed storage, never a movable
             // value — every observation lane stays fail-closed on it.
-            StoredLocal::StaticText { .. } | StoredLocal::Text { .. } | StoredLocal::FieldAlias { .. } | StoredLocal::NamedArrayHolder(_) | StoredLocal::BorrowedArray { .. } => None,
+            StoredLocal::StaticText { .. }
+            | StoredLocal::Text { .. }
+            | StoredLocal::LoopText { .. }
+            | StoredLocal::FieldAlias { .. }
+            | StoredLocal::NamedArrayHolder(_)
+            | StoredLocal::BorrowedArray { .. } => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Null => Some(OrdinaryObservation::Null),
             StoredLocal::Uninitialized => None,
         }
+    }
+
+    pub(super) fn tagged_dynamic_read_v1(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<TaggedDynamicReadV1> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
+            return None;
+        };
+        if !matches!(self.locals.get(&binding), Some(StoredLocal::TaggedDynamic)) {
+            return None;
+        }
+        let flow = self.input.function().expression_source().value_flow()?;
+        let points = self.dynamic_source_points.as_ref()?;
+        let value = points.proves_read(flow, site, binding)?;
+        Some(TaggedDynamicReadV1 {
+            points: std::rc::Rc::clone(points),
+            read: site.clone(),
+            binding,
+            value,
+        })
+    }
+
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn tagged_dynamic_value_for_value_v1(
+        &self,
+        binding: BindingRefV1,
+        value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+    ) -> Option<TaggedDynamicValueV1> {
+        if binding.owner() != self.input.owner()
+            || flow.owner() != binding.owner()
+            || !matches!(self.locals.get(&binding), Some(StoredLocal::TaggedDynamic))
+        {
+            return None;
+        }
+        let points = self.dynamic_source_points.as_ref()?;
+        points.proves_value(flow, value).then(|| TaggedDynamicValueV1 {
+            points: std::rc::Rc::clone(points),
+            flow: std::sync::Arc::clone(flow),
+            binding,
+            value,
+        })
     }
 
     /// Argument-position observation for one selected `new` site. Literal
@@ -735,14 +1050,26 @@ impl<'source> PrefixLocalFlow<'source> {
         &mut self,
         binding: BindingRefV1,
         acquisition: super::OwnedExprSiteV1,
-        construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
+        construction_source: Option<
+            std::rc::Rc<
+                crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1,
+            >,
+        >,
     ) {
-        self.store(binding, StoredLocal::Home { acquisition, construction_source, ready: BTreeMap::new() });
+        self.store(
+            binding,
+            StoredLocal::Home {
+                acquisition,
+                construction_source,
+                ready: BTreeMap::new(),
+            },
+        );
     }
 
     pub(super) fn install_observed(&mut self, binding: BindingRefV1, value: OrdinaryObservation) {
         let stored = match value {
             OrdinaryObservation::Handle(root) => StoredLocal::Handle(root),
+            OrdinaryObservation::TaggedDynamicLocal(_) => StoredLocal::TaggedDynamic,
             OrdinaryObservation::Integer(_) => {
                 StoredLocal::Trivial(Some(SourceScalarKind::Integer))
             }

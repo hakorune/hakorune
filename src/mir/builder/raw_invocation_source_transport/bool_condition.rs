@@ -63,7 +63,11 @@ impl RawInvocationChildPortV1<'_, '_> {
                 use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
                 let reference = frame.references().get(&index).ok_or("[freeze:contract][bool-condition/reference-kind]")?;
                 if matches!(reference, Reference::Scalar(read) if read.original_read().is_some())
-                    || matches!(reference, Reference::FiniteEntry { .. } | Reference::StoredMapGet(_)) {
+                    || matches!(reference,
+                        Reference::FiniteEntry { .. }
+                            | Reference::StoredMapGet(_)
+                            | Reference::LoopText(_)
+                            | Reference::LoopDynamic(_)) {
                     use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
                     let mut state = state.borrow_mut();
                     let prepared = state.prepare_exact_lexical_read(source.owner(), site.node(), reference.binding())
@@ -91,12 +95,23 @@ impl RawInvocationChildPortV1<'_, '_> {
             },
             Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) => {
                 let owned = OwnedExprSiteV1::new(source.owner(), site.clone());
+                let mut exact_read = None;
                 let (base, read) = ledger.take_local_field_read(&owned, |binding| {
-                    state.borrow_mut().take_exact_lexical_read(source.owner(), object.node(), binding)
-                        .and_then(|read| read.value_for(source.owner(), object.node(), binding)).map_err(|error| error.to_string())
+                    let read = state.borrow_mut().take_exact_lexical_read(source.owner(), object.node(), binding)
+                        .map_err(|error| error.to_string())?;
+                    let value = read.value_for(source.owner(), object.node(), binding)
+                        .map_err(|error| error.to_string())?;
+                    exact_read = Some(Rc::new(read));
+                    Ok(value)
                 })?.ok_or("[freeze:contract][bool-condition/field-source]")?;
-                let (value, binding) = builder.complete_exact_field_read_v1(base, read.field(), &owned, &ledger,
-                    crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(read))?;
+                let (value, binding) = if read.requires_checked_field_read_v1() {
+                    builder.complete_source_checked_field_read_v1(base, read.field(), &owned, &ledger, &read,
+                        exact_read.ok_or("[freeze:contract][bool-condition/checked-receiver]")?,
+                        &mut state.borrow_mut(), None)?
+                } else {
+                    builder.complete_exact_field_read_v1(base, read.field(), &owned, &ledger,
+                        crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(read))?
+                };
                 (value, Proof::Field(binding))
             },
             Node::MethodCall if frame.evaluation().cores().get(&index).is_some_and(|core| core.field_map().is_some()) => {
@@ -105,13 +120,28 @@ impl RawInvocationChildPortV1<'_, '_> {
             Node::MethodCall => {
                 let observation = frame.calls().iter().find(|call| call.site().site() == &site)
                     .ok_or("[freeze:contract][bool-condition/call-source]")?;
-                let mut bindings = Vec::new();
-                let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
-                let packet = Rc::new(terminal_call::emit_bool_condition_call(builder, &mut state.borrow_mut(), &ledger,
-                    &frame, observation, &mut bindings,
-                    &consume_receiver)?);
-                let value = packet.value_with_ledger(source.owner(), observation.arguments(), &ledger)?;
-                (value, Proof::Call { packet, bindings: bindings.into_boxed_slice() })
+                if let Some(effect) = ledger.source_loop_bool_call_effect_v2(&frame, observation)? {
+                    if !observation.is_expression_value() {
+                        return Err("[freeze:contract][bool-condition/call-result-not-expression]".into());
+                    }
+                    let packet = effect.lexical_rc_v1()
+                        .ok_or("[freeze:contract][bool-condition/source-loop-call-packet]")?;
+                    if packet.call_site() != observation.site() {
+                        return Err("[freeze:contract][bool-condition/source-loop-call-site]".into());
+                    }
+                    let value = packet.value_with_ledger(source.owner(), observation.arguments(), &ledger)?;
+                    (value, Proof::ScheduledSourceLoopCall {
+                        packet, bindings: effect.bindings().to_vec().into_boxed_slice(),
+                    })
+                } else {
+                    let mut bindings = Vec::new();
+                    let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+                    let packet = Rc::new(terminal_call::emit_bool_condition_call(builder, &mut state.borrow_mut(), &ledger,
+                        &frame, observation, &mut bindings,
+                        &consume_receiver)?);
+                    let value = packet.value_with_ledger(source.owner(), observation.arguments(), &ledger)?;
+                    (value, Proof::Call { packet, bindings: bindings.into_boxed_slice() })
+                }
             },
             Node::Literal(_) => {
                 let value = self.lower_expression_unobserved_v1(builder, input)?;

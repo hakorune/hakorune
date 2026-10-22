@@ -1,6 +1,6 @@
 //! Original mixed result observation. Normal acquisition and End stay separate.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 pub(crate) fn issue_mixed_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -10,25 +10,56 @@ pub(crate) fn issue_mixed_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     borrowed_arguments: &mut impl FnMut(
-        &OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>,
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<Result<LocalCallObservationV1, super::super::HomePrefixUnavailableV1>>, E> {
-    let Some(response) = borrowed_arguments(site, BorrowedCallActualRequestV1::MixedLocalArguments(destination))?
-    else { return Ok(None); };
+    let Some(response) = borrowed_arguments(
+        site,
+        BorrowedCallActualRequestV1::MixedLocalArguments(destination),
+    )?
+    else {
+        return Ok(None);
+    };
     let refusal = || Some(Err(super::super::HomePrefixUnavailableV1::SourceMismatch));
-    let BorrowedCallArgumentsV1::MixedLocalSource { loan, arguments } = response
-    else { return Ok(refusal()); };
-    if loan.call() != site || loan.destination() != destination || loan.declaration() != &declaration
+    let BorrowedCallArgumentsV1::MixedLocalSource { loan, arguments } = response else {
+        return Ok(refusal());
+    };
+    if loan.call() != site
+        || loan.destination() != destination
+        || loan.declaration() != &declaration
         || loan.support().owner() != input.owner()
-        || !input.function().method_call(site.site()).is_some_and(|call| call.receiver_site() == loan.receiver())
-        || !lexical_local_call::corroborate_local_initializer_v1(input, statement, site, &declaration, destination, prior_homes)
+        || !input
+            .function()
+            .method_call(site.site())
+            .is_some_and(|call| call.receiver_site() == loan.receiver())
+        || !lexical_local_call::corroborate_local_initializer_v1(
+            input,
+            statement,
+            site,
+            &declaration,
+            destination,
+            prior_homes,
+        )
         || !lexical_local_call::corroborate_received_arguments_v1(input, site, &arguments)
-    { return Ok(refusal()); }
+    {
+        return Ok(refusal());
+    }
     Ok(Some(Ok(LocalCallObservationV1 {
-        owner: input.owner(), statement: statement.clone(), site: site.clone(),
-        destination: LocalCallDestinationV1::LocalBinding { declaration, binding: destination },
-        prior_homes: prior_homes.iter().cloned().collect(), arguments,
-        result: LocalCallResultClassV1::MixedObject, mixed: Some(Box::new(loan)),
-        result_source: None, unit_source: None, borrowed_nullable: None, field_alias: None,
+        owner: input.owner(),
+        statement: statement.clone(),
+        site: site.clone(),
+        destination: LocalCallDestinationV1::LocalBinding {
+            declaration,
+            binding: destination,
+        },
+        prior_homes: prior_homes.iter().cloned().collect(),
+        arguments,
+        result: LocalCallResultClassV1::MixedObject,
+        mixed: Some(Box::new(loan)),
+        result_source: None,
+        unit_source: None,
+        borrowed_nullable: None,
+        field_alias: None,
     })))
 }

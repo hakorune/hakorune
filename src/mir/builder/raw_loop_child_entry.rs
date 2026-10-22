@@ -254,6 +254,16 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             method_source_observation: _,
             admission_observation: _,
         } = self;
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            let handoff = match &callable_handoff {
+                Some(CallableLoopBindingProjectionDispositionV1::Ready(_)) => "ready",
+                Some(CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(_)) => "ready-body-only",
+                Some(CallableLoopBindingProjectionDispositionV1::Outside(_)) => "outside",
+                None => "none",
+            };
+            eprintln!("[local-call-bindings] raw-loop function={function_name} site={:?} disposition={disposition:?} handoff={handoff}",
+                parent_source.site());
+        }
         if disposition == RawLoopChildEntryDispositionV1::ReachableBoxDeclaration {
             return Err(
                 super::control_flow::lower::Freeze::contract(
@@ -352,7 +362,21 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             match (callable_ledger, parent_source.site()) {
                 (Some(callable_ledger), Some(parent_site)) => {
                     let mut state = callable_ledger.borrow_mut();
+                    // A retained checked source recipe owns the complete Loop
+                    // body and its lifecycle prefixes. Its selected route must
+                    // not be intercepted by a parallel loop-break adapter.
                     let (direct, composite) = if variable_accum_recurrence.is_some() {
+                        (None, None)
+                    } else if checked_source_selected {
+                        // The retained checked source recipe is already the
+                        // exact owner for this Loop site. Retire any pre-issued
+                        // LoopBreak adapter candidate for that same site, but
+                        // never lower it in parallel with the selected route.
+                        let direct = state.take_loop_break_source_candidate(parent_site)?;
+                        let composite = state.take_loop_break_composite_source_candidate(parent_site)?;
+                        if direct.is_some() && composite.is_some() {
+                            return Err("[freeze:contract][callable-loopbreak/mixed-direct-composite]".into());
+                        }
                         (None, None)
                     } else {
                         let direct = state.take_loop_break_source_candidate(parent_site)?;
@@ -367,6 +391,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 }
                 _ => (None, None),
             };
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} variable-accum={} loop-break={} composite-break={}",
+                variable_accum_recurrence.is_some(), loop_break_candidate.is_some(), composite_loop_break_candidate.is_some());
+        }
         match loop_break_candidate {
             Some(candidate) => {
                 let callable_ledger = callable_ledger.ok_or_else(|| {
@@ -376,6 +404,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let forest_projection = source_projection.take().ok_or_else(|| {
                     "[freeze:contract][callable-loop/loop-break/source-forest-missing]".to_owned()
                 })?;
+                let retained = ledger_bridge::take_preissued_source_plan_v1(
+                    Some(callable_ledger),
+                    owner,
+                    parent_source.site(),
+                )?;
                 let physical_input = candidate.into_physical_input(
                     parent_source,
                     loop_node,
@@ -388,6 +421,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     source_items,
                     source_target_probe,
                     callable_ledger,
+                    retained,
+                    policy,
                     declared_instance_locator,
                 )?;
                 let plan = crate::mir::builder::control_flow::plan::features::
@@ -415,6 +450,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         "[freeze:contract][callable-loop/composite/source-port-ledger-missing]"
                             .to_owned()
                     })?;
+                    let retained = ledger_bridge::take_preissued_source_plan_v1(
+                        Some(callable_ledger),
+                        owner,
+                        parent_source.site(),
+                    )?;
                     let physical_input = candidate.into_physical_input(
                         parent_source,
                         loop_node,
@@ -426,6 +466,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         source_items,
                         source_target_probe,
                         callable_ledger,
+                        retained,
+                        policy,
                         declared_instance_locator,
                     )?;
                     let plan = crate::mir::builder::control_flow::plan::features::
@@ -484,6 +526,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 call_free,
             )?;
         let retained = ledger_bridge::take_preissued_source_plan_v1(callable_ledger, owner, parent_source.site())?;
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            eprintln!("[local-call-bindings] generic-loop-issuer function={function_name} checked={checked_source_selected} variable-accum={}",
+                variable_accum_recurrence.is_some());
+        }
         match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, variable_accum_recurrence, retained) {
             CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product) => {
                 #[cfg(test)]

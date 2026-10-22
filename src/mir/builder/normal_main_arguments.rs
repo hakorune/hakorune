@@ -162,7 +162,7 @@ impl MainArgumentsEmissionV1 {
 
     /// The outer wrapper releases after the source body's own cleanup, without
     /// manufacturing a source Home. Only live paths receive this exact suffix.
-    pub(super) fn finish(&mut self, function: &mut MirFunction) -> Result<(), String> {
+    pub(in crate::mir) fn finish(&mut self, function: &mut MirFunction) -> Result<(), String> {
         let Some((_, _, normal, _)) = &self.physical.allocation else {
             return Ok(());
         };
@@ -475,7 +475,12 @@ impl MainArgumentsEmissionV1 {
         seen_releases.sort_by_key(|(block, _)| *block);
         expected_releases.sort_by_key(|(block, _)| *block);
         physical_releases.sort_by_key(|(block, _)| *block);
-        if seen_releases != expected_releases || physical_releases != expected_releases {
+        // CFG finalization may move a wrapper release to the surviving block
+        // that owns the same exit. The source owns the obligation count and
+        // value; the path walk above owns exact placement on every live exit.
+        if seen_releases != physical_releases
+            || physical_releases.len() != expected_releases.len()
+        {
             return Err(fault("release-census"));
         }
         Ok(())

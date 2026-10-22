@@ -3,6 +3,8 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::{self, FinishedBindings};
 use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
 use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 as LoopProducer;
+use crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1 as DynamicProducer;
 
 pub(super) fn validate_owned_v2(graph: &EmittedSourceLoopGraphV2, owned: &[Binding],
     children: &[RootLifecyclePrefixBindingGroupV1], phis: &BTreeMap<BasicBlockId, Box<[MirInstruction]>>,
@@ -223,13 +225,24 @@ impl SourceLoopPhysicalProofV2 {
                 }
                 for dependency in &value.dependencies {
                     let resolved = match &source.producer {
-                        Producer::LoopHeader(_) | Producer::LoopAfter { .. } => value.observation.loan_scalar_join_v1(&source.producer)?
-                            .relation().resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
+                        LoopProducer::Scalar(producer @ (Producer::LoopHeader(_) | Producer::LoopAfter { .. })) =>
+                            value.observation.loan_scalar_join_v1(producer)?.relation()
+                                .resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
+                        LoopProducer::Text(producer @ (crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::Header(_)
+                            | crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::After { .. })) =>
+                            value.observation.loan_text_join_v1(producer)?.relation()
+                                .resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
+                        LoopProducer::Dynamic(producer @ (DynamicProducer::Header(_)
+                            | DynamicProducer::After { .. })) =>
+                            value.observation.loan_dynamic_join_v1(producer)?.relation()
+                                .resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
                         _ => dependency.clone(),
                     };
                     match finishing {
                         Some(projection) => { projection.relation_binding(function, &resolved)?; }
-                        None if !physical_boundary::check_binding(function, None, resolved.0, &resolved.1)? => return Err(freeze("source-loop/source-dependency")),
+                        None if !physical_boundary::check_binding(function, None, resolved.0, &resolved.1)? => {
+                            return Err(freeze("source-loop/source-dependency"));
+                        }
                         None => {},
                     }
                 }

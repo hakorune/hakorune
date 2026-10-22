@@ -23,50 +23,94 @@ struct OriginalActualSourceContextV1
     point_premise: bool,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(&self) -> Self {
-        Self { claims: self.claims, caller: self.caller.clone(), owner: self.owner, point_premise: true }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(
+        &self,
+    ) -> Self {
+        Self {
+            claims: self.claims,
+            caller: self.caller.clone(),
+            owner: self.owner,
+            point_premise: true,
+        }
     }
     /// Check the SAME original Static incoming and callee before source Return expansion.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn require_static_result_input_v1(
-        source: &Rc<StaticIncomingSourceV1>, input: ResolvedFunctionLoweringInputV1<'_>, slot: u32,
-        batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1], inventory: &BorrowedIncomingInventoryV1,
+        source: &Rc<StaticIncomingSourceV1>,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        slot: u32,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        inventory: &BorrowedIncomingInventoryV1,
         omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
     ) -> Result<(), String> {
-        let selected_slot = selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(source.target().clone()));
+        let selected_slot = selected.batch_slot(
+            &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(source.target().clone()),
+        );
         let original_omitted = omitted.get(&source.callee_owner()) == Some(source.target())
-            && omitted.values().filter(|key| *key == source.target()).count() == 1;
-        let reject = || format!("{}: call={:?} target={:?} callee={:?} selected={selected_slot:?}",
-            freeze("source-sum/caller-contract"), source.call_site(), source.target(), source.callee_owner());
-        let mut incoming = inventory.source_rows_v1().filter(|row| &row.call == source.call_site());
+            && omitted
+                .values()
+                .filter(|key| *key == source.target())
+                .count()
+                == 1;
+        let reject = || {
+            format!(
+                "{}: call={:?} target={:?} callee={:?} selected={selected_slot:?}",
+                freeze("source-sum/caller-contract"),
+                source.call_site(),
+                source.target(),
+                source.callee_owner()
+            )
+        };
+        let mut incoming = inventory
+            .source_rows_v1()
+            .filter(|row| &row.call == source.call_site());
         let original = incoming.next().ok_or_else(reject)?;
-        if incoming.next().is_some() || original.callee != source.callee_owner()
+        if incoming.next().is_some()
+            || original.callee != source.callee_owner()
             || !matches!(&original.source, BorrowedIncomingSourceV1::Static(same) if Rc::ptr_eq(same, source))
             || !source.catalog_brand().is_same(selected.catalog_brand())
-            || selected_slot != Some(source.target_batch_slot()) && !original_omitted {
+            || selected_slot != Some(source.target_batch_slot()) && !original_omitted
+        {
             return Err(reject());
         }
-        let declaration = batch.declarations().find(|row| row.batch_slot() == slot).ok_or_else(reject)?;
+        let declaration = batch
+            .declarations()
+            .find(|row| row.batch_slot() == slot)
+            .ok_or_else(reject)?;
         let mut rows = contracts.iter().filter(|row| row.owner == input.owner());
         let contract = rows.next().ok_or_else(reject)?;
-        if input.owner() != source.callee_owner() || slot != source.target_batch_slot()
-            || rows.next().is_some() || contract.batch_slot != slot
+        if input.owner() != source.callee_owner()
+            || slot != source.target_batch_slot()
+            || rows.next().is_some()
+            || contract.batch_slot != slot
             || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
             || match selected.identity_for_batch_slot(slot) {
                 Some(identity) => !identity.same_as(declaration.identity()),
                 None => !original_omitted,
             }
             || contract.parameters.len() != source.parameters().len()
-            || contract.parameters.iter().zip(source.parameters()).any(|(a,b)|
-                a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind) {
+            || contract
+                .parameters
+                .iter()
+                .zip(source.parameters())
+                .any(|(a, b)| a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind)
+        {
             return Err(reject());
         }
         Ok(())
     }
     pub(super) fn for_legacy_actual(&self) -> Self {
-        Self { claims: self.claims, caller: self.caller.clone(), owner: self.owner, point_premise: false }
+        Self {
+            claims: self.claims,
+            caller: self.caller.clone(),
+            owner: self.owner,
+            point_premise: false,
+        }
     }
-    pub(super) fn is_point_premise(&self) -> bool { self.point_premise }
+    pub(super) fn is_point_premise(&self) -> bool {
+        self.point_premise
+    }
 
     pub(super) fn resolve(
         &self,
@@ -74,26 +118,42 @@ impl<'a> OriginalActualSourceContextV1<'a> {
         method: &Arc<VerifiedResolvedMethodCallSourceV1>,
         inventory: Option<&BorrowedIncomingInventoryV1>,
     ) -> OriginalMethodResultResolutionV1 {
-        if input.owner() != self.owner || method.owner() != input.owner()
-            || !input.function().method_call_source_v1(method.site())
+        if input.owner() != self.owner
+            || method.owner() != input.owner()
+            || !input
+                .function()
+                .method_call_source_v1(method.site())
                 .is_some_and(|original| Arc::ptr_eq(original, method))
         {
             return OriginalMethodResultResolutionV1::Unknown;
         }
         // A canonical Static route remains Static even when its result or
         // incoming loan is unavailable. It cannot retry as a Core selector.
-        if self.claims.source_target(&self.caller, method.site()).is_some() {
-            return OriginalMethodResultResolutionV1::Existing { proof: self.proof(input, method, inventory), operands: None };
+        if self
+            .claims
+            .source_target(&self.caller, method.site())
+            .is_some()
+        {
+            return OriginalMethodResultResolutionV1::Existing {
+                proof: self.proof(input, method, inventory),
+                operands: None,
+            };
         }
-        if let Some(row) = self.claims.call_result_source_arc_v1(&self.caller, method.site()) {
+        if let Some(row) = self
+            .claims
+            .call_result_source_arc_v1(&self.caller, method.site())
+        {
             return match row.evidence() {
-                CallableResultEvidenceV1::CoreStringMethod { contract, .. } =>
+                CallableResultEvidenceV1::CoreStringMethod { contract, .. } => {
                     OriginalMethodResultResolutionV1::Existing {
                         proof: self.proof(input, method, inventory),
                         operands: OriginalCoreOperandRequestV1::checked(input, method)
                             .filter(|request| std::ptr::eq(request.manifest().row(), *contract)),
-                    },
-                CallableResultEvidenceV1::SameModuleStatic { .. } => OriginalMethodResultResolutionV1::Unknown,
+                    }
+                }
+                CallableResultEvidenceV1::SameModuleStatic { .. } => {
+                    OriginalMethodResultResolutionV1::Unknown
+                }
             };
         }
         OriginalCoreOperandRequestV1::checked(input, method)
@@ -251,7 +311,10 @@ impl<'a> OriginalActualSourceContextV1<'a> {
 }
 
 pub(super) enum OriginalMethodResultResolutionV1 {
-    Existing { proof: Option<OriginalMethodResultProofV1>, operands: Option<OriginalCoreOperandRequestV1> },
+    Existing {
+        proof: Option<OriginalMethodResultProofV1>,
+        operands: Option<OriginalCoreOperandRequestV1>,
+    },
     ConditionalCore(OriginalCoreOperandRequestV1),
     Unknown,
 }
@@ -259,36 +322,73 @@ pub(super) enum OriginalMethodResultResolutionV1 {
 /// A generated manifest request, not a receiver proof or issued target.
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
-struct OriginalCoreOperandRequestV1 {
+struct OriginalCoreOperandRequestV1
+{
     manifest: crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2,
 }
 impl OriginalCoreOperandRequestV1 {
-    fn checked(input: ResolvedFunctionLoweringInputV1<'_>, method: &Arc<VerifiedResolvedMethodCallSourceV1>) -> Option<Self> {
-        use crate::mir::resolved_semantics::{ResolvedMethodCallReceiverSourceV1 as Receiver, ResolvedLexicalRefV1};
+    fn checked(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        method: &Arc<VerifiedResolvedMethodCallSourceV1>,
+    ) -> Option<Self> {
+        use crate::mir::resolved_semantics::{
+            ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1 as Receiver,
+        };
         match method.receiver() {
             Receiver::Lexical(ResolvedLexicalRefV1::Local(binding))
                 if binding.owner() == input.owner()
-                    && input.function().variable_ref(method.receiver_site()) == Some(ResolvedLexicalRefV1::Local(binding)) => {}
+                    && input.function().variable_ref(method.receiver_site())
+                        == Some(ResolvedLexicalRefV1::Local(binding)) => {}
             Receiver::Other => {}
             _ => return None,
         }
         if method.arguments().len() != method.arity() as usize
-            || method.arguments().iter().enumerate().any(|(ordinal, arg)| ordinal != arg.ordinal() as usize)
+            || method
+                .arguments()
+                .iter()
+                .enumerate()
+                .any(|(ordinal, arg)| ordinal != arg.ordinal() as usize)
             || method.result_site() != method.site()
-        { return None; }
+        {
+            return None;
+        }
         use crate::mir::core_method_op::CoreMethodOp;
-        use crate::mir::core_method_result_kind::{lookup_core_method_result_row_v2, issue_core_method_manifest_row_ref_v2};
-        let map_field = matches!(input.body_shape().and_then(|shape| shape.expression_shape(method.receiver_site())),
-            Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }));
-        let row = lookup_core_method_result_row_v2(if map_field && method.selector() == "has" { "MapBox" } else { "StringBox" }, method.selector(), method.arity())?;
-        if !matches!((row.op, method.arity()), (CoreMethodOp::StringLen, 0)
-            | (CoreMethodOp::StringSubstring, 2) | (CoreMethodOp::StringIndexOf, 1) | (CoreMethodOp::MapHas, 1)) { return None; }
+        use crate::mir::core_method_result_kind::{
+            issue_core_method_manifest_row_ref_v2, lookup_core_method_result_row_v2,
+        };
+        let map_field = matches!(
+            input
+                .body_shape()
+                .and_then(|shape| shape.expression_shape(method.receiver_site())),
+            Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })
+        );
+        let row = lookup_core_method_result_row_v2(
+            if map_field && method.selector() == "has" {
+                "MapBox"
+            } else {
+                "StringBox"
+            },
+            method.selector(),
+            method.arity(),
+        )?;
+        if !matches!(
+            (row.op, method.arity()),
+            (CoreMethodOp::StringLen, 0)
+                | (CoreMethodOp::StringSubstring, 2)
+                | (CoreMethodOp::StringIndexOf, 1)
+                | (CoreMethodOp::MapHas, 1)
+        ) {
+            return None;
+        }
         let manifest = issue_core_method_manifest_row_ref_v2(row.op, method.arity())?;
         std::ptr::eq(manifest.row(), row).then_some(Self { manifest })
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn manifest(self)
-        -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 { self.manifest }
-    pub(super) fn i64_ordinals(self) -> &'static [u32] {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn manifest(
+        self,
+    ) -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 {
+        self.manifest
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn i64_ordinals(self) -> &'static [u32] {
         match self.manifest.row().op {
             crate::mir::core_method_op::CoreMethodOp::StringSubstring => &[0, 1],
             _ => &[],
@@ -296,7 +396,8 @@ impl OriginalCoreOperandRequestV1 {
     }
     pub(super) fn text_ordinals(self) -> &'static [u32] {
         match self.manifest.row().op {
-            crate::mir::core_method_op::CoreMethodOp::StringIndexOf | crate::mir::core_method_op::CoreMethodOp::MapHas => &[0],
+            crate::mir::core_method_op::CoreMethodOp::StringIndexOf
+            | crate::mir::core_method_op::CoreMethodOp::MapHas => &[0],
             _ => &[],
         }
     }
@@ -305,8 +406,12 @@ impl OriginalCoreOperandRequestV1 {
     }
     fn representation(self) -> VerifiedCallableResultRepresentationV1 {
         match self.manifest.row().op {
-            crate::mir::core_method_op::CoreMethodOp::StringSubstring => VerifiedCallableResultRepresentationV1::ExactString,
-            crate::mir::core_method_op::CoreMethodOp::MapHas => VerifiedCallableResultRepresentationV1::ExactBool,
+            crate::mir::core_method_op::CoreMethodOp::StringSubstring => {
+                VerifiedCallableResultRepresentationV1::ExactString
+            }
+            crate::mir::core_method_op::CoreMethodOp::MapHas => {
+                VerifiedCallableResultRepresentationV1::ExactBool
+            }
             _ => VerifiedCallableResultRepresentationV1::ExactI64,
         }
     }
@@ -359,9 +464,13 @@ impl OriginalMethodResultSeedV1 {
         &self.method
     }
     /// Original Static edge, independently of legacy result representation.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn static_source_v1(&self)
-        -> Option<&Rc<StaticIncomingSourceV1>> {
-        match &self.proof { Some(OriginalMethodResultProofV1::Static(source)) => Some(source), _ => None }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn static_source_v1(
+        &self,
+    ) -> Option<&Rc<StaticIncomingSourceV1>> {
+        match &self.proof {
+            Some(OriginalMethodResultProofV1::Static(source)) => Some(source),
+            _ => None,
+        }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn normal_representation(
         &self,
@@ -377,9 +486,21 @@ impl OriginalMethodResultSeedV1 {
     ) -> &[OriginalFormalActualSeedV1] {
         &self.required_i64
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn required_text(&self) -> &[OriginalFormalActualSeedV1] { &self.required_text }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn core_operand_request(&self) -> Option<OriginalCoreOperandRequestV1> { self.core_operand_request }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn conditional_result(&self) -> bool { self.proof.is_none() && self.core_operand_request.is_some() }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn required_text(
+        &self,
+    ) -> &[OriginalFormalActualSeedV1] {
+        &self.required_text
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn core_operand_request(
+        &self,
+    ) -> Option<OriginalCoreOperandRequestV1> {
+        self.core_operand_request
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn conditional_result(
+        &self,
+    ) -> bool {
+        self.proof.is_none() && self.core_operand_request.is_some()
+    }
 }
 
 #[cfg(test)]
@@ -442,11 +563,27 @@ mod tests {
                 static box Sink { check(value) { local n = value.length() return n } }
                 static box Main { main() { local value = Reader.take("xy") local n = Sink.check(value) return n } }"#,
             crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
-        let prepared = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
-        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(CanonicalSameModuleCallableKeyV1::static_box_method("Sink", "check", 1));
+        let prepared = package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+            CanonicalSameModuleCallableKeyV1::static_box_method("Sink", "check", 1),
+        );
         let slot = package.selected.batch_slot(&key).unwrap();
-        let formal = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap().parameters[0].binding;
-        assert!(prepared.source_value_sum_v1(formal).is_some_and(|sum| sum.text_only()));
+        let formal = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.batch_slot == slot)
+            .unwrap()
+            .parameters[0]
+            .binding;
+        assert!(prepared
+            .source_value_sum_v1(formal)
+            .is_some_and(|sum| sum.text_only()));
         assert!(prepared.source_incoming.source_rows_v1().any(|row| matches!(&row.source,
             BorrowedIncomingSourceV1::Static(source) if source.target() == &CanonicalSameModuleCallableKeyV1::static_box_method("Reader", "take", 1)
                 && source.source_result().representation().is_none())));

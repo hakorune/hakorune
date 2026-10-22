@@ -11,6 +11,8 @@ pub(in crate::mir::builder) fn emit(
     owner: FunctionOwnerIdV1,
     exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     source: CallPacketSourceV1,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: &lexical_i64::StaticExpressionCallIssuerV1<'_>,
 ) -> Result<ValueId, String> {
     let (completion, terminal) = ledger
         .call_source_completion_for_owner_at(owner, exit)
@@ -45,6 +47,8 @@ pub(in crate::mir::builder) fn emit(
         &arguments,
         source.loan(),
         &mut bindings,
+        Some(consume_receiver),
+        Some(static_source),
     )?;
     let call = prepared.materialize_using(owner, source.loan(), &arguments, Some(ledger))?;
     let value = builder.next_value_id();

@@ -1,7 +1,7 @@
 //! Received-call source identity and invalidation; no acquired Home is issued.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::parser::NyashParser;
 
 fn unit() -> VerifiedResolvedSourceUnitV1 {
@@ -57,23 +57,46 @@ fn received_call_identity_preserves_both_classes_without_direct_new_home() {
     // A field argument needs the original definite parent in the actual
     // pre-call Home set; the source spelling cannot repair missing liveness.
     use super::super::local_call_flow::BorrowedCallActualValueV1 as Actual;
-    let call = input.function().method_calls().find(|(_, call)| call.selector() == "consume").unwrap().0;
+    let call = input
+        .function()
+        .method_calls()
+        .find(|(_, call)| call.selector() == "consume")
+        .unwrap()
+        .0;
     let call = OwnedExprSiteV1::new(input.owner(), call.clone());
     let observe = |flow: &PrefixLocalFlow<'_>, known, homes: &[LiveHomeV1]| {
-        let rows = super::super::local_call_flow::observe_borrowed_call_actuals(input, &call, flow, known, homes);
-        rows.into_iter().find(|(site, _)| site == &call).unwrap().1[0].value.clone()
+        let rows = super::super::local_call_flow::observe_borrowed_call_actuals(
+            input, &call, flow, known, homes,
+        );
+        rows.into_iter().find(|(site, _)| site == &call).unwrap().1[0]
+            .value
+            .clone()
     };
-    assert_eq!(observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]), Actual::ReceivedField {
-        parent: rows[0].0, acquisition: rows[0].1.clone(),
-    });
-    for (known, homes) in [(false, vec![LiveHomeV1::Stable(rows[0].0)]), (true, vec![]), (true, vec![LiveHomeV1::Stable(rows[1].0)])] {
+    assert_eq!(
+        observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]),
+        Actual::ReceivedField {
+            parent: rows[0].0,
+            acquisition: rows[0].1.clone(),
+        }
+    );
+    for (known, homes) in [
+        (false, vec![LiveHomeV1::Stable(rows[0].0)]),
+        (true, vec![]),
+        (true, vec![LiveHomeV1::Stable(rows[1].0)]),
+    ] {
         assert_eq!(observe(&flow, known, &homes), Actual::FieldAccess);
     }
     flow.install_received_nullable(rows[0].0, &rows[0].1);
-    assert_eq!(observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]), Actual::FieldAccess);
+    assert_eq!(
+        observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]),
+        Actual::FieldAccess
+    );
     flow.install_received_handle(rows[0].0, &rows[0].1);
     flow.consume_home(rows[0].0);
-    assert_eq!(observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]), Actual::FieldAccess);
+    assert_eq!(
+        observe(&flow, true, &[LiveHomeV1::Stable(rows[0].0)]),
+        Actual::FieldAccess
+    );
 }
 
 #[test]

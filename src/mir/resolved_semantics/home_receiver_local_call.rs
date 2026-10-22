@@ -1,6 +1,6 @@
 //! Entry-receiver local call source observation, not argument/execution authority.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 pub(crate) fn issue_receiver_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,

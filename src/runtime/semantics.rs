@@ -7,6 +7,54 @@
 
 use crate::box_trait::{IntegerBox, NyashBox, StringBox};
 
+/// Runtime tags accepted by `String + any`; source and physical owners must
+/// retain the tag and borrow the value until this synchronous display finishes.
+pub enum StringAddDisplayValue<'a> {
+    Integer(i64),
+    ExactNumeric(i128),
+    Float(f64),
+    Bool(bool),
+    String(&'a str),
+    BoxRef(&'a dyn NyashBox),
+    Future(&'a dyn NyashBox),
+    WeakBox { usable_target: bool },
+    Null,
+    Void,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringAddDisplayError {
+    Null,
+    Void,
+}
+
+/// The single runtime display owner for the checked `String + any` operator.
+pub fn display_string_add_value(
+    value: StringAddDisplayValue<'_>,
+) -> Result<String, StringAddDisplayError> {
+    match value {
+        StringAddDisplayValue::Integer(value) => Ok(value.to_string()),
+        StringAddDisplayValue::ExactNumeric(value) => Ok(value.to_string()),
+        StringAddDisplayValue::Float(value) => Ok(value.to_string()),
+        StringAddDisplayValue::Bool(value) => Ok(value.to_string()),
+        StringAddDisplayValue::String(value) => Ok(value.to_owned()),
+        StringAddDisplayValue::BoxRef(value) | StringAddDisplayValue::Future(value) => {
+            if crate::boxes::null_box::NullBox::check_null(value) {
+                Err(StringAddDisplayError::Null)
+            } else {
+                Ok(value.to_string_box().value)
+            }
+        }
+        StringAddDisplayValue::WeakBox { usable_target } => Ok(if usable_target {
+            "WeakRef(alive)".to_owned()
+        } else {
+            "WeakRef(dead)".to_owned()
+        }),
+        StringAddDisplayValue::Null => Err(StringAddDisplayError::Null),
+        StringAddDisplayValue::Void => Err(StringAddDisplayError::Void),
+    }
+}
+
 /// Try to unwrap InstanceBox and return inner if present
 fn maybe_unwrap_instance(b: &dyn NyashBox) -> &dyn NyashBox {
     if let Some(inst) = b.as_any().downcast_ref::<crate::instance_v2::InstanceBox>() {

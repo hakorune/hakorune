@@ -494,9 +494,9 @@ impl<'a> LayoutBuilder<'a> {
                     if branch.condition != condition {
                         return Err(LoopPhysicalLayoutRejectV1::BranchConditionMismatch(item));
                     }
-                    let continuation = items
-                        .get(index + 1)
-                        .map(|_| LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal + 1));
+                    let continuation = (items.get(index + 1).is_some()
+                        || matches!(&tail, BlockTailV1::Finish(_)))
+                        .then(|| LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal + 1));
                     let expected_continuation = items.get(index + 1).copied().map(|next| {
                         super::join_sig::LoopJoinNextItemV1 {
                             block: block_key,
@@ -661,7 +661,7 @@ fn branch_arm_finish(
 ) -> Result<BranchArmFinishV1, LoopPhysicalLayoutRejectV1> {
     match arm {
         LoopJoinBranchArmTransferRefV1::Fallthrough { continuation, .. } => {
-            if Some(continuation) != expected_continuation {
+            if continuation != expected_continuation {
                 return Err(LoopPhysicalLayoutRejectV1::BranchContinuationMismatch(
                     if_item,
                 ));

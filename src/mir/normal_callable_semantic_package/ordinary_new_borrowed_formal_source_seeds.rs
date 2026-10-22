@@ -5,6 +5,7 @@ use super::*;
 mod source_sum;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_sum::OriginalIntegerBasisV1;
 pub(in crate::mir) use source_sum::{SourceValueSumV1, SourceValueAlternativeV1};
+pub(in crate::mir) use source_sum::TaggedDynamicSourcePointsV1;
 pub(in crate::mir::normal_callable_semantic_package) use source_sum::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
 mod new_seeds;
@@ -360,8 +361,10 @@ pub(super) fn prepare_original_formal_seeds_v1(
         use source_sum::SourcePointExpansionV1 as Expansion;
         crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, owner, |context, input| -> Result<Expansion, String> {
-                let Some(origin) = input.function().expression_source().value_flow()
-                    .filter(|flow| flow.owner() == owner).and_then(|flow| flow.origin(value)) else {
+                let flow = input.function().expression_source().value_flow()
+                    .filter(|flow| flow.owner() == owner);
+                let origin = flow.and_then(|flow| flow.origin(value));
+                let Some(origin) = origin else {
                     return Ok(Expansion::Unknown);
                 };
                 Ok(match origin {

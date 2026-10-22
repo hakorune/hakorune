@@ -10,20 +10,32 @@ use std::rc::Rc;
 use crate::mir::builder::{BindingValueObservationV2, LocalSsaPhysicalRelationV1};
 use crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2 as Product;
 use crate::mir::resolved_semantics::BindingRefV1;
-use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
+use crate::mir::resolved_semantics::home_new_prefix::{CurrentScalarProducerV1 as Producer,
+    SourceLoopDynamicProducerV1 as DynamicProducer, SourceLoopTextProducerV1 as TextProducer,
+    SourceLoopValueProducerV1 as ValueProducer};
+
+fn source_point_product_v2(context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
+    source: &ValueProducer,
+) -> Result<Rc<Product>, String> {
+    match source {
+        ValueProducer::Scalar(source) => context.source_loop_point_product_v2(source),
+        ValueProducer::Text(source) => context.source_loop_text_point_product_v2(source),
+        ValueProducer::Dynamic(source) => context.source_loop_dynamic_point_product_v2(source),
+    }
+}
 
 /// Issued only from this session's canonical source-to-destination association.
 /// Publication cannot substitute another binding, role or indexed Phi.
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct SourceLoopPointCapabilityV2<'session> {
-    source: Producer,
+    source: ValueProducer,
     relation: Rc<LocalSsaPhysicalRelationV1>,
     owner: PointOwnerV2<'session>,
 }
 #[derive(Debug, Clone, Copy)]
 enum PointOwnerV2<'a> { Session(&'a SourceLoopPhiSessionV1), Completed(&'a CompletedSourceLoopPhiPointsV2) }
 impl SourceLoopPointCapabilityV2<'_> {
-    pub(in crate::mir::builder) fn source(&self) -> &Producer { &self.source }
+    pub(in crate::mir::builder) fn source(&self) -> &ValueProducer { &self.source }
     pub(in crate::mir::builder) fn relation(&self) -> &Rc<LocalSsaPhysicalRelationV1> { &self.relation }
     pub(in crate::mir::builder) fn require_live_v2(&self) -> Result<(), String> {
         let session = match self.owner {
@@ -32,8 +44,13 @@ impl SourceLoopPointCapabilityV2<'_> {
         };
         let state = session.state.borrow();
         if state.finished || state.transaction.is_none() { return Err(freeze("checked-session-inactive")); }
-        let Producer::LoopHeader(basis) = &self.source else { return Err(freeze("checked-point-role")); };
-        let row = state.checked.as_ref().and_then(|checked| checked.carriers.get(&basis.binding()))
+        let binding = match &self.source {
+            ValueProducer::Scalar(Producer::LoopHeader(basis)) => basis.binding(),
+            ValueProducer::Text(TextProducer::Header(basis)) => basis.binding(),
+            ValueProducer::Dynamic(DynamicProducer::Header(basis)) => basis.binding(),
+            _ => return Err(freeze("checked-point-role")),
+        };
+        let row = state.checked.as_ref().and_then(|checked| checked.carriers.get(&binding))
             .ok_or_else(|| freeze("checked-point-binding"))?;
         if row.source != self.source || !Rc::ptr_eq(&row.header, &self.relation) {
             return Err(freeze("checked-point-association"));
@@ -45,7 +62,7 @@ impl SourceLoopPointCapabilityV2<'_> {
 struct CheckedCarrierV2 {
     entry: BindingValueObservationV2,
     entry_dependencies: Vec<(BasicBlockId, crate::mir::MirInstruction)>,
-    source: Producer,
+    source: ValueProducer,
     header: Rc<LocalSsaPhysicalRelationV1>,
     after: Rc<LocalSsaPhysicalRelationV1>,
 }
@@ -100,16 +117,31 @@ impl CompletedSourceLoopPhiPointsV2 {
     pub(in crate::mir::builder) fn after_point_v2(&self, binding: BindingRefV1)
         -> Result<SourceLoopPointCapabilityV2<'_>, String> {
         let row = self.points.carriers.get(&binding).ok_or_else(|| freeze("completed-binding"))?;
-        let issued = SourceLoopPointCapabilityV2 { source: Producer::LoopAfter { product: Rc::clone(&self.points.product), binding },
+        let source = match &row.source {
+            ValueProducer::Scalar(_) => ValueProducer::Scalar(Producer::LoopAfter { product: Rc::clone(&self.points.product), binding }),
+            ValueProducer::Text(_) => ValueProducer::Text(TextProducer::After { product: Rc::clone(&self.points.product), binding }),
+            ValueProducer::Dynamic(_) => ValueProducer::Dynamic(DynamicProducer::After { product: Rc::clone(&self.points.product), binding }),
+        };
+        let issued = SourceLoopPointCapabilityV2 { source,
             relation: Rc::clone(&row.after), owner: PointOwnerV2::Completed(self) };
         issued.require_live_v2()?;
         Ok(issued)
     }
-    fn require_after_association_v2(&self, source: &Producer, relation: &Rc<LocalSsaPhysicalRelationV1>) -> Result<(), String> {
-        let Producer::LoopAfter { product, binding } = source else { return Err(freeze("completed-role")); };
-        let row = self.points.carriers.get(binding).ok_or_else(|| freeze("completed-binding"))?;
+    fn require_after_association_v2(&self, source: &ValueProducer, relation: &Rc<LocalSsaPhysicalRelationV1>) -> Result<(), String> {
+        let (product, binding, producer_class) = match source {
+            ValueProducer::Scalar(Producer::LoopAfter { product, binding }) => (product, *binding, 0),
+            ValueProducer::Text(TextProducer::After { product, binding }) => (product, *binding, 1),
+            ValueProducer::Dynamic(DynamicProducer::After { product, binding }) => (product, *binding, 2),
+            _ => return Err(freeze("completed-role")),
+        };
+        let row = self.points.carriers.get(&binding).ok_or_else(|| freeze("completed-binding"))?;
         relation.require_completed_v1()?;
         if !Rc::ptr_eq(product, &self.points.product) || !Rc::ptr_eq(relation, &row.after)
+            || producer_class != match &row.source {
+                ValueProducer::Scalar(_) => 0,
+                ValueProducer::Text(_) => 1,
+                ValueProducer::Dynamic(_) => 2,
+            }
             || relation.identity_phi_binding_v1()?.0 != self.scope.1 { return Err(freeze("completed-association")); }
         Ok(())
     }
@@ -147,18 +179,52 @@ impl SourceLoopPhiSessionV1 {
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
         let mut entries = Vec::new();
         for (&binding, basis) in &product.source.headers {
-            let source = Producer::LoopHeader(Rc::clone(basis));
-            if !Rc::ptr_eq(&context.source_loop_point_product_v2(&source)?, &product) {
-                return Err(freeze("checked-source-product"));
-            }
+            let source = match basis.entry_producer() {
+                ValueProducer::Scalar(_) => {
+                    let source = ValueProducer::Scalar(Producer::LoopHeader(Rc::clone(basis)));
+                    let checked = source_point_product_v2(context, &source)?;
+                    if !Rc::ptr_eq(&checked, &product) {
+                        return Err(freeze("checked-source-product"));
+                    }
+                    source
+                }
+                ValueProducer::Text(_) => {
+                    let source = ValueProducer::Text(TextProducer::Header(Rc::clone(basis)));
+                    let checked = source_point_product_v2(context, &source)?;
+                    if !Rc::ptr_eq(&checked, &product) {
+                        return Err(freeze("checked-source-product"));
+                    }
+                    source
+                }
+                ValueProducer::Dynamic(_) => {
+                    let source = ValueProducer::Dynamic(DynamicProducer::Header(Rc::clone(basis)));
+                    let checked = source_point_product_v2(context, &source)?;
+                    if !Rc::ptr_eq(&checked, &product) {
+                        return Err(freeze("checked-source-product"));
+                    }
+                    source
+                }
+            };
             let entry = ledger.observe_binding_value_v2(binding).map_err(|error| error.to_string())?;
             ledger.source_loop_binding_name(binding, &builder.function_state.variable_ctx.variable_map)?;
-            let dependencies = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
-                binding, basis.entry_producer(), &entry, context, function)?;
+            let dependencies = match basis.entry_producer() {
+                ValueProducer::Scalar(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
+                    binding, source, &entry, context, function)?,
+                ValueProducer::Text(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_text_binding_v2(
+                    binding, source, &entry, context, function)?,
+                ValueProducer::Dynamic(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
+                    binding, source, &entry, context, function)?,
+            };
             entries.push((binding, source, entry, dependencies));
         }
-        let destinations: Vec<_> = entries.iter().map(|_| (builder.alloc_typed(crate::mir::MirType::Integer),
-            builder.alloc_typed(crate::mir::MirType::Integer))).collect();
+        let destinations: Vec<_> = entries.iter().map(|(_, source, _, _)| {
+            let ty = match source {
+                ValueProducer::Scalar(_) => crate::mir::MirType::Integer,
+                ValueProducer::Text(_) => crate::mir::MirType::TextOperand,
+                ValueProducer::Dynamic(_) => crate::mir::MirType::Unknown,
+            };
+            (builder.alloc_typed(ty.clone()), builder.alloc_typed(ty))
+        }).collect();
         self.prepare(builder, header, after, destinations.iter().map(|row| row.0), destinations.iter().map(|row| row.1))?;
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
         let mut carriers = BTreeMap::new();
@@ -335,6 +401,7 @@ impl SourceLoopPhiSessionV1 {
         ledger: &mut crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
         product: &Rc<Product>,
     ) {
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 as ValueProducer;
         let header = builder.next_block_id();
         let after = builder.next_block_id();
         let binding = *product.source.headers.keys().next().unwrap();
@@ -365,7 +432,7 @@ impl SourceLoopPhiSessionV1 {
         swapped.relation = Rc::clone(&row.after);
         assert!(swapped.require_live_v2().is_err(), "Header cannot borrow After's real Phi");
         swapped = issued.clone();
-        swapped.source = Producer::LoopAfter { product: Rc::clone(product), binding };
+        swapped.source = ValueProducer::Scalar(Producer::LoopAfter { product: Rc::clone(product), binding });
         assert!(swapped.require_live_v2().is_err(), "a pending session cannot issue After");
         drop(state);
         for (other, role) in product.source.source.bindings().bindings() {
@@ -375,7 +442,8 @@ impl SourceLoopPhiSessionV1 {
         }
         ledger.publish_source_loop_point_v2(builder, &issued).unwrap();
         let observed = ledger.observe_binding_value_v2(binding).unwrap();
-        assert!(Rc::ptr_eq(observed.loan_scalar_join_v1(issued.source()).unwrap().relation(), issued.relation()));
+        let ValueProducer::Scalar(source) = issued.source() else { panic!("integer fixture has scalar point"); };
+        assert!(Rc::ptr_eq(observed.loan_scalar_join_v1(source).unwrap().relation(), issued.relation()));
         let error = session.abort_error(builder, "expected source session abort".into());
         assert!(error.contains("expected source session abort"));
         assert!(issued.require_live_v2().is_err());

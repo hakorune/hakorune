@@ -360,6 +360,7 @@ impl LexicalCallArgumentProjectionV1 {
             packet.validate_source(context)?;
             for read in &packet.path_reads { copies.extend_from_slice(read.original_copy_dependencies_v1()?); }
             for read in packet.reference_reads.values() { copies.extend_from_slice(read.original_copy_dependencies_v1()?); }
+            copies.extend(packet.expression().scalar_copy_dependencies_v1(context)?);
             for node in packet.frame.source().nodes() {
                 copies.extend(context.ledger().checked_field_copy_dependencies_v1(
                     &OwnedExprSiteV1::new(packet.frame.source().owner(), node.site().clone()), context)?);
@@ -414,8 +415,17 @@ impl EmittedLexicalCallProjectionV1 {
         finishing: Option<&FinishedBindings>, bindings: &[Binding], coordinates: Option<&FinishedBindings>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        let original = context.ledger().local_call_for_owner(self.call_site().owner(), self.call_site().site())
-            .map(ExpressionCallArgumentSourceV1::from_local);
+        let original = match self.row.loan() {
+            crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::Static { observation, .. } => {
+                self.row.loan().validate_static(context.ledger())?;
+                Some(ExpressionCallArgumentSourceV1::from_local(observation))
+            }
+            crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::Instance(_)
+            | crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::SelectedStaticLoop { .. } => {
+                context.ledger().local_call_for_owner(self.call_site().owner(), self.call_site().site())
+                    .map(ExpressionCallArgumentSourceV1::from_local)
+            }
+        };
         self.validate_expression_arguments_at_source_v1(context, function, finishing, bindings, coordinates, inherited, original, &[])
     }
     pub(in crate::mir::normal_callable_semantic_package) fn validate_expression_arguments_at_source_v1(

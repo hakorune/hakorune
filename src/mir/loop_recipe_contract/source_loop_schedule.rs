@@ -53,6 +53,8 @@ pub(crate) struct SourceLoopBranchPhiV2 {
     pub(crate) source: Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>,
     pub(crate) item: LoopItemKeyV1,
     pub(crate) result: LoopValueKeyV1,
+    pub(crate) binding: Option<LoopBindingKeyV1>,
+    pub(crate) write_item: Option<LoopItemKeyV1>,
 }
 #[derive(Debug, Clone)]
 pub(crate) enum SourceLoopScheduledStepV2 {
@@ -85,6 +87,11 @@ impl std::fmt::Debug for SourceLoopScheduleDraftV2 {
     }
 }
 impl VerifiedSourceLoopScheduleV2 {
+    pub(crate) fn branch_joins_v2(&self) -> impl Iterator<Item = &SourceLoopBranchPhiV2> {
+        self.0.blocks.values().flatten().filter_map(|step| match step {
+            SourceLoopScheduledStepV2::If { joins, .. } => Some(joins.as_slice()), _ => None,
+        }).flatten()
+    }
     pub(crate) fn blocks_array_appends_v2(&self)
         -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1> {
         self.0.blocks.values().flatten().filter_map(|step| match step {
@@ -149,6 +156,7 @@ impl SourceLoopScheduleDraftV2 {
             || self.operations.len() + self.blocks.values().flatten()
                 .filter(|step| matches!(step, SourceLoopScheduledStepV2::OwnedArrayAppend { .. } | SourceLoopScheduledStepV2::Call { .. })).count()
                 + self.joins_v2().count()
+                + self.joins_v2().filter(|join| join.write_item.is_some()).count()
                 != recipe.items.iter().filter(|row| matches!(row.item, LoopRecipeItemV2::Operation { .. })).count() {
             return Err(reject("schedule-census"));
         }
@@ -168,6 +176,32 @@ impl SourceLoopScheduleDraftV2 {
                     && row.value == frame.result).count() != 1 {
                 return Err(reject("schedule-original-frame"));
             }
+            let text_transition = match (frame.prefix(), execution.text_carrier_transition.as_ref()) {
+                (Prefix::BindingRebind { frame: rebind, .. }, Some(transition)) => {
+                    let same_basis = rebind.text_loop_carrier_v1()
+                        .is_some_and(|basis| Rc::ptr_eq(basis, &transition.basis));
+                    let old_end_matches = match (&transition.before, transition.old_residence) {
+                        (super::source_loop_v2::TextProducer::Header(basis),
+                            super::source_loop_execution::SourceLoopTextOldResidenceV2::ConditionalHeader) =>
+                            Rc::ptr_eq(basis, &transition.basis),
+                        (super::source_loop_v2::TextProducer::Residence(_),
+                            super::source_loop_execution::SourceLoopTextOldResidenceV2::OwnedResidence) => true,
+                        _ => false,
+                    };
+                    same_basis && old_end_matches && rebind.target() == transition.basis.binding()
+                        && Rc::ptr_eq(rebind.source(), &transition.evaluation)
+                        && Rc::ptr_eq(&transition.evaluation, &execution.source)
+                        && transition.after.binding() == rebind.target()
+                        && Rc::ptr_eq(transition.after.source(), rebind.source())
+                        && !execution.normal_temporary_ends.contains(&0)
+                        && execution.faults.iter().all(|fault| fault.text_carriers.iter().any(|state|
+                            Rc::ptr_eq(&state.basis, &transition.basis) && state.producer == transition.before))
+                }
+                (Prefix::BindingRebind { frame: rebind, .. }, None) => rebind.text_loop_carrier_v1().is_none(),
+                (_, None) => true,
+                (_, Some(_)) => false,
+            };
+            if !text_transition { return Err(reject("schedule-text-carrier-transition")); }
         }
         let root = &recipe.loops[0];
         let LoopConditionV2::Predicate { block, value } = root.condition else { return Err(reject("schedule-root-condition")); };
@@ -220,6 +254,22 @@ impl ScheduleCheck<'_, '_> {
         }
         Ok(())
     }
+    fn text_add_operation(&self, frame: &SourceLoopScheduledFrameV2,
+        left: LoopValueKeyV1, right: LoopValueKeyV1, result: LoopValueKeyV1) -> Result<(), String> {
+        let mut results = self.values.iter().filter(|value| value.value == result
+            && Rc::ptr_eq(&value.source, frame.source()));
+        let value = results.next().ok_or_else(|| reject("schedule-operation-source"))?;
+        let binary = frame.source().nodes().get(value.node).and_then(|node| node.binary())
+            .ok_or_else(|| reject("schedule-operation-source"))?;
+        let operand_matches = |site, key| self.values.iter().filter(|value|
+            Rc::ptr_eq(&value.source, frame.source()) && value.value == key
+                && frame.source().nodes().get(value.node).is_some_and(|node| node.site() == site)).count() == 1;
+        if results.next().is_some() || !operand_matches(binary.lhs(), left)
+            || !operand_matches(binary.rhs(), right) {
+            return Err(reject("schedule-operation-source"));
+        }
+        super::source_loop_v2::verify_text_add_source_v2(frame.evaluation(), value.node, binary)
+    }
     fn text_read(&self, frame: &SourceLoopScheduledFrameV2, binding: LoopBindingKeyV1,
         result: LoopValueKeyV1) -> Result<(), String> {
         let mut references = frame.references().iter().filter(|(node, _)| self.values.iter().any(|value|
@@ -266,10 +316,21 @@ impl ScheduleCheck<'_, '_> {
                     self.control.push((site.clone(), *item)); position += 1;
                 }
                 SourceLoopScheduledStepV2::Call { item, site, observation, result } => {
+                    let result_required = observation.local_binding().is_some()
+                        || observation.is_expression_value()
+                            && super::source_loop_v2::source_condition_call_v2(self.source, observation);
+                    let result_class = match observation.result() {
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Some(LoopValueClassV2::I64),
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => Some(LoopValueClassV2::Bool),
+                        _ => None,
+                    };
                     if super::source_loop_v2::source_call_v2(self.source, site) != Some(observation)
                         || block.items.get(position) != Some(item) || !self.items.insert(*item)
                         || self.draft.operations.contains_key(item)
-                        || result.is_some() != observation.local_binding().is_some()
+                        || result.is_some() != result_required
+                        || result.is_some_and(|result| result_class.is_none_or(|class|
+                            self.recipe.values.get(result.raw() as usize)
+                                .is_none_or(|value| value.key != result || value.class != class)))
                         || !matches!(&self.recipe.items[item.raw() as usize].item,
                             LoopRecipeItemV2::Operation { operation: LoopOperationV2::CallSlot { receiver: None, args, result: actual } }
                                 if args.is_empty() && actual == result) {
@@ -294,6 +355,9 @@ impl ScheduleCheck<'_, '_> {
                         }
                         if let LoopOperationV2::BinaryI64 { op, left, right, result } = operation {
                             self.integer_operation(frame, *op, *left, *right, *result)?;
+                        }
+                        if let LoopOperationV2::TextAdd { left, right, result } = operation {
+                            self.text_add_operation(frame, *left, *right, *result)?;
                         }
                         if let LoopOperationV2::ReadBinding { binding, result } = operation {
                             if self.recipe.values.get(result.raw() as usize)
@@ -322,7 +386,7 @@ impl ScheduleCheck<'_, '_> {
                         let super::source_loop_v2::Reference::Scalar(read) = reference else { continue; };
                         let Some(original) = read.original_read() else { continue; };
                         let super::source_loop_v2::Producer::BranchNormal(join) = original.producer() else { continue; };
-                        let expected = super::source_loop_v2::producer_value_v2(original.producer(), self.recipe,
+                        let expected = super::source_loop_v2::producer_value_v2(original.producer(), self.source, self.recipe,
                             self.values, self.bindings, self.draft).ok_or_else(|| reject("schedule-operation-source"))?;
                         if join.binding() != reference.binding() || !available.contains(&expected)
                             || self.values.iter().filter(|row| Rc::ptr_eq(&row.source, frame.source())
@@ -352,9 +416,9 @@ impl ScheduleCheck<'_, '_> {
                         let [(_, _, then_source), (_, _, else_source)] = join.source.incoming() else {
                             return Err(reject("schedule-operation-source"));
                         };
-                        let then_value = super::source_loop_v2::producer_value_v2(then_source, self.recipe,
+                        let then_value = super::source_loop_v2::producer_value_v2(then_source, self.source, self.recipe,
                             self.values, self.bindings, self.draft).ok_or_else(|| reject("schedule-operation-source"))?;
-                        let else_value = super::source_loop_v2::producer_value_v2(else_source, self.recipe,
+                        let else_value = super::source_loop_v2::producer_value_v2(else_source, self.source, self.recipe,
                             self.values, self.bindings, self.draft).ok_or_else(|| reject("schedule-operation-source"))?;
                         if !join.source.corroborates_original() || join.source.site() != site
                             || block.items.get(position) != Some(&join.item) || !self.items.insert(join.item)
@@ -370,6 +434,28 @@ impl ScheduleCheck<'_, '_> {
                             return Err(reject("schedule-operation-source"));
                         }
                         position += 1;
+                        match (join.binding, join.write_item) {
+                            (Some(binding), Some(write_item)) => {
+                                let is_carrier = self.recipe.carriers.iter().any(|row|
+                                    row.owner_loop == self.recipe.root_loop && row.binding == binding
+                                        && row.class == LoopValueClassV2::I64);
+                                if self.bindings.get(&join.source.binding()) != Some(&binding)
+                                    || !self.source.headers.contains_key(&join.source.binding())
+                                    || !join.source.corroborates_original() || !is_carrier
+                                    || block.items.get(position) != Some(&write_item)
+                                    || !self.items.insert(write_item)
+                                    || self.draft.operations.contains_key(&write_item)
+                                    || !matches!(self.recipe.items[write_item.raw() as usize].item,
+                                        LoopRecipeItemV2::Operation { operation: LoopOperationV2::WriteBinding {
+                                            binding: actual_binding, value
+                                        } } if actual_binding == binding && value == join.result) {
+                                    return Err(reject("schedule-operation-source"));
+                                }
+                                position += 1;
+                            }
+                            (None, None) => {}
+                            _ => return Err(reject("schedule-operation-source")),
+                        }
                     }
                     match (yes, no) {
                         (None, None) => alive = false,
@@ -392,7 +478,7 @@ impl ScheduleCheck<'_, '_> {
                     let class = self.recipe.values.get(value.raw() as usize).filter(|row| row.key == value).map(|row| row.class);
                     let returned = self.values.iter().filter(|row| Rc::ptr_eq(&row.source, &source.source) && row.node == 0 && row.value == value).count();
                     if returned != 1 || class != Some(LoopValueClassV2::I64) { return Err(reject("schedule-result-unavailable")); }
-                    let producer = super::source_loop_v2::producer_value_v2(source.read.producer(), self.recipe,
+                    let producer = super::source_loop_v2::producer_value_v2(source.read.producer(), self.source, self.recipe,
                         self.values, self.bindings, self.draft);
                     if operations.is_empty() {
                         if producer != Some(value) { return Err(reject("schedule-operation-source")); }

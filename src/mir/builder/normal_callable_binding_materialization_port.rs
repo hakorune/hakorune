@@ -27,6 +27,10 @@ pub(in crate::mir::builder) enum CallableEntryShapeV1 {
 }
 
 impl CallableEntryShapeV1 {
+    pub(in crate::mir::builder) fn has_physical_formals(&self) -> bool {
+        !matches!(self, Self::StaticInjectedLocals { .. })
+    }
+
     pub(in crate::mir::builder) fn prepare_values(
         self,
         builder: &MirBuilder,

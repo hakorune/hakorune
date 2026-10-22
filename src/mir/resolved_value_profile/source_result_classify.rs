@@ -28,7 +28,7 @@ impl ExprClassV1 {
         match self {
             Self::I64 => Some(SourceResultClassV1::I64),
             Self::String => Some(SourceResultClassV1::String),
-            Self::Bool | Self::Null | Self::Opaque => None,
+            Self::Dynamic | Self::Bool | Self::Null | Self::Opaque => None,
         }
     }
 
@@ -399,7 +399,11 @@ fn classify_method_call(
             state
                 .call_dispositions
                 .push(SourceCallDispositionV1::Dynamic { site: site.clone() });
-            ExprClassV1::Opaque
+            // The source target plus the language-wide Dynamic invocation
+            // envelope proves that Normal publishes a self-contained opaque
+            // Dynamic carrier. This does not refine its runtime payload or
+            // grant a physical CallSlot.
+            ExprClassV1::Dynamic
         }
         Some(VerifiedSourceCallTargetV1::CoreMethod(_)) => {
             state

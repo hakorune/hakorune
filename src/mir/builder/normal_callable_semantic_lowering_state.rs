@@ -86,6 +86,10 @@ pub(super) struct CallableSemanticLoweringState {
     direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     values: MaterializedValuesV1,
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
+    /// Original untyped formal identities eligible for a tagged entry lane.
+    /// The source product, not selected semantic flavor or MIR type, owns the
+    /// classification.
+    dynamic_entry_formals: Option<Box<[(u32, BindingRefV1)]>>,
     entry_installed: bool,
     borrowed_entry_formals: Option<Result<Option<Box<[(u32, BindingRefV1)]>>, String>>,
     exact_usize_entry_formals: Option<Box<[(u32, BindingRefV1)]>>,
@@ -390,7 +394,8 @@ impl CallableSemanticLoweringState {
                 .initializer_site()
                 .and_then(|initializer| self.variables.get(initializer.node()).copied());
             let provenance = match source {
-                Some(source) => self.values.local_provenance(source, row),
+                Some(source) => self.values.local_provenance(source, row)
+                    .and_then(|proof| proof.with_local_initializer_v1(*binding, row)),
                 None if relation.initializer_site().is_some() => materialized_values::MaterializedValuesV1::initializer_provenance(*binding, row),
                 None => None,
             };

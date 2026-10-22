@@ -61,7 +61,7 @@ impl Region {
     /// MirType から簡易的に RefSlotKind を推定するよ（観測専用）。
     pub fn classify_ref_kind(ty: &MirType) -> RefSlotKind {
         match ty {
-            MirType::Box(_) | MirType::Array(_) | MirType::Future(_) => RefSlotKind::StrongRoot,
+            MirType::Box(_) | MirType::Array(_) | MirType::Future(_) | MirType::TextOperand => RefSlotKind::StrongRoot,
             MirType::WeakRef => RefSlotKind::WeakRoot, // Phase 285A1
             MirType::Integer | MirType::Float | MirType::Bool | MirType::String => {
                 RefSlotKind::NonRef

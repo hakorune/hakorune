@@ -313,8 +313,6 @@ pub(super) fn lower_app_main_root_body_v1(
                             inner.lower_body(builder, body)?
                         };
                         inner.complete_construction_stores_v1(builder)?;
-                        main_arguments.finish(builder.function_state.current_function.as_mut()
-                            .ok_or_else(|| "[freeze:contract][main-arguments/function-missing]".to_owned())?)?;
                         ordinary_new_claim_ledger.retain_main_arguments_v1(main_arguments)?;
                         Ok(value)
                     })

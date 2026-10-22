@@ -43,6 +43,36 @@ fn decide_phi_transient_type_v1(
     let existing = exact_fact(PhiTypeFactSiteV1::ExistingDestination, existing_destination);
     let hint = exact_fact(PhiTypeFactSiteV1::ExplicitTypeHint, type_hint);
 
+    // A typed TextOperand PHI is the one intentional representation-changing
+    // join: each original incoming String value is encoded as a tagged
+    // Static/Owned descriptor on its predecessor edge. It carries no Home;
+    // the source Loop product separately proves any Owned residence.
+    if existing.as_ref().is_some_and(|fact| *fact.ty == MirType::TextOperand)
+        || hint.as_ref().is_some_and(|fact| *fact.ty == MirType::TextOperand) {
+        if let (Some(first), Some(second)) = (&existing, &hint) {
+            require_equal(dst, first, second)?;
+        }
+        let mut ordered_inputs = logical_inputs.to_vec();
+        ordered_inputs.sort_by_key(|(predecessor, value)| (*predecessor, *value));
+        for (predecessor, value) in &ordered_inputs {
+            if let Some(incoming) = value_types.get(value) {
+                if !matches!(incoming, MirType::String | MirType::TextOperand) {
+                    return Err(PhiConcreteTypeConflictV1 {
+                        dst,
+                        first_site: PhiTypeFactSiteV1::ExplicitTypeHint,
+                        first_type: MirType::TextOperand,
+                        second_site: PhiTypeFactSiteV1::Incoming { predecessor: *predecessor, value: *value },
+                        second_type: incoming.clone(),
+                    });
+                }
+            }
+        }
+        return Ok(match existing {
+            Some(_) => PreparedPhiTypePublicationV1::Idempotent(MirType::TextOperand),
+            None => PreparedPhiTypePublicationV1::Publish(MirType::TextOperand),
+        });
+    }
+
     if let (Some(first), Some(second)) = (&existing, &hint) {
         require_equal(dst, first, second)?;
     }

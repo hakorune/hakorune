@@ -77,11 +77,23 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
     ) -> Result<(ValueId, crate::mir::normal_callable_semantic_package::LexicalCallArgumentProjectionV1), String> {
         self.validate_current_call_argument_site_v1(site)?;
         if self.callable_owner_v1() != Some(call.owner()) { return Err("[freeze:contract][argument-expression/owner]".into()); }
-        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][argument-expression/ledger]")?;
-        let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][argument-expression/state]")?;
+        let ledger = std::rc::Rc::clone(self.ordinary_new_claim_ledger.as_ref()
+            .ok_or("[freeze:contract][argument-expression/ledger]")?);
+        let state = std::rc::Rc::clone(self.callable_ledger.as_ref()
+            .ok_or("[freeze:contract][argument-expression/state]")?);
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
-        crate::mir::builder::ordinary_new_admission::selected::emit_argument_expression_v1(
-            builder, &mut state.borrow_mut(), ledger, call, ordinal, site, &consume_receiver)
+        let port = std::cell::RefCell::new(self);
+        let issue_static = |builder: &mut MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, frame, observation, &ledger)
+        };
+        let result = crate::mir::builder::ordinary_new_admission::selected::emit_argument_expression_with_prefix_v1(
+            builder, &mut state.borrow_mut(), &ledger, call, ordinal, site,
+            &consume_receiver, None, Some(&issue_static));
+        result
     }
     fn static_execution_argument_source_v1(&self, row: &crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1)
         -> Result<crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1, String> {
@@ -239,10 +251,20 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         let state = self
             .callable_ledger
             .as_ref()
-            .ok_or_else(|| "[freeze:contract][borrowed-static/local-state-missing]".to_owned())?;
+            .ok_or_else(|| "[freeze:contract][borrowed-static/local-state-missing]".to_owned())?
+            .clone();
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+        let port = std::cell::RefCell::new(self);
+        let issue_static = |builder: &mut MirBuilder,
+            nested: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, nested, frame, observation, &ledger)
+        };
         let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_source(
             builder, &mut state.borrow_mut(), &ledger, owner, &site, source, &consume_receiver,
+            Some(&issue_static),
         )?;
         Ok(Some(value))
     }
@@ -306,10 +328,10 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         }
         self.consume_lexical_self_receiver_locator_v1(&row)?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
-        let state = self
+        let state = std::rc::Rc::clone(self
             .callable_ledger
             .as_ref()
-            .ok_or_else(|| "[freeze:contract][lexical-instance-call/state-missing]".to_owned())?;
+            .ok_or_else(|| "[freeze:contract][lexical-instance-call/state-missing]".to_owned())?);
         let mut state = state.borrow_mut();
         let value = if nullable || (handle && ledger.uses_object_packet_protocol_v1(&row)?) {
             crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_object(
@@ -330,14 +352,24 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
                 row,
             )?
         } else {
+            let ledger = std::rc::Rc::clone(ledger);
+            let port = std::cell::RefCell::new(self);
+            let issue_static = |builder: &mut MirBuilder,
+                nested: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+                frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+                observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+                crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                    &mut port.borrow_mut(), builder, nested, frame, observation, &ledger)
+            };
             crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_i64(
                 builder,
                 &mut state,
-                ledger,
+                &ledger,
                 owner,
                 &site,
                 row,
                 &consume_receiver,
+                Some(&issue_static),
             )?
         };
         Ok(Some(value))

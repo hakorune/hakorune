@@ -4,14 +4,14 @@
 //! formal path requires the canonical current non-null state, exact original
 //! writer/receiver/value consults, a numeric field declaration and checked RHS.
 //! Neither path acquires a Home or issues physical FieldSet permission.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use std::rc::Rc;
 #[path = "home_new_prefix_owned_field_write.rs"]
 mod owned_local;
 use crate::mir::resolved_semantics::{
-    BodyExpressionShapeV1, BodyMeReceiverV1, ResolvedAssignmentFormV1, ResolvedBinaryOperatorV1,
-    ResolvedAssignmentTargetV1, VerifiedResolvedBodyShapeInventoryV1,
+    BodyExpressionShapeV1, BodyMeReceiverV1, ResolvedAssignmentFormV1, ResolvedAssignmentTargetV1,
+    ResolvedBinaryOperatorV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 
 /// Preserve an admitted field effect in the shared expression inventory. Only
@@ -21,24 +21,48 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>, prefix_known: bool, local_calls: &[LocalCallObservationV1],
+    homes: &mut Vec<LiveHomeV1>,
+    prefix_known: bool,
+    local_calls: &[LocalCallObservationV1],
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
-        -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl FnMut(
+        &[LocalFieldReadRequestV1],
+        LocalFieldReadDemandV1,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
-    if let Some(admitted) = owned_local::observe(input, statement, locals, homes, prefix_known, local_calls, scalar_field, fields)? {
+    if let Some(admitted) = owned_local::observe(
+        input,
+        statement,
+        locals,
+        homes,
+        prefix_known,
+        local_calls,
+        scalar_field,
+        fields,
+    )? {
         return Ok(admitted);
     }
     // A sealed entry writer uses the same whole-RHS owner as LOCAL. Its
     // original receiver/source permission is stronger than the neutral probe.
     if let Some(shape) = input.body_shape() {
-        if let Some(assignment) = shape.assignment_sources().iter().find(|row| row.statement_site() == statement.site()) {
-            if let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) = input.function().assignment_target(assignment.target_site()) {
+        if let Some(assignment) = shape
+            .assignment_sources()
+            .iter()
+            .find(|row| row.statement_site() == statement.site())
+        {
+            if let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) =
+                input.function().assignment_target(assignment.target_site())
+            {
                 if self_rooted_me(shape, receiver, locals).is_some() {
-                    if let Some(entry) = scalar_field.entry_write(input, assignment.target_site())? {
-                        let Some(frame) = CheckedFieldWriteFrameV1::for_entry(entry, homes) else { return Ok(false) };
-                        let signed_reads = signed_reads(frame.source(), locals, local_calls, scalar_field);
+                    if let Some(entry) =
+                        scalar_field.entry_write(input, assignment.target_site())?
+                    {
+                        let Some(frame) = CheckedFieldWriteFrameV1::for_entry(entry, homes) else {
+                            return Ok(false);
+                        };
+                        let signed_reads =
+                            signed_reads(frame.source(), locals, local_calls, scalar_field);
                         let inputs: Vec<_> = if crate::config::env::builder_debug_enabled() {
                             frame.source().nodes().iter().filter(|node| matches!(node.source(),
                                 crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
@@ -50,25 +74,36 @@ pub(super) fn observe<E>(
                                     };
                                     (node.site().clone(), kind, locals.current_scalar_read_v1(node.site(), local_calls).is_some(), signed_reads.contains_key(node.site()))
                                 }).collect()
-                        } else { Vec::new() };
-                        let finite_reads = finite_reads(input, frame.source(), locals, scalar_field)?;
+                        } else {
+                            Vec::new()
+                        };
+                        let finite_reads =
+                            finite_reads(input, frame.source(), locals, scalar_field)?;
                         let target = assignment.target_site();
                         let mut field_batch_ready = None;
                         let mut installation = locals.expression_installation();
-                        let plan = super::expression_plan::qualify_field_write_expression_v1(Rc::clone(frame.source()), true, Some(frame),
+                        let plan = super::expression_plan::qualify_field_write_expression_v1(
+                            Rc::clone(frame.source()),
+                            true,
+                            Some(frame),
                             &mut |site| match locals.observe(site) {
-                                Some(OrdinaryObservation::Integer(_)) => Some(SourceScalarKind::Integer),
+                                Some(OrdinaryObservation::Integer(_)) => {
+                                    Some(SourceScalarKind::Integer)
+                                }
                                 Some(OrdinaryObservation::Bool(_)) => Some(SourceScalarKind::Bool),
                                 Some(OrdinaryObservation::TrivialLocal(_, kind)) => kind,
                                 _ => None,
-                            }, &mut |site| signed_reads.get(site).cloned(), &mut |site| finite_reads.get(site).cloned(),
+                            },
+                            &mut |site| signed_reads.get(site).cloned(),
+                            &mut |site| finite_reads.get(site).cloned(),
                             &mut |site| super::field_read::field_read_request(input, site, locals),
                             &mut |plan| installation.approve(plan),
                             &mut |requests, demand| {
                                 let ready = fields(requests, demand)?.is_some();
                                 field_batch_ready = Some(ready);
                                 Ok(ready)
-                            })?;
+                            },
+                        )?;
                         if plan.is_none() {
                             if crate::config::env::builder_debug_enabled() {
                                 eprintln!("[field-source] owner={:?} target={target:?} RHS unavailable inputs={inputs:?} field-batch={field_batch_ready:?}", input.owner());
@@ -82,33 +117,63 @@ pub(super) fn observe<E>(
             }
         }
     }
-    if !observe_receiver_field_write(input, statement, locals, scalar_field, view_use)? { return Ok(false); }
-    let shape = input.body_shape().expect("field effect validated its original shape");
-    let assignment = shape.assignment_sources().iter()
-        .find(|row| row.statement_site() == statement.site()).expect("validated original assignment");
-    let Some(source) = scalar_field.assignment_source(input.owner(), assignment.target_site())? else { return Ok(true) };
+    if !observe_receiver_field_write(input, statement, locals, scalar_field, view_use)? {
+        return Ok(false);
+    }
+    let shape = input
+        .body_shape()
+        .expect("field effect validated its original shape");
+    let assignment = shape
+        .assignment_sources()
+        .iter()
+        .find(|row| row.statement_site() == statement.site())
+        .expect("validated original assignment");
+    let Some(source) = scalar_field.assignment_source(input.owner(), assignment.target_site())?
+    else {
+        return Ok(true);
+    };
     if source.owner() != input.owner()
         || !matches!(source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment: original } if original == assignment)
-    { return Ok(false); }
+    {
+        return Ok(false);
+    }
     let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) =
-        input.function().assignment_target(assignment.target_site()) else { return Ok(false) };
+        input.function().assignment_target(assignment.target_site())
+    else {
+        return Ok(false);
+    };
     if self_rooted_me(shape, receiver, locals).is_none() {
-        let Some(plan) = super::expression_plan::HomeExpressionPlanV1::borrowed_field_write(source, homes)
-            else { return Ok(false) };
+        let Some(plan) =
+            super::expression_plan::HomeExpressionPlanV1::borrowed_field_write(source, homes)
+        else {
+            return Ok(false);
+        };
         let mut installation = locals.expression_installation();
-        if !installation.approve(&plan) { return Ok(false); }
+        if !installation.approve(&plan) {
+            return Ok(false);
+        }
         installation.commit();
         return Ok(true);
     }
     // Preserve the existing neutral-effect admission for non-arithmetic writes.
     // Only scalar operations need the stronger shared field-value grounding.
-    if !source.nodes().iter().any(|node| node.binary().is_some_and(|binary|
-        matches!(binary.operator(), ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide)))
-    { return Ok(true); }
+    if !source.nodes().iter().any(|node| {
+        node.binary().is_some_and(|binary| {
+            matches!(
+                binary.operator(),
+                ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide
+            )
+        })
+    }) {
+        return Ok(true);
+    }
     let signed_reads = signed_reads(&source, locals, local_calls, scalar_field);
     let finite_reads = finite_reads(input, &source, locals, scalar_field)?;
     let mut installation = locals.expression_installation();
-    let plan = super::expression_plan::qualify_field_write_expression_v1(source, false, None,
+    let plan = super::expression_plan::qualify_field_write_expression_v1(
+        source,
+        false,
+        None,
         &mut |site| match locals.observe(site) {
             Some(OrdinaryObservation::Integer(_)) => Some(SourceScalarKind::Integer),
             Some(OrdinaryObservation::Bool(_)) => Some(SourceScalarKind::Bool),
@@ -119,8 +184,11 @@ pub(super) fn observe<E>(
         &mut |site| finite_reads.get(site).cloned(),
         &mut |site| super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
-        &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
-    if plan.is_none() { return Ok(false); }
+        &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
+    )?;
+    if plan.is_none() {
+        return Ok(false);
+    }
     installation.commit();
     Ok(true)
 }
@@ -171,28 +239,37 @@ pub(super) fn observe_receiver_field_write<E>(
     if row.form() != ResolvedAssignmentFormV1::Plain {
         return Ok(false);
     }
-    let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) = input
-        .function()
-        .assignment_target(row.target_site())
+    let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) =
+        input.function().assignment_target(row.target_site())
     else {
         return Ok(false);
     };
     if self_rooted_me(shape, receiver, locals).is_none() {
-        let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(receiver) else {
+        let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(receiver)
+        else {
             return Ok(false);
         };
         // The canonical branch walk, not source order, proves the non-null
         // surviving path. No owned local or alias can become a borrowed formal.
-        if !matches!(input.function().binding(binding).map(|row| row.kind()),
-            Some(crate::mir::resolved_semantics::BindingKindV1::Parameter { .. }))
-            || locals.field_home(receiver) != Some(binding)
+        if !matches!(
+            input.function().binding(binding).map(|row| row.kind()),
+            Some(crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })
+        ) || locals.field_home(receiver) != Some(binding)
             || !locals.is_self_rooted_handle(binding)
-            || !view_use(&OwnedExprSiteV1::new(input.owner(), receiver.clone()),
+            || !view_use(
+                &OwnedExprSiteV1::new(input.owner(), receiver.clone()),
                 BorrowedViewUseRequestV1::FormalFieldWriteReceiver {
-                    target: row.target_site(), binding, root: binding,
-                })?
-            || !view_use(&OwnedExprSiteV1::new(input.owner(), row.value_site().clone()),
-                BorrowedViewUseRequestV1::FormalFieldWriteValue { target: row.target_site() })?
+                    target: row.target_site(),
+                    binding,
+                    root: binding,
+                },
+            )?
+            || !view_use(
+                &OwnedExprSiteV1::new(input.owner(), row.value_site().clone()),
+                BorrowedViewUseRequestV1::FormalFieldWriteValue {
+                    target: row.target_site(),
+                },
+            )?
         {
             return Ok(false);
         }
@@ -276,28 +353,62 @@ pub(super) fn observe_receiver_field_write<E>(
 
 /// Resolve current producers before the transactional expression installation
 /// borrows the plan store. Only reads in this SAME original RHS are lent.
-fn signed_reads<E>(source: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
-    locals: &PrefixLocalFlow<'_>, calls: &[LocalCallObservationV1], consult: &mut impl HomeFieldSourceConsultV1<E>,
-) -> std::collections::BTreeMap<SourceExprSiteV1, (CurrentScalarReadV1, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)> {
-    source.nodes().iter().filter(|node| matches!(node.source(),
-        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
+fn signed_reads<E>(
+    source: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    locals: &PrefixLocalFlow<'_>,
+    calls: &[LocalCallObservationV1],
+    consult: &mut impl HomeFieldSourceConsultV1<E>,
+) -> std::collections::BTreeMap<
+    SourceExprSiteV1,
+    (
+        CurrentScalarReadV1,
+        Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+    ),
+> {
+    source
+        .nodes()
+        .iter()
+        .filter(|node| {
+            matches!(node.source(),
+        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_))
+        })
         .filter_map(|node| {
             let read = locals.current_scalar_read_v1(node.site(), calls)?;
             let sum = consult.scalar_read_sum(&read)?;
             Some((node.site().clone(), (read, sum)))
-        }).collect()
+        })
+        .collect()
 }
 
 /// Read loans are gathered before borrowing the transactional plan store. The
 /// existing formal/alias owner supplies roots; receiver identities are skipped.
-fn finite_reads<E>(input: ResolvedFunctionLoweringInputV1<'_>,
+fn finite_reads<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
     source: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
-    locals: &PrefixLocalFlow<'_>, consult: &mut impl HomeFieldSourceConsultV1<E>,
-) -> Result<std::collections::BTreeMap<SourceExprSiteV1, crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>, E> {
+    locals: &PrefixLocalFlow<'_>,
+    consult: &mut impl HomeFieldSourceConsultV1<E>,
+) -> Result<
+    std::collections::BTreeMap<
+        SourceExprSiteV1,
+        crate::mir::normal_callable_semantic_package::FiniteEntryReadV1,
+    >,
+    E,
+> {
     let mut reads = std::collections::BTreeMap::new();
     for node in source.nodes() {
-        if !matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)) { continue; }
-        let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
+        if !matches!(
+            node.source(),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(
+                _
+            )
+        ) {
+            continue;
+        }
+        let Some((binding, root)) =
+            super::argument_expression::text_reference(input, locals, node.site())
+        else {
+            continue;
+        };
         if let Some(read) = consult.finite_entry_read(input, source, node.site(), binding, root)? {
             reads.insert(node.site().clone(), read);
         }

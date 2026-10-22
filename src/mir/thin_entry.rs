@@ -419,7 +419,7 @@ fn value_class_from_declared_type(ty: Option<&MirType>) -> ThinEntryValueClass {
         | Some(MirType::Array(_))
         | Some(MirType::Future(_))
         | Some(MirType::WeakRef) => ThinEntryValueClass::Handle,
-        Some(MirType::Unknown) | None => ThinEntryValueClass::Unknown,
+        Some(MirType::Unknown | MirType::TextOperand) | None => ThinEntryValueClass::Unknown,
     }
 }
 

@@ -6,6 +6,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2 as Product;
 use crate::mir::resolved_semantics::{BindingRefV1, home_new_prefix::SourceLoopPortKindV1 as Port};
 use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
+use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 as Producer;
 use crate::mir::{BasicBlockId, ValueId, MirInstruction};
 use std::{rc::Rc, collections::BTreeMap};
 
@@ -33,8 +34,15 @@ impl EmittedSourceLoopGraphV2 {
         let claims = state.ordinary_new_claim_ledger().ok_or_else(|| reject("claims"))?;
         let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims);
         let basis = self.product.source.headers.values().next().ok_or_else(|| reject("empty-carriers"))?;
-        if !Rc::ptr_eq(&context.source_loop_point_product_v2(
-            &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::LoopHeader(Rc::clone(basis)))?, &self.product) {
+        let checked_product = match basis.entry_producer() {
+            Producer::Scalar(_) => context.source_loop_point_product_v2(
+                &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::LoopHeader(Rc::clone(basis)))?,
+            Producer::Text(_) => context.source_loop_text_point_product_v2(
+                &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::Header(Rc::clone(basis)))?,
+            Producer::Dynamic(_) => context.source_loop_dynamic_point_product_v2(
+                &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1::Header(Rc::clone(basis)))?,
+        };
+        if !Rc::ptr_eq(&checked_product, &self.product) {
             return Err(reject("original-product"));
         }
         if state.owner() != self.product.source.source.owner() || self.header == self.after {
@@ -87,8 +95,14 @@ impl EmittedSourceLoopGraphV2 {
                     let value = values.next().ok_or_else(|| reject("incoming-binding"))?;
                     if values.next().is_some() { return Err(reject("incoming-binding-duplicate")); }
                     self.product.validate_incoming_value_v2(&edge.source, binding, value.logical)?;
-                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
-                        binding, &expected.producer, &value.observation, context, function)?;
+                    match &expected.producer {
+                        Producer::Scalar(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
+                            binding, source, &value.observation, context, function)?,
+                        Producer::Text(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_text_binding_v2(
+                            binding, source, &value.observation, context, function)?,
+                        Producer::Dynamic(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
+                            binding, source, &value.observation, context, function)?,
+                    };
                     value.localized.verify(function)?;
                     if value.localized.values().0 != value.observation.binding_value().1 { return Err(reject("localized-origin")); }
                     match (&edge.source, &value.canonical) {

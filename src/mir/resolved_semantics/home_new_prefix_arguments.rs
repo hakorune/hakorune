@@ -6,10 +6,11 @@
 //! bindings — nothing is invented.
 
 use super::{
-    HomeFieldSourceConsultV1, scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
-    BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
-    LocalFieldReadDemandV1, LocalFieldReadRequestV1, LocalFieldReadResultV1, ObjectReturnCallQualificationV1,
-    ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
+    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+    BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomeFieldSourceConsultV1,
+    HomePrefixUnavailableV1, LocalFieldReadDemandV1, LocalFieldReadRequestV1,
+    LocalFieldReadResultV1, ObjectReturnCallQualificationV1, ResultNewHomePrefixV1,
+    SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
@@ -29,6 +30,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         ),
     >,
     entry_home: Option<&super::VerifiedInstanceEntryHomeLoanV1>,
+    dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
 ) -> (
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
@@ -39,10 +41,15 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         selected,
         parameters,
         entry_home,
+        dynamic_source_points,
         &[],
         false,
         result_sites,
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok::<_, std::convert::Infallible>(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
+              _,
+              _,
+              _: &str| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
@@ -62,18 +69,34 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // This bounded sibling issues no field-read evidence: argument
         // `me.f` reads stay truthfully unavailable here. Only the
         // verified-completion lane carries the issuer predicate.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
+              _,
+              _,
+              _: &str| Ok(false),
         // Field-write scalar proof stays unavailable on this lane for the
         // same reason — no `me.<field> = ..` statement is admitted here.
         &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
         // Container-field proof stays unavailable on this lane as well —
         // no `me.<field>.m(..)` statement is admitted here.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
+              _,
+              _,
+              _: &str| Ok(false),
         // The `ArrayBox` field census stays unavailable on this lane —
         // a `me.<field>.get(..)` result claims no i64 here.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
+              _,
+              _,
+              _: &str| Ok(false),
         // The `formal.<field>` index proof stays unavailable on this lane.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
+              _,
+              _,
+              _: &str| Ok(false),
         // Local-initializer field reads stay unavailable on this lane —
         // the verified-completion lane owns the issuer predicate.
         &mut |_, _| Ok(None),
@@ -189,6 +212,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         selected,
         parameters,
         entry_home,
+        None,
         explicit_sites,
         false,
         &BTreeSet::new(),

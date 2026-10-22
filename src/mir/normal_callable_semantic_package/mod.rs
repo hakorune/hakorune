@@ -54,6 +54,7 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
+pub(in crate::mir) use ordinary_new_coseal::TaggedDynamicSourcePointsV1;
 pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
 pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
@@ -261,7 +262,7 @@ pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgument
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 
@@ -270,9 +271,10 @@ pub(crate) use ordinary_new_coseal::{BorrowedFieldWriteSourceLoanV1, FieldWriteS
 pub(crate) use ordinary_new_coseal::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use ordinary_new_coseal::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
 
-pub(crate) use ordinary_new_coseal::{ArgumentExpressionSourceLoanV1, FiniteEntryReadV1};
+pub(crate) use ordinary_new_coseal::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
 
 pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
+pub(crate) use ordinary_new_coseal::BorrowedFormalEntryReadRequirementV1;
 
 pub(crate) use ordinary_new_coseal::ObjectFieldClassSourceV1;
 

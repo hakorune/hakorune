@@ -2,7 +2,9 @@ use crate::mir::normal_callable_semantic_package::STORED_BORROWED_LOCAL_SOURCE;
 
 use super::*;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PendingBorrowedFormalActualsV1;
-use crate::mir::resolved_semantics::home_new_prefix::{LocalCallArgumentV1, BorrowedCallActualCandidateV1, BorrowedCallActualValueV1};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    BorrowedCallActualCandidateV1, BorrowedCallActualValueV1, LocalCallArgumentV1,
+};
 
 fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1
 {
@@ -32,7 +34,9 @@ fn object_argument_request_rejects_foreign_facts_before_missing_target() {
     let mut pending = ledger.borrowed_formal_actuals.clone();
     let original = pending.clone();
     for (qualification, accepted) in [(&own, true), (&other, false)] {
-        let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
+        let result = borrowed_call_arguments_callback_v1(
+            package.batch(),
+            &package.selected,
             &Ok(Vec::new()),
             &package.parameter_contracts,
             &[],
@@ -45,7 +49,9 @@ fn object_argument_request_rejects_foreign_facts_before_missing_target() {
             qualification.call(),
             BorrowedCallActualRequestV1::ObjectArguments(qualification, None),
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
+            &ledger.receiver_call_observations,
+            &ledger.field_write_claims,
+            None,
         );
         if accepted {
             assert!(result.unwrap().is_none());
@@ -99,7 +105,9 @@ fn qualified_source_input_generic_demands_stay_passive() {
         BorrowedCallActualRequestV1::ScalarArguments,
         BorrowedCallActualRequestV1::I64ResultArguments,
     ] {
-        let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
+        let result = borrowed_call_arguments_callback_v1(
+            package.batch(),
+            &package.selected,
             &Ok(Vec::new()),
             &package.parameter_contracts,
             &[],
@@ -112,7 +120,9 @@ fn qualified_source_input_generic_demands_stay_passive() {
             qualification.call(),
             request,
             &ledger.callable_result_classes,
-            &ledger.receiver_call_observations, &ledger.field_write_claims, None,
+            &ledger.receiver_call_observations,
+            &ledger.field_write_claims,
+            None,
         )
         .unwrap();
         assert!(
@@ -126,111 +136,141 @@ fn qualified_source_input_generic_demands_stay_passive() {
 #[test]
 fn stored_nullable_local_source_retains_original_borrow_without_object_promotion() {
     for (field_write, terminating_null_guard, field_index) in [
-        (false, true, false), (true, true, false), (true, false, false),
-        (true, true, true), (true, false, true),
+        (false, true, false),
+        (true, true, false),
+        (true, false, false),
+        (true, true, true),
+        (true, false, true),
     ] {
-    let mut text = if field_write {
-        STORED_BORROWED_LOCAL_SOURCE.replace("maybe(p: Item)", "maybe(p: Item, n)")
+        let mut text =
+            if field_write {
+                STORED_BORROWED_LOCAL_SOURCE.replace("maybe(p: Item)", "maybe(p: Item, n)")
             .replace("if p == null { return null } return p",
                 "if p == null { return null } if n <= 0 { return null } p.value = n return p")
             .replace("me.child.maybe(p)", "me.child.maybe(p, 7)")
-    } else { STORED_BORROWED_LOCAL_SOURCE.to_owned() };
-    if field_index {
-        text = text.replace("box Leaf { flag: i64", "box Leaf { slots: ArrayBox flag: i64")
-            .replace("me.flag = 0", "me.flag = 0 me.slots = new ArrayBox()")
-            .replace("p.value = n", "me.slots.set(p.value, n) p.value = n");
-    }
-    if !terminating_null_guard {
-        text = text.replace("if p == null { return null }", "if p == null { local ignored = 0 }");
-    }
-    let prepared = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text);
-    if !terminating_null_guard {
-        if let Err(issue) = &prepared {
-            assert!(format!("{issue:?}").contains("PrefixNotCovered"), "{issue:?}");
-            continue;
+            } else {
+                STORED_BORROWED_LOCAL_SOURCE.to_owned()
+            };
+        if field_index {
+            text = text
+                .replace(
+                    "box Leaf { flag: i64",
+                    "box Leaf { slots: ArrayBox flag: i64",
+                )
+                .replace("me.flag = 0", "me.flag = 0 me.slots = new ArrayBox()")
+                .replace("p.value = n", "me.slots.set(p.value, n) p.value = n");
         }
-    }
-    let mut package = prepared.expect("original stored borrowed LOCAL source");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let source = ledger
-        .borrowed_formal_source
-        .as_ref()
-        .unwrap()
-        .as_ref()
-        .unwrap();
-    let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Parent", "run", 1);
-    let slot = package
-        .selected
-        .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key))
-        .unwrap();
-    let call = package
-        .batch
-        .with_lowering_input(slot, |input| {
-            let initializer = input
-                .function()
-                .expression_source()
-                .initializers()
-                .next()
-                .unwrap();
-            OwnedExprSiteV1::new(
-                input.owner(),
-                initializer.initializer_site().unwrap().clone(),
-            )
-        })
-        .unwrap();
-    let target = source
-        .object_source_target_at_v1(&call)
-        .unwrap()
-        .expect("original production source retention");
-    let loan = target.borrowed_nullable_local_source().unwrap();
-    assert!(ledger.is_lifecycle_local_call_site_v1(&call).unwrap());
-    let observed = ledger
-        .local_call_for_owner(call.owner(), call.site())
-        .expect("original production Home walk records the borrowed local");
-    assert_eq!(
+        if !terminating_null_guard {
+            text = text.replace(
+                "if p == null { return null }",
+                "if p == null { local ignored = 0 }",
+            );
+        }
+        let prepared = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text);
+        if !terminating_null_guard {
+            if let Err(issue) = &prepared {
+                assert!(
+                    format!("{issue:?}").contains("PrefixNotCovered"),
+                    "{issue:?}"
+                );
+                continue;
+            }
+        }
+        let mut package = prepared.expect("original stored borrowed LOCAL source");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let source = ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Parent", "run", 1);
+        let slot = package
+            .selected
+            .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key))
+            .unwrap();
+        let call = package
+            .batch
+            .with_lowering_input(slot, |input| {
+                let initializer = input
+                    .function()
+                    .expression_source()
+                    .initializers()
+                    .next()
+                    .unwrap();
+                OwnedExprSiteV1::new(
+                    input.owner(),
+                    initializer.initializer_site().unwrap().clone(),
+                )
+            })
+            .unwrap();
+        let target = source
+            .object_source_target_at_v1(&call)
+            .unwrap()
+            .expect("original production source retention");
+        let loan = target.borrowed_nullable_local_source().unwrap();
+        assert!(ledger.is_lifecycle_local_call_site_v1(&call).unwrap());
+        let observed = ledger
+            .local_call_for_owner(call.owner(), call.site())
+            .expect("original production Home walk records the borrowed local");
+        assert_eq!(
         observed.result(),
         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::BorrowedNullable
     );
-    assert_eq!(observed.borrowed_nullable(), Some(loan));
-    let completed = ledger.checked_completed_original_instance_target_arguments_v1(
-        target, &package.selected, &package.parameter_contracts, &package.physical_signature,
-    );
-    if !terminating_null_guard {
-        let issue = completed.unwrap_err();
-        assert!(issue.contains("PrefixNotCovered"), "{issue}");
-        continue;
-    }
-    let completed = completed.unwrap().expect("same complete original borrowed-result inputs");
-    assert_eq!(completed, observed.arguments());
-    assert!(!observed.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(loan.destination())));
-    assert!(target.stored_receiver().is_some());
-    assert!(!target.has_object_source_requirement());
-    assert!(target.object_return_sources().is_none());
-    assert!(target.object_producer_dependencies().is_none());
-    assert_eq!(loan.call(), target.call_site());
-    assert_eq!(loan.key(), target.target());
-    ledger
-        .callable_result_classes
-        .recheck_borrowed_nullable_local_source_v1(
-            &package.batch,
+        assert_eq!(observed.borrowed_nullable(), Some(loan));
+        let completed = ledger.checked_completed_original_instance_target_arguments_v1(
+            target,
             &package.selected,
-            &ledger.field_write_claims,
             &package.parameter_contracts,
-            loan,
-         None)
-        .unwrap();
-    let prepared = Ok(vec![Ok(Some(target.clone()))]);
-    assert!(
-        !package.batch.with_lowering_input(slot, |input| has_stored_terminal_v1(
-            &prepared,
-            &ledger.borrowed_i64_results,
-            input,
-        )).unwrap().unwrap(),
-        "borrowed nullable demand must not enter the legacy I64 gate"
-    );
-    let mut actuals = ledger.borrowed_formal_actuals.clone();
-    let mut request = |destination| {
-        borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
+            &package.physical_signature,
+        );
+        if !terminating_null_guard {
+            let issue = completed.unwrap_err();
+            assert!(issue.contains("PrefixNotCovered"), "{issue}");
+            continue;
+        }
+        let completed = completed
+            .unwrap()
+            .expect("same complete original borrowed-result inputs");
+        assert_eq!(completed, observed.arguments());
+        assert!(!observed.prior_homes().contains(
+            &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(
+                loan.destination()
+            )
+        ));
+        assert!(target.stored_receiver().is_some());
+        assert!(!target.has_object_source_requirement());
+        assert!(target.object_return_sources().is_none());
+        assert!(target.object_producer_dependencies().is_none());
+        assert_eq!(loan.call(), target.call_site());
+        assert_eq!(loan.key(), target.target());
+        ledger
+            .callable_result_classes
+            .recheck_borrowed_nullable_local_source_v1(
+                &package.batch,
+                &package.selected,
+                &ledger.field_write_claims,
+                &package.parameter_contracts,
+                loan,
+                None,
+            )
+            .unwrap();
+        let prepared = Ok(vec![Ok(Some(target.clone()))]);
+        assert!(
+            !package
+                .batch
+                .with_lowering_input(slot, |input| has_stored_terminal_v1(
+                    &prepared,
+                    &ledger.borrowed_i64_results,
+                    input,
+                ))
+                .unwrap()
+                .unwrap(),
+            "borrowed nullable demand must not enter the legacy I64 gate"
+        );
+        let mut actuals = ledger.borrowed_formal_actuals.clone();
+        let mut request = |destination| {
+            borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
         &prepared, &package.parameter_contracts, &[], None,
         ledger.borrowed_formal_source.as_ref().unwrap(), &Ok(Default::default()),
         &mut actuals, &ledger.borrowed_i64_results, &mut |_| None,
@@ -238,32 +278,51 @@ fn stored_nullable_local_source_retains_original_borrow_without_object_promotion
         crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(destination),
         &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None,
     )
-    };
-    let response = request(loan.destination())
-        .unwrap()
-        .expect("same source argument projection");
-    assert!(
-        matches!(response, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::BorrowedNullableLocalSource { loan: retained, .. } if retained == *loan)
-    );
-    assert!(
-        request(loan.root().unwrap()).is_err(),
-        "foreign destination cannot borrow the source loan"
-    );
-    assert!(ledger.take_receiver_object_packet_v1(call.owner(), call.site(), target.target()).unwrap().is_none());
-    let row = ledger.take_lexical_instance_call(call.owner(), call.site()).unwrap().unwrap();
-    let expected = crate::mir::instruction::InvokeCallResultKind::borrowed_nullable_formal(loan.callee_ordinal().unwrap());
-    assert_eq!(row.result(), Some(expected));
-    assert_eq!(ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap(), expected);
-    assert!(!ledger.uses_object_packet_protocol_v1(&row).unwrap());
-    assert!(ledger.borrowed_call_actuals_v1(&row).unwrap().is_some());
-    assert!(ledger.take_lexical_instance_call(call.owner(), call.site()).unwrap_err().contains("already-taken"));
-    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-    let issuance = ledger.original_instance_input_issuance.take().unwrap();
-    assert!(ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap_err().contains("input-issuance-missing"));
-    ledger.original_instance_input_issuance = Some(issuance);
-    ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap();
-    let row = row.with_result_for_test(Some(crate::mir::instruction::InvokeCallResultKind::NullableHandle));
-    assert!(ledger.corroborate_borrowed_nullable_call_v1(&row).is_err());
+        };
+        let response = request(loan.destination())
+            .unwrap()
+            .expect("same source argument projection");
+        assert!(
+            matches!(response, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::BorrowedNullableLocalSource { loan: retained, .. } if retained == *loan)
+        );
+        assert!(
+            request(loan.root().unwrap()).is_err(),
+            "foreign destination cannot borrow the source loan"
+        );
+        assert!(ledger
+            .take_receiver_object_packet_v1(call.owner(), call.site(), target.target())
+            .unwrap()
+            .is_none());
+        let row = ledger
+            .take_lexical_instance_call(call.owner(), call.site())
+            .unwrap()
+            .unwrap();
+        let expected = crate::mir::instruction::InvokeCallResultKind::borrowed_nullable_formal(
+            loan.callee_ordinal().unwrap(),
+        );
+        assert_eq!(row.result(), Some(expected));
+        assert_eq!(
+            ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap(),
+            expected
+        );
+        assert!(!ledger.uses_object_packet_protocol_v1(&row).unwrap());
+        assert!(ledger.borrowed_call_actuals_v1(&row).unwrap().is_some());
+        assert!(ledger
+            .take_lexical_instance_call(call.owner(), call.site())
+            .unwrap_err()
+            .contains("already-taken"));
+        let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let issuance = ledger.original_instance_input_issuance.take().unwrap();
+        assert!(ledger
+            .corroborate_borrowed_nullable_call_v1(&row)
+            .unwrap_err()
+            .contains("input-issuance-missing"));
+        ledger.original_instance_input_issuance = Some(issuance);
+        ledger.corroborate_borrowed_nullable_call_v1(&row).unwrap();
+        let row = row.with_result_for_test(Some(
+            crate::mir::instruction::InvokeCallResultKind::NullableHandle,
+        ));
+        assert!(ledger.corroborate_borrowed_nullable_call_v1(&row).is_err());
     }
 }
 
@@ -340,7 +399,6 @@ fn stored_nullable_source_branch_retains_exact_return_operand_and_root() {
     }
 }
 
-
 #[test]
 fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
@@ -350,7 +408,11 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
     let ledger = &package.ordinary_new_claim_ledger;
     let source = ledger.borrowed_formal_source.as_ref().unwrap();
     let ingress = source.as_ref().unwrap();
-    let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 4).unwrap();
+    let contract = package
+        .parameter_contracts
+        .iter()
+        .find(|row| row.parameters.len() == 4)
+        .unwrap();
     package.batch().with_lowering_input(contract.batch_slot, |input| {
         let body = input.source().root_body().unwrap();
         let statement = input.source().body_stmt(&body, 0).unwrap();

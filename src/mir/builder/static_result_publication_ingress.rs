@@ -24,6 +24,7 @@ use crate::mir::builder::raw_invocation_source_transport::{
 use crate::mir::builder::recursive_child_lowering::{
     RawInvocationChildPortV1, RawLegacyChildLoweringPortV1,
 };
+use crate::mir::MirBuilder;
 use crate::mir::callable_result_representation::{
     StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
     StaticCallResultTargetOnlyV1, VerifiedStaticCallResultPublicationHandoffV1,
@@ -350,6 +351,30 @@ pub(in crate::mir::builder) fn take_terminal_static_publication_v1(
         target.owner(),
         target.name(),
         target.arity() as usize,
+    )
+}
+
+/// Issue one nested Static packet from the checked expression frame that owns
+/// its call observation. Nested expression calls are not ledger-local roots;
+/// retain their exact frame provenance alongside the normal publication loan.
+pub(in crate::mir::builder) fn take_expression_static_packet_v1(
+    port: &mut RawInvocationChildPortV1<'_, '_>,
+    builder: &mut MirBuilder,
+    original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+    observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+) -> Result<crate::mir::normal_callable_semantic_package::CallPacketSourceV1, String> {
+    let ingress = take_terminal_static_publication_v1(
+        port,
+        builder.comp_ctx.callable_declaration_catalog().ok(),
+        original.caller(), original.call_site().site(), original.target(),
+    ).map_err(|error| error.to_string())?;
+    let StaticResultPublicationIngressV1::Selected(publication) = ingress else {
+        return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".to_owned());
+    };
+    crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_expression(
+        std::rc::Rc::clone(original), observation, frame, publication, ledger,
     )
 }
 

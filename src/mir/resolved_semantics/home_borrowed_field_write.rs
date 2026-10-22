@@ -1,7 +1,7 @@
 //! One original assignment frame with explicit borrowed-formal or owned-LOCAL origin.
 //! The selected entry must separately lend receiver/value guards and field.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{BindingRefV1, ResolvedAssignmentFormV1};
 use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
 
@@ -24,73 +24,148 @@ pub(crate) struct FieldWritePlanV1 {
     pub(super) rhs: Option<Rc<QualifiedFieldWriteRhsV1>>,
 }
 impl FieldWritePlanV1 {
-    pub(crate) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> { &self.frame }
-    pub(crate) fn rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> { self.rhs.as_ref() }
+    pub(crate) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> {
+        &self.frame
+    }
+    pub(crate) fn rhs(&self) -> Option<&Rc<QualifiedFieldWriteRhsV1>> {
+        self.rhs.as_ref()
+    }
     /// Source kind of the SAME successful RHS, not a physical slot permission.
-    pub(crate) fn owned_i64_field(&self) -> Option<(hakorune_mir_defs::CanonicalFieldRefV1, crate::mir::function::TypedObjectFieldStorage)> {
+    pub(crate) fn owned_i64_field(
+        &self,
+    ) -> Option<(
+        hakorune_mir_defs::CanonicalFieldRefV1,
+        crate::mir::function::TypedObjectFieldStorage,
+    )> {
         use crate::mir::function::TypedObjectFieldStorage as Storage;
         let local = self.frame.owned_local()?;
-        let field = local.construction().allocation_only_field(local.original().write().field())?;
-        if field.field() != local.field() || !matches!(field.storage(), Storage::I64 | Storage::Dynamic)
+        let field = local
+            .construction()
+            .allocation_only_field(local.original().write().field())?;
+        if field.field() != local.field()
+            || !matches!(field.storage(), Storage::I64 | Storage::Dynamic)
             || self.rhs.as_ref()?.owned_array().is_some()
-            || !self.rhs.as_ref()?.is_consistent(self.frame.source()) { return None; }
+            || !self.rhs.as_ref()?.is_consistent(self.frame.source())
+        {
+            return None;
+        }
         Some((field.field(), field.storage()))
     }
     pub(crate) fn same_source(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.frame, &other.frame) && match (&self.rhs, &other.rhs) {
-            (Some(a), Some(b)) => Rc::ptr_eq(a, b),
-            (None, None) => true,
-            _ => false,
-        }
+        Rc::ptr_eq(&self.frame, &other.frame)
+            && match (&self.rhs, &other.rhs) {
+                (Some(a), Some(b)) => Rc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
     }
 }
 impl CheckedFieldWriteFrameV1 {
-    pub(crate) fn entry(&self) -> Option<&crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1> {
-        match &self.receiver { FieldWriteReceiverV1::Entry(source) => Some(source), _ => None }
+    pub(crate) fn entry(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1> {
+        match &self.receiver {
+            FieldWriteReceiverV1::Entry(source) => Some(source),
+            _ => None,
+        }
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn for_entry(
-        entry: crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1, homes: &[LiveHomeV1],
+        entry: crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1,
+        homes: &[LiveHomeV1],
     ) -> Option<Rc<Self>> {
         let mut unique = std::collections::BTreeSet::new();
-        if homes.iter().any(|home| home.owner() != entry.source().owner() || !unique.insert(home.binding())) { return None; }
-        Some(Rc::new(Self { source: Rc::clone(entry.source()), prior_homes: homes.into(), receiver: FieldWriteReceiverV1::Entry(entry) }))
+        if homes
+            .iter()
+            .any(|home| home.owner() != entry.source().owner() || !unique.insert(home.binding()))
+        {
+            return None;
+        }
+        Some(Rc::new(Self {
+            source: Rc::clone(entry.source()),
+            prior_homes: homes.into(),
+            receiver: FieldWriteReceiverV1::Entry(entry),
+        }))
     }
-    pub(crate) fn owned_local(&self) -> Option<&crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1> {
-        match &self.receiver { FieldWriteReceiverV1::OwnedLocal(source) => Some(source), _ => None }
+    pub(crate) fn owned_local(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1> {
+        match &self.receiver {
+            FieldWriteReceiverV1::OwnedLocal(source) => Some(source),
+            _ => None,
+        }
     }
-    pub(crate) fn is_borrowed(&self) -> bool { matches!(self.receiver, FieldWriteReceiverV1::FormalBorrowed) }
+    pub(crate) fn is_borrowed(&self) -> bool {
+        matches!(self.receiver, FieldWriteReceiverV1::FormalBorrowed)
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn for_owned_local(
         local: crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1,
         homes: &[LiveHomeV1],
     ) -> Option<Rc<Self>> {
         let mut unique = std::collections::BTreeSet::new();
-        if !homes.iter().any(|home| home.binding() == local.root()) || homes.iter().any(|home|
-            home.owner() != local.source().owner() || !unique.insert(home.binding())) { return None; }
-        Some(Rc::new(Self { source: Rc::clone(local.source()), prior_homes: homes.into(),
-            receiver: FieldWriteReceiverV1::OwnedLocal(local) }))
+        if !homes.iter().any(|home| home.binding() == local.root())
+            || homes.iter().any(|home| {
+                home.owner() != local.source().owner() || !unique.insert(home.binding())
+            })
+        {
+            return None;
+        }
+        Some(Rc::new(Self {
+            source: Rc::clone(local.source()),
+            prior_homes: homes.into(),
+            receiver: FieldWriteReceiverV1::OwnedLocal(local),
+        }))
     }
-    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
-    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
+        &self.source
+    }
+    pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
+        &self.prior_homes
+    }
 }
 
 impl HomeExpressionPlanV1 {
     /// The caller has already proved the original formal write's receiver and
     /// RHS uses in the canonical branch walk. No physical permission is issued.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_field_write(
-        source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1],
+        source: Rc<ExpressionSourcePlanV1>,
+        homes: &[LiveHomeV1],
     ) -> Option<Self> {
-        let ExpressionPlanRootV1::Assignment { assignment } = source.root() else { return None };
-        if assignment.form() != ResolvedAssignmentFormV1::Plain || source.has_opaque_obligations()
-            || source.nodes().first().is_none_or(|node| node.site() != assignment.value_site())
-        { return None; }
+        let ExpressionPlanRootV1::Assignment { assignment } = source.root() else {
+            return None;
+        };
+        if assignment.form() != ResolvedAssignmentFormV1::Plain
+            || source.has_opaque_obligations()
+            || source
+                .nodes()
+                .first()
+                .is_none_or(|node| node.site() != assignment.value_site())
+        {
+            return None;
+        }
         let mut unique = std::collections::BTreeSet::new();
-        if homes.iter().any(|home| home.owner() != source.owner() || !unique.insert(home.binding())) {
+        if homes
+            .iter()
+            .any(|home| home.owner() != source.owner() || !unique.insert(home.binding()))
+        {
             return None;
         }
         let frame = Rc::new(CheckedFieldWriteFrameV1 {
-            source: Rc::clone(&source), prior_homes: homes.into(), receiver: FieldWriteReceiverV1::FormalBorrowed,
+            source: Rc::clone(&source),
+            prior_homes: homes.into(),
+            receiver: FieldWriteReceiverV1::FormalBorrowed,
         });
-        Some(Self { source, scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,
-            argument_frame: None, initializer_frame: None, rebind_frame: None, print_frame: None, condition_frame: None, loop_recipe: None, field_write: Some(FieldWritePlanV1 { frame, rhs: None }) })
+        Some(Self {
+            source,
+            scalar_operations: Vec::new(),
+            source_fields: Vec::new(),
+            initializer_homes: None,
+            argument_frame: None,
+            initializer_frame: None,
+            rebind_frame: None,
+            print_frame: None,
+            condition_frame: None,
+            loop_recipe: None,
+            field_write: Some(FieldWritePlanV1 { frame, rhs: None }),
+        })
     }
 }

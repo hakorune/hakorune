@@ -27,8 +27,9 @@ use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallab
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    issue_new_home_prefixes_with_arguments_v1, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, HomePrefixUnavailableV1,
-    SelectedNewArgumentUnavailableV1, TerminalRelationV1,
+    issue_new_home_prefixes_with_arguments_v1, BorrowedCallActualRequestV1,
+    BorrowedCallArgumentsV1, HomePrefixUnavailableV1, SelectedNewArgumentUnavailableV1,
+    TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
@@ -65,21 +66,30 @@ mod result_membership;
 #[path = "ordinary_new_coseal_issue_loop.rs"]
 mod loop_issue;
 pub(crate) use loop_issue::RetainedSourceLoopProductV1;
-pub(super) use loop_issue::{LoopProductUnavailableV1, SelectedLoopProductV1, SelectedLoopProductRowV1};
+pub(super) use loop_issue::{
+    LoopProductUnavailableV1, SelectedLoopProductRowV1, SelectedLoopProductV1,
+};
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
+    omitted_static_callers: &BTreeMap<
+        FunctionOwnerIdV1,
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    >,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
     parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     static_call_claims: &super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-    source_core_method_calls: &BTreeMap<SelectedNormalCallableKeyV1, super::super::core_method_source::SourceCoreMethodCallRowsV1>,
+    source_core_method_calls: &BTreeMap<
+        SelectedNormalCallableKeyV1,
+        super::super::core_method_source::SourceCoreMethodCallRowsV1,
+    >,
     loop_policy: crate::mir::builder::LoopFactsPolicyFrameV1,
     field_writers: Rc<super::OriginalFieldWriterInventoryV1>,
 ) -> Result<
@@ -114,7 +124,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             app_main.as_ref(),
             instance_constructors,
             parameter_contracts,
-            field_writers, Some(entry_home_loans),
+            field_writers,
+            Some(entry_home_loans),
         )?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {
@@ -167,26 +178,46 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &array_i64_field_sets,
         &mut owned_field_children,
     )?;
-    let mut loop_static_source_loans = super::loop_static_source_loan::issue_loop_static_source_loans_v1(
-        batch,
-        selected,
-        parameter_contracts,
-        static_call_claims,
-        borrowed_formal_source.as_ref().ok(),
-    )?;
+    let mut loop_static_source_loans =
+        super::loop_static_source_loan::issue_loop_static_source_loans_v1(
+            batch,
+            selected,
+            parameter_contracts,
+            static_call_claims,
+            borrowed_formal_source.as_ref().ok(),
+        )?;
     let mut preissued_static_i64_products = BTreeMap::new();
-    let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(&borrowed_formal_source, selected, app_main.as_ref(), batch, parameter_contracts)?;
+    let typed_static_walk_owners = walk_triggers::typed_static_walk_owners_v1(
+        &borrowed_formal_source,
+        selected,
+        app_main.as_ref(),
+        batch,
+        parameter_contracts,
+    )?;
     for declaration in walk_triggers::text_completion_order_v1(
-        &borrowed_formal_source, selected, app_main.as_ref(), batch, parameter_contracts,
+        &borrowed_formal_source,
+        selected,
+        app_main.as_ref(),
+        batch,
+        parameter_contracts,
     )? {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
-        let source_core_calls = selected.keys().find(|key| selected.batch_slot(key) == Some(batch_slot))
-            .and_then(|key| source_core_method_calls.get(key));
         let is_app_main = app_main_batch_slot == Some(batch_slot);
+        let source_core_calls = selected
+            .keys()
+            .find(|key| selected.batch_slot(key) == Some(batch_slot))
+            .and_then(|key| source_core_method_calls.get(key));
         let has_typed_static_walk = typed_static_walk_owners.contains(&owner);
         if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
-            continue;
+            let nested_call_argument_walk = batch
+                .with_lowering_input(batch_slot, |input| {
+                    walk_triggers::has_nested_call_argument_walk_v1(input)
+                })
+                .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+            if !nested_call_argument_walk {
+                continue;
+            }
         }
         let seed_eligible = super::super::result_contract::preflight_declaration(
             declaration,
@@ -305,6 +336,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                  pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1| {
                     source_claims::probe_source_home_prefixes_v1(
                         brands, source_core_calls, input, &new_sites, entry_home, explicit_sites, pending_actuals,
+                        dynamic_source_calls,
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
                         receiver_proof, &array_i64_field_sets,
@@ -489,6 +521,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         batch_params()
                             .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
+                        borrowed_formal_source.as_ref().ok().and_then(|source| {
+                            source.lend_tagged_dynamic_source_points_v1(input.owner())
+                        }),
                         &mut field_is_integer, &mut |site, binding| {
                             source_claims::ordinary_candidate_compatible_v1(&candidates, site, binding)
                         }, &mut |site| {
@@ -598,11 +633,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 return source_claims::named_array_initializer_source_v1(input, batch, brands, source, site, binding)
                                     .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));
                             }
-                            if borrowed_formal_source.is_err() && !source_claims::select_failed_array_initializer_v1(
+                            if borrowed_formal_source.is_err()
+                                && !matches!(actuals, BorrowedCallActualRequestV1::DynamicInvocationSource { .. })
+                                && !source_claims::select_failed_array_initializer_v1(
                                 input, batch, brands, &lexical_source_targets, site, actuals,
                             )? { return Ok(None); }
                             borrowed_call_arguments_callback_v1(batch, selected,
-                                &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
+                                &lexical_source_targets, dynamic_source_calls,
+                                parameter_contracts, &candidates, receiver_proof,
                                 &borrowed_formal_source, &static_source_sites, &mut borrowed_formal_actuals, &borrowed_i64_results,
                                 &mut |binding| lexical::nullable_received_result_class(
                                     selected, batch, &callable_result_classes, &candidates, input, receiver_proof, binding,
@@ -613,10 +651,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             &borrowed_formal_source, input, &borrowed_i64_results, &array_i64_field_sets,
                             instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut |prestate| {
-                            Ok(loop_issue::issue_selected_home_loop_loan_v1(
+                            let loan = loop_issue::issue_selected_home_loop_loan_v1(
                                 input, prestate, &loop_static_source_loans.selected_sites,
                                 &preissued_static_i64_products, &mut selected_loop_products, source_core_calls, loop_policy,
-                            ))
+                            );
+                            Ok(loan)
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
                         Ok((
                             completion,
@@ -715,6 +754,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 batch_params()
                                     .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                                 entry_home,
+                                borrowed_formal_source.as_ref().ok().and_then(|source| {
+                                    source.lend_tagged_dynamic_source_points_v1(input.owner())
+                                }),
                             )
                         }
                     }
@@ -724,6 +766,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         batch_params()
                             .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
+                        borrowed_formal_source.as_ref().ok().and_then(|source| {
+                            source.lend_tagged_dynamic_source_points_v1(input.owner())
+                        }),
                     )
                 };
                 Ok((
@@ -750,8 +795,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             &mut owned_field_children,
         )?;
     }
-    super::field_array_read_source::retain_argument_reads(batch, selected, instance_constructors, &borrowed_i64_results,
-        &array_i64_field_sets, &mut claims, &mut result_claims)?;
+    super::field_array_read_source::retain_argument_reads(
+        batch,
+        selected,
+        instance_constructors,
+        &borrowed_i64_results,
+        &array_i64_field_sets,
+        &mut claims,
+        &mut result_claims,
+    )?;
     // Constructor (birth) rows are not batch declarations — they join
     // through the program-source loan, so the index collects them here.
     // Their owners never collide with declaration-owned claim sites;
@@ -761,8 +813,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .map(|claim| claim.site().clone())
         .chain(result_claims.iter().map(|claim| claim.core.site.clone()))
         .collect();
-    source_claims::collect_constructor_birth_sites_v1(batch, instance_constructors,
-        &claimed_sites, &mut birth_site_index)?;
+    source_claims::collect_constructor_birth_sites_v1(
+        batch,
+        instance_constructors,
+        &claimed_sites,
+        &mut birth_site_index,
+    )?;
 
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(
         claims.into_boxed_slice(),
@@ -779,7 +835,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     );
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
-    source_claims::install_result_classes_with_argument_loans_v1(&mut ledger, callable_result_classes)?;
+    source_claims::install_result_classes_with_argument_loans_v1(
+        &mut ledger,
+        callable_result_classes,
+    )?;
     ledger.array_i64_fields = array_i64_field_sets;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;

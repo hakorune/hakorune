@@ -227,7 +227,10 @@ pub(crate) fn issue_s6c_v2_return_read_co_seal_v1<'rows, 'facts>(
     let continuation = match (branch.then_arm, branch.else_arm) {
         (
             LoopJoinBranchArmTransferRefV2::Exit(exit),
-            LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. },
+            LoopJoinBranchArmTransferRefV2::Fallthrough {
+                continuation: Some(continuation),
+                ..
+            },
         ) if branch.condition == if_condition
             && exit.exit_item == exit_item
             && exit.role == LoopJoinEdgeRoleV1::Return

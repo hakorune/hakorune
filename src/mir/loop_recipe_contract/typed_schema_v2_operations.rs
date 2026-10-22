@@ -70,6 +70,14 @@ pub(super) fn check_operation(
                 definitions,
             )
         }
+        LoopOperationV2::TextAdd { left, right, result } => {
+            expect_defined_class(*item_key, *left, LoopValueClassV2::Text, values, definitions)?;
+            let right_class = super::expect_defined_value(*item_key, *right, values, definitions)?;
+            if !matches!(right_class, LoopValueClassV2::Text | LoopValueClassV2::I64) {
+                return Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: *item_key });
+            }
+            define_value(*item_key, *result, LoopValueClassV2::Text, values, definitions)
+        }
         LoopOperationV2::CompareI64 {
             left,
             right,

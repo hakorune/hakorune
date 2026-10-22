@@ -22,10 +22,12 @@ NormalInteger multiplication produces a fresh NormalInteger without result
 lifecycle or operand mutation. Its exact source/guard/call-child and physical
 correspondence are separate required consumers; the envelope activates no ABI.
 
-Checked String Add has exact String/String and String/NormalInteger domains.
-Normal publishes one independently owned immutable String value with the same
-End-exactly-once vocabulary; immutable payload sharing is allowed, operand-token
-reuse is not. This is distinct from the opaque Dynamic carrier result.
+Checked String Add has exact String/String, String/NormalInteger and
+String/Dynamic domains. Dynamic requires a retained original tagged source;
+`Other` alone does not issue it. Each Normal publishes one independently owned
+immutable String value with the same End-exactly-once vocabulary; immutable
+payload sharing is allowed, operand-token reuse is not. String/Dynamic follows
+the shared per-tag display owner and preserves Null/Void TypeError.
 Print borrows the resulting value. The expression scope owns temporary End on
 Normal and Fault; the envelope alone authorizes no String ABI or Home emission.
 Source representation proof, complete operand/call evaluation, source/physical

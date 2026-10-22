@@ -1,12 +1,14 @@
 //! Conditional named-Array Homes in the same source walk. No storage, Normal
 //! producer, commit, borrowed value or End execution capability is issued here.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NamedArrayHomeObservationV1 {
-    FieldLoop { source: FieldArrayLoopHomeSourceV1 },
+    FieldLoop {
+        source: FieldArrayLoopHomeSourceV1,
+    },
     FieldTextAppend(std::rc::Rc<super::CheckedFieldArrayTextAppendV1>),
     Initializer {
         source: NamedArrayHolderSourceLoanV1,
@@ -25,17 +27,30 @@ pub(crate) enum NamedArrayHomeObservationV1 {
 /// Identity-preserving loan of one Home-installed original Loop proof.
 /// This carries no physical append, entry permission or runtime representation.
 #[derive(Debug, Clone)]
-pub(crate) struct FieldArrayLoopHomeSourceV1(std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>);
+pub(crate) struct FieldArrayLoopHomeSourceV1(
+    std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
+);
 impl PartialEq for FieldArrayLoopHomeSourceV1 {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.0, &other.0) }
+    fn eq(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.0, &other.0)
+    }
 }
 impl Eq for FieldArrayLoopHomeSourceV1 {}
 impl NamedArrayHomeObservationV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_loop(
         proof: std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
-    ) -> Self { Self::FieldLoop { source: FieldArrayLoopHomeSourceV1(proof) } }
-    pub(crate) fn field_loop_proof(&self) -> Option<&std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
-        match self { Self::FieldLoop { source } => Some(&source.0), _ => None }
+    ) -> Self {
+        Self::FieldLoop {
+            source: FieldArrayLoopHomeSourceV1(proof),
+        }
+    }
+    pub(crate) fn field_loop_proof(
+        &self,
+    ) -> Option<&std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
+        match self {
+            Self::FieldLoop { source } => Some(&source.0),
+            _ => None,
+        }
     }
 }
 
@@ -153,7 +168,9 @@ pub(super) fn observe_append<E>(
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(true);
     };
-    if !homes.iter().any(|home| home.binding() == source.binding()) || !locals.has_named_array_holder(&source) {
+    if !homes.iter().any(|home| home.binding() == source.binding())
+        || !locals.has_named_array_holder(&source)
+    {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(true);
     }

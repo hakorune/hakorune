@@ -4,6 +4,99 @@ use super::*;
 use crate::ast::BinaryOperator;
 use std::collections::BTreeSet;
 
+/// Borrow only indexed LoopHeader Phi writers reached through this condition's
+/// exact scalar source reads. Rebind/initializer reads keep their own emitted
+/// reference packets, so this walk follows source ownership instead of MIR
+/// operands.
+pub(in crate::mir) fn borrowed_source_loop_phi_relations_v2(
+    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1,
+    nodes: &[BoolConditionNodeProjectionV1],
+    ledger: &OrdinaryNewClaimLedgerV1,
+    expected_product: Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
+) -> Result<Vec<Rc<LocalSsaPhysicalRelationV1>>, String> {
+    use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
+    use crate::mir::resolved_semantics::home_new_prefix::{
+        CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1 as Reference,
+        CurrentScalarProducerV1 as Producer,
+    };
+    use BoolConditionValueProofV1 as Proof;
+
+    fn collect<'a>(
+        evaluation: &CheckedExpressionEvaluationV1,
+        read_for: &(dyn Fn(usize) -> Option<&'a ExpressionReferenceReadV1> + 'a),
+        context: CallValidationContextV1<'_>,
+        expected_product: Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
+        relations: &mut Vec<Rc<LocalSsaPhysicalRelationV1>>,
+    ) -> Result<(), String> {
+        for (&node, reference) in evaluation.references() {
+            let Reference::Scalar(scalar) = reference else { continue };
+            let Some(source) = scalar.original_read() else { continue };
+            match source.producer() {
+                Producer::LoopHeader(_) => {
+                    let product = context.source_loop_point_product_v2(source.producer())?;
+                    if !product.owns_expression_v2(evaluation.source())
+                        || expected_product.is_some_and(|expected| !Rc::ptr_eq(expected, &product)) {
+                        return Err(freeze("bool-condition/loop-header-source-scope"));
+                    }
+                    let read = read_for(node).ok_or_else(|| freeze("bool-condition/loop-header-read-missing"))?;
+                    let (site, binding, _) = read.exact_read_v1().source_value();
+                    if site.owner() != evaluation.source().owner() || site.site() != source.read()
+                        || binding != source.binding() {
+                        return Err(freeze("bool-condition/loop-header-read-source"));
+                    }
+                    let point = read.exact_read_v1().loan_scalar_join_v1(source.producer())?;
+                    point.relation().identity_phi_binding_v1()?;
+                    if !relations.iter().any(|relation| Rc::ptr_eq(relation, point.relation())) {
+                        relations.push(Rc::clone(point.relation()));
+                    }
+                }
+                Producer::BindingRebind(rebind) => {
+                    context.with_original_rebind_v1(rebind, |packet| {
+                        collect(rebind.evaluation(), &|node| packet.reference_read_v1(node),
+                            context, expected_product, relations)
+                    })?;
+                }
+                Producer::Initializer(initializer) => {
+                    context.with_original_initializer_v1(initializer, |packet| {
+                        collect(initializer.evaluation(), &|node| packet.reference_read_v1(node),
+                            context, expected_product, relations)
+                    })?;
+                }
+                Producer::SignedEntry(_) | Producer::Integer { .. } | Producer::Call(_)
+                | Producer::BranchNormal(_) | Producer::LoopAfter { .. } => {}
+            }
+        }
+        Ok(())
+    }
+
+    fn insert_read<'a>(
+        reads: &mut std::collections::BTreeMap<usize, &'a ExpressionReferenceReadV1>,
+        node: usize,
+        read: &'a ExpressionReferenceReadV1,
+    ) -> Result<(), String> {
+        if reads.insert(node, read).is_some() {
+            return Err(freeze("bool-condition/duplicate-source-read"));
+        }
+        Ok(())
+    }
+
+    let mut reads = std::collections::BTreeMap::new();
+    for node in nodes {
+        match &node.proof {
+            Proof::OriginalReference(read) => insert_read(&mut reads, node.node, read)?,
+            Proof::ScalarInvocation { input_reads, .. } => {
+                for (&index, read) in input_reads { insert_read(&mut reads, index, read)?; }
+            }
+            _ => {}
+        }
+    }
+    let context = CallValidationContextV1::Lowering(ledger);
+    let mut relations = Vec::new();
+    collect(frame.evaluation(), &|node| reads.get(&node).copied(), context,
+        expected_product, &mut relations)?;
+    Ok(relations)
+}
+
 impl EmittedBoolConditionProjectionV1 {
     pub(super) fn validate_logical(&self, node: &BoolConditionNodeProjectionV1,
         binary: &crate::mir::resolved_semantics::ResolvedBinaryExpressionSourceV1,
@@ -163,7 +256,22 @@ impl EmittedBoolConditionProjectionV1 {
         let mut allowed = vec![self.entry.clone()];
         for node in &self.nodes {
             match &node.proof {
-                Proof::Literal(row) | Proof::Field(row) => allowed.push(row.clone()),
+                Proof::Literal(row) => allowed.push(row.clone()),
+                Proof::Field(row) => {
+                    let source = self.frame.source().nodes().get(node.node)
+                        .ok_or_else(|| freeze("bool-condition/field-node"))?;
+                    let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                        self.frame.source().owner(), source.site().clone());
+                    if let Some(pair) = ledger.checked_field_pair_v1(&site,
+                        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))? {
+                        let rows = ledger.checked_field_normal_prefix_v1(&site)?.into_iter()
+                            .chain(pair)
+                            .chain(ledger.checked_field_cleanup_bindings_v1(&site)?);
+                        for binding in rows { if !allowed.contains(&binding) { allowed.push(binding); } }
+                    } else {
+                        allowed.push(row.clone());
+                    }
+                }
                 Proof::Reference { producer, .. } => allowed.extend(producer.iter().cloned()),
                 // Retain the shared producer/Copy dependency census without reissuing it.
                 Proof::OriginalReference(read) => allowed.extend(read.dependencies()?),
@@ -247,12 +355,27 @@ impl EmittedBoolConditionProjectionV1 {
                     }
                     allowed.extend(producers);
                 },
+                Proof::ScheduledSourceLoopCall { packet, bindings } => {
+                    let observation = self.frame.calls().iter().find(|call| call.site() == packet.call_site())
+                        .ok_or_else(|| freeze("bool-condition/source-loop-call-observation"))?;
+                    let effect = ledger.source_loop_bool_call_effect_v2(&self.frame, observation)?
+                        .ok_or_else(|| freeze("bool-condition/source-loop-call-effect"))?;
+                    let original = effect.lexical_rc_v1()
+                        .ok_or_else(|| freeze("bool-condition/source-loop-call-packet"))?;
+                    if !Rc::ptr_eq(packet, &original) || effect.bindings() != bindings.as_ref()
+                        || node.entry != node.exit {
+                        return Err(freeze("bool-condition/source-loop-call-scope"));
+                    }
+                },
             }
         }
         self.materialization.physical().relation().append_observed_bindings_v1(&mut allowed);
         allowed.extend_from_slice(self.materialization.physical().bindings());
+        let borrowed_loop_phis = borrowed_source_loop_phi_relations_v2(&self.frame, &self.nodes, ledger, None)?;
         let allowed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
             allowed, self.nodes.iter().filter_map(|node| match &node.proof { Proof::OriginalReference(read) => Some(read), _ => None }))?;
+        let allowed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_source_loop_phis_v2(
+            allowed, &borrowed_loop_phis)?;
         for binding in &self.prefix {
             if !allowed.contains(binding) { return Err(freeze("bool-condition/unowned-prefix-binding")); }
         }

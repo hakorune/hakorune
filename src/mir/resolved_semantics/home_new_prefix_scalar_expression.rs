@@ -1,11 +1,11 @@
 //! Pure scalar expression preflight. Source rows define operators and paths;
 //! field declarations remain obligations until the whole batch is proved.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::dynamic_operator_contract::{
     issue_dynamic_operator_execution_envelope_v1, DynamicOperatorDomainV1, DynamicOperatorFamilyV1,
     DynamicOperatorValueClassV1,
 };
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1};
 
 #[path = "home_scalar_operation_preflight.rs"]
@@ -196,28 +196,57 @@ fn observe_scalar_expression_with_operation<E>(
     // LOCAL readiness lends a field value, while this read's cleanup uses the
     // current evaluation snapshot. Retain the whole original initializer even
     // for Add, which does not have a Sub/Div operation loan.
-    let initializer_plan = if local_initializer_profile && requests.iter().any(|request| request.owned_ready.is_some()) {
-        let source = if let Some(plan) = &prepared_operation { std::rc::Rc::clone(plan.source()) } else {
-            let mut rows = input.function().expression_source().initializers()
+    let initializer_plan = if local_initializer_profile
+        && requests.iter().any(|request| request.owned_ready.is_some())
+    {
+        let source = if let Some(plan) = &prepared_operation {
+            std::rc::Rc::clone(plan.source())
+        } else {
+            let mut rows = input
+                .function()
+                .expression_source()
+                .initializers()
                 .filter(|row| row.initializer_site() == Some(site));
-            let Some(initializer) = rows.next() else { return Ok(None) };
-            if rows.next().is_some() || !matches!(initializer.declaration_site(),
-                SourceBindingSiteV1::Local { statement: original, .. } if original == statement) { return Ok(None); }
+            let Some(initializer) = rows.next() else {
+                return Ok(None);
+            };
+            if rows.next().is_some()
+                || !matches!(initializer.declaration_site(),
+                SourceBindingSiteV1::Local { statement: original, .. } if original == statement)
+            {
+                return Ok(None);
+            }
             let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
                 &ledger, input.body_shape(), initializer) else { return Ok(None) };
             source
         };
-        let Some(plan) = HomeExpressionPlanV1::initializer_reads(source, homes, prepared_operation.take(), &requests)
-            else { return Ok(None) };
+        let Some(plan) = HomeExpressionPlanV1::initializer_reads(
+            source,
+            homes,
+            prepared_operation.take(),
+            &requests,
+        ) else {
+            return Ok(None);
+        };
         Some(plan)
-    } else { None };
-    let mut installation = initializer_plan.as_ref().map(|_| locals.expression_installation());
+    } else {
+        None
+    };
+    let mut installation = initializer_plan
+        .as_ref()
+        .map(|_| locals.expression_installation());
     if let (Some(plan), Some(installation)) = (&initializer_plan, &mut installation) {
-        if !installation.approve(plan) { return Ok(None); }
+        if !installation.approve(plan) {
+            return Ok(None);
+        }
     }
     if !requests.is_empty() {
-        let demand = initializer_plan.as_ref().map(|plan| LocalFieldReadDemandV1::SourceExpression {
-            plan: std::rc::Rc::clone(plan.source()) }).unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: true });
+        let demand = initializer_plan
+            .as_ref()
+            .map(|plan| LocalFieldReadDemandV1::SourceExpression {
+                plan: std::rc::Rc::clone(plan.source()),
+            })
+            .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: true });
         let Some(results) = local_field_read(&requests, demand)? else {
             return Ok(None);
         };
@@ -232,9 +261,14 @@ fn observe_scalar_expression_with_operation<E>(
     // Publish only after the whole original expression is proved. A rejected
     // right sibling or field batch never leaves a partial call observation.
     for call in &calls {
-        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
+        borrowed_actuals(
+            call.site(),
+            BorrowedCallActualRequestV1::Observe(input, &[]),
+        )?;
     }
-    if let Some(installation) = installation { installation.commit(); }
+    if let Some(installation) = installation {
+        installation.commit();
+    }
     *operation = prepared_operation;
     Ok(Some((kind, calls)))
 }
@@ -290,7 +324,10 @@ pub(super) fn observe_local_mul_return<E>(
     else {
         return Ok(GuardedMulReturnV1::Unavailable);
     };
-    borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
+    borrowed_actuals(
+        call.site(),
+        BorrowedCallActualRequestV1::Observe(input, &[]),
+    )?;
     Ok(GuardedMulReturnV1::Observed(vec![call]))
 }
 
@@ -340,7 +377,10 @@ pub(super) fn observe_guarded_mul_return<E>(
         }
     }
     for call in &calls {
-        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(input, &[]))?;
+        borrowed_actuals(
+            call.site(),
+            BorrowedCallActualRequestV1::Observe(input, &[]),
+        )?;
     }
     Ok(GuardedMulReturnV1::Observed(calls))
 }
@@ -620,24 +660,46 @@ mod tests {
 /// The current Home state proves the entry receiver is still live; the lender
 /// alone checks the complete retained field-path expression before Completion.
 pub(super) fn observe_terminal_scalar_source<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>, value: &SourceExprSiteV1,
-    exit: &SourceStmtSiteV1, locals: &PrefixLocalFlow<'_>,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    value: &SourceExprSiteV1,
+    exit: &SourceStmtSiteV1,
+    locals: &PrefixLocalFlow<'_>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
 ) -> Result<Option<ReturnScalar>, E> {
     let site = OwnedExprSiteV1::new(input.owner(), value.clone());
-    let checked = view_use(&site, BorrowedViewUseRequestV1::IntegerFieldArrayReturn { exit })?
-        || if let Some(receiver) = input.function().bindings().find(|(_, row)|
-            matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Receiver)).map(|(binding, _)| binding) {
-            matches!(locals.field_read_receiver(receiver),
+    let checked = view_use(
+        &site,
+        BorrowedViewUseRequestV1::IntegerFieldArrayReturn { exit },
+    )? || if let Some(receiver) = input
+        .function()
+        .bindings()
+        .find(|(_, row)| {
+            matches!(
+                row.kind(),
+                crate::mir::resolved_semantics::BindingKindV1::Receiver
+            )
+        })
+        .map(|(binding, _)| binding)
+    {
+        matches!(locals.field_read_receiver(receiver),
                 Some(local_flow::FieldReadReceiverV1::RootedHandle(root)) if root == receiver)
-            && view_use(&site, BorrowedViewUseRequestV1::IntegerNestedFieldReturn { exit, receiver })?
-        } else { false }
-        || match input.function().variable_ref(value) {
-            Some(ResolvedLexicalRefV1::Local(binding)) =>
-                view_use(&site, BorrowedViewUseRequestV1::IntegerReturn { exit, binding })?,
-            _ => false,
-        };
-    if checked { Ok(Some(ReturnScalar::Integer)) }
-    else { return_scalar(input, value, locals, field_is_integer) }
+            && view_use(
+                &site,
+                BorrowedViewUseRequestV1::IntegerNestedFieldReturn { exit, receiver },
+            )?
+    } else {
+        false
+    } || match input.function().variable_ref(value) {
+        Some(ResolvedLexicalRefV1::Local(binding)) => view_use(
+            &site,
+            BorrowedViewUseRequestV1::IntegerReturn { exit, binding },
+        )?,
+        _ => false,
+    };
+    if checked {
+        Ok(Some(ReturnScalar::Integer))
+    } else {
+        return_scalar(input, value, locals, field_is_integer)
+    }
 }

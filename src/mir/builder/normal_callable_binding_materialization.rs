@@ -55,13 +55,14 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
         let Some(ledger) = self.callable_ledger.clone() else {
             return Ok(());
         };
+        let has_physical_formals = shape.has_physical_formals();
         let values = shape.prepare_values(builder)?;
         let exact_usize = ledger
             .borrow()
             .prepare_exact_usize_entry_projection(&values, builder)?;
         let carriers = ledger
             .borrow()
-            .prepare_borrowed_entry_carriers(&values, builder)?;
+            .prepare_borrowed_entry_carriers_for_shape(&values, builder, has_physical_formals)?;
         ledger.borrow_mut().install_entry_values(&values)?;
         let declared = carriers
             .as_ref()
@@ -180,16 +181,12 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
-        let issue_static = |builder: &mut MirBuilder, original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>| {
-            use super::static_result_publication_ingress::{take_terminal_static_publication_v1, StaticResultPublicationIngressV1};
-            let publication = take_terminal_static_publication_v1(&mut port.borrow_mut(),
-                builder.comp_ctx.callable_declaration_catalog().ok(), original.caller(),
-                original.call_site().site(), original.target()).map_err(|error| error.to_string())?;
-            let StaticResultPublicationIngressV1::Selected(publication) = publication else {
-                return Err(freeze("borrowed-static/local-publication-not-selected"));
-            };
-            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(
-                std::rc::Rc::clone(original), publication, &claims)
+        let issue_static = |builder: &mut MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            super::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, frame, observation, &claims)
         };
         let result = super::ordinary_new_admission::selected::initializer_expression::emit(builder, &mut state.borrow_mut(), &claims,
             frame, ordinal, &consume, Some(&issue_static)).map(Some);

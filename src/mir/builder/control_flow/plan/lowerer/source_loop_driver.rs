@@ -9,7 +9,7 @@ use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::ordinary_new_admission::selected::source_loop_cleanup::{self, EmittedSourceLoopCleanupV2};
 use crate::mir::builder::vars::lexical_scope::{try_with_lexical_scope_with_receipt_v2, LocalBindingStateSnapshot, LexicalScopeCloseReceiptV2};
 use crate::mir::loop_recipe_contract::{VerifiedSourceLoopRecipeProductV2 as Product,
-    SourceLoopScheduledStepV2 as Step, LoopBlockKeyV1, LoopBindingKeyV1, LoopValueKeyV1};
+    SourceLoopScheduledStepV2 as Step, SourceLoopBranchPhiV2, LoopBlockKeyV1, LoopBindingKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_semantics::{BindingRefV1, home_new_prefix::{LifecyclePrefixSourceV1 as Prefix,
     SourceLoopPortKindV1 as PortKind}};
 use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
@@ -326,11 +326,11 @@ impl Driver<'_, '_, '_, '_, '_> {
                 Step::Frame(index) => {
                     let prefix = self.product.schedule().frames()[*index].prefix();
                     if matches!(prefix, Prefix::BoolCondition { .. }) {
-                        let Some(Step::If { condition, then_block, else_block, .. }) = steps.get(position + 1) else {
+                        let Some(Step::If { condition, then_block, else_block, joins, .. }) = steps.get(position + 1) else {
                             return Err(reject("condition-without-original-if"));
                         };
                         if condition != index { return Err(reject("if-condition-frame")); }
-                        if !self.branch(builder, *index, *then_block, *else_block)? {
+                        if !self.branch(builder, *index, *then_block, *else_block, joins)? {
                             if position + 2 != steps.len() { return Err(reject("schedule-after-closed-if")); }
                             return Ok(false);
                         }
@@ -376,7 +376,9 @@ impl Driver<'_, '_, '_, '_, '_> {
         }
         Ok(true)
     }
-    fn branch(&mut self, builder: &mut MirBuilder, condition: usize, yes: LoopBlockKeyV1, no: Option<LoopBlockKeyV1>)
+    fn branch(&mut self, builder: &mut MirBuilder, condition: usize, yes: LoopBlockKeyV1, no: Option<LoopBlockKeyV1>,
+        source_joins: &[SourceLoopBranchPhiV2],
+    )
         -> Result<bool, String> {
         use crate::mir::builder::if_form::IfBranchKindV1;
         let yes_bb = builder.next_block_id();
@@ -412,7 +414,7 @@ impl Driver<'_, '_, '_, '_, '_> {
         let yes_cache = builder.snapshot_local_binding_state();
         let yes_end = builder.function_state.current_block.ok_or_else(|| reject("then-end"))?;
         if yes_normal { crate::mir::builder::emission::branch::emit_jump(builder, join)?; }
-        self.logical = entry_logical;
+        self.logical = entry_logical.clone();
         self.values = entry_canonical_values.clone();
         self.ledger.borrow_mut().restore_source_values(entry_values);
         builder.restore_local_binding_state(no_cache);
@@ -433,10 +435,8 @@ impl Driver<'_, '_, '_, '_, '_> {
             }
             (false, true) => {},
             (true, true) => {
-                self.values = entry_canonical_values;
-                if self.logical != yes_logical || self.logical.values().any(|key| !dominating.contains(key)) {
-                    return Err(reject("if-logical-join-not-canonical"));
-                }
+                self.logical = entry_logical.clone();
+                self.values = entry_canonical_values.clone();
                 builder.restore_local_binding_state(join_cache);
             }
         }
@@ -455,8 +455,72 @@ impl Driver<'_, '_, '_, '_, '_> {
                 let state = self.ledger.borrow();
                 let observation = state.observe_binding_value_v2(source.binding()).map_err(|error| error.to_string())?;
                 let point = observation.loan_scalar_join_v1(&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(source))?;
-                let branch = point.branch().ok_or_else(|| reject("if-logical-join-not-canonical"))?;
+                let branch = match point.branch() {
+                    Some(branch) => branch,
+                    None => {
+                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                            eprintln!("[loop-join-debug] branch-point-missing binding={:?} value={:?} normal=({}, {})",
+                                point.binding(), point.value(), yes_normal, no_normal);
+                        }
+                        return Err(reject("if-logical-join-not-canonical"));
+                    }
+                };
                 if !joins.iter().any(|old| Rc::ptr_eq(old, branch)) { joins.push(Rc::clone(branch)); }
+            }
+            if yes_normal && no_normal {
+                if self.logical.values().any(|key| !dominating.contains(key)) {
+                    if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                        eprintln!("[loop-join-debug] non-dominating logical={:?} entry={:?}", self.logical, entry_logical);
+                    }
+                    return Err(reject("if-logical-join-not-canonical"));
+                }
+                if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                    eprintln!("[loop-join-debug] scheduled={:?} observed={:?} logical={:?}",
+                        source_joins.iter().map(|row| (row.source.binding(), row.result, row.binding, row.write_item)).collect::<Vec<_>>(),
+                        joins.iter().map(|row| row.source().binding()).collect::<Vec<_>>(), self.logical);
+                }
+                let mut consumed = Vec::new();
+                for scheduled in source_joins {
+                    let mut matching = joins.iter().enumerate().filter(|(_, observed)|
+                        Rc::ptr_eq(observed.source(), &scheduled.source));
+                    let Some((index, observed)) = matching.next() else {
+                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                            eprintln!("[loop-join-debug] scheduled-source-unmatched binding={:?}", scheduled.source.binding());
+                        }
+                        return Err(reject("if-logical-join-not-canonical"));
+                    };
+                    if matching.next().is_some() || consumed.contains(&index) {
+                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                            eprintln!("[loop-join-debug] scheduled-source-duplicate binding={:?}", scheduled.source.binding());
+                        }
+                        return Err(reject("if-logical-join-not-canonical"));
+                    }
+                    consumed.push(index);
+                    let relation = observed.relation();
+                    let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+                    relation.verify(function)?;
+                    if self.values.insert(scheduled.result, relation.values().0).is_some() {
+                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                            eprintln!("[loop-join-debug] result-already-present result={:?}", scheduled.result);
+                        }
+                        return Err(reject("if-logical-join-not-canonical"));
+                    }
+                    if let Some(binding) = scheduled.binding {
+                        let previous = self.logical.insert(binding, scheduled.result)
+                            .ok_or_else(|| reject("if-logical-join-not-canonical"))?;
+                        if entry_logical.get(&binding) != Some(&previous) {
+                            if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                                eprintln!("[loop-join-debug] binding-prior-mismatch binding={binding:?} previous={previous:?} entry={:?}", entry_logical.get(&binding));
+                            }
+                            return Err(reject("if-logical-join-not-canonical"));
+                        }
+                    }
+                }
+            } else if !source_joins.is_empty() {
+                if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                    eprintln!("[loop-join-debug] joins-with-closed-arm normal=({}, {}) scheduled={}", yes_normal, no_normal, source_joins.len());
+                }
+                return Err(reject("if-logical-join-not-canonical"));
             }
         }
         self.forks.push(EmittedLoopForkV2 { condition, yes, no, starts: (yes_bb, no_bb), ends: (yes_end, no_end),
@@ -485,8 +549,17 @@ impl Driver<'_, '_, '_, '_, '_> {
             let observation = self.ledger.borrow().observe_binding_value_v2(binding).map_err(|error| error.to_string())?;
             let before = observation.binding_value().1;
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-            let dependencies = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
-                binding, &expected.producer, &observation, context, function)?;
+            let dependencies = match &expected.producer {
+                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(source) =>
+                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
+                        binding, source, &observation, context, function)?,
+                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(source) =>
+                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_text_binding_v2(
+                        binding, source, &observation, context, function)?,
+                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Dynamic(source) =>
+                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
+                        binding, source, &observation, context, function)?,
+            };
             let value = crate::mir::builder::ssa::local::try_ensure(builder, before, crate::mir::builder::ssa::local::LocalKind::Arg)?;
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
             let localized = builder.function_state.local_ssa_correspondence.loan(function, before, value)

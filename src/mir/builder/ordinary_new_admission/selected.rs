@@ -723,4 +723,4 @@ pub(in crate::mir::builder) mod checked_field_write;
 
 #[path = "selected/argument_expression.rs"]
 mod argument_expression;
-pub(in crate::mir::builder) use argument_expression::emit as emit_argument_expression_v1;
+pub(in crate::mir::builder) use argument_expression::emit_with_prefix as emit_argument_expression_with_prefix_v1;

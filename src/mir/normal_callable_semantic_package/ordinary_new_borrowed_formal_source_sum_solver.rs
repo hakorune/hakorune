@@ -30,6 +30,19 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
             assign(*dependency, reverse, component, groups, members);
         }
     }
+    fn domain<'a>(
+        dependency: usize,
+        component: usize,
+        groups: &[usize],
+        candidate: &'a BTreeMap<usize, BTreeSet<super::SourceValueAlternativeV1>>,
+        values: &'a [Option<SourceValueSumV1>],
+    ) -> Option<&'a BTreeSet<super::SourceValueAlternativeV1>> {
+        if groups[dependency] == component {
+            Some(&candidate[&dependency])
+        } else {
+            values[dependency].as_ref().map(|value| &value.0)
+        }
+    }
     let mut order = Vec::new();
     let mut seen = BTreeSet::new();
     let mut reverse = vec![Vec::new(); nodes.len()];
@@ -70,9 +83,18 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                 .filter(|dependency| groups[*dependency] != component)
             {
                 close(groups[dependency], components, groups, nodes, done, values);
-                valid &= values[dependency].is_some();
-                if nodes[*node].union.contains(&dependency) {
-                    grounded |= values[dependency].is_some();
+            }
+            for dependency in nodes[*node]
+                .union
+                .iter()
+                .chain(&nodes[*node].required_i64)
+                .chain(&nodes[*node].required_text)
+                .chain(nodes[*node].binary.iter().map(|binary| &binary.operands[0]))
+                .filter(|dependency| groups[**dependency] != component)
+            {
+                valid &= values[*dependency].is_some();
+                if nodes[*node].union.contains(dependency) {
+                    grounded |= values[*dependency].is_some();
                 }
             }
         }
@@ -96,14 +118,18 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
         });
         grounded |= members.iter().any(|node| {
             nodes[*node].binary.as_ref().is_some_and(|binary| {
-                binary
-                    .operands
-                    .iter()
-                    .all(|dependency| groups[*dependency] != component)
-                    && match (&values[binary.operands[0]], &values[binary.operands[1]]) {
-                        (Some(lhs), Some(rhs)) => binary.transfer(&lhs.0, &rhs.0).is_some(),
-                        _ => false,
-                    }
+                let lhs = binary.operands[0];
+                if groups[lhs] == component {
+                    return false;
+                }
+                let Some(lhs_value) = values[lhs].as_ref() else {
+                    return false;
+                };
+                let rhs = binary.operands[1];
+                (!binary.requires_rhs_domain(&lhs_value.0) || groups[rhs] != component)
+                    && binary
+                        .transfer(&lhs_value.0, values[rhs].as_ref().map(|value| &value.0))
+                        .is_some()
             })
         });
         if !valid || !grounded {
@@ -132,20 +158,13 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                     );
                 }
                 if let Some(binary) = &nodes[*node].binary {
-                    let domain = |dependency: usize| {
-                        if groups[dependency] == component {
-                            &candidate[&dependency]
-                        } else {
-                            &values[dependency]
-                                .as_ref()
-                                .expect("closed external dependency")
-                                .0
-                        }
-                    };
-                    if let Some(result) =
-                        binary.transfer(domain(binary.operands[0]), domain(binary.operands[1]))
+                    if let Some(lhs) =
+                        domain(binary.operands[0], component, groups, &candidate, values)
                     {
-                        union.extend(result);
+                        let rhs = domain(binary.operands[1], component, groups, &candidate, values);
+                        if let Some(result) = binary.transfer(lhs, rhs) {
+                            union.extend(result);
+                        }
                     }
                 }
                 if union != candidate[node] {
@@ -165,19 +184,16 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                     .iter()
                     .all(|name| value.permits_object(name));
             valid &= nodes[*node].binary.as_ref().is_none_or(|binary| {
-                let domain = |dependency: usize| {
-                    if groups[dependency] == component {
-                        &candidate[&dependency]
-                    } else {
-                        &values[dependency]
-                            .as_ref()
-                            .expect("closed external dependency")
-                            .0
-                    }
-                };
-                binary
-                    .transfer(domain(binary.operands[0]), domain(binary.operands[1]))
-                    .is_some()
+                domain(binary.operands[0], component, groups, &candidate, values).is_some_and(
+                    |lhs| {
+                        binary
+                            .transfer(
+                                lhs,
+                                domain(binary.operands[1], component, groups, &candidate, values),
+                            )
+                            .is_some()
+                    },
+                )
             });
             valid &= nodes[*node].required_i64.iter().all(|dependency| {
                 if groups[*dependency] == component {

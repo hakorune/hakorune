@@ -108,11 +108,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     Ok(())
 }
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn terminal(function: &MirFunction, id: BasicBlockId) -> Result<&MirInstruction, String> {
-    function
-        .blocks
-        .get(&id)
-        .and_then(|b| b.terminator.as_ref())
-        .ok_or_else(|| fault("ordered-path/missing-node"))
+    match function.blocks.get(&id).and_then(|block| block.terminator.as_ref()) {
+        Some(terminal) => Ok(terminal),
+        None => {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[ordered-path-missing-node] function={} block={id:?} present={} instructions={:?}",
+                    function.signature.name, function.blocks.contains_key(&id),
+                    function.blocks.get(&id).map(|block| &block.instructions));
+            }
+            Err(fault("ordered-path/missing-node"))
+        }
+    }
 }
 fn skip(function: &MirFunction, id: BasicBlockId) -> Result<BasicBlockId, String> {
     skip_until(function, id, None)

@@ -92,8 +92,10 @@ extern "C" {
 #define NYRT_STRING_STATIC_TEXT_V1 1u
 #define NYRT_STRING_OWNED_TEXT_V1 2u
 #define NYRT_STRING_NORMAL_INTEGER_V1 3u
+#define NYRT_STRING_TAGGED_DYNAMIC_V1 4u
 #define NYRT_FAULT_REASON_STRING_WRITE_FAILED_V1 300u
 #define NYRT_FAULT_REASON_STRING_ALLOCATION_FAILED_V1 301u
+#define NYRT_FAULT_REASON_STRING_TYPE_ERROR_V1 302u
 typedef struct NyrtStringOperandV1 {
     uint32_t kind;
     uint32_t reserved;
@@ -107,8 +109,10 @@ typedef struct NyrtOwnedStringV1 {
     uint64_t handle;
     uint64_t token;
 } NyrtOwnedStringV1;
-/* Add accepts String + (String | signed NormalInteger). Normal publishes one
- * fresh pair, even for empty operands. Failure leaves both out words untouched.
+/* Add accepts String + String, signed NormalInteger, or one synchronous
+ * tagged dynamic value (reserved=source tag 0 Null, 1 I64, 2 Bool, 3 Box;
+ * payload is integer). Nullish values record TypeError Fault. Normal publishes
+ * one fresh pair, even for empty operands. Failure leaves both out words untouched.
  * Print borrows String/NormalInteger and appends one newline. Writer failure
  * records Fault; the caller still Ends all earlier Normal acquisitions.
  * End validates generation and consumes exactly once, including during Fault
@@ -146,6 +150,11 @@ uint32_t nyrt_string_checked_materialize_v1(void *, uint64_t, const NyrtStringOp
     __asm__("nyash.string.checked_materialize_v1");
 uint32_t nyrt_string_checked_substring_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t, int64_t, NyrtOwnedStringV1 *)
     __asm__("nyash.string.checked_substring_v1");
+/* Exact runtime Integer check for each index. A tagged dynamic operand must
+ * carry tag 1; all other source tags record TypeError before output publish. */
+uint32_t nyrt_string_checked_substring_operands_v1(void *, uint64_t,
+    const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, NyrtOwnedStringV1 *)
+    __asm__("nyash.string.checked_substring_operands_v1");
 uint32_t nyrt_string_checked_index_of_v1(void *, uint64_t, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.string.checked_index_of_v1");
 

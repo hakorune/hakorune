@@ -8,6 +8,7 @@ use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewClaimLedgerV1, VerifiedStaticLoopPacketSourceV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
+use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
 use std::rc::Rc;
 
@@ -18,6 +19,7 @@ enum CallPacketSourceKindV1 {
         original: Rc<StaticIncomingSourceV1>,
         observation: LocalCallObservationV1,
         publication: VerifiedStaticCallResultPublicationHandoffV1,
+        expression_origin: Option<ExpressionStaticObservationV1>,
     },
     SelectedStaticLoop {
         packet: VerifiedStaticLoopPacketSourceV1,
@@ -36,6 +38,31 @@ pub(in crate::mir) struct CallPacketSourceV1 {
 pub(crate) struct PreparedStaticTerminalPacketV1 {
     original: Rc<StaticIncomingSourceV1>,
     observation: LocalCallObservationV1,
+    expression_origin: Option<ExpressionStaticObservationV1>,
+}
+
+/// Retains the checked expression frame that owns a nested Static call. A
+/// nested call is not a separate ledger-local statement, so its original
+/// observation must remain tied to this exact frame through packet validation.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct ExpressionStaticObservationV1 {
+    frame: Box<CheckedExpressionEvaluationV1>,
+    call_index: usize,
+}
+
+impl ExpressionStaticObservationV1 {
+    fn issue(
+        frame: &CheckedExpressionEvaluationV1,
+        observation: &LocalCallObservationV1,
+    ) -> Result<Self, String> {
+        let call_index = frame.calls().iter().position(|candidate| std::ptr::eq(candidate, observation))
+            .ok_or_else(|| freeze("static-packet/expression-observation-unretained"))?;
+        Ok(Self { frame: Box::new(frame.clone()), call_index })
+    }
+
+    fn retains(&self, observation: &LocalCallObservationV1) -> bool {
+        self.frame.calls().get(self.call_index) == Some(observation)
+    }
 }
 
 impl PreparedStaticTerminalPacketV1 {
@@ -47,6 +74,7 @@ impl PreparedStaticTerminalPacketV1 {
             original: &self.original,
             observation: &self.observation,
             publication,
+            expression_origin: self.expression_origin.as_ref(),
         }
     }
 
@@ -70,6 +98,7 @@ impl PreparedStaticTerminalPacketV1 {
                 original: &self.original,
                 observation: &self.observation,
                 publication,
+                expression_origin: self.expression_origin.as_ref(),
             },
             None,
             Vec::new(),
@@ -85,6 +114,7 @@ impl PreparedStaticTerminalPacketV1 {
                 original: self.original,
                 observation: self.observation,
                 publication,
+                expression_origin: self.expression_origin,
             },
         }
     }
@@ -97,6 +127,7 @@ pub(in crate::mir) enum CallPacketSourceLoanV1<'a> {
         original: &'a Rc<StaticIncomingSourceV1>,
         observation: &'a LocalCallObservationV1,
         publication: &'a VerifiedStaticCallResultPublicationHandoffV1,
+        expression_origin: Option<&'a ExpressionStaticObservationV1>,
     },
     SelectedStaticLoop {
         packet: &'a VerifiedStaticLoopPacketSourceV1,
@@ -117,10 +148,12 @@ impl CallPacketSourceV1 {
                 original,
                 observation,
                 publication,
+                expression_origin,
             } => CallPacketSourceLoanV1::Static {
                 original,
                 observation,
                 publication,
+                expression_origin: expression_origin.as_ref(),
             },
             CallPacketSourceKindV1::SelectedStaticLoop {
                 packet,
@@ -141,6 +174,30 @@ impl CallPacketSourceV1 {
             .into_packet(publication))
     }
 
+    pub(in crate::mir) fn static_expression(
+        original: Rc<StaticIncomingSourceV1>,
+        observation: &LocalCallObservationV1,
+        frame: &CheckedExpressionEvaluationV1,
+        publication: VerifiedStaticCallResultPublicationHandoffV1,
+        ledger: &OrdinaryNewClaimLedgerV1,
+    ) -> Result<Self, String> {
+        let expression_origin = ExpressionStaticObservationV1::issue(frame, observation)?;
+        let source_matches = matches!(observation.result_source(),
+            Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(source))
+                if source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, &original)));
+        if !source_matches
+            || observation.owner() != original.call_site().owner()
+            || observation.site() != original.call_site()
+        {
+            return Err(freeze("static-packet/expression-source-drift"));
+        }
+        let packet = Self { kind: CallPacketSourceKindV1::Static {
+            original, observation: observation.clone(), publication, expression_origin: Some(expression_origin),
+        }};
+        packet.loan().validate_static(ledger)?;
+        Ok(packet)
+    }
+
     pub(crate) fn prepare_static_i64(
         original: Rc<StaticIncomingSourceV1>,
         publication: &VerifiedStaticCallResultPublicationHandoffV1,
@@ -154,11 +211,13 @@ impl CallPacketSourceV1 {
             original: &original,
             observation: &observation,
             publication,
+            expression_origin: None,
         }
         .validate_static(ledger)?;
         Ok(PreparedStaticTerminalPacketV1 {
             original,
             observation,
+            expression_origin: None,
         })
     }
 
@@ -184,6 +243,26 @@ impl CallPacketSourceV1 {
 }
 
 impl<'a> CallPacketSourceLoanV1<'a> {
+    pub(in crate::mir) fn retains_expression_observation(
+        self,
+        observed: &LocalCallObservationV1,
+    ) -> bool {
+        match self {
+            Self::Static {
+                original,
+                observation,
+                expression_origin: Some(origin),
+                ..
+            } => {
+                observation == observed
+                    && origin.retains(observed)
+                    && observed.owner() == original.call_site().owner()
+                    && observed.site() == original.call_site()
+            }
+            Self::Instance(_) | Self::Static { .. } | Self::SelectedStaticLoop { .. } => false,
+        }
+    }
+
     pub(in crate::mir) fn require_instance(
         self,
     ) -> Result<&'a LexicalInstanceCallDispositionRowV1, String> {
@@ -230,7 +309,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
     pub(in crate::mir) fn result(self) -> Option<InvokeCallResultKind> {
         match self {
             Self::Instance(row) => row.result(),
-            Self::Static { original, observation, publication } => {
+            Self::Static { original, observation, publication, .. } => {
                 use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1 as Class, LocalCallResultSourceV1};
                 match observation.result() {
                     Class::I64 => Some(InvokeCallResultKind::I64),
@@ -257,6 +336,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             original,
             observation,
             publication,
+            expression_origin,
         } = self
         else {
             return Ok(());
@@ -266,29 +346,35 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             && !ledger.checked_completed_static_text_result_v1(original)? {
             return Err(freeze("static-input/completed-source-drift"));
         }
-        let handoff_agrees = original.corroborates_publication_handoff(publication)
-            || ledger.corroborates_completed_static_text_publication_v1(original, publication)?
-            || (ledger
-                .borrowed_static_packet_actuals_v1(original)?
-                .is_some()
-                && original.corroborates_selected_loop_publication_handoff(publication));
-        if !handoff_agrees
-            || observation.owner() != original.call_site().owner()
+        let observation_is_retained = match expression_origin {
+            Some(origin) => origin.retains(observation),
+            None => ledger.local_call_for_owner(observation.owner(), observation.site().site())
+                == Some(observation),
+        };
+        if observation.owner() != original.call_site().owner()
             || observation.site() != original.call_site()
             || self.result().is_none()
             || observation.arguments().len() != original.argument_sites().len()
             || observation.arguments().len() != original.target().arity() as usize
-            || ledger.local_call_for_owner(observation.owner(), observation.site().site())
-                != Some(observation)
+            || !observation_is_retained
         {
+            return Err(freeze("static-packet/original-source-drift"));
+        }
+        let borrowed_actuals = match expression_origin {
+            Some(_) => ledger.borrowed_static_packet_actuals_for_expression_v1(original, observation)?,
+            None => ledger.borrowed_static_packet_actuals_v1(original)?,
+        };
+        let handoff_agrees = original.corroborates_publication_handoff(publication)
+            || ledger.corroborates_completed_static_text_publication_v1(original, publication)?
+            || (borrowed_actuals.is_some()
+                && original.corroborates_selected_loop_publication_handoff(publication));
+        if !handoff_agrees {
             return Err(freeze("static-packet/original-source-drift"));
         }
         // The selected Static packet uses its original complete input proof:
         // a checked zero-input cohort or the existing borrowed entry. An absent
         // borrowed kind never permits a scalar payload for Map/Text/Handle.
-        ledger
-            .borrowed_static_packet_actuals_v1(original)?
-            .ok_or_else(|| freeze("static-packet/actuals-missing"))?;
+        borrowed_actuals.ok_or_else(|| freeze("static-packet/actuals-missing"))?;
         for (formal, argument) in original.parameters().iter().zip(observation.arguments()) {
             if formal.kind.is_ordinary_borrowed_handle() {
                 if !matches!(argument, LocalCallArgumentV1::BorrowedActual { ordinal, site }
@@ -330,9 +416,12 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         let ledger = context.ledger();
         match self {
             Self::Instance(row) => ledger.borrowed_call_actuals_using_v1(row, context),
-            Self::Static { original, .. } => {
+            Self::Static { original, observation, expression_origin, .. } => {
                 self.validate_static(ledger)?;
-                ledger.borrowed_static_packet_actuals_v1(original)
+                match expression_origin {
+                    Some(_) => ledger.borrowed_static_packet_actuals_for_expression_v1(original, observation),
+                    None => ledger.borrowed_static_packet_actuals_v1(original),
+                }
             }
             Self::SelectedStaticLoop { .. } => {
                 Err(freeze("selected-static-packet/canonical-entry-required"))

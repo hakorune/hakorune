@@ -18,10 +18,20 @@ pub(super) fn emit_terminal_i64_call_exit(
     let stmt_site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
     if let Some(source) = ledger.return_expression_evaluation_v1(owner, &stmt_site)? {
         let consume = port.lexical_self_receiver_locator_consumer_v1()?;
-        let state = port.callable_ledger.as_ref().ok_or("[freeze:contract][terminal-call/state-missing]")?;
+        let state = std::rc::Rc::clone(port.callable_ledger.as_ref()
+            .ok_or("[freeze:contract][terminal-call/state-missing]")?);
+        let ledger = std::rc::Rc::clone(ledger);
+        let port = std::cell::RefCell::new(port);
+        let issue_static = |builder: &mut crate::mir::MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, frame, observation, &ledger)
+        };
         return crate::mir::builder::ordinary_new_admission::selected::emit_return_expression_v1(
-            builder, &mut state.borrow_mut(), ledger, source,
-            &consume).map(Some);
+            builder, &mut state.borrow_mut(), &ledger, source,
+            &consume, Some(&issue_static)).map(Some);
     }
     if let Some(row) = ledger.take_borrowed_lexical_call_for_return_v1(owner, &stmt_site)? {
         port.consume_lexical_self_receiver_locator_v1(&row)?;
@@ -69,8 +79,12 @@ pub(super) fn emit_terminal_i64_call_exit(
             use crate::mir::builder::static_result_publication_ingress::{
                 take_terminal_static_publication_v1, StaticResultPublicationIngressV1,
             };
+            let consume_receiver = port.lexical_self_receiver_locator_consumer_v1()?;
+            let state = std::rc::Rc::clone(port.callable_ledger.as_ref()
+                .ok_or("[freeze:contract][static-terminal/state-missing]")?);
+            let port = std::cell::RefCell::new(port);
             let ingress = take_terminal_static_publication_v1(
-                    port,
+                    &mut port.borrow_mut(),
                     builder.comp_ctx.callable_declaration_catalog().ok(),
                     original.caller(),
                     original.call_site().site(),
@@ -86,12 +100,16 @@ pub(super) fn emit_terminal_i64_call_exit(
                     publication,
                     &ledger,
                 )?;
-            let state = port
-                .callable_ledger
-                .as_ref()
-                .ok_or("[freeze:contract][static-terminal/state-missing]")?;
+            let issue_static = |builder: &mut crate::mir::MirBuilder,
+                nested: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+                frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+                observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+                crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                    &mut port.borrow_mut(), builder, nested, frame, observation, &ledger)
+            };
             return crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_static_return(
                 builder, &mut state.borrow_mut(), &ledger, owner, &stmt_site, packet,
+                &consume_receiver, &issue_static,
             ).map(Some);
         }
     }

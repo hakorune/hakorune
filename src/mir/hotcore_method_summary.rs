@@ -244,6 +244,7 @@ fn return_kind_label(return_type: &MirType) -> String {
         MirType::Integer | MirType::Bool => "scalar_i64".to_string(),
         MirType::Void => "void".to_string(),
         MirType::String => "string_handle".to_string(),
+        MirType::TextOperand => "text_operand".to_string(),
         MirType::Box(name) => format!("object_handle:{name}"),
         MirType::Float => "f64".to_string(),
         MirType::Array(_) => "array_handle".to_string(),

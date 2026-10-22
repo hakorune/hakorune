@@ -21,12 +21,36 @@ impl CallableSemanticLoweringState {
         let relation = Rc::clone(issued.relation());
         let value = relation.values().0;
         let claims = self.ordinary_new_claim_ledger().ok_or_else(|| freeze("loop-point-claims-missing"))?;
-        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims)
-            .source_loop_point_product_v2(&source)?;
+        let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims);
+        match &source {
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(source) => {
+                context.source_loop_point_product_v2(source)?;
+            }
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(source) => {
+                context.source_loop_text_point_product_v2(source)?;
+            }
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Dynamic(source) => {
+                context.source_loop_dynamic_point_product_v2(source)?;
+            }
+        }
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("loop-point-function-missing"))?;
-        let point = super::materialized_values::ScalarJoinPointValueV1::new(source, relation, function)?;
-        self.publish_source_final_value(point.binding(), value)?;
-        self.values.attach_scalar_join_v1(point)
+        match source {
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(source) => {
+                let point = super::materialized_values::ScalarJoinPointValueV1::new(source, relation, function)?;
+                self.publish_source_final_value(point.binding(), value)?;
+                self.values.attach_scalar_join_v1(point)
+            }
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(source) => {
+                let point = super::materialized_values::TextJoinPointValueV1::new(source, relation, function)?;
+                self.publish_source_final_value(point.binding(), value)?;
+                self.values.attach_text_join_v1(point)
+            }
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Dynamic(source) => {
+                let point = super::materialized_values::DynamicJoinPointValueV1::new(source, relation, function)?;
+                self.publish_source_final_value(point.binding(), value)?;
+                self.values.attach_dynamic_join_v1(point)
+            }
+        }
     }
     /// Names locate an already selected source binding in the emission cache.
     /// They never classify a binding as a carrier or recover its identity.

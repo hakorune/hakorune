@@ -70,10 +70,15 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_effective_root_v1(
         &self, value: ValueId, text: bool, materializes: bool, acquisition: Option<&[Binding; 2]>,
     ) -> Result<(), String> {
-        let expected = if self.frame.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) {
-            EvaluatedExpressionValueV1::Bool(value)
-        } else { (if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) }).into() };
+        let expected = match self.frame.root_class() {
+            crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) =>
+                    EvaluatedExpressionValueV1::Bool(value),
+            crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic) =>
+                    EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value)),
+            _ => (if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) }).into(),
+        };
         match acquisition {
             Some([invoke, normal]) if materializes && text => {
                 let Some(Some(input)) = self.values.first() else { return Err(freeze("rebind-expression/materialize-input")) };
@@ -171,7 +176,8 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         }
         for (observed, packet) in self.source_calls().zip(self.calls()) {
             if packet.call_site() != observed.site()
-                || ledger.local_call_for_owner(packet.call_site().owner(), packet.call_site().site()) != Some(observed)
+                || (ledger.local_call_for_owner(packet.call_site().owner(), packet.call_site().site()) != Some(observed)
+                    && !packet.original_source().retains_expression_observation(observed))
                 || observed.prior_homes() != self.frame.prior_homes()
             {
                 return Err(freeze("print-expression/call-source"));
@@ -318,6 +324,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                                 return Err(freeze("print-expression/add-source"));
                             }
                         }
+                        (Operand::Dynamic(dst), _, _) => {
+                            self.dynamic_add_original_v1(index, *dst)?;
+                        }
                         _ => return Err(freeze("print-expression/add-values")),
                     }
                 }
@@ -389,6 +398,51 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         Ok(result)
     }
 
+    fn dynamic_add_original_v1(&self, index: usize, result: ValueId) -> Result<Binding, String> {
+        use crate::mir::dynamic_operator_contract::{
+            DynamicOperatorFamilyV1 as Family,
+            DynamicOperatorNormalResultV1 as Normal,
+            DynamicOperatorValueClassV1 as Class,
+        };
+        let source = self.frame.source();
+        let node = source.nodes().get(index).ok_or_else(|| freeze("print-expression/dynamic-add-node"))?;
+        let Node::Binary(binary) = node.source() else {
+            return Err(freeze("print-expression/dynamic-add-node"));
+        };
+        let operand = |site| -> Result<Operand, String> {
+            let value = source.nodes().iter().position(|node| node.site() == site)
+                .and_then(|node| self.values[node].as_ref())
+                .ok_or_else(|| freeze("print-expression/dynamic-add-operand"))?;
+            Ok(value.as_operand()?.clone())
+        };
+        let (Operand::Dynamic(lhs), Operand::NormalInteger(rhs)) =
+            (operand(binary.lhs())?, operand(binary.rhs())?)
+        else {
+            return Err(freeze("print-expression/dynamic-add-operands"));
+        };
+        if self.values.get(index).and_then(Option::as_ref).and_then(|value| value.as_operand().ok())
+            != Some(&Operand::Dynamic(result))
+        {
+            return Err(freeze("print-expression/dynamic-add-result"));
+        }
+        let loan = self.frame.operations().iter().find(|loan|
+            loan.node() == index && Rc::ptr_eq(loan.source(), source))
+            .ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
+        let envelope = loan.single_envelope().ok_or_else(|| freeze("print-expression/operator-envelope"))?;
+        let domain = envelope.domain();
+        if loan.normal_result_v1() != Some(Normal::SelfContainedNonAliasingDynamicCarrier)
+            || domain.family() != Family::Add
+            || domain.left() != Class::Dynamic
+            || domain.right() != Class::I64
+            || self.frame.owned_result_nodes().contains(&index)
+        {
+            return Err(freeze("print-expression/dynamic-add-contract"));
+        }
+        Ok(self.require_unique(|row| matches!(row, MirInstruction::BinOp {
+            dst, op: crate::mir::BinaryOp::Add, lhs: actual_lhs, rhs: actual_rhs,
+        } if *dst == result && *actual_lhs == lhs && *actual_rhs == rhs))?.clone())
+    }
+
     pub(in crate::mir) fn ordered_bindings_in_context(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
         let mut ordered = Vec::new();
         let source = self.frame.source();
@@ -433,11 +487,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         ordered.extend(context.ledger().expression_field_read_bindings_v1(
                             &OwnedExprSiteV1::new(source.owner(), source.nodes()[index].site().clone()), source, context)?);
                     } else {
-                        if let Some(scalar) = self.frame.operations().iter().find(|loan| loan.node() == index)
-                            .and_then(|loan| loan.scalar_source_v1()) {
+                        let scalar = self.frame.operations().iter().find(|loan| loan.node() == index)
+                            .and_then(|loan| loan.scalar_source_v1());
+                        if let Some(scalar) = scalar {
                             let original = context.ledger().scalar_operation_original_v1(scalar)?;
                             for relation in original.operand_relations() {
-                                if let Some(target) = relation.target_binding() { if !ordered.contains(target) { ordered.push(target.clone()); } }
+                                if let Some(target) = relation.target_binding() {
+                                    if !ordered.contains(target) { ordered.push(target.clone()); }
+                                }
                             }
                         }
                         ordered.push(
@@ -460,11 +517,39 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         .ok_or_else(|| freeze("print-expression/add-invoke"))?;
                     ordered.extend([invoke.clone(), result.clone()]);
                 }
+                Some(Operand::Dynamic(value)) => {
+                    ordered.push(self.dynamic_add_original_v1(index, *value)?);
+                }
                 _ => {}
             }
         }
         if let Some(pair) = self.comparison_pair()? { ordered.extend(pair); }
         Ok(ordered)
+    }
+
+    /// LocalSSA operand materializations are dependencies of the checked
+    /// scalar operation. Keep them in the enclosing scope inventory without
+    /// treating earlier source definitions as expression evaluation steps.
+    pub(in crate::mir) fn scalar_copy_dependencies_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let mut copies = Vec::new();
+        for (index, _) in self.frame.source().nodes().iter().enumerate()
+            .filter(|(index, _)| self.node_selected(*index)) {
+            let Some(scalar) = self.frame.operations().iter().find(|loan| loan.node() == index)
+                .and_then(|loan| loan.scalar_source_v1()) else { continue; };
+            let original = context.ledger().scalar_operation_original_v1(scalar)?;
+            for relation in original.operand_relations() {
+                let mut observed = Vec::new();
+                relation.append_observed_bindings_v1(&mut observed);
+                for binding in observed.into_iter().filter(|(_, instruction)|
+                    matches!(instruction, MirInstruction::Copy { .. })) {
+                    if !copies.contains(&binding) { copies.push(binding); }
+                }
+            }
+        }
+        Ok(copies)
     }
 
     /// A genuine entry Jump delimits evaluation from preceding statements.
@@ -524,12 +609,14 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 },
             )?;
         }
-        for (_, node) in self.frame.source().nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
+        for (index, node) in self.frame.source().nodes().iter().enumerate().filter(|(node, _)| self.node_selected(*node)) {
             copies.extend(ledger.checked_field_copy_dependencies_v1(
                 &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()),
                 CallValidationContextV1::Lowering(ledger))?);
         }
+        copies.extend(self.scalar_copy_dependencies_v1(CallValidationContextV1::Lowering(ledger))?);
         for read in self.path_reads { copies.extend_from_slice(read.original_copy_dependencies_v1()?); }
+        for read in self.reference_reads.values() { copies.extend(read.dependencies()?); }
         let mut scope = BTreeSet::new();
         let mut pending = vec![entry];
         while let Some(id) = pending.pop() {
@@ -732,8 +819,9 @@ pub(crate) fn checked_expression_core_operation_v1(
     let arguments = original.arguments().iter().map(|arg| operand(arg.site())).collect::<Result<Vec<_>, _>>()?;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
         (Core::StringLen, []) => Operation::Length { value: receiver },
-        (Core::StringSubstring, [Operand::NormalInteger(start), Operand::NormalInteger(end)]) =>
-            Operation::Substring { value: receiver, start: *start, end: *end },
+        (Core::StringSubstring, [start @ (Operand::NormalInteger(_) | Operand::Dynamic(_)),
+            end @ (Operand::NormalInteger(_) | Operand::Dynamic(_))]) =>
+            Operation::Substring { value: receiver, start: start.clone(), end: end.clone() },
         (Core::StringIndexOf, [needle]) => Operation::IndexOf { value: receiver, needle: needle.clone() },
         _ => return Err(freeze("expression-core/operand-domain")),
     };

@@ -186,6 +186,7 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
         _error: DynamicExitTransactionCoSealRejectV1,
     },
     MissingDynamicPhysicalHeader,
+    MissingDynamicSourceOwner,
     MissingS6CStorageHeader,
     CoreMethodSource {
         _error: String,
@@ -314,6 +315,33 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error }
         })?,
     );
+    // Dynamic invocation source targets span every cataloged callable. The
+    // Dynamic Loop candidate below is only one consumer and cannot serve as
+    // the ordinary-expression source catalog.
+    let mut dynamic_source_calls = Vec::new();
+    for (key, _, _) in catalog.selected_identities() {
+        if !matches!(key, crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(_)) {
+            continue;
+        }
+        let batch_slot = selected
+            .batch_slot(key)
+            .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicSourceOwner)?;
+        let calls = batch
+            .with_lowering_input(batch_slot, |input| {
+                let dynamic = crate::mir::builder::issue_source_backed_dynamic_callable_v1(input)
+                    .map_err(|_error| DynamicCallableAdmissionIssueV1::SourceBacked { _error })?;
+                crate::mir::source_call_target::issue_source_bound_dynamic_member_calls_v1(
+                    input, &dynamic,
+                )
+                .map_err(|_error| DynamicCallableAdmissionIssueV1::Calls { _error })
+            })
+            .map_err(|_error| NormalCallableSemanticPackageIssueV1::BatchLoan { _error })?
+            .map_err(|_issue| NormalCallableSemanticPackageIssueV1::Dynamic {
+                _batch_slot: batch_slot,
+                _issue,
+            })?;
+        dynamic_source_calls.extend(calls.iter().cloned());
+    }
     let field_writers = super::ordinary_new_coseal::OrdinaryNewFieldWriteClaimDraftV1::capture_sources(
         &batch, &selected, &captured_constructors,
     ).map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
@@ -503,6 +531,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &parameter_contracts,
         &entry_home_loans,
         &mut dynamic,
+        &dynamic_source_calls,
         &instance_constructors,
         &static_claim_index,
         &source_core_method_calls,

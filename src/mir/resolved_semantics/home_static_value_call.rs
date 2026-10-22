@@ -1,7 +1,7 @@
 //! CurrentOwner Static source-only expression-value observations.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::super::StaticI64CallClaimV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 /// Source-only value observation from the original zeroarg CurrentOwner loan.
 /// This shares the statement's live Homes and never invents a local destination.
@@ -41,8 +41,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
         return Ok(None);
     }
     Ok(Some(LocalCallObservationV1 {
-        result_source: None, unit_source: None,
-        borrowed_nullable: None, mixed: None, field_alias: None,
+        result_source: None,
+        unit_source: None,
+        borrowed_nullable: None,
+        mixed: None,
+        field_alias: None,
         owner: input.owner(),
         statement: statement.clone(),
         site: owned,
@@ -102,8 +105,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
         return Ok(None);
     }
     if !claim.is_qualified_terminal() {
-        for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, prefix_known, prior_homes) {
-            borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
+        for (call_site, actuals) in
+            observe_borrowed_call_actuals(input, &owned, locals, prefix_known, prior_homes)
+        {
+            borrowed_arguments(
+                &call_site,
+                BorrowedCallActualRequestV1::Observe(input, &actuals),
+            )?;
         }
     }
     project_current_owner_i64_staged_value_call(
@@ -183,7 +191,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
             .iter()
             .zip(call.arguments())
             .any(|(argument, original)| match argument {
-                LocalCallArgumentV1::BorrowedActual { ordinal, site } | LocalCallArgumentV1::Expression { ordinal, site } => {
+                LocalCallArgumentV1::BorrowedActual { ordinal, site }
+                | LocalCallArgumentV1::Expression { ordinal, site } => {
                     *ordinal != original.ordinal() || site != original.site()
                 }
                 LocalCallArgumentV1::Integer(_) => false,
@@ -194,8 +203,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
         return Ok(None);
     }
     Ok(Some(LocalCallObservationV1 {
-        result_source: None, unit_source: None,
-        borrowed_nullable: None, mixed: None, field_alias: None,
+        result_source: None,
+        unit_source: None,
+        borrowed_nullable: None,
+        mixed: None,
+        field_alias: None,
         owner: input.owner(),
         statement: statement.clone(),
         site: owned,

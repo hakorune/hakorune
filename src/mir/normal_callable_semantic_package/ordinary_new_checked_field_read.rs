@@ -31,7 +31,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn checked_field_pair_v1(
+    pub(in crate::mir) fn checked_field_pair_v1(
         &self, site: &OwnedExprSiteV1, context: CallValidationContextV1<'_>,
     ) -> Result<Option<[Binding; 2]>, String> {
         context.require_ledger(self)?;

@@ -693,10 +693,10 @@ LoopJoinBranchV1
   owner_loop
   if_item
   condition
-  then_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { continuation, payload }
-  else_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { continuation, payload }
+  then_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { continuation?, payload }
+  else_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { continuation?, payload }
 
-continuation = NextItem { block, item }
+continuation = NextItem { block, item } | block-end
 ```
 
 An omitted source `else` is an implicit logical `Fallthrough`; no AST node or
@@ -1010,6 +1010,14 @@ materialization still checks exact bytes/length and treats a zero handle as a
 contract failure. Source authority requires the later common Core to match the
 resolver literal's exact site/value; logical wire validation does not issue it.
 Fixed Dynamic/S6C physical profiles remain outside this new operation's admission.
+
+`TextAdd { left, right, result }` represents only an original checked `Add`
+whose sealed dynamic-operator envelope produces an owned String. The typed
+wire accepts Text + Text and Text + I64; source projection must match that
+domain against the original operand facts and operation loan. It is
+Fault-before-Normal, and its acquired Text follows the enclosing expression's
+existing Normal/Fault cleanup and binding-rebind rules. This does not widen
+the fixed Dynamic or S6C physical profiles.
 
 ## Main0 Continue source front and recipe draft (caller-zero, 2026-09-23)
 

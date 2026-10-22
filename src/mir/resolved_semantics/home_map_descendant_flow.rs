@@ -7,10 +7,10 @@
 //! more specific verifier keep that destination (EntrySlot for map-entry
 //! children, CallArgument for sealed-call argument children); the residual
 //! family records `ContainedIn` destination evidence only.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::local_flow::PrefixLocalFlow;
 use super::map_flow::{self, MapDestinationV1, MapHomeObservation};
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };

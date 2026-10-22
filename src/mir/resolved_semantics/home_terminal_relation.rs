@@ -14,8 +14,14 @@ use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 
 #[path = "home_terminal_returned_value.rs"]
 mod returned_value;
-pub(super) use returned_value::{observe_scalar_return_expression_v1 as returned_scalar_expression_v1, terminal_returned_source, qualify_terminal_text_evaluation_v1, observe_text_return_expression_v1, observe_stored_return_v1, finite_entry_return};
-pub(crate) use returned_value::{TerminalReturnedSourceV1, TerminalValueReturnV1, TerminalI64ScalarReturnV1};
+pub(super) use returned_value::{
+    finite_entry_return, observe_scalar_return_expression_v1 as returned_scalar_expression_v1,
+    observe_stored_return_v1, observe_text_return_expression_v1,
+    qualify_terminal_text_evaluation_v1, terminal_returned_source,
+};
+pub(crate) use returned_value::{
+    TerminalI64ScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
+};
 
 /// Source-only terminal shape for the selected ordinary-`New` root.
 ///
@@ -31,7 +37,9 @@ pub(crate) struct TerminalI64AddReturnV1 {
 }
 
 impl TerminalI64AddReturnV1 {
-    pub(crate) fn field_requests(&self) -> &[LocalFieldReadRequestV1; 2] { &self.field_requests }
+    pub(crate) fn field_requests(&self) -> &[LocalFieldReadRequestV1; 2] {
+        &self.field_requests
+    }
     pub(super) fn issue(
         owner: FunctionOwnerIdV1,
         return_site: SourceStmtSiteV1,
@@ -42,7 +50,10 @@ impl TerminalI64AddReturnV1 {
             owner,
             return_site,
             add_site,
-            field_reads: [field_requests[0].site.clone(), field_requests[1].site.clone()],
+            field_reads: [
+                field_requests[0].site.clone(),
+                field_requests[1].site.clone(),
+            ],
             field_requests,
         }
     }
@@ -125,7 +136,9 @@ pub(crate) struct TerminalI64FieldReturnV1 {
 }
 
 impl TerminalI64FieldReturnV1 {
-    pub(crate) fn field_request(&self) -> &LocalFieldReadRequestV1 { &self.field_request }
+    pub(crate) fn field_request(&self) -> &LocalFieldReadRequestV1 {
+        &self.field_request
+    }
     pub(super) fn issue(
         owner: FunctionOwnerIdV1,
         return_site: SourceStmtSiteV1,
@@ -358,13 +371,26 @@ pub(super) fn return_scalar<E>(
                 return Ok(None);
             };
             let field_site = OwnedExprSiteV1::new(input.owner(), site.clone());
-            let Some(owned_ready) = locals.ready_field_read(home, field) else { return Ok(None) };
-            let request = LocalFieldReadRequestV1 {
-                site: field_site.clone(), receiver_site: receiver.site().clone(), receiver: binding, home,
-                alias_class: None, nullable: false, formal: false, received: None, path: None,
-                alias_path: None, field: field.clone().into(), owned_ready,
+            let Some(owned_ready) = locals.ready_field_read(home, field) else {
+                return Ok(None);
             };
-            Ok(field_is_integer.integer_field(&request)?.then_some(ReturnScalar::IntegerField(Box::new(request))))
+            let request = LocalFieldReadRequestV1 {
+                site: field_site.clone(),
+                receiver_site: receiver.site().clone(),
+                receiver: binding,
+                home,
+                alias_class: None,
+                nullable: false,
+                formal: false,
+                received: None,
+                path: None,
+                alias_path: None,
+                field: field.clone().into(),
+                owned_ready,
+            };
+            Ok(field_is_integer
+                .integer_field(&request)?
+                .then_some(ReturnScalar::IntegerField(Box::new(request))))
         }
         ASTNode::BinaryOp {
             operator: crate::ast::BinaryOperator::Add,

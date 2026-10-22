@@ -8,8 +8,10 @@ use std::{ffi::c_void, io::Write, num::NonZeroU64};
 const STATIC_TEXT: u32 = 1;
 const OWNED_TEXT: u32 = 2;
 const NORMAL_INTEGER: u32 = 3;
+const TAGGED_DYNAMIC: u32 = 4;
 const WRITE_FAILED: u32 = 300;
 const ALLOCATION_FAILED: u32 = 301;
+const TYPE_ERROR: u32 = 302;
 
 /// Borrow-only operand descriptor. Inactive fields must be zero. Static bytes
 /// are valid UTF-8 and remain live throughout the synchronous call.
@@ -56,10 +58,71 @@ unsafe fn operand<'a>(value: *const Operand) -> Result<&'a Operand, Status> {
         return Err(Status::InvalidContract);
     }
     let value = unsafe { &*value };
-    if value.reserved != 0 {
+    if (value.kind == TAGGED_DYNAMIC && value.reserved > 3)
+        || (value.kind != TAGGED_DYNAMIC && value.reserved != 0) {
         return Err(Status::InvalidContract);
     }
     Ok(value)
+}
+
+enum IntegerOperandFailure { TypeError, InvalidContract }
+
+/// Decode only the exact signed Integer carrier. The Dynamic tag remains
+/// authoritative: payload shape never upgrades another source type to I64.
+unsafe fn integer_operand(value: *const Operand) -> Result<i64, IntegerOperandFailure> {
+    let value = unsafe { operand(value) }.map_err(|_| IntegerOperandFailure::InvalidContract)?;
+    let no_bytes = value.bytes.is_null() && value.len == 0;
+    if value.kind == NORMAL_INTEGER {
+        return if no_bytes && value.handle == 0 && value.token == 0 {
+            Ok(value.integer)
+        } else {
+            Err(IntegerOperandFailure::InvalidContract)
+        };
+    }
+    if value.kind != TAGGED_DYNAMIC || !no_bytes || value.handle != 0 || value.token != 0 {
+        return Err(IntegerOperandFailure::TypeError);
+    }
+    match value.reserved {
+        1 => Ok(value.integer),
+        0 if value.integer == 0 => Err(IntegerOperandFailure::TypeError),
+        2 if value.integer == 0 || value.integer == 1 => Err(IntegerOperandFailure::TypeError),
+        3 if value.integer != 0 => Err(IntegerOperandFailure::TypeError),
+        _ => Err(IntegerOperandFailure::InvalidContract),
+    }
+}
+
+enum DynamicDisplayFailure { TypeError, InvalidContract }
+
+/// Decode one borrowed original tag/payload pair. The wire tag is not inferred
+/// from the payload's MIR type; only tag 3 consults the Box handle registry.
+unsafe fn dynamic_text(value: &Operand) -> Result<String, DynamicDisplayFailure> {
+    use nyash_rust::runtime::semantics::{display_string_add_value, StringAddDisplayValue as DisplayValue};
+    let no_bytes = value.bytes.is_null() && value.len == 0;
+    if value.kind != TAGGED_DYNAMIC || !no_bytes || value.handle != 0 || value.token != 0 {
+        return Err(DynamicDisplayFailure::InvalidContract);
+    }
+    let displayed = match value.reserved {
+        0 if value.integer == 0 => return Err(DynamicDisplayFailure::TypeError),
+        1 => display_string_add_value(DisplayValue::Integer(value.integer)),
+        2 if value.integer == 0 || value.integer == 1 =>
+            display_string_add_value(DisplayValue::Bool(value.integer == 1)),
+        3 => {
+            if value.integer == 0 { return Err(DynamicDisplayFailure::InvalidContract); }
+            if nyash_rust::runtime::weak_handles::is_weak_handle(value.integer) {
+                let Some(weak) = nyash_rust::runtime::weak_handles::get_weak(value.integer) else {
+                    return Err(DynamicDisplayFailure::InvalidContract);
+                };
+                display_string_add_value(DisplayValue::WeakBox { usable_target: weak.upgrade().is_some() })
+            } else {
+                let Some(object) = nyash_rust::runtime::host_handles::get(value.integer as u64) else {
+                    return Err(DynamicDisplayFailure::InvalidContract);
+                };
+                display_string_add_value(DisplayValue::BoxRef(object.as_ref()))
+            }
+        }
+        _ => return Err(DynamicDisplayFailure::InvalidContract),
+    };
+    displayed.map_err(|_| DynamicDisplayFailure::TypeError)
 }
 
 /// Copy each borrowed operand in its own scope: publishing or ending while a
@@ -159,6 +222,29 @@ pub unsafe extern "C" fn substring(storage: *mut c_void, site: u64, value: *cons
     unsafe { publish(frame, site, result, out) }
 }
 
+/// Checked form for source expressions whose indices may retain a Dynamic
+/// carrier. Both indices are decoded before publishing; wrong tags Fault with
+/// TypeError and leave the caller's result storage unchanged.
+#[export_name = "nyash.string.checked_substring_operands_v1"]
+pub unsafe extern "C" fn substring_operands(storage: *mut c_void, site: u64,
+    value: *const Operand, start: *const Operand, end: *const Operand, out: *mut OwnedText) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
+    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let start = match unsafe { integer_operand(start) } {
+        Ok(v) => v,
+        Err(IntegerOperandFailure::TypeError) => return fault(frame, site, TYPE_ERROR),
+        Err(IntegerOperandFailure::InvalidContract) => return Status::InvalidContract as u32,
+    };
+    let end = match unsafe { integer_operand(end) } {
+        Ok(v) => v,
+        Err(IntegerOperandFailure::TypeError) => return fault(frame, site, TYPE_ERROR),
+        Err(IntegerOperandFailure::InvalidContract) => return Status::InvalidContract as u32,
+    };
+    let result = string_ops::substring(&value, start, Some(end), StringIndexMode::CodePoint);
+    unsafe { publish(frame, site, result, out) }
+}
+
 #[export_name = "nyash.string.checked_index_of_v1"]
 pub unsafe extern "C" fn index_of(storage: *mut c_void, _site: u64, value: *const Operand,
     needle: *const Operand, out: *mut i64) -> u32 {
@@ -170,8 +256,8 @@ pub unsafe extern "C" fn index_of(storage: *mut c_void, _site: u64, value: *cons
     Status::Normal as u32
 }
 
-/// Caller guarantees live nonoverlapping frame/operands/out storage. Only
-/// String+String or String+NormalInteger is this ABI; integer Add stays scalar.
+/// Caller guarantees live nonoverlapping frame/operands/out storage. The
+/// tagged Dynamic operand preserves its original source tag and payload.
 /// Normal alone writes both result words and creates one fresh End obligation.
 #[export_name = "nyash.string.checked_add_v1"]
 pub unsafe extern "C" fn add(
@@ -197,7 +283,7 @@ pub unsafe extern "C" fn add(
         Err(s) => return s as u32,
     };
     if !matches!(left.kind, STATIC_TEXT | OWNED_TEXT)
-        || !matches!(right.kind, STATIC_TEXT | OWNED_TEXT | NORMAL_INTEGER)
+        || !matches!(right.kind, STATIC_TEXT | OWNED_TEXT | NORMAL_INTEGER | TAGGED_DYNAMIC)
     {
         return Status::InvalidContract as u32;
     }
@@ -205,9 +291,17 @@ pub unsafe extern "C" fn add(
         Ok(v) => v,
         Err(s) => return s as u32,
     };
-    let suffix = match unsafe { text(right) } {
-        Ok(v) => v,
-        Err(s) => return s as u32,
+    let suffix = if right.kind == TAGGED_DYNAMIC {
+        match unsafe { dynamic_text(right) } {
+            Ok(value) => value,
+            Err(DynamicDisplayFailure::TypeError) => return fault(frame, site, TYPE_ERROR),
+            Err(DynamicDisplayFailure::InvalidContract) => return Status::InvalidContract as u32,
+        }
+    } else {
+        match unsafe { text(right) } {
+            Ok(v) => v,
+            Err(s) => return s as u32,
+        }
     };
     if result.try_reserve(suffix.len()).is_err() {
         return fault(frame, site, ALLOCATION_FAILED);

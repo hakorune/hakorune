@@ -6,10 +6,12 @@ use super::{LoopBoolCompareV1 as Compare, LoopBoolCompareDomainV1 as Domain,
     LoopOperationV2, LoopValueKeyV1};
 use crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1;
 use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, ResolvedLiteralSourceV1 as Literal};
-use crate::mir::resolved_value_profile::{expression_plan::ExpressionNodeSourceV1 as Source,
+use crate::mir::resolved_value_profile::{
+    expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
+    expression_plan::ExpressionNodeSourceV1 as Source,
     expression_projection::ExpressionLeafClassV1 as Leaf, expression_class::ExpressionValueClassV1 as Value};
 use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family, DynamicOperatorValueClassV1 as Operand};
-use std::{collections::BTreeMap, rc::Rc};
+use std::{collections::{BTreeMap, BTreeSet}, rc::Rc};
 
 #[derive(Debug)]
 pub(crate) struct CheckedLoopBoolExpressionV1 {
@@ -33,6 +35,7 @@ fn reject(reason: &str) -> String { format!("[freeze:contract][source-loop/bool/
 fn class(frame: &CheckedBoolConditionFrameV1, node: usize) -> Result<Class, String> {
     match frame.class(node) {
         Some(Leaf::Value(Value::I64)) => Ok(Class::I64),
+        Some(Leaf::Value(Value::Dynamic)) => Ok(Class::Dynamic),
         Some(Leaf::Value(Value::Bool)) => Ok(Class::Bool),
         Some(Leaf::Value(Value::String)) => Ok(Class::Text),
         _ => Err(reject("value-class")),
@@ -49,20 +52,31 @@ fn compare(op: Op) -> Result<(Compare, Family), String> {
 
 pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>) -> Result<CheckedLoopBoolExpressionV1, String> {
     let evaluation = frame.evaluation();
-    if !evaluation.reference_coverage_is_exact() || !evaluation.calls().is_empty() {
+    if !evaluation.reference_coverage_is_exact() {
         return Err(reject("opaque-or-owned-subtree"));
+    }
+    let source = frame.source();
+    if !frame.calls().is_empty() && source.nodes().iter().any(|node| {
+        !matches!(node.children(), ExpressionChildrenV1::Known(children)
+            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
+    }) {
+        return Err(reject("conditional-call-reach"));
     }
     let mut nodes = Vec::new();
     let mut indices = BTreeMap::new();
     let mut imports = Vec::new();
-    let source = frame.source();
+    let mut represented_calls = BTreeSet::new();
+    let mut transferred_nodes = Vec::new();
     let mut operations = 0;
     let mut logical = 0;
     let mut cores = 0;
     let mut owned = 0;
     for &index in frame.ordered_nodes() {
-        if frame.transfers_node(index) { return Err(reject("transferred-subtree")); }
         let original = source.nodes().get(index).ok_or_else(|| reject("source-node"))?;
+        if frame.transfers_node(index) {
+            transferred_nodes.push(index);
+            continue;
+        }
         let current_class = class(&frame, index)?;
         let node = match original.source() {
             Source::Reference(_) => {
@@ -76,25 +90,47 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
             Source::Literal(Literal::Bool(value)) if current_class == Class::Bool => Node::Bool { value: *value },
             Source::Literal(Literal::String(value)) if current_class == Class::Text => Node::Text { value: value.to_string() },
             Source::MethodCall => {
-                use crate::mir::core_method_op::CoreMethodOp as Core;
-                let core = evaluation.cores().get(&index).ok_or_else(|| reject("hidden-effectful-node"))?;
-                if !core.matches_plan(source, index)
-                    || core.owns_result() != evaluation.owned_result_nodes().contains(&index) {
-                    return Err(reject("source-coverage"));
-                }
-                let original = core.source().source();
-                let child = |site| source.nodes().iter().position(|node| node.site() == site)
-                    .and_then(|node| indices.get(&node).copied()).ok_or_else(|| reject("child-order"));
-                let value = child(original.receiver_site())?;
-                let arguments = original.arguments().iter().map(|argument| child(argument.site()))
-                    .collect::<Result<Vec<_>, _>>()?;
-                cores += 1;
-                owned += usize::from(core.owns_result());
-                match (core.source().target().row().row().op, arguments.as_slice(), current_class) {
-                    (Core::StringLen, [], Class::I64) => Node::TextLength { value },
-                    (Core::StringSubstring, [start, end], Class::Text) => Node::TextSubstring { value, start: *start, end: *end },
-                    (Core::StringIndexOf, [needle], Class::I64) => Node::TextIndexOf { value, needle: *needle },
-                    _ => return Err(reject("hidden-effectful-node")),
+                if let Some(core) = evaluation.cores().get(&index) {
+                    use crate::mir::core_method_op::CoreMethodOp as Core;
+                    if !core.matches_plan(source, index)
+                        || core.owns_result() != evaluation.owned_result_nodes().contains(&index) {
+                        return Err(reject("source-coverage"));
+                    }
+                    let original = core.source().source();
+                    let child = |site| source.nodes().iter().position(|node| node.site() == site)
+                        .and_then(|node| indices.get(&node).copied()).ok_or_else(|| reject("child-order"));
+                    let value = child(original.receiver_site())?;
+                    let arguments = original.arguments().iter().map(|argument| child(argument.site()))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    cores += 1;
+                    owned += usize::from(core.owns_result());
+                    match (core.source().target().row().row().op, arguments.as_slice(), current_class) {
+                        (Core::StringLen, [], Class::I64) => Node::TextLength { value },
+                        (Core::StringSubstring, [start, end], Class::Text) => Node::TextSubstring { value, start: *start, end: *end },
+                        (Core::StringIndexOf, [needle], Class::I64) => Node::TextIndexOf { value, needle: *needle },
+                        _ => return Err(reject("hidden-effectful-node")),
+                    }
+                } else {
+                    let mut calls = frame.calls().iter().filter(|call| call.site().site() == original.site());
+                    let call = calls.next().ok_or_else(|| reject("hidden-effectful-node"))?;
+                    let call_class = match call.result() {
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Class::I64,
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => Class::Bool,
+                        _ => return Err(reject("call-result-class")),
+                    };
+                    if calls.next().is_some()
+                        || call.owner() != source.owner()
+                        || call.statement() != source.root().statement()
+                        || !call.is_expression_value()
+                        || call.result_source().is_none()
+                        || call_class != current_class
+                        || !represented_calls.insert(index)
+                    {
+                        return Err(reject("call-source-identity"));
+                    }
+                    let ordinal = u32::try_from(imports.len()).map_err(|_| reject("import-overflow"))?;
+                    imports.push((index, call_class));
+                    Node::Import { ordinal, class: call_class }
                 }
             }
             Source::Binary(binary) => {
@@ -124,6 +160,7 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
                         let operand = match (domain.left(), domain.right()) {
                             (Operand::NormalInteger, Operand::NormalInteger) => Domain::I64,
                             (Operand::String, Operand::String) => Domain::Text,
+                            (Operand::Dynamic, Operand::I64) if binary.operator() == Op::Less => Domain::DynamicI64,
                             _ => return Err(reject("compare-domain")),
                         };
                         if current_class != Class::Bool || domain.family() != family { return Err(reject("compare-family")); }
@@ -137,9 +174,22 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
         if indices.insert(index, key).is_some() { return Err(reject("duplicate-source-node")); }
         nodes.push(node);
     }
+    let covered_transfer = |index: usize| {
+        let site = &source.nodes()[index].site();
+        frame.calls().iter().any(|call| {
+            source.nodes().iter().any(|node| node.site() == call.site().site())
+                && site.node().segments().starts_with(call.site().site().node().segments())
+        }) || evaluation.cores().keys().any(|call| {
+            source.nodes().get(*call).is_some_and(|node|
+                site.node().segments().starts_with(node.site().node().segments()))
+        })
+    };
     if operations != frame.operations().len() || logical != frame.logical_nodes().len()
         || cores != evaluation.cores().len() || owned != evaluation.owned_result_nodes().len()
-        || imports.len() != frame.references().len() || indices.len() != source.nodes().len() {
+        || represented_calls.len() != frame.calls().len()
+        || imports.len() != frame.references().len() + frame.calls().len()
+        || transferred_nodes.iter().any(|index| !covered_transfer(*index))
+        || indices.len() + transferred_nodes.len() != source.nodes().len() {
         return Err(reject("source-coverage"));
     }
     let root = *indices.get(&0).ok_or_else(|| reject("root"))?;

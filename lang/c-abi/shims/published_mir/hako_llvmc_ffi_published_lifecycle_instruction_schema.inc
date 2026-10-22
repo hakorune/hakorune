@@ -18,11 +18,14 @@ static size_t hako_physical_string_operand_count(yyjson_val* op) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op)) return 1;
   if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end")) return 0;
+  if (!strcmp(kind, "string_substring")) return 3;
   return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") || !strcmp(kind, "string_index_of") ? 2 : 1;
 }
 static yyjson_val* hako_physical_string_operand_at(yyjson_val* op, size_t ordinal) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (hako_physical_map_field_text_read(op)) return ordinal ? NULL : yyjson_obj_get(op, "key");
+  if (kind && !strcmp(kind, "string_substring"))
+    return yyjson_obj_get(op, ordinal == 0 ? "value" : ordinal == 1 ? "start" : ordinal == 2 ? "end" : "");
   const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : (ordinal ? "needle" : "value");
   return yyjson_obj_get(op, field);
 }
@@ -35,12 +38,16 @@ static int hako_physical_string_comparison(yyjson_val* operation) {
   return -1;
 }
 static int hako_physical_string_operand(yyjson_val* function, yyjson_val* operand,
-    uint32_t block, uint32_t index, int text_only) {
+    uint32_t block, uint32_t index, int text_only, int allow_dynamic) {
   static const char* const text[] = {"kind", "utf8"};
   static const char* const value_keys[] = {"kind", "value"};
   uint32_t value;
   if (hako_physical_string(yyjson_obj_get(operand, "kind"), "static_text"))
     return hako_physical_exact_keys(operand, text, 2) && yyjson_is_str(yyjson_obj_get(operand, "utf8"));
+  if (hako_physical_string(yyjson_obj_get(operand, "kind"), "tagged_dynamic"))
+    return allow_dynamic && hako_physical_exact_keys(operand, value_keys, 2) &&
+      hako_physical_u32(yyjson_obj_get(operand, "value"), &value) &&
+      hako_physical_value_available_at(function, value, block, index);
   return (hako_physical_string(yyjson_obj_get(operand, "kind"), "owned_string") ||
       hako_physical_string(yyjson_obj_get(operand, "kind"), "borrowed_text") ||
       (!text_only && hako_physical_string(yyjson_obj_get(operand, "kind"), "normal_integer"))) &&
@@ -99,15 +106,15 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     static const char* const keys[] = {"kind", "comparison", "left", "right", "site"};
     return hako_physical_exact_keys(operation, keys, 5) && hako_physical_string_comparison(operation) >= 0 &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
-        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1) &&
-        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 1);
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1, 0) &&
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 1, 0);
   }
   if (!strcmp(kind, "string_add")) {
     static const char* const keys[] = {"kind", "left", "right", "site"};
     return hako_physical_exact_keys(operation, keys, 4) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
-        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1) &&
-        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 0);
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1, 0) &&
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 0, 1);
   }
   if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_length") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_index_of")) {
     static const char* const read[] = {"kind", "value", "site"};
@@ -116,13 +123,11 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     int substring = !strcmp(kind, "string_substring"), index_of = !strcmp(kind, "string_index_of");
     if (!hako_physical_exact_keys(operation, substring ? slice : index_of ? search : read,
         substring ? 5 : index_of ? 4 : 3) || !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
-    for (size_t role = 0; role < hako_physical_string_operand_count(operation); role++)
-      if (!hako_physical_string_operand(function, hako_physical_string_operand_at(operation, role), block, index, 1)) return 0;
-    if (substring) {
-      const char* bounds[] = {"start", "end"};
-      for (size_t i = 0; i < 2; i++)
-        if (!hako_physical_u32(yyjson_obj_get(operation, bounds[i]), &value) ||
-            !hako_physical_value_available_at(function, value, block, index)) return 0;
+    for (size_t role = 0; role < hako_physical_string_operand_count(operation); role++) {
+      int text_only = !substring || role == 0;
+      int allow_dynamic = substring && role > 0;
+      if (!hako_physical_string_operand(function, hako_physical_string_operand_at(operation, role), block, index,
+          text_only, allow_dynamic)) return 0;
     }
     return 1;
   }
@@ -131,7 +136,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     if (!hako_physical_exact_keys(operation, keys, 3) ||
         !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
     return !strcmp(kind, "string_print")
-        ? hako_physical_string_operand(function, yyjson_obj_get(operation, "value"), block, index, 0)
+        ? hako_physical_string_operand(function, yyjson_obj_get(operation, "value"), block, index, 0, 0)
         : hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
             hako_physical_value_available_at(function, value, block, index);
   }
@@ -163,7 +168,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         !hako_physical_value_available_at(function, value, block, index)) return 0;
     if (hako_physical_array_text_append(operation))
       return !native && hako_physical_string_operand(function,
-          yyjson_obj_get(operation, "value"), block, index, 1);
+          yyjson_obj_get(operation, "value"), block, index, 1, 0);
     return hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
         (hako_physical_string(repr, "i64") || (native &&

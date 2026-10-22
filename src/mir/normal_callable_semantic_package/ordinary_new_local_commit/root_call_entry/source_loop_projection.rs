@@ -17,8 +17,16 @@ pub(crate) struct EmittedSourceLoopProjectionV2 {
 impl EmittedSourceLoopProjectionV2 {
     fn pending(product: Rc<Product>) -> Result<Rc<Self>, String> {
         let expected = product.lifecycle_prefixes_v2();
-        if expected.iter().enumerate().any(|(index, row)| expected[..index].iter().any(|old| old.site() == row.site())) {
-            return Err(freeze("source-loop/child-site-duplicate"));
+        for (index, row) in expected.iter().enumerate() {
+            if let Some(old) = expected[..index].iter().find(|old| old.site() == row.site()) {
+                let paired = index > 0
+                    && expected
+                        .get(index - 1)
+                        .is_some_and(|prior| prior.site() == old.site() && source_call_bool_prefix_pair_v2(prior, row));
+                if !paired {
+                    return Err(freeze("source-loop/child-site-duplicate"));
+                }
+            }
         }
         // Verified source coverage binds argument-purpose frames to their
         // append candidate. Its Call packet owns those children; emitting a
@@ -57,6 +65,34 @@ impl EmittedSourceLoopProjectionV2 {
     }
 }
 
+fn source_call_bool_prefix_pair_v2(
+    call: &LifecyclePrefixSourceV1,
+    condition: &LifecyclePrefixSourceV1,
+) -> bool {
+    let (
+        LifecyclePrefixSourceV1::Call {
+            site: call_site,
+            statement,
+        },
+        LifecyclePrefixSourceV1::BoolCondition {
+            site: condition_site,
+            frame,
+        },
+    ) = (call, condition)
+    else {
+        return false;
+    };
+    call_site == condition_site
+        && call_site.owner() == frame.source().owner()
+        && statement == frame.source().root().statement()
+        && frame
+            .source()
+            .nodes()
+            .first()
+            .is_some_and(|root| root.site() == call_site.site())
+        && frame.calls().iter().any(|observation| observation.site() == call_site)
+}
+
 #[derive(Clone)]
 pub(super) enum LifecyclePrefixDestinationV2 {
     Root,
@@ -72,9 +108,103 @@ impl LifecyclePrefixDestinationV2 {
         match self { Self::Root => ledger.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default(),
             Self::Loop(packet) => packet.snapshot() }
     }
+
+    pub(super) fn allows_same_site_neighbor_v2(
+        &self,
+        expected: &[LifecyclePrefixSourceV1],
+        groups: &[RootLifecyclePrefixBindingGroupV1],
+        group: &RootLifecyclePrefixBindingGroupV1,
+    ) -> bool {
+        let Self::Loop(_) = self else { return false };
+        let Some(previous_index) = groups.len().checked_sub(1) else { return false };
+        let (Some(previous_source), Some(current_source), Some(previous_group)) = (
+            expected.get(previous_index),
+            expected.get(groups.len()),
+            groups.get(previous_index),
+        ) else {
+            return false;
+        };
+        previous_group.site() == group.site()
+            && previous_source.site() == group.site()
+            && current_source.site() == group.site()
+            && previous_group.matches_source(previous_source)
+            && group.matches_source(current_source)
+            && source_call_bool_prefix_pair_v2(previous_source, current_source)
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow a CallSlot packet that the same source Loop already emitted for
+    /// the direct call used as a BoolCondition value. The frame/product pair,
+    /// adjacent lifecycle sources, schedule slot, and child group must all
+    /// identify that one source call; nested or unrelated calls keep their own
+    /// normal condition emission path.
+    pub(in crate::mir) fn source_loop_bool_call_effect_v2(
+        &self,
+        frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>,
+        observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    ) -> Result<Option<RootLifecyclePrefixBindingGroupV1>, String> {
+        let source = frame.source();
+        let Some(root) = source.nodes().first() else {
+            return Err(freeze("source-loop/bool-call-root-missing"));
+        };
+        if observation.owner() != source.owner() || observation.site().site() != root.site() {
+            return Ok(None);
+        }
+        CallValidationContextV1::Lowering(self).with_local_call_group_tree_v2(source.owner(), |groups| {
+            let mut parents = groups.iter().filter_map(|group| group.source_loop_rc()).filter(|parent| {
+                parent.product().schedule().frames().iter().any(|scheduled| {
+                    matches!(scheduled.prefix(), LifecyclePrefixSourceV1::BoolCondition { frame: original, .. }
+                        if Rc::ptr_eq(original, frame))
+                })
+            });
+            let Some(parent) = parents.next() else { return Ok(None) };
+            if parents.next().is_some() {
+                return Err(freeze("source-loop/bool-call-parent-duplicate"));
+            }
+            let statement = source.root().statement();
+            let mut call_sources = parent.expected.iter().filter(|candidate| matches!(candidate,
+                LifecyclePrefixSourceV1::Call { site, statement: original }
+                    if site == observation.site() && original == statement));
+            let call_source = call_sources.next();
+            if call_sources.next().is_some() {
+                return Err(freeze("source-loop/bool-call-source-duplicate"));
+            }
+            let mut condition_sources = parent.expected.iter().filter(|candidate| matches!(candidate,
+                LifecyclePrefixSourceV1::BoolCondition { site, frame: original, .. }
+                    if site == observation.site() && Rc::ptr_eq(original, frame)));
+            let condition_source = condition_sources.next();
+            if condition_sources.next().is_some() {
+                return Err(freeze("source-loop/bool-call-frame-duplicate"));
+            }
+            let (Some(call_source), Some(condition_source)) = (call_source, condition_source) else {
+                return Ok(None);
+            };
+            if !source_call_bool_prefix_pair_v2(call_source, condition_source)
+                || !frame.calls().iter().any(|call| call == observation)
+            {
+                return Err(freeze("source-loop/bool-call-source-drift"));
+            }
+            let mut scheduled_calls = parent.product().schedule().calls_v2().filter(|step| matches!(step,
+                crate::mir::loop_recipe_contract::SourceLoopScheduledStepV2::Call {
+                    site: original_statement, observation: original, ..
+                } if original_statement == statement && original == observation));
+            if scheduled_calls.next().is_none() || scheduled_calls.next().is_some() {
+                return Err(freeze("source-loop/bool-call-schedule"));
+            }
+            let children = parent.snapshot();
+            let mut effects = children.iter().filter(|group| group.matches_source(call_source));
+            let effect = effects.next().ok_or_else(|| freeze("source-loop/bool-call-effect-missing"))?;
+            if effects.next().is_some() {
+                return Err(freeze("source-loop/bool-call-effect-duplicate"));
+            }
+            if effect.lexical().is_none() {
+                return Err(freeze("source-loop/bool-call-packet-missing"));
+            }
+            Ok(Some(effect.clone()))
+        })
+    }
+
     /// Borrow the existing child group from this exact open Loop parent. The
     /// sole writer already committed it; no second packet or registry is issued.
     pub(in crate::mir) fn source_loop_effect_group_v2(&self, product: &Rc<Product>,
@@ -86,10 +216,18 @@ impl OrdinaryNewClaimLedgerV1 {
             let parent = parents.next().ok_or_else(|| freeze("source-loop/parent-missing"))?;
             if parents.next().is_some() { return Err(freeze("source-loop/parent-duplicate")); }
             let children = parent.snapshot();
-            let mut matching = children.iter().filter(|group| group.site() == site);
+            let mut sources = parent.expected.iter().filter(|source| {
+                source.site() == site
+                    && matches!(source, LifecyclePrefixSourceV1::Call { .. }
+                        | LifecyclePrefixSourceV1::OwnedArrayAppend { .. })
+            });
+            let source = sources.next().ok_or_else(|| freeze("source-loop/frame-source"))?;
+            if sources.next().is_some() { return Err(freeze("source-loop/frame-source")); }
+            let mut matching = children.iter().filter(|group| {
+                group.site() == site && group.matches_source(source)
+            });
             let group = matching.next().ok_or_else(|| freeze("source-loop/frame-source"))?;
-            if matching.next().is_some() || !parent.expected.iter().any(|source|
-                source.site() == site && group.matches_source(source)) {
+            if matching.next().is_some() {
                 return Err(freeze("source-loop/frame-source"));
             }
             Ok(group.clone())
@@ -101,7 +239,15 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn open_source_loop_prefix_v2(&self, product: Rc<Product>) -> Result<(), String> {
         let owner = product.source.source.owner();
         let packet = EmittedSourceLoopProjectionV2::pending(product)?;
-        self.prepare_local_call_binding_group(owner, RootLifecyclePrefixBindingGroupV1::new_loop_pending(packet))?.commit()
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            eprintln!("[local-call-bindings] open-loop owner={owner:?} expected={}", packet.expected.len());
+        }
+        self.prepare_local_call_binding_group(owner, RootLifecyclePrefixBindingGroupV1::new_loop_pending(packet))?.commit()?;
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            let roots = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
+            eprintln!("[local-call-bindings] roots-after-loop={:?}", roots.iter().map(RootLifecyclePrefixBindingGroupV1::site).collect::<Vec<_>>());
+        }
+        Ok(())
     }
 
     pub(super) fn prefix_destination_v2(&self, owner: FunctionOwnerIdV1, site: &OwnedExprSiteV1)
@@ -129,9 +275,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let destination = self.prefix_destination_v2(owner, site)?;
         let expected = destination.expected(self, owner)?;
         let groups = destination.snapshot(self, owner);
-        if groups.iter().any(|recorded| recorded.site() == site) { return Err(freeze("duplicate-local-call-bindings")); }
+        if groups.iter().any(|recorded| recorded.site() == site)
+            && !destination.allows_same_site_neighbor_v2(&expected, &groups, &group)
+        {
+            return Err(freeze("duplicate-local-call-bindings"));
+        }
         if groups.len() >= expected.len() { return Err(freeze("local-call-bindings-overflow")); }
-        if expected.get(groups.len()).is_none_or(|source| !group.matches_source(source)) {
+        let next_source = expected.get(groups.len());
+        if next_source.is_none_or(|source| !group.matches_source(source)) {
             return Err(freeze("local-call-binding-site-order"));
         }
         Ok(PreparedLifecyclePrefixBindingGroupV1 { ledger: self, owner, group, destination,

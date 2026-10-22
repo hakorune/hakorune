@@ -40,15 +40,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
     requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
     demand: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
     results: &BorrowedResultCohortV1,
-    ingress: &Result<super::super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    ingress: &Result<
+        super::super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+        String,
+    >,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
     formal_class: &mut impl FnMut(BindingRefV1) -> Result<Option<Box<str>>, String>,
     received_context: Option<field_reads::ReceivedFieldContextV1<'_>>,
 ) -> Result<Option<Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)>>, OrdinaryNewCoSealIssueV1> {
-    use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1;
+    use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     let mut seen = BTreeSet::new();
-    let mut rows: Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> = Vec::with_capacity(requests.len());
+    let mut rows: Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> =
+        Vec::with_capacity(requests.len());
     for request in requests {
         if request.site.owner() != request.receiver.owner()
             || request.site.owner() != request.home.owner()
@@ -67,36 +71,65 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         }
         let parent = match request.path.as_ref().and_then(|path| path.parent()) {
             Some(site) => {
-                let Some(parent) = rows.iter().find(|(actual, _)| *actual == site)
-                    .and_then(|(_, row)| row.source.statement_path()).cloned() else { return Ok(None); };
+                let Some(parent) = rows
+                    .iter()
+                    .find(|(actual, _)| *actual == site)
+                    .and_then(|(_, row)| row.source.statement_path())
+                    .cloned()
+                else {
+                    return Ok(None);
+                };
                 Some(parent)
-            },
+            }
             None => None,
         };
         if let Some(path) = &request.path {
-            if request.nullable || request.formal || request.owned_ready.is_some()
+            if request.nullable
+                || request.formal
+                || request.owned_ready.is_some()
                 || !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
-                    if Rc::ptr_eq(plan, path.plan()) && request.node_in_plan(plan) == Some(path.node())) {
+                    if Rc::ptr_eq(plan, path.plan()) && request.node_in_plan(plan) == Some(path.node()))
+            {
                 return Ok(None);
             }
         }
         let stored_get = matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }));
-        if request.received.is_some() && !stored_get && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
+        if request.received.is_some()
+            && !stored_get
+            && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
             if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })) {
+                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. }))
+        {
             return Ok(None);
         }
         let received = if request.received.is_some() && !stored_get {
-            let context = received_context.ok_or_else(|| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                site: request.site.clone(), issue: "received-field/context-missing".into(),
+            let context = received_context.ok_or_else(|| {
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: request.site.clone(),
+                    issue: "received-field/context-missing".into(),
+                }
             })?;
-            Some(field_reads::ReceivedFieldReadSourceV1::issue(context,
-                ingress.as_ref().map_err(Clone::clone).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: request.site.clone(), issue,
-                })?, request).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: request.site.clone(), issue,
-                })?)
-        } else { None };
+            Some(
+                field_reads::ReceivedFieldReadSourceV1::issue(
+                    context,
+                    ingress.as_ref().map_err(Clone::clone).map_err(|issue| {
+                        OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                            site: request.site.clone(),
+                            issue,
+                        }
+                    })?,
+                    request,
+                )
+                .map_err(|issue| {
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: request.site.clone(),
+                        issue,
+                    }
+                })?,
+            )
+        } else {
+            None
+        };
         let alias_class = if let Some(site) = request.path.as_ref().and_then(|path| path.parent()) {
             let Some((_, row)) = rows.iter().find(|(actual, _)| *actual == site) else { return Ok(None); };
             let LocalFieldReadResultV1::Alias(class) = row.source.result() else { return Ok(None); };
@@ -122,28 +155,56 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             request.alias_class.clone()
         };
         let source = if request.owned_ready.is_some() {
-            let Some((field, declared)) = terminal_home::local_read_field_declaration(constructors,
-                candidates, coverage, receiver_proof, &request.site, request.home,
-                alias_class.as_deref(), &request.field)? else { return Ok(None); };
+            let Some((field, declared)) = terminal_home::local_read_field_declaration(
+                constructors,
+                candidates,
+                coverage,
+                receiver_proof,
+                &request.site,
+                request.home,
+                alias_class.as_deref(),
+                &request.field,
+            )?
+            else {
+                return Ok(None);
+            };
             // Retain the original absent declaration. Only the exact successful
             // writer can lend Scalar here; ordinary untyped reads stay closed.
-            let ready = field_reads::OwnedReadyFieldReadSourceV1::issue(candidates, request,
-                field, declared.as_deref()).map_err(|issue|
-                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
-            let descriptor = LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar,
-                declared.map(Into::into));
-            Some(LocalFieldReadSourceV1::with_owned_ready(&descriptor, ready).map_err(|issue|
-                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
-        } else { terminal_home::local_read_field(
-            constructors,
-            candidates,
-            coverage,
-            receiver_proof,
-            &request.site,
-            request.home,
-            alias_class.as_deref(),
-            &request.field,
-        )? };
+            let ready = field_reads::OwnedReadyFieldReadSourceV1::issue(
+                candidates,
+                request,
+                field,
+                declared.as_deref(),
+            )
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: request.site.clone(),
+                issue,
+            })?;
+            let descriptor = LocalFieldReadSourceV1::from_declaration(
+                field,
+                LocalFieldReadResultV1::Scalar,
+                declared.map(Into::into),
+            );
+            Some(
+                LocalFieldReadSourceV1::with_owned_ready(&descriptor, ready).map_err(|issue| {
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: request.site.clone(),
+                        issue,
+                    }
+                })?,
+            )
+        } else {
+            terminal_home::local_read_field(
+                constructors,
+                candidates,
+                coverage,
+                receiver_proof,
+                &request.site,
+                request.home,
+                alias_class.as_deref(),
+                &request.field,
+            )?
+        };
         let source = match source {
             Some(source) => source,
             None => {
@@ -158,34 +219,77 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                             Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar, None)),
                         _ => None,
                     }
-                } else { None };
-                if let Some(source) = numeric { source } else {
-                let Some(source) = borrow_array_field_source(constructors, candidates, coverage,
-                    receiver_proof, request, alias_class.as_deref(), source_core_calls)? else { return Ok(None); };
-                source
+                } else {
+                    None
+                };
+                if let Some(source) = numeric {
+                    source
+                } else {
+                    let Some(source) = borrow_array_field_source(
+                        constructors,
+                        candidates,
+                        coverage,
+                        receiver_proof,
+                        request,
+                        alias_class.as_deref(),
+                        source_core_calls,
+                    )?
+                    else {
+                        return Ok(None);
+                    };
+                    source
                 }
             }
         };
         let scalar_only = match &demand {
             LocalFieldReadDemandV1::Declared { scalar_only } => *scalar_only,
-            LocalFieldReadDemandV1::SourceExpression { .. } => !request.path.as_ref().is_some_and(|path| path.is_intermediate()),
+            LocalFieldReadDemandV1::SourceExpression { .. } => !request
+                .path
+                .as_ref()
+                .is_some_and(|path| path.is_intermediate()),
         };
         if scalar_only && *source.result() != LocalFieldReadResultV1::Scalar {
             return Ok(None);
         }
         let mut source = match received.as_ref().filter(|_| request.path.is_none()) {
             Some(received) => LocalFieldReadSourceV1::with_received(&source, received.clone())
-                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?,
+                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: request.site.clone(),
+                    issue,
+                })?,
             None => source,
         };
         if request.path.is_some() {
             let root = if parent.is_none() {
-                Some(terminal_home::ExpressionFieldRootSourceV1::issue(constructors, candidates, coverage,
-                    receiver_proof, entry_home, received.as_ref(), request, source.field()).map_err(|issue|
-                        OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
-            } else { None };
-            let returned = if request.path.as_ref().is_some_and(|path| path.is_intermediate()) && received.is_some() {
-                let (batch, selected, classes, targets, fields) = received_context.expect("received context checked");
+                Some(
+                    terminal_home::ExpressionFieldRootSourceV1::issue(
+                        constructors,
+                        candidates,
+                        coverage,
+                        receiver_proof,
+                        entry_home,
+                        received.as_ref(),
+                        request,
+                        source.field(),
+                    )
+                    .map_err(|issue| {
+                        OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                            site: request.site.clone(),
+                            issue,
+                        }
+                    })?,
+                )
+            } else {
+                None
+            };
+            let returned = if request
+                .path
+                .as_ref()
+                .is_some_and(|path| path.is_intermediate())
+                && received.is_some()
+            {
+                let (batch, selected, classes, targets, fields) =
+                    received_context.expect("received context checked");
                 let loan = classes.returned_field_source_v1(batch, selected, constructors, &request.site,
                     &mut |site| super::super::super::lexical_instance_call::original_lexical_target_at_v1(targets, site)
                         .map_err(|_| "expression-path/returned-target"))
@@ -197,31 +301,61 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue: issue.into() })?;
                 }
                 loan
-            } else { None };
-            let path = field_reads::StatementFieldPathSourceV1::issue(request, Rc::clone(&source), parent,
-                root, returned, results, ingress.as_ref().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: request.site.clone(), issue: issue.clone(),
-                })?).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
+            } else {
+                None
+            };
+            let path = field_reads::StatementFieldPathSourceV1::issue(
+                request,
+                Rc::clone(&source),
+                parent,
+                root,
+                returned,
+                results,
+                ingress.as_ref().map_err(|issue| {
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: request.site.clone(),
+                        issue: issue.clone(),
+                    }
+                })?,
+            )
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: request.site.clone(),
+                issue,
+            })?;
             source = LocalFieldReadSourceV1::with_statement_path(&source, path);
         }
         let numeric_source = match &demand {
             LocalFieldReadDemandV1::Declared { .. } => None,
-            LocalFieldReadDemandV1::SourceExpression { .. } if request.path.is_some() || request.owned_ready.is_some() => None,
+            LocalFieldReadDemandV1::SourceExpression { .. }
+                if request.path.is_some() || request.owned_ready.is_some() =>
+            {
+                None
+            }
             LocalFieldReadDemandV1::SourceExpression { plan } => Some(
                 super::super::super::lexical_instance_call::ExpressionFieldSourceLoanV1::from_read(
                     results,
-                    ingress.as_ref().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                        site: request.site.clone(), issue: issue.clone(),
+                    ingress.as_ref().map_err(|issue| {
+                        OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                            site: request.site.clone(),
+                            issue: issue.clone(),
+                        }
                     })?,
-                    Rc::clone(plan), request, &source,
-                ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: request.site.clone(), issue,
+                    Rc::clone(plan),
+                    request,
+                    &source,
+                )
+                .map_err(|issue| {
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: request.site.clone(),
+                        issue,
+                    }
                 })?,
             ),
         };
         rows.push((
             request.site.clone(),
-            field_reads::LocalFieldRead { local: None,
+            field_reads::LocalFieldRead {
+                local: None,
                 receiver_site: request.receiver_site.clone(),
                 receiver: request.receiver,
                 home: request.home,
@@ -262,7 +396,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_local_field_read_b
             }
         }
     }
-    let results = rows.iter().map(|(_, row)| row.source.result().clone()).collect();
+    let results = rows
+        .iter()
+        .map(|(_, row)| row.source.result().clone())
+        .collect();
     for (site, row) in rows {
         staged.entry(site).or_insert(row);
     }
@@ -279,24 +416,68 @@ fn borrow_array_field_source(
     alias_class: Option<&str>,
     source_core_calls: Option<&core_method_source::SourceCoreMethodCallRowsV1>,
 ) -> Result<Option<Rc<LocalFieldReadSourceV1>>, OrdinaryNewCoSealIssueV1> {
-    use crate::mir::resolved_semantics::home_new_prefix::{BorrowedArrayFieldSourceV1, LocalFieldReadResultV1};
-    let Some(calls) = source_core_calls else { return Ok(None); };
+    use crate::mir::resolved_semantics::home_new_prefix::{
+        BorrowedArrayFieldSourceV1, LocalFieldReadResultV1,
+    };
+    let Some(calls) = source_core_calls else {
+        return Ok(None);
+    };
     let mut original = None;
     for row in calls.values() {
-        let Some(crate::mir::resolved_semantics::NamedArrayRequirementV1::FieldResidence(source)) = row.contract().named_array_requirement() else { continue; };
-        if source.owner() != request.site.owner() || source.field_site() != request.site.site() { continue; }
-        if original.as_ref().is_some_and(|previous: &Rc<crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1>|
-            previous.binding() != source.binding() || previous.field() != source.field()
-            || previous.provider_caller() != source.provider_caller() || previous.provider_site() != source.provider_site()) {
-            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: request.site.clone() });
+        let Some(crate::mir::resolved_semantics::NamedArrayRequirementV1::FieldResidence(source)) =
+            row.contract().named_array_requirement()
+        else {
+            continue;
+        };
+        if source.owner() != request.site.owner() || source.field_site() != request.site.site() {
+            continue;
         }
-        if original.is_none() { original = Some(source.clone()); }
+        if original.as_ref().is_some_and(
+            |previous: &Rc<
+                crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1,
+            >| {
+                previous.binding() != source.binding()
+                    || previous.field() != source.field()
+                    || previous.provider_caller() != source.provider_caller()
+                    || previous.provider_site() != source.provider_site()
+            },
+        ) {
+            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch {
+                site: request.site.clone(),
+            });
+        }
+        if original.is_none() {
+            original = Some(source.clone());
+        }
     }
-    let Some(original) = original else { return Ok(None); };
-    let Some((field, declared)) = terminal_home::local_read_field_declaration(constructors,
-        candidates, coverage, receiver_proof, &request.site, request.home, alias_class, &request.field)? else { return Ok(None); };
-    if field != original.field() || !constructors.is_array_field(field).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)? { return Ok(None); }
-    Ok(Some(LocalFieldReadSourceV1::from_declaration(field,
-        LocalFieldReadResultV1::BorrowedArray(BorrowedArrayFieldSourceV1 { requirement: original }),
-        declared.map(String::into_boxed_str))))
+    let Some(original) = original else {
+        return Ok(None);
+    };
+    let Some((field, declared)) = terminal_home::local_read_field_declaration(
+        constructors,
+        candidates,
+        coverage,
+        receiver_proof,
+        &request.site,
+        request.home,
+        alias_class,
+        &request.field,
+    )?
+    else {
+        return Ok(None);
+    };
+    if field != original.field()
+        || !constructors
+            .is_array_field(field)
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?
+    {
+        return Ok(None);
+    }
+    Ok(Some(LocalFieldReadSourceV1::from_declaration(
+        field,
+        LocalFieldReadResultV1::BorrowedArray(BorrowedArrayFieldSourceV1 {
+            requirement: original,
+        }),
+        declared.map(String::into_boxed_str),
+    )))
 }

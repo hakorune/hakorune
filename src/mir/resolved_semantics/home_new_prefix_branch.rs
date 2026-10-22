@@ -5,9 +5,9 @@
 //! `HomeFlowBranchDivergent` — never a union, never an empty substitution.
 //! Only a verified `ResolvedIfRegionBundleV1` admits the walk; any other `If`
 //! keeps `PrefixNotCovered`.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::SelectedLoopHomeLoanV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, BodyExpressionShapeV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
     ResolvedLiteralSourceV1,
@@ -204,10 +204,17 @@ fn stage_subtree_call_actuals<E>(
         })
     }) {
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-        for (call_site, actuals) in
-            local_call_flow::observe_borrowed_call_actuals(input, &owned, locals, prefix_known, homes)
-        {
-            borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
+        for (call_site, actuals) in local_call_flow::observe_borrowed_call_actuals(
+            input,
+            &owned,
+            locals,
+            prefix_known,
+            homes,
+        ) {
+            borrowed_actuals(
+                &call_site,
+                BorrowedCallActualRequestV1::Observe(input, &actuals),
+            )?;
         }
     }
     Ok(())
@@ -398,41 +405,103 @@ pub(super) fn observe_if_statement<'a, E>(
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(false);
     };
-    let whole_condition = super::condition::observe(input, statement.site(), locals, homes,
-        prefix_known, local_calls, path_calls, local_field_read, borrowed_actuals)?;
-    if matches!(whole_condition, super::condition::ConditionInstallationV1::Refused) {
-        unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
-        stage_unobserved_statement_actuals(input, statement, locals, prefix_known, homes, borrowed_actuals)?;
+    // Conditions own their whole control expression, but calls nested below
+    // that expression still qualify their original argument frames at this
+    // same Prefix point. Stage only when the source plan has unconditional
+    // child reach; short-circuit subtrees retain their separate reach owner.
+    if let Ok(source) =
+        crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
+            input,
+            statement.site(),
+        )
+    {
+        let _ = local_call_flow::stage_expression_actuals_v1(
+            input,
+            &statement,
+            &source,
+            locals,
+            prefix_known,
+            homes,
+            local_calls,
+            local_field_read,
+            borrowed_actuals,
+        )?;
+    }
+    let whole_condition = super::condition::observe(
+        input,
+        statement.site(),
+        locals,
+        homes,
+        prefix_known,
+        local_calls,
+        path_calls,
+        local_field_read,
+        borrowed_actuals,
+    )?;
+    if matches!(
+        whole_condition,
+        super::condition::ConditionInstallationV1::Refused
+    ) {
+        unavailable.get_or_insert_with(|| {
+            HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+        });
+        stage_unobserved_statement_actuals(
+            input,
+            statement,
+            locals,
+            prefix_known,
+            homes,
+            borrowed_actuals,
+        )?;
         return Ok(false);
     }
-    let whole_selected = matches!(whole_condition, super::condition::ConditionInstallationV1::Installed);
+    let whole_selected = matches!(
+        whole_condition,
+        super::condition::ConditionInstallationV1::Installed
+    );
     let condition_call = if whole_selected {
         local_call_flow::SourceScalarConditionCallV1::Unselected
     } else {
         local_call_flow::issue_source_scalar_condition_call_v1(
-        input, statement.site(), &OwnedExprSiteV1::new(input.owner(), condition.site().clone()), homes,
-        &mut |binding| locals.field_alias_call_path(binding), borrowed_actuals,
-    )?
+            input,
+            statement.site(),
+            &OwnedExprSiteV1::new(input.owner(), condition.site().clone()),
+            homes,
+            &mut |binding| locals.field_alias_call_path(binding),
+            borrowed_actuals,
+        )?
     };
-    let condition_selected = whole_selected || match condition_call {
-        local_call_flow::SourceScalarConditionCallV1::Ready(observation) => {
-            path_calls.insert(observation.site().clone());
-            local_calls.push(observation);
-            true
-        }
-        local_call_flow::SourceScalarConditionCallV1::Refused => {
-            unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
-            stage_unobserved_statement_actuals(input, statement, locals, prefix_known, homes, borrowed_actuals)?;
-            return Ok(false);
-        }
-        local_call_flow::SourceScalarConditionCallV1::Unselected => false,
-    };
-    if !condition_selected && scalar_expression::contains_source_request(
-        input,
-        condition.site(),
-        locals,
-        local_static_call,
-    )? {
+    let condition_selected = whole_selected
+        || match condition_call {
+            local_call_flow::SourceScalarConditionCallV1::Ready(observation) => {
+                path_calls.insert(observation.site().clone());
+                local_calls.push(observation);
+                true
+            }
+            local_call_flow::SourceScalarConditionCallV1::Refused => {
+                unavailable.get_or_insert_with(|| {
+                    HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+                });
+                stage_unobserved_statement_actuals(
+                    input,
+                    statement,
+                    locals,
+                    prefix_known,
+                    homes,
+                    borrowed_actuals,
+                )?;
+                return Ok(false);
+            }
+            local_call_flow::SourceScalarConditionCallV1::Unselected => false,
+        };
+    if !condition_selected
+        && scalar_expression::contains_source_request(
+            input,
+            condition.site(),
+            locals,
+            local_static_call,
+        )?
+    {
         if let Some((_, calls)) = scalar_expression::observe_scalar_expression(
             input,
             condition.site(),
@@ -599,9 +668,17 @@ pub(super) fn observe_if_statement<'a, E>(
         },
     };
 
+
     let both_paths_available = then_path.unavailable.is_none() && else_path.unavailable.is_none();
-    locals.record_source_loop_if_v1(statement.site(), *bundle, then_control_body, else_control_body,
-        then_path.terminated, else_path.terminated, both_paths_available);
+    locals.record_source_loop_if_v1(
+        statement.site(),
+        *bundle,
+        then_control_body,
+        else_control_body,
+        then_path.terminated,
+        else_path.terminated,
+        both_paths_available,
+    );
     if then_path.terminated && else_path.terminated {
         // Every path exits inside this `If` — the enclosing path ends here.
         return Ok(true);
@@ -699,8 +776,13 @@ pub(super) fn observe_if_statement<'a, E>(
         }
     }
     if prefix_known && both_paths_available && branch_issue.is_none() {
-        if let Some(proof) = null_exclusion::issue(input, statement.site(), condition.site(),
-            then_path.terminated, else_path.terminated) {
+        if let Some(proof) = null_exclusion::issue(
+            input,
+            statement.site(),
+            condition.site(),
+            then_path.terminated,
+            else_path.terminated,
+        ) {
             join_locals.retain_null_exclusion(proof);
         }
     }

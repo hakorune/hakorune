@@ -1,7 +1,7 @@
 //! Original Loop Header/body/exit walk through the existing recursive scanner.
 //! This source summary is deliberately not Home After or physical permission.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::BodyChildRoleV1;
 
 #[allow(clippy::too_many_arguments)]
@@ -82,27 +82,50 @@ pub(super) fn observe<'a, E>(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<Option<super::local_flow::source_loop::SourceLoopScanSummaryV1>, E> {
-    if unavailable.is_some() || source.owner() != input.owner() || source.site() != statement.site() {
+    if unavailable.is_some() || source.owner() != input.owner() || source.site() != statement.site()
+    {
         return Ok(None);
     }
     let mut child_locals = locals.clone();
-    let Some(checkpoint) = child_locals.stage_source_loop_headers_v1(std::rc::Rc::clone(source), homes, local_calls)
-        else {
-            if crate::config::env::builder_debug_enabled() {
-                eprintln!("[source-loop] owner={:?} site={:?} Header basis unavailable", input.owner(), source.site());
-            }
-            return Ok(None);
-        };
-    let mut child_calls = path_calls.clone();
-    let Some(condition) = super::condition::observe_loop(input, source, &child_locals, homes,
-        local_calls, &mut child_calls, local_field_read, borrowed_actuals)? else {
+    let Some(checkpoint) =
+        child_locals.stage_source_loop_headers_v1(std::rc::Rc::clone(source), homes, local_calls)
+    else {
         if crate::config::env::builder_debug_enabled() {
-            eprintln!("[source-loop] owner={:?} site={:?} original Loop condition unavailable", input.owner(), source.site());
+            eprintln!(
+                "[source-loop] owner={:?} site={:?} Header basis unavailable",
+                input.owner(),
+                source.site()
+            );
         }
         return Ok(None);
     };
-    let Ok(body) = input.source().child_body_from_stmt(statement, BodyChildRoleV1::LoopBody)
-        else { return Ok(None); };
+    let mut child_calls = path_calls.clone();
+    let Some(condition) = super::condition::observe_loop(
+        input,
+        source,
+        &child_locals,
+        homes,
+        local_calls,
+        &mut child_calls,
+        local_field_read,
+        borrowed_actuals,
+    )?
+    else {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!(
+                "[source-loop] owner={:?} site={:?} original Loop condition unavailable",
+                input.owner(),
+                source.site()
+            );
+        }
+        return Ok(None);
+    };
+    let Ok(body) = input
+        .source()
+        .child_body_from_stmt(statement, BodyChildRoleV1::LoopBody)
+    else {
+        return Ok(None);
+    };
     let mut child_homes = homes.clone();
     let mut child_covered = covered_statements.clone();
     let mut child_selected = selected_seen.clone();
@@ -146,10 +169,20 @@ pub(super) fn observe<'a, E>(
         loop_prestate,
         object_return,
     )?;
-    if !terminated && !child_locals.observe_source_loop_backedge_v1(&child_homes, &child_covered,
-        &child_calls, &child_issue) { child_locals.note_source_loop_availability_v1(false); }
+    if !terminated
+        && !child_locals.observe_source_loop_backedge_v1(
+            &child_homes,
+            &child_covered,
+            &child_calls,
+            &child_issue,
+        )
+    {
+        child_locals.note_source_loop_availability_v1(false);
+    }
     child_locals.note_source_loop_availability_v1(child_issue.is_none());
-    let Some(mut summary) = child_locals.finish_source_loop_headers_v1(checkpoint, condition, local_calls) else {
+    let Some(mut summary) =
+        child_locals.finish_source_loop_headers_v1(checkpoint, condition, local_calls)
+    else {
         if crate::config::env::builder_debug_enabled() {
             eprintln!("[source-loop] owner={:?} site={:?} scoped Header finish unavailable path={child_issue:?}", input.owner(), source.site());
         }

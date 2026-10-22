@@ -402,6 +402,9 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         #[link_name = "nyash.string.checked_substring_v1"]
         fn checked_substring(storage: *mut std::ffi::c_void, site: u64, value: *const Operand,
             start: i64, end: i64, out: *mut OwnedText) -> u32;
+        #[link_name = "nyash.string.checked_substring_operands_v1"]
+        fn checked_substring_operands(storage: *mut std::ffi::c_void, site: u64, value: *const Operand,
+            start: *const Operand, end: *const Operand, out: *mut OwnedText) -> u32;
         #[link_name = "nyash.string.checked_index_of_v1"]
         fn checked_index_of(storage: *mut std::ffi::c_void, site: u64, value: *const Operand,
             needle: *const Operand, out: *mut i64) -> u32;
@@ -580,5 +583,24 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         assert_eq!(checked_end(pointer, 9, result.handle, result.token), 0);
         assert!(read(result).is_err());
         assert_eq!(frame.diagnostics().unwrap().0.unwrap().reason, 999);
+
+        let mut dynamic_frame = FaultFrame::new();
+        let dynamic_pointer = (&mut dynamic_frame as *mut FaultFrame).cast();
+        let dynamic_integer = |value| Operand {
+            kind: 4, reserved: 1, integer: value,
+            ..owned(OwnedText { handle: 0, token: 0 })
+        };
+        let mut dynamic_slice = sentinel;
+        assert_eq!(checked_substring_operands(dynamic_pointer, 40, &literal("aé界z".as_bytes()),
+            &dynamic_integer(1), &dynamic_integer(3), &mut dynamic_slice), 0);
+        assert_eq!(read(dynamic_slice), Ok("é界".into()));
+        assert_eq!(checked_end(dynamic_pointer, 41, dynamic_slice.handle, dynamic_slice.token), 0);
+
+        let dynamic_bool = Operand { reserved: 2, integer: 1, ..dynamic_integer(0) };
+        let mut rejected_slice = sentinel;
+        assert_eq!(checked_substring_operands(dynamic_pointer, 42, &literal(b"text"),
+            &dynamic_bool, &dynamic_integer(2), &mut rejected_slice), 1);
+        assert_eq!(rejected_slice, sentinel);
+        assert_eq!(dynamic_frame.diagnostics().unwrap().0.unwrap().reason, 302);
     }
 }

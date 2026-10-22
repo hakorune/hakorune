@@ -8,11 +8,12 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState, ledger: &OrdinaryNewClaimLedgerV1,
     source: Rc<CheckedExpressionEvaluationV1>,
     consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     let owner = source.source().owner(); let site = source.source().root().statement().clone();
     let mut expression = expression_value::emit(builder, state, ledger, &source,
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
-            builder, state, ledger, &source, call, acquired, values, bindings, consume_receiver, None))?;
+            builder, state, ledger, &source, call, acquired, values, bindings, consume_receiver, static_source))?;
     let text = match source.root_class() {
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String) => true,

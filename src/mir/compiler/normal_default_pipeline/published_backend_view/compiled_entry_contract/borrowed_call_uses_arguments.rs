@@ -234,7 +234,11 @@ impl FunctionUses {
         operation: &crate::mir::instruction::StringInvokeOperation, fault_frame: ValueId,
     ) -> Result<(), String> {
         let scalar_values = match operation {
-            crate::mir::instruction::StringInvokeOperation::Substring { start, end, .. } => vec![*start, *end],
+            crate::mir::instruction::StringInvokeOperation::Substring { start, end, .. } => {
+                let Some(start) = start.value() else { return Err(fault("string-index-operand")); };
+                let Some(end) = end.value() else { return Err(fault("string-index-operand")); };
+                vec![start, end]
+            }
             crate::mir::instruction::StringInvokeOperation::End { value } => vec![*value],
             _ => Vec::new(),
         };

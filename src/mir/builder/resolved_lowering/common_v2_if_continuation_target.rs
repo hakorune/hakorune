@@ -148,7 +148,10 @@ pub(in crate::mir::builder) fn issue_if_continuation_target<R>(
     let continuation = match (branch.then_arm, branch.else_arm) {
         (
             LoopJoinBranchArmTransferRefV2::Exit(exit),
-            LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. },
+            LoopJoinBranchArmTransferRefV2::Fallthrough {
+                continuation: Some(continuation),
+                ..
+            },
         ) if exit.role == LoopJoinEdgeRoleV1::Return
             && exit.target == LoopJoinBranchExitTargetV2::FunctionExit =>
         {

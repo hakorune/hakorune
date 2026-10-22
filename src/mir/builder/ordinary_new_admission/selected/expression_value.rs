@@ -2,7 +2,10 @@
 //! Returns live acquisitions; the purpose wrapper owns cleanup and publication.
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
-use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
+use crate::mir::dynamic_operator_contract::{
+    DynamicOperatorFamilyV1 as OperatorFamily, DynamicOperatorNormalResultV1 as ResultKind,
+    DynamicOperatorValueClassV1 as OperatorClass,
+};
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
 use crate::mir::normal_callable_semantic_package::{EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1, ExpressionCallTransientPrefixV1};
 use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, LocalCallObservationV1};
@@ -113,7 +116,9 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         }
         if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
             && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_) | CheckedExpressionReferenceV1::Residence(_)
-                | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::FiniteEntry { .. })) {
+                | CheckedExpressionReferenceV1::LoopText(_) | CheckedExpressionReferenceV1::LoopDynamic(_)
+                | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::FiniteEntry { .. }
+                | CheckedExpressionReferenceV1::DynamicEntry(_))) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
@@ -339,6 +344,28 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
                             fault_frame, &mut acquired, &homes, &mut bindings)?
                     }
+                    ResultKind::SelfContainedNonAliasingDynamicCarrier => {
+                        let envelope = operation.single_envelope().ok_or_else(|| freeze("print-expression/operator-envelope"))?;
+                        let domain = envelope.domain();
+                        let (Operand::Dynamic(lhs), Operand::NormalInteger(rhs)) = (&left, &right) else {
+                            return Err(freeze("print-expression/dynamic-add-operands"));
+                        };
+                        if domain.family() != OperatorFamily::Add
+                            || domain.left() != OperatorClass::Dynamic
+                            || domain.right() != OperatorClass::I64
+                            || frame.owned_result_nodes().contains(&index)
+                        {
+                            return Err(freeze("print-expression/dynamic-add-contract"));
+                        }
+                        let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+                        let value = builder.next_value_id();
+                        let binding = (block, MirInstruction::BinOp {
+                            dst: value, op: crate::mir::BinaryOp::Add, lhs: *lhs, rhs: *rhs,
+                        });
+                        builder.emit_instruction(binding.1.clone())?;
+                        bindings.push(binding);
+                        Operand::Dynamic(value)
+                    }
                     _ => return Err(freeze("print-expression/operator-result")),
                 }
             }
@@ -428,7 +455,7 @@ pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
 /// Text acquisitions. Prior Homes remain live on Normal and unwind on Fault.
 pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
-    finish_continuation(builder, expression, None, None)
+    finish_continuation(builder, expression, None, None, false)
 }
 
 /// The destination's original initializer frame is the sole issuer of this
@@ -440,7 +467,7 @@ pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression
     if materialized != Some(root) && expression.body.acquired.last().is_none_or(|(_, value)| *value != root) {
         return Err(freeze("expression/residence-acquisition-order"));
     }
-    finish_continuation(builder, expression, Some(root), None)
+    finish_continuation(builder, expression, Some(root), None, false)
 }
 
 /// An owned argument lends its entire remaining stack to the enclosing Call.
@@ -489,19 +516,23 @@ pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(Binding, Binding), String> {
-    if !frame.is_text_residence() { return finish_scalar_continuation(builder, expression); }
+    if !frame.is_text_residence() {
+        return finish_continuation(builder, expression, None, None, frame.is_dynamic_loop_carrier_v1());
+    }
     let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
     if expression.purpose_acquisition.is_some() != frame.materializes_root()
         || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
     let displaced = ledger.text_rebind_displaced_end_v1(frame)?;
-    finish_continuation(builder, expression, Some(root), displaced)
+    finish_continuation(builder, expression, Some(root), displaced, false)
 }
 
 fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
-    residence: Option<ValueId>, displaced: Option<InvokeOperation>)
+    residence: Option<ValueId>, displaced: Option<InvokeOperation>, dynamic_loop_carrier: bool)
     -> Result<(Binding, Binding), String> {
-    if residence.is_none() && !matches!(expression.value, EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_))
-        | EvaluatedExpressionValueV1::Bool(_)) {
+    let scalar_result = matches!(expression.value,
+        EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)) | EvaluatedExpressionValueV1::Bool(_))
+        || dynamic_loop_carrier && matches!(expression.value, EvaluatedExpressionValueV1::Operand(Operand::Dynamic(_)));
+    if residence.is_none() && !scalar_result {
         return Err(freeze("expression/scalar-continuation-result"));
     }
     finish_body_continuation(builder, &mut expression.body, residence, displaced, expression.purpose_acquisition.is_some())

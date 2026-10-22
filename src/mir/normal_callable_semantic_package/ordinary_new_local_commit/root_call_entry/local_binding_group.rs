@@ -115,7 +115,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
         entry: BasicBlockId, end: BasicBlockId, value: Option<ValueId>,
         context: CallValidationContextV1<'_>, function: &MirFunction, check_coordinates: bool,
     ) -> Result<(), String> {
-        if self.site() != source.site() || source.local_binding().is_some() != value.is_some() {
+        let has_result = source.local_binding().is_some() || source.is_expression_value();
+        if self.site() != source.site() || has_result != value.is_some() {
             return Err(freeze("source-loop/call-source"));
         }
         if let Some(value) = value {
@@ -180,6 +181,24 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 if boundary.validate_initializer_copy_observation_v1(&observed, function, self.projected, copy, local, value)? { continue; }
             }
             if !super::super::physical_boundary::check_binding(function, finishing, observed.0, &observed.1)? {
+                if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                    let proof = match &self.proof {
+                        PrefixPhysicalProofV1::Loop(_) => "loop",
+                        PrefixPhysicalProofV1::Call(_) => "call",
+                        PrefixPhysicalProofV1::DirectScalar(_) => "direct-scalar",
+                        PrefixPhysicalProofV1::EvaluatedBinding(_) => "evaluated-binding",
+                        PrefixPhysicalProofV1::StoredMapGet(_) => "stored-map-get",
+                        PrefixPhysicalProofV1::BoolCondition(_) => "bool-condition",
+                        PrefixPhysicalProofV1::PrintExpression(_) => "print-expression",
+                        PrefixPhysicalProofV1::OwnedArrayAppend(_) => "owned-array-append",
+                        PrefixPhysicalProofV1::FieldArrayAppend(_) => "field-array-append",
+                        PrefixPhysicalProofV1::BorrowedFieldWrite(_) => "borrowed-field-write",
+                    };
+                    let definitions = observed.1.dst_value().map(|dst| function.blocks.iter().flat_map(|(block, body)|
+                        body.all_instructions().filter_map(move |row| (row.dst_value() == Some(dst)).then_some((*block, row.clone()))))
+                        .collect::<Vec<_>>()).unwrap_or_default();
+                    eprintln!("[local-call-bindings] physical-drift proof={proof} site={:?} expected={observed:?} current={definitions:?}", self.site);
+                }
                 return Err(format!("{} function={} site={:?} projected={} finishing={} binding={observed:?}",
                     freeze("local-call-binding-drift"), function.signature.name, self.site, self.projected, finishing.is_some()));
             }
@@ -201,6 +220,13 @@ impl RootLifecyclePrefixBindingGroupV1 {
         match &self.proof {
             PrefixPhysicalProofV1::Call(packet) => packet.as_deref(),
             PrefixPhysicalProofV1::StoredMapGet(_) | PrefixPhysicalProofV1::Loop(_) | PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::EvaluatedBinding(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
+        }
+    }
+
+    pub(in crate::mir) fn lexical_rc_v1(&self) -> Option<Rc<EmittedLexicalCallProjectionV1>> {
+        match &self.proof {
+            PrefixPhysicalProofV1::Call(Some(packet)) => Some(Rc::clone(packet)),
+            _ => None,
         }
     }
 

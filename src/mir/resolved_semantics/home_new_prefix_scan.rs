@@ -1,8 +1,8 @@
 //! Per-statement source walk inside `scan_new_home_flow`: the loop owns no
 //! separate authority — every observation still lands in the caller's rows.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::SelectedLoopHomeLoanV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 /// Returns `true` when this path terminated at an explicit exit site —
 /// statements past it are unreachable on this path and are never walked.
@@ -125,15 +125,34 @@ pub(super) fn scan_statement_flow<'a, E>(
             *unavailable = Some(HomePrefixUnavailableV1::SourceMismatch);
             return Ok(false);
         };
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[home-prefix-step] owner={:?} statement={:?} kind={:?} prior_issue={unavailable:?}",
+                input.owner(), statement.site(), statement.node());
+        }
         covered_statements.push(statement.site().clone());
         locals.visit_source_loop_statement_v1(body, statement.site(), index);
         locals.invalidate_dynamic_field_sources(&statement);
-        local_call_flow::stage_statement_actuals(input, &statement, locals,
-            unavailable.is_none(), homes, local_calls, local_field_read, borrowed_actuals)?;
+        local_call_flow::stage_statement_actuals(
+            input,
+            &statement,
+            locals,
+            unavailable.is_none(),
+            homes,
+            local_calls,
+            local_field_read,
+            borrowed_actuals,
+        )?;
 
-        if let Some(available) = locals.observe_source_loop_exit_v1(statement.site(), homes,
-            covered_statements, path_calls, unavailable) {
-            if !available { unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); }
+        if let Some(available) = locals.observe_source_loop_exit_v1(
+            statement.site(),
+            homes,
+            covered_statements,
+            path_calls,
+            unavailable,
+        ) {
+            if !available {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+            }
             locals.note_source_loop_availability_v1(available && unavailable.is_none());
             locals.end_source_loop_body_v1(body, true);
             return Ok(true);
@@ -168,8 +187,12 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_static_call,
                 local_field_read,
             )?;
-            locals.record_source_loop_return_v1(statement.site(), terminal_relations.get(statement.site()),
-                exit_homes.get(statement.site()), local_calls);
+            locals.record_source_loop_return_v1(
+                statement.site(),
+                terminal_relations.get(statement.site()),
+                exit_homes.get(statement.site()),
+                local_calls,
+            );
             locals.note_source_loop_availability_v1(unavailable.is_none());
             locals.end_source_loop_body_v1(body, true);
             return Ok(true);
@@ -221,23 +244,50 @@ pub(super) fn scan_statement_flow<'a, E>(
             continue;
         }
         if matches!(statement.node(), ASTNode::Print { .. }) {
-            if !super::print::observe(input, &statement, locals, homes, unavailable.is_none(),
-                local_calls, path_calls, local_field_read, borrowed_actuals)? {
-                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+            if !super::print::observe(
+                input,
+                &statement,
+                locals,
+                homes,
+                unavailable.is_none(),
+                local_calls,
+                path_calls,
+                local_field_read,
+                borrowed_actuals,
+            )? {
+                unavailable.get_or_insert_with(|| {
+                    HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+                });
             } else {
                 locals.record_source_loop_expression_v1(statement.site());
             }
             continue;
         }
-        let ASTNode::Local { .. } = statement.node()
-        else {
-            if super::binding_rebind::observe(input, &statement, locals, homes, unavailable.is_none(),
-                local_calls, path_calls, local_field_read, borrowed_actuals)? {
+        let ASTNode::Local { .. } = statement.node() else {
+            if super::binding_rebind::observe(
+                input,
+                &statement,
+                locals,
+                homes,
+                unavailable.is_none(),
+                local_calls,
+                path_calls,
+                local_field_read,
+                borrowed_actuals,
+            )? {
                 locals.record_source_loop_expression_v1(statement.site());
                 continue;
             }
-            if map_flow::observe_field_install_v1(input, &statement, locals, homes, unavailable.is_none(),
-                local_calls, maps, borrowed_actuals)? {
+            if map_flow::observe_field_install_v1(
+                input,
+                &statement,
+                locals,
+                homes,
+                unavailable.is_none(),
+                local_calls,
+                maps,
+                borrowed_actuals,
+            )? {
                 continue;
             }
             if super::named_array::observe_append(
@@ -272,7 +322,9 @@ pub(super) fn scan_statement_flow<'a, E>(
                 input,
                 &statement,
                 locals,
-                homes, unavailable.is_none(), local_calls,
+                homes,
+                unavailable.is_none(),
+                local_calls,
                 scalar_field,
                 view_use,
                 local_field_read,
@@ -283,9 +335,21 @@ pub(super) fn scan_statement_flow<'a, E>(
             // returns `NoValue` and whose arguments are Home-neutral is
             // covered without ledger rows — the raw lane already owns
             // `Callee::Method{RuntimeData}`/`ArrayElementWrite` emission.
-            if let Some(ready) = field_call::observe_text_append(input, &statement, locals, homes, unavailable.is_none(),
-                local_calls, scalar_field, borrowed_actuals)? {
-                if !ready { unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())); }
+            if let Some(ready) = field_call::observe_text_append(
+                input,
+                &statement,
+                locals,
+                homes,
+                unavailable.is_none(),
+                local_calls,
+                scalar_field,
+                borrowed_actuals,
+            )? {
+                if !ready {
+                    unavailable.get_or_insert_with(|| {
+                        HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+                    });
+                }
                 continue;
             }
             if field_call::observe_statement_field_call(
@@ -306,23 +370,37 @@ pub(super) fn scan_statement_flow<'a, E>(
             // advance this walk; a typed refusal keeps the old first-stop.
             if matches!(statement.node(), ASTNode::Loop { .. }) && unavailable.is_none() {
                 if let Some(request) = locals.loop_i64_prestate(statement.site(), homes) {
-                    match loop_prestate(request)? {
+                    let owner = request.owner();
+                    let site = request.site().clone();
+                    let selected_loan = loop_prestate(request)?;
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!(
+                            "[loop-home-scan] owner={owner:?} site={site:?} loan={}",
+                            selected_loan.is_some()
+                        );
+                    }
+                    match selected_loan {
                         Some(SelectedLoopHomeLoanV1::NoExitArrayAfter(loan)) => {
-                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes) {
-                                if locals.install_no_exit_array_after(current, loan) { continue; }
+                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
+                            {
+                                if locals.install_no_exit_array_after(current, loan) {
+                                    continue;
+                                }
                             }
                         }
                         Some(SelectedLoopHomeLoanV1::VariableAccumAfter(loan)) => {
                             // Re-observe at this same point: the callback does
                             // not mutate Home state before installing carriers.
-                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes) {
+                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
+                            {
                                 if locals.install_loop_i64_after(current, loan) {
                                     continue;
                                 }
                             }
                         }
                         Some(SelectedLoopHomeLoanV1::StaticI64Search(source)) => {
-                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes) {
+                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes)
+                            {
                                 if current.proves_integer(source.bin_binding())
                                     && current.proves_integer(source.n_binding())
                                     && super::search_loop::observe_static_i64_search_loop(
@@ -372,7 +450,11 @@ pub(super) fn scan_statement_flow<'a, E>(
                         }
                         Some(SelectedLoopHomeLoanV1::SourceObservation(row)) => {
                             let Some(source) = row.observation_source_v1(input) else {
-                                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+                                unavailable.get_or_insert_with(|| {
+                                    HomePrefixUnavailableV1::PrefixNotCovered(
+                                        statement.site().clone(),
+                                    )
+                                });
                                 continue;
                             };
                             let summary = super::source_loop::observe(
@@ -424,14 +506,17 @@ pub(super) fn scan_statement_flow<'a, E>(
                                         // product must still be fulfilled by the physical owner.
                                         continue;
                                     }
-                                    unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                                    unavailable
+                                        .get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
                                 }
                             }
                             // WIP: the complete V2/JoinSig + physical product
                             // must consume this summary before granting After.
                             // A selected source walk never retries or stages
                             // its interior again using the pre-loop snapshot.
-                            unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+                            unavailable.get_or_insert_with(|| {
+                                HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+                            });
                             locals.note_source_loop_availability_v1(false);
                             continue;
                         }
@@ -467,7 +552,8 @@ pub(super) fn scan_statement_flow<'a, E>(
             continue;
         };
         super::local_statement::observe(
-            input, &statement,
+            input,
+            &statement,
             selected,
             results,
             maps,
@@ -496,11 +582,18 @@ pub(super) fn scan_statement_flow<'a, E>(
             borrowed_actuals,
             view_use,
         )?;
-        let mut calls = local_calls.iter().filter(|call| call.statement() == statement.site() && !call.is_expression_value());
+        let mut calls = local_calls
+            .iter()
+            .filter(|call| call.statement() == statement.site() && !call.is_expression_value());
         if let Some(call) = calls.next() {
-            if calls.next().is_none() { locals.record_source_loop_call_v1(statement.site(), call); }
-            else { locals.note_source_loop_availability_v1(false); }
-        } else { locals.record_source_loop_expression_v1(statement.site()); }
+            if calls.next().is_none() {
+                locals.record_source_loop_call_v1(statement.site(), call);
+            } else {
+                locals.note_source_loop_availability_v1(false);
+            }
+        } else {
+            locals.record_source_loop_expression_v1(statement.site());
+        }
     }
     locals.end_source_loop_body_v1(body, false);
     Ok(false)

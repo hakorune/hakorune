@@ -42,6 +42,18 @@ const ADD_STRING_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
     );
 
+const ADD_STRING_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::Dynamic,
+        ),
+        DynamicOperatorNormalResultV1::OwnedStringValue,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
+    );
+
 /// Exact immutable String operands use the existing language comparison law.
 /// The source class and family stay attached to the complete borrowed contract.
 const fn string_comparison(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
@@ -262,6 +274,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::String,
             DynamicOperatorValueClassV1::NormalInteger,
         ) => Ok(&ADD_STRING_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::Dynamic,
+        ) => Ok(&ADD_STRING_DYNAMIC),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::Dynamic,

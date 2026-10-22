@@ -8,6 +8,9 @@ use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
 pub(crate) enum ExpressionValueClassV1 {
     I64,
     String,
+    /// Original tag-preserving runtime carrier, issued only by an explicit
+    /// untyped-formal source proof; never inferred from `Opaque`.
+    Dynamic,
     Bool,
     Null,
     /// Sealed rows exist but no source class is proven: unannotated
@@ -34,6 +37,7 @@ pub(crate) fn binary_expression_class_v1(
     use ResolvedBinaryOperatorV1 as Op;
     match operator {
         Op::Add if lhs == Class::String || rhs == Class::String => Ok(Class::String),
+        Op::Add if lhs == Class::Dynamic && rhs == Class::I64 => Ok(Class::Dynamic),
         Op::Add | Op::Subtract | Op::Multiply | Op::Divide | Op::Modulo
         | Op::BitAnd | Op::BitOr | Op::BitXor | Op::Shl | Op::Shr
             if lhs == Class::I64 && rhs == Class::I64 => Ok(Class::I64),
@@ -47,6 +51,7 @@ pub(crate) fn binary_expression_class_v1(
         Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
             if (lhs == Class::I64 && rhs == Class::I64)
                 || (lhs == Class::String && rhs == Class::String) => Ok(Class::Bool),
+        Op::Less if lhs == Class::Dynamic && rhs == Class::I64 => Ok(Class::Bool),
         Op::And | Op::Or if lhs == Class::Bool && rhs == Class::Bool => Ok(Class::Bool),
         _ => Err(ExpressionClassIssueV1::Unproven),
     }

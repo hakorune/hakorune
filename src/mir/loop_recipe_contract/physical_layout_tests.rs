@@ -169,10 +169,10 @@ fn if_continue_layout_splits_the_source_block_and_targets_the_loop_header() {
             payload: no_payload,
         }),
         else_arm: LoopJoinBranchArmTransferRefV1::Fallthrough {
-            continuation: LoopJoinNextItemV1 {
+            continuation: Some(LoopJoinNextItemV1 {
                 block: body_block,
                 item: continuation_item,
-            },
+            }),
             payload: no_payload,
         },
     };

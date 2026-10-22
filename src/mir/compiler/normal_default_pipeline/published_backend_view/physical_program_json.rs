@@ -290,10 +290,16 @@ fn encode_instruction(
         MirInstruction::Copy { dst, src } => {
             json!({ "op": "copy", "dst": value(dst), "src": value(src) })
         }
-        MirInstruction::Phi { dst, inputs, .. } => json!({
-            "op": "phi", "dst": value(dst),
-            "inputs": inputs.iter().map(|(block, value)| json!({ "block": block.0, "value": value.0 })).collect::<Vec<_>>(),
-        }),
+        MirInstruction::Phi { dst, inputs, .. } => {
+            let text_operand = call_context.is_some_and(|(_, function, _)|
+                function.value_types().get(dst) == Some(&crate::mir::MirType::TextOperand));
+            let mut row = json!({
+                "op": "phi", "dst": value(dst),
+                "inputs": inputs.iter().map(|(block, value)| json!({ "block": block.0, "value": value.0 })).collect::<Vec<_>>(),
+            });
+            if text_operand { row["representation"] = json!("text_operand"); }
+            row
+        }
         MirInstruction::ObjectFieldGet { dst, base, field } => json!({
             "op": "object_field_get", "dst": value(dst), "base": value(base),
             "object_id": field.object().declaration_index(), "field_ordinal": field.declaration_ordinal(),

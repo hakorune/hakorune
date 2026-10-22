@@ -41,6 +41,8 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         ) {
             return CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error);
         }
+        let trace_name = std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some()
+            .then(|| function_name.clone());
 
         let planned = match retained {
             Some(retained) => parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
@@ -51,6 +53,10 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             Ok(planned) => planned,
             Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
         };
+        if let Some(function_name) = trace_name {
+            eprintln!("[local-call-bindings] loop-route owner={owner:?} function={function_name} family={:?} product={}",
+                selection.as_ref().and_then(|selection| selection.sole_family()), source_recipe.is_some());
+        }
         // A retained verified source product cannot be dropped into another
         // family, absent selection or the unretained planner/accumulation path.
         if source_recipe.is_some() && (variable_accum_recurrence.is_some()

@@ -50,6 +50,10 @@ impl EmittedInitializerExpressionProjectionV1 {
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.value }
+    pub(in crate::mir) fn reference_read_v1(&self, node: usize)
+        -> Option<&super::expression_projection::ExpressionReferenceReadV1> {
+        self.reference_reads.get(&node)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn local_value(&self) -> ValueId { self.local }
     pub(in crate::mir::normal_callable_semantic_package) fn install_binding(&self) -> Option<&Binding> { self.install.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package) fn has_text_home(&self) -> bool {

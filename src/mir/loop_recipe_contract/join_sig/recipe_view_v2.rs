@@ -169,6 +169,11 @@ fn operation_view(operation: &LoopOperationV2) -> LoopJoinOperationView<'_> {
             LoopJoinValueUses::Two(*left, *right),
             Some(*result),
         ),
+        LoopOperationV2::TextAdd { left, right, result } => define(
+            LoopJoinOperationFamily::TextAdd,
+            LoopJoinValueUses::Two(*left, *right),
+            Some(*result),
+        ),
         LoopOperationV2::CompareI64 {
             left,
             right,

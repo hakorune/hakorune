@@ -90,6 +90,60 @@ pub(crate) struct VerifiedDynamicInvocationEnvelopeRefV1<'catalog> {
     pub(super) target: &'catalog VerifiedSourceBoundDynamicMemberCallV1,
 }
 
+/// Exact source target plus the one language-wide invocation envelope.
+///
+/// This is a source loan only: it records the already-admitted target and
+/// semantic contract without selecting a provider, executable address,
+/// physical CallSlot, or runtime result representation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct DynamicInvocationSourceLoanV1 {
+    target: VerifiedSourceBoundDynamicMemberCallV1,
+    call_site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    argument_sites: Box<[crate::mir::resolved_semantics::SourceExprSiteV1]>,
+    envelope: &'static VerifiedDynamicInvocationExecutionEnvelopeV1,
+}
+
+impl DynamicInvocationSourceLoanV1 {
+    pub(crate) fn from_admitted_target_v1(
+        target: &VerifiedSourceBoundDynamicMemberCallV1,
+    ) -> Self {
+        Self {
+            target: target.clone(),
+            call_site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                target.owner(),
+                target.call_site().clone(),
+            ),
+            argument_sites: target
+                .arguments()
+                .iter()
+                .map(|argument| argument.site().clone())
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+            envelope: dynamic_invocation_execution_envelope_v1(),
+        }
+    }
+
+    pub(crate) fn target(&self) -> &VerifiedSourceBoundDynamicMemberCallV1 {
+        &self.target
+    }
+
+    pub(crate) fn call_site(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 {
+        &self.call_site
+    }
+
+    pub(crate) fn argument_sites(
+        &self,
+    ) -> &[crate::mir::resolved_semantics::SourceExprSiteV1] {
+        &self.argument_sites
+    }
+
+    pub(crate) const fn envelope(
+        &self,
+    ) -> &'static VerifiedDynamicInvocationExecutionEnvelopeV1 {
+        self.envelope
+    }
+}
+
 impl<'catalog> VerifiedDynamicInvocationEnvelopeRefV1<'catalog> {
     pub(crate) const fn caller(&self) -> &'catalog CanonicalSameModuleCallableKeyV1 {
         self.caller

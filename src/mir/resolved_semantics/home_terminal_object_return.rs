@@ -1,7 +1,7 @@
 //! Original source evidence for a returned owned call; no Home is acquired here.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ObjectReturnAcquisitionV1 {

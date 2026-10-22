@@ -141,7 +141,10 @@ pub(crate) struct LoopJoinNextItemV1 {
 pub(crate) enum LoopJoinBranchArm<C, T = LoopNodeKeyV1> {
     Exit(LoopJoinBranchExit<C, T>),
     Fallthrough {
-        continuation: LoopJoinNextItemV1,
+        /// `Some` names the next item in this block. `None` means control
+        /// leaves the block normally and resumes at the block's enclosing
+        /// continuation (or the owning loop's backedge).
+        continuation: Option<LoopJoinNextItemV1>,
         payload: Vec<LoopJoinPayload<C>>,
     },
 }
@@ -286,9 +289,6 @@ pub(crate) enum LoopJoinSigRejectReasonV1 {
     },
     UnsupportedNestedPredicate {
         loop_key: LoopNodeKeyV1,
-    },
-    MissingFallthroughContinuation {
-        item: LoopItemKeyV1,
     },
     DuplicatePortBinding {
         loop_key: LoopNodeKeyV1,

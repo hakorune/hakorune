@@ -1,7 +1,7 @@
 //! Ordered passive actual candidates from the same prefix-local state.
 //! Source membership and typed-object domain are verified by the package.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::BindingKindV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -260,89 +260,222 @@ pub(super) fn contains_borrowed_actual_v1(arguments: &[super::LocalCallArgumentV
     })
 }
 
-/// Retain the scanner's original direct statement-call basis without changing
-/// its selected roots or inventing an expression/Home observation.
+/// Stage calls from a statement's original source expression plan. Direct call
+/// statements retain their exact root; value statements use the same
+/// postorder source traversal as other whole-expression consumers.
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actuals<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    locals: &PrefixLocalFlow<'_>, prefix_known: bool, prior_homes: &[LiveHomeV1],
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+    prior_homes: &[LiveHomeV1],
     local_calls: &[LocalCallObservationV1],
-    fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1)
-        -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
-    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
-        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+    fields: &mut impl FnMut(
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
+    ) -> Result<
+        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
+        E,
+    >,
+    port: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
-    let call_root = match statement.node() {
-            crate::ast::ASTNode::Return { value: Some(_), .. } => input
-                .source()
-                .child_expr_from_stmt(&statement, crate::mir::resolved_semantics::ExprChildRoleV1::ReturnValue)
-                .ok()
-                .map(|expr| expr.site().clone()),
-            crate::ast::ASTNode::MethodCall { .. } => {
-                Some(SourceExprSiteV1::from_node(statement.site().node().clone()))
-            }
-            _ => None,
-        };
-        if let Some(site) = call_root {
-            let owned = OwnedExprSiteV1::new(input.owner(), site);
-            stage_argument_expressions(input, statement, &owned, locals, prefix_known, prior_homes, local_calls, fields, port)?;
+    match statement.node() {
+        crate::ast::ASTNode::Return { value: Some(_), .. } => {
+            let Some(shape) = input.body_shape() else {
+                return Ok(());
+            };
+            let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
+                return Ok(());
+            };
+            let Ok(Some(source)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                &ledger, shape, statement.site()) else { return Ok(()); };
+            let _ = stage_expression_actuals_v1(
+                input,
+                statement,
+                &source,
+                locals,
+                prefix_known,
+                prior_homes,
+                local_calls,
+                fields,
+                port,
+            )?;
         }
+        crate::ast::ASTNode::MethodCall { .. } => {
+            let root = OwnedExprSiteV1::new(
+                input.owner(),
+                SourceExprSiteV1::from_node(statement.site().node().clone()),
+            );
+            stage_argument_expressions(
+                input,
+                statement,
+                &root,
+                locals,
+                prefix_known,
+                prior_homes,
+                local_calls,
+                fields,
+                port,
+            )?;
+        }
+        _ => {}
+    }
     Ok(())
 }
 
 /// Stage original actuals once, then qualify only from this real covered point.
 /// Nested/unobserved source staging continues to use Observe without this grant.
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_argument_expressions<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    root: &OwnedExprSiteV1, locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[LiveHomeV1],
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    root: &OwnedExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+    homes: &[LiveHomeV1],
     local_calls: &[LocalCallObservationV1],
-    fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1) -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
-    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+    fields: &mut impl FnMut(
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
+    ) -> Result<
+        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
+        E,
+    >,
+    port: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
-    stage_argument_roots_v1(input, statement, std::iter::once(root.clone()), locals,
-        prefix_known, homes, local_calls, fields, port)
+    stage_argument_roots_v1(
+        input,
+        statement,
+        std::iter::once(root.clone()),
+        locals,
+        prefix_known,
+        homes,
+        local_calls,
+        fields,
+        port,
+    )
 }
 
 /// Qualify actuals at the same real expression-entry Prefix. Conditional
 /// subtrees retain their control owner; this grants no execution or temporary Home.
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_expression_actuals_v1<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     source: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
-    locals: &PrefixLocalFlow<'_>, prefix_known: bool, homes: &[LiveHomeV1],
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+    homes: &[LiveHomeV1],
     local_calls: &[LocalCallObservationV1],
-    fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1) -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
-    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+    fields: &mut impl FnMut(
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
+    ) -> Result<
+        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
+        E,
+    >,
+    port: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<bool, E> {
-    use crate::mir::resolved_value_profile::{expression_children::{ExpressionChildrenV1, ExpressionChildReachV1},
-        expression_plan::ExpressionNodeSourceV1};
-    if source.owner() != input.owner() || source.root().statement() != statement.site()
-        || source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
-            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(false); }
-    let Ok(order) = source.ordered_postorder_v1() else { return Ok(false) };
+    use crate::mir::resolved_value_profile::{
+        expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
+        expression_plan::ExpressionNodeSourceV1,
+    };
+    if source.owner() != input.owner()
+        || source.root().statement() != statement.site()
+        || source.nodes().iter().any(|node| {
+            !matches!(node.children(), ExpressionChildrenV1::Known(children)
+            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
+        })
+    {
+        return Ok(false);
+    }
+    let Ok(order) = source.ordered_postorder_v1() else {
+        return Ok(false);
+    };
     let roots = order.into_iter().filter_map(|node| {
         let node = &source.nodes()[node];
         matches!(node.source(), ExpressionNodeSourceV1::MethodCall)
             .then(|| OwnedExprSiteV1::new(input.owner(), node.site().clone()))
     });
-    stage_argument_roots_v1(input, statement, roots, locals, prefix_known, homes, local_calls, fields, port)?;
+    stage_argument_roots_v1(
+        input,
+        statement,
+        roots,
+        locals,
+        prefix_known,
+        homes,
+        local_calls,
+        fields,
+        port,
+    )?;
     Ok(true)
 }
 
 fn stage_argument_roots_v1<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
-    roots: impl IntoIterator<Item = OwnedExprSiteV1>, locals: &PrefixLocalFlow<'_>,
-    prefix_known: bool, homes: &[LiveHomeV1], local_calls: &[LocalCallObservationV1],
-    fields: &mut impl FnMut(&[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1) -> Result<Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>, E>,
-    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    roots: impl IntoIterator<Item = OwnedExprSiteV1>,
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+    homes: &[LiveHomeV1],
+    local_calls: &[LocalCallObservationV1],
+    fields: &mut impl FnMut(
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
+    ) -> Result<
+        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
+        E,
+    >,
+    port: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
     // Direct-argument recursion and whole-expression traversal can encounter
     // the same source Call. Qualify it once within this operation only.
     let mut seen = std::collections::BTreeSet::new();
     for root in roots {
-        for (call_site, actuals) in observe_borrowed_call_actuals(input, &root, locals, prefix_known, homes) {
-            if !seen.insert(call_site.clone()) { continue; }
-            port(&call_site, BorrowedCallActualRequestV1::Observe(input, &actuals))?;
-            super::super::argument_expression::observe(input, statement, &call_site, &actuals, locals, prefix_known, homes, local_calls, fields, port)?;
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!(
+                "[stage-expression-root] statement={:?} root={root:?} prefix_known={prefix_known}",
+                statement.site()
+            );
+        }
+        for (call_site, actuals) in
+            observe_borrowed_call_actuals(input, &root, locals, prefix_known, homes)
+        {
+            if !seen.insert(call_site.clone()) {
+                continue;
+            }
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!(
+                    "[stage-expression-call] statement={:?} call={call_site:?} actuals={actuals:?}",
+                    statement.site()
+                );
+            }
+            port(
+                &call_site,
+                BorrowedCallActualRequestV1::Observe(input, &actuals),
+            )?;
+            super::super::argument_expression::observe(
+                input,
+                statement,
+                &call_site,
+                &actuals,
+                locals,
+                prefix_known,
+                homes,
+                local_calls,
+                fields,
+                port,
+            )?;
         }
     }
     Ok(())

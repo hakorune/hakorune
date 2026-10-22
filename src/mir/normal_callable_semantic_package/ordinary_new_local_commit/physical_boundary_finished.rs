@@ -95,7 +95,7 @@ impl FinishedBindings {
         }
         let mapped = self.binding(original.0, &original.1)?.ok_or_else(|| fault("effect-removed"))?;
         if function.blocks.get(&mapped.0).is_none_or(|block|
-            block.all_instructions().filter(|row| **row == mapped.1).count() != 1) {
+            block.all_instructions().filter(|row| super::same_finished_instruction(row, &mapped.1)).count() != 1) {
             return Err(fault("effect-actual-membership"));
         }
         Ok(mapped)
@@ -126,7 +126,8 @@ impl FinishedBindings {
                 self.instruction(self.sequences.get(&destination).ok_or_else(|| fault("structural-jump-sequence"))?.1.clone())
             }
         };
-        if function.blocks.get(&destination).and_then(|block| block.terminator.as_ref()) != Some(&expected) {
+        if !function.blocks.get(&destination).and_then(|block| block.terminator.as_ref())
+            .is_some_and(|actual| super::same_finished_instruction(actual, &expected)) {
             return Err(fault("structural-jump-actual"));
         }
         Ok(mapped)

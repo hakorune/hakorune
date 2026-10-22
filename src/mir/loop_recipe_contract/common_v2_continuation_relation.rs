@@ -30,6 +30,15 @@ pub(crate) fn validate_continuation_relation(
             let LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. } = arm else {
                 continue;
             };
+            let Some(continuation) = continuation else {
+                let Some(block) = blocks.iter().find(|block| block.key == parent_block) else {
+                    return Err(CommonV2IssuerRejectV1::ContinuationRelation);
+                };
+                if block.items.last().copied() != Some(branch.if_item) {
+                    return Err(CommonV2IssuerRejectV1::ContinuationRelation);
+                }
+                continue;
+            };
             if continuation.block != parent_block
                 || !seen_targets.insert((continuation.block, continuation.item))
             {
@@ -81,7 +90,7 @@ mod tests {
                 payload: &[],
             }),
             else_arm: LoopJoinBranchArmTransferRefV2::Fallthrough {
-                continuation,
+                continuation: Some(continuation),
                 payload: &[],
             },
         }

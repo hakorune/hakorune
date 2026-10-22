@@ -15,23 +15,33 @@ impl CallableLoopSourceCallCoverageV1 {
             return Err(CallableLoopSourceRouteRejectV1::SourceCoverageSiteMismatch);
         }
         let mut expected = std::collections::BTreeSet::new();
+        let mut frame_calls = std::collections::BTreeSet::new();
         for node in product.schedule().frames().iter().flat_map(|frame| frame.source().nodes()) {
-            if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) && !expected.insert(node.site()) {
-                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: node.site().clone() });
-            }
-        }
-        for frame in product.scheduled_call_arguments_v2() {
-            for node in frame.source().nodes() {
-                if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) && !expected.insert(node.site()) {
+            if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) {
+                if !frame_calls.insert(node.site()) {
                     return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: node.site().clone() });
                 }
+                expected.insert(node.site());
             }
         }
+        // Argument frames are checked subviews of the SAME scheduled Call.
+        // Nested source calls therefore overlap their enclosing expression
+        // frame by site; union those views while retaining duplicate checks
+        // for the final resolver-owned item inventory below.
+        for frame in product.scheduled_call_arguments_v2() {
+            for node in frame.source().nodes() {
+                if matches!(node.source(), ExpressionNodeSourceV1::MethodCall) {
+                    expected.insert(node.site());
+                }
+            }
+        }
+        let mut scheduled_calls = std::collections::BTreeSet::new();
         for step in product.schedule().calls_v2() {
             if let crate::mir::loop_recipe_contract::SourceLoopScheduledStepV2::Call { observation, .. } = step {
-                if !expected.insert(observation.site().site()) {
+                if !scheduled_calls.insert(observation.site().site()) {
                     return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: observation.site().site().clone() });
                 }
+                expected.insert(observation.site().site());
             }
         }
         for observation in product.schedule().blocks_array_appends_v2() {

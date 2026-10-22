@@ -152,7 +152,12 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(None);
         };
-        let original = row.map_err(|issue| format!("{}: {issue:?}", freeze("projection-exit")))?;
+        let original = row.map_err(|issue| {
+            if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
+                eprintln!("[field-text-append] projection owner={owner:?} exit={exit:?} issue={issue:?}");
+            }
+            format!("{}: {issue:?}", freeze("projection-exit"))
+        })?;
         let Some(relation) = self.terminal_relation_for_owner_at(owner, exit) else {
             return Ok(None);
         };

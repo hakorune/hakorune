@@ -78,6 +78,10 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
     pub(in crate::mir::builder) fn open_source_lifecycle_prefix_v2(&self,
         claims: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
     ) -> Result<(), String> {
+        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+            eprintln!("[local-call-bindings] loop-lifecycle-request owner={:?} product={} claims={}",
+                self.owner, self.source_recipe.is_some(), claims.is_some());
+        }
         if let Some(product) = &self.source_recipe {
             claims.ok_or("[freeze:contract][source-loop/claim-ledger-missing]")?
                 .open_source_loop_prefix_v2(Rc::clone(product))?;

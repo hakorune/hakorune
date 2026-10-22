@@ -233,11 +233,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 let Some(flow) = completion.cleanup().root_flow() else {
                     return false;
                 };
-                let Ok(expected) = self.expected_local_call_binding_sources(*owner) else { return false };
-                let Some(source) = expected.iter().find(|source| group.matches_source(source)) else { return false };
-                completion.explicit_sites().iter().cloned().map(RootHomeExitKeyV1::Explicit)
+                let expected = match self.expected_local_call_binding_sources(*owner) {
+                    Ok(expected) => expected,
+                    Err(_) => return false,
+                };
+                let Some(source) = expected.iter().find(|source| group.matches_source(source)) else {
+                    return false;
+                };
+                let exits_to_check = completion.explicit_sites().iter().cloned().map(RootHomeExitKeyV1::Explicit)
                     .chain(completion.implicit_body_end().map(|_| RootHomeExitKeyV1::ImplicitBodyEnd))
-                    .any(|exit| {
+                    .collect::<Vec<_>>();
+                let consumed = exits_to_check.iter().any(|exit| {
                     let covers = match &exit {
                         RootHomeExitKeyV1::Explicit(site) => flow.exit_row(site),
                         RootHomeExitKeyV1::ImplicitBodyEnd => flow.implicit_exit(),
@@ -255,7 +261,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         | Some(RootHomeExitProgress::Finalized(_)) => true,
                         _ => false,
                     }
-                })
+                });
+                consumed
             })
         })
     }
@@ -731,7 +738,7 @@ pub(in crate::mir) use call_entry::{EvaluatedExpressionValueV1, BranchScalarPhiO
 pub(in crate::mir) use call_entry::ExpressionPhysicalProjectionRefV1;
 pub(crate) use call_entry::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
-pub(in crate::mir) use call_entry::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use call_entry::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 pub(crate) use call_entry::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use call_entry::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};

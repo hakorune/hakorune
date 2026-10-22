@@ -117,7 +117,10 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
                     observation.local_binding(),
                     Some((declaration, row.binding()))
                 );
-                assert_eq!(observation.prior_homes(), [super::super::LiveHomeV1::Stable(receiver)]);
+                assert_eq!(
+                    observation.prior_homes(),
+                    [super::super::LiveHomeV1::Stable(receiver)]
+                );
             }
             3 => assert_eq!(result.unwrap_err(), "selected-original-error"),
             _ => assert!(result.unwrap().is_none()),
@@ -206,7 +209,10 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
                         observation.local_binding(),
                         Some((declaration, row.binding()))
                     );
-                    assert_eq!(observation.prior_homes(), [super::super::LiveHomeV1::Stable(receiver)]);
+                    assert_eq!(
+                        observation.prior_homes(),
+                        [super::super::LiveHomeV1::Stable(receiver)]
+                    );
                 }
                 6 => assert_eq!(result.unwrap_err(), "producer-original-error"),
                 9 => assert!(result.unwrap().is_none()),

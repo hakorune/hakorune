@@ -1,8 +1,8 @@
 //! Terminal-statement observation inside `scan_statement_flow`: each
 //! explicit exit site owns its own relation, result co-seal, and Home
 //! snapshot — every row lands in the site-keyed caller maps.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn observe_terminal_statement<'a, E>(
@@ -46,14 +46,26 @@ pub(super) fn observe_terminal_statement<'a, E>(
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
     local_calls: &mut Vec<LocalCallObservationV1>,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
-    local_field_read: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
-        -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    local_field_read: &mut impl FnMut(
+        &[LocalFieldReadRequestV1],
+        LocalFieldReadDemandV1,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<(), E> {
     let mut relation: Option<TerminalRelationV1> = None;
     // Qualified object returns are exclusive, including unavailable support.
     // They must never reach the scalar borrowed-argument shortcut.
-    let stored_terminal = super::terminal_relation::observe_stored_return_v1(input, statement, locals, homes, local_calls, maps, borrowed_actuals)?;
-    let object_terminal = if stored_terminal.is_some() { stored_terminal } else if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
+    let stored_terminal = super::terminal_relation::observe_stored_return_v1(
+        input,
+        statement,
+        locals,
+        homes,
+        local_calls,
+        maps,
+        borrowed_actuals,
+    )?;
+    let object_terminal = if stored_terminal.is_some() {
+        stored_terminal
+    } else if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
         if let Ok(value) = input
             .source()
             .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
@@ -80,17 +92,38 @@ pub(super) fn observe_terminal_statement<'a, E>(
         None
     };
     let scalar_terminal = if object_terminal.is_none() && unavailable.is_none() {
-        super::terminal_relation::returned_scalar_expression_v1(input, statement, locals, homes, local_calls, borrowed_actuals, local_field_read)?
-    } else { None };
+        super::terminal_relation::returned_scalar_expression_v1(
+            input,
+            statement,
+            locals,
+            homes,
+            local_calls,
+            borrowed_actuals,
+            local_field_read,
+        )?
+    } else {
+        None
+    };
     if let Some(Ok(terminal)) = &scalar_terminal {
         if let Some(evaluation) = terminal.evaluation() {
             path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
             local_calls.extend_from_slice(evaluation.calls());
         }
     }
-    let text_terminal = if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
-        observe_text_return_expression_v1(input, statement, locals, homes, local_calls, borrowed_actuals, local_field_read)?
-    } else { None };
+    let text_terminal =
+        if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
+            observe_text_return_expression_v1(
+                input,
+                statement,
+                locals,
+                homes,
+                local_calls,
+                borrowed_actuals,
+                local_field_read,
+            )?
+        } else {
+            None
+        };
     if let Some(value) = &text_terminal {
         if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {
             path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
@@ -183,7 +216,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
             }
         }
     }
-    let borrowed_terminal = if object_terminal.is_none() && scalar_terminal.is_none() && text_terminal.is_none() && static_terminal.is_none() {
+    let borrowed_terminal = if object_terminal.is_none()
+        && scalar_terminal.is_none()
+        && text_terminal.is_none()
+        && static_terminal.is_none()
+    {
         local_call_flow::issue_borrowed_i64_terminal_call(
             input,
             statement,
@@ -208,8 +245,14 @@ pub(super) fn observe_terminal_statement<'a, E>(
         }
     } else if let Some(terminal) = scalar_terminal {
         match terminal {
-            Ok(value) => { relation = Some(TerminalRelationV1::I64Scalar(value)); true },
-            Err(issue) => { unavailable.get_or_insert(issue); false },
+            Ok(value) => {
+                relation = Some(TerminalRelationV1::I64Scalar(value));
+                true
+            }
+            Err(issue) => {
+                unavailable.get_or_insert(issue);
+                false
+            }
         }
     } else if let Some(terminal) = text_terminal {
         relation = Some(TerminalRelationV1::Value(terminal));
@@ -417,7 +460,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
                         }
                         None => {
                             let scalar = scalar_expression::observe_terminal_scalar_source(
-                                input, value.site(), statement.site(), locals, view_use, field_is_integer,
+                                input,
+                                value.site(),
+                                statement.site(),
+                                locals,
+                                view_use,
+                                field_is_integer,
                             )?;
                             match scalar {
                                 Some(ReturnScalar::I64Add { site, field_reads }) => {
@@ -448,14 +496,23 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 // exits were classified above; this row only
                                 // records the exact return/value sites.
                                 Some(ReturnScalar::Integer) => {
-                                    relation = Some(TerminalRelationV1::I64Scalar(
-                                        finite_entry_return(input, statement.site(), value.site(), locals, borrowed_actuals)?
-                                            .unwrap_or_else(|| TerminalI64ScalarReturnV1::issue(
-                                            input.owner(),
-                                            statement.site().clone(),
-                                            value.site().clone(),
-                                        )),
-                                    ));
+                                    relation =
+                                        Some(TerminalRelationV1::I64Scalar(
+                                            finite_entry_return(
+                                                input,
+                                                statement.site(),
+                                                value.site(),
+                                                locals,
+                                                borrowed_actuals,
+                                            )?
+                                            .unwrap_or_else(|| {
+                                                TerminalI64ScalarReturnV1::issue(
+                                                    input.owner(),
+                                                    statement.site().clone(),
+                                                    value.site().clone(),
+                                                )
+                                            }),
+                                        ));
                                     true
                                 }
                                 Some(_) => true,
@@ -465,7 +522,13 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                     // receiver stays live: owned locals
                                     // still owe their End and borrowed
                                     // formals keep caller ownership.
-                                    if let Some(row) = finite_entry_return(input, statement.site(), value.site(), locals, borrowed_actuals)? {
+                                    if let Some(row) = finite_entry_return(
+                                        input,
+                                        statement.site(),
+                                        value.site(),
+                                        locals,
+                                        borrowed_actuals,
+                                    )? {
                                         relation = Some(TerminalRelationV1::I64Scalar(row));
                                         true
                                     } else if let Some(row) = terminal_map_get(
@@ -503,12 +566,24 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                 } => {
                                                                     let (observation, moved_arguments, issue) = super::new_local::observe_new_arguments_v1(
                                                                         input, owned, arguments.len(), locals, homes, local_calls, argument_i64_field, borrowed_actuals)?;
-                                                                    argument_observations.insert(owned.clone(), observation);
-                                                                    if let Some(issue) = issue { unavailable.get_or_insert(issue); }
-                                                                    if !field_initializers.is_empty() {
+                                                                    argument_observations.insert(
+                                                                        owned.clone(),
+                                                                        observation,
+                                                                    );
+                                                                    if let Some(issue) = issue {
+                                                                        unavailable
+                                                                            .get_or_insert(issue);
+                                                                    }
+                                                                    if !field_initializers
+                                                                        .is_empty()
+                                                                    {
                                                                         unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::OverridesNotCovered(owned.site().clone()));
                                                                     }
-                                                                    let prior_homes = homes.iter().rev().cloned().collect();
+                                                                    let prior_homes = homes
+                                                                        .iter()
+                                                                        .rev()
+                                                                        .cloned()
+                                                                        .collect();
                                                                     // The arg
                                                                     // move
                                                                     // completes

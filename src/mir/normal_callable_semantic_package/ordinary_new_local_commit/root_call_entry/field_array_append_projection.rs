@@ -231,7 +231,8 @@ impl EmittedFieldArrayAppendV1 {
         super::super::root_cleanup_graph::ordered_paths::pending_operations(function, *fault_landing, &operations, Some(*fault_frame))?;
         // Every instruction on the Fault graph belongs to the actual writer
         // packet, not just its terminators. No extra effect may hide in a block.
-        let expected: Vec<_> = self.fault_bindings.iter().map(map).collect::<Result<_, _>>()?;
+        let mut expected: Vec<_> = self.fault_bindings.iter().map(map).collect::<Result<_, _>>()?;
+        expected.extend(ledger.main_arguments_release_suffix_v1(self.source.site().owner(), function)?);
         super::borrowed_field_write_projection::validate_fault_inventory_v1(
             function, *fault_landing, *fault_frame, &expected, "field-array-append")?;
         Ok(())

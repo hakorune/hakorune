@@ -140,6 +140,32 @@ impl RetainedCallableLoopSourceV1 {
 }
 
 impl PreissuedCallableLoopSourcePlanV1 {
+    /// Carry the same Home-issued source/planner loan into an alternate
+    /// source-bound LoopBreak physical owner. That owner may supersede the
+    /// generic Loop route only when this exact site has no selected source
+    /// Recipe attached; the separate binding handoff must already be consumed.
+    pub(in crate::mir::builder) fn validate_loop_break_physical_handoff_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceNodeSiteV1,
+        origin: crate::mir::resolved_semantics::FunctionOriginV1,
+        kind: crate::mir::resolved_semantics::SemanticOwnerSourceKindV1,
+        policy: LoopFactsPolicyFrameV1,
+    ) -> Result<(), String> {
+        if self.policy != policy
+            || !self.source.matches_identity_v1(owner, site, origin, kind)
+        {
+            return Err("[freeze:contract][preissued-loop/alternate-physical-source-drift]".into());
+        }
+        if self.source_recipe.is_some() {
+            return Err("[freeze:contract][preissued-loop/alternate-physical-selected-recipe]".into());
+        }
+        if self.source.binding_handoff_pending_v1() {
+            return Err("[freeze:contract][preissued-loop/alternate-physical-binding-pending]".into());
+        }
+        Ok(())
+    }
+
     /// Validate the SAME retained source and condition before the ledger takes
     /// this affine plan. Sharing logical evidence grants no physical execution.
     pub(in crate::mir) fn validate_source_recipe_attachment_v2(&self,

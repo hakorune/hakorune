@@ -5,10 +5,22 @@ use super::*;
 /// observations exist. A Print remains mandatory even with no calls or owners.
 #[derive(Debug, Clone)]
 pub(crate) enum LifecyclePrefixSourceV1 {
-    Loop { site: OwnedExprSiteV1, product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2> },
-    StoredMapGet { site: OwnedExprSiteV1, frame: std::rc::Rc<MapFieldGetLocalV1> },
-    Call { site: OwnedExprSiteV1, statement: SourceStmtSiteV1 },
-    FieldTextAppend { site: OwnedExprSiteV1, frame: std::rc::Rc<super::CheckedFieldArrayTextAppendV1> },
+    Loop {
+        site: OwnedExprSiteV1,
+        product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    },
+    StoredMapGet {
+        site: OwnedExprSiteV1,
+        frame: std::rc::Rc<MapFieldGetLocalV1>,
+    },
+    Call {
+        site: OwnedExprSiteV1,
+        statement: SourceStmtSiteV1,
+    },
+    FieldTextAppend {
+        site: OwnedExprSiteV1,
+        frame: std::rc::Rc<super::CheckedFieldArrayTextAppendV1>,
+    },
     FieldArrayAppend {
         site: OwnedExprSiteV1,
         proof: std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>,
@@ -24,8 +36,14 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedBoolConditionFrameV1>,
     },
-    BindingRebind { site: OwnedExprSiteV1, frame: std::rc::Rc<CheckedBindingRebindFrameV1> },
-    InitializerExpression { site: OwnedExprSiteV1, frame: std::rc::Rc<CheckedInitializerExpressionFrameV1> },
+    BindingRebind {
+        site: OwnedExprSiteV1,
+        frame: std::rc::Rc<CheckedBindingRebindFrameV1>,
+    },
+    InitializerExpression {
+        site: OwnedExprSiteV1,
+        frame: std::rc::Rc<CheckedInitializerExpressionFrameV1>,
+    },
     PrintExpression {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedPrintExpressionFrameV1>,
@@ -37,7 +55,19 @@ pub(crate) enum LifecyclePrefixSourceV1 {
 }
 impl LifecyclePrefixSourceV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        match self { Self::StoredMapGet { site, .. } | Self::Loop { site, .. } | Self::BindingRebind { site, .. } | Self::InitializerExpression { site, .. } | Self::BorrowedFieldWrite { site, .. } | Self::Call { site, .. } | Self::FieldArrayAppend { site, .. } | Self::FieldTextAppend { site, .. } | Self::BoolCondition { site, .. } | Self::PrintExpression { site, .. } | Self::OwnedArrayAppend { site, .. } => site }
+        match self {
+            Self::StoredMapGet { site, .. }
+            | Self::Loop { site, .. }
+            | Self::BindingRebind { site, .. }
+            | Self::InitializerExpression { site, .. }
+            | Self::BorrowedFieldWrite { site, .. }
+            | Self::Call { site, .. }
+            | Self::FieldArrayAppend { site, .. }
+            | Self::FieldTextAppend { site, .. }
+            | Self::BoolCondition { site, .. }
+            | Self::PrintExpression { site, .. }
+            | Self::OwnedArrayAppend { site, .. } => site,
+        }
     }
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
@@ -56,7 +86,16 @@ impl LifecyclePrefixSourceV1 {
     pub(crate) fn covered_by(&self, exit: &RootHomeExitV1) -> bool {
         match self {
             Self::Call { site, .. } => exit.covered_calls().contains(site),
-            Self::StoredMapGet { .. } | Self::Loop { .. } | Self::BindingRebind { .. } | Self::InitializerExpression { .. } | Self::BorrowedFieldWrite { .. } | Self::FieldArrayAppend { .. } | Self::FieldTextAppend { .. } | Self::BoolCondition { .. } | Self::PrintExpression { .. } | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
+            Self::StoredMapGet { .. }
+            | Self::Loop { .. }
+            | Self::BindingRebind { .. }
+            | Self::InitializerExpression { .. }
+            | Self::BorrowedFieldWrite { .. }
+            | Self::FieldArrayAppend { .. }
+            | Self::FieldTextAppend { .. }
+            | Self::BoolCondition { .. }
+            | Self::PrintExpression { .. }
+            | Self::OwnedArrayAppend { .. } => exit.covers_statement(self.statement()),
         }
     }
 }
@@ -74,91 +113,236 @@ impl RootHomeFlow {
                 _ => false,
             }))
     }
-    pub(crate) fn lifecycle_prefixes(&self, routed: &[OwnedExprSiteV1]) -> Result<Vec<LifecyclePrefixSourceV1>, &'static str> {
+    pub(crate) fn lifecycle_prefixes(
+        &self,
+        routed: &[OwnedExprSiteV1],
+    ) -> Result<Vec<LifecyclePrefixSourceV1>, &'static str> {
         // The Loop owns its conditional body, not a sequence of always-run
         // root prefixes. Membership is the checked tree's SAME source Rc.
-        let loops: Vec<_> = self.expression_plans.iter().filter_map(HomeExpressionPlanV1::loop_recipe_v2).collect();
-        let standalone = |plan: &&HomeExpressionPlanV1| !loops.iter().any(|product| product.owns_expression_v2(plan.source()));
-        let frames: Vec<_> = self.expression_plans.iter().filter(standalone).filter_map(HomeExpressionPlanV1::print_frame).collect();
-        let initializers: Vec<_> = self.expression_plans.iter().filter(standalone).filter_map(HomeExpressionPlanV1::initializer_frame).collect();
-        let rebinds: Vec<_> = self.expression_plans.iter().filter(standalone).filter_map(HomeExpressionPlanV1::rebind_frame).collect();
-        let conditions: Vec<_> = self.expression_plans.iter().filter(standalone).filter_map(HomeExpressionPlanV1::condition_frame).collect();
-        let mut prefixes: Vec<_> = self.local_calls.iter().filter(|call| {
-            matches!(call.result(), super::LocalCallResultClassV1::Unit | super::LocalCallResultClassV1::I64
-                | super::LocalCallResultClassV1::Bool
-                | super::LocalCallResultClassV1::Handle | super::LocalCallResultClassV1::Nullable
-                | super::LocalCallResultClassV1::BorrowedNullable | super::LocalCallResultClassV1::MixedObject)
-                && !loops.iter().any(|product| product.owns_call_v2(call.site()))
-                && (routed.contains(call.site()) || self.initializer_scalar_call_dependency_v1(call.site()))
-                && !frames.iter().any(|frame| frame.calls().iter().any(|nested| nested.site() == call.site()))
-                && !rebinds.iter().any(|frame| frame.evaluation().calls().iter().any(|nested| nested.site() == call.site()))
-                && !initializers.iter().any(|frame| frame.evaluation().calls().iter().any(|nested| nested.site() == call.site()))
-                && !conditions.iter().any(|frame| frame.calls().iter().any(|nested| nested.site() == call.site()))
-        }).map(|call| LifecyclePrefixSourceV1::Call {
-            site: call.site().clone(), statement: call.statement().clone(),
-        }).collect();
-        if prefixes.windows(2).any(|pair| pair[0].statement() > pair[1].statement())
-            || frames.windows(2).any(|pair| pair[0].source().root().statement() > pair[1].source().root().statement())
-            || conditions.windows(2).any(|pair| pair[0].source().root().statement() > pair[1].source().root().statement()) {
+        let loops: Vec<_> = self
+            .expression_plans
+            .iter()
+            .filter_map(HomeExpressionPlanV1::loop_recipe_v2)
+            .collect();
+        let standalone = |plan: &&HomeExpressionPlanV1| {
+            !loops
+                .iter()
+                .any(|product| product.owns_expression_v2(plan.source()))
+        };
+        let frames: Vec<_> = self
+            .expression_plans
+            .iter()
+            .filter(standalone)
+            .filter_map(HomeExpressionPlanV1::print_frame)
+            .collect();
+        let initializers: Vec<_> = self
+            .expression_plans
+            .iter()
+            .filter(standalone)
+            .filter_map(HomeExpressionPlanV1::initializer_frame)
+            .collect();
+        let rebinds: Vec<_> = self
+            .expression_plans
+            .iter()
+            .filter(standalone)
+            .filter_map(HomeExpressionPlanV1::rebind_frame)
+            .collect();
+        let conditions: Vec<_> = self
+            .expression_plans
+            .iter()
+            .filter(standalone)
+            .filter_map(HomeExpressionPlanV1::condition_frame)
+            .collect();
+        let mut prefixes: Vec<_> = self
+            .local_calls
+            .iter()
+            .filter(|call| {
+                matches!(
+                    call.result(),
+                    super::LocalCallResultClassV1::Unit
+                        | super::LocalCallResultClassV1::I64
+                        | super::LocalCallResultClassV1::Bool
+                        | super::LocalCallResultClassV1::Handle
+                        | super::LocalCallResultClassV1::Nullable
+                        | super::LocalCallResultClassV1::BorrowedNullable
+                        | super::LocalCallResultClassV1::MixedObject
+                ) && !loops
+                    .iter()
+                    .any(|product| product.owns_call_v2(call.site()))
+                    && (routed.contains(call.site())
+                        || self.initializer_scalar_call_dependency_v1(call.site()))
+                    && !frames.iter().any(|frame| {
+                        frame
+                            .calls()
+                            .iter()
+                            .any(|nested| nested.site() == call.site())
+                    })
+                    && !rebinds.iter().any(|frame| {
+                        frame
+                            .evaluation()
+                            .calls()
+                            .iter()
+                            .any(|nested| nested.site() == call.site())
+                    })
+                    && !initializers.iter().any(|frame| {
+                        frame
+                            .evaluation()
+                            .calls()
+                            .iter()
+                            .any(|nested| nested.site() == call.site())
+                    })
+                    && !conditions.iter().any(|frame| {
+                        frame
+                            .calls()
+                            .iter()
+                            .any(|nested| nested.site() == call.site())
+                    })
+            })
+            .map(|call| LifecyclePrefixSourceV1::Call {
+                site: call.site().clone(),
+                statement: call.statement().clone(),
+            })
+            .collect();
+        if prefixes
+            .windows(2)
+            .any(|pair| pair[0].statement() > pair[1].statement())
+            || frames.windows(2).any(|pair| {
+                pair[0].source().root().statement() > pair[1].source().root().statement()
+            })
+            || conditions.windows(2).any(|pair| {
+                pair[0].source().root().statement() > pair[1].source().root().statement()
+            })
+        {
             return Err("lifecycle-prefix/source-order");
         }
-        prefixes.extend(frames.into_iter().map(|frame| LifecyclePrefixSourceV1::PrintExpression {
-            site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()),
-            frame: std::rc::Rc::clone(frame),
+        prefixes.extend(
+            frames
+                .into_iter()
+                .map(|frame| LifecyclePrefixSourceV1::PrintExpression {
+                    site: OwnedExprSiteV1::new(
+                        frame.source().owner(),
+                        frame.source().nodes()[0].site().clone(),
+                    ),
+                    frame: std::rc::Rc::clone(frame),
+                }),
+        );
+        prefixes.extend(initializers.into_iter().map(|frame| {
+            LifecyclePrefixSourceV1::InitializerExpression {
+                site: OwnedExprSiteV1::new(
+                    frame.source().owner(),
+                    frame.source().nodes()[0].site().clone(),
+                ),
+                frame: std::rc::Rc::clone(frame),
+            }
         }));
-        prefixes.extend(initializers.into_iter().map(|frame| LifecyclePrefixSourceV1::InitializerExpression {
-            site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()), frame: std::rc::Rc::clone(frame),
+        prefixes.extend(
+            rebinds
+                .into_iter()
+                .map(|frame| LifecyclePrefixSourceV1::BindingRebind {
+                    site: OwnedExprSiteV1::new(
+                        frame.source().owner(),
+                        frame.source().nodes()[0].site().clone(),
+                    ),
+                    frame: std::rc::Rc::clone(frame),
+                }),
+        );
+        prefixes.extend(conditions.into_iter().map(|frame| {
+            LifecyclePrefixSourceV1::BoolCondition {
+                site: OwnedExprSiteV1::new(
+                    frame.source().owner(),
+                    frame.source().nodes()[0].site().clone(),
+                ),
+                frame: std::rc::Rc::clone(frame),
+            }
         }));
-        prefixes.extend(rebinds.into_iter().map(|frame| LifecyclePrefixSourceV1::BindingRebind {
-            site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()), frame: std::rc::Rc::clone(frame),
-        }));
-        prefixes.extend(conditions.into_iter().map(|frame| LifecyclePrefixSourceV1::BoolCondition {
-            site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()),
-            frame: std::rc::Rc::clone(frame),
-        }));
-        let writes: Vec<_> = self.expression_plans.iter().filter(standalone)
-            .filter_map(HomeExpressionPlanV1::field_write_frame).collect();
-        if writes.windows(2).any(|pair|
-            pair[0].source().root().statement() > pair[1].source().root().statement()) {
+        let writes: Vec<_> = self
+            .expression_plans
+            .iter()
+            .filter(standalone)
+            .filter_map(HomeExpressionPlanV1::field_write_frame)
+            .collect();
+        if writes
+            .windows(2)
+            .any(|pair| pair[0].source().root().statement() > pair[1].source().root().statement())
+        {
             return Err("lifecycle-prefix/source-order");
         }
-        prefixes.extend(writes.into_iter().map(|frame| LifecyclePrefixSourceV1::BorrowedFieldWrite {
-            site: OwnedExprSiteV1::new(frame.source().owner(), frame.source().nodes()[0].site().clone()),
-            frame: std::rc::Rc::clone(frame),
+        prefixes.extend(writes.into_iter().map(|frame| {
+            LifecyclePrefixSourceV1::BorrowedFieldWrite {
+                site: OwnedExprSiteV1::new(
+                    frame.source().owner(),
+                    frame.source().nodes()[0].site().clone(),
+                ),
+                frame: std::rc::Rc::clone(frame),
+            }
         }));
         for observation in &self.named_arrays {
-            if let super::NamedArrayHomeObservationV1::Append { source, call, candidate, availability, .. } = observation {
-                availability.as_ref().map_err(|_| "lifecycle-prefix/array-append-unavailable")?;
-                if loops.iter().any(|product| product.owned_array_append_v2(call).is_some()) { continue; }
+            if let super::NamedArrayHomeObservationV1::Append {
+                source,
+                call,
+                candidate,
+                availability,
+                ..
+            } = observation
+            {
+                availability
+                    .as_ref()
+                    .map_err(|_| "lifecycle-prefix/array-append-unavailable")?;
+                if loops
+                    .iter()
+                    .any(|product| product.owned_array_append_v2(call).is_some())
+                {
+                    continue;
+                }
                 prefixes.push(LifecyclePrefixSourceV1::OwnedArrayAppend {
-                    site: call.clone(), statement: SourceStmtSiteV1::from_node(call.site().node().clone()),
-                    holder: source.clone(), candidate: candidate.clone(),
+                    site: call.clone(),
+                    statement: SourceStmtSiteV1::from_node(call.site().node().clone()),
+                    holder: source.clone(),
+                    candidate: candidate.clone(),
                 });
             }
         }
         for observation in self.named_arrays() {
             if let super::NamedArrayHomeObservationV1::FieldTextAppend(frame) = observation {
-                prefixes.push(LifecyclePrefixSourceV1::FieldTextAppend { site: frame.source().call().clone(), frame: std::rc::Rc::clone(frame) });
+                prefixes.push(LifecyclePrefixSourceV1::FieldTextAppend {
+                    site: frame.source().call().clone(),
+                    frame: std::rc::Rc::clone(frame),
+                });
             }
         }
         for proof in self.field_array_loop_sources() {
             for (index, append) in proof.appends().iter().enumerate() {
                 prefixes.push(LifecyclePrefixSourceV1::FieldArrayAppend {
-                    site: append.fault().call().clone(), proof: std::rc::Rc::clone(proof), index,
+                    site: append.fault().call().clone(),
+                    proof: std::rc::Rc::clone(proof),
+                    index,
                 });
             }
         }
-        prefixes.extend(loops.into_iter().map(|product| LifecyclePrefixSourceV1::Loop {
-            site: OwnedExprSiteV1::new(product.source.source.owner(), product.source.condition.source().nodes()[0].site().clone()),
-            product: std::rc::Rc::clone(product),
-        }));
+        prefixes.extend(
+            loops
+                .into_iter()
+                .map(|product| LifecyclePrefixSourceV1::Loop {
+                    site: OwnedExprSiteV1::new(
+                        product.source.source.owner(),
+                        product.source.condition.source().nodes()[0].site().clone(),
+                    ),
+                    product: std::rc::Rc::clone(product),
+                }),
+        );
         for observation in &self.maps {
             if let MapHomeObservation::FieldGet(frame) = observation {
-                prefixes.push(LifecyclePrefixSourceV1::StoredMapGet { site: frame.site().clone(), frame: std::rc::Rc::clone(frame) });
+                prefixes.push(LifecyclePrefixSourceV1::StoredMapGet {
+                    site: frame.site().clone(),
+                    frame: std::rc::Rc::clone(frame),
+                });
             }
         }
         prefixes.sort_by(|a, b| a.statement().cmp(b.statement()));
-        if prefixes.windows(2).any(|pair| pair[0].site() == pair[1].site()) {
+        if prefixes
+            .windows(2)
+            .any(|pair| pair[0].site() == pair[1].site())
+        {
             return Err("lifecycle-prefix/source-duplicate");
         }
         Ok(prefixes)

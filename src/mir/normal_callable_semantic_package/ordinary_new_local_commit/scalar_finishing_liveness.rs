@@ -14,6 +14,21 @@ impl OrdinaryNewClaimLedgerV1 {
             RootNewValidation::Unregistered => {}
             RootNewValidation::Checked(owner, boundary) => {
                 self.lend_scalar_roots(module, root_symbol, *owner, boundary, &mut roots)?;
+                if let Some(function) = module.functions.get(root_symbol) {
+                    let projection = boundary.project(function)?;
+                    for original in self.main_arguments_original_bindings_v1(*owner) {
+                        let mapped = if original.1.dst_value().is_some() {
+                            projection.relation_binding(function, &original)?
+                        } else {
+                            Some(projection.captured_effect_binding(function, &original)?)
+                        };
+                        if let Some((_, instruction)) = mapped {
+                            if let Some(dst) = instruction.dst_value() {
+                                roots.entry(root_symbol.to_owned()).or_default().insert(dst);
+                            }
+                        }
+                    }
+                }
             }
             _ => return Err(freeze("scalar-liveness/root-state")),
         }
@@ -22,13 +37,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("scalar-liveness/child-state"));
             };
             self.lend_scalar_roots(module, symbol, *owner, boundary, &mut roots)?;
-        }
-        if let Some(function) = module.functions.get(root_symbol) {
-            for (_, instruction) in self.main_arguments_bindings_v1(function)? {
-                if let Some(dst) = instruction.dst_value() {
-                    roots.entry(root_symbol.to_owned()).or_default().insert(dst);
-                }
-            }
         }
         Ok(roots)
     }

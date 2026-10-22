@@ -1,8 +1,10 @@
 //! Shared leaf qualification of one original whole-expression source plan.
 //! Calls own their exact receiver/actual subtrees; fields remain batch obligations.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
+use super::super::{
+    LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceExprSiteV1,
+};
 use super::*;
-use super::super::{LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
     expression_class::ExpressionValueClassV1 as Class,
     expression_projection::{project_expression_nodes_v1, ExpressionLeafClassV1 as Leaf},
@@ -10,7 +12,13 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, LocalInitializer, BindingRebind }
+pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfileV1 {
+    Print,
+    BoolCondition,
+    Argument,
+    LocalInitializer,
+    BindingRebind,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ExpressionCallSourceV1 {
@@ -19,26 +27,41 @@ pub(crate) enum ExpressionCallSourceV1 {
 }
 
 pub(super) struct QualifiedExpressionLeavesV1 {
-    pub(super) cores: BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
+    pub(super) cores:
+        BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     pub(super) classes: Vec<Leaf>,
     pub(super) calls: BTreeMap<usize, LocalCallObservationV1>,
     pub(super) fields: Vec<LocalFieldReadRequestV1>,
     pub(super) transferred: BTreeSet<usize>,
-    pub(super) references: BTreeMap<usize, (crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
+    pub(super) references: BTreeMap<
+        usize,
+        (
+            crate::mir::resolved_semantics::BindingRefV1,
+            super::super::SourceScalarKind,
+        ),
+    >,
 }
 
 pub(super) fn qualify_expression_leaves_v1<E>(
     source: &Rc<ExpressionSourcePlanV1>,
     profile: ExpressionLeafProfileV1,
     seeded: &BTreeMap<usize, Leaf>,
-    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
+    scalar_reference: &mut impl FnMut(
+        &SourceExprSiteV1,
+    ) -> Option<(
+        crate::mir::resolved_semantics::BindingRefV1,
+        super::super::SourceScalarKind,
+    )>,
     prior_homes: &[LiveHomeV1],
     order: &[usize],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
 ) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
-    let Some(prepared) = prepare_expression_calls_v1(source, profile, seeded, prior_homes, source_call)?
-        else { return Ok(None) };
+    let Some(prepared) =
+        prepare_expression_calls_v1(source, profile, seeded, prior_homes, source_call)?
+    else {
+        return Ok(None);
+    };
     qualify_expression_leaves_with_calls_v1(prepared, scalar_reference, order, field_request)
 }
 
@@ -49,42 +72,72 @@ pub(crate) struct PreparedExpressionCallsV1 {
     profile: ExpressionLeafProfileV1,
     leaves: Vec<Leaf>,
     calls: BTreeMap<usize, LocalCallObservationV1>,
-    cores: BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
+    cores:
+        BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     transferred: BTreeSet<usize>,
     prior_homes: Box<[LiveHomeV1]>,
 }
 
 impl PreparedExpressionCallsV1 {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[LiveHomeV1] { &self.prior_homes }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool { self.profile == ExpressionLeafProfileV1::LocalInitializer }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_binding_rebind(&self) -> bool { self.profile == ExpressionLeafProfileV1::BindingRebind }
-    pub(super) fn is_bool_condition(&self) -> bool { self.profile == ExpressionLeafProfileV1::BoolCondition }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_owned_text_call(&self) -> bool { self.calls.values().any(|call| matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Ordinary(loan)) if loan.result() == super::super::LocalCallResultClassV1::Text)) }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool { !self.cores.is_empty() }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(&self, node: usize) -> bool {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn source(
+        &self,
+    ) -> &Rc<ExpressionSourcePlanV1> {
+        &self.source
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[LiveHomeV1] {
+        &self.prior_homes
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool {
+        self.profile == ExpressionLeafProfileV1::LocalInitializer
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_binding_rebind(&self) -> bool {
+        self.profile == ExpressionLeafProfileV1::BindingRebind
+    }
+    pub(super) fn is_bool_condition(&self) -> bool {
+        self.profile == ExpressionLeafProfileV1::BoolCondition
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_owned_text_call(&self) -> bool {
+        self.calls.values().any(|call| matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Ordinary(loan)) if loan.result() == super::super::LocalCallResultClassV1::Text))
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool {
+        !self.cores.is_empty()
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(
+        &self,
+        node: usize,
+    ) -> bool {
         !self.transferred.contains(&node) && self.leaves.get(node) == Some(&Leaf::Unresolved)
             && self.source.nodes().get(node).is_some_and(|node| matches!(node.source(), ExpressionNodeSourceV1::Reference(_))
                 && !self.source.nodes().iter().any(|parent| matches!(parent.source(),
                     ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
                         if object == node.site())))
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn seed_reference(&mut self, node: usize, class: Leaf) -> bool {
-        if !self.is_active_reference(node) || class.value_classes().is_none() { return false; }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn seed_reference(
+        &mut self,
+        node: usize,
+        class: Leaf,
+    ) -> bool {
+        if !self.is_active_reference(node) || class.value_classes().is_none() {
+            return false;
+        }
         self.leaves[node] = class;
         true
     }
 }
 
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_calls_v1<E>(
-    source: &Rc<ExpressionSourcePlanV1>, profile: ExpressionLeafProfileV1,
-    seeded: &BTreeMap<usize, Leaf>, prior_homes: &[LiveHomeV1],
+    source: &Rc<ExpressionSourcePlanV1>,
+    profile: ExpressionLeafProfileV1,
+    seeded: &BTreeMap<usize, Leaf>,
+    prior_homes: &[LiveHomeV1],
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
 ) -> Result<Option<PreparedExpressionCallsV1>, E> {
     let statement = source.root().statement();
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
     for (index, class) in seeded {
-        let Some(leaf) = leaves.get_mut(*index) else { return Ok(None) };
+        let Some(leaf) = leaves.get_mut(*index) else {
+            return Ok(None);
+        };
         *leaf = *class;
     }
     let mut transferred = BTreeSet::new();
@@ -94,19 +147,35 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
     // Those exact argument subtrees remain owned by the call/input recipe;
     // the enclosing frame must not emit them or acquire their owners twice.
     for (index, node) in source.nodes().iter().enumerate() {
-        if transferred.contains(&index) || seeded.contains_key(&index) || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall) { continue; }
+        if transferred.contains(&index)
+            || seeded.contains_key(&index)
+            || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall)
+        {
+            continue;
+        }
         let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
-        let Some(call) = source_call(&site)? else { return Ok(None) };
+        let Some(call) = source_call(&site)? else {
+            return Ok(None);
+        };
         let call = match call {
             ExpressionCallSourceV1::Core(core) => {
-                if !core.matches_plan(source, index) { return Ok(None); }
-                let Some(class) = core.result_class() else { return Ok(None) };
+                if !core.matches_plan(source, index) {
+                    return Ok(None);
+                }
+                let Some(class) = core.result_class() else {
+                    return Ok(None);
+                };
                 leaves[index] = Leaf::Value(class);
                 if let Some(field) = core.field_map() {
                     // Only this exact receiver projection belongs to the Core
                     // call. Key subtrees keep their own Text/read obligations.
                     for (child, node) in source.nodes().iter().enumerate() {
-                        if node.site().node().segments().starts_with(field.field_site().node().segments()) {
+                        if node
+                            .site()
+                            .node()
+                            .segments()
+                            .starts_with(field.field_site().node().segments())
+                        {
                             transferred.insert(child);
                         }
                     }
@@ -116,104 +185,267 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
             }
             ExpressionCallSourceV1::Ordinary(call) => call,
         };
-        let Some(loan) = call.result_source() else { return Ok(None) };
+        let Some(loan) = call.result_source() else {
+            return Ok(None);
+        };
         let result = loan.result();
         let class = match result {
             LocalCallResultClassV1::I64 => Class::I64,
-            LocalCallResultClassV1::Bool if profile == ExpressionLeafProfileV1::BoolCondition => Class::Bool,
-            LocalCallResultClassV1::Text if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) => Class::String,
+            LocalCallResultClassV1::Bool if profile == ExpressionLeafProfileV1::BoolCondition => {
+                Class::Bool
+            }
+            LocalCallResultClassV1::Dynamic
+                if matches!(profile, ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer) =>
+            {
+                Class::Dynamic
+            }
+            LocalCallResultClassV1::Text
+                if matches!(
+                    profile,
+                    ExpressionLeafProfileV1::Print
+                        | ExpressionLeafProfileV1::Argument
+                        | ExpressionLeafProfileV1::LocalInitializer
+                ) =>
+            {
+                Class::String
+            }
             _ => return Ok(None),
         };
-        if call.owner() != source.owner() || call.statement() != statement || call.site() != &site
-            || !call.is_expression_value() || call.result() != result || loan.call_site() != &site
-            || call.prior_homes() != prior_homes || call.arguments().len() != loan.argument_sites().len()
-        { return Ok(None); }
-        let Some(receiver) = source.nodes().iter().position(|node| node.site() == loan.receiver_site())
-            else { return Ok(None) };
+        if call.owner() != source.owner()
+            || call.statement() != statement
+            || call.site() != &site
+            || !call.is_expression_value()
+            || call.result() != result
+            || loan.call_site() != &site
+            || call.prior_homes() != prior_homes
+            || call.arguments().len() != loan.argument_sites().len()
+        {
+            return Ok(None);
+        }
+        let Some(receiver) = source
+            .nodes()
+            .iter()
+            .position(|node| node.site() == loan.receiver_site())
+        else {
+            return Ok(None);
+        };
         leaves[receiver] = Leaf::Identity;
         for argument in std::iter::once(loan.receiver_site()).chain(loan.argument_sites().iter()) {
-            if !source.nodes().iter().any(|node| node.site() == argument) { return Ok(None); }
+            if !source.nodes().iter().any(|node| node.site() == argument) {
+                return Ok(None);
+            }
             for (child, node) in source.nodes().iter().enumerate() {
-                if node.site().node().segments().starts_with(argument.node().segments()) { transferred.insert(child); }
+                if node
+                    .site()
+                    .node()
+                    .segments()
+                    .starts_with(argument.node().segments())
+                {
+                    transferred.insert(child);
+                }
             }
         }
         leaves[index] = Leaf::Value(class);
         calls.insert(index, call);
     }
-    Ok(Some(PreparedExpressionCallsV1 { source: Rc::clone(source), profile, leaves, calls, cores, transferred, prior_homes: prior_homes.into() }))
+    Ok(Some(PreparedExpressionCallsV1 {
+        source: Rc::clone(source),
+        profile,
+        leaves,
+        calls,
+        cores,
+        transferred,
+        prior_homes: prior_homes.into(),
+    }))
 }
 
 pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
     prepared: PreparedExpressionCallsV1,
-    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
+    scalar_reference: &mut impl FnMut(
+        &SourceExprSiteV1,
+    ) -> Option<(
+        crate::mir::resolved_semantics::BindingRefV1,
+        super::super::SourceScalarKind,
+    )>,
     order: &[usize],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
 ) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
-    let PreparedExpressionCallsV1 { source, profile, mut leaves, calls, cores, transferred, prior_homes: _ } = prepared;
+    let PreparedExpressionCallsV1 {
+        source,
+        profile,
+        mut leaves,
+        calls,
+        cores,
+        transferred,
+        prior_homes: _,
+    } = prepared;
     let source = &source;
     let mut references = BTreeMap::new();
     let mut fields = Vec::new();
     // Establish borrowed receiver roles before postorder reaches their Local
     // reference leaves. A receiver is not an Integer/Bool operand use.
     for &index in order {
-        if transferred.contains(&index) { continue; }
+        if transferred.contains(&index) {
+            continue;
+        }
         let node = &source.nodes()[index];
-        if matches!(node.source(), ExpressionNodeSourceV1::Shape(
-            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
-                let Some(request) = field_request(node.site()) else { return Ok(None) };
-                if request.node_in_plan(source) != Some(index) { return Ok(None); }
-                let Some(receiver) = source.nodes().iter().position(|node| node.site() == &request.receiver_site)
-                    else { return Ok(None) };
-                leaves[receiver] = Leaf::Identity;
-                leaves[index] = if request.path.as_ref().is_some_and(|path| path.is_intermediate()) {
-                    Leaf::Identity
-                } else { Leaf::Value(Class::I64) };
-                fields.push(request);
+        if matches!(
+            node.source(),
+            ExpressionNodeSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
+            )
+        ) {
+            let Some(request) = field_request(node.site()) else {
+                return Ok(None);
+            };
+            if request.node_in_plan(source) != Some(index) {
+                return Ok(None);
+            }
+            let Some(receiver) = source
+                .nodes()
+                .iter()
+                .position(|node| node.site() == &request.receiver_site)
+            else {
+                return Ok(None);
+            };
+            leaves[receiver] = Leaf::Identity;
+            leaves[index] = if request
+                .path
+                .as_ref()
+                .is_some_and(|path| path.is_intermediate())
+            {
+                Leaf::Identity
+            } else {
+                Leaf::Value(Class::I64)
+            };
+            fields.push(request);
+        }
+    }
+    // A Core Text receiver read is a distinct source contract from the
+    // expression's ordinary scalar leaves. Seed it before generic local
+    // reference classification so the receiver is not incorrectly required
+    // to have a CurrentScalarReadV1 proof.
+    for core in cores.values() {
+        let Some(read) = core.text_entry_receiver_read() else {
+            continue;
+        };
+        if !core.matches_plan(core.plan(), core.node()) || !Rc::ptr_eq(read.source_plan(), source) {
+            return Ok(None);
+        }
+        let Some(leaf) = leaves.get_mut(read.node()) else {
+            return Ok(None);
+        };
+        if !matches!(source.nodes().get(read.node()), Some(node)
+            if node.site() == read.read()
+                && matches!(node.source(), ExpressionNodeSourceV1::Reference(
+                    crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == read.binding()))
+        {
+            return Ok(None);
+        }
+        match *leaf {
+            Leaf::Unresolved => *leaf = Leaf::Value(Class::String),
+            Leaf::Value(Class::String) => {}
+            _ => return Ok(None),
         }
     }
     for &index in order {
-        if transferred.contains(&index) { continue; }
+        if transferred.contains(&index) {
+            continue;
+        }
         let node = &source.nodes()[index];
         match node.source() {
-            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
+            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {}
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
-                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer | ExpressionLeafProfileV1::BindingRebind) => {},
+                if matches!(
+                    profile,
+                    ExpressionLeafProfileV1::Print
+                        | ExpressionLeafProfileV1::BoolCondition
+                        | ExpressionLeafProfileV1::Argument
+                        | ExpressionLeafProfileV1::LocalInitializer
+                        | ExpressionLeafProfileV1::BindingRebind
+                ) => {}
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
-                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::BindingRebind) => {},
+                if matches!(
+                    profile,
+                    ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::BindingRebind
+                ) => {}
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)
-                if profile == ExpressionLeafProfileV1::BoolCondition => {},
+                if profile == ExpressionLeafProfileV1::BoolCondition => {}
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),
-            ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {},
-            ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
-                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer | ExpressionLeafProfileV1::BindingRebind) && leaves[index] == Leaf::Unresolved => {
-                let Some((original, kind)) = scalar_reference(node.site()) else { return Ok(None) };
-                if original != *binding || binding.owner() != source.owner() { return Ok(None); }
+            ExpressionNodeSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. },
+            ) => {}
+            ExpressionNodeSourceV1::Reference(
+                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+            ) if matches!(
+                profile,
+                ExpressionLeafProfileV1::BoolCondition
+                    | ExpressionLeafProfileV1::Argument
+                    | ExpressionLeafProfileV1::LocalInitializer
+                    | ExpressionLeafProfileV1::BindingRebind
+            ) && leaves[index] == Leaf::Unresolved =>
+            {
+                let Some((original, kind)) = scalar_reference(node.site()) else {
+                    return Ok(None);
+                };
+                if original != *binding || binding.owner() != source.owner() {
+                    return Ok(None);
+                }
                 leaves[index] = Leaf::Value(match kind {
                     super::super::SourceScalarKind::Integer => Class::I64,
                     super::super::SourceScalarKind::Bool => Class::Bool,
                 });
                 references.insert(index, (original, kind));
             }
-            _ => {},
+            _ => {}
         }
     }
     let Some(classes) = project_expression_nodes_v1(&source, &transferred, |index| leaves[index])
-        else { return Ok(None) };
+    else {
+        return Ok(None);
+    };
     // A Core result never erases its receiver or argument obligations. Those
     // children were evaluated in the SAME postorder, unlike transferred Calls.
     for core in cores.values() {
         let original = core.source().source();
-        let class = |site| source.nodes().iter().position(|node| node.site() == site).map(|node| classes[node]);
-        let expected_receiver = if core.field_map().is_some() { Leaf::Identity } else { Leaf::Value(Class::String) };
-        if class(original.receiver_site()) != Some(expected_receiver) { return Ok(None); }
-        for (argument, parameter) in original.arguments().iter().zip(core.source().target().parameters()) {
+        let class = |site| {
+            source
+                .nodes()
+                .iter()
+                .position(|node| node.site() == site)
+                .map(|node| classes[node])
+        };
+        let expected_receiver = if core.field_map().is_some() {
+            Leaf::Identity
+        } else {
+            Leaf::Value(Class::String)
+        };
+        if class(original.receiver_site()) != Some(expected_receiver) {
+            return Ok(None);
+        }
+        for (argument, parameter) in original
+            .arguments()
+            .iter()
+            .zip(core.source().target().parameters())
+        {
             let expected = match parameter {
+                crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
+                    if core.dynamic_i64_operand_contains(argument.site()) => Class::Dynamic,
                 crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter => Class::I64,
                 crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter => Class::String,
                 _ => return Ok(None),
             };
-            if class(argument.site()) != Some(Leaf::Value(expected)) { return Ok(None); }
+            if class(argument.site()) != Some(Leaf::Value(expected)) {
+                return Ok(None);
+            }
         }
     }
-    Ok(Some(QualifiedExpressionLeavesV1 { classes, calls, cores, fields, transferred, references }))
+    Ok(Some(QualifiedExpressionLeavesV1 {
+        classes,
+        calls,
+        cores,
+        fields,
+        transferred,
+        references,
+    }))
 }

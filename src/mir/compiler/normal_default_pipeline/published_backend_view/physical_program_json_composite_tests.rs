@@ -365,8 +365,9 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
     }
     assert_eq!(encode(Op::Length { value: Operand::OwnedString(ValueId(9)) }),
         json!({"kind":"string_length", "site":42, "value":{"kind":"owned_string", "value":9}}));
-    assert_eq!(encode(Op::Substring { value: Operand::OwnedString(ValueId(9)), start: ValueId(1), end: ValueId(2) }),
-        json!({"kind":"string_substring", "site":42, "value":{"kind":"owned_string", "value":9}, "start":1, "end":2}));
+    assert_eq!(encode(Op::Substring { value: Operand::OwnedString(ValueId(9)), start: Operand::NormalInteger(ValueId(1)), end: Operand::NormalInteger(ValueId(2)) }),
+        json!({"kind":"string_substring", "site":42, "value":{"kind":"owned_string", "value":9},
+            "start":{"kind":"normal_integer", "value":1}, "end":{"kind":"normal_integer", "value":2}}));
     assert_eq!(encode(Op::IndexOf { value: Operand::OwnedString(ValueId(9)), needle: Operand::StaticText { utf8:"界".into() } }),
         json!({"kind":"string_index_of", "site":42, "value":{"kind":"owned_string", "value":9}, "needle":{"kind":"static_text", "utf8":"界"}}));
     // Cross the original-source boundary as well as the wire projection:

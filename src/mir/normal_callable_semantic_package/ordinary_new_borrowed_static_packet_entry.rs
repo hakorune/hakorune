@@ -3,6 +3,7 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use std::rc::Rc;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
@@ -631,12 +632,43 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        self.borrowed_static_packet_actuals_with_observation_v1(original, None)
+    }
+
+    /// Nested Static calls are retained by their checked expression frame,
+    /// rather than by the statement-local call index. Reuse that exact
+    /// observation to corroborate the original packet without manufacturing
+    /// a ledger root entry.
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_static_packet_actuals_for_expression_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        observation: &LocalCallObservationV1,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        let source_matches = matches!(observation.result_source(),
+            Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(source))
+                if source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, original)));
+        if observation.owner() != original.call_site().owner()
+            || observation.site() != original.call_site()
+            || !source_matches
+        {
+            return Err(freeze("borrowed-static/expression-observation-drift"));
+        }
+        self.borrowed_static_packet_actuals_with_observation_v1(original, Some(observation))
+    }
+
+    fn borrowed_static_packet_actuals_with_observation_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        expression_observation: Option<&LocalCallObservationV1>,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         if let Some(rows) = self.checked_completed_static_expression_input_v1(original)? {
-            let observation = self.local_call_for_owner(original.call_site().owner(), original.call_site().site())
-                .ok_or_else(|| freeze("static-input/local-source-missing"))?;
-            if observation.arguments() != rows.ordered_arguments.as_ref() {
-                return Err(freeze("static-input/ordered-arguments-drift"));
-            }
+            self.corroborate_static_packet_arguments_v1(
+                original,
+                expression_observation,
+                &rows.ordered_arguments,
+                "static-input/local-source-missing",
+                "static-input/ordered-arguments-drift",
+            )?;
             return Ok(Some(rows.opaque_actuals.as_ref()));
         }
         if let Some(rows) = self.checked_static_tagged_packet_actuals_v1(original)? {
@@ -663,12 +695,13 @@ impl OrdinaryNewClaimLedgerV1 {
             let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)? else {
                 return Ok(None);
             };
-            let observation = self
-                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
-                .ok_or_else(|| freeze("borrowed-static/local-source-missing"))?;
-            if observation.arguments() != arguments {
-                return Err(freeze("borrowed-static/ordered-arguments-drift"));
-            }
+            self.corroborate_static_packet_arguments_v1(
+                original,
+                expression_observation,
+                &arguments,
+                "borrowed-static/local-source-missing",
+                "borrowed-static/ordered-arguments-drift",
+            )?;
             let rows = self
                 .borrowed_formal_actuals
                 .get(original.call_site())
@@ -678,14 +711,33 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(Some(rows.opaque_actuals.as_ref()));
         }
         self.with_qualified_static_packet_actuals_v1(original, |arguments| {
-            let observation = self
-                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
-                .ok_or_else(|| freeze("borrowed-static/local-source-missing"))?;
-            if observation.arguments() != arguments {
-                return Err(freeze("borrowed-static/ordered-arguments-drift"));
-            }
-            Ok(())
+            self.corroborate_static_packet_arguments_v1(
+                original,
+                expression_observation,
+                arguments,
+                "borrowed-static/local-source-missing",
+                "borrowed-static/ordered-arguments-drift",
+            )
         }).map(Some)
+    }
+
+    fn corroborate_static_packet_arguments_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        expression_observation: Option<&LocalCallObservationV1>,
+        arguments: &[LocalCallArgumentV1],
+        missing: &'static str,
+        drift: &'static str,
+    ) -> Result<(), String> {
+        let observation = match expression_observation {
+            Some(observation) => observation,
+            None => self.local_call_for_owner(original.call_site().owner(), original.call_site().site())
+                .ok_or_else(|| freeze(missing))?,
+        };
+        if observation.arguments() != arguments {
+            return Err(freeze(drift));
+        }
+        Ok(())
     }
 
     /// Join the one immutable qualified source, its whole incoming cohort and

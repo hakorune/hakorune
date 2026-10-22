@@ -67,9 +67,12 @@ impl EmittedBoolConditionProjectionV1 {
                 },
                 (Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }),
                     BoolConditionValueProofV1::Field(binding)) => {
-                    if ledger.expression_field_read_emission_v1(
-                        &OwnedExprSiteV1::new(source.owner(), original.site().clone()), source, context)? != *binding
-                        || binding.1.dst_value() != Some(node.value) {
+                    let site = OwnedExprSiteV1::new(source.owner(), original.site().clone());
+                    let field_binding_matches = match ledger.checked_field_pair_v1(&site, context)? {
+                        Some([_, normal]) => normal == *binding,
+                        None => ledger.expression_field_read_emission_v1(&site, source, context)? == *binding,
+                    };
+                    if !field_binding_matches || binding.1.dst_value() != Some(node.value) {
                         return Err(freeze("bool-condition/field-source"));
                     }
                     require_binding(function, binding, finishing)?;
@@ -87,6 +90,25 @@ impl EmittedBoolConditionProjectionV1 {
                         .filter_map(|row| match row { Ok(Some(row)) => Some(Ok(row)), Ok(None) => None, Err(error) => Some(Err(error)) })
                         .collect::<Result<Vec<_>, String>>()?;
                     packet.validate_recorded_projected(&projected, finishing)?;
+                },
+                (Node::MethodCall, BoolConditionValueProofV1::ScheduledSourceLoopCall { packet, bindings }) => {
+                    let observation = self.frame.calls().iter().find(|call| call.site().site() == original.site())
+                        .ok_or_else(|| freeze("bool-condition/call-source"))?;
+                    let effect = ledger.source_loop_bool_call_effect_v2(&self.frame, observation)?
+                        .ok_or_else(|| freeze("bool-condition/source-loop-call-effect"))?;
+                    let original_packet = effect.lexical_rc_v1()
+                        .ok_or_else(|| freeze("bool-condition/source-loop-call-packet"))?;
+                    if !observation.is_expression_value()
+                        || packet.call_site() != observation.site()
+                        || !Rc::ptr_eq(packet, &original_packet)
+                        || effect.bindings() != bindings.as_ref()
+                        || packet.value_in_context_v1(source.owner(), observation.arguments(), context)? != node.value
+                        || ledger.lexical_i64_call_source(packet.call_site()) != Some(observation)
+                        || node.entry != node.exit
+                    {
+                        return Err(freeze("bool-condition/source-loop-call-value"));
+                    }
+                    observed_calls.push(observation.site());
                 },
                 (Node::Binary(binary), BoolConditionValueProofV1::Binary { append, operands }) => {
                     let loan = self.frame.operations().iter().find(|loan| loan.node() == node.node)

@@ -22,6 +22,7 @@ fn add_issues_complete_owned_result_contracts() {
         (Dynamic, I64, SelfContainedNonAliasingDynamicCarrier),
         (String, String, OwnedStringValue),
         (String, NormalInteger, OwnedStringValue),
+        (String, Dynamic, OwnedStringValue),
     ] {
         let envelope = issue(DynamicOperatorFamilyV1::Add, left, right).unwrap();
 
@@ -359,6 +360,9 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
                     || (family == DynamicOperatorFamilyV1::Less
                         && left == DynamicOperatorValueClassV1::Dynamic
                         && matches!(right, DynamicOperatorValueClassV1::Dynamic | DynamicOperatorValueClassV1::I64))
+                    || (family == DynamicOperatorFamilyV1::Add
+                        && left == DynamicOperatorValueClassV1::String
+                        && right == DynamicOperatorValueClassV1::Dynamic)
                 {
                     assert_ne!(issue(family, left, right).unwrap().domain().left(),
                         DynamicOperatorValueClassV1::NormalInteger);

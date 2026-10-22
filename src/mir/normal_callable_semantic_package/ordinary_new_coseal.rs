@@ -120,6 +120,7 @@ pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRoot
 mod lexical_instance_call;
 pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
 pub(in crate::mir) use lexical_instance_call::{MainArgumentsSourceV1, MainArgumentKindV1};
+pub(in crate::mir) use lexical_instance_call::TaggedDynamicSourcePointsV1;
 pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
 pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
 #[cfg(test)]
@@ -691,7 +692,7 @@ pub(crate) use local_commit::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArr
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;
 
@@ -704,9 +705,10 @@ pub(in crate::mir) use lexical_instance_call::BorrowedArraySetSourceLoanV1;
 pub(crate) use local_commit::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use local_commit::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
 
-pub(crate) use lexical_instance_call::{ArgumentExpressionSourceLoanV1, FiniteEntryReadV1};
+pub(crate) use lexical_instance_call::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
 
 pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
+pub(crate) use lexical_instance_call::BorrowedFormalEntryReadRequirementV1;
 
 pub(crate) use local_commit::fault_indices_after_normal_step_v2;
 

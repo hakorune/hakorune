@@ -763,7 +763,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use ow
 #[path = "ordinary_new_borrowed_text_entry_read.rs"]
 mod text_read;
 pub(crate) use text_read::BorrowedTextEntryReadRequirementV1;
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use text_read::issue_text_entry_read_requirement_v1;
+pub(crate) use text_read::BorrowedFormalEntryReadRequirementV1;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use text_read::{issue_formal_entry_read_requirement_v1, issue_text_entry_read_requirement_v1};
 
 #[path = "ordinary_new_borrowed_formal_entry_contract.rs"]
 mod entry_contract;

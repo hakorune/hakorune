@@ -242,7 +242,19 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             lhs: Box::new(classify(source.lhs())), rhs: Box::new(classify(source.rhs())) };
     }
     if let Some(method) = function.method_call_source_v1(site) {
-        let (proof, core_operand_request) = match source_context.map(|context| context.resolve(input, method, inventory)) {
+        let resolution = source_context.map(|context| context.resolve(input, method, inventory));
+        if crate::config::env::builder_debug_enabled() && method.selector() == "substring" {
+            let kind = match &resolution {
+                None => "no-context",
+                Some(OriginalMethodResultResolutionV1::Existing { operands: Some(_), .. }) => "existing-core",
+                Some(OriginalMethodResultResolutionV1::Existing { operands: None, .. }) => "existing-no-core",
+                Some(OriginalMethodResultResolutionV1::ConditionalCore(_)) => "conditional-core",
+                Some(OriginalMethodResultResolutionV1::Unknown) => "unknown",
+            };
+            eprintln!("[source-seed/substring] owner={:?} site={:?} context={} resolution={kind}",
+                input.owner(), method.site(), source_context.is_some());
+        }
+        let (proof, core_operand_request) = match resolution {
             Some(OriginalMethodResultResolutionV1::Existing { proof, operands }) => (proof, operands),
             Some(OriginalMethodResultResolutionV1::ConditionalCore(request)) => (None, Some(request)),
             _ => (None, None),

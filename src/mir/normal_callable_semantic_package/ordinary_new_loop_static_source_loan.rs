@@ -446,15 +446,18 @@ pub(super) fn issue_loop_static_source_loans_v1(
                     for loop_site in input.function().loop_sites() {
                         let (header, body) =
                             super::loop_static_preissue::original_search_call_sites_v2(input, loop_site);
-                        // A partially present specialized protocol stays selected and
-                        // refuses in its producer; it never retries the generic route.
-                        if header.is_some() || body.is_some() {
-                            selected_sites.insert((input.owner(), loop_site.clone()));
-                        }
                         let tail = issue_loop_tail_static_i64_source_loan_v1(
                             claims, incoming, selected, contracts, &caller, input, loop_site,
                         );
                         let selected_tail = matches!(&tail, Ok(Some(_)));
+                        // The verified post-loop I64 call establishes this
+                        // specialized protocol. Once established, a partial
+                        // header/body source remains selected and fails closed;
+                        // unrelated current-owner calls in ordinary Loops do
+                        // not capture the Static-I64 route.
+                        if selected_tail && (header.is_some() || body.is_some()) {
+                            selected_sites.insert((input.owner(), loop_site.clone()));
+                        }
                         if selected_tail {
                             home_rows.insert(loop_site.clone(),
                                 super::static_home_effect::issue_closed_static_loop_home_neutral_v1(

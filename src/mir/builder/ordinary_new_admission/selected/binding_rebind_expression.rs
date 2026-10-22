@@ -27,12 +27,19 @@ pub(in crate::mir::builder) fn emit(
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, None))?;
     expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
+    let dynamic_root = frame.evaluation().root_class()
+        == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic);
+    if dynamic_root != frame.is_dynamic_loop_carrier_v1() {
+        return Err(freeze("rebind-expression/dynamic-carrier-source"));
+    }
     let value = match &expression.value {
         EvaluatedExpressionValueV1::Bool(value)
             if frame.evaluation().root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) => *value,
         EvaluatedExpressionValueV1::Operand(value) => match value {
         Operand::NormalInteger(value) if !frame.is_text_residence() => *value,
+        Operand::Dynamic(value) if frame.is_dynamic_loop_carrier_v1() => *value,
         Operand::OwnedString(value) if frame.is_text_residence() => *value,
         _ => return Err(freeze("rebind-expression/result-class")),
         },

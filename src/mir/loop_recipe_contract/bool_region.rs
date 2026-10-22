@@ -10,7 +10,7 @@ pub(crate) enum LoopBoolCompareV1 { Equal, NotEqual, Less, LessEqual, Greater, G
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum LoopBoolCompareDomainV1 { I64, Text }
+pub(crate) enum LoopBoolCompareDomainV1 { I64, Text, DynamicI64 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
@@ -56,7 +56,7 @@ impl LoopBoolNodeV1 {
 impl LoopBoolRegionV1 {
     pub(crate) fn may_fault(&self) -> bool {
         self.nodes.iter().any(|node| matches!(node,
-            LoopBoolNodeV1::Compare { domain: LoopBoolCompareDomainV1::Text, .. }
+            LoopBoolNodeV1::Compare { domain: LoopBoolCompareDomainV1::Text | LoopBoolCompareDomainV1::DynamicI64, .. }
             | LoopBoolNodeV1::TextLength { .. } | LoopBoolNodeV1::TextSubstring { .. }
             | LoopBoolNodeV1::TextIndexOf { .. }))
     }
@@ -81,7 +81,7 @@ impl LoopBoolRegionV1 {
             let class = match node {
                 LoopBoolNodeV1::Import { ordinal, class } => {
                     if *ordinal as usize != imports { return Err(Reject::ImportOrder); }
-                    if !matches!(class, Class::I64 | Class::Bool | Class::Text)
+                    if !matches!(class, Class::I64 | Class::Bool | Class::Text | Class::Dynamic)
                         || inputs.get(imports) != Some(class) { return Err(Reject::ImportClass); }
                     imports += 1;
                     *class
@@ -107,8 +107,14 @@ impl LoopBoolRegionV1 {
                     Class::I64
                 }
                 LoopBoolNodeV1::Compare { domain, left, right, .. } => {
-                    let expected = match domain { LoopBoolCompareDomainV1::I64 => Class::I64, LoopBoolCompareDomainV1::Text => Class::Text };
-                    if classes[*left as usize] != expected || classes[*right as usize] != expected { return Err(Reject::Domain); }
+                    let (expected_left, expected_right) = match domain {
+                        LoopBoolCompareDomainV1::I64 => (Class::I64, Class::I64),
+                        LoopBoolCompareDomainV1::Text => (Class::Text, Class::Text),
+                        LoopBoolCompareDomainV1::DynamicI64 => (Class::Dynamic, Class::I64),
+                    };
+                    if classes[*left as usize] != expected_left || classes[*right as usize] != expected_right {
+                        return Err(Reject::Domain);
+                    }
                     Class::Bool
                 }
                 LoopBoolNodeV1::And { left, right } | LoopBoolNodeV1::Or { left, right } => {

@@ -83,11 +83,33 @@ impl BindingValueObservationV2 {
         if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/loop-point-owner]".into()); }
         Ok(point)
     }
+    pub(in crate::mir) fn loan_text_join_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+    ) -> Result<&std::rc::Rc<super::materialized_values::TextJoinPointValueV1>, String> {
+        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/text-loop-point-missing]")?
+            .loan_text_join_v1(source, self.value)?;
+        if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/text-loop-point-owner]".into()); }
+        Ok(point)
+    }
+    pub(in crate::mir) fn loan_dynamic_join_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
+    ) -> Result<&std::rc::Rc<super::materialized_values::DynamicJoinPointValueV1>, String> {
+        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/dynamic-loop-point-missing]")?
+            .loan_dynamic_join_v1(source, self.value)?;
+        if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/dynamic-loop-point-owner]".into()); }
+        Ok(point)
+    }
     pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         if root.owner() != self.owner { return Err("[freeze:contract][local-read/root-owner]".into()); }
         self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan_initializer_v1(root, self.value)
+    }
+    pub(in crate::mir) fn loan_forwarded_initializer_v1(
+        &self, expected_source_value: Option<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+            .loan_forwarded_initializer_v1(self.binding, self.value, expected_source_value)
     }
     pub(in crate::mir) fn loan_checked_rebind_v1(&self,
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
@@ -95,6 +117,17 @@ impl BindingValueObservationV2 {
         if frame.target().owner() != self.owner { return Err("[freeze:contract][local-read/rebind-owner]".into()); }
         self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/rebind-missing]".to_owned())?
             .loan_checked_rebind_v1(frame, self.value)
+    }
+    pub(in crate::mir) fn source_dynamic_rebind_v1(
+        &self,
+        root: BindingRefV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
+        if root.owner() != self.owner || root != self.binding {
+            return Err("[freeze:contract][local-read/dynamic-rebind-owner]".into());
+        }
+        self.provenance.as_ref().map_or(Ok(None), |provenance|
+            provenance.source_dynamic_rebind_v1(root, self.value, site))
     }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self)
         -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
@@ -405,7 +438,7 @@ impl BindingValueObservationV2 {
         state.entry_installed = true;
         state.lend_ordinary_new_claim_ledger(claims);
         for (&binding, basis) in &product.source.headers {
-            let Producer::Integer { value, .. } = basis.entry_producer() else { panic!("fixture has literal Entry"); };
+            let Some(Producer::Integer { value, .. }) = basis.entry_producer().scalar() else { panic!("fixture has literal Entry"); };
             let value_id = builder.alloc_typed(MirType::Integer);
             builder.emit_instruction(MirInstruction::Const { dst: value_id, value: ConstValue::Integer(*value) }).unwrap();
             state.values.insert(binding, value_id);

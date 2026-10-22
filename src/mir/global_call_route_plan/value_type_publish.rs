@@ -279,7 +279,8 @@ fn value_scalar_or_mixed_type(ty: Option<&MirType>) -> Option<MirType> {
         Some(MirType::WeakRef) | Some(MirType::Array(_)) | Some(MirType::Future(_)) => {
             Some(MirType::Unknown)
         }
-        Some(MirType::String) | Some(MirType::Box(_)) | Some(MirType::Unknown) | None => None,
+        Some(MirType::String) | Some(MirType::Box(_)) | Some(MirType::Unknown)
+        | Some(MirType::TextOperand) | None => None,
     }
 }
 

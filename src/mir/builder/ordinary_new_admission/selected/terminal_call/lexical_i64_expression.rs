@@ -19,6 +19,8 @@ fn in_arguments(arguments: &[LocalCallArgumentV1], site: &OwnedExprSiteV1) -> bo
 pub(in crate::mir::builder) type StaticExpressionCallIssuerV1<'a> = dyn Fn(
     &mut MirBuilder,
     &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+    &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+    &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
 ) -> Result<crate::mir::normal_callable_semantic_package::CallPacketSourceV1, String> + 'a;
 
 pub(super) struct ExpressionCallPrefixV1<'a> {
@@ -73,7 +75,7 @@ pub(in crate::mir::builder) fn emit_bool(
     let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
         .ok_or_else(|| freeze("bool-condition-call/disposition-missing"))?;
     emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
-        CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver))
+        CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver), None)
 }
 
 /// This is the same real Call writer, returning its packet to the enclosing
@@ -109,15 +111,17 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Evaluation(
         ExpressionCallTransientPrefixV1::from_evaluation(frame, call, acquired, values, function, inherited)?), consume_receiver, static_source };
-    if ledger.local_call_for_owner(call.owner(), call.site().site()) != Some(call) || state.owner() != frame.source().owner() {
+    if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
+        || state.owner() != frame.source().owner() {
         return Err(freeze("expression-call/source-drift"));
     }
     let source = match call.result_source() {
         Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(loan)) if loan.static_source().is_some() =>
-            static_source.ok_or_else(|| freeze("expression-call/disposition-missing"))?(builder, loan.static_source().expect("checked Static source"))?,
+            static_source.ok_or_else(|| freeze("expression-call/disposition-missing"))?(
+                    builder, loan.static_source().expect("checked Static source"), frame, call)?,
         _ => CallSource::instance(ledger.take_lexical_instance_call(call.owner(), call.site().site())?
             .ok_or_else(|| freeze("expression-call/disposition-missing"))?),
     };
     emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
-        source, bindings, Some(&prefix), Some(consume_receiver))
+        source, bindings, Some(&prefix), Some(consume_receiver), static_source)
 }

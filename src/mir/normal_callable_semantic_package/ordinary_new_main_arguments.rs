@@ -2,6 +2,18 @@
 use super::*;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn finish_main_arguments_after_phi_materialization_v1(
+        &self,
+        function: &mut MirFunction,
+    ) -> Result<(), String> {
+        let mut slot = self.main_arguments.borrow_mut();
+        let Some(emission) = slot.as_mut() else {
+            return Ok(());
+        };
+        let emission = Rc::get_mut(emission).ok_or_else(|| fault("emission-shared-before-finish"))?;
+        emission.finish(function)
+    }
+
     /// Lend the same source-only policy to ABI selection and physical emission.
     pub(in crate::mir) fn main_arguments_source_v1(
         &self,

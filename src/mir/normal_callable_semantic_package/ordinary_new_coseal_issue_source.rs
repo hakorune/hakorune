@@ -1,10 +1,10 @@
 //! Source-claim preparation and assembly for the ordinary-New cohort.
 //! This private move preserves source loans, claim order and failure boundaries.
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::super::coseal_helpers::is_direct_local_initializer;
 use super::super::BirthAbiHandoffV1;
 use super::*;
 use crate::ast::ASTNode;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     CallerNewHomePrefixV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
@@ -16,7 +16,9 @@ pub(super) use argument_relations::install_result_classes_with_argument_loans_v1
 
 #[path = "ordinary_new_named_array_source_selection.rs"]
 mod named_array_selection;
-pub(super) use named_array_selection::{select_failed_array_initializer_v1, named_array_initializer_source_v1};
+pub(super) use named_array_selection::{
+    named_array_initializer_source_v1, select_failed_array_initializer_v1,
+};
 
 #[path = "ordinary_new_source_claim_preparation.rs"]
 mod preparation;
@@ -311,14 +313,24 @@ pub(super) fn collect_constructor_birth_sites_v1(
     claimed_sites: &BTreeSet<OwnedExprSiteV1>,
     index: &mut BTreeMap<OwnedExprSiteV1, (VerifiedOrdinaryNewBirthRecipeV1, BirthAbiHandoffV1)>,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    batch.with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
-        for row in instance_constructors.rows() {
-            let input = row.lowering_input(loan.program()).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
-            collect_birth_site_index_v1(input.function(), input.owner(), batch,
-                instance_constructors, claimed_sites, index)?;
-        }
-        Ok(())
-    }).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?
+    batch
+        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
+            for row in instance_constructors.rows() {
+                let input = row
+                    .lowering_input(loan.program())
+                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+                collect_birth_site_index_v1(
+                    input.function(),
+                    input.owner(),
+                    batch,
+                    instance_constructors,
+                    claimed_sites,
+                    index,
+                )?;
+            }
+            Ok(())
+        })
+        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?
 }
 
 /// Admit one `new` construction site into the destination-less birth index
@@ -371,13 +383,15 @@ pub(super) fn collect_birth_site_index_v1(
 #[path = "ordinary_new_coseal_issue_source_field_batch.rs"]
 mod field_batch;
 pub(super) use field_batch::prove_local_field_read_batch;
-pub(in crate::mir::normal_callable_semantic_package) use field_batch::stage_local_field_read_batch;
 pub(in crate::mir::normal_callable_semantic_package) use field_batch::source_formal_class_v1;
+pub(in crate::mir::normal_callable_semantic_package) use field_batch::stage_local_field_read_batch;
 
 #[path = "ordinary_new_coseal_issue_source_owned_children.rs"]
 mod owned_children;
 use owned_children::{owned_field_children_of, seal_provider_owned_children_v1};
-pub(super) use owned_children::{stored_child_receiver_v1, stored_child_source_v1, stored_constructor_child_source_v1};
+pub(super) use owned_children::{
+    stored_child_receiver_v1, stored_child_source_v1, stored_constructor_child_source_v1,
+};
 
 #[cfg(test)]
 #[path = "ordinary_new_field_batch_tests.rs"]
@@ -502,6 +516,7 @@ pub(super) fn probe_source_home_prefixes_v1(
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
     explicit_sites: &[SourceStmtSiteV1],
     pending_actuals: &mut super::super::lexical_instance_call::PendingBorrowedFormalActualsV1,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     batch_slot: u32,
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -532,11 +547,29 @@ pub(super) fn probe_source_home_prefixes_v1(
 > {
     let mut terminal_reads = BTreeMap::new();
     let mut terminal_fields = super::integer_fields::terminal_field_consult_v1(
-        instance_constructors, candidates, batch.ordinary_box_coverage(), &mut terminal_reads,
-        |site, receiver_site, receiver, home, name| super::integer_fields::consult_v1(
-            input, selected, batch, instance_constructors, candidates, callable_result_classes,
-            borrowed_formal_source, borrowed_i64_results, receiver_proof,
-            site, receiver_site, receiver, home, name));
+        instance_constructors,
+        candidates,
+        batch.ordinary_box_coverage(),
+        &mut terminal_reads,
+        |site, receiver_site, receiver, home, name| {
+            super::integer_fields::consult_v1(
+                input,
+                selected,
+                batch,
+                instance_constructors,
+                candidates,
+                callable_result_classes,
+                borrowed_formal_source,
+                borrowed_i64_results,
+                receiver_proof,
+                site,
+                receiver_site,
+                receiver,
+                home,
+                name,
+            )
+        },
+    );
     crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
         input,
         &new_sites,
@@ -605,7 +638,12 @@ pub(super) fn probe_source_home_prefixes_v1(
             // The probe shares the verified lane's sealed census — the
             // declared `ArrayBox` type alone admits nothing.
             terminal_home::receiver_array_i64_field_from_census_v1(
-                instance_constructors, receiver_proof, array_i64_field_sets, site, home, name,
+                instance_constructors,
+                receiver_proof,
+                array_i64_field_sets,
+                site,
+                home,
+                name,
             )
         },
         // The probe shares the verified lane's `formal.<field>` index
@@ -623,7 +661,8 @@ pub(super) fn probe_source_home_prefixes_v1(
                 instance_constructors,
                 &candidates,
                 batch.ordinary_box_coverage(),
-                receiver_proof, entry_home,
+                receiver_proof,
+                entry_home,
                 source_core_calls,
                 requests,
                 demand,
@@ -635,30 +674,72 @@ pub(super) fn probe_source_home_prefixes_v1(
                         batch,
                         callable_result_classes,
                         &candidates,
-                        input, receiver_proof,
+                        input,
+                        receiver_proof,
                         home,
                     )
                 },
-                &mut |home| source_formal_class_v1(borrowed_formal_source, home), Some((batch, selected, callable_result_classes, lexical_source_targets, field_write_claims)),
+                &mut |home| source_formal_class_v1(borrowed_formal_source, home),
+                Some((
+                    batch,
+                    selected,
+                    callable_result_classes,
+                    lexical_source_targets,
+                    field_write_claims,
+                )),
             )
-            .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.source.result().clone()).collect()))
+            .map(|rows| {
+                rows.map(|rows| {
+                    rows.into_iter()
+                        .map(|(_, row)| row.source.result().clone())
+                        .collect()
+                })
+            })
         },
         &mut |site, actuals| {
             if matches!(actuals, BorrowedCallActualRequestV1::StoredMapGetSource) {
-                return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(input, site, selected,
-                    instance_constructors, receiver_proof, entry_home, callable_result_classes, field_write_claims)
-                    .map(|loan| loan.map(BorrowedCallArgumentsV1::StoredMapGetSource))
-                    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+                return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(
+                    input,
+                    site,
+                    selected,
+                    instance_constructors,
+                    receiver_proof,
+                    entry_home,
+                    callable_result_classes,
+                    field_write_claims,
+                )
+                .map(|loan| loan.map(BorrowedCallArgumentsV1::StoredMapGetSource))
+                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: site.clone(),
+                    issue,
+                });
             }
-            if let (BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding), Ok(source)) = (actuals, borrowed_formal_source) {
-                return named_array_initializer_source_v1(input, batch, brands, source, site, binding)
-                    .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));
+            if let (BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding), Ok(source)) =
+                (actuals, borrowed_formal_source)
+            {
+                return named_array_initializer_source_v1(
+                    input, batch, brands, source, site, binding,
+                )
+                .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));
             }
-            if borrowed_formal_source.is_err() && !select_failed_array_initializer_v1(
-                input, batch, brands, lexical_source_targets, site, actuals,
-            )? { return Ok(None); }
-            borrowed_call_arguments_callback_v1(batch, selected,
+            if borrowed_formal_source.is_err()
+                && !matches!(actuals, BorrowedCallActualRequestV1::DynamicInvocationSource { .. })
+                && !select_failed_array_initializer_v1(
+                    input,
+                    batch,
+                    brands,
+                    lexical_source_targets,
+                    site,
+                    actuals,
+                )?
+            {
+                return Ok(None);
+            }
+            borrowed_call_arguments_callback_v1(
+                batch,
+                selected,
                 lexical_source_targets,
+                dynamic_source_calls,
                 parameter_contracts,
                 candidates,
                 receiver_proof,
@@ -672,17 +753,27 @@ pub(super) fn probe_source_home_prefixes_v1(
                         batch,
                         callable_result_classes,
                         &candidates,
-                        input, receiver_proof,
+                        input,
+                        receiver_proof,
                         binding,
                     )
                 },
                 site,
                 actuals,
                 callable_result_classes,
-                receiver_rows, field_write_claims, None,
+                receiver_rows,
+                field_write_claims,
+                None,
             )
         },
-        &mut dominated_view_use_consult_v1(borrowed_formal_source, input, borrowed_i64_results, array_i64_field_sets, instance_constructors, batch.ordinary_box_coverage()),
+        &mut dominated_view_use_consult_v1(
+            borrowed_formal_source,
+            input,
+            borrowed_i64_results,
+            array_i64_field_sets,
+            instance_constructors,
+            batch.ordinary_box_coverage(),
+        ),
         &mut |site| Ok(callable_result_classes.object_return_qualification(site)),
     )
 }
@@ -771,4 +862,4 @@ pub(super) fn ordinary_candidate_compatible_v1(
 
 #[path = "ordinary_new_coseal_field_source.rs"]
 mod field_source;
-pub(super) use field_source::{scalar_fields_with_original_writes, requires_field_scalar_walk_v1};
+pub(super) use field_source::{requires_field_scalar_walk_v1, scalar_fields_with_original_writes};

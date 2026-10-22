@@ -35,6 +35,10 @@ impl EmittedBindingRebindProjectionV1 {
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> { &self.frame }
     pub(crate) fn value(&self) -> ValueId { self.receipt.assigned() }
+    pub(in crate::mir) fn reference_read_v1(&self, node: usize)
+        -> Option<&ExpressionReferenceReadV1> {
+        self.reference_reads.get(&node)
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry) fn root_producer(&self) -> &ReferenceProducerV1 { &self.root }
     fn validate_effective_root(&self) -> Result<(), String> {
         self.expression().validate_effective_root_v1(self.value(), self.frame.is_text_residence(),
@@ -98,6 +102,12 @@ impl EmittedBindingRebindProjectionV1 {
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         let selected = context.ledger().rebind_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?
             .ok_or_else(|| freeze("rebind-expression/source-missing"))?;
+        let dynamic_root = self.frame.evaluation().root_class()
+            == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic);
+        if dynamic_root != self.frame.is_dynamic_loop_carrier_v1() {
+            return Err(freeze("rebind-expression/dynamic-carrier-source"));
+        }
         self.validate_effective_root()?;
         if !Rc::ptr_eq(&selected, &self.frame) || self.receipt.rhs() != self.receipt.assigned() {
             return Err(freeze("rebind-expression/source-or-value"));
@@ -150,6 +160,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut output = Vec::new();
         if let Some(flow) = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow()) {
             for plan in flow.expression_plans() { visit_plan(plan, owner, site, &mut output); }
+        }
+        for source in self.selected_source_loop_branch_joins_v2(owner, site) {
+            visit(&Producer::BranchNormal(source), owner, site, &mut output);
         }
         output
     }

@@ -1,6 +1,6 @@
 //! Source observation of the existing bounded lexical local call.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     HomePrefixUnavailableV1, ObjectCallSourceSupportV1,
 };
@@ -154,11 +154,27 @@ pub(crate) fn issue_received_producer_local_call<E>(
         matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
             if binding.owner() == input.owner() && input.function().binding(binding)
                 .is_some_and(|row| row.kind() == crate::mir::resolved_semantics::BindingKindV1::Receiver)));
-    if !claim_local && !self_receiver { return Ok(None); }
+    if !claim_local && !self_receiver {
+        return Ok(None);
+    }
     let exact_initializer = if self_receiver {
-        corroborate_local_initializer_v1(input, statement, site, &declaration, destination, prior_homes)
+        corroborate_local_initializer_v1(
+            input,
+            statement,
+            site,
+            &declaration,
+            destination,
+            prior_homes,
+        )
     } else {
-        corroborate_received_initializer_v1(input, statement, site, &declaration, destination, prior_homes)
+        corroborate_received_initializer_v1(
+            input,
+            statement,
+            site,
+            &declaration,
+            destination,
+            prior_homes,
+        )
     };
     if !exact_initializer {
         return Ok(Some(Err(HomePrefixUnavailableV1::SourceMismatch)));
@@ -260,6 +276,7 @@ pub(super) fn corroborate_received_arguments_v1(
     arguments.len() == call.arguments().len()
         && arguments.iter().zip(call.arguments()).all(|(argument, original)| match argument {
             LocalCallArgumentV1::BorrowedActual { ordinal, site } => *ordinal == original.ordinal() && site == original.site(),
+            LocalCallArgumentV1::Expression { ordinal, site } => *ordinal == original.ordinal() && site == original.site(),
             LocalCallArgumentV1::Integer(value) => matches!(function.expression_source().literal(original.site()), Some(ResolvedLiteralSourceV1::Integer(actual)) if actual == value),
             LocalCallArgumentV1::Scalar(binding) => binding.owner() == input.owner() && function.variable_ref(original.site()) == Some(ResolvedLexicalRefV1::Local(*binding)),
             _ => false,

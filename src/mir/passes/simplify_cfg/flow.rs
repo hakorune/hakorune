@@ -40,6 +40,7 @@ fn preserve_emit_mir_string_phi_trampoline(
 pub(super) fn find_threadable_branch_jump(
     function: &MirFunction,
     reachable_blocks: &HashSet<BasicBlockId>,
+    preserved: &std::collections::BTreeSet<ValueId>,
 ) -> Option<(
     BasicBlockId,
     ThreadArm,
@@ -66,7 +67,7 @@ pub(super) fn find_threadable_branch_jump(
         };
 
         if let Some((target, rewrite_phi, clear_edge_args)) =
-            threadable_jump_target(function, block_id, *then_bb, then_edge_args.as_ref())
+            threadable_jump_target(function, block_id, *then_bb, then_edge_args.as_ref(), preserved)
         {
             if target != *else_bb {
                 return Some((
@@ -96,7 +97,7 @@ pub(super) fn find_threadable_branch_jump(
         }
 
         if let Some((target, rewrite_phi, clear_edge_args)) =
-            threadable_jump_target(function, block_id, *else_bb, else_edge_args.as_ref())
+            threadable_jump_target(function, block_id, *else_bb, else_edge_args.as_ref(), preserved)
         {
             if target != *then_bb {
                 return Some((
@@ -134,6 +135,7 @@ fn threadable_jump_target(
     pred_id: BasicBlockId,
     middle_id: BasicBlockId,
     edge_args: Option<&crate::mir::EdgeArgs>,
+    preserved: &std::collections::BTreeSet<ValueId>,
 ) -> Option<(BasicBlockId, bool, bool)> {
     let middle_block = function.blocks.get(&middle_id)?;
     if !middle_block.instructions.is_empty() {
@@ -156,6 +158,11 @@ fn threadable_jump_target(
 
     let final_block = function.blocks.get(target)?;
     if final_block.phi_instructions().next().is_some() {
+        if final_block.phi_instructions().any(|instruction| {
+            matches!(instruction, MirInstruction::Phi { dst, .. } if preserved.contains(dst))
+        }) {
+            return None;
+        }
         if edge_args.is_some() {
             return None;
         }
@@ -315,6 +322,12 @@ pub(super) fn find_single_predecessor_jump_merge(
         // by a different value is not an authorized block correspondence.
         if rewrites.iter().any(|(dst, _)| preserved.contains(dst)) { continue; }
         if middle_block.successors.contains(&pred_id) {
+            continue;
+        }
+        if function.blocks.values().flat_map(|block| &block.instructions).any(|instruction| {
+            matches!(instruction, MirInstruction::Phi { dst, inputs, .. }
+                if preserved.contains(dst) && inputs.iter().any(|(predecessor, _)| *predecessor == *middle_id))
+        }) {
             continue;
         }
 

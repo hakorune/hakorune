@@ -17,6 +17,7 @@ type Finished = super::super::super::physical_boundary::FinishedBindings;
 mod source;
 #[path = "bool_condition_control.rs"]
 mod control;
+pub(in crate::mir) use control::borrowed_source_loop_phi_relations_v2;
 
 /// Cursors are observations at the existing recursive descent boundary.
 /// They never select source children or issue a value/operation contract.
@@ -32,6 +33,7 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     OriginalReference(super::expression_projection::ExpressionReferenceReadV1),
     Field(Binding),
     Call { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
+    ScheduledSourceLoopCall { packet: Rc<EmittedLexicalCallProjectionV1>, bindings: Box<[Binding]> },
     Binary { append: Binding, operands: [Rc<LocalSsaPhysicalRelationV1>; 2] },
     ScalarInvocation { receiver: Option<ExactLexicalReadV1>,
         input_values: Box<[Option<EvaluatedExpressionValueV1>]>,

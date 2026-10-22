@@ -213,6 +213,26 @@ impl PartialEq for VMValue {
 }
 
 impl VMValue {
+    /// Format this value as the right operand of the checked String Add.
+    pub(crate) fn display_for_string_add(
+        &self,
+    ) -> Result<String, crate::runtime::semantics::StringAddDisplayError> {
+        use crate::runtime::semantics::{display_string_add_value, StringAddDisplayValue as Value};
+        match self {
+            VMValue::Integer(value) => display_string_add_value(Value::Integer(*value)),
+            VMValue::ExactNumeric(value) => display_string_add_value(Value::ExactNumeric(value.value)),
+            VMValue::Float(value) => display_string_add_value(Value::Float(*value)),
+            VMValue::Bool(value) => display_string_add_value(Value::Bool(*value)),
+            VMValue::String(value) => display_string_add_value(Value::String(value)),
+            VMValue::Future(value) => display_string_add_value(Value::Future(value)),
+            VMValue::Void => display_string_add_value(Value::Void),
+            VMValue::BoxRef(value) => display_string_add_value(Value::BoxRef(value.as_ref())),
+            VMValue::WeakBox(value) => display_string_add_value(Value::WeakBox {
+                usable_target: crate::runtime::weak_ref_value::upgrade_usable_target(value).is_some(),
+            }),
+        }
+    }
+
     /// Current VM object carrier migration plan for Arc retirement.
     ///
     /// This is reportable contract data only. `VMValue::BoxRef` still carries

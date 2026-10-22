@@ -140,6 +140,13 @@ pub(crate) enum LoopOperationV2 {
         right: LoopValueKeyV1,
         result: LoopValueKeyV1,
     },
+    /// Language String addition. Its source loan fixes the operand domain and
+    /// its Normal result owns a fresh Text residence.
+    TextAdd {
+        left: LoopValueKeyV1,
+        right: LoopValueKeyV1,
+        result: LoopValueKeyV1,
+    },
     CompareI64 {
         op: LoopCompareI64OpV2,
         left: LoopValueKeyV1,
@@ -182,6 +189,7 @@ pub(crate) enum LoopOperationV2 {
 pub(crate) enum LoopOperationFaultFamilyV2 {
     DynamicAdd,
     DynamicLess,
+    TextAdd,
     BoolExpression,
 }
 
@@ -212,6 +220,10 @@ impl LoopOperationV2 {
             | Self::CompareI64 { .. }
             | Self::WriteBinding { .. }
             | Self::TextEq { .. } => LoopOperationExecutionClassV2::NonFaulting,
+            Self::TextAdd { result, .. } => LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                family: LoopOperationFaultFamilyV2::TextAdd,
+                normal_result: *result,
+            },
             Self::DynamicAdd { result, .. } => {
                 LoopOperationExecutionClassV2::FaultBeforeNormalResult {
                     family: LoopOperationFaultFamilyV2::DynamicAdd,

@@ -1,9 +1,9 @@
 //! Map responsibility successors from the existing caller ownership walk.
 //! No physical ID, package descriptor, or runtime storage policy is issued here.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::local_call_flow::LocalCallObservationV1;
 use super::terminal_relation::{array_literal_element_count, map_literal_keys};
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{RegionId, ScopeId, SourcePathSegmentV1};
 
 #[path = "home_lifecycle_prefix.rs"]
@@ -13,8 +13,8 @@ pub(crate) use lifecycle_prefix::LifecyclePrefixSourceV1;
 #[path = "home_map_value_flow.rs"]
 mod value_flow;
 use value_flow::{map_value_leaf, observe_array_elements, transfer_home_v1};
-pub(crate) use value_flow::{MapFieldInstallV1, MapFieldGetLocalV1};
-pub(super) use value_flow::{observe_field_install_v1, observe_field_get_local_v1};
+pub(super) use value_flow::{observe_field_get_local_v1, observe_field_install_v1};
+pub(crate) use value_flow::{MapFieldGetLocalV1, MapFieldInstallV1};
 
 /// One verified explicit exit's site-bound obligation: the live Homes this
 /// path must release (reverse live order) plus the local-call sites the
@@ -29,12 +29,22 @@ pub(crate) struct RootHomeExitV1 {
 
 impl RootHomeExitV1 {
     /// Every source exit snapshots the same newest-first Home obligation.
-    pub(super) fn from_live_v1(homes: &[LiveHomeV1], covered_calls: Box<[OwnedExprSiteV1]>,
-        covered_statements: Box<[SourceStmtSiteV1]>) -> Self {
-        Self::issue(homes.iter().rev().cloned().collect(), covered_calls, covered_statements)
+    pub(super) fn from_live_v1(
+        homes: &[LiveHomeV1],
+        covered_calls: Box<[OwnedExprSiteV1]>,
+        covered_statements: Box<[SourceStmtSiteV1]>,
+    ) -> Self {
+        Self::issue(
+            homes.iter().rev().cloned().collect(),
+            covered_calls,
+            covered_statements,
+        )
     }
-    pub(super) fn issue(homes: Box<[LiveHomeV1]>, covered_calls: Box<[OwnedExprSiteV1]>,
-        covered_statements: Box<[SourceStmtSiteV1]>) -> Self {
+    pub(super) fn issue(
+        homes: Box<[LiveHomeV1]>,
+        covered_calls: Box<[OwnedExprSiteV1]>,
+        covered_statements: Box<[SourceStmtSiteV1]>,
+    ) -> Self {
         Self {
             homes,
             implicit_origin: None,
@@ -42,14 +52,23 @@ impl RootHomeExitV1 {
             covered_statements,
         }
     }
-    pub(super) fn implicit_from_live_v1(body: crate::mir::compiler::located::SourceBodySiteV1, end: u32,
-        homes: &[LiveHomeV1], calls: Box<[OwnedExprSiteV1]>, statements: Box<[SourceStmtSiteV1]>) -> Self {
+    pub(super) fn implicit_from_live_v1(
+        body: crate::mir::compiler::located::SourceBodySiteV1,
+        end: u32,
+        homes: &[LiveHomeV1],
+        calls: Box<[OwnedExprSiteV1]>,
+        statements: Box<[SourceStmtSiteV1]>,
+    ) -> Self {
         let mut row = Self::from_live_v1(homes, calls, statements);
         row.implicit_origin = Some((body, end));
         row
     }
-    pub(crate) fn implicit_origin(&self) -> Option<(&crate::mir::compiler::located::SourceBodySiteV1, u32)> {
-        self.implicit_origin.as_ref().map(|(body, end)| (body, *end))
+    pub(crate) fn implicit_origin(
+        &self,
+    ) -> Option<(&crate::mir::compiler::located::SourceBodySiteV1, u32)> {
+        self.implicit_origin
+            .as_ref()
+            .map(|(body, end)| (body, *end))
     }
     pub(crate) fn homes(&self) -> &[LiveHomeV1] {
         &self.homes
@@ -71,14 +90,21 @@ pub(crate) enum RootHomeExitKeyV1 {
 }
 impl RootHomeExitKeyV1 {
     pub(crate) fn explicit_site(&self) -> Option<&SourceStmtSiteV1> {
-        match self { Self::Explicit(site) => Some(site), Self::ImplicitBodyEnd => None }
+        match self {
+            Self::Explicit(site) => Some(site),
+            Self::ImplicitBodyEnd => None,
+        }
     }
 }
 impl PartialEq<SourceStmtSiteV1> for RootHomeExitKeyV1 {
-    fn eq(&self, site: &SourceStmtSiteV1) -> bool { self.explicit_site() == Some(site) }
+    fn eq(&self, site: &SourceStmtSiteV1) -> bool {
+        self.explicit_site() == Some(site)
+    }
 }
 impl From<SourceStmtSiteV1> for RootHomeExitKeyV1 {
-    fn from(site: SourceStmtSiteV1) -> Self { Self::Explicit(site) }
+    fn from(site: SourceStmtSiteV1) -> Self {
+        Self::Explicit(site)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -93,15 +119,22 @@ pub(crate) struct RootHomeFlow {
     pub(super) expression_plans: Vec<HomeExpressionPlanV1>,
 }
 impl RootHomeFlow {
-    pub(crate) fn field_array_loop_sources(&self) -> impl Iterator<Item = &std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
-        self.named_arrays.iter().filter_map(super::NamedArrayHomeObservationV1::field_loop_proof)
+    pub(crate) fn field_array_loop_sources(
+        &self,
+    ) -> impl Iterator<Item = &std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>>
+    {
+        self.named_arrays
+            .iter()
+            .filter_map(super::NamedArrayHomeObservationV1::field_loop_proof)
     }
     pub(crate) fn named_arrays(&self) -> &[super::NamedArrayHomeObservationV1] {
         &self.named_arrays
     }
     pub(crate) fn statement_prefix_unavailable(&self, site: &SourceStmtSiteV1) -> bool {
-        self.exits.values().any(|row| matches!(row,
-            Err(HomePrefixUnavailableV1::PrefixNotCovered(first)) if first == site))
+        self.exits.values().any(|row| {
+            matches!(row,
+            Err(HomePrefixUnavailableV1::PrefixNotCovered(first)) if first == site)
+        })
     }
     /// The sole exit's homes — only when the flow observed exactly one
     /// explicit site with no uncovered implicit end. Multi-exit functions
@@ -123,7 +156,9 @@ impl RootHomeFlow {
         &self,
         site: &SourceStmtSiteV1,
     ) -> Option<Result<&RootHomeExitV1, &HomePrefixUnavailableV1>> {
-        self.exits.get(&RootHomeExitKeyV1::Explicit(site.clone())).map(|row| row.as_ref())
+        self.exits
+            .get(&RootHomeExitKeyV1::Explicit(site.clone()))
+            .map(|row| row.as_ref())
     }
 
     /// Every verified explicit exit has a proven obligation and no exit
@@ -133,8 +168,12 @@ impl RootHomeFlow {
             && !self.exits.is_empty()
             && self.exits.values().all(|row| row.is_ok())
     }
-    pub(crate) fn implicit_exit(&self) -> Option<Result<&RootHomeExitV1, &HomePrefixUnavailableV1>> {
-        self.exits.get(&RootHomeExitKeyV1::ImplicitBodyEnd).map(Result::as_ref)
+    pub(crate) fn implicit_exit(
+        &self,
+    ) -> Option<Result<&RootHomeExitV1, &HomePrefixUnavailableV1>> {
+        self.exits
+            .get(&RootHomeExitKeyV1::ImplicitBodyEnd)
+            .map(Result::as_ref)
     }
     pub(crate) fn maps(&self) -> &[MapHomeObservation] {
         &self.maps
@@ -152,7 +191,9 @@ pub(crate) enum MapHomeObservation {
     /// Normal source delta for a checked procedural field install, not a Map allocation.
     FieldInstall(std::rc::Rc<MapFieldInstallV1>),
     FieldGet(std::rc::Rc<MapFieldGetLocalV1>),
-    Unavailable { site: OwnedExprSiteV1 },
+    Unavailable {
+        site: OwnedExprSiteV1,
+    },
 }
 impl MapHomeObservation {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
@@ -659,8 +700,7 @@ pub(super) fn observe_map<E>(
                         .filter(|home| home.transferred_at.is_some())
                         .map(|home| home.home.clone())
                     {
-                        let Some(home) = outer.iter_mut().find(|home| home.home == binding)
-                        else {
+                        let Some(home) = outer.iter_mut().find(|home| home.home == binding) else {
                             return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
                         };
                         home.transferred_at = Some(entries.len());

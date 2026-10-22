@@ -145,7 +145,10 @@ pub(super) fn emit_unpublished_body_predicate_v1(
     match (branch.then_arm, branch.else_arm) {
         (
             LoopJoinBranchArmTransferRefV2::Exit(exit),
-            LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. },
+            LoopJoinBranchArmTransferRefV2::Fallthrough {
+                continuation: Some(continuation),
+                ..
+            },
         ) if branch.owner_loop == recipe.root_loop
             && branch.if_item == roles.body_if
             && branch.condition == condition_key

@@ -59,6 +59,16 @@ pub(crate) enum ExpressionPlanRootV1 {
 }
 
 impl ExpressionPlanRootV1 {
+    pub(crate) fn expression_site(&self) -> Option<&SourceExprSiteV1> {
+        match self {
+            Self::CallArgument { call, .. } => Some(call.site()),
+            Self::NewArgument { construction, .. } => Some(construction.site()),
+            Self::LocalInitializer { initializer, .. } => initializer.initializer_site(),
+            Self::Assignment { assignment } => Some(assignment.value_site()),
+            Self::IfCondition { condition, .. } | Self::LoopCondition { condition, .. } => Some(condition),
+            Self::Statement { value, .. } => Some(value),
+        }
+    }
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
             Self::CallArgument { statement, .. } | Self::NewArgument { statement, .. } | Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }

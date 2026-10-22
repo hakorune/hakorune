@@ -58,7 +58,7 @@ pub(super) fn encode_invoke(
                 }, "left":operand(left), "right":operand(right)}),
                 Op::Materialize { value } => json!({"kind":"string_materialize", "value":operand(value)}),
                 Op::Length { value } => json!({"kind":"string_length", "value":operand(value)}),
-                Op::Substring { value:v, start, end } => json!({"kind":"string_substring", "value":operand(v), "start":value(start), "end":value(end)}),
+                Op::Substring { value:v, start, end } => json!({"kind":"string_substring", "value":operand(v), "start":operand(start), "end":operand(end)}),
                 Op::IndexOf { value, needle } => json!({"kind":"string_index_of", "value":operand(value), "needle":operand(needle)}),
                 Op::Print { value } => json!({"kind":"string_print", "value":operand(value)}),
                 Op::End { value:v } => json!({"kind":"string_end", "value":value(v)}),

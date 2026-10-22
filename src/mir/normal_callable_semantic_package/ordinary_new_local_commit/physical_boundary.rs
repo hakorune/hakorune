@@ -33,6 +33,42 @@ type Incoming = BTreeMap<
     ),
 >;
 
+fn same_finished_instruction(actual: &MirInstruction, expected: &MirInstruction) -> bool {
+    let empty_carriers = |args: &Option<EdgeArgs>| {
+        args.as_ref().is_none_or(|args| {
+            args.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly
+                && args.values.is_empty()
+        })
+    };
+    match (actual, expected) {
+        (
+            MirInstruction::Branch {
+                condition: actual_condition,
+                then_bb: actual_then,
+                else_bb: actual_else,
+                then_edge_args: actual_then_args,
+                else_edge_args: actual_else_args,
+            },
+            MirInstruction::Branch {
+                condition: expected_condition,
+                then_bb: expected_then,
+                else_bb: expected_else,
+                then_edge_args: expected_then_args,
+                else_edge_args: expected_else_args,
+            },
+        ) => {
+            actual_condition == expected_condition
+                && actual_then == expected_then
+                && actual_else == expected_else
+                && (actual_then_args == expected_then_args
+                    || (empty_carriers(actual_then_args) && empty_carriers(expected_then_args)))
+                && (actual_else_args == expected_else_args
+                    || (empty_carriers(actual_else_args) && empty_carriers(expected_else_args)))
+        }
+        _ => actual == expected,
+    }
+}
+
 #[derive(Debug)]
 struct Node {
     instructions: Vec<MirInstruction>,
@@ -461,11 +497,7 @@ impl PhysicalBoundary {
         projection: &mut FinishedBindings,
         bindings: &Bindings,
     ) -> Result<(), String> {
-        if self
-            .nodes
-            .keys()
-            .any(|id| !projection.destinations.contains_key(id))
-        {
+        if self.nodes.keys().any(|id| !projection.destinations.contains_key(id)) {
             return Err(fault("unmapped-block"));
         }
         // DCE may remove an unrecorded Const or Copy already unused before
@@ -488,7 +520,7 @@ impl PhysicalBoundary {
                 .collect();
             let mut remaining = actual.instructions.iter().peekable();
             for (index, expected) in instructions.iter().enumerate() {
-                if remaining.peek().is_some_and(|actual| *actual == expected) {
+                if remaining.peek().is_some_and(|actual| same_finished_instruction(actual, expected)) {
                     remaining.next();
                 } else if matches!(expected, MirInstruction::KeepAlive { .. }) {
                     metadata_omissions.insert((*id, index));
@@ -536,7 +568,8 @@ impl PhysicalBoundary {
                 }
             }
             if remaining.next().is_some()
-                || actual.terminator.as_ref() != Some(&projection.instruction(terminal.clone()))
+                || !actual.terminator.as_ref().is_some_and(|found|
+                    same_finished_instruction(found, &projection.instruction(terminal.clone())))
             {
                 if crate::config::env::builder_mir_compile_trace() {
                     crate::runtime::get_global_ring0().log.debug(&format!(
@@ -668,7 +701,7 @@ pub(super) fn check_binding(
         function.blocks.get(&id).is_some_and(|block| {
             block
                 .all_instructions()
-                .any(|actual| *actual == instruction)
+                .any(|actual| same_finished_instruction(actual, &instruction))
         })
     }))
 }

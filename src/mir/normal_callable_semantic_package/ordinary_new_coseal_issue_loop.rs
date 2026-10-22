@@ -5,7 +5,9 @@
 use std::collections::BTreeMap;
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::variable_bound_mul_recurrence_source::{attempt_variable_bound_mul_source_v1, VariableBoundMulSourceAttemptV1};
+use crate::mir::compiler::variable_bound_mul_recurrence_source::{
+    attempt_variable_bound_mul_source_v1, VariableBoundMulSourceAttemptV1,
+};
 use crate::mir::loop_recipe_contract::{
     produce_variable_bound_mul_recipe_v1, VariableBoundMulRecipeRejectV1,
     VerifiedVariableBoundMulRecipeProductV1,
@@ -14,7 +16,8 @@ use crate::mir::loop_structural_facts::{
     issue_variable_bound_mul_facts_v1, VariableBoundMulFactsIssueV1,
 };
 use crate::mir::resolved_semantics::{
-    home_new_prefix::{LoopI64PreStateRequestV1, SelectedLoopHomeLoanV1}, FunctionOwnerIdV1, SourceStmtSiteV1,
+    home_new_prefix::{LoopI64PreStateRequestV1, SelectedLoopHomeLoanV1},
+    FunctionOwnerIdV1, SourceStmtSiteV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -41,64 +44,131 @@ pub(crate) enum SelectedLoopProductRowV1 {
 #[derive(Debug)]
 pub(crate) struct RetainedSourceLoopProductV1 {
     source: Option<std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>>,
-    plan: std::cell::RefCell<Option<Result<crate::mir::builder::PreissuedCallableLoopSourcePlanV1, String>>>,
-    source_recipe: std::cell::OnceCell<Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String>>,
+    plan: std::cell::RefCell<
+        Option<Result<crate::mir::builder::PreissuedCallableLoopSourcePlanV1, String>>,
+    >,
+    source_recipe: std::cell::OnceCell<
+        Result<
+            std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+            String,
+        >,
+    >,
     home: std::cell::OnceCell<std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>>,
 }
 impl RetainedSourceLoopProductV1 {
-    fn issue(input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceStmtSiteV1,
-        policy: crate::mir::builder::LoopFactsPolicyFrameV1) -> std::rc::Rc<Self> {
-        let plan = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy);
+    fn issue(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        site: &SourceStmtSiteV1,
+        policy: crate::mir::builder::LoopFactsPolicyFrameV1,
+    ) -> std::rc::Rc<Self> {
+        let plan =
+            crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, site, policy);
         if let Err(reason) = &plan {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[source-loop] owner={:?} site={site:?} original planner issuance failed: {reason}", input.owner());
             }
         }
-        let source = plan.as_ref().ok().map(|plan| std::rc::Rc::clone(plan.original_source_v1()));
-        std::rc::Rc::new(Self { source, plan: std::cell::RefCell::new(Some(plan)), source_recipe: std::cell::OnceCell::new(), home: std::cell::OnceCell::new() })
+        let source = plan
+            .as_ref()
+            .ok()
+            .map(|plan| std::rc::Rc::clone(plan.original_source_v1()));
+        std::rc::Rc::new(Self {
+            source,
+            plan: std::cell::RefCell::new(Some(plan)),
+            source_recipe: std::cell::OnceCell::new(),
+            home: std::cell::OnceCell::new(),
+        })
     }
 }
 impl RetainedSourceLoopProductV1 {
-    pub(crate) fn observation_source_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>)
-        -> Option<std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>> {
-        self.plan.borrow().as_ref()?.as_ref().ok()?.source_observation_v1(input)
+    pub(crate) fn observation_source_v1(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> Option<std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>> {
+        self.plan
+            .borrow()
+            .as_ref()?
+            .as_ref()
+            .ok()?
+            .source_observation_v1(input)
     }
     /// Retain one consuming source projection in the SAME selected row. Source
     /// failure is terminal, and this logical product grants no Home After.
-    pub(crate) fn retain_source_recipe_v2(&self, input: ResolvedFunctionLoweringInputV1<'_>,
+    pub(crate) fn retain_source_recipe_v2(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
         summary: crate::mir::resolved_semantics::home_new_prefix::SourceLoopScanSummaryV1,
-    ) -> Result<std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>, String> {
-        let source = self.source.as_ref().ok_or("[freeze:contract][source-loop/row-source-missing]")?;
+    ) -> Result<
+        std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        String,
+    > {
+        let source = self
+            .source
+            .as_ref()
+            .ok_or("[freeze:contract][source-loop/row-source-missing]")?;
         if !std::rc::Rc::ptr_eq(source, &summary.source) {
             return Err("[freeze:contract][source-loop/row-source-drift]".into());
         }
-        if self.source_recipe.get().is_some() { return Err("[freeze:contract][source-loop/product-already-retained]".into()); }
+        if self.source_recipe.get().is_some() {
+            return Err("[freeze:contract][source-loop/product-already-retained]".into());
+        }
         // The original planner's source loan is rechecked only AFTER body scan.
-        if self.observation_source_v1(input).as_ref().is_none_or(|original| !std::rc::Rc::ptr_eq(source, original)) {
+        if self
+            .observation_source_v1(input)
+            .as_ref()
+            .is_none_or(|original| !std::rc::Rc::ptr_eq(source, original))
+        {
             return Err("[freeze:contract][source-loop/row-plan-drift]".into());
         }
-        let product = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(input, summary)
-            .map(std::rc::Rc::new)
-            .map_err(|reason| {
-                let issue = format!("{reason}; owner={:?}; function={:?}; loop={:?}",
-                    input.owner(), crate::mir::resolved_semantics::CallableHeaderSyntaxViewV1::from_function_ast(input.source().root()).map(|header| header.name()), source.site());
-                if crate::config::env::builder_debug_enabled() {
-                    eprintln!("[source-loop] original Recipe projection failed: {issue}");
-                }
-                issue
-            });
-        self.source_recipe.set(product).map_err(|_| "[freeze:contract][source-loop/product-already-retained]".to_owned())?;
-        self.source_recipe.get().unwrap().as_ref().map(std::rc::Rc::clone).map_err(Clone::clone)
+        let product = crate::mir::loop_recipe_contract::produce_source_loop_recipe_v2(
+            input, summary,
+        )
+        .map(std::rc::Rc::new)
+        .map_err(|reason| {
+            let issue = format!(
+                "{reason}; owner={:?}; function={:?}; loop={:?}",
+                input.owner(),
+                crate::mir::resolved_semantics::CallableHeaderSyntaxViewV1::from_function_ast(
+                    input.source().root()
+                )
+                .map(|header| header.name()),
+                source.site()
+            );
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[source-loop] original Recipe projection failed: {issue}");
+            }
+            issue
+        });
+        self.source_recipe
+            .set(product)
+            .map_err(|_| "[freeze:contract][source-loop/product-already-retained]".to_owned())?;
+        self.source_recipe
+            .get()
+            .unwrap()
+            .as_ref()
+            .map(std::rc::Rc::clone)
+            .map_err(Clone::clone)
     }
 }
 impl SelectedLoopProductRowV1 {
-    fn home_loan(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<SelectedLoopHomeLoanV1> {
+    fn home_loan(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> Option<SelectedLoopHomeLoanV1> {
         match self {
-            Self::VariableBoundMul(row) => row.home_after_loan().map(SelectedLoopHomeLoanV1::VariableAccumAfter),
+            Self::VariableBoundMul(row) => row
+                .home_after_loan()
+                .map(SelectedLoopHomeLoanV1::VariableAccumAfter),
             Self::SourcePlan(row) => {
                 let retained = row.plan.borrow();
-                retained.as_ref()?.as_ref().ok()?.source_observation_v1(input)?;
-                Some(SelectedLoopHomeLoanV1::SourceObservation(std::rc::Rc::clone(row)))
+                retained
+                    .as_ref()?
+                    .as_ref()
+                    .ok()?
+                    .source_observation_v1(input)?;
+                Some(SelectedLoopHomeLoanV1::SourceObservation(
+                    std::rc::Rc::clone(row),
+                ))
             }
         }
     }
@@ -120,11 +190,15 @@ pub(super) fn retain_selected_loop_product_v1(
             .resolved_loop_source(prestate.site())
             .map_err(|_| LoopProductUnavailableV1::SourceMembership)?;
         let observed = match attempt_variable_bound_mul_source_v1(input, &ledger, membership)
-            .map_err(|_| LoopProductUnavailableV1::SourceShape)? {
-                VariableBoundMulSourceAttemptV1::Selected(observed) => observed,
-                VariableBoundMulSourceAttemptV1::Unselected(_) => return Ok(SelectedLoopProductRowV1::SourcePlan(
-                    RetainedSourceLoopProductV1::issue(input, prestate.site(), policy))),
-            };
+            .map_err(|_| LoopProductUnavailableV1::SourceShape)?
+        {
+            VariableBoundMulSourceAttemptV1::Selected(observed) => observed,
+            VariableBoundMulSourceAttemptV1::Unselected(_) => {
+                return Ok(SelectedLoopProductRowV1::SourcePlan(
+                    RetainedSourceLoopProductV1::issue(input, prestate.site(), policy),
+                ))
+            }
+        };
         let (
             owner,
             source,
@@ -161,7 +235,8 @@ pub(super) fn retain_selected_loop_product_v1(
                 LoopProductUnavailableV1::SourceShape
             }
         })?;
-        produce_variable_bound_mul_recipe_v1(facts).map(SelectedLoopProductRowV1::VariableBoundMul)
+        produce_variable_bound_mul_recipe_v1(facts)
+            .map(SelectedLoopProductRowV1::VariableBoundMul)
             .map_err(LoopProductUnavailableV1::Recipe)
     })();
     match rows.entry(key) {
@@ -200,19 +275,37 @@ pub(super) fn issue_selected_home_loop_loan_v1(
         }
         return Some(SelectedLoopHomeLoanV1::StaticI64Search(source));
     }
-    if source_core_calls.is_some_and(|rows| rows.values().any(|row|
-        row.contract().owner() == prestate.owner() && row.contract().loop_site() == prestate.site()
-            && row.contract().named_array_requirement().and_then(|row| row.residence()).is_some())) {
+    if source_core_calls.is_some_and(|rows| {
+        rows.values().any(|row| {
+            row.contract().owner() == prestate.owner()
+                && row.contract().loop_site() == prestate.site()
+                && row
+                    .contract()
+                    .named_array_requirement()
+                    .and_then(|row| row.residence())
+                    .is_some()
+        })
+    }) {
         let key = (prestate.owner(), prestate.site().clone());
         match variable_rows.entry(key) {
             std::collections::btree_map::Entry::Vacant(slot) => {
                 slot.insert(Ok(SelectedLoopProductRowV1::SourcePlan(
-                    RetainedSourceLoopProductV1::issue(input, prestate.site(), policy))));
+                    RetainedSourceLoopProductV1::issue(input, prestate.site(), policy),
+                )));
             }
             std::collections::btree_map::Entry::Occupied(_) => {}
         }
-        let Some(Ok(SelectedLoopProductRowV1::SourcePlan(slot))) = variable_rows.get(&(prestate.owner(), prestate.site().clone())) else { return None; };
-        let contracts = || source_core_calls.into_iter().flat_map(|rows| rows.values()).map(|row| row.contract());
+        let Some(Ok(SelectedLoopProductRowV1::SourcePlan(slot))) =
+            variable_rows.get(&(prestate.owner(), prestate.site().clone()))
+        else {
+            return None;
+        };
+        let contracts = || {
+            source_core_calls
+                .into_iter()
+                .flat_map(|rows| rows.values())
+                .map(|row| row.contract())
+        };
         if let Some(home) = slot.home.get() {
             return (home.matches_prestate(&prestate) && home.recheck_source(input, contracts()))
                 .then(|| SelectedLoopHomeLoanV1::NoExitArrayAfter(std::rc::Rc::clone(home)));
@@ -270,14 +363,60 @@ pub(super) fn retain_static_i64_search_early_return_v1(
 }
 
 impl super::OrdinaryNewClaimLedgerV1 {
+    /// Borrow branch joins from the SAME selected source-loop schedule for a
+    /// nested If site. Root-flow plans do not flatten these inner observations.
+    pub(in crate::mir) fn selected_source_loop_branch_joins_v2(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Vec<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>
+    {
+        let branch_path = site.node().segments();
+        let mut output: Vec<
+            std::rc::Rc<
+                crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1,
+            >,
+        > = Vec::new();
+        for ((actual_owner, loop_site), row) in &self.selected_loop_products {
+            if *actual_owner != owner || !branch_path.starts_with(loop_site.node().segments()) {
+                continue;
+            }
+            let Ok(SelectedLoopProductRowV1::SourcePlan(retained)) = row else {
+                continue;
+            };
+            let Some(Ok(product)) = retained.source_recipe.get() else {
+                continue;
+            };
+            for join in product
+                .schedule()
+                .branch_joins_v2()
+                .filter(|join| join.source.site() == site)
+            {
+                if !output
+                    .iter()
+                    .any(|old| old.as_ref() == join.source.as_ref())
+                {
+                    output.push(std::rc::Rc::clone(&join.source));
+                }
+            }
+        }
+        output
+    }
+
     /// The existing selected row retains original source after affine plan take.
     /// A selected but missing/drifted source is an error, never an unselected row.
     pub(in crate::mir) fn retained_loop_source_v1(
-        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
-    ) -> Result<Option<&std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>>, String> {
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Result<Option<&std::rc::Rc<crate::mir::builder::RetainedCallableLoopSourceV1>>, String>
+    {
         match self.selected_loop_products.get(&(owner, site.clone())) {
             Some(Ok(SelectedLoopProductRowV1::SourcePlan(row))) => {
-                let source = row.source.as_ref().ok_or("[freeze:contract][preissued-loop/retained-source-missing]")?;
+                let source = row
+                    .source
+                    .as_ref()
+                    .ok_or("[freeze:contract][preissued-loop/retained-source-missing]")?;
                 if source.owner() != owner || source.site() != site {
                     return Err("[freeze:contract][preissued-loop/retained-source-drift]".into());
                 }
@@ -289,7 +428,9 @@ impl super::OrdinaryNewClaimLedgerV1 {
 
     /// Borrow the SAME source/Home proof before or after affine Recipe take.
     pub(in crate::mir) fn no_exit_array_home_source_v1(
-        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
     ) -> Option<&std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
         match self.selected_loop_products.get(&(owner, site.clone())) {
             Some(Ok(SelectedLoopProductRowV1::SourcePlan(row))) => row.home.get(),
@@ -300,47 +441,84 @@ impl super::OrdinaryNewClaimLedgerV1 {
     /// Borrow the same source-tree Recipe produced during the selected Home walk.
     /// This remains logical evidence until Core/cleanup/physical closure lands.
     pub(in crate::mir) fn retained_source_loop_recipe_v2(
-        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
-    ) -> Result<Option<&std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>, String> {
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Result<
+        Option<&std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
+        String,
+    > {
         match self.selected_loop_products.get(&(owner, site.clone())) {
-            Some(Ok(SelectedLoopProductRowV1::SourcePlan(row))) => row.source_recipe.get().map_or(Ok(None),
-                |product| product.as_ref().map(Some).map_err(Clone::clone)),
+            Some(Ok(SelectedLoopProductRowV1::SourcePlan(row))) => {
+                row.source_recipe.get().map_or(Ok(None), |product| {
+                    product.as_ref().map(Some).map_err(Clone::clone)
+                })
+            }
             _ => Ok(None),
         }
     }
 
     pub(in crate::mir) fn take_preissued_loop_source_handoff_v2(
-        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
     ) -> Result<Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>, String> {
         match self.selected_loop_products.get(&(owner, site.clone())) {
             Some(Ok(SelectedLoopProductRowV1::SourcePlan(slot))) => {
-                let product = slot.source_recipe.get().map(|row| row.as_ref().map(std::rc::Rc::clone).map_err(Clone::clone)).transpose()?;
+                let product = slot
+                    .source_recipe
+                    .get()
+                    .map(|row| row.as_ref().map(std::rc::Rc::clone).map_err(Clone::clone))
+                    .transpose()?;
                 let mut retained = slot.plan.borrow_mut();
-                let plan = retained.as_ref().ok_or_else(|| "[freeze:contract][preissued-loop/already-taken]".to_owned())?
-                    .as_ref().map_err(Clone::clone)?;
-                if plan.owner() != owner || plan.site() != site || slot.source.as_ref()
-                    .is_none_or(|source| !std::rc::Rc::ptr_eq(source, plan.original_source_v1())) {
+                let plan = retained
+                    .as_ref()
+                    .ok_or_else(|| "[freeze:contract][preissued-loop/already-taken]".to_owned())?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                if plan.owner() != owner
+                    || plan.site() != site
+                    || slot.source.as_ref().is_none_or(|source| {
+                        !std::rc::Rc::ptr_eq(source, plan.original_source_v1())
+                    })
+                {
                     return Err("[freeze:contract][source-loop/plan-row-identity]".into());
                 }
-                if let Some(product) = &product { plan.validate_source_recipe_attachment_v2(product)?; }
-                let mut plan = retained.take().expect("checked affine slot").expect("checked planner outcome");
-                if let Some(product) = product { plan.attach_source_recipe_v2(product)?; }
+                if let Some(product) = &product {
+                    plan.validate_source_recipe_attachment_v2(product)?;
+                }
+                let mut plan = retained
+                    .take()
+                    .expect("checked affine slot")
+                    .expect("checked planner outcome");
+                if let Some(product) = product {
+                    plan.attach_source_recipe_v2(product)?;
+                }
                 Ok(Some(plan))
-            },
+            }
             _ => Ok(None),
         }
     }
 }
 
 impl super::OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir) fn validate_preissued_loop_consumption_v1(&self, owner: FunctionOwnerIdV1) -> Result<(), String> {
+    pub(in crate::mir) fn validate_preissued_loop_consumption_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<(), String> {
         if self.selected_loop_products.iter().any(|((source_owner, _), row)| *source_owner == owner
             && matches!(row, Ok(SelectedLoopProductRowV1::SourcePlan(slot)) if slot.plan.borrow().is_some())) {
             return Err("[freeze:contract][preissued-loop/unconsumed]".into());
         }
-        if self.selected_loop_products.iter().any(|((source_owner, _), row)| *source_owner == owner
-            && matches!(row, Ok(SelectedLoopProductRowV1::SourcePlan(slot))
-                if slot.source.as_ref().is_some_and(|source| source.binding_handoff_pending_v1()))) {
+        if self
+            .selected_loop_products
+            .iter()
+            .any(|((source_owner, _), row)| {
+                *source_owner == owner
+                    && matches!(row, Ok(SelectedLoopProductRowV1::SourcePlan(slot))
+                if slot.source.as_ref().is_some_and(|source| source.binding_handoff_pending_v1()))
+            })
+        {
             return Err("[freeze:contract][preissued-loop/binding-handoff-unconsumed]".into());
         }
         Ok(())

@@ -1,7 +1,7 @@
 //! Borrowed nullable LOCAL source observation through the existing typed port.
 //! Records the result binding and original root; never installs an owning Home.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 pub(crate) fn issue_borrowed_nullable_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -58,7 +58,10 @@ pub(crate) fn issue_borrowed_nullable_local_call<E>(
         prior_homes: prior_homes.iter().cloned().collect(),
         arguments,
         result: LocalCallResultClassV1::BorrowedNullable,
-        result_source: None, unit_source: None,
-        borrowed_nullable: Some(Box::new(loan)), mixed: None, field_alias: None,
+        result_source: None,
+        unit_source: None,
+        borrowed_nullable: Some(Box::new(loan)),
+        mixed: None,
+        field_alias: None,
     })))
 }

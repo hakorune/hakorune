@@ -12,7 +12,7 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.string.checked_compare_v1\"(ptr, i64, i32, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_length_v1\"(ptr, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_materialize_v1\"(ptr, i64, ptr, ptr)\n"
-      "declare i32 @\"nyash.string.checked_substring_v1\"(ptr, i64, ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.string.checked_substring_operands_v1\"(ptr, i64, ptr, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_index_of_v1\"(ptr, i64, ptr, ptr, ptr)\n");
   for (size_t fi = 0; fi < yyjson_arr_size(in->functions); fi++) {
     yyjson_val* blocks = hako_physical_blocks(yyjson_arr_get(in->functions, fi));
@@ -62,6 +62,7 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
     size_t fi, uint32_t b, unsigned role) {
   int text = lv4_is(operand, "kind", "static_text");
   int owned = lv4_is(operand, "kind", "owned_string");
+  int dynamic = lv4_is(operand, "kind", "tagged_dynamic");
   uint32_t value = lv4_u(operand, "value");
   if (lv4_is(operand, "kind", "borrowed_text")) {
     /* The indexed source domain proves a borrowed formal/Copy root. These
@@ -87,6 +88,15 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
         b,role,b,role,b,role, b,role,value, b,role,b,role,
         b,role,b,role, b,role,b,role, b,role,b,role,b,role,
         b,role,b,role,b,role, b,role,b,role, b,role,b,role);
+    return;
+  }
+  if (dynamic) {
+    fprintf(f,
+        "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n"
+        "  %%str%u_%u_1 = insertvalue %%nyrt.string.operand %%str%u_%u_0, i32 %%k%u, 1\n"
+        "  %%str%u_%u_2 = insertvalue %%nyrt.string.operand %%str%u_%u_1, i64 %%v%u, 6\n"
+        "  store %%nyrt.string.operand %%str%u_%u_2, ptr %%strarg%u_%u, align 8\n",
+        b,role,b,role,b,role,value,b,role,b,role,value,b,role,b,role,b,role);
     return;
   }
   fprintf(f, "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 %d, 0\n",
@@ -120,11 +130,14 @@ static void lv4_string_emit(FILE* f, yyjson_val* op, size_t fi, uint32_t b,
     size_t count = hako_physical_string_operand_count(op);
     for (unsigned role = 0; role < count; role++)
       lv4_string_operand_emit(f, hako_physical_string_operand_at(op, role), fi,b,role);
-    fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_%s_v1\"(ptr %%frame, i64 %llu", b,kind + 7,site);
+    const char* symbol = lv4_is(op, "kind", "string_substring") ?
+        "nyash.string.checked_substring_operands_v1" : NULL;
+    if (symbol) fprintf(f, "  %%status%u = call i32 @\"%s\"(ptr %%frame, i64 %llu", b,symbol,site);
+    else fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_%s_v1\"(ptr %%frame, i64 %llu", b,kind + 7,site);
     if (lv4_is(op, "kind", "string_compare")) fprintf(f, ", i32 %d", hako_physical_string_comparison(op));
     fprintf(f, ", ptr %%strarg%u_0", b);
     if (count == 2) fprintf(f, ", ptr %%strarg%u_1", b);
-    if (lv4_is(op, "kind", "string_substring")) fprintf(f, ", i64 %%v%u, i64 %%v%u", lv4_u(op, "start"), lv4_u(op, "end"));
+    if (count == 3) fprintf(f, ", ptr %%strarg%u_1, ptr %%strarg%u_2", b,b);
     if (hako_physical_string_result(kind)) fprintf(f, ", ptr %%strout%u", b);
     fprintf(f, ")\n");
   }

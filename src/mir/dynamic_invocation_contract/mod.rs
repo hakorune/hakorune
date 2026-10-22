@@ -11,6 +11,7 @@ pub(crate) use model::{
     dynamic_invocation_execution_envelope_v1, DynamicInvocationControlV1,
     DynamicInvocationEffectV1, DynamicInvocationInputHomeV1, DynamicInvocationOrderingV1,
     DynamicInvocationOutcomeV1, DynamicInvocationSuspensionV1,
+    DynamicInvocationSourceLoanV1,
     VerifiedDynamicInvocationEnvelopeRefV1, VerifiedDynamicInvocationExecutionEnvelopeV1,
 };
 

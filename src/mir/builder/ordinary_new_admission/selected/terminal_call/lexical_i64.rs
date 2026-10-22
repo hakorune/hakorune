@@ -34,6 +34,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_i64(
     site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     row: LexicalInstanceCallDispositionRowV1,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     emit_local_lexical_source(
         builder,
@@ -43,6 +44,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_i64(
         site,
         CallSource::instance(row),
         consume_receiver,
+        static_source,
     )
 }
 
@@ -55,6 +57,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_source(
     site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     row: CallSource,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
     if row.loan().call_site() != &owned_site {
@@ -83,6 +86,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_source(
         &mut bindings,
         None,
         Some(consume_receiver),
+        static_source,
     )?;
     // The disposition issuer already routed this site onto the lifecycle
     // lane; the exit entries claim the recorded group in source order —
@@ -114,6 +118,7 @@ fn emit_lexical_i64_call(
     bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
     expression: Option<&ExpressionCallPrefixV1<'_>>,
     consume_receiver: Option<&dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<EmittedCall, String> {
     let row = original.loan();
     let prior_homes = source.prior_homes();
@@ -224,6 +229,7 @@ fn emit_lexical_i64_call(
         expression,
         Some(source),
         consume_receiver,
+        expression.and_then(|prefix| prefix.static_source()).or(static_source),
     )?;
     let cancellation = if kind == InvokeCallResultKind::OwnedString {
         vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
@@ -329,6 +335,8 @@ pub(in crate::mir::builder) fn prepare_arguments(
         source,
         SourceLoan::Instance(row),
         bindings,
+        None,
+        None,
     )
 }
 
@@ -341,9 +349,12 @@ pub(super) fn prepare_arguments_for_source(
     source: &[LocalCallArgumentV1],
     row: SourceLoan<'_>,
     bindings: &mut Vec<Binding>,
+    consume_receiver: Option<&dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<PreparedCall, String> {
     prepare_arguments_with_prefix(builder, state, ledger, owner, receiver, source, row, bindings, None,
-        ledger.local_call_for_owner(owner, row.call_site().site()).map(ArgumentSource::from_local), None)
+        ledger.local_call_for_owner(owner, row.call_site().site()).map(ArgumentSource::from_local), consume_receiver,
+        static_source)
 }
 
 /// Lend an already checked original purpose into the same argument writer.
@@ -355,7 +366,7 @@ pub(super) fn prepare_arguments_for_original_v1(
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 ) -> Result<PreparedCall, String> {
     prepare_arguments_with_prefix(builder, state, ledger, owner, Some(receiver), original.arguments(),
-        SourceLoan::Instance(row), bindings, None, Some(original), Some(consume_receiver))
+        SourceLoan::Instance(row), bindings, None, Some(original), Some(consume_receiver), None)
 }
 
 fn prepare_arguments_with_prefix(
@@ -370,6 +381,7 @@ fn prepare_arguments_with_prefix(
     expression: Option<&ExpressionCallPrefixV1<'_>>,
     original: Option<ArgumentSource<'_>>,
     consume_receiver: Option<&dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<PreparedCall, String> {
     if original.is_some_and(|original| original.site() != row.call_site() || original.arguments() != source) {
         return Err(freeze("lexical-i64/argument-original-source"));
@@ -414,11 +426,12 @@ fn prepare_arguments_with_prefix(
                     CallValidationContextV1::Lowering(ledger))).collect::<Result<Vec<_>, _>>()?.iter().any(|values| !values.is_empty()) {
                     return Err(freeze("lexical-i64/argument-receiver-scope"));
                 }
-                let scoped = prefix.zip(consume_receiver).map(|(prefix, consumer)| ExpressionCallPrefixV1::for_argument(prefix, consumer, expression.and_then(|outer| outer.static_source())));
+                let scoped = prefix.zip(consume_receiver).map(|(prefix, consumer)| ExpressionCallPrefixV1::for_argument(
+                    prefix, consumer, expression.and_then(|outer| outer.static_source()).or(static_source)));
                 ArgumentProjection::CallResult(Box::new(emit_lexical_i64_call(
                     builder, state, ledger, owner, ArgumentSource::from_nested(inner),
                     CallSource::instance(inner_row), bindings,
-                    scoped.as_ref().or(expression), consume_receiver,
+                    scoped.as_ref().or(expression), consume_receiver, static_source,
                 )?))
             }
             LocalCallArgumentV1::BorrowedActual {
@@ -447,7 +460,8 @@ fn prepare_arguments_with_prefix(
                             &arguments, CallValidationContextV1::Lowering(ledger), expression.and_then(|prefix| prefix.transient()))?;
                         let consumer = consume_receiver.ok_or_else(|| freeze("lexical-i64/argument-receiver-scope"))?;
                         let (_, projection) = super::super::argument_expression::emit_with_prefix(
-                            builder, state, ledger, row.call_site(), *ordinal, site, consumer, Some(&prefix), expression.and_then(|outer| outer.static_source()))?;
+                            builder, state, ledger, row.call_site(), *ordinal, site, consumer, Some(&prefix),
+                            expression.and_then(|outer| outer.static_source()).or(static_source))?;
                         for binding in projection.expression_bindings_v1() {
                             // The function frame is a shared dependency. Every
                             // acquisition/effect remains independently recorded.
@@ -580,13 +594,14 @@ pub(in crate::mir::builder) fn emit_unit_discard(
     builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, row: LexicalInstanceCallDispositionRowV1,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<(), String> {
     ledger.corroborate_unit_discard_v1(&row)?;
     let site = row.call_site().clone();
     let observation = ledger.unit_discard_source_v1(&site).ok_or_else(|| freeze("unit-call/source-missing"))?;
     let mut bindings = Vec::new();
     let packet = emit_lexical_i64_call(builder, state, ledger, site.owner(), ArgumentSource::from_local(observation),
-        CallSource::instance(row), &mut bindings, None, Some(consume_receiver))?;
+        CallSource::instance(row), &mut bindings, None, Some(consume_receiver), static_source)?;
     packet.call_with_ledger(site.owner(), observation.arguments(), ledger)?;
     ledger.record_root_lexical_call_bindings(site.owner(), site, bindings, packet)?;
     Ok(())

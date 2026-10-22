@@ -1,5 +1,5 @@
 /* The String operand schema is defined by the following instruction include. */
-static int hako_physical_string_operand(yyjson_val*, yyjson_val*, uint32_t, uint32_t, int);
+static int hako_physical_string_operand(yyjson_val*, yyjson_val*, uint32_t, uint32_t, int, int);
 /* Exact Birth/ordinary Call transport; included after value availability helpers. */
 static int hako_physical_call_args(yyjson_val* function, yyjson_val* callee,
     yyjson_val* args, uint32_t block, uint32_t index) {
@@ -98,7 +98,7 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
           !yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
           !(hako_physical_string(yyjson_obj_get(operand, "kind"), "static_text") ||
             hako_physical_string(yyjson_obj_get(operand, "kind"), "owned_string")) ||
-          !hako_physical_string_operand(function, operand, block, index, 1)) return 0;
+          !hako_physical_string_operand(function, operand, block, index, 1, 0)) return 0;
       continue;
     }
     if (!hako_physical_exact_keys(arg, arg_keys, 2) ||

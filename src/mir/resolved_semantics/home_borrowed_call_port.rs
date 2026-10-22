@@ -7,20 +7,65 @@ use super::{
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement(super::BindingRefV1),
-    Observe(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, &'a [BorrowedCallActualCandidateV1]),
+    Observe(
+        crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        &'a [BorrowedCallActualCandidateV1],
+    ),
     /// Original argument plan and optional Core loan; no evaluation permission.
-    ArgumentExpressionSource(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, u32),
+    ArgumentExpressionSource(
+        crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        u32,
+    ),
     CompleteArgumentExpression(&'a std::rc::Rc<super::CheckedArgumentExpressionFrameV1>),
-    ArgumentTextEntryRead { source: &'a crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
-        read: &'a super::SourceExprSiteV1, binding: super::BindingRefV1, root: super::BindingRefV1 },
+    ArgumentTextEntryRead {
+        source: &'a crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
+        read: &'a super::SourceExprSiteV1,
+        binding: super::BindingRefV1,
+        root: super::BindingRefV1,
+    },
+    FieldArrayTextEntryRead {
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        source: &'a crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
+        plan: &'a std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
+        read: &'a super::SourceExprSiteV1,
+        binding: super::BindingRefV1,
+        root: super::BindingRefV1,
+    },
     FiniteEntryRead {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
-        plan: &'a std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
-        read: &'a super::SourceExprSiteV1, binding: super::BindingRefV1, root: super::BindingRefV1,
+        plan: &'a std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
+        read: &'a super::SourceExprSiteV1,
+        binding: super::BindingRefV1,
+        root: super::BindingRefV1,
+    },
+    /// Exact original untyped formal read; preserves its runtime tag and grants
+    /// no concrete Dynamic alternative from source `Other`.
+    DynamicEntryRead {
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        plan: &'a std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
+        read: &'a super::SourceExprSiteV1,
+        binding: super::BindingRefV1,
+        root: super::BindingRefV1,
     },
     ExpressionCoreSource {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
-        plan: &'a std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        plan: &'a std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
+    },
+    /// Exact selected Dynamic target for this ordinary expression. The
+    /// source loan remains separate from physical invocation admission.
+    DynamicInvocationSource {
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        plan: &'a std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
     },
     /// Original whole storage-supported Return source; never an owning call.
     StoredMapSource,
@@ -30,7 +75,8 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     I64ResultArguments,
     SourceResultArguments {
         /// The SAME original expression purpose; scalar-only requests carry None.
-        expression: Option<&'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        expression:
+            Option<&'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     },
     SourceUnitDiscardArguments,
     ReceivedObjectArguments(
@@ -50,11 +96,20 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
     StoredMapGetSource(crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1),
-    StoredMapSource(std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>),
+    StoredMapSource(
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
+    ),
     ExpressionCoreSource(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
+    DynamicInvocationSource {
+        loan: crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1,
+        arguments: Box<[LocalCallArgumentV1]>,
+    },
     FiniteEntryRead(crate::mir::normal_callable_semantic_package::FiniteEntryReadV1),
+    DynamicEntryRead(crate::mir::normal_callable_semantic_package::DynamicEntryReadV1),
     TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
-    ArgumentExpressionSource(crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1),
+    ArgumentExpressionSource(
+        crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
+    ),
     ArgumentExpressionFrame(std::rc::Rc<super::CheckedArgumentExpressionFrameV1>),
     MixedLocalSource {
         loan: crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
@@ -74,7 +129,10 @@ pub(crate) enum BorrowedCallArgumentsV1 {
         arguments: Box<[LocalCallArgumentV1]>,
     },
     /// Original Unit statement demand and ordered source arguments, never executable actuals.
-    SourceUnitDiscard { source: crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1, arguments: Box<[LocalCallArgumentV1]> },
+    SourceUnitDiscard {
+        source: crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1,
+        arguments: Box<[LocalCallArgumentV1]>,
+    },
     Scalar(Box<[LocalCallArgumentV1]>),
     StaticSource(Box<[LocalCallArgumentV1]>),
     /// Original Instance arguments only; cannot seal an executable call.

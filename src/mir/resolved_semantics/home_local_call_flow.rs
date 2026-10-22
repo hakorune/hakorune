@@ -5,7 +5,6 @@
 //! resolver; this relation only records where the source places the returned
 //! value and which Homes were live before the call.
 
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow, SourceScalarKind};
 use super::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
@@ -14,6 +13,7 @@ use super::{
 };
 use super::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 /// Package-issued membership proof for one qualified static-box call site.
 ///
@@ -57,7 +57,10 @@ pub(crate) enum LocalCallArgumentV1 {
     CallResult(Box<ArgumentCallObservationV1>),
     /// Nonopaque source expression obligation; its canonical frame remains in
     /// the existing argument ordinal owner, never inferred from this marker.
-    Expression { ordinal: u32, site: SourceExprSiteV1 },
+    Expression {
+        ordinal: u32,
+        site: SourceExprSiteV1,
+    },
     /// Original opaque argument reference; the package ledger owns its domain.
     BorrowedActual {
         ordinal: u32,
@@ -126,7 +129,8 @@ pub(crate) struct LocalCallObservationV1 {
     arguments: Box<[LocalCallArgumentV1]>,
     result: LocalCallResultClassV1,
     field_alias: Option<super::FieldAliasPathV1>,
-    unit_source: Option<crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1>,
+    unit_source:
+        Option<crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1>,
     result_source: Option<LocalCallResultSourceV1>,
     borrowed_nullable: Option<
         Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
@@ -148,7 +152,11 @@ impl LocalCallObservationV1 {
         assert!(
             !matches!(
                 result,
-                LocalCallResultClassV1::BorrowedNullable | LocalCallResultClassV1::Bool | LocalCallResultClassV1::Unit | LocalCallResultClassV1::MixedObject | LocalCallResultClassV1::Text
+                LocalCallResultClassV1::BorrowedNullable
+                    | LocalCallResultClassV1::Bool
+                    | LocalCallResultClassV1::Unit
+                    | LocalCallResultClassV1::MixedObject
+                    | LocalCallResultClassV1::Text
             ),
             "borrowed nullable observation requires its dedicated source loan issuer"
         );
@@ -163,15 +171,20 @@ impl LocalCallObservationV1 {
             prior_homes,
             arguments,
             result,
-            result_source: None, unit_source: None,
-            borrowed_nullable: None, mixed: None, field_alias: None,
+            result_source: None,
+            unit_source: None,
+            borrowed_nullable: None,
+            mixed: None,
+            field_alias: None,
         }
     }
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
-    pub(crate) fn mixed(&self) -> Option<&crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1> {
+    pub(crate) fn mixed(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1> {
         self.mixed.as_deref()
     }
 
@@ -198,7 +211,9 @@ impl LocalCallObservationV1 {
         matches!(self.destination, LocalCallDestinationV1::ExpressionValue)
     }
 
-    pub(crate) fn field_alias(&self) -> Option<&super::FieldAliasPathV1> { self.field_alias.as_ref() }
+    pub(crate) fn field_alias(&self) -> Option<&super::FieldAliasPathV1> {
+        self.field_alias.as_ref()
+    }
 
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior_homes
@@ -211,16 +226,24 @@ impl LocalCallObservationV1 {
     pub(crate) const fn result(&self) -> LocalCallResultClassV1 {
         self.result
     }
-    pub(crate) fn unit_source(&self) -> Option<&crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1> {
+    pub(crate) fn unit_source(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1>
+    {
         self.unit_source.as_ref()
     }
     pub(crate) fn borrowed_scalar(
         &self,
     ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1>
     {
-        match self.result_source.as_ref() { Some(LocalCallResultSourceV1::Scalar(loan)) => Some(loan), _ => None }
+        match self.result_source.as_ref() {
+            Some(LocalCallResultSourceV1::Scalar(loan)) => Some(loan),
+            _ => None,
+        }
     }
-    pub(crate) fn result_source(&self) -> Option<&LocalCallResultSourceV1> { self.result_source.as_ref() }
+    pub(crate) fn result_source(&self) -> Option<&LocalCallResultSourceV1> {
+        self.result_source.as_ref()
+    }
     pub(crate) fn borrowed_nullable(
         &self,
     ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>
@@ -229,8 +252,14 @@ impl LocalCallObservationV1 {
     }
 }
 
-pub(crate) use source_scalar_call::{issue_static_bool_local_call_v1, LocalCallResultClassV1, LocalCallResultSourceV1, issue_source_expression_call_v1, issue_source_scalar_expression_call, issue_source_scalar_frame_call_v1};
-pub(super) use source_scalar_call::{issue_source_scalar_condition_call_v1, SourceScalarConditionCallV1};
+pub(crate) use source_scalar_call::{
+    issue_source_expression_call_v1, issue_source_scalar_expression_call,
+    issue_source_scalar_frame_call_v1, issue_source_static_bool_frame_call_v1,
+    issue_static_bool_local_call_v1, LocalCallResultClassV1, LocalCallResultSourceV1,
+};
+pub(super) use source_scalar_call::{
+    issue_source_scalar_condition_call_v1, SourceScalarConditionCallV1,
+};
 
 #[path = "home_local_source_scalar_call.rs"]
 mod source_scalar_call;
@@ -302,7 +331,8 @@ pub(crate) fn issue_static_i64_local_call<E>(
                         .iter()
                         .zip(call.arguments())
                         .any(|(argument, original)| match argument {
-                            LocalCallArgumentV1::BorrowedActual { ordinal, site } | LocalCallArgumentV1::Expression { ordinal, site } => {
+                            LocalCallArgumentV1::BorrowedActual { ordinal, site }
+                            | LocalCallArgumentV1::Expression { ordinal, site } => {
                                 *ordinal != original.ordinal() || site != original.site()
                             }
                             LocalCallArgumentV1::Integer(_) => false,
@@ -316,13 +346,25 @@ pub(crate) fn issue_static_i64_local_call<E>(
                 }
                 arguments.into_vec()
             }
-            Some(BorrowedCallArgumentsV1::StoredMapGetSource(_) | BorrowedCallArgumentsV1::StoredMapSource(_) | BorrowedCallArgumentsV1::ExpressionCoreSource(_) | BorrowedCallArgumentsV1::FiniteEntryRead(_)) | Some(BorrowedCallArgumentsV1::TextEntryRead(_)) | Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_) | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_))
+            Some(
+                BorrowedCallArgumentsV1::StoredMapGetSource(_)
+                | BorrowedCallArgumentsV1::StoredMapSource(_)
+                | BorrowedCallArgumentsV1::ExpressionCoreSource(_)
+                | BorrowedCallArgumentsV1::FiniteEntryRead(_)
+                | BorrowedCallArgumentsV1::DynamicEntryRead(_),
+            )
+            | Some(BorrowedCallArgumentsV1::TextEntryRead(_))
+            | Some(
+                BorrowedCallArgumentsV1::ArgumentExpressionSource(_)
+                | BorrowedCallArgumentsV1::ArgumentExpressionFrame(_),
+            )
             | Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
             | Some(BorrowedCallArgumentsV1::SourceInstance(_))
             | Some(BorrowedCallArgumentsV1::Scalar(_))
             | Some(BorrowedCallArgumentsV1::HandleSource(_))
             | Some(BorrowedCallArgumentsV1::SourceUnitDiscard { .. })
-        | Some(BorrowedCallArgumentsV1::SourceResult { .. })
+            | Some(BorrowedCallArgumentsV1::SourceResult { .. })
+            | Some(BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
             | Some(BorrowedCallArgumentsV1::SourceObject { .. })
             | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
             | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
@@ -482,8 +524,11 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
         prior_homes: prior_homes.iter().cloned().collect(),
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::Nullable,
-        result_source: None, unit_source: None,
-        borrowed_nullable: None, mixed: None, field_alias: None,
+        result_source: None,
+        unit_source: None,
+        borrowed_nullable: None,
+        mixed: None,
+        field_alias: None,
     }))
 }
 
@@ -511,8 +556,15 @@ pub(crate) fn issue_lexical_i64_discard_call<E>(
         input.owner(),
         SourceExprSiteV1::from_node(statement.site().node().clone()),
     );
-    match unit_discard::demand_v1(input, statement, &site, prior_homes, locals, borrowed_arguments)? {
-        unit_discard::UnitDiscardDemandV1::Unselected => {},
+    match unit_discard::demand_v1(
+        input,
+        statement,
+        &site,
+        prior_homes,
+        locals,
+        borrowed_arguments,
+    )? {
+        unit_discard::UnitDiscardDemandV1::Unselected => {}
         unit_discard::UnitDiscardDemandV1::Refused => return Ok(None),
         unit_discard::UnitDiscardDemandV1::Ready(observation) => return Ok(Some(observation)),
     }
@@ -548,11 +600,19 @@ fn issue_lexical_i64_call<E>(
 ) -> Result<Option<LocalCallObservationV1>, E> {
     match source_scalar_call::demand_v1(input, site, borrowed_arguments)? {
         source_scalar_call::SourceScalarDemandV1::Ready { loan, arguments } => {
-            if !matches!(destination, LocalCallDestinationV1::Discard) && loan.kind() != SourceScalarKind::Integer {
+            if !matches!(destination, LocalCallDestinationV1::Discard)
+                && loan.kind() != SourceScalarKind::Integer
+            {
                 return Ok(None);
             }
             return Ok(Some(source_scalar_call::observation_v1(
-                input.owner(), statement, site, destination, prior_homes, loan, arguments,
+                input.owner(),
+                statement,
+                site,
+                destination,
+                prior_homes,
+                loan,
+                arguments,
             )));
         }
         source_scalar_call::SourceScalarDemandV1::Refused => return Ok(None),
@@ -579,8 +639,11 @@ fn issue_lexical_i64_call<E>(
         prior_homes: prior_homes.iter().cloned().collect(),
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::I64,
-        result_source: None, unit_source: None,
-        borrowed_nullable: None, mixed: None, field_alias: None,
+        result_source: None,
+        unit_source: None,
+        borrowed_nullable: None,
+        mixed: None,
+        field_alias: None,
     }))
 }
 
@@ -727,9 +790,12 @@ pub(crate) fn issue_local_call<E>(
 
 #[path = "home_local_call_borrowed_actuals.rs"]
 mod borrowed_actuals;
-pub(super) use borrowed_actuals::{observe_borrowed_call_actuals, stage_statement_actuals, stage_argument_expressions, stage_expression_actuals_v1};
 pub(crate) use borrowed_actuals::{
     borrowed_actual_source_atom_v1, BorrowedCallActualCandidateV1, BorrowedCallActualValueV1,
+};
+pub(super) use borrowed_actuals::{
+    observe_borrowed_call_actuals, stage_argument_expressions, stage_expression_actuals_v1,
+    stage_statement_actuals,
 };
 
 #[path = "home_local_call_arguments.rs"]

@@ -13,8 +13,8 @@
 //! The direct-initializer adapter allows Scalar/Alias. The sibling pure
 //! scalar-expression observer collects these same passive requests and
 //! submits a Scalar-only batch after proving its complete root.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
 
 /// The sealed result class of a proven local-initializer field read.
@@ -23,7 +23,9 @@ pub(crate) enum LocalFieldReadResultV1 {
     /// A numeric-integer declared type — the binding is a trivial scalar.
     Scalar,
     /// Original selected field-call container read, without owned residence.
-    ArrayField(std::rc::Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>),
+    ArrayField(
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
+    ),
     /// An ordinary-box declared type — the binding is a borrowed alias
     /// carrying the declared class name.
     Alias(Box<str>),
@@ -33,10 +35,13 @@ pub(crate) enum LocalFieldReadResultV1 {
 
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedArrayFieldSourceV1 {
-    pub(in crate::mir) requirement: std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>,
+    pub(in crate::mir) requirement:
+        std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>,
 }
 impl PartialEq for BorrowedArrayFieldSourceV1 {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.requirement, &other.requirement) }
+    fn eq(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.requirement, &other.requirement)
+    }
 }
 impl Eq for BorrowedArrayFieldSourceV1 {}
 
@@ -45,9 +50,13 @@ impl Eq for BorrowedArrayFieldSourceV1 {}
 /// SAME plan; field layout alone never supplies that permission.
 #[derive(Debug, Clone)]
 pub(crate) enum LocalFieldReadDemandV1 {
-    Declared { scalar_only: bool },
+    Declared {
+        scalar_only: bool,
+    },
     SourceExpression {
-        plan: std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        plan: std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
     },
 }
 
@@ -69,36 +78,76 @@ pub(super) fn observe_local_field_read<E>(
         return Ok(None);
     };
     let plan = if request.owned_ready.is_some() {
-        let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(None) };
-        let mut rows = input.function().expression_source().initializers()
+        let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
+            return Ok(None);
+        };
+        let mut rows = input
+            .function()
+            .expression_source()
+            .initializers()
             .filter(|row| row.initializer_site() == Some(site));
-        let Some(initializer) = rows.next() else { return Ok(None) };
-        if rows.next().is_some() { return Ok(None); }
-        let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
-            &ledger, input.body_shape(), initializer) else { return Ok(None) };
-        let Some(plan) = HomeExpressionPlanV1::initializer_reads(source, homes, None, std::slice::from_ref(&request))
-            else { return Ok(None) };
+        let Some(initializer) = rows.next() else {
+            return Ok(None);
+        };
+        if rows.next().is_some() {
+            return Ok(None);
+        }
+        let Ok(source) =
+            crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+                &ledger,
+                input.body_shape(),
+                initializer,
+            )
+        else {
+            return Ok(None);
+        };
+        let Some(plan) = HomeExpressionPlanV1::initializer_reads(
+            source,
+            homes,
+            None,
+            std::slice::from_ref(&request),
+        ) else {
+            return Ok(None);
+        };
         Some(plan)
-    } else { None };
+    } else {
+        None
+    };
     let mut installation = plan.as_ref().map(|_| locals.expression_installation());
     if let (Some(plan), Some(installation)) = (&plan, &mut installation) {
-        if !installation.approve(plan) { return Ok(None); }
+        if !installation.approve(plan) {
+            return Ok(None);
+        }
     }
-    let demand = plan.as_ref().map(|plan| LocalFieldReadDemandV1::SourceExpression {
-        plan: std::rc::Rc::clone(plan.source()) }).unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: false });
+    let demand = plan
+        .as_ref()
+        .map(|plan| LocalFieldReadDemandV1::SourceExpression {
+            plan: std::rc::Rc::clone(plan.source()),
+        })
+        .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: false });
     let Some(mut results) = local_field_read(&[request], demand)? else {
         return Ok(None);
     };
-    if results.len() != 1 { return Ok(None); }
-    if let Some(installation) = installation { installation.commit(); }
+    if results.len() != 1 {
+        return Ok(None);
+    }
+    if let Some(installation) = installation {
+        installation.commit();
+    }
     Ok(Some(results.remove(0)))
 }
 
 /// Original received acquisition; no class, nonnull fact or Home is issued.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ReceivedFieldReadRequestV1 {
-    Object { acquisition: OwnedExprSiteV1, nullable: bool },
-    StoredMapGet { frame: std::rc::Rc<super::MapFieldGetLocalV1>, exclusion: std::rc::Rc<super::SourceNullExclusionV1> },
+    Object {
+        acquisition: OwnedExprSiteV1,
+        nullable: bool,
+    },
+    StoredMapGet {
+        frame: std::rc::Rc<super::MapFieldGetLocalV1>,
+        exclusion: std::rc::Rc<super::SourceNullExclusionV1>,
+    },
     Mixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
 }
 
@@ -122,21 +171,38 @@ pub(crate) struct LocalFieldReadRequestV1 {
     /// request never mints a release.
     pub(crate) formal: bool,
     pub(crate) received: Option<ReceivedFieldReadRequestV1>,
-    pub(crate) path: Option<crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1>,
-    pub(crate) alias_path: Option<Box<crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1>>,
+    pub(crate) path:
+        Option<crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1>,
+    pub(crate) alias_path:
+        Option<Box<crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1>>,
     pub(crate) field: Box<str>,
     /// Exact prior Normal writer, retained only for the allocation-only LOCAL profile.
     pub(crate) owned_ready: Option<FieldWritePlanV1>,
 }
 
 impl LocalFieldReadRequestV1 {
-    pub(crate) fn node_in_plan(&self, plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>) -> Option<usize> {
-        if self.site.owner() != plan.owner() { return None; }
+    pub(crate) fn node_in_plan(
+        &self,
+        plan: &std::rc::Rc<
+            crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        >,
+    ) -> Option<usize> {
+        if self.site.owner() != plan.owner() {
+            return None;
+        }
         match &self.path {
-            Some(path) => (std::rc::Rc::ptr_eq(path.plan(), plan) && path.site() == self.site
-                && path.root() == self.receiver && path.receiver_site() == &self.receiver_site
-                && path.name() == self.field.as_ref()).then_some(path.node()),
-            None => plan.field_read_node_v1(self.site.site(), &self.receiver_site, self.receiver, &self.field),
+            Some(path) => (std::rc::Rc::ptr_eq(path.plan(), plan)
+                && path.site() == self.site
+                && path.root() == self.receiver
+                && path.receiver_site() == &self.receiver_site
+                && path.name() == self.field.as_ref())
+            .then_some(path.node()),
+            None => plan.field_read_node_v1(
+                self.site.site(),
+                &self.receiver_site,
+                self.receiver,
+                &self.field,
+            ),
         }
     }
 }
@@ -178,9 +244,7 @@ pub(super) fn field_read_request(
     let (home, alias_class, nullable, formal) = match provenance {
         local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None, false, false),
         local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None, false, false),
-        local_flow::FieldReadReceiverV1::Alias { class, root } => {
-            (root, Some(class), false, false)
-        }
+        local_flow::FieldReadReceiverV1::Alias { class, root } => (root, Some(class), false, false),
         local_flow::FieldReadReceiverV1::ReceivedNullable => (receiver, None, true, false),
         local_flow::FieldReadReceiverV1::CheckedReceived(original) => {
             received = Some(original);
@@ -189,7 +253,11 @@ pub(super) fn field_read_request(
         local_flow::FieldReadReceiverV1::GuardedFormal => (receiver, None, false, true),
     };
     if let Some(ReceivedFieldReadRequestV1::StoredMapGet { frame, exclusion }) = &received {
-        if frame.binding() != receiver || !exclusion.corroborates_initializer(input, receiver, frame.site().site(), object) { return None; }
+        if frame.binding() != receiver
+            || !exclusion.corroborates_initializer(input, receiver, frame.site().site(), object)
+        {
+            return None;
+        }
     }
     let owned_ready = locals.ready_field_read(home, field)?;
     Some(LocalFieldReadRequestV1 {
@@ -213,18 +281,31 @@ pub(super) fn field_read_request(
 pub(super) fn expression_field_read_request(
     input: ResolvedFunctionLoweringInputV1<'_>,
     plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
-    site: &SourceExprSiteV1, locals: &PrefixLocalFlow<'_>,
+    site: &SourceExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
 ) -> Option<LocalFieldReadRequestV1> {
-    let path = crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1::issue(
-        std::rc::Rc::clone(plan), site)?;
+    let path =
+        crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1::issue(
+            std::rc::Rc::clone(plan),
+            site,
+        )?;
     if !path.is_nested_component() {
         let mut request = field_read_request(input, site, locals)?;
-        if matches!(request.received, Some(ReceivedFieldReadRequestV1::StoredMapGet { .. })) { request.path = Some(path); }
+        if matches!(
+            request.received,
+            Some(ReceivedFieldReadRequestV1::StoredMapGet { .. })
+        ) {
+            request.path = Some(path);
+        }
         return Some(request);
     }
     let mut request = field_read_request(input, path.first_site(), locals)?;
-    if request.receiver != path.root() || input.owner() != plan.owner() { return None; }
-    if request.alias_class.is_some() { request.alias_path = Some(Box::new(locals.field_alias_call_path(request.receiver)?)); }
+    if request.receiver != path.root() || input.owner() != plan.owner() {
+        return None;
+    }
+    if request.alias_class.is_some() {
+        request.alias_path = Some(Box::new(locals.field_alias_call_path(request.receiver)?));
+    }
     request.site = path.site();
     request.receiver_site = path.receiver_site().clone();
     request.field = path.name().into();
@@ -234,9 +315,12 @@ pub(super) fn expression_field_read_request(
 
 /// Install an already-observed local read, retaining the same receiver request.
 pub(super) fn install_local_field_read_result(
-    input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceExprSiteV1,
-    binding: BindingRefV1, locals: &mut PrefixLocalFlow<'_>,
-    unavailable: &mut Option<HomePrefixUnavailableV1>, result: LocalFieldReadResultV1,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    binding: BindingRefV1,
+    locals: &mut PrefixLocalFlow<'_>,
+    unavailable: &mut Option<HomePrefixUnavailableV1>,
+    result: LocalFieldReadResultV1,
 ) {
     // A proven `receiver.field` initializer binds by its
     // declared result class — numeric scalars are trivial,
@@ -248,22 +332,19 @@ pub(super) fn install_local_field_read_result(
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         }
         LocalFieldReadResultV1::Scalar => {
-            locals.install_scalar_call_result(
-                binding,
-                local_flow::SourceScalarKind::Integer,
-            );
+            locals.install_scalar_call_result(binding, local_flow::SourceScalarKind::Integer);
         }
         LocalFieldReadResultV1::BorrowedArray(source) => {
             let Some(request) = field_read_request(input, site, locals) else {
-                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); return;
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                return;
             };
             if !locals.install_borrowed_array_field(binding, source, request.home) {
                 unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
             }
         }
         LocalFieldReadResultV1::Alias(class) => {
-            let Some(request) = field_read_request(input, site, locals)
-            else {
+            let Some(request) = field_read_request(input, site, locals) else {
                 unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
                 return;
             };

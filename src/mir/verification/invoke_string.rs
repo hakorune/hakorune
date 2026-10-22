@@ -55,6 +55,15 @@ fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
     }
 }
 
+fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
+    let Some(index) = function.params.iter().position(|parameter| *parameter == value) else {
+        return false;
+    };
+    function.metadata.physical_param_carriers.as_deref()
+        .and_then(|carriers| carriers.get(index))
+        == Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
+}
+
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     #[derive(Clone, Default, PartialEq, Eq)]
     struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId>, replacement: Option<(ValueId, ValueId)>, hold: Option<ValueId>, call_pending: Option<ValueId> }
@@ -156,9 +165,17 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     if !operation.valid_operand_domains() {
                         return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
                     }
-                    if matches!(operation, Op::Substring { start, end, .. } if results.contains_key(start) || results.contains_key(end)
-                        || check_borrowed_operand(function, *start).is_ok() || check_borrowed_operand(function, *end).is_ok()) {
-                        return Err("string-integer-domain");
+                    if let Op::Substring { start, end, .. } = operation {
+                        for operand in [start, end] {
+                            let Some(value) = operand.value() else { return Err("string-integer-domain"); };
+                            if results.contains_key(&value) || matches!(operand, Operand::NormalInteger(_)
+                                if check_borrowed_operand(function, value).is_ok()) {
+                                return Err("string-integer-domain");
+                            }
+                            if matches!(operand, Operand::Dynamic(_)) && !is_tagged_dynamic_formal(function, value) {
+                                return Err("string-dynamic-source-domain");
+                            }
+                        }
                     }
                 }
                 for operand in text_operands(operation) {
@@ -169,6 +186,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         Operand::BorrowedText(value) => check_borrowed_operand(function, *value)?,
                         Operand::NormalInteger(value) if results.contains_key(value) || check_borrowed_operand(function, *value).is_ok() => {
                             return Err("string-integer-domain");
+                        }
+                        Operand::Dynamic(value) if !is_tagged_dynamic_formal(function, *value) => {
+                            return Err("string-dynamic-source-domain");
                         }
                         _ => {}
                     }
@@ -655,13 +675,13 @@ mod tests {
         }
         let mut slice = good.clone();
         if let Some(MirInstruction::Invoke { operation, .. }) = &mut slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator {
-            *operation = InvokeOperation::String(Op::Substring { value: Operand::OwnedString(ValueId(2)), start: ValueId(1), end: ValueId(1) });
+            *operation = InvokeOperation::String(Op::Substring { value: Operand::OwnedString(ValueId(2)), start: Operand::NormalInteger(ValueId(1)), end: Operand::NormalInteger(ValueId(1)) });
         }
         assert!(super::super::check_function(&slice).is_ok());
         assert_eq!(check(&slice), Ok(()), "substring has the same Normal acquisition and both Fault prefixes");
         let mut bad_slice = slice.clone();
         if let Some(MirInstruction::Invoke { operation: InvokeOperation::String(Op::Substring { start, .. }), .. }) =
-            &mut bad_slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator { *start = ValueId(2); }
+            &mut bad_slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator { *start = Operand::NormalInteger(ValueId(2)); }
         assert_eq!(check(&bad_slice), Err("string-integer-domain"));
         for operation in [Op::Length { value: Operand::OwnedString(ValueId(3)) },
             Op::IndexOf { value: Operand::OwnedString(ValueId(3)), needle: Operand::StaticText { utf8: "界".into() } }] {

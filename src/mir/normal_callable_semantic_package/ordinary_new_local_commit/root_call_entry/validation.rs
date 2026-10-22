@@ -495,8 +495,19 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut selected = Vec::with_capacity(expected.len());
         for site in &expected {
             let mut matching = recorded.iter().filter(|recorded| recorded.matches_source(site));
-            let group = matching.next().ok_or_else(|| freeze("local-call-binding-sequence"))?;
-            if matching.next().is_some() { return Err(freeze("local-call-binding-sequence")); }
+            let Some(group) = matching.next() else {
+                if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                    eprintln!("[local-call-bindings] missing={:?} recorded={:?}", site.site(),
+                        recorded.iter().map(RootLifecyclePrefixBindingGroupV1::site).collect::<Vec<_>>());
+                }
+                return Err(freeze("local-call-binding-sequence"));
+            };
+            if matching.next().is_some() {
+                if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                    eprintln!("[local-call-bindings] duplicate={:?}", site.site());
+                }
+                return Err(freeze("local-call-binding-sequence"));
+            }
             selected.push(group.clone());
         }
         Ok(selected)
@@ -534,6 +545,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     || group.bindings().is_empty()
             })
         {
+            if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
+                eprintln!("[local-call-bindings] validation expected={} actual={}", expected.len(), groups.len());
+            }
             return Err(freeze("local-call-binding-sequence"));
         }
         Ok(())

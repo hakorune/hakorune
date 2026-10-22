@@ -46,7 +46,7 @@ pub(crate) struct LoopJoinBranchExitRefV2<'program> {
 pub(crate) enum LoopJoinBranchArmTransferRefV2<'program> {
     Exit(LoopJoinBranchExitRefV2<'program>),
     Fallthrough {
-        continuation: LoopJoinNextItemV1,
+        continuation: Option<LoopJoinNextItemV1>,
         payload: &'program [LoopJoinPayloadV2],
     },
 }

@@ -33,7 +33,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.record_checked_local_field_read_v1(site, source, Some(read), invoke, normal,
             CheckedFieldReadCleanupV1::SourceHomes { requirement, frame, normal_prefix, fault })
     }
-    pub(super) fn checked_field_normal_prefix_v1(&self, site: &OwnedExprSiteV1) -> Result<Vec<Binding>, String> {
+    pub(in crate::mir) fn checked_field_normal_prefix_v1(&self, site: &OwnedExprSiteV1) -> Result<Vec<Binding>, String> {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault_error("source-cleanup/read"))?;
         match &row.progress {
@@ -42,7 +42,7 @@ impl OrdinaryNewClaimLedgerV1 {
             _ => Err(fault_error("source-cleanup/unconsumed")),
         }
     }
-    pub(super) fn checked_field_cleanup_bindings_v1(&self, site: &OwnedExprSiteV1) -> Result<Vec<Binding>, String> {
+    pub(in crate::mir) fn checked_field_cleanup_bindings_v1(&self, site: &OwnedExprSiteV1) -> Result<Vec<Binding>, String> {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault_error("source-cleanup/read"))?;
         match &row.progress {
@@ -82,7 +82,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for row in normal_prefix { map(row)?; }
         let fault = fault.iter().map(&mut map).collect::<Result<Vec<_>, _>>()?;
-        self.validate_source_field_fault_v1(function, &invoke, &fault, requirement.prior_homes())
+        self.validate_source_field_fault_v1(
+            site.owner(), function, &invoke, &fault, requirement.prior_homes(),
+        )
     }
     pub(in crate::mir) fn original_checked_field_bindings_v1(&self, owner: FunctionOwnerIdV1) -> Result<Vec<Binding>, String> {
         let sites: Vec<_> = self.local_field_reads.borrow().iter()

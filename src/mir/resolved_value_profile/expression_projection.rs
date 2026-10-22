@@ -13,11 +13,11 @@ pub(crate) struct ExpressionClassSetV1(u8);
 impl ExpressionClassSetV1 {
     fn bit(class: ExpressionValueClassV1) -> u8 {
         use ExpressionValueClassV1::*;
-        match class { I64 => 1, String => 2, Bool => 4, Null => 8, Opaque => 16 }
+        match class { I64 => 1, String => 2, Dynamic => 4, Bool => 8, Null => 16, Opaque => 32 }
     }
     pub(crate) fn iter(self) -> impl Iterator<Item = ExpressionValueClassV1> {
         use ExpressionValueClassV1::*;
-        [I64, String, Bool, Null, Opaque].into_iter().filter(move |class| self.0 & Self::bit(*class) != 0)
+        [I64, String, Dynamic, Bool, Null, Opaque].into_iter().filter(move |class| self.0 & Self::bit(*class) != 0)
     }
 }
 

@@ -36,9 +36,19 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .ok_or("[freeze:contract][unit-call/disposition-unavailable]")?;
         self.consume_lexical_self_receiver_locator_v1(&row)?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
-        let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][unit-call/state-missing]")?;
+        let state = std::rc::Rc::clone(self.callable_ledger.as_ref()
+            .ok_or("[freeze:contract][unit-call/state-missing]")?);
+        let ledger = std::rc::Rc::clone(ledger);
+        let port = std::cell::RefCell::new(self);
+        let issue_static = |builder: &mut crate::mir::MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, frame, observation, &ledger)
+        };
         crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_unit_discard(
-            builder, &mut state.borrow_mut(), ledger, row, &consume_receiver)?;
+            builder, &mut state.borrow_mut(), &ledger, row, &consume_receiver, Some(&issue_static))?;
         Ok(true)
     }
 
@@ -410,15 +420,12 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         let state = self.callable_ledger.as_ref().expect("checked state").clone();
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
-        let issue_static = |builder: &mut crate::mir::MirBuilder, original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>| {
-            use crate::mir::builder::static_result_publication_ingress::{take_terminal_static_publication_v1, StaticResultPublicationIngressV1};
-            let publication = take_terminal_static_publication_v1(&mut port.borrow_mut(),
-                builder.comp_ctx.callable_declaration_catalog().ok(), original.caller(), original.call_site().site(), original.target())
-                .map_err(|error| error.to_string())?;
-            let StaticResultPublicationIngressV1::Selected(publication) = publication else {
-                return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".to_owned());
-            };
-            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(std::rc::Rc::clone(original), publication, &ledger)
+        let issue_static = |builder: &mut crate::mir::MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, frame, observation, &ledger)
         };
         let result = crate::mir::builder::ordinary_new_admission::selected::emit(
             builder, &mut state.borrow_mut(), &ledger, claim, &consume, Some(&issue_static));
@@ -479,15 +486,12 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         let state = self.callable_ledger.as_ref().expect("checked state").clone();
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
         let port = std::cell::RefCell::new(self);
-        let issue_static = |builder: &mut crate::mir::MirBuilder, original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>| {
-            use crate::mir::builder::static_result_publication_ingress::{take_terminal_static_publication_v1, StaticResultPublicationIngressV1};
-            let publication = take_terminal_static_publication_v1(&mut port.borrow_mut(),
-                builder.comp_ctx.callable_declaration_catalog().ok(), original.caller(), original.call_site().site(), original.target())
-                .map_err(|error| error.to_string())?;
-            let StaticResultPublicationIngressV1::Selected(publication) = publication else {
-                return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".to_owned());
-            };
-            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(std::rc::Rc::clone(original), publication, &ledger)
+        let issue_static = |builder: &mut crate::mir::MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, frame, observation, &ledger)
         };
         let result = crate::mir::builder::ordinary_new_admission::selected::emit_result(
             builder, &mut state.borrow_mut(), &ledger, claim, &consume, Some(&issue_static));

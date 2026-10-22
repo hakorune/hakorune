@@ -1,5 +1,5 @@
-//! Physical expression operands; source loans supply the exact original bytes
-//! or scalar domain. These tags never infer source permissions or stringify Box.
+//! Physical expression operands; source loans supply the exact original bytes,
+//! scalar domain, or tagged Dynamic carrier. Physical tags never infer source permission.
 use super::InvokeNormalResultKind;
 use crate::mir::{Effect, EffectMask, ValueId};
 
@@ -9,7 +9,12 @@ pub enum StringInvokeOperand {
     OwnedString(ValueId),
     /// Readonly tagged Text formal/view; never an owned acquisition.
     BorrowedText(ValueId),
+    /// Internal by-value Text descriptor selected by a typed loop PHI.
+    /// This is neither a formal borrow nor an owned String Home.
+    TextOperand(ValueId),
     NormalInteger(ValueId),
+    /// Original tag/payload pair from a verified untyped formal; not Text.
+    Dynamic(ValueId),
 }
 // One descriptor spelling for canonical transport and passive write census.
 impl serde::Serialize for StringInvokeOperand {
@@ -18,7 +23,9 @@ impl serde::Serialize for StringInvokeOperand {
             Self::StaticText { utf8 } => serde_json::json!({"kind":"static_text", "utf8":utf8}),
             Self::BorrowedText(value) => serde_json::json!({"kind":"borrowed_text", "value":value.as_u32()}),
             Self::OwnedString(value) => serde_json::json!({"kind":"owned_string", "value":value.as_u32()}),
+            Self::TextOperand(value) => serde_json::json!({"kind":"text_operand", "value":value.as_u32()}),
             Self::NormalInteger(value) => serde_json::json!({"kind":"normal_integer", "value":value.as_u32()}),
+            Self::Dynamic(value) => serde_json::json!({"kind":"tagged_dynamic", "value":value.as_u32()}),
         };
         serde::Serialize::serialize(&value, serializer)
     }
@@ -27,17 +34,19 @@ impl StringInvokeOperand {
     pub fn value(&self) -> Option<ValueId> {
         match self {
             Self::StaticText { .. } => None,
-            Self::OwnedString(value) | Self::BorrowedText(value) | Self::NormalInteger(value) => Some(*value),
+            Self::OwnedString(value) | Self::BorrowedText(value) | Self::TextOperand(value)
+                | Self::NormalInteger(value) | Self::Dynamic(value) => Some(*value),
         }
     }
     pub fn rewrite_value(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::StaticText { .. } => {}
-            Self::OwnedString(value) | Self::BorrowedText(value) | Self::NormalInteger(value) => rewrite(value),
+            Self::OwnedString(value) | Self::BorrowedText(value) | Self::TextOperand(value)
+                | Self::NormalInteger(value) | Self::Dynamic(value) => rewrite(value),
         }
     }
     pub fn is_text(&self) -> bool {
-        !matches!(self, Self::NormalInteger(_))
+        !matches!(self, Self::NormalInteger(_) | Self::Dynamic(_))
     }
 }
 
@@ -54,7 +63,7 @@ pub enum StringInvokeOperation {
     Materialize { value: StringInvokeOperand },
     /// Fixed CodePoint operations; the source issuer retains the exact Core law.
     Length { value: StringInvokeOperand },
-    Substring { value: StringInvokeOperand, start: ValueId, end: ValueId },
+    Substring { value: StringInvokeOperand, start: StringInvokeOperand, end: StringInvokeOperand },
     IndexOf { value: StringInvokeOperand, needle: StringInvokeOperand },
     /// Borrow the root value and write exact bytes followed by a newline.
     Print { value: StringInvokeOperand },
@@ -91,7 +100,9 @@ impl StringInvokeOperation {
         match self {
             Self::End { value } => vec![*value],
             _ => self.operands().into_iter().filter_map(StringInvokeOperand::value)
-                .chain(match self { Self::Substring { start, end, .. } => vec![*start, *end], _ => vec![] }).collect(),
+                .chain(match self { Self::Substring { start, end, .. } => {
+                    start.value().into_iter().chain(end.value()).collect()
+                }, _ => vec![] }).collect(),
         }
     }
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
@@ -101,7 +112,11 @@ impl StringInvokeOperation {
                 right.rewrite_value(rewrite);
             }
             Self::IndexOf { value, needle } => { value.rewrite_value(&mut rewrite); needle.rewrite_value(rewrite); }
-            Self::Substring { value, start, end } => { value.rewrite_value(&mut rewrite); rewrite(start); rewrite(end); }
+            Self::Substring { value, start, end } => {
+                value.rewrite_value(&mut rewrite);
+                start.rewrite_value(&mut rewrite);
+                end.rewrite_value(rewrite);
+            }
             Self::Materialize { value } | Self::Length { value } | Self::Print { value } => value.rewrite_value(rewrite),
             Self::End { value } => rewrite(value),
         }
@@ -113,9 +128,13 @@ impl StringInvokeOperation {
         match self {
             Self::Add { left, .. } => left.is_text(),
             Self::Compare { left, right, .. } => left.is_text() && right.is_text(),
-            Self::Materialize { value } | Self::Length { value } | Self::Substring { value, .. } => value.is_text(),
+            Self::Materialize { value } | Self::Length { value } => value.is_text(),
+            Self::Substring { value, start, end } => value.is_text()
+                && matches!(start, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_))
+                && matches!(end, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_)),
             Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
-            Self::Print { .. } | Self::End { .. } => true,
+            Self::Print { value } => !matches!(value, StringInvokeOperand::Dynamic(_)),
+            Self::End { .. } => true,
         }
     }
 }

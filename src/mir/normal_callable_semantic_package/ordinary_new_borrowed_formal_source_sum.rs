@@ -14,26 +14,30 @@ pub(super) enum SourcePointExpansionV1 {
 }
 type MapReceiverLender<'a> = dyn FnMut(&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>) -> Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>> + 'a;
 type StaticSource = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
-type ReturnExpander<'a> = dyn FnMut(&Rc<StaticSource>, bool) -> Result<Option<Vec<(OwnedExprSiteV1, OriginalFormalActualSeedV1)>>, String> + 'a;
-type PointExpander<'a> = dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
+type ReturnExpander<'a> = dyn FnMut(
+        &Rc<StaticSource>,
+        bool,
+    ) -> Result<Option<Vec<(OwnedExprSiteV1, OriginalFormalActualSeedV1)>>, String>
+    + 'a;
+type PointExpander<'a> =
+    dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir)
-enum SourceValueAlternativeV1 {
+pub(in crate::mir) enum SourceValueAlternativeV1 {
     Text,
     SignedI64,
+    /// An unannotated formal with no source callers still has its declared
+    /// tagged carrier. This is a runtime class, not a concrete payload tag.
+    TaggedDynamic,
     Bool,
     Null,
     Other,
     Object(Box<str>),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir)
-struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
+pub(in crate::mir) struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
 impl SourceValueSumV1 {
-    pub(in crate::mir) fn alternatives(
-        &self,
-    ) -> &BTreeSet<SourceValueAlternativeV1> {
+    pub(in crate::mir) fn alternatives(&self) -> &BTreeSet<SourceValueAlternativeV1> {
         &self.0
     }
     pub(in crate::mir) fn signed_only(&self) -> bool {
@@ -42,13 +46,23 @@ impl SourceValueSumV1 {
     pub(in crate::mir) fn text_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Text)
     }
+    pub(in crate::mir) fn tagged_dynamic_only(&self) -> bool {
+        self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::TaggedDynamic)
+    }
     pub(in crate::mir) fn bool_only(&self) -> bool {
         self.0.len() == 1 && self.0.contains(&SourceValueAlternativeV1::Bool)
     }
     pub(in crate::mir) fn finite_input(&self) -> bool {
-        !self.0.is_empty() && self.0.iter().all(|value| matches!(value,
-            SourceValueAlternativeV1::Text | SourceValueAlternativeV1::SignedI64
-                | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Null))
+        !self.0.is_empty()
+            && self.0.iter().all(|value| {
+                matches!(
+                    value,
+                    SourceValueAlternativeV1::Text
+                        | SourceValueAlternativeV1::SignedI64
+                        | SourceValueAlternativeV1::Bool
+                        | SourceValueAlternativeV1::Null
+                )
+            })
     }
     fn permits_object(&self, name: &str) -> bool {
         self.0.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
@@ -56,24 +70,102 @@ impl SourceValueSumV1 {
     }
 }
 
+/// Source-only classification of exact points whose complete original SUM is
+/// the untyped tagged carrier. It carries the solver's original flow identity;
+/// it does not expose a concrete payload tag or executable permission.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct TaggedDynamicSourcePointsV1 {
+    owner: FunctionOwnerIdV1,
+    flow: std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+    formals: BTreeSet<BindingRefV1>,
+    points: BTreeSet<SourceValueRefV1>,
+}
+impl TaggedDynamicSourcePointsV1 {
+    pub(in crate::mir) fn proves_formal(&self, binding: BindingRefV1) -> bool {
+        binding.owner() == self.owner && self.formals.contains(&binding)
+    }
+    pub(in crate::mir) fn proves_value(
+        &self,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        value: SourceValueRefV1,
+    ) -> bool {
+        self.owner == flow.owner()
+            && std::sync::Arc::ptr_eq(&self.flow, flow)
+            && self.points.contains(&value)
+    }
+    pub(in crate::mir) fn proves_read(
+        &self,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+    ) -> Option<SourceValueRefV1> {
+        if binding.owner() != self.owner || !std::sync::Arc::ptr_eq(&self.flow, flow) {
+            return None;
+        }
+        let value = flow.read(site, binding)?;
+        // A formal's direct read is already anchored by the exact Entry
+        // origin and the formal's Dynamic SUM. It need not also appear as a
+        // derived point: alias and computed reads still require point membership.
+        let exact_formal_entry = self.proves_formal(binding)
+            && matches!(
+                flow.origin(value),
+                Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Entry(
+                    original,
+                )) if *original == binding
+            );
+        (self.proves_value(flow, value) || exact_formal_entry).then_some(value)
+    }
+    pub(in crate::mir) fn flow(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1> {
+        &self.flow
+    }
+}
+
 impl PreparedBorrowedFormalIngressV1 {
     /// Select an original computed argument purpose, never a legacy literal
     /// caller or an executable entry. The whole source SUM stays independent.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
-    fn original_signed_expression_argument_request_v1(&self, call: &OwnedExprSiteV1) -> bool {
-        fn original_binary(seed: &OriginalFormalActualSeedV1, owner: FunctionOwnerIdV1, site: &SourceExprSiteV1) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_signed_expression_argument_request_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+    ) -> bool {
+        fn original_binary(
+            seed: &OriginalFormalActualSeedV1,
+            owner: FunctionOwnerIdV1,
+            site: &SourceExprSiteV1,
+        ) -> bool {
             match seed {
-                OriginalFormalActualSeedV1::Binary { owner: original, source, .. } => *original == owner && source.site() == site,
-                OriginalFormalActualSeedV1::SourceOnly(source) | OriginalFormalActualSeedV1::SumUnknown(source) => original_binary(source, owner, site),
+                OriginalFormalActualSeedV1::Binary {
+                    owner: original,
+                    source,
+                    ..
+                } => *original == owner && source.site() == site,
+                OriginalFormalActualSeedV1::SourceOnly(source)
+                | OriginalFormalActualSeedV1::SumUnknown(source) => {
+                    original_binary(source, owner, site)
+                }
                 _ => false,
             }
         }
         let product = &self.original_formal_seeds;
-        if !product.corroborate_original_v1(&self.source_incoming) { return false; }
-        let Some(sums) = &product.source_sums else { return false; };
-        product.rows.iter().filter(|row| &row.incoming.call == call && row.incoming.source.instance().is_some())
-            .any(|row| row.incoming.arguments.iter().zip(&row.seeds).any(|((_, site, formal), seed)|
-                original_binary(seed, call.owner(), site) && sums.values.get(formal).is_some_and(|sum| sum.signed_only())))
+        if !product.corroborate_original_v1(&self.source_incoming) {
+            return false;
+        }
+        let Some(sums) = &product.source_sums else {
+            return false;
+        };
+        product
+            .rows
+            .iter()
+            .filter(|row| &row.incoming.call == call && row.incoming.source.instance().is_some())
+            .any(|row| {
+                row.incoming
+                    .arguments
+                    .iter()
+                    .zip(&row.seeds)
+                    .any(|((_, site, formal), seed)| {
+                        original_binary(seed, call.owner(), site)
+                            && sums.values.get(formal).is_some_and(|sum| sum.signed_only())
+                    })
+            })
     }
 }
 
@@ -85,7 +177,12 @@ pub(super) struct OriginalSourceSumsV1 {
     pub(super) static_sources: BTreeMap<OwnedExprSiteV1, Rc<StaticSource>>,
     pub(super) return_sites: BTreeMap<FunctionOwnerIdV1, Box<[OwnedExprSiteV1]>>,
     pub(super) points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), Rc<SourceValueSumV1>>,
-    pub(super) flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
+    pub(super) flows: BTreeMap<
+        FunctionOwnerIdV1,
+        std::sync::Arc<
+            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+        >,
+    >,
 }
 /// Closed source premises, not an evaluation, ABI or cleanup capability.
 #[derive(Debug)]
@@ -98,19 +195,51 @@ struct ClosedOriginalCoreSourceV1 {
     i64: Box<[SourceValueSumV1]>,
 }
 impl ClosedOriginalCoreSourceV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn method(&self)
-        -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
-    pub(in crate::mir::normal_callable_semantic_package) fn manifest(&self)
-        -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 { self.request.manifest() }
+    pub(in crate::mir::normal_callable_semantic_package) fn method(
+        &self,
+    ) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> {
+        &self.method
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn manifest(
+        &self,
+    ) -> crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2 {
+        self.request.manifest()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn field_map(&self)
-        -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>> { self.field_map.as_ref() }
+    -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>{
+        self.field_map.as_ref()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn dynamic_i64_operand_contains(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> bool {
+        self.request
+            .i64_ordinals()
+            .iter()
+            .zip(self.i64.iter())
+            .any(|(ordinal, sum)| {
+                sum.tagged_dynamic_only()
+                    && self
+                        .method
+                        .arguments()
+                        .get(*ordinal as usize)
+                        .is_some_and(|argument| {
+                            site.node()
+                                .segments()
+                                .starts_with(argument.site().node().segments())
+                        })
+            })
+    }
     fn matches(&self, other: &Self) -> bool {
         std::sync::Arc::ptr_eq(&self.method, &other.method)
             && std::ptr::eq(self.manifest().row(), other.manifest().row())
             && self.manifest().arity() == other.manifest().arity()
-            && self.text == other.text && self.i64 == other.i64
+            && self.text == other.text
+            && self.i64 == other.i64
             && match (&self.field_map, &other.field_map) {
-                (None, None) => true, (Some(left), Some(right)) => left.matches_source(right), _ => false,
+                (None, None) => true,
+                (Some(left), Some(right)) => left.matches_source(right),
+                _ => false,
             }
     }
 }
@@ -135,8 +264,12 @@ struct Node {
 }
 impl Node {
     fn dependencies(&self) -> impl Iterator<Item = usize> + '_ {
-        self.union.iter().chain(&self.required_i64).chain(&self.required_text)
-            .copied().chain(self.binary.iter().flat_map(|binary| binary.operands))
+        self.union
+            .iter()
+            .chain(&self.required_i64)
+            .chain(&self.required_text)
+            .copied()
+            .chain(self.binary.iter().flat_map(|binary| binary.operands))
     }
 }
 struct Graph<'a> {
@@ -156,7 +289,9 @@ struct Graph<'a> {
 }
 impl Graph<'_> {
     fn point(&mut self, owner: FunctionOwnerIdV1, value: SourceValueRefV1) -> usize {
-        if let Some(node) = self.points.get(&(owner, value)) { return *node; }
+        if let Some(node) = self.points.get(&(owner, value)) {
+            return *node;
+        }
         let id = self.nodes.len();
         self.nodes.push(Node::default());
         self.points.insert((owner, value), id);
@@ -165,11 +300,16 @@ impl Graph<'_> {
             Ok(SourcePointExpansionV1::Entry(binding)) => node.union.push(self.formal(binding)),
             Ok(SourcePointExpansionV1::Join(incoming)) => {
                 node.invalid = incoming.is_empty();
-                for incoming in incoming { node.union.push(self.point(owner, incoming)); }
+                for incoming in incoming {
+                    node.union.push(self.point(owner, incoming));
+                }
             }
             Ok(SourcePointExpansionV1::Seed(seed)) => node.union.push(self.seed(&seed)),
             Ok(SourcePointExpansionV1::Unknown) => node.invalid = true,
-            Err(error) => { self.expansion_error.get_or_insert(error); node.invalid = true; }
+            Err(error) => {
+                self.expansion_error.get_or_insert(error);
+                node.invalid = true;
+            }
         }
         self.nodes[id] = node;
         id
@@ -179,17 +319,25 @@ impl Graph<'_> {
         // Validate every participating incoming Rc before sharing its callee node.
         if let Some(same) = self.static_sources.get(source.call_site()) {
             if !Rc::ptr_eq(same, source) {
-                self.expansion_error.get_or_insert_with(|| freeze("source-sum/caller-owner"));
+                self.expansion_error
+                    .get_or_insert_with(|| freeze("source-sum/caller-owner"));
             }
-            if let Some(&id) = self.returns.get(&source.callee_owner()) { return id; }
+            if let Some(&id) = self.returns.get(&source.callee_owner()) {
+                return id;
+            }
         }
-        let expanded = (self.expand_returns)(source, !self.returns.contains_key(&source.callee_owner()));
-        self.static_sources.insert(source.call_site().clone(), Rc::clone(source));
+        let expanded =
+            (self.expand_returns)(source, !self.returns.contains_key(&source.callee_owner()));
+        self.static_sources
+            .insert(source.call_site().clone(), Rc::clone(source));
         if let Some(&id) = self.returns.get(&source.callee_owner()) {
             match &expanded {
-                Err(error) => { self.expansion_error.get_or_insert(error.clone()); self.nodes[id].invalid = true; }
+                Err(error) => {
+                    self.expansion_error.get_or_insert(error.clone());
+                    self.nodes[id].invalid = true;
+                }
                 Ok(None) => self.nodes[id].invalid = true,
-                _ => {},
+                _ => {}
             }
             return id;
         }
@@ -198,11 +346,21 @@ impl Graph<'_> {
         self.returns.insert(source.callee_owner(), id);
         let mut node = Node::default();
         match expanded {
-            Ok(Some(seeds)) if !seeds.is_empty() && self.flow_owners.contains(&source.callee_owner()) => {
-                self.return_sites.insert(source.callee_owner(), seeds.iter().map(|(site, _)| site.clone()).collect());
-                for (_, seed) in seeds { node.union.push(self.seed(&seed)); }
+            Ok(Some(seeds))
+                if !seeds.is_empty() && self.flow_owners.contains(&source.callee_owner()) =>
+            {
+                self.return_sites.insert(
+                    source.callee_owner(),
+                    seeds.iter().map(|(site, _)| site.clone()).collect(),
+                );
+                for (_, seed) in seeds {
+                    node.union.push(self.seed(&seed));
+                }
             }
-            Err(error) => { self.expansion_error.get_or_insert(error); node.invalid = true; }
+            Err(error) => {
+                self.expansion_error.get_or_insert(error);
+                node.invalid = true;
+            }
             _ => node.invalid = true,
         }
         self.nodes[id] = node;
@@ -225,19 +383,35 @@ impl Graph<'_> {
         self.nodes.push(Node::default());
         match seed {
             OriginalFormalActualSeedV1::PointValue { owner, value, .. } => {
-                if let Some(value) = value { row.union.push(self.point(*owner, *value)); }
-                else { row.invalid = true; }
+                if let Some(value) = value {
+                    row.union.push(self.point(*owner, *value));
+                } else {
+                    row.invalid = true;
+                }
             }
-            OriginalFormalActualSeedV1::Binary { owner, source, lhs, rhs } => {
-                row.binary = Some(SourceBinaryTransferV1 { owner: *owner, source: source.clone(), operands: [self.seed(lhs), self.seed(rhs)] });
+            OriginalFormalActualSeedV1::Binary {
+                owner,
+                source,
+                lhs,
+                rhs,
+            } => {
+                row.binary = Some(SourceBinaryTransferV1 {
+                    owner: *owner,
+                    source: source.clone(),
+                    operands: [self.seed(lhs), self.seed(rhs)],
+                });
             }
             OriginalFormalActualSeedV1::Text => {
                 row.atoms.insert(Value::Text);
             }
             OriginalFormalActualSeedV1::Scalar(kind) => {
                 row.atoms.insert(match kind {
-                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => Value::SignedI64,
-                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => Value::Bool,
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => {
+                        Value::SignedI64
+                    }
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => {
+                        Value::Bool
+                    }
                 });
             }
             OriginalFormalActualSeedV1::SourceInteger | OriginalFormalActualSeedV1::Other => {
@@ -290,32 +464,51 @@ impl Graph<'_> {
                 }
                 if let Some(original) = source.static_source_v1() {
                     row.union.push(self.static_return(original));
-                } else { match source.normal_representation() {
-                    Some(Rep::ExactString) => {
-                        row.atoms.insert(Value::Text);
+                } else {
+                    match source.normal_representation() {
+                        Some(Rep::ExactString) => {
+                            row.atoms.insert(Value::Text);
+                        }
+                        Some(Rep::ExactI64) => {
+                            row.atoms.insert(Value::SignedI64);
+                        }
+                        Some(Rep::ExactBool) => {
+                            row.atoms.insert(Value::Bool);
+                        }
+                        Some(Rep::ExactNominalBox { box_name }) => {
+                            row.atoms.insert(Value::Object(box_name.into()));
+                        }
+                        None => row.invalid = true,
                     }
-                    Some(Rep::ExactI64) => {
-                        row.atoms.insert(Value::SignedI64);
-                    }
-                    Some(Rep::ExactBool) => {
-                        row.atoms.insert(Value::Bool);
-                    }
-                    Some(Rep::ExactNominalBox { box_name }) => {
-                        row.atoms.insert(Value::Object(box_name.into()));
-                    }
-                    None => row.invalid = true,
-                } }
-                let i64: Vec<_> = source.required_i64().iter().map(|seed| self.seed(seed)).collect();
-                let text: Vec<_> = source.required_text().iter().map(|seed| self.seed(seed)).collect();
+                }
+                let i64: Vec<_> = source
+                    .required_i64()
+                    .iter()
+                    .map(|seed| self.seed(seed))
+                    .collect();
+                let text: Vec<_> = source
+                    .required_text()
+                    .iter()
+                    .map(|seed| self.seed(seed))
+                    .collect();
                 if let Some(request) = source.core_operand_request() {
-                    let field_map = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapHas {
+                    let field_map = if request.manifest().row().op
+                        == crate::mir::core_method_op::CoreMethodOp::MapHas
+                    {
                         let proof = (self.map_receiver)(source.method());
                         row.invalid |= proof.is_none();
                         proof
-                    } else { None };
-                    self.core_requests.push(CoreRequestNode { node: id, field_map,
-                        method: std::sync::Arc::clone(source.method()), request,
-                        text: text.clone(), i64: i64.clone() });
+                    } else {
+                        None
+                    };
+                    self.core_requests.push(CoreRequestNode {
+                        node: id,
+                        field_map,
+                        method: std::sync::Arc::clone(source.method()),
+                        request,
+                        text: text.clone(),
+                        i64: i64.clone(),
+                    });
                 }
                 // Catalog result representation stays independent of operand
                 // execution premises; conditional results need those premises.
@@ -328,7 +521,8 @@ impl Graph<'_> {
                 row.invalid = true
             }
         }
-        row.unconditional = row.required_i64.is_empty() && row.required_text.is_empty() && !row.atoms.is_empty();
+        row.unconditional =
+            row.required_i64.is_empty() && row.required_text.is_empty() && !row.atoms.is_empty();
         self.nodes[id] = row;
         id
     }
@@ -349,18 +543,30 @@ pub(super) fn resolve_original_source_sums_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     initializer_roots: &[OriginalFormalActualSeedV1],
-    flows: BTreeMap<FunctionOwnerIdV1, std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
+    flows: BTreeMap<
+        FunctionOwnerIdV1,
+        std::sync::Arc<
+            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+        >,
+    >,
     expand: &mut PointExpander<'_>,
     expand_returns: &mut ReturnExpander<'_>,
     map_receiver: &mut MapReceiverLender<'_>,
 ) -> Result<OriginalSourceSumsV1, String> {
     let mut graph = Graph {
-        points: BTreeMap::new(), expand, expansion_error: None,
+        points: BTreeMap::new(),
+        expand,
+        expansion_error: None,
         nodes: Vec::new(),
         formals: BTreeMap::new(),
         constructors,
-        core_requests: Vec::new(), map_receiver, expand_returns,
-        returns: BTreeMap::new(), static_sources: BTreeMap::new(), return_sites: BTreeMap::new(), flow_owners: flows.keys().copied().collect(),
+        core_requests: Vec::new(),
+        map_receiver,
+        expand_returns,
+        returns: BTreeMap::new(),
+        static_sources: BTreeMap::new(),
+        return_sites: BTreeMap::new(),
+        flow_owners: flows.keys().copied().collect(),
     };
     let mut registered = BTreeSet::new();
     for contract in contracts
@@ -394,29 +600,89 @@ pub(super) fn resolve_original_source_sums_v1(
     source
         .new_calls
         .visit_raw_source_seeds_v1(constructors, |formal, seed| graph.actual(formal, seed));
-    for root in initializer_roots { graph.seed(root); }
-    if let Some(error) = graph.expansion_error.take() { return Err(error); }
+    for root in initializer_roots {
+        graph.seed(root);
+    }
+    if let Some(error) = graph.expansion_error.take() {
+        return Err(error);
+    }
     for (binding, node) in &graph.formals {
-        graph.nodes[*node].invalid |=
-            !registered.contains(binding) || graph.nodes[*node].union.is_empty();
+        let row = &mut graph.nodes[*node];
+        if !registered.contains(binding) {
+            row.invalid = true;
+        } else if row.union.is_empty() && !row.invalid {
+            let untyped = contracts
+                .iter()
+                .filter(|contract| contract.owner == binding.owner())
+                .flat_map(|contract| &contract.parameters)
+                .any(|formal| {
+                    formal.binding == *binding
+                        && formal.kind == CallableParameterContractKindV1::OpaqueHandle
+                });
+            if untyped {
+                row.atoms.insert(SourceValueAlternativeV1::TaggedDynamic);
+                row.unconditional = true;
+            } else {
+                row.invalid = true;
+            }
+        }
     }
     let values = solve(&graph.nodes);
     let mut core_calls: BTreeMap<_, Option<ClosedOriginalCoreSourceV1>> = BTreeMap::new();
     for request in graph.core_requests {
-        let premises_closed = request.text.iter().all(|dependency| values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only))
-            && request.i64.iter().all(|dependency| values[*dependency].as_ref().is_some_and(SourceValueSumV1::signed_only));
-        let closed = values[request.node].as_ref().filter(|_| premises_closed).and_then(|_| {
-            Some(ClosedOriginalCoreSourceV1 {
-                method: std::sync::Arc::clone(&request.method), request: request.request, field_map: request.field_map.clone(),
-                text: request.text.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
-                i64: request.i64.iter().map(|dependency| values[*dependency].clone()).collect::<Option<Vec<_>>>()?.into_boxed_slice(),
+        let dynamic_integer_boundary = request.request.manifest().row().op
+            == crate::mir::core_method_op::CoreMethodOp::StringSubstring;
+        let premises_closed = request.text.iter().all(|dependency| {
+            values[*dependency]
+                .as_ref()
+                .is_some_and(SourceValueSumV1::text_only)
+        }) && request.i64.iter().all(|dependency| {
+            values[*dependency].as_ref().is_some_and(|sum| {
+                sum.signed_only() || (dynamic_integer_boundary && sum.tagged_dynamic_only())
             })
         });
+        let closed = values[request.node]
+            .as_ref()
+            .filter(|_| premises_closed)
+            .and_then(|_| {
+                Some(ClosedOriginalCoreSourceV1 {
+                    method: std::sync::Arc::clone(&request.method),
+                    request: request.request,
+                    field_map: request.field_map.clone(),
+                    text: request
+                        .text
+                        .iter()
+                        .map(|dependency| values[*dependency].clone())
+                        .collect::<Option<Vec<_>>>()?
+                        .into_boxed_slice(),
+                    i64: request
+                        .i64
+                        .iter()
+                        .map(|dependency| values[*dependency].clone())
+                        .collect::<Option<Vec<_>>>()?
+                        .into_boxed_slice(),
+                })
+            });
+        if crate::config::env::builder_debug_enabled() && request.method.selector() == "substring" {
+            let display = |nodes: &[usize]| {
+                nodes
+                    .iter()
+                    .map(|node| values[*node].as_ref().map(|sum| sum.alternatives().clone()))
+                    .collect::<Vec<_>>()
+            };
+            eprintln!("[source-core/substring] owner={:?} site={:?} closed={} text={:?} i64={:?} result={:?}",
+                request.method.owner(), request.method.site(), closed.is_some(), display(&request.text),
+                display(&request.i64), values[request.node].as_ref().map(|sum| sum.alternatives().clone()));
+        }
         let site = OwnedExprSiteV1::new(request.method.owner(), request.method.site().clone());
         match core_calls.entry(site) {
-            std::collections::btree_map::Entry::Vacant(entry) => { entry.insert(closed); }
+            std::collections::btree_map::Entry::Vacant(entry) => {
+                entry.insert(closed);
+            }
             std::collections::btree_map::Entry::Occupied(mut entry) => {
-                if !matches!((entry.get(), &closed), (Some(a), Some(b)) if a.matches(b)) { entry.insert(None); }
+                if !matches!((entry.get(), &closed), (Some(a), Some(b)) if a.matches(b)) {
+                    entry.insert(None);
+                }
             }
         }
     }
@@ -425,13 +691,21 @@ pub(super) fn resolve_original_source_sums_v1(
         static_sources: graph.static_sources,
         return_sites: graph.return_sites,
         flows,
-        points: graph.points.into_iter().filter_map(|(point, node)|
-            values[node].clone().map(|value| (point, Rc::new(value)))).collect(),
-        core_calls: core_calls.into_iter().filter_map(|(site, value)| value.map(|value| (site, Rc::new(value)))).collect(),
+        points: graph
+            .points
+            .into_iter()
+            .filter_map(|(point, node)| values[node].clone().map(|value| (point, Rc::new(value))))
+            .collect(),
+        core_calls: core_calls
+            .into_iter()
+            .filter_map(|(site, value)| value.map(|value| (site, Rc::new(value))))
+            .collect(),
         values: graph
             .formals
             .into_iter()
-            .filter_map(|(binding, node)| values[node].clone().map(|value| (binding, Rc::new(value))))
+            .filter_map(|(binding, node)| {
+                values[node].clone().map(|value| (binding, Rc::new(value)))
+            })
             .collect(),
     })
 }
@@ -443,41 +717,106 @@ use solver::solve;
 impl PreparedBorrowedFormalIngressV1 {
     /// Complete source alternatives on Normal, never entry or execution permission.
     pub(in crate::mir::normal_callable_semantic_package) fn source_value_sum_v1(
-        &self, formal: BindingRefV1,
+        &self,
+        formal: BindingRefV1,
     ) -> Option<&SourceValueSumV1> {
-        self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)
+        self.original_formal_seeds
+            .source_value_sum_v1(&self.source_incoming, formal)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_tagged_dynamic_source_points_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<std::rc::Rc<TaggedDynamicSourcePointsV1>> {
+        let product = &self.original_formal_seeds;
+        product
+            .corroborate_original_v1(&self.source_incoming)
+            .then_some(())?;
+        let sums = product.source_sums.as_ref()?;
+        let flow = std::sync::Arc::clone(sums.flows.get(&owner)?);
+        if flow.owner() != owner || !flow.is_complete() {
+            return None;
+        }
+        let formals: BTreeSet<BindingRefV1> = sums
+            .values
+            .iter()
+            .filter_map(|(binding, sum)| {
+                (binding.owner() == owner && sum.tagged_dynamic_only()).then_some(*binding)
+            })
+            .collect();
+        let points: BTreeSet<SourceValueRefV1> = sums
+            .points
+            .iter()
+            .filter_map(|((point_owner, value), sum)| {
+                (*point_owner == owner && sum.tagged_dynamic_only()).then_some(*value)
+            })
+            .collect();
+        (!formals.is_empty() && !points.is_empty()).then(|| {
+            std::rc::Rc::new(TaggedDynamicSourcePointsV1 {
+                owner,
+                flow,
+                formals,
+                points,
+            })
+        })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn lend_current_scalar_sum_v1(
-        &self, read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1,
+        &self,
+        read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1,
     ) -> Option<Rc<SourceValueSumV1>> {
         let product = &self.original_formal_seeds;
-        let flow = product.source_sums.as_ref()?.flows.get(&read.binding().owner())?;
+        let flow = product
+            .source_sums
+            .as_ref()?
+            .flows
+            .get(&read.binding().owner())?;
         read.point_for_original_flow_v1(flow)?;
-        lend_original_point_sum(product, &self.source_incoming, flow, read.read(), read.binding())
+        lend_original_point_sum(
+            product,
+            &self.source_incoming,
+            flow,
+            read.read(),
+            read.binding(),
+        )
     }
     /// Lend the SAME complete original input census without choosing a protocol.
     /// Known nonfinite alternatives are retained; missing roots remain unselected.
     pub(in crate::mir::normal_callable_semantic_package) fn lend_original_input_sums_v1(
-        &self, parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
+        &self,
+        parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
     ) -> Option<Vec<Rc<SourceValueSumV1>>> {
-        parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
-            .map(|row| self.lend_source_value_sum_v1(row.binding)).collect()
+        parameters
+            .iter()
+            .filter(|row| row.kind.is_ordinary_borrowed_handle())
+            .map(|row| self.lend_source_value_sum_v1(row.binding))
+            .collect()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn lend_source_value_sum_v1(
-        &self, formal: BindingRefV1,
+        &self,
+        formal: BindingRefV1,
     ) -> Option<Rc<SourceValueSumV1>> {
-        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
-        self.original_formal_seeds.source_sums.as_ref()?.values.get(&formal).map(Rc::clone)
+        self.original_formal_seeds
+            .corroborate_original_v1(&self.source_incoming)
+            .then_some(())?;
+        self.original_formal_seeds
+            .source_sums
+            .as_ref()?
+            .values
+            .get(&formal)
+            .map(Rc::clone)
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
-        &self, site: &OwnedExprSiteV1,
+        &self,
+        site: &OwnedExprSiteV1,
     ) -> Option<&Rc<ClosedOriginalCoreSourceV1>> {
-        self.original_formal_seeds.closed_core_source_v1(&self.source_incoming, site)
+        self.original_formal_seeds
+            .closed_core_source_v1(&self.source_incoming, site)
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
         &self, site: &OwnedExprSiteV1,
-    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {
-        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>{
+        self.original_formal_seeds
+            .corroborate_original_v1(&self.source_incoming)
+            .then_some(())?;
         self.original_formal_seeds.ordinary_core.get(site)
     }
 }
@@ -542,16 +881,31 @@ mod tests {
             "unknown siblings survive condensation"
         );
         // P=P.substring(0,1): closed bounds cannot ground receiver Text.
-        let mut nodes = vec![Node { union: vec![1], ..Default::default() }, Node {
-            atoms: BTreeSet::from([Text]), required_text: vec![0], required_i64: vec![2],
-            ..Default::default()
-        }, atom(SignedI64)];
+        let mut nodes = vec![
+            Node {
+                union: vec![1],
+                ..Default::default()
+            },
+            Node {
+                atoms: BTreeSet::from([Text]),
+                required_text: vec![0],
+                required_i64: vec![2],
+                ..Default::default()
+            },
+            atom(SignedI64),
+        ];
         assert!(solve(&nodes)[0].is_none());
         nodes[0].union.push(3);
         nodes.push(atom(Text));
-        assert!(solve(&nodes)[0].as_ref().unwrap().text_only(), "independent Text grounds its recursive cohort");
+        assert!(
+            solve(&nodes)[0].as_ref().unwrap().text_only(),
+            "independent Text grounds its recursive cohort"
+        );
         nodes[3] = atom(Other);
-        assert!(solve(&nodes)[0].is_none(), "mixed receiver is not Text-only");
+        assert!(
+            solve(&nodes)[0].is_none(),
+            "mixed receiver is not Text-only"
+        );
         nodes[3] = atom(Text);
         nodes[2] = atom(Text);
         assert!(solve(&nodes)[0].is_none(), "Text bounds are not signed I64");
@@ -559,63 +913,163 @@ mod tests {
         // ground it; a cyclic operand plus a spare literal may not.
         use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
         let binary = |lhs, rhs, operator| {
-            use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1 as Path, ResolvedBinaryExpressionSourceV1};
+            use crate::mir::resolved_semantics::{
+                FunctionOwnerIssuerV1, ResolvedBinaryExpressionSourceV1, SourceNodeSiteV1,
+                SourcePathSegmentV1 as Path,
+            };
             let site = |roles| SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(roles));
-            Node { binary: Some(SourceBinaryTransferV1 {
-                owner: FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap(),
-                source: ResolvedBinaryExpressionSourceV1::from_parts_for_test(
-                    site(vec![Path::Body(0)]), operator,
-                    site(vec![Path::Body(0), Path::Lhs]), site(vec![Path::Body(0), Path::Rhs])),
-                operands: [lhs, rhs],
-            }), ..Default::default() }
+            Node {
+                binary: Some(SourceBinaryTransferV1 {
+                    owner: FunctionOwnerIssuerV1::new_for_compilation()
+                        .unwrap()
+                        .issue()
+                        .unwrap(),
+                    source: ResolvedBinaryExpressionSourceV1::from_parts_for_test(
+                        site(vec![Path::Body(0)]),
+                        operator,
+                        site(vec![Path::Body(0), Path::Lhs]),
+                        site(vec![Path::Body(0), Path::Rhs]),
+                    ),
+                    operands: [lhs, rhs],
+                }),
+                ..Default::default()
+            }
         };
         let nodes = vec![binary(1, 2, Op::Add), atom(Text), atom(Text)];
         assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
-        let mut nodes = vec![Node { union: vec![1], ..Default::default() }, binary(0, 2, Op::Add), atom(Text)];
-        assert!(solve(&nodes)[0].is_none(), "cyclic concatenation has no initial source value");
+        let mut nodes = vec![
+            Node {
+                union: vec![1],
+                ..Default::default()
+            },
+            binary(0, 2, Op::Add),
+            atom(Text),
+        ];
+        assert!(
+            solve(&nodes)[0].is_none(),
+            "cyclic concatenation has no initial source value"
+        );
         nodes[0].union.push(3);
         nodes.push(atom(Text));
         assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
         nodes[2].atoms.insert(Other);
-        assert!(solve(&nodes)[0].is_none(), "unsupported reachable pair cannot be dropped");
-        // This refusal is multiplication, not the now-proven Text+I64 Add.
+        assert!(
+            solve(&nodes)[0].as_ref().unwrap().text_only(),
+            "String + any returns Text on its normal path"
+        );
+        let unknown_rhs = vec![
+            binary(0, 1, Op::Add),
+            atom(Text),
+            Node {
+                invalid: true,
+                ..Default::default()
+            },
+        ];
+        assert!(
+            solve(&unknown_rhs)[0]
+                .as_ref()
+                .is_some_and(SourceValueSumV1::text_only),
+            "a definite String left operand does not need a closed RHS type domain"
+        );
+        let reverse = vec![binary(1, 2, Op::Add), atom(Other), atom(Text)];
+        assert!(
+            solve(&reverse)[0].is_none(),
+            "the right Text operand does not reverse String + any"
+        );
+        // This refusal is multiplication, not the now-proven String+Dynamic Add.
         nodes[1] = binary(0, 2, Op::Multiply);
         nodes[2] = atom(SignedI64);
         assert!(solve(&nodes)[0].is_none(), "String*Dynamic is not selected");
         nodes[3] = atom(SignedI64);
         assert!(solve(&nodes)[0].as_ref().unwrap().signed_only());
-
     }
 }
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) enum OriginalIntegerBasisV1 {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+enum OriginalIntegerBasisV1 {
     /// Issued only after exact declaration, ordinal and whole-forest stability checks.
-    Declared { binding: BindingRefV1, abi: crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1 },
-    Incoming { binding: BindingRefV1, origin: BindingRefV1, current_i64: bool },
-    IncomingSourceSum { binding: BindingRefV1, origin: BindingRefV1, sum: Rc<SourceValueSumV1> },
-    PointSourceSum { binding: BindingRefV1, site: SourceExprSiteV1,
-        flow: std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
-        sum: Rc<SourceValueSumV1> },
+    Declared {
+        binding: BindingRefV1,
+        abi: crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1,
+    },
+    Incoming {
+        binding: BindingRefV1,
+        origin: BindingRefV1,
+        current_i64: bool,
+    },
+    IncomingSourceSum {
+        binding: BindingRefV1,
+        origin: BindingRefV1,
+        sum: Rc<SourceValueSumV1>,
+    },
+    PointSourceSum {
+        binding: BindingRefV1,
+        site: SourceExprSiteV1,
+        flow: std::sync::Arc<
+            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+        >,
+        sum: Rc<SourceValueSumV1>,
+    },
 }
 impl OriginalIntegerBasisV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn binding(&self) -> BindingRefV1 {
-        match self { Self::Declared { binding, .. } | Self::Incoming { binding, .. } | Self::IncomingSourceSum { binding, .. } | Self::PointSourceSum { binding, .. } => *binding }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn binding(
+        &self,
+    ) -> BindingRefV1 {
+        match self {
+            Self::Declared { binding, .. }
+            | Self::Incoming { binding, .. }
+            | Self::IncomingSourceSum { binding, .. }
+            | Self::PointSourceSum { binding, .. } => *binding,
+        }
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn i64_source(&self) -> bool {
-        match self { Self::Declared { abi, .. } => abi.is_i64(), Self::Incoming { current_i64, .. } => *current_i64,
-            Self::IncomingSourceSum { sum, .. } | Self::PointSourceSum { sum, .. } => sum.signed_only() }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn i64_source(
+        &self,
+    ) -> bool {
+        match self {
+            Self::Declared { abi, .. } => abi.is_i64(),
+            Self::Incoming { current_i64, .. } => *current_i64,
+            Self::IncomingSourceSum { sum, .. } | Self::PointSourceSum { sum, .. } => {
+                sum.signed_only()
+            }
+        }
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ready(&self, source: &PreparedBorrowedFormalIngressV1) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ready(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+    ) -> bool {
         match self {
             Self::Declared { .. } => true,
-            Self::Incoming { origin, current_i64, .. } => source.candidate_integer_agreement(*origin)
-                && (!*current_i64 || source.candidate_i64_source_agreement(*origin)),
-            Self::PointSourceSum { binding, site, flow, sum } => sum.signed_only()
-                && lend_original_point_sum(&source.original_formal_seeds, &source.source_incoming, flow, site, *binding)
-                    .is_some_and(|current| Rc::ptr_eq(sum, &current)),
-            Self::IncomingSourceSum { origin, sum, .. } => sum.signed_only()
-                && source.lend_source_value_sum_v1(*origin).is_some_and(|current| Rc::ptr_eq(sum, &current)),
+            Self::Incoming {
+                origin,
+                current_i64,
+                ..
+            } => {
+                source.candidate_integer_agreement(*origin)
+                    && (!*current_i64 || source.candidate_i64_source_agreement(*origin))
+            }
+            Self::PointSourceSum {
+                binding,
+                site,
+                flow,
+                sum,
+            } => {
+                sum.signed_only()
+                    && lend_original_point_sum(
+                        &source.original_formal_seeds,
+                        &source.source_incoming,
+                        flow,
+                        site,
+                        *binding,
+                    )
+                    .is_some_and(|current| Rc::ptr_eq(sum, &current))
+            }
+            Self::IncomingSourceSum { origin, sum, .. } => {
+                sum.signed_only()
+                    && source
+                        .lend_source_value_sum_v1(*origin)
+                        .is_some_and(|current| Rc::ptr_eq(sum, &current))
+            }
         }
     }
 }
@@ -630,49 +1084,95 @@ impl OriginalBorrowedFormalSourceV1 {
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
     ) -> Option<OriginalIntegerBasisV1> {
-        if !self.seeds.new_calls.current_provider_sources_match(constructors) { return None; }
+        if !self
+            .seeds
+            .new_calls
+            .current_provider_sources_match(constructors)
+        {
+            return None;
+        }
         let binding = arg_site_binding(input, site)?;
         if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-            let abi = contracts.iter().find(|row| row.owner == input.owner())?.parameters.iter()
-                .find(|row| row.binding == binding).and_then(|row| match row.kind {
-                    CallableParameterContractKindV1::ExactTrivial(abi) => Some(abi), _ => None,
+            let abi = contracts
+                .iter()
+                .find(|row| row.owner == input.owner())?
+                .parameters
+                .iter()
+                .find(|row| row.binding == binding)
+                .and_then(|row| match row.kind {
+                    CallableParameterContractKindV1::ExactTrivial(abi) => Some(abi),
+                    _ => None,
                 })?;
             return Some(OriginalIntegerBasisV1::Declared { binding, abi });
         }
-        let origin = definitions.get(&input.owner()).and_then(|draft| draft.origins.get(&binding)).copied()
+        let origin = definitions
+            .get(&input.owner())
+            .and_then(|draft| draft.origins.get(&binding))
+            .copied()
             .or_else(|| new_seeds::stable_constructor_formal_v1(input, site, constructors));
         let Some(origin) = origin else {
-            if !super::super::actual_seed::uncaptured_source_binding_v1(input, binding) { return None; }
+            if !super::super::actual_seed::uncaptured_source_binding_v1(input, binding) {
+                return None;
+            }
             let flow = input.function().expression_source().value_flow()?;
             let sum = lend_original_point_sum(&self.seeds, &self.inventory, flow, site, binding)?;
-            return sum.signed_only().then(|| OriginalIntegerBasisV1::PointSourceSum {
-                binding, site: site.clone(), flow: std::sync::Arc::clone(flow), sum,
-            });
+            return sum
+                .signed_only()
+                .then(|| OriginalIntegerBasisV1::PointSourceSum {
+                    binding,
+                    site: site.clone(),
+                    flow: std::sync::Arc::clone(flow),
+                    sum,
+                });
         };
-        if self.seeds.candidate_integer_agreement_v1(&self.inventory, origin) {
-            return Some(OriginalIntegerBasisV1::Incoming { binding, origin,
-                current_i64: self.seeds.candidate_i64_source_agreement_v1(&self.inventory, origin) });
+        if self
+            .seeds
+            .candidate_integer_agreement_v1(&self.inventory, origin)
+        {
+            return Some(OriginalIntegerBasisV1::Incoming {
+                binding,
+                origin,
+                current_i64: self
+                    .seeds
+                    .candidate_i64_source_agreement_v1(&self.inventory, origin),
+            });
         }
         // Borrow complete source alternatives, without changing the legacy
         // transport projection or granting an executable entry to this use.
-        self.seeds.corroborate_original_v1(&self.inventory).then_some(())?;
+        self.seeds
+            .corroborate_original_v1(&self.inventory)
+            .then_some(())?;
         let sum = self.seeds.source_sums.as_ref()?.values.get(&origin)?;
-        sum.signed_only().then(|| OriginalIntegerBasisV1::IncomingSourceSum {
-            binding, origin, sum: Rc::clone(sum),
-        })
+        sum.signed_only()
+            .then(|| OriginalIntegerBasisV1::IncomingSourceSum {
+                binding,
+                origin,
+                sum: Rc::clone(sum),
+            })
     }
 }
 
 /// One source-only lender for original field bases and current scalar reads.
 /// The original flow/read and incoming census stay bound to the SAME solver.
-fn lend_original_point_sum(product: &OriginalFormalSeedProductV1, inventory: &BorrowedIncomingInventoryV1,
-    flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
-    site: &SourceExprSiteV1, binding: BindingRefV1,
+fn lend_original_point_sum(
+    product: &OriginalFormalSeedProductV1,
+    inventory: &BorrowedIncomingInventoryV1,
+    flow: &std::sync::Arc<
+        crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+    >,
+    site: &SourceExprSiteV1,
+    binding: BindingRefV1,
 ) -> Option<Rc<SourceValueSumV1>> {
     product.corroborate_original_v1(inventory).then_some(())?;
     let sums = product.source_sums.as_ref()?;
     let owner = binding.owner();
-    if flow.owner() != owner || !flow.is_complete()
-        || !std::sync::Arc::ptr_eq(flow, sums.flows.get(&owner)?) { return None; }
-    sums.points.get(&(owner, flow.read(site, binding)?)).map(Rc::clone)
+    if flow.owner() != owner
+        || !flow.is_complete()
+        || !std::sync::Arc::ptr_eq(flow, sums.flows.get(&owner)?)
+    {
+        return None;
+    }
+    sums.points
+        .get(&(owner, flow.read(site, binding)?))
+        .map(Rc::clone)
 }

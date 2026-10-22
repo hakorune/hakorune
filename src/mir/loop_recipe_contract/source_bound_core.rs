@@ -536,6 +536,12 @@ fn verify_branch_continuations(
             let LoopJoinBranchArmV1::Fallthrough { continuation, .. } = arm else {
                 continue;
             };
+            let Some(continuation) = continuation else {
+                if parent_block.items.last().copied() != Some(branch.if_item) {
+                    return false;
+                }
+                continue;
+            };
             if continuation.block != parent_block.key
                 || !seen_targets.insert((continuation.block, continuation.item))
             {

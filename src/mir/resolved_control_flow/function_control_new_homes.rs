@@ -35,6 +35,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         selected,
         std::iter::empty(),
         None,
+        None,
         field_is_integer,
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
@@ -91,6 +92,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         ),
     >,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
+    dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
     field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -228,6 +230,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             selected,
             parameters,
             entry_home,
+            dynamic_source_points,
             completion.explicit_sites(),
             completion.implicit_body_end().is_some(),
             result_sites,

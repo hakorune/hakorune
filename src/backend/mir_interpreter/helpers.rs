@@ -363,7 +363,16 @@ impl MirInterpreter {
                     "unsupported binop Add on String and Void".to_string(),
                 ))
             }
-            (Add, String(s), other) => String(format!("{}{}", s, other.to_string())),
+            (Add, String(s), other) => {
+                let right = other.display_for_string_add().map_err(|error| {
+                    let detail = match error {
+                        crate::runtime::semantics::StringAddDisplayError::Null => "Null",
+                        crate::runtime::semantics::StringAddDisplayError::Void => "Void",
+                    };
+                    VMError::TypeError(format!("unsupported binop Add on String and {detail}"))
+                })?;
+                String(format!("{}{}", s, right))
+            }
             (Add, other, String(s)) => String(format!("{}{}", other.to_string(), s)),
             (Sub, Integer(x), Integer(y)) => Integer(x - y),
             (Mul, Integer(x), Integer(y)) => Integer(x * y),

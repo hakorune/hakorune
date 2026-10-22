@@ -112,6 +112,11 @@ Text (UTF‑8/CP): implemented by `StringBox` delegating to `Utf8CursorBox`.
 - `lastIndexOf(substr, from=length()) -> i64` — last CP index at or before `from`, or `-1`.
 - Optional helpers: `startsWith/endsWith/replace/split/trim` as sugar.
 
+`String.substring(start, end)` requires each index to have the runtime Integer
+tag. An unannotated/dynamic index is checked at the call boundary; other tags
+produce TypeError without coercion or a result. Bounds clamping applies only
+after both index values pass this type check.
+
 Bytes: handled by `ByteCursorBox`.
 - `len_bytes() -> i64`
 - `slice_bytes(i,j) -> ByteCursorBox`

@@ -13,20 +13,30 @@ pub(crate) enum SelectedNewArgumentKindV1 {
     /// The exact source `null` literal — a sealed literal fact, distinct
     /// from `Void`, integer zero, or an absent expression.
     Null,
-    Local { binding: BindingRefV1 },
-    Handle { binding: BindingRefV1 },
+    Local {
+        binding: BindingRefV1,
+    },
+    Handle {
+        binding: BindingRefV1,
+    },
     /// A binding produced by an inventoried call expression. The row
     /// carries provenance only; class/materialization decisions stay
     /// downstream.
-    BoundValue { binding: BindingRefV1 },
+    BoundValue {
+        binding: BindingRefV1,
+    },
     /// An exact `receiver.field` read the issuer proved `i64` on the
     /// receiver's own source definition. The binding is the receiver
     /// expression's lexical binding; the canonical field identity stays
     /// in the issuer's staged read row — this kind keeps provenance only.
-    I64Field { object: BindingRefV1 },
+    I64Field {
+        object: BindingRefV1,
+    },
     /// Qualified source expression. No scalar/object or physical Birth lane
     /// follows from this loan. The selected New owns its exact purpose.
-    Expression { evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1> },
+    Expression {
+        evaluation: std::rc::Rc<super::CheckedExpressionEvaluationV1>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -38,10 +48,13 @@ pub(crate) struct SelectedNewArgumentV1 {
 
 impl PartialEq for SelectedNewArgumentV1 {
     fn eq(&self, other: &Self) -> bool {
-        self.ordinal == other.ordinal && self.site == other.site
+        self.ordinal == other.ordinal
+            && self.site == other.site
             && match (&self.kind, &other.kind) {
-                (SelectedNewArgumentKindV1::Expression { evaluation: a }, SelectedNewArgumentKindV1::Expression { evaluation: b }) =>
-                    std::rc::Rc::ptr_eq(a, b),
+                (
+                    SelectedNewArgumentKindV1::Expression { evaluation: a },
+                    SelectedNewArgumentKindV1::Expression { evaluation: b },
+                ) => std::rc::Rc::ptr_eq(a, b),
                 _ => self.kind == other.kind,
             }
     }

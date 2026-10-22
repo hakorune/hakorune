@@ -62,6 +62,8 @@ impl CallableSemanticLoweringState {
             }
         }
         .map_err(|error| error.to_string())?;
+        let dynamic_entry_formals = Some(dynamic_origins.source().formals().iter()
+            .map(|row| (row.parameter_ordinal(), row.binding())).collect::<Vec<_>>().into_boxed_slice());
         let forest = input.forest();
         let [root] = forest.roots() else {
             return Err(freeze("root-cardinality"));
@@ -76,6 +78,10 @@ impl CallableSemanticLoweringState {
         .map_err(|error| format!("[freeze:contract][callable-brand-projection] {error:?}"))?;
         if dynamic_origins.owner() != owner_id {
             return Err(freeze("dynamic-origin-owner"));
+        }
+        if dynamic_entry_formals.as_ref().is_some_and(|rows| rows.iter().enumerate().any(|(index, (ordinal, binding))|
+            *ordinal as usize != index || binding.owner() != owner_id)) {
+            return Err(freeze("dynamic-entry/formal-layout"));
         }
         let mut receiver = None;
         let mut parameters = BTreeMap::new();
@@ -207,6 +213,7 @@ impl CallableSemanticLoweringState {
             direct_lambda_captures,
             values: MaterializedValuesV1::default(),
             dynamic_origins,
+            dynamic_entry_formals,
             construction: construction::ConstructionState::NotConstruction,
             fault_frame: Some(
                 crate::mir::builder::function_fault_frame::FunctionFaultFrameV1::borrowed(),

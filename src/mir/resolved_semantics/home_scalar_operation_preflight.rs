@@ -1,6 +1,6 @@
 //! Same-owner scalar operator/operand preflight; parent publishes whole-expression results.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::expression_source::{
     expression_source_v1, ResolvedExpressionSourceV1,
 };
@@ -129,9 +129,17 @@ pub(super) fn preflight<E>(
     };
     let mark = requests.len();
     let call_mark = calls.len();
-    let checked_children =
-        matches!(row.operator(), Op::Add | Op::Equal | Op::NotEqual | Op::Less
-            | Op::Greater | Op::LessEqual | Op::GreaterEqual).then_some(row.site());
+    let checked_children = matches!(
+        row.operator(),
+        Op::Add
+            | Op::Equal
+            | Op::NotEqual
+            | Op::Less
+            | Op::Greater
+            | Op::LessEqual
+            | Op::GreaterEqual
+    )
+    .then_some(row.site());
     let Some(lhs) = preflight(
         &mut None,
         input,
@@ -197,7 +205,10 @@ pub(super) fn preflight<E>(
     if lhs != operand || rhs != operand {
         return Ok(None);
     }
-    if local_initializer_profile && is_root && matches!(row.operator(), Op::Subtract | Op::Divide | Op::Modulo) {
+    if local_initializer_profile
+        && is_root
+        && matches!(row.operator(), Op::Subtract | Op::Divide | Op::Modulo)
+    {
         let mut initializers = input
             .function()
             .expression_source()
@@ -222,9 +233,13 @@ pub(super) fn preflight<E>(
         } else {
             None
         };
-        let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
-            ledger, input.body_shape(), initializer,
-        ) else {
+        let Ok(source) =
+            crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+                ledger,
+                input.body_shape(),
+                initializer,
+            )
+        else {
             return Ok(None);
         };
         let Some(plan) = HomeExpressionPlanV1::scalar_root(source, row, positive_divisor) else {

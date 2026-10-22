@@ -1,8 +1,8 @@
 //! Source execution/lifecycle obligations of the SAME checked Loop tree.
 //! These are analysis templates, never runtime acquisitions or physical grants.
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
-use super::source_loop_v2::{reject, Summary, Body, Statement, Evaluation, Source};
-use std::{rc::Rc, collections::BTreeSet};
+use super::source_loop_v2::{reject, Summary, Body, Statement, Evaluation, Source, SourceProducer, TextProducer};
+use std::{rc::Rc, collections::{BTreeMap, BTreeSet}};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1,
     CoreMethodHomeParameterRelationV1 as Parameter, CoreMethodHomeResultRelationV1 as ResultKind};
@@ -15,23 +15,48 @@ pub(crate) struct SourceLoopFaultV2 {
     pub(crate) continuation: crate::mir::resolved_control_flow::LoopExpressionFaultContinuationV1,
     /// Only acquisitions whose Normal already occurred before this operation.
     pub(crate) prior_acquisitions: Box<[usize]>,
+    /// Text carrier state at this Fault point. A failed RHS keeps the old
+    /// Header/Residence; it never publishes the not-yet-created result.
+    pub(crate) text_carriers: Box<[SourceLoopTextCarrierStateV2]>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SourceLoopTextCarrierStateV2 {
+    pub(crate) basis: Rc<crate::mir::resolved_semantics::home_new_prefix::LoopHeaderValueBasisV1>,
+    pub(crate) producer: TextProducer,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SourceLoopTextOldResidenceV2 {
+    ConditionalHeader,
+    OwnedResidence,
+}
+#[derive(Debug)]
+pub(crate) struct SourceLoopTextCarrierTransitionV2 {
+    pub(crate) basis: Rc<crate::mir::resolved_semantics::home_new_prefix::LoopHeaderValueBasisV1>,
+    pub(crate) evaluation: Rc<Source>,
+    pub(crate) before: TextProducer,
+    pub(crate) after: crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
+    pub(crate) old_residence: SourceLoopTextOldResidenceV2,
 }
 #[derive(Debug)]
 pub(crate) struct SourceLoopEvaluationLifecycleV2 {
     pub(crate) source: Rc<Source>,
     pub(crate) normal_temporary_ends: Box<[usize]>,
     pub(crate) faults: Box<[SourceLoopFaultV2]>,
+    pub(crate) text_carrier_transition: Option<SourceLoopTextCarrierTransitionV2>,
 }
 fn fault(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, frame: &Evaluation,
     node: usize, prior_acquisitions: &[usize],
+    text_carriers: &BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
 ) -> Result<SourceLoopFaultV2, String> {
     let site = OwnedExprSiteV1::new(input.owner(), frame.source().nodes()[node].site().clone());
     let continuation = crate::mir::resolved_control_flow::issue_loop_expression_fault_continuation_v1(
         input, source.source.site(), source.source.frame(), &site).map_err(reject)?;
-    Ok(SourceLoopFaultV2 { node, continuation, prior_acquisitions: prior_acquisitions.to_vec().into_boxed_slice() })
+    Ok(SourceLoopFaultV2 { node, continuation, prior_acquisitions: prior_acquisitions.to_vec().into_boxed_slice(),
+        text_carriers: text_carriers.values().cloned().collect() })
 }
 fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, frame: &Evaluation,
     homes: &[LiveHomeV1], retain_root: bool,
+    text_carriers: &BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
 ) -> Result<SourceLoopEvaluationLifecycleV2, String> {
     if frame.prior_homes() != homes { return Err(reject("execution-prior-homes")); }
     let mut acquisitions = Vec::new();
@@ -39,6 +64,8 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
     let mut cores = 0;
     let mut text_comparisons = 0;
     let mut comparison_cores = 0;
+    let mut owned_string_operations = 0;
+    let mut dynamic_operator_faults = 0;
     let mut normal_temporary_ends = Vec::new();
     for &node in frame.ordered_nodes() {
         if let Some(core) = frame.cores().get(&node) {
@@ -52,11 +79,13 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             if leaf(original.receiver_site()) != Some(Leaf::Value(Class::String))
                 || target.parameters().len() != original.arguments().len()
                 || target.parameters().iter().zip(original.arguments()).any(|(parameter, argument)| {
-                    leaf(argument.site()) != Some(Leaf::Value(match parameter {
+                    let expected = match parameter {
+                        Parameter::I64Parameter if core.dynamic_i64_operand_contains(argument.site()) => Class::Dynamic,
                         Parameter::I64Parameter => Class::I64,
                         Parameter::TextParameter => Class::String,
                         Parameter::TextRetainedByReceiver => return true,
-                    }))
+                    };
+                    leaf(argument.site()) != Some(Leaf::Value(expected))
                 }) {
                 return Err(reject("execution-core-operands"));
             }
@@ -69,12 +98,48 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
                 || core.owns_result() != frame.owned_result_nodes().contains(&node) {
                 return Err(reject("execution-core-ownership"));
             }
-            faults.push(fault(input, source, frame, node, &acquisitions)?);
+            faults.push(fault(input, source, frame, node, &acquisitions, text_carriers)?);
             cores += 1;
         } else if frame.operations().iter().any(|loan| loan.node() == node
             && loan.single_envelope().is_some_and(|envelope| {
-                use crate::mir::dynamic_operator_contract::DynamicOperatorValueClassV1 as Value;
-                envelope.domain().left() == Value::String && envelope.domain().right() == Value::String
+                use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+                    DynamicOperatorNormalResultV1 as ResultKind,
+                    DynamicOperatorValueClassV1 as Value};
+                let domain = envelope.domain();
+                domain.left() == Value::Dynamic && domain.right() == Value::I64
+                    && matches!((domain.family(), envelope.normal_result()),
+                        (Family::Add, ResultKind::SelfContainedNonAliasingDynamicCarrier)
+                            | (Family::Less, ResultKind::TrivialBool))
+            })) {
+            use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+                DynamicOperatorNormalResultV1 as ResultKind,
+                DynamicOperatorValueClassV1 as Value};
+            let loan = frame.operations().iter().find(|loan| loan.node() == node)
+                .ok_or_else(|| reject("execution-dynamic-operation-loan"))?;
+            let envelope = loan.single_envelope().ok_or_else(|| reject("execution-dynamic-operation-envelope"))?;
+            let domain = envelope.domain();
+            let valid = match (domain.family(), envelope.normal_result()) {
+                (Family::Add, ResultKind::SelfContainedNonAliasingDynamicCarrier) => {
+                    frame.class(node) == Some(Leaf::Value(Class::Dynamic))
+                        && !frame.owned_result_nodes().contains(&node)
+                }
+                (Family::Less, ResultKind::TrivialBool) => {
+                    frame.class(node) == Some(Leaf::Value(Class::Bool))
+                        && !frame.owned_result_nodes().contains(&node)
+                }
+                _ => false,
+            };
+            if !valid || domain.left() != Value::Dynamic || domain.right() != Value::I64 {
+                return Err(reject("execution-dynamic-operation-domain"));
+            }
+            faults.push(fault(input, source, frame, node, &acquisitions, text_carriers)?);
+            dynamic_operator_faults += 1;
+        } else if frame.operations().iter().any(|loan| loan.node() == node
+            && loan.single_envelope().is_some_and(|envelope| {
+                use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+                    DynamicOperatorValueClassV1 as Value};
+                envelope.domain().family() != Family::Add
+                    && envelope.domain().left() == Value::String && envelope.domain().right() == Value::String
             })) {
             // The same closed Bool source projector already seals exact family,
             // domain and conditional reach. Its comparisons acquire no owner.
@@ -85,45 +150,164 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             let expected: Vec<_> = inputs.iter().copied().filter(|node| frame.owned_result_nodes().contains(node)).collect();
             if acquisitions != expected { return Err(reject("execution-operation-census")); }
             comparison_cores += inputs.iter().filter(|node| frame.cores().contains_key(node)).count();
-            faults.push(fault(input, source, frame, node, &acquisitions)?);
+            faults.push(fault(input, source, frame, node, &acquisitions, text_carriers)?);
             // Each comparison closes before the logical merge. Its acquired
             // prefix must never enter a later or skipped RHS Fault scope.
             normal_temporary_ends.extend(acquisitions.drain(..).rev());
             text_comparisons += 1;
+        } else if frame.operations().iter().any(|loan| loan.node() == node
+            && loan.normal_result_v1() == Some(crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue)) {
+            if frame.class(node) != Some(Leaf::Value(Class::String)) || !frame.owned_result_nodes().contains(&node) {
+                return Err(reject("execution-operation-ownership"));
+            }
+            // Dynamic String Add can Fault before an owned result exists. Its
+            // same original operation loan owns both the Fault boundary and
+            // the Normal acquisition; no call/core source is synthesized.
+            faults.push(fault(input, source, frame, node, &acquisitions, text_carriers)?);
+            owned_string_operations += 1;
         }
         if frame.owned_result_nodes().contains(&node) {
-            if !frame.cores().get(&node).is_some_and(|core| core.owns_result()) { return Err(reject("execution-acquisition-family")); }
+            let core_owns = frame.cores().get(&node).is_some_and(|core| core.owns_result());
+            let operation_owns = frame.operations().iter().any(|loan| loan.node() == node
+                && loan.normal_result_v1() == Some(crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue));
+            if core_owns == operation_owns { return Err(reject("execution-acquisition-family")); }
             acquisitions.push(node);
         }
     }
-    if cores != frame.cores().len() || (text_comparisons != 0 && (comparison_cores != cores || !acquisitions.is_empty())) {
+    let expected_dynamic_faults = frame.operations().iter().filter(|loan| loan.single_envelope().is_some_and(|envelope| {
+        use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+            DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorValueClassV1 as Value};
+        let domain = envelope.domain();
+        domain.left() == Value::Dynamic && domain.right() == Value::I64
+            && matches!((domain.family(), envelope.normal_result()),
+                (Family::Add, ResultKind::SelfContainedNonAliasingDynamicCarrier)
+                    | (Family::Less, ResultKind::TrivialBool))
+    })).count();
+    if cores != frame.cores().len() || dynamic_operator_faults != expected_dynamic_faults
+        || owned_string_operations != frame.operations().iter()
+        .filter(|loan| loan.normal_result_v1() == Some(crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue)).count()
+        || (text_comparisons != 0 && (comparison_cores != cores || !acquisitions.is_empty())) {
         return Err(reject("execution-operation-census"));
     }
     normal_temporary_ends.extend(acquisitions.into_iter().rev().filter(|node| !(retain_root && *node == 0)));
     Ok(SourceLoopEvaluationLifecycleV2 { source: Rc::clone(frame.source()),
-        normal_temporary_ends: normal_temporary_ends.into_boxed_slice(), faults: faults.into_boxed_slice() })
+        normal_temporary_ends: normal_temporary_ends.into_boxed_slice(), faults: faults.into_boxed_slice(),
+        text_carrier_transition: None })
 }
 fn normal_port(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary,
     port: usize, homes: &[LiveHomeV1],
+    text_carriers: &BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
 ) -> Result<(), String> {
     let port = source.ports.get(port).ok_or_else(|| reject("execution-normal-port"))?;
     if port.homes() != homes { return Err(reject("execution-port-homes")); }
     let mut unique = BTreeSet::new();
     let mut ends = Vec::new();
+    let text_bindings: BTreeSet<_> = source.headers.iter().filter_map(|(binding, basis)|
+        (basis.entry_producer().class() == Class::String).then_some(*binding)).collect();
+    if text_carriers.keys().copied().collect::<BTreeSet<_>>() != text_bindings {
+        return Err(reject("execution-text-carrier-census"));
+    }
     for home in homes.iter().rev() {
         let binding = input.function().binding(home.binding()).ok_or_else(|| reject("execution-home-binding"))?;
         if !unique.insert(home.binding()) { return Err(reject("execution-home-duplicate")); }
-        if port.crossed_scopes().contains(&binding.owner_scope()) { ends.push(home.clone()); }
+        if !text_bindings.contains(&home.binding()) && port.crossed_scopes().contains(&binding.owner_scope()) {
+            ends.push(home.clone());
+        }
     }
-    let retained: Vec<_> = homes.iter().cloned().filter(|home| !ends.contains(home)).collect();
-    if ends.as_slice() != port.normal_ends() || retained != source.condition.prior_homes() {
+    let retained: Vec<_> = homes.iter().cloned().filter(|home|
+        !text_bindings.contains(&home.binding()) && !ends.contains(home)).collect();
+    let prior: Vec<_> = source.condition.prior_homes().iter().filter(|home| !text_bindings.contains(&home.binding())).cloned().collect();
+    if ends.as_slice() != port.normal_ends().iter().filter(|home| !text_bindings.contains(&home.binding())).cloned().collect::<Vec<_>>().as_slice()
+        || retained != prior {
         return Err(reject("execution-normal-home-closure"));
+    }
+    verify_text_carrier_port(input, source, &port.kind, text_carriers, homes)?;
+    Ok(())
+}
+
+fn verify_text_carrier_port(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary,
+    port: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopPortKindV1,
+    text_carriers: &BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
+    homes: &[LiveHomeV1],
+) -> Result<(), String> {
+    use crate::mir::resolved_semantics::home_new_prefix::SourceLoopPortKindV1 as Port;
+    use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
+    let (edge, after) = match port {
+        Port::Backedge => (Edge::Backedge, false),
+        Port::Break(site) => (Edge::Break(site.clone()), true),
+        Port::Continue(site) => (Edge::Continue(site.clone()), false),
+    };
+    let incoming = source.incoming.as_ref().map_err(|reason| reject(reason))?;
+    for (binding, state) in text_carriers {
+        let mut rows = incoming.iter().filter(|row| row.basis.binding() == *binding
+            && Rc::ptr_eq(&row.basis, &state.basis)).flat_map(|row| {
+                if after { row.after_incoming.iter() } else { row.header_incoming.iter() }
+            }).filter(|row| row.edge == edge);
+        let row = rows.next().ok_or_else(|| reject("execution-text-edge-missing"))?;
+        if rows.next().is_some() { return Err(reject("execution-text-edge-duplicate")); }
+        let SourceProducer::Text(expected) = &row.producer else { return Err(reject("execution-text-edge-class")); };
+        let matches = state.producer == *expected || matches!(&state.producer,
+            TextProducer::Header(basis) if Rc::ptr_eq(basis, &state.basis)
+                && state.basis.entry_producer() == &SourceProducer::Text(expected.clone()));
+        if !matches { return Err(reject("execution-text-edge-producer")); }
+        let carrier_homes: Vec<_> = homes.iter().filter(|home| home.binding() == *binding).collect();
+        match &state.producer {
+            TextProducer::Residence(acquisition) => {
+                let entry = match state.basis.entry_producer() {
+                    SourceProducer::Text(TextProducer::Residence(entry)) => Some(entry),
+                    _ => None,
+                };
+                if entry.is_some_and(|entry| acquisition.same_source(&entry)) {
+                    if carrier_homes.len() != 1 || *carrier_homes[0] != LiveHomeV1::Text(acquisition.clone()) {
+                        return Err(reject("execution-text-entry-home"));
+                    }
+                } else if !carrier_homes.is_empty() {
+                    return Err(reject("execution-text-transferred-home"));
+                }
+            }
+            TextProducer::Header(_) => match state.basis.entry_producer() {
+                SourceProducer::Text(TextProducer::Residence(entry)) => {
+                    if carrier_homes.len() != 1 || *carrier_homes[0] != LiveHomeV1::Text(entry.clone()) {
+                        return Err(reject("execution-text-header-home"));
+                    }
+                }
+                SourceProducer::Text(TextProducer::Static { .. }) if carrier_homes.is_empty() => {},
+                SourceProducer::Text(entry @ TextProducer::After { .. })
+                    if carrier_homes.is_empty()
+                        && text_after_entry_matches(input, *binding, state.basis.entry(), entry) => {},
+                _ => return Err(reject("execution-text-header-entry")),
+            },
+            TextProducer::After { .. } => return Err(reject("execution-text-after-active")),
+            TextProducer::Static { .. } if carrier_homes.is_empty() => {},
+            TextProducer::Static { .. } => return Err(reject("execution-text-static-home")),
+        }
     }
     Ok(())
 }
+
+fn text_after_entry_matches(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    binding: crate::mir::resolved_semantics::BindingRefV1,
+    value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+    producer: &TextProducer,
+) -> bool {
+    use crate::mir::resolved_semantics::source_value_flow::SourceValueJoinKindV1 as Join;
+    let TextProducer::After { product, binding: source_binding } = producer else { return false; };
+    if *source_binding != binding || product.source.source.owner() != input.owner() { return false; }
+    let Some(basis) = product.source.headers.get(&binding) else { return false; };
+    if basis.entry_producer().class() != Class::String { return false; }
+    let Some(flow) = input.function().expression_source().value_flow() else { return false; };
+    let Some((after, _)) = flow.loop_join(product.source.source.site(), binding, Join::LoopAfter) else { return false; };
+    if after != value { return false; }
+    let Ok(incoming) = &product.source.incoming else { return false; };
+    let mut rows = incoming.iter().filter(|row| row.after == after
+        && row.basis.binding() == binding && Rc::ptr_eq(&row.basis, basis));
+    rows.next().is_some() && rows.next().is_none()
+}
 fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Body,
-    mut homes: Vec<LiveHomeV1>, output: &mut Vec<SourceLoopEvaluationLifecycleV2>,
-) -> Result<Option<Vec<LiveHomeV1>>, String> {
+    mut homes: Vec<LiveHomeV1>, mut text_carriers: BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
+    output: &mut Vec<SourceLoopEvaluationLifecycleV2>,
+) -> Result<Option<(Vec<LiveHomeV1>, BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>)>, String> {
     for statement in tree.statements.iter() {
         match statement {
             Statement::Return(source) => {
@@ -153,49 +337,79 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
             }
             Statement::Expression { frame, .. } => {
                 if let Some(initializer) = frame.initializer_frame() {
-                    output.push(evaluation(input, source, initializer.evaluation(), &homes, initializer.owns_root())?);
+                    output.push(evaluation(input, source, initializer.evaluation(), &homes, initializer.owns_root(), &text_carriers)?);
                     if initializer.owns_root() {
                         if homes.iter().any(|home| home.binding() == initializer.binding()) { return Err(reject("execution-home-reacquisition")); }
                         homes.push(LiveHomeV1::Text(initializer.text_acquisition_v1()));
                     }
                 } else if let Some(rebind) = frame.rebind_frame() {
-                    output.push(evaluation(input, source, rebind.evaluation(), &homes, rebind.is_text_residence())?);
+                    let mut lifecycle = evaluation(input, source, rebind.evaluation(), &homes,
+                        rebind.is_text_residence(), &text_carriers)?;
                     if rebind.is_text_residence() {
                         homes.retain(|home| home.binding() != rebind.target());
-                        homes.push(LiveHomeV1::Text(rebind.text_acquisition_v1()));
+                        if let Some(basis) = rebind.text_loop_carrier_v1() {
+                            let state = text_carriers.get_mut(&rebind.target())
+                                .filter(|state| Rc::ptr_eq(&state.basis, basis))
+                                .ok_or_else(|| reject("execution-text-rebind-basis"))?;
+                            let old_residence = match &state.producer {
+                                TextProducer::Header(actual) if Rc::ptr_eq(actual, basis) => SourceLoopTextOldResidenceV2::ConditionalHeader,
+                                TextProducer::Residence(_) => SourceLoopTextOldResidenceV2::OwnedResidence,
+                                _ => return Err(reject("execution-text-rebind-prior")),
+                            };
+                            let acquisition = rebind.text_acquisition_v1();
+                            lifecycle.text_carrier_transition = Some(SourceLoopTextCarrierTransitionV2 {
+                                basis: Rc::clone(basis), evaluation: Rc::clone(rebind.source()),
+                                before: state.producer.clone(), after: acquisition.clone(), old_residence,
+                            });
+                            state.producer = TextProducer::Residence(acquisition);
+                        } else {
+                            homes.push(LiveHomeV1::Text(rebind.text_acquisition_v1()));
+                        }
                     }
+                    output.push(lifecycle);
                 } else { return Err(reject("execution-root-purpose")); }
             }
             Statement::If { condition, then_body, else_body, .. } => {
-                output.push(evaluation(input, source, condition.evaluation(), &homes, false)?);
-                let then_homes = body(input, source, then_body, homes.clone(), output)?;
+                output.push(evaluation(input, source, condition.evaluation(), &homes, false, &text_carriers)?);
+                let then_homes = body(input, source, then_body, homes.clone(), text_carriers.clone(), output)?;
                 let else_homes = match else_body {
-                    Some(branch) => body(input, source, branch, homes.clone(), output)?,
-                    None => Some(homes.clone()),
+                    Some(branch) => body(input, source, branch, homes.clone(), text_carriers.clone(), output)?,
+                    None => Some((homes.clone(), text_carriers.clone())),
                 };
                 homes = match (then_homes, else_homes) {
                     (None, None) => return Ok(None),
-                    (Some(homes), None) | (None, Some(homes)) => homes,
-                    (Some(a), Some(b)) if a == b => a,
+                    (Some(state), None) | (None, Some(state)) => state.0,
+                    (Some((a_homes, a_carriers)), Some((b_homes, b_carriers)))
+                        if a_homes == b_homes && a_carriers == b_carriers => {
+                            text_carriers = a_carriers;
+                            a_homes
+                        },
                     _ => return Err(reject("execution-branch-home-join")),
                 };
             }
-            Statement::Exit { port, .. } => { normal_port(input, source, *port, &homes)?; return Ok(None); }
+            Statement::Exit { port, .. } => { normal_port(input, source, *port, &homes, &text_carriers)?; return Ok(None); }
         }
     }
-    Ok(Some(homes))
+    Ok(Some((homes, text_carriers)))
 }
 pub(super) fn verify(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary)
     -> Result<Box<[SourceLoopEvaluationLifecycleV2]>, String> {
-    let mut output = vec![evaluation(input, source, source.condition.evaluation(), source.condition.prior_homes(), false)?];
+    let mut text_carriers = BTreeMap::new();
+    for (&binding, basis) in &source.headers {
+        if basis.entry_producer().class() != Class::String { continue; }
+        if !matches!(basis.entry_producer(), SourceProducer::Text(_)) { return Err(reject("execution-text-entry-class")); }
+        let state = SourceLoopTextCarrierStateV2 { basis: Rc::clone(basis), producer: TextProducer::Header(Rc::clone(basis)) };
+        if text_carriers.insert(binding, state).is_some() { return Err(reject("execution-text-entry-duplicate")); }
+    }
+    let mut output = vec![evaluation(input, source, source.condition.evaluation(), source.condition.prior_homes(), false, &text_carriers)?];
     let normal = body(input, source, source.control.as_ref().map_err(|reason| reject(reason))?,
-        source.condition.prior_homes().to_vec(), &mut output)?;
-    if let Some(homes) = normal {
+        source.condition.prior_homes().to_vec(), text_carriers, &mut output)?;
+    if let Some((homes, text_carriers)) = normal {
         let mut ports = source.ports.iter().enumerate().filter(|(_, port)|
             matches!(port.kind, crate::mir::resolved_semantics::home_new_prefix::SourceLoopPortKindV1::Backedge));
         let (index, _) = ports.next().ok_or_else(|| reject("execution-backedge-missing"))?;
         if ports.next().is_some() { return Err(reject("execution-backedge-duplicate")); }
-        normal_port(input, source, index, &homes)?;
+        normal_port(input, source, index, &homes, &text_carriers)?;
     }
     Ok(output.into_boxed_slice())
 }

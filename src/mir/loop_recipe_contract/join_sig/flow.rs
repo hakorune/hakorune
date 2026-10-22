@@ -556,20 +556,28 @@ fn process_block<V: LoopJoinRecipeView>(
                     flow.alternate_exit_payload = else_flow.exit_payload;
                     continue;
                 }
-                if then_flow.exit != else_flow.exit
-                    || then_flow.bindings != else_flow.bindings
-                    || (then_flow.available != else_flow.available
-                        && !block.items[index + 1..].iter().any(|next| matches!(recipe.item_at(*next),
-                            Some(LoopJoinItemView::Operation(LoopJoinOperationView::BranchPhi { source_if, .. }))
-                                if source_if == *item_key)))
-                    || !then_flow.side_exits.is_empty()
-                    || !else_flow.side_exits.is_empty()
-                {
+                let exits_match = then_flow.exit == else_flow.exit;
+                let bindings_match = then_flow.bindings == else_flow.bindings;
+                let availability_match = then_flow.available == else_flow.available;
+                let has_join = block.items[index + 1..].iter().any(|next| matches!(recipe.item_at(*next),
+                    Some(LoopJoinItemView::Operation(LoopJoinOperationView::BranchPhi { source_if, .. }))
+                        if source_if == *item_key));
+                let binding_join = bindings_match || has_branch_binding_join(
+                    recipe,
+                    &block.items,
+                    index + 1,
+                    *item_key,
+                    &then_flow.bindings,
+                    &else_flow.bindings,
+                );
+                if !exits_match || !binding_join || (!availability_match && !has_join) {
                     return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: *item_key });
                 }
                 flow.bindings = then_flow.bindings;
                 flow.available = then_flow.available.intersection(&else_flow.available).copied().collect();
                 normal_arms.insert(*item_key, (then_flow.available, else_flow.available));
+                flow.side_exits.extend(then_flow.side_exits);
+                flow.side_exits.extend(else_flow.side_exits);
                 flow.exit = then_flow.exit;
                 flow.exit_payload = then_flow.exit_payload;
                 flow.alternate_exit = None;
@@ -591,6 +599,82 @@ fn process_block<V: LoopJoinRecipeView>(
     *bindings = flow.bindings.clone();
     *available = flow.available.clone();
     Ok(flow)
+}
+
+/// A carrier whose two normal arms write different values must be closed by
+/// the exact source If's BranchPhi and a following WriteBinding. The Recipe
+/// remains the authority for both arm values and the merged value.
+fn has_branch_binding_join<V: LoopJoinRecipeView>(
+    recipe: &V,
+    items: &[LoopItemKeyV1],
+    mut position: usize,
+    source_if: LoopItemKeyV1,
+    then_bindings: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
+    else_bindings: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
+) -> bool {
+    if then_bindings.keys().ne(else_bindings.keys()) {
+        return false;
+    }
+    let mut pending = then_bindings
+        .iter()
+        .filter_map(|(binding, then_value)| {
+            let else_value = else_bindings.get(binding).copied()?;
+            (*then_value != else_value).then_some((*binding, (*then_value, else_value)))
+        })
+        .collect::<BTreeMap<_, _>>();
+    if pending.is_empty() {
+        return true;
+    }
+
+    while !pending.is_empty() {
+        let Some(item) = items.get(position).copied() else {
+            return false;
+        };
+        let Some(LoopJoinItemView::Operation(LoopJoinOperationView::BranchPhi {
+            source_if: phi_source,
+            then_value,
+            else_value,
+            result,
+        })) = recipe.item_at(item)
+        else {
+            return false;
+        };
+        if phi_source != source_if {
+            return false;
+        }
+
+        let matching = pending
+            .iter()
+            .filter_map(|(binding, values)| {
+                (*values == (then_value, else_value)).then_some(*binding)
+            })
+            .collect::<Vec<_>>();
+        if let [binding] = matching.as_slice() {
+            let Some(next) = items.get(position + 1).copied() else {
+                return false;
+            };
+            if !matches!(
+                recipe.item_at(next),
+                Some(LoopJoinItemView::Operation(LoopJoinOperationView::WriteBinding {
+                    binding: written,
+                    value,
+                })) if written == *binding && value == result
+            ) {
+                return false;
+            }
+            pending.remove(binding);
+            position += 2;
+        } else {
+            // A branch may also produce a normal expression value that is
+            // consumed later. It is valid here only when it does not claim a
+            // pending binding's arm values ambiguously.
+            if matching.len() > 1 {
+                return false;
+            }
+            position += 1;
+        }
+    }
+    true
 }
 
 fn process_operation<'a>(

@@ -35,13 +35,19 @@ is an operator-result relation, not a Home classification.
 
 ## Checked String concatenation
 
-The operator issuer also provides a bounded projection of the existing String
-concatenation semantics: `Add(String, String)` and
-`Add(String, NormalInteger)`. `String` here requires an exact source String
-proof, and `NormalInteger` requires the logical signed-integer proof. Both
-operands are evaluated in source order and borrowed without escape or mutation.
-The integer conversion is the builtin signed decimal conversion; this profile
-does not invoke user-defined stringification.
+The operator issuer provides checked projections of String concatenation:
+`Add(String, String)`, `Add(String, NormalInteger)`, and
+`Add(String, Dynamic)`. `String` requires an exact source String proof;
+`NormalInteger` requires the logical signed-integer proof; `Dynamic` requires
+the original tag-preserving dynamic source carrier. It is never inferred from
+an unclassified `Other` value or from a physical type alone. All operands are
+evaluated in source order and borrowed without escape or mutation.
+
+`Add(String, NormalInteger)` uses builtin signed decimal conversion and does
+not invoke user-defined stringification. `Add(String, Dynamic)` follows the
+per-tag runtime display contract in [types.md](types.md). Null/Void tags fault
+with TypeError before publication; other admitted runtime tags produce an
+independently owned immutable String result.
 
 Normal produces an independently owned immutable String value. Reusing
 immutable text storage is permitted; returning a borrowed operand's ownership

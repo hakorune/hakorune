@@ -67,7 +67,13 @@ impl FinishedBindings {
                     }
                 }
             }
-            if actual.instructions != expected || actual.terminator.as_ref() != Some(&self.instruction(terminal.clone())) {
+            let terminal = self.instruction(terminal.clone());
+            if actual.instructions.len() != expected.len()
+                || actual.instructions.iter().zip(&expected)
+                    .any(|(found, wanted)| !super::same_finished_instruction(found, wanted))
+                || !actual.terminator.as_ref().is_some_and(|found|
+                    super::same_finished_instruction(found, &terminal))
+            {
                 return Err(fault("control-finished-sequence"));
             }
         }

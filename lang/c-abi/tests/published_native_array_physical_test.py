@@ -106,7 +106,7 @@ def checked_string_physical():
              "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
              "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",
              "nyash.string.checked_add_v1", "nyash.string.checked_print_v1", "nyash.string.checked_end_v1",
-             "nyash.string.checked_materialize_v1", "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_index_of_v1", "nyash.string.checked_compare_v1",
+             "nyash.string.checked_materialize_v1", "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_substring_operands_v1", "nyash.string.checked_index_of_v1", "nyash.string.checked_compare_v1",
              "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
     def execute(data, defines=(), status=0, endings=(), payload=None, primary=None):
         compile_input(data, True)

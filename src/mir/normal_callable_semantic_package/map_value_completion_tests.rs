@@ -301,6 +301,7 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
                     &std::collections::BTreeMap::new(),
                     parameters,
                     None,
+                    None,
                     contract.completion().explicit_sites(),
                     contract.completion().implicit_body_end().is_some(),
                     &std::collections::BTreeSet::new(),

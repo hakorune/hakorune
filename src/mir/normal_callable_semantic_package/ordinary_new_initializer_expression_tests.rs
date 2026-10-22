@@ -3,29 +3,57 @@ use super::*;
 
 #[test]
 fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenance() {
-    use crate::mir::resolved_value_profile::expression_plan::{local_expression_source_plan_v1, ExpressionNodeSourceV1};
     use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
+    use crate::mir::resolved_value_profile::expression_plan::{
+        local_expression_source_plan_v1, ExpressionNodeSourceV1,
+    };
     for (prefix, actual, sibling, accepted) in [
         ("", "\"field\"", "", true),
         ("local alias = key", "\"field\"", "", true),
         ("key = other", "\"field\"", "", false),
-        ("", "null", "", true), ("", "true", "", false), ("", "7", "", true),
-        ("", "\"field\"", "second() { return Values.caller(true, \"spare\") }", false),
-        ("", "\"field\"", "relay(p) { return Values.caller(p, \"spare\") }", false),
+        ("", "null", "", true),
+        ("", "true", "", false),
+        ("", "7", "", true),
+        (
+            "",
+            "\"field\"",
+            "second() { return Values.caller(true, \"spare\") }",
+            false,
+        ),
+        (
+            "",
+            "\"field\"",
+            "relay(p) { return Values.caller(p, \"spare\") }",
+            false,
+        ),
     ] {
-        let read_name = if prefix.contains("local alias") { "alias" } else { "key" };
+        let read_name = if prefix.contains("local alias") {
+            "alias"
+        } else {
+            "key"
+        };
         let returned = if actual == "7" { read_name } else { "0" };
-        let condition = if actual == "7" { "if key == 7 { print(0) }" } else { "" };
-        let text = format!(r#"static box Values {{
+        let condition = if actual == "7" {
+            "if key == 7 { print(0) }"
+        } else {
+            ""
+        };
+        let text = format!(
+            r#"static box Values {{
             caller(key, other) {{ {prefix} local needle = "x" + {read_name} {condition} return {returned} }}
             seed() {{ return Values.caller({actual}, "spare") }} {sibling}
-        }} static box Main {{ main() {{ return 0 }} }}"#);
+        }} static box Main {{ main() {{ return 0 }} }}"#
+        );
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
         ).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
         let source = ledger.borrowed_formal_source.as_ref().unwrap();
-        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+        let contract = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.parameters.len() == 2)
+            .unwrap();
         package.batch().with_lowering_input(contract.batch_slot, |input| {
             let initializer = input.function().expression_source().initializers().last().unwrap();
             let original = input.forest().callable_source_ledger(input.owner()).unwrap();
@@ -84,21 +112,31 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
 #[test]
 fn text_initializer_frame_requires_original_text_signed_source_and_current_prefix() {
     for (annotation, actual, mutation, accepted) in [
-        (": i64", "\"text\"", 0, true), (": usize", "\"text\"", 0, false),
-        ("", "\"text\"", 0, true), (": i64", "true", 0, false),
-        (": i64", "\"text\"", 1, false), (": i64", "\"text\"", 2, false),
-        (": i64", "\"text\"", 3, false), (": i64", "\"text\"", 4, false),
+        (": i64", "\"text\"", 0, true),
+        (": usize", "\"text\"", 0, false),
+        ("", "\"text\"", 0, true),
+        (": i64", "true", 0, false),
+        (": i64", "\"text\"", 1, false),
+        (": i64", "\"text\"", 2, false),
+        (": i64", "\"text\"", 3, false),
+        (": i64", "\"text\"", 4, false),
     ] {
-        let text = format!(r#"static box Values {{
+        let text = format!(
+            r#"static box Values {{
             caller(line, count{annotation}) {{ local needle = "x" + line + count
                 local alias = needle local next = alias + "!" return 0 }}
             seed() {{ return Values.caller({actual}, 7) }}
-        }} static box Main {{ main() {{ return Values.seed() }} }}"#);
+        }} static box Main {{ main() {{ return Values.seed() }} }}"#
+        );
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
         let source = ledger.borrowed_formal_source.as_ref().unwrap();
-        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+        let contract = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.parameters.len() == 2)
+            .unwrap();
         package.batch().with_lowering_input(contract.batch_slot, |input| {
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
             let mut pending = ledger.borrowed_formal_actuals.clone();
@@ -145,27 +183,83 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
 fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
     for (methods, prefix, initializer, suffix, selected) in [
-        ("", "", "\"hello\"", "", 0), ("", "", "\"he\" + \"llo\"", "", 1),
+        ("", "", "\"hello\"", "", 0),
+        ("", "", "\"he\" + \"llo\"", "", 1),
         ("", "", "(\"h\" + \"e\") + \"llo\"", "", 1),
         ("", "", "\"a\" + 12", "", 1),
-        ("", "local first = \"ab\"", "\"c\" + \"d\"", "first = first + text first = first.substring(0, 1) print(first)", 3),
-        ("static box Values { run(count: i64): i64 { local text = \"a\" + \"b\" return 0 } }", "", "Values.run(1)", "", 1),
+        (
+            "",
+            "local first = \"ab\"",
+            "\"c\" + \"d\"",
+            "first = first + text first = first.substring(0, 1) print(first)",
+            3,
+        ),
+        (
+            "static box Values { run(count: i64): i64 { local text = \"a\" + \"b\" return 0 } }",
+            "",
+            "Values.run(1)",
+            "",
+            1,
+        ),
         ("", "local first = \"a\" + \"b\"", "first.length()", "", 1),
-        ("", "local first = \"a\" + \"b\"", "first + \"!\"", "text = text + first print(text)", 3),
-        ("", "local first = \"a\" + \"b\" local alias = first", "alias.length()", "first = \"xyz\" print(first)", 2),
-        ("", "local first = \"a\" + \"b\" local alias = first local second = alias", "second + \"!\"", "first = second print(first)", 3),
-        ("", "local first = \"a\" + \"b\"", "first.length()", "print(text)", 1),
-        ("", "local first = \"a\" + \"b\" local alias = first", "alias.length()", "print(text) print(alias)", 1),
-        ("", "local first = \"a\" + \"b\" local alias = first", "alias + \"!\"", "local n = text.length() print(n) print(text)", 2),
+        (
+            "",
+            "local first = \"a\" + \"b\"",
+            "first + \"!\"",
+            "text = text + first print(text)",
+            3,
+        ),
+        (
+            "",
+            "local first = \"a\" + \"b\" local alias = first",
+            "alias.length()",
+            "first = \"xyz\" print(first)",
+            2,
+        ),
+        (
+            "",
+            "local first = \"a\" + \"b\" local alias = first local second = alias",
+            "second + \"!\"",
+            "first = second print(first)",
+            3,
+        ),
+        (
+            "",
+            "local first = \"a\" + \"b\"",
+            "first.length()",
+            "print(text)",
+            1,
+        ),
+        (
+            "",
+            "local first = \"a\" + \"b\" local alias = first",
+            "alias.length()",
+            "print(text) print(alias)",
+            1,
+        ),
+        (
+            "",
+            "local first = \"a\" + \"b\" local alias = first",
+            "alias + \"!\"",
+            "local n = text.length() print(n) print(text)",
+            2,
+        ),
     ] {
         let parameters = if methods.is_empty() { "" } else { "args" };
         let text = format!("{methods} static box Main {{ main({parameters}) {{ {prefix} local text = {initializer} {suffix} return 0 }} }}");
         for optimize in [false, true] {
-        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-            &text, crate::parser::ParserBuildConfig::default()).unwrap();
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
-            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source") };
-        let result = crate::mir::MirCompiler::with_options(optimize).compile_normal_with_published(
+            let parsed =
+                crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                    &text,
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .unwrap();
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+            else {
+                panic!("original source")
+            };
+            let result = crate::mir::MirCompiler::with_options(optimize).compile_normal_with_published(
             crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()).for_closed_app_executable(),
             |view, verification| {
                 verification.as_ref().map_err(|errors| format!("{errors:?}"))?;
@@ -216,7 +310,7 @@ fn owned_text_initializer_publishes_the_same_physical_packet_and_home() {
                 assert_eq!(count, selected);
                 Ok(())
             });
-        result.unwrap_or_else(|error| panic!("optimize={optimize} {initializer}: {error}"));
+            result.unwrap_or_else(|error| panic!("optimize={optimize} {initializer}: {error}"));
         }
     }
 }
@@ -228,12 +322,21 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
         ("if null == value { return 0 }", "local alias = value", true),
         ("if value != null { } else { return 0 }", "", true),
         ("if value == null { local ignored = 0 }", "", false),
-        ("if value == null { local ignored = \"\" + true return 0 }", "", false),
+        (
+            "if value == null { local ignored = \"\" + true return 0 }",
+            "",
+            false,
+        ),
         ("if value != null { return 0 }", "", false),
         ("if value == null { return 0 }", "value = other", false),
     ] {
-        let read = if middle.starts_with("local alias") { "alias" } else { "value" };
-        let text = format!(r#"static box Values {{
+        let read = if middle.starts_with("local alias") {
+            "alias"
+        } else {
+            "value"
+        };
+        let text = format!(
+            r#"static box Values {{
             parse(value, other) {{ {guard} {middle} local out = "" + {read} return 0 }}
             textSeed() {{ return Values.parse("bytes", null) }}
             integerSeed() {{ return Values.parse(7, null) }}
@@ -241,39 +344,86 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
         }} static box Main {{ main() {{
             local text = Values.textSeed() local integer = Values.integerSeed()
             local absent = Values.nullSeed() return 0
-        }} }}"#);
+        }} }}"#
+        );
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
-        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
-        let frame = ledger.completion_for_owner(contract.owner)
+        let contract = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.parameters.len() == 2)
+            .unwrap();
+        let frame = ledger
+            .completion_for_owner(contract.owner)
             .and_then(|completion| completion.cleanup().root_flow())
-            .and_then(|flow| flow.expression_plans().iter().find_map(|plan| plan.initializer_frame()));
-        assert_eq!(frame.is_some(), accepted, "{guard}/{middle}; role={:?}; completion={:?}",
+            .and_then(|flow| {
+                flow.expression_plans()
+                    .iter()
+                    .find_map(|plan| plan.initializer_frame())
+            });
+        assert_eq!(
+            frame.is_some(),
+            accepted,
+            "{guard}/{middle}; role={:?}; completion={:?}",
             package.selected.role_for_batch_slot(contract.batch_slot),
-            ledger.completion_for_owner(contract.owner).map(|completion| completion.cleanup().root_flow()));
+            ledger
+                .completion_for_owner(contract.owner)
+                .map(|completion| completion.cleanup().root_flow())
+        );
         if let Some(frame) = frame {
             assert!(frame.evaluation().reference_coverage_is_exact());
             assert_eq!(frame.entry_reads().len(), 1);
             assert_eq!(frame.entry_refinements().len(), 1);
-            assert!(frame.entry_reads()[0].leaf_class(None).is_none(), "original SUM still contains Null");
+            assert!(
+                frame.entry_reads()[0].leaf_class(None).is_none(),
+                "original SUM still contains Null"
+            );
             let refinements = frame.entry_refinements();
             let proof = refinements.values().next().unwrap();
             assert!(frame.entry_reads()[0].leaf_class(Some(proof)).is_some());
-            let operation = frame.evaluation().operations().iter().find(|operation| operation.node() == 0).unwrap();
+            let operation = frame
+                .evaluation()
+                .operations()
+                .iter()
+                .find(|operation| operation.node() == 0)
+                .unwrap();
             assert_eq!(operation.envelopes().len(), 2);
-            assert!(operation.single_envelope().is_none(), "physical writer must not select one alternative");
+            assert!(
+                operation.single_envelope().is_none(),
+                "physical writer must not select one alternative"
+            );
             assert!(operation.envelopes().iter().all(|envelope| envelope.normal_result() ==
                 crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue));
             assert!(frame.owns_root());
-            let selected = ledger.initializer_expression_frame_v1(contract.owner, frame.source().root().statement().node()).unwrap().unwrap();
-            assert!(Rc::ptr_eq(frame, &selected), "the real production selector retains this SAME complete frame");
-            package.batch().with_lowering_input(contract.batch_slot, |input| {
-                let formals = contract.parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
-                    .map(|row| (row.ordinal, row.binding)).collect();
-                crate::mir::MirBuilder::assert_finite_initializer_entry_for_test(input,
-                    package.ordinary_new_claim_ledger_for_test(), frame, formals);
-            }).unwrap();
+            let selected = ledger
+                .initializer_expression_frame_v1(
+                    contract.owner,
+                    frame.source().root().statement().node(),
+                )
+                .unwrap()
+                .unwrap();
+            assert!(
+                Rc::ptr_eq(frame, &selected),
+                "the real production selector retains this SAME complete frame"
+            );
+            package
+                .batch()
+                .with_lowering_input(contract.batch_slot, |input| {
+                    let formals = contract
+                        .parameters
+                        .iter()
+                        .filter(|row| row.kind.is_ordinary_borrowed_handle())
+                        .map(|row| (row.ordinal, row.binding))
+                        .collect();
+                    crate::mir::MirBuilder::assert_finite_initializer_entry_for_test(
+                        input,
+                        package.ordinary_new_claim_ledger_for_test(),
+                        frame,
+                        formals,
+                    );
+                })
+                .unwrap();
         }
     }
 }
@@ -283,40 +433,199 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
     for (prefix, argument, incoming, expected, static_reads, residence_reads, entry_reads, owned) in [
         ("", "\"bytes\"", "\"seed\"", true, 0, 0, 0, false),
         ("", "Values.text_result()", "\"seed\"", true, 0, 0, 0, true),
-        ("local key = \"bytes\"", "key", "\"seed\"", true, 1, 0, 0, false),
-        ("local key = \"bytes\" local alias = key", "alias", "\"seed\"", true, 1, 0, 0, false),
-        ("local key = \"bytes\" key = 7", "key", "\"seed\"", false, 0, 0, 0, false),
-        ("local key = \"bytes\" key = \"bytes\"", "key", "\"seed\"", false, 0, 0, 0, false),
-        ("local key = \"a\" + \"b\"", "key", "\"seed\"", true, 0, 1, 0, false),
-        ("local key = \"a\" + \"b\" local alias = key", "alias", "\"seed\"", true, 0, 1, 0, false),
+        (
+            "local key = \"bytes\"",
+            "key",
+            "\"seed\"",
+            true,
+            1,
+            0,
+            0,
+            false,
+        ),
+        (
+            "local key = \"bytes\" local alias = key",
+            "alias",
+            "\"seed\"",
+            true,
+            1,
+            0,
+            0,
+            false,
+        ),
+        (
+            "local key = \"bytes\" key = 7",
+            "key",
+            "\"seed\"",
+            false,
+            0,
+            0,
+            0,
+            false,
+        ),
+        (
+            "local key = \"bytes\" key = \"bytes\"",
+            "key",
+            "\"seed\"",
+            false,
+            0,
+            0,
+            0,
+            false,
+        ),
+        (
+            "local key = \"a\" + \"b\"",
+            "key",
+            "\"seed\"",
+            true,
+            0,
+            1,
+            0,
+            false,
+        ),
+        (
+            "local key = \"a\" + \"b\" local alias = key",
+            "alias",
+            "\"seed\"",
+            true,
+            0,
+            1,
+            0,
+            false,
+        ),
         ("", "line", "\"seed\"", true, 0, 0, 1, false),
-        ("local alias = line", "alias", "\"seed\"", true, 0, 0, 1, false),
+        (
+            "local alias = line",
+            "alias",
+            "\"seed\"",
+            true,
+            0,
+            0,
+            1,
+            false,
+        ),
         ("", "line", "7", false, 0, 0, 0, false),
         ("", "line", "null", false, 0, 0, 0, false),
-        ("local key = \"bytes\"", "key.substring(0,1)", "\"seed\"", true, 1, 0, 0, true),
-        ("local key = \"bytes\" local alias = key", "alias.substring(0,1)", "\"seed\"", true, 1, 0, 0, true),
-        ("local key = \"a\" + \"b\"", "key.substring(0,1)", "\"seed\"", true, 0, 1, 0, true),
+        (
+            "local key = \"bytes\"",
+            "key.substring(0,1)",
+            "\"seed\"",
+            true,
+            1,
+            0,
+            0,
+            true,
+        ),
+        (
+            "local key = \"bytes\" local alias = key",
+            "alias.substring(0,1)",
+            "\"seed\"",
+            true,
+            1,
+            0,
+            0,
+            true,
+        ),
+        (
+            "local key = \"a\" + \"b\"",
+            "key.substring(0,1)",
+            "\"seed\"",
+            true,
+            0,
+            1,
+            0,
+            true,
+        ),
         ("", "line.substring(0,1)", "\"seed\"", true, 0, 0, 1, true),
-        ("", "\"aé界z\".substring(0,1)", "\"seed\"", true, 0, 0, 0, true),
-        ("", "\"abc\".substring(0,2).substring(0,1)", "\"seed\"", true, 0, 0, 0, true),
-        ("", "\"aé界z\".substring(\"aé界z\".indexOf(\"é\"),\"aé界\".length())", "\"seed\"", true, 0, 0, 0, true),
-        ("local key = \"bytes\" local needle = \"bytes\"", "key.substring(needle.length(),1)", "\"seed\"", true, 2, 0, 0, true),
-        ("local key = \"bytes\"", "key.substring(key.indexOf(\"y\"),key.length())", "\"seed\"", true, 3, 0, 0, true),
+        (
+            "",
+            "\"aé界z\".substring(0,1)",
+            "\"seed\"",
+            true,
+            0,
+            0,
+            0,
+            true,
+        ),
+        (
+            "",
+            "\"abc\".substring(0,2).substring(0,1)",
+            "\"seed\"",
+            true,
+            0,
+            0,
+            0,
+            true,
+        ),
+        (
+            "",
+            "\"aé界z\".substring(\"aé界z\".indexOf(\"é\"),\"aé界\".length())",
+            "\"seed\"",
+            true,
+            0,
+            0,
+            0,
+            true,
+        ),
+        (
+            "local key = \"bytes\" local needle = \"bytes\"",
+            "key.substring(needle.length(),1)",
+            "\"seed\"",
+            true,
+            2,
+            0,
+            0,
+            true,
+        ),
+        (
+            "local key = \"bytes\"",
+            "key.substring(key.indexOf(\"y\"),key.length())",
+            "\"seed\"",
+            true,
+            3,
+            0,
+            0,
+            true,
+        ),
     ] {
-        let (caller_parameters, caller_actual) = if static_reads > 0 { ("", String::new()) }
-            else if entry_reads > 0 { ("line, count: i64", format!("{incoming}, 7")) }
-            else { ("line", incoming.to_owned()) };
+        let (caller_parameters, caller_actual) = if static_reads > 0 {
+            ("", String::new())
+        } else if entry_reads > 0 {
+            ("line, count: i64", format!("{incoming}, 7"))
+        } else {
+            ("line", incoming.to_owned())
+        };
         let ordinary = argument == "Values.text_result()";
-        let extra_result = if ordinary { "text_result() { local out = \"a\" + \"b\" out = out + \"c\" return out }" } else { "" };
-        let extra_seed = if entry_reads > 0 { "text_seed() { return Values.caller(\"seed\", 7) }" } else { "" };
+        let extra_result = if ordinary {
+            "text_result() { local out = \"a\" + \"b\" out = out + \"c\" return out }"
+        } else {
+            ""
+        };
+        let extra_seed = if entry_reads > 0 {
+            "text_seed() { return Values.caller(\"seed\", 7) }"
+        } else {
+            ""
+        };
         let text = format!("static box Values {{ sink(p) {{ return 0 }} caller({caller_parameters}) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({caller_actual}) }} {extra_seed} {extra_result} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
         let source = ledger.borrowed_formal_source.as_ref().unwrap();
-        let declaration = package.batch().declarations().find(|row|
-            package.batch().with_lowering_input(row.batch_slot(), |input|
-                input.function().method_calls().any(|(_, call)| call.selector() == "sink")).unwrap()).unwrap();
+        let declaration = package
+            .batch()
+            .declarations()
+            .find(|row| {
+                package
+                    .batch()
+                    .with_lowering_input(row.batch_slot(), |input| {
+                        input
+                            .function()
+                            .method_calls()
+                            .any(|(_, call)| call.selector() == "sink")
+                    })
+                    .unwrap()
+            })
+            .unwrap();
         package.batch().with_lowering_input(declaration.batch_slot(), |input| {
             let contract = package.parameter_contracts.iter().find(|row| row.owner == input.owner()).unwrap();
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
@@ -371,7 +680,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 for (node, core) in frame.evaluation().cores() {
                     assert!(core.matches_plan(frame.source(), *node));
                     let original = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_expression_core_source_v1(
-                        input, source.as_ref().unwrap(), frame.source(),
+                        input, source.as_ref().unwrap(), &package.parameter_contracts, frame.source(),
                         &OwnedExprSiteV1::new(input.owner(), frame.source().nodes()[*node].site().clone())).unwrap().unwrap();
                     assert_eq!(core, &original, "SAME canonical Core Rc, plan and node");
                     assert!(!frame.evaluation().transfers_node(*node));
@@ -404,81 +713,201 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
 
 #[test]
 fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk() {
-    use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionReferenceV1 as Reference, CurrentScalarProducerV1 as Producer};
+    use crate::mir::resolved_semantics::home_new_prefix::{
+        CheckedExpressionReferenceV1 as Reference, CurrentScalarProducerV1 as Producer,
+    };
     for actual_input in ["\"bytes\"", "true", "1"] {
-    for (prefix, operand, annotation, expected) in [
-        ("", "count", ": i64", Some("entry")),
-        ("local alias = count", "alias", ": i64", Some("entry")),
-        ("local start = 1", "start", ": i64", Some("literal")),
-        ("local start = 1 local alias = start", "alias", ": i64", Some("literal")),
-        ("local start = Values.find()", "start", ": i64", Some("call")),
-        ("local start = Values.find() local alias = start", "alias", ": i64", Some("call")),
-        ("local start = line.length()", "start", ": i64", Some("initializer")),
-        ("local start = line.substring(0, 1).length()", "start", ": i64", Some("initializer")),
-        ("local start = count + line.length()", "start", ": i64", Some("initializer")),
-        ("local start = count + line.length() local alias = start", "alias", ": i64", Some("initializer")),
-        ("local start = 1 start = 2", "start", ": i64", Some("rebind")),
-        ("local start = 1 if count > 0 { start = 2 }", "start", ": i64", Some("branch")),
-        ("local start = 1 loop count > 0 { start = start + 1 break }", "start", ": i64", None),
-        ("", "count", ": usize", None),
-    ] {
-        let text = format!(r#"static box Values {{
+        for (prefix, operand, annotation, expected) in [
+            ("", "count", ": i64", Some("entry")),
+            ("local alias = count", "alias", ": i64", Some("entry")),
+            ("local start = 1", "start", ": i64", Some("literal")),
+            (
+                "local start = 1 local alias = start",
+                "alias",
+                ": i64",
+                Some("literal"),
+            ),
+            (
+                "local start = Values.find()",
+                "start",
+                ": i64",
+                Some("call"),
+            ),
+            (
+                "local start = Values.find() local alias = start",
+                "alias",
+                ": i64",
+                Some("call"),
+            ),
+            (
+                "local start = line.length()",
+                "start",
+                ": i64",
+                Some("initializer"),
+            ),
+            (
+                "local start = line.substring(0, 1).length()",
+                "start",
+                ": i64",
+                Some("initializer"),
+            ),
+            (
+                "local start = count + line.length()",
+                "start",
+                ": i64",
+                Some("initializer"),
+            ),
+            (
+                "local start = count + line.length() local alias = start",
+                "alias",
+                ": i64",
+                Some("initializer"),
+            ),
+            (
+                "local start = 1 start = 2",
+                "start",
+                ": i64",
+                Some("rebind"),
+            ),
+            (
+                "local start = 1 if count > 0 { start = 2 }",
+                "start",
+                ": i64",
+                Some("branch"),
+            ),
+            (
+                "local start = 1 loop count > 0 { start = start + 1 break }",
+                "start",
+                ": i64",
+                None,
+            ),
+            ("", "count", ": usize", None),
+        ] {
+            let text = format!(
+                r#"static box Values {{
             find() {{ return 1 }}
             caller(line, count{annotation}) {{ {prefix} local out = {operand} + line.length() return 0 }}
             seed() {{ return Values.caller({actual_input}, 1) }}
-        }} static box Main {{ main() {{ return Values.seed() }} }}"#);
-        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        }} static box Main {{ main() {{ return Values.seed() }} }}"#
+            );
+            let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable)
             .unwrap_or_else(|error| panic!("{text}: {error:?}"));
-        let ledger = &package.ordinary_new_claim_ledger;
-        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
-        package.batch().with_lowering_input(contract.batch_slot, |input| {
-            let initializer = input.function().expression_source().initializers().last().unwrap();
-            let flow = ledger.completion_for_owner(input.owner()).and_then(|completion| completion.cleanup().root_flow());
-            let frame = flow.and_then(|flow| flow.expression_plans().iter().filter_map(|plan| plan.initializer_frame())
-                .find(|frame| frame.binding() == initializer.binding()));
-            assert_eq!(frame.is_some(), expected.is_some() && actual_input == "\"bytes\"", "{prefix}/{operand}/{annotation}/{actual_input}; completion={:?}", ledger.completion_for_owner(input.owner()));
-            let Some(frame) = frame else { return };
-            assert!(frame.is_i64());
-            assert!(!frame.is_text_residence());
-            assert!(!frame.owns_root());
-            assert_eq!(frame.evaluation().cores().len(), 1);
-            assert_eq!(frame.entry_reads().len(), 1, "the Core receiver remains a mandatory original Text read");
-            let selected = ledger.initializer_expression_frame_v1(input.owner(), frame.source().root().statement().node()).unwrap().unwrap();
-            assert!(Rc::ptr_eq(frame, &selected));
-            let reads: Vec<_> = frame.evaluation().references().values().filter_map(|proof| match proof {
-                Reference::Scalar(read) => read.original_read(), _ => None,
-            }).collect();
-            assert_eq!(reads.len(), 1);
-            let producer = reads[0].producer();
-            let actual = match producer {
-                Producer::SignedEntry(root) => { assert_eq!(*root, contract.parameters[1].binding); "entry" }
-                Producer::BindingRebind(original) => {
-                    let retained = flow.unwrap().expression_plans().iter().filter_map(|plan| plan.rebind_frame())
-                        .find(|frame| frame.source().root().statement() == original.source().root().statement()).unwrap();
-                    assert!(Rc::ptr_eq(original, retained));
-                    "rebind"
-                }
-                Producer::BranchNormal(basis) => { assert!(basis.corroborates_original()); "branch" }
-                Producer::LoopHeader(_) | Producer::LoopAfter { .. } => panic!("this fixture has no Loop"),
-                Producer::Integer { value, .. } => { assert_eq!(*value, 1); "literal" }
-                Producer::Call(call) => {
-                    assert!(flow.unwrap().local_calls().contains(call));
-                    assert!(call.local_binding().is_some());
-                    "call"
-                }
-                Producer::Initializer(original) => {
-                    let retained = flow.unwrap().expression_plans().iter().filter_map(|plan| plan.initializer_frame())
-                        .find(|frame| frame.binding() == original.binding()).unwrap();
-                    assert!(Rc::ptr_eq(original, retained));
-                    "initializer"
-                }
-            };
-            assert_eq!(Some(actual), expected);
-            assert!(frame.prior_homes().is_empty(), "scalar initializer never manufactures a Text Home");
-        }).unwrap();
+            let ledger = &package.ordinary_new_claim_ledger;
+            let contract = package
+                .parameter_contracts
+                .iter()
+                .find(|row| row.parameters.len() == 2)
+                .unwrap();
+            package
+                .batch()
+                .with_lowering_input(contract.batch_slot, |input| {
+                    let initializer = input
+                        .function()
+                        .expression_source()
+                        .initializers()
+                        .last()
+                        .unwrap();
+                    let flow = ledger
+                        .completion_for_owner(input.owner())
+                        .and_then(|completion| completion.cleanup().root_flow());
+                    let frame = flow.and_then(|flow| {
+                        flow.expression_plans()
+                            .iter()
+                            .filter_map(|plan| plan.initializer_frame())
+                            .find(|frame| frame.binding() == initializer.binding())
+                    });
+                    assert_eq!(
+                        frame.is_some(),
+                        expected.is_some() && actual_input == "\"bytes\"",
+                        "{prefix}/{operand}/{annotation}/{actual_input}; completion={:?}",
+                        ledger.completion_for_owner(input.owner())
+                    );
+                    let Some(frame) = frame else { return };
+                    assert!(frame.is_i64());
+                    assert!(!frame.is_text_residence());
+                    assert!(!frame.owns_root());
+                    assert_eq!(frame.evaluation().cores().len(), 1);
+                    assert_eq!(
+                        frame.entry_reads().len(),
+                        1,
+                        "the Core receiver remains a mandatory original Text read"
+                    );
+                    let selected = ledger
+                        .initializer_expression_frame_v1(
+                            input.owner(),
+                            frame.source().root().statement().node(),
+                        )
+                        .unwrap()
+                        .unwrap();
+                    assert!(Rc::ptr_eq(frame, &selected));
+                    let reads: Vec<_> = frame
+                        .evaluation()
+                        .references()
+                        .values()
+                        .filter_map(|proof| match proof {
+                            Reference::Scalar(read) => read.original_read(),
+                            _ => None,
+                        })
+                        .collect();
+                    assert_eq!(reads.len(), 1);
+                    let producer = reads[0].producer();
+                    let actual = match producer {
+                        Producer::SignedEntry(root) => {
+                            assert_eq!(*root, contract.parameters[1].binding);
+                            "entry"
+                        }
+                        Producer::BindingRebind(original) => {
+                            let retained = flow
+                                .unwrap()
+                                .expression_plans()
+                                .iter()
+                                .filter_map(|plan| plan.rebind_frame())
+                                .find(|frame| {
+                                    frame.source().root().statement()
+                                        == original.source().root().statement()
+                                })
+                                .unwrap();
+                            assert!(Rc::ptr_eq(original, retained));
+                            "rebind"
+                        }
+                        Producer::BranchNormal(basis) => {
+                            assert!(basis.corroborates_original());
+                            "branch"
+                        }
+                        Producer::LoopHeader(_) | Producer::LoopAfter { .. } => {
+                            panic!("this fixture has no Loop")
+                        }
+                        Producer::Integer { value, .. } => {
+                            assert_eq!(*value, 1);
+                            "literal"
+                        }
+                        Producer::Call(call) => {
+                            assert!(flow.unwrap().local_calls().contains(call));
+                            assert!(call.local_binding().is_some());
+                            "call"
+                        }
+                        Producer::Initializer(original) => {
+                            let retained = flow
+                                .unwrap()
+                                .expression_plans()
+                                .iter()
+                                .filter_map(|plan| plan.initializer_frame())
+                                .find(|frame| frame.binding() == original.binding())
+                                .unwrap();
+                            assert!(Rc::ptr_eq(original, retained));
+                            "initializer"
+                        }
+                    };
+                    assert_eq!(Some(actual), expected);
+                    assert!(
+                        frame.prior_homes().is_empty(),
+                        "scalar initializer never manufactures a Text Home"
+                    );
+                })
+                .unwrap();
+        }
     }
-}
 }
 
 #[test]
@@ -641,7 +1070,6 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
     });
 }
 
-
 #[test]
 fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_scopes() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -661,43 +1089,90 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
     for optimize in [false, true] {
         let physical = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
-        let main = physical.declaration_catalog().source_backed_app_main().unwrap();
-        let declaration = physical.batch().declarations().find(|row| row.identity().same_as(main.parser_identity())).unwrap();
+        let main = physical
+            .declaration_catalog()
+            .source_backed_app_main()
+            .unwrap();
+        let declaration = physical
+            .batch()
+            .declarations()
+            .find(|row| row.identity().same_as(main.parser_identity()))
+            .unwrap();
         let mut builder = crate::mir::MirBuilder::new();
-        let function = physical.batch().with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
-            builder.lower_map_dependency_for_test(input,
-                crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()), main.parser_identity(),
-                identity.method_source_observation().cloned(), Rc::clone(&physical.ordinary_new_claim_ledger), None)
-        }).unwrap().expect("whole original source Loop through SAME Raw port");
-        crate::mir::verification::MirVerifier::new_strict().verify_function(&function)
-            .unwrap_or_else(|error| panic!("{error:?}\n{}", crate::mir::MirPrinter::new().print_function(&function)));
-        let observation = physical.ordinary_new_claim_ledger.validate_finalized_new_root(&function)
+        let function = physical
+            .batch()
+            .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+                builder.lower_map_dependency_for_test(
+                    input,
+                    crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                        main.catalog_key().clone(),
+                    ),
+                    main.parser_identity(),
+                    identity.method_source_observation().cloned(),
+                    Rc::clone(&physical.ordinary_new_claim_ledger),
+                    None,
+                )
+            })
+            .unwrap()
+            .expect("whole original source Loop through SAME Raw port");
+        crate::mir::verification::MirVerifier::new_strict()
+            .verify_function(&function)
+            .unwrap_or_else(|error| {
+                panic!(
+                    "{error:?}\n{}",
+                    crate::mir::MirPrinter::new().print_function(&function)
+                )
+            });
+        let observation = physical
+            .ordinary_new_claim_ledger
+            .validate_finalized_new_root(&function)
             .expect("whole Loop original final consumer");
         let mut function = function;
-        function.install_root_ordinary_new_observation(observation).unwrap();
+        function
+            .install_root_ordinary_new_observation(observation)
+            .unwrap();
         let mut module = crate::mir::MirModule::new("source-loop-finishing".into());
         module.functions.insert("Main.main/0".into(), function);
         if optimize {
-            let roots = physical.ordinary_new_claim_ledger.scalar_finishing_liveness_v1(&module, "Main.main/0").unwrap();
-            crate::mir::optimizer::MirOptimizer::new().optimize_module_with_required_roots(&mut module, &roots);
+            let roots = physical
+                .ordinary_new_claim_ledger
+                .scalar_finishing_liveness_v1(&module, "Main.main/0")
+                .unwrap();
+            crate::mir::optimizer::MirOptimizer::new()
+                .optimize_module_with_required_roots(&mut module, &roots);
             let finished = &module.functions["Main.main/0"];
-            crate::mir::verification::MirVerifier::new_strict().verify_function(finished)
-                .unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}\n{}", crate::mir::MirPrinter::new().print_function(finished)));
+            crate::mir::verification::MirVerifier::new_strict()
+                .verify_function(finished)
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "optimize={optimize}: {error:?}\n{}",
+                        crate::mir::MirPrinter::new().print_function(finished)
+                    )
+                });
         }
         let finished = &module.functions["Main.main/0"];
-        physical.ordinary_new_claim_ledger.validate_artifact_after_compiler_finishing(finished)
-            .unwrap_or_else(|error| panic!("whole Loop finishing consumer optimize={optimize}: {error}\n{}", crate::mir::MirPrinter::new().print_function(finished)));
+        physical
+            .ordinary_new_claim_ledger
+            .validate_artifact_after_compiler_finishing(finished)
+            .unwrap_or_else(|error| {
+                panic!(
+                    "whole Loop finishing consumer optimize={optimize}: {error}\n{}",
+                    crate::mir::MirPrinter::new().print_function(finished)
+                )
+            });
     }
     for expected_control in [true, false] {
-    let text = if expected_control { text.to_owned() } else {
-        text.replace("i = i + 1", "i = i + 1 local unused = 1")
-    };
-    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        let text = if expected_control {
+            text.to_owned()
+        } else {
+            text.replace("i = i + 1", "i = i + 1 local unused = 1")
+        };
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
         &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
-    let ledger = &package.ordinary_new_claim_ledger;
-    let source = ledger.borrowed_formal_source.as_ref().unwrap();
-    assert_eq!(package.parameter_contracts.len(), 1);
-    package.batch().with_lowering_input(package.parameter_contracts[0].batch_slot, |input| {
+        let ledger = &package.ordinary_new_claim_ledger;
+        let source = ledger.borrowed_formal_source.as_ref().unwrap();
+        assert_eq!(package.parameter_contracts.len(), 1);
+        package.batch().with_lowering_input(package.parameter_contracts[0].batch_slot, |input| {
         let site = crate::mir::resolved_semantics::SourcePathV1::root_body(3).stmt();
         let retained = ledger.retained_source_loop_recipe_v2(input.owner(), &site);
         if expected_control {

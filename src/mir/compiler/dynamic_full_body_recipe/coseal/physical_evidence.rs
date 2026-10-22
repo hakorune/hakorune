@@ -637,6 +637,7 @@ fn issue_operation_sources(
             }
             LoopOperationV2::ConstI64 { .. }
             | LoopOperationV2::BinaryI64 { .. }
+            | LoopOperationV2::TextAdd { .. }
             | LoopOperationV2::CompareI64 { .. }
             | LoopOperationV2::DynamicAdd { .. }
             | LoopOperationV2::DynamicLess { .. }

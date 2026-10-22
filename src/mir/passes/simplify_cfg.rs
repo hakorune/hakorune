@@ -79,7 +79,7 @@ fn simplify_function(function: &mut MirFunction, preserved: &std::collections::B
             let reachable_blocks =
                 crate::mir::verification::utils::compute_reachable_blocks(function);
             let Some((block_id, arm, middle_id, target, rewrite_phi, clear_edge_args)) =
-                find_threadable_branch_jump(function, &reachable_blocks)
+                find_threadable_branch_jump(function, &reachable_blocks, preserved)
             else {
                 break;
             };
