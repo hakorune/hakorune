@@ -729,6 +729,7 @@ pub(in crate::mir) use call_entry::{
     LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
     PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
+pub(in crate::mir) use call_entry::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use call_entry::PreparedStaticTerminalPacketV1;
 
 pub(crate) use call_entry::RootLifecyclePrefixBindingGroupV1;

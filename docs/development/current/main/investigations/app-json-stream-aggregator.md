@@ -1,9 +1,11 @@
 # APP-json-stream-aggregator
-Status: selected app; Dynamic initializer handoff is admitted, then MIR emission stops at source call disposition before EXE generation. Date: 2026-10-23
+Status: selected app; source-bound Dynamic expression emission builds, then fresh MIR emission stops at prior-Home cleanup before EXE generation. Date: 2026-10-23
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation contract](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Current stop
-- Fresh explicit `target/quick` smoke now reaches `ordinary-new/emission/expression-call/disposition-missing` in `StringHelpers.json_quote`; MIR emission fails and no EXE is produced.
+- Fresh explicit `target/quick` smoke now reaches `ordinary-new/local-commit/lexical-call-prior-home-unavailable` in `StringHelpers.split_lines`; MIR emission fails and no EXE is produced.
+- The exact prior Home is the local `arr = new ArrayBox()`. The selected owned-array lifecycle is currently anchored by an `ArrayGet`-derived element recipe, so this push-only holder has no `LocalCommitV1::OwnedArray` row for the required Fault unwind. Keep the Home and connect its construction/append source to the existing Array local owner; do not skip its unwind.
+- The next Array path needs a semantic choice: whether `ArrayBox.push` owns a `SelfContainedDynamicCarrier`. The accepted named Array append contract is typed-object-only and does not grant generic carrier storage; decide before wiring slot transfer or End.
 - The exact Dynamic initializer frame now carries its `DynamicCarrier` through the existing Local projection receipt without copying. This is an intermediate handoff; carrier cleanup and the source-bound call issuer are still missing.
 - A distinct opaque carrier MIR type, ordered Dynamic invocation operation, and physical JSON representation compile. C V4 now validates and emits the checked invocation, integer projection, and consuming End operations with Normal/Fault carrier state; the source-bound caller and emitted local publication/read are still absent.
 - The unchanged helper also needs `i < n` where `n` is Dynamic. The operator contract previously admitted only `Less(Dynamic, I64)`; this app requires `Less(I64, Dynamic)`. The same-card decision is: compare the exact signed i64 with a Dynamic Integer, TypeError for another well-formed Dynamic kind, borrow both inputs, publish TrivialBool, and create no carrier lifecycle. The source order stays unchanged.
@@ -21,10 +23,12 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 - `bash tools/build_hako_llvmc_ffi.sh`: PASS after connecting C V4 Dynamic invocation/carrier emission. Existing `published_lifecycle_v4_driver` accepted a temporary physical Dynamic invoke → integer read → End program and produced an LLVM-compiled object; no repository fixture or test was added, and the generated function was not runtime-executed.
 - `cargo quick-build-fast --jobs 4`: PASS after connecting the exact Dynamic initializer result to the existing Local projection receipt; no new test or hook was added.
 - Fresh `json_stream_aggregator_exe_runtime_boundary.sh` with `NYASH_BIN=target/quick/hakorune`: FAIL at `ordinary-new/emission/expression-call/disposition-missing`; no EXE parity result.
+- After connecting the source-bound Dynamic expression path, `cargo quick-build-fast --jobs 4`: PASS; the same focused smoke now fails earlier at `ordinary-new/local-commit/lexical-call-prior-home-unavailable` for the push-only ArrayBox Home. No EXE is produced.
 - Last full suite is historical: 7/11 PASS (6 EXE results plus one marker). The root `cargo quick-test-fast` target still has 68 unrelated compile errors; this does not affect the focused `nyash_kernel` test result.
 
 ## Next work
-- Issue the source-bound Dynamic CallSlot from the exact receiver/argument evaluation frame, then publish/read its opaque carrier in the existing local lifecycle; `StringInvokeOperand::Dynamic` remains tagged `(tag,payload)` input. Add path-complete carrier cleanup before treating the handoff as complete.
+- Connect push-only ArrayBox construction and append source to the existing `OwnedArrayLocalProgress` and root-cleanup End owner, preserving the live Home on the call's Fault path.
+- Finish the source-bound Dynamic CallSlot from the exact receiver/argument evaluation frame, then publish/read its opaque carrier in the existing local lifecycle; `StringInvokeOperand::Dynamic` remains tagged `(tag,payload)` input. Add path-complete carrier cleanup before treating the handoff as complete.
 - Connect carrier-aware i64/Dynamic, Dynamic/String comparison, and String + Dynamic consumers; preserve ordered cleanup and exactly-once forwarding/End on Normal and Fault.
 - Re-run the same explicit EXE smoke only after the full source-to-physical path is connected. Do not widen the initializer gate, rewrite `.hako`, add an app/name branch, or use fallback/retry.
 

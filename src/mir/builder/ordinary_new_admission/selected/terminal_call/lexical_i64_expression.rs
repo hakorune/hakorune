@@ -1,6 +1,7 @@
 //! The existing Call emitter borrows its enclosing expression's live prefix.
 //! No additional source call, Home, or packet inventory is created here.
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
+use crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1;
@@ -8,6 +9,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1, LocalCallObservationV1,
 };
 use crate::mir::resolved_semantics::{OwnedExprSiteV1};
+use super::super::super::expression_value::ExpressionCallEmissionV1;
 
 fn in_arguments(arguments: &[LocalCallArgumentV1], site: &OwnedExprSiteV1) -> bool {
     arguments.iter().any(|argument| matches!(argument, LocalCallArgumentV1::CallResult(inner)
@@ -124,4 +126,70 @@ pub(in crate::mir::builder) fn emit_with_prefix(
     };
     emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
         source, bindings, Some(&prefix), Some(consume_receiver), static_source)
+}
+
+/// DynamicInvocation has its own source-bound Invoke projection. It never
+/// consumes a lexical Call disposition or enters the legacy Call packet.
+pub(in crate::mir::builder) fn emit_with_dynamic(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    frame: &CheckedExpressionEvaluationV1,
+    call: &LocalCallObservationV1,
+    acquired: &[(usize, ValueId)],
+    values: &[Option<EvaluatedExpressionValueV1>],
+    bindings: &mut Vec<Binding>,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
+) -> Result<ExpressionCallEmissionV1, String> {
+    if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
+        || state.owner() != frame.source().owner() {
+        return Err(freeze("expression-call/source-drift"));
+    }
+    if !matches!(call.result_source(), Some(
+        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::DynamicInvocation(_))) {
+        return emit_with_prefix(builder, state, ledger, frame, call, acquired, values, bindings,
+            consume_receiver, static_source, None).map(ExpressionCallEmissionV1::Lexical);
+    }
+
+    let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+    let owned_site = OwnedExprSiteV1::new(call.owner(), call.site().site().clone());
+    let prefix = ExpressionCallPrefixV1 {
+        kind: ExpressionCallPrefixKindV1::Evaluation(ExpressionCallTransientPrefixV1::from_evaluation(
+            frame, call, acquired, values, function, None)?),
+        consume_receiver,
+        static_source,
+    };
+    let Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::DynamicInvocation(loan)) = call.result_source() else {
+        return Err(freeze("dynamic-expression/source-loan"));
+    };
+    let target = loan.target();
+    let receiver_read = state.take_exact_lexical_read(
+        call.owner(), target.receiver_site().node(), target.receiver_binding(),
+    ).map_err(|error| error.to_string())?;
+    let receiver_value = receiver_read.value_for(
+        call.owner(), target.receiver_site().node(), target.receiver_binding(),
+    ).map_err(|error| error.to_string())?;
+    let operation = EmittedDynamicInvocationCallProjectionV1::operation_from_source_v1(
+        frame, values, call,
+        crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(receiver_value),
+    )?;
+    let mut unwind = prefix.unwind(&owned_site, call.prior_homes())?;
+    unwind.extend(ledger.prior_home_unwind_for(call.prior_homes())?);
+    let fault_frame = state.borrow_fault_frame(builder)?;
+    let shared_frame = fault_frame_binding(builder, state, fault_frame)?;
+    if !bindings.contains(&shared_frame) { bindings.push(shared_frame); }
+    let mut writer = RawRootGraphWriterV1;
+    let (value, result, pair) = super::super::super::expression_value::emit_scalar_operation_with_pending_v1(
+        builder, &mut writer, InvokeOperation::DynamicInvocation(operation.clone()), fault_frame,
+        &unwind, bindings,
+    )?;
+    if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
+        return Err(freeze("dynamic-expression/result-kind"));
+    }
+    let packet = EmittedDynamicInvocationCallProjectionV1::from_source_v1(
+        frame, values, call, receiver_read, operation, pair[0].clone(), pair[1].clone(),
+    )?;
+    if packet.value() != value { return Err(freeze("dynamic-expression/result-value")); }
+    Ok(ExpressionCallEmissionV1::Dynamic(std::rc::Rc::new(packet)))
 }

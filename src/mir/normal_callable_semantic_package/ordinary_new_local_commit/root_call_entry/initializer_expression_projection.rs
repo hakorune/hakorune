@@ -33,6 +33,7 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     install: Option<Binding>,
     values: Box<[Option<EvaluatedExpressionValueV1>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
+    dynamic_calls: Box<[Rc<EmittedDynamicInvocationCallProjectionV1>]>,
     path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
     entry: Binding,
@@ -77,6 +78,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> { self.calls.iter().map(Rc::as_ref) }
     pub(in crate::mir) fn new(frame: Rc<CheckedInitializerExpressionFrameV1>, value: ValueId, local: ValueId, copy: Option<Binding>,
         values: Vec<Option<EvaluatedExpressionValueV1>>, calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+        dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
         entry: Binding, terminal: Binding, continuation: Binding, original: Vec<Binding>,
@@ -84,6 +86,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     ) -> Result<Self, String> {
         let install = original.iter().find(|(_, row)| matches!(row, MirInstruction::StringResidenceInstall { .. })).cloned();
         let packet = Self { frame, value, local, copy, install, values: values.into_boxed_slice(), calls: calls.into_boxed_slice(),
+            dynamic_calls: dynamic_calls.into_boxed_slice(),
             path_reads: path_reads.into_boxed_slice(), reference_reads, entry, terminal, continuation, original };
         packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
         let covered = packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
@@ -95,8 +98,8 @@ impl EmittedInitializerExpressionProjectionV1 {
         Ok(packet)
     }
     fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
-        super::expression_projection::ExpressionPhysicalProjectionRefV1::new(self.frame.evaluation(), &self.values,
-            &self.calls, &self.path_reads, &self.reference_reads, &self.original)
+        super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(self.frame.evaluation(), &self.values,
+            &self.calls, &self.dynamic_calls, &self.path_reads, &self.reference_reads, &self.original)
     }
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let selected = context.ledger().initializer_expression_frame_v1(self.frame.source().owner(), self.frame.source().root().statement().node())?

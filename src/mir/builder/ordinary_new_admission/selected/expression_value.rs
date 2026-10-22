@@ -7,7 +7,7 @@ use crate::mir::dynamic_operator_contract::{
     DynamicOperatorValueClassV1 as OperatorClass,
 };
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
-use crate::mir::normal_callable_semantic_package::{EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1, ExpressionCallTransientPrefixV1};
+use crate::mir::normal_callable_semantic_package::{EmittedDynamicInvocationCallProjectionV1, EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1, ExpressionCallTransientPrefixV1};
 use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, LocalCallObservationV1};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedLiteralSourceV1 as Literal};
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
@@ -27,6 +27,7 @@ pub(super) struct EmittedExpressionValueV1 {
 pub(super) struct EmittedExpressionBodyV1 {
     pub(super) values: Vec<Option<EvaluatedExpressionValueV1>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+    pub(super) dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     pub(super) acquired: Vec<(usize, ValueId)>,
@@ -34,6 +35,11 @@ pub(super) struct EmittedExpressionBodyV1 {
     pub(super) fault_frame: ValueId,
     pub(super) entry: Binding,
     pub(super) bindings: Vec<Binding>,
+}
+
+pub(in crate::mir::builder) enum ExpressionCallEmissionV1 {
+    Lexical(EmittedLexicalCallProjectionV1),
+    Dynamic(Rc<EmittedDynamicInvocationCallProjectionV1>),
 }
 
 pub(super) fn emit(
@@ -46,7 +52,10 @@ pub(super) fn emit(
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
-    emit_with_prefix(builder, state, ledger, frame, None, emit_call)
+    emit_with_dynamic_calls(builder, state, ledger, frame, None, &mut |builder, state, call, acquired, values, bindings| {
+        emit_call(builder, state, call, acquired, values, bindings)
+            .map(ExpressionCallEmissionV1::Lexical)
+    })
 }
 
 pub(super) fn emit_with_prefix(
@@ -59,6 +68,23 @@ pub(super) fn emit_with_prefix(
         &mut MirBuilder, &mut CallableSemanticLoweringState,
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
+) -> Result<EmittedExpressionValueV1, String> {
+    emit_with_dynamic_calls(builder, state, ledger, frame, inherited, &mut |builder, state, call, acquired, values, bindings| {
+        emit_call(builder, state, call, acquired, values, bindings)
+            .map(ExpressionCallEmissionV1::Lexical)
+    })
+}
+
+pub(in crate::mir::builder) fn emit_with_dynamic_calls(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    frame: &CheckedExpressionEvaluationV1,
+    inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    emit_call: &mut impl FnMut(
+        &mut MirBuilder, &mut CallableSemanticLoweringState,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
+    ) -> Result<ExpressionCallEmissionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
     let body = emit_body_with_prefix(builder, state, ledger, frame, None, inherited, emit_call)?;
     let value = body.values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
@@ -77,7 +103,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     comparison: Option<usize>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     emit_call: &mut impl FnMut(&mut MirBuilder, &mut CallableSemanticLoweringState,
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>)
-        -> Result<EmittedLexicalCallProjectionV1, String>,
+        -> Result<ExpressionCallEmissionV1, String>,
 ) -> Result<EmittedExpressionBodyV1, String> {
     let order = match comparison {
         Some(node) => frame.scalar_invoke_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?,
@@ -193,6 +219,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
     let mut acquired = Vec::new();
     let mut calls = Vec::new();
+    let mut dynamic_calls = Vec::new();
     for &index in &order {
         if frame.transfers_node(index) { continue; }
         let node = &source.nodes()[index];
@@ -291,15 +318,28 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             Node::MethodCall => {
                 let call = frame.calls().iter().find(|call| call.site().site() == node.site())
                     .ok_or_else(|| freeze("print-expression/call-source-missing"))?;
-                let packet = Rc::new(emit_call(builder, state, call, &acquired, &values, &mut bindings)?);
-                let value = packet.value_with_ledger(owner, call.arguments(), ledger)?;
-                let owned = frame.owned_result_nodes().contains(&index);
-                if owned != (packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)) {
-                    return Err(freeze("print-expression/call-source-missing"));
+                match emit_call(builder, state, call, &acquired, &values, &mut bindings)? {
+                    ExpressionCallEmissionV1::Lexical(packet) => {
+                        let packet = Rc::new(packet);
+                        let value = packet.value_with_ledger(owner, call.arguments(), ledger)?;
+                        let owned = frame.owned_result_nodes().contains(&index);
+                        if owned != (packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)) {
+                            return Err(freeze("print-expression/call-source-missing"));
+                        }
+                        calls.push(packet);
+                        if owned { acquired.push((index, value)); Operand::OwnedString(value) }
+                        else { Operand::NormalInteger(value) }
+                    }
+                    ExpressionCallEmissionV1::Dynamic(packet) => {
+                        if !matches!(call.result_source(), Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::DynamicInvocation(_)))
+                            || call.dynamic_invocation_result_lifecycle_v1().is_none() {
+                            return Err(freeze("dynamic-expression/call-source"));
+                        }
+                        let value = packet.value();
+                        dynamic_calls.push(packet);
+                        Operand::DynamicCarrier(value)
+                    }
                 }
-                calls.push(packet);
-                if owned { acquired.push((index, value)); Operand::OwnedString(value) }
-                else { Operand::NormalInteger(value) }
             }
             Node::Binary(binary) => {
                 let operand = |site| source.nodes().iter().position(|node| node.site() == site)
@@ -375,7 +415,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     }
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
-    Ok(EmittedExpressionBodyV1 { values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings })
+    Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings })
 }
 
 pub(super) fn pending_operations(acquired: &[(usize, ValueId)], homes: &[InvokeOperation]) -> Vec<InvokeOperation> {

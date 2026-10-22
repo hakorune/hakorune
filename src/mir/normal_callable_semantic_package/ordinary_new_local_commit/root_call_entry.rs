@@ -734,6 +734,9 @@ mod lexical_terminal;
 
 #[path = "root_call_entry/expression_projection.rs"]
 mod expression_projection;
+#[path = "root_call_entry/dynamic_invocation_expression_projection.rs"]
+mod dynamic_invocation_expression_projection;
+pub(in crate::mir) use dynamic_invocation_expression_projection::EmittedDynamicInvocationCallProjectionV1;
 
 #[path = "root_call_entry/print_expression_projection.rs"]
 mod print_expression_projection;

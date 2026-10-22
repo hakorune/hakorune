@@ -148,6 +148,7 @@ pub(crate) use local_commit::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmis
 pub(in crate::mir) use local_commit::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
+pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use local_commit::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
 pub(crate) use local_commit::PendingChildPhysicalValidationV1;
 pub(crate) use local_commit::PendingRootHomeExitV1;

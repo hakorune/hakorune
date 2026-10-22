@@ -40,6 +40,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     frame: &'a CheckedExpressionEvaluationV1,
     values: &'a [Option<EvaluatedExpressionValueV1>],
     calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
+    dynamic_calls: &'a [Rc<EmittedDynamicInvocationCallProjectionV1>],
     path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
     reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     original: &'a [Binding],
@@ -57,7 +58,20 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
         reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
         original: &'a [Binding],
-    ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original, comparison: None, scalar_receiver: None } }
+    ) -> Self { Self::new_with_dynamic(frame, values, calls, &[], path_reads, reference_reads, original) }
+
+    pub(in crate::mir) fn new_with_dynamic(
+        frame: &'a CheckedExpressionEvaluationV1,
+        values: &'a [Option<EvaluatedExpressionValueV1>],
+        calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
+        dynamic_calls: &'a [Rc<EmittedDynamicInvocationCallProjectionV1>],
+        path_reads: &'a [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>],
+        reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
+        original: &'a [Binding],
+    ) -> Self {
+        Self { frame, values, calls, dynamic_calls, path_reads, reference_reads, original,
+            comparison: None, scalar_receiver: None }
+    }
 
     pub(in crate::mir) fn for_comparison_inputs(mut self, node: usize, result: ValueId, receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>) -> Result<Self, String> {
         self.frame.scalar_invoke_input_order_v1(node).ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
@@ -103,7 +117,13 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     }
     fn source_calls(&self) -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
         self.frame.calls().iter().filter(|call| self.frame.source().nodes().iter().position(|node|
-            node.site() == call.site().site()).is_some_and(|node| self.node_selected(node)))
+            node.site() == call.site().site()).is_some_and(|node| self.node_selected(node))
+            && call.dynamic_invocation_result_lifecycle_v1().is_none())
+    }
+    fn source_dynamic_calls(&self) -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
+        self.frame.calls().iter().filter(|call| self.frame.source().nodes().iter().position(|node|
+            node.site() == call.site().site()).is_some_and(|node| self.node_selected(node))
+            && call.dynamic_invocation_result_lifecycle_v1().is_some())
     }
     fn comparison_pair(&self) -> Result<Option<[Binding; 2]>, String> {
         let Some((node, result)) = self.comparison else { return Ok(None) };
@@ -119,6 +139,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
 
     fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
+    }
+    fn dynamic_calls(&self) -> impl Iterator<Item = &EmittedDynamicInvocationCallProjectionV1> {
+        self.dynamic_calls.iter().map(Rc::as_ref)
     }
 
     /// One transient census of original field geometry, shared by source and
@@ -146,7 +169,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let ledger = context.ledger();
         let source = self.frame.source();
         if !self.frame.reference_coverage_is_exact()
-            || self.values.len() != source.nodes().len() || self.calls.len() != self.source_calls().count()
+            || self.values.len() != source.nodes().len()
+            || self.calls.len() != self.source_calls().count()
+            || self.dynamic_calls.len() != self.source_dynamic_calls().count()
         {
             return Err(freeze("print-expression/source-coverage"));
         }
@@ -198,6 +223,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             if self.values[index] != Some(expected.into()) {
                 return Err(freeze("print-expression/call-value"));
             }
+        }
+        for (observed, packet) in self.source_dynamic_calls().zip(self.dynamic_calls()) {
+            if observed.prior_homes() != self.frame.prior_homes() {
+                return Err(freeze("dynamic-expression/prior-homes"));
+            }
+            packet.validate_source_v1(self.frame, self.values, observed, context, self.original)?;
         }
         let find_value = |site| {
             source
@@ -264,6 +295,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     if self
                         .calls()
                         .any(|packet| packet.call_site().site() == node.site()) => {}
+                (Node::MethodCall, Some(Operand::DynamicCarrier(value)))
+                    if self.dynamic_calls().any(|packet| packet.source().site().site() == node.site()
+                        && packet.value() == *value) => {}
                 (
                     Node::Shape(
                         crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess {
@@ -474,6 +508,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     .ok_or_else(|| freeze("print-expression/call-source"))?;
                 ordered.extend(packet.ordered_call_bindings_in_context_v1(
                     source.owner(), call.arguments(), context)?);
+                continue;
+            }
+            if let Some(packet) = self.dynamic_calls().find(|packet|
+                packet.source().site().site() == source.nodes()[index].site()) {
+                ordered.extend(packet.ordered_bindings());
                 continue;
             }
             if let Some(EvaluatedExpressionValueV1::Bool(value)) = self.values[index].as_ref() {
@@ -735,6 +774,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         for packet in self.calls() {
             packet.validate_recorded_projected(bindings, finishing)?;
         }
+        for packet in self.dynamic_calls() {
+            packet.validate_recorded_projected_v1(bindings, finishing)?;
+        }
         Ok(())
     }}
 
@@ -859,7 +901,13 @@ pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
         order.iter().position(|node| frame.source().nodes()[*node].site() == call.site().site())
             .ok_or_else(|| freeze("expression-call/source-node"))?
     } else { order.len() };
-    let expected = order[..end].iter().copied().filter(|node| frame.owned_result_nodes().contains(node));
+    let expected = order[..end].iter().copied().filter(|node| {
+        frame.owned_result_nodes().contains(node)
+            && !frame.calls().iter().any(|call| {
+                call.site().site() == frame.source().nodes()[*node].site()
+                    && call.dynamic_invocation_result_lifecycle_v1().is_some()
+            })
+    });
     if acquired.iter().map(|(node, _)| *node).ne(expected) {
         return Err(freeze("expression-call/acquisition-prefix"));
     }

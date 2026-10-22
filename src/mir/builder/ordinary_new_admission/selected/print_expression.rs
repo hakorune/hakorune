@@ -21,7 +21,7 @@ pub(in crate::mir::builder) fn emit(
     if state.owner() != owner { return Err(freeze("print-expression/state-owner")); }
     let expression_value::EmittedExpressionValueV1 {
         value, body: expression_value::EmittedExpressionBodyV1 {
-            values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, mut bindings,
+            values, calls, dynamic_calls: _, path_reads, reference_reads, acquired, homes, fault_frame, entry, mut bindings,
         }, purpose_acquisition: _,
     } = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(

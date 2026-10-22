@@ -749,6 +749,7 @@ pub(in crate::mir) use root_home::{
     LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
     PreparedSelectedStaticLoopCallProjectionV1,
 };
+pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;
 
 pub(crate) use root_home::{RootLifecyclePrefixBindingGroupV1, StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1};
 pub(crate) use root_home::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};

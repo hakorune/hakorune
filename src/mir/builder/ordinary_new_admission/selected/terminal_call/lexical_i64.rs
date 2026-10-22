@@ -12,7 +12,7 @@ use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 type Binding = (crate::mir::BasicBlockId, MirInstruction);
 #[path = "lexical_i64_expression.rs"]
 mod expression;
-pub(in crate::mir::builder) use expression::{emit as emit_expression_call, emit_with_prefix as emit_expression_call_with_prefix, emit_bool as emit_bool_condition_call, StaticExpressionCallIssuerV1};
+pub(in crate::mir::builder) use expression::{emit as emit_expression_call, emit_with_prefix as emit_expression_call_with_prefix, emit_with_dynamic as emit_expression_call_with_dynamic, emit_bool as emit_bool_condition_call, StaticExpressionCallIssuerV1};
 use expression::ExpressionCallPrefixV1;
 
 /// Emit one source-issued lexical instance-call local result

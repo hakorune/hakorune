@@ -15,7 +15,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 pub(in crate::mir::builder) use lexical_i64::prepare_arguments as prepare_lexical_arguments;
-pub(in crate::mir::builder) use lexical_i64::{emit_constructor_unit, emit_unit_discard, emit_expression_call, emit_expression_call_with_prefix, emit_bool_condition_call, emit_local_lexical_i64, emit_local_lexical_source, StaticExpressionCallIssuerV1};
+pub(in crate::mir::builder) use lexical_i64::{emit_constructor_unit, emit_unit_discard, emit_expression_call, emit_expression_call_with_prefix, emit_expression_call_with_dynamic, emit_bool_condition_call, emit_local_lexical_i64, emit_local_lexical_source, StaticExpressionCallIssuerV1};
 #[path = "terminal_call/static_return.rs"]
 mod static_return;
 pub(in crate::mir::builder) use static_return::emit as emit_static_return;

@@ -65,7 +65,7 @@ impl PendingEvaluatedInitializerV1 {
         if let Some(copy) = receipt.copy() { bindings.push(copy.clone()); }
         let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(self.frame,
             receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.body.values,
-            expression.body.calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
+            expression.body.calls, expression.body.dynamic_calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
             expression.body.entry, self.terminal, self.continuation, expression.body.bindings, ledger, function)?);
         ledger.prepare_initializer_expression_bindings(packet, bindings)?.commit()
     }
@@ -84,8 +84,8 @@ pub(in crate::mir::builder) fn emit(
         return Err(freeze("initializer-expression/local-contract-receipt-pending"));
     }
     ledger.validate_initializer_expression_source_v1(&frame)?;
-    let mut expression = expression_value::emit(builder, state, ledger, frame.evaluation(),
-        &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
+    let mut expression = expression_value::emit_with_dynamic_calls(builder, state, ledger, frame.evaluation(), None,
+        &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_dynamic(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, static_source))?;
     let (terminal, continuation) = if frame.is_dynamic_invocation_result() {
         expression_value::finish_dynamic_initializer_continuation(builder, &mut expression)?

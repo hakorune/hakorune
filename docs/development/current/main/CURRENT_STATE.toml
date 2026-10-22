@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/emission/expression-call/disposition-missing: source-bound Dynamic CallSlot emission and path-complete carrier lifecycle remain unwired"
+current_blocker_token = "ordinary-new/local-commit/lexical-call-prior-home-unavailable: push-only ArrayBox Home is absent from the installed cleanup rows"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator: Fresh explicit `target/quick` smoke reaches `ordinary-new/emission/expression-call/disposition-missing`; no EXE.
-Dynamic initializer value now reaches the existing Local projection receipt as the same carrier, without a copy; this handoff is not lifecycle-complete.
-Source-bound Dynamic CallSlot, carrier read/operators, and path-complete Normal/Fault End or forward remain unwired; no app workaround or fallback.
-`Less(I64, Dynamic)` contract and source admission remain recorded in the app card and language SSOT; `cargo quick-build-fast --jobs 4` passes for this WIP.
-Next connect the source-bound call issuer and carrier lifecycle, then rerun the same EXE smoke. Full app, suite, and finite goal remain incomplete.
+APP-json-stream-aggregator: Fresh `target/quick` smoke fails `ordinary-new/local-commit/lexical-call-prior-home-unavailable` in `StringHelpers.split_lines`; no EXE.
+The prior Home is `arr = new ArrayBox()`; its push-only source has no ArrayGet-derived owned-array cleanup row, so Fault unwind is unavailable.
+Before carrier append lowering, decide whether ArrayBox push owns a `SelfContainedDynamicCarrier`; the existing typed object-slot contract does not grant this.
+Source-bound Dynamic expression emission builds, but full CallSlot publication/read and path-complete carrier End/forward remain incomplete.
+`cargo quick-build-fast --jobs 4` passes; focused JSON EXE smoke fails. Full app, suite, and finite goal remain incomplete.
 """
 next_design_card = "none"
 next_design_card_path = "none"
