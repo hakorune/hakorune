@@ -40,6 +40,9 @@ uint32_t nyrt_dynamic_checked_invoke_v1(void *, uint64_t,
     const NyrtDynamicInvocationOperandV1 *, const uint8_t *, size_t,
     const NyrtDynamicInvocationOperandV1 *, size_t, uint64_t *)
     __asm__("nyash.dynamic.checked_invoke_v1");
+/* Borrow an integer payload; a different live carrier kind records Fault. */
+uint32_t nyrt_dynamic_checked_integer_v1(void *, uint64_t, uint64_t, int64_t *)
+    __asm__("nyash.dynamic.checked_integer_v1");
 uint32_t nyrt_dynamic_checked_end_v1(void *, uint64_t, uint64_t)
     __asm__("nyash.dynamic.checked_end_v1");
 

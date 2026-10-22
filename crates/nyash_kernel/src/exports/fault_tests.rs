@@ -621,6 +621,7 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
     let mut frame = FaultFrame::new();
     let pointer = (&mut frame as *mut FaultFrame).cast();
     let mut carrier = 0x1234;
+    let mut integer = -91;
     unsafe {
         assert_eq!(
             api::invoke(
@@ -635,18 +636,19 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
             ),
             0
         );
-        let token =
-            nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(carrier)
-                .expect("Normal publishes a branded carrier");
         let carrier_raw = carrier;
-        assert_eq!(token.integer_payload_v1().unwrap(), 2);
-        assert_eq!(api::end(pointer, 42, carrier_raw), 0);
+        assert_eq!(
+            api::integer_payload(pointer, 42, carrier_raw, &mut integer),
+            0
+        );
+        assert_eq!(integer, 2);
+        assert_eq!(api::end(pointer, 43, carrier_raw), 0);
 
         carrier = 0x5678;
         assert_eq!(
             api::invoke(
                 pointer,
-                43,
+                44,
                 &receiver,
                 b"missing".as_ptr(),
                 7,
@@ -657,10 +659,10 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
             1
         );
         assert_eq!(carrier, 0x5678, "Fault publishes no carrier");
-        assert_eq!(api::end(pointer, 44, carrier_raw), 1);
+        assert_eq!(api::end(pointer, 45, carrier_raw), 1);
     }
     let (primary, suppressed, _) = frame.diagnostics().unwrap();
-    assert_eq!((primary.unwrap().reason, primary.unwrap().site), (400, 43));
+    assert_eq!((primary.unwrap().reason, primary.unwrap().site), (400, 44));
     assert_eq!(
         primary.unwrap().details[0],
         2,
@@ -671,6 +673,51 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
         1,
         "a later cleanup Fault is suppressed behind the first"
     );
-    assert_eq!(suppressed[0].site, 44);
+    assert_eq!(suppressed[0].site, 45);
+
+    let substring = b"substring";
+    let arguments = [
+        Operand {
+            kind: 2,
+            tag: 0,
+            payload: 0,
+        },
+        Operand {
+            kind: 2,
+            tag: 0,
+            payload: 1,
+        },
+    ];
+    let mut type_frame = FaultFrame::new();
+    let type_pointer = (&mut type_frame as *mut FaultFrame).cast();
+    let mut string_carrier = 0;
+    let mut rejected_integer = -73;
+    unsafe {
+        assert_eq!(
+            api::invoke(
+                type_pointer,
+                50,
+                &receiver,
+                substring.as_ptr(),
+                substring.len(),
+                arguments.as_ptr(),
+                arguments.len(),
+                &mut string_carrier
+            ),
+            0
+        );
+        assert_eq!(
+            api::integer_payload(type_pointer, 51, string_carrier, &mut rejected_integer),
+            1
+        );
+        assert_eq!(
+            rejected_integer, -73,
+            "Fault leaves the projection output untouched"
+        );
+        assert_eq!(api::end(type_pointer, 52, string_carrier), 0);
+    }
+    let (primary, _, _) = type_frame.diagnostics().unwrap();
+    let primary = primary.unwrap();
+    assert_eq!((primary.reason, primary.site, primary.details[0]), (400, 51, 4));
     host_handles::drop_handle(handle);
 }

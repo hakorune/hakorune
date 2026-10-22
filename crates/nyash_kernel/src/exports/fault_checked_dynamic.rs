@@ -150,6 +150,36 @@ pub unsafe extern "C" fn invoke(
     }
 }
 
+/// Borrow an opaque carrier as an integer for a separately admitted Dynamic
+/// operator. A non-integer payload records TypeError and leaves `out`
+/// untouched; this read does not consume the carrier.
+#[export_name = "nyash.dynamic.checked_integer_v1"]
+pub unsafe extern "C" fn integer_payload(
+    storage: *mut c_void,
+    site: u64,
+    raw: u64,
+    out: *mut i64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let token = match DynamicCarrierTokenV1::from_raw_v1(raw) {
+        Ok(token) => token,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    match token.integer_payload_v1() {
+        Ok(value) => {
+            unsafe { out.write(value) };
+            Status::Normal as u32
+        }
+        Err(failure) => record_failure(frame, site, failure),
+    }
+}
+
 /// Consume one opaque carrier. A second End is a source Fault; malformed
 /// tokens are rejected as invalid physical contracts before table access.
 #[export_name = "nyash.dynamic.checked_end_v1"]
