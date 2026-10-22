@@ -363,6 +363,11 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                     DynamicOperatorValueClassV1::Dynamic,
                     DynamicOperatorValueClassV1::I64,
                 ),
+            (Leaf::Value(Class::I64), Leaf::Value(Class::Dynamic))
+                if binary.operator() == Op::Less => (
+                    DynamicOperatorValueClassV1::I64,
+                    DynamicOperatorValueClassV1::Dynamic,
+                ),
             (Leaf::Value(Class::Bool), Leaf::Value(Class::Bool))
                 if matches!(binary.operator(), Op::Equal | Op::NotEqual) =>
             {

@@ -111,6 +111,18 @@ const LESS_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         None,
     );
 
+const LESS_I64_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Less,
+            DynamicOperatorValueClassV1::I64,
+            DynamicOperatorValueClassV1::Dynamic,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
 const fn dynamic_string_comparison(
     family: DynamicOperatorFamilyV1,
     left: DynamicOperatorValueClassV1,
@@ -412,6 +424,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::I64,
         ) => Ok(&LESS_DYNAMIC_I64),
+        (
+            DynamicOperatorFamilyV1::Less,
+            DynamicOperatorValueClassV1::I64,
+            DynamicOperatorValueClassV1::Dynamic,
+        ) => Ok(&LESS_I64_DYNAMIC),
         (
             DynamicOperatorFamilyV1::Equal,
             DynamicOperatorValueClassV1::NormalInteger,

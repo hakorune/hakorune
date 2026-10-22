@@ -28,6 +28,11 @@ DynamicLess(Dynamic, Dynamic|I64):
   outcome     = Normal(TrivialBool) | Fault(TypeError)
   lifecycle   = none
 
+DynamicLess(I64, Dynamic):
+  same effect/order/suspension/control/operand law
+  outcome     = Normal(TrivialBool) | Fault(TypeError)
+  lifecycle   = none
+
 Dynamic/String comparison:
   Equal/NotEqual(Dynamic, String) | (String, Dynamic):
     Normal(TrivialBool); a well-formed non-String Dynamic tag compares unequal
@@ -116,6 +121,14 @@ This is a source-class pair, not permission to infer String from a selector,
 provider, caller, runtime tag, or MIR representation. The Dynamic operand
 remains tagged through source admission; runtime tag inspection occurs only
 inside the admitted comparison operation.
+
+`Less(I64, Dynamic)` is the operand-order-complete sibling of
+`Less(Dynamic, I64)`. It compares the exact signed integer on the left with
+the Dynamic integer value on the right. A well-formed non-integer Dynamic
+value Faults with `TypeError`; malformed carriers Fault before a result. Both
+inputs remain borrowed and unchanged, and the result is a `TrivialBool` with
+no carrier lifecycle. This preserves source operand order and does not rewrite
+the expression or reinterpret a Dynamic carrier as an i64.
 
 ## Checked Integer comparisons
 

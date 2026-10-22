@@ -64,7 +64,13 @@ fn dynamic_less_and_mixed_string_comparisons_keep_complete_contracts() {
     let dynamic = DynamicOperatorValueClassV1::Dynamic;
     let string = DynamicOperatorValueClassV1::String;
     let i64 = DynamicOperatorValueClassV1::I64;
-    for (left, right) in [(dynamic, dynamic), (dynamic, i64), (dynamic, string), (string, dynamic)] {
+    for (left, right) in [
+        (dynamic, dynamic),
+        (dynamic, i64),
+        (i64, dynamic),
+        (dynamic, string),
+        (string, dynamic),
+    ] {
         let envelope = issue(DynamicOperatorFamilyV1::Less, left, right).unwrap();
         assert_eq!(
             envelope.normal_result(),
