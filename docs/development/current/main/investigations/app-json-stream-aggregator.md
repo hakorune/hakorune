@@ -12,12 +12,15 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 
 ## Current stop and contract
 - The exact Dynamic source target, language-wide execution envelope, and source initializer frame now exist. The selected initializer emitter still accepts only i64/Text, so Dynamic has no physical/runtime invocation or carrier Normal/Fault publication.
+- The existing `CheckedCallOut`/Dynamic V2 route is TextScan-specific: its site plans and C lowering admit fixed entries, and its wire cannot represent the full trivial/owner-bearing/weak carrier contract. Do not widen the initializer gate or reuse that route as generic dispatch.
 - The Dynamic/String comparison envelopes are now issued for both operand orders; they still have no physical execution consumer.
 - This is an ordinary Dynamic invocation even when the runtime receiver may be String. Keep the source tag and selector/arity relation; do not infer String from `length`, caller behavior, or a MIR type.
 - The existing bounded Dynamic Loop CallSlot and TextScan entries are not generic invocation owners. Do not route through plugin per-call snapshots, arity retry, compatibility fallback, or a selector-specific Text operation.
 - The accepted contract remains `OpaqueObservable`, synchronous/non-detached, `Normal(SelfContainedDynamicCarrier) | Fault`, borrowed-no-escape inputs, and exactly-once result forwarding or End.
 
 ## Next work
+- Issue one immutable provider plan from runtime class plus exact source selector/arity; the final C consumer must execute that frozen entry once, not choose a provider.
+- Preserve the complete Dynamic carrier categories and exactly-once forwarding/end lifecycle. After invocation, this helper also needs `I64 < Dynamic` and Dynamic/String operator consumers.
 - Continue from the selected initializer-emission owner: extend the source-bound Dynamic call into a generic checked ordinary-expression CallSlot, then connect it through provider admission, one immutable registry, a leased plan, one physical/runtime invocation, and Normal/Fault lifecycle publication.
 - Use the current expression source plan for receiver/argument evaluation order and exact source identity. Preserve terminal Fault, input ownership, and complete cleanup; no `.hako` rewrite or app/name branch.
 - Re-run the explicit focused smoke after the complete route reaches its physical/runtime consumer. Keep other app work and the full suite at the existing gate.
