@@ -15,6 +15,8 @@ pub enum StringInvokeOperand {
     NormalInteger(ValueId),
     /// Original tag/payload pair from a verified untyped formal; not Text.
     Dynamic(ValueId),
+    /// Opaque result of a checked Dynamic invocation; never a tag/payload pair.
+    DynamicCarrier(ValueId),
 }
 // One descriptor spelling for canonical transport and passive write census.
 impl serde::Serialize for StringInvokeOperand {
@@ -26,6 +28,7 @@ impl serde::Serialize for StringInvokeOperand {
             Self::TextOperand(value) => serde_json::json!({"kind":"text_operand", "value":value.as_u32()}),
             Self::NormalInteger(value) => serde_json::json!({"kind":"normal_integer", "value":value.as_u32()}),
             Self::Dynamic(value) => serde_json::json!({"kind":"tagged_dynamic", "value":value.as_u32()}),
+            Self::DynamicCarrier(value) => serde_json::json!({"kind":"dynamic_carrier", "value":value.as_u32()}),
         };
         serde::Serialize::serialize(&value, serializer)
     }
@@ -36,6 +39,7 @@ impl StringInvokeOperand {
             Self::StaticText { .. } => None,
             Self::OwnedString(value) | Self::BorrowedText(value) | Self::TextOperand(value)
                 | Self::NormalInteger(value) | Self::Dynamic(value) => Some(*value),
+            Self::DynamicCarrier(value) => Some(*value),
         }
     }
     pub fn rewrite_value(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
@@ -43,10 +47,11 @@ impl StringInvokeOperand {
             Self::StaticText { .. } => {}
             Self::OwnedString(value) | Self::BorrowedText(value) | Self::TextOperand(value)
                 | Self::NormalInteger(value) | Self::Dynamic(value) => rewrite(value),
+            Self::DynamicCarrier(value) => rewrite(value),
         }
     }
     pub fn is_text(&self) -> bool {
-        !matches!(self, Self::NormalInteger(_) | Self::Dynamic(_))
+        !matches!(self, Self::NormalInteger(_) | Self::Dynamic(_) | Self::DynamicCarrier(_))
     }
 }
 
@@ -127,13 +132,16 @@ impl StringInvokeOperation {
     pub fn valid_operand_domains(&self) -> bool {
         match self {
             Self::Add { left, .. } => left.is_text(),
-            Self::Compare { left, right, .. } => left.is_text() && right.is_text(),
+            Self::Compare { left, right, .. } => {
+                (left.is_text() || matches!(left, StringInvokeOperand::DynamicCarrier(_)))
+                    && (right.is_text() || matches!(right, StringInvokeOperand::DynamicCarrier(_)))
+            }
             Self::Materialize { value } | Self::Length { value } => value.is_text(),
             Self::Substring { value, start, end } => value.is_text()
                 && matches!(start, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_))
                 && matches!(end, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_)),
             Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
-            Self::Print { value } => !matches!(value, StringInvokeOperand::Dynamic(_)),
+            Self::Print { value } => !matches!(value, StringInvokeOperand::Dynamic(_) | StringInvokeOperand::DynamicCarrier(_)),
             Self::End { .. } => true,
         }
     }
