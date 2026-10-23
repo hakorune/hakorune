@@ -30,7 +30,7 @@ impl ArrayBox {
         let mut state = self.items.state.write();
         if matches!(
             &state.storage,
-            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
         ) {
             return Err(Error::UnsupportedStorage);
         }
@@ -79,7 +79,7 @@ impl ArrayBox {
             ArrayStorage::InlineBool(values) => values.reserve(additional),
             ArrayStorage::InlineF64(values) => values.reserve(additional),
             ArrayStorage::InlineRecord(values) => values.reserve(additional),
-            ArrayStorage::OwnedObject(_) => return false,
+            ArrayStorage::OwnedSlots(_) => return false,
         }
         true
     }
@@ -88,7 +88,7 @@ impl ArrayBox {
     /// Keeps visible owner semantics above the capacity seam.
     pub fn slot_grow_capacity_raw(&self, target_capacity: usize) -> bool {
         let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::OwnedObject(_)) {
+        if matches!(&*items, ArrayStorage::OwnedSlots(_)) {
             return false;
         }
         let current_capacity = items.capacity();
@@ -102,7 +102,7 @@ impl ArrayBox {
                     ArrayStorage::InlineBool(values) => values.reserve(needed),
                     ArrayStorage::InlineF64(values) => values.reserve(needed),
                     ArrayStorage::InlineRecord(values) => values.reserve(needed),
-                    ArrayStorage::OwnedObject(_) => return false,
+                    ArrayStorage::OwnedSlots(_) => return false,
                 }
             }
         }
@@ -163,7 +163,7 @@ impl ArrayBox {
                     }
                 }
             },
-            ArrayStorage::OwnedObject(_) => {
+            ArrayStorage::OwnedSlots(_) => {
                 Box::new(StringBox::new("[array/owned-slots/mutation-denied]"))
             }
             ArrayStorage::InlineRecord(values) => {

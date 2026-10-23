@@ -361,6 +361,23 @@ uint32_t nyrt_array_checked_owned_get_v1(void *, uint64_t, int64_t, const NyrtAr
     __asm__("nyash.array.checked_owned_get_v1");
 uint32_t nyrt_array_checked_owned_end_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *)
     __asm__("nyash.array.checked_owned_end_v1");
+/* Separate append-only opaque Dynamic carrier profile. The immutable AOT
+ * descriptor is {version=1,reserved=0}; it never carries an object End thunk.
+ * Normal append atomically transfers the token's sole End obligation to this
+ * exact Array residence. Rejection leaves it caller-owned. End detaches under
+ * Array storage synchronization, ends carriers in reverse commit order after
+ * releasing Array/handle locks, then releases the residence. No Get/clone or
+ * object/Text profile mixing is authorized by this ABI. */
+typedef struct NyrtArrayDynamicCarrierDescriptorV1 {
+    uint32_t version;
+    uint32_t reserved;
+} NyrtArrayDynamicCarrierDescriptorV1;
+uint32_t nyrt_array_checked_carrier_claim_v1(void *, uint64_t, int64_t,
+    const NyrtArrayDynamicCarrierDescriptorV1 *) __asm__("nyash.array.checked_carrier_claim_v1");
+uint32_t nyrt_array_checked_carrier_append_v1(void *, uint64_t, int64_t,
+    const NyrtArrayDynamicCarrierDescriptorV1 *, uint64_t) __asm__("nyash.array.checked_carrier_append_v1");
+uint32_t nyrt_array_checked_carrier_end_v1(void *, uint64_t, int64_t,
+    const NyrtArrayDynamicCarrierDescriptorV1 *) __asm__("nyash.array.checked_carrier_end_v1");
 /* Checked Map ABI: opaque region sizes/alignment come only from descriptor V2.
  * All regions are initialized, aligned, nonoverlapping and synchronous. Init
  * requires fresh unique bytes, not a live value. Key UTF-8 prepare precedes child

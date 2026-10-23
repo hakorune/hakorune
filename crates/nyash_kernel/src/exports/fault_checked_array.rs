@@ -12,6 +12,9 @@ use std::{ffi::c_void, sync::Arc};
 #[path = "fault_checked_array_owned.rs"]
 mod owned;
 
+#[path = "fault_checked_array_carrier.rs"]
+mod carrier;
+
 const ELEMENT_I8: u32 = 1;
 const ELEMENT_I16: u32 = 2;
 const ELEMENT_I32: u32 = 3;

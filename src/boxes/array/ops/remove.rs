@@ -44,7 +44,7 @@ impl ArrayBox {
                         Box::new(crate::boxes::null_box::NullBox::new())
                     }
                 }
-                ArrayStorage::OwnedObject(_) => {
+                ArrayStorage::OwnedSlots(_) => {
                     Box::new(StringBox::new("[array/owned-slots/mutation-denied]"))
                 }
                 ArrayStorage::InlineRecord(values) => {

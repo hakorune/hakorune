@@ -197,3 +197,23 @@ pub unsafe extern "C" fn end(storage: *mut c_void, site: u64, raw: u64) -> u32 {
         Err(failure) => record_failure(frame, site, failure),
     }
 }
+
+pub(super) unsafe fn end_array_slot(
+    storage: *mut c_void,
+    site: u64,
+    raw: u64,
+    owner_identity: usize,
+) -> u32 {
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let token = match DynamicCarrierTokenV1::from_raw_v1(raw) {
+        Ok(token) => token,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    match token.end_array_slot_v1(owner_identity) {
+        Ok(()) => Status::Normal as u32,
+        Err(failure) => record_failure(frame, site, failure),
+    }
+}

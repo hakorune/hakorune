@@ -39,7 +39,7 @@ impl<'a> ArrayTextSlotSession<'a> {
                 | ArrayStorage::InlineBool(_)
                 | ArrayStorage::InlineF64(_)
                 | ArrayStorage::InlineRecord(_)
-                | ArrayStorage::OwnedObject(_) => None,
+                | ArrayStorage::OwnedSlots(_) => None,
             };
             if let Some(values) = promoted {
                 *self.storage = ArrayStorage::Text(values);
@@ -80,7 +80,7 @@ impl<'a> ArrayTextSlotSession<'a> {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => None,
+            | ArrayStorage::OwnedSlots(_) => None,
         }
     }
 }
@@ -146,7 +146,7 @@ impl ArrayBox {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => None,
+            | ArrayStorage::OwnedSlots(_) => None,
         }
     }
 
@@ -167,7 +167,7 @@ impl ArrayBox {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => None,
+            | ArrayStorage::OwnedSlots(_) => None,
         }
     }
 
@@ -210,7 +210,7 @@ impl ArrayBox {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => return None,
+            | ArrayStorage::OwnedSlots(_) => return None,
         }
 
         for step in 0..loop_bound {
@@ -410,7 +410,7 @@ impl ArrayBox {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => return None,
+            | ArrayStorage::OwnedSlots(_) => return None,
             ArrayStorage::Text(_) => unreachable!("text storage returned above"),
         };
         if loop_bound > boxed_len {
@@ -483,7 +483,7 @@ impl ArrayBox {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => return None,
+            | ArrayStorage::OwnedSlots(_) => return None,
             ArrayStorage::Text(_) => unreachable!("text storage returned above"),
         };
         if row_modulus > boxed_len {
@@ -643,7 +643,7 @@ impl ArrayBox {
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_)
             | ArrayStorage::InlineRecord(_)
-            | ArrayStorage::OwnedObject(_) => return None,
+            | ArrayStorage::OwnedSlots(_) => return None,
             ArrayStorage::Text(_) => unreachable!("text storage returned above"),
         };
         if row_modulus > boxed_len || observer_bound > boxed_len {

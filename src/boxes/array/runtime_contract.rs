@@ -73,7 +73,7 @@ fn audit_storage(
         | ArrayStorage::InlineBool(_)
         | ArrayStorage::InlineF64(_)
         | ArrayStorage::InlineRecord(_)
-        | ArrayStorage::OwnedObject(_) => {
+        | ArrayStorage::OwnedSlots(_) => {
             Err(TypedArrayRuntimeContractError::ExistingElementMismatch {
                 index: 0,
                 reason: "runtime-type-mismatch",

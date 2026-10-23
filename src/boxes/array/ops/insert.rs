@@ -41,7 +41,7 @@ impl ArrayBox {
         }
         if matches!(
             &state.storage,
-            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
         ) {
             return false;
         }

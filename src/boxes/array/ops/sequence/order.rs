@@ -28,7 +28,7 @@ impl ArrayBox {
                 ArrayStorage::InlineF64(values) => {
                     values.iter().map(|value| value.to_string()).collect()
                 }
-                ArrayStorage::OwnedObject(_) => {
+                ArrayStorage::OwnedSlots(_) => {
                     return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
                 }
                 ArrayStorage::InlineRecord(_) => {
@@ -51,7 +51,7 @@ impl ArrayBox {
             ArrayStorage::InlineI64(values) => values.sort_unstable(),
             ArrayStorage::InlineBool(values) => values.sort_unstable(),
             ArrayStorage::InlineF64(values) => values.sort_by(|lhs, rhs| lhs.total_cmp(rhs)),
-            ArrayStorage::OwnedObject(_) => {
+            ArrayStorage::OwnedSlots(_) => {
                 return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
             }
             ArrayStorage::InlineRecord(_) => {
@@ -123,7 +123,7 @@ impl ArrayBox {
             ArrayStorage::InlineI64(values) => values.reverse(),
             ArrayStorage::InlineBool(values) => values.reverse(),
             ArrayStorage::InlineF64(values) => values.reverse(),
-            ArrayStorage::OwnedObject(_) => {
+            ArrayStorage::OwnedSlots(_) => {
                 return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
             }
             ArrayStorage::InlineRecord(_) => {

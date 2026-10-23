@@ -45,7 +45,7 @@ impl ArrayBox {
                 }
             }
             ArrayStorage::InlineRecord(_) => {}
-            ArrayStorage::OwnedObject(_) => {
+            ArrayStorage::OwnedSlots(_) => {
                 return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
             }
         }
@@ -90,7 +90,7 @@ impl ArrayBox {
                 }
             }
             ArrayStorage::InlineRecord(_) => {}
-            ArrayStorage::OwnedObject(_) => {
+            ArrayStorage::OwnedSlots(_) => {
                 return Box::new(StringBox::new("[array/owned-slots/generic-access-denied]"))
             }
         }

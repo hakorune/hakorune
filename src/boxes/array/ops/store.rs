@@ -29,7 +29,7 @@ impl ArrayBox {
         if idx > state.storage.len()
             || matches!(
                 &state.storage,
-                ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+                ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
             )
         {
             return false;
@@ -158,7 +158,7 @@ impl ArrayBox {
         }
         if matches!(
             &state.storage,
-            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
         ) {
             return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
@@ -248,7 +248,7 @@ impl ArrayBox {
         }
         if matches!(
             &state.storage,
-            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
         ) {
             return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
@@ -337,7 +337,7 @@ impl ArrayBox {
         }
         if matches!(
             &state.storage,
-            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
         ) {
             return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
@@ -391,7 +391,7 @@ impl ArrayBox {
         let mut state = self.items.state.write();
         if matches!(
             &state.storage,
-            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedObject(_)
+            ArrayStorage::InlineRecord(_) | ArrayStorage::OwnedSlots(_)
         ) {
             return None;
         }

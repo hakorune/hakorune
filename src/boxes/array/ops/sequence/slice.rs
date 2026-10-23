@@ -6,7 +6,7 @@ impl ArrayBox {
     pub fn slice(&self, start: Box<dyn NyashBox>, end: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let contract = self.items.element_contract();
         let items = self.items.read();
-        if matches!(&*items, ArrayStorage::OwnedObject(_)) {
+        if matches!(&*items, ArrayStorage::OwnedSlots(_)) {
             return Box::new(StringBox::new("[array/owned-slots/copy-denied]"));
         }
 
@@ -61,7 +61,7 @@ impl ArrayBox {
             ArrayStorage::InlineF64(values) => {
                 ArrayStorage::InlineF64(values[start_idx..end_idx].to_vec())
             }
-            ArrayStorage::OwnedObject(_) => {
+            ArrayStorage::OwnedSlots(_) => {
                 return Box::new(StringBox::new("[array/owned-slots/copy-denied]"))
             }
             ArrayStorage::InlineRecord(values) => {

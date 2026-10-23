@@ -319,7 +319,7 @@ impl ArrayBox {
         method: ArrayMethodId,
         args: Vec<Box<dyn NyashBox>>,
     ) -> Result<ArraySurfaceInvokeResult, ArraySurfaceInvokeError> {
-        if matches!(&*self.items.read(), ArrayStorage::OwnedObject(_)) {
+        if matches!(&*self.items.read(), ArrayStorage::OwnedSlots(_)) {
             return Err(ArraySurfaceInvokeError::OwnedSlotsRequireCheckedOperation);
         }
         let expected = method.arity();

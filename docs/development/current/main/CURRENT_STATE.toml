@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/local-commit/lexical-call-prior-home-unavailable: Array carrier destination accepted; local cleanup and source-to-physical connection pending"
+current_blocker_token = "ordinary-new/local-commit/lexical-call-prior-home-unavailable: Array carrier Runtime owner exists; source-issued LocalCommit and physical emission pending"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,10 +18,10 @@ latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
 APP-json-stream-aggregator: last explicit quick smoke fails lexical-call-prior-home-unavailable in split_lines; no EXE.
-Array carrier destination is accepted: successful push forwards once; pre-commit Fault retains the candidate; Array End drains committed obligations.
-Next: connect exact Array source, local cleanup, slot commit and physical End; Dynamic local publication/read and cleanup remain incomplete.
-ADR-002 records the successor ownership direction and queued migration tasks; it does not select the new syntax or expand this finite goal.
-Full suite remains historical 7/11 (six EXE results plus one marker); no new build or app execution in this documentation change.
+Array carrier storage, atomic caller-to-Array transfer, and checked kernel claim/append/End are implemented; focused kernel test is 1/1 PASS.
+Next: connect exact nested source sites, LocalCommit/unwind, holder Return and lifecycle C emission; preserve the accepted Normal/Fault contract.
+Dynamic local publication/read and complete cleanup remain incomplete; app EXE generation is not reached.
+Full suite remains historical 7/11 (six EXE results plus one marker); fresh app smoke still fails before EXE at the same stop.
 """
 next_design_card = "none"
 next_design_card_path = "none"

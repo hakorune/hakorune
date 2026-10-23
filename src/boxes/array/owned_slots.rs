@@ -11,6 +11,20 @@ pub struct ArrayOwnedSlotDescriptor {
     pub nullable: bool,
 }
 
+/// Independent profile for opaque Dynamic carriers. Its identity is the
+/// immutable physical descriptor address; it cannot be confused with an
+/// object End thunk or a Text-copy residence.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ArrayCarrierSlotDescriptor {
+    pub identity: usize,
+}
+
+impl ArrayCarrierSlotDescriptor {
+    pub fn new(identity: usize) -> Self {
+        Self { identity }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayOwnedSlotError {
     InvalidContract,
@@ -29,6 +43,37 @@ pub(super) struct ArrayOwnedObjectStorage {
     descriptor: Option<ArrayOwnedSlotDescriptor>,
     slots: Vec<i64>,
     phase: Phase,
+}
+
+pub(super) struct ArrayDynamicCarrierStorage {
+    descriptor: Option<ArrayCarrierSlotDescriptor>,
+    owner_identity: usize,
+    slots: Vec<u64>,
+    phase: Phase,
+}
+
+/// One exclusive storage representation with disjoint, typed profiles.
+/// Generic Array operations reject the outer variant; each profile's claim,
+/// append and End methods still validate its own descriptor type.
+pub(super) enum ArrayOwnedSlots {
+    Object(ArrayOwnedObjectStorage),
+    DynamicCarrier(ArrayDynamicCarrierStorage),
+}
+
+impl ArrayOwnedSlots {
+    pub(super) fn len(&self) -> usize {
+        match self {
+            Self::Object(slots) => slots.len(),
+            Self::DynamicCarrier(slots) => slots.slots.len(),
+        }
+    }
+
+    pub(super) fn capacity(&self) -> usize {
+        match self {
+            Self::Object(slots) => slots.capacity(),
+            Self::DynamicCarrier(slots) => slots.slots.capacity(),
+        }
+    }
 }
 
 impl ArrayOwnedObjectStorage {
@@ -58,11 +103,11 @@ impl ArrayBox {
         }
         // Reuse the existing terminal representation, never a fabricated live
         // child descriptor. All claimed and compatibility mutations stay closed.
-        state.storage = ArrayStorage::OwnedObject(ArrayOwnedObjectStorage {
+        state.storage = ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(ArrayOwnedObjectStorage {
             descriptor: None,
             slots: Vec::new(),
             phase: Phase::Ended,
-        });
+        }));
         Ok(())
     }
 
@@ -79,9 +124,9 @@ impl ArrayBox {
             return Err(ArrayOwnedSlotError::InvalidContract);
         }
         let contents = std::mem::replace(&mut state.storage,
-            ArrayStorage::OwnedObject(ArrayOwnedObjectStorage {
+            ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(ArrayOwnedObjectStorage {
                 descriptor: None, slots: Vec::new(), phase: Phase::Ended,
-            }));
+            })));
         drop(state);
         // Release detached Text storage outside the state gate.
         drop(contents);
@@ -105,15 +150,15 @@ impl ArrayBox {
             return Err(ArrayOwnedSlotError::InvalidContract);
         }
         match &state.storage {
-            ArrayStorage::OwnedObject(slots) => return slots.live(descriptor),
+            ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(slots)) => return slots.live(descriptor),
             ArrayStorage::Boxed(items) if items.is_empty() => {}
             _ => return Err(ArrayOwnedSlotError::InvalidContract),
         }
-        state.storage = ArrayStorage::OwnedObject(ArrayOwnedObjectStorage {
+        state.storage = ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(ArrayOwnedObjectStorage {
             descriptor: Some(descriptor),
             slots: Vec::new(),
             phase: Phase::Live,
-        });
+        }));
         Ok(())
     }
 
@@ -125,7 +170,7 @@ impl ArrayBox {
         candidate: i64,
     ) -> Result<usize, ArrayOwnedSlotError> {
         let mut state = self.items.state.write();
-        let ArrayStorage::OwnedObject(slots) = &mut state.storage else {
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(slots)) = &mut state.storage else {
             return Err(ArrayOwnedSlotError::InvalidContract);
         };
         slots.live(descriptor)?;
@@ -152,7 +197,7 @@ impl ArrayBox {
         index: i64,
     ) -> Result<i64, ArrayOwnedSlotError> {
         let state = self.items.state.read();
-        let ArrayStorage::OwnedObject(slots) = &state.storage else {
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(slots)) = &state.storage else {
             return Err(ArrayOwnedSlotError::InvalidContract);
         };
         slots.live(descriptor)?;
@@ -170,7 +215,7 @@ impl ArrayBox {
         descriptor: ArrayOwnedSlotDescriptor,
     ) -> Result<Vec<i64>, ArrayOwnedSlotError> {
         let mut state = self.items.state.write();
-        let ArrayStorage::OwnedObject(slots) = &mut state.storage else {
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(slots)) = &mut state.storage else {
             return Err(ArrayOwnedSlotError::InvalidContract);
         };
         slots.live(descriptor)?;
@@ -183,11 +228,104 @@ impl ArrayBox {
         descriptor: ArrayOwnedSlotDescriptor,
     ) -> Result<(), ArrayOwnedSlotError> {
         let mut state = self.items.state.write();
-        let ArrayStorage::OwnedObject(slots) = &mut state.storage else {
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::Object(slots)) = &mut state.storage else {
             return Err(ArrayOwnedSlotError::InvalidContract);
         };
         if slots.descriptor != Some(descriptor) || slots.phase != Phase::Ending || !slots.slots.is_empty()
         {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        slots.phase = Phase::Ended;
+        Ok(())
+    }
+
+    /// Claim a source-selected carrier profile on the same empty residence.
+    /// This creates no child Home; its element obligations are separate opaque
+    /// carrier tokens committed only by `append_dynamic_carrier_slot`.
+    pub fn claim_dynamic_carrier_slots(
+        &self,
+        descriptor: ArrayCarrierSlotDescriptor,
+    ) -> Result<(), ArrayOwnedSlotError> {
+        if descriptor.identity == 0 {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        let mut state = self.items.state.write();
+        if state.element_contract.is_some() {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        match &state.storage {
+            ArrayStorage::OwnedSlots(ArrayOwnedSlots::DynamicCarrier(slots)) => {
+                if slots.descriptor == Some(descriptor) && slots.phase == Phase::Live {
+                    return Ok(());
+                }
+                return Err(ArrayOwnedSlotError::InvalidContract);
+            }
+            ArrayStorage::Boxed(items) if items.is_empty() => {}
+            _ => return Err(ArrayOwnedSlotError::InvalidContract),
+        }
+        state.storage = ArrayStorage::OwnedSlots(ArrayOwnedSlots::DynamicCarrier(
+            ArrayDynamicCarrierStorage {
+                descriptor: Some(descriptor),
+                owner_identity: std::sync::Arc::as_ptr(&self.items) as usize,
+                slots: Vec::new(),
+                phase: Phase::Live,
+            },
+        ));
+        Ok(())
+    }
+
+    /// Commit one already-published carrier token. Every rejecting path leaves
+    /// the candidate with its caller, and successful commit stores its raw
+    /// identity exactly once without interpreting its payload.
+    pub fn append_dynamic_carrier_slot(
+        &self,
+        descriptor: ArrayCarrierSlotDescriptor,
+        candidate: u64,
+    ) -> Result<usize, ArrayOwnedSlotError> {
+        let token = crate::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(candidate)
+            .map_err(|_| ArrayOwnedSlotError::InvalidContract)?;
+        let mut state = self.items.state.write();
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::DynamicCarrier(slots)) = &mut state.storage else {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        };
+        if slots.phase != Phase::Live || slots.descriptor != Some(descriptor) {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        slots.slots.try_reserve(1).map_err(|_| ArrayOwnedSlotError::ReservationFailed)?;
+        token
+            .attach_to_array_v1(slots.owner_identity)
+            .map_err(|_| ArrayOwnedSlotError::InvalidContract)?;
+        slots.slots.push(candidate);
+        Ok(slots.slots.len())
+    }
+
+    /// Detach carrier obligations under the Array gate. The caller runs
+    /// Dynamic End outside both Array storage and host-registry locks.
+    pub fn detach_dynamic_carriers_for_end(
+        &self,
+        descriptor: ArrayCarrierSlotDescriptor,
+    ) -> Result<(usize, Vec<u64>), ArrayOwnedSlotError> {
+        let mut state = self.items.state.write();
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::DynamicCarrier(slots)) = &mut state.storage else {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        };
+        if slots.phase != Phase::Live || slots.descriptor != Some(descriptor) {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        }
+        slots.phase = Phase::Ending;
+        Ok((slots.owner_identity, std::mem::take(&mut slots.slots)))
+    }
+
+    /// Complete End after every detached carrier has been attempted.
+    pub fn finish_dynamic_carriers_end(
+        &self,
+        descriptor: ArrayCarrierSlotDescriptor,
+    ) -> Result<(), ArrayOwnedSlotError> {
+        let mut state = self.items.state.write();
+        let ArrayStorage::OwnedSlots(ArrayOwnedSlots::DynamicCarrier(slots)) = &mut state.storage else {
+            return Err(ArrayOwnedSlotError::InvalidContract);
+        };
+        if slots.descriptor != Some(descriptor) || slots.phase != Phase::Ending || !slots.slots.is_empty() {
             return Err(ArrayOwnedSlotError::InvalidContract);
         }
         slots.phase = Phase::Ended;

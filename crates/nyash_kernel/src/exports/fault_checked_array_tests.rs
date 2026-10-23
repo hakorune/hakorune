@@ -36,6 +36,28 @@ mod wire {
             handle: i64,
             descriptor: *const super::super::owned::Descriptor,
         ) -> u32;
+        #[link_name = "nyash.array.checked_carrier_claim_v1"]
+        pub fn carrier_claim(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const c_void,
+        ) -> u32;
+        #[link_name = "nyash.array.checked_carrier_append_v1"]
+        pub fn carrier_append(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const c_void,
+            candidate: u64,
+        ) -> u32;
+        #[link_name = "nyash.array.checked_carrier_end_v1"]
+        pub fn carrier_end(
+            frame: *mut c_void,
+            site: u64,
+            handle: i64,
+            descriptor: *const c_void,
+        ) -> u32;
         #[link_name = "nyash.array.checked_empty_end_v1"]
         pub fn empty_end(frame: *mut c_void, site: u64, handle: i64) -> u32;
         #[link_name = "nyash.array.checked_new_v1"]
@@ -522,6 +544,50 @@ fn checked_array_release_retires_the_published_host_residence() {
         assert!(handles::get(rejected.0 as u64).is_some());
         assert_eq!(rejected.values(), before);
     }
+}
+
+#[test]
+fn dynamic_carrier_array_wire_transfers_exactly_once_and_ends_by_owner() {
+    use nyash_rust::box_trait::StringBox;
+    use nyash_rust::runtime::dynamic_invocation::{
+        plan_dynamic_invocation_v1, DynamicCarrierTokenV1, DynamicInvocationValueV1,
+    };
+    use std::sync::Arc;
+    #[repr(C)]
+    struct Descriptor { version: u32, reserved: u32 }
+    let _guard = crate::test_support::handle_registry_test_lock();
+    let mut frame = FaultFrame::new();
+    let array = OwnedArray::new(&mut frame);
+    let other_array = OwnedArray::new(&mut frame);
+    let carrier = plan_dynamic_invocation_v1(
+        DynamicInvocationValueV1::Object(Arc::new(StringBox::new("wire"))),
+        "length",
+        Vec::new(),
+    )
+    .unwrap()
+    .execute_once_v1()
+    .unwrap();
+    assert_eq!(carrier.integer_payload_v1().unwrap(), 4);
+    let raw = carrier.raw_v1();
+    let descriptor = Descriptor { version: 1, reserved: 0 };
+    let descriptor = (&descriptor as *const Descriptor).cast();
+    let ptr = pointer(&mut frame);
+    unsafe {
+        assert_eq!(wire::carrier_append(ptr, 42, array.0, descriptor, raw), 2);
+        assert_eq!(wire::carrier_claim(ptr, 43, array.0, descriptor), 0);
+        assert_eq!(wire::carrier_claim(ptr, 44, other_array.0, descriptor), 0);
+        assert_eq!(wire::carrier_append(ptr, 45, array.0, descriptor, raw), 0);
+        assert_eq!(wire::carrier_append(ptr, 46, other_array.0, descriptor, raw), 2);
+    }
+    assert!(carrier.integer_payload_v1().is_err());
+    assert!(DynamicCarrierTokenV1::from_raw_v1(raw).unwrap().end_v1().is_err());
+    unsafe {
+        assert_eq!(wire::carrier_end(ptr, 47, array.0, descriptor), 0);
+        assert_eq!(wire::carrier_end(ptr, 48, other_array.0, descriptor), 0);
+    }
+    assert!(carrier.integer_payload_v1().is_err());
+    assert!(handles::get(array.0 as u64).is_none());
+    assert!(handles::get(other_array.0 as u64).is_none());
 }
 
 #[test]

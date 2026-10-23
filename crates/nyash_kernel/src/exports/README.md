@@ -87,3 +87,10 @@ issues the exact selector/arity once, writes one opaque carrier only on Normal,
 and consumes that carrier through the same owner. Source CallSlot issuance,
 operand construction, physical publication, and exactly-once cleanup remain
 compiler obligations.
+
+`fault_checked_array_carrier.rs` is the separate checked Array destination for
+opaque Dynamic carriers. Normal append atomically transfers one token to the
+Array residence; Array End detaches under the storage lock and ends tokens in
+reverse commit order outside it. It does not expose carrier reads or mix the
+object-slot and Text-copy profiles. MIR issuance and physical emission remain
+compiler obligations.

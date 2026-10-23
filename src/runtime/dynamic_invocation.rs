@@ -57,12 +57,62 @@ impl DynamicCarrierTokenV1 {
     /// End the exact opaque carrier once. Forwarding keeps the same token and
     /// does not call this method at the forwarding point.
     pub fn end_v1(self) -> Result<(), DynamicInvocationFailureV1> {
-        carriers()
-            .lock()
-            .expect("Dynamic carrier mutex poisoned")
-            .remove(&self.0)
-            .map(drop)
-            .ok_or(DynamicInvocationFailureV1::InvalidCarrier)
+        let payload = {
+            let mut carriers = carriers().lock().expect("Dynamic carrier mutex poisoned");
+            match carriers.get(&self.0) {
+                Some(carrier) if carrier.owner == CarrierOwnerV1::Caller => {}
+                _ => return Err(DynamicInvocationFailureV1::InvalidCarrier),
+            }
+            carriers
+                .remove(&self.0)
+                .map(|carrier| carrier.payload)
+                .ok_or(DynamicInvocationFailureV1::InvalidCarrier)?
+        };
+        drop(payload);
+        Ok(())
+    }
+
+    /// Transfer the caller's single End obligation to one Array residence.
+    /// The registry transition is atomic, so two arrays cannot adopt one token.
+    pub fn attach_to_array_v1(
+        self,
+        owner_identity: usize,
+    ) -> Result<(), DynamicInvocationFailureV1> {
+        if owner_identity == 0 {
+            return Err(DynamicInvocationFailureV1::InvalidCarrier);
+        }
+        let mut carriers = carriers().lock().expect("Dynamic carrier mutex poisoned");
+        let carrier = carriers
+            .get_mut(&self.0)
+            .ok_or(DynamicInvocationFailureV1::InvalidCarrier)?;
+        if carrier.owner != CarrierOwnerV1::Caller {
+            return Err(DynamicInvocationFailureV1::InvalidCarrier);
+        }
+        carrier.owner = CarrierOwnerV1::Array(owner_identity);
+        Ok(())
+    }
+
+    /// End a token only when called by the Array residence that adopted it.
+    pub fn end_array_slot_v1(
+        self,
+        owner_identity: usize,
+    ) -> Result<(), DynamicInvocationFailureV1> {
+        if owner_identity == 0 {
+            return Err(DynamicInvocationFailureV1::InvalidCarrier);
+        }
+        let payload = {
+            let mut carriers = carriers().lock().expect("Dynamic carrier mutex poisoned");
+            match carriers.get(&self.0) {
+                Some(carrier) if carrier.owner == CarrierOwnerV1::Array(owner_identity) => {}
+                _ => return Err(DynamicInvocationFailureV1::InvalidCarrier),
+            }
+            carriers
+                .remove(&self.0)
+                .map(|carrier| carrier.payload)
+                .ok_or(DynamicInvocationFailureV1::InvalidCarrier)?
+        };
+        drop(payload);
+        Ok(())
     }
 
     fn snapshot_v1(&self) -> Result<CarrierPayloadV1, DynamicInvocationFailureV1> {
@@ -70,7 +120,8 @@ impl DynamicCarrierTokenV1 {
             .lock()
             .expect("Dynamic carrier mutex poisoned")
             .get(&self.0)
-            .cloned()
+            .filter(|carrier| carrier.owner == CarrierOwnerV1::Caller)
+            .map(|carrier| carrier.payload.clone())
             .ok_or(DynamicInvocationFailureV1::InvalidCarrier)
     }
 }
@@ -197,9 +248,20 @@ pub fn plan_dynamic_invocation_v1(
 }
 
 static NEXT_CARRIER: AtomicU64 = AtomicU64::new(1);
-static CARRIERS: OnceLock<Mutex<HashMap<NonZeroU64, CarrierPayloadV1>>> = OnceLock::new();
+static CARRIERS: OnceLock<Mutex<HashMap<NonZeroU64, PublishedCarrierV1>>> = OnceLock::new();
 
-fn carriers() -> &'static Mutex<HashMap<NonZeroU64, CarrierPayloadV1>> {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CarrierOwnerV1 {
+    Caller,
+    Array(usize),
+}
+
+struct PublishedCarrierV1 {
+    payload: CarrierPayloadV1,
+    owner: CarrierOwnerV1,
+}
+
+fn carriers() -> &'static Mutex<HashMap<NonZeroU64, PublishedCarrierV1>> {
     CARRIERS.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
@@ -218,7 +280,10 @@ fn publish_carrier_v1(
     let mut table = carriers().lock().expect("Dynamic carrier mutex poisoned");
     match table.entry(token) {
         Entry::Vacant(entry) => {
-            entry.insert(payload);
+            entry.insert(PublishedCarrierV1 {
+                payload,
+                owner: CarrierOwnerV1::Caller,
+            });
         }
         Entry::Occupied(_) => {
             return Err(DynamicInvocationFailureV1::CarrierSpaceExhausted);
