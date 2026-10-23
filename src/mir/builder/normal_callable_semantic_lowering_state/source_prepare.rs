@@ -51,6 +51,10 @@ impl CallableSemanticLoweringState {
         loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     ) -> Result<Self, String> {
         let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
+        // Only the explicitly selected Dynamic source owns its entry ABI.
+        // A source observer built below for ordinary lowering grants no lanes.
+        let dynamic_entry_formals = dynamic_source.as_ref().map(|source| source.formals().iter()
+            .map(|row| (row.parameter_ordinal(), row.binding())).collect::<Vec<_>>().into_boxed_slice());
         let dynamic_origins = match dynamic_source {
             Some(source) => CallableDynamicOriginLoweringStateV1::from_shared_source(source),
             None => {
@@ -62,8 +66,6 @@ impl CallableSemanticLoweringState {
             }
         }
         .map_err(|error| error.to_string())?;
-        let dynamic_entry_formals = Some(dynamic_origins.source().formals().iter()
-            .map(|row| (row.parameter_ordinal(), row.binding())).collect::<Vec<_>>().into_boxed_slice());
         let forest = input.forest();
         let [root] = forest.roots() else {
             return Err(freeze("root-cardinality"));
@@ -80,7 +82,8 @@ impl CallableSemanticLoweringState {
             return Err(freeze("dynamic-origin-owner"));
         }
         if dynamic_entry_formals.as_ref().is_some_and(|rows| rows.iter().enumerate().any(|(index, (ordinal, binding))|
-            *ordinal as usize != index || binding.owner() != owner_id)) {
+            binding.owner() != owner_id || rows[..index].iter().any(|(prior, _)| prior == ordinal)
+                || owner.declaration_binding(&SourceBindingSiteV1::Parameter { index: *ordinal }) != Some(*binding))) {
             return Err(freeze("dynamic-entry/formal-layout"));
         }
         let mut receiver = None;
