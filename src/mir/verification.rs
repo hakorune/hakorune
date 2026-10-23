@@ -163,7 +163,7 @@ impl MirVerifier {
         );
 
         for (_name, function) in &module.functions {
-            if let Err(mut func_errors) = self.verify_function(function) {
+            if let Err(mut func_errors) = self.verify_function_body(function) {
                 // Dev-only trace: BreakFinderBox / LoopSSA 周辺のSSAバグを詳細に観測する。
                 //
                 // NYASH_BREAKFINDER_SSA_TRACE=1 のときだけ有効になり、
@@ -269,13 +269,26 @@ impl MirVerifier {
         }
     }
 
-    /// Verify a single MIR function
+    /// Standalone verification has no module/source authority. Keep its
+    /// complete Invoke and affine checks before the shared function checks.
     pub fn verify_function(
         &mut self,
         function: &MirFunction,
     ) -> Result<(), Vec<VerificationError>> {
+        let mut errors = Vec::new();
+        collect_errors!(errors, invoke::check_function(function));
+        collect_errors!(errors, self.verify_function_body(function));
+        if errors.is_empty() { Ok(()) } else { Err(errors) }
+    }
+
+    /// Module entry already checked Invoke structure with the actual module
+    /// and String lifetimes with its source handoff. Do not repeat either as
+    /// a source-less standalone check; all remaining function checks stay here.
+    fn verify_function_body(
+        &mut self,
+        function: &MirFunction,
+    ) -> Result<(), Vec<VerificationError>> {
         let mut local_errors = Vec::new();
-        collect_errors!(local_errors, invoke::check_function(function));
 
         // Dominator computation is expensive; compute once per function and reuse.
         let skip_phi_checks = !self.strict_policy && crate::config::env::verify_allow_no_phi();
