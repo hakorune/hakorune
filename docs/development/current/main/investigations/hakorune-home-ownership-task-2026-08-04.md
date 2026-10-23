@@ -1,6 +1,13 @@
 # Hakorune Home ownership — parked task order
 
-Status: Parked design/execution board; no current execution authority
+Status: Parked historical Home task order; no current execution authority
+
+Successor task order (2026-10-23):
+[ADR-002](../../../adr/adr-002-explicit-ownership-and-compiler-migration.md)
+owns preparation and future explicit-ownership migration. Do not independently
+resume the older source-surface activation sequence below. Existing semantic
+and lifecycle authorities remain valid until an explicit successor cutover.
+Current Array carrier app work stays on APP-json-stream-aggregator.
 
 Date: 2026-08-05
 

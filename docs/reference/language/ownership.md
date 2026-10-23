@@ -11,6 +11,13 @@ take/share contextual syntax accepted on 2026-08-09.
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
 
+Successor design direction (2026-10-23):
+[ADR-002](../../development/adr/adr-002-explicit-ownership-and-compiler-migration.md)
+records explicit `move`/`copy`/`share` and `read`/`mut`/`take` as a proposed
+replacement surface. Its implementation is unselected; until an explicit
+cutover, the existing source rules below remain in force. The separately
+accepted Array carrier destination amendment below applies now as a target.
+
 Related authorities:
 
 - `variables-and-scope.md`: lexical bindings and nearest-binding assignment;
@@ -271,6 +278,35 @@ and unsupported Set/Insert/removal/clear or holder escape remain rejected.
 Source class preparation is distinct from execution permission: provider
 capability, full call/input/result Completion, cleanup and independent physical
 verification remain mandatory before the family can execute.
+
+### Named Array opaque carrier destination target
+
+Decision (2026-10-23): an admitted builtin named Array append destination may
+receive an already source-authorized `SelfContainedDynamicCarrier` once.
+Successful append commit forwards its existing exactly-once obligation into
+the slot; this creates neither a source Home nor a second carrier. The exact
+source producer, receiver, argument evaluation and append order remain retained.
+The same carrier cannot be committed to a second slot without a separately
+authorized copy/share operation. This amendment grants no new source syntax.
+
+Before successful commit, evaluation/append Fault transfers nothing and the
+candidate remains its prior owner's cleanup responsibility. After commit, only
+the holder owes that carrier's disposition; later Fault cannot restore it to
+the caller. Source-verified holder transfer/Return carries the installed obligations with it.
+Terminal Array End drains committed carriers in reverse successful-install
+order, then releases the residence, preserving the first Fault while attempting
+remaining cleanup. Detachment occurs under storage synchronization; carrier
+End runs outside storage locks. Payload tags select physical mechanics only.
+
+This target is independent of Text-copy append and homogeneous object-slot
+Home transfer. Neither `checked_text_end_v1` nor an object End descriptor can
+discharge arbitrary carrier obligations. General `get`, `remove`, `replace`,
+mixing carrier slots with Text/object-slot profiles, and independent read-result acquisition are not
+activated by this append decision. Reads need a separately verified support
+relation; an ordinary Dynamic invocation must still return a self-contained
+carrier, never a borrowed payload disguised as one. No implicit retain/copy,
+selector-based Text refinement, or backend ownership inference is authorized.
+Compiler/runtime source-to-publication and Normal/Fault cleanup remain unimplemented.
 
 ### Intrinsic Map slot destination target
 
