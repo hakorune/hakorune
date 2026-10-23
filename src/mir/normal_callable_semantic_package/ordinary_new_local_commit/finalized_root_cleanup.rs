@@ -335,7 +335,12 @@ pub(super) fn validate_finished_cleanup_entry(
     }
     if let RootHomeExitEntry::Call { row: super::super::RootCallDispositionV1::Lexical(packet), arguments, invoke, projection: result, frame, .. } = entry {
         let mut recorded = arguments.clone();
-        recorded.extend([invoke.clone(), result.clone(), frame.clone()]);
+        recorded.extend([invoke.clone(), result.clone()]);
+        // Expression actuals already retain the same borrowed FaultFrame.
+        // This inventory lends its sole definition; it does not emit another.
+        if !recorded.contains(frame) {
+            recorded.push(frame.clone());
+        }
         packet.validate_expression_arguments_v1(context, function,
             Some(projection), &recorded, finishing.is_none().then_some(projection))?;
     }
