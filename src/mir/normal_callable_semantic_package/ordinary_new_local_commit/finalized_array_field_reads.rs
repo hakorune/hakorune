@@ -5,6 +5,37 @@ use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
 use hakorune_mir_defs::CanonicalFieldRefV1;
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Lend the same source-issued reads to final module verification. Owners
+    /// come from completed source rows, never from an ObjectFieldGet census.
+    pub(in crate::mir) fn visit_finished_array_field_reads_v1(
+        &self, module: &crate::mir::MirModule,
+        arrays: &[EmittedNamedArrayRequirementV1],
+        mut visit: impl FnMut(&MirFunction, Binding, CanonicalFieldRefV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let owners: std::collections::BTreeSet<_> = self.ledger.completion_index.values()
+            .chain(self.ledger.root_completion.iter()).filter_map(|row| row.as_ref().ok())
+            .map(|row| row.owner()).collect();
+        for owner in owners {
+            // No finished function is demanded for a source-only declaration
+            // with no retained Array read.
+            let mut selected = false;
+            self.ledger.visit_array_field_read_originals_v1(owner, |_, _, _| {
+                selected = true;
+                Ok(())
+            })?;
+            if !selected { continue; }
+            self.ledger.with_finished_projection(owner, |symbol, _| {
+                let function = module.functions.get(symbol)
+                    .ok_or_else(|| freeze("finished-array-field/function-membership"))?;
+                for (binding, field) in self.finished_array_field_reads_v1(owner, module, function, arrays)? {
+                    visit(function, binding, field)?;
+                }
+                Ok(())
+            })?;
+        }
+        Ok(())
+    }
+
     /// The caller lends already-validated named-array emissions from this view.
     /// A passive declaration or an unrelated tagged formal grants no read.
     pub(in crate::mir) fn finished_array_field_reads_v1(

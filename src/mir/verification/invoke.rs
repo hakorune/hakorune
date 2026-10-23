@@ -68,6 +68,12 @@ pub(super) fn check_module_with_source(
                             if definition.is_weak {
                                 return false;
                             }
+                            // Array reads require the same source packet and
+                            // finished row; a declaration alone grants no read.
+                            if module.canonical_array_field(*field)
+                                && image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) {
+                                return true;
+                            }
                             match definition.declared_type_name.as_deref() {
                                 Some("i64") => true,
                                 // Numeric-integer declared fields share the
@@ -409,6 +415,12 @@ fn check_function_inner(
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
+                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle {
+                        support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object },
+                    }) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        && key.arity() as usize == call.args.len() && *key_ordinal < key.arity()
+                        && module.is_some_and(|module| module.canonical_field_definition(*field).is_some()
+                            && module.canonical_object_definition(*object).is_some()),
                     (
                         Callee::SameModuleInstance { key, .. },
                         ResultKind::Unit
@@ -416,7 +428,8 @@ fn check_function_inner(
                         | ResultKind::Bool
                         | ResultKind::Map
                         | ResultKind::Handle
-                        | ResultKind::NullableHandle,
+                        | ResultKind::NullableHandle
+                        | ResultKind::OwnedString,
                     ) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len()

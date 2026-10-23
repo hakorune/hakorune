@@ -46,6 +46,14 @@ pub(super) fn original_call_slots(
         };
     };
     let mut image = OriginalCallSourceImageV1::default();
+    source.visit_finished_array_field_reads_v1(module, root.named_arrays(), |function, binding, field| {
+        if !module.canonical_array_field(field)
+            || image.field_reads.contains(&(function.signature.name.clone(), binding.clone())) {
+            return Err("borrowed-source-coordinate-duplicate".into());
+        }
+        image.field_reads.push((function.signature.name.clone(), binding));
+        Ok(())
+    })?;
     // Demand selects verification only; no opcode or declaration grants a loan.
     // Keep the old exact-slot verifier passive when no Dynamic view is requested.
     let dynamic_fields = module.functions.values().flat_map(|function| function.blocks.values())
@@ -211,6 +219,9 @@ pub(super) fn original_call_slots(
         image.field_reads.push(row);
         Ok(())
     })?;
+    let declarations = source.borrowed_declaration_keys_v1(root.callables()
+        .ok_or_else(|| "borrowed-declaration/owner-missing".to_owned())?)?;
+    let mut source_only = Vec::new();
     for symbol in selected.difference(&callees) {
         let mut keys = module
             .canonical_callable_definitions
@@ -219,11 +230,12 @@ pub(super) fn original_call_slots(
         let (key, _) = keys
             .next()
             .ok_or_else(|| "borrowed-declaration/canonical-key-missing".to_owned())?;
-        if keys.next().is_some()
-            || key.namespace()
-                != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-        {
+        if keys.next().is_some() {
             return Err("borrowed-declaration/canonical-key".into());
+        }
+        if !declarations.contains(key) {
+            source_only.push(symbol.clone());
+            continue;
         }
         let owner = root
             .callables()
@@ -235,6 +247,9 @@ pub(super) fn original_call_slots(
             .ok_or_else(|| "borrowed-declaration/function-missing".to_owned())?;
         source.borrowed_declaration_for_function_v1(owner, key, function)?;
     }
+    // Uncalled source-only declarations acquire no borrowed-entry protocol.
+    // Any actual physical call still owes its original exact call slot below.
+    for symbol in source_only { selected.remove(&symbol); }
     // Declarations contribute only owner coverage, never fabricated call slots.
     callees.extend(selected.iter().cloned());
     if callees != selected || incoming != original {

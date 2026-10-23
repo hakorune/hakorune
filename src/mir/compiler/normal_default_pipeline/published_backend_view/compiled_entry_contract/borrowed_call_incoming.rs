@@ -258,21 +258,28 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     )?;
     // A complete-empty declaration has no packet and no physical call coordinate.
     // Resolve its original owner independently; real incoming coverage stays exact.
+    let declarations = source.borrowed_declaration_keys_v1(program.handoff().callables()
+        .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?)?;
+    let mut source_only = Vec::new();
     for (key, callee) in &callees {
         if owners.contains_key(*key) {
             continue;
         }
-        if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            || !callee.role().has_receiver()
-            || module.canonical_callable_definition_symbol(key) != Some(callee.name())
-        {
+        if module.canonical_callable_definition_symbol(key) != Some(callee.name()) {
             return Err(fault("borrowed-incoming/declaration-target"));
+        }
+        if !declarations.contains(*key) {
+            source_only.push(*key);
+            continue;
         }
         let owner = program
             .handoff()
             .callables()
             .and_then(|callables| callables.owner_for_canonical_key(key))
             .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?;
+        if !callee.role().has_receiver() {
+            return Err(fault("borrowed-incoming/declaration-target"));
+        }
         let function = module
             .functions
             .get(callee.name())
@@ -286,6 +293,9 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
         uses.entry(source, owner, function)?;
         owners.insert((*key).clone(), owner);
     }
+    // Physical calls were censused before this source selection. Dropping an
+    // uncalled declaration cannot forgive a missing incoming witness.
+    for key in source_only { callees.remove(key); }
     if owners.len() != callees.len()
         || incoming != original
         || witnessed.keys().copied().collect::<BTreeSet<_>>() != physical.keys().copied().collect()

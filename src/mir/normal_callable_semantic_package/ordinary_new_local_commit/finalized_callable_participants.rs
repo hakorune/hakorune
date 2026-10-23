@@ -9,6 +9,25 @@ use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 use std::collections::{BTreeMap, BTreeSet};
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Complete-empty entry membership comes from the original source issuer
+    /// and completed canonical key, never from physical tagged carrier rows.
+    pub(in crate::mir) fn borrowed_declaration_keys_v1(
+        &self, callables: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<BTreeSet<CanonicalSameModuleCallableKeyV1>, String> {
+        let mut keys = BTreeSet::new();
+        for owner in self.ledger.borrowed_declaration_owners_v1()? {
+            let selected = callables.completed_key_for_owner_v1(owner)
+                .ok_or_else(|| freeze("borrowed-declaration/owner-missing"))?;
+            let crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) = selected
+                else { return Err(freeze("borrowed-declaration/canonical-key")); };
+            if key.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod
+                || !keys.insert(key.clone()) {
+                return Err(freeze("borrowed-declaration/canonical-key"));
+            }
+        }
+        Ok(keys)
+    }
+
     /// Reuses the original pools and completed catalog; this map is a borrowed
     /// selection projection, never a call site, source issuer or ABI receipt.
     pub(in crate::mir) fn borrowed_callable_participants_v1(

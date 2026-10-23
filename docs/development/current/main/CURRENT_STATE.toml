@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "mir/invoke: object-field-read-definition-invalid, borrowed-source-call-coverage, string-owned-escape in JSON final verification"
+current_blocker_token = "mir/invoke: borrowed-source-call-coverage on int_to_str recursion and string-owned-escape on its Text loop edge"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator reaches final MIR verification; field, tagged-call and Text edge correspondence remain open.
-Terminal argument cleanup is connected in WIP; root-order 6 and entry 3 tests pass; Invoke tests pass 42.
-Ordinary source observation no longer grants Dynamic ABI; carrier-array append selection now precedes its exact loan demand.
-Fresh opt0 suite is 5/11 (4 EXEs + marker), with 2 runner timeouts; both timed-out EXEs subsequently match expected runtime output.
-Optimized quick CLI build is running for timing verification. Other source/physical WIP remains uncommitted; see the app card.
+APP-json-stream-aggregator reaches final MIR verification; recursive tagged-call and Text edge correspondence remain open.
+Exact source-proven Array field reads now pass; bare schema-only Array reads stay rejected (Invoke tests 42/42).
+The recursive call is retained in a Plain return-expression packet but omitted from the finalized call visitor.
+Latest opt1 suite: 7/11 (6 EXEs + marker), no timeout/SKIP, 115.173s; this precedes the latest Array-read witness patch.
+Current target/quick CLI is opt0 again; other source/physical WIP remains uncommitted. See the app card.
 """
 next_design_card = "none"
 next_design_card_path = "none"
