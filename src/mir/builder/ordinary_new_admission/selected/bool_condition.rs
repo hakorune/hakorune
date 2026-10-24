@@ -112,7 +112,9 @@ impl LoweredBoolConditionV1 {
             _ => Vec::new(),
         }).collect();
         let borrowed_loop_phis = crate::mir::normal_callable_semantic_package::borrowed_source_loop_phi_relations_v2(
-            &self.frame, &nodes, &self.ledger, expected_product)?;
+            &self.frame, &nodes,
+            crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&self.ledger),
+            expected_product)?;
         let prefix = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
             prefix, borrowed_reads.into_iter())?;
         let prefix = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_source_loop_phis_v2(

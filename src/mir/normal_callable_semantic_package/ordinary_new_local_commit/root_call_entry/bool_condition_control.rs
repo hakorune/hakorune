@@ -278,7 +278,8 @@ impl EmittedBoolConditionProjectionV1 {
         }
         self.materialization.physical().relation().append_observed_bindings_v1(&mut allowed);
         allowed.extend_from_slice(self.materialization.physical().bindings());
-        let borrowed_loop_phis = borrowed_source_loop_phi_relations_v2(&self.frame, &self.nodes, ledger, None)?;
+        let borrowed_loop_phis = borrowed_source_loop_phi_relations_v2(&self.frame, &self.nodes,
+            crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger), None)?;
         let allowed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_phis_v2(
             allowed, self.nodes.iter().filter_map(|node| match &node.proof { Proof::OriginalReference(read) => Some(read), _ => None }))?;
         let allowed = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::without_borrowed_source_loop_phis_v2(

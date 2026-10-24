@@ -433,6 +433,20 @@ impl OrdinaryNewClaimLedgerV1 {
             for original in &packet.prefix {
                 if let Some(actual) = mapped(original, Some(projection))? { visit(actual)?; }
             }
+            // The Loop owns these scalar Header Phis, so the condition prefix
+            // excludes them. Lend the SAME exact source-read relation without
+            // turning its output into a borrowed-formal alias.
+            for relation in borrowed_source_loop_phi_relations_v2(
+                &packet.frame, &packet.nodes, context, None,
+            )? {
+                relation.require_completed_v1()?;
+                relation.verify_projected(function, &mut |row|
+                    projection.relation_binding(function, row))?;
+                let original = relation.identity_phi_binding_v1()?;
+                let actual = projection.relation_binding(function, original)?
+                    .ok_or_else(|| freeze("source-loop/phi-kind"))?;
+                visit(actual)?;
+            }
             let outer = packet.outer.borrow();
             let actual = mapped(outer.as_ref().expect("verified sealed group"), Some(projection))?
                 .ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;

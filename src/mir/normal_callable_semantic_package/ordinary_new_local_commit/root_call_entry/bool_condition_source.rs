@@ -12,7 +12,7 @@ use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1 as Literal, SourceE
 pub(in crate::mir) fn borrowed_source_loop_phi_relations_v2(
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1,
     nodes: &[BoolConditionNodeProjectionV1],
-    ledger: &OrdinaryNewClaimLedgerV1,
+    context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
     expected_product: Option<&Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
 ) -> Result<Vec<Rc<LocalSsaPhysicalRelationV1>>, String> {
     use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
@@ -91,7 +91,6 @@ pub(in crate::mir) fn borrowed_source_loop_phi_relations_v2(
             _ => {}
         }
     }
-    let context = CallValidationContextV1::Lowering(ledger);
     let mut relations = Vec::new();
     collect(frame.evaluation(), &|node| reads.get(&node).copied(), context,
         expected_product, &mut relations)?;
