@@ -205,12 +205,15 @@ pub(super) fn encode_ordinary_call(
                     .ok_or_else(|| fault("borrowed-expression/finite-domain-transport-unconnected"))?;
                 return match (&proof.source, operand) {
                     (Source::Expression(source), crate::mir::instruction::StringInvokeOperand::NormalInteger(original))
-                        if source.frame().is_i64() && original == value && domain.signed_only() =>
+                        if source.frame().is_i64() && original == value && domain.permits_integer_actual_v1() =>
                             Ok(json!({"kind":1, "value":value.0})),
                     (Source::Expression(source), crate::mir::instruction::StringInvokeOperand::OwnedString(original))
-                        if !source.frame().is_i64() && original == value && domain.text_only() =>
+                        if !source.frame().is_i64() && original == value && domain.permits_text_actual_v1() =>
                             Ok(json!({"kind":"borrowed_text", "operand":super::operation::encode_string_operand_v1(operand)})),
-                    _ => Err(fault("borrowed-expression/operand-drift")),
+                    _ => Err(format!("{} caller={} callee={} ordinal={index} operand={operand:?} actual={value:?} source_i64={} text_member={} integer_member={}",
+                        fault("borrowed-expression/operand-drift"), caller.name(), callee.name(),
+                        matches!(&proof.source, Source::Expression(source) if source.frame().is_i64()),
+                        domain.permits_text_actual_v1(), domain.permits_integer_actual_v1())),
                 };
             }
             if issued_call.and_then(|row| row.borrowed_computed_operand_v1(proof.ordinal)).is_some() {

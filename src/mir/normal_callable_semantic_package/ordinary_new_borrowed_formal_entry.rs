@@ -33,6 +33,12 @@ impl BorrowedFormalDomainV1 {
     pub(in crate::mir) fn ordinal(&self) -> u32 { self.ordinal }
     pub(in crate::mir) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(in crate::mir) fn text_only(&self) -> bool { self.sum.text_only() }
+    pub(in crate::mir) fn permits_text_actual_v1(&self) -> bool {
+        self.sum.alternatives().contains(&super::borrowed_formal_source::SourceValueAlternativeV1::Text)
+    }
+    pub(in crate::mir) fn permits_integer_actual_v1(&self) -> bool {
+        self.sum.alternatives().contains(&super::borrowed_formal_source::SourceValueAlternativeV1::SignedI64)
+    }
     pub(in crate::mir) fn signed_only(&self) -> bool { self.sum.signed_only() }
     pub(in crate::mir) fn bool_only(&self) -> bool { self.sum.bool_only() }
     pub(in crate::mir) fn corroborates_finite_read_v1(&self, read: &crate::mir::normal_callable_semantic_package::FiniteEntryReadV1) -> bool {
