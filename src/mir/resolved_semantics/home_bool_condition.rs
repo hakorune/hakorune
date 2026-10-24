@@ -275,6 +275,26 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         if children[1].reach != ExpressionChildReachV1::Always {
             return Ok(None);
         }
+        let child = |site| source.nodes().iter().position(|node| node.site() == site);
+        let (Some(left), Some(right)) = (child(lhs), child(rhs)) else {
+            return Ok(None);
+        };
+        if binary.operator() == Op::Subtract {
+            if [index, left, right].into_iter().any(|node| classes[node] != Leaf::Value(Class::I64)) {
+                return Ok(None);
+            }
+            let Some(scalar) = ExpressionScalarOperationLoanV1::issue_node_v1(
+                Rc::clone(&source), index, binary, None,
+            ) else {
+                return Ok(None);
+            };
+            operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
+                plan: Rc::clone(&source),
+                node: index,
+                proof: CheckedExpressionOperationProofV1::Scalar(scalar),
+            }));
+            continue;
+        }
         let family = match binary.operator() {
             Op::Equal => DynamicOperatorFamilyV1::Equal,
             Op::NotEqual => DynamicOperatorFamilyV1::NotEqual,
@@ -284,10 +304,6 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             Op::GreaterEqual => DynamicOperatorFamilyV1::GreaterEqual,
             Op::Add => DynamicOperatorFamilyV1::Add,
             _ => return Ok(None),
-        };
-        let child = |site| source.nodes().iter().position(|node| node.site() == site);
-        let (Some(left), Some(right)) = (child(lhs), child(rhs)) else {
-            return Ok(None);
         };
         if binary.operator() == Op::Equal {
             let nullable =

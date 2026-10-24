@@ -353,7 +353,7 @@ impl EmittedBoolConditionProjectionV1 {
                         if !loan.matches_nullable_null_reference_v1(self.frame.references()) {
                             return Err(freeze("bool-condition/operator-source"));
                         }
-                    } else if loan.single_envelope().is_none() {
+                    } else if loan.single_envelope().is_none() && loan.scalar_source_v1().is_none() {
                         return Err(freeze("bool-condition/operator-loan"));
                     }
                     let lhs = self.value_at(binary.lhs())?;
@@ -365,7 +365,7 @@ impl EmittedBoolConditionProjectionV1 {
                         ResolvedBinaryOperatorV1::LessEqual => Some(crate::mir::CompareOp::Le),
                         ResolvedBinaryOperatorV1::Greater => Some(crate::mir::CompareOp::Gt),
                         ResolvedBinaryOperatorV1::GreaterEqual => Some(crate::mir::CompareOp::Ge),
-                        ResolvedBinaryOperatorV1::Add => None,
+                        ResolvedBinaryOperatorV1::Add | ResolvedBinaryOperatorV1::Subtract => None,
                         _ => return Err(freeze("bool-condition/operator-kind")),
                     };
                     let (a, b) = match &append.1 {
@@ -376,11 +376,11 @@ impl EmittedBoolConditionProjectionV1 {
                         }
                         MirInstruction::BinOp {
                             dst,
-                            op: crate::mir::BinaryOp::Add,
+                            op,
                             lhs,
                             rhs,
                         } if *dst == node.value
-                            && binary.operator() == ResolvedBinaryOperatorV1::Add =>
+                            && Some(*op) == loan.integer_operator_v1() =>
                         {
                             (*lhs, *rhs)
                         }
@@ -388,6 +388,13 @@ impl EmittedBoolConditionProjectionV1 {
                     };
                     if operands[0].values() != (lhs, a) || operands[1].values() != (rhs, b) {
                         return Err(freeze("bool-condition/ordered-operands"));
+                    }
+                    if let Some(scalar) = loan.scalar_source_v1() {
+                        let original = ledger.scalar_operation_original_v1(scalar)?;
+                        original.validate_expression_operands_v1((lhs, rhs), node.value, &self.prefix)?;
+                        if original.original() != append {
+                            return Err(freeze("bool-condition/operator-append"));
+                        }
                     }
                     for relation in operands {
                         relation.verify_projected(function, &mut |binding| {

@@ -162,6 +162,7 @@ fn selects(
                     | Op::LessEqual
                     | Op::GreaterEqual
                     | Op::Add
+                    | Op::Subtract
             ) {
                 return false;
             }

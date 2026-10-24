@@ -46,6 +46,9 @@ impl ExpressionScalarOperationLoanV1 {
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                 role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value, ..
             } if positive_divisor.is_none() => value,
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::IfCondition { condition, .. }
+            | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LoopCondition { condition, .. }
+                if positive_divisor.is_none() => condition,
             _ => return None,
         };
         if node.binary()? != binary || original_value != root.site() {

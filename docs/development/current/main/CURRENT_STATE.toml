@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary_trees_exe: source-loop/v2/source Loop has an unavailable path; Body(14)/LoopBody(1) me.iterationCheck(builder, depth, iterations) has no selected source-result loan for scalar args"
+current_blocker_token = "binary_trees_exe: mir/invoke/borrowed-source-incoming-coverage; iterationCheck loop builder.make initializers are absent from ordinary final Call coverage"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-binary-trees is active; clean-source `cargo quick-build-fast` passed in 40.78s and the focused EXE smoke reached the run Loop body.
-Using `target/quick/hakorune`, `Body(14)/LoopBody(1)` fails at `me.iterationCheck(builder, depth, iterations)` with `source Loop has an unavailable path`.
-`iterationCheck` returns computed `sum` from three unannotated formals, so its original-return owner issues no `ScalarReturnSource`; `Main.pow2` already reaches the body through qualified-static ExactI64.
-The `builder` loan is retained, but exact scalar input loans for `depth` and `iterations` remain absent; `.hako` remains unchanged. `cargo quick-test-fast` compiled but had two failures and a stack-overflow abort, not yet attributed.
-The fixed-suite result remains 9/11 PASS on 2026-10-24; next connect the computed-return source and exact argument projections, then rerun the unchanged smoke.
+APP-binary-trees remains active; fresh quick CLI builds passed (latest 42.71s); unchanged smoke reaches independent final MIR verification, before EXE.
+Current stop: borrowed-source-incoming-coverage misses the two iterationCheck loop builder.make initializers; ordinary Call visitation omits them while original incoming retains them.
+Worker/source audit locates the Parameter receiver exclusion before ReceivedObjectArguments and competing Dynamic source selection; connect the exact original object loan, then its Loop Home/cleanup consumer without weakening coverage.
+Exact I64 subtraction in whole Bool conditions has four focused checks PASS; broader focused verification has failures retained in the app card. Other source/result/Loop WIP remains uncommitted and unclosed.
+Last fixed suite remains 9/11 PASS (2026-10-24), not rerun; keep .hako unchanged and verify original producer/source before selecting the next emitter change.
 """
 next_design_card = "none"
 next_design_card_path = "none"
