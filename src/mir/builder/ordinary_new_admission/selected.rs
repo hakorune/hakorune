@@ -21,6 +21,8 @@ pub(in crate::mir::builder) use expression_value::emit_scalar_operation_to_landi
 mod return_expression;
 #[path = "selected/terminal_map_get.rs"]
 pub(in crate::mir::builder) mod terminal_map_get;
+#[path = "selected/map_field_install.rs"]
+pub(in crate::mir::builder) mod map_field_install;
 pub(in crate::mir::builder) use return_expression::emit as emit_return_expression_v1;
 #[path = "selected/binding_rebind_expression.rs"]
 pub(in crate::mir::builder) mod binding_rebind_expression;
@@ -277,16 +279,16 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    emit_root_home_exit_payload(
-        builder,
-        state,
-        ledger,
-        owner,
-        site,
-        Some(value),
-        value,
-        None,
-    )
+    let alias = if let Some(install) = ledger.installed_map_return_candidate_v1(owner, site, value,
+        builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)? {
+        let dst = builder.next_value_id();
+        let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+        let copy = MirInstruction::Copy { dst, src: value };
+        builder.emit_instruction(copy.clone())?;
+        ledger.record_installed_map_return_alias_v1(owner, site, install, (block, copy))?;
+        dst
+    } else { value };
+    emit_root_home_exit_payload(builder, state, ledger, owner, site, Some(alias), alias, None)
 }
 
 pub(in crate::mir::builder) fn emit_root_home_unit_exit(
@@ -329,6 +331,7 @@ pub(in crate::mir::builder) struct RootGraphEmissionV1 {
     )>,
     pub frame: Option<ValueId>,
     pub clean: BasicBlockId,
+    pub argument_cleanup: Option<root_graph::RootArgumentCleanupV1>,
 }
 
 fn emit_root_home_exit_payload(
@@ -364,7 +367,11 @@ fn emit_root_home_exit_payload(
         Some(RootExitIngress::MapGet { operation, .. }) => Some(operation.clone()),
         None => None,
     };
-    let emission = emit_root_graph_v1(
+    let argument_ends = match &ingress {
+        Some(RootExitIngress::Call(call)) => call.source.deferred_argument_ends_v1(ledger)?,
+        _ => Vec::new(),
+    };
+    let emission = root_graph::emit_root_graph_with_arguments_v1(
         builder,
         frame_port,
         &mut RawRootGraphWriterV1,
@@ -373,6 +380,7 @@ fn emit_root_home_exit_payload(
         return_value,
         statement_result,
         ingress_operation,
+        &argument_ends,
     )?;
     let RootGraphEmissionV1 {
         origins,
@@ -380,6 +388,7 @@ fn emit_root_home_exit_payload(
         ingress: physical_ingress,
         frame,
         clean: _,
+        argument_cleanup,
     } = emission;
     match (ingress, physical_ingress) {
         (Some(RootExitIngress::Call(call)), Some((invoke, projection))) => {
@@ -388,7 +397,7 @@ fn emit_root_home_exit_payload(
             ledger.record_root_call_exit(
                 owner,
                 site,
-                call.source.finish(invoke.clone(), projection.clone()),
+                call.source.finish(invoke.clone(), projection.clone(), argument_cleanup)?,
                 call.arguments,
                 invoke,
                 projection,
@@ -447,72 +456,8 @@ pub(in crate::mir::builder) fn emit_root_graph_v1(
     statement_result: ValueId,
     ingress_operation: Option<InvokeOperation>,
 ) -> Result<RootGraphEmissionV1, String> {
-    let fault_operations: Vec<_> = fault_sequences
-        .full
-        .iter()
-        .map(|origin| origin.operation().clone())
-        .collect();
-    let mut bindings = Vec::new();
-    let mut clean = writer.reserve_block(builder)?;
-    writer.append_terminated(
-        builder,
-        clean,
-        MirInstruction::Return {
-            value: return_value,
-        },
-        &mut bindings,
-    )?;
-    let mut origins = Vec::with_capacity(operations.len());
-    let mut frame_value = None;
-    let mut ingress = None;
-    // Empty-Home Plain has no Fault edge and therefore no frame definition.
-    if !operations.is_empty() || ingress_operation.is_some() {
-        let frame = frame_port.materialize(builder)?;
-        frame_value = Some(frame);
-        let cleanup = root_graph::emit_cleanup_suffixes_with_writer(
-            writer, builder, frame, clean,
-            &operations.iter().map(|origin| origin.operation().clone()).collect::<Vec<_>>(),
-            &fault_operations, &fault_sequences.after_normal,
-            if ingress_operation.is_some() { &fault_sequences.acquisition } else { &[] },
-            &mut bindings,
-        )?;
-        clean = cleanup.clean;
-        origins.extend(operations.into_iter().zip(cleanup.normal_origins)
-            .map(|(origin, (block, instruction))| (origin, block, instruction)));
-        let fault = if ingress_operation.is_some() {
-            cleanup.acquisition_fault
-        } else {
-            cleanup.fault_terminal
-        };
-        if let Some(operation) = ingress_operation {
-            ingress = Some(terminal_call::emit_ingress(
-                writer,
-                builder,
-                frame,
-                statement_result,
-                clean,
-                fault,
-                operation,
-                &mut bindings,
-            )?);
-        }
-    }
-    if ingress.is_none() {
-        bindings.push(writer.emit_current(
-            builder,
-            MirInstruction::Jump {
-                target: clean,
-                edge_args: None,
-            },
-        )?);
-    }
-    Ok(RootGraphEmissionV1 {
-        origins,
-        bindings,
-        ingress,
-        frame: frame_value,
-        clean,
-    })
+    root_graph::emit_root_graph_with_arguments_v1(builder, frame_port, writer, operations,
+        fault_sequences, return_value, statement_result, ingress_operation, &[])
 }
 
 pub(in crate::mir::builder) fn emit_terminal_i64_add_return(

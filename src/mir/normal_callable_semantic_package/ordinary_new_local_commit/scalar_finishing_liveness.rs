@@ -70,7 +70,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for ((original_owner, _), progress) in self.root_exits.borrow().iter() {
             if *original_owner != owner { continue; }
             if let RootHomeExitProgress::Emitted { order, .. } = progress {
-                expressions.extend_from_slice(order.return_expression_bindings_v1());
+                expressions.extend(order.return_expression_bindings_v1(CallValidationContextV1::Lowering(self))?);
             }
         }
         let groups = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();

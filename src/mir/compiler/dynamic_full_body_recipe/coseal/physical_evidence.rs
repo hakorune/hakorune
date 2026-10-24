@@ -640,6 +640,7 @@ fn issue_operation_sources(
             | LoopOperationV2::TextAdd { .. }
             | LoopOperationV2::CompareI64 { .. }
             | LoopOperationV2::DynamicAdd { .. }
+            | LoopOperationV2::DynamicSub { .. }
             | LoopOperationV2::DynamicLess { .. }
             | LoopOperationV2::TextEq { .. } => {
                 (DynamicFullLoopOperationEffectV2::ExpressionEvaluation, None)

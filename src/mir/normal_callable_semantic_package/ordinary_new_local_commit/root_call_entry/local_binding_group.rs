@@ -1,7 +1,9 @@
 //! The existing source-ordered binding group retains its original physical proof.
 //! Sharing a prefix between exits shares the packet, never its affine row.
-use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, StoredMapGetLocalEmissionV1};
 use super::*;
+use crate::mir::normal_callable_semantic_package::{
+    CallValidationContextV1, StoredMapGetLocalEmissionV1, MapFieldInstallEmissionV1,
+};
 use std::rc::Rc;
 #[path = "direct_scalar_call.rs"]
 mod direct_scalar;
@@ -22,6 +24,7 @@ enum PrefixPhysicalProofV1 {
     DirectScalar(Rc<DirectScalarCallProjectionV1>),
     EvaluatedBinding(EvaluatedBindingProjectionV1),
     StoredMapGet(Rc<StoredMapGetLocalEmissionV1>),
+    FieldMapInstall(Rc<MapFieldInstallEmissionV1>),
     BoolCondition(Rc<EmittedBoolConditionProjectionV1>),
     PrintExpression(Rc<print_expression_projection::EmittedPrintExpressionProjectionV1>),
     OwnedArrayAppend(Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>),
@@ -38,16 +41,29 @@ enum EvaluatedBindingProjectionV1 {
 }
 
 impl RootLifecyclePrefixBindingGroupV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn snapshot_tree_v2(roots: &[Self]) -> Vec<Self> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn snapshot_tree_v2(
+        roots: &[Self],
+    ) -> Vec<Self> {
         source_loop_projection::snapshot_group_tree_v2(roots)
     }
-    pub(super) fn new_loop_pending(packet: Rc<source_loop_projection::EmittedSourceLoopProjectionV2>) -> Self {
+    pub(super) fn new_loop_pending(
+        packet: Rc<source_loop_projection::EmittedSourceLoopProjectionV2>,
+    ) -> Self {
         let source = packet.product().source.condition.source();
-        Self { site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
-            bindings: Vec::new(), proof: PrefixPhysicalProofV1::Loop(packet), projected: false }
+        Self {
+            site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
+            bindings: Vec::new(),
+            proof: PrefixPhysicalProofV1::Loop(packet),
+            projected: false,
+        }
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_loop_rc(&self) -> Option<&Rc<source_loop_projection::EmittedSourceLoopProjectionV2>> {
-        match &self.proof { PrefixPhysicalProofV1::Loop(packet) => Some(packet), _ => None }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_loop_rc(
+        &self,
+    ) -> Option<&Rc<source_loop_projection::EmittedSourceLoopProjectionV2>> {
+        match &self.proof {
+            PrefixPhysicalProofV1::Loop(packet) => Some(packet),
+            _ => None,
+        }
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn new(
@@ -75,35 +91,64 @@ impl RootLifecyclePrefixBindingGroupV1 {
     /// Shared commit/group references count one physical packet only when
     /// source identity, original packet and full instruction inventory agree.
     pub(in crate::mir::normal_callable_semantic_package) fn corroborate_received_packet_v1(
-        &self, site: &OwnedExprSiteV1, packet: &EmittedLexicalCallProjectionV1,
+        &self,
+        site: &OwnedExprSiteV1,
+        packet: &EmittedLexicalCallProjectionV1,
         bindings: &[(BasicBlockId, MirInstruction)],
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         let projected;
         let expected = if self.projected {
-            projected = finishing.ok_or_else(|| freeze("received-call/shared-packet-projection-missing"))?
+            projected = finishing
+                .ok_or_else(|| freeze("received-call/shared-packet-projection-missing"))?
                 .bindings(bindings)?;
             projected.as_slice()
-        } else { bindings };
-        if self.site() != site || packet.call_site() != site
-            || self.lexical().is_none_or(|original| !std::ptr::eq(original, packet))
+        } else {
+            bindings
+        };
+        if self.site() != site
+            || packet.call_site() != site
+            || self
+                .lexical()
+                .is_none_or(|original| !std::ptr::eq(original, packet))
             || self.bindings() != expected
-        { return Err(freeze("received-call/shared-packet-drift")); }
+        {
+            return Err(freeze("received-call/shared-packet-drift"));
+        }
         packet.validate_recorded(bindings)
     }
 
-    pub(in crate::mir) fn check_raw_effect_v2(&self, context: CallValidationContextV1<'_>,
+    pub(in crate::mir) fn check_raw_effect_v2(
+        &self,
+        context: CallValidationContextV1<'_>,
         function: &MirFunction,
     ) -> Result<(), String> {
+        if let PrefixPhysicalProofV1::OwnedArrayAppend(packet) = &self.proof {
+            packet.validate_recorded(&self.bindings, None)?;
+            return packet.check_raw_in_context_v1(context, function);
+        }
         self.validate_recorded_in_context(context, function, None)
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn same_effect_packet_v2(&self, other: &Self) -> bool {
-        self.site == other.site && self.bindings == other.bindings && self.projected == other.projected
+    pub(in crate::mir::normal_callable_semantic_package) fn same_effect_packet_v2(
+        &self,
+        other: &Self,
+    ) -> bool {
+        self.site == other.site
+            && self.bindings == other.bindings
+            && self.projected == other.projected
             && match (&self.proof, &other.proof) {
-                (PrefixPhysicalProofV1::OwnedArrayAppend(a), PrefixPhysicalProofV1::OwnedArrayAppend(b)) => Rc::ptr_eq(a, b),
-                (PrefixPhysicalProofV1::Call(Some(a)), PrefixPhysicalProofV1::Call(Some(b))) => Rc::ptr_eq(a, b),
-                (PrefixPhysicalProofV1::DirectScalar(a), PrefixPhysicalProofV1::DirectScalar(b)) => Rc::ptr_eq(a, b),
+                (
+                    PrefixPhysicalProofV1::OwnedArrayAppend(a),
+                    PrefixPhysicalProofV1::OwnedArrayAppend(b),
+                ) => Rc::ptr_eq(a, b),
+                (PrefixPhysicalProofV1::Call(Some(a)), PrefixPhysicalProofV1::Call(Some(b))) => {
+                    Rc::ptr_eq(a, b)
+                }
+                (
+                    PrefixPhysicalProofV1::DirectScalar(a),
+                    PrefixPhysicalProofV1::DirectScalar(b),
+                ) => Rc::ptr_eq(a, b),
                 _ => false,
             }
     }
@@ -111,20 +156,33 @@ impl RootLifecyclePrefixBindingGroupV1 {
     /// Match the original Call's actual continuation after argument cleanup.
     /// A discarded value has a packet, but grants no receiving Local binding.
     pub(in crate::mir) fn corroborate_loop_call_v2(
-        &self, source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
-        entry: BasicBlockId, end: BasicBlockId, value: Option<ValueId>,
-        context: CallValidationContextV1<'_>, function: &MirFunction, check_coordinates: bool,
+        &self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        entry: BasicBlockId,
+        end: BasicBlockId,
+        value: Option<ValueId>,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        check_coordinates: bool,
     ) -> Result<(), String> {
         let has_result = source.local_binding().is_some() || source.is_expression_value();
         if self.site() != source.site() || has_result != value.is_some() {
             return Err(freeze("source-loop/call-source"));
         }
         if let Some(value) = value {
-            if self.scalar_call_value_v1(source, context)? != value { return Err(freeze("source-loop/call-result")); }
+            if self.scalar_call_value_v1(source, context)? != value {
+                return Err(freeze("source-loop/call-result"));
+            }
         }
         match &self.proof {
             PrefixPhysicalProofV1::Call(Some(packet)) => packet.corroborate_loop_continuation_v2(
-                source, entry, end, context, function, check_coordinates),
+                source,
+                entry,
+                end,
+                context,
+                function,
+                check_coordinates,
+            ),
             PrefixPhysicalProofV1::DirectScalar(packet) => {
                 packet.value(source, context)?;
                 packet.corroborate_loop_continuation_v2(entry, end, function, check_coordinates)
@@ -138,32 +196,52 @@ impl RootLifecyclePrefixBindingGroupV1 {
     }
     pub(crate) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
         if !self.projected {
-            if let Some(packet) = self.source_loop_rc() { return packet.bindings(); }
-            if let Some(packet) = self.field_array_append() { return packet.bindings(); }
-            if let Some(packet) = self.borrowed_field_write() { return packet.bindings(); }
+            if let Some(packet) = self.source_loop_rc() {
+                return packet.bindings();
+            }
+            if let Some(packet) = self.field_array_append() {
+                return packet.bindings();
+            }
+            if let Some(packet) = self.borrowed_field_write() {
+                return packet.bindings();
+            }
         }
         &self.bindings
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn seal_physical_observations_v1(&self) -> Result<(), String> {
-        if let Some(packet) = self.field_array_append() { packet.seal_bindings_v1()?; }
-        if let Some(packet) = self.borrowed_field_write() { packet.seal_bindings_v1()?; }
+    pub(in crate::mir::normal_callable_semantic_package) fn seal_physical_observations_v1(
+        &self,
+    ) -> Result<(), String> {
+        if let Some(packet) = self.field_array_append() {
+            packet.seal_bindings_v1()?;
+        }
+        if let Some(packet) = self.borrowed_field_write() {
+            packet.seal_bindings_v1()?;
+        }
         Ok(())
     }
 
     /// Intermediate checks borrow the same writer loans; the final census is
     /// separately sealed before capture. Projected bindings remain immutable.
     pub(in crate::mir::normal_callable_semantic_package) fn check_physical_bindings_v1(
-        &self, function: &MirFunction,
+        &self,
+        function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         if let (Some(packet), Some(projection)) = (self.source_loop_rc(), finishing) {
             for original in packet.bindings() {
                 if let Some(dst) = original.1.dst_value() {
-                    if projection.captured_definition(dst)? != original { return Err(freeze("source-loop/captured-write")); }
+                    if projection.captured_definition(dst)? != original {
+                        return Err(freeze("source-loop/captured-write"));
+                    }
                 } else if matches!(original.1, MirInstruction::KeepAlive { .. }) {
                     projection.validate_metadata_correspondence_v2(function, original, false)?;
-                } else if !super::super::physical_boundary::check_binding(function, Some(projection), original.0, &original.1)? {
+                } else if !super::super::physical_boundary::check_binding(
+                    function,
+                    Some(projection),
+                    original.0,
+                    &original.1,
+                )? {
                     return Err(freeze("source-loop/projected-effect"));
                 }
             }
@@ -175,12 +253,29 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 _ => original.clone(),
             };
             let observed = match (self.projected, self.borrowed_field_write()) {
-                (false, Some(packet)) => packet.resolve_observed_binding_v1(&observed, false)?, _ => observed,
+                (false, Some(packet)) => packet.resolve_observed_binding_v1(&observed, false)?,
+                _ => observed,
             };
-            if let (Some((local, value, copy)), Some(boundary)) = (self.initializer_copy_receipt_v1(), finishing) {
-                if boundary.validate_initializer_copy_observation_v1(&observed, function, self.projected, copy, local, value)? { continue; }
+            if let (Some((local, value, copy)), Some(boundary)) =
+                (self.initializer_copy_receipt_v1(), finishing)
+            {
+                if boundary.validate_initializer_copy_observation_v1(
+                    &observed,
+                    function,
+                    self.projected,
+                    copy,
+                    local,
+                    value,
+                )? {
+                    continue;
+                }
             }
-            if !super::super::physical_boundary::check_binding(function, finishing, observed.0, &observed.1)? {
+            if !super::super::physical_boundary::check_binding(
+                function,
+                finishing,
+                observed.0,
+                &observed.1,
+            )? {
                 if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
                     let proof = match &self.proof {
                         PrefixPhysicalProofV1::Loop(_) => "loop",
@@ -188,30 +283,55 @@ impl RootLifecyclePrefixBindingGroupV1 {
                         PrefixPhysicalProofV1::DirectScalar(_) => "direct-scalar",
                         PrefixPhysicalProofV1::EvaluatedBinding(_) => "evaluated-binding",
                         PrefixPhysicalProofV1::StoredMapGet(_) => "stored-map-get",
+                        PrefixPhysicalProofV1::FieldMapInstall(_) => "field-map-install",
                         PrefixPhysicalProofV1::BoolCondition(_) => "bool-condition",
                         PrefixPhysicalProofV1::PrintExpression(_) => "print-expression",
                         PrefixPhysicalProofV1::OwnedArrayAppend(_) => "owned-array-append",
                         PrefixPhysicalProofV1::FieldArrayAppend(_) => "field-array-append",
                         PrefixPhysicalProofV1::BorrowedFieldWrite(_) => "borrowed-field-write",
                     };
-                    let definitions = observed.1.dst_value().map(|dst| function.blocks.iter().flat_map(|(block, body)|
-                        body.all_instructions().filter_map(move |row| (row.dst_value() == Some(dst)).then_some((*block, row.clone()))))
-                        .collect::<Vec<_>>()).unwrap_or_default();
+                    let definitions = observed
+                        .1
+                        .dst_value()
+                        .map(|dst| {
+                            function
+                                .blocks
+                                .iter()
+                                .flat_map(|(block, body)| {
+                                    body.all_instructions().filter_map(move |row| {
+                                        (row.dst_value() == Some(dst))
+                                            .then_some((*block, row.clone()))
+                                    })
+                                })
+                                .collect::<Vec<_>>()
+                        })
+                        .unwrap_or_default();
                     eprintln!("[local-call-bindings] physical-drift proof={proof} site={:?} expected={observed:?} current={definitions:?}", self.site);
                 }
-                return Err(format!("{} function={} site={:?} projected={} finishing={} binding={observed:?}",
-                    freeze("local-call-binding-drift"), function.signature.name, self.site, self.projected, finishing.is_some()));
+                return Err(format!(
+                    "{} function={} site={:?} projected={} finishing={} binding={observed:?}",
+                    freeze("local-call-binding-drift"),
+                    function.signature.name,
+                    self.site,
+                    self.projected,
+                    finishing.is_some()
+                ));
             }
         }
         Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn scalar_call_value_v1(
-        &self, source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        &self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
         context: CallValidationContextV1<'_>,
     ) -> Result<ValueId, String> {
-        if self.site() != source.site() { return Err(freeze("scalar-call/group-site")); }
+        if self.site() != source.site() {
+            return Err(freeze("scalar-call/group-site"));
+        }
         match &self.proof {
-            PrefixPhysicalProofV1::Call(Some(packet)) => packet.value_in_context_v1(source.owner(), source.arguments(), context),
+            PrefixPhysicalProofV1::Call(Some(packet)) => {
+                packet.value_in_context_v1(source.owner(), source.arguments(), context)
+            }
             PrefixPhysicalProofV1::DirectScalar(packet) => packet.value(source, context),
             _ => Err(freeze("scalar-call/source-packet-missing")),
         }
@@ -219,7 +339,16 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn lexical(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.proof {
             PrefixPhysicalProofV1::Call(packet) => packet.as_deref(),
-            PrefixPhysicalProofV1::StoredMapGet(_) | PrefixPhysicalProofV1::Loop(_) | PrefixPhysicalProofV1::DirectScalar(_) | PrefixPhysicalProofV1::EvaluatedBinding(_) | PrefixPhysicalProofV1::BorrowedFieldWrite(_) | PrefixPhysicalProofV1::FieldArrayAppend(_) | PrefixPhysicalProofV1::PrintExpression(_) | PrefixPhysicalProofV1::BoolCondition(_) | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
+            PrefixPhysicalProofV1::FieldMapInstall(_)
+            | PrefixPhysicalProofV1::StoredMapGet(_)
+            | PrefixPhysicalProofV1::Loop(_)
+            | PrefixPhysicalProofV1::DirectScalar(_)
+            | PrefixPhysicalProofV1::EvaluatedBinding(_)
+            | PrefixPhysicalProofV1::BorrowedFieldWrite(_)
+            | PrefixPhysicalProofV1::FieldArrayAppend(_)
+            | PrefixPhysicalProofV1::PrintExpression(_)
+            | PrefixPhysicalProofV1::BoolCondition(_)
+            | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
         }
     }
 
@@ -244,189 +373,397 @@ impl RootLifecyclePrefixBindingGroupV1 {
         })
     }
 
-    pub(in crate::mir) fn lexical_packets(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+    pub(in crate::mir) fn lexical_packets(
+        &self,
+    ) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         let print = match &self.proof {
             PrefixPhysicalProofV1::PrintExpression(packet) => Some(packet),
             _ => None,
         };
-        let direct = match &self.proof { PrefixPhysicalProofV1::DirectScalar(packet) => Some(packet), _ => None };
-        self.lexical().into_iter().chain(direct.into_iter().flat_map(|packet| packet.argument_calls_v1()))
+        let direct = match &self.proof {
+            PrefixPhysicalProofV1::DirectScalar(packet) => Some(packet),
+            _ => None,
+        };
+        self.lexical()
+            .into_iter()
+            .chain(
+                direct
+                    .into_iter()
+                    .flat_map(|packet| packet.argument_calls_v1()),
+            )
             .chain(print.into_iter().flat_map(|packet| packet.calls()))
             .chain(self.rebind().into_iter().flat_map(|packet| packet.calls()))
-            .chain(self.initializer().into_iter().flat_map(|packet| packet.calls()))
-            .chain(self.bool_condition().into_iter().flat_map(|packet| packet.calls()))
-            .chain(self.owned_array_append().and_then(|packet| packet.candidate_packet()))
+            .chain(
+                self.initializer()
+                    .into_iter()
+                    .flat_map(|packet| packet.calls()),
+            )
+            .chain(
+                self.bool_condition()
+                    .into_iter()
+                    .flat_map(|packet| packet.calls()),
+            )
+            .chain(
+                self.owned_array_append()
+                    .and_then(|packet| packet.candidate_packet()),
+            )
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn text_residence_v1(&self) -> Option<TextResidencePacketV1> {
+    pub(in crate::mir::normal_callable_semantic_package) fn text_residence_v1(
+        &self,
+    ) -> Option<TextResidencePacketV1> {
         match &self.proof {
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet))
-                if packet.frame().is_text_residence() => Some(TextResidencePacketV1::Initializer(Rc::clone(packet))),
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet))
-                if packet.frame().is_text_residence() => Some(TextResidencePacketV1::Rebind(Rc::clone(packet))),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) if packet.frame().is_text_residence() => {
+                Some(TextResidencePacketV1::Initializer(Rc::clone(packet)))
+            }
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                packet,
+            )) if packet.frame().is_text_residence() => {
+                Some(TextResidencePacketV1::Rebind(Rc::clone(packet)))
+            }
+            _ => None,
+        }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn dynamic_carrier_residence_v1(
+        &self,
+    ) -> Option<DynamicCarrierResidencePacketV1> {
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) if packet.has_dynamic_carrier() => Some(
+                DynamicCarrierResidencePacketV1::Initializer(Rc::clone(packet)),
+            ),
             _ => None,
         }
     }
 
     pub(super) fn initializer_rc(&self) -> Option<&Rc<EmittedInitializerExpressionProjectionV1>> {
-        match &self.proof { PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => Some(packet), _ => None }
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) => Some(packet),
+            _ => None,
+        }
     }
 
     pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
-        match &self.proof { PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => Some(packet), _ => None }
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) => Some(packet),
+            _ => None,
+        }
     }
-    pub(super) fn new_initializer(packet: Rc<EmittedInitializerExpressionProjectionV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Result<Self, String> {
+    pub(super) fn new_initializer(
+        packet: Rc<EmittedInitializerExpressionProjectionV1>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
-        Ok(Self { site: OwnedExprSiteV1::new(packet.frame().source().owner(), packet.frame().source().nodes()[0].site().clone()),
-            bindings, proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)), projected: false })
+        Ok(Self {
+            site: OwnedExprSiteV1::new(
+                packet.frame().source().owner(),
+                packet.frame().source().nodes()[0].site().clone(),
+            ),
+            bindings,
+            proof: PrefixPhysicalProofV1::EvaluatedBinding(
+                EvaluatedBindingProjectionV1::Initializer(packet),
+            ),
+            projected: false,
+        })
     }
 
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn stored_map_get(&self) -> Option<&StoredMapGetLocalEmissionV1> {
-        match &self.proof { PrefixPhysicalProofV1::StoredMapGet(packet) => Some(packet), _ => None }
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn initializer_copy_receipt_v1(&self)
-        -> Option<(ValueId, ValueId, &(BasicBlockId, MirInstruction))> {
-        if let Some(packet) = self.stored_map_get() { return Some(packet.copy_receipt()); }
-        let packet = self.initializer()?;
-        Some((packet.local_value(), packet.value(), packet.receipt_copy_binding_v1()?))
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn new_stored_map_get(packet: Rc<StoredMapGetLocalEmissionV1>) -> Result<Self, String> {
-        packet.validate_recorded(packet.bindings(), None)?;
-        Ok(Self { site: packet.frame().site().clone(), bindings: packet.bindings().to_vec(),
-            proof: PrefixPhysicalProofV1::StoredMapGet(packet), projected: false })
-    }
 
-    pub(in crate::mir) fn rebind(&self) -> Option<&binding_rebind_projection::EmittedBindingRebindProjectionV1> {
-        match &self.proof { PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) => Some(packet), _ => None }
+    pub(in crate::mir) fn rebind(
+        &self,
+    ) -> Option<&binding_rebind_projection::EmittedBindingRebindProjectionV1> {
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                packet,
+            )) => Some(packet),
+            _ => None,
+        }
     }
-    pub(super) fn new_rebind(packet: Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Result<Self, String> {
+    pub(super) fn new_rebind(
+        packet: Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
-        Ok(Self { site: OwnedExprSiteV1::new(packet.frame().source().owner(), packet.frame().source().nodes()[0].site().clone()),
-            bindings, proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)), projected: false })
+        Ok(Self {
+            site: OwnedExprSiteV1::new(
+                packet.frame().source().owner(),
+                packet.frame().source().nodes()[0].site().clone(),
+            ),
+            bindings,
+            proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                packet,
+            )),
+            projected: false,
+        })
     }
 
     pub(super) fn bool_condition(&self) -> Option<&EmittedBoolConditionProjectionV1> {
-        match &self.proof { PrefixPhysicalProofV1::BoolCondition(packet) => Some(packet), _ => None }
+        match &self.proof {
+            PrefixPhysicalProofV1::BoolCondition(packet) => Some(packet),
+            _ => None,
+        }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn require_sealed_condition_v1(&self) -> Result<(), String> {
-        if let Some(packet) = self.source_loop_rc() { packet.require_completed()?; }
-        if let Some(packet) = self.bool_condition() { packet.require_sealed()?; }
-        if let Some(packet) = self.field_array_append() { packet.require_sealed_v1()?; }
-        if let Some(packet) = self.borrowed_field_write() { packet.require_sealed_v1()?; }
+    pub(in crate::mir::normal_callable_semantic_package) fn require_sealed_condition_v1(
+        &self,
+    ) -> Result<(), String> {
+        if let Some(packet) = self.source_loop_rc() {
+            packet.require_completed()?;
+        }
+        if let Some(packet) = self.bool_condition() {
+            packet.require_sealed()?;
+        }
+        if let Some(packet) = self.field_array_append() {
+            packet.require_sealed_v1()?;
+        }
+        if let Some(packet) = self.borrowed_field_write() {
+            packet.require_sealed_v1()?;
+        }
         Ok(())
     }
-    pub(super) fn new_bool_pending(packet: Rc<EmittedBoolConditionProjectionV1>) -> Result<Self, String> {
+    pub(super) fn new_bool_pending(
+        packet: Rc<EmittedBoolConditionProjectionV1>,
+    ) -> Result<Self, String> {
         packet.validate_prefix_recorded(packet.prefix())?;
         let source = packet.frame().source();
-        Ok(Self { site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
-            bindings: packet.prefix().to_vec(), proof: PrefixPhysicalProofV1::BoolCondition(packet), projected: false })
+        Ok(Self {
+            site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
+            bindings: packet.prefix().to_vec(),
+            proof: PrefixPhysicalProofV1::BoolCondition(packet),
+            projected: false,
+        })
     }
 
-    pub(in crate::mir) fn owned_array_append(&self) -> Option<&owned_array_append_projection::EmittedOwnedArrayAppendV1> {
-        match &self.proof { PrefixPhysicalProofV1::OwnedArrayAppend(packet) => Some(packet), _ => None }
+    pub(in crate::mir) fn owned_array_append(
+        &self,
+    ) -> Option<&owned_array_append_projection::EmittedOwnedArrayAppendV1> {
+        match &self.proof {
+            PrefixPhysicalProofV1::OwnedArrayAppend(packet) => Some(packet),
+            _ => None,
+        }
     }
     pub(super) fn new_append(
-        packet: Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>, bindings: Vec<(BasicBlockId, MirInstruction)>,
+        packet: Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
-        Ok(Self { site: packet.source().site().clone(), bindings,
-            proof: PrefixPhysicalProofV1::OwnedArrayAppend(packet), projected: false })
+        Ok(Self {
+            site: packet.source().site().clone(),
+            bindings,
+            proof: PrefixPhysicalProofV1::OwnedArrayAppend(packet),
+            projected: false,
+        })
     }
 
     pub(in crate::mir) fn borrowed_field_write(&self) -> Option<&EmittedBorrowedFieldWriteV1> {
-        match &self.proof { PrefixPhysicalProofV1::BorrowedFieldWrite(packet) => Some(packet), _ => None }
+        match &self.proof {
+            PrefixPhysicalProofV1::BorrowedFieldWrite(packet) => Some(packet),
+            _ => None,
+        }
     }
-    pub(super) fn new_borrowed_field_write(packet: Rc<EmittedBorrowedFieldWriteV1>) -> Result<Self, String> {
+    pub(super) fn new_borrowed_field_write(
+        packet: Rc<EmittedBorrowedFieldWriteV1>,
+    ) -> Result<Self, String> {
         packet.validate_recorded(packet.bindings(), None)?;
-        Ok(Self { site: packet.source().value_site(), bindings: packet.bindings().to_vec(),
-            proof: PrefixPhysicalProofV1::BorrowedFieldWrite(packet), projected: false })
+        Ok(Self {
+            site: packet.source().value_site(),
+            bindings: packet.bindings().to_vec(),
+            proof: PrefixPhysicalProofV1::BorrowedFieldWrite(packet),
+            projected: false,
+        })
     }
 
-    pub(in crate::mir) fn field_array_append(&self) -> Option<&field_array_append_projection::EmittedFieldArrayAppendV1> {
-        match &self.proof { PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet), _ => None }
+    pub(in crate::mir) fn field_array_append(
+        &self,
+    ) -> Option<&field_array_append_projection::EmittedFieldArrayAppendV1> {
+        match &self.proof {
+            PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet),
+            _ => None,
+        }
     }
-    pub(super) fn field_array_append_packet_v1(&self) -> Option<&Rc<field_array_append_projection::EmittedFieldArrayAppendV1>> {
-        match &self.proof { PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet), _ => None }
+    pub(super) fn field_array_append_packet_v1(
+        &self,
+    ) -> Option<&Rc<field_array_append_projection::EmittedFieldArrayAppendV1>> {
+        match &self.proof {
+            PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet),
+            _ => None,
+        }
     }
-    pub(super) fn new_field_append(packet: Rc<field_array_append_projection::EmittedFieldArrayAppendV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Result<Self, String> {
+    pub(super) fn new_field_append(
+        packet: Rc<field_array_append_projection::EmittedFieldArrayAppendV1>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<Self, String> {
         packet.validate_recorded(&bindings, None)?;
-        Ok(Self { site: packet.source().site().clone(), bindings, proof: PrefixPhysicalProofV1::FieldArrayAppend(packet), projected: false })
+        Ok(Self {
+            site: packet.source().site().clone(),
+            bindings,
+            proof: PrefixPhysicalProofV1::FieldArrayAppend(packet),
+            projected: false,
+        })
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn matches_source(&self, source: &LifecyclePrefixSourceV1) -> bool {
-        if self.site() != source.site() { return false; }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_source(
+        &self,
+        source: &LifecyclePrefixSourceV1,
+    ) -> bool {
+        if self.site() != source.site() {
+            return false;
+        }
         match (&self.proof, source) {
-            (PrefixPhysicalProofV1::StoredMapGet(packet), LifecyclePrefixSourceV1::StoredMapGet { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
-            (PrefixPhysicalProofV1::Loop(packet), LifecyclePrefixSourceV1::Loop { product, .. }) => Rc::ptr_eq(packet.product(), product),
-            (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)), LifecyclePrefixSourceV1::InitializerExpression { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
-            (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)), LifecyclePrefixSourceV1::BindingRebind { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
-            (PrefixPhysicalProofV1::BorrowedFieldWrite(packet), LifecyclePrefixSourceV1::BorrowedFieldWrite { frame, .. }) =>
-                Rc::ptr_eq(packet.source().frame(), frame),
-            (PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_), LifecyclePrefixSourceV1::Call { .. }) => true,
-            (PrefixPhysicalProofV1::FieldArrayAppend(packet), LifecyclePrefixSourceV1::FieldArrayAppend { proof, index, .. }) =>
-                packet.source().matches_original(proof, *index),
-            (PrefixPhysicalProofV1::FieldArrayAppend(packet), LifecyclePrefixSourceV1::FieldTextAppend { frame, .. }) => packet.source().matches_text_frame(frame),
-            (PrefixPhysicalProofV1::BoolCondition(packet), LifecyclePrefixSourceV1::BoolCondition { frame, .. }) =>
-                Rc::ptr_eq(packet.frame(), frame),
-            (PrefixPhysicalProofV1::PrintExpression(packet), LifecyclePrefixSourceV1::PrintExpression { frame, .. }) =>
-                Rc::ptr_eq(packet.frame(), frame),
-            (PrefixPhysicalProofV1::OwnedArrayAppend(packet), LifecyclePrefixSourceV1::OwnedArrayAppend { holder, candidate, .. }) =>
-                packet.source().matches_original_v1(holder, candidate),
+            (PrefixPhysicalProofV1::FieldMapInstall(packet), LifecyclePrefixSourceV1::FieldMapInstall { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::StoredMapGet(packet),
+                LifecyclePrefixSourceV1::StoredMapGet { frame, .. },
+            ) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::Loop(packet),
+                LifecyclePrefixSourceV1::Loop { product, .. },
+            ) => Rc::ptr_eq(packet.product(), product),
+            (
+                PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                    packet,
+                )),
+                LifecyclePrefixSourceV1::InitializerExpression { frame, .. },
+            ) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                    packet,
+                )),
+                LifecyclePrefixSourceV1::BindingRebind { frame, .. },
+            ) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::BorrowedFieldWrite(packet),
+                LifecyclePrefixSourceV1::BorrowedFieldWrite { frame, .. },
+            ) => Rc::ptr_eq(packet.source().frame(), frame),
+            (
+                PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_),
+                LifecyclePrefixSourceV1::Call { .. },
+            ) => true,
+            (
+                PrefixPhysicalProofV1::FieldArrayAppend(packet),
+                LifecyclePrefixSourceV1::FieldArrayAppend { proof, index, .. },
+            ) => packet.source().matches_original(proof, *index),
+            (
+                PrefixPhysicalProofV1::FieldArrayAppend(packet),
+                LifecyclePrefixSourceV1::FieldTextAppend { frame, .. },
+            ) => packet.source().matches_text_frame(frame),
+            (
+                PrefixPhysicalProofV1::BoolCondition(packet),
+                LifecyclePrefixSourceV1::BoolCondition { frame, .. },
+            ) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::PrintExpression(packet),
+                LifecyclePrefixSourceV1::PrintExpression { frame, .. },
+            ) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::OwnedArrayAppend(packet),
+                LifecyclePrefixSourceV1::OwnedArrayAppend {
+                    holder, candidate, ..
+                },
+            ) => packet.source().matches_original_v1(holder, candidate),
             _ => false,
         }
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded(
-        &self, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
-        self.validate_recorded_in_context(CallValidationContextV1::Lowering(ledger), function, finishing)
+        self.validate_recorded_in_context(
+            CallValidationContextV1::Lowering(ledger),
+            function,
+            finishing,
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded_in_context(
-        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         let coordinates = if self.projected { finishing } else { None };
-        if let Some(home) = self.text_residence_v1() { context.ledger().validate_text_residence_home_v1(&home, context)?; }
+        if let Some(home) = self.text_residence_v1() {
+            context
+                .ledger()
+                .validate_text_residence_home_v1(&home, context)?;
+        }
         match &self.proof {
-            PrefixPhysicalProofV1::Loop(packet) =>
-                packet.validate_completion_v2(context, function, self.bindings(), coordinates, finishing),
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) => {
+            PrefixPhysicalProofV1::Loop(packet) => packet.validate_completion_v2(
+                context,
+                function,
+                self.bindings(),
+                coordinates,
+                finishing,
+            ),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
+                packet,
+            )) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
-                packet.validate_paths(context, function, finishing).map(drop)
+                packet
+                    .validate_paths(context, function, finishing)
+                    .map(drop)
             }
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
+                packet,
+            )) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
-                packet.validate_paths(context, function, finishing).map(drop)
+                packet
+                    .validate_paths(context, function, finishing)
+                    .map(drop)
             }
             PrefixPhysicalProofV1::BorrowedFieldWrite(packet) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing)
-            },
+            }
             PrefixPhysicalProofV1::Call(Some(packet)) => {
                 packet.validate_recorded_projected(&self.bindings, coordinates)?;
-                packet.validate_expression_arguments_v1(context, function, finishing, &self.bindings, coordinates).map(drop)
-            },
+                packet
+                    .validate_expression_arguments_v1(
+                        context,
+                        function,
+                        finishing,
+                        &self.bindings,
+                        coordinates,
+                    )
+                    .map(drop)
+            }
             PrefixPhysicalProofV1::Call(None) => Ok(()),
+            PrefixPhysicalProofV1::FieldMapInstall(packet) => {
+                packet.validate_recorded(&self.bindings, coordinates)?;
+                packet.validate_paths(context, function, finishing)
+            }
             PrefixPhysicalProofV1::StoredMapGet(packet) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths(context, function, finishing)
-            },
-            PrefixPhysicalProofV1::DirectScalar(packet) => packet.validate(context, function, finishing, &self.bindings, coordinates),
-            PrefixPhysicalProofV1::BoolCondition(packet) =>
-                packet.validate_recorded(&self.bindings, context, function, coordinates, finishing),
+            }
+            PrefixPhysicalProofV1::DirectScalar(packet) => {
+                packet.validate(context, function, finishing, &self.bindings, coordinates)
+            }
+            PrefixPhysicalProofV1::BoolCondition(packet) => {
+                packet.validate_recorded(&self.bindings, context, function, coordinates, finishing)
+            }
             PrefixPhysicalProofV1::PrintExpression(packet) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
-                packet.validate_paths_in_context(context, function, finishing).map(drop)
-            },
+                packet
+                    .validate_paths_in_context(context, function, finishing)
+                    .map(drop)
+            }
             PrefixPhysicalProofV1::FieldArrayAppend(packet) => {
                 packet.validate_recorded(self.bindings(), coordinates)?;
                 packet.validate_paths(context, function, finishing)
-            },
+            }
             PrefixPhysicalProofV1::OwnedArrayAppend(packet) => {
                 packet.validate_recorded(&self.bindings, coordinates)?;
                 packet.validate_paths_in_context(context, function, finishing)
-            },
+            }
         }
     }
 
@@ -445,21 +782,5 @@ impl RootLifecyclePrefixBindingGroupV1 {
     }
 }
 
-impl OrdinaryNewClaimLedgerV1 {
-    pub(crate) fn validate_stored_map_get_local_source_v1(&self,
-        frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
-    ) -> Result<(), String> {
-        let retained = self.stored_map_get_local_source_v1(frame.site().owner(), frame.statement().node())?
-            .ok_or_else(|| freeze("map-get-source-missing"))?;
-        let next = self.next_prefix_source_v2(frame.site().owner(), frame.site())?;
-        if !std::rc::Rc::ptr_eq(&retained, frame)
-            || !matches!(next.as_ref(), Some(crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1::StoredMapGet { frame: original, .. }) if std::rc::Rc::ptr_eq(&original, frame)) {
-            return Err(freeze("initializer-expression/source-prefix-order"));
-        }
-        Ok(())
-    }
-    pub(crate) fn record_stored_map_get_local_bindings_v1(&self, packet: std::rc::Rc<StoredMapGetLocalEmissionV1>) -> Result<(), String> {
-        self.prepare_local_call_binding_group(packet.frame().site().owner(),
-            RootLifecyclePrefixBindingGroupV1::new_stored_map_get(packet)?)?.commit()
-    }
-}
+#[path = "local_binding_group_map.rs"]
+mod map_groups;

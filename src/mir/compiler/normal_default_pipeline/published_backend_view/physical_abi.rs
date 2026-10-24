@@ -35,6 +35,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     MapNew,
     MapFieldHas,
     MapFieldGetIndexed,
+    MapFieldInstallIndexed,
     MapPrepareKey,
     MapInstall,
     MapCheckedGet,
@@ -53,7 +54,11 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     StringEnd,
     DynamicInvocation,
     DynamicCarrierInteger,
+    DynamicCarrierSubI64,
     DynamicCarrierEnd,
+    DynamicCarrierArrayClaim,
+    DynamicCarrierArrayAppend,
+    DynamicCarrierArrayEnd,
     ArrayNew,
     ScriptArgumentsNew,
     ArrayClaim,
@@ -110,15 +115,23 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 crate::mir::instruction::StringInvokeOperation::Substring { .. } => Self::StringSubstring,
                 crate::mir::instruction::StringInvokeOperation::IndexOf { .. } => Self::StringIndexOf,
                 crate::mir::instruction::StringInvokeOperation::Print { .. } => Self::StringPrint,
-                crate::mir::instruction::StringInvokeOperation::End { .. } => Self::StringEnd,
+                crate::mir::instruction::StringInvokeOperation::End { .. }
+                    | crate::mir::instruction::StringInvokeOperation::EndIfOwned { .. } => Self::StringEnd,
             }),
             InvokeOperation::DynamicInvocation(_) => Some(Self::DynamicInvocation),
             InvokeOperation::DynamicCarrierInteger { .. } => Some(Self::DynamicCarrierInteger),
+            InvokeOperation::DynamicCarrierSubI64 { .. } => Some(Self::DynamicCarrierSubI64),
             InvokeOperation::DynamicCarrierEnd { .. } => Some(Self::DynamicCarrierEnd),
+            InvokeOperation::DynamicCarrierArray(operation) => Some(match operation {
+                crate::mir::instruction::DynamicCarrierArrayInvokeOperation::Claim { .. } => Self::DynamicCarrierArrayClaim,
+                crate::mir::instruction::DynamicCarrierArrayInvokeOperation::Append { .. } => Self::DynamicCarrierArrayAppend,
+                crate::mir::instruction::DynamicCarrierArrayInvokeOperation::End { .. } => Self::DynamicCarrierArrayEnd,
+            }),
             InvokeOperation::Map(operation) => Some(match operation {
                 MapInvokeOperation::New => Self::MapNew,
                 MapInvokeOperation::FieldHas { .. } => Self::MapFieldHas,
                 MapInvokeOperation::FieldGetIndexed { .. } => Self::MapFieldGetIndexed,
+                MapInvokeOperation::FieldInstallIndexed { .. } => Self::MapFieldInstallIndexed,
                 MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
                 MapInvokeOperation::InstallIndexed { .. }
                 | MapInvokeOperation::InstallValue { .. }
@@ -615,6 +628,10 @@ fn referenced_objects(
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {
                             ids.insert(object.declaration_index());
                         }
+                        InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, object, .. }) => {
+                            ids.insert(field.object().declaration_index());
+                            ids.insert(object.declaration_index());
+                        }
                         InvokeOperation::ObjectEndIfOwned { object, end, .. } => {
                             ids.insert(object.declaration_index());
                             for step in end.iter() {
@@ -647,7 +664,9 @@ fn referenced_objects(
                         | InvokeOperation::String(_)
                         | InvokeOperation::DynamicInvocation(_)
                         | InvokeOperation::DynamicCarrierInteger { .. }
-                        | InvokeOperation::DynamicCarrierEnd { .. } => {}
+                        | InvokeOperation::DynamicCarrierSubI64 { .. }
+                        | InvokeOperation::DynamicCarrierEnd { .. }
+                        | InvokeOperation::DynamicCarrierArray(_) => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ScriptArgumentsNew { .. }
                         | InvokeOperation::ArrayStateContractClaim { .. }

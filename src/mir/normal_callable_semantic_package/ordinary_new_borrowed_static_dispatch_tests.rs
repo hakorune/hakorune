@@ -56,7 +56,7 @@ fn static_dispatch_preserves_selected_error_and_unselected_literal_scope() {
         };
         let mut pending = BTreeMap::new();
         let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
-            &Ok(Vec::new()),
+            &Ok(Vec::new()), &[],
             &package.parameter_contracts,
             &[],
             None,
@@ -130,7 +130,7 @@ fn static_dispatch_selected_missing_fact_cannot_fall_back() {
         .unwrap();
     assert!(missing.as_ref().unwrap().static_arguments.is_empty());
     let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
-        &Ok(Vec::new()),
+        &Ok(Vec::new()), &[],
         &package.parameter_contracts,
         &[],
         None,

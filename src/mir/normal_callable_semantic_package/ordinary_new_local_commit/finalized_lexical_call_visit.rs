@@ -232,6 +232,22 @@ impl FinalizedRootSourceHandoffV1 {
                 },
             )?;
         }
+        // Plain return expressions retain their own original call pool. They
+        // do not become direct terminal Calls and are never found by MIR scan.
+        {
+            let exits = self.ledger.root_exits.borrow();
+            for ((owner, key), progress) in exits.iter() {
+                let order = match progress {
+                    RootHomeExitProgress::Emitted { order, .. } | RootHomeExitProgress::Finalized(order) => order,
+                    _ => continue,
+                };
+                let Some(expression) = order.return_expression_v1() else { continue; };
+                let exit = key.explicit_site().ok_or_else(|| freeze("finished-terminal-call/exit-missing"))?;
+                expression.require_source_v1(*owner, exit)?;
+                expression.visit_calls_v1(|packet, arguments| walk(*owner,
+                    FinalizedLexicalCallContextV1::Return { exit }, packet, arguments))?;
+            }
+        }
         // The finalized root has moved its original Call entries here.
         for (exit, (entry, _)) in &self.call_entries {
             if !matches!(

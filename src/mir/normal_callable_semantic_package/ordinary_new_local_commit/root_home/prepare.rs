@@ -64,7 +64,8 @@ impl OrdinaryNewClaimLedgerV1 {
             &exit,
             row.fault_homes(),
             row.homes(),
-        )? else {
+        )?
+        else {
             return Ok(RootHomePreparationV1::Unavailable);
         };
         let direct = self.verified_direct_object_return_source_v1(owner, &exit)?;
@@ -74,8 +75,14 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             order.retain_direct_source(source)?;
         } else if let Some(source) = self.verified_terminal_call_source_v1(owner, &exit)? {
-            if let Some(loan) = source.legacy_terminal().and_then(|terminal| terminal.source_scalar()) {
-                if self.callable_scalar_result_source_v1(loan.source().callee_owner())?.is_none() {
+            if let Some(loan) = source
+                .legacy_terminal()
+                .and_then(|terminal| terminal.source_scalar())
+            {
+                if self
+                    .callable_scalar_result_source_v1(loan.source().callee_owner())?
+                    .is_none()
+                {
                     return Err(freeze("scalar-result-source-missing"));
                 }
                 order.retain_scalar_source(exit.clone(), loan.clone())?;
@@ -93,9 +100,12 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
     ) -> Result<PreparedRootHomeGraphPlanV1, String> {
-        if self.root_exits.borrow().get(&(owner, site.clone().into())).is_some_and(|progress| {
-            !matches!(progress, RootHomeExitProgress::Unprepared)
-        }) {
+        if self
+            .root_exits
+            .borrow()
+            .get(&(owner, site.clone().into()))
+            .is_some_and(|progress| !matches!(progress, RootHomeExitProgress::Unprepared))
+        {
             return Err(freeze("selected-static-root-already-prepared"));
         }
         let RootHomePreparationV1::Prepared {

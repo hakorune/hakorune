@@ -146,6 +146,7 @@ pub(super) fn transfer_home_v1(
 /// before commit, including key/receiver checks. Slot support is not a new Home.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MapFieldInstallV1 {
+    statement: SourceStmtSiteV1,
     site: OwnedExprSiteV1,
     source: std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
     receiver_read: SourceExprSiteV1,
@@ -156,6 +157,7 @@ pub(crate) struct MapFieldInstallV1 {
     normal: Box<[LiveHomeV1]>,
 }
 impl MapFieldInstallV1 {
+    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 { &self.statement }
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
@@ -272,6 +274,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
         return Ok(false);
     }
     let row = std::rc::Rc::new(MapFieldInstallV1 {
+        statement: statement.site().clone(),
         site,
         source,
         receiver_read: read,

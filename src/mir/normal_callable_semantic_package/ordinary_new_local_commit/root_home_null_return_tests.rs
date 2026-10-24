@@ -131,7 +131,8 @@ fn original_null_loan_append_and_unselected_boundaries() {
             assert_eq!(snapshot(&ledger), before);
         } else {
             let exits = ledger.root_exits.borrow();
-            let RootHomeExitProgress::Prepared(order) = &exits[&(site.owner(), exit.clone().into())]
+            let RootHomeExitProgress::Prepared(order) =
+                &exits[&(site.owner(), exit.clone().into())]
             else {
                 panic!("prepared original")
             };

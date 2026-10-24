@@ -84,6 +84,7 @@ struct Scan {
     array_sets: BTreeSet<Coordinate>,
     integer_returns: BTreeSet<Coordinate>,
     formal_returns: BTreeSet<Coordinate>,
+    map_slot_returns: BTreeSet<Coordinate>,
     definitions: BTreeMap<ValueId, usize>,
     coordinates: BTreeSet<Coordinate>,
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
@@ -313,6 +314,7 @@ impl FunctionUses {
         definitions: &mut Scan,
         dominates: &dyn Fn(BasicBlockId, BasicBlockId) -> bool,
     ) -> Result<(), String> {
+        formal_return::observe_map_slots(self, coordinate, instruction, definitions)?;
         if !definitions.coordinates.insert(coordinate) {
             return Err(fault("borrowed-use/coordinate-duplicate"));
         }
@@ -356,6 +358,9 @@ impl FunctionUses {
             MirInstruction::Invoke { operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { base, key, .. }
                 | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { base, key, .. }), fault_frame, .. } => {
                 self.verify_text_operands_v1(tracked, views, &[key], &[*base], *fault_frame)?;
+            }
+            MirInstruction::Invoke { operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { base, key, value, .. }), fault_frame, .. } => {
+                self.verify_text_operands_v1(tracked, views, &[key], &[*base, *value], *fault_frame)?;
             }
             MirInstruction::Invoke { operation: InvokeOperation::ArrayElementWrite {
                 kind: crate::mir::ArrayElementWriteKind::Push, receiver, index: None,

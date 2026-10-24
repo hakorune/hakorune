@@ -292,10 +292,11 @@ single atomic source/Recipe/envelope co-seal. The per-Recipe co-seal will
 borrow—not consume—the complete seven-row module envelope catalog.
 
 The Dynamic operation D0 and schema/verifier I0 are landed. V2 adds only
-`DynamicAdd` and `DynamicLess`:
+`DynamicAdd`, `DynamicSub`, and `DynamicLess`:
 
 ```text
 DynamicAdd:  Dynamic x I64 -> Dynamic
+DynamicSub:  Dynamic x I64 -> Dynamic
 DynamicLess: Dynamic x Dynamic -> Bool
              Dynamic x I64     -> Bool
 ```

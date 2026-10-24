@@ -27,7 +27,8 @@ fn origin(index: u32) -> RootHomeReleaseOriginV1 {
         },
         exit: (SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
             SourcePathSegmentV1::Body(8),
-        ]))).into(),
+        ])))
+        .into(),
         operation: InvokeOperation::Map(MapInvokeOperation::End {
             map: ValueId(index),
         }),
@@ -84,13 +85,19 @@ fn root_cleanup_order_rejects_duplicate_foreign_and_reordered_origins() {
             .contains("foreign-origin")
     );
     for exit in [
-        SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(9)])).into(),
+        SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(9),
+        ]))
+        .into(),
         super::RootHomeExitKeyV1::ImplicitBodyEnd,
     ] {
         let mut foreign_exit = full[1].clone();
         foreign_exit.exit = exit;
-        assert!(RootHomeCleanupOrderV1::ordinary(vec![full[0].clone(), foreign_exit])
-            .unwrap_err().contains("foreign-exit"));
+        assert!(
+            RootHomeCleanupOrderV1::ordinary(vec![full[0].clone(), foreign_exit])
+                .unwrap_err()
+                .contains("foreign-exit")
+        );
     }
 }
 #[test]
@@ -187,26 +194,49 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         )
         .unwrap()
         .unwrap();
-        let (selected_full, selected_normal) = source_home_end_selection_v2(
-            &rows, projection.fault_homes(), projection.homes()).unwrap().unwrap();
-        assert_eq!(selected_full.iter().map(|(_, subject, operation)| (subject, operation)).collect::<Vec<_>>(),
-            order.full().iter().map(|origin| (origin.subject(), origin.operation())).collect::<Vec<_>>());
+        let (selected_full, selected_normal) =
+            source_home_end_selection_v2(&rows, projection.fault_homes(), projection.homes())
+                .unwrap()
+                .unwrap();
+        assert_eq!(
+            selected_full
+                .iter()
+                .map(|(_, subject, operation)| (subject, operation))
+                .collect::<Vec<_>>(),
+            order
+                .full()
+                .iter()
+                .map(|origin| (origin.subject(), origin.operation()))
+                .collect::<Vec<_>>()
+        );
         for step in 0..selected_normal.len() {
-            assert_eq!(fault_indices_after_normal_step_v2(selected_full.len(), &selected_normal, step).unwrap(),
-                order.fault_indices_after_normal_step(step).unwrap());
+            assert_eq!(
+                fault_indices_after_normal_step_v2(selected_full.len(), &selected_normal, step)
+                    .unwrap(),
+                order.fault_indices_after_normal_step(step).unwrap()
+            );
         }
         let plan_len = if owned { 3 } else { 1 };
         assert_eq!(order.full().len(), 2 * plan_len);
         assert_eq!(order.normal().len(), plan_len);
-        assert_eq!(order.full()[0].binding(), Some(projection.fault_homes()[0].binding()));
-        assert_eq!(order.normal()[0].binding(), Some(projection.homes()[0].binding()));
+        assert_eq!(
+            order.full()[0].binding(),
+            Some(projection.fault_homes()[0].binding())
+        );
+        assert_eq!(
+            order.normal()[0].binding(),
+            Some(projection.homes()[0].binding())
+        );
         assert_eq!(order.acquisition_fault(), order.full());
         assert_eq!(
             order.fault_after_normal_step(plan_len - 1).unwrap(),
             order.full()[..plan_len]
         );
         for origin in &order.full()[..plan_len] {
-            assert_eq!(origin.binding(), Some(projection.fault_homes()[0].binding()));
+            assert_eq!(
+                origin.binding(),
+                Some(projection.fault_homes()[0].binding())
+            );
             assert!(!order.normal().contains(origin));
         }
         if owned {
@@ -223,29 +253,57 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         }
         // This source Call Fault has no root exit key. The shared expansion
         // follows exactly the supplied order, including each complete child End.
-        let input = [projection.fault_homes()[1].clone(), projection.fault_homes()[0].clone()];
+        let input = [
+            projection.fault_homes()[1].clone(),
+            projection.fault_homes()[0].clone(),
+        ];
         let call_fault = source_home_end_plans_v1(&rows, &input).unwrap().unwrap();
         assert_eq!(call_fault.len(), 2 * plan_len);
         for (index, binding) in input.iter().enumerate() {
             let part = &call_fault[index * plan_len..(index + 1) * plan_len];
-            assert!(part.iter().all(|(home, subject, _)| home == binding && match subject {
-                RootHomeReleaseSubjectV1::Binding(actual)
-                | RootHomeReleaseSubjectV1::FieldResidence { binding: actual, .. } => *actual == binding.binding(),
-                _ => false,
-            }));
+            assert!(part.iter().all(|(home, subject, _)| home == binding
+                && match subject {
+                    RootHomeReleaseSubjectV1::Binding(actual)
+                    | RootHomeReleaseSubjectV1::FieldResidence {
+                        binding: actual, ..
+                    } => *actual == binding.binding(),
+                    _ => false,
+                }));
             if owned {
-                let fields: Vec<_> = part.iter().filter_map(|(_, subject, _)| match subject {
-                    RootHomeReleaseSubjectV1::FieldResidence { field, .. } => Some(field.declaration_ordinal()), _ => None,
-                }).collect();
-                assert_eq!(fields, [1, 0], "complete child order inside each source Home");
+                let fields: Vec<_> = part
+                    .iter()
+                    .filter_map(|(_, subject, _)| match subject {
+                        RootHomeReleaseSubjectV1::FieldResidence { field, .. } => {
+                            Some(field.declaration_ordinal())
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                assert_eq!(
+                    fields,
+                    [1, 0],
+                    "complete child order inside each source Home"
+                );
             }
         }
         let full = projection.fault_homes();
         for (f, n, error) in [
-            (vec![full[0].clone(), full[0].clone()], vec![], "duplicate-home"),
+            (
+                vec![full[0].clone(), full[0].clone()],
+                vec![],
+                "duplicate-home",
+            ),
             (vec![full[0].clone()], vec![full[1].clone()], "foreign-home"),
-            (full.to_vec(), vec![full[1].clone(), full[0].clone()], "home-order"),
-            (full.to_vec(), vec![full[0].clone(), full[0].clone()], "home-order"),
+            (
+                full.to_vec(),
+                vec![full[1].clone(), full[0].clone()],
+                "home-order",
+            ),
+            (
+                full.to_vec(),
+                vec![full[0].clone(), full[0].clone()],
+                "home-order",
+            ),
         ] {
             assert!(
                 RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, &f, &n)
@@ -270,8 +328,13 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         // A retained child cannot outlive an anchor selected for Normal End.
         // Both root exits and Loop ports use this same source-only selection.
         let super::super::super::LocalCommitV1::CallReceived(child) =
-            rows.get_mut(&unavailable_site).unwrap() else { panic!("received"); };
-        let saved_parents = child.field_support_parents.replace(vec![full[1].binding()].into_boxed_slice());
+            rows.get_mut(&unavailable_site).unwrap()
+        else {
+            panic!("received");
+        };
+        let saved_parents = child
+            .field_support_parents
+            .replace(vec![full[1].binding()].into_boxed_slice());
         for normal in [vec![], vec![full[1].clone()], full.to_vec()] {
             let selected = source_home_end_selection_v2(&rows, full, &normal);
             let root = RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, full, &normal);
@@ -279,12 +342,18 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
                 assert!(selected.unwrap_err().contains("escaping-local-anchor"));
                 assert!(root.unwrap_err().contains("escaping-local-anchor"));
             } else {
-                assert!(selected.unwrap().is_none(), "fixture has no retained physical Call packet");
+                assert!(
+                    selected.unwrap().is_none(),
+                    "fixture has no retained physical Call packet"
+                );
                 assert!(root.unwrap().is_none());
             }
         }
         let super::super::super::LocalCommitV1::CallReceived(child) =
-            rows.get_mut(&unavailable_site).unwrap() else { panic!("received"); };
+            rows.get_mut(&unavailable_site).unwrap()
+        else {
+            panic!("received");
+        };
         child.field_support_parents = saved_parents;
         let super::super::super::LocalCommitV1::CallReceived(home) =
             rows.get_mut(&unavailable_site).unwrap()
@@ -296,17 +365,27 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         // conditional outcome guards the whole End rather than its outer
         // release alone.
         let original_release = home.release;
-        home.release = super::super::super::call_received::CallReceivedReleaseV1::Mixed { formal_ordinal: 0 };
+        home.release =
+            super::super::super::call_received::CallReceivedReleaseV1::Mixed { formal_ordinal: 0 };
         let conditional = home.end_plan();
-        let [(RootHomeReleaseSubjectV1::Binding(binding),
-            crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { object, value, end })] = conditional.as_ref()
-            else { panic!("one conditional envelope for the entire End"); };
-        assert_eq!((*binding, *object, *value), (home.binding, home.object, home.local().unwrap()));
+        let [(
+            RootHomeReleaseSubjectV1::Binding(binding),
+            crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { object, value, end },
+        )] = conditional.as_ref()
+        else {
+            panic!("one conditional envelope for the entire End");
+        };
+        assert_eq!(
+            (*binding, *object, *value),
+            (home.binding, home.object, home.local().unwrap())
+        );
         use crate::mir::instruction::ObjectEndStepV1 as Step;
         if owned {
-            assert!(matches!(end.as_ref(), [Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: second }, Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: first }, Step::ReleaseOuter]
+            assert!(
+                matches!(end.as_ref(), [Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: second }, Step::FieldResidence { mode: crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence, field: first }, Step::ReleaseOuter]
                 if second.object() == home.object && first.object() == home.object
-                    && second.declaration_ordinal() == 1 && first.declaration_ordinal() == 0));
+                    && second.declaration_ordinal() == 1 && first.declaration_ordinal() == 0)
+            );
         } else {
             assert_eq!(end.as_ref(), &[Step::ReleaseOuter]);
         }

@@ -7,6 +7,7 @@ use crate::mir::{BasicBlockId, MirInstruction};
 enum LocalProducerPurposeV1 {
     ScalarJoin(Rc<ScalarJoinPointValueV1>),
     TextJoin(Rc<TextJoinPointValueV1>),
+    BranchText(Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>),
     DynamicJoin(Rc<DynamicJoinPointValueV1>),
     Initializer,
     BindingRebind(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>),
@@ -17,6 +18,7 @@ impl PartialEq for LocalProducerPurposeV1 {
             (Self::Initializer, Self::Initializer) => true,
             (Self::ScalarJoin(a), Self::ScalarJoin(b)) => Rc::ptr_eq(a, b),
             (Self::TextJoin(a), Self::TextJoin(b)) => Rc::ptr_eq(a, b),
+            (Self::BranchText(a), Self::BranchText(b)) => Rc::ptr_eq(a, b),
             (Self::DynamicJoin(a), Self::DynamicJoin(b)) => Rc::ptr_eq(a, b),
             (Self::BindingRebind(a), Self::BindingRebind(b)) => std::rc::Rc::ptr_eq(a, b),
             _ => false,
@@ -100,7 +102,7 @@ impl TextJoinPointValueV1 {
         match &self.source {
             Producer::Header(basis) => basis.binding(),
             Producer::After { binding, .. } => *binding,
-            Producer::Static { .. } | Producer::Residence(_) => unreachable!("constructor checked Loop purpose"),
+            Producer::Static { .. } | Producer::Residence(_) | Producer::BranchNormal(_) => unreachable!("constructor checked Loop purpose"),
         }
     }
     pub(in crate::mir) fn value(&self) -> ValueId { self.relation.values().0 }
@@ -140,7 +142,8 @@ impl DynamicJoinPointValueV1 {
         match &self.source {
             Producer::Header(basis) => basis.binding(),
             Producer::After { binding, .. } => *binding,
-            Producer::Source(_) => unreachable!("constructor checked Loop purpose"),
+            Producer::Source(_) | Producer::Initializer(_) | Producer::BindingRebind(_) =>
+                unreachable!("constructor checked Loop purpose"),
         }
     }
     pub(in crate::mir) fn value(&self) -> ValueId { self.relation.values().0 }
@@ -221,6 +224,22 @@ impl LocalProvenanceV1 {
         };
         if point.source() != source { return Err("[freeze:contract][local-read/text-loop-point-source]".into()); }
         self.loan_copies(point.binding(), point.value(), result)?;
+        Ok(point)
+    }
+    pub(in crate::mir) fn loan_text_branch_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+        result: ValueId,
+    ) -> Result<&Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>, String> {
+        let LocalProducerPurposeV1::BranchText(point) = &self.purpose else {
+            return Err("[freeze:contract][local-read/text-branch-purpose]".into());
+        };
+        if point.source().as_ref() != match source {
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::BranchNormal(source) => source.as_ref(),
+            _ => return Err("[freeze:contract][local-read/text-branch-source]".into()),
+        } {
+            return Err("[freeze:contract][local-read/text-branch-source]".into());
+        }
+        self.loan_copies(point.source().binding(), point.relation().values().0, result)?;
         Ok(point)
     }
     pub(in crate::mir) fn loan_dynamic_join_v1(&self,
@@ -449,6 +468,22 @@ impl MaterializedValuesV1 {
             root: binding, root_value: point.value(), copies: Vec::new(),
             purpose: LocalProducerPurposeV1::TextJoin(point),
             local_initializer: None,
+        }));
+        Ok(())
+    }
+
+    pub(super) fn attach_branch_text_v1(
+        &mut self,
+        point: Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>,
+    ) -> Result<(), String> {
+        let binding = point.source().binding();
+        let value = point.relation().values().0;
+        if self.get(&binding) != Some(&value) {
+            return Err("[freeze:contract][local-read/text-branch-publication]".into());
+        }
+        self.attach_provenance(binding, Some(LocalProvenanceV1 {
+            root: binding, root_value: value, copies: Vec::new(),
+            purpose: LocalProducerPurposeV1::BranchText(point), local_initializer: None,
         }));
         Ok(())
     }

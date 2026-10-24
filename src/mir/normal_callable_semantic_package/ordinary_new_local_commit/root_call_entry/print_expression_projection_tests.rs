@@ -82,11 +82,18 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
             assert!(!instructions.iter().any(|row| matches!(row, MirInstruction::Call(_))), "legacy Call in checked Print module");
         }
         let publish_alias = |text: &str, output: Option<&str>| -> Result<(), String> {
-            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-                text, crate::parser::ParserBuildConfig::default()).map_err(|error| error.to_string())?;
+            let parsed =
+                crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                    text,
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .map_err(|error| error.to_string())?;
             let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
-                crate::r#macro::transform_normal_callable_program_v1(parsed).map_err(|error| format!("{error:?}"))?
-                else { return Err("original source lost".into()) };
+                crate::r#macro::transform_normal_callable_program_v1(parsed)
+                    .map_err(|error| format!("{error:?}"))?
+            else {
+                return Err("original source lost".into());
+            };
             let outcome = crate::mir::MirCompiler::with_options(false).compile_normal_with_published(
                 crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
                 |view, verification| {
@@ -138,15 +145,24 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
                 })?;
             match outcome {
                 crate::mir::NormalPublishedCompileOutcome::Consumed(()) => Ok(()),
-                crate::mir::NormalPublishedCompileOutcome::ExplicitCompatibility(_) => Err("no canonical alias artifact".into()),
+                crate::mir::NormalPublishedCompileOutcome::ExplicitCompatibility(_) => {
+                    Err("no canonical alias artifact".into())
+                }
             }
         };
-        publish_alias(DEEP_PROVIDER, Some("/tmp/hako-issued-print-deep-provider.json"))
-            .unwrap_or_else(|error| panic!("deep provider Print publication: {error}"));
-        publish_alias("box Leaf { n: i64 birth() { me.n = 7 } read() { return me.n } }
+        publish_alias(
+            DEEP_PROVIDER,
+            Some("/tmp/hako-issued-print-deep-provider.json"),
+        )
+        .unwrap_or_else(|error| panic!("deep provider Print publication: {error}"));
+        publish_alias(
+            "box Leaf { n: i64 birth() { me.n = 7 } read() { return me.n } }
             box Parent { child: Leaf birth() { me.child = new Leaf() } }
             static box Main { main() { local p = new Parent() local alias = p.child
-                print(\"n=\" + alias.read()) return 0 } }", Some("/tmp/hako-issued-print-alias.json")).unwrap();
+                print(\"n=\" + alias.read()) return 0 } }",
+            Some("/tmp/hako-issued-print-alias.json"),
+        )
+        .unwrap();
         for text in [
             "box Counter { n: i64 birth() { me.n = 7 } read() { return me.n } }
              static box Main { main() { local c = new Counter()
@@ -156,24 +172,39 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
              static box Main { main() { local c = new Counter()
                if (c.read() == 7) && (c.read() != 0) { print(\"yes\") return 1 } return 0 } }",
         ] { publish_alias(text, None).unwrap(); }
-        publish_alias("box Leaf { n: i64 birth() { me.n = 7 } }
+        publish_alias(
+            "box Leaf { n: i64 birth() { me.n = 7 } }
             box Wrapper { child: Leaf birth(child) { me.child = child } }
             box Maker { make(flag: i64) { if flag == 0 { return null } return new Leaf() }
                 wrap(flag: i64) { local h = me.make(flag) return new Wrapper(h) } }
             static box Main { main() { local maker = new Maker() local w = maker.wrap(1)
-                print(\"n=\" + w.child.n) return 0 } }", None)
-            .unwrap_or_else(|error| panic!("received nested Print publication: {error}"));
+                print(\"n=\" + w.child.n) return 0 } }",
+            None,
+        )
+        .unwrap_or_else(|error| panic!("received nested Print publication: {error}"));
         for flag in [0, 1] {
             let text = format!("box Counter {{ n: i64 birth() {{ me.n = 37 }} }}
                 box Maker {{ fetch(flag: i64) {{ if flag == 0 {{ return null }} return new Counter() }} }}
                 static box Main {{ main() {{ local maker = new Maker() local c = maker.fetch({flag})
                     print(\"n=\" + c.n) return 0 }} }}");
             let path = format!("/tmp/hako-issued-received-field-{flag}.json");
-            publish_alias(&text, Some(&path)).unwrap_or_else(|error| panic!("received Print source {flag}: {error}"));
-            let wire: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
-            let reads = wire["functions"].as_array().unwrap().iter().flat_map(|function| function["blocks"].as_array().unwrap())
-                .filter(|block| block["terminator"]["instruction"]["operation"]["kind"] == "field_get").count();
-            assert_eq!(reads, 1, "same original source must publish its checked read");
+            publish_alias(&text, Some(&path))
+                .unwrap_or_else(|error| panic!("received Print source {flag}: {error}"));
+            let wire: serde_json::Value =
+                serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+            let reads = wire["functions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .flat_map(|function| function["blocks"].as_array().unwrap())
+                .filter(|block| {
+                    block["terminator"]["instruction"]["operation"]["kind"] == "field_get"
+                })
+                .count();
+            assert_eq!(
+                reads, 1,
+                "same original source must publish its checked read"
+            );
         }
         // A fieldless literal-return method has no existing scalar-result
         // source loan; Bool kind alone must not authorize this call target.
@@ -184,185 +215,401 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
             "local p = new Parent() local alias = p.child p = new Parent() print(alias.read())",
             "local p = new Parent() local alias = p.child alias = p.child print(alias.read())",
         ] {
-            let text = format!("box Leaf {{ n: i64 birth() {{ me.n = 7 }} read() {{ return me.n }} }}
+            let text = format!(
+                "box Leaf {{ n: i64 birth() {{ me.n = 7 }} read() {{ return me.n }} }}
                 box Parent {{ child: Leaf birth() {{ me.child = new Leaf() }} }}
-                static box Main {{ main() {{ {body} return 0 }} }}");
-            assert!(publish_alias(&text, None).is_err(), "rebound alias/root admitted at publication: {body}");
+                static box Main {{ main() {{ {body} return 0 }} }}"
+            );
+            assert!(
+                publish_alias(&text, None).is_err(),
+                "rebound alias/root admitted at publication: {body}"
+            );
         }
         let text = "box Leaf { n: i64 birth() { me.n = 7 } read() { return me.n } }
             box Parent { child: Leaf birth() { me.child = new Leaf() }
                 replace() { me.child = new Leaf() } }
             static box Main { main() { local p = new Parent() local alias = p.child
                 print(alias.read()) return 0 } }";
-        assert!(publish_alias(text, None).is_err(), "same-class replacement admitted at publication");
+        assert!(
+            publish_alias(text, None).is_err(),
+            "same-class replacement admitted at publication"
+        );
     });
     // The document fixture owns its process-state guard; do not nest it.
-        let text = "box Leaf { n: i64 birth() { me.n = 7 } read() { return me.n } }
+    let text = "box Leaf { n: i64 birth() { me.n = 7 } read() { return me.n } }
             box Parent { child: Leaf other: Leaf birth() { me.child = new Leaf() me.other = new Leaf() } }
             static box Main { main() { local p = new Parent() local alias = p.child local sibling = p.other
                 print(\"n=\" + alias.read() + \" other=\" + sibling.n) return 0 } }";
-        let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
-        let (key, module, same, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
-        assert!(Rc::ptr_eq(&same, &ledger));
-        let main_key = key.clone();
-        let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new()).unwrap();
-        let root = handoff.root_source().unwrap();
-        root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(())).unwrap();
-        let retained: Vec<_> = root.local_calls.get(&root.owner()).into_iter().flatten()
-            .flat_map(|group| group.lexical_packets()).collect();
-        assert_eq!(retained.len(), 1);
-        let original = retained[0];
-        let final_context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Finalized(root);
-        final_context.require_ledger(&ledger).unwrap();
-        final_context.with_taken_original_row_v1(original.call_site(), |row| {
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, same, keys, cohort) =
+        completed.document_preflight_parts_for_test(true).unwrap();
+    assert!(Rc::ptr_eq(&same, &ledger));
+    let main_key = key.clone();
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
+    let root = handoff.root_source().unwrap();
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
+        .unwrap();
+    let retained: Vec<_> = root
+        .local_calls
+        .get(&root.owner())
+        .into_iter()
+        .flatten()
+        .flat_map(|group| group.lexical_packets())
+        .collect();
+    assert_eq!(retained.len(), 1);
+    let original = retained[0];
+    let final_context =
+        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Finalized(root);
+    final_context.require_ledger(&ledger).unwrap();
+    final_context
+        .with_taken_original_row_v1(original.call_site(), |row| {
             assert!(std::ptr::eq(row, original.original_row()?));
             Ok(())
-        }).unwrap();
-        assert!(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger)
-            .with_taken_original_row_v1(original.call_site(), |_| Ok(())).is_err(),
-            "the consumed ledger pool cannot stand in for the final source owner");
-        let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        })
+        .unwrap();
+    assert!(
+        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger)
+            .with_taken_original_row_v1(original.call_site(), |_| Ok(()))
+            .is_err(),
+        "the consumed ledger pool cannot stand in for the final source owner"
+    );
+    let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
             "static box Main { main() { return 0 } }").unwrap();
-        assert!(final_context.require_ledger(&foreign.ordinary_new_claim_ledger).is_err());
-        let main = module.get_function(&main_key).unwrap();
-        let instructions: Vec<_> = main.blocks.values().flat_map(|b| b.all_instructions()).collect();
-        let receiver = instructions.iter().find_map(|i| match i {
-            MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } => match &call.callee {
-                crate::mir::definitions::Callee::SameModuleInstance { key, receiver } if key.owner() == "Leaf" => Some(*receiver),
+    assert!(final_context
+        .require_ledger(&foreign.ordinary_new_claim_ledger)
+        .is_err());
+    let main = module.get_function(&main_key).unwrap();
+    let instructions: Vec<_> = main
+        .blocks
+        .values()
+        .flat_map(|b| b.all_instructions())
+        .collect();
+    let receiver = instructions
+        .iter()
+        .find_map(|i| match i {
+            MirInstruction::Invoke {
+                operation: InvokeOperation::Call { call, .. },
+                ..
+            } => match &call.callee {
+                crate::mir::definitions::Callee::SameModuleInstance { key, receiver }
+                    if key.owner() == "Leaf" =>
+                {
+                    Some(*receiver)
+                }
                 _ => None,
-            }, _ => None,
-        }).unwrap();
-        let alias_copy = instructions.iter().find_map(|i| match i {
-            MirInstruction::Copy { dst, src } if *dst == receiver => Some((**i).clone()), _ => None,
-        }).unwrap();
-        let MirInstruction::Copy { src: alias_read, .. } = alias_copy else { unreachable!() };
-        let alias_field = instructions.iter().find_map(|i| match i {
-            MirInstruction::ObjectFieldGet { dst, field, .. } if *dst == alias_read => Some(*field), _ => None,
-        }).unwrap();
-        let sibling_read = instructions.iter().find_map(|i| match i {
+            },
+            _ => None,
+        })
+        .unwrap();
+    let alias_copy = instructions
+        .iter()
+        .find_map(|i| match i {
+            MirInstruction::Copy { dst, src } if *dst == receiver => Some((**i).clone()),
+            _ => None,
+        })
+        .unwrap();
+    let MirInstruction::Copy {
+        src: alias_read, ..
+    } = alias_copy
+    else {
+        unreachable!()
+    };
+    let alias_field = instructions
+        .iter()
+        .find_map(|i| match i {
+            MirInstruction::ObjectFieldGet { dst, field, .. } if *dst == alias_read => Some(*field),
+            _ => None,
+        })
+        .unwrap();
+    let sibling_read = instructions
+        .iter()
+        .find_map(|i| match i {
             MirInstruction::ObjectFieldGet { dst, field, .. }
-                if field.object() == alias_field.object() && *field != alias_field => Some(*dst), _ => None,
-        }).unwrap();
-        let sibling = instructions.iter().find_map(|i| match i {
-            MirInstruction::Copy { dst, src } if *src == sibling_read => Some(*dst), _ => None,
-        }).unwrap();
-        assert_ne!(sibling, receiver);
-        for mutation in ["receiver", "copy-source", "missing-copy", "duplicate-copy", "read-base"] {
-            let mut changed = module.clone();
-            let function = changed.functions.get_mut(&main_key).unwrap();
-            let mut count = 0;
-            for block in function.blocks.values_mut() {
-                if mutation == "missing-copy" {
-                    block.instructions.retain(|i| { let remove = i == &alias_copy; count += usize::from(remove); !remove });
-                    continue;
-                }
-                if mutation == "duplicate-copy" && block.instructions.contains(&alias_copy) {
-                    block.instructions.push(alias_copy.clone()); count += 1; continue;
-                }
-                for instruction in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
-                    match (mutation, instruction) {
-                        ("receiver", MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }) => {
-                            if let crate::mir::definitions::Callee::SameModuleInstance { receiver: actual, .. } = &mut call.callee {
-                                if *actual == receiver { *actual = sibling; count += 1; }
+                if field.object() == alias_field.object() && *field != alias_field =>
+            {
+                Some(*dst)
+            }
+            _ => None,
+        })
+        .unwrap();
+    let sibling = instructions
+        .iter()
+        .find_map(|i| match i {
+            MirInstruction::Copy { dst, src } if *src == sibling_read => Some(*dst),
+            _ => None,
+        })
+        .unwrap();
+    assert_ne!(sibling, receiver);
+    for mutation in [
+        "receiver",
+        "copy-source",
+        "missing-copy",
+        "duplicate-copy",
+        "read-base",
+    ] {
+        let mut changed = module.clone();
+        let function = changed.functions.get_mut(&main_key).unwrap();
+        let mut count = 0;
+        for block in function.blocks.values_mut() {
+            if mutation == "missing-copy" {
+                block.instructions.retain(|i| {
+                    let remove = i == &alias_copy;
+                    count += usize::from(remove);
+                    !remove
+                });
+                continue;
+            }
+            if mutation == "duplicate-copy" && block.instructions.contains(&alias_copy) {
+                block.instructions.push(alias_copy.clone());
+                count += 1;
+                continue;
+            }
+            for instruction in block
+                .instructions
+                .iter_mut()
+                .chain(block.terminator.iter_mut())
+            {
+                match (mutation, instruction) {
+                    (
+                        "receiver",
+                        MirInstruction::Invoke {
+                            operation: InvokeOperation::Call { call, .. },
+                            ..
+                        },
+                    ) => {
+                        if let crate::mir::definitions::Callee::SameModuleInstance {
+                            receiver: actual,
+                            ..
+                        } = &mut call.callee
+                        {
+                            if *actual == receiver {
+                                *actual = sibling;
+                                count += 1;
                             }
                         }
-                        ("copy-source", MirInstruction::Copy { dst, src }) if *dst == receiver => { *src = sibling_read; count += 1; }
-                        ("read-base", MirInstruction::ObjectFieldGet { dst, base, .. }) if *dst == alias_read => { *base = sibling; count += 1; }
-                        _ => {}
                     }
+                    ("copy-source", MirInstruction::Copy { dst, src }) if *dst == receiver => {
+                        *src = sibling_read;
+                        count += 1;
+                    }
+                    ("read-base", MirInstruction::ObjectFieldGet { dst, base, .. })
+                        if *dst == alias_read =>
+                    {
+                        *base = sibling;
+                        count += 1;
+                    }
+                    _ => {}
                 }
             }
-            assert_eq!(count, 1, "{mutation}");
-            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(),
-                "final consumer admitted {mutation}");
         }
+        assert_eq!(count, 1, "{mutation}");
+        assert!(
+            root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+                .is_err(),
+            "final consumer admitted {mutation}"
+        );
+    }
 
-        let text = "box Pool { size: i64 = 0 birth() {} }
+    let text = "box Pool { size: i64 = 0 birth() {} }
             static box Main { main() { local pool = new Pool()
               if (pool.size == 0) && (pool.size != 1) { return 1 } return 0 } }";
-        let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
-        let (key, module, _, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
-        let main_key = key.clone();
-        let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new()).unwrap();
-        let root = handoff.root_source().unwrap();
-        let mut visits = 0;
-        root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| { visits += 1; Ok(()) }).unwrap();
-        assert_eq!(visits, 0, "call-free condition still has a final source proof");
-        let main = &module.functions[&main_key];
-        let mut branches: Vec<_> = main.blocks.iter().filter_map(|(id, block)| match block.terminator.as_ref() {
-            Some(row @ MirInstruction::Branch { then_edge_args: None, else_edge_args: None, .. }) => Some((*id, row.clone())),
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, _, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
+    let main_key = key.clone();
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
+    let root = handoff.root_source().unwrap();
+    let mut visits = 0;
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| {
+        visits += 1;
+        Ok(())
+    })
+    .unwrap();
+    assert_eq!(
+        visits, 0,
+        "call-free condition still has a final source proof"
+    );
+    let main = &module.functions[&main_key];
+    let mut branches: Vec<_> = main
+        .blocks
+        .iter()
+        .filter_map(|(id, block)| match block.terminator.as_ref() {
+            Some(
+                row @ MirInstruction::Branch {
+                    then_edge_args: None,
+                    else_edge_args: None,
+                    ..
+                },
+            ) => Some((*id, row.clone())),
             _ => None,
-        }).collect();
-        assert_eq!(branches.len(), 2);
-        let lhs = branches.iter().position(|(_, row)| matches!(row,
+        })
+        .collect();
+    assert_eq!(branches.len(), 2);
+    let lhs = branches
+        .iter()
+        .position(|(_, row)| {
+            matches!(row,
             MirInstruction::Branch { then_bb, else_bb, .. } if branches.iter()
-                .any(|(id, _)| id == then_bb || id == else_bb))).expect("source LHS reaches source RHS branch");
-        branches.swap(0, lhs);
-        let outer = main.blocks.iter().find_map(|(id, block)| match block.terminator.as_ref() {
-            Some(row @ MirInstruction::Branch { then_edge_args: Some(_), .. }) => Some((*id, row.clone())),
+                .any(|(id, _)| id == then_bb || id == else_bb))
+        })
+        .expect("source LHS reaches source RHS branch");
+    branches.swap(0, lhs);
+    let outer = main
+        .blocks
+        .iter()
+        .find_map(|(id, block)| match block.terminator.as_ref() {
+            Some(
+                row @ MirInstruction::Branch {
+                    then_edge_args: Some(_),
+                    ..
+                },
+            ) => Some((*id, row.clone())),
             _ => None,
-        }).unwrap();
-        let result = main.blocks.values().flat_map(|block| &block.instructions).find_map(|row| match row {
+        })
+        .unwrap();
+    let result = main.blocks.values().flat_map(|block| &block.instructions).find_map(|row| match row {
             MirInstruction::Phi { dst, inputs, .. } if inputs.len() == 3
                 && inputs.iter().all(|(_, value)| main.blocks.values().flat_map(|block| &block.instructions)
                     .any(|row| matches!(row, MirInstruction::Const { dst, value: crate::mir::ConstValue::Bool(_) } if dst == value))) => Some(*dst),
             _ => None,
         }).unwrap();
-        let MirInstruction::Branch { condition: outer_condition, .. } = outer.1 else { unreachable!() };
-        let field = main.blocks.values().flat_map(|block| &block.instructions)
-            .find(|row| matches!(row, MirInstruction::ObjectFieldGet { .. })).unwrap().clone();
-        for mutation in ["lhs-direction", "rhs-edge", "phi-value", "phi-pred", "missing-phi", "duplicate-phi",
-            "copy-source", "outer-condition", "outer-target", "outer-args", "missing-field", "duplicate-field"] {
-            let mut changed = module.clone();
-            let main = changed.functions.get_mut(&main_key).unwrap();
-            let mut edits = 0;
-            if mutation == "lhs-direction" || mutation == "rhs-edge" {
-                let target = if mutation == "lhs-direction" { &branches[0] } else { &branches[1] };
-                let MirInstruction::Branch { then_bb, else_bb, .. } = main.blocks.get_mut(&target.0)
-                    .unwrap().terminator.as_mut().unwrap() else { unreachable!() };
-                if mutation == "lhs-direction" { std::mem::swap(then_bb, else_bb); } else { *then_bb = *else_bb; }
-                edits += 1;
-            } else if mutation.starts_with("outer-") {
-                let MirInstruction::Branch { condition, then_bb, else_bb, then_edge_args, .. } = main.blocks
-                    .get_mut(&outer.0).unwrap().terminator.as_mut().unwrap() else { unreachable!() };
-                match mutation {
-                    "outer-condition" => *condition = result,
-                    "outer-target" => *then_bb = *else_bb,
-                    "outer-args" => *then_edge_args = None,
-                    _ => unreachable!(),
-                }
-                edits += 1;
+    let MirInstruction::Branch {
+        condition: outer_condition,
+        ..
+    } = outer.1
+    else {
+        unreachable!()
+    };
+    let field = main
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .find(|row| matches!(row, MirInstruction::ObjectFieldGet { .. }))
+        .unwrap()
+        .clone();
+    for mutation in [
+        "lhs-direction",
+        "rhs-edge",
+        "phi-value",
+        "phi-pred",
+        "missing-phi",
+        "duplicate-phi",
+        "copy-source",
+        "outer-condition",
+        "outer-target",
+        "outer-args",
+        "missing-field",
+        "duplicate-field",
+    ] {
+        let mut changed = module.clone();
+        let main = changed.functions.get_mut(&main_key).unwrap();
+        let mut edits = 0;
+        if mutation == "lhs-direction" || mutation == "rhs-edge" {
+            let target = if mutation == "lhs-direction" {
+                &branches[0]
             } else {
-                for block in main.blocks.values_mut() {
-                    let mut replacement = Vec::new();
-                    for mut row in std::mem::take(&mut block.instructions) {
-                        match (mutation, &mut row) {
-                            ("missing-field", actual) if *actual == field => { edits += 1; continue; },
-                            ("duplicate-field", actual) if *actual == field => { replacement.push(actual.clone()); edits += 1; },
-                            ("missing-phi", MirInstruction::Phi { dst, .. }) if *dst == result => { edits += 1; continue; },
-                            ("duplicate-phi", actual @ MirInstruction::Phi { .. }) if actual.dst_value() == Some(result) => {
-                                replacement.push(actual.clone()); edits += 1;
-                            },
-                            ("phi-value", MirInstruction::Phi { dst, inputs, .. }) if *dst == result => {
-                                inputs[0].1 = inputs[1].1; edits += 1;
-                            },
-                            ("phi-pred", MirInstruction::Phi { dst, inputs, .. }) if *dst == result => {
-                                inputs[0].0 = inputs[1].0; edits += 1;
-                            },
-                            ("copy-source", MirInstruction::Copy { dst, src }) if *dst == outer_condition => {
-                                *src = *dst; edits += 1;
-                            },
-                            _ => {},
-                        }
-                        replacement.push(row);
-                    }
-                    block.instructions = replacement;
-                }
+                &branches[1]
+            };
+            let MirInstruction::Branch {
+                then_bb, else_bb, ..
+            } = main
+                .blocks
+                .get_mut(&target.0)
+                .unwrap()
+                .terminator
+                .as_mut()
+                .unwrap()
+            else {
+                unreachable!()
+            };
+            if mutation == "lhs-direction" {
+                std::mem::swap(then_bb, else_bb);
+            } else {
+                *then_bb = *else_bb;
             }
-            assert_eq!(edits, 1, "one independent final MIR edit: {mutation}");
-            assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(),
-                "final source consumer admitted {mutation}");
+            edits += 1;
+        } else if mutation.starts_with("outer-") {
+            let MirInstruction::Branch {
+                condition,
+                then_bb,
+                else_bb,
+                then_edge_args,
+                ..
+            } = main
+                .blocks
+                .get_mut(&outer.0)
+                .unwrap()
+                .terminator
+                .as_mut()
+                .unwrap()
+            else {
+                unreachable!()
+            };
+            match mutation {
+                "outer-condition" => *condition = result,
+                "outer-target" => *then_bb = *else_bb,
+                "outer-args" => *then_edge_args = None,
+                _ => unreachable!(),
+            }
+            edits += 1;
+        } else {
+            for block in main.blocks.values_mut() {
+                let mut replacement = Vec::new();
+                for mut row in std::mem::take(&mut block.instructions) {
+                    match (mutation, &mut row) {
+                        ("missing-field", actual) if *actual == field => {
+                            edits += 1;
+                            continue;
+                        }
+                        ("duplicate-field", actual) if *actual == field => {
+                            replacement.push(actual.clone());
+                            edits += 1;
+                        }
+                        ("missing-phi", MirInstruction::Phi { dst, .. }) if *dst == result => {
+                            edits += 1;
+                            continue;
+                        }
+                        ("duplicate-phi", actual @ MirInstruction::Phi { .. })
+                            if actual.dst_value() == Some(result) =>
+                        {
+                            replacement.push(actual.clone());
+                            edits += 1;
+                        }
+                        ("phi-value", MirInstruction::Phi { dst, inputs, .. })
+                            if *dst == result =>
+                        {
+                            inputs[0].1 = inputs[1].1;
+                            edits += 1;
+                        }
+                        ("phi-pred", MirInstruction::Phi { dst, inputs, .. }) if *dst == result => {
+                            inputs[0].0 = inputs[1].0;
+                            edits += 1;
+                        }
+                        ("copy-source", MirInstruction::Copy { dst, src })
+                            if *dst == outer_condition =>
+                        {
+                            *src = *dst;
+                            edits += 1;
+                        }
+                        _ => {}
+                    }
+                    replacement.push(row);
+                }
+                block.instructions = replacement;
+            }
         }
+        assert_eq!(edits, 1, "one independent final MIR edit: {mutation}");
+        assert!(
+            root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+                .is_err(),
+            "final source consumer admitted {mutation}"
+        );
+    }
     assert!(compile_errors.is_empty(), "{}", compile_errors.join("\n\n"));
 }
 
@@ -372,28 +619,73 @@ fn nested_print_paths_retain_original_fields_and_root_reads_in_final_consumer() 
         box Parent { left: Leaf right: Leaf birth() { me.left = new Leaf() me.right = new Leaf() } }
         static box Main { main() { local p = new Parent()
             print(\"n=\" + p.right.n + \" other=\" + p.left.n) return 0 } }";
-    let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
     let (key, module, _, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
     let main_key = key.clone();
-    let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new()).unwrap();
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
     let root = handoff.root_source().unwrap();
-    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(())).unwrap();
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
+        .unwrap();
     let main = &module.functions[&main_key];
-    let instructions: Vec<_> = main.blocks.values().flat_map(|block| block.all_instructions()).collect();
-    assert_eq!(instructions.iter().filter(|row| matches!(row,
-        MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { .. }), .. })).count(), 1);
-    let reads: Vec<_> = instructions.iter().filter_map(|row| match row {
-        MirInstruction::ObjectFieldGet { dst, base, field } => Some((*dst, *base, *field)), _ => None,
-    }).collect();
-    assert_eq!(reads.len(), 4, "two original paths each retain their intermediate and terminal read");
-    let &(terminal, parent, _) = reads.iter().find(|(_, base, _)| reads.iter().any(|(dst, _, _)| dst == base)).unwrap();
+    let instructions: Vec<_> = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .collect();
+    assert_eq!(
+        instructions
+            .iter()
+            .filter(|row| matches!(
+                row,
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::String(Operation::Print { .. }),
+                    ..
+                }
+            ))
+            .count(),
+        1
+    );
+    let reads: Vec<_> = instructions
+        .iter()
+        .filter_map(|row| match row {
+            MirInstruction::ObjectFieldGet { dst, base, field } => Some((*dst, *base, *field)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        reads.len(),
+        4,
+        "two original paths each retain their intermediate and terminal read"
+    );
+    let &(terminal, parent, _) = reads
+        .iter()
+        .find(|(_, base, _)| reads.iter().any(|(dst, _, _)| dst == base))
+        .unwrap();
     let &(_, base, field) = reads.iter().find(|(dst, _, _)| *dst == parent).unwrap();
-    let &(sibling, _, sibling_field) = reads.iter().find(|(_, _, other)| other.object() == field.object() && *other != field).unwrap();
-    let copy = instructions.iter().find_map(|row| match row {
-        MirInstruction::Copy { dst, .. } if *dst == base => Some((**row).clone()), _ => None,
-    }).expect("original root lexical read retains its Copy");
-    for mutation in ["sibling-field", "terminal-base", "root-base", "missing-intermediate", "duplicate-intermediate",
-        "root-copy-source", "missing-root-copy", "duplicate-root-copy"] {
+    let &(sibling, _, sibling_field) = reads
+        .iter()
+        .find(|(_, _, other)| other.object() == field.object() && *other != field)
+        .unwrap();
+    let copy = instructions
+        .iter()
+        .find_map(|row| match row {
+            MirInstruction::Copy { dst, .. } if *dst == base => Some((**row).clone()),
+            _ => None,
+        })
+        .expect("original root lexical read retains its Copy");
+    for mutation in [
+        "sibling-field",
+        "terminal-base",
+        "root-base",
+        "missing-intermediate",
+        "duplicate-intermediate",
+        "root-copy-source",
+        "missing-root-copy",
+        "duplicate-root-copy",
+    ] {
         let mut changed = module.clone();
         let main = changed.functions.get_mut(&main_key).unwrap();
         let mut edits = 0;
@@ -401,35 +693,60 @@ fn nested_print_paths_retain_original_fields_and_root_reads_in_final_consumer() 
             let mut replacement = Vec::new();
             for mut instruction in std::mem::take(&mut block.instructions) {
                 match (mutation, &mut instruction) {
-                    ("sibling-field", MirInstruction::ObjectFieldGet { dst, field, .. }) if *dst == parent => {
-                        *field = sibling_field; edits += 1;
-                    },
-                    ("terminal-base", MirInstruction::ObjectFieldGet { dst, base, .. }) if *dst == terminal => {
-                        *base = sibling; edits += 1;
-                    },
-                    ("root-base", MirInstruction::ObjectFieldGet { dst, base, .. }) if *dst == parent => {
-                        *base = sibling; edits += 1;
-                    },
-                    ("missing-intermediate", MirInstruction::ObjectFieldGet { dst, .. }) if *dst == parent => {
-                        edits += 1; continue;
-                    },
-                    ("duplicate-intermediate", actual @ MirInstruction::ObjectFieldGet { .. }) if actual.dst_value() == Some(parent) => {
-                        replacement.push(actual.clone()); edits += 1;
-                    },
+                    ("sibling-field", MirInstruction::ObjectFieldGet { dst, field, .. })
+                        if *dst == parent =>
+                    {
+                        *field = sibling_field;
+                        edits += 1;
+                    }
+                    ("terminal-base", MirInstruction::ObjectFieldGet { dst, base, .. })
+                        if *dst == terminal =>
+                    {
+                        *base = sibling;
+                        edits += 1;
+                    }
+                    ("root-base", MirInstruction::ObjectFieldGet { dst, base, .. })
+                        if *dst == parent =>
+                    {
+                        *base = sibling;
+                        edits += 1;
+                    }
+                    ("missing-intermediate", MirInstruction::ObjectFieldGet { dst, .. })
+                        if *dst == parent =>
+                    {
+                        edits += 1;
+                        continue;
+                    }
+                    ("duplicate-intermediate", actual @ MirInstruction::ObjectFieldGet { .. })
+                        if actual.dst_value() == Some(parent) =>
+                    {
+                        replacement.push(actual.clone());
+                        edits += 1;
+                    }
                     ("root-copy-source", MirInstruction::Copy { dst, src }) if *dst == base => {
-                        *src = *dst; edits += 1;
-                    },
-                    ("missing-root-copy", actual) if *actual == copy => { edits += 1; continue; },
-                    ("duplicate-root-copy", actual) if *actual == copy => { replacement.push(actual.clone()); edits += 1; },
-                    _ => {},
+                        *src = *dst;
+                        edits += 1;
+                    }
+                    ("missing-root-copy", actual) if *actual == copy => {
+                        edits += 1;
+                        continue;
+                    }
+                    ("duplicate-root-copy", actual) if *actual == copy => {
+                        replacement.push(actual.clone());
+                        edits += 1;
+                    }
+                    _ => {}
                 }
                 replacement.push(instruction);
             }
             block.instructions = replacement;
         }
         assert_eq!(edits, 1, "one independent final MIR mutation: {mutation}");
-        assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(),
-            "final source consumer admitted {mutation}");
+        assert!(
+            root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+                .is_err(),
+            "final source consumer admitted {mutation}"
+        );
     }
 }
 
@@ -439,32 +756,66 @@ fn local_new_stored_print_calls_recheck_root_and_physical_receiver_in_final_cons
         box Parent { left: Leaf right: Leaf birth() { me.left = new Leaf() me.right = new Leaf() } }
         static box Main { main() { local p = new Parent() local q = new Parent()
             print(\"n=\" + p.left.read() + \" other=\" + q.right.read()) return 0 } }";
-    let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
     let (key, module, _, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
     let main_key = key.clone();
-    let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new()).unwrap();
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
     let root = handoff.root_source().unwrap();
     let mut visits = 0;
-    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| { visits += 1; Ok(()) }).unwrap();
-    assert_eq!(visits, 2, "both original stored scalar calls reach the independent final consumer");
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| {
+        visits += 1;
+        Ok(())
+    })
+    .unwrap();
+    assert_eq!(
+        visits, 2,
+        "both original stored scalar calls reach the independent final consumer"
+    );
     let main = &module.functions[&main_key];
-    let instructions: Vec<_> = main.blocks.values().flat_map(|block| block.all_instructions()).collect();
-    let reads: Vec<_> = instructions.iter().filter_map(|row| match row {
-        MirInstruction::ObjectFieldGet { dst, base, field } => Some((*dst, *base, *field)), _ => None,
-    }).collect();
+    let instructions: Vec<_> = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .collect();
+    let reads: Vec<_> = instructions
+        .iter()
+        .filter_map(|row| match row {
+            MirInstruction::ObjectFieldGet { dst, base, field } => Some((*dst, *base, *field)),
+            _ => None,
+        })
+        .collect();
     assert_eq!(reads.len(), 2);
     let (receiver, parent, field) = reads[0];
     let (sibling, other_parent, other_field) = reads[1];
-    let root_copy = instructions.iter().find_map(|row| match row {
-        MirInstruction::Copy { dst, .. } if *dst == parent => Some((**row).clone()), _ => None,
-    }).unwrap();
-    let other_initializer = instructions.iter().find_map(|row| match row {
-        MirInstruction::Copy { dst, src } if *dst == other_parent => Some(*src), _ => None,
-    }).unwrap();
+    let root_copy = instructions
+        .iter()
+        .find_map(|row| match row {
+            MirInstruction::Copy { dst, .. } if *dst == parent => Some((**row).clone()),
+            _ => None,
+        })
+        .unwrap();
+    let other_initializer = instructions
+        .iter()
+        .find_map(|row| match row {
+            MirInstruction::Copy { dst, src } if *dst == other_parent => Some(*src),
+            _ => None,
+        })
+        .unwrap();
     assert_eq!(field.object(), other_field.object());
     assert_ne!(field, other_field);
-    for mutation in ["sibling-field", "parent-value", "call-receiver", "root-copy-source",
-        "missing-root-copy", "duplicate-root-copy", "missing-read", "duplicate-read"] {
+    for mutation in [
+        "sibling-field",
+        "parent-value",
+        "call-receiver",
+        "root-copy-source",
+        "missing-root-copy",
+        "duplicate-root-copy",
+        "missing-read",
+        "duplicate-read",
+    ] {
         let mut changed = module.clone();
         let main = changed.functions.get_mut(&main_key).unwrap();
         let mut edits = 0;
@@ -472,30 +823,72 @@ fn local_new_stored_print_calls_recheck_root_and_physical_receiver_in_final_cons
             let mut replacement = Vec::new();
             for mut row in std::mem::take(&mut block.instructions) {
                 match (mutation, &mut row) {
-                    ("sibling-field", MirInstruction::ObjectFieldGet { dst, field, .. }) if *dst == receiver => { *field = other_field; edits += 1; },
-                    ("parent-value", MirInstruction::ObjectFieldGet { dst, base, .. }) if *dst == receiver => { *base = other_parent; edits += 1; },
-                    ("root-copy-source", MirInstruction::Copy { dst, src }) if *dst == parent => { *src = other_initializer; edits += 1; },
-                    ("missing-root-copy", actual) if *actual == root_copy => { edits += 1; continue; },
-                    ("duplicate-root-copy", actual) if *actual == root_copy => { replacement.push(actual.clone()); edits += 1; },
-                    ("missing-read", MirInstruction::ObjectFieldGet { dst, .. }) if *dst == receiver => { edits += 1; continue; },
-                    ("duplicate-read", actual @ MirInstruction::ObjectFieldGet { .. }) if actual.dst_value() == Some(receiver) => {
-                        replacement.push(actual.clone()); edits += 1;
-                    },
-                    _ => {},
+                    ("sibling-field", MirInstruction::ObjectFieldGet { dst, field, .. })
+                        if *dst == receiver =>
+                    {
+                        *field = other_field;
+                        edits += 1;
+                    }
+                    ("parent-value", MirInstruction::ObjectFieldGet { dst, base, .. })
+                        if *dst == receiver =>
+                    {
+                        *base = other_parent;
+                        edits += 1;
+                    }
+                    ("root-copy-source", MirInstruction::Copy { dst, src }) if *dst == parent => {
+                        *src = other_initializer;
+                        edits += 1;
+                    }
+                    ("missing-root-copy", actual) if *actual == root_copy => {
+                        edits += 1;
+                        continue;
+                    }
+                    ("duplicate-root-copy", actual) if *actual == root_copy => {
+                        replacement.push(actual.clone());
+                        edits += 1;
+                    }
+                    ("missing-read", MirInstruction::ObjectFieldGet { dst, .. })
+                        if *dst == receiver =>
+                    {
+                        edits += 1;
+                        continue;
+                    }
+                    ("duplicate-read", actual @ MirInstruction::ObjectFieldGet { .. })
+                        if actual.dst_value() == Some(receiver) =>
+                    {
+                        replacement.push(actual.clone());
+                        edits += 1;
+                    }
+                    _ => {}
                 }
                 replacement.push(row);
             }
             block.instructions = replacement;
             if mutation == "call-receiver" {
-                if let Some(MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }) = block.terminator.as_mut() {
-                    if let crate::mir::definitions::Callee::SameModuleInstance { receiver: actual, .. } = &mut call.callee {
-                        if *actual == receiver { *actual = sibling; edits += 1; }
+                if let Some(MirInstruction::Invoke {
+                    operation: InvokeOperation::Call { call, .. },
+                    ..
+                }) = block.terminator.as_mut()
+                {
+                    if let crate::mir::definitions::Callee::SameModuleInstance {
+                        receiver: actual,
+                        ..
+                    } = &mut call.callee
+                    {
+                        if *actual == receiver {
+                            *actual = sibling;
+                            edits += 1;
+                        }
                     }
                 }
             }
         }
         assert_eq!(edits, 1, "one independent final edit: {mutation}");
-        assert!(root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(())).is_err(), "admitted {mutation}");
+        assert!(
+            root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+                .is_err(),
+            "admitted {mutation}"
+        );
     }
 }
 
@@ -529,7 +922,7 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 &source_ledger, shape, statement.site()).unwrap().unwrap();
             let plan = crate::mir::resolved_semantics::home_new_prefix::qualify_print_expression_v1::<()>(
                 source, &[],
-                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| Ok(None), &mut |_| true,
+                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| Ok(None), &mut |_| true,
                 &mut |fields, _| { assert!(fields.is_empty()); Ok(true) }).unwrap().unwrap();
             Rc::clone(plan.print_frame().unwrap())
         }).unwrap();

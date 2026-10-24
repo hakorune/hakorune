@@ -71,7 +71,10 @@ fn fixture_with_continuation(copy_block: BasicBlockId, discard: bool) -> Fixture
     }
     let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
-        vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()],
+        vec![
+            packet.invoke.clone(),
+            packet.projection.value().unwrap().clone(),
+        ],
         Some(Rc::clone(&packet)),
     )
     .unwrap();
@@ -221,9 +224,8 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         .is_none());
     let bindings = ledger.lifecycle_bindings(owner).unwrap();
     let aliases = ledger.borrowed_ordinary_alias_bindings_v1(owner).unwrap();
-    let boundary = PhysicalBoundary::capture_with_source_copies(
-        &physical, &bindings, &[], &aliases,
-    ).unwrap();
+    let boundary =
+        PhysicalBoundary::capture_with_source_copies(&physical, &bindings, &[], &aliases).unwrap();
     let mut projection = boundary.project(&physical).unwrap();
     boundary
         .validate_complete(&physical, &mut projection, &bindings)
@@ -264,7 +266,10 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
     );
     let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
-        vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()],
+        vec![
+            packet.invoke.clone(),
+            packet.projection.value().unwrap().clone(),
+        ],
         Some(Rc::clone(&packet)),
     )
     .unwrap();
@@ -309,14 +314,24 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         let original = &packet.copy_dependencies(&ledger).unwrap()[0].1;
         let dst = original.1.dst_value().unwrap();
         match mutation {
-            0 => function.blocks.get_mut(&original.0).unwrap().instructions
+            0 => function
+                .blocks
+                .get_mut(&original.0)
+                .unwrap()
+                .instructions
                 .retain(|instruction| instruction != &original.1),
-            1 => function.blocks.get_mut(&BasicBlockId(12)).unwrap()
-                .instructions.push(original.1.clone()),
+            1 => function
+                .blocks
+                .get_mut(&BasicBlockId(12))
+                .unwrap()
+                .instructions
+                .push(original.1.clone()),
             _ => function.params.push(dst),
         }
-        let error = source.visit_finalized_lexical_call_nodes_v1(&changed,
-            |_, _, _, _, _, _, _| panic!("invalid mandatory Copy must not be lent"))
+        let error = source
+            .visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| {
+                panic!("invalid mandatory Copy must not be lent")
+            })
             .unwrap_err();
         assert!(error.contains("finished-"), "{error}");
     }
@@ -326,10 +341,15 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         .with_borrowed_ordinary_alias_copies_v1(owner, actual, |_, _, _, _, value, copies| {
             assert_eq!(value, ValueId(73));
             assert_eq!(copies.len(), 1);
-            let coordinate = source.borrowed_ordinary_alias_copy_coordinate_v1(
-                owner, actual, &copies[0],
-            ).unwrap().expect("mandatory forwarded alias Copy must survive");
-            assert_eq!(actual.blocks[&coordinate.0].instructions[coordinate.1], copies[0].1);
+            let (finished, coordinate) = source
+                .borrowed_ordinary_alias_finished_copy_v1(owner, actual, &copies[0])
+                .unwrap()
+                .expect("mandatory forwarded alias Copy must survive");
+            assert_eq!(
+                actual.blocks[&coordinate.0].instructions[coordinate.1],
+                finished.1
+            );
+            assert_eq!(finished.1, copies[0].1);
             aliases += 1;
             Ok(())
         })
@@ -358,7 +378,10 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
     assert_ne!(owner, packet.call_site().owner());
     let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
-        vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()],
+        vec![
+            packet.invoke.clone(),
+            packet.projection.value().unwrap().clone(),
+        ],
         Some(Rc::clone(&packet)),
     )
     .unwrap();
@@ -373,7 +396,10 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
         construction: Vec::new(),
     };
     assert_eq!(source.owner(), owner);
-    assert!(source.result_abi(&crate::mir::MirModule::new("empty".into())).unwrap().is_none());
+    assert!(source
+        .result_abi(&crate::mir::MirModule::new("empty".into()))
+        .unwrap()
+        .is_none());
     assert_eq!(
         source.local_call_binding_groups().count(),
         1,

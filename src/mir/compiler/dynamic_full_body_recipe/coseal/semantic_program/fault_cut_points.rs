@@ -104,7 +104,7 @@ fn verify_recipe_fault_cut_points_v2(
         };
         let (family, normal_result) = match operation.execution_class_v2() {
             LoopOperationExecutionClassV2::FaultBeforeNormalResult {
-                family: LoopOperationFaultFamilyV2::DynamicAdd,
+                family: LoopOperationFaultFamilyV2::DynamicAdd | LoopOperationFaultFamilyV2::DynamicSub,
                 ..
             } => return Err(DynamicFullLoopFaultCutPointRejectV2::ExactCoverageMismatch),
             LoopOperationExecutionClassV2::FaultBeforeNormalResult { .. } => {

@@ -201,8 +201,8 @@ impl FinalizedRootSourceHandoffV1 {
             self.main_arguments_bindings_v1(module, root).map(|_| ())
         })?;
         let context = CallValidationContextV1::Finalized(self);
-        let text_home_owners = self.text_home_owners_v1();
-        for owner in &text_home_owners {
+        let lifecycle_owners = self.initializer_lifecycle_owners_v1();
+        for owner in &lifecycle_owners {
             context.with_local_call_group_tree_v2(*owner, |groups| {
                 for packet in groups.iter().filter_map(|group| group.text_residence_v1()) {
                     self.ledger.validate_text_residence_home_v1(&packet, context)?;
@@ -213,7 +213,7 @@ impl FinalizedRootSourceHandoffV1 {
         let exits = self.ledger.root_exits.borrow();
         // A published Home owes every original exit, not just rows that happen
         // to remain in the physical ledger. Source-only declarations add none.
-        for owner in &text_home_owners {
+        for owner in &lifecycle_owners {
             let completion = self.ledger.completion_for_owner(*owner)
                 .ok_or_else(|| freeze("final-cleanup/initializer-completion-missing"))?;
             for exit in completion.explicit_sites().iter().cloned().map(RootHomeExitKeyV1::Explicit)
@@ -283,7 +283,7 @@ impl FinalizedRootSourceHandoffV1 {
                     // An original initializer Home is a cleanup participant
                     // even when this child returns a plain scalar, not a Call.
                     if *owner != self.owner && !matches!(entry, RootHomeExitEntry::Call { .. })
-                        && !text_home_owners.contains(owner) {
+                        && !lifecycle_owners.contains(owner) {
                         continue;
                     }
                     self.ledger
@@ -335,19 +335,27 @@ pub(super) fn validate_finished_cleanup_entry(
     }
     if let RootHomeExitEntry::Call { row: super::super::RootCallDispositionV1::Lexical(packet), arguments, invoke, projection: result, frame, .. } = entry {
         let mut recorded = arguments.clone();
+        recorded.extend_from_slice(bindings);
         recorded.extend([invoke.clone(), result.clone()]);
         // Expression actuals already retain the same borrowed FaultFrame.
         // This inventory lends its sole definition; it does not emit another.
         if !recorded.contains(frame) {
             recorded.push(frame.clone());
         }
-        packet.validate_expression_arguments_v1(context, function,
-            Some(projection), &recorded, finishing.is_none().then_some(projection))?;
+        packet.validate_expression_arguments_with_cancellation_v1(context, function,
+            Some(projection), &recorded, finishing.is_none().then_some(projection), None,
+            &order.result_cancellation_v1()?)?;
     }
     let mut mandatory = match finishing {
         Some(finishing) => finishing.bindings(bindings)?,
         None => bindings.to_vec(),
     };
+    if let Some(packet) = order.installed_map_return() {
+        packet.validate_return(entry, bindings, finishing)?;
+        packet.validate(context, function, Some(projection), entry)?;
+        mandatory.push(projection.relation_binding(function, packet.alias())?
+            .ok_or_else(|| freeze("borrowed-return/return-missing"))?);
+    }
     if let Some(original) = order.null_return_binding() {
         let finished = projection
             .binding(original.0, &original.1)?
@@ -418,7 +426,8 @@ pub(super) fn validate_finished_cleanup_entry(
     }
     order.validate_direct_entry(ledger, owner, exit, entry, bindings, finishing)?;
     order.validate_null_return(entry, bindings, Some(projection), finishing)?;
-    root_cleanup_graph::ordered_paths::validate(function, bindings, entry, order, finishing)?;
+    root_cleanup_graph::ordered_paths::validate_with_packet_projection_v1(
+        function, bindings, entry, order, finishing, Some(projection))?;
     match finishing {
         Some(finishing) => root_cleanup_graph::ordered_structure::validate_projected(
             function,

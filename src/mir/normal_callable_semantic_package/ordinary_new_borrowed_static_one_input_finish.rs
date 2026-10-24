@@ -307,6 +307,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     ),
                     opaque_actuals: Box::new([issued.actual().clone()]),
                     ordered_arguments: staged.ordered_arguments.clone(),
+                    dynamic_invocation_arguments: None,
                 },
             ));
         }

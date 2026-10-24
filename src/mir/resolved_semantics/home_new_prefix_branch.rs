@@ -715,7 +715,7 @@ pub(super) fn observe_if_statement<'a, E>(
             let mut join_locals = then_path.locals.clone();
             let divergent = then_path.homes != joined
                 || else_path.homes != joined
-                || !join_locals.join_branch(&else_path.locals);
+                || !join_locals.join_branch_at(&else_path.locals, Some(statement.site()));
             let mut join_covered = covered_statements.clone();
             for site in then_path.covered[base_covered..]
                 .iter()

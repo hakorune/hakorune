@@ -129,6 +129,37 @@ impl PrefixLocalFlow<'_> {
         .then(|| std::rc::Rc::clone(frame))
     }
 
+    /// Borrow a Dynamic local only through the exact initializer frame that
+    /// produced it. This preserves the opaque Dynamic class and its lifecycle
+    /// owner; it does not make the value a scalar, handle, or tagged SUM.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn dynamic_invocation_result_reference_v1(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<std::rc::Rc<super::super::CheckedInitializerExpressionFrameV1>> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
+            return None;
+        };
+        let StoredLocal::DynamicInvocationResult { frame } = self.locals.get(&binding)? else {
+            return None;
+        };
+        let flow = self.input.function().expression_source().value_flow()?;
+        let value = flow.read(site, binding)?;
+        let definition = frame.source().nodes().first()?.site();
+        let origin = flow.alias_origin_with_expression_boundary(value,
+            |site| self.input.function().variable_ref(site), |site| site == definition)?;
+        if !matches!(flow.origin(origin), Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(site))
+            if site == definition) { return None; }
+        let owner = frame.dynamic_home_binding_v1()?;
+        if !matches!(self.locals.get(&owner), Some(StoredLocal::DynamicInvocationResult { frame })
+            if frame.binding() == owner && frame.is_dynamic_invocation_result()) {
+            return None;
+        }
+        (frame.is_dynamic_value()
+            && frame.source().owner() == binding.owner()
+            && frame.binding() == binding)
+            .then(|| std::rc::Rc::clone(frame))
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_borrowed_nullable(
         &mut self,
         loan: BorrowedNullableLocalSourceLoanV1,

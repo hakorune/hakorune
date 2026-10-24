@@ -15,7 +15,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
         ledger.validate_bool_condition_source_v1(&frame)?;
-        let emission = Rc::new(RefCell::new(physical::BoolConditionEmissionV1::begin(builder, frame)?));
+        let retained_argument_frames = ledger.bool_condition_argument_frames_v1(&frame)?;
+        let emission = Rc::new(RefCell::new(physical::BoolConditionEmissionV1::begin(
+            builder, frame, retained_argument_frames,
+        )?));
         self.bool_condition_emission = Some(Rc::clone(&emission));
         let value = self.lower_expression(builder, condition);
         self.bool_condition_emission = None;
@@ -55,9 +58,12 @@ impl RawInvocationChildPortV1<'_, '_> {
         let entry = physical::cursor(builder)?;
         let state = self.callable_ledger.clone().ok_or("[freeze:contract][bool-condition/no-state]")?;
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
+        let retained_argument_frames = emission.borrow().retained_argument_frames.clone();
         let (value, proof) = match source.nodes()[index].source() {
-            Node::Binary(_) if frame.text_comparison_children_v1(index).is_some() => {
-                physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index)?
+            Node::Binary(_) if frame.comparison_input_children_v1(index).is_some() => {
+                let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+                physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index,
+                    &consume_receiver, &retained_argument_frames)?
             },
             Node::Reference(_) => {
                 use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
@@ -66,6 +72,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     || matches!(reference,
                         Reference::FiniteEntry { .. }
                             | Reference::StoredMapGet(_)
+                            | Reference::DynamicInvocationResult(_)
                             | Reference::LoopText(_)
                             | Reference::LoopDynamic(_)) {
                     use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
@@ -115,7 +122,9 @@ impl RawInvocationChildPortV1<'_, '_> {
                 (value, Proof::Field(binding))
             },
             Node::MethodCall if frame.evaluation().cores().get(&index).is_some_and(|core| core.field_map().is_some()) => {
-                physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index)?
+                let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+                physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index,
+                    &consume_receiver, &retained_argument_frames)?
             },
             Node::MethodCall => {
                 let observation = frame.calls().iter().find(|call| call.site().site() == &site)

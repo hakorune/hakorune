@@ -100,11 +100,18 @@ fn indexed_root_literal_storage_is_independent_of_same_site_child() {
             );
         }
         assert_eq!(
-            ledger.terminal_scalar_literal_value.borrow().get(&site).map(|row| row.value),
+            ledger
+                .terminal_scalar_literal_value
+                .borrow()
+                .get(&site)
+                .map(|row| row.value),
             Some(ValueId(900))
         );
         let children = ledger.terminal_scalar_literal_values.borrow();
-        assert_eq!(children.get(&(child, site.clone())).map(|row| row.value), Some(ValueId(901)));
+        assert_eq!(
+            children.get(&(child, site.clone())).map(|row| row.value),
+            Some(ValueId(901))
+        );
         assert!(!children.contains_key(&(root, site)));
     }
 }

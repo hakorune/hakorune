@@ -47,7 +47,7 @@ fn borrowed_source_error_demands_parameter_target_but_not_strict_sibling() {
             .unwrap();
         let mut pending = BTreeMap::new();
         let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
-            &targets,
+            &targets, &[],
             &package.parameter_contracts,
             &[],
             None,

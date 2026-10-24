@@ -6,6 +6,99 @@ use crate::mir::instruction::InvokeCallResultKind;
 mod ordinary_row;
 
 impl OrdinaryNewClaimLedgerV1 {
+    fn has_exact_nullable_birth_child_for_call_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        received: &CallReceivedCommitV1,
+    ) -> bool {
+        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+
+        if received.owner != site.owner() || received.binding.owner() != site.owner() {
+            return false;
+        }
+        let commits = self.local_commits.borrow();
+        // OwnedExprSite orders first by function owner. Start at the lowest
+        // structural path and stop as soon as this owner's rows are done, so
+        // call validation never scans commits from sibling functions.
+        let lower_bound = OwnedExprSiteV1::new(
+            site.owner(),
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(
+                crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(Vec::new()),
+            ),
+        );
+        let mut matches = 0usize;
+        for (parent_site, parent) in commits.range(lower_bound..) {
+            if parent_site.owner() != site.owner() {
+                break;
+            }
+            let (parent_owner, parent_object, argument_rows) = match parent {
+                LocalCommitV1::Ordinary(row) => {
+                    (row.binding.owner(), row.object, &row.argument_rows)
+                }
+                LocalCommitV1::Result(row) => (row.site.owner(), row.object, &row.argument_rows),
+                LocalCommitV1::Map(_)
+                | LocalCommitV1::OwnedArray(_)
+                | LocalCommitV1::CallReceived(_)
+                | LocalCommitV1::TextResidence(_)
+                | LocalCommitV1::DynamicCarrierResidence(_) => continue,
+            };
+            if parent_owner != site.owner() || parent_site.owner() != site.owner() {
+                continue;
+            }
+            let Ok(arguments) = argument_rows else { continue };
+            for argument in arguments.iter() {
+                if argument.owner() != site.owner()
+                    || argument.new_site() != parent_site
+                    || !matches!(argument.kind(), OrdinaryNewTrivialArgumentKindV1::BoundValue { binding }
+                        if *binding == received.binding)
+                {
+                    continue;
+                }
+                for relation in argument.child_relations() {
+                    if relation.outer() == parent_site
+                        && relation.field().object() == parent_object
+                        && relation.actual().owner() == site.owner()
+                        && relation.actual().site() == argument.site()
+                        && relation.child() == received.object
+                    {
+                        matches += 1;
+                    }
+                }
+            }
+        }
+        matches == 1
+    }
+
+    fn has_exact_borrowed_nullable_formal_return_for_call_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<bool, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            TerminalRelationV1, TerminalReturnedSourceV1,
+        };
+
+        for relation in self.terminal_relations_for_owner(site.owner()) {
+            let TerminalRelationV1::Value(value) = relation else {
+                continue;
+            };
+            let TerminalReturnedSourceV1::BorrowedNullableLocal(loan) = value.returned() else {
+                continue;
+            };
+            if loan.call() != site || loan.root().is_none() || loan.is_map_slot() {
+                continue;
+            }
+            let current = self.checked_borrowed_nullable_return_source_v1(
+                site.owner(),
+                value.return_site(),
+            )?;
+            if current != Some(loan.as_ref()) {
+                return Err(freeze("lexical-instance-call/i64-result-mismatch"));
+            }
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
     pub(crate) fn validate_new_emissions(
         &self,
         owner: FunctionOwnerIdV1,
@@ -49,6 +142,11 @@ impl OrdinaryNewClaimLedgerV1 {
             match row {
                 LocalCommitV1::TextResidence(packet) => {
                     self.validate_text_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
+                    packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
+                    continue;
+                }
+                LocalCommitV1::DynamicCarrierResidence(packet) => {
+                    self.validate_dynamic_carrier_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
                     packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
                     continue;
                 }
@@ -109,6 +207,37 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Err(freeze("handle-emission-incomplete"));
         };
+        let unproven_nullable_receiver = matches!(row.release, CallReceivedReleaseV1::Nullable)
+            && self.receiver_call_observation(site).is_some_and(|observation| {
+                matches!(
+                    observation.class(),
+                    crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_)
+                ) && observation.map_stored_source().is_none()
+            });
+        if unproven_nullable_receiver {
+            let exact_owned_return_handoff = self
+                .terminal_relations_for_owner(site.owner())
+                .into_iter()
+                .any(|relation| {
+                    matches!(relation, TerminalRelationV1::Value(value)
+                        if matches!(value.returned(), TerminalReturnedSourceV1::OwnedCall(call)
+                            if call.qualification().call() == site))
+                });
+            let exact_borrowed_nullable_formal_return =
+                self.has_exact_borrowed_nullable_formal_return_for_call_v1(site)?;
+            let exact_nullable_birth_child =
+                self.has_exact_nullable_birth_child_for_call_v1(site, row);
+            if !exact_owned_return_handoff
+                && !exact_borrowed_nullable_formal_return
+                && !exact_nullable_birth_child
+            {
+                // A nullable `me.` result needs a sealed source or one exact
+                // consumer: owned return, borrowed formal return, or Birth child.
+                // This closes the otherwise unused local-result path at its
+                // final physical consumer.
+                return Err(freeze("lexical-instance-call/i64-result-mismatch"));
+            }
+        }
         let packet_arguments = if let Some(packet) = packet {
             if packet.call_site() != site {
                 return Err(freeze("receiver-object/record-source-drift"));
@@ -308,7 +437,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
                     LocalCommitV1::Map(other) => other.emitted_bindings(),
                     LocalCommitV1::OwnedArray(other) => other.emitted_bindings(),
-                    LocalCommitV1::TextResidence(_) => &[],
+                    LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => &[],
                 })
                 .filter(|(_, instruction)| {
                     matches!(

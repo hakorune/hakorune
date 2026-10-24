@@ -157,6 +157,33 @@ impl CheckedInitializerExpressionFrameV1 {
                     && call.dynamic_invocation_result_lifecycle_v1().is_some()
             })
     }
+    /// A local alias borrows the original carrier. Its initializer frame keeps
+    /// the reaching definition, while the original Stable Home owns cleanup.
+    pub(crate) fn is_dynamic_alias(&self) -> bool {
+        self.evaluation.root_class() == Leaf::Value(Class::Dynamic)
+            && self.source().nodes().len() == 1
+            && !self.owns_root()
+            && matches!(self.evaluation.references().get(&0),
+                Some(CheckedExpressionReferenceV1::DynamicInvocationResult(source))
+                if source.dynamic_home_binding_v1().is_some_and(|owner|
+                    self.prior_homes().contains(&LiveHomeV1::Stable(owner))))
+    }
+    pub(crate) fn is_dynamic_value(&self) -> bool {
+        self.is_dynamic_invocation_result() || self.is_dynamic_alias()
+    }
+    pub(crate) fn dynamic_home_binding_v1(&self) -> Option<BindingRefV1> {
+        if self.is_dynamic_invocation_result() {
+            return Some(self.binding());
+        }
+        if self.evaluation.root_class() != Leaf::Value(Class::Dynamic)
+            || self.source().nodes().len() != 1 || self.owns_root() {
+            return None;
+        }
+        let CheckedExpressionReferenceV1::DynamicInvocationResult(source) =
+            self.evaluation.references().get(&0)? else { return None; };
+        let owner = source.dynamic_home_binding_v1()?;
+        self.prior_homes().contains(&LiveHomeV1::Stable(owner)).then_some(owner)
+    }
     pub(crate) fn owns_root(&self) -> bool {
         self.evaluation.owned_result_nodes().contains(&0)
     }
@@ -169,6 +196,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     mut prepared: super::leaves::PreparedExpressionCallsV1,
     entry_reads: &[FiniteEntryReadV1],
     dynamic_entry_reads: &[crate::mir::normal_callable_semantic_package::DynamicEntryReadV1],
+    dynamic_local_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
     signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(
@@ -225,6 +253,13 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         return Ok(None);
     }
     let mut initial = Vec::new();
+    for (node, original) in source.nodes().iter().enumerate() {
+        if matches!(original.source(), ExpressionNodeSourceV1::Reference(_)) {
+            if let Some(frame) = dynamic_local_reference(original.site()) {
+                initial.push((node, CheckedExpressionReferenceV1::DynamicInvocationResult(frame)));
+            }
+        }
+    }
     for read in entry_reads {
         let requirement = read.requirement();
         if entry_reference(requirement.read())
@@ -305,10 +340,14 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
                 && call.site().site() == source.nodes()[0].site()
                 && call.dynamic_invocation_result_lifecycle_v1().is_some()
         });
+    let dynamic_alias_root = classes[0] == Leaf::Value(Class::Dynamic)
+        && source.nodes().len() == 1
+        && matches!(reference_proofs.get(&0), Some(CheckedExpressionReferenceV1::DynamicInvocationResult(frame))
+            if frame.dynamic_home_binding_v1().is_some_and(|owner| prior_homes.contains(&LiveHomeV1::Stable(owner))));
     if !references.is_empty()
         || transferred.contains(&0)
         || (!matches!(classes[0], Leaf::Value(Class::String | Class::I64))
-            && !dynamic_invocation_root)
+            && !dynamic_invocation_root && !dynamic_alias_root)
         || (classes[0] == Leaf::Value(Class::I64)
             && !has_core
             && !entry_reads

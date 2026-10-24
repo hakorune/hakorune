@@ -375,6 +375,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         },
                     }]),
                     ordered_arguments: staged.ordered_arguments.clone(),
+                    dynamic_invocation_arguments: None,
                 },
             ));
         }

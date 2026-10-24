@@ -74,6 +74,9 @@ pub enum StringInvokeOperation {
     Print { value: StringInvokeOperand },
     /// Consume exactly this pair; never an object or raw-handle release.
     End { value: ValueId },
+    /// Source-proved local Text residency: Static has no owner; Owned consumes
+    /// its exact handle/token. A borrowed descriptor never grants this right.
+    EndIfOwned { value: ValueId },
 }
 impl StringInvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
@@ -81,7 +84,7 @@ impl StringInvokeOperation {
             Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } => Some(InvokeNormalResultKind::OwnedString),
             Self::Length { .. } | Self::IndexOf { .. } => Some(InvokeNormalResultKind::I64),
             Self::Compare { .. } => Some(InvokeNormalResultKind::Bool),
-            Self::Print { .. } | Self::End { .. } => None,
+            Self::Print { .. } | Self::End { .. } | Self::EndIfOwned { .. } => None,
         }
     }
     pub fn effects(&self) -> EffectMask {
@@ -90,7 +93,7 @@ impl StringInvokeOperation {
             Self::Length { .. } | Self::IndexOf { .. } | Self::Compare { .. } => EffectMask::READ.add(Effect::Control),
             // Runtime output preparation may allocate; End consumes residence.
             Self::Print { .. } => EffectMask::IO.add(Effect::Alloc).add(Effect::Control),
-            Self::End { .. } => EffectMask::WRITE.add(Effect::Control),
+            Self::End { .. } | Self::EndIfOwned { .. } => EffectMask::WRITE.add(Effect::Control),
         }
     }
     pub fn operands(&self) -> Vec<&StringInvokeOperand> {
@@ -98,12 +101,12 @@ impl StringInvokeOperation {
             Self::Add { left, right } | Self::Compare { left, right, .. } => vec![left, right],
             Self::IndexOf { value, needle } => vec![value, needle],
             Self::Materialize { value } | Self::Length { value } | Self::Substring { value, .. } | Self::Print { value } => vec![value],
-            Self::End { .. } => vec![],
+            Self::End { .. } | Self::EndIfOwned { .. } => vec![],
         }
     }
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
-            Self::End { value } => vec![*value],
+            Self::End { value } | Self::EndIfOwned { value } => vec![*value],
             _ => self.operands().into_iter().filter_map(StringInvokeOperand::value)
                 .chain(match self { Self::Substring { start, end, .. } => {
                     start.value().into_iter().chain(end.value()).collect()
@@ -123,7 +126,7 @@ impl StringInvokeOperation {
                 end.rewrite_value(rewrite);
             }
             Self::Materialize { value } | Self::Length { value } | Self::Print { value } => value.rewrite_value(rewrite),
-            Self::End { value } => rewrite(value),
+            Self::End { value } | Self::EndIfOwned { value } => rewrite(value),
         }
     }
     pub fn owns_normal_result(&self) -> bool {
@@ -142,7 +145,7 @@ impl StringInvokeOperation {
                 && matches!(end, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_)),
             Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
             Self::Print { value } => !matches!(value, StringInvokeOperand::Dynamic(_) | StringInvokeOperand::DynamicCarrier(_)),
-            Self::End { .. } => true,
+            Self::End { .. } | Self::EndIfOwned { .. } => true,
         }
     }
 }

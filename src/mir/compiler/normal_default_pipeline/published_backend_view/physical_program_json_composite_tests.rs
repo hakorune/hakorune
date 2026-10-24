@@ -355,6 +355,8 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
         json!({"kind":"string_materialize", "site":42, "value":{"kind":"owned_string", "value":9}}));
     assert_eq!(encode(Op::End { value:ValueId(9) }),
         json!({"kind":"string_end", "site":42, "value":9}));
+    assert_eq!(encode(Op::EndIfOwned { value:ValueId(9) }),
+        json!({"kind":"string_end_if_owned", "site":42, "value":9}));
     for (op, comparison) in [(crate::mir::CompareOp::Eq, "eq"), (crate::mir::CompareOp::Ne, "ne"),
         (crate::mir::CompareOp::Lt, "lt"), (crate::mir::CompareOp::Le, "le"),
         (crate::mir::CompareOp::Gt, "gt"), (crate::mir::CompareOp::Ge, "ge")] {

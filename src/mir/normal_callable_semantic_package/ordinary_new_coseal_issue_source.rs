@@ -97,10 +97,11 @@ pub(super) fn prepare_local_candidates_by_slot_v1(
         .declarations()
         .filter_map(|declaration| {
             let slot = declaration.batch_slot();
-            if (selected.role_for_batch_slot(slot).is_none() && app_main_batch_slot != Some(slot))
-                || dynamic_slot == Some(slot)
-            {
-                return None;
+            if dynamic_slot == Some(slot) { return None; }
+            match super::walk_triggers::needs_declaration_walk_v1(batch, selected, app_main_batch_slot, slot) {
+                Ok(false) => return None,
+                Err(issue) => return Some((slot, Err(issue))),
+                Ok(true) => {}
             }
             let candidates = batch
                 .with_lowering_input(slot, |input| {

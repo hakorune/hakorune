@@ -15,10 +15,13 @@ impl PrefixLocalFlow<'_> {
         use crate::mir::function::TypedObjectFieldStorage as Storage;
         let function = self.input.function();
         if matches!(statement.node(), ASTNode::Loop { .. }) {
-            // Preissued Loop After may bypass this per-statement walk. Until
-            // it carries the same mutation proof, keep Dynamic roots closed.
+            // Preissued Loop After may bypass this per-statement walk. Keep
+            // Dynamic carriers closed unless the retained whole-holder source
+            // proves append-only use with no reads.
             for value in self.locals.values_mut() {
-                if matches!(value, StoredLocal::NamedArrayHolder(source) if !source.has_element_contract())
+                if matches!(value, StoredLocal::NamedArrayHolder(source)
+                    if !source.has_element_contract()
+                        && !source.is_dynamic_carrier_append_only_v1())
                 {
                     // Keep its Home in unwind; only the local source capability is lost.
                     *value = StoredLocal::BoundValue;
@@ -90,7 +93,9 @@ impl PrefixLocalFlow<'_> {
             );
         for (root, value) in &mut self.locals {
             if exposed.contains(root)
-                && matches!(value, StoredLocal::NamedArrayHolder(source) if !source.has_element_contract())
+                && matches!(value, StoredLocal::NamedArrayHolder(source)
+                    if !source.has_element_contract()
+                        && !source.is_dynamic_carrier_append_only_v1())
             {
                 *value = StoredLocal::BoundValue;
             }

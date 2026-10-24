@@ -147,6 +147,26 @@ fn source_target_for_loop(
             None => None,
         }
     };
+    let dynamic_source_calls = if checked.is_none() {
+        let state = callable_ledger.borrow();
+        let Some(claims) = state.ordinary_new_claim_ledger() else {
+            return Ok(CallableLoopSourceTargetProbeV1::empty());
+        };
+        let mut targets = Vec::new();
+        for item in items.iter() {
+            if let Some(target) = claims
+                .source_dynamic_member_call_v1(state.owner(), item.call_site())
+                .map_err(|error| {
+                    format!("[freeze:contract][callable-loop/dynamic-source-target/{error}]")
+                })?
+            {
+                targets.push(target);
+            }
+        }
+        targets
+    } else {
+        Vec::new()
+    };
     let mut selected = Vec::new();
     let mut uncovered = Vec::new();
     let mut instance_methods = Vec::new();
@@ -240,15 +260,30 @@ fn source_target_for_loop(
             Some(requirement),
         ));
     }
-    Ok(
-        CallableLoopSourceTargetProbeV1::from_parts_with_covered_methods(
-            selected.into_boxed_slice(),
-            uncovered.into_boxed_slice(),
-            requirement_mismatch,
-            core_methods,
-            instance_methods.into_boxed_slice(),
-        ),
-    )
+    let probe = CallableLoopSourceTargetProbeV1::from_parts_with_covered_methods(
+        selected.into_boxed_slice(),
+        uncovered.into_boxed_slice(),
+        requirement_mismatch,
+        core_methods,
+        instance_methods.into_boxed_slice(),
+    );
+    let probe = match checked.as_ref() {
+        Some(product) => probe
+            .with_checked_recipe_call_dispositions_v2(&items, product)
+            .map_err(|error| {
+                format!("[freeze:contract][callable-loop/source-target] {error:?}")
+            }),
+        None => Ok(probe),
+    }?;
+    probe
+        .with_admitted_dynamic_targets_v1(
+            &items,
+            callable_ledger.borrow().owner(),
+            &dynamic_source_calls,
+        )
+        .map_err(|error| {
+            format!("[freeze:contract][callable-loop/source-target] {error:?}")
+        })
 }
 
 #[cfg(test)]

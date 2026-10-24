@@ -52,7 +52,7 @@ pub(super) fn emit(
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
-    emit_with_dynamic_calls(builder, state, ledger, frame, None, &mut |builder, state, call, acquired, values, bindings| {
+    emit_with_dynamic_calls(builder, state, ledger, frame, None, None, &mut |builder, state, call, acquired, values, bindings| {
         emit_call(builder, state, call, acquired, values, bindings)
             .map(ExpressionCallEmissionV1::Lexical)
     })
@@ -69,7 +69,7 @@ pub(super) fn emit_with_prefix(
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
-    emit_with_dynamic_calls(builder, state, ledger, frame, inherited, &mut |builder, state, call, acquired, values, bindings| {
+    emit_with_dynamic_calls(builder, state, ledger, frame, inherited, None, &mut |builder, state, call, acquired, values, bindings| {
         emit_call(builder, state, call, acquired, values, bindings)
             .map(ExpressionCallEmissionV1::Lexical)
     })
@@ -81,26 +81,51 @@ pub(in crate::mir::builder) fn emit_with_dynamic_calls(
     ledger: &OrdinaryNewClaimLedgerV1,
     frame: &CheckedExpressionEvaluationV1,
     inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    prior_home_unwind: Option<&[InvokeOperation]>,
     emit_call: &mut impl FnMut(
         &mut MirBuilder, &mut CallableSemanticLoweringState,
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>,
     ) -> Result<ExpressionCallEmissionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
-    let body = emit_body_with_prefix(builder, state, ledger, frame, None, inherited, emit_call)?;
+    let body = emit_body_with_prefix(builder, state, ledger, frame, None, inherited, prior_home_unwind, emit_call)?;
     let value = body.values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
     Ok(EmittedExpressionValueV1 { value, purpose_acquisition: None, body })
 }
 
 pub(super) fn emit_comparison_inputs_v1(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1, comparison: usize,
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    retained_argument_frames: &[std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
 ) -> Result<EmittedExpressionBodyV1, String> {
-    emit_body_with_prefix(builder, state, ledger, frame, Some(comparison), None,
-        &mut |_, _, _, _, _, _| Err(freeze("bool-condition/call-source")))
+    emit_body_with_prefix(builder, state, ledger, frame, Some(comparison), None, None,
+        &mut |builder, state, call, acquired, values, bindings|
+            super::terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
+                builder, state, ledger, frame, call, acquired, values, bindings,
+                consume_receiver, None, retained_argument_frames,
+            ))
+}
+
+/// A source-proved rebind lends the same old-residency unwind to every RHS
+/// acquisition and to the terminal cleanup. The purpose packet retains proof.
+pub(super) fn emit_with_prior_home_unwind(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1,
+    unwind: &[InvokeOperation],
+    emit_call: &mut impl FnMut(&mut MirBuilder, &mut CallableSemanticLoweringState,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>)
+        -> Result<EmittedLexicalCallProjectionV1, String>,
+) -> Result<EmittedExpressionValueV1, String> {
+    let body = emit_body_with_prefix(builder, state, ledger, frame, None, None, Some(unwind),
+        &mut |builder, state, call, acquired, values, bindings|
+            emit_call(builder, state, call, acquired, values, bindings).map(ExpressionCallEmissionV1::Lexical))?;
+    let value = body.values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
+    Ok(EmittedExpressionValueV1 { value, purpose_acquisition: None, body })
 }
 
 fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedExpressionEvaluationV1,
     comparison: Option<usize>, inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+    prior_home_unwind: Option<&[InvokeOperation]>,
     emit_call: &mut impl FnMut(&mut MirBuilder, &mut CallableSemanticLoweringState,
         &LocalCallObservationV1, &[(usize, ValueId)], &[Option<EvaluatedExpressionValueV1>], &mut Vec<Binding>)
         -> Result<ExpressionCallEmissionV1, String>,
@@ -144,12 +169,16 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_) | CheckedExpressionReferenceV1::Scalar(_) | CheckedExpressionReferenceV1::Residence(_)
                 | CheckedExpressionReferenceV1::LoopText(_) | CheckedExpressionReferenceV1::LoopDynamic(_)
                 | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::FiniteEntry { .. }
-                | CheckedExpressionReferenceV1::DynamicEntry(_))) {
+                | CheckedExpressionReferenceV1::DynamicEntry(_)
+                | CheckedExpressionReferenceV1::DynamicInvocationResult(_))) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
     let mut homes = inherited.map(|prefix| prefix.for_argument(frame)).transpose()?.unwrap_or_default();
-    homes.extend(ledger.prior_home_unwind_for(frame.prior_homes())?);
+    match prior_home_unwind {
+        Some(unwind) => homes.extend_from_slice(unwind),
+        None => homes.extend(ledger.prior_home_unwind_for(frame.prior_homes())?),
+    }
     let source = frame.source();
     let mut pending = Vec::new();
     let mut path_slots = std::collections::BTreeMap::new();
@@ -390,21 +419,39 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         let (Operand::Dynamic(lhs), Operand::NormalInteger(rhs)) = (&left, &right) else {
                             return Err(freeze("print-expression/dynamic-add-operands"));
                         };
-                        if domain.family() != OperatorFamily::Add
-                            || domain.left() != OperatorClass::Dynamic
+                        if domain.left() != OperatorClass::Dynamic
                             || domain.right() != OperatorClass::I64
-                            || frame.owned_result_nodes().contains(&index)
                         {
                             return Err(freeze("print-expression/dynamic-add-contract"));
                         }
-                        let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-                        let value = builder.next_value_id();
-                        let binding = (block, MirInstruction::BinOp {
-                            dst: value, op: crate::mir::BinaryOp::Add, lhs: *lhs, rhs: *rhs,
-                        });
-                        builder.emit_instruction(binding.1.clone())?;
-                        bindings.push(binding);
-                        Operand::Dynamic(value)
+                        match domain.family() {
+                            OperatorFamily::Add if !frame.owned_result_nodes().contains(&index) => {
+                                let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+                                let value = builder.next_value_id();
+                                let binding = (block, MirInstruction::BinOp {
+                                    dst: value, op: crate::mir::BinaryOp::Add, lhs: *lhs, rhs: *rhs,
+                                });
+                                builder.emit_instruction(binding.1.clone())?;
+                                bindings.push(binding);
+                                Operand::Dynamic(value)
+                            }
+                            OperatorFamily::Sub if frame.owned_result_nodes().contains(&index) => {
+                                let pending = pending_operations(&acquired, &homes);
+                                let (value, result, _) = emit_scalar_operation_with_pending_v1(
+                                    builder,
+                                    &mut writer,
+                                    InvokeOperation::DynamicCarrierSubI64 { carrier: *lhs, rhs: *rhs },
+                                    fault_frame,
+                                    &pending,
+                                    &mut bindings,
+                                )?;
+                                if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
+                                    return Err(freeze("print-expression/dynamic-sub-result"));
+                                }
+                                Operand::DynamicCarrier(value)
+                            }
+                            _ => return Err(freeze("print-expression/dynamic-operator-contract")),
+                        }
                     }
                     _ => return Err(freeze("print-expression/operator-result")),
                 }
@@ -421,6 +468,45 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
 pub(super) fn pending_operations(acquired: &[(usize, ValueId)], homes: &[InvokeOperation]) -> Vec<InvokeOperation> {
     acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value }))
         .chain(homes.iter().cloned()).collect()
+}
+
+pub(super) fn bool_condition_temporary_operations_v1(
+    frame: &CheckedExpressionEvaluationV1,
+    comparison: usize,
+    body: &EmittedExpressionBodyV1,
+) -> Result<Vec<InvokeOperation>, String> {
+    let order = frame.scalar_invoke_input_order_v1(comparison)
+        .ok_or_else(|| freeze("bool-condition/comparison-input-order"))?;
+    let expected: std::collections::BTreeSet<_> = order.iter().copied()
+        .filter(|node| frame.owned_result_nodes().contains(node)).collect();
+    let mut operations = std::collections::BTreeMap::new();
+    for &(node, value) in &body.acquired {
+        if !expected.contains(&node)
+            || body.values.get(node).and_then(Option::as_ref)
+                .and_then(|value| value.as_operand().ok()) != Some(&Operand::OwnedString(value))
+            || operations.insert(node, InvokeOperation::String(Operation::End { value })).is_some()
+        {
+            return Err(freeze("bool-condition/string-temporary-coverage"));
+        }
+    }
+    for packet in &body.dynamic_calls {
+        let call = packet.source();
+        let node = frame.source().nodes().iter().position(|row| row.site() == call.site().site())
+            .ok_or_else(|| freeze("bool-condition/dynamic-call-node"))?;
+        if !expected.contains(&node)
+            || !call.dynamic_invocation_result_lifecycle_v1().is_some()
+            || !frame.calls().iter().any(|original| original == call)
+            || body.values.get(node).and_then(Option::as_ref)
+                .and_then(|value| value.as_operand().ok()) != Some(&Operand::DynamicCarrier(packet.value()))
+            || operations.insert(node, InvokeOperation::DynamicCarrierEnd { carrier: packet.value() }).is_some()
+        {
+            return Err(freeze("bool-condition/dynamic-temporary-coverage"));
+        }
+    }
+    if operations.keys().copied().collect::<std::collections::BTreeSet<_>>() != expected {
+        return Err(freeze("bool-condition/owned-temporary-coverage"));
+    }
+    Ok(order.into_iter().rev().filter_map(|node| operations.remove(&node)).collect())
 }
 
 
@@ -503,12 +589,18 @@ pub(super) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &
 /// transfer. Child temporaries remain inside this expression's cleanup scope.
 pub(super) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
     -> Result<(Binding, Binding), String> {
+    finish_residence_with_displaced_continuation(builder, expression, None)
+}
+
+pub(super) fn finish_residence_with_displaced_continuation(builder: &mut MirBuilder,
+    expression: &mut EmittedExpressionValueV1, displaced: Option<InvokeOperation>,
+) -> Result<(Binding, Binding), String> {
     let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
     let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
     if materialized != Some(root) && expression.body.acquired.last().is_none_or(|(_, value)| *value != root) {
         return Err(freeze("expression/residence-acquisition-order"));
     }
-    finish_continuation(builder, expression, Some(root), None, false)
+    finish_continuation(builder, expression, Some(root), displaced, false)
 }
 
 /// An owned argument lends its entire remaining stack to the enclosing Call.
@@ -555,7 +647,7 @@ pub(super) fn materialize_text_root(
 
 pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
-    ledger: &OrdinaryNewClaimLedgerV1,
+    displaced: Option<InvokeOperation>,
 ) -> Result<(Binding, Binding), String> {
     if !frame.is_text_residence() {
         return finish_continuation(builder, expression, None, None, frame.is_dynamic_loop_carrier_v1());
@@ -563,7 +655,6 @@ pub(super) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &
     let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
     if expression.purpose_acquisition.is_some() != frame.materializes_root()
         || !frame.materializes_root() && expression.body.acquired.last() != Some(&(0, root)) { return Err(freeze("expression/residence-acquisition-order")); }
-    let displaced = ledger.text_rebind_displaced_end_v1(frame)?;
     finish_continuation(builder, expression, Some(root), displaced, false)
 }
 
@@ -572,7 +663,8 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
     -> Result<(Binding, Binding), String> {
     let scalar_result = matches!(expression.value,
         EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)) | EvaluatedExpressionValueV1::Bool(_))
-        || dynamic_loop_carrier && matches!(expression.value, EvaluatedExpressionValueV1::Operand(Operand::Dynamic(_)));
+        || dynamic_loop_carrier && matches!(expression.value,
+            EvaluatedExpressionValueV1::Operand(Operand::Dynamic(_) | Operand::DynamicCarrier(_)));
     if residence.is_none() && !scalar_result {
         return Err(freeze("expression/scalar-continuation-result"));
     }
@@ -582,6 +674,15 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
 pub(super) fn finish_value_continuation_v1(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1)
     -> Result<(Binding, Binding), String> {
     finish_body_continuation(builder, body, None, None, false)
+}
+
+pub(super) fn finish_bool_condition_continuation_v1(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+    normal: Vec<InvokeOperation>,
+) -> Result<(Binding, Binding), String> {
+    let fault = normal.iter().cloned().chain(body.homes.iter().cloned()).collect();
+    finish_body_cleanup(builder, body, normal, fault, None)
 }
 
 /// Transfer the exact Normal Dynamic carrier result into its Local receipt.
@@ -623,11 +724,10 @@ pub(super) fn finish_dynamic_initializer_continuation(
 fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1,
     residence: Option<ValueId>, displaced: Option<InvokeOperation>, materialized: bool,
 ) -> Result<(Binding, Binding), String> {
-    let mut writer = RawRootGraphWriterV1;
     if let Some(value) = residence {
         let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
         let replaces = match displaced.as_ref() {
-            Some(InvokeOperation::String(Operation::End { value })) => Some(*value),
+            Some(InvokeOperation::String(Operation::End { value } | Operation::EndIfOwned { value })) => Some(*value),
             Some(_) => return Err(freeze("expression/residence-replacement-kind")),
             None => None,
         };
@@ -636,14 +736,25 @@ fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressi
         body.bindings.push((block, install));
         if !materialized { body.acquired.pop(); }
     }
-    let next = writer.reserve_block(builder)?;
-    let clean = writer.reserve_block(builder)?;
-    let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
-    writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
     let mut normal: Vec<_> = body.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
     let mut homes = body.homes.clone();
     if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
     let fault = pending_operations(&body.acquired, &homes);
+    finish_body_cleanup(builder, body, normal, fault, displaced)
+}
+
+fn finish_body_cleanup(
+    builder: &mut MirBuilder,
+    body: &mut EmittedExpressionBodyV1,
+    mut normal: Vec<InvokeOperation>,
+    fault: Vec<InvokeOperation>,
+    displaced: Option<InvokeOperation>,
+) -> Result<(Binding, Binding), String> {
+    let mut writer = RawRootGraphWriterV1;
+    let next = writer.reserve_block(builder)?;
+    let clean = writer.reserve_block(builder)?;
+    let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
+    writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
     let mut normal_indices: Vec<_> = (0..normal.len()).collect();
     if let Some(old) = displaced {
         let index = fault.iter().position(|operation| *operation == old)

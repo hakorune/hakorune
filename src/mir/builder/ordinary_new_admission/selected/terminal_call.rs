@@ -15,7 +15,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 pub(in crate::mir::builder) use lexical_i64::prepare_arguments as prepare_lexical_arguments;
-pub(in crate::mir::builder) use lexical_i64::{emit_constructor_unit, emit_unit_discard, emit_expression_call, emit_expression_call_with_prefix, emit_expression_call_with_dynamic, emit_bool_condition_call, emit_local_lexical_i64, emit_local_lexical_source, StaticExpressionCallIssuerV1};
+pub(in crate::mir::builder) use lexical_i64::{emit_constructor_unit, emit_unit_discard, emit_expression_call, emit_expression_call_with_prefix, emit_expression_call_with_dynamic_and_argument_frames, emit_bool_condition_call, emit_local_lexical_i64, emit_local_lexical_source, StaticExpressionCallIssuerV1};
 #[path = "terminal_call/static_return.rs"]
 mod static_return;
 pub(in crate::mir::builder) use static_return::emit as emit_static_return;
@@ -36,18 +36,32 @@ pub(in crate::mir::builder::ordinary_new_admission) enum Source {
 }
 
 impl Source {
+    pub(super) fn deferred_argument_ends_v1(&self, ledger: &OrdinaryNewClaimLedgerV1)
+        -> Result<Vec<InvokeOperation>, String> {
+        match self {
+            Self::Packet { prepared, .. } => prepared.deferred_argument_ends_v1(
+                crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger)),
+            Self::Existing(RootCallDispositionV1::Lexical(_)) => Err(freeze("call-source-missing")),
+            Self::Existing(_) => Ok(Vec::new()),
+        }
+    }
     pub(super) fn finish(
         self,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
-    ) -> RootCallDispositionV1 {
+        cleanup: Option<root_graph::RootArgumentCleanupV1>,
+    ) -> Result<RootCallDispositionV1, String> {
         match self {
-            Self::Existing(row) => row,
-            Self::Packet { row, prepared } => RootCallDispositionV1::Lexical(std::rc::Rc::new(
-                crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1::from_source(
-                    row, prepared, invoke, projection,
-                ),
-            )),
+            Self::Existing(row) if cleanup.is_none() => Ok(row),
+            Self::Existing(_) => Err(freeze("call-source-missing")),
+            Self::Packet { row, prepared } => {
+                let mut packet = crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1::from_source(
+                    row, prepared, invoke, projection);
+                if let Some((ingress, continuation, normal, fault_suffix)) = cleanup {
+                    packet = packet.with_root_argument_cleanup_v1(ingress, continuation, normal, fault_suffix)?;
+                }
+                Ok(RootCallDispositionV1::Lexical(std::rc::Rc::new(packet)))
+            }
         }
     }
 }

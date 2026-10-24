@@ -1,31 +1,40 @@
 //! Existing terminal source owns the original immutable lexical packet.
-use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Lend the argument authority retained by this original packet protocol.
     /// Object observations carry flow only; their sealed inputs own arguments.
-    pub(in crate::mir::normal_callable_semantic_package) fn original_local_packet_arguments_v1<'a>(
+    pub(in crate::mir::normal_callable_semantic_package) fn original_local_packet_arguments_v1<
+        'a,
+    >(
         &'a self,
         packet: &'a EmittedLexicalCallProjectionV1,
     ) -> Result<&'a [LocalCallArgumentV1], String> {
         match packet.original_source() {
-            CallPacketSourceLoanV1::Instance(row) if self.uses_object_packet_protocol_v1(row)? => {
+            CallPacketSourceLoanV1::Instance(row)
+                if self.uses_object_packet_protocol_v1(row)? =>
+            {
                 self.object_packet_arguments_v1(row)
             }
             CallPacketSourceLoanV1::Instance(_) => {
-                let source = self.local_call_for_owner(packet.call_site().owner(), packet.call_site().site())
+                let source = self
+                    .local_call_for_owner(packet.call_site().owner(), packet.call_site().site())
                     .ok_or_else(|| freeze("local-packet/source-missing"))?;
-                if source.site() != packet.call_site() || source.owner() != packet.call_site().owner() {
+                if source.site() != packet.call_site()
+                    || source.owner() != packet.call_site().owner()
+                {
                     return Err(freeze("local-packet/source-drift"));
                 }
                 Ok(source.arguments())
             }
             CallPacketSourceLoanV1::Static { observation, .. }
             | CallPacketSourceLoanV1::SelectedStaticLoop { observation, .. } => {
-                if observation.site() != packet.call_site() || observation.owner() != packet.call_site().owner() {
+                if observation.site() != packet.call_site()
+                    || observation.owner() != packet.call_site().owner()
+                {
                     return Err(freeze("local-packet/static-source-drift"));
                 }
                 Ok(observation.arguments())
@@ -55,7 +64,9 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
-            let exit = exit.explicit_site().ok_or_else(|| freeze("implicit-exit/terminal-call-drift"))?;
+            let exit = exit
+                .explicit_site()
+                .ok_or_else(|| freeze("implicit-exit/terminal-call-drift"))?;
             if let Some(read) = packet.stored_receiver_read_v1() {
                 self.validate_lexical_terminal_packet(owner, exit, packet)?;
                 reads.push(read.clone());
@@ -69,17 +80,22 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("local-stored-receiver/source-drift"));
                 }
                 let arguments = self.original_local_packet_arguments_v1(packet)?;
-                packet.visit_original_nodes_v1(owner, arguments, self, &mut |node, arguments| {
-                    if let Some(read) = node.stored_receiver_read_v1() {
-                        if !sites.insert(node.call_site().clone()) {
-                            return Err(freeze("local-stored-receiver/duplicate-source"));
+                packet.visit_original_nodes_v1(
+                    owner,
+                    arguments,
+                    self,
+                    &mut |node, arguments| {
+                        if let Some(read) = node.stored_receiver_read_v1() {
+                            if !sites.insert(node.call_site().clone()) {
+                                return Err(freeze("local-stored-receiver/duplicate-source"));
+                            }
+                            node.call_with_ledger(owner, arguments, self)?;
+                            node.validate_recorded(group.bindings())?;
+                            reads.push(read.clone());
                         }
-                        node.call_with_ledger(owner, arguments, self)?;
-                        node.validate_recorded(group.bindings())?;
-                        reads.push(read.clone());
-                    }
-                    Ok(())
-                })?;
+                        Ok(())
+                    },
+                )?;
             }
         }
         Ok(reads)
@@ -126,11 +142,19 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
         packet: &EmittedLexicalCallProjectionV1,
     ) -> Result<Vec<LocalCallArgumentV1>, String> {
-        self.validate_lexical_terminal_packet_in_context(owner, exit, packet, CallValidationContextV1::Lowering(self))
+        self.validate_lexical_terminal_packet_in_context(
+            owner,
+            exit,
+            packet,
+            CallValidationContextV1::Lowering(self),
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_lexical_terminal_packet_in_context(
-        &self, owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1, packet: &EmittedLexicalCallProjectionV1,
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        packet: &EmittedLexicalCallProjectionV1,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<LocalCallArgumentV1>, String> {
         context.require_ledger(self)?;

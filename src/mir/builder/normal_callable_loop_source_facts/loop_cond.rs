@@ -305,7 +305,13 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 let covered_items = source_target
                     .core_method_items()
                     .iter()
-                    .chain(source_target.instance_method_items().iter());
+                    .chain(source_target.instance_method_items().iter())
+                    .chain(
+                        source_target
+                            .dynamic_invocation_items()
+                            .iter()
+                            .map(|source| source.item()),
+                    );
                 if covered_items.clone().next().is_none() {
                     let target_site = source_target.call_site();
                     let target_matches = self
@@ -361,6 +367,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         if let CallableLoopSourceCallCoverageV1::WithCalls(source_target) = &self.source_coverage {
             if source_target.core_method_items().is_empty()
                 && source_target.instance_method_items().is_empty()
+                && source_target.dynamic_invocation_items().is_empty()
                 && !source_target.has_exact_i64_result()
             {
                 return Err(

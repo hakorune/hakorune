@@ -20,7 +20,7 @@ use std::rc::Rc;
 pub(super) fn emit_return(
     builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
     source: &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
-) -> Result<(ValueId, crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+) -> Result<(ValueId, Option<crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1>,
     Vec<(BasicBlockId, crate::mir::MirInstruction)>), String> {
     use crate::mir::normal_callable_semantic_package::{ExpressionReferenceReadV1, CallValidationContextV1};
     let input = input(port, product)?;
@@ -30,22 +30,44 @@ pub(super) fn emit_return(
     crate::mir::builder::control_flow::cleanup::ensure_cleanup_exit_allowed_v1(
         &builder.function_state, crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return)?;
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
+    let (value, read) = if let Some(source_read) = &source.read {
+        let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+        let mut state = state.borrow_mut();
+        let prepared = state.prepare_exact_lexical_read(input.owner(), source_read.read().node(), source_read.binding())
+            .map_err(|error| error.to_string())?;
+        let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+        let producer = ExpressionReferenceReadV1::prepare_scalar_read_v2(&source.source, source_read,
+            prepared.observation_v1(), CallValidationContextV1::Lowering(&claims), function)?;
+        let read = state.commit_exact_lexical_reads(vec![prepared]).map_err(|error| error.to_string())?
+            .pop().ok_or_else(|| freeze("call-source-missing"))?;
+        let observed = producer.finish(read);
+        let value = observed.scalar_read_value_v2(&source.source, source_read,
+            CallValidationContextV1::Lowering(&claims), function)?;
+        (value, Some(observed))
+    } else {
+        let expected = claims.prepare_terminal_scalar_literal_return(input.owner(), source.site.node())?
+            .ok_or_else(|| freeze("literal-return-source"))?;
+        let crate::mir::ConstValue::Integer(integer) = expected else {
+            return Err(freeze("literal-return-class"));
+        };
+        let value = crate::mir::builder::emission::constant::emit_integer(builder, integer)?;
+        claims.record_terminal_scalar_literal_return(input.owner(), source.site.node(), value)?;
+        let block = builder.function_state.current_block.ok_or_else(|| freeze("literal-return-block"))?;
+        let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+        let instruction = function.blocks.get(&block)
+            .and_then(|block| block.instructions.last())
+            .ok_or_else(|| freeze("literal-return-producer"))?.clone();
+        claims.record_terminal_literal_producer_v1(
+            input.owner(), &source.site, (block, instruction), function,
+        )?;
+        (value, None)
+    };
+    if !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
     let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
     let mut state = state.borrow_mut();
-    let prepared = state.prepare_exact_lexical_read(input.owner(), source.read.read().node(), source.read.binding())
-        .map_err(|error| error.to_string())?;
-    let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-    let producer = ExpressionReferenceReadV1::prepare_scalar_read_v2(&source.source, &source.read,
-        prepared.observation_v1(), CallValidationContextV1::Lowering(&claims), function)?;
-    let read = state.commit_exact_lexical_reads(vec![prepared]).map_err(|error| error.to_string())?
-        .pop().ok_or_else(|| freeze("call-source-missing"))?;
-    let observed = producer.finish(read);
-    let value = observed.scalar_read_value_v2(&source.source, &source.read,
-        CallValidationContextV1::Lowering(&claims), function)?;
-    if !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
     crate::mir::builder::ordinary_new_admission::selected::emit_root_home_exit(
         builder, &mut state, &claims, input.owner(), &source.site, value)?;
-    Ok((value, observed, claims.source_loop_return_bindings_v2(product, source)?))
+    Ok((value, read, claims.source_loop_return_bindings_v2(product, source)?))
 }
 
 pub(super) fn emit_array_append(
@@ -60,14 +82,87 @@ pub(super) fn emit_array_append(
         return Err(freeze("array-append-source-drift"));
     }
     let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
-        source: holder, call, candidate, ..
+        source: holder, call, candidate, prior_homes, ..
     } = observation else { return Err(freeze("array-append-purpose")); };
     if call != &site { return Err(freeze("array-append-source-drift")); }
     let original = input.function().method_calls().find(|(original, _)| *original == site.site())
         .map(|(_, call)| call).ok_or_else(|| freeze("array-append-original-missing"))?;
+    let (argument_frame, nested_argument_frames) = if holder.is_dynamic_carrier_append_only_v1() {
+        let frames = product
+            .source
+            .body_expressions
+            .iter()
+            .filter(|plan| plan.source().root().statement() == statement)
+            .filter_map(|plan| plan.argument_frame())
+            .cloned()
+            .collect::<Vec<_>>();
+        let source_ledger = input
+            .forest()
+            .callable_source_ledger(input.owner())
+            .map_err(|_| freeze("array-append/source-ledger"))?;
+        let mut append_frames = Vec::new();
+        for frame in &frames {
+            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                call: argument_call,
+                ordinal,
+                ..
+            } = frame.source().root() else {
+                return Err(freeze("array-append/dynamic-argument-purpose"));
+            };
+            let argument_matches = argument_call
+                .arguments()
+                .get(*ordinal as usize)
+                .is_some_and(|argument| {
+                    argument.ordinal() == *ordinal
+                        && frame
+                            .source()
+                            .nodes()
+                            .first()
+                            .is_some_and(|root| root.site() == argument.site())
+                });
+            let source_identity = source_ledger
+                .method_call_source_v1(argument_call.site())
+                .is_some_and(|original| std::sync::Arc::ptr_eq(original, argument_call));
+            let append_frame = argument_call.owner() == call.owner()
+                && argument_call.site() == call.site()
+                && *ordinal == 0
+                && argument_call
+                    .arguments()
+                    .first()
+                    .is_some_and(|argument| argument.site() == candidate.site())
+                && frame.is_dynamic_carrier_append_v1()
+                && frame.source_loan().dynamic_array_carrier_append_v1() == Some(holder);
+            let candidate_frame = argument_call.owner() == call.owner()
+                && argument_call.site() == candidate.site();
+            if !source_identity
+                || !argument_matches
+                || !(append_frame || candidate_frame)
+                || !std::rc::Rc::ptr_eq(frame.source(), frame.source_loan().plan())
+                || !frame.evaluation().reference_coverage_is_exact()
+                || frame.prior_homes() != prior_homes.as_ref()
+            {
+                return Err(freeze("array-append/dynamic-argument-frame-drift"));
+            }
+            if append_frame {
+                append_frames.push(std::rc::Rc::clone(frame));
+            }
+        }
+        if append_frames.len() != 1 {
+            return Err(freeze("array-append/dynamic-argument-frame-missing"));
+        }
+        (append_frames.pop(), frames)
+    } else {
+        (None, Vec::new())
+    };
     let source = context(port, statement.node())?;
     port.with_prepared_child_source_v1(source, |port| {
-        let packet = port.emit_owned_array_append_v1(builder, original.selector(), original.arity() as usize)?
+        let packet = port.emit_owned_array_append_v1(
+            builder,
+            original.selector(),
+            original.arity() as usize,
+            argument_frame,
+            &nested_argument_frames,
+        )?
             .ok_or_else(|| freeze("array-append-source-missing"))?;
         if !packet.source().matches_original_v1(holder, candidate) {
             return Err(freeze("array-append-source-drift"));
@@ -250,9 +345,11 @@ pub(super) fn emit_binding(
             if declaration != statement || relation.binding() != frame.binding() {
                 return Err(freeze("initializer-declaration"));
             }
-            let source = context(port, statement.node())?;
-            let completed = port.with_prepared_child_source_v1(source, |port| {
-                port.lower_callable_local_with_receipt_v2(builder, original.node().clone())
+            let completed = port.with_source_loop_product_v2(Rc::clone(product), |port| {
+                let source = context(port, statement.node())?;
+                port.with_prepared_child_source_v1(source, |port| {
+                    port.lower_callable_local_with_receipt_v2(builder, original.node().clone())
+                })
             })?;
             // The sole Local owner already installed state and consumed/published
             // its checked lease. Borrow its real ordinal, not a synthetic receipt.
@@ -271,9 +368,13 @@ pub(super) fn emit_binding(
                 return Err(freeze("rebind-source-drift"));
             }
             claims.validate_rebind_expression_source_v1(frame)?;
-            let source = context(port, statement.node())?;
-            port.with_prepared_child_source_v1(source, |port| {
-                port.lower_callable_binding_rebind_v1(builder, original.node().clone())
+            // Rebind consumes this same Loop's lifecycle transition. Keep the
+            // original product in scope just as for initializer descent.
+            port.with_source_loop_product_v2(Rc::clone(product), |port| {
+                let source = context(port, statement.node())?;
+                port.with_prepared_child_source_v1(source, |port| {
+                    port.lower_callable_binding_rebind_v1(builder, original.node().clone())
+                })
             })
         }
         _ => Err(freeze("binding-frame-purpose")),

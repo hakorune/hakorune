@@ -21,14 +21,29 @@ fn ordered_projection_uses_exact_scalar_and_original_nested_result() {
         2,
         "arity follows ordinals, not recorded instruction count"
     );
-    let invoke = (BasicBlockId(1), MirInstruction::Invoke {
-        operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
-        fault_frame: ValueId(5), normal_landing: BasicBlockId(2), fault_landing: BasicBlockId(3),
-    });
-    assert!(EmittedLexicalCallProjectionV1::from_unit_source(
-        CallPacketSourceV1::instance(row), prepared, invoke, BasicBlockId(2),
-    ).unwrap_err().contains("unit-call/normal-source-drift"),
-        "a physical Unit opcode cannot upgrade the original value result authority");
+    let invoke = (
+        BasicBlockId(1),
+        MirInstruction::Invoke {
+            operation: InvokeOperation::Call {
+                call,
+                result: InvokeCallResultKind::Unit,
+            },
+            fault_frame: ValueId(5),
+            normal_landing: BasicBlockId(2),
+            fault_landing: BasicBlockId(3),
+        },
+    );
+    assert!(
+        EmittedLexicalCallProjectionV1::from_unit_source(
+            CallPacketSourceV1::instance(row),
+            prepared,
+            invoke,
+            BasicBlockId(2),
+        )
+        .unwrap_err()
+        .contains("unit-call/normal-source-drift"),
+        "a physical Unit opcode cannot upgrade the original value result authority"
+    );
 }
 
 #[test]
@@ -78,11 +93,21 @@ fn ordered_projection_refuses_nested_target_landing_and_literal_drift() {
             1 => inner.projection.value_mut().unwrap().0 = BasicBlockId(999),
             2 => {
                 let value_projection = inner.projection.value().unwrap().clone();
-                inner.projection = NormalCallProjectionV1::Unit { normal_landing: BasicBlockId(7) };
-                assert!(inner.projection.value().unwrap_err().contains("unit-call-has-no-value"));
-                assert!(inner.validate_normal_recorded(&[inner.invoke.clone()], None).is_ok());
-                assert!(inner.validate_normal_recorded(&[inner.invoke.clone(), value_projection], None)
-                    .unwrap_err().contains("unit-call/unexpected-value-projection"));
+                inner.projection = NormalCallProjectionV1::Unit {
+                    normal_landing: BasicBlockId(7),
+                };
+                assert!(inner
+                    .projection
+                    .value()
+                    .unwrap_err()
+                    .contains("unit-call-has-no-value"));
+                assert!(inner
+                    .validate_normal_recorded(&[inner.invoke.clone()], None)
+                    .is_ok());
+                assert!(inner
+                    .validate_normal_recorded(&[inner.invoke.clone(), value_projection], None)
+                    .unwrap_err()
+                    .contains("unit-call/unexpected-value-projection"));
             }
             _ => {
                 let LexicalCallArgumentProjectionV1::Integer((
@@ -104,15 +129,31 @@ fn ordered_projection_refuses_nested_target_landing_and_literal_drift() {
 #[test]
 fn original_literal_argument_rejects_wrong_initial_producer_without_packet_authority() {
     let (_, row, source) = lexical_call_projection_test_fixture();
-    let LocalCallArgumentV1::CallResult(inner) = &source[1] else { panic!("original nested call") };
-    let LocalCallArgumentV1::Integer(literal) = inner.arguments()[0] else { panic!("original literal") };
+    let LocalCallArgumentV1::CallResult(inner) = &source[1] else {
+        panic!("original nested call")
+    };
+    let LocalCallArgumentV1::Integer(literal) = inner.arguments()[0] else {
+        panic!("original literal")
+    };
     for actual in [literal, literal + 1] {
-        let projection = LexicalCallArgumentProjectionV1::Integer((BasicBlockId(1), MirInstruction::Const {
-            dst: ValueId(80), value: crate::mir::ConstValue::Integer(actual),
-        }));
-        let result = projection.value_for_source_v1(&inner.arguments()[0], row.call_site().owner(),
-            inner.site().site(), None, None);
-        if actual == literal { assert_eq!(result.unwrap(), ValueId(80)); }
-        else { assert!(result.unwrap_err().contains("argument-projection-drift")); }
+        let projection = LexicalCallArgumentProjectionV1::Integer((
+            BasicBlockId(1),
+            MirInstruction::Const {
+                dst: ValueId(80),
+                value: crate::mir::ConstValue::Integer(actual),
+            },
+        ));
+        let result = projection.value_for_source_v1(
+            &inner.arguments()[0],
+            row.call_site().owner(),
+            inner.site().site(),
+            None,
+            None,
+        );
+        if actual == literal {
+            assert_eq!(result.unwrap(), ValueId(80));
+        } else {
+            assert!(result.unwrap_err().contains("argument-projection-drift"));
+        }
     }
 }

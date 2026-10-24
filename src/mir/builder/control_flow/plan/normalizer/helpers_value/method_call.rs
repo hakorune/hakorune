@@ -163,10 +163,16 @@ impl super::super::PlanNormalizer {
                     } else if let Some(value_id) =
                         Self::lookup_variable_value(builder, phi_bindings, name)
                     {
+                        let receiver = port
+                            .child_expr(input, ExprChildRoleV1::Receiver)
+                            .map_err(|error| error.render())?;
+                        let object_id = port
+                            .exact_source_variable_value(&receiver, phi_bindings)?
+                            .unwrap_or(value_id);
                         arg_effects.push(CoreEffectPlan::MethodCall {
                             source: call_source.clone(),
                             dst: Some(result_id),
-                            object: value_id,
+                            object: object_id,
                             method: method.clone(),
                             args: arg_ids,
                             effects: EffectMask::PURE.add(Effect::Io),

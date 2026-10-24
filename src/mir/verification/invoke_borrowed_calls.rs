@@ -239,6 +239,12 @@ pub(super) fn original_call_slots(
         image.field_reads.push(row);
         Ok(())
     })?;
+    source.visit_finished_map_field_installs_v1(module, |function, binding| {
+        let row = (function.signature.name.clone(), binding);
+        if image.field_writes.contains(&row) { return Err("borrowed-source-coordinate-duplicate".into()); }
+        image.field_writes.push(row);
+        Ok(())
+    })?;
     let mut source_only = Vec::new();
     for symbol in selected.difference(&callees) {
         let mut keys = module

@@ -12,12 +12,18 @@ impl RootHomeCleanupOrderV1 {
     ) -> InvokeCallResultKind {
         if let Some((_, loan, _)) = &self.scalar {
             return match loan.kind() {
-                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => InvokeCallResultKind::I64,
-                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => InvokeCallResultKind::Bool,
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => {
+                    InvokeCallResultKind::I64
+                }
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => {
+                    InvokeCallResultKind::Bool
+                }
             };
         }
         if let Some(source) = &self.stored_map_get {
-            return InvokeCallResultKind::BorrowedNullableHandle { support: source.parts().0.result_support_v1() };
+            return InvokeCallResultKind::BorrowedNullableHandle {
+                support: source.parts().0.result_support_v1(),
+            };
         }
         self.direct
             .as_ref()
@@ -28,7 +34,8 @@ impl RootHomeCleanupOrderV1 {
         &mut self,
         source: DirectRootCleanupSourceV1,
     ) -> Result<(), String> {
-        if self.direct.is_some() || self.scalar.is_some()
+        if self.direct.is_some()
+            || self.scalar.is_some()
             || self
                 .full
                 .iter()
@@ -44,9 +51,16 @@ impl RootHomeCleanupOrderV1 {
         exit: crate::mir::resolved_semantics::SourceStmtSiteV1,
         loan: crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
     ) -> Result<(), String> {
-        if self.direct.is_some() || self.scalar.is_some()
-            || self.full.iter().any(|origin| origin.exit() != &exit || matches!(origin.subject(),
-                RootHomeReleaseSubjectV1::DirectResult { .. } | RootHomeReleaseSubjectV1::DirectResultField { .. }))
+        if self.direct.is_some()
+            || self.scalar.is_some()
+            || self.full.iter().any(|origin| {
+                origin.exit() != &exit
+                    || matches!(
+                        origin.subject(),
+                        RootHomeReleaseSubjectV1::DirectResult { .. }
+                            | RootHomeReleaseSubjectV1::DirectResultField { .. }
+                    )
+            })
         {
             return Err(freeze("scalar-result-source-drift"));
         }
@@ -100,37 +114,71 @@ impl RootHomeCleanupOrderV1 {
     ) -> Result<(), String> {
         self.validate_fresh_result_cleanup(ledger, owner, exit, entry)?;
         if let Some((original_exit, loan, value)) = &self.scalar {
-            let current = ledger.verified_terminal_call_source_v1(owner, exit)?
+            let current = ledger
+                .verified_terminal_call_source_v1(owner, exit)?
                 .ok_or_else(|| freeze("scalar-result-terminal-missing"))?;
-            if original_exit != exit || loan.source().call_site().owner() != owner
-                || current.legacy_terminal().and_then(|terminal| terminal.source_scalar()) != Some(loan)
+            if original_exit != exit
+                || loan.source().call_site().owner() != owner
+                || current
+                    .legacy_terminal()
+                    .and_then(|terminal| terminal.source_scalar())
+                    != Some(loan)
                 || current.result() != self.ingress_result_kind()
-                || ledger.callable_scalar_result_source_v1(loan.source().callee_owner())?.is_none()
-            { return Err(freeze("scalar-result-terminal-drift")); }
+                || ledger
+                    .callable_scalar_result_source_v1(loan.source().callee_owner())?
+                    .is_none()
+            {
+                return Err(freeze("scalar-result-terminal-drift"));
+            }
             let value = value.ok_or_else(|| freeze("scalar-result-unbound"))?;
-            let RootHomeExitEntry::Call { row: crate::mir::normal_callable_semantic_package::RootCallDispositionV1::Lexical(packet), invoke, projection, .. } = entry
-            else { return Err(freeze("scalar-result-entry-kind")); };
+            let RootHomeExitEntry::Call {
+                row:
+                    crate::mir::normal_callable_semantic_package::RootCallDispositionV1::Lexical(packet),
+                invoke,
+                projection,
+                ..
+            } = entry
+            else {
+                return Err(freeze("scalar-result-entry-kind"));
+            };
             let row = packet.original_row()?;
-            if row.scalar_result_source_v1() != Some(loan) || row.source_target() != loan.source()
+            if row.scalar_result_source_v1() != Some(loan)
+                || row.source_target() != loan.source()
                 || row.result() != Some(self.ingress_result_kind())
                 || packet.call_site() != loan.source().call_site()
-                || self.full.iter().any(|origin| matches!(origin.subject(),
-                    RootHomeReleaseSubjectV1::DirectResult { .. } | RootHomeReleaseSubjectV1::DirectResultField { .. }))
-            { return Err(freeze("scalar-result-packet-identity")); }
+                || self.full.iter().any(|origin| {
+                    matches!(
+                        origin.subject(),
+                        RootHomeReleaseSubjectV1::DirectResult { .. }
+                            | RootHomeReleaseSubjectV1::DirectResultField { .. }
+                    )
+                })
+            {
+                return Err(freeze("scalar-result-packet-identity"));
+            }
             let project = |binding: &(BasicBlockId, MirInstruction)| match mapping {
-                Some(mapping) => mapping.binding(binding.0, &binding.1)?.ok_or_else(|| freeze("scalar-result-binding-missing")),
+                Some(mapping) => mapping
+                    .binding(binding.0, &binding.1)?
+                    .ok_or_else(|| freeze("scalar-result-binding-missing")),
                 None => Ok(binding.clone()),
             };
             let invoke = project(invoke)?;
             let projection = project(projection)?;
-            let returns = bindings.iter().filter_map(|binding| match &binding.1 {
-                MirInstruction::Return { .. } => Some(project(binding)), _ => None,
-            }).collect::<Result<Vec<_>, _>>()?;
+            let returns = bindings
+                .iter()
+                .filter_map(|binding| match &binding.1 {
+                    MirInstruction::Return { .. } => Some(project(binding)),
+                    _ => None,
+                })
+                .collect::<Result<Vec<_>, _>>()?;
             if !matches!(&invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { result, call }, .. }
                 if *result == self.ingress_result_kind() && call.dst.is_none())
                 || !matches!(projection.1, MirInstruction::InvokeNormalResult { dst, invoke_block } if dst == value && invoke_block == invoke.0)
-                || returns.len() != 1 || !matches!(returns[0].1, MirInstruction::Return { value: Some(dst) } if dst == value)
-            { return Err(freeze("scalar-result-physical-attachment")); }
+                || returns.len() != 1
+                || !matches!(returns[0].1, MirInstruction::Return { value: Some(dst) } if dst == value)
+            {
+                return Err(freeze("scalar-result-physical-attachment"));
+            }
             return Ok(());
         }
         let Some((source, value)) = &self.direct else {

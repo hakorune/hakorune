@@ -758,6 +758,7 @@ mod installation_tests {
                 &mut |_| None,
                 &mut |_| None,
                 &mut |_| None,
+                &mut |_| None,
                 &mut |_| Ok(None),
                 &mut |plan| installation.approve(plan),
                 &mut |fields, _| {
@@ -819,6 +820,7 @@ mod installation_tests {
         assert!(qualify_print_expression_v1::<()>(
             source,
             &[],
+            &mut |_| None,
             &mut |_| None,
             &mut |_| None,
             &mut |_| None,
@@ -1272,6 +1274,8 @@ mod installation_tests {
             let frame = qualify_initializer_expression_v1::<()>(
                 prepared,
                 &[],
+                &[],
+                &mut |_| None,
                 None,
                 &mut |_| None,
                 &mut |_, _, _| None,

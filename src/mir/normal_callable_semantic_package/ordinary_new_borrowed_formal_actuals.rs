@@ -9,6 +9,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallActualCandidateV1, BorrowedCallActualValueV1, LocalCallArgumentV1, SourceScalarKind,
 };
 use std::collections::BTreeMap;
+use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_formal_actual_model.rs"]
 mod model;
@@ -123,6 +124,114 @@ pub(super) fn revalidate_passive_object_incoming_v1(
 
 pub(in crate::mir::normal_callable_semantic_package) type PendingBorrowedFormalActualsV1 =
     BTreeMap<OwnedExprSiteV1, Result<PreparedBorrowedCallActualsV1, String>>;
+
+/// Retain the exact Dynamic target's argument expression plans in its one
+/// pending actual row. Dynamic invocation has no callee formal contract; the
+/// source-bound operation supplies the I64 argument contract instead.
+pub(in crate::mir::normal_callable_semantic_package) fn prepare_dynamic_invocation_argument_actuals_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    target: &crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+    previous: Option<&Result<PreparedBorrowedCallActualsV1, String>>,
+) -> Result<PreparedBorrowedCallActualsV1, String> {
+    use crate::mir::resolved_value_profile::expression_plan::{
+        call_argument_expression_source_plan_v1, ExpressionPlanRootV1,
+    };
+    let reject = || freeze("dynamic-argument/source-identity");
+    if input.owner() != target.owner()
+        || target.result_site() != target.call_site()
+        || target.receiver_binding().owner() != input.owner()
+        || target.dynamic_origin().owner() != input.owner()
+        || target.arguments().len() != actuals.len()
+        || target.dispatch().arity() as usize != actuals.len()
+    {
+        return Err(reject());
+    }
+    let method = input
+        .function()
+        .method_call_source_v1(target.call_site())
+        .ok_or_else(reject)?;
+    if method.owner() != input.owner()
+        || method.receiver_site() != target.receiver_site()
+        || method.arity() != target.dispatch().arity()
+        || method.arguments().len() != target.arguments().len()
+    {
+        return Err(reject());
+    }
+    for (index, (candidate, original)) in actuals.iter().zip(target.arguments()).enumerate() {
+        if candidate.ordinal as usize != index
+            || candidate.ordinal != original.ordinal()
+            || &candidate.site != original.site()
+            || method.arguments().get(index).is_none_or(|argument| {
+                argument.ordinal() != candidate.ordinal || argument.site() != &candidate.site
+            })
+        {
+            return Err(reject());
+        }
+    }
+
+    let source = crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1::from_admitted_target_v1(target);
+    let previous = previous
+        .map(|row| row.as_ref().map_err(|_| reject()))
+        .transpose()?;
+    let old = previous.and_then(|row| row.dynamic_invocation_arguments.as_ref());
+    if let Some(old) = old {
+        if old.source != source || old.candidates.as_ref() != actuals {
+            return Err(reject());
+        }
+    } else if previous.is_some() {
+        return Err(reject());
+    }
+
+    let mut arguments = BTreeMap::new();
+    let mut ordered_arguments = Vec::with_capacity(actuals.len());
+    for candidate in actuals {
+        let plan = if let Some(slot) = old.and_then(|old| old.arguments.get(&candidate.ordinal)) {
+            let plan = match slot {
+                ArgumentExpressionV1::Source(plan) => Rc::clone(plan),
+                ArgumentExpressionV1::Qualified(frame) => Rc::clone(frame.source()),
+            };
+            let ExpressionPlanRootV1::CallArgument {
+                call: original,
+                ordinal,
+                ..
+            } = plan.root() else {
+                return Err(reject());
+            };
+            if !std::sync::Arc::ptr_eq(original, &method)
+                || *ordinal != candidate.ordinal
+                || plan.nodes().first().is_none_or(|node| node.site() != &candidate.site)
+            {
+                return Err(reject());
+            }
+            slot.clone()
+        } else {
+            call_argument_expression_source_plan_v1(input, &method, candidate.ordinal)
+                .map_err(|_| reject())?
+                .into()
+        };
+        if arguments.insert(candidate.ordinal, plan).is_some() {
+            return Err(reject());
+        }
+        ordered_arguments.push(LocalCallArgumentV1::Expression {
+            ordinal: candidate.ordinal,
+            site: candidate.site.clone(),
+        });
+    }
+    if old.is_some_and(|old| old.arguments.len() != arguments.len()) {
+        return Err(reject());
+    }
+    Ok(PreparedBorrowedCallActualsV1 {
+        phase: BorrowedCallActualEvidencePhaseV1::Executable,
+        opaque_actuals: Box::new([]),
+        ordered_arguments: ordered_arguments.into_boxed_slice(),
+        dynamic_invocation_arguments: Some(model::DynamicInvocationArgumentSourcesV1 {
+            source,
+            candidates: actuals.to_vec().into_boxed_slice(),
+            arguments,
+        }),
+    })
+}
 
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_actuals_v1(
     prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
@@ -505,6 +614,7 @@ fn construct_borrowed_call_actuals_v1(
         },
         opaque_actuals: rows.into_boxed_slice(),
         ordered_arguments: ordered_arguments.into_boxed_slice(),
+        dynamic_invocation_arguments: None,
     }))
 }
 
@@ -604,24 +714,49 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     actuals: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     results: &BorrowedResultCohortV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
-    let arguments = project_pending_borrowed_i64_arguments_v1(source, actuals, results, site)?;
+    let source_only_instance = matches!(
+        actuals.get(site),
+        Some(Ok(rows))
+            if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::SourceInstance(_))
+    );
+    let arguments = if source_only_instance {
+        instance_source::project_pending_instance_source_arguments_v1(
+            source, actuals, contracts, site,
+        )?
+    } else {
+        project_pending_borrowed_i64_arguments_v1(source, actuals, results, site)?
+    };
     let Some(arguments) = arguments else {
         return Ok(None);
     };
     let ingress = source.as_ref().map_err(Clone::clone)?;
-    let call = ingress
+    let mut calls = ingress
         .incoming
         .iter()
-        .find(|row| &row.call == site)
+        .filter(|row| &row.call == site);
+    let call = calls
+        .next()
         .ok_or_else(|| freeze("borrowed-call/source-identity"))?;
+    if calls.next().is_some()
+        || call.source.call_site() != site
+        || call.source.callee_owner() != call.callee
+        || !ingress.definitions.contains_key(&call.callee)
+    {
+        return Err(freeze("borrowed-call/source-identity"));
+    }
     let proof = results
         .get(&call.callee)
         .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
         .as_ref()
         .map_err(Clone::clone)?;
+    proof.require_source_sealed_v1()?;
+    if proof.returns.is_empty() || proof.returns.iter().any(|site| site.owner() != call.callee) {
+        return Err(freeze("borrowed-call/result-source-identity"));
+    }
     if proof.class != super::borrowed_formal_result::BorrowedResultClassV1::I64 {
         return Ok(None);
     }
@@ -705,7 +840,7 @@ mod discard_tests;
 
 #[path = "ordinary_new_borrowed_static_source_actuals.rs"]
 mod static_source;
-pub(in crate::mir::normal_callable_semantic_package) use static_source::{original_static_source_v1, project_current_owner_loop_scalar_source_v1, bind_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_dynamic_entry_read_v1, lend_finite_entry_read_v1, lend_text_entry_read_v1, lend_field_array_text_entry_read_v1, lend_argument_expression_source_v1};
+pub(in crate::mir::normal_callable_semantic_package) use static_source::{original_static_source_v1, project_current_owner_loop_scalar_source_v1, bind_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, observed_carrier_array_append_argument_source_v1, lend_expression_core_source_v1, lend_dynamic_entry_read_v1, lend_finite_entry_read_v1, lend_text_entry_read_v1, lend_field_array_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_current_owner_static_source_arguments_v1;
 #[path = "ordinary_new_borrowed_call_result_source.rs"]
 mod call_result_source;

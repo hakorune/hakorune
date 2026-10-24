@@ -41,7 +41,8 @@ mod object_input_finish;
 
 use self::direct_call_co_seal::validate_cataloged_source_co_seal_v1;
 use super::core_method_source::{
-    issue_source_core_method_calls_v1, issue_source_core_method_calls_with_named_arrays_v1,
+    issue_source_core_method_calls_with_dynamic_calls_v1,
+    issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1,
 };
 
 use super::declared_instance_locator::{
@@ -350,16 +351,22 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let (source_core_method_calls, named_array_field_providers) = match brand_catalog {
-        Some(brands) => issue_source_core_method_calls_with_named_arrays_v1(
+        Some(brands) => issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
             &catalog,
             &batch,
             &selected,
             brands,
             &instance_constructors,
+            &dynamic_source_calls,
         ),
         // Without the declaration authority, this entry cannot issue a
         // conditional Named receiver contract. Production supplies the catalog.
-        None => issue_source_core_method_calls_v1(&catalog, &batch, &selected)
+        None => issue_source_core_method_calls_with_dynamic_calls_v1(
+            &catalog,
+            &batch,
+            &selected,
+            &dynamic_source_calls,
+        )
             .map(|calls| (calls, Default::default())),
     }
     .map_err(|error| NormalCallableSemanticPackageIssueV1::CoreMethodSource { _error: error })?;

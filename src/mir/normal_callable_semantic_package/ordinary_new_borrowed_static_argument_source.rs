@@ -2,7 +2,7 @@
 use super::*;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_value_profile::expression_plan::{
-    ExpressionPlanRootV1, ExpressionSourcePlanV1,
+    call_argument_expression_source_plan_v1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 
 /// Original outer Call and ordinal identity, independent of the value's class.
@@ -376,12 +376,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
 enum ArgumentMethodSourceV1 {
     Core(Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>),
     OrdinaryText(Rc<StaticIncomingSourceV1>),
+    DynamicArrayCarrierAppend(
+        crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1,
+    ),
 }
 impl PartialEq for ArgumentMethodSourceV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Core(a), Self::Core(b)) => Rc::ptr_eq(a, b),
             (Self::OrdinaryText(a), Self::OrdinaryText(b)) => Rc::ptr_eq(a, b),
+            (Self::DynamicArrayCarrierAppend(a), Self::DynamicArrayCarrierAppend(b)) => a == b,
             _ => false,
         }
     }
@@ -394,6 +398,14 @@ impl ArgumentMethodSourceV1 {
             _ => None,
         }
     }
+    fn dynamic_array_carrier_append(
+        &self,
+    ) -> Option<&crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1> {
+        match self {
+            Self::DynamicArrayCarrierAppend(source) => Some(source),
+            _ => None,
+        }
+    }
 }
 
 /// One original source loan, never an evaluation, entry or ownership grant.
@@ -403,12 +415,15 @@ pub(crate) struct ArgumentExpressionSourceLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
     i64_result: bool,
     calls: BTreeMap<usize, ArgumentMethodSourceV1>,
+    dynamic_array_carrier_append:
+        Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>,
 }
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.plan, &other.plan)
             && self.i64_result == other.i64_result
             && self.calls == other.calls
+            && self.dynamic_array_carrier_append == other.dynamic_array_carrier_append
     }
 }
 impl Eq for ArgumentExpressionSourceLoanV1 {}
@@ -418,6 +433,41 @@ impl ArgumentExpressionSourceLoanV1 {
     }
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.plan
+    }
+    pub(crate) fn dynamic_array_carrier_append_v1(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1> {
+        self.dynamic_array_carrier_append.as_ref()
+    }
+    pub(crate) fn dynamic_array_carrier_call_is_v1(&self, site: &SourceExprSiteV1) -> bool {
+        self.calls.iter().any(|(node, source)| {
+            source.dynamic_array_carrier_append().is_some_and(|original| {
+                original.owner() == self.plan.owner()
+                    && original.call_site() == site
+                    && self.plan.nodes().get(*node).is_some_and(|node| node.site() == site)
+            })
+        })
+    }
+    pub(crate) fn dynamic_array_carrier_append_root_v1(&self) -> bool {
+        let Some(holder) = self.dynamic_array_carrier_append.as_ref() else {
+            return false;
+        };
+        let Some(root) = self.plan.nodes().first() else {
+            return false;
+        };
+        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+            call,
+            ordinal,
+            ..
+        } = self.plan.root()
+        else {
+            return false;
+        };
+        *ordinal < call.arity()
+            && holder.binding().owner() == self.plan.owner()
+            && holder
+                .append_candidate(&OwnedExprSiteV1::new(self.plan.owner(), call.site().clone()))
+                .is_some_and(|candidate| candidate.site() == root.site())
     }
     pub(crate) fn ordinary_text_call_is(&self, site: &SourceExprSiteV1) -> bool {
         self.calls.iter().any(|(node, source)| matches!(source, ArgumentMethodSourceV1::OrdinaryText(original)
@@ -866,6 +916,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             || frame.evaluation().root_class()
                 != Leaf::Value(if original.requires_i64_v1() {
                     Class::I64
+                } else if original.dynamic_array_carrier_append_root_v1()
+                    && original
+                        .plan()
+                        .nodes()
+                        .first()
+                        .is_some_and(|root| original.dynamic_array_carrier_call_is_v1(root.site()))
+                {
+                    Class::Dynamic
                 } else {
                     Class::String
                 })
@@ -885,6 +943,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
     lend_argument_source_inner_v1(prepared, pending, Some(contracts), site, ordinal)
 }
+pub(in crate::mir::normal_callable_semantic_package) fn lend_array_carrier_append_argument_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    pending: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    site: &OwnedExprSiteV1,
+    ordinal: u32,
+    holder: &crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
+    lend_argument_source_inner_for_array_v1(
+        prepared,
+        pending,
+        Some(contracts),
+        site,
+        ordinal,
+        Some(holder.clone()),
+        dynamic_calls,
+    )
+}
 fn lend_argument_source_inner_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
@@ -892,11 +969,27 @@ fn lend_argument_source_inner_v1(
     site: &OwnedExprSiteV1,
     ordinal: u32,
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
+    lend_argument_source_inner_for_array_v1(prepared, pending, contracts, site, ordinal, None, &[])
+}
+fn lend_argument_source_inner_for_array_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    pending: &PendingBorrowedFormalActualsV1,
+    contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    site: &OwnedExprSiteV1,
+    ordinal: u32,
+    dynamic_array_carrier_append: Option<
+        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    >,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
     let rows = pending
         .get(site)
         .ok_or_else(|| freeze("borrowed-static/source-unobserved"))?
         .as_ref()
         .map_err(Clone::clone)?;
+    if let Some(source) = dynamic_invocation_argument_source_v1(rows, site, ordinal)? {
+        return Ok(Some(source));
+    }
     let Some(identity) = argument_source_identity_v1(prepared, contracts, rows, site)? else {
         return Ok(None);
     };
@@ -909,6 +1002,18 @@ fn lend_argument_source_inner_v1(
         .slots
         .get(&ordinal)
         .ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
+    let dynamic_array_carrier_append = match dynamic_array_carrier_append {
+        Some(holder)
+            if holder.is_dynamic_carrier_append_only_v1()
+                && holder.binding().owner() == plan.owner()
+                && matches!(plan.root(), ExpressionPlanRootV1::CallArgument {
+                    call: original, ordinal: original_ordinal, ..
+                } if *original_ordinal == ordinal
+                    && holder.append_candidate(&OwnedExprSiteV1::new(plan.owner(), original.site().clone()))
+                        .is_some_and(|candidate| plan.nodes().first().is_some_and(|node| node.site() == candidate.site()))) => Some(holder),
+        Some(_) => return Ok(None),
+        None => None,
+    };
     let mut calls = BTreeMap::new();
     let mut call_inputs: Vec<&SourceExprSiteV1> = Vec::new();
     for (node, original) in plan.nodes().iter().enumerate() {
@@ -930,6 +1035,22 @@ fn lend_argument_source_inner_v1(
         let site = OwnedExprSiteV1::new(plan.owner(), original.site().clone());
         if let Some(core) = prepared.ordinary_core_source_v1(&site) {
             calls.insert(node, ArgumentMethodSourceV1::Core(Rc::clone(core)));
+        } else if node == 0 && dynamic_array_carrier_append.is_some() {
+            let mut matches = dynamic_calls.iter().filter(|source| {
+                source.owner() == plan.owner() && source.call_site() == site.site()
+            });
+            if let Some(dynamic) = matches.next() {
+                if matches.next().is_some()
+                    || dynamic.result_site() != site.site()
+                {
+                    return Err(freeze("borrowed-static/dynamic-array-append-source"));
+                }
+                calls.insert(
+                    node,
+                    ArgumentMethodSourceV1::DynamicArrayCarrierAppend(dynamic.clone()),
+                );
+            }
+            call_inputs.push(original.site());
         } else {
             if let Some(original) = original_static_source_v1(prepared, &site)? {
                 if let Some(source) =
@@ -946,10 +1067,20 @@ fn lend_argument_source_inner_v1(
             return Ok(None);
         };
         let original = match source {
-            ArgumentMethodSourceV1::Core(core) => core.source().source(),
-            ArgumentMethodSourceV1::OrdinaryText(row) => row.method_source(),
+            ArgumentMethodSourceV1::Core(core) => Some(core.source().source()),
+            ArgumentMethodSourceV1::OrdinaryText(row) => Some(row.method_source()),
+            ArgumentMethodSourceV1::DynamicArrayCarrierAppend(_) => {
+                if source
+                    .dynamic_array_carrier_append()
+                    .is_some_and(|dynamic| dynamic.call_site() == &candidate.site)
+                {
+                    None
+                } else {
+                    return Err(freeze("borrowed-static/dynamic-array-append-identity"));
+                }
+            }
         };
-        if !std::sync::Arc::ptr_eq(method, original) {
+        if original.is_some_and(|original| !std::sync::Arc::ptr_eq(method, original)) {
             return Err(freeze("borrowed-static/core-source-identity"));
         }
     }
@@ -971,6 +1102,85 @@ fn lend_argument_source_inner_v1(
         plan: Rc::clone(plan),
         i64_result,
         calls,
+        dynamic_array_carrier_append,
+    }))
+}
+
+fn dynamic_invocation_argument_source_v1(
+    rows: &PreparedBorrowedCallActualsV1,
+    site: &OwnedExprSiteV1,
+    ordinal: u32,
+) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
+    let Some(dynamic) = rows.dynamic_invocation_arguments.as_ref() else {
+        return Ok(None);
+    };
+    let reject = || freeze("dynamic-argument/source-identity");
+    let target = dynamic.source.target();
+    if site.owner() != target.owner()
+        || dynamic.source.call_site() != site
+        || dynamic.candidates.len() != target.arguments().len()
+        || dynamic.arguments.len() != dynamic.candidates.len()
+        || rows.ordered_arguments.len() != dynamic.candidates.len()
+    {
+        return Err(reject());
+    }
+    for (index, (candidate, original)) in dynamic
+        .candidates
+        .iter()
+        .zip(target.arguments())
+        .enumerate()
+    {
+        let ordered = rows.ordered_arguments.get(index);
+        if candidate.ordinal as usize != index
+            || candidate.ordinal != original.ordinal()
+            || &candidate.site != original.site()
+            || dynamic.source.argument_sites().get(index) != Some(&candidate.site)
+            || !matches!(ordered, Some(LocalCallArgumentV1::Expression { ordinal, site })
+                if *ordinal == candidate.ordinal && site == &candidate.site)
+        {
+            return Err(reject());
+        }
+    }
+    let candidate = dynamic
+        .candidates
+        .get(ordinal as usize)
+        .filter(|candidate| candidate.ordinal == ordinal)
+        .ok_or_else(reject)?;
+    let slot = dynamic.arguments.get(&ordinal).ok_or_else(reject)?;
+    let plan = match slot {
+        ArgumentExpressionV1::Source(plan) => Rc::clone(plan),
+        ArgumentExpressionV1::Qualified(frame) => Rc::clone(frame.source()),
+    };
+    let ExpressionPlanRootV1::CallArgument {
+        statement: _,
+        call,
+        ordinal: source_ordinal,
+    } = plan.root()
+    else {
+        return Err(reject());
+    };
+    if *source_ordinal != ordinal
+        || plan.owner() != site.owner()
+        || call.owner() != site.owner()
+        || call.site() != site.site()
+        || call.arity() != target.dispatch().arity()
+        || call.arguments().len() != target.arguments().len()
+        || call
+            .arguments()
+            .iter()
+            .zip(target.arguments())
+            .any(|(actual, original)| {
+                actual.ordinal() != original.ordinal() || actual.site() != original.site()
+            })
+        || plan.nodes().first().is_none_or(|node| node.site() != &candidate.site)
+    {
+        return Err(reject());
+    }
+    Ok(Some(ArgumentExpressionSourceLoanV1 {
+        plan,
+        i64_result: true,
+        calls: BTreeMap::new(),
+        dynamic_array_carrier_append: None,
     }))
 }
 
@@ -1001,6 +1211,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
         return Ok(None);
     };
     let rows = rows.as_ref().map_err(Clone::clone)?;
+    if rows.dynamic_invocation_arguments.is_some() {
+        return dynamic_invocation_argument_source_v1(rows, site, ordinal);
+    }
     if !matches!(
         rows.phase,
         BorrowedCallActualEvidencePhaseV1::SourceStatic(_)
@@ -1118,6 +1331,102 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     lend_argument_expression_source_v1(prepared, pending, contracts, site, ordinal)
 }
 
+pub(in crate::mir::normal_callable_semantic_package) fn observed_carrier_array_append_argument_source_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &OwnedExprSiteV1,
+    ordinal: u32,
+    holder: &crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+    retained: Option<&ArgumentExpressionSourceLoanV1>,
+) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
+    if input.owner() != site.owner()
+        || holder.binding().owner() != site.owner()
+        || !holder.is_dynamic_carrier_append_only_v1()
+    {
+        return Ok(None);
+    }
+    let Some(call) = input.function().method_call_source_v1(site.site()) else {
+        return Ok(None);
+    };
+    let Some(actual) = call
+        .arguments()
+        .get(ordinal as usize)
+        .filter(|actual| actual.ordinal() == ordinal)
+    else {
+        return Ok(None);
+    };
+    if !holder
+        .append_candidate(site)
+        .is_some_and(|candidate| candidate.site() == actual.site())
+    {
+        return Ok(None);
+    }
+    let observed_plan = call_argument_expression_source_plan_v1(input, &call, ordinal)
+        .map_err(|_| freeze("array-append/dynamic-expression-plan"))?;
+    let plan = if let Some(retained) = retained {
+        if observed_plan.as_ref() != retained.plan().as_ref() {
+            return Err(freeze("array-append/dynamic-expression-source-drift"));
+        }
+        Rc::clone(retained.plan())
+    } else {
+        observed_plan
+    };
+    let Some(root) = plan.nodes().first() else {
+        return Ok(None);
+    };
+    if root.site() != actual.site()
+        || !matches!(
+            root.source(),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
+        )
+    {
+        return Ok(None);
+    }
+    let Some(method) = input.function().method_call_source_v1(root.site()) else {
+        return Ok(None);
+    };
+    let mut targets = dynamic_calls.iter().filter(|target| {
+        target.owner() == input.owner() && target.call_site() == root.site()
+    });
+    let Some(target) = targets.next() else {
+        return Ok(None);
+    };
+    if targets.next().is_some()
+        || target.result_site() != root.site()
+        || target.receiver_site() != method.receiver_site()
+        || target.dispatch().selector() != method.selector()
+        || target.dispatch().arity() != method.arity()
+        || target.arguments().len() != method.arguments().len()
+        || target
+            .arguments()
+            .iter()
+            .zip(method.arguments())
+            .any(|(source, original)| {
+                source.ordinal() != original.ordinal() || source.site() != original.site()
+            })
+    {
+        return Err(freeze("array-append/dynamic-expression-target"));
+    }
+    let source = ArgumentExpressionSourceLoanV1 {
+        plan,
+        i64_result: false,
+        calls: BTreeMap::from([(
+            0,
+            ArgumentMethodSourceV1::DynamicArrayCarrierAppend(target.clone()),
+        )]),
+        dynamic_array_carrier_append: Some(holder.clone()),
+    };
+    let accepted = source.dynamic_array_carrier_append_root_v1()
+        && source.dynamic_array_carrier_call_is_v1(actual.site());
+    if !accepted {
+        return Ok(None);
+    }
+    if retained.is_some_and(|retained| retained != &source) {
+        return Err(freeze("array-append/dynamic-source-current-drift"));
+    }
+    Ok(Some(source))
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
@@ -1221,10 +1530,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_field_array_text_en
 /// Retain qualification in the SAME pending ordinal as its original source.
 /// Repeated completion within one observation reuses the exact current frame.
 pub(in crate::mir::normal_callable_semantic_package) fn complete_argument_expression_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &mut PendingBorrowedFormalActualsV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     site: &OwnedExprSiteV1,
+    dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
     frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
 ) -> Result<
     Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
@@ -1234,24 +1545,58 @@ pub(in crate::mir::normal_callable_semantic_package) fn complete_argument_expres
     let ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = frame.source().root() else {
         return Err(reject());
     };
-    if call.owner() != site.owner()
+    if input.owner() != site.owner()
+        || call.owner() != site.owner()
         || call.site() != site.site()
         || frame.source().owner() != site.owner()
         || !frame.evaluation().reference_coverage_is_exact()
     {
         return Err(reject());
     }
-    let original =
-        lend_argument_expression_source_v1(prepared, pending, contracts, site, *ordinal)?
-            .ok_or_else(reject)?;
+    let retained_carrier = frame.source_loan().dynamic_array_carrier_append_v1();
+    let original = match retained_carrier {
+        Some(holder) => observed_carrier_array_append_argument_source_v1(
+            input,
+            site,
+            *ordinal,
+            holder,
+            dynamic_source_calls,
+            Some(frame.source_loan()),
+        )?,
+        None => lend_argument_expression_source_v1(prepared, pending, contracts, site, *ordinal)?,
+    };
+    let original = original.ok_or_else(reject)?;
     if frame.source_loan() != &original || !Rc::ptr_eq(frame.source(), original.plan()) {
         return Err(reject());
+    }
+    // A Dynamic carrier append belongs to the original Array Home walk, not
+    // to the borrowed-formal pending table for a callable argument.
+    if retained_carrier.is_some() {
+        return Ok(Rc::clone(frame));
     }
     let rows = pending
         .get_mut(site)
         .ok_or_else(reject)?
         .as_mut()
         .map_err(|error| error.clone())?;
+    if let Some(dynamic) = rows.dynamic_invocation_arguments.as_mut() {
+        let slot = dynamic.arguments.get_mut(ordinal).ok_or_else(reject)?;
+        match slot {
+            ArgumentExpressionV1::Qualified(previous) => {
+                if previous.as_ref() != frame.as_ref() {
+                    return Err(freeze("dynamic-argument/frame-current-drift"));
+                }
+                return Ok(Rc::clone(previous));
+            }
+            ArgumentExpressionV1::Source(plan) => {
+                if !Rc::ptr_eq(plan, frame.source()) {
+                    return Err(reject());
+                }
+                *slot = ArgumentExpressionV1::Qualified(Rc::clone(frame));
+                return Ok(Rc::clone(frame));
+            }
+        }
+    }
     let slots = match &mut rows.phase {
         BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) => &mut identity.argument_sources,
         BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) => {
@@ -1468,6 +1813,49 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(frame)
     }
 
+    fn root_flow_argument_expression_frame_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>>, String> {
+        let Some(flow) = self
+            .completion_for_owner(call.owner())
+            .and_then(|completion| completion.cleanup().root_flow())
+        else {
+            return Ok(None);
+        };
+        let mut matches = flow
+            .expression_plans()
+            .iter()
+            .filter_map(|plan| plan.argument_frame())
+            .filter(|frame| {
+                frame.source().owner() == call.owner()
+                    && Rc::ptr_eq(frame.source_loan().plan(), frame.source())
+                    && frame.evaluation().reference_coverage_is_exact()
+                    && matches!(
+                        frame.source().root(),
+                        ExpressionPlanRootV1::CallArgument {
+                            call: original,
+                            ordinal: original_ordinal,
+                            ..
+                        } if original.owner() == call.owner()
+                            && original.site() == call.site()
+                            && *original_ordinal == ordinal
+                            && original.arguments().get(ordinal as usize).is_some_and(|argument|
+                                argument.ordinal() == ordinal && argument.site() == site)
+                            && frame.source().nodes().first().is_some_and(|root| root.site() == site)
+                    )
+            });
+        let Some(frame) = matches.next() else {
+            return Ok(None);
+        };
+        if matches.next().is_some() {
+            return Err(freeze("argument-expression/root-flow-ambiguous"));
+        }
+        Ok(Some(Rc::clone(frame)))
+    }
+
     /// Borrow original qualification only. This issues no executable actual,
     /// entry, ABI or publication permission; those keep their original owners.
     pub(in crate::mir) fn qualified_argument_expression_frame_v1(
@@ -1479,18 +1867,47 @@ impl OrdinaryNewClaimLedgerV1 {
         Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
         String,
     > {
+        let Some(rows) = self.borrowed_formal_actuals.get(call) else {
+            let root = self.root_flow_argument_expression_frame_v1(call, ordinal, site)?;
+            let loop_frame = self.source_loop_argument_expression_frame_v2(call, ordinal, site)?;
+            let frame = match (root, loop_frame) {
+                (Some(root), Some(loop_frame)) if Rc::ptr_eq(&root, &loop_frame) => Some(root),
+                (Some(_), Some(_)) => return Err(freeze("argument-expression/root-flow-ambiguous")),
+                (Some(frame), None) | (None, Some(frame)) => Some(frame),
+                (None, None) => None,
+            };
+            return frame.ok_or_else(|| freeze("argument-expression/observation-missing"));
+        };
         let prepared = self
             .borrowed_formal_source
             .as_ref()
             .ok_or_else(|| freeze("argument-expression/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let rows = self
-            .borrowed_formal_actuals
-            .get(call)
-            .ok_or_else(|| freeze("argument-expression/observation-missing"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
+        let rows = rows.as_ref().map_err(Clone::clone)?;
+        if rows.dynamic_invocation_arguments.is_some() {
+            let original = dynamic_invocation_argument_source_v1(rows, call, ordinal)?
+                .ok_or_else(|| freeze("dynamic-argument/source-missing"))?;
+            let dynamic = rows
+                .dynamic_invocation_arguments
+                .as_ref()
+                .expect("checked Dynamic argument row");
+            let Some(ArgumentExpressionV1::Qualified(frame)) =
+                dynamic.arguments.get(&ordinal)
+            else {
+                return Err(freeze("dynamic-argument/frame-missing"));
+            };
+            if frame.source_loan() != &original
+                || !Rc::ptr_eq(frame.source(), original.plan())
+                || !frame.is_i64()
+                || !frame.evaluation().reference_coverage_is_exact()
+                || frame.source().nodes().first().is_none_or(|node| node.site() != site)
+                || dynamic.source.argument_sites().get(ordinal as usize) != Some(site)
+            {
+                return Err(freeze("dynamic-argument/frame-identity"));
+            }
+            return Ok(Rc::clone(frame));
+        }
         let contracts = self
             .original_parameter_contracts
             .as_deref()

@@ -61,6 +61,15 @@ pub enum MapInvokeOperation {
         key: super::StringInvokeOperand,
         object: hakorune_mir_defs::CanonicalObjectIdV1,
     },
+    /// Transfer the candidate into one exact field/key slot on Normal only.
+    /// The detached old value has a separate MapOutcome End obligation.
+    FieldInstallIndexed {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        key: super::StringInvokeOperand,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        value: ValueId,
+    },
     PrepareKey {
         utf8: String,
     },
@@ -139,7 +148,8 @@ impl MapInvokeOperation {
             Self::FieldHas { .. } => Some(InvokeNormalResultKind::Bool),
             Self::FieldGetIndexed { .. } => Some(InvokeNormalResultKind::BorrowedNullableHandle),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
-            Self::InstallIndexed { .. }
+            Self::FieldInstallIndexed { .. }
+            | Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
             | Self::InstallEmptyArray { .. }
@@ -156,7 +166,8 @@ impl MapInvokeOperation {
         match self {
             Self::New | Self::PrepareKey { .. } => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldHas { .. } | Self::FieldGetIndexed { .. } => EffectMask::READ.add(Effect::Control),
-            Self::InstallIndexed { .. }
+            Self::FieldInstallIndexed { .. }
+            | Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
             | Self::InstallEmptyArray { .. }
@@ -179,6 +190,8 @@ impl MapInvokeOperation {
         match self {
             Self::New | Self::PrepareKey { .. } => vec![],
             Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
+            Self::FieldInstallIndexed { base, key, value, .. } => std::iter::once(*base)
+                .chain(key.value()).chain(std::iter::once(*value)).collect(),
             Self::InstallIndexed {
                 map, key, value, ..
             }
@@ -202,6 +215,11 @@ impl MapInvokeOperation {
         match self {
             Self::New | Self::PrepareKey { .. } => {}
             Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
+            Self::FieldInstallIndexed { base, key, value, .. } => {
+                rewrite(base);
+                rewrite(value);
+                key.rewrite_value(rewrite);
+            }
             Self::InstallIndexed {
                 map, key, value, ..
             }

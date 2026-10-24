@@ -6,7 +6,10 @@ use super::{
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
     NamedArrayHolderInitializer(super::BindingRefV1),
-    NamedArrayAppendStatement(super::BindingRefV1),
+    NamedArrayAppendStatement {
+        binding: super::BindingRefV1,
+        source: &'a crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    },
     Observe(
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
         &'a [BorrowedCallActualCandidateV1],
@@ -16,7 +19,17 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
         u32,
     ),
-    CompleteArgumentExpression(&'a std::rc::Rc<super::CheckedArgumentExpressionFrameV1>),
+    /// Exact Dynamic carrier result used as the candidate of this named
+    /// append-only Array. It grants no other argument destination.
+    ArgumentExpressionCarrierArrayAppendSource {
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        ordinal: u32,
+        holder: &'a crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    },
+    CompleteArgumentExpression {
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        frame: &'a std::rc::Rc<super::CheckedArgumentExpressionFrameV1>,
+    },
     ArgumentTextEntryRead {
         source: &'a crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
         read: &'a super::SourceExprSiteV1,

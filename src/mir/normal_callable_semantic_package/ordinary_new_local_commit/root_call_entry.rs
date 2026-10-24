@@ -1,8 +1,8 @@
 //! Existing root exit progress retains the same affine Call source row.
 //! Physical observations do not issue a target, result or cleanup obligation.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
+use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1;
 
 /// A source-ordered group checked without changing the shared ledger.
 /// A selected caller may hold this through fallible draft admission; existing
@@ -53,8 +53,17 @@ impl PreparedLifecyclePrefixBindingGroupV1<'_> {
     }
 
     fn commit_after_collected(self) {
-        assert!(matches!(self.destination, source_loop_projection::LifecyclePrefixDestinationV2::Root), "scoped publication requires its prepared transaction");
-        assert!(self.group.initializer_rc().is_none() && self.group.text_residence_v1().is_none(), "Text publication requires its prepared transaction");
+        assert!(
+            matches!(
+                self.destination,
+                source_loop_projection::LifecyclePrefixDestinationV2::Root
+            ),
+            "scoped publication requires its prepared transaction"
+        );
+        assert!(
+            self.group.initializer_rc().is_none() && self.group.text_residence_v1().is_none(),
+            "Text publication requires its prepared transaction"
+        );
         self.ledger
             .root_local_call_bindings
             .borrow_mut()
@@ -87,7 +96,8 @@ impl OrdinaryNewClaimLedgerV1 {
     #[cfg(test)]
     pub(in crate::mir) fn emitted_root_exits_share_one_lexical_group_for_test(&self) -> bool {
         let exits = self.root_exits.borrow();
-        let mut sites = exits.values()
+        let mut sites = exits
+            .values()
             .filter_map(|progress| {
                 let RootHomeExitProgress::Emitted { entry, .. } = progress else {
                     return None;
@@ -193,35 +203,61 @@ impl OrdinaryNewClaimLedgerV1 {
         let packet = std::rc::Rc::new(packet);
         let group = self.prepare_local_call_binding_group(
             owner,
-            RootLifecyclePrefixBindingGroupV1::new(site, bindings, Some(std::rc::Rc::clone(&packet)))?,
+            RootLifecyclePrefixBindingGroupV1::new(
+                site,
+                bindings,
+                Some(std::rc::Rc::clone(&packet)),
+            )?,
         )?;
         Ok(PreparedRootLexicalCallBindingGroupV1 { group, packet })
     }
 
     pub(crate) fn print_expression_frame_v1(
-        &self, owner: FunctionOwnerIdV1, statement: &SourceStmtSiteV1,
-    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>>, String> {
-        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow())
-            else { return Ok(None) };
-        let mut frames = flow.expression_plans().iter().filter_map(|plan| plan.print_frame())
+        &self,
+        owner: FunctionOwnerIdV1,
+        statement: &SourceStmtSiteV1,
+    ) -> Result<
+        Option<
+            std::rc::Rc<
+                crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+            >,
+        >,
+        String,
+    > {
+        let Some(flow) = self
+            .completion_for_owner(owner)
+            .and_then(|completion| completion.cleanup().root_flow())
+        else {
+            return Ok(None);
+        };
+        let mut frames = flow
+            .expression_plans()
+            .iter()
+            .filter_map(|plan| plan.print_frame())
             .filter(|frame| frame.source().root().statement() == statement);
         let frame = frames.next().cloned();
         if frame.is_none() && flow.statement_prefix_unavailable(statement) {
             return Err(freeze("print-expression/source-unavailable"));
         }
-        if frames.next().is_some() { return Err(freeze("print-expression/duplicate-source-frame")); }
+        if frames.next().is_some() {
+            return Err(freeze("print-expression/duplicate-source-frame"));
+        }
         Ok(frame)
     }
 
     pub(crate) fn validate_print_expression_source_v1(
-        &self, frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
+        &self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+        >,
     ) -> Result<(), String> {
         let owner = frame.source().owner();
         let sources = self.expected_local_call_binding_sources(owner)?;
         let groups = self.root_local_call_bindings.borrow();
         let count = groups.get(&owner).map_or(0, Vec::len);
         if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::PrintExpression { frame: expected, .. })
-            if std::rc::Rc::ptr_eq(frame, expected)) {
+            if std::rc::Rc::ptr_eq(frame, expected))
+        {
             return Err(freeze("print-expression/source-prefix-order"));
         }
         Ok(())
@@ -230,12 +266,15 @@ impl OrdinaryNewClaimLedgerV1 {
     /// The same pool owns a complete expression prefix. Source/frame identity
     /// and ordering are checked before this pending group can be published.
     pub(crate) fn prepare_print_expression_bindings(
-        &self, owner: FunctionOwnerIdV1,
+        &self,
+        owner: FunctionOwnerIdV1,
         packet: std::rc::Rc<EmittedPrintExpressionProjectionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
-        self.prepare_local_call_binding_group(owner,
-            RootLifecyclePrefixBindingGroupV1::new_print(packet, bindings)?)
+        self.prepare_local_call_binding_group(
+            owner,
+            RootLifecyclePrefixBindingGroupV1::new_print(packet, bindings)?,
+        )
     }
 
     fn record_local_call_binding_group(
@@ -273,24 +312,48 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     /// Select the local emitter without stealing receiver-owned Object rows.
-    pub(crate) fn is_lifecycle_local_call_site_v1(&self, site: &OwnedExprSiteV1) -> Result<bool, String> {
-        if !self.lifecycle_local_call_sites.borrow().get(&site.owner())
-            .is_some_and(|sites| sites.contains(site)) { return Ok(false); }
+    pub(crate) fn is_lifecycle_local_call_site_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<bool, String> {
+        if !self
+            .lifecycle_local_call_sites
+            .borrow()
+            .get(&site.owner())
+            .is_some_and(|sites| sites.contains(site))
+        {
+            return Ok(false);
+        }
         use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1;
         let slots = self.lexical_instance_calls.borrow();
         match slots.get(site) {
-            Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source_target().borrowed_nullable_local_source().is_some() => {
+            Some(LexicalInstanceCallDispositionSlotV1::Ready(row))
+                if row
+                    .source_target()
+                    .borrowed_nullable_local_source()
+                    .is_some() =>
+            {
                 self.corroborate_borrowed_nullable_call_v1(row)?;
                 Ok(true)
             }
-            Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source_target().mixed_local_source().is_some() => {
+            Some(LexicalInstanceCallDispositionSlotV1::Ready(row))
+                if row.source_target().mixed_local_source().is_some() =>
+            {
                 self.corroborate_mixed_call_v1(row)?;
                 Ok(true)
             }
-            Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source_target().is_self_receiver() => {
-                let Some(loan) = self.lexical_i64_call_source(site)
-                    .and_then(|observation| observation.borrowed_scalar()) else { return Ok(false); };
-                if loan.source() != row.source_target() || row.scalar_result_source_v1() != Some(loan) {
+            Some(LexicalInstanceCallDispositionSlotV1::Ready(row))
+                if row.source_target().is_self_receiver() =>
+            {
+                let Some(loan) = self
+                    .lexical_i64_call_source(site)
+                    .and_then(|observation| observation.borrowed_scalar())
+                else {
+                    return Ok(false);
+                };
+                if loan.source() != row.source_target()
+                    || row.scalar_result_source_v1() != Some(loan)
+                {
                     return Err(freeze("lexical-instance-call/self-scalar-source-drift"));
                 }
                 self.checked_local_scalar_call_result_v1(row)?;
@@ -306,9 +369,12 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
-        let completion = self.completion_for_owner(owner)
+        let completion = self
+            .completion_for_owner(owner)
             .ok_or_else(|| freeze("local-call-source-missing"))?;
-        let flow = completion.cleanup().root_flow()
+        let flow = completion
+            .cleanup()
+            .root_flow()
             .ok_or_else(|| freeze("local-call-source-missing"))?;
         let routed = self.lifecycle_local_call_sites.borrow();
         flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
@@ -351,7 +417,9 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         if matches!(&row, RootCallDispositionV1::Direct(_)) {
             if let RootCallDispositionV1::Direct(direct) = &row {
-                direct.physical_emission().map_err(|_| freeze("direct-source-required"))?;
+                direct
+                    .physical_emission()
+                    .map_err(|_| freeze("direct-source-required"))?;
             }
         }
         if matches!(&row, RootCallDispositionV1::PendingStatic(_)) {
@@ -364,6 +432,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("lexical-terminal/original-outer-drift"));
             }
             let mut recorded = arguments.clone();
+            recorded.extend_from_slice(&bindings);
             recorded.extend([invoke.clone(), projection.clone()]);
             packet.validate_recorded(&recorded)?;
         }
@@ -559,7 +628,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 bindings,
                 entry:
                     RootHomeExitEntry::MapGet {
-                        stored, local_bindings,
+                        stored,
+                        local_bindings,
                         invoke,
                         projection,
                         frame,
@@ -570,7 +640,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     origins,
                     bindings,
                     entry: RootHomeExitEntry::MapGet {
-                        stored, local_bindings,
+                        stored,
+                        local_bindings,
                         invoke,
                         projection,
                         frame,
@@ -588,8 +659,6 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
     }
-
-
 }
 
 impl RootHomeExitEntry {
@@ -666,7 +735,13 @@ impl RootHomeExitEntry {
                     .map(|(_, copy)| copy),
             );
         }
-        if let Self::MapGet { stored: Some(stored), .. } = self { copies.extend(stored.copy_dependencies()?); }
+        if let Self::MapGet {
+            stored: Some(stored),
+            ..
+        } = self
+        {
+            copies.extend(stored.copy_dependencies()?);
+        }
         Ok(copies)
     }
 
@@ -697,7 +772,8 @@ impl RootHomeExitEntry {
             bindings.push(frame.clone());
         }
         if let Self::MapGet {
-            stored, invoke,
+            stored,
+            invoke,
             projection,
             frame,
             ..
@@ -706,7 +782,13 @@ impl RootHomeExitEntry {
             bindings.push(invoke.clone());
             bindings.push(projection.clone());
             if let Some(stored) = stored {
-                bindings.extend(stored.bindings().iter().filter(|binding| *binding != frame).cloned());
+                bindings.extend(
+                    stored
+                        .bindings()
+                        .iter()
+                        .filter(|binding| *binding != frame)
+                        .cloned(),
+                );
             }
             bindings.push(frame.clone());
         }
@@ -718,12 +800,12 @@ mod validation;
 
 #[path = "root_call_entry/lexical_projection.rs"]
 mod lexical_projection;
+pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
     PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
-pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 
 #[path = "root_call_entry/local_binding_group.rs"]
 mod local_binding_group;
@@ -732,37 +814,53 @@ pub(crate) use local_binding_group::RootLifecyclePrefixBindingGroupV1;
 #[path = "root_call_entry/lexical_terminal.rs"]
 mod lexical_terminal;
 
-#[path = "root_call_entry/expression_projection.rs"]
-mod expression_projection;
 #[path = "root_call_entry/dynamic_invocation_expression_projection.rs"]
 mod dynamic_invocation_expression_projection;
+#[path = "root_call_entry/expression_projection.rs"]
+mod expression_projection;
 pub(in crate::mir) use dynamic_invocation_expression_projection::EmittedDynamicInvocationCallProjectionV1;
 
 #[path = "root_call_entry/print_expression_projection.rs"]
 mod print_expression_projection;
-pub(crate) use expression_projection::checked_expression_core_operation_v1;
 pub(crate) use bool_condition_projection::checked_scalar_invoke_operation_v1;
-pub(in crate::mir) use expression_projection::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
+use bool_condition_projection::scalar_condition_bindings_v1;
+pub(crate) use expression_projection::checked_expression_core_operation_v1;
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
-pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
+pub(in crate::mir) use expression_projection::{
+    validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
+    BranchScalarPhiObservationV1, BranchTextPhiObservationV1, EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1,
+    ExpressionCallTransientPrefixV1, ExpressionReferenceReadV1,
+};
 pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;
+pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
 
 #[path = "root_call_entry/owned_array_append_projection.rs"]
 mod owned_array_append_projection;
-pub(crate) use owned_array_append_projection::{EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1};
+pub(crate) use owned_array_append_projection::{
+    EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1,
+};
 
 #[path = "root_call_entry/bool_condition_projection.rs"]
 mod bool_condition_projection;
-pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use bool_condition_projection::{
+    borrowed_source_loop_phi_relations_v2, BoolConditionCursorV1, BoolConditionNodeProjectionV1,
+    BoolConditionSealV1, BoolConditionValueProofV1, EmittedBoolConditionProjectionV1,
+};
 
 #[path = "root_call_entry/field_array_append_projection.rs"]
 mod field_array_append_projection;
-pub(crate) use field_array_append_projection::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1};
+pub(crate) use field_array_append_projection::{
+    EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1,
+};
 
 #[path = "root_call_entry/borrowed_field_write_projection.rs"]
 mod borrowed_field_write_projection;
-pub(crate) use borrowed_field_write_projection::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
-pub(in crate::mir) use borrowed_field_write_projection::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
+pub(crate) use borrowed_field_write_projection::{
+    CheckedFieldWriteGraphV1, EmittedBorrowedFieldWriteV1,
+};
+pub(in crate::mir) use borrowed_field_write_projection::{
+    EmittedFieldWriteRhsV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1, FieldWriteValueV1,
+};
 
 #[path = "root_call_entry/initializer_expression_projection.rs"]
 mod initializer_expression_projection;
@@ -776,4 +874,6 @@ pub(crate) use binding_rebind_projection::EmittedBindingRebindProjectionV1;
 
 #[path = "root_call_entry/source_loop_projection.rs"]
 mod source_loop_projection;
-pub(in crate::mir) use source_loop_projection::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2};
+pub(in crate::mir) use source_loop_projection::{
+    PreparedSourceLoopPhysicalCompletionV2, SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+};

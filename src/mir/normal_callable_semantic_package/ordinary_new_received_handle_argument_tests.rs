@@ -206,7 +206,7 @@ fn received_handle_selected_target_errors_never_change_pending_or_retry_old_lane
         let result = borrowed_call_arguments_callback_v1(
             package.batch(),
             &package.selected,
-            &targets,
+            &targets, &[],
             &package.parameter_contracts,
             &candidates,
             None,

@@ -142,6 +142,9 @@ fn text_producer_is_covered(
         SourceLoopTextProducerV1::After { product, .. } => {
             port.covered.contains(product.source.source.site())
         }
+        SourceLoopTextProducerV1::BranchNormal(branch) => {
+            branch.corroborates_original() && port.covered.contains(branch.site())
+        }
     }
 }
 
@@ -152,6 +155,16 @@ fn dynamic_producer_is_covered(
     flow: &Arc<VerifiedSourceValueFlowV1>,
 ) -> bool {
     match producer {
+        SourceLoopDynamicProducerV1::Initializer(frame) => {
+            frame.is_dynamic_value() && frame.source().owner() == source.owner()
+                && port.covered.contains(frame.source().root().statement())
+                && frame.dynamic_home_binding_v1().is_some_and(|owner| port.homes.contains(&LiveHomeV1::Stable(owner)))
+        }
+        SourceLoopDynamicProducerV1::BindingRebind(frame) => {
+            frame.is_dynamic_loop_carrier_v1() && frame.source().owner() == source.owner()
+                && port.covered.contains(frame.source().root().statement())
+                && frame.evaluation().calls().iter().all(|call| port.calls.contains(call.site()))
+        }
         SourceLoopDynamicProducerV1::Source(point) => {
             if !point.proves(flow, point.binding(), point.value()) {
                 return false;

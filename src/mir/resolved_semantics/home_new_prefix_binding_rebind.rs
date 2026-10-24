@@ -82,6 +82,7 @@ pub(super) fn observe<E>(
         &mut |site| locals.static_text_reference(site),
         &mut |site| locals.text_reference(site),
         &mut |site| locals.loop_text_reference_v1(site),
+        &mut |site| locals.dynamic_invocation_result_reference_v1(site),
         &mut |site| locals.loop_dynamic_reference_v1(site),
         &mut |site| locals.current_scalar_read_v1(site, calls),
         &mut |site| field_read::expression_field_read_request(input, &source, site, locals),

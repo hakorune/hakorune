@@ -7,58 +7,98 @@ impl OrdinaryNewClaimLedgerV1 {
     fn completed_fresh_return_cleanup(
         &self,
         owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1, order: &RootHomeCleanupOrderV1,
+        exit: &SourceStmtSiteV1,
+        order: &RootHomeCleanupOrderV1,
     ) -> Result<Option<(ValueId, Vec<RootHomeReleaseOriginV1>)>, String> {
-        let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
-        else { return Ok(None) };
+        let Some(TerminalRelationV1::Value(terminal)) =
+            self.terminal_relation_for_owner_at(owner, exit)
+        else {
+            return Ok(None);
+        };
         if let TerminalReturnedSourceV1::TextExpression(source) = terminal.returned() {
-            let row = order.return_expression.as_ref().ok_or_else(|| freeze("expression/residence-original-pair"))?;
-            if !std::rc::Rc::ptr_eq(source, &row.source) || terminal.owner() != owner || terminal.return_site() != exit {
+            let row = order
+                .return_expression
+                .as_ref()
+                .ok_or_else(|| freeze("expression/residence-original-pair"))?;
+            if !std::rc::Rc::ptr_eq(source, &row.source)
+                || terminal.owner() != owner
+                || terminal.return_site() != exit
+            {
                 return Err(freeze("expression/residence-original-pair"));
             }
             let site = OwnedExprSiteV1::new(owner, terminal.value_site().clone());
-            return Ok(Some((row.value, vec![RootHomeReleaseOriginV1 {
-                subject: RootHomeReleaseSubjectV1::DirectResult { site }, exit: exit.clone().into(),
-                operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: row.value }),
-            }])));
+            return Ok(Some((
+                row.value,
+                vec![RootHomeReleaseOriginV1 {
+                    subject: RootHomeReleaseSubjectV1::DirectResult { site },
+                    exit: exit.clone().into(),
+                    operation: InvokeOperation::String(
+                        crate::mir::instruction::StringInvokeOperation::End { value: row.value },
+                    ),
+                }],
+            )));
         }
-        let TerminalReturnedSourceV1::Construction(site) = terminal.returned()
-        else { return Ok(None) };
-        if terminal.owner() != owner || terminal.return_site() != exit
+        let TerminalReturnedSourceV1::Construction(site) = terminal.returned() else {
+            return Ok(None);
+        };
+        if terminal.owner() != owner
+            || terminal.return_site() != exit
             || site != &OwnedExprSiteV1::new(owner, terminal.value_site().clone())
-        { return Err(freeze("fresh-result-cleanup/source")); }
+        {
+            return Err(freeze("fresh-result-cleanup/source"));
+        }
         let rows = self.local_commits.borrow();
-        let Some(LocalCommitV1::Result(row)) = rows.get(site)
-        else { return Err(freeze("fresh-result-cleanup/commit")) };
+        let Some(LocalCommitV1::Result(row)) = rows.get(site) else {
+            return Err(freeze("fresh-result-cleanup/commit"));
+        };
         // Preserve diagnostic-only construction unavailability. It issues no
         // End plan or artifact permission, as in the producer checker below.
-        if matches!(row.emission, NewEmissionProgress::RetainedUnavailable { .. }) {
+        if matches!(
+            row.emission,
+            NewEmissionProgress::RetainedUnavailable { .. }
+        ) {
             return Ok(None);
         }
-        if &row.site != site || !matches!(&row.construction, Ok(plan) if plan.object() == row.object)
-            || row.home_prefix.is_err() || row.argument_rows.is_err()
-        { return Err(freeze("fresh-result-cleanup/construction")); }
-        let NewEmissionProgress::Emitted { result, progress, .. } = &row.emission
-        else { return Err(freeze("fresh-result-cleanup/not-emitted")) };
+        if &row.site != site
+            || !matches!(&row.construction, Ok(plan) if plan.object() == row.object)
+            || row.home_prefix.is_err()
+            || row.argument_rows.is_err()
+        {
+            return Err(freeze("fresh-result-cleanup/construction"));
+        }
+        let NewEmissionProgress::Emitted {
+            result, progress, ..
+        } = &row.emission
+        else {
+            return Err(freeze("fresh-result-cleanup/not-emitted"));
+        };
         if !matches!(progress, EmittedLocalProgress::ExpressionCompleted)
             && !matches!(progress, EmittedLocalProgress::Checked { local } if local == result)
-        { return Err(freeze("fresh-result-cleanup/not-completed")); }
+        {
+            return Err(freeze("fresh-result-cleanup/not-completed"));
+        }
         let children = match row.destruction {
             super::super::super::ObjectDestructionDispositionV1::NUMERIC_NO_HOOK => &[][..],
-            disposition if disposition.requires_field_end() =>
-                row.children.as_deref().ok_or_else(|| freeze("fresh-result-cleanup/children"))?,
-            _ =>
-                return Err(freeze("fresh-result-cleanup/destruction")),
+            disposition if disposition.requires_field_end() => row
+                .children
+                .as_deref()
+                .ok_or_else(|| freeze("fresh-result-cleanup/children"))?,
+            _ => return Err(freeze("fresh-result-cleanup/destruction")),
         };
-        let origins = super::super::super::object_end::operations_v1(row.object, false, children, *result)
-            .map(|(field, operation)| RootHomeReleaseOriginV1 {
-                subject: match field {
-                    Some(field) => RootHomeReleaseSubjectV1::DirectResultField { site: site.clone(), field },
-                    None => RootHomeReleaseSubjectV1::DirectResult { site: site.clone() },
-                },
-                operation,
-                exit: exit.clone().into(),
-            }).collect();
+        let origins =
+            super::super::super::object_end::operations_v1(row.object, false, children, *result)
+                .map(|(field, operation)| RootHomeReleaseOriginV1 {
+                    subject: match field {
+                        Some(field) => RootHomeReleaseSubjectV1::DirectResultField {
+                            site: site.clone(),
+                            field,
+                        },
+                        None => RootHomeReleaseSubjectV1::DirectResult { site: site.clone() },
+                    },
+                    operation,
+                    exit: exit.clone().into(),
+                })
+                .collect();
         Ok(Some((*result, origins)))
     }
 
@@ -69,23 +109,37 @@ impl OrdinaryNewClaimLedgerV1 {
         value: ValueId,
     ) -> Result<(), String> {
         let mut exits = self.root_exits.borrow_mut();
-        let Some(RootHomeExitProgress::Emitting(order)) = exits.get_mut(&(owner, exit.clone().into()))
-        else { return Err(freeze("fresh-result-cleanup/not-emitting")) };
+        let Some(RootHomeExitProgress::Emitting(order)) =
+            exits.get_mut(&(owner, exit.clone().into()))
+        else {
+            return Err(freeze("fresh-result-cleanup/not-emitting"));
+        };
         // Without a Normal cleanup step there is no later cleanup Fault.
-        if order.normal().is_empty() { return Ok(()) }
+        if order.normal().is_empty() {
+            return Ok(());
+        }
         let Some((original, origins)) = self.completed_fresh_return_cleanup(owner, exit, order)?
-        else { return Ok(()) };
-        if original != value { return Err(freeze("fresh-result-cleanup/value")); }
+        else {
+            return Ok(());
+        };
+        if original != value {
+            return Err(freeze("fresh-result-cleanup/value"));
+        }
         order.prepend_fault_only_result(origins)
     }
 }
 
 impl RootHomeCleanupOrderV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn include_fresh_result_prefix_v1(
-        &mut self, ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1, original: &RootHomeCleanupOrderV1,
+        &mut self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        original: &RootHomeCleanupOrderV1,
     ) -> Result<(), String> {
-        if self.normal().is_empty() { return Ok(()); }
+        if self.normal().is_empty() {
+            return Ok(());
+        }
         if let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit, original)? {
             self.prepend_fault_only_result(origins)?;
         }
@@ -99,9 +153,12 @@ impl RootHomeCleanupOrderV1 {
         exit: &SourceStmtSiteV1,
         entry: &RootHomeExitEntry,
     ) -> Result<(), String> {
-        if self.normal().is_empty() { return Ok(()) }
-        let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit, self)?
-        else { return Ok(()) };
+        if self.normal().is_empty() {
+            return Ok(());
+        }
+        let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit, self)? else {
+            return Ok(());
+        };
         if !matches!(entry, RootHomeExitEntry::Plain { .. }) {
             return Err(freeze("fresh-result-cleanup/entry"));
         }

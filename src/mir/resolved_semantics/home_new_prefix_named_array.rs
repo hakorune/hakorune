@@ -137,11 +137,11 @@ pub(super) fn observe_append<E>(
         input.owner(),
         SourceExprSiteV1::from_node(statement.site().node().clone()),
     );
-    let Some(receiver) = input
+    let Some((receiver, receiver_site)) = input
         .function()
         .method_calls()
         .find(|(site, _)| *site == call.site())
-        .map(|(_, row)| row.receiver())
+        .map(|(_, row)| (row.receiver(), row.receiver_site()))
     else {
         return Ok(false);
     };
@@ -153,9 +153,16 @@ pub(super) fn observe_append<E>(
     if !locals.is_named_array_holder(binding) {
         return Ok(false);
     }
+    let Some(source) = locals.available_named_array_holder(receiver_site) else {
+        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+        return Ok(true);
+    };
     let response = borrow(
         &call,
-        BorrowedCallActualRequestV1::NamedArrayAppendStatement(binding),
+        BorrowedCallActualRequestV1::NamedArrayAppendStatement {
+            binding,
+            source: &source,
+        },
     )?;
     let Some(response) = response else {
         return Ok(false);

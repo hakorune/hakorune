@@ -99,6 +99,7 @@ pub(crate) fn qualify_binding_rebind_expression_v1<E>(
         residence_reference,
         loop_text_reference,
         &mut |_| None,
+        &mut |_| None,
         scalar_reference,
         field_request,
         can_install,
@@ -119,6 +120,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         TextResidenceAcquisitionV1,
     )>,
     loop_text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopTextReadV1>,
+    dynamic_invocation_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
     loop_dynamic_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopDynamicReadV1>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
@@ -217,8 +219,10 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         .filter_map(|(node, original)| {
             matches!(original.source(), ExpressionNodeSourceV1::Reference(_))
                 .then(|| {
-                    loop_dynamic_reference(original.site())
-                        .map(|read| (node, CheckedExpressionReferenceV1::LoopDynamic(read)))
+                    dynamic_invocation_reference(original.site())
+                        .map(|frame| (node, CheckedExpressionReferenceV1::DynamicInvocationResult(frame)))
+                        .or_else(|| loop_dynamic_reference(original.site())
+                            .map(|read| (node, CheckedExpressionReferenceV1::LoopDynamic(read))))
                 })
                 .flatten()
         })
@@ -261,7 +265,10 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         _ => Class::String,
     };
     let text = class == Class::String;
-    if !references.is_empty() || transferred.contains(&0) || classes[0] != Leaf::Value(class) {
+    if (class != Class::String && !references.is_empty())
+        || transferred.contains(&0)
+        || classes[0] != Leaf::Value(class)
+    {
         return Ok(None);
     }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(

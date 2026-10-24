@@ -46,6 +46,21 @@ pub(super) fn encode_invoke(
             }
             with_site(encoded, required_site(diagnostic_site, true)?)?
         }
+        InvokeOperation::DynamicCarrierArray(operation) => {
+            use crate::mir::instruction::DynamicCarrierArrayInvokeOperation as CarrierArray;
+            let encoded = match operation {
+                CarrierArray::Claim { array } => json!({
+                    "kind": "array_carrier_claim", "array": value(array),
+                }),
+                CarrierArray::Append { array, carrier } => json!({
+                    "kind": "array_carrier_append", "array": value(array), "value": value(carrier),
+                }),
+                CarrierArray::End { array } => json!({
+                    "kind": "array_carrier_end", "array": value(array),
+                }),
+            };
+            with_site(encoded, required_site(diagnostic_site, true)?)?
+        }
         InvokeOperation::String(operation) => {
             use crate::mir::instruction::StringInvokeOperation as Op;
             let operand = encode_string_operand_v1;
@@ -62,6 +77,7 @@ pub(super) fn encode_invoke(
                 Op::IndexOf { value, needle } => json!({"kind":"string_index_of", "value":operand(value), "needle":operand(needle)}),
                 Op::Print { value } => json!({"kind":"string_print", "value":operand(value)}),
                 Op::End { value:v } => json!({"kind":"string_end", "value":value(v)}),
+                Op::EndIfOwned { value:v } => json!({"kind":"string_end_if_owned", "value":value(v)}),
             };
             with_site(encoded, required_site(diagnostic_site, abi_input.is_some())?)?
         }
@@ -78,6 +94,10 @@ pub(super) fn encode_invoke(
             json!({"kind":"dynamic_carrier_integer", "carrier":value(carrier)}),
             required_site(diagnostic_site, true)?,
         )?,
+        InvokeOperation::DynamicCarrierSubI64 { carrier, rhs } => with_site(
+            json!({"kind":"dynamic_carrier_sub_i64", "carrier":value(carrier), "rhs":value(rhs)}),
+            required_site(diagnostic_site, true)?,
+        )?,
         InvokeOperation::DynamicCarrierEnd { carrier } => with_site(
             json!({"kind":"dynamic_carrier_end", "carrier":value(carrier)}),
             required_site(diagnostic_site, true)?,
@@ -92,6 +112,10 @@ pub(super) fn encode_invoke(
                 Map::FieldGetIndexed { field, base, key, object } => json!({"kind":"map_field_get_indexed",
                     "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
                     "base":value(base), "key":encode_string_operand_v1(key), "payload_object_id":object.declaration_index()}),
+                Map::FieldInstallIndexed { field, base, key, object, value: stored } => json!({"kind":"map_field_install_indexed",
+                    "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
+                    "base":value(base), "key":encode_string_operand_v1(key),
+                    "payload_object_id":object.declaration_index(), "value":value(stored)}),
                 Map::PrepareKey { utf8 } => json!({"kind": "map_prepare_key", "utf8": utf8}),
                 Map::InstallIndexed {
                     map,

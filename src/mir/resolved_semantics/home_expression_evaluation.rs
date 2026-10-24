@@ -124,6 +124,21 @@ impl CheckedExpressionEvaluationV1 {
     /// Borrow only the original eager inputs of one String comparison. The
     /// enclosing Bool tree still owns conditional reach; no AST is re-rooted.
     pub(crate) fn text_comparison_input_order_v1(&self, comparison: usize) -> Option<Vec<usize>> {
+        self.comparison_input_order_v1(comparison, false)
+    }
+    /// Bool conditions may additionally compare one exact owned Dynamic call
+    /// result with String. The Loop recipe keeps its narrower text-only lane.
+    pub(crate) fn bool_condition_comparison_input_order_v1(
+        &self,
+        comparison: usize,
+    ) -> Option<Vec<usize>> {
+        self.comparison_input_order_v1(comparison, true)
+    }
+    fn comparison_input_order_v1(
+        &self,
+        comparison: usize,
+        allow_dynamic_call: bool,
+    ) -> Option<Vec<usize>> {
         use crate::mir::dynamic_operator_contract::{
             DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorValueClassV1 as Class,
         };
@@ -133,10 +148,15 @@ impl CheckedExpressionEvaluationV1 {
             .iter()
             .find(|loan| loan.node() == comparison)?;
         let envelope = loan.single_envelope()?;
+        let domain = envelope.domain();
+        let operand_domain = match (domain.left(), domain.right()) {
+            (Class::String, Class::String) => true,
+            (Class::Dynamic, Class::String) | (Class::String, Class::Dynamic) => allow_dynamic_call,
+            _ => false,
+        };
         if !Rc::ptr_eq(loan.source(), &self.source)
             || root.binary().is_none()
-            || envelope.domain().left() != Class::String
-            || envelope.domain().right() != Class::String
+            || !operand_domain
             || envelope.normal_result() != ResultKind::TrivialBool
         {
             return None;
@@ -153,8 +173,27 @@ impl CheckedExpressionEvaluationV1 {
                         .node()
                         .segments()
                         .starts_with(prefix)
+                    && (!allow_dynamic_call || !self.transfers_node(*node))
             })
             .collect();
+        if allow_dynamic_call {
+            let dynamic_positions: Vec<_> = order.iter().enumerate().filter_map(|(position, node)| {
+                self.calls.iter().any(|call| call.site().site() == self.source.nodes()[*node].site()
+                    && call.dynamic_invocation_result_lifecycle_v1().is_some()).then_some(position)
+            }).collect();
+            if dynamic_positions.len() > 1 || dynamic_positions.first().is_some_and(|position| {
+                order[*position + 1..].iter().any(|node| !matches!(
+                    self.source.nodes()[*node].source(),
+                    ExpressionNodeSourceV1::Reference(_)
+                        | ExpressionNodeSourceV1::Literal(
+                            super::super::ResolvedLiteralSourceV1::String(_)
+                                | super::super::ResolvedLiteralSourceV1::Integer(_)
+                        )
+                ))
+            }) {
+                return None;
+            }
+        }
         for &node in &order {
             let original = &self.source.nodes()[node];
             if self.transfers_node(node)
@@ -167,7 +206,11 @@ impl CheckedExpressionEvaluationV1 {
             match original.source() {
                 ExpressionNodeSourceV1::Reference(_) | ExpressionNodeSourceV1::Literal(
                     super::super::ResolvedLiteralSourceV1::Integer(_) | super::super::ResolvedLiteralSourceV1::String(_)) => {},
-                ExpressionNodeSourceV1::MethodCall if self.cores.get(&node).is_some_and(|core| core.matches_plan(&self.source, node)) => {},
+                ExpressionNodeSourceV1::MethodCall
+                    if self.cores.get(&node).is_some_and(|core| core.matches_plan(&self.source, node))
+                        || allow_dynamic_call && self.calls.iter().any(|call|
+                            call.site().site() == self.source.nodes()[node].site()
+                                && call.dynamic_invocation_result_lifecycle_v1().is_some()) => {},
                 ExpressionNodeSourceV1::Binary(binary) if binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add
                     && self.class(node) == Some(ExpressionLeafClassV1::Value(
                         crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64)) => {},
@@ -180,7 +223,11 @@ impl CheckedExpressionEvaluationV1 {
     /// field presence. Presence currently requires a passive exact Text leaf:
     /// computed key effects must not move ahead of receiver field evaluation.
     pub(crate) fn scalar_invoke_input_order_v1(&self, root: usize) -> Option<Vec<usize>> {
-        if let Some(order) = self.text_comparison_input_order_v1(root) {
+        if let Some((left, right, _)) = self.carrier_integer_comparison_nodes_v1(root) {
+            let binary = self.source.nodes()[root].binary()?;
+            return Some(if self.source.nodes()[left].site() == binary.lhs() { vec![left, right] } else { vec![right, left] });
+        }
+        if let Some(order) = self.bool_condition_comparison_input_order_v1(root) {
             return Some(order);
         }
         let core = self.cores.get(&root)?;
@@ -206,6 +253,41 @@ impl CheckedExpressionEvaluationV1 {
             || !matches!(original.source(), ExpressionNodeSourceV1::Reference(_)
                 | ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::String(_))) { return None; }
         Some(vec![node])
+    }
+    /// Source-issued Integer payload check for one opaque carrier comparison.
+    /// The returned nodes are (carrier, I64, carrier-on-left); no MIR fact or
+    /// runtime tag participates in selecting this operation.
+    pub(crate) fn carrier_integer_comparison_nodes_v1(&self, root: usize) -> Option<(usize, usize, bool)> {
+        use crate::mir::dynamic_operator_contract::{DynamicOperatorFamilyV1 as Family,
+            DynamicOperatorValueClassV1 as Class, DynamicOperatorNormalResultV1 as Normal};
+        let binary = self.source.nodes().get(root)?.binary()?;
+        let loan = self.operations.iter().find(|loan| loan.node() == root)?;
+        let envelope = loan.single_envelope()?;
+        if !Rc::ptr_eq(loan.source(), &self.source) || envelope.normal_result() != Normal::TrivialBool { return None; }
+        let left = self.source.nodes().iter().position(|node| node.site() == binary.lhs())?;
+        let right = self.source.nodes().iter().position(|node| node.site() == binary.rhs())?;
+        let (carrier, integer, carrier_left) = match (envelope.domain().family(), envelope.domain().left(), envelope.domain().right(), binary.operator()) {
+            (Family::Greater, Class::Dynamic, Class::I64, crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Greater)
+            | (Family::Less, Class::Dynamic, Class::I64, crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less) => (left, right, true),
+            (Family::Less, Class::I64, Class::Dynamic, crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less) => (right, left, false),
+            _ => return None,
+        };
+        let proof = self.references.get(&carrier)?;
+        if !proof.matches_node(&self.source, carrier) { return None; }
+        let owner = match proof {
+            CheckedExpressionReferenceV1::DynamicInvocationResult(frame) => frame.dynamic_home_binding_v1()?,
+            CheckedExpressionReferenceV1::LoopDynamic(read) => read.producer().invocation_home_v1()?,
+            _ => return None,
+        };
+        if !self.prior_homes.contains(&LiveHomeV1::Stable(owner))
+            || self.class(carrier) != Some(ExpressionLeafClassV1::Value(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic))
+            || self.class(integer) != Some(ExpressionLeafClassV1::Value(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64))
+            || [carrier, integer].iter().any(|&node| self.transfers_node(node)
+                || !matches!(self.source.nodes()[node].source(), ExpressionNodeSourceV1::Reference(_)
+                    | ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::Integer(_)))) {
+            return None;
+        }
+        Some((carrier, integer, carrier_left))
     }
     pub(crate) fn transfers_node(&self, node: usize) -> bool {
         self.transferred_inputs.contains(&node)
@@ -242,6 +324,9 @@ pub(super) fn owned_result_nodes(
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CheckedExpressionReferenceV1 {
     StoredMapGet(Rc<super::super::MapFieldGetLocalV1>),
+    /// A local Dynamic result borrowed from its exact initializer call frame.
+    /// The frame grants neither a concrete payload type nor ownership transfer.
+    DynamicInvocationResult(Rc<super::super::CheckedInitializerExpressionFrameV1>),
     StaticText(super::super::StaticTextReadV1),
     Residence(super::initializer_expression::TextResidenceReadV1),
     LoopText(super::super::LoopTextReadV1),
@@ -258,6 +343,7 @@ impl CheckedExpressionReferenceV1 {
     pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
         match self {
             Self::StoredMapGet(frame) => frame.binding(),
+            Self::DynamicInvocationResult(frame) => frame.binding(),
             Self::StaticText(read) => read.binding(),
             Self::Residence(read) => read.binding(),
             Self::LoopText(read) => read.binding(),
@@ -284,6 +370,11 @@ impl CheckedExpressionReferenceV1 {
                 frame.site().owner() == source.owner()
                     && frame.source().get().owner() == source.owner()
                     && frame.site().site() == frame.source().get().site()
+            }
+            Self::DynamicInvocationResult(frame) => {
+                frame.is_dynamic_value()
+                    && frame.source().owner() == source.owner()
+                    && frame.binding() == self.binding()
             }
             Self::StaticText(read) => read.read() == original.site(),
             Self::Residence(read) => {
@@ -401,6 +492,13 @@ fn seed_reference_v1(
                 return None;
             }
             Leaf::Value(Class::Opaque)
+        }
+        CheckedExpressionReferenceV1::DynamicInvocationResult(frame) => {
+            if !frame.is_dynamic_value() || frame.dynamic_home_binding_v1().is_none_or(|owner|
+                !prepared.prior_homes().contains(&LiveHomeV1::Stable(owner))) {
+                return None;
+            }
+            Leaf::Value(Class::Dynamic)
         }
         CheckedExpressionReferenceV1::Scalar(read) => Leaf::Value(match read.kind() {
             super::super::SourceScalarKind::Integer => Class::I64,

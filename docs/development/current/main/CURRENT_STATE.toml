@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "json-stream worktree EXE PASS; canonical source WIP landing remains"
+current_blocker_token = "fixed suite 8/11 with 300s runner timeout; three source compile stops; canonical source WIP landing remains"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator canonical worktree EXE/run/output PASS; source landing remains incomplete.
-Fresh fixed suite: 8/11 (7 real EXEs + marker), 3 source compile failures, no timeout/SKIP.
-C slot/Birth Text consumers and original entry/alias admission fixes are verified; remaining source cohorts stay open.
-Source/package WIP and red cohorts remain in the app card; this is not a pure-HEAD or finite-goal completion claim.
-Next: close remaining source publication failures and land only coherent verified source dependencies before app switch.
+APP-json-stream-aggregator canonical EXE/run/output PASS after a fresh opt0 CLI build with quick lifecycle archive and CFFI.
+Latest fixed suite (quick CLI/runtime, runner timeout 300s): 8/11 PASS (7 real EXEs + marker), 3 source compile failures, no timeout/SKIP.
+After declaration-order fix, borrowed-source rerun: 47/51 PASS, four fail-closed diagnostic mismatches; expensive owned-call test was skipped here.
+The returned-wrapper and guarded-declaration focused cases pass; JSON EXE smoke passes on the latest quick CLI/runtime.
+Remaining source/package WIP is unlanded; commit fd332db07b lands the verified declaration-order fix; next closeout must isolate verified app dependencies.
 """
 next_design_card = "none"
 next_design_card_path = "none"

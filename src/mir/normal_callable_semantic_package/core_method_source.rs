@@ -38,8 +38,26 @@ pub(crate) fn issue_source_core_method_calls_v1(
     >,
     String,
 > {
+    issue_source_core_method_calls_with_dynamic_calls_v1(catalog, batch, selected, &[])
+}
+
+pub(crate) fn issue_source_core_method_calls_with_dynamic_calls_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<
+    BTreeMap<
+        SelectedNormalCallableKeyV1,
+        BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
+    >,
+    String,
+> {
     issue_source_core_method_calls_with_v1(catalog, batch, selected, |ledger, _shape, _key| {
-        crate::mir::source_call_target::issue_source_bound_core_method_calls_v1(ledger)
+        crate::mir::source_call_target::issue_source_bound_core_method_calls_with_dynamic_sources_v1(
+            ledger,
+            dynamic_calls,
+        )
     })
 }
 
@@ -70,6 +88,33 @@ pub(crate) fn issue_source_core_method_calls_with_named_arrays_v1(
     ),
     String,
 > {
+    issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
+        catalog,
+        batch,
+        selected,
+        brands,
+        constructors,
+        &[],
+    )
+}
+
+pub(crate) fn issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    brands: &crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1,
+    constructors: &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
+    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<
+    (
+        BTreeMap<
+            SelectedNormalCallableKeyV1,
+            BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
+        >,
+        NamedArrayFieldProviderTableV1,
+    ),
+    String,
+> {
     let field_providers = std::cell::RefCell::new(NamedArrayFieldProviderTableV1::new());
     let issued = issue_source_core_method_calls_with_v1(catalog, batch, selected, |ledger, shape, key| {
         let body_shape = shape.ok_or_else(|| {
@@ -84,6 +129,7 @@ pub(crate) fn issue_source_core_method_calls_with_named_arrays_v1(
             brands,
             Some(constructors),
             key.owner(),
+            dynamic_calls,
         )?;
         let mut providers = field_providers.borrow_mut();
         for row in &issued.field_providers {

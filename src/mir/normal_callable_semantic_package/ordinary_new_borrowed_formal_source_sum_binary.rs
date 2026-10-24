@@ -89,6 +89,7 @@ impl SourceBinaryTransferV1 {
                     };
                     let family = match self.source.operator() {
                         crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add => Family::Add,
+                        crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract => Family::Sub,
                         crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less => Family::Less,
                         _ => return None,
                     };

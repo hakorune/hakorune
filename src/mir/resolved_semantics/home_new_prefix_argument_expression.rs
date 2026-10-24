@@ -3,6 +3,56 @@ use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
+fn carrier_array_append_holder<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    call_site: &OwnedExprSiteV1,
+    actual_site: &SourceExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    port: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1>, E> {
+    let Some(call) = input.function().method_call_source_v1(call_site.site()) else {
+        return Ok(None);
+    };
+    let crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+        crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+    ) = call.receiver()
+    else {
+        return Ok(None);
+    };
+    let Some(source) = locals.available_named_array_holder(call.receiver_site()) else {
+        return Ok(None);
+    };
+    // Select this family from the original holder and exact append actual
+    // before demanding an append loan. Other named-array uses are not appends.
+    if !source.is_dynamic_carrier_append_only_v1()
+        || !source.append_candidate(call_site)
+            .is_some_and(|candidate| candidate.site() == actual_site)
+    {
+        return Ok(None);
+    }
+    let Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(verified)) = port(
+        call_site,
+        BorrowedCallActualRequestV1::NamedArrayAppendStatement {
+            binding,
+            source: &source,
+        },
+    )? else {
+        return Ok(None);
+    };
+    if verified.binding() != binding
+        || !verified.is_dynamic_carrier_append_only_v1()
+        || !verified
+            .append_candidate(call_site)
+            .is_some_and(|candidate| candidate.site() == actual_site)
+    {
+        return Ok(None);
+    }
+    Ok(Some(verified))
+}
+
 pub(super) fn text_reference(
     input: ResolvedFunctionLoweringInputV1<'_>,
     locals: &PrefixLocalFlow<'_>,
@@ -70,7 +120,11 @@ pub(super) fn observe<E>(
     }
     for actual in actuals {
         match &actual.value {
-            BorrowedCallActualValueV1::Expression
+            // A Dynamic invocation retains every operand through its ordered
+            // argument-expression source, including literal i64 operands.
+            // Static calls may return no expression-source loan for a literal.
+            BorrowedCallActualValueV1::Integer(_)
+            | BorrowedCallActualValueV1::Expression
             | BorrowedCallActualValueV1::MethodCall(_)
             | BorrowedCallActualValueV1::String(_)
             | BorrowedCallActualValueV1::SelfRooted { .. }
@@ -83,11 +137,40 @@ pub(super) fn observe<E>(
                         .is_some() => {}
             _ => continue,
         }
-        let Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(loan)) = port(
+        let append_holder = carrier_array_append_holder(
+            input,
             call_site,
-            BorrowedCallActualRequestV1::ArgumentExpressionSource(input, actual.ordinal),
-        )?
-        else {
+            &actual.site,
+            locals,
+            port,
+        )?;
+        let source = if let Some(holder) = append_holder.as_ref() {
+            let appended = port(
+                call_site,
+                BorrowedCallActualRequestV1::ArgumentExpressionCarrierArrayAppendSource {
+                    input,
+                    ordinal: actual.ordinal,
+                    holder,
+                },
+            )?;
+            if appended.is_some() {
+                appended
+            } else {
+                port(
+                    call_site,
+                    BorrowedCallActualRequestV1::ArgumentExpressionSource(
+                        input,
+                        actual.ordinal,
+                    ),
+                )?
+            }
+        } else {
+            port(
+                call_site,
+                BorrowedCallActualRequestV1::ArgumentExpressionSource(input, actual.ordinal),
+            )?
+        };
+        let Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(loan)) = source else {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!(
                     "[argument-expression] call={call_site:?} ordinal={} source loan unavailable",
@@ -276,7 +359,7 @@ pub(super) fn observe<E>(
             }
             let Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)) = port(
                 call_site,
-                BorrowedCallActualRequestV1::CompleteArgumentExpression(frame),
+                BorrowedCallActualRequestV1::CompleteArgumentExpression { input, frame },
             )?
             else {
                 unreachable!("successful argument completion must return its canonical frame");

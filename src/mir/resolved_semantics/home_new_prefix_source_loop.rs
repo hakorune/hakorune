@@ -82,8 +82,7 @@ pub(super) fn observe<'a, E>(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<Option<super::local_flow::source_loop::SourceLoopScanSummaryV1>, E> {
-    if unavailable.is_some() || source.owner() != input.owner() || source.site() != statement.site()
-    {
+    if unavailable.is_some() || source.owner() != input.owner() || source.site() != statement.site() {
         return Ok(None);
     }
     let mut child_locals = locals.clone();

@@ -25,9 +25,27 @@ impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn is_i64(&self) -> bool {
         self.evaluation.root_class() == Leaf::Value(Class::I64)
     }
+    pub(crate) fn is_dynamic_carrier_append_v1(&self) -> bool {
+        let Some(root) = self.source_loan.plan().nodes().first() else {
+            return false;
+        };
+        self.evaluation.root_class() == Leaf::Value(Class::Dynamic)
+            && self.source_loan.dynamic_array_carrier_append_root_v1()
+            && self
+                .source_loan
+                .dynamic_array_carrier_call_is_v1(root.site())
+            && self.evaluation.calls().iter().any(|call| {
+                call.site().site() == root.site()
+                    && call.result()
+                        == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
+                    && call.dynamic_invocation_result_lifecycle_v1().is_some()
+            })
+    }
     /// Argument purpose obtains independent Text residence for a readonly root.
     pub(crate) fn materializes_root(&self) -> bool {
-        !self.is_i64() && !self.evaluation.owned_result_nodes().contains(&0)
+        !self.is_i64()
+            && !self.is_dynamic_carrier_append_v1()
+            && !self.evaluation.owned_result_nodes().contains(&0)
     }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
         &self.evaluation
@@ -148,6 +166,8 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             return Ok(None);
         }
     } else if !core.requires_i64_v1()
+        && !(core.dynamic_array_carrier_append_root_v1()
+            && core.dynamic_array_carrier_call_is_v1(root.site()))
         && !core.ordinary_text_call_is(root.site())
         && !matches!(
             root.source(),
@@ -377,12 +397,25 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         }
         return Ok(None);
     };
+    let dynamic_array_carrier_root = core.dynamic_array_carrier_append_root_v1()
+        && core.dynamic_array_carrier_call_is_v1(root.site());
     let expected = if core.requires_i64_v1() {
         Class::I64
+    } else if dynamic_array_carrier_root {
+        Class::Dynamic
     } else {
         Class::String
     };
-    if classes[0] != Leaf::Value(expected) || transferred.contains(&0) || !references.is_empty() {
+    let dynamic_producer_matches = !dynamic_array_carrier_root
+        || calls.get(&0).is_some_and(|call| {
+            call.result() == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
+                && call.dynamic_invocation_result_lifecycle_v1().is_some()
+        });
+    if classes[0] != Leaf::Value(expected)
+        || transferred.contains(&0)
+        || !references.is_empty()
+        || !dynamic_producer_matches
+    {
         if crate::config::env::builder_debug_enabled() {
             eprintln!("[argument-expression] root rejected class={:?} expected={expected:?} transferred={} unresolved_refs={references:?}", classes.first(), transferred.contains(&0));
         }

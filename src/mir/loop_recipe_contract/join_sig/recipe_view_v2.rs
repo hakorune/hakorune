@@ -193,6 +193,15 @@ fn operation_view(operation: &LoopOperationV2) -> LoopJoinOperationView<'_> {
             LoopJoinValueUses::Two(*left, *right),
             Some(*result),
         ),
+        LoopOperationV2::DynamicSub {
+            left,
+            right,
+            result,
+        } => define(
+            LoopJoinOperationFamily::DynamicSub,
+            LoopJoinValueUses::Two(*left, *right),
+            Some(*result),
+        ),
         LoopOperationV2::DynamicLess {
             left,
             right,

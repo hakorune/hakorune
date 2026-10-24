@@ -362,7 +362,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 LocalCommitV1::Map(row) => row.mark_checked(),
                 LocalCommitV1::OwnedArray(row) => row.mark_checked(),
                 LocalCommitV1::CallReceived(row) => row.mark_checked(),
-                LocalCommitV1::TextResidence(_) => {},
+                LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => {},
             }
         }
         Ok(())

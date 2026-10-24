@@ -363,8 +363,9 @@ pub(super) fn retain_static_i64_search_early_return_v1(
 }
 
 impl super::OrdinaryNewClaimLedgerV1 {
-    /// Borrow branch joins from the SAME selected source-loop schedule for a
-    /// nested If site. Root-flow plans do not flatten these inner observations.
+    /// Borrow branch joins from the SAME selected source-loop product when a
+    /// Loop header reads a pre-loop BranchNormal, or its schedule joins a nested If.
+    /// Root-flow plans do not flatten these source-loop observations.
     pub(in crate::mir) fn selected_source_loop_branch_joins_v2(
         &self,
         owner: FunctionOwnerIdV1,
@@ -378,7 +379,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
             >,
         > = Vec::new();
         for ((actual_owner, loop_site), row) in &self.selected_loop_products {
-            if *actual_owner != owner || !branch_path.starts_with(loop_site.node().segments()) {
+            if *actual_owner != owner {
                 continue;
             }
             let Ok(SelectedLoopProductRowV1::SourcePlan(retained)) = row else {
@@ -387,6 +388,21 @@ impl super::OrdinaryNewClaimLedgerV1 {
             let Some(Ok(product)) = retained.source_recipe.get() else {
                 continue;
             };
+            for basis in product.source.headers.values() {
+                if let crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(
+                    crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::BranchNormal(source),
+                ) = basis.entry_producer()
+                {
+                    if source.site() == site
+                        && !output.iter().any(|old| old.as_ref() == source.as_ref())
+                    {
+                        output.push(std::rc::Rc::clone(source));
+                    }
+                }
+            }
+            if !branch_path.starts_with(loop_site.node().segments()) {
+                continue;
+            }
             for join in product
                 .schedule()
                 .branch_joins_v2()
@@ -396,6 +412,34 @@ impl super::OrdinaryNewClaimLedgerV1 {
                     .iter()
                     .any(|old| old.as_ref() == join.source.as_ref())
                 {
+                    output.push(std::rc::Rc::clone(&join.source));
+                }
+            }
+        }
+        output
+    }
+
+    pub(in crate::mir) fn selected_source_loop_text_branch_joins_v2(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Vec<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>> {
+        let branch_path = site.node().segments();
+        let mut output: Vec<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>> = Vec::new();
+        for ((actual_owner, loop_site), row) in &self.selected_loop_products {
+            if *actual_owner != owner || !branch_path.starts_with(loop_site.node().segments()) {
+                continue;
+            }
+            let Ok(SelectedLoopProductRowV1::SourcePlan(retained)) = row else {
+                continue;
+            };
+            let Some(Ok(product)) = retained.source_recipe.get() else {
+                continue;
+            };
+            for join in product.schedule().text_branch_joins_v2()
+                .filter(|join| join.source.site() == site)
+            {
+                if !output.iter().any(|old| old.as_ref() == join.source.as_ref()) {
                     output.push(std::rc::Rc::clone(&join.source));
                 }
             }

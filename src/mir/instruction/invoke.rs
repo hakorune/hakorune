@@ -51,7 +51,9 @@ pub enum ObjectEndStepV1 {
 mod map;
 #[path = "invoke_owned_array.rs"]
 mod owned_array;
-pub use owned_array::{OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1};
+pub use owned_array::{
+    DynamicCarrierArrayInvokeOperation, OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1,
+};
 #[path = "invoke_string.rs"]
 mod string;
 pub use string::{StringInvokeOperand, StringInvokeOperation};
@@ -233,10 +235,15 @@ pub enum InvokeOperation {
     /// Borrow an integer payload from the exact opaque carrier. The source
     /// operator owns the resulting type check; the carrier remains live.
     DynamicCarrierInteger { carrier: ValueId },
+    /// Checked source subtraction over an integer-valued carrier. The input
+    /// remains live; Normal publishes a fresh opaque carrier, Fault none.
+    DynamicCarrierSubI64 { carrier: ValueId, rhs: ValueId },
     /// End exactly one opaque Dynamic result carrier.
     DynamicCarrierEnd { carrier: ValueId },
     /// Source-owned object slots; distinct from numeric Array state.
     OwnedArray(OwnedArrayInvokeOperation),
+    /// Source-owned opaque Dynamic carrier slots; no object End thunk or Get.
+    DynamicCarrierArray(DynamicCarrierArrayInvokeOperation),
     /// Adopt the source-issued numeric state contract; Unit on Normal.
     ArrayStateContractClaim { contract_id: String, array: ValueId },
     /// Checked mutation; Unit on Normal and no mutation on Fault.
@@ -323,7 +330,9 @@ impl InvokeOperation {
             Self::String(operation) => operation.normal_result_kind(),
             Self::DynamicInvocation(_) => Some(InvokeNormalResultKind::DynamicCarrier),
             Self::DynamicCarrierInteger { .. } => Some(InvokeNormalResultKind::I64),
+            Self::DynamicCarrierSubI64 { .. } => Some(InvokeNormalResultKind::DynamicCarrier),
             Self::OwnedArray(operation) => operation.normal_result_kind(),
+            Self::DynamicCarrierArray(_) => None,
             Self::Call {
                 result: InvokeCallResultKind::I64,
                 ..
@@ -377,8 +386,12 @@ impl InvokeOperation {
             Self::String(operation) => operation.effects(),
             Self::DynamicInvocation(_) => EffectMask::READ.add(Effect::Control),
             Self::DynamicCarrierInteger { .. } => EffectMask::READ.add(Effect::Control),
+            Self::DynamicCarrierSubI64 { .. } => {
+                EffectMask::READ.add(Effect::Alloc).add(Effect::Control)
+            }
             Self::DynamicCarrierEnd { .. } => EffectMask::WRITE.add(Effect::Control),
             Self::OwnedArray(operation) => operation.effects(),
+            Self::DynamicCarrierArray(operation) => operation.effects(),
             Self::Birth(call) => call.effects.add(Effect::Control),
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
@@ -408,7 +421,9 @@ impl InvokeOperation {
             Self::String(operation) => operation.used_values(),
             Self::DynamicInvocation(operation) => operation.used_values(),
             Self::DynamicCarrierInteger { carrier } | Self::DynamicCarrierEnd { carrier } => vec![*carrier],
+            Self::DynamicCarrierSubI64 { carrier, rhs } => vec![*carrier, *rhs],
             Self::OwnedArray(operation) => operation.used_values(),
+            Self::DynamicCarrierArray(operation) => operation.used_values(),
             Self::Birth(call) => std::iter::once(call.receiver).chain(call.arguments.iter().filter_map(BirthArgumentV1::value)).collect(),
             Self::Call { call, .. } => {
                 let mut values = Vec::new();
@@ -449,7 +464,12 @@ impl InvokeOperation {
             Self::String(operation) => operation.rewrite_values(rewrite),
             Self::DynamicInvocation(operation) => operation.rewrite_values(rewrite),
             Self::DynamicCarrierInteger { carrier } | Self::DynamicCarrierEnd { carrier } => rewrite(carrier),
+            Self::DynamicCarrierSubI64 { carrier, rhs } => {
+                rewrite(carrier);
+                rewrite(rhs);
+            }
             Self::OwnedArray(operation) => operation.rewrite_values(rewrite),
+            Self::DynamicCarrierArray(operation) => operation.rewrite_values(rewrite),
             Self::Birth(call) => {
                 rewrite(&mut call.receiver);
                 for argument in &mut call.arguments { argument.rewrite_value(&mut rewrite); }

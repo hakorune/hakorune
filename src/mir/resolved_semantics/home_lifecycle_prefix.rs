@@ -9,6 +9,7 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     },
+    FieldMapInstall { site: OwnedExprSiteV1, frame: std::rc::Rc<MapFieldInstallV1> },
     StoredMapGet {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<MapFieldGetLocalV1>,
@@ -56,7 +57,8 @@ pub(crate) enum LifecyclePrefixSourceV1 {
 impl LifecyclePrefixSourceV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         match self {
-            Self::StoredMapGet { site, .. }
+            Self::FieldMapInstall { site, .. }
+            | Self::StoredMapGet { site, .. }
             | Self::Loop { site, .. }
             | Self::BindingRebind { site, .. }
             | Self::InitializerExpression { site, .. }
@@ -71,6 +73,7 @@ impl LifecyclePrefixSourceV1 {
     }
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
+            Self::FieldMapInstall { frame, .. } => frame.statement(),
             Self::StoredMapGet { frame, .. } => frame.statement(),
             Self::Loop { product, .. } => product.source.source.site(),
             Self::Call { statement, .. } | Self::OwnedArrayAppend { statement, .. } => statement,
@@ -86,7 +89,8 @@ impl LifecyclePrefixSourceV1 {
     pub(crate) fn covered_by(&self, exit: &RootHomeExitV1) -> bool {
         match self {
             Self::Call { site, .. } => exit.covered_calls().contains(site),
-            Self::StoredMapGet { .. }
+            Self::FieldMapInstall { .. }
+            | Self::StoredMapGet { .. }
             | Self::Loop { .. }
             | Self::BindingRebind { .. }
             | Self::InitializerExpression { .. }
@@ -331,6 +335,11 @@ impl RootHomeFlow {
                 }),
         );
         for observation in &self.maps {
+            if let MapHomeObservation::FieldInstall(frame) = observation {
+                prefixes.push(LifecyclePrefixSourceV1::FieldMapInstall {
+                    site: frame.site().clone(), frame: std::rc::Rc::clone(frame),
+                });
+            }
             if let MapHomeObservation::FieldGet(frame) = observation {
                 prefixes.push(LifecyclePrefixSourceV1::StoredMapGet {
                     site: frame.site().clone(),

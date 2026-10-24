@@ -181,6 +181,7 @@ pub(super) fn observe<E>(
     if !prepared.has_core()
         && !prepared.has_owned_text_call()
         && !prepared.has_dynamic_invocation_call()
+        && !(root_reference && locals.dynamic_invocation_result_reference_v1(site).is_some())
         && !(root_add && has_parent_text)
         && !signed_entry
         && signed_root_sum.is_none()
@@ -193,6 +194,7 @@ pub(super) fn observe<E>(
         prepared,
         &reads,
         &dynamic_reads,
+        &mut |site| locals.dynamic_invocation_result_reference_v1(site),
         signed_root_sum,
         &mut |site| {
             super::argument_expression::text_reference(input, locals, site).or_else(|| {
@@ -231,6 +233,9 @@ pub(super) fn observe<E>(
     if frame.is_i64() {
         locals.install_i64_call_result(frame.binding());
     } else if frame.is_dynamic_invocation_result() {
+        locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));
+        homes.push(LiveHomeV1::Stable(frame.binding()));
+    } else if frame.is_dynamic_alias() {
         locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));
     } else if frame.is_text_residence() {
         locals.install_text_initializer(frame);

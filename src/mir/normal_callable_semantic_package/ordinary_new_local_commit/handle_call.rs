@@ -1,13 +1,15 @@
 //! Handle-result local-call commit coordination on the shared ledger.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::instruction::InvokeCallResultKind;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Two references to the SAME physical packet supply one emitted unwind.
     /// After groups move into the final handoff, the commit retains that packet.
     pub(super) fn shared_received_call_sites_v1(
-        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>,
+        &self,
+        owner: FunctionOwnerIdV1,
+        context: CallValidationContextV1<'_>,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<Vec<OwnedExprSiteV1>, String> {
         context.require_ledger(self)?;
@@ -15,14 +17,28 @@ impl OrdinaryNewClaimLedgerV1 {
         context.with_local_call_groups_v1(owner, |groups| {
             let mut shared = Vec::new();
             for (site, row) in rows.iter().filter(|(_, row)| row.owner() == owner) {
-                let LocalCommitV1::CallReceived(row) = row else { continue; };
-                let CallReceivedProgress::Emitted { bindings, packet: Some(packet), .. } = &row.progress
-                    else { continue; };
-                if packet.call_site() != site { return Err(freeze("received-call/shared-packet-site-drift")); }
+                let LocalCommitV1::CallReceived(row) = row else {
+                    continue;
+                };
+                let CallReceivedProgress::Emitted {
+                    bindings,
+                    packet: Some(packet),
+                    ..
+                } = &row.progress
+                else {
+                    continue;
+                };
+                if packet.call_site() != site {
+                    return Err(freeze("received-call/shared-packet-site-drift"));
+                }
                 packet.validate_recorded(bindings)?;
                 let mut matching = groups.iter().filter(|group| group.site() == site);
-                let Some(group) = matching.next() else { continue; };
-                if matching.next().is_some() { return Err(freeze("received-call/shared-packet-duplicate")); }
+                let Some(group) = matching.next() else {
+                    continue;
+                };
+                if matching.next().is_some() {
+                    return Err(freeze("received-call/shared-packet-duplicate"));
+                }
                 group.corroborate_received_packet_v1(site, packet, bindings, projection)?;
                 shared.push(site.clone());
             }
@@ -30,10 +46,19 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
-    pub(crate) fn unit_discard_source_v1(&self, site: &OwnedExprSiteV1) -> Option<&LocalCallObservationV1> {
-        self.completion_for_owner(site.owner()).and_then(|c| c.cleanup().root_flow())
-            .and_then(|flow| flow.local_calls().iter().find(|call| call.site() == site
-                && call.owner() == site.owner() && call.result() == LocalCallResultClassV1::Unit))
+    pub(crate) fn unit_discard_source_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&LocalCallObservationV1> {
+        self.completion_for_owner(site.owner())
+            .and_then(|c| c.cleanup().root_flow())
+            .and_then(|flow| {
+                flow.local_calls().iter().find(|call| {
+                    call.site() == site
+                        && call.owner() == site.owner()
+                        && call.result() == LocalCallResultClassV1::Unit
+                })
+            })
     }
 
     /// The sealed handle-result local call at this expression site: the
@@ -121,10 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Shared newest-first live-Home unwind for one sealed prior-Home
     /// list — `None` when any prior Home lost its installed row or end
     /// operations, which the caller names per lane.
-    fn prior_home_unwind(
-        &self,
-        prior_homes: &[LiveHomeV1],
-    ) -> Option<Vec<InvokeOperation>> {
+    fn prior_home_unwind(&self, prior_homes: &[LiveHomeV1]) -> Option<Vec<InvokeOperation>> {
         let rows = self.local_commits.borrow();
         let mut operations = Vec::new();
         for binding in prior_homes.iter().rev() {
@@ -428,7 +450,10 @@ impl OrdinaryNewClaimLedgerV1 {
         packet: Option<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
     ) -> Result<(), String> {
         let field_support_parents = match &packet {
-            Some(packet) => packet.validate_received_field_support_v1(CallValidationContextV1::Lowering(self), None)?,
+            Some(packet) => packet.validate_received_field_support_v1(
+                CallValidationContextV1::Lowering(self),
+                None,
+            )?,
             None => None,
         };
         let mut rows = self.local_commits.borrow_mut();
@@ -446,17 +471,27 @@ impl OrdinaryNewClaimLedgerV1 {
             let expected = match row.release {
                 CallReceivedReleaseV1::Handle => InvokeCallResultKind::Handle,
                 CallReceivedReleaseV1::Nullable => InvokeCallResultKind::NullableHandle,
-                CallReceivedReleaseV1::Mixed { .. } => return Err(freeze("mixed-call/dedicated-record-required")),
+                CallReceivedReleaseV1::Mixed { .. } => {
+                    return Err(freeze("mixed-call/dedicated-record-required"))
+                }
             };
             let destination = if source.source_target().is_self_receiver() {
-                let observation = self.receiver_call_observation(site)
+                let observation = self
+                    .receiver_call_observation(site)
                     .ok_or_else(|| freeze("receiver-object/record-observation-missing"))?;
-                if source.target() != observation.callee() { return Err(freeze("receiver-object/record-target-drift")); }
+                if source.target() != observation.callee() {
+                    return Err(freeze("receiver-object/record-target-drift"));
+                }
                 Some(observation.destination())
             } else {
-                self.local_call_for_owner(site.owner(), site.site()).and_then(|call| call.local_binding()).map(|(_, binding)| binding)
+                self.local_call_for_owner(site.owner(), site.site())
+                    .and_then(|call| call.local_binding())
+                    .map(|(_, binding)| binding)
             };
-            if row.owner != site.owner() || destination != Some(row.binding) || source.result() != Some(expected) {
+            if row.owner != site.owner()
+                || destination != Some(row.binding)
+                || source.result() != Some(expected)
+            {
                 return Err(freeze("receiver-object/record-destination-drift"));
             }
         }

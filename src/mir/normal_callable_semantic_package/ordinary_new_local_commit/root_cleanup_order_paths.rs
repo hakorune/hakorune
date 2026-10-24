@@ -11,6 +11,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     order: &RootHomeCleanupOrderV1,
     projection: Option<&FinishedBindings>,
 ) -> Result<(), String> {
+    validate_with_packet_projection_v1(function, bindings, entry, order, projection, projection)
+}
+
+/// Root storage may already be rebound while the same source packet retains
+/// its original coordinates. Never remap a finalized root binding twice.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_with_packet_projection_v1(
+    function: &MirFunction, bindings: &Bindings, entry: &RootHomeExitEntry,
+    order: &RootHomeCleanupOrderV1, projection: Option<&FinishedBindings>,
+    packet_projection: Option<&FinishedBindings>,
+) -> Result<(), String> {
     let coordinate = |id| match projection {
         Some(p) => p
             .destination(id)
@@ -92,6 +102,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             (coordinate(start)?, None, frame, result)
         }
     };
+    // Root argument cleanup is owned by the same lexical packet, separately
+    // checked against its source arguments. Home order begins at its suffixes.
+    let acquisition = if let RootHomeExitEntry::Call {
+        row: crate::mir::normal_callable_semantic_package::RootCallDispositionV1::Lexical(packet), ..
+    } = entry {
+        if let Some((normal, fault)) = packet.root_cleanup_suffixes_v1(packet_projection)? {
+            clean = normal;
+            Some(fault)
+        } else { acquisition }
+    } else { acquisition };
     if let Some(acquisition) = acquisition {
         pending(function, acquisition, &order.acquisition_fault(), frame)?;
     }

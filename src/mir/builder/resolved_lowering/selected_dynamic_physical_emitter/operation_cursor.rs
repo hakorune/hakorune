@@ -387,6 +387,7 @@ impl<'program> DynamicV2RecipeOperationCursorV1<'program> {
             | LoopOperationV2::TextAdd { .. }
             | LoopOperationV2::BoolExpression { .. }
             | LoopOperationV2::DynamicAdd { .. }
+            | LoopOperationV2::DynamicSub { .. }
             | LoopOperationV2::DynamicLess { .. }
             | LoopOperationV2::TextEq { .. } => {
                 return Err(DynamicV2RecipeOperationCursorRejectV1::OperationShape)

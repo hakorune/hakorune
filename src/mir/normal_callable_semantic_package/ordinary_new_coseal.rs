@@ -144,8 +144,8 @@ pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
 pub(crate) use local_commit::EmittedOwnedArrayReadV1;
 pub(crate) use local_commit::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
-pub(crate) use local_commit::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1};
-pub(in crate::mir) use local_commit::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
+pub(crate) use local_commit::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
+pub(in crate::mir) use local_commit::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
 pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
@@ -413,6 +413,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
     lexical_source_targets:
         Option<lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1>,
+    // Original package-wide Dynamic member-call source rows. Loop source
+    // classification borrows these exact resolver targets; it does not infer
+    // calls from selector text or Home observations.
+    source_dynamic_member_calls:
+        Option<Box<[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1]>>,
     // Source-only transport closure. Errors are retained for the selected
     // prefix callback; neither Ok nor Err installs or changes a carrier.
     borrowed_formal_source:

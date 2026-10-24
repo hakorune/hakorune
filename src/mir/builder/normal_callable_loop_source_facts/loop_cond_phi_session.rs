@@ -114,6 +114,20 @@ pub(in crate::mir) struct CompletedSourceLoopPhiPointsV2 {
 impl CompletedSourceLoopPhiPointsV2 {
     pub(in crate::mir) fn product(&self) -> &Rc<Product> { &self.points.product }
     pub(in crate::mir) fn phis(&self) -> &BTreeMap<BasicBlockId, Box<[crate::mir::MirInstruction]>> { &self.phis }
+    pub(in crate::mir) fn text_phi_v2(&self, binding: BindingRefV1, block: BasicBlockId)
+        -> Result<&(BasicBlockId, crate::mir::MirInstruction), String> {
+        let row = self.points.carriers.get(&binding).ok_or_else(|| freeze("completed-binding"))?;
+        if !matches!(row.source, ValueProducer::Text(_)) { return Err(freeze("completed-role")); }
+        let relation = if block == self.scope.0 { &row.header }
+            else if block == self.scope.1 { &row.after }
+            else { return Err(freeze("completed-role")); };
+        relation.require_completed_v1()?;
+        let phi = relation.identity_phi_binding_v1()?;
+        if phi.0 != block || self.phis.get(&block).is_none_or(|rows| !rows.contains(&phi.1)) {
+            return Err(freeze("completed-association"));
+        }
+        Ok(phi)
+    }
     pub(in crate::mir::builder) fn after_point_v2(&self, binding: BindingRefV1)
         -> Result<SourceLoopPointCapabilityV2<'_>, String> {
         let row = self.points.carriers.get(&binding).ok_or_else(|| freeze("completed-binding"))?;

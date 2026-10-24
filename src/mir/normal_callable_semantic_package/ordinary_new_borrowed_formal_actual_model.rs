@@ -17,7 +17,14 @@ impl BorrowedExpressionActualSourceV1 {
     pub(super) fn from_frame(frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>) -> Result<Self, String> {
         use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf};
-        if frame.evaluation().root_class() != Leaf::Value(if frame.is_i64() { Class::I64 } else { Class::String }) {
+        let result_class = if frame.is_i64() {
+            Class::I64
+        } else if frame.is_dynamic_carrier_append_v1() {
+            Class::Dynamic
+        } else {
+            Class::String
+        };
+        if frame.evaluation().root_class() != Leaf::Value(result_class) {
             return Err(freeze("borrowed-expression/source-result"));
         }
         Ok(Self { frame })
@@ -135,6 +142,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
         Box<[PreparedBorrowedFormalActualV1]>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) ordered_arguments:
         Box<[LocalCallArgumentV1]>,
+    pub(super) dynamic_invocation_arguments: Option<DynamicInvocationArgumentSourcesV1>,
 }
 
 impl PreparedBorrowedCallActualsV1 {
@@ -300,6 +308,17 @@ pub(super) enum ArgumentExpressionV1 {
     Source(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>),
     Qualified(Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>),
 }
+
+/// Dynamic invocation arguments keep their source plans and checked frames in
+/// the same pending actual row used by the call observer. The target loan is
+/// the argument-domain authority; this product adds no signature or ABI.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct DynamicInvocationArgumentSourcesV1 {
+    pub(super) source: crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1,
+    pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
+    pub(super) arguments: std::collections::BTreeMap<u32, ArgumentExpressionV1>,
+}
+
 impl std::ops::Deref for ArgumentExpressionV1 {
     type Target = Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>;
     fn deref(&self) -> &Self::Target {

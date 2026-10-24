@@ -28,7 +28,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let row_emission = match row {
             LocalCommitV1::Ordinary(row) => &row.emission,
             LocalCommitV1::Result(row) => &row.emission,
-            LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) => {
+            LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => {
                 unreachable!("map and call-received rows returned above")
             }
         };

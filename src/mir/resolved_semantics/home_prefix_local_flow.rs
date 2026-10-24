@@ -12,7 +12,6 @@ use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 use std::collections::{BTreeMap, BTreeSet};
-
 #[path = "home_prefix_borrowed_nullable.rs"]
 mod borrowed_nullable;
 #[path = "home_prefix_field_alias.rs"]
@@ -27,8 +26,8 @@ pub(crate) use scalar::{
     BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, SourceScalarKind,
 };
 pub(crate) use source_loop::{
-    LoopDynamicReadV1, LoopHeaderValueBasisV1, LoopTextReadV1, SourceLoopDynamicProducerV1,
-    SourceLoopTextProducerV1, SourceLoopValueProducerV1,
+    BranchNormalTextSourceV1, LoopDynamicReadV1, LoopHeaderValueBasisV1, LoopTextReadV1,
+    SourceLoopDynamicProducerV1, SourceLoopTextProducerV1, SourceLoopValueProducerV1,
 };
 #[path = "home_prefix_text.rs"]
 mod text;
@@ -89,6 +88,11 @@ enum StoredLocal {
     Text {
         root: BindingRefV1,
         acquisition: TextResidenceAcquisitionV1,
+    },
+    /// Exact mutually-exclusive Text result of one source If. The branch
+    /// source carries both ordered producers; neither arm is selected here.
+    TextBranch {
+        source: std::rc::Rc<BranchNormalTextSourceV1>,
     },
     /// A Text carrier after a verified Loop. The exact product owns the
     /// Static/Owned predecessor choice; this state grants no independent Home.
@@ -355,6 +359,9 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::LoopText { product: a }, StoredLocal::LoopText { product: b }) => {
             std::rc::Rc::ptr_eq(a, b)
         }
+        (StoredLocal::TextBranch { source: a }, StoredLocal::TextBranch { source: b }) => {
+            std::rc::Rc::ptr_eq(a, b)
+        }
         (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
         (
             StoredLocal::BorrowedArray {
@@ -615,13 +622,23 @@ impl<'source> PrefixLocalFlow<'source> {
     /// `Uninitialized`, which keeps `observe` and every `is_*` probe
     /// fail-closed if a future shape ever does resolve it.
     pub(super) fn join_branch(&mut self, other: &Self) -> bool {
+        self.join_branch_at(other, None)
+    }
+
+    pub(super) fn join_branch_at(
+        &mut self, other: &Self, site: Option<&SourceStmtSiteV1>,
+    ) -> bool {
         if !source_loop::same_context(&self.source_loop, &other.source_loop) {
             return false;
         }
         for (binding, value) in &other.locals {
             if let Some(own) = self.locals.get(binding) {
                 if !stored_local_same(own, value) {
-                    return false;
+                    let Some(merged) = site.and_then(|site|
+                        self.branch_text_join_v1(other, *binding, site)) else {
+                        return false;
+                    };
+                    self.store(*binding, StoredLocal::TextBranch { source: merged });
                 }
             }
         }
@@ -644,6 +661,89 @@ impl<'source> PrefixLocalFlow<'source> {
         self.opaque_formals
             .retain(|binding| other.opaque_formals.contains(binding));
         true
+    }
+
+    fn branch_text_join_v1(
+        &self, other: &Self, binding: BindingRefV1, site: &SourceStmtSiteV1,
+    ) -> Option<std::rc::Rc<BranchNormalTextSourceV1>> {
+        let debug = crate::config::env::builder_debug_enabled();
+        let flow = self.input.function().expression_source().value_flow()?;
+        if flow.owner() != self.input.owner() || other.input.owner() != self.input.owner() {
+            return None;
+        }
+        let Some((value, incoming)) = flow.branch_join(site, binding) else {
+            if debug { eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} site={site:?} stop=source-join-missing", self.input.owner()); }
+            return None;
+        };
+        let [(then_edge, then_value), (else_edge, else_value)] = incoming else {
+            if debug { eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} site={site:?} stop=two-normal-arms-missing arms={incoming:?}", self.input.owner()); }
+            return None;
+        };
+        use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
+        if !matches!((then_edge, else_edge), (Edge::ThenNormal, Edge::ElseNormal)) {
+            if debug { eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} site={site:?} stop=arm-order-mismatch arms={then_edge:?}/{else_edge:?}", self.input.owner()); }
+            return None;
+        }
+        let Some(then_producer) = self.branch_text_producer_v1(binding, *then_value, flow) else {
+            if debug { eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} site={site:?} stop=then-producer-missing local={}", self.input.owner(), stored_local_kind(self.locals.get(&binding))); }
+            return None;
+        };
+        let Some(else_producer) = other.branch_text_producer_v1(binding, *else_value, flow) else {
+            if debug { eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} site={site:?} stop=else-producer-missing local={}", self.input.owner(), stored_local_kind(other.locals.get(&binding))); }
+            return None;
+        };
+        let result = BranchNormalTextSourceV1::new(
+            std::sync::Arc::clone(flow), value, binding, site.clone(),
+            Box::new([
+                (then_edge.clone(), *then_value, then_producer),
+                (else_edge.clone(), *else_value, else_producer),
+            ]),
+        );
+        if result.is_none() && debug { eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} site={site:?} stop=source-witness-mismatch", self.input.owner()); }
+        result
+    }
+
+    fn branch_text_producer_v1(
+        &self, binding: BindingRefV1, value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+    ) -> Option<SourceLoopTextProducerV1> {
+        match self.locals.get(&binding)? {
+            StoredLocal::StaticText { definition } => {
+                let producer = self.text_producer_for_value_v1(binding, value, flow, &[])
+                    .map(|(_, producer)| producer);
+                if producer.is_none() && crate::config::env::builder_debug_enabled() {
+                    let basis = self.source_loop_header_basis_v1(binding);
+                    let header = basis.and_then(|basis| flow.loop_join(
+                        basis.source().site(), binding,
+                        crate::mir::resolved_semantics::source_value_flow::SourceValueJoinKindV1::LoopHeader,
+                    ));
+                    eprintln!("[home-prefix-branch-text] owner={:?} binding={binding:?} value={value:?} local=StaticText definition={definition:?} origin={:?} active_header={} header_value_matches={} source_header_matches={}",
+                        self.input.owner(), flow.origin(value), basis.is_some(),
+                        basis.is_some_and(|basis| basis.header() == value),
+                        header.is_some_and(|(header, _)| header == value));
+                }
+                producer
+            }
+            StoredLocal::Text { root, acquisition }
+                if *root == binding && acquisition.binding() == binding
+                    && acquisition.is_text_residence() && acquisition.owns_root()
+                    && acquisition.source().owner() == flow.owner() => {
+                let definition = acquisition.source().nodes().first()?.site();
+                let origin = flow.alias_origin_with_expression_boundary(
+                    value,
+                    |site| self.input.function().variable_ref(site),
+                    |site| site == definition,
+                )?;
+                matches!(flow.origin(origin), Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(site)) if site == definition)
+                    .then(|| SourceLoopTextProducerV1::Residence(acquisition.clone()))
+            }
+            StoredLocal::TextBranch { source }
+                if source.matches_source(flow, binding, value) =>
+            {
+                Some(SourceLoopTextProducerV1::BranchNormal(std::rc::Rc::clone(source)))
+            }
+            _ => None,
+        }
     }
 
     // Declaration contracts are borrowed from the sole package issuer. No
@@ -783,6 +883,7 @@ impl<'source> PrefixLocalFlow<'source> {
             // value — every observation lane stays fail-closed on it.
             StoredLocal::StaticText { .. }
             | StoredLocal::Text { .. }
+            | StoredLocal::TextBranch { .. }
             | StoredLocal::LoopText { .. }
             | StoredLocal::FieldAlias { .. }
             | StoredLocal::NamedArrayHolder(_)
@@ -1099,6 +1200,17 @@ impl<'source> PrefixLocalFlow<'source> {
             OrdinaryObservation::Null => StoredLocal::Null,
         };
         self.store(binding, stored);
+    }
+}
+
+fn stored_local_kind(local: Option<&StoredLocal>) -> &'static str {
+    match local {
+        Some(StoredLocal::Text { .. }) => "Text",
+        Some(StoredLocal::TextBranch { .. }) => "TextBranch",
+        Some(StoredLocal::LoopText { .. }) => "LoopText",
+        Some(StoredLocal::StaticText { .. }) => "StaticText",
+        Some(_) => "Other",
+        None => "Absent",
     }
 }
 

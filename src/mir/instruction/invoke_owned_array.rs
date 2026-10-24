@@ -76,3 +76,46 @@ impl OwnedArrayInvokeOperation {
         }
     }
 }
+
+/// Physical profile for Arrays that own opaque Dynamic carriers. This is a
+/// disjoint residence from object slots: it has no object layout, nullable
+/// element rule, or borrowed Get projection.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DynamicCarrierArrayInvokeOperation {
+    Claim { array: ValueId },
+    Append { array: ValueId, carrier: ValueId },
+    End { array: ValueId },
+}
+
+impl DynamicCarrierArrayInvokeOperation {
+    pub fn array(&self) -> ValueId {
+        match self {
+            Self::Claim { array } | Self::Append { array, .. } | Self::End { array } => *array,
+        }
+    }
+
+    pub fn used_values(&self) -> Vec<ValueId> {
+        match self {
+            Self::Claim { array } | Self::End { array } => vec![*array],
+            Self::Append { array, carrier } => vec![*array, *carrier],
+        }
+    }
+
+    pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
+        match self {
+            Self::Claim { array } | Self::End { array } => rewrite(array),
+            Self::Append { array, carrier } => {
+                rewrite(array);
+                rewrite(carrier);
+            }
+        }
+    }
+
+    pub fn effects(&self) -> EffectMask {
+        match self {
+            Self::Claim { .. } => EffectMask::WRITE.add(Effect::Control),
+            Self::Append { .. } => EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
+            Self::End { .. } => EffectMask::WRITE.add(Effect::Io).add(Effect::Control),
+        }
+    }
+}

@@ -564,7 +564,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|r| r.owner() == owner)
         {
             let bindings = match row {
-                LocalCommitV1::TextResidence(_) => continue,
+                LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => continue,
                 LocalCommitV1::Map(map) => map.checked_bindings()?,
                 LocalCommitV1::OwnedArray(row) => row.checked_bindings()?,
                 LocalCommitV1::CallReceived(row) => row.checked_bindings()?,
@@ -594,10 +594,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 if let Some((_, original)) = &order.implicit_void {
                     result.push(original.clone());
                 }
-                result.extend_from_slice(order.return_expression_bindings_v1());
+                result.extend(order.return_expression_bindings_v1(CallValidationContextV1::Lowering(self))?);
                 if let Some(original) = order.text_return_hold_binding() {
                     result.push(original.clone());
                 }
+                if let Some(packet) = order.installed_map_return() { result.push(packet.alias().clone()); }
                 if let Some(original) = order.null_return_binding() {
                     result.push(original.clone());
                 }

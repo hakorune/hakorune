@@ -204,7 +204,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
             LocalCallResultClassV1::Dynamic
                 if matches!(
                     profile,
-                    ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::LocalInitializer
+                    ExpressionLeafProfileV1::BoolCondition
+                        | ExpressionLeafProfileV1::Argument
+                        | ExpressionLeafProfileV1::LocalInitializer
                 ) =>
             {
                 Class::Dynamic

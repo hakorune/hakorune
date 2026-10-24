@@ -5,6 +5,7 @@
 use crate::mir::instruction::{
     InvokeCallResultKind, InvokeOperation, OwnedArrayInvokeOperation as Op,
     OwnedArraySlotDescriptorV1 as Descriptor,
+    DynamicCarrierArrayInvokeOperation as CarrierArray,
 };
 use crate::mir::value_origin::{
     build_value_def_map, resolve_value_origin, AcyclicUnanimousValueOrigins, ValueDefMap,
@@ -17,6 +18,8 @@ struct State {
     outer: BTreeSet<ValueId>,
     holders: BTreeMap<ValueId, Descriptor>,
     candidates: BTreeSet<ValueId>,
+    carrier_holders: BTreeSet<ValueId>,
+    carriers: BTreeSet<ValueId>,
 }
 
 struct Inventory<'a> {
@@ -26,6 +29,8 @@ struct Inventory<'a> {
     arrays: BTreeSet<ValueId>,
     candidates: BTreeMap<ValueId, BTreeSet<ValueId>>,
     candidate_objects: BTreeMap<ValueId, hakorune_mir_defs::CanonicalObjectIdV1>,
+    carrier_arrays: BTreeSet<ValueId>,
+    carrier_candidates: BTreeMap<ValueId, BTreeSet<ValueId>>,
     borrows: BTreeMap<ValueId, (ValueId, Descriptor)>,
     results: BTreeMap<BasicBlockId, ValueId>,
 }
@@ -71,8 +76,8 @@ impl<'a> Inventory<'a> {
                 matches!(
                     i,
                     MirInstruction::Invoke {
-                        operation: InvokeOperation::OwnedArray(_),
-                        ..
+                        operation: InvokeOperation::OwnedArray(_)
+                            | InvokeOperation::DynamicCarrierArray(_), ..
                     }
                 )
             })
@@ -86,6 +91,8 @@ impl<'a> Inventory<'a> {
             arrays: BTreeSet::new(),
             candidates: BTreeMap::new(),
             candidate_objects: BTreeMap::new(),
+            carrier_arrays: BTreeSet::new(),
+            carrier_candidates: BTreeMap::new(),
             borrows: BTreeMap::new(),
             results: BTreeMap::new(),
         };
@@ -96,6 +103,38 @@ impl<'a> Inventory<'a> {
                         return Err("owned-array-duplicate-result");
                     }
                 }
+            }
+        }
+        for block in function.blocks.values() {
+            let Some(MirInstruction::Invoke {
+                operation: InvokeOperation::DynamicCarrierArray(operation),
+                ..
+            }) = block.terminator.as_ref()
+            else {
+                continue;
+            };
+            let array = row.identities.origin(operation.array())
+                .ok_or("carrier-array-holder-identity")?;
+            if !matches!(row.producer(array), Some(InvokeOperation::IntrinsicArrayNew)) {
+                return Err("carrier-array-original-allocation");
+            }
+            if function.blocks.values().any(|candidate| matches!(candidate.terminator.as_ref(),
+                Some(MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(owned), .. })
+                    if row.identities.origin(owned.array()) == Some(array))) {
+                return Err("carrier-array-profile-overlap");
+            }
+            row.carrier_arrays.insert(array);
+            row.arrays.insert(array);
+            match operation {
+                CarrierArray::Append { carrier, .. } => {
+                    let carrier = row.identities.origin(*carrier)
+                        .ok_or("carrier-array-candidate-identity")?;
+                    if !matches!(row.producer(carrier), Some(InvokeOperation::DynamicInvocation(_))) {
+                        return Err("carrier-array-candidate-producer");
+                    }
+                    row.carrier_candidates.entry(carrier).or_default().insert(array);
+                }
+                CarrierArray::Claim { .. } | CarrierArray::End { .. } => {}
             }
         }
         for block in function.blocks.values() {
@@ -228,6 +267,9 @@ impl<'a> Inventory<'a> {
                     || matches!(instruction, MirInstruction::Phi { dst, .. }
                         if self.identities.origin(*dst) == Some(root))
                     || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(op), .. } if op.array() == value)
+                    || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::DynamicCarrierArray(op), .. } if op.array() == value)
+                    || matches!(instruction, MirInstruction::Return { value: Some(returned), .. }
+                        if *returned == value && self.carrier_arrays.contains(&root))
                     || matches!(instruction, MirInstruction::ArrayResidenceRelease { value: released } if *released == value && state.outer.contains(&root));
                 if !allowed {
                     if crate::config::env::builder_mir_compile_trace() {
@@ -256,6 +298,27 @@ impl<'a> Inventory<'a> {
                         | InvokeOperation::OwnedObjectFieldRelease { base, .. }, .. } if *base == value);
                 if !allowed {
                     return Err("owned-array-candidate-escape");
+                }
+            }
+            if let Some(arrays) = self.carrier_candidates.get(&root) {
+                if !state.carriers.contains(&root) {
+                    return Err("carrier-array-candidate-not-live");
+                }
+                let allowed = matches!(instruction, MirInstruction::Copy { src, .. } if *src == value)
+                    || matches!(instruction, MirInstruction::Invoke {
+                        operation: InvokeOperation::DynamicCarrierArray(CarrierArray::Append { array, carrier }), ..
+                    } if *carrier == value && arrays.contains(&self.origin(*array)))
+                    || matches!(instruction, MirInstruction::Invoke {
+                        operation: InvokeOperation::DynamicCarrierEnd { carrier }, ..
+                    } if *carrier == value)
+                    || matches!(instruction, MirInstruction::Invoke {
+                        operation: InvokeOperation::DynamicCarrierInteger { carrier }, ..
+                    } if *carrier == value);
+                    let allowed = allowed || matches!(instruction, MirInstruction::Invoke {
+                        operation: InvokeOperation::DynamicCarrierSubI64 { carrier, .. }, ..
+                    } if *carrier == value);
+                if !allowed {
+                    return Err("carrier-array-candidate-escape");
                 }
             }
         }
@@ -381,6 +444,42 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         state.holders.remove(&array);
                     }
                 }
+            } else if let InvokeOperation::DynamicCarrierArray(operation) = operation {
+                let array = row.origin(operation.array());
+                if faulted && !matches!(operation, CarrierArray::End { .. }) {
+                    return Err("carrier-array-effect-after-fault");
+                }
+                match operation {
+                    CarrierArray::Claim { .. } => {
+                        if !normal.outer.remove(&array)
+                            || !row.carrier_arrays.contains(&array)
+                            || !normal.carrier_holders.insert(array)
+                        {
+                            return Err("carrier-array-duplicate-or-unacquired-claim");
+                        }
+                    }
+                    CarrierArray::Append { carrier, .. } => {
+                        if !state.carrier_holders.contains(&array) {
+                            return Err("carrier-array-holder-not-live");
+                        }
+                        let carrier = row.origin(*carrier);
+                        if !row.carrier_candidates.get(&carrier).is_some_and(|arrays| arrays.contains(&array))
+                            || !normal.carriers.remove(&carrier)
+                        {
+                            return Err("carrier-array-candidate-not-live");
+                        }
+                    }
+                    CarrierArray::End { .. } => {
+                        if !state.carrier_holders.contains(&array)
+                            || state.carriers.iter().any(|carrier|
+                                row.carrier_candidates.get(carrier).is_some_and(|arrays| arrays.contains(&array)))
+                        {
+                            return Err("carrier-array-end-before-candidate-disposition");
+                        }
+                        normal.carrier_holders.remove(&array);
+                        state.carrier_holders.remove(&array);
+                    }
+                }
             }
             if let Some(result) = row.results.get(&id) {
                 if row.arrays.contains(result) {
@@ -391,6 +490,11 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 if row.candidates.contains_key(result) {
                     if faulted || !normal.candidates.insert(*result) {
                         return Err("owned-array-candidate-not-fresh");
+                    }
+                }
+                if row.carrier_candidates.contains_key(result) {
+                    if faulted || !normal.carriers.insert(*result) {
+                        return Err("carrier-array-candidate-not-fresh");
                     }
                 }
             }
@@ -420,12 +524,30 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     normal.candidates.remove(&candidate);
                 }
             }
+            if let InvokeOperation::DynamicCarrierEnd { carrier } = operation {
+                let carrier = row.origin(*carrier);
+                if row.carrier_candidates.contains_key(&carrier) {
+                    if !state.carriers.remove(&carrier) || !normal.carriers.remove(&carrier) {
+                        return Err("carrier-array-candidate-end-drift");
+                    }
+                }
+            }
+        }
+        if let MirInstruction::Return { value: Some(value), .. } = term {
+            let array = row.origin(*value);
+            if row.carrier_arrays.contains(&array) {
+                if !state.carrier_holders.remove(&array) {
+                    return Err("carrier-array-return-not-live");
+                }
+            }
         }
         let targets = block.successors_from_terminator();
         if targets.is_empty()
             && (!state.outer.is_empty()
                 || !state.holders.is_empty()
-                || !state.candidates.is_empty())
+                || !state.candidates.is_empty()
+                || !state.carrier_holders.is_empty()
+                || !state.carriers.is_empty())
         {
             return Err("owned-array-missing-end");
         }
@@ -463,7 +585,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
         for header in block.successors_from_terminator() {
             if !dominators.dominates(header, *tail) || seen.contains_key(&(header, true)) { continue; }
             let Some(state) = seen.get(&(header, false)) else { continue; };
-            if state.holders.is_empty() || !state.outer.is_empty() || !state.candidates.is_empty() { continue; }
+            if state.holders.is_empty() && state.carrier_holders.is_empty() ||
+                !state.outer.is_empty() || !state.candidates.is_empty() || !state.carriers.is_empty() { continue; }
             let mut members = BTreeSet::from([header]);
             let mut pending = vec![*tail];
             while let Some(id) = pending.pop() {

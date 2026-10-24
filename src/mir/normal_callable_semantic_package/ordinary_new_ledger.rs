@@ -241,6 +241,7 @@ impl OrdinaryNewClaimLedgerV1 {
             map_read_bindings: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
             lexical_source_targets: None,
+            source_dynamic_member_calls: None,
             borrowed_formal_source: None,
             selected_loop_products: BTreeMap::new(),
             loop_static_source_loans: RefCell::new(BTreeMap::new()),
@@ -287,6 +288,47 @@ impl OrdinaryNewClaimLedgerV1 {
             app_main_identity: None,
             app_main_catalog_key: None,
         }
+    }
+
+    pub(crate) fn retain_source_dynamic_member_calls_v1(
+        &mut self,
+        calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+    ) -> Result<(), &'static str> {
+        if self.source_dynamic_member_calls.is_some() {
+            return Err("Dynamic source-call catalog already retained");
+        }
+        let mut seen = BTreeSet::new();
+        if calls
+            .iter()
+            .any(|call| !seen.insert((call.owner(), call.call_site().clone())))
+        {
+            return Err("duplicate Dynamic source-call site");
+        }
+        self.source_dynamic_member_calls = Some(calls.to_vec().into_boxed_slice());
+        Ok(())
+    }
+
+    pub(in crate::mir) fn source_dynamic_member_call_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<
+        Option<crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1>,
+        &'static str,
+    > {
+        let Some(calls) = self.source_dynamic_member_calls.as_deref() else {
+            return Ok(None);
+        };
+        let mut matches = calls
+            .iter()
+            .filter(|call| call.owner() == owner && call.call_site() == site);
+        let Some(call) = matches.next() else {
+            return Ok(None);
+        };
+        if matches.next().is_some() {
+            return Err("duplicate Dynamic source-call owner/site");
+        }
+        Ok(Some(call.clone()))
     }
 
     pub(crate) fn try_take(

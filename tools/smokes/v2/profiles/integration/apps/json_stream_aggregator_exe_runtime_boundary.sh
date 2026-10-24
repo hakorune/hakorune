@@ -2,7 +2,7 @@
 # JSON stream aggregator EXE runtime boundary probe
 #
 # Contract:
-# - The app compiles through pure-first EXE without compat replay.
+# - The app enters the canonical lifecycle V4 EXE owner without compat replay.
 # - Runtime output matches the VM correctness smoke.
 
 set -euo pipefail
@@ -12,7 +12,9 @@ require_env || exit 2
 
 SMOKE_NAME="json_stream_aggregator_exe_runtime_boundary"
 APP="$HAKO_ROOT/apps/json-stream-aggregator/main.hako"
+BUILD_TIMEOUT_SECS="${BUILD_TIMEOUT_SECS:-300}"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-120}"
+NYRT_DIR="${HAKO_LIFECYCLE_NYRT:-${NYASH_EMIT_EXE_NYRT:-$HAKO_ROOT/target/lifecycle-kernel/release}}"
 TMP_ROOT="${TMPDIR:-/tmp}/hakorune_json_stream_aggregator_exe_boundary_$$"
 EXE_OUT="${TMP_ROOT}.exe"
 BUILD_LOG="${TMP_ROOT}.build.log"
@@ -29,12 +31,18 @@ fi
 
 set +e
 NYASH_DISABLE_PLUGINS=1 \
+  NYASH_PARSER_ALLOW_SEMICOLON=1 \
+  NYASH_ALLOW_USING_FILE=0 \
+  HAKO_ALLOW_USING_FILE=0 \
+  NYASH_USING_AST=1 \
+  NYASH_LLVM_ROUTE_TRACE=1 \
   HAKO_BACKEND_COMPILE_RECIPE=pure-first \
   HAKO_BACKEND_COMPAT_REPLAY=none \
-  timeout "$RUN_TIMEOUT_SECS" \
-    "$HAKO_ROOT/tools/selfhost/selfhost_build.sh" \
-      --in "$APP" \
-      --exe "$EXE_OUT" \
+  timeout "$BUILD_TIMEOUT_SECS" \
+    "$NYASH_BIN" --backend mir \
+      --emit-exe "$EXE_OUT" \
+      --emit-exe-nyrt "$NYRT_DIR" \
+      "$APP" \
       >"$BUILD_LOG" 2>&1
 build_rc=$?
 set -e
@@ -50,6 +58,14 @@ if grep -Fq "compat_replay=harness" "$BUILD_LOG"; then
   echo "[INFO] build output tail:"
   tail -n 120 "$BUILD_LOG" || true
   test_fail "$SMOKE_NAME: compat replay was used"
+  exit 1
+fi
+
+if ! grep -Fq 'stage=lifecycle-v4-measure result=ok' "$BUILD_LOG" \
+  || ! grep -Fq 'toolchain=llvm-c-api' "$BUILD_LOG"; then
+  echo "[INFO] build output tail:"
+  tail -n 120 "$BUILD_LOG" || true
+  test_fail "$SMOKE_NAME: lifecycle V4 LLVM C API route missing"
   exit 1
 fi
 

@@ -34,7 +34,10 @@ fn packet() -> EmittedLexicalCallProjectionV1 {
 }
 
 fn records(packet: &EmittedLexicalCallProjectionV1) -> Vec<Binding> {
-    let mut result = vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()];
+    let mut result = vec![
+        packet.invoke.clone(),
+        packet.projection.value().unwrap().clone(),
+    ];
     for argument in &packet.prepared.arguments {
         match argument {
             LexicalCallArgumentProjectionV1::Integer(binding) => result.push(binding.clone()),
@@ -78,12 +81,22 @@ fn local_prefix_sibling_views_share_the_original_packet_without_rebinding_it() {
     );
     assert_eq!(group.bindings(), original.as_slice());
     assert_ne!(mapped.bindings(), original.as_slice());
-    group.corroborate_received_packet_v1(packet.call_site(), &packet, &original, None).unwrap();
-    sibling.corroborate_received_packet_v1(packet.call_site(), &packet, &original, None).unwrap();
-    assert!(mapped.corroborate_received_packet_v1(packet.call_site(), &packet, &original, None).is_err());
-    assert!(group.corroborate_received_packet_v1(packet.call_site(), &packet, &original[1..], None).is_err());
+    group
+        .corroborate_received_packet_v1(packet.call_site(), &packet, &original, None)
+        .unwrap();
+    sibling
+        .corroborate_received_packet_v1(packet.call_site(), &packet, &original, None)
+        .unwrap();
+    assert!(mapped
+        .corroborate_received_packet_v1(packet.call_site(), &packet, &original, None)
+        .is_err());
+    assert!(group
+        .corroborate_received_packet_v1(packet.call_site(), &packet, &original[1..], None)
+        .is_err());
     let foreign_packet = self::packet();
-    assert!(group.corroborate_received_packet_v1(packet.call_site(), &foreign_packet, &original, None).is_err());
+    assert!(group
+        .corroborate_received_packet_v1(packet.call_site(), &foreign_packet, &original, None)
+        .is_err());
 }
 
 #[test]
@@ -99,9 +112,12 @@ fn local_prefix_rejects_foreign_packet_site_and_missing_or_duplicate_producer() 
         foreign_owner,
         packet.call_site().site().clone(),
     );
-    assert!(
-        RootLifecyclePrefixBindingGroupV1::new(foreign, original.clone(), Some(packet.clone())).is_err()
-    );
+    assert!(RootLifecyclePrefixBindingGroupV1::new(
+        foreign,
+        original.clone(),
+        Some(packet.clone())
+    )
+    .is_err());
     for index in 0..original.len() {
         let mut missing = original.clone();
         missing.remove(index);

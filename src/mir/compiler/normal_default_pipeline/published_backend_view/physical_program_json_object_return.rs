@@ -70,6 +70,25 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             formal_ordinal,
         } => json!({ "kind": "borrowed_call", "producer": coordinate(function, producer)?,
                 "invoke": coordinate(function, invoke)?, "formal_ordinal": formal_ordinal }),
+        FinalizedObjectReturnOriginV1::MapSlot(source) => {
+            let crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object } = source.support()
+                else { return Err(fault("object-return/json-source-missing")); };
+            let mut encoded = json!({ "kind": "borrowed_map_slot", "producer": coordinate(function, source.producer())?,
+                "invoke": coordinate(function, source.invoke())?,
+                "field": { "object_id": field.object().declaration_index(), "field_ordinal": field.declaration_ordinal() },
+                "key_ordinal": key_ordinal, "object_id": object.declaration_index() });
+            if let Some((normal, end)) = source.installed_bindings() {
+                encoded["installed"] = json!({"normal":coordinate(function, normal)?, "end":coordinate(function, end)?});
+            }
+            if let Some(rows) = source.present_bindings() {
+                encoded["present"] = json!({"invoke":coordinate(function, &rows[0])?,
+                    "normal":coordinate(function, &rows[1])?,
+                    "copies":rows[2..rows.len() - 1].iter().map(|row| coordinate(function, row))
+                        .collect::<Result<Vec<_>, _>>()?,
+                    "branch":coordinate(function, &rows[rows.len() - 1])?});
+            }
+            encoded
+        }
         FinalizedObjectReturnOriginV1::BorrowedFormal { formal_ordinal, .. } => {
             json!({ "kind": "borrowed_formal", "formal_ordinal": formal_ordinal })
         }

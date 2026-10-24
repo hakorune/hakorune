@@ -119,7 +119,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             if let Some(frame) = frame {
                 let consume = self.lexical_self_receiver_locator_consumer_v1()?;
                 return super::ordinary_new_admission::selected::binding_rebind_expression::emit(
-                    builder, &mut state.borrow_mut(), claims, frame, &consume);
+                    builder, &mut state.borrow_mut(), claims, frame, self.active_source_loop_product.clone(), &consume);
             }
         }
         let role = match &input {
@@ -180,6 +180,20 @@ impl RawInvocationChildPortV1<'_, '_> {
             return Err(freeze("initializer-expression/source-drift"));
         }
         let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+        let retained_argument_frames = self
+            .active_source_loop_product
+            .as_ref()
+            .map(|product| {
+                product
+                    .source
+                    .body_expressions
+                    .iter()
+                    .filter(|plan| plan.source().root().statement().node() == &site)
+                    .filter_map(|plan| plan.argument_frame().cloned())
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+        let source_loop = self.active_source_loop_product.clone();
         let port = std::cell::RefCell::new(self);
         let issue_static = |builder: &mut MirBuilder,
             original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
@@ -188,8 +202,18 @@ impl RawInvocationChildPortV1<'_, '_> {
             super::static_result_publication_ingress::take_expression_static_packet_v1(
                 &mut port.borrow_mut(), builder, original, frame, observation, &claims)
         };
-        let result = super::ordinary_new_admission::selected::initializer_expression::emit(builder, &mut state.borrow_mut(), &claims,
-            frame, ordinal, &consume, Some(&issue_static)).map(Some);
+        let result = super::ordinary_new_admission::selected::initializer_expression::emit(
+            builder,
+            &mut state.borrow_mut(),
+            &claims,
+            frame,
+            ordinal,
+            source_loop,
+            &consume,
+            Some(&issue_static),
+            &retained_argument_frames,
+        )
+        .map(Some);
         result
     }
     pub(super) fn lower_callable_local_v1(

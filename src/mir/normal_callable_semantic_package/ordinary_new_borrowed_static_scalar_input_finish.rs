@@ -655,6 +655,7 @@ impl OrdinaryNewClaimLedgerV1 {
                                 actual: StaticScalarActualV1::QualifiedLiteral(identity.clone()),
                             }),
                         ordered_arguments: staged.ordered_arguments.clone(),
+                        dynamic_invocation_arguments: None,
                         opaque_actuals: Box::new([PreparedBorrowedFormalActualV1 {
                             ordinal: 0, site: original.argument_sites()[0].clone(),
                             formal: contract.parameters[0].binding,
@@ -720,6 +721,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             },
                         }]),
                         ordered_arguments: staged.ordered_arguments.clone(),
+                        dynamic_invocation_arguments: None,
                     },
                 ));
                 checked_rows += 1;

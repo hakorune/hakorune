@@ -5,6 +5,9 @@ use super::*;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::MirModule;
 use std::collections::BTreeSet;
+#[path = "finalized_object_return_outcomes/map_slot.rs"]
+mod map_slot;
+pub(in crate::mir) use map_slot::FinalizedMapSlotReturnV1;
 
 #[derive(Debug, Clone, PartialEq)]
 pub(in crate::mir) enum FinalizedObjectReturnOriginV1 {
@@ -24,6 +27,7 @@ pub(in crate::mir) enum FinalizedObjectReturnOriginV1 {
         invoke: Binding,
         formal_ordinal: u32,
     },
+    MapSlot(FinalizedMapSlotReturnV1),
     /// The original nullable formal carries Null/Forward at runtime. It is
     /// not an instruction producer and never acquires a Home here.
     BorrowedFormal {
@@ -64,6 +68,17 @@ impl FinalizedObjectReturnOutcomeV1 {
         &self, function: &MirFunction, result: InvokeCallResultKind, has_receiver: bool,
     ) -> Result<(), String> {
         if result != self.result { return Err(freeze("object-return/physical-result")); }
+        if let InvokeCallResultKind::BorrowedNullableHandle {
+            support: support @ crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { .. }
+        } = result {
+            let FinalizedObjectReturnOriginV1::MapSlot(source) = &self.origin else {
+                return Err(freeze("object-return/physical-origin-role"));
+            };
+            if !has_receiver { return Err(freeze("object-return/physical-carrier")); }
+            source.validate(function, support)?;
+            source.validate_uses(function, &self.returned, &self.transport)?;
+            return self.validate_owned_physical_function_v1(function, has_receiver);
+        }
         let ordinal = match result {
             InvokeCallResultKind::MixedHandle { formal_ordinal }
             | InvokeCallResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) } => formal_ordinal,
@@ -104,6 +119,7 @@ impl FinalizedObjectReturnOutcomeV1 {
             FinalizedObjectReturnOriginV1::Fresh { producer, allocation } => required.extend([producer, allocation]),
             FinalizedObjectReturnOriginV1::OwnedCall { producer, invoke }
             | FinalizedObjectReturnOriginV1::BorrowedCall { producer, invoke, .. } => required.extend([producer, invoke]),
+            FinalizedObjectReturnOriginV1::MapSlot(source) => required.extend(source.bindings()),
             FinalizedObjectReturnOriginV1::BorrowedFormal { value, .. } => {
                 if function.params.iter().filter(|parameter| *parameter == value).count() != 1 {
                     return Err(freeze("object-return/physical-formal"));
@@ -135,6 +151,7 @@ impl FinalizedObjectReturnOutcomeV1 {
             FinalizedObjectReturnOriginV1::OwnedCall { .. } => "owned_call",
             FinalizedObjectReturnOriginV1::BorrowedCall { .. } => "borrowed_call",
             FinalizedObjectReturnOriginV1::BorrowedFormal { .. } => "borrowed_formal",
+            FinalizedObjectReturnOriginV1::MapSlot(_) => "borrowed_map_slot",
         }
     }
 }
@@ -167,7 +184,7 @@ impl FinalizedRootSourceHandoffV1 {
             if source.target() != key
                 || source.callee_owner() != loan.callee_owner()
                 || row.result()
-                    != Some(InvokeCallResultKind::borrowed_nullable_formal(loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))?,))
+                    != Some(InvokeCallResultKind::BorrowedNullableHandle { support: loan.result_support_v1() })
             {
                 return Err(freeze("borrowed-return/original-contract"));
             }
@@ -201,9 +218,6 @@ impl FinalizedRootSourceHandoffV1 {
             let function = module.functions.get(symbol)
                 .filter(|function| function.signature.name == symbol && symbol == source.target().mir_symbol_projection())
                 .ok_or_else(|| freeze("borrowed-return/function"))?;
-            let entry_source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-            let formal_returns = entry_source.borrowed_formal_return_uses()?;
-            let entry_values = self.borrowed_ordinary_entry_values_v1(owner)?;
             let exits = self.ledger.root_exits.borrow();
             let mut outcomes = Vec::new();
             for (root, terminal) in original_exits.iter() {
@@ -234,6 +248,9 @@ impl FinalizedRootSourceHandoffV1 {
                     }
                     (ResultWitnessStepV1::Formal { binding, ordinal }, TerminalReturnedSourceV1::Handle(formal))
                         if binding == formal && Some(*ordinal) == loan.callee_ordinal() => {
+                        let entry_source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+                        let formal_returns = entry_source.borrowed_formal_return_uses()?;
+                        let entry_values = self.borrowed_ordinary_entry_values_v1(owner)?;
                         let mut uses = formal_returns.iter().filter(|(_, root, at, _)| root == formal && *at == exit);
                         let (_, _, _, retained) = uses.next().ok_or_else(|| freeze("borrowed-return/formal-source"))?;
                         if uses.next().is_some() || retained.key() != source.target()
@@ -257,11 +274,19 @@ impl FinalizedRootSourceHandoffV1 {
                             value: *value, formal_ordinal: *ordinal, object,
                         }, *value)
                     }
+                    (ResultWitnessStepV1::MapStored { source: stored },
+                        TerminalReturnedSourceV1::StoredMapGet { .. } | TerminalReturnedSourceV1::StoredMapInstalled(_))
+                        if loan.is_map_slot() && stored.result_support_v1() == loan.result_support_v1() => {
+                        let provenance = FinalizedMapSlotReturnV1::issue(stored, terminal, entry, order,
+                            CallValidationContextV1::Finalized(self), function, projection)?;
+                        let value = provenance.value()?;
+                        (FinalizedObjectReturnOriginV1::MapSlot(provenance), value)
+                    }
                     _ => return Err(freeze("borrowed-return/source-kind")),
                 };
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
-                    result: InvokeCallResultKind::borrowed_nullable_formal(loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/original-contract"))?),
+                    result: InvokeCallResultKind::BorrowedNullableHandle { support: loan.result_support_v1() },
                     returned, origin, transport, field_supports: Box::new([]),
                 };
                 if let Some(prior) = outcomes.iter().find(|prior: &&FinalizedObjectReturnOutcomeV1| prior.returned.0 == outcome.returned.0) {
@@ -425,7 +450,7 @@ impl FinalizedRootSourceHandoffV1 {
                     | FinalizedObjectReturnOriginV1::Fresh { producer, .. }
                     | FinalizedObjectReturnOriginV1::OwnedCall { producer, .. }
                     | FinalizedObjectReturnOriginV1::BorrowedCall { producer, .. } => producer,
-                    FinalizedObjectReturnOriginV1::BorrowedFormal { .. } => unreachable!("Mixed original seal does not issue formal leaves"),
+                    FinalizedObjectReturnOriginV1::BorrowedFormal { .. } | FinalizedObjectReturnOriginV1::MapSlot(_) => unreachable!("Mixed original seal does not issue borrowed leaves"),
                 };
                 let expected = producer.1.dst_value().ok_or_else(|| freeze("mixed-return/producer-value"))?;
                 let transport = original_copy_transport(function, projection, original, expected)?;

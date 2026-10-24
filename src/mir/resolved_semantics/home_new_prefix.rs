@@ -185,7 +185,7 @@ mod local_flow;
 #[cfg(test)]
 pub(crate) use local_flow::assert_text_residence_identity_for_test;
 pub(crate) use local_flow::source_loop::{
-    CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1, LoopDynamicReadV1, SourceLoopPortKindV1,
+    BranchNormalTextSourceV1, CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1, LoopDynamicReadV1, SourceLoopPortKindV1,
     SourceLoopDynamicProducerV1, SourceLoopReturnV1, SourceLoopScanSummaryV1,
     SourceLoopTextProducerV1, SourceLoopValueProducerV1,
 };

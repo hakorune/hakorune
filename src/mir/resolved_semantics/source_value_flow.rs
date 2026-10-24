@@ -89,6 +89,25 @@ impl VerifiedSourceValueFlowV1 {
         matching.next().is_none().then_some(result)
     }
 
+    /// Exact original normal-branch join for one source statement and local.
+    /// This is passive reaching-definition evidence; consumers still prove
+    /// the producer and value class for both ordered arms.
+    pub(crate) fn branch_join(
+        &self, statement: &SourceStmtSiteV1, binding: BindingRefV1,
+    ) -> Option<(SourceValueRefV1, &[(SourceValueEdgeV1, SourceValueRefV1)])> {
+        if !self.complete || binding.owner() != self.owner { return None; }
+        let site = SourceExprSiteV1::from_node(statement.node().clone());
+        let mut matching = self.nodes.iter().enumerate().filter_map(|(slot, origin)| match origin {
+            SourceValueOriginV1::Join { binding: original, site: original_site,
+                kind: SourceValueJoinKindV1::BranchNormal, incoming }
+                if *original == binding && original_site == &site =>
+                    Some((SourceValueRefV1 { owner: self.owner, slot }, incoming.as_ref())),
+            _ => None,
+        });
+        let result = matching.next()?;
+        matching.next().is_none().then_some(result)
+    }
+
     /// Exact alias provenance only. Computed definitions, joins, unknowns and
     /// cycles cannot claim an entry origin from a convenient predecessor.
     pub(crate) fn alias_entry_origin(

@@ -1,14 +1,14 @@
 //! The existing physical packet retains its original source and affine owner.
 //! Static calls own the original publication handoff, never an instance row.
-use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewClaimLedgerV1, VerifiedStaticLoopPacketSourceV1,
 };
-use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
 use std::rc::Rc;
 
@@ -55,9 +55,15 @@ impl ExpressionStaticObservationV1 {
         frame: &CheckedExpressionEvaluationV1,
         observation: &LocalCallObservationV1,
     ) -> Result<Self, String> {
-        let call_index = frame.calls().iter().position(|candidate| std::ptr::eq(candidate, observation))
+        let call_index = frame
+            .calls()
+            .iter()
+            .position(|candidate| std::ptr::eq(candidate, observation))
             .ok_or_else(|| freeze("static-packet/expression-observation-unretained"))?;
-        Ok(Self { frame: Box::new(frame.clone()), call_index })
+        Ok(Self {
+            frame: Box::new(frame.clone()),
+            call_index,
+        })
     }
 
     fn retains(&self, observation: &LocalCallObservationV1) -> bool {
@@ -170,8 +176,7 @@ impl CallPacketSourceV1 {
         publication: VerifiedStaticCallResultPublicationHandoffV1,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, String> {
-        Ok(Self::prepare_static_i64(original, &publication, ledger)?
-            .into_packet(publication))
+        Ok(Self::prepare_static_i64(original, &publication, ledger)?.into_packet(publication))
     }
 
     pub(in crate::mir) fn static_expression(
@@ -191,9 +196,14 @@ impl CallPacketSourceV1 {
         {
             return Err(freeze("static-packet/expression-source-drift"));
         }
-        let packet = Self { kind: CallPacketSourceKindV1::Static {
-            original, observation: observation.clone(), publication, expression_origin: Some(expression_origin),
-        }};
+        let packet = Self {
+            kind: CallPacketSourceKindV1::Static {
+                original,
+                observation: observation.clone(),
+                publication,
+                expression_origin: Some(expression_origin),
+            },
+        };
         packet.loan().validate_static(ledger)?;
         Ok(packet)
     }
@@ -309,8 +319,15 @@ impl<'a> CallPacketSourceLoanV1<'a> {
     pub(in crate::mir) fn result(self) -> Option<InvokeCallResultKind> {
         match self {
             Self::Instance(row) => row.result(),
-            Self::Static { original, observation, publication, .. } => {
-                use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1 as Class, LocalCallResultSourceV1};
+            Self::Static {
+                original,
+                observation,
+                publication,
+                ..
+            } => {
+                use crate::mir::resolved_semantics::home_new_prefix::{
+                    LocalCallResultClassV1 as Class, LocalCallResultSourceV1,
+                };
                 match observation.result() {
                     Class::I64 => Some(InvokeCallResultKind::I64),
                     Class::Bool if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool
@@ -342,14 +359,18 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             return Ok(());
         };
         ledger.verify_original_static_packet_source_v1(original)?;
-        if observation.result() == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text
-            && !ledger.checked_completed_static_text_result_v1(original)? {
+        if observation.result()
+            == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Text
+            && !ledger.checked_completed_static_text_result_v1(original)?
+        {
             return Err(freeze("static-input/completed-source-drift"));
         }
         let observation_is_retained = match expression_origin {
             Some(origin) => origin.retains(observation),
-            None => ledger.local_call_for_owner(observation.owner(), observation.site().site())
-                == Some(observation),
+            None => {
+                ledger.local_call_for_owner(observation.owner(), observation.site().site())
+                    == Some(observation)
+            }
         };
         if observation.owner() != original.call_site().owner()
             || observation.site() != original.call_site()
@@ -361,7 +382,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             return Err(freeze("static-packet/original-source-drift"));
         }
         let borrowed_actuals = match expression_origin {
-            Some(_) => ledger.borrowed_static_packet_actuals_for_expression_v1(original, observation)?,
+            Some(_) => {
+                ledger.borrowed_static_packet_actuals_for_expression_v1(original, observation)?
+            }
             None => ledger.borrowed_static_packet_actuals_v1(original)?,
         };
         let handoff_agrees = original.corroborates_publication_handoff(publication)
@@ -412,14 +435,20 @@ impl<'a> CallPacketSourceLoanV1<'a> {
 
     pub(in crate::mir) fn borrowed_actuals_in_context<'ledger>(
         self, context: CallValidationContextV1<'ledger>,
-    ) -> Result<Option<&'ledger [crate::mir::normal_callable_semantic_package::PreparedBorrowedFormalActualV1]>, String> {
+    ) -> Result<Option<&'ledger [crate::mir::normal_callable_semantic_package::PreparedBorrowedFormalActualV1]>, String>{
         let ledger = context.ledger();
         match self {
             Self::Instance(row) => ledger.borrowed_call_actuals_using_v1(row, context),
-            Self::Static { original, observation, expression_origin, .. } => {
+            Self::Static {
+                original,
+                observation,
+                expression_origin,
+                ..
+            } => {
                 self.validate_static(ledger)?;
                 match expression_origin {
-                    Some(_) => ledger.borrowed_static_packet_actuals_for_expression_v1(original, observation),
+                    Some(_) => ledger
+                        .borrowed_static_packet_actuals_for_expression_v1(original, observation),
                     None => ledger.borrowed_static_packet_actuals_v1(original),
                 }
             }
@@ -434,7 +463,8 @@ impl EmittedLexicalCallProjectionV1 {
     /// Structural loan only. Lookup must not recursively re-enter result
     /// validation while that result is rechecking its borrowed support.
     pub(in crate::mir::normal_callable_semantic_package) fn retained_node_at_v1(
-        &self, site: &OwnedExprSiteV1,
+        &self,
+        site: &OwnedExprSiteV1,
     ) -> Result<Option<&Self>, String> {
         let mut found = (self.call_site() == site).then_some(self);
         for argument in &self.prepared.arguments {
@@ -452,5 +482,4 @@ impl EmittedLexicalCallProjectionV1 {
         }
         Ok(found)
     }
-
 }

@@ -539,7 +539,21 @@ impl OrdinaryNewClaimLedgerV1 {
                     if source.static_arguments.contains_key(&(call.call.clone(), formal.ordinal)) =>
                     super::static_selected_actual::original_static_forwarded_source_actual_v1(
                         source, snapshot, original, formal.ordinal)?,
-                _ => self.borrowed_expression_actual_source_v1(&call.call, formal.ordinal, &candidate.site)?,
+                _ => {
+                    let Some(super::ArgumentExpressionV1::Qualified(frame)) =
+                        identity.argument_sources.get(&formal.ordinal)
+                    else {
+                        return Err(freeze("static-input/argument-frame-missing"));
+                    };
+                    PreparedBorrowedFormalActualV1 {
+                        ordinal: formal.ordinal,
+                        site: candidate.site.clone(),
+                        formal: formal.binding,
+                        source: BorrowedFormalActualSourceV1::retain_expression_frame_v1(
+                            Rc::clone(frame),
+                        )?,
+                    }
+                }
             };
             actuals.push(actual);
         }
@@ -607,6 +621,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             source: Rc::clone(original), completion: Rc::clone(completion), text_result,
                             evidence: StaticInputEvidenceV1::Qualified { snapshot: Box::new(snapshot.clone()), uses: Rc::clone(&uses), domains: domains.clone() },
                         }), opaque_actuals: actuals.into_boxed_slice(), ordered_arguments: snapshot.ordered_arguments.clone(),
+                        dynamic_invocation_arguments: None,
                     }));
                 }
                 BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(proof) => {

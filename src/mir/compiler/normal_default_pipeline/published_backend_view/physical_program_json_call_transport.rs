@@ -494,14 +494,21 @@ fn encode_borrowed_actual_kind(source: &Source) -> Result<Value, String> {
 #[path = "physical_program_json_borrowed_transport_tests.rs"]
 mod borrowed_transport_tests;
 
-/// Both declaration and Call encode the SAME support law. The current C
-/// consumer accepts formal forwarding only; storage is never omitted or
-/// relabelled as a formal while its physical/lifetime contract is unfinished.
+/// Both declaration and Call encode the SAME support law. Receiver-field
+/// storage remains explicit; consumers must validate the full slot/lifetime
+/// tuple rather than substituting a formal ordinal.
 pub(super) fn encode_result_support_v1(result: InvokeCallResultKind, wire: &mut Value) -> Result<(), String> {
     let ordinal = match result {
         InvokeCallResultKind::MixedHandle { formal_ordinal } => Some(formal_ordinal),
-        InvokeCallResultKind::BorrowedNullableHandle { support } => Some(support.formal_ordinal()
-            .ok_or_else(|| fault("borrowed-result/source-missing"))?),
+        InvokeCallResultKind::BorrowedNullableHandle { support } => match support {
+            crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => Some(ordinal),
+            crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object } => {
+                wire["result_support"] = json!({"kind":"receiver_field_slot",
+                    "field":{"object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal()},
+                    "key_ordinal":key_ordinal, "object_id":object.declaration_index()});
+                None
+            }
+        },
         _ => None,
     };
     if let Some(ordinal) = ordinal { wire["result_formal_ordinal"] = json!(ordinal); }

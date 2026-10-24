@@ -500,14 +500,18 @@ pub(super) fn scan_statement_flow<'a, E>(
                             if let Some(summary) = summary {
                                 // Retain the exact whole-source logical product; no retry or
                                 // second scan is permitted after selected failure.
-                                if let Ok(product) = row.retain_source_recipe_v2(input, summary) {
-                                    if locals.apply_source_loop_after_v2(product, homes) {
-                                        // This is source Home continuation only. The same row's
-                                        // product must still be fulfilled by the physical owner.
-                                        continue;
+                                match row.retain_source_recipe_v2(input, summary) {
+                                    Ok(product) => {
+                                        let applied = locals.apply_source_loop_after_v2(product, homes);
+                                        if applied {
+                                            // This is source Home continuation only. The same row's
+                                            // product must still be fulfilled by the physical owner.
+                                            continue;
+                                        }
+                                        unavailable
+                                            .get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
                                     }
-                                    unavailable
-                                        .get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                                    Err(_) => {}
                                 }
                             }
                             // WIP: the complete V2/JoinSig + physical product

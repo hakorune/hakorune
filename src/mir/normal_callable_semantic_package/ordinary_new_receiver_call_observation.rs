@@ -41,6 +41,7 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 pub(crate) struct ReceiverCallClassObservationV1 {
     callee: CanonicalSameModuleCallableKeyV1,
     class: super::OrdinaryNewResultClassV1,
+    map_stored_source: Option<std::rc::Rc<super::result_class_claim::MapStoredResultSourceV1>>,
     destination: BindingRefV1,
     arguments: Box<[SelectedNewArgumentV1]>,
 }
@@ -54,6 +55,14 @@ impl ReceiverCallClassObservationV1 {
     /// The callee's composed result-class claim, carried verbatim.
     pub(crate) fn class(&self) -> &super::OrdinaryNewResultClassV1 {
         &self.class
+    }
+
+    /// Exact stored-slot result source for nullable receiver calls. Fresh or
+    /// Null/Fresh nullable claims do not authorize this borrowed-result lane.
+    pub(crate) fn map_stored_source(
+        &self,
+    ) -> Option<&std::rc::Rc<super::result_class_claim::MapStoredResultSourceV1>> {
+        self.map_stored_source.as_ref()
     }
 
     /// The sole local bound by the `local x = ..` initializer — exact
@@ -130,9 +139,9 @@ pub(super) fn observe_receiver_call_sites(
     claims: &super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     parameter_contracts: &[&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     observations: &mut BTreeMap<OwnedExprSiteV1, ReceiverCallClassObservationV1>,
-) {
+) -> Result<(), (OwnedExprSiteV1, String)> {
     let Some((receiver, box_row)) = receiver_proof else {
-        return;
+        return Ok(());
     };
     let function = input.function();
     let owner = input.owner();
@@ -185,16 +194,48 @@ pub(super) fn observe_receiver_call_sites(
         if class.class().is_none() {
             continue;
         }
+        let map_stored_source = if let super::OrdinaryNewResultClassV1::NullableObject(class_name) = class {
+            let Some(first_return) = claims.outcomes(&callee).and_then(|returns| returns.first()) else {
+                return Err((
+                    OwnedExprSiteV1::new(owner, site.clone()),
+                    "[freeze:contract][receiver-object/source-identity]".to_owned(),
+                ));
+            };
+            let source = claims
+                .map_stored_source_v1(first_return.site())
+                .map_err(|_| (
+                    OwnedExprSiteV1::new(owner, site.clone()),
+                    "[freeze:contract][receiver-object/source-identity]".to_owned(),
+                ))?;
+            match source {
+                Some(source) if source.payload_class_v1() == class_name.as_ref() => Some(source),
+                Some(_) => {
+                    return Err((
+                        OwnedExprSiteV1::new(owner, site.clone()),
+                        "[freeze:contract][receiver-object/source-identity]".to_owned(),
+                    ));
+                }
+                // A nullable result without the exact stored-slot witness
+                // remains observable, but it cannot enter the borrowed Map
+                // result lane. Its consuming source owner reports the
+                // appropriate refusal at that boundary.
+                None => None,
+            }
+        } else {
+            None
+        };
         observations.insert(
             OwnedExprSiteV1::new(owner, site.clone()),
             ReceiverCallClassObservationV1 {
                 callee: callee.clone(),
                 class: class.clone(),
+                map_stored_source,
                 destination,
                 arguments: arguments.into_boxed_slice(),
             },
         );
     }
+    Ok(())
 }
 
 /// Same entry-receiver observation, restricted to its original non-null role.

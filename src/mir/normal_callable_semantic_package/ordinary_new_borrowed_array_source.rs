@@ -37,38 +37,66 @@ pub(in crate::mir::normal_callable_semantic_package) struct ArrayProducerPlanV1 
 pub(crate) struct NamedArrayHolderSourceLoanV1 {
     construction: NamedArrayConstructionSourceV1,
     requirement: Option<Rc<ArrayElementSourceRequirementV1>>,
+    append_only: Option<Rc<NamedArrayAppendOnlySourceV1>>,
     empty_transfer: Option<crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1>,
 }
 impl PartialEq for NamedArrayHolderSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        self.construction == other.construction && self.empty_transfer == other.empty_transfer && match (&self.requirement, &other.requirement) {
-            (Some(a), Some(b)) => Rc::ptr_eq(a, b), (None, None) => true, _ => false,
-        }
+        self.construction == other.construction
+            && self.empty_transfer == other.empty_transfer
+            && match (&self.requirement, &other.requirement) {
+                (Some(a), Some(b)) => Rc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
+            && match (&self.append_only, &other.append_only) {
+                (Some(a), Some(b)) => Rc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
     }
 }
 impl Eq for NamedArrayHolderSourceLoanV1 {}
 impl NamedArrayHolderSourceLoanV1 {
     fn from_requirement(requirement: Rc<ArrayElementSourceRequirementV1>) -> Self {
-        Self { construction: requirement.holder().construction().clone(), requirement: Some(requirement), empty_transfer: None }
+        Self { construction: requirement.holder().construction().clone(), requirement: Some(requirement), append_only: None, empty_transfer: None }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn from_construction(
         construction: NamedArrayConstructionSourceV1,
         empty_transfer: Option<crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1>,
     ) -> Self {
-        Self { construction, requirement: None, empty_transfer }
+        Self { construction, requirement: None, append_only: None, empty_transfer }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn from_append_only(
+        construction: NamedArrayConstructionSourceV1,
+        append_only: Rc<NamedArrayAppendOnlySourceV1>,
+    ) -> Self {
+        Self { construction, requirement: None, append_only: Some(append_only), empty_transfer: None }
     }
     pub(crate) fn proves_empty_transfer(
         &self, assignment: &crate::mir::resolved_semantics::ResolvedAssignmentSourceV1,
         destination: BindingRefV1, field: &str,
     ) -> bool {
-        self.requirement.is_none() && self.empty_transfer.as_ref().is_some_and(|source|
+        self.requirement.is_none() && self.append_only.is_none() && self.empty_transfer.as_ref().is_some_and(|source|
             source.matches_transfer(&self.construction, assignment, destination, field))
     }
     pub(crate) fn has_element_contract(&self) -> bool { self.requirement.is_some() }
+    pub(crate) fn is_dynamic_carrier_append_only_v1(&self) -> bool {
+        self.requirement.is_none() && self.append_only.as_ref().is_some_and(|source|
+            source.has_appends() && source.reads().is_empty())
+    }
+    pub(crate) fn original_append_sites_v1(&self) -> Vec<OwnedExprSiteV1> {
+        let rows = self.append_only.as_ref().map(|source| source.appends())
+            .or_else(|| self.requirement.as_ref().map(|row| row.holder().appends()));
+        rows.into_iter().flatten().map(|row|
+            OwnedExprSiteV1::new(self.binding().owner(), row.call().clone())).collect()
+    }
     pub(crate) fn append_candidate_is_null_v1(&self, call: &OwnedExprSiteV1) -> Option<bool> {
         if call.owner() != self.binding().owner() { return None; }
-        self.requirement.as_ref()?.holder().appends().iter().find(|row| row.call() == call.site())
-            .map(|row| row.null_candidate())
+        self.requirement.as_ref()
+            .and_then(|row| row.holder().appends().iter().find(|append| append.call() == call.site())
+                .map(|append| append.null_candidate()))
+            .or_else(|| self.append_only.as_ref()?.append_candidate_is_null_v1(call.site()))
     }
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.construction.binding()
@@ -83,12 +111,36 @@ impl NamedArrayHolderSourceLoanV1 {
         if call.owner() != self.binding().owner() {
             return None;
         }
-        self.requirement.as_ref()?
-            .holder()
-            .appends()
-            .iter()
-            .find(|row| row.call() == call.site())
-            .map(|row| OwnedExprSiteV1::new(call.owner(), row.candidate().clone()))
+        let candidate = self.requirement.as_ref()
+            .and_then(|row| row.holder().appends().iter().find(|append| append.call() == call.site())
+                .map(|append| append.candidate()))
+            .or_else(|| self.append_only.as_ref()?.append_candidate_v1(call.site()))?;
+        Some(OwnedExprSiteV1::new(call.owner(), candidate.clone()))
+    }
+    pub(crate) fn append_receiver_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+    ) -> Option<SourceExprSiteV1> {
+        if call.owner() != self.binding().owner() {
+            return None;
+        }
+        self.requirement
+            .as_ref()
+            .and_then(|row| {
+                row.holder()
+                    .appends()
+                    .iter()
+                    .find(|append| append.call() == call.site())
+                    .map(|append| append.receiver().clone())
+            })
+            .or_else(|| {
+                self.append_only
+                    .as_ref()?
+                    .appends()
+                    .iter()
+                    .find(|append| append.call() == call.site())
+                    .map(|append| append.receiver().clone())
+            })
     }
 }
 

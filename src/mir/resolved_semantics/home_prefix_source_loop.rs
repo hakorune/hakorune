@@ -17,6 +17,11 @@ pub(crate) use control::{
     CheckedSourceLoopBodyV1, CheckedSourceLoopStatementV1, SourceLoopReturnV1,
 };
 pub(crate) use ports::{SourceLoopPortKindV1, SourceLoopScanSummaryV1};
+#[path = "home_prefix_source_loop_dynamic.rs"]
+mod dynamic;
+pub(crate) use dynamic::{LoopDynamicReadV1, SourceLoopDynamicProducerV1};
+#[path = "home_prefix_source_loop_after.rs"]
+mod after;
 
 /// The original value producer is class-separated before any Recipe or Phi.
 /// A Text branch can never lend an Integer read or ABI.
@@ -25,15 +30,6 @@ pub(crate) enum SourceLoopValueProducerV1 {
     Scalar(CurrentScalarProducerV1),
     Text(SourceLoopTextProducerV1),
     Dynamic(SourceLoopDynamicProducerV1),
-}
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum SourceLoopDynamicProducerV1 {
-    Source(TaggedDynamicValueV1),
-    Header(Rc<LoopHeaderValueBasisV1>),
-    After {
-        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        binding: BindingRefV1,
-    },
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum SourceLoopTextProducerV1 {
@@ -48,6 +44,99 @@ pub(crate) enum SourceLoopTextProducerV1 {
         product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         binding: BindingRefV1,
     },
+    BranchNormal(Rc<BranchNormalTextSourceV1>),
+}
+
+/// Exact, ordered normal inputs of one source Text branch join. This carries
+/// source ownership only; it does not choose an arm or issue a physical value.
+#[derive(Debug, Clone)]
+pub(crate) struct BranchNormalTextSourceV1 {
+    flow: Arc<VerifiedSourceValueFlowV1>,
+    value: SourceValueRefV1,
+    binding: BindingRefV1,
+    site: SourceStmtSiteV1,
+    incoming: Box<[(Edge, SourceValueRefV1, SourceLoopTextProducerV1)]>,
+}
+impl PartialEq for BranchNormalTextSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.flow, &other.flow) && self.value == other.value
+            && self.binding == other.binding && self.site == other.site
+    }
+}
+impl Eq for BranchNormalTextSourceV1 {}
+impl BranchNormalTextSourceV1 {
+    pub(crate) fn new(
+        flow: Arc<VerifiedSourceValueFlowV1>, value: SourceValueRefV1,
+        binding: BindingRefV1, site: SourceStmtSiteV1,
+        incoming: Box<[(Edge, SourceValueRefV1, SourceLoopTextProducerV1)]>,
+    ) -> Option<Rc<Self>> {
+        let source = Rc::new(Self { flow, value, binding, site, incoming });
+        source.corroborates_original().then_some(source)
+    }
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(crate) fn value(&self) -> SourceValueRefV1 { self.value }
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 { &self.site }
+    pub(crate) fn matches_source(
+        &self, flow: &Arc<VerifiedSourceValueFlowV1>, binding: BindingRefV1,
+        value: SourceValueRefV1,
+    ) -> bool {
+        Arc::ptr_eq(&self.flow, flow) && self.binding == binding && self.value == value
+            && self.corroborates_original()
+    }
+    pub(crate) fn incoming(&self) -> &[(Edge, SourceValueRefV1, SourceLoopTextProducerV1)] {
+        &self.incoming
+    }
+    pub(crate) fn is_owned_residence_tree_v1(&self) -> bool {
+        self.corroborates_original() && self.incoming.iter().all(|(_, _, producer)| {
+            match producer {
+                SourceLoopTextProducerV1::Residence(acquisition) =>
+                    acquisition.is_text_residence() && acquisition.owns_root(),
+                SourceLoopTextProducerV1::BranchNormal(source) => source.is_owned_residence_tree_v1(),
+                _ => false,
+            }
+        })
+    }
+    pub(crate) fn corroborates_original(&self) -> bool {
+        self.flow.is_complete() && self.flow.owner() == self.binding.owner()
+            && matches!(self.flow.origin(self.value), Some(SourceValueOriginV1::Join {
+                binding, site, kind: Join::BranchNormal, incoming
+            }) if *binding == self.binding && site.node() == self.site.node()
+                && incoming.len() == 2 && self.incoming.len() == 2
+                && incoming.iter().zip(self.incoming.iter()).all(|((edge, value), (actual_edge, actual_value, producer))|
+                    edge == actual_edge && value == actual_value
+                        && Self::producer_matches(&self.flow, self.binding, *value, producer))
+                && matches!((&incoming[0].0, &incoming[1].0), (Edge::ThenNormal, Edge::ElseNormal)))
+    }
+    fn producer_matches(
+        flow: &Arc<VerifiedSourceValueFlowV1>, binding: BindingRefV1,
+        value: SourceValueRefV1, producer: &SourceLoopTextProducerV1,
+    ) -> bool {
+        match producer {
+            SourceLoopTextProducerV1::Header(basis) => {
+                Arc::ptr_eq(&basis.flow, flow) && basis.binding == binding
+                    && basis.header == value
+                    && basis.entry_producer().class()
+                        == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String
+                    && flow.loop_join(basis.source.site(), binding, Join::LoopHeader)
+                        .is_some_and(|(header, _)| header == value)
+            }
+            SourceLoopTextProducerV1::Static { binding: source_binding, definition, .. } => {
+                *source_binding == binding
+                    && matches!(flow.origin(value), Some(SourceValueOriginV1::Expression(site)) if site == definition)
+            }
+            SourceLoopTextProducerV1::Residence(acquisition) => {
+                if acquisition.binding() != binding || !acquisition.is_text_residence()
+                    || acquisition.source().owner() != flow.owner() { return false; }
+                let Some(definition) = acquisition.source().nodes().first().map(|node| node.site()) else { return false; };
+                matches!(flow.origin(value), Some(SourceValueOriginV1::Expression(site)) if site == definition)
+            }
+            SourceLoopTextProducerV1::BranchNormal(source) => {
+                Arc::ptr_eq(&source.flow, flow) && source.binding == binding
+                    && source.value == value && source.corroborates_original()
+            }
+            _ => false,
+        }
+    }
 }
 impl SourceLoopValueProducerV1 {
     pub(crate) fn scalar(&self) -> Option<&CurrentScalarProducerV1> {
@@ -93,54 +182,6 @@ pub(crate) struct LoopTextReadV1 {
     producer: SourceLoopTextProducerV1,
 }
 
-/// Exact read of a tagged-Dynamic Loop Header/After. The source SUM and the
-/// Loop product remain attached so publication cannot substitute the Entry
-/// formal for the value selected by the PHI.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LoopDynamicReadV1 {
-    read: TaggedDynamicReadV1,
-    producer: SourceLoopDynamicProducerV1,
-}
-impl LoopDynamicReadV1 {
-    pub(crate) fn binding(&self) -> BindingRefV1 { self.read.binding() }
-    pub(crate) fn read(&self) -> &SourceExprSiteV1 { self.read.read() }
-    pub(crate) fn value(&self) -> SourceValueRefV1 { self.read.value() }
-    pub(crate) fn producer(&self) -> &SourceLoopDynamicProducerV1 { &self.producer }
-    pub(crate) fn matches_source_node(
-        &self,
-        source: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
-        node: usize,
-    ) -> bool {
-        if !self.read.matches_source_node(source, node) { return false; }
-        let binding = self.binding();
-        match &self.producer {
-            SourceLoopDynamicProducerV1::Source(point) => {
-                point.binding() == binding && point.value() == self.value()
-            }
-            SourceLoopDynamicProducerV1::Header(basis) => {
-                basis.binding() == binding
-                    && basis.source.owner() == source.owner()
-                    && basis.flow.owner() == source.owner()
-                    && basis.flow.read(self.read.read(), binding) == Some(self.value())
-                    && basis.header == self.value()
-                    && basis.entry_producer().class()
-                        == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic
-            }
-            SourceLoopDynamicProducerV1::After { product, binding: after_binding } => {
-                if *after_binding != binding || product.source.source.owner() != source.owner() { return false; }
-                let Some(basis) = product.source.headers.get(&binding) else { return false; };
-                basis.entry_producer().class()
-                    == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic
-                    && basis.flow.read(self.read.read(), binding) == Some(self.value())
-                    && basis.flow.loop_join(product.source.source.site(), binding, Join::LoopAfter)
-                        .is_some_and(|(after, _)| after == self.value())
-                    && product.source.incoming.as_ref().is_ok_and(|incoming| incoming.iter().filter(|row|
-                        row.after == self.value() && row.basis.binding() == binding
-                            && Rc::ptr_eq(&row.basis, basis)).count() == 1)
-            }
-        }
-    }
-}
 impl LoopTextReadV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 {
         match &self.producer {
@@ -148,6 +189,7 @@ impl LoopTextReadV1 {
             SourceLoopTextProducerV1::After { binding, .. } => *binding,
             SourceLoopTextProducerV1::Static { binding, .. } => *binding,
             SourceLoopTextProducerV1::Residence(acquisition) => acquisition.binding(),
+            SourceLoopTextProducerV1::BranchNormal(source) => source.binding(),
         }
     }
     pub(crate) fn read(&self) -> &SourceExprSiteV1 {
@@ -195,6 +237,11 @@ impl LoopTextReadV1 {
                 }
                 product.source.incoming.as_ref().is_ok_and(|incoming| incoming.iter().filter(|row|
                     row.after == self.value && row.basis.binding() == binding && Rc::ptr_eq(&row.basis, basis)).count() == 1)
+            }
+            SourceLoopTextProducerV1::BranchNormal(source) => {
+                source.binding() == binding && source.value() == self.value
+                    && source.corroborates_original()
+                    && source.flow.read(&self.read, binding) == Some(self.value)
             }
             SourceLoopTextProducerV1::Static { .. } | SourceLoopTextProducerV1::Residence(_) => false,
         }
@@ -348,157 +395,6 @@ impl PrefixLocalFlow<'_> {
         })
     }
 
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn loop_header_dynamic_reference_v1(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<LoopDynamicReadV1> {
-        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
-            return None;
-        };
-        let flow = self.input.function().expression_source().value_flow()?;
-        let read = self.tagged_dynamic_read_v1(site)?;
-        let active = self.source_loop.as_ref()?;
-        let prefix = active.source.site().node().segments();
-        let segments = site.node().segments();
-        if !segments.starts_with(prefix)
-            || !matches!(segments.get(prefix.len()),
-                Some(crate::mir::resolved_semantics::SourcePathSegmentV1::LoopCondition
-                    | crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)))
-        {
-            return None;
-        }
-        let basis = active.header_for_value(flow, read.value())?;
-        if basis.binding() != binding
-            || basis.entry_producer().class()
-                != crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic
-        {
-            return None;
-        }
-        Some(LoopDynamicReadV1 {
-            read,
-            producer: SourceLoopDynamicProducerV1::Header(Rc::clone(basis)),
-        })
-    }
-
-    /// Resolve a tagged Dynamic read at its exact source point. Body reads
-    /// borrow the active Header; continuation reads require one complete
-    /// source Loop product's After relation.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn loop_dynamic_reference_v1(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<LoopDynamicReadV1> {
-        if let Some(read) = self.loop_header_dynamic_reference_v1(site) {
-            return Some(read);
-        }
-        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
-            return None;
-        };
-        let flow = self.input.function().expression_source().value_flow()?;
-        let read = self.tagged_dynamic_read_v1(site)?;
-        let plans = self.expression_plans.borrow();
-        let mut matching = plans
-            .iter()
-            .filter_map(|plan| plan.loop_recipe_v2())
-            .filter_map(|product| {
-                let basis = product.source.headers.get(&binding)?;
-                if basis.entry_producer().class()
-                    != crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic
-                    || !Arc::ptr_eq(&basis.flow, flow)
-                    || !Rc::ptr_eq(&basis.source, &product.source.source)
-                    || flow.loop_join(product.source.source.site(), binding, Join::LoopAfter)
-                        .is_none_or(|(after, _)| after != read.value())
-                {
-                    return None;
-                }
-                let incoming = product.source.incoming.as_ref().ok()?;
-                let mut rows = incoming.iter().filter(|row| {
-                    row.after == read.value()
-                        && row.basis.binding() == binding
-                        && Rc::ptr_eq(&row.basis, basis)
-                });
-                rows.next()?;
-                rows.next().is_none().then_some(product)
-            });
-        let product = matching.next()?;
-        if matching.next().is_some() { return None; }
-        Some(LoopDynamicReadV1 {
-            read,
-            producer: SourceLoopDynamicProducerV1::After {
-                product: Rc::clone(product),
-                binding,
-            },
-        })
-    }
-
-    /// Resolve one Dynamic value on a source Loop port without erasing its
-    /// reaching-definition identity. Header and completed After values borrow
-    /// their existing Loop product; all other values must be exact points in
-    /// the original tagged-Dynamic SUM.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn dynamic_producer_for_value_v1(
-        &self,
-        binding: BindingRefV1,
-        value: SourceValueRefV1,
-        flow: &Arc<VerifiedSourceValueFlowV1>,
-    ) -> Option<(SourceValueRefV1, SourceLoopDynamicProducerV1)> {
-        if binding.owner() != self.input.owner()
-            || flow.owner() != binding.owner()
-            || !matches!(self.locals.get(&binding), Some(StoredLocal::TaggedDynamic))
-        {
-            return None;
-        }
-        if let Some(basis) = self
-            .source_loop
-            .as_ref()
-            .and_then(|active| active.header_for_value(flow, value))
-            .filter(|basis| {
-                basis.binding() == binding
-                    && basis.entry_producer().class()
-                        == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic
-            })
-        {
-            return Some((value, SourceLoopDynamicProducerV1::Header(Rc::clone(basis))));
-        }
-
-        let plans = self.expression_plans.borrow();
-        let mut after = plans.iter().filter_map(|plan| plan.loop_recipe_v2()).filter_map(|product| {
-            let basis = product.source.headers.get(&binding)?;
-            if basis.entry_producer().class()
-                != crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic
-                || !Arc::ptr_eq(&basis.flow, flow)
-                || !Rc::ptr_eq(&basis.source, &product.source.source)
-                || flow.loop_join(product.source.source.site(), binding, Join::LoopAfter)
-                    .is_none_or(|(after, _)| after != value)
-            {
-                return None;
-            }
-            let incoming = product.source.incoming.as_ref().ok()?;
-            let mut rows = incoming.iter().filter(|row| {
-                row.after == value
-                    && row.basis.binding() == binding
-                    && Rc::ptr_eq(&row.basis, basis)
-            });
-            rows.next()?;
-            rows.next().is_none().then_some(product)
-        });
-        if let Some(product) = after.next() {
-            if after.next().is_some() {
-                return None;
-            }
-            return Some((
-                value,
-                SourceLoopDynamicProducerV1::After {
-                    product: Rc::clone(product),
-                    binding,
-                },
-            ));
-        }
-        drop(after);
-        drop(plans);
-
-        let source = self.tagged_dynamic_value_for_value_v1(binding, value, flow)?;
-        Some((value, SourceLoopDynamicProducerV1::Source(source)))
-    }
-
     /// Resolve one exact Text incoming from the current source path. Static
     /// bytes are admitted only through the original definition in this flow;
     /// an owned value retains its existing acquisition and Home.
@@ -517,6 +413,16 @@ impl PrefixLocalFlow<'_> {
             StoredLocal::StaticText { definition } => {
                 if homes.iter().any(|home| home.binding() == binding) {
                     return None;
+                }
+                if let Some(basis) = self.source_loop_header_basis_v1(binding)
+                    .filter(|basis| Arc::ptr_eq(&basis.flow, flow)
+                        && basis.entry_producer().class()
+                            == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
+                {
+                    let (header, _) = flow.loop_join(basis.source.site(), binding, Join::LoopHeader)?;
+                    if basis.header == value && header == value {
+                        return Some((value, SourceLoopTextProducerV1::Header(Rc::clone(basis))));
+                    }
                 }
                 let origin = flow.alias_origin_with_expression_boundary(
                     value,
@@ -590,6 +496,12 @@ impl PrefixLocalFlow<'_> {
                 let (origin, producer) =
                     self.source_loop_after_text_for_value_v1(binding, value, flow, product)?;
                 Some((origin, producer))
+            }
+            StoredLocal::TextBranch { source }
+                if !homes.iter().any(|home| home.binding() == binding)
+                    && source.matches_source(flow, binding, value) =>
+            {
+                Some((value, SourceLoopTextProducerV1::BranchNormal(Rc::clone(source))))
             }
             _ => None,
         }
@@ -676,11 +588,9 @@ impl PrefixLocalFlow<'_> {
                         self.text_producer_for_value_v1(binding, entry, flow, homes)?;
                     (origin, SourceLoopValueProducerV1::Text(producer))
                 }
-                StoredLocal::TaggedDynamic => {
-                    let producer = self.tagged_dynamic_value_for_value_v1(binding, entry, flow)?;
-                    (entry, SourceLoopValueProducerV1::Dynamic(
-                        SourceLoopDynamicProducerV1::Source(producer),
-                    ))
+                StoredLocal::TaggedDynamic | StoredLocal::DynamicInvocationResult { .. } => {
+                    let (origin, producer) = self.dynamic_producer_for_value_v1(binding, entry, flow)?;
+                    (origin, SourceLoopValueProducerV1::Dynamic(producer))
                 }
                 _ => return None,
             };
@@ -747,11 +657,22 @@ impl PrefixLocalFlow<'_> {
             .into_iter()
             .filter(|plan| {
                 let segments = plan.source().root().statement().node().segments();
-                segments.starts_with(prefix)
+                let body_expression = segments.starts_with(prefix)
                     && matches!(
                         segments.get(prefix.len()),
                         Some(crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_))
-                    )
+                    );
+                let loop_condition_argument = plan.argument_frame().is_some_and(|frame| {
+                    let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                        call, ..
+                    } = frame.source().root() else { return false; };
+                    frame.source().root().statement() == condition.source().root().statement()
+                        && condition.source().nodes().iter().any(|node| {
+                            node.site() == call.site()
+                                && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall)
+                        })
+                });
+                body_expression || loop_condition_argument
             })
             .collect();
         let bool_expressions = std::iter::once(&condition)
@@ -811,115 +732,3 @@ impl PrefixLocalFlow<'_> {
 
 #[cfg(test)]
 pub(crate) use ports::tests::assert_original_loop_source_walk_for_test;
-
-impl PrefixLocalFlow<'_> {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn apply_source_loop_after_v2(
-        &mut self,
-        product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
-        homes: &[LiveHomeV1],
-    ) -> bool {
-        if product.source.source.owner() != self.input.owner()
-            || product.source.condition.prior_homes() != homes
-        {
-            return false;
-        }
-        let flow = match self.input.function().expression_source().value_flow() {
-            Some(flow) => flow,
-            None => return false,
-        };
-        #[derive(Clone, Copy)]
-        enum AfterClass { Scalar, Text, Dynamic }
-        let updated: Vec<_> = product.source.headers.iter().map(|(binding, basis)| {
-            if basis.entry_producer().scalar().is_some() {
-                self.can_rebind_integer_v1(*binding, homes).then_some((*binding, AfterClass::Scalar))
-            } else if basis.entry_producer().class()
-                == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String {
-                self.text_producer_for_value_v1(*binding, basis.entry(), flow, homes)
-                    .filter(|(origin, producer)| *origin == basis.entry_origin()
-                        && matches!(basis.entry_producer(), SourceLoopValueProducerV1::Text(expected) if expected == producer))
-                    .map(|_| (*binding, AfterClass::Text))
-            } else if basis.entry_producer().class()
-                == crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic {
-                let no_home = !homes.iter().any(|home| home.binding() == *binding);
-                let Some((after, _)) = flow.loop_join(product.source.source.site(), *binding, Join::LoopAfter) else {
-                    return None;
-                };
-                let incoming = product.source.incoming.as_ref().ok()?;
-                let mut rows = incoming.iter().filter(|row| row.after == after
-                    && row.basis.binding() == *binding && Rc::ptr_eq(&row.basis, basis));
-                (no_home && rows.next().is_some() && rows.next().is_none())
-                    .then_some((*binding, AfterClass::Dynamic))
-            } else {
-                None
-            }
-        }).collect::<Option<Vec<_>>>().unwrap_or_default();
-        if updated.len() != product.source.headers.len() || updated.is_empty() {
-            return false;
-        }
-        let mut plans = self.expression_plans.borrow_mut();
-        let indices: Vec<_> = plans
-            .iter()
-            .enumerate()
-            .filter_map(|(index, plan)| {
-                std::rc::Rc::ptr_eq(plan.source(), product.source.condition.source())
-                    .then_some(index)
-            })
-            .collect();
-        if indices.len() != 1 {
-            return false;
-        }
-        if !plans[indices[0]].attach_loop_recipe_v2(Rc::clone(&product)) {
-            return false;
-        }
-        drop(plans);
-        // All checks precede publication. Text keeps the exact product as its
-        // conditional Static/Owned source; it does not mint a Home here.
-        for (binding, class) in updated {
-            match class {
-                AfterClass::Text => self.store(
-                    binding,
-                    StoredLocal::LoopText { product: Rc::clone(&product) },
-                ),
-                AfterClass::Dynamic => self.store(binding, StoredLocal::TaggedDynamic),
-                AfterClass::Scalar => self.store(
-                    binding,
-                    StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
-                ),
-            }
-        }
-        true
-    }
-    pub(super) fn source_loop_after_for_value_v2(
-        &self,
-        flow: &Arc<VerifiedSourceValueFlowV1>,
-        value: SourceValueRefV1,
-    ) -> Option<CurrentScalarProducerV1> {
-        let plans = self.expression_plans.borrow();
-        let mut matching = plans
-            .iter()
-            .filter_map(|plan| plan.loop_recipe_v2())
-            .flat_map(|product| {
-                product
-                    .source
-                    .incoming
-                    .as_ref()
-                    .ok()
-                    .into_iter()
-                    .flat_map(move |rows| rows.iter())
-                    .filter(move |row| {
-                        row.after == value
-                            && row.basis.entry_producer().scalar().is_some()
-                            && Arc::ptr_eq(&row.basis.flow, flow)
-                    })
-                    .map(move |row| (product, row.basis.binding()))
-            });
-        let (product, binding) = matching.next()?;
-        if matching.next().is_some() {
-            return None;
-        }
-        Some(CurrentScalarProducerV1::LoopAfter {
-            product: Rc::clone(product),
-            binding,
-        })
-    }
-}

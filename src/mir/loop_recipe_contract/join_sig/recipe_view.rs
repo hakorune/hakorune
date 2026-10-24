@@ -86,6 +86,7 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationFamily {
     CompareI64,
     WriteBinding,
     DynamicAdd,
+    DynamicSub,
     DynamicLess,
     CallSlot,
     TextEq,

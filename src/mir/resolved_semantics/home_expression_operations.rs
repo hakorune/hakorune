@@ -46,12 +46,17 @@ pub(super) fn qualify_arithmetic_operations_v1(
         let (Some(lhs), Some(rhs)) = (operand(binary.lhs()), operand(binary.rhs())) else {
             return None;
         };
+        let source_dynamic_sub = binary.operator() == ResolvedBinaryOperatorV1::Subtract
+            && index == 0
+            && classes.first() == Some(&Leaf::Value(Class::Dynamic))
+            && lhs.iter().all(|class| class == Class::Dynamic)
+            && rhs.iter().all(|class| class == Class::I64);
         if matches!(
             binary.operator(),
             ResolvedBinaryOperatorV1::Subtract
                 | ResolvedBinaryOperatorV1::Divide
                 | ResolvedBinaryOperatorV1::Modulo
-        ) {
+        ) && !source_dynamic_sub {
             if index != 0
                 || classes.first() != Some(&Leaf::Value(Class::I64))
                 || [binary.lhs(), binary.rhs()].iter().any(|site| {
@@ -93,6 +98,7 @@ pub(super) fn qualify_arithmetic_operations_v1(
         let family = match binary.operator() {
             ResolvedBinaryOperatorV1::Add => DynamicOperatorFamilyV1::Add,
             ResolvedBinaryOperatorV1::Multiply => DynamicOperatorFamilyV1::Mul,
+            ResolvedBinaryOperatorV1::Subtract if source_dynamic_sub => DynamicOperatorFamilyV1::Sub,
             _ => return None,
         };
         let mut envelopes = Vec::new();
@@ -113,7 +119,9 @@ pub(super) fn qualify_arithmetic_operations_v1(
             }
         }
         let result = envelopes.first()?.normal_result();
-        if result == DynamicOperatorNormalResultV1::OwnedStringValue {
+        if result == DynamicOperatorNormalResultV1::OwnedStringValue
+            || family == DynamicOperatorFamilyV1::Sub
+        {
             owned_results.push(index);
         }
         operations.push(Rc::new(CheckedExpressionOperationLoanV1 {

@@ -37,6 +37,7 @@ fn rows(
                     &brands,
                     None,
                     "Main",
+                    &[],
                 )
             })
             .unwrap()

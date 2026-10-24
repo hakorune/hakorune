@@ -355,6 +355,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         }),
         opaque_actuals: Box::new([]),
         ordered_arguments: ordered.into_boxed_slice(),
+        dynamic_invocation_arguments: None,
     }))
 }
 

@@ -82,7 +82,7 @@ impl CallableLoopSourceTargetProbeV1 {
             let item = items.iter().find(|item| item.call_site() == site)
                 .ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
             let expected = delegated_result(product, site);
-            if !product.delegates_call_v2(&owned) || !seen.insert(site)
+            if !product.delegates_call_v2(&owned) || !seen.insert(site.clone())
                 || relation.target().is_none_or(|target|
                     target.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
                         || target.arity() != item.arity())
@@ -91,7 +91,7 @@ impl CallableLoopSourceTargetProbeV1 {
             }
         }
         if self.instance_methods.iter().any(|item|
-            !items.contains(item) || !seen.insert(item.call_site()) || !(product.delegates_call_v2(
+            !items.contains(item) || !seen.insert(item.call_site().clone()) || !(product.delegates_call_v2(
                 &crate::mir::resolved_semantics::OwnedExprSiteV1::new(product.source.source.owner(), item.call_site().clone()))
                 || product.schedule().blocks_array_appends_v2().any(|observation|
                 matches!(observation,
@@ -100,7 +100,7 @@ impl CallableLoopSourceTargetProbeV1 {
             return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
         }
         for item in &self.core_methods {
-            if !items.contains(item) || !seen.insert(item.call_site()) {
+            if !items.contains(item) || !seen.insert(item.call_site().clone()) {
                 return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
             }
         }
@@ -110,41 +110,119 @@ impl CallableLoopSourceTargetProbeV1 {
         for observation in product.schedule().blocks_array_appends_v2() {
             let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append { call, .. }
                 = observation else { return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign); };
-            if !items.iter().any(|item| item.call_site() == call.site()) || !seen.insert(call.site()) {
+            if !items.iter().any(|item| item.call_site() == call.site()) || !seen.insert(call.site().clone()) {
                 return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
             }
         }
         // Expression Core loans are owned by the SAME checked frames, rather
         // than the older staged Core table. Normalize their exact resolver rows
         // here; a source-site match alone never grants call coverage.
-        let mut expression_cores = std::collections::BTreeSet::new();
-        for frame in product.schedule().frames() {
-            use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1 as Prefix;
-            let evaluation = match frame.prefix() {
-                Prefix::BoolCondition { frame, .. } => frame.evaluation(),
-                Prefix::InitializerExpression { frame, .. } => frame.evaluation(),
-                Prefix::BindingRebind { frame, .. } => frame.evaluation(),
-                _ => return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign),
-            };
+        let mut expression_cores = std::collections::BTreeMap::new();
+        let mut expression_dynamic = std::collections::BTreeMap::new();
+        for evaluation in product.checked_expression_evaluations_v2() {
             for (node, core) in evaluation.cores() {
-                if !core.matches_plan(frame.source(), *node) {
+                if !core.matches_plan(evaluation.source(), *node) {
                     return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
                 }
                 let original = CallableLoopSourceItemBindingV1::from_resolved(
                     product.source.source.owner(), core.source().source())?;
                 let item = items.iter().find(|item| **item == original)
                     .ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
-                if !expression_cores.insert(item.call_site())
-                    || (!seen.insert(item.call_site()) && !self.core_methods.contains(item)) {
+                if let Some(previous) = expression_cores.get(item.call_site()) {
+                    if *previous != item {
+                        return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
+                    }
+                    continue;
+                }
+                let first_core_site = seen.insert(item.call_site().clone());
+                if !first_core_site && !self.core_methods.contains(item) {
+                    if crate::config::env::joinir_dev::debug_enabled() {
+                        eprintln!(
+                            "[checked-loop-core-duplicate] site={:?} expression_core=true initial_core={} dynamic={} instance={}",
+                            item.call_site(),
+                            self.core_methods.contains(item),
+                            self.dynamic_invocations.iter().any(|source| source.call_site() == item.call_site()),
+                            self.instance_methods.iter().any(|source| source.call_site() == item.call_site()),
+                        );
+                    }
                     return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site: item.call_site().clone() });
                 }
+                expression_cores.insert(item.call_site().clone(), item);
+            }
+            for call in evaluation.calls() {
+                observe_dynamic_call_v2(
+                    call,
+                    &self.dynamic_invocations,
+                    items,
+                    &self.core_methods,
+                    &expression_cores,
+                    &mut seen,
+                    &mut expression_dynamic,
+                )?;
             }
         }
-        if seen != items.iter().map(|item| item.call_site()).collect() {
+        if expression_dynamic.len() != self.dynamic_invocations.len() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceItemForeign);
+        }
+        if seen != items.iter().map(|item| item.call_site().clone()).collect() {
             return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
         }
         Ok(())
     }
+}
+
+fn observe_dynamic_call_v2(
+    call: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    dynamic_invocations: &[CallableLoopDynamicInvocationSourceV1],
+    items: &[CallableLoopSourceItemBindingV1],
+    core_methods: &[CallableLoopSourceItemBindingV1],
+    expression_cores: &std::collections::BTreeMap<
+        SourceExprSiteV1,
+        &CallableLoopSourceItemBindingV1,
+    >,
+    seen: &mut std::collections::BTreeSet<SourceExprSiteV1>,
+    expression_dynamic: &mut std::collections::BTreeMap<
+        SourceExprSiteV1,
+        crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    >,
+) -> Result<(), CallableLoopSourceRouteRejectV1> {
+    if call.dynamic_invocation_result_lifecycle_v1().is_none() {
+        return Ok(());
+    }
+    let site = call.site().site();
+    if let Some(original) = expression_dynamic.get(site) {
+        return if original == call {
+            Ok(())
+        } else {
+            Err(CallableLoopSourceRouteRejectV1::SourceItemForeign)
+        };
+    }
+    let source = dynamic_invocations
+        .iter()
+        .find(|source| source.call_site() == site && source.matches_checked_observation(call))
+        .ok_or(CallableLoopSourceRouteRejectV1::SourceItemForeign)?;
+    let exact_core_observation = core_methods.contains(source.item())
+        || expression_cores
+            .get(site)
+            .is_some_and(|core_item| *core_item == source.item());
+    let first_dynamic_site = seen.insert(source.call_site().clone());
+    if !items.contains(source.item()) || (!first_dynamic_site && !exact_core_observation) {
+        if crate::config::env::joinir_dev::debug_enabled() {
+            eprintln!(
+                "[checked-loop-dynamic-duplicate] site={:?} first={} exact_core={} initial_core={} expression_core={}",
+                source.call_site(),
+                first_dynamic_site,
+                exact_core_observation,
+                core_methods.contains(source.item()),
+                expression_cores.contains_key(site),
+            );
+        }
+        return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate {
+            call_site: source.call_site().clone(),
+        });
+    }
+    expression_dynamic.insert(site.clone(), call.clone());
+    Ok(())
 }
 
 fn delegated_result(product: &crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2,

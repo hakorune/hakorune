@@ -52,7 +52,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if completion.owner() != site.owner() || !completion.explicit_sites().contains(&exit) {
             return Err(freeze("terminal-null/completion-identity"));
         }
-        match self.root_exits.borrow().get(&(site.owner(), exit.clone().into())) {
+        match self
+            .root_exits
+            .borrow()
+            .get(&(site.owner(), exit.clone().into()))
+        {
             Some(RootHomeExitProgress::Prepared(_)) => {}
             None | Some(RootHomeExitProgress::Unprepared | RootHomeExitProgress::Unavailable) => {
                 return Ok(None)

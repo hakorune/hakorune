@@ -79,13 +79,51 @@ pub(crate) enum CheckedSourceLoopStatementV1 {
 pub(crate) struct SourceLoopReturnV1 {
     pub(crate) site: SourceStmtSiteV1,
     pub(crate) record: ResolvedExitRecordV1,
-    pub(crate) terminal: super::super::super::TerminalI64ScalarReturnV1,
+    pub(crate) terminal: super::super::super::TerminalRelationV1,
     pub(crate) homes: super::super::super::RootHomeExitV1,
-    pub(crate) read: CurrentScalarReadV1,
+    pub(crate) read: Option<CurrentScalarReadV1>,
     pub(crate) source:
         Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
 }
 impl SourceLoopReturnV1 {
+    pub(crate) fn integer_literal_value_v1(&self) -> Option<i64> {
+        use crate::mir::resolved_value_profile::{
+            expression_plan::{ExpressionNodeSourceV1 as Node, ExpressionPlanRootV1},
+            expression_root::StatementExpressionRoleV1,
+        };
+        let value_site = match &self.terminal {
+            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(terminal) => {
+                terminal.value_site()
+            }
+            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::IntegerLiteral(terminal) => {
+                terminal.value_site()
+            }
+            _ => return None,
+        };
+        if self.read.is_some() || self.source.nodes().len() != 1 {
+            return None;
+        }
+        let ExpressionPlanRootV1::Statement {
+            statement,
+            role: StatementExpressionRoleV1::ReturnValue,
+            value,
+        } = self.source.root()
+        else {
+            return None;
+        };
+        if statement != &self.site || value != value_site || self.source.nodes()[0].site() != value_site {
+            return None;
+        }
+        let Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(value)) =
+            self.source.nodes()[0].source() else { return None; };
+        match &self.terminal {
+            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(_) => Some(*value),
+            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::IntegerLiteral(terminal)
+                if terminal.value() == *value => Some(*value),
+            _ => None,
+        }
+    }
+
     pub(crate) fn corroborates(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
         use crate::mir::resolved_semantics::{
             ResolvedControlTransferV1 as Transfer, ResolvedExitOriginV1 as Origin,
@@ -94,16 +132,43 @@ impl SourceLoopReturnV1 {
             expression_plan::{ExpressionNodeSourceV1 as Node, ExpressionPlanRootV1},
             expression_root::StatementExpressionRoleV1,
         };
-        self.terminal.owner() == input.owner()
-            && self.terminal.return_site() == &self.site
-            && self.terminal.value_site() == self.read.read()
-            && self.read.binding().owner() == input.owner()
+        let source_value = match (&self.terminal, &self.read) {
+            (
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(terminal),
+                Some(read),
+            ) => {
+                terminal.owner() == input.owner()
+                    && terminal.return_site() == &self.site
+                    && terminal.value_site() == read.read()
+                    && read.binding().owner() == input.owner()
+                    && self.source.nodes().len() == 1
+                    && matches!(self.source.root(), ExpressionPlanRootV1::Statement {
+                        statement, role: StatementExpressionRoleV1::ReturnValue, value
+                    } if statement == &self.site && value == read.read())
+                    && matches!(self.source.nodes()[0].source(),
+                        Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
+                            if *binding == read.binding())
+            }
+            (
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::IntegerLiteral(terminal),
+                None,
+            ) => {
+                terminal.owner() == input.owner()
+                    && terminal.return_site() == &self.site
+                    && self.integer_literal_value_v1() == Some(terminal.value())
+            }
+            (
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(terminal),
+                None,
+            ) => {
+                terminal.owner() == input.owner()
+                    && terminal.return_site() == &self.site
+                    && self.integer_literal_value_v1().is_some()
+            }
+            _ => false,
+        };
+        source_value
             && self.source.owner() == input.owner()
-            && self.source.nodes().len() == 1
-            && matches!(self.source.root(), ExpressionPlanRootV1::Statement { statement, role: StatementExpressionRoleV1::ReturnValue, value }
-                if statement == &self.site && value == self.read.read())
-            && matches!(self.source.nodes()[0].source(), Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
-                if *binding == self.read.binding())
             && input.function().resolved_exit(
                 &crate::mir::resolved_semantics::ResolvedExitSiteV1::Statement(self.site.clone()),
             ) == Some(&self.record)
@@ -240,11 +305,15 @@ impl PrefixLocalFlow<'_> {
             return;
         };
         let source = (|| {
-            let super::super::super::TerminalRelationV1::I64Scalar(terminal) = terminal? else {
-                return None;
+            let terminal = terminal?;
+            let read = match terminal {
+                super::super::super::TerminalRelationV1::I64Scalar(terminal) => {
+                    self.current_scalar_read_v1(terminal.value_site(), calls)
+                }
+                super::super::super::TerminalRelationV1::IntegerLiteral(_) => None,
+                _ => return None,
             };
             let homes = homes?.as_ref().ok()?;
-            let read = self.current_scalar_read_v1(terminal.value_site(), calls)?;
             let ledger = self
                 .input
                 .forest()
@@ -503,6 +572,84 @@ impl ports::SourceLoopScanSummaryV1 {
         let mut roots = Vec::new();
         let mut frames = vec![&self.condition];
         let mut exits = BTreeSet::new();
+        let argument_ledger = input
+            .forest()
+            .callable_source_ledger(input.owner())
+            .map_err(|_| "source Loop condition argument ledger")?;
+        let condition_statement = self.condition.source().root().statement();
+        let mut expected_condition_arguments = BTreeSet::new();
+        for observation in self.condition.calls() {
+            let original = argument_ledger
+                .method_call_source_v1(observation.site().site())
+                .ok_or("source Loop condition call source missing")?;
+            if observation.owner() != input.owner()
+                || original.owner() != input.owner()
+                || !observation.is_expression_value()
+                || !observation.result_source().is_some()
+            {
+                return Err("source Loop condition call identity");
+            }
+            for argument in observation.arguments() {
+                let crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Expression {
+                    ordinal, site,
+                } = argument else { continue; };
+                let key = (observation.site().site().clone(), *ordinal);
+                if !expected_condition_arguments.insert(key.clone()) {
+                    return Err("source Loop condition argument duplicate");
+                }
+                let mut matching = self.body_expressions.iter().filter_map(|plan| {
+                    let frame = plan.argument_frame()?;
+                    let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                        call, ordinal: found_ordinal, statement,
+                    } = frame.source().root() else { return None; };
+                    (statement == condition_statement
+                        && call.owner() == input.owner()
+                        && call.site() == observation.site().site()
+                        && *found_ordinal == *ordinal
+                        && call.arguments().get(*found_ordinal as usize).is_some_and(|actual| {
+                            actual.ordinal() == *found_ordinal && actual.site() == site
+                        })
+                        && frame.source().nodes().first().is_some_and(|root| root.site() == site)
+                        && Rc::ptr_eq(frame.source_loan().plan(), frame.source())
+                        && frame.evaluation().reference_coverage_is_exact()
+                        && frame.prior_homes() == self.condition.prior_homes()
+                        && argument_ledger.method_call_source_v1(call.site())
+                            .is_some_and(|canonical| std::sync::Arc::ptr_eq(canonical, call)))
+                    .then_some(frame)
+                });
+                let Some(frame) = matching.next() else {
+                    return Err("source Loop condition argument frame missing");
+                };
+                if matching.next().is_some() {
+                    return Err("source Loop condition argument duplicate");
+                }
+                roots.push(frame.source());
+            }
+        }
+        let mut retained_condition_arguments = BTreeSet::new();
+        for plan in self.body_expressions.iter().filter(|plan| plan.argument_frame().is_some()) {
+            let frame = plan.argument_frame().ok_or("source Loop condition argument frame")?;
+            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                call, ordinal, statement,
+            } = frame.source().root() else { continue; };
+            if statement != condition_statement
+                || !self.condition.source().nodes().iter().any(|node| {
+                    node.site() == call.site()
+                        && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall)
+                })
+            {
+                continue;
+            }
+            let key = (call.site().clone(), *ordinal);
+            if !expected_condition_arguments.contains(&key)
+                || !retained_condition_arguments.insert(key)
+            {
+                return Err("source Loop condition argument identity");
+            }
+        }
+        if retained_condition_arguments != expected_condition_arguments {
+            return Err("source Loop condition argument coverage");
+        }
         fn visit<'a>(
             body: &'a CheckedSourceLoopBodyV1,
             summary: &'a ports::SourceLoopScanSummaryV1,
@@ -549,8 +696,8 @@ impl ports::SourceLoopScanSummaryV1 {
                                 != Some(Some(crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body)) {
                             return Err("source Loop append identity");
                         }
-                        // These frames execute inside the SAME append candidate's
-                        // Call packet, not as separate Loop expression steps.
+                        // The append's argument frame owns the candidate result;
+                        // frames rooted at the candidate call own its operands.
                         let mut ordinals = BTreeSet::new();
                         for plan in summary.body_expressions.iter().filter(|plan| {
                             plan.argument_frame().is_some()
@@ -562,26 +709,33 @@ impl ports::SourceLoopScanSummaryV1 {
                             let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
                                 call: argument_call, ordinal, ..
                             } = plan.source().root() else { return Err("source Loop append argument purpose"); };
-                            if argument_call.owner() != input.owner()
-                                || argument_call.site() != candidate.site()
-                                || ledger.method_call_source_v1(candidate.site()).is_none_or(
-                                    |original| !std::sync::Arc::ptr_eq(original, argument_call),
+                            let argument_identity = argument_call.arguments().get(*ordinal as usize)
+                                .is_some_and(|argument| argument.ordinal() == *ordinal
+                                    && plan.source().nodes().first().is_some_and(|root|
+                                        root.site() == argument.site()));
+                            let frame_identity = Rc::ptr_eq(frame.source(), plan.source())
+                                && Rc::ptr_eq(frame.source_loan().plan(), plan.source())
+                                && frame.evaluation().reference_coverage_is_exact();
+                            let homes_identity = frame.prior_homes() == prior_homes.as_ref();
+                            let append_operand_frame = argument_call.owner() == input.owner()
+                                && argument_call.site() == call.site()
+                                && *ordinal == 0
+                                && ledger.method_call_source_v1(call.site()).is_some_and(
+                                    |original| std::sync::Arc::ptr_eq(original, argument_call),
                                 )
-                                || argument_call.arguments().get(*ordinal as usize).is_none_or(
-                                    |argument| {
-                                        argument.ordinal() != *ordinal
-                                            || plan
-                                                .source()
-                                                .nodes()
-                                                .first()
-                                                .is_none_or(|root| root.site() != argument.site())
-                                    },
+                                && argument_identity
+                                && frame.is_dynamic_carrier_append_v1()
+                                && frame.source_loan().dynamic_array_carrier_append_v1()
+                                    .is_some_and(|holder| holder == source);
+                            let candidate_argument_frame = argument_call.owner() == input.owner()
+                                && argument_call.site() == candidate.site()
+                                && ledger.method_call_source_v1(candidate.site()).is_some_and(
+                                    |original| std::sync::Arc::ptr_eq(original, argument_call),
                                 )
-                                || !Rc::ptr_eq(frame.source(), plan.source())
-                                || !Rc::ptr_eq(frame.source_loan().plan(), plan.source())
-                                || !frame.evaluation().reference_coverage_is_exact()
-                                || frame.prior_homes() != prior_homes.as_ref()
-                                || !ordinals.insert(*ordinal)
+                                && argument_identity;
+                            let unique_ordinal = ordinals.insert((argument_call.site().clone(), *ordinal));
+                            if !((append_operand_frame || candidate_argument_frame) && frame_identity
+                                && homes_identity && unique_ordinal)
                             {
                                 return Err("source Loop append argument identity");
                             }
@@ -649,27 +803,33 @@ impl ports::SourceLoopScanSummaryV1 {
                             let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
                                 call, ordinal, ..
                             } = plan.source().root() else { return Err("source Loop call argument purpose"); };
-                            if call.owner() != input.owner()
-                                || call.site() != observation.site().site()
-                                || ledger
-                                    .method_call_source_v1(call.site())
-                                    .is_none_or(|original| !std::sync::Arc::ptr_eq(original, call))
-                                || call
-                                    .arguments()
-                                    .get(*ordinal as usize)
-                                    .is_none_or(|argument| {
-                                        argument.ordinal() != *ordinal
-                                            || plan
-                                                .source()
-                                                .nodes()
-                                                .first()
-                                                .is_none_or(|root| root.site() != argument.site())
-                                    })
-                                || !Rc::ptr_eq(frame.source(), plan.source())
-                                || !Rc::ptr_eq(frame.source_loan().plan(), plan.source())
-                                || !frame.evaluation().reference_coverage_is_exact()
-                                || frame.prior_homes() != observation.prior_homes()
-                                || !ordinals.insert(*ordinal)
+                            let owner_matches = call.owner() == input.owner();
+                            let site_matches = call
+                                .site()
+                                .node()
+                                .segments()
+                                .starts_with(observation.site().site().node().segments());
+                            let ledger_matches = ledger
+                                .method_call_source_v1(call.site())
+                                .is_some_and(|original| std::sync::Arc::ptr_eq(original, call));
+                            let argument_matches = call.arguments().get(*ordinal as usize).is_some_and(|argument| {
+                                argument.ordinal() == *ordinal
+                                    && plan.source().nodes().first().is_some_and(|root| root.site() == argument.site())
+                            });
+                            let source_matches = Rc::ptr_eq(frame.source(), plan.source());
+                            let loan_matches = Rc::ptr_eq(frame.source_loan().plan(), plan.source());
+                            let coverage_exact = frame.evaluation().reference_coverage_is_exact();
+                            let prior_homes_match = frame.prior_homes() == observation.prior_homes();
+                            let unique_ordinal = ordinals.insert((
+                                crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                                    input.owner(),
+                                    call.site().clone(),
+                                ),
+                                *ordinal,
+                            ));
+                            if !(owner_matches && site_matches && ledger_matches && argument_matches
+                                && source_matches && loan_matches && coverage_exact
+                                && prior_homes_match && unique_ordinal)
                             {
                                 return Err("source Loop call argument identity");
                             }
@@ -683,6 +843,80 @@ impl ports::SourceLoopScanSummaryV1 {
                             return Err("source Loop execution frame identity");
                         }
                         roots.push(frame.source());
+                        let argument_ledger = input
+                            .forest()
+                            .callable_source_ledger(input.owner())
+                            .map_err(|_| "source Loop expression argument ledger")?;
+                        let mut argument_sites = BTreeSet::new();
+                        for plan in summary.body_expressions.iter().filter(|plan| {
+                            plan.argument_frame().is_some()
+                                && plan.source().root().statement() == site
+                        }) {
+                            let argument_frame = plan
+                                .argument_frame()
+                                .ok_or("source Loop expression argument frame")?;
+                            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                call,
+                                ordinal,
+                                ..
+                            } = plan.source().root() else {
+                                return Err("source Loop expression argument purpose");
+                            };
+                            let nested_call = frame
+                                .source()
+                                .nodes()
+                                .iter()
+                                .filter(|node| {
+                                    node.site() == call.site()
+                                        && matches!(node.source(),
+                                            crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall)
+                                })
+                                .count()
+                                == 1;
+                            let argument_identity = call
+                                .arguments()
+                                .get(*ordinal as usize)
+                                .is_some_and(|argument| {
+                                    argument.ordinal() == *ordinal
+                                        && plan
+                                            .source()
+                                            .nodes()
+                                            .first()
+                                            .is_some_and(|root| root.site() == argument.site())
+                                });
+                            let owner_matches = call.owner() == input.owner();
+                            let call_is_nested = call
+                                .site()
+                                .node()
+                                .segments()
+                                .starts_with(site.node().segments());
+                            let ledger_matches = argument_ledger
+                                .method_call_source_v1(call.site())
+                                .is_some_and(|original| std::sync::Arc::ptr_eq(original, call));
+                            let source_matches = Rc::ptr_eq(argument_frame.source(), plan.source());
+                            let loan_matches = Rc::ptr_eq(argument_frame.source_loan().plan(), plan.source());
+                            let coverage_exact = argument_frame.evaluation().reference_coverage_is_exact();
+                            let unique_site = argument_sites.insert((
+                                crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                                    input.owner(),
+                                    call.site().clone(),
+                                ),
+                                *ordinal,
+                            ));
+                            if !owner_matches
+                                || !call_is_nested
+                                || !ledger_matches
+                                || !nested_call
+                                || !argument_identity
+                                || !source_matches
+                                || !loan_matches
+                                || !coverage_exact
+                                || !unique_site
+                            {
+                                return Err("source Loop expression argument identity");
+                            }
+                            roots.push(plan.source());
+                        }
                     }
                     CheckedSourceLoopStatementV1::If {
                         site,
@@ -769,6 +1003,78 @@ impl ports::SourceLoopScanSummaryV1 {
                                 }
                                 roots.push(plan.source());
                             }
+                        }
+                        let observed_calls: BTreeSet<_> = condition
+                            .calls()
+                            .iter()
+                            .map(|call| call.site().site().clone())
+                            .collect();
+                        let mut condition_argument_sites = BTreeSet::new();
+                        for plan in summary.body_expressions.iter().filter(|plan| {
+                            plan.argument_frame().is_some()
+                                && plan.source().root().statement() == site
+                        }) {
+                            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                call,
+                                ordinal,
+                                ..
+                            } = plan.source().root() else {
+                                return Err("source Loop condition argument purpose");
+                            };
+                            if observed_calls.contains(call.site()) {
+                                continue;
+                            }
+                            let argument_frame = plan
+                                .argument_frame()
+                                .ok_or("source Loop condition argument frame")?;
+                            let nested_call = condition
+                                .source()
+                                .nodes()
+                                .iter()
+                                .filter(|node| {
+                                    node.site() == call.site()
+                                        && matches!(node.source(),
+                                            crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall)
+                                })
+                                .count()
+                                == 1;
+                            let argument_identity = call
+                                .arguments()
+                                .get(*ordinal as usize)
+                                .is_some_and(|argument| {
+                                    argument.ordinal() == *ordinal
+                                        && plan
+                                            .source()
+                                            .nodes()
+                                            .first()
+                                            .is_some_and(|root| root.site() == argument.site())
+                                });
+                            if call.owner() != input.owner()
+                                || !call
+                                    .site()
+                                    .node()
+                                    .segments()
+                                    .starts_with(site.node().segments())
+                                || ledger
+                                    .method_call_source_v1(call.site())
+                                    .is_none_or(|original| !std::sync::Arc::ptr_eq(original, call))
+                                || !nested_call
+                                || !argument_identity
+                                || !Rc::ptr_eq(argument_frame.source(), plan.source())
+                                || !Rc::ptr_eq(argument_frame.source_loan().plan(), plan.source())
+                                || !argument_frame.evaluation().reference_coverage_is_exact()
+                                || argument_frame.prior_homes() != condition.prior_homes()
+                                || !condition_argument_sites.insert((
+                                    crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                                        input.owner(),
+                                        call.site().clone(),
+                                    ),
+                                    *ordinal,
+                                ))
+                            {
+                                return Err("source Loop condition nested argument identity");
+                            }
+                            roots.push(plan.source());
                         }
                         visit(then_body, summary, input, roots, frames, exits)?;
                         if let Some(body) = else_body {

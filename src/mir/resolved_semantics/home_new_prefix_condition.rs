@@ -450,7 +450,7 @@ pub(super) fn observe_loop<E>(
     let Some(condition) = source.condition_source_v1(input) else {
         return Ok(None);
     };
-    install_source(
+    let Some(frame) = install_source(
         input,
         Rc::clone(condition),
         &[],
@@ -460,7 +460,22 @@ pub(super) fn observe_loop<E>(
         path_calls,
         fields,
         actuals,
-    )
+    )? else { return Ok(None); };
+
+    // A LoopCondition's call nodes are retained by its BoolCondition owner,
+    // while their argument purposes live as separate checked expression
+    // frames. Stage those frames here so conditional calls can reuse them at
+    // their original reach without asking the completed root-flow inventory.
+    let Ok(statement) = input.source().exact_stmt(source.site()) else {
+        return Ok(None);
+    };
+    for call in frame.calls() {
+        let root = OwnedExprSiteV1::new(input.owner(), call.site().site().clone());
+        super::local_call_flow::stage_argument_expressions(
+            input, &statement, &root, locals, true, homes, local_calls, fields, actuals,
+        )?;
+    }
+    Ok(Some(frame))
 }
 
 fn install_source<E>(
@@ -487,6 +502,21 @@ fn install_source<E>(
         &BTreeMap::new(),
         homes,
         &mut |site| {
+            let mut receiver_path = |binding| locals.field_alias_call_path(binding);
+            if let Some(ExpressionCallSourceV1::Ordinary(call)) =
+                local_call_flow::issue_source_expression_call_v1(
+                    input,
+                    &source,
+                    site,
+                    homes,
+                    &mut receiver_path,
+                    actuals,
+                )?
+            {
+                if call.dynamic_invocation_result_lifecycle_v1().is_some() {
+                    return Ok(Some(ExpressionCallSourceV1::Ordinary(call)));
+                }
+            }
             match actuals(
                 site,
                 BorrowedCallActualRequestV1::ExpressionCoreSource {
@@ -539,6 +569,13 @@ fn install_source<E>(
         }
         if let Some(frame) = locals.stored_get_reference_v1(node.site()) {
             initial_references.push((index, CheckedExpressionReferenceV1::StoredMapGet(frame)));
+            continue;
+        }
+        if let Some(frame) = locals.dynamic_invocation_result_reference_v1(node.site()) {
+            initial_references.push((
+                index,
+                CheckedExpressionReferenceV1::DynamicInvocationResult(frame),
+            ));
             continue;
         }
         if let Some(read) = locals.loop_dynamic_reference_v1(node.site()) {

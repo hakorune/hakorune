@@ -1,11 +1,18 @@
-//! Corroborate the retained source-issued nullable formal Return in both scans.
+//! Corroborate source-issued borrowed Return provenance in both scans.
 //! These expected occurrences grant neither a new origin nor ownership.
 use super::*;
 use crate::mir::normal_callable_semantic_package::FinalizedObjectReturnOriginV1;
 
 pub(super) struct FormalReturnUse {
-    formal: BindingRefV1,
+    source: BorrowedReturnSource,
     returned: Binding,
+}
+enum BorrowedReturnSource {
+    Formal(BindingRefV1),
+    MapSlot {
+        values: BTreeSet<ValueId>,
+        bindings: BTreeMap<Coordinate, MirInstruction>,
+    },
 }
 
 fn coordinate(function: &MirFunction, binding: &Binding) -> Result<Coordinate, String> {
@@ -41,18 +48,38 @@ fn prepare_role(
         .ok_or_else(|| fault("borrowed-formal-return/outcomes"))?
     {
         outcome.validate_physical_function_v1(function, result, role.has_receiver())?;
-        let FinalizedObjectReturnOriginV1::BorrowedFormal { value, .. } = outcome.origin() else {
-            continue; // Null has no borrowed operand; mixed call origins grant no exception.
+        let source = match outcome.origin() {
+            FinalizedObjectReturnOriginV1::BorrowedFormal { value, .. } => {
+                let formal = *state.roots.get(value)
+                    .ok_or_else(|| fault("borrowed-formal-return/original-entry"))?;
+                for original in outcome.transport_bindings() {
+                    state.copy(original, Some(coordinate(function, original)?))?;
+                }
+                BorrowedReturnSource::Formal(formal)
+            }
+            FinalizedObjectReturnOriginV1::MapSlot(receipt) => {
+                let value = receipt.producer().1.dst_value()
+                    .ok_or_else(|| fault("borrowed-formal-return/original-entry"))?;
+                let mut values = BTreeSet::from([value]);
+                for (_, instruction) in outcome.transport_bindings() {
+                    if let MirInstruction::Copy { dst, .. } = instruction { values.insert(*dst); }
+                }
+                let mut bindings = BTreeMap::new();
+                for binding in receipt.bindings()
+                    .chain(outcome.transport_bindings()).chain(std::iter::once(outcome.returned())) {
+                    let site = coordinate(function, binding)?;
+                    if bindings.insert(site, binding.1.clone()).is_some() {
+                        return Err(fault("borrowed-formal-return/duplicate-source"));
+                    }
+                }
+                BorrowedReturnSource::MapSlot { values, bindings }
+            }
+            _ => continue, // Null has no borrowed operand; other roles grant no exception.
         };
-        let formal = *state.roots.get(value)
-            .ok_or_else(|| fault("borrowed-formal-return/original-entry"))?;
-        for original in outcome.transport_bindings() {
-            state.copy(original, Some(coordinate(function, original)?))?;
-        }
         let site = coordinate(function, outcome.returned())?;
         if state.integer_returns.contains_key(&site)
             || state.formal_returns.insert(site, FormalReturnUse {
-                formal, returned: outcome.returned().clone(),
+                source, returned: outcome.returned().clone(),
             }).is_some()
         { return Err(fault("borrowed-formal-return/duplicate-source")); }
     }
@@ -71,11 +98,33 @@ pub(super) fn observe(
     let MirInstruction::Return { value: Some(value) } = instruction else {
         return Err(fault("borrowed-formal-return/instruction"));
     };
-    if expected.returned != (site.0, instruction.clone())
-        || tracked.get(value) != Some(&expected.formal)
-    { return Err(fault("borrowed-formal-return/correspondence")); }
+    let valid = match &expected.source {
+        BorrowedReturnSource::Formal(formal) => tracked.get(value) == Some(formal),
+        BorrowedReturnSource::MapSlot { values, .. } => values.contains(value) && !tracked.contains_key(value),
+    };
+    if expected.returned != (site.0, instruction.clone()) || !valid {
+        return Err(fault("borrowed-formal-return/correspondence"));
+    }
     if !scan.formal_returns.insert(site) {
         return Err(fault("borrowed-formal-return/duplicate-return"));
+    }
+    Ok(())
+}
+
+/// Inspect exact producer/effect/Copy/Return coordinates in both independent
+/// scans. Map payloads never become entry roots or lend formal-use exemptions.
+pub(super) fn observe_map_slots(state: &FunctionUses, site: Coordinate,
+    instruction: &MirInstruction, scan: &mut Scan,
+) -> Result<(), String> {
+    for expected in state.formal_returns.values() {
+        let BorrowedReturnSource::MapSlot { values, bindings } = &expected.source else { continue; };
+        if let Some(original) = bindings.get(&site) {
+            if original != instruction { return Err(fault("borrowed-formal-return/correspondence")); }
+            scan.map_slot_returns.insert(site);
+        } else if instruction.used_values().iter().any(|value| values.contains(value))
+            && !matches!(instruction, MirInstruction::KeepAlive { .. }) {
+            return Err(fault("borrowed-formal-return/unproved"));
+        }
     }
     Ok(())
 }
@@ -84,6 +133,11 @@ pub(super) fn coverage(state: &FunctionUses, scan: &Scan) -> Result<(), String> 
     if state.formal_returns.keys().copied().collect::<BTreeSet<_>>() != scan.formal_returns {
         return Err(fault("borrowed-formal-return/coverage"));
     }
+    let expected: BTreeSet<_> = state.formal_returns.values().flat_map(|row| match &row.source {
+        BorrowedReturnSource::MapSlot { bindings, .. } => bindings.keys().copied().collect::<Vec<_>>(),
+        _ => Vec::new(),
+    }).collect();
+    if expected != scan.map_slot_returns { return Err(fault("borrowed-formal-return/coverage")); }
     Ok(())
 }
 

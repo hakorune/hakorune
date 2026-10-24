@@ -102,8 +102,8 @@ impl FiniteEntryReadV1 {
 }
 
 /// An unannotated formal stays dynamically tagged. This loan identifies only
-/// the original `OpaqueHandle` formal and its exact direct source read; it
-/// derives no concrete class from `Other` or from the physical MIR type.
+/// the original `OpaqueHandle` formal and an exact source read or lexical alias
+/// chain rooted there; it derives no class from `Other` or physical MIR type.
 #[derive(Debug, Clone)]
 pub(crate) struct DynamicEntryReadV1 {
     requirement: super::BorrowedFormalEntryReadRequirementV1,
@@ -188,7 +188,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
     if input.owner() != plan.owner()
         || site.owner() != input.owner()
         || !original_root
-        || binding != root
         || root.owner() != input.owner()
         || binding.owner() != input.owner()
         || input.function().variable_ref(read) != Some(ResolvedLexicalRefV1::Local(binding))

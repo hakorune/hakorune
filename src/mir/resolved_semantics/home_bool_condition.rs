@@ -55,16 +55,20 @@ impl CheckedBoolConditionFrameV1 {
     pub(crate) fn transfers_node(&self, node: usize) -> bool {
         self.evaluation.transfers_node(node)
     }
-    /// These original leaves are observations owned by one exact comparison,
-    /// not scalar-producing nodes and not separate Text acquisitions.
-    pub(crate) fn text_comparison_children_v1(&self, node: usize) -> Option<[usize; 2]> {
+    /// These original leaves are observations owned by one checked comparison,
+    /// not scalar-producing nodes or separate Local acquisitions.
+    pub(crate) fn comparison_input_children_v1(&self, node: usize) -> Option<[usize; 2]> {
         let loan = self.operations().iter().find(|loan| loan.node() == node)?;
         let envelope = loan.single_envelope()?;
-        if envelope.domain().left() != DynamicOperatorValueClassV1::String
-            || envelope.domain().right() != DynamicOperatorValueClassV1::String
-            || envelope.normal_result()
-                != crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::TrivialBool
-        {
+        let domain = envelope.domain();
+        let operands_supported = self.evaluation.carrier_integer_comparison_nodes_v1(node).is_some() || matches!(
+            (domain.left(), domain.right()),
+            (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String)
+                | (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String)
+                | (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic)
+        );
+        if !operands_supported || envelope.normal_result()
+            != crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::TrivialBool {
             return None;
         }
         let binary = self.source().nodes().get(node)?.binary()?;
@@ -76,7 +80,7 @@ impl CheckedBoolConditionFrameV1 {
         };
         Some([index(binary.lhs())?, index(binary.rhs())?])
     }
-    pub(crate) fn text_comparison_input_nodes_v1(&self) -> BTreeSet<usize> {
+    pub(crate) fn scalar_invocation_input_nodes_v1(&self) -> BTreeSet<usize> {
         self.ordered_nodes()
             .iter()
             .filter_map(|node| self.evaluation.scalar_invoke_input_order_v1(*node))
@@ -353,13 +357,42 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 continue;
             }
         }
+        if matches!(
+            binary.operator(),
+            Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual
+        ) {
+            let mixed_string_dynamic = match (classes[left], classes[right]) {
+                (Leaf::Value(Class::Dynamic), Leaf::Value(Class::String)) => Some((
+                    DynamicOperatorValueClassV1::Dynamic,
+                    DynamicOperatorValueClassV1::String,
+                )),
+                (Leaf::Value(Class::String), Leaf::Value(Class::Dynamic)) => Some((
+                    DynamicOperatorValueClassV1::String,
+                    DynamicOperatorValueClassV1::Dynamic,
+                )),
+                _ => None,
+            };
+            if let Some((left_class, right_class)) = mixed_string_dynamic {
+                let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(
+                    DynamicOperatorDomainV1::new(family, left_class, right_class),
+                ) else {
+                    return Ok(None);
+                };
+                operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
+                    plan: Rc::clone(&source),
+                    node: index,
+                    proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
+                }));
+                continue;
+            }
+        }
         let (left_class, right_class) = match (classes[left], classes[right]) {
             (Leaf::Value(Class::I64), Leaf::Value(Class::I64)) => (
                 DynamicOperatorValueClassV1::NormalInteger,
                 DynamicOperatorValueClassV1::NormalInteger,
             ),
             (Leaf::Value(Class::Dynamic), Leaf::Value(Class::I64))
-                if binary.operator() == Op::Less => (
+                if matches!(binary.operator(), Op::Less | Op::Greater) => (
                     DynamicOperatorValueClassV1::Dynamic,
                     DynamicOperatorValueClassV1::I64,
                 ),
@@ -384,20 +417,21 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         };
         let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorDomainV1::new(family, left_class, right_class),
-        ) else {
-            return Ok(None);
-        };
+        ) else { return Ok(None); };
         operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
             plan: Rc::clone(&source),
             node: index,
             proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
         }));
     }
-    // Primitive result loans cannot introduce a conditional owning temporary.
+    // Dynamic calls are admitted only as owned operands of a checked comparison;
+    // the exact comparison consumer is checked below through input_owners.
     if calls.values().any(|call| {
         !matches!(
             call.result(),
-            LocalCallResultClassV1::I64 | LocalCallResultClassV1::Bool
+            LocalCallResultClassV1::I64
+                | LocalCallResultClassV1::Bool
+                | LocalCallResultClassV1::Dynamic
         )
     }) {
         return Ok(None);
@@ -427,10 +461,18 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     }
     let mut input_owners = BTreeMap::new();
     for &node in frame.ordered_nodes() {
+        let required_carrier_comparison = frame.operations().iter().find(|loan| loan.node() == node)
+            .and_then(|loan| loan.single_envelope()).is_some_and(|envelope|
+                envelope.domain().family() == DynamicOperatorFamilyV1::Greater
+                    && envelope.domain().left() == DynamicOperatorValueClassV1::Dynamic
+                    && envelope.domain().right() == DynamicOperatorValueClassV1::I64);
+        if required_carrier_comparison && frame.evaluation().carrier_integer_comparison_nodes_v1(node).is_none() {
+            return Ok(None);
+        }
         let scalar_core = frame.evaluation().cores().get(&node).is_some_and(|core| {
             core.field_map().is_some() && core.source().target().checked_map_presence_law_v1()
         });
-        if frame.text_comparison_children_v1(node).is_none() && !scalar_core {
+        if frame.comparison_input_children_v1(node).is_none() && !scalar_core {
             continue;
         }
         let Some(inputs) = frame.evaluation().scalar_invoke_input_order_v1(node) else {

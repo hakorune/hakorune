@@ -82,6 +82,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut assignments = BTreeSet::new();
         let mut evaluations: Vec<&crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1> = Vec::new();
+        let mut evaluation_reads = BTreeSet::new();
         for plan in plans {
             if let Some(frame) = plan.rebind_frame() {
                 let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
@@ -188,8 +189,15 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 } else if origins.contains_key(&reference.binding()) { return Ok(None); }
                 let site = evaluation.source().nodes()[node].site();
-                if !uses.reads().any(|(at, original)| at == site && *original == ResolvedLexicalRefV1::Local(reference.binding()))
-                    || !covered.insert((site.clone(), reference.binding())) {
+                // Nested call-argument evaluations may expose the same source
+                // reference as their containing expression evaluation. The
+                // source node is one read, so account for that identity once.
+                if !evaluation_reads.insert((site.clone(), reference.binding())) {
+                    continue;
+                }
+                let source_read = uses.reads().any(|(at, original)| at == site && *original == ResolvedLexicalRefV1::Local(reference.binding()));
+                let unique_read = covered.insert((site.clone(), reference.binding()));
+                if !source_read || !unique_read {
                     return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                 }
             }

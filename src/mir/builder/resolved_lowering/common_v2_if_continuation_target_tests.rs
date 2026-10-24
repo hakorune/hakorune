@@ -31,7 +31,7 @@ fn continuation_item(
 ) -> crate::mir::loop_recipe_contract::LoopJoinNextItemV1 {
     let branch = canonical.envelope().control().transfer().branches()[0];
     match branch.else_arm {
-        LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. } => continuation,
+        LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. } => continuation.expect("fixture has a following item"),
         LoopJoinBranchArmTransferRefV2::Exit(_) => panic!("S6C fallthrough arm missing"),
     }
 }

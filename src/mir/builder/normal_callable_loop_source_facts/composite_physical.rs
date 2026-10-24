@@ -220,6 +220,9 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
                             CallableLoopSourceItemDispositionV1::InstanceMethod(binding) => {
                                 binding.call_site() != item.call_site()
                             }
+                            CallableLoopSourceItemDispositionV1::DynamicInvocation(source) => {
+                                !source.matches_item(self.owner, item)
+                            }
                         }
                 })
         {

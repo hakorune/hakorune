@@ -50,7 +50,8 @@ fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
         }).collect(),
         InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(value), .. } => vec![value],
         InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }
-            | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { key, .. }) => vec![key],
+            | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { key, .. }
+            | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { key, .. }) => vec![key],
         _ => Vec::new(),
     }
 }
@@ -64,313 +65,39 @@ fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
         == Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
 }
 
+#[path = "invoke_string_source.rs"]
+mod source;
+#[path = "invoke_string_lifetime.rs"]
+mod lifetime;
+
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
-    #[derive(Clone, Default, PartialEq, Eq)]
-    struct Live { temporary: Vec<ValueId>, homes: Vec<ValueId>, replacement: Option<(ValueId, ValueId)>, hold: Option<ValueId>, call_pending: Option<ValueId> }
-    impl Live {
-        fn contains(&self, value: &ValueId) -> bool { self.temporary.contains(value) || self.homes.contains(value) }
-        fn is_empty(&self) -> bool { self.temporary.is_empty() && self.homes.is_empty() && self.replacement.is_none() && self.hold.is_none() && self.call_pending.is_none() }
-        fn end(&mut self, value: ValueId, faulted: bool) -> bool {
-            if let Some(top) = self.temporary.last() {
-                if *top != value { return false; }
-                self.temporary.pop();
-                if self.call_pending.is_some_and(|held| self.temporary.last() == Some(&held)) {
-                    self.call_pending = None;
+    lifetime::check(function, None).map_err(|(_, reason, _)| reason)
+}
+
+pub(super) fn check_module_with_source(
+    module: &crate::mir::MirModule,
+    root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+) -> Result<(), Vec<crate::mir::verification_types::VerificationError>> {
+    let images = source::images_for_module(module, root).map_err(|reason| vec![
+        super::error(module.functions.values().next().map(|function| function.entry_block)
+            .unwrap_or(BasicBlockId(0)), &reason)])?;
+    let mut errors = Vec::new();
+    for function in module.functions.values() {
+        if let Err((block, reason, outstanding)) = lifetime::check(function, images.get(&function.signature.name)) {
+            let mut failure = super::error(block, reason);
+            if let crate::mir::verification_types::VerificationError::ControlFlowError { reason, .. } = &mut failure {
+                reason.push_str(&format!(" function={}", function.signature.name));
+                if let Some(outstanding) = outstanding { reason.push_str(&format!(" {outstanding}")); }
+                match function.blocks.get(&block).and_then(|body| body.terminator.as_ref()) {
+                    Some(MirInstruction::Return { value }) => reason.push_str(&format!(" terminator=Return({value:?})")),
+                    Some(MirInstruction::ReturnFault { .. }) => reason.push_str(" terminator=ReturnFault"),
+                    _ => {},
                 }
-                return true;
             }
-            if let Some((new, old)) = self.replacement {
-                if !faulted {
-                    if value != old || self.homes.last() != Some(&new) { return false; }
-                    let Some(index) = self.homes.iter().position(|home| *home == old) else { return false };
-                    self.homes.remove(index);
-                    self.replacement = None;
-                    return true;
-                }
-                if value == new { self.replacement = None; }
-            }
-            let index = self.homes.iter().rposition(|home| faulted || Some(*home) != self.hold);
-            let Some(index) = index else { return false };
-            if self.homes[index] != value { return false; }
-            self.homes.remove(index);
-            if self.hold == Some(value) { self.hold = None; }
-            true
+            errors.push(failure);
         }
     }
-    // Lifecycle dependencies are not actual arguments. Only an owned Text
-    // Invoke can carry them, even when no other String operation is selected.
-    for row in function.blocks.values().flat_map(|block| block.all_instructions()) {
-        match row {
-            MirInstruction::Call(call) if !call.text_argument_cleanup.is_empty() => return Err("string-owned-escape"),
-            MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. }
-                if !call.text_argument_cleanup.is_empty() && *result != crate::mir::instruction::InvokeCallResultKind::OwnedString =>
-                    return Err("string-owned-escape"),
-            _ => (),
-        }
-    }
-    let selected = |instruction: &MirInstruction| {
-        matches!(instruction, MirInstruction::StringResidenceInstall { .. }) || matches!(
-            instruction, MirInstruction::Invoke { operation, .. }
-                if matches!(operation, InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, .. }
-                    | InvokeOperation::String(_)
-                    | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }
-                        | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. })
-                    | InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. })
-                    || operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))
-    };
-    if !function
-        .blocks
-        .values()
-        .any(|block| block.all_instructions().any(selected))
-    {
-        return Ok(());
-    }
-    let mut results = BTreeMap::<ValueId, BasicBlockId>::new();
-    let mut producers = BTreeMap::<BasicBlockId, ValueId>::new();
-    for block in function.blocks.values() {
-        for instruction in block.all_instructions() {
-            if let MirInstruction::InvokeNormalResult { dst, invoke_block } = instruction {
-                if matches!(
-                    function
-                        .blocks
-                        .get(invoke_block)
-                        .and_then(|b| b.terminator.as_ref()),
-                    Some(MirInstruction::Invoke {
-                        operation,
-                        ..
-                    }) if operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString)
-                ) {
-                    if results.insert(*dst, *invoke_block).is_some()
-                        || producers.insert(*invoke_block, *dst).is_some()
-                    {
-                        return Err("string-result-duplicate");
-                    }
-                }
-            }
-        }
-    }
-    for block in function.blocks.values() {
-        for instruction in block.all_instructions() {
-            if let MirInstruction::Invoke {
-                operation,
-                ..
-            } = instruction
-            {
-                if let InvokeOperation::ArrayElementWrite { kind, producer, index, value, .. } = operation {
-                    if !value.valid_for(*kind, *producer, *index) { return Err("string-text-operand-domain"); }
-                }
-                if matches!(operation, InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value, .. }
-                    if !results.contains_key(value)) { return Err("string-owned-result-missing"); }
-                if let InvokeOperation::String(operation) = operation {
-                    if !operation.valid_operand_domains() {
-                        return Err(if matches!(operation, Op::Add { .. }) { "string-add-left-domain" } else { "string-text-operand-domain" });
-                    }
-                    if let Op::Substring { start, end, .. } = operation {
-                        for operand in [start, end] {
-                            let Some(value) = operand.value() else { return Err("string-integer-domain"); };
-                            if results.contains_key(&value) || matches!(operand, Operand::NormalInteger(_)
-                                if check_borrowed_operand(function, value).is_ok()) {
-                                return Err("string-integer-domain");
-                            }
-                            if matches!(operand, Operand::Dynamic(_)) && !is_tagged_dynamic_formal(function, value) {
-                                return Err("string-dynamic-source-domain");
-                            }
-                        }
-                    }
-                }
-                for operand in text_operands(operation) {
-                    match operand {
-                        Operand::OwnedString(value) if !results.contains_key(value) => {
-                            return Err("string-owned-result-missing");
-                        }
-                        Operand::BorrowedText(value) => check_borrowed_operand(function, *value)?,
-                        Operand::NormalInteger(value) if results.contains_key(value) || check_borrowed_operand(function, *value).is_ok() => {
-                            return Err("string-integer-domain");
-                        }
-                        Operand::Dynamic(value) if !is_tagged_dynamic_formal(function, *value) => {
-                            return Err("string-dynamic-source-domain");
-                        }
-                        _ => {}
-                    }
-                }
-                if matches!(operation, InvokeOperation::String(Op::End { value }) if !results.contains_key(value)) {
-                    return Err("string-end-result-missing");
-                }
-            }
-            if let MirInstruction::StringResidenceInstall { value, replaces, returning } = instruction {
-                if (*returning && replaces.is_some()) || replaces.is_some_and(|previous| previous == *value || !results.contains_key(&previous)) {
-                    return Err("string-residence-replacement-result-missing");
-                }
-                if !results.contains_key(value) { return Err("string-residence-install-result-missing"); }
-                if block.terminator.as_ref().is_some_and(|term| std::ptr::eq(term, instruction)) {
-                    return Err("string-residence-install-terminator");
-                }
-            }
-            // A pair cannot be copied, boxed, PHI-merged, returned, stored,
-            // passed to arbitrary calls or interpreted as one scalar word.
-            for value in instruction.used_values() {
-                if !results.contains_key(&value) {
-                    continue;
-                }
-                let allowed = matches!(instruction,
-                    MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. }
-                    if matches!(operation, Op::End { value: end } if *end == value)
-                        || operation.operands().iter().any(|operand|
-                            matches!(operand, Operand::OwnedString(owned) if *owned == value)));
-                let allowed = allowed || matches!(instruction, MirInstruction::Invoke { operation, .. }
-                    if text_operands(operation).iter().any(|operand| matches!(operand, Operand::OwnedString(owned) if *owned == value)));
-                // A typed physical Return may transfer only an installed Home;
-                // the path check below requires that exact live pair on Normal.
-                let allowed = allowed || matches!(instruction, MirInstruction::Invoke {
-                    operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value: stored, .. }, .. }
-                    if *stored == value);
-                let allowed = allowed || matches!(instruction, MirInstruction::Return { value: Some(returned) }
-                    if *returned == value && function.signature.return_type == crate::mir::MirType::String);
-                // KeepAlive is optimizer metadata, checked for SSA availability
-                // by the shared verifier; it performs no runtime pair access.
-                let allowed = allowed || matches!(instruction, MirInstruction::KeepAlive { .. })
-                    || matches!(instruction, MirInstruction::StringResidenceInstall { value: installed, replaces, .. } if *installed == value || *replaces == Some(value));
-                let allowed = allowed || matches!(instruction,
-                    MirInstruction::Invoke { operation: InvokeOperation::Call { call,
-                        result: crate::mir::instruction::InvokeCallResultKind::OwnedString }, .. }
-                        if call.text_argument_cleanup.contains(&value));
-                if !allowed && !is_call_argument(instruction, value) {
-                    return Err("string-owned-escape");
-                }
-            }
-        }
-        if block
-            .return_env
-            .as_ref()
-            .is_some_and(|env| env.iter().any(|v| results.contains_key(v)))
-        {
-            return Err("string-owned-escape");
-        }
-    }
-    let mut seen = BTreeMap::<(BasicBlockId, bool), Live>::new();
-    let mut pending = vec![(function.entry_block, Live::default(), false)];
-    while let Some((id, mut live, faulted)) = pending.pop() {
-        if let Some(previous) = seen.get(&(id, faulted)) {
-            if previous != &live {
-                return Err("string-lifetime-join");
-            }
-            continue;
-        }
-        seen.insert((id, faulted), live.clone());
-        let block = function.blocks.get(&id).ok_or("string-block-missing")?;
-        for row in &block.instructions {
-            if let MirInstruction::StringResidenceInstall { value, replaces, returning } = row {
-                if *returning {
-                    if faulted || live.hold.is_some() || live.replacement.is_some() || replaces.is_some()
-                        || !live.temporary.is_empty() || !live.homes.contains(value) {
-                        return Err("string-residence-install-not-newest-temporary");
-                    }
-                    live.hold = Some(*value);
-                    continue;
-                }
-                if live.hold.is_some() || live.call_pending.is_some() || faulted || live.replacement.is_some() || !results.contains_key(value) || live.homes.contains(value)
-                    || live.temporary.pop() != Some(*value) { return Err("string-residence-install-not-newest-temporary"); }
-                if let Some(previous) = replaces {
-                    if *previous == *value || !live.homes.contains(previous) { return Err("string-residence-replacement-not-live-home"); }
-                    live.replacement = Some((*value, *previous));
-                }
-                live.homes.push(*value);
-            }
-        }
-        if matches!(block.terminator, Some(MirInstruction::StringResidenceInstall { .. })) {
-            return Err("string-residence-install-terminator");
-        }
-        let term = block
-            .terminator
-            .as_ref()
-            .ok_or("string-terminator-missing")?;
-        if live.replacement.is_some() && matches!(term, MirInstruction::Invoke { operation, .. }
-            if !matches!(operation, InvokeOperation::String(Op::End { .. }))) {
-            return Err("string-effect-before-replacement-end");
-        }
-        if let MirInstruction::Invoke {
-            operation,
-            ..
-        } = term
-        {
-            if !text_operands(operation).is_empty() && (faulted || live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some()) && !matches!(operation, InvokeOperation::String(Op::End { .. })) {
-                return Err("string-effect-after-fault");
-            }
-            for operand in text_operands(operation) {
-                if matches!(operand, Operand::OwnedString(value) if !live.contains(value)) {
-                    return Err("string-borrow-not-live");
-                }
-            }
-            if let InvokeOperation::String(Op::End { value }) = operation {
-                if !live.end(*value, faulted) {
-                    return Err("string-end-order-or-not-live");
-                }
-            }
-        }
-        if let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = term {
-            if live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some() { return Err("string-effect-before-replacement-end"); }
-            if call.text_argument_cleanup.len() > live.temporary.len()
-                || !call.text_argument_cleanup.iter().rev().eq(live.temporary[live.temporary.len().saturating_sub(call.text_argument_cleanup.len())..].iter()) {
-                return Err("string-end-order-or-not-live");
-            }
-            for value in &call.args {
-                if results.contains_key(value) && (faulted || !live.contains(value)) {
-                    return Err("string-call-borrow-not-live");
-                }
-            }
-        }
-        if let MirInstruction::Return { value: Some(value) } = term {
-            if results.contains_key(value) {
-                if function.signature.return_type != crate::mir::MirType::String || faulted
-                    || live.replacement.is_some() || !live.temporary.is_empty()
-                    || live.homes.as_slice() != [*value] || live.hold.is_some_and(|held| held != *value) {
-                    return Err("string-owned-escape");
-                }
-                live.homes.pop();
-                live.hold = None;
-            }
-        }
-        let targets = block.successors_from_terminator();
-        if targets.is_empty() && !live.is_empty() {
-            return Err("string-missing-end");
-        }
-        for target in targets.into_iter().rev() {
-            let mut next = live.clone();
-            let mut next_faulted = faulted;
-            if let MirInstruction::Invoke {
-                operation,
-                normal_landing,
-                fault_landing,
-                ..
-            } = term
-            {
-                next_faulted |= target == *fault_landing;
-                // Source corroboration remains mandatory in the module checker.
-                // The physical transfer happens only on FieldSet Normal; Fault
-                // retains the newest temporary for its explicit candidate End.
-                if let InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value, .. } = operation {
-                    if faulted || live.replacement.is_some() || live.hold.is_some() || live.call_pending.is_some()
-                        || live.temporary.last() != Some(value) { return Err("string-borrow-not-live"); }
-                    if target == *normal_landing { next.temporary.pop(); }
-                }
-                if target == *normal_landing
-                    && operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString)
-                {
-                    let result = *producers.get(&id).ok_or("string-result-missing")?;
-                    let suffix = match operation { InvokeOperation::Call { call, .. } => call.text_argument_cleanup.len(), _ => 0 };
-                    next.temporary.insert(next.temporary.len() - suffix, result);
-                    if suffix != 0 { next.call_pending = Some(result); }
-                }
-            }
-            pending.push((target, next, next_faulted));
-        }
-    }
-    if function.blocks.values().any(|block| block.instructions.iter().any(|row|
-        matches!(row, MirInstruction::StringResidenceInstall { .. }))
-        && !seen.keys().any(|(id, _)| *id == block.id)) {
-        return Err("string-residence-install-unreachable");
-    }
-    Ok(())
+    if errors.is_empty() { Ok(()) } else { Err(errors) }
 }
 
 /// Physical evidence only: source/domain/use closure is checked independently.
@@ -537,6 +264,11 @@ mod tests {
         let verified = super::super::check_function(&good);
         assert!(verified.is_ok(), "{verified:?}");
         assert_eq!(check(&good), Ok(()));
+        let mut unproved_residency = good.clone();
+        let Some(MirInstruction::Invoke { operation, .. }) = unproved_residency.blocks
+            .get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut() else { panic!("original End") };
+        *operation = InvokeOperation::String(Op::EndIfOwned { value: ValueId(3) });
+        assert_eq!(check(&unproved_residency), Err("string-owned-escape"));
         // A function-level role check lends without transferring ownership.
         // The mandatory module source gate separately checks each occurrence.
         let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method("Values", "sink", 1);

@@ -130,25 +130,49 @@ fn scalar_terminal_order_retains_same_source_without_result_home() {
         "box Item { value: i64 birth() { me.value = 5 } } box Leaf { flag: i64 birth() { me.flag = 0 } read(p: Item) { if p == null { return 7 } return p.value } } box Parent { child: Leaf birth() { me.child = new Leaf() } run(p: Item) { return me.child.read(p) } } static box Main { main() { local parent = new Parent() local item = new Item() return parent.run(item) } }"
     ).unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
-    let terminal = ledger.borrowed_i64_results.keys().find_map(|owner|
-        ledger.call_relations_for_owner(*owner).into_iter().find(|terminal| terminal.source_scalar().is_some()))
+    let terminal = ledger
+        .borrowed_i64_results
+        .keys()
+        .find_map(|owner| {
+            ledger
+                .call_relations_for_owner(*owner)
+                .into_iter()
+                .find(|terminal| terminal.source_scalar().is_some())
+        })
         .expect("original scalar terminal");
     let loan = terminal.source_scalar().unwrap();
-    let super::super::super::prepare::RootHomePreparationV1::Prepared { mut order, direct_object } =
-        ledger.preview_root_home_exit_v1(terminal.owner(), terminal.return_site().node()).unwrap()
-    else { panic!("original terminal Home flow"); };
+    let super::super::super::prepare::RootHomePreparationV1::Prepared {
+        mut order,
+        direct_object,
+    } = ledger
+        .preview_root_home_exit_v1(terminal.owner(), terminal.return_site().node())
+        .unwrap()
+    else {
+        panic!("original terminal Home flow");
+    };
     assert!(!direct_object);
     assert_eq!(order.scalar.as_ref().unwrap().1, *loan);
     assert_eq!(order.ingress_result_kind(), InvokeCallResultKind::I64);
     let original = order.full().to_vec();
     order.prepend_argument_maps(Vec::new()).unwrap();
     assert_eq!(order.scalar.as_ref().unwrap().1, *loan);
-    assert!(order.retain_scalar_source(terminal.return_site().clone(), loan.clone()).is_err());
-    assert!(order.bind_direct_result(ValueId(77), InvokeCallResultKind::Bool).is_err());
-    order.bind_direct_result(ValueId(77), InvokeCallResultKind::I64).unwrap();
+    assert!(order
+        .retain_scalar_source(terminal.return_site().clone(), loan.clone())
+        .is_err());
+    assert!(order
+        .bind_direct_result(ValueId(77), InvokeCallResultKind::Bool)
+        .is_err());
+    order
+        .bind_direct_result(ValueId(77), InvokeCallResultKind::I64)
+        .unwrap();
     assert_eq!(order.full(), original);
-    assert!(order.full().iter().all(|origin| !matches!(origin.subject(),
-        RootHomeReleaseSubjectV1::DirectResult { .. } | RootHomeReleaseSubjectV1::DirectResultField { .. })));
-    assert!(order.bind_direct_result(ValueId(78), InvokeCallResultKind::I64).is_err());
+    assert!(order.full().iter().all(|origin| !matches!(
+        origin.subject(),
+        RootHomeReleaseSubjectV1::DirectResult { .. }
+            | RootHomeReleaseSubjectV1::DirectResultField { .. }
+    )));
+    assert!(order
+        .bind_direct_result(ValueId(78), InvokeCallResultKind::I64)
+        .is_err());
     assert!(order.prepend_argument_maps(Vec::new()).is_err());
 }

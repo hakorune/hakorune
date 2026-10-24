@@ -193,7 +193,7 @@ impl PrefixLocalFlow<'_> {
             return Some(BindingRebindDestinationV1::TextLoopCarrier(Rc::clone(basis)));
         }
         if !homes.iter().any(|home| home.binding() == binding)
-            && matches!(self.locals.get(&binding), Some(StoredLocal::TaggedDynamic))
+            && matches!(self.locals.get(&binding), Some(StoredLocal::TaggedDynamic | StoredLocal::DynamicInvocationResult { .. }))
         {
             if let Some(basis) = self.source_loop_header_basis_v1(binding).filter(|basis| {
                 basis.entry_producer().class()

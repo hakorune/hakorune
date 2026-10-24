@@ -14,13 +14,18 @@ type Binding = (BasicBlockId, MirInstruction);
 
 pub(in crate::mir::builder) struct BoolConditionEmissionV1 {
     pub(in crate::mir::builder) frame: Rc<CheckedBoolConditionFrameV1>,
+    pub(in crate::mir::builder) retained_argument_frames: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>>,
     pub(in crate::mir::builder) nodes: Vec<Node>,
     pub(in crate::mir::builder) binary: BTreeMap<SourceExprSiteV1, Binding>,
     pub(in crate::mir::builder) logical: BTreeMap<SourceExprSiteV1, crate::mir::builder::ops::CompletedLogicalShortCircuitV1>,
     entry: Binding,
 }
 impl BoolConditionEmissionV1 {
-    pub(in crate::mir::builder) fn begin(builder: &mut MirBuilder, frame: Rc<CheckedBoolConditionFrameV1>) -> Result<Self, String> {
+    pub(in crate::mir::builder) fn begin(
+        builder: &mut MirBuilder,
+        frame: Rc<CheckedBoolConditionFrameV1>,
+        retained_argument_frames: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>>,
+    ) -> Result<Self, String> {
         let from = builder.function_state.current_block.ok_or_else(|| freeze("bool-condition/no-entry"))?;
         let entry = builder.next_block_id();
         crate::mir::builder::emission::branch::emit_jump(builder, entry)?;
@@ -28,7 +33,7 @@ impl BoolConditionEmissionV1 {
             function.blocks.get(&from)).and_then(|block| block.terminator.clone())
             .ok_or_else(|| freeze("bool-condition/entry-not-emitted"))?);
         builder.start_new_block(entry)?;
-        Ok(Self { frame, nodes: Vec::new(), binary: BTreeMap::new(), logical: BTreeMap::new(), entry: binding })
+        Ok(Self { frame, retained_argument_frames, nodes: Vec::new(), binary: BTreeMap::new(), logical: BTreeMap::new(), entry: binding })
     }
     pub(in crate::mir::builder) fn value_at(&self, site: &SourceExprSiteV1) -> Result<ValueId, String> {
         let index = self.frame.source().nodes().iter().position(|node| node.site() == site)
@@ -170,6 +175,8 @@ pub(in crate::mir::builder) fn cursor(builder: &MirBuilder) -> Result<Cursor, St
 pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedBoolConditionFrameV1, node: usize,
+    consume_receiver: &dyn Fn(&crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    retained_argument_frames: &[Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
 ) -> Result<(ValueId, Proof), String> {
     use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
     let receiver = if let Some(field) = frame.evaluation().cores().get(&node).and_then(|core| core.field_map()) {
@@ -179,18 +186,37 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
             builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, &read)?;
         Some(read)
     } else { None };
-    let mut body = super::expression_value::emit_comparison_inputs_v1(builder, state, ledger, frame.evaluation(), node)?;
+    let mut body = super::expression_value::emit_comparison_inputs_v1(
+        builder, state, ledger, frame.evaluation(), node, consume_receiver, retained_argument_frames,
+    )?;
     if !body.calls.is_empty() || !body.path_reads.is_empty() { return Err(freeze("bool-condition/text-operand-order")); }
-    let operation = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(
+    let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(
         frame.evaluation(), node, &body.values, receiver.as_ref())?;
-    let pending = super::expression_value::pending_operations(&body.acquired, &body.homes);
-    let (value, kind, _) = super::expression_value::emit_scalar_operation_with_pending_v1(builder,
-        &mut RawRootGraphWriterV1, operation, body.fault_frame, &pending, &mut body.bindings)?;
-    if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
+    let normal_temporaries = super::expression_value::bool_condition_temporary_operations_v1(
+        frame.evaluation(), node, &body,
+    )?;
+    let pending: Vec<_> = normal_temporaries.iter().cloned()
+        .chain(body.homes.iter().cloned()).collect();
+    let (normal, kind, _) = super::expression_value::emit_scalar_operation_with_pending_v1(builder,
+        &mut RawRootGraphWriterV1, plan.operation().clone(), body.fault_frame, &pending, &mut body.bindings)?;
+    let value = if plan.is_integer_comparison() {
+        if kind != crate::mir::instruction::InvokeNormalResultKind::I64 { return Err(freeze("bool-condition/text-result")); }
+        let result = builder.next_value_id();
+        let comparison = plan.comparison_instruction(normal, result).ok_or_else(|| freeze("bool-condition/text-result"))?;
+        let MirInstruction::Compare { dst, op, lhs, rhs } = comparison else { unreachable!() };
+        body.bindings.push(crate::mir::builder::emission::compare::emit_to_recorded(builder, dst, op, lhs, rhs)?);
+        result
+    } else {
+        if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
+        normal
+    };
     if let Some(receiver) = &receiver { body.bindings.extend(receiver.original_copy_dependencies_v1()?.iter().cloned()); }
-    let (terminal, continuation) = super::expression_value::finish_value_continuation_v1(builder, &mut body)?;
+    let (terminal, continuation) = super::expression_value::finish_bool_condition_continuation_v1(
+        builder, &mut body, normal_temporaries,
+    )?;
     Ok((value, Proof::ScalarInvocation { receiver,
-        input_values: body.values.into_boxed_slice(), input_reads: body.reference_reads, entry: body.entry,
+        input_values: body.values.into_boxed_slice(), dynamic_calls: body.dynamic_calls.into_boxed_slice(),
+        input_reads: body.reference_reads, entry: body.entry,
         terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {

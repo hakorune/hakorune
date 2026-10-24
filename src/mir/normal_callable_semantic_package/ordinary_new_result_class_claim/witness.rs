@@ -115,6 +115,14 @@ impl MapStoredResultSourceV1 {
             MapStoredReturnV1::InstalledLocal { .. } => None,
         }
     }
+    /// Lend the guarding call from the SAME original Return census.
+    pub(crate) fn present_has_v1(&self, value: &OwnedExprSiteV1)
+        -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
+        match self.returns.get(value)? {
+            MapStoredReturnV1::Present { has, .. } => Some(has),
+            MapStoredReturnV1::InstalledLocal { .. } => None,
+        }
+    }
     /// One exact original get in the WHOLE field-use census, including callers
     /// outside the result-producing function. This lends source, never a Home.
     pub(crate) fn original_get_v1(&self, at: &OwnedExprSiteV1)

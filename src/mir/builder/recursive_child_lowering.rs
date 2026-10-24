@@ -247,6 +247,11 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
         Option<crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'port>>,
     pub(in crate::mir::builder) source_input:
         Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'port>>,
+    /// Existing source Loop product retained only while one scheduled child
+    /// lowers; its checked argument frames remain owned by that product.
+    pub(in crate::mir::builder) active_source_loop_product: Option<
+        Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    >,
     pub(in crate::mir::builder) ordinary_new_claim_ledger:
         Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
     pub(in crate::mir::builder) map_read_consumer:
@@ -359,6 +364,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: None,
             callable_ledger: None,
             source_input: None,
+            active_source_loop_product: None,
             owned_array_source: None,
             ordinary_new_claim_ledger: None,
             map_read_consumer: None,
@@ -386,6 +392,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
             source_input: self.source_input,
+            active_source_loop_product: self.active_source_loop_product.clone(),
             owned_array_source: self.owned_array_source,
             ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
             map_read_consumer: self.map_read_consumer.clone(),
@@ -403,6 +410,17 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
+    }
+
+    pub(in crate::mir::builder) fn with_source_loop_product_v2<R>(
+        &mut self,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        lower: impl FnOnce(&mut Self) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let previous = self.active_source_loop_product.replace(product);
+        let result = lower(self);
+        self.active_source_loop_product = previous;
+        result
     }
 
     pub(in crate::mir::builder) fn install_map_read_consumer(

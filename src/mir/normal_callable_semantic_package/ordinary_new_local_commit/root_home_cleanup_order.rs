@@ -1,15 +1,18 @@
 //! Retain original exit obligations across the existing affine root progress.
 //! Sequence membership uses exact source origins, never emitted MIR discovery.
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::{freeze, RootHomeReleaseOriginV1};
+use crate::mir::instruction::InvokeOperation;
+use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrderV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) implicit_void: Option<(
-        std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
-        (crate::mir::BasicBlockId, crate::mir::MirInstruction),
-    )>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) implicit_void:
+        Option<(
+            std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
+            (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+        )>,
+    pub(super) installed_map_return: Option<super::map_field_install::InstalledMapReturnEmissionV1>,
     pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
     pub(super) return_expression: Option<Box<super::received_return::ReturnExpressionEmissionV1>>,
     pub(super) text_return_hold: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
@@ -17,7 +20,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
         super::super::super::completion_index::DirectRootCleanupSourceV1,
         Option<crate::mir::ValueId>,
     )>,
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) stored_map_get: Option<crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) stored_map_get:
+        Option<crate::mir::normal_callable_semantic_package::StoredMapGetReturnSourceLoanV1>,
     scalar: Option<(
         super::SourceStmtSiteV1,
         crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
@@ -32,9 +36,20 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
 pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1(
     rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
     homes: &[LiveHomeV1],
-) -> Result<Option<Vec<(LiveHomeV1, super::RootHomeReleaseSubjectV1, crate::mir::instruction::InvokeOperation)>>, String> {
+) -> Result<
+    Option<
+        Vec<(
+            LiveHomeV1,
+            super::RootHomeReleaseSubjectV1,
+            crate::mir::instruction::InvokeOperation,
+        )>,
+    >,
+    String,
+> {
     for (index, binding) in homes.iter().enumerate() {
-        if homes[..index].contains(binding) { return Err(freeze("root-cleanup-order/duplicate-home")); }
+        if homes[..index].contains(binding) {
+            return Err(freeze("root-cleanup-order/duplicate-home"));
+        }
     }
     let mut result = Vec::new();
     let mut available = true;
@@ -46,23 +61,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
         if let super::LocalCommitV1::CallReceived(row) = home {
             if let Some(parents) = &row.field_support_parents {
                 for parent in parents.iter() {
-                    if homes.iter().filter(|home| home.binding() == *parent).count() != 1
+                    if homes
+                        .iter()
+                        .filter(|home| home.binding() == *parent)
+                        .count()
+                        != 1
                         || homes.iter().position(|home| home.binding() == *parent)
-                            <= homes.iter().position(|candidate| candidate == binding) {
+                            <= homes.iter().position(|candidate| candidate == binding)
+                    {
                         return Err(freeze("field-end/anchor-cleanup-order"));
                     }
                 }
             }
         }
         available &= home.end_available();
-        if !home.end_available() { continue; }
-        result.extend(home.end_plan().into_vec().into_iter().map(|(subject, operation)| {
-            let subject = match binding {
-                LiveHomeV1::Text(acquisition) => super::RootHomeReleaseSubjectV1::Text(acquisition.clone()),
-                LiveHomeV1::Stable(_) => subject,
-            };
-            (binding.clone(), subject, operation)
-        }));
+        if !home.end_available() {
+            continue;
+        }
+        result.extend(
+            home.end_plan()
+                .into_vec()
+                .into_iter()
+                .map(|(subject, operation)| {
+                    let subject = match binding {
+                        LiveHomeV1::Text(acquisition) => {
+                            super::RootHomeReleaseSubjectV1::Text(acquisition.clone())
+                        }
+                        LiveHomeV1::Stable(_) => subject,
+                    };
+                    (binding.clone(), subject, operation)
+                }),
+        );
     }
     Ok(available.then_some(result))
 }
@@ -71,9 +100,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
 /// policy for root exits and Loop ports. No synthetic exit identity is needed.
 pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selection_v2(
     rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
-    full_homes: &[LiveHomeV1], normal_homes: &[LiveHomeV1],
-) -> Result<Option<(Vec<(LiveHomeV1, super::RootHomeReleaseSubjectV1,
-    crate::mir::instruction::InvokeOperation)>, Vec<usize>)>, String> {
+    full_homes: &[LiveHomeV1],
+    normal_homes: &[LiveHomeV1],
+) -> Result<
+    Option<(
+        Vec<(
+            LiveHomeV1,
+            super::RootHomeReleaseSubjectV1,
+            crate::mir::instruction::InvokeOperation,
+        )>,
+        Vec<usize>,
+    )>,
+    String,
+> {
     for (index, binding) in full_homes.iter().enumerate() {
         if full_homes[..index].contains(binding) {
             return Err(freeze("root-cleanup-order/duplicate-home"));
@@ -92,29 +131,48 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selectio
     }
     for row in rows.values() {
         if let super::LocalCommitV1::CallReceived(row) = row {
-            if full_homes.iter().any(|home| home.binding() == row.binding) && !normal_homes.iter().any(|home| home.binding() == row.binding)
-                && row.field_support_parents.as_ref().is_some_and(|parents| parents.iter().any(|parent| normal_homes.iter().any(|home| home.binding() == *parent))) {
+            if full_homes.iter().any(|home| home.binding() == row.binding)
+                && !normal_homes
+                    .iter()
+                    .any(|home| home.binding() == row.binding)
+                && row.field_support_parents.as_ref().is_some_and(|parents| {
+                    parents
+                        .iter()
+                        .any(|parent| normal_homes.iter().any(|home| home.binding() == *parent))
+                })
+            {
                 return Err(freeze("field-end/escaping-local-anchor"));
             }
         }
     }
-    let Some(full) = source_home_end_plans_v1(rows, full_homes)? else { return Ok(None) };
+    let Some(full) = source_home_end_plans_v1(rows, full_homes)? else {
+        return Ok(None);
+    };
     for (index, (_, subject, _)) in full.iter().enumerate() {
         if full[..index].iter().any(|(_, prior, _)| prior == subject) {
             return Err(freeze("root-cleanup-order/duplicate-subject"));
         }
     }
-    let normal = full.iter().enumerate().filter_map(|(index, (binding, _, _))|
-        normal_homes.contains(binding).then_some(index)).collect();
+    let normal = full
+        .iter()
+        .enumerate()
+        .filter_map(|(index, (binding, _, _))| normal_homes.contains(binding).then_some(index))
+        .collect();
     Ok(Some((full, normal)))
 }
 
 /// Fault keeps every obligation except Normal operations already attempted.
 pub(crate) fn fault_indices_after_normal_step_v2(
-    full_len: usize, normal: &[usize], step: usize,
+    full_len: usize,
+    normal: &[usize],
+    step: usize,
 ) -> Result<Vec<usize>, String> {
-    let attempted = normal.get(..=step).ok_or_else(|| freeze("root-cleanup-order/normal-step"))?;
-    Ok((0..full_len).filter(|index| !attempted.contains(index)).collect())
+    let attempted = normal
+        .get(..=step)
+        .ok_or_else(|| freeze("root-cleanup-order/normal-step"))?;
+    Ok((0..full_len)
+        .filter(|index| !attempted.contains(index))
+        .collect())
 }
 
 impl RootHomeCleanupOrderV1 {
@@ -137,20 +195,35 @@ impl RootHomeCleanupOrderV1 {
         full_homes: &[LiveHomeV1],
         normal_homes: &[LiveHomeV1],
     ) -> Result<Option<Self>, String> {
-        Self::from_home_end_plans_for_exit(rows, &RootHomeExitKeyV1::Explicit(exit.clone()), full_homes, normal_homes)
+        Self::from_home_end_plans_for_exit(
+            rows,
+            &RootHomeExitKeyV1::Explicit(exit.clone()),
+            full_homes,
+            normal_homes,
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn from_home_end_plans_for_exit(
         rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
         exit: &RootHomeExitKeyV1,
-        full_homes: &[LiveHomeV1], normal_homes: &[LiveHomeV1],
+        full_homes: &[LiveHomeV1],
+        normal_homes: &[LiveHomeV1],
     ) -> Result<Option<Self>, String> {
         let mut full = Vec::new();
         let mut normal = Vec::new();
-        let Some((plans, selected)) = source_home_end_selection_v2(rows, full_homes, normal_homes)? else { return Ok(None) };
+        let Some((plans, selected)) = source_home_end_selection_v2(rows, full_homes, normal_homes)?
+        else {
+            return Ok(None);
+        };
         for (index, (_, subject, operation)) in plans.into_iter().enumerate() {
-            let origin = RootHomeReleaseOriginV1 { subject, exit: exit.clone(), operation };
-            if selected.contains(&index) { normal.push(origin.clone()); }
+            let origin = RootHomeReleaseOriginV1 {
+                subject,
+                exit: exit.clone(),
+                operation,
+            };
+            if selected.contains(&index) {
+                normal.push(origin.clone());
+            }
             full.push(origin);
         }
         Self::from_sequences(full.clone(), &normal, &full).map(Some)
@@ -193,7 +266,9 @@ impl RootHomeCleanupOrderV1 {
         let acquisition_fault = indices(acquisition_fault)?;
         Ok(Self {
             direct: None,
-            scalar: None, stored_map_get: None,
+            scalar: None,
+            stored_map_get: None,
+            installed_map_return: None,
             null_return: None,
             return_expression: None,
             text_return_hold: None,
@@ -204,6 +279,13 @@ impl RootHomeCleanupOrderV1 {
         })
     }
 
+    pub(in crate::mir) fn result_cancellation_v1(
+        &self,
+    ) -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
+        super::RootHomeFaultSequencesV1::result_cancellation_from_sources_v1(
+            &self.full, &self.acquisition_fault)
+    }
+
     pub(super) fn prepend_argument_maps(
         &mut self,
         prefix: Vec<RootHomeReleaseOriginV1>,
@@ -212,7 +294,10 @@ impl RootHomeCleanupOrderV1 {
             .direct
             .as_ref()
             .is_some_and(|(_, value)| value.is_some())
-            || self.scalar.as_ref().is_some_and(|(_, _, value)| value.is_some())
+            || self
+                .scalar
+                .as_ref()
+                .is_some_and(|(_, _, value)| value.is_some())
         {
             return Err(freeze("direct-result-arguments-after-bind"));
         }
@@ -231,7 +316,9 @@ impl RootHomeCleanupOrderV1 {
         &mut self,
         prefix: Vec<RootHomeReleaseOriginV1>,
     ) -> Result<(), String> {
-        if prefix.is_empty() { return Err(freeze("result-cleanup/empty-plan")); }
+        if prefix.is_empty() {
+            return Err(freeze("result-cleanup/empty-plan"));
+        }
         let mut full = prefix;
         full.extend_from_slice(&self.full);
         self.replace_sequences(full, &self.normal(), &self.acquisition_fault())
@@ -240,7 +327,9 @@ impl RootHomeCleanupOrderV1 {
     /// Reorder obligations atomically without replacing their original source
     /// products. New source fields must not require another hand-copy list.
     fn replace_sequences(
-        &mut self, full: Vec<RootHomeReleaseOriginV1>, normal: &[RootHomeReleaseOriginV1],
+        &mut self,
+        full: Vec<RootHomeReleaseOriginV1>,
+        normal: &[RootHomeReleaseOriginV1],
         acquisition_fault: &[RootHomeReleaseOriginV1],
     ) -> Result<(), String> {
         let next = Self::from_sequences(full, normal, acquisition_fault)?;
@@ -254,10 +343,20 @@ impl RootHomeCleanupOrderV1 {
         &self,
         expected: &[RootHomeReleaseOriginV1],
     ) -> Result<(), String> {
-        if expected.is_empty() || !self.full.starts_with(expected)
-            || self.normal().iter().chain(self.acquisition_fault().iter()).any(|origin|
-                expected.iter().any(|pending| pending.subject() == origin.subject()))
-        { return Err(freeze("result-cleanup/order-drift")); }
+        if expected.is_empty()
+            || !self.full.starts_with(expected)
+            || self
+                .normal()
+                .iter()
+                .chain(self.acquisition_fault().iter())
+                .any(|origin| {
+                    expected
+                        .iter()
+                        .any(|pending| pending.subject() == origin.subject())
+                })
+        {
+            return Err(freeze("result-cleanup/order-drift"));
+        }
         Ok(())
     }
 
@@ -270,7 +369,9 @@ impl RootHomeCleanupOrderV1 {
             .collect()
     }
 
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn full(&self) -> &[RootHomeReleaseOriginV1] {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn full(
+        &self,
+    ) -> &[RootHomeReleaseOriginV1] {
         &self.full
     }
 
@@ -298,8 +399,11 @@ impl RootHomeCleanupOrderV1 {
         &self,
         step: usize,
     ) -> Result<Vec<RootHomeReleaseOriginV1>, String> {
-        Ok(self.fault_indices_after_normal_step(step)?.into_iter()
-            .map(|index| self.full[index].clone()).collect())
+        Ok(self
+            .fault_indices_after_normal_step(step)?
+            .into_iter()
+            .map(|index| self.full[index].clone())
+            .collect())
     }
 }
 
@@ -309,3 +413,24 @@ mod tests;
 
 #[path = "root_home_direct_result.rs"]
 mod direct_result;
+
+impl super::RootHomeFaultSequencesV1 {
+    /// The result is acquired only on Call Normal. Its source-issued prefix
+    /// precedes the unchanged acquisition-Fault Home suffix on cleanup Fault.
+    pub(in crate::mir) fn result_cancellation_v1(&self) -> Result<Vec<InvokeOperation>, String> {
+        Self::result_cancellation_from_sources_v1(&self.full, &self.acquisition)
+    }
+    pub(super) fn result_cancellation_from_sources_v1(
+        full: &[RootHomeReleaseOriginV1], acquisition: &[usize],
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let split = full.len().checked_sub(acquisition.len())
+            .ok_or_else(|| freeze("root-fault-sequence-shape"))?;
+        if acquisition.iter().copied().ne(split..full.len())
+            || full[..split].iter().any(|origin| !matches!(origin.subject(),
+                super::RootHomeReleaseSubjectV1::DirectResult { .. }
+                | super::RootHomeReleaseSubjectV1::DirectResultField { .. })) {
+            return Err(freeze("root-fault-sequence-shape"));
+        }
+        Ok(full[..split].iter().map(|origin| origin.operation().clone()).collect())
+    }
+}

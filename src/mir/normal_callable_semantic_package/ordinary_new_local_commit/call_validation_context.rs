@@ -94,7 +94,7 @@ impl<'a> CallValidationContextV1<'a> {
                 }
                 (std::rc::Rc::clone(product), *binding, true)
             }
-            Producer::Static { .. } | Producer::Residence(_) => return Err(freeze("source-loop/point-purpose")),
+            Producer::Static { .. } | Producer::Residence(_) | Producer::BranchNormal(_) => return Err(freeze("source-loop/point-purpose")),
         };
         if product.source.headers.get(&binding).is_none_or(|basis|
             !matches!(basis.entry_producer(), crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(_))) {
@@ -140,7 +140,8 @@ impl<'a> CallValidationContextV1<'a> {
                 }
                 (std::rc::Rc::clone(product), *binding, true)
             }
-            Producer::Source(_) => return Err(freeze("source-loop/dynamic-point-purpose")),
+            Producer::Source(_) | Producer::Initializer(_) | Producer::BindingRebind(_) =>
+                return Err(freeze("source-loop/dynamic-point-purpose")),
         };
         if product.source.headers.get(&binding).is_none_or(|basis|
             !matches!(basis.entry_producer(), ValueProducer::Dynamic(_))) {

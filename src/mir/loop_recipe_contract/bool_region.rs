@@ -10,12 +10,16 @@ pub(crate) enum LoopBoolCompareV1 { Equal, NotEqual, Less, LessEqual, Greater, G
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum LoopBoolCompareDomainV1 { I64, Text, DynamicI64 }
+pub(crate) enum LoopBoolCompareDomainV1 { I64, Text, DynamicI64, I64Dynamic, DynamicText, TextDynamic }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub(crate) enum LoopBoolNodeV1 {
     Import { ordinal: u32, class: Class },
+    /// A source-owned call effect inside the Bool tree. Its ordinal is tied to
+    /// the exact checked call node by the source projection. And/Or reach makes
+    /// this effect lazy; it is never an eager BoolExpression input.
+    Call { ordinal: u32, class: Class },
     I64 { value: i64 },
     Bool { value: bool },
     Text { value: String },
@@ -38,7 +42,8 @@ pub(crate) struct LoopBoolRegionV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopBoolRegionRejectV1 {
-    Root, ChildOrder, SharedChild, Orphan, Postorder, ImportOrder, ImportClass, ImportCoverage, Domain,
+    Root, ChildOrder, SharedChild, Orphan, Postorder, ImportOrder, ImportClass, ImportCoverage,
+    CallEffectCoverage, Domain,
 }
 impl LoopBoolNodeV1 {
     fn children(&self) -> impl DoubleEndedIterator<Item = u32> {
@@ -56,7 +61,11 @@ impl LoopBoolNodeV1 {
 impl LoopBoolRegionV1 {
     pub(crate) fn may_fault(&self) -> bool {
         self.nodes.iter().any(|node| matches!(node,
-            LoopBoolNodeV1::Compare { domain: LoopBoolCompareDomainV1::Text | LoopBoolCompareDomainV1::DynamicI64, .. }
+            LoopBoolNodeV1::Compare { domain: LoopBoolCompareDomainV1::Text
+                | LoopBoolCompareDomainV1::DynamicI64
+                | LoopBoolCompareDomainV1::I64Dynamic
+                | LoopBoolCompareDomainV1::DynamicText
+                | LoopBoolCompareDomainV1::TextDynamic, .. }
             | LoopBoolNodeV1::TextLength { .. } | LoopBoolNodeV1::TextSubstring { .. }
             | LoopBoolNodeV1::TextIndexOf { .. }))
     }
@@ -66,11 +75,26 @@ impl LoopBoolRegionV1 {
     /// acquisition/End scopes are checked by the original source owner.
     /// Each import ordinal names exactly one supplied outer value class.
     pub(crate) fn verify(&self, inputs: &[Class]) -> Result<(), LoopBoolRegionRejectV1> {
+        let calls: Vec<_> = self.nodes.iter().filter_map(|node| match node {
+            LoopBoolNodeV1::Call { class, .. } => Some(*class),
+            _ => None,
+        }).collect();
+        self.verify_with_calls(inputs, &calls)
+    }
+
+    /// Calls are effect nodes inside this tree, so And/Or controls their reach.
+    /// `calls` is the source projection's ordered call-result class list.
+    pub(crate) fn verify_with_calls(
+        &self,
+        inputs: &[Class],
+        calls: &[Class],
+    ) -> Result<(), LoopBoolRegionRejectV1> {
         use LoopBoolRegionRejectV1 as Reject;
         if self.nodes.is_empty() || self.root as usize != self.nodes.len() - 1 { return Err(Reject::Root); }
         let mut classes = Vec::with_capacity(self.nodes.len());
         let mut parents = vec![0u8; self.nodes.len()];
         let mut imports = 0;
+        let mut call_effects = 0;
         for (index, node) in self.nodes.iter().enumerate() {
             for child in node.children() {
                 if child as usize >= index { return Err(Reject::ChildOrder); }
@@ -84,6 +108,16 @@ impl LoopBoolRegionV1 {
                     if !matches!(class, Class::I64 | Class::Bool | Class::Text | Class::Dynamic)
                         || inputs.get(imports) != Some(class) { return Err(Reject::ImportClass); }
                     imports += 1;
+                    *class
+                }
+                LoopBoolNodeV1::Call { ordinal, class } => {
+                    if *ordinal as usize != call_effects
+                        || !matches!(class, Class::I64 | Class::Bool | Class::Text | Class::Dynamic)
+                        || calls.get(call_effects) != Some(class)
+                    {
+                        return Err(Reject::CallEffectCoverage);
+                    }
+                    call_effects += 1;
                     *class
                 }
                 LoopBoolNodeV1::I64 { .. } => Class::I64,
@@ -111,6 +145,9 @@ impl LoopBoolRegionV1 {
                         LoopBoolCompareDomainV1::I64 => (Class::I64, Class::I64),
                         LoopBoolCompareDomainV1::Text => (Class::Text, Class::Text),
                         LoopBoolCompareDomainV1::DynamicI64 => (Class::Dynamic, Class::I64),
+                        LoopBoolCompareDomainV1::I64Dynamic => (Class::I64, Class::Dynamic),
+                        LoopBoolCompareDomainV1::DynamicText => (Class::Dynamic, Class::Text),
+                        LoopBoolCompareDomainV1::TextDynamic => (Class::Text, Class::Dynamic),
                     };
                     if classes[*left as usize] != expected_left || classes[*right as usize] != expected_right {
                         return Err(Reject::Domain);
@@ -125,6 +162,7 @@ impl LoopBoolRegionV1 {
             classes.push(class);
         }
         if imports != inputs.len() { return Err(Reject::ImportCoverage); }
+        if call_effects != calls.len() { return Err(Reject::CallEffectCoverage); }
         if classes.last() != Some(&Class::Bool) { return Err(Reject::Root); }
         if parents[..self.nodes.len() - 1].iter().any(|count| *count != 1) { return Err(Reject::Orphan); }
         // Check canonical LEFT -> RIGHT postorder structurally. The node arena

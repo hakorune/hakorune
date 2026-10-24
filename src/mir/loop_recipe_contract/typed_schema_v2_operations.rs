@@ -73,7 +73,7 @@ pub(super) fn check_operation(
         LoopOperationV2::TextAdd { left, right, result } => {
             expect_defined_class(*item_key, *left, LoopValueClassV2::Text, values, definitions)?;
             let right_class = super::expect_defined_value(*item_key, *right, values, definitions)?;
-            if !matches!(right_class, LoopValueClassV2::Text | LoopValueClassV2::I64) {
+            if !matches!(right_class, LoopValueClassV2::Text | LoopValueClassV2::I64 | LoopValueClassV2::Dynamic) {
                 return Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: *item_key });
             }
             define_value(*item_key, *result, LoopValueClassV2::Text, values, definitions)
@@ -101,6 +101,33 @@ pub(super) fn check_operation(
             )
         }
         LoopOperationV2::DynamicAdd {
+            left,
+            right,
+            result,
+        } => {
+            expect_defined_class(
+                *item_key,
+                *left,
+                LoopValueClassV2::Dynamic,
+                values,
+                definitions,
+            )?;
+            expect_defined_class(
+                *item_key,
+                *right,
+                LoopValueClassV2::I64,
+                values,
+                definitions,
+            )?;
+            define_value(
+                *item_key,
+                *result,
+                LoopValueClassV2::Dynamic,
+                values,
+                definitions,
+            )
+        }
+        LoopOperationV2::DynamicSub {
             left,
             right,
             result,

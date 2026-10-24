@@ -123,7 +123,7 @@ pub(super) fn emit_cleanup_suffixes_with_writer(
     writer: &mut impl RootGraphWriterPortV1,
     builder: &mut MirBuilder,
     frame: ValueId,
-    mut clean: BasicBlockId,
+    clean: BasicBlockId,
     normal_operations: &[InvokeOperation],
     fault_operations: &[InvokeOperation],
     after_normal: &[Vec<usize>],
@@ -146,6 +146,29 @@ pub(super) fn emit_cleanup_suffixes_with_writer(
         MirInstruction::ReturnFault { fault_frame: frame },
         bindings,
     )?;
+    emit_cleanup_suffixes_to_fault_with_writer(writer, builder, frame, clean,
+        normal_operations, fault_operations, after_normal, acquisition, fault_terminal, bindings)
+}
+
+/// Compose a younger cleanup prefix with an already emitted older Fault suffix.
+/// The suffix runs once; it must not also appear in fault_operations.
+pub(super) fn emit_cleanup_suffixes_to_fault_with_writer(
+    writer: &mut impl RootGraphWriterPortV1,
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    mut clean: BasicBlockId,
+    normal_operations: &[InvokeOperation],
+    fault_operations: &[InvokeOperation],
+    after_normal: &[Vec<usize>],
+    acquisition: &[usize],
+    fault_terminal: BasicBlockId,
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<CleanupSuffixGraphV1, String> {
+    if after_normal.len() != normal_operations.len()
+        || after_normal.iter().flatten().chain(acquisition)
+            .any(|index| *index >= fault_operations.len()) {
+        return Err(freeze("root-fault-sequence-shape"));
+    }
     let mut fault_nodes = std::collections::BTreeMap::new();
     fault_nodes.insert(Vec::<usize>::new(), fault_terminal);
     let mut normal_origins = Vec::with_capacity(normal_operations.len());
@@ -257,4 +280,116 @@ pub(super) fn cleanup_step_with_writer(
         bindings,
     )?;
     Ok(origin)
+}
+
+/// Observations from the same argument prefix and older root suffix writer.
+pub(in crate::mir::builder) type RootArgumentCleanupV1 = (
+    (BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction),
+    Vec<(BasicBlockId, MirInstruction)>, BasicBlockId,
+);
+
+pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
+    builder: &mut MirBuilder,
+    frame_port: &mut impl RootExitFramePortV1,
+    writer: &mut impl RootGraphWriterPortV1,
+    operations: Vec<RootHomeReleaseOriginV1>,
+    fault_sequences: RootHomeFaultSequencesV1,
+    return_value: Option<ValueId>,
+    statement_result: ValueId,
+    ingress_operation: Option<InvokeOperation>,
+    argument_ends: &[InvokeOperation],
+) -> Result<RootGraphEmissionV1, String> {
+    let fault_operations: Vec<_> = fault_sequences
+        .full
+        .iter()
+        .map(|origin| origin.operation().clone())
+        .collect();
+    let mut bindings = Vec::new();
+    let mut clean = writer.reserve_block(builder)?;
+    writer.append_terminated(
+        builder,
+        clean,
+        MirInstruction::Return {
+            value: return_value,
+        },
+        &mut bindings,
+    )?;
+    let mut origins = Vec::with_capacity(operations.len());
+    let mut frame_value = None;
+    let mut ingress = None;
+    let mut argument_cleanup = None;
+    // Empty-Home Plain has no Fault edge and therefore no frame definition.
+    if !operations.is_empty() || ingress_operation.is_some() {
+        let frame = frame_port.materialize(builder)?;
+        frame_value = Some(frame);
+        let cleanup = root_graph::emit_cleanup_suffixes_with_writer(
+            writer, builder, frame, clean,
+            &operations.iter().map(|origin| origin.operation().clone()).collect::<Vec<_>>(),
+            &fault_operations, &fault_sequences.after_normal,
+            if ingress_operation.is_some() { &fault_sequences.acquisition } else { &[] },
+            &mut bindings,
+        )?;
+        clean = cleanup.clean;
+        origins.extend(operations.into_iter().zip(cleanup.normal_origins)
+            .map(|(origin, (block, instruction))| (origin, block, instruction)));
+        let fault = if ingress_operation.is_some() {
+            cleanup.acquisition_fault
+        } else {
+            cleanup.fault_terminal
+        };
+        if let Some(operation) = ingress_operation {
+            let mut normal_landing = clean;
+            let mut fault_landing = fault;
+            let mut prefix_receipt = None;
+            if !argument_ends.is_empty() {
+                let cancellation = fault_sequences.result_cancellation_v1()?;
+                let mut pending = argument_ends.to_vec();
+                pending.extend(cancellation);
+                let after: Vec<_> = (0..argument_ends.len())
+                    .map(|i| ((i + 1)..pending.len()).collect()).collect();
+                let acquisition: Vec<_> = (0..argument_ends.len()).collect();
+                let continuation_block = writer.reserve_block(builder)?;
+                let continuation = (continuation_block, MirInstruction::Jump { target: clean, edge_args: None });
+                writer.append_terminated(builder, continuation.0, continuation.1.clone(), &mut bindings)?;
+                let prefix = emit_cleanup_suffixes_to_fault_with_writer(writer, builder, frame,
+                    continuation_block, argument_ends, &pending, &after, &acquisition, fault, &mut bindings)?;
+                normal_landing = prefix.clean;
+                fault_landing = prefix.acquisition_fault;
+                prefix_receipt = Some((continuation, prefix.normal_origins));
+            }
+            ingress = Some(terminal_call::emit_ingress(
+                writer,
+                builder,
+                frame,
+                statement_result,
+                normal_landing,
+                fault_landing,
+                operation,
+                &mut bindings,
+            )?);
+            if let Some((continuation, normal)) = prefix_receipt {
+                let landing = ingress.as_ref().unwrap().1.0;
+                let start = (landing, MirInstruction::Jump { target: normal_landing, edge_args: None });
+                if !bindings.contains(&start) { return Err(freeze("call-argument/cleanup-delimiters")); }
+                argument_cleanup = Some((start, continuation, normal, fault));
+            }
+        }
+    }
+    if ingress.is_none() {
+        bindings.push(writer.emit_current(
+            builder,
+            MirInstruction::Jump {
+                target: clean,
+                edge_args: None,
+            },
+        )?);
+    }
+    Ok(RootGraphEmissionV1 {
+        origins,
+        bindings,
+        ingress,
+        frame: frame_value,
+        clean,
+        argument_cleanup,
+    })
 }

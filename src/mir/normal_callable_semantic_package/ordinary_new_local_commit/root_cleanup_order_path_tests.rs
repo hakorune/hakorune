@@ -92,55 +92,163 @@ fn root_ordered_paths_preserve_fault_only_obligation() {
     .unwrap();
     // The same path owner also stops at an explicit Loop continuation instead
     // of requiring the root Return. Localized operands vary by actual origin.
-    let normal = order.normal().iter().map(|row| row.operation().clone()).collect::<Vec<_>>();
-    let residuals = vec![order.fault_after_normal_step(0).unwrap().iter()
-        .map(|row| row.operation().clone()).collect::<Vec<_>>()];
+    let normal = order
+        .normal()
+        .iter()
+        .map(|row| row.operation().clone())
+        .collect::<Vec<_>>();
+    let residuals = vec![order
+        .fault_after_normal_step(0)
+        .unwrap()
+        .iter()
+        .map(|row| row.operation().clone())
+        .collect::<Vec<_>>()];
     for localized in [false, true] {
         let mut loop_function = function.clone();
-        loop_function.blocks.get_mut(&BasicBlockId(1)).unwrap().set_terminator(MirInstruction::Jump {
-            target: BasicBlockId(10), edge_args: None });
+        loop_function
+            .blocks
+            .get_mut(&BasicBlockId(1))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(10),
+                edge_args: None,
+            });
         let mut loans = std::collections::BTreeMap::new();
-        for (id, source) in [(BasicBlockId(4), normal[0].clone()), (BasicBlockId(3), residuals[0][0].clone())] {
+        for (id, source) in [
+            (BasicBlockId(4), normal[0].clone()),
+            (BasicBlockId(3), residuals[0][0].clone()),
+        ] {
             let actual = if localized {
-                let crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map }) = &source
-                    else { panic!("source End"); };
-                crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map: ValueId(map.0 + 100) })
-            } else { source.clone() };
-            let MirInstruction::Invoke { operation, .. } = loop_function.blocks.get_mut(&id).unwrap().terminator.as_mut().unwrap()
-                else { panic!("Invoke"); };
+                let crate::mir::instruction::InvokeOperation::Map(
+                    crate::mir::instruction::MapInvokeOperation::End { map },
+                ) = &source
+                else {
+                    panic!("source End");
+                };
+                crate::mir::instruction::InvokeOperation::Map(
+                    crate::mir::instruction::MapInvokeOperation::End {
+                        map: ValueId(map.0 + 100),
+                    },
+                )
+            } else {
+                source.clone()
+            };
+            let MirInstruction::Invoke { operation, .. } = loop_function
+                .blocks
+                .get_mut(&id)
+                .unwrap()
+                .terminator
+                .as_mut()
+                .unwrap()
+            else {
+                panic!("Invoke");
+            };
             *operation = actual.clone();
             loans.insert(id, (source, actual));
         }
         let mut resolve = |id, source: &crate::mir::instruction::InvokeOperation| {
             let (original, actual) = loans.get(&id).ok_or_else(|| "foreign origin".to_owned())?;
-            if original != source { return Err("foreign source End".to_owned()); }
+            if original != source {
+                return Err("foreign source End".to_owned());
+            }
             Ok(actual.clone())
         };
-        ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(1),
-            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap();
-        assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(9),
-            &normal, &residuals, Some(ValueId(9)), &mut resolve).is_err());
-        assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(4),
-            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("early-continuation"));
+        ordered_paths::validate_to_continuation_v2(
+            &loop_function,
+            BasicBlockId(0),
+            BasicBlockId(1),
+            &normal,
+            &residuals,
+            Some(ValueId(9)),
+            &mut resolve,
+        )
+        .unwrap();
+        assert!(ordered_paths::validate_to_continuation_v2(
+            &loop_function,
+            BasicBlockId(0),
+            BasicBlockId(9),
+            &normal,
+            &residuals,
+            Some(ValueId(9)),
+            &mut resolve
+        )
+        .is_err());
+        assert!(ordered_paths::validate_to_continuation_v2(
+            &loop_function,
+            BasicBlockId(0),
+            BasicBlockId(4),
+            &normal,
+            &residuals,
+            Some(ValueId(9)),
+            &mut resolve
+        )
+        .unwrap_err()
+        .contains("early-continuation"));
         // A matching ReturnFault beyond the caller continuation cannot discharge
         // an obligation owned by this cleanup graph.
         let mut crossed = loop_function.clone();
-        crossed.blocks.get_mut(&BasicBlockId(1)).unwrap().set_terminator(MirInstruction::Jump {
-            target: BasicBlockId(20), edge_args: None });
+        crossed
+            .blocks
+            .get_mut(&BasicBlockId(1))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(20),
+                edge_args: None,
+            });
         let mut outside = BasicBlock::new(BasicBlockId(20));
-        outside.set_terminator(MirInstruction::ReturnFault { fault_frame: ValueId(9) });
+        outside.set_terminator(MirInstruction::ReturnFault {
+            fault_frame: ValueId(9),
+        });
         crossed.add_block(outside);
-        let MirInstruction::Invoke { normal_landing, fault_landing, .. } = crossed.blocks
-            .get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut().unwrap() else { panic!("fault End"); };
+        let MirInstruction::Invoke {
+            normal_landing,
+            fault_landing,
+            ..
+        } = crossed
+            .blocks
+            .get_mut(&BasicBlockId(3))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap()
+        else {
+            panic!("fault End");
+        };
         *normal_landing = BasicBlockId(1);
         *fault_landing = BasicBlockId(1);
-        assert!(ordered_paths::validate_to_continuation_v2(&crossed, BasicBlockId(0), BasicBlockId(1),
-            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("fault-continuation"));
-        let MirInstruction::Invoke { operation, .. } = loop_function.blocks.get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut().unwrap()
-            else { panic!("fault End"); };
+        assert!(ordered_paths::validate_to_continuation_v2(
+            &crossed,
+            BasicBlockId(0),
+            BasicBlockId(1),
+            &normal,
+            &residuals,
+            Some(ValueId(9)),
+            &mut resolve
+        )
+        .unwrap_err()
+        .contains("fault-continuation"));
+        let MirInstruction::Invoke { operation, .. } = loop_function
+            .blocks
+            .get_mut(&BasicBlockId(3))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap()
+        else {
+            panic!("fault End");
+        };
         *operation = loans[&BasicBlockId(4)].1.clone();
-        assert!(ordered_paths::validate_to_continuation_v2(&loop_function, BasicBlockId(0), BasicBlockId(1),
-            &normal, &residuals, Some(ValueId(9)), &mut resolve).unwrap_err().contains("ordered-path/operation"));
+        assert!(ordered_paths::validate_to_continuation_v2(
+            &loop_function,
+            BasicBlockId(0),
+            BasicBlockId(1),
+            &normal,
+            &residuals,
+            Some(ValueId(9)),
+            &mut resolve
+        )
+        .unwrap_err()
+        .contains("ordered-path/operation"));
     }
 }
 #[test]
@@ -221,7 +329,11 @@ fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
     .unwrap();
     // The same structural owner recognizes one explicit caller continuation,
     // while all other outgoing edges and all unreachable owned nodes fail.
-    let loop_bindings = bindings.iter().filter(|(id, _)| *id != BasicBlockId(1)).cloned().collect::<Vec<_>>();
+    let loop_bindings = bindings
+        .iter()
+        .filter(|(id, _)| *id != BasicBlockId(1))
+        .cloned()
+        .collect::<Vec<_>>();
     let validate = |function: &MirFunction, rows: &Vec<(BasicBlockId, MirInstruction)>, stop| {
         super::super::super::super::root_cleanup_graph::ordered_structure::validate_to_continuation_v2(
             function, rows, BasicBlockId(0), stop)
@@ -230,52 +342,90 @@ fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
     for mutation in 0..6 {
         let mut changed = function.clone();
         let mut rows = loop_bindings.clone();
-        let stop = if mutation == 5 { BasicBlockId(4) } else { BasicBlockId(1) };
+        let stop = if mutation == 5 {
+            BasicBlockId(4)
+        } else {
+            BasicBlockId(1)
+        };
         match mutation {
             0 => {
-                let terminal = MirInstruction::ReturnFault { fault_frame: ValueId(9) };
+                let terminal = MirInstruction::ReturnFault {
+                    fault_frame: ValueId(9),
+                };
                 let mut extra = BasicBlock::new(BasicBlockId(8));
                 extra.set_terminator(terminal.clone());
                 changed.add_block(extra);
                 rows.push((BasicBlockId(8), terminal));
-            },
+            }
             1 | 3 => {
-                let terminal = rows.iter_mut().find(|(id, _)| *id == BasicBlockId(3)).unwrap();
-                let MirInstruction::Invoke { normal_landing, .. } = &mut terminal.1 else { panic!("fault End"); };
+                let terminal = rows
+                    .iter_mut()
+                    .find(|(id, _)| *id == BasicBlockId(3))
+                    .unwrap();
+                let MirInstruction::Invoke { normal_landing, .. } = &mut terminal.1 else {
+                    panic!("fault End");
+                };
                 *normal_landing = BasicBlockId(if mutation == 1 { 9 } else { 3 });
-                changed.blocks.get_mut(&terminal.0).unwrap().set_terminator(terminal.1.clone());
-            },
+                changed
+                    .blocks
+                    .get_mut(&terminal.0)
+                    .unwrap()
+                    .set_terminator(terminal.1.clone());
+            }
             2 => {
                 let mut extra = BasicBlock::new(BasicBlockId(8));
-                extra.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+                extra.set_terminator(MirInstruction::Jump {
+                    target: BasicBlockId(3),
+                    edge_args: None,
+                });
                 changed.add_block(extra);
-            },
+            }
             4 => rows.push(bindings[0].clone()),
-            5 => {},
+            5 => {}
             _ => unreachable!(),
         }
-        assert!(validate(&changed, &rows, stop).is_err(), "mutation {mutation}");
+        assert!(
+            validate(&changed, &rows, stop).is_err(),
+            "mutation {mutation}"
+        );
     }
     // The Plain entry is an original source continuation, unlike cleanup nodes.
     let phi = MirInstruction::Phi {
-        dst: ValueId(30), inputs: vec![(BasicBlockId(10), ValueId(31))], type_hint: None,
+        dst: ValueId(30),
+        inputs: vec![(BasicBlockId(10), ValueId(31))],
+        type_hint: None,
     };
-    function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.push(phi.clone());
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(phi.clone());
     super::super::super::super::root_cleanup_graph::ordered_structure::validate_original(
-        &function, &bindings, &RootHomeExitEntry::Plain { local_bindings: vec![] },
+        &function,
+        &bindings,
+        &RootHomeExitEntry::Plain {
+            local_bindings: vec![],
+        },
         crate::mir::instruction::InvokeCallResultKind::I64,
-    ).expect("source prefix is outside the cleanup instruction owner");
+    )
+    .expect("source prefix is outside the cleanup instruction owner");
     let boundary = super::super::super::super::physical_boundary::PhysicalBoundary::capture(
         &function, &bindings,
-    ).unwrap_err();
+    )
+    .unwrap_err();
     assert!(boundary.contains("phi-in-recorded-block"), "{boundary}");
-    let roles = std::collections::BTreeMap::from([
-        (BasicBlockId(0), (vec![phi].into_boxed_slice(), None)),
-    ]);
+    let roles =
+        std::collections::BTreeMap::from([(BasicBlockId(0), (vec![phi].into_boxed_slice(), None))]);
     super::super::super::super::physical_boundary::PhysicalBoundary::capture_with_source_phi_roles(
-        &function, &bindings, &[], &[], &roles, None,
-    ).expect("independent physical owner still requires the exact source prefix role");
-
+        &function,
+        &bindings,
+        &[],
+        &[],
+        &roles,
+        None,
+    )
+    .expect("independent physical owner still requires the exact source prefix role");
 }
 #[test]
 fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_nodes() {
@@ -319,11 +469,16 @@ fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_node
                 });
                 function.add_block(block);
             }
-            6 => function.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions.push(
-                MirInstruction::Phi {
-                    dst: ValueId(30), inputs: vec![(BasicBlockId(4), ValueId(31))], type_hint: None,
-                },
-            ),
+            6 => function
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .instructions
+                .push(MirInstruction::Phi {
+                    dst: ValueId(30),
+                    inputs: vec![(BasicBlockId(4), ValueId(31))],
+                    type_hint: None,
+                }),
             _ => unreachable!(),
         }
         assert!(

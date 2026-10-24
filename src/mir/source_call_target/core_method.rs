@@ -72,9 +72,27 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
     Box<[(SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1)]>,
     SourceBoundCoreMethodTargetIssueV1,
 > {
+    issue_source_bound_core_method_calls_with_dynamic_sources_v1(ledger, &[])
+}
+
+/// Dynamic source targets own their exact call sites. Do not also issue a
+/// String Core target for the same call, even when a destination context could
+/// otherwise make it look like a Text producer.
+pub(crate) fn issue_source_bound_core_method_calls_with_dynamic_sources_v1(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    dynamic_sources: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> Result<
+    Box<[(SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1)]>,
+    SourceBoundCoreMethodTargetIssueV1,
+> {
     let mut rows = BTreeMap::new();
     let loop_sites = ledger.loop_sites().cloned().collect::<Vec<_>>();
     for (site, call) in ledger.method_calls() {
+        if dynamic_sources.iter().any(|source| {
+            source.owner() == ledger.owner() && source.call_site() == site
+        }) {
+            continue;
+        }
         let Some(manifest_row) =
             lookup_core_method_result_row_v2("StringBox", call.selector(), call.arity())
         else {
@@ -92,6 +110,11 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
         // from the same ledger rows — no selector-only issuance.
         if manifest_row.op == CoreMethodOp::StringIndexOf
             && !index_of_has_text_evidence(ledger, call, &rows)
+        {
+            continue;
+        }
+        if manifest_row.op == CoreMethodOp::StringSubstring
+            && !substring_body_source_is_text_v1(ledger, call, &rows)
         {
             continue;
         }
@@ -227,6 +250,24 @@ fn receiver_has_text_evidence(
         return false;
     };
     text_source_at(ledger, &initializer_site, rows, &mut BTreeSet::new(), 0)
+}
+
+fn substring_body_source_is_text_v1(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    call: &VerifiedResolvedMethodCallSourceV1,
+    rows: &BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
+) -> bool {
+    receiver_has_text_evidence(ledger, call, rows)
+        || ledger.method_calls().any(|(_, parent)| {
+            lookup_core_method_result_row_v2("ArrayBox", parent.selector(), parent.arity())
+                .is_some_and(|row| row.op == CoreMethodOp::ArrayPush)
+                && parent.arguments().iter().any(|argument| {
+                    call.site()
+                        .node()
+                        .segments()
+                        .starts_with(argument.site().node().segments())
+                })
+        })
 }
 
 fn single_initializer_site(

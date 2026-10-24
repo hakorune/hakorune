@@ -91,6 +91,16 @@ impl BindingValueObservationV2 {
         if point.binding().owner() != self.owner { return Err("[freeze:contract][local-read/text-loop-point-owner]".into()); }
         Ok(point)
     }
+    pub(in crate::mir) fn loan_text_branch_v1(&self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+    ) -> Result<&std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>, String> {
+        let point = self.provenance.as_ref().ok_or("[freeze:contract][local-read/text-branch-missing]")?
+            .loan_text_branch_v1(source, self.value)?;
+        if point.source().binding().owner() != self.owner {
+            return Err("[freeze:contract][local-read/text-branch-owner]".into());
+        }
+        Ok(point)
+    }
     pub(in crate::mir) fn loan_dynamic_join_v1(&self,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1,
     ) -> Result<&std::rc::Rc<super::materialized_values::DynamicJoinPointValueV1>, String> {

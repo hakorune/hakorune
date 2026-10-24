@@ -124,7 +124,7 @@ impl EmittedSourceLoopGraphV2 {
                 if frame.entry != cursor { return Err(reject("frame-sequence")); }
                 cursor = frame.end;
             }
-            if let Step::If { site, condition, then_block, else_block, joins, .. } = step {
+            if let Step::If { site, condition, then_block, else_block, joins, text_joins, .. } = step {
                 let mut rows = self.forks.iter().filter(|row| row.condition == *condition);
                 let row = rows.next().ok_or_else(|| reject("fork-missing"))?;
                 if rows.next().is_some() || !forks.insert(*condition)
@@ -142,6 +142,11 @@ impl EmittedSourceLoopGraphV2 {
                     || joins.iter().any(|expected| row.joins.iter()
                         .filter(|actual| actual.source() == &expected.source).count() != 1)
                     || row.joins.iter().any(|point| !std::rc::Rc::ptr_eq(point.pending(), &row.condition_materialization)
+                        || point.source().site() != site || !point.source().corroborates_original())
+                    || text_joins.len() != row.text_joins.len()
+                    || text_joins.iter().any(|expected| row.text_joins.iter()
+                        .filter(|actual| actual.source() == &expected.source).count() != 1)
+                    || row.text_joins.iter().any(|point| !std::rc::Rc::ptr_eq(point.pending(), &row.condition_materialization)
                         || point.source().site() != site || !point.source().corroborates_original()) {
                     return Err(reject("fork-source"));
                 }

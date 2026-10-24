@@ -46,8 +46,7 @@ pub(super) fn preflight<E>(
         return Ok(Some(SourceScalarKind::Integer));
     }
     let Some(row) = expression_source_v1(ledger, input.body_shape(), site)
-        .and_then(ResolvedExpressionSourceV1::binary)
-    else {
+        .and_then(ResolvedExpressionSourceV1::binary) else {
         return Ok(None);
     };
     let Some([lhs_site, rhs_site]) = binary_children_v1(site, row) else {

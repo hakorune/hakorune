@@ -65,7 +65,7 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
                     ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => Some((node.site(), *binding)), _ => None,
                 }).unwrap();
                 let site = OwnedExprSiteV1::new(input.owner(), plan.nodes()[0].site().clone());
-                borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+                borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, &site,
                     BorrowedCallActualRequestV1::FiniteEntryRead { input, plan, read: read.0, binding: read.1, root },
@@ -148,7 +148,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                 &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { batches += 1; assert!(fields.is_empty()); Ok((mutation != 3).then(Vec::new)) },
                 &mut |site, request| {
                     if matches!(request, BorrowedCallActualRequestV1::FiniteEntryRead { .. }) { requests += 1; }
-                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
+                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[], &package.parameter_contracts,
                         &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                         &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)
                 }).unwrap();
@@ -633,7 +633,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
             let (plans, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                 input, parameters, true, None,
                 &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
-                &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+                &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, site, request,
                     &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();
@@ -662,7 +662,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     let read = frame.text_reads()[0];
                     let actuals = [BorrowedCallActualCandidateV1 { ordinal: 0, site: read.read().clone(),
                         value: BorrowedCallActualValueV1::SelfRooted { binding: read.binding(), root: read.formal().1 } }];
-                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
+                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[], &package.parameter_contracts,
                         &[], None, source, &Ok(Default::default()), &mut unqualified, &ledger.borrowed_i64_results,
                         &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
                         &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap();
@@ -695,7 +695,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 let (repeated, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                     input, parameters, true, None,
                     &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
-                    &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+                    &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                         &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                         &ledger.borrowed_i64_results, &mut |_| None, site, request,
                         &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();
@@ -1286,7 +1286,7 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
         }
         let mut pending = ledger.borrowed_formal_actuals.clone();
         crate::mir::resolved_semantics::home_new_prefix::assert_original_loop_source_walk_for_test(input, expected_control,
-            &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+            &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                 &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                 &ledger.borrowed_i64_results, &mut |_| None, site, request,
                 &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None));

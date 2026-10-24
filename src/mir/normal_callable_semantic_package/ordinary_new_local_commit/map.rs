@@ -279,7 +279,12 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some((binding, construction, set)) = source.installed_local_v1(install.site()) else {
             return false;
         };
-        Rc::ptr_eq(&source, install.source())
+        let matching = super::CallValidationContextV1::Lowering(self)
+            .with_local_call_group_tree_v2(install.site().owner(), |groups| {
+                Ok(groups.iter().filter_map(|group| group.map_field_install())
+                    .filter(|packet| std::ptr::eq(packet.frame().as_ref(), install)).count())
+            }).unwrap_or(0);
+        matching == 1 && Rc::ptr_eq(&source, install.source())
             && install.site().owner() == install.binding().owner()
             && binding == install.binding()
             && construction.site() == install.acquisition().site()

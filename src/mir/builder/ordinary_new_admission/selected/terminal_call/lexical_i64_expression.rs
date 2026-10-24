@@ -5,6 +5,8 @@ use crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallPr
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::ExpressionCallTransientPrefixV1;
+use crate::mir::normal_callable_semantic_package::ExpressionCallArgumentSourceV1;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1, LocalCallObservationV1,
 };
@@ -142,6 +144,25 @@ pub(in crate::mir::builder) fn emit_with_dynamic(
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ExpressionCallEmissionV1, String> {
+    emit_with_dynamic_and_argument_frames(
+        builder, state, ledger, frame, call, acquired, values, bindings,
+        consume_receiver, static_source, &[],
+    )
+}
+
+pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    frame: &CheckedExpressionEvaluationV1,
+    call: &LocalCallObservationV1,
+    acquired: &[(usize, ValueId)],
+    values: &[Option<EvaluatedExpressionValueV1>],
+    bindings: &mut Vec<Binding>,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
+    retained_argument_frames: &[std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
+) -> Result<ExpressionCallEmissionV1, String> {
     if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
         || state.owner() != frame.source().owner() {
         return Err(freeze("expression-call/source-drift"));
@@ -164,14 +185,69 @@ pub(in crate::mir::builder) fn emit_with_dynamic(
         return Err(freeze("dynamic-expression/source-loan"));
     };
     let target = loan.target();
+    if call.arguments().len() != loan.argument_sites().len() {
+        return Err(freeze("dynamic-expression/argument-census"));
+    }
     let receiver_read = state.take_exact_lexical_read(
         call.owner(), target.receiver_site().node(), target.receiver_binding(),
     ).map_err(|error| error.to_string())?;
     let receiver_value = receiver_read.value_for(
         call.owner(), target.receiver_site().node(), target.receiver_binding(),
     ).map_err(|error| error.to_string())?;
+    let context = CallValidationContextV1::Lowering(ledger);
+    let mut argument_projections = Vec::with_capacity(call.arguments().len());
+    for (position, (argument, site)) in call.arguments().iter().zip(loan.argument_sites()).enumerate() {
+        let crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Expression {
+            ordinal, site: actual_site,
+        } = argument else {
+            return Err(freeze("dynamic-expression/argument-purpose"));
+        };
+        if *ordinal as usize != position || actual_site != site {
+            return Err(freeze("dynamic-expression/argument-source"));
+        }
+        let argument_frame = match super::super::argument_expression::retained_argument_frame_v1(
+            retained_argument_frames,
+            call.site(),
+            *ordinal,
+            site,
+        )? {
+            Some(frame) => frame,
+            None => ledger.qualified_argument_expression_frame_v1(call.site(), *ordinal, site)?,
+        };
+        if !argument_frame.is_i64() {
+            return Err(freeze("dynamic-expression/argument-class"));
+        }
+        let argument_prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+            ExpressionCallArgumentSourceV1::from_local(call), position, &argument_projections,
+            context, prefix.transient(),
+        )?;
+        let (value, projection) = super::super::argument_expression::emit_with_checked_frame(
+            builder,
+            state,
+            ledger,
+            call.site(),
+            *ordinal,
+            site,
+            argument_frame,
+            retained_argument_frames,
+            consume_receiver,
+            Some(&argument_prefix),
+            static_source,
+        )?;
+        let projected = projection.value_for_source_v1(argument, call.owner(), site, None, Some(context))?;
+        if projected != value {
+            return Err(freeze("dynamic-expression/argument-value"));
+        }
+        for binding in projection.expression_bindings_v1() {
+            if matches!(binding.1, MirInstruction::FaultFrameEnter { .. }) && bindings.contains(binding) {
+                continue;
+            }
+            bindings.push(binding.clone());
+        }
+        argument_projections.push(projection);
+    }
     let operation = EmittedDynamicInvocationCallProjectionV1::operation_from_source_v1(
-        frame, values, call,
+        frame, call, &argument_projections, context,
         crate::mir::instruction::DynamicInvocationOperandV1::TaggedDynamic(receiver_value),
     )?;
     let mut unwind = prefix.unwind(&owned_site, call.prior_homes())?;
@@ -188,7 +264,8 @@ pub(in crate::mir::builder) fn emit_with_dynamic(
         return Err(freeze("dynamic-expression/result-kind"));
     }
     let packet = EmittedDynamicInvocationCallProjectionV1::from_source_v1(
-        frame, values, call, receiver_read, operation, pair[0].clone(), pair[1].clone(),
+        frame, call, receiver_read, operation, argument_projections, context,
+        pair[0].clone(), pair[1].clone(),
     )?;
     if packet.value() != value { return Err(freeze("dynamic-expression/result-value")); }
     Ok(ExpressionCallEmissionV1::Dynamic(std::rc::Rc::new(packet)))

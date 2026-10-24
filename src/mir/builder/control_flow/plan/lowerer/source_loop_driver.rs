@@ -51,6 +51,7 @@ pub(in crate::mir) struct EmittedLoopForkV2 {
     pub(in crate::mir) join: Option<BasicBlockId>,
     pub(in crate::mir) condition_materialization: Rc<crate::mir::builder::IfConditionMaterializationV1>,
     pub(in crate::mir) joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchScalarPhiObservationV1>>,
+    pub(in crate::mir) text_joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>>,
 }
 pub(in crate::mir) struct EmittedLoopBlockV2 {
     pub(in crate::mir) key: LoopBlockKeyV1,
@@ -72,7 +73,7 @@ pub(in crate::mir) struct EmittedLoopReturnV2 {
     pub(in crate::mir) end: BasicBlockId,
     pub(in crate::mir) value: ValueId,
     pub(in crate::mir) terminal: (BasicBlockId, MirInstruction),
-    pub(in crate::mir) read: crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
+    pub(in crate::mir) read: Option<crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1>,
     pub(in crate::mir) bindings: Vec<(BasicBlockId, MirInstruction)>,
 }
 pub(in crate::mir) struct EmittedSourceLoopGraphV2 {
@@ -326,11 +327,11 @@ impl Driver<'_, '_, '_, '_, '_> {
                 Step::Frame(index) => {
                     let prefix = self.product.schedule().frames()[*index].prefix();
                     if matches!(prefix, Prefix::BoolCondition { .. }) {
-                        let Some(Step::If { condition, then_block, else_block, joins, .. }) = steps.get(position + 1) else {
+                        let Some(Step::If { condition, then_block, else_block, joins, text_joins, .. }) = steps.get(position + 1) else {
                             return Err(reject("condition-without-original-if"));
                         };
                         if condition != index { return Err(reject("if-condition-frame")); }
-                        if !self.branch(builder, *index, *then_block, *else_block, joins)? {
+                        if !self.branch(builder, *index, *then_block, *else_block, joins, text_joins)? {
                             if position + 2 != steps.len() { return Err(reject("schedule-after-closed-if")); }
                             return Ok(false);
                         }
@@ -377,7 +378,7 @@ impl Driver<'_, '_, '_, '_, '_> {
         Ok(true)
     }
     fn branch(&mut self, builder: &mut MirBuilder, condition: usize, yes: LoopBlockKeyV1, no: Option<LoopBlockKeyV1>,
-        source_joins: &[SourceLoopBranchPhiV2],
+        source_joins: &[SourceLoopBranchPhiV2], source_text_joins: &[crate::mir::loop_recipe_contract::SourceLoopTextBranchPhiV2],
     )
         -> Result<bool, String> {
         use crate::mir::builder::if_form::IfBranchKindV1;
@@ -441,6 +442,7 @@ impl Driver<'_, '_, '_, '_, '_> {
             }
         }
         let mut joins = Vec::new();
+        let mut text_joins: Vec<Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>> = Vec::new();
         if yes_normal || no_normal {
             builder.suppress_next_entry_pin_copy();
             builder.start_new_block(join)?;
@@ -466,6 +468,16 @@ impl Driver<'_, '_, '_, '_, '_> {
                     }
                 };
                 if !joins.iter().any(|old| Rc::ptr_eq(old, branch)) { joins.push(Rc::clone(branch)); }
+            }
+            for scheduled in source_text_joins {
+                let state = self.ledger.borrow();
+                let observation = state.observe_binding_value_v2(scheduled.source.binding()).map_err(|error| error.to_string())?;
+                let source = crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::BranchNormal(
+                    Rc::clone(&scheduled.source));
+                let branch = observation.loan_text_branch_v1(&source)?;
+                if !text_joins.iter().any(|old| Rc::ptr_eq(old, branch)) {
+                    text_joins.push(Rc::clone(branch));
+                }
             }
             if yes_normal && no_normal {
                 if self.logical.values().any(|key| !dominating.contains(key)) {
@@ -516,16 +528,45 @@ impl Driver<'_, '_, '_, '_, '_> {
                         }
                     }
                 }
+                let mut consumed_text = Vec::new();
+                for scheduled in source_text_joins {
+                    let mut matching = text_joins.iter().enumerate().filter(|(_, observed)|
+                        Rc::ptr_eq(observed.source(), &scheduled.source));
+                    let Some((index, observed)) = matching.next() else { return Err(reject("if-text-join-not-canonical")); };
+                    if matching.next().is_some() || consumed_text.contains(&index) {
+                        return Err(reject("if-text-join-not-canonical"));
+                    }
+                    consumed_text.push(index);
+                    let relation = observed.relation();
+                    let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+                    relation.verify(function)?;
+                    if self.values.insert(scheduled.result, relation.values().0).is_some() {
+                        return Err(reject("if-text-join-not-canonical"));
+                    }
+                    if let Some(binding) = scheduled.binding {
+                        let previous = self.logical.insert(binding, scheduled.result)
+                            .ok_or_else(|| reject("if-text-join-not-canonical"))?;
+                        if entry_logical.get(&binding) != Some(&previous) {
+                            return Err(reject("if-text-join-not-canonical"));
+                        }
+                    }
+                }
+                if consumed_text.len() != text_joins.len() || text_joins.len() != source_text_joins.len() {
+                    return Err(reject("if-text-join-not-canonical"));
+                }
             } else if !source_joins.is_empty() {
                 if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
                     eprintln!("[loop-join-debug] joins-with-closed-arm normal=({}, {}) scheduled={}", yes_normal, no_normal, source_joins.len());
                 }
                 return Err(reject("if-logical-join-not-canonical"));
             }
+            if !(yes_normal && no_normal) && !source_text_joins.is_empty() {
+                return Err(reject("if-text-join-not-canonical"));
+            }
         }
         self.forks.push(EmittedLoopForkV2 { condition, yes, no, starts: (yes_bb, no_bb), ends: (yes_end, no_end),
             normal: (yes_normal, no_normal), join: (yes_normal || no_normal).then_some(join),
-            condition_materialization: pending, joins });
+            condition_materialization: pending, joins, text_joins });
         Ok(yes_normal || no_normal)
     }
     fn edge(&mut self, builder: &mut MirBuilder, source: Edge, port: Option<usize>) -> Result<(), String> {

@@ -341,6 +341,7 @@ fn operation_row<'a>(operation: &'a LoopOperationV2) -> Option<S6CRecipeOperatio
             right: *right,
             result: *result,
         },
+        LoopOperationV2::DynamicSub { .. } => return None,
         LoopOperationV2::DynamicLess {
             left,
             right,

@@ -154,7 +154,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         &row.emission,
                     )
                 }
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) => continue,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => continue,
             };
             let Some(key) = birth_target else {
                 if birth_abi.is_some() {

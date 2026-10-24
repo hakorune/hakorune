@@ -552,7 +552,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                 let observe = |frame_homes: &[LiveHomeV1], can_install: bool, staged: &mut BTreeMap<_, _>, batches: &mut usize| {
                     crate::mir::resolved_semantics::home_new_prefix::qualify_print_expression_v1(
                         Rc::clone(&source), frame_homes,
-                &mut |_| None, &mut |_| None, &mut |_| None,
+                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
                         &mut |site| {
                             let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(site) else { return None };
                             let Some(ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(object) else { return None };

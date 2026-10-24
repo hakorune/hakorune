@@ -131,6 +131,8 @@ impl FinalizedRootSourceHandoffV1 {
         if node_site.owner() != owner {
             return Err(freeze("finished-terminal-call/owner"));
         }
+        if let Some(coordinate) = self.finished_return_expression_call_binding_v1(
+            owner, exit, node_site, original, function, false)? { return Ok(coordinate); }
         self.with_terminal_call_packet_v1(owner, exit, |packet| {
             if !packet.has_producer_at(node_site, original) {
                 return Err(freeze("finished-terminal-call/original-producer"));
@@ -180,6 +182,8 @@ impl FinalizedRootSourceHandoffV1 {
         if node_site.owner() != owner {
             return Err(freeze("finished-copy/owner"));
         }
+        if let Some(coordinate) = self.finished_return_expression_call_binding_v1(
+            owner, exit, node_site, original, function, true)? { return Ok(coordinate); }
         self.with_terminal_call_packet_v1(owner, exit, |packet| {
             self.finished_packet_copy(owner, packet, node_site, original, function)
         })
@@ -201,25 +205,7 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("finished-copy/original-membership"));
         }
         let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
-        if !matches!(finished.1, MirInstruction::Copy { .. }) {
-            return Err(freeze("finished-copy/instruction"));
-        }
-        let coordinate = find_finished_producer(&symbol, &finished, function)?;
-        let dst = finished.1.dst_value().expect("checked Copy");
-        if function.params.contains(&dst) {
-            return Err(freeze("finished-copy/parameter-collision"));
-        }
-        if function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .filter(|instruction| instruction.dst_value() == Some(dst))
-            .count()
-            != 1
-        {
-            return Err(freeze("finished-copy/destination-duplicate"));
-        }
-        Ok(coordinate)
+        find_finished_copy(&symbol, &finished, function)
     }
 
     pub(in crate::mir) fn borrowed_packet_actuals_v1(
@@ -454,18 +440,27 @@ impl FinalizedRootSourceHandoffV1 {
             .with_borrowed_ordinary_compare_integer_literals_v1(owner, visit)
     }
 
-    /// Original alias tuple -> the same held Boundary -> exact final coordinate.
+    /// Original alias Copy -> the same held Boundary -> exact final binding/coordinate.
     /// None is allowed only by the original optional Copy cone, never a scan.
-    pub(in crate::mir) fn borrowed_ordinary_alias_copy_coordinate_v1(
+    pub(in crate::mir) fn borrowed_ordinary_alias_finished_copy_v1(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         original: &(BasicBlockId, MirInstruction),
-    ) -> Result<Option<(BasicBlockId, usize)>, String> {
+    ) -> Result<Option<(Binding, (BasicBlockId, usize))>, String> {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         self.ledger
             .with_finished_projection(owner, |_, projection| {
-                projection.borrowed_copy_coordinate(function, original)
+                let Some(coordinate) = projection.borrowed_copy_coordinate(function, original)? else {
+                    return Ok(None);
+                };
+                let instruction = function
+                    .blocks
+                    .get(&coordinate.0)
+                    .and_then(|block| block.instructions.get(coordinate.1))
+                    .cloned()
+                    .ok_or_else(|| freeze("borrowed-alias/finished-coordinate"))?;
+                Ok(Some(((coordinate.0, instruction), coordinate)))
             })
     }
 
@@ -713,6 +708,31 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok((function, coordinate))
     }
+}
+
+/// Shared independent Copy shape/unique-definition check after source membership.
+pub(super) fn find_finished_copy(
+    symbol: &str, finished: &Binding, function: &MirFunction,
+) -> Result<(BasicBlockId, usize), String> {
+        if !matches!(finished.1, MirInstruction::Copy { .. }) {
+            return Err(freeze("finished-copy/instruction"));
+        }
+        let coordinate = find_finished_producer(symbol, finished, function)?;
+        let dst = finished.1.dst_value().expect("checked Copy");
+        if function.params.contains(&dst) {
+            return Err(freeze("finished-copy/parameter-collision"));
+        }
+        if function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| instruction.dst_value() == Some(dst))
+            .count()
+            != 1
+        {
+            return Err(freeze("finished-copy/destination-duplicate"));
+        }
+        Ok(coordinate)
 }
 
 pub(super) fn find_finished_producer(

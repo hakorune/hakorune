@@ -38,10 +38,17 @@ fn compile_normal(body: &str) -> Result<crate::mir::MirCompileResult, String> {
 /// declared i64 field.
 #[test]
 fn array_i64_get_admits_numeric_field_index() {
-    let result = compile_normal(
-        "me.free.set(0, 7) local v = me.free.get(me.top) return v",
-    );
-    assert!(result.is_ok(), "numeric field index must compile: {result:?}");
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let result = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        MirCompiler::with_options(false).compile_normal_with_published(
+            request(&array_page_source(
+                "me.free.set(0, 7) local v = me.free.get(me.top) return v",
+                true,
+            )),
+            |_, _| Ok(()),
+        )
+    });
+    assert!(result.is_ok(), "numeric field index must compile");
 }
 
 /// A vetoed field keeps the manifest `Dynamic` result — `return v` keeps

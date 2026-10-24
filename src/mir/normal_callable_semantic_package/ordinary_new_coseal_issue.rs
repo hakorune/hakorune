@@ -209,16 +209,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .find(|key| selected.batch_slot(key) == Some(batch_slot))
             .and_then(|key| source_core_method_calls.get(key));
         let has_typed_static_walk = typed_static_walk_owners.contains(&owner);
-        if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
-            let nested_call_argument_walk = batch
-                .with_lowering_input(batch_slot, |input| {
-                    walk_triggers::has_nested_call_argument_walk_v1(input)
-                })
-                .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
-            if !nested_call_argument_walk {
-                continue;
-            }
-        }
+        if !walk_triggers::needs_declaration_walk_v1(batch, selected, app_main_batch_slot, batch_slot)? { continue; }
         let seed_eligible = super::super::result_contract::preflight_declaration(
             declaration,
             selected,
@@ -294,7 +285,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     input, receiver_proof, selected, &callable_result_classes,
                     &batch_contract_rows,
                     &mut receiver_call_observations,
-                );
+                ).map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
                 // Destination-less birth index collects in the same
                 // sweep: this declaration's claimed sites are exactly
                 // `candidates` ∪ `result_resolutions` — both push
@@ -329,6 +320,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_formal_field_read = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.formal_field_read_target(input.owner())
                 });
+                let has_dynamic_local_initializer = walk_triggers::has_dynamic_local_initializer_v1(
+                    input,
+                    dynamic_source_calls,
+                );
                 let has_borrowed_walk = walk_triggers::has_original_borrowed_walk_v1(
                     &borrowed_formal_source, parameter_contracts, &lexical_source_targets, owner,
                 )?;
@@ -410,6 +405,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     && !has_array_residence
                     && !has_integer_return
                     && !has_formal_field_read
+                    && !has_dynamic_local_initializer
                     && !has_borrowed_walk
                     && !child_new_ready
                     && !child_result_ready
@@ -446,6 +442,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     || has_stored_terminal
                     || has_required_scalar_source_walk
                     || has_field_scalar_walk
+                    || has_dynamic_local_initializer
                     || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))
                     || (seed_eligible && (has_map || child_new_ready || child_result_ready));
                 if !verified_walk && has_borrowed_source_calls {
@@ -594,6 +591,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             Ok(matches!(
                                 receiver_call_observations
                                     .get(site)
+                                    .filter(|row| row.map_stored_source().is_some())
                                     .map(|row| row.class()),
                                 Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
                             ))
@@ -635,6 +633,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             }
                             if borrowed_formal_source.is_err()
                                 && !matches!(actuals, BorrowedCallActualRequestV1::DynamicInvocationSource { .. })
+                                && !matches!(actuals, BorrowedCallActualRequestV1::ArgumentExpressionCarrierArrayAppendSource { .. })
                                 && !source_claims::select_failed_array_initializer_v1(
                                 input, batch, brands, &lexical_source_targets, site, actuals,
                             )? { return Ok(None); }
@@ -735,9 +734,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                             input, static_caller_key.as_ref(), static_call_claims,
                                             &preissued_static_i64_products, row))
                                 })?;
-                                seeds.push_completion_with_top_level_input(
-                                    declaration, selected, Rc::new(completion), relation, top_level_input.take(),
-                                ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                                // An original nested-call walk may lend actual
+                                // source facts without selecting an executable
+                                // callable or issuing its physical header.
+                                if selected.role_for_batch_slot(batch_slot).is_some() {
+                                    seeds.push_completion_with_top_level_input(
+                                        declaration, selected, Rc::new(completion), relation, top_level_input.take(),
+                                    ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                                }
                             }
                             (prefixes, observations, result_prefixes)
                         }
@@ -825,6 +829,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         result_claims.into_boxed_slice(),
         names,
     );
+    ledger
+        .retain_source_dynamic_member_calls_v1(dynamic_source_calls)
+        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
     ledger.lexical_source_targets = Some(lexical_source_targets);
     ledger.borrowed_static_source_sites = Some(static_source_sites);
     ledger.selected_loop_products = selected_loop_products;

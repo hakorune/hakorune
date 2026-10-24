@@ -158,6 +158,11 @@ pub(crate) enum LoopOperationV2 {
         right: LoopValueKeyV1,
         result: LoopValueKeyV1,
     },
+    DynamicSub {
+        left: LoopValueKeyV1,
+        right: LoopValueKeyV1,
+        result: LoopValueKeyV1,
+    },
     DynamicLess {
         left: LoopValueKeyV1,
         right: LoopValueKeyV1,
@@ -188,6 +193,7 @@ pub(crate) enum LoopOperationV2 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopOperationFaultFamilyV2 {
     DynamicAdd,
+    DynamicSub,
     DynamicLess,
     TextAdd,
     BoolExpression,
@@ -227,6 +233,12 @@ impl LoopOperationV2 {
             Self::DynamicAdd { result, .. } => {
                 LoopOperationExecutionClassV2::FaultBeforeNormalResult {
                     family: LoopOperationFaultFamilyV2::DynamicAdd,
+                    normal_result: *result,
+                }
+            }
+            Self::DynamicSub { result, .. } => {
+                LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                    family: LoopOperationFaultFamilyV2::DynamicSub,
                     normal_result: *result,
                 }
             }

@@ -83,7 +83,9 @@ fn local_binding_groups_reject_incomplete_sequence_before_transfer() {
         .expect("explicit exit")
         .clone();
     let groups =
-        vec![RootLifecyclePrefixBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap()];
+        vec![
+            RootLifecyclePrefixBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
+        ];
     assert!(ledger
         .validate_local_call_binding_groups(owner, &exit, &groups)
         .is_err());

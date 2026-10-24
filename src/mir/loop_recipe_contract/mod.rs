@@ -84,7 +84,7 @@ pub(crate) use bool_region::{LoopBoolCompareV1, LoopBoolCompareDomainV1, LoopBoo
 mod source_loop_v2;
 mod source_loop_execution;
 mod source_loop_schedule;
-pub(crate) use source_loop_schedule::{SourceLoopBranchPhiV2, SourceLoopScheduledFrameV2,
+pub(crate) use source_loop_schedule::{SourceLoopBranchPhiV2, SourceLoopTextBranchPhiV2, SourceLoopScheduledFrameV2,
     SourceLoopScheduledStepV2, VerifiedSourceLoopScheduleV2};
 pub(crate) use source_loop_v2::{produce_source_loop_recipe_v2, VerifiedSourceLoopRecipeProductV2};
 mod source_loop_bool;

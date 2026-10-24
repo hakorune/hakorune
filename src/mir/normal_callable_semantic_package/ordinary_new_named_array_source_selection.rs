@@ -144,6 +144,26 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             "[freeze:contract][array-holder/source-membership]".into(),
         ));
     }
+    if let Some(body_shape) = input.body_shape() {
+        match crate::mir::resolved_semantics::NamedArrayAppendOnlySourceV1::issue_for_construction_v1(
+            &ledger,
+            identity.clone(),
+            batch.ordinary_box_coverage(),
+            brands,
+            body_shape,
+        ) {
+            Ok(source) if source.has_appends() => {
+                return Ok(Some(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_append_only(
+                    identity,
+                    std::rc::Rc::new(source),
+                )));
+            }
+            Ok(_) => {}
+            Err(issue) => return Err(refuse(format!(
+                "[freeze:contract][array-holder/append-source]: {issue:?}"
+            ))),
+        }
+    }
     let empty_transfer = input.body_shape().and_then(|shape| {
         crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1::issue(
             &ledger, shape, &identity,

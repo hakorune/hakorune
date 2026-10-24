@@ -222,7 +222,7 @@ use owned_array::OwnedArrayLocalProgress;
 
 #[path = "ordinary_new_local_commit/local_entry.rs"]
 mod local_entry;
-use local_entry::TextResidencePacketV1;
+use local_entry::{DynamicCarrierResidencePacketV1, TextResidencePacketV1};
 pub(super) use local_entry::LocalCommitV1;
 
 /// Exact source relation retained after its matching physical root passed
@@ -612,7 +612,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let emission = match row {
                 LocalCommitV1::Ordinary(row) => Some(&row.emission),
                 LocalCommitV1::Result(row) => Some(&row.emission),
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) => None,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => None,
             };
             emission.is_some_and(|emission| {
                 matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })
@@ -751,9 +751,9 @@ pub(in crate::mir) use root_home::{
 };
 pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;
 
-pub(crate) use root_home::{RootLifecyclePrefixBindingGroupV1, StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1};
+pub(crate) use root_home::{RootLifecyclePrefixBindingGroupV1, StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
 pub(crate) use root_home::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
-pub(in crate::mir) use root_home::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
+pub(in crate::mir) use root_home::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use root_home::ExpressionPhysicalProjectionRefV1;
 pub(crate) use root_home::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};

@@ -40,12 +40,14 @@ pub(in crate::mir::builder) struct PendingEvaluatedInitializerV1 {
     expression: EmittedExpressionValueV1,
     terminal: Binding,
     continuation: Binding,
+    loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        Vec<crate::mir::builder::BindingValueObservationV2>)>,
 }
 impl PendingEvaluatedInitializerV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 { self.ordinal }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
         match self.expression.value.as_operand().expect("checked Local initializer operand") {
-            Operand::NormalInteger(value) | Operand::OwnedString(value) | Operand::DynamicCarrier(value) => *value,
+            Operand::NormalInteger(value) | Operand::OwnedString(value) | Operand::DynamicCarrier(value) | Operand::Dynamic(value) => *value,
             _ => unreachable!("checked Local initializer value"),
         }
     }
@@ -66,17 +68,19 @@ impl PendingEvaluatedInitializerV1 {
         let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(self.frame,
             receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.body.values,
             expression.body.calls, expression.body.dynamic_calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
-            expression.body.entry, self.terminal, self.continuation, expression.body.bindings, ledger, function)?);
+            expression.body.entry, self.terminal, self.continuation, self.loop_residency, expression.body.bindings, ledger, function)?);
         ledger.prepare_initializer_expression_bindings(packet, bindings)?.commit()
     }
 }
 pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState, ledger: &OrdinaryNewClaimLedgerV1,
     frame: Rc<CheckedInitializerExpressionFrameV1>, ordinal: u32,
+    source_loop: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
+    retained_argument_frames: &[Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
 ) -> Result<PendingInitializerExpressionV1, String> {
-    if !frame.is_i64() && !frame.is_text_residence() && !frame.is_dynamic_invocation_result() {
+    if !frame.is_i64() && !frame.is_text_residence() && !frame.is_dynamic_value() {
         return Err(freeze("text-initializer/execution-pending"));
     }
     if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(
@@ -84,13 +88,25 @@ pub(in crate::mir::builder) fn emit(
         return Err(freeze("initializer-expression/local-contract-receipt-pending"));
     }
     ledger.validate_initializer_expression_source_v1(&frame)?;
-    let mut expression = expression_value::emit_with_dynamic_calls(builder, state, ledger, frame.evaluation(), None,
-        &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_dynamic(
-            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, static_source))?;
+    let loop_residency = source_loop.map(|product| {
+        let reads = product.expression_text_fault_producers_v2(frame.source())?.iter()
+            .map(|(binding, _)| state.observe_binding_value_v2(*binding).map_err(|error| error.to_string()))
+            .collect::<Result<Vec<_>, String>>()?;
+        Ok::<_, String>((product, reads))
+    }).transpose()?;
+    let unwind = loop_residency.as_ref().map(|(product, reads)|
+        ledger.prepare_loop_expression_text_unwind_v2(frame.evaluation(), product, reads,
+            builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)).transpose()?;
+    let mut expression = expression_value::emit_with_dynamic_calls(builder, state, ledger, frame.evaluation(), None, unwind.as_deref(),
+        &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
+            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings,
+            consume_receiver, static_source, retained_argument_frames))?;
     let (terminal, continuation) = if frame.is_dynamic_invocation_result() {
         expression_value::finish_dynamic_initializer_continuation(builder, &mut expression)?
+    } else if frame.is_dynamic_alias() {
+        expression_value::finish_value_continuation_v1(builder, &mut expression.body)?
     } else if frame.is_text_residence() {
         expression_value::finish_residence_continuation(builder, &mut expression)?
     } else { expression_value::finish_scalar_continuation(builder, &mut expression)? };
-    Ok(PendingInitializerExpressionV1::Expression(PendingEvaluatedInitializerV1 { ordinal, frame, expression, terminal, continuation }))
+    Ok(PendingInitializerExpressionV1::Expression(PendingEvaluatedInitializerV1 { ordinal, frame, expression, terminal, continuation, loop_residency }))
 }

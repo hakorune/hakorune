@@ -48,6 +48,9 @@ pub(super) fn check_module_with_source(
     })?;
     let mut loans = image.slots;
     let mut errors = Vec::new();
+    if let Err(failures) = string::check_module_with_source(module, root) {
+        errors.extend(failures);
+    }
     for function in module.functions.values() {
         if let Err(reason) = string::check_source_uses(function, |block, row, ordinal, value| {
             image.text.get(&(function.signature.name.clone(), block, row, ordinal)) == Some(&value)
@@ -137,7 +140,7 @@ pub(super) fn check_module_with_source(
                 }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
-                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. } | MapInvokeOperation::FieldGetIndexed { object, .. })
+                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. } | MapInvokeOperation::FieldGetIndexed { object, .. } | MapInvokeOperation::FieldInstallIndexed { object, .. })
                         | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::HomeReleaseIfLive { object, .. }
@@ -159,6 +162,10 @@ pub(super) fn check_module_with_source(
                             if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
                         { errors.push(error(*id, "object-field-read-definition-invalid")); }
+                        InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, key, .. })
+                            if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
+                                || !image.field_writes.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
+                        { errors.push(error(*id, "object-field-write-definition-invalid")); }
                         InvokeOperation::ObjectEndIfOwned { object, end, .. }
                             if !object_end::check(module, *object, end) =>
                         {
@@ -301,21 +308,21 @@ pub(super) fn check_module_with_source(
 }
 
 pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-    check_function_inner(function, None)
+    check_function_inner(function, None, true)
 }
 
-/// The module-aware lane: cataloged call edges resolve against the module,
-/// so a borrowed Map argument must prove its callee — never its shape alone.
-pub(super) fn check_function_in_module(
-    module: &crate::mir::MirModule,
-    function: &MirFunction,
+/// Module verification already performs the same String lifetime check with
+/// its source view. Keep the standalone function entry strict and source-less.
+pub(super) fn check_function_structure_in_module(
+    module: &crate::mir::MirModule, function: &MirFunction,
 ) -> Result<(), Vec<VerificationError>> {
-    check_function_inner(function, Some(module))
+    check_function_inner(function, Some(module), false)
 }
 
 fn check_function_inner(
     function: &MirFunction,
     module: Option<&crate::mir::MirModule>,
+    check_string: bool,
 ) -> Result<(), Vec<VerificationError>> {
     let has_control = function.blocks.values().any(|block| {
         block.all_instructions().any(|inst| {
@@ -485,8 +492,10 @@ fn check_function_inner(
     {
         errors.append(&mut found);
     }
-    if let Err(reason) = string::check(function) {
-        errors.push(error(function.entry_block, reason));
+    if check_string {
+        if let Err(reason) = string::check(function) {
+            errors.push(error(function.entry_block, reason));
+        }
     }
     if let Err(reason) = owned_array::check(function) {
         errors.push(error(function.entry_block, reason));

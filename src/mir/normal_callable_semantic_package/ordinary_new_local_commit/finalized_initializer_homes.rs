@@ -2,10 +2,11 @@
 use super::*;
 
 impl FinalizedRootSourceHandoffV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn text_home_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn initializer_lifecycle_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
         let mut owners: std::collections::BTreeSet<_> = self.local_calls.iter().filter_map(|(owner, roots)|
             RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()
-                .any(|group| group.text_residence_v1().is_some()).then_some(*owner)).collect();
+                .any(|group| group.text_residence_v1().is_some() || group.dynamic_carrier_residence_v1().is_some())
+                .then_some(*owner)).collect();
         owners.extend(self.ledger.terminal_relation_index.iter().filter_map(|(owner, terminals)|
             ((*owner == self.owner || self.ledger.child_physical_validation.borrow().contains_key(owner))
                 && terminals.values().any(|relation| matches!(relation, TerminalRelationV1::Value(value)
@@ -23,18 +24,26 @@ impl FinalizedRootSourceHandoffV1 {
         let context = CallValidationContextV1::Finalized(self);
         // Presence is navigation only; validate a tree only after selecting
         // its Text owner and the exact function's finished projection.
-        let text_home_owners = self.text_home_owners_v1();
-        if !text_home_owners.is_empty() { self.validate_finalized_root_cleanup_v1(module)?; }
+        let lifecycle_owners = self.initializer_lifecycle_owners_v1();
+        if !lifecycle_owners.is_empty() { self.validate_finalized_root_cleanup_v1(module)?; }
         let mut result = Vec::new();
-        for owner in text_home_owners {
+        for owner in lifecycle_owners {
             self.ledger.with_finished_projection(owner, |symbol, projection| {
                 if symbol != function.signature.name { return Ok(()); }
                 context.with_local_call_group_tree_v2(owner, |groups| {
                     for group in groups {
-                        let Some(packet) = group.text_residence_v1() else { continue };
-                        if packet.owner() != owner {
-                            return Err(freeze("finished-initializer-home/source-owner"));
+                        if let Some(packet) = group.dynamic_carrier_residence_v1() {
+                            if packet.owner() != owner {
+                                return Err(freeze("finished-initializer-home/source-owner"));
+                            }
+                            group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
+                            self.ledger.validate_dynamic_carrier_residence_home_v1(
+                                &packet,
+                                CallValidationContextV1::Finalized(self),
+                            )?;
                         }
+                        let Some(packet) = group.text_residence_v1() else { continue };
+                        if packet.owner() != owner { return Err(freeze("finished-initializer-home/source-owner")); }
                         group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
                         self.ledger.validate_text_residence_home_v1(&packet, CallValidationContextV1::Finalized(self))?;
                         let original = packet.install_binding().ok_or_else(|| freeze("finished-initializer-home/install-missing"))?;

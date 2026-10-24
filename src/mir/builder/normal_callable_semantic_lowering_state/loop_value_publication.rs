@@ -142,6 +142,11 @@ impl CallableSemanticLoweringState {
     ) -> Result<(), String> {
         self.values.attach_scalar_join_v1(super::materialized_values::ScalarJoinPointValueV1::from_branch_v1(observed))
     }
+    pub(in crate::mir::builder) fn attach_branch_text_phi_v1(&mut self,
+        observed: Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>,
+    ) -> Result<(), String> {
+        self.values.attach_branch_text_v1(observed)
+    }
 
     /// Names locate only pre-If source slots whose exact cached value agrees.
     /// Historical unmatched bindings cannot be rediscovered from the merge map.

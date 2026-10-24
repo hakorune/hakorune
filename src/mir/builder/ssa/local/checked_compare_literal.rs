@@ -149,6 +149,16 @@ pub(super) fn materialize(builder: &mut MirBuilder, value: ValueId) -> Result<Va
         .emit_instruction(instruction.clone())
         .map_err(Error::InstructionEmission)?;
     prepared.commit(dst, &mut builder.function_state.type_ctx);
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| Error::Contract(fault("function-missing")))?;
+    builder
+        .function_state
+        .local_ssa_correspondence
+        .record_pin_copy(function, record.value(), dst, consumer)
+        .map_err(Error::Contract)?;
     builder
         .function_state
         .checked_compare_reuse

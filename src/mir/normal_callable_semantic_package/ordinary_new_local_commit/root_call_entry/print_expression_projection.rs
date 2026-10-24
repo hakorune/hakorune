@@ -1,9 +1,9 @@
 //! Original expression-to-physical correspondence in the existing prefix pool.
 //! This packet never issues fields, calls, input permissions or runtime owners.
-use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
-use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
-use crate::mir::instruction::{StringInvokeOperation as Operation};
+use crate::mir::instruction::StringInvokeOperation as Operation;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
+use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1;
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -14,7 +14,8 @@ pub(crate) struct EmittedPrintExpressionProjectionV1 {
     values: Box<[Option<EvaluatedExpressionValueV1>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
     path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
-    reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
+    reference_reads:
+        std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
     entry: Binding,
     print: Binding,
     continuation: Binding,
@@ -40,7 +41,10 @@ impl EmittedPrintExpressionProjectionV1 {
         values: Vec<Option<EvaluatedExpressionValueV1>>,
         calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-        reference_reads: std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
+        reference_reads: std::collections::BTreeMap<
+            usize,
+            super::expression_projection::ExpressionReferenceReadV1,
+        >,
         entry: Binding,
         print: Binding,
         continuation: Binding,
@@ -68,7 +72,12 @@ impl EmittedPrintExpressionProjectionV1 {
 
     fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new(
-            self.frame.evaluation(), &self.values, &self.calls, &self.path_reads, &self.reference_reads, &self.original,
+            self.frame.evaluation(),
+            &self.values,
+            &self.calls,
+            &self.path_reads,
+            &self.reference_reads,
+            &self.original,
         )
     }
 
@@ -87,18 +96,30 @@ impl EmittedPrintExpressionProjectionV1 {
         self.ordered_bindings_in_context(CallValidationContextV1::Lowering(ledger))
     }
 
-    fn ordered_bindings_in_context(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
+    fn ordered_bindings_in_context(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
         let mut ordered = self.expression().ordered_bindings_in_context(context)?;
         ordered.push(self.print.clone());
         Ok(ordered)
     }
 
     fn validate_original_scope(
-        &self, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        function: &MirFunction,
         covered: &std::collections::BTreeSet<BasicBlockId>,
     ) -> Result<(), String> {
-        self.expression().validate_original_scope(ledger, function, covered,
-            &self.entry, &self.print, &self.continuation, &self.ordered_bindings(ledger)?)
+        self.expression().validate_original_scope(
+            ledger,
+            function,
+            covered,
+            &self.entry,
+            &self.print,
+            &self.continuation,
+            &self.ordered_bindings(ledger)?,
+        )
     }
 
     pub(super) fn validate_paths(
@@ -107,18 +128,34 @@ impl EmittedPrintExpressionProjectionV1 {
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_paths_in_context(CallValidationContextV1::Lowering(ledger), function, finishing)
+        self.validate_paths_in_context(
+            CallValidationContextV1::Lowering(ledger),
+            function,
+            finishing,
+        )
     }
 
     pub(super) fn validate_paths_in_context(
-        &self, context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_source(context)?;
-        self.expression().validate_paths_to_terminal(context, function, finishing, &self.print, &self.continuation, None, None)
+        self.expression().validate_paths_to_terminal(
+            context,
+            function,
+            finishing,
+            &self.print,
+            &self.continuation,
+            None,
+            None,
+        )
     }
 
     pub(super) fn validate_recorded(
-        &self, bindings: &[Binding],
+        &self,
+        bindings: &[Binding],
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;

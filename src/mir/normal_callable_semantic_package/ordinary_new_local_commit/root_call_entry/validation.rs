@@ -113,7 +113,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 RootHomeExitEntry::Call { .. } => Err(freeze("call-source-missing")),
                 RootHomeExitEntry::MapGet {
-                    stored, local_bindings,
+                    stored,
+                    local_bindings,
                     invoke,
                     projection,
                     frame,
@@ -126,7 +127,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     invoke,
                     projection,
                     frame,
-                    cleanup, stored.as_deref(), CallValidationContextV1::Lowering(self),
+                    cleanup,
+                    stored.as_deref(),
+                    CallValidationContextV1::Lowering(self),
                 ),
             };
         };
@@ -165,8 +168,10 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let expected = match row {
             RootCallDispositionV1::Lexical(packet) => {
-                let source_arguments = self.validate_lexical_terminal_packet(owner, exit, packet)?;
+                let source_arguments =
+                    self.validate_lexical_terminal_packet(owner, exit, packet)?;
                 let mut recorded = arguments.clone();
+                recorded.extend_from_slice(cleanup);
                 recorded.extend([invoke.clone(), projection.clone()]);
                 packet.validate_recorded_projected(&recorded, packet_finishing)?;
                 let (original_invoke, original_projection) = packet.outer_bindings()?;
@@ -191,27 +196,26 @@ impl OrdinaryNewClaimLedgerV1 {
                 pending.expected_call().clone()
             }
             _ => {
-            let terminal = source
-                .legacy_terminal()
-                .ok_or_else(|| freeze("direct-result-legacy-row"))?;
-            let row_argument_count = match row {
-                RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
-                RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
-                RootCallDispositionV1::Lexical(_)
-                | RootCallDispositionV1::PendingStatic(_) => {
-                    return Err(freeze("lexical-terminal/strict-row"))
+                let terminal = source
+                    .legacy_terminal()
+                    .ok_or_else(|| freeze("direct-result-legacy-row"))?;
+                let row_argument_count = match row {
+                    RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
+                    RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
+                    RootCallDispositionV1::Lexical(_) | RootCallDispositionV1::PendingStatic(_) => {
+                        return Err(freeze("lexical-terminal/strict-row"))
+                    }
+                };
+                if arguments.len() != terminal.arguments().len()
+                    || row_argument_count != arguments.len()
+                {
+                    return Err(freeze("call-argument-count"));
                 }
-            };
-            if arguments.len() != terminal.arguments().len()
-                || row_argument_count != arguments.len()
-            {
-                return Err(freeze("call-argument-count"));
-            }
-            let mut values = Vec::with_capacity(arguments.len());
-            for (ordinal, ((_, instruction), argument)) in
-                arguments.iter().zip(terminal.arguments()).enumerate()
-            {
-                match (instruction, argument) {
+                let mut values = Vec::with_capacity(arguments.len());
+                for (ordinal, ((_, instruction), argument)) in
+                    arguments.iter().zip(terminal.arguments()).enumerate()
+                {
+                    match (instruction, argument) {
                 (
                     MirInstruction::Const {
                         dst,
@@ -252,8 +256,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 _ => return Err(freeze("call-argument-drift")),
             }
-            }
-            let typed: Vec<_> = values
+                }
+                let typed: Vec<_> = values
             .into_iter()
             .zip(terminal.arguments())
             .map(|(value, argument)| {
@@ -269,55 +273,55 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok((value, class))
             })
             .collect::<Result<_, String>>()?;
-            match row {
-                RootCallDispositionV1::Direct(row) => row
-                    .physical_emission().map_err(|_| freeze("direct-source-required"))?
-                    .materialize_call_typed(None, typed)
-                    .map_err(|_| freeze("call-projection-failed"))?,
-                RootCallDispositionV1::Lexical(_)
-                | RootCallDispositionV1::PendingStatic(_) => {
-                    return Err(freeze("lexical-terminal/strict-row"))
-                }
-                RootCallDispositionV1::Instance(row) => {
-                    if !typed.is_empty() || row.argument_sites().iter().next().is_some() {
-                        return Err(freeze("instance-call-arguments"));
+                match row {
+                    RootCallDispositionV1::Direct(row) => row
+                        .physical_emission()
+                        .map_err(|_| freeze("direct-source-required"))?
+                        .materialize_call_typed(None, typed)
+                        .map_err(|_| freeze("call-projection-failed"))?,
+                    RootCallDispositionV1::Lexical(_) | RootCallDispositionV1::PendingStatic(_) => {
+                        return Err(freeze("lexical-terminal/strict-row"))
                     }
-                    let receiver = self.resolve_instance_receiver(owner, row)?;
-                    let MirInstruction::Invoke {
-                        operation:
-                            InvokeOperation::Call {
-                                call,
-                                result: InvokeCallResultKind::I64,
-                            },
-                        ..
-                    } = &invoke.1
-                    else {
-                        return Err(freeze("instance-call-shape"));
-                    };
-                    if let crate::mir::definitions::Callee::SameModuleInstance {
-                        receiver: actual_receiver,
-                        ..
-                    } = &call.callee
-                    {
-                        if *actual_receiver != receiver {
-                            return Err(freeze("instance-call-receiver"));
+                    RootCallDispositionV1::Instance(row) => {
+                        if !typed.is_empty() || row.argument_sites().iter().next().is_some() {
+                            return Err(freeze("instance-call-arguments"));
                         }
+                        let receiver = self.resolve_instance_receiver(owner, row)?;
+                        let MirInstruction::Invoke {
+                            operation:
+                                InvokeOperation::Call {
+                                    call,
+                                    result: InvokeCallResultKind::I64,
+                                },
+                            ..
+                        } = &invoke.1
+                        else {
+                            return Err(freeze("instance-call-shape"));
+                        };
+                        if let crate::mir::definitions::Callee::SameModuleInstance {
+                            receiver: actual_receiver,
+                            ..
+                        } = &call.callee
+                        {
+                            if *actual_receiver != receiver {
+                                return Err(freeze("instance-call-receiver"));
+                            }
+                        }
+                        if *call
+                            != crate::mir::definitions::MirCall::new(
+                                None,
+                                crate::mir::definitions::Callee::SameModuleInstance {
+                                    key: row.target().clone(),
+                                    receiver,
+                                },
+                                Vec::new(),
+                            )
+                        {
+                            return Err(freeze("instance-call-target"));
+                        }
+                        call.clone()
                     }
-                    if *call
-                        != crate::mir::definitions::MirCall::new(
-                            None,
-                            crate::mir::definitions::Callee::SameModuleInstance {
-                                key: row.target().clone(),
-                                receiver,
-                            },
-                            Vec::new(),
-                        )
-                    {
-                        return Err(freeze("instance-call-target"));
-                    }
-                    call.clone()
                 }
-            }
             }
         };
         if !matches!(&invoke.1, MirInstruction::Invoke {
@@ -433,11 +437,16 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
         pending_routes: &[OwnedExprSiteV1],
     ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
-        self.expected_local_call_binding_sources_for_key_v1(owner, &exit.clone().into(), pending_routes)
+        self.expected_local_call_binding_sources_for_key_v1(
+            owner,
+            &exit.clone().into(),
+            pending_routes,
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expected_local_call_binding_sources_for_key_v1(
-        &self, owner: FunctionOwnerIdV1,
+        &self,
+        owner: FunctionOwnerIdV1,
         exit: &crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1,
         pending_routes: &[OwnedExprSiteV1],
     ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
@@ -449,8 +458,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .root_flow()
             .ok_or_else(|| freeze("local-call-source-missing"))?;
         let row = match exit {
-            crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1::Explicit(site) => flow.exit_row(site),
-            crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1::ImplicitBodyEnd => flow.implicit_exit(),
+            crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1::Explicit(site) => {
+                flow.exit_row(site)
+            }
+            crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1::ImplicitBodyEnd => {
+                flow.implicit_exit()
+            }
         };
         let Some(Ok(row)) = row else {
             return Err(freeze("local-call-source-missing"));
@@ -459,16 +472,23 @@ impl OrdinaryNewClaimLedgerV1 {
         for source in self.expected_local_call_binding_sources(owner)? {
             // A Return inside this Loop claims its executed path children,
             // never its own enclosing completion (which would form a cycle).
-            if let (LifecyclePrefixSourceV1::Loop { product, .. }, Some(site)) = (&source, exit.explicit_site()) {
+            if let (LifecyclePrefixSourceV1::Loop { product, .. }, Some(site)) =
+                (&source, exit.explicit_site())
+            {
                 let prefix = product.source.source.site().node().segments();
-                if site.node().segments().len() > prefix.len() && site.node().segments().starts_with(prefix) {
+                if site.node().segments().len() > prefix.len()
+                    && site.node().segments().starts_with(prefix)
+                {
                     sources.extend(product.lifecycle_prefixes_v2());
                     continue;
                 }
             }
             sources.push(source);
         }
-        Ok(sources.into_iter().filter(|source| source.covered_by(row) && !pending_routes.contains(source.site())).collect())
+        Ok(sources
+            .into_iter()
+            .filter(|source| source.covered_by(row) && !pending_routes.contains(source.site()))
+            .collect())
     }
 
     /// Select this exit's claimed binding-group rows from the recorded pool.
@@ -484,7 +504,8 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn select_local_call_binding_groups_for_key_v1(
-        &self, owner: FunctionOwnerIdV1,
+        &self,
+        owner: FunctionOwnerIdV1,
         exit: &crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1,
     ) -> Result<Vec<RootLifecyclePrefixBindingGroupV1>, String> {
         let expected = self.expected_local_call_binding_sources_for_key_v1(owner, exit, &[])?;
@@ -494,11 +515,19 @@ impl OrdinaryNewClaimLedgerV1 {
         let recorded = super::source_loop_projection::snapshot_group_tree_v2(&roots);
         let mut selected = Vec::with_capacity(expected.len());
         for site in &expected {
-            let mut matching = recorded.iter().filter(|recorded| recorded.matches_source(site));
+            let mut matching = recorded
+                .iter()
+                .filter(|recorded| recorded.matches_source(site));
             let Some(group) = matching.next() else {
                 if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                    eprintln!("[local-call-bindings] missing={:?} recorded={:?}", site.site(),
-                        recorded.iter().map(RootLifecyclePrefixBindingGroupV1::site).collect::<Vec<_>>());
+                    eprintln!(
+                        "[local-call-bindings] missing={:?} recorded={:?}",
+                        site.site(),
+                        recorded
+                            .iter()
+                            .map(RootLifecyclePrefixBindingGroupV1::site)
+                            .collect::<Vec<_>>()
+                    );
                 }
                 return Err(freeze("local-call-binding-sequence"));
             };
@@ -529,15 +558,23 @@ impl OrdinaryNewClaimLedgerV1 {
         groups: &[RootLifecyclePrefixBindingGroupV1],
         pending_routes: &[OwnedExprSiteV1],
     ) -> Result<(), String> {
-        self.validate_local_call_binding_groups_for_key_v1(owner, &exit.clone().into(), groups, pending_routes)
+        self.validate_local_call_binding_groups_for_key_v1(
+            owner,
+            &exit.clone().into(),
+            groups,
+            pending_routes,
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_local_call_binding_groups_for_key_v1(
-        &self, owner: FunctionOwnerIdV1,
+        &self,
+        owner: FunctionOwnerIdV1,
         exit: &crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1,
-        groups: &[RootLifecyclePrefixBindingGroupV1], pending_routes: &[OwnedExprSiteV1],
+        groups: &[RootLifecyclePrefixBindingGroupV1],
+        pending_routes: &[OwnedExprSiteV1],
     ) -> Result<(), String> {
-        let expected = self.expected_local_call_binding_sources_for_key_v1(owner, exit, pending_routes)?;
+        let expected =
+            self.expected_local_call_binding_sources_for_key_v1(owner, exit, pending_routes)?;
         if groups.len() != expected.len()
             || groups.iter().zip(expected.iter()).any(|(group, expected)| {
                 group.site().owner() != owner
@@ -546,7 +583,11 @@ impl OrdinaryNewClaimLedgerV1 {
             })
         {
             if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                eprintln!("[local-call-bindings] validation expected={} actual={}", expected.len(), groups.len());
+                eprintln!(
+                    "[local-call-bindings] validation expected={} actual={}",
+                    expected.len(),
+                    groups.len()
+                );
             }
             return Err(freeze("local-call-binding-sequence"));
         }
@@ -583,17 +624,30 @@ impl OrdinaryNewClaimLedgerV1 {
         groups: &[RootLifecyclePrefixBindingGroupV1],
         pending_routes: &[OwnedExprSiteV1],
     ) -> Result<(), String> {
-        self.check_local_call_binding_groups_in_context_v1(CallValidationContextV1::Lowering(self),
-            owner, exit, function, finishing, groups, pending_routes)
+        self.check_local_call_binding_groups_in_context_v1(
+            CallValidationContextV1::Lowering(self),
+            owner,
+            exit,
+            function,
+            finishing,
+            groups,
+            pending_routes,
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn check_local_call_binding_groups_in_context_v1(
-        &self, context: CallValidationContextV1<'_>, owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1, function: &MirFunction,
+        &self,
+        context: CallValidationContextV1<'_>,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        groups: &[RootLifecyclePrefixBindingGroupV1], pending_routes: &[OwnedExprSiteV1],
+        groups: &[RootLifecyclePrefixBindingGroupV1],
+        pending_routes: &[OwnedExprSiteV1],
     ) -> Result<(), String> {
-        if !std::ptr::eq(context.ledger(), self) { return Err(freeze("local-call-binding-sequence")); }
+        if !std::ptr::eq(context.ledger(), self) {
+            return Err(freeze("local-call-binding-sequence"));
+        }
         self.validate_local_call_binding_groups_with_pending(owner, exit, groups, pending_routes)?;
         for group in groups {
             group.validate_recorded_in_context(context, function, finishing)?;

@@ -25,6 +25,19 @@ pub(super) fn has_nested_call_argument_walk_v1(input: ResolvedFunctionLoweringIn
     crate::mir::resolved_semantics::home_new_prefix::requires_nested_call_argument_walk_v1(input)
 }
 
+/// Candidate collection and the completion walk select the same original
+/// declarations. An unselected nested-call source still needs its own input
+/// inventory; this grants no callable execution role.
+pub(super) fn needs_declaration_walk_v1(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    app_main: Option<u32>, slot: u32,
+) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    if selected.role_for_batch_slot(slot).is_some() || app_main == Some(slot) { return Ok(true); }
+    batch.with_lowering_input(slot, has_nested_call_argument_walk_v1)
+        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)
+}
+
 pub(super) fn has_map_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     has_map_formal: impl FnOnce() -> bool,
@@ -125,6 +138,27 @@ pub(super) fn has_static_source_local_v1(
                 source.contains(&OwnedExprSiteV1::new(input.owner(), site.clone()))
             })
         })
+}
+
+/// A source-bound Dynamic result stored in a Local must pass through the
+/// completion walk: that walk owns both its invocation actual and any
+/// source-loop product selected from the same body. This predicate only
+/// matches the already-admitted exact result site to its original Local
+/// initializer; it issues no carrier or execution authority.
+pub(super) fn has_dynamic_local_initializer_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
+) -> bool {
+    calls.iter().any(|call| {
+        call.owner() == input.owner()
+            && input.function().expression_source().initializers().any(|initializer| {
+                initializer.initializer_site() == Some(call.result_site())
+                    && matches!(
+                        initializer.declaration_site(),
+                        crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. }
+                    )
+            })
+    })
 }
 
 /// Keep the existing plain root literal path separate from a selected Static

@@ -129,7 +129,7 @@ impl MirVerifier {
         for function in module.functions.values() {
             collect_errors!(
                 self.errors,
-                invoke::check_function_in_module(module, function)
+                invoke::check_function_structure_in_module(module, function)
             );
         }
         if !self.errors.is_empty() {

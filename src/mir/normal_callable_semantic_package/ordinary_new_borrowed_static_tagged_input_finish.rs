@@ -403,6 +403,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         },
                     ),
                     ordered_arguments: rows.ordered_arguments.clone(),
+                    dynamic_invocation_arguments: None,
                     opaque_actuals: Box::new([PreparedBorrowedFormalActualV1 {
                         ordinal: 0,
                         site: original.argument_sites()[0].clone(),

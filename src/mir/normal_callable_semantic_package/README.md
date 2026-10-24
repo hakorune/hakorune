@@ -2152,8 +2152,19 @@ requires the same get Normal/Local Copy, original If/null law/frame and sealed
 Branch, with Normal dominating that Branch and its nonnull arm dominating the
 sole field operation. Original and Finished coordinates use the same captured
 projection. No new proof inventory is created, and no Home/End is granted. The
-Object finisher never upgrades the borrow into an owning result. Physical Return,
-final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
+Object finisher never upgrades the borrow into an owning result. Direct stored-get
+Return now retains its SAME MapStored source and checked MapGet receipt through
+Finished projection, full ReceiverFieldSlot support, and exact Invoke/Normal/Copy/
+Return coordinates in both module and published scans. It lends no formal root;
+other payload uses refuse. Installed-local Return retains the SAME checked field
+install/MapOutcome/old-End packet. Its exact acquired candidate remains owned on
+precommit Fault and transfers only on Normal. The original evaluated Return
+must match that candidate; an owner-neutral SSA Copy then creates a distinct
+borrowed result root after old-End Normal. The existing root-exit order retains
+this alias, and capture/finishing require its exact definition and Return. Both
+final scans track only the alias, keeping earlier candidate New/Birth/Fault uses
+outside the borrowed result closure. Get checks stay unchanged. ReceiverFieldSlot
+call transport/C remains refused until its consumers close. Generic Object source observation
 also accepts a rechecked completed input row without lending result execution.
 
 Borrowed nullable LOCAL observation retains the SAME source loan in a separate

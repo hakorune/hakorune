@@ -43,9 +43,11 @@ impl BorrowedCallUses {
         }
         source.with_borrowed_ordinary_alias_copies_v1(owner, function, |_, _, _, _, _, copies| {
             for original in copies {
-                let coordinate =
-                    source.borrowed_ordinary_alias_copy_coordinate_v1(owner, function, original)?;
-                state.copy(original, coordinate)?;
+                if let Some((finished, coordinate)) =
+                    source.borrowed_ordinary_alias_finished_copy_v1(owner, function, original)?
+                {
+                    state.copy(&finished, Some(coordinate))?;
+                }
             }
             Ok(())
         })?;
@@ -275,7 +277,8 @@ impl FunctionUses {
                 let Some(end) = end.value() else { return Err(fault("string-index-operand")); };
                 vec![start, end]
             }
-            crate::mir::instruction::StringInvokeOperation::End { value } => vec![*value],
+            crate::mir::instruction::StringInvokeOperation::End { value }
+                | crate::mir::instruction::StringInvokeOperation::EndIfOwned { value } => vec![*value],
             _ => Vec::new(),
         };
         let operands = operation.operands();

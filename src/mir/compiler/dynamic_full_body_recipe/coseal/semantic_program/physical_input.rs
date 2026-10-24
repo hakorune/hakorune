@@ -458,10 +458,10 @@ mod tests {
         );
         let payload: &'static [LoopJoinPayloadV2] = &[];
         let logical = LoopJoinBranchArmTransferRefV2::Fallthrough {
-            continuation: LoopJoinNextItemV1 {
+            continuation: Some(LoopJoinNextItemV1 {
                 block: LoopBlockKeyV1::new(2),
                 item: crate::mir::loop_recipe_contract::LoopItemKeyV1::new(13),
-            },
+            }),
             payload,
         };
         assert!(verify_arm(

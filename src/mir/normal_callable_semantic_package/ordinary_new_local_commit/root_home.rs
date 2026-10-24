@@ -173,6 +173,7 @@ pub(crate) struct RootHomeFaultSequencesV1 {
     pub(crate) after_normal: Vec<Vec<usize>>,
 }
 
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn root_home_exit_is_complete(
         &self,
@@ -431,11 +432,24 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
         let owner = source.terminal.owner();
+        let terminal_matches = match (
+            &source.terminal,
+            self.terminal_relation_for_owner_at(owner, &source.site),
+        ) {
+            (
+                TerminalRelationV1::I64Scalar(expected),
+                Some(TerminalRelationV1::I64Scalar(original)),
+            ) => expected == original,
+            (
+                TerminalRelationV1::IntegerLiteral(expected),
+                Some(TerminalRelationV1::IntegerLiteral(original)),
+            ) => expected == original,
+            _ => false,
+        };
         if self.retained_source_loop_recipe_v2(owner, product.source.source.site())?
             .is_none_or(|original| !std::rc::Rc::ptr_eq(original, product))
             || !product.schedule().returns_v2().any(|row| std::rc::Rc::ptr_eq(row, source))
-            || !matches!(self.terminal_relation_for_owner_at(owner, &source.site),
-                Some(TerminalRelationV1::I64Scalar(original)) if original == &source.terminal)
+            || !terminal_matches
             || self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow())
                 .and_then(|flow| flow.exit_row(&source.site)).and_then(Result::ok) != Some(&source.homes) {
             return Err(freeze("source-loop/frame-source"));
@@ -443,7 +457,17 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.root_exits.borrow();
         let Some(RootHomeExitProgress::Emitted { bindings, entry: RootHomeExitEntry::Plain { .. }, .. })
             = rows.get(&(owner, source.site.clone().into())) else { return Err(freeze("source-loop/original-write")); };
-        Ok(bindings.clone())
+        let mut bindings = bindings.clone();
+        if let Some(producer) = self.terminal_literal_producer_v1(owner, &source.site)? {
+            if !bindings.contains(&producer) {
+                let entry_jump = bindings
+                    .len()
+                    .checked_sub(1)
+                    .ok_or_else(|| freeze("source-loop/original-write"))?;
+                bindings.insert(entry_jump, producer);
+            }
+        }
+        Ok(bindings)
     }
 
     pub(crate) fn record_root_home_exit(
@@ -720,6 +744,11 @@ impl OrdinaryNewClaimLedgerV1 {
 
 #[path = "root_call_entry.rs"]
 mod call_entry;
+#[path = "root_map_field_install.rs"]
+mod map_field_install;
+pub(crate) use map_field_install::{PreparedMapFieldInstallV1, MapFieldInstallEmissionV1};
+#[path = "root_map_key_read.rs"]
+mod map_key_read;
 #[path = "root_map_get_entry.rs"]
 mod map_get_entry;
 pub(crate) use map_get_entry::{StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1};
@@ -735,7 +764,7 @@ pub(crate) use call_entry::PreparedStaticTerminalPacketV1;
 pub(crate) use call_entry::RootLifecyclePrefixBindingGroupV1;
 pub(crate) use call_entry::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use call_entry::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
-pub(in crate::mir) use call_entry::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
+pub(in crate::mir) use call_entry::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 pub(in crate::mir) use call_entry::ExpressionPhysicalProjectionRefV1;
 pub(crate) use call_entry::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 

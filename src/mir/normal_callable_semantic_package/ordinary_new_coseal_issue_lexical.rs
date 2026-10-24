@@ -336,23 +336,28 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 issue: issue.to_owned(),
             });
     }
-    if let BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
-    | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_) = request
-    {
-        let (binding, initializer) = match request {
-            BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding) => (binding, true),
-            BorrowedCallActualRequestV1::NamedArrayAppendStatement(binding) => (binding, false),
-            _ => unreachable!("named Array request selected above"),
-        };
+    if let BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding) = request {
         return source
             .as_ref()
             .map_err(Clone::clone)
-            .and_then(|source| source.named_array_holder_source_v1(site, binding, initializer))
+            .and_then(|source| source.named_array_holder_source_v1(site, binding, true))
             .map(|loan| loan.map(BorrowedCallArgumentsV1::NamedArrayHolderSource))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(),
                 issue,
             });
+    }
+    if let BorrowedCallActualRequestV1::NamedArrayAppendStatement { binding, source: holder } = request {
+        if binding.owner() != site.owner()
+            || holder.binding() != binding
+            || holder.append_candidate(site).is_none()
+        {
+            return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue: "[freeze:contract][array-holder/append-source-drift]".into(),
+            });
+        }
+        return Ok(Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(holder.clone())));
     }
     if let BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan } = request {
         return source
@@ -429,13 +434,39 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 issue,
             });
     }
-    if let BorrowedCallActualRequestV1::CompleteArgumentExpression(frame) = request {
+    if let BorrowedCallActualRequestV1::ArgumentExpressionCarrierArrayAppendSource {
+        input,
+        ordinal,
+        holder,
+    } = request
+    {
+        return super::super::lexical_instance_call::observed_carrier_array_append_argument_source_v1(
+            input,
+            site,
+            ordinal,
+            holder,
+            dynamic_source_calls,
+            None,
+        )
+            .map(|loan| loan.map(BorrowedCallArgumentsV1::ArgumentExpressionSource))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            });
+    }
+    if let BorrowedCallActualRequestV1::CompleteArgumentExpression { input, frame } = request {
         return source
             .as_ref()
             .map_err(Clone::clone)
             .and_then(|source| {
                 super::super::lexical_instance_call::complete_argument_expression_v1(
-                    source, pending, contracts, site, frame,
+                    input,
+                    source,
+                    pending,
+                    contracts,
+                    site,
+                    dynamic_source_calls,
+                    frame,
                 )
             })
             .map(|frame| Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)))
@@ -693,26 +724,42 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         });
     }
     if let BorrowedCallActualRequestV1::Observe(input, actuals) = request {
-        let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-            source,
-            contracts,
-            site,
-            actuals,
-            candidates,
-            receiver,
-            nullable_class,
-        )
-        .and_then(|mut rows| {
-            super::super::lexical_instance_call::bind_argument_sources_v1(
-                input,
-                source.as_ref().map_err(Clone::clone)?,
-                Some(contracts),
-                site,
-                pending.get(site),
-                rows.as_mut(),
-            )?;
-            Ok(rows)
+        let mut dynamic_targets = dynamic_source_calls.iter().filter(|target| {
+            target.owner() == input.owner() && target.call_site() == site.site()
         });
+        let first_dynamic = dynamic_targets.next();
+        let prepared = match (first_dynamic, dynamic_targets.next()) {
+            (Some(target), None) => super::super::lexical_instance_call::
+                prepare_dynamic_invocation_argument_actuals_v1(
+                    input,
+                    target,
+                    actuals,
+                    pending.get(site),
+                )
+                .map(Some),
+            (Some(_), Some(_)) => Err("dynamic-argument/duplicate-source-target".to_owned()),
+            (None, Some(_)) => Err("dynamic-argument/duplicate-source-target".to_owned()),
+            (None, None) => super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+                source,
+                contracts,
+                site,
+                actuals,
+                candidates,
+                receiver,
+                nullable_class,
+            )
+            .and_then(|mut rows| {
+                super::super::lexical_instance_call::bind_argument_sources_v1(
+                    input,
+                    source.as_ref().map_err(Clone::clone)?,
+                    Some(contracts),
+                    site,
+                    pending.get(site),
+                    rows.as_mut(),
+                )?;
+                Ok(rows)
+            }),
+        };
         super::super::lexical_instance_call::stage_observed_call_actuals_v1(
             pending, site, prepared,
         );
@@ -786,11 +833,20 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             return Ok(None);
         }
     }
-    if matches!(
-        request,
-        BorrowedCallActualRequestV1::I64ResultArguments
-            | BorrowedCallActualRequestV1::ScalarArguments
-    ) {
+    if matches!(request, BorrowedCallActualRequestV1::I64ResultArguments) {
+        if let Some(arguments) =
+            super::super::lexical_instance_call::project_pending_i64_result_arguments_v1(
+                source, pending, contracts, results, site,
+            )
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            })?
+        {
+            return Ok(Some(BorrowedCallArgumentsV1::Scalar(arguments)));
+        }
+    }
+    if matches!(request, BorrowedCallActualRequestV1::ScalarArguments) {
         if let Some(arguments) =
             super::super::lexical_instance_call::project_pending_instance_source_arguments_v1(
                 source, pending, contracts, site,
@@ -823,10 +879,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|row| row.map(BorrowedCallArgumentsV1::StaticSource))
         }
         BorrowedCallActualRequestV1::I64ResultArguments => {
-            super::super::lexical_instance_call::project_pending_i64_result_arguments_v1(
-                source, pending, results, site,
-            )
-            .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
+            Ok(None)
         }
         BorrowedCallActualRequestV1::ScalarArguments => {
             super::super::lexical_instance_call::project_pending_borrowed_i64_arguments_v1(
@@ -837,11 +890,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         BorrowedCallActualRequestV1::StoredMapGetSource
         | BorrowedCallActualRequestV1::StoredMapSource
         | BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
-        | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
+        | BorrowedCallActualRequestV1::NamedArrayAppendStatement { .. }
         | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }
         | BorrowedCallActualRequestV1::DynamicInvocationSource { .. }
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)
-        | BorrowedCallActualRequestV1::CompleteArgumentExpression(..)
+        | BorrowedCallActualRequestV1::ArgumentExpressionCarrierArrayAppendSource { .. }
+        | BorrowedCallActualRequestV1::CompleteArgumentExpression { .. }
         | BorrowedCallActualRequestV1::ArgumentTextEntryRead { .. }
         | BorrowedCallActualRequestV1::FieldArrayTextEntryRead { .. }
         | BorrowedCallActualRequestV1::FiniteEntryRead { .. }

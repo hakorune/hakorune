@@ -1,7 +1,7 @@
 //! Existing CoreMethod source issuer extended with conditional named Array rows.
 //! Production activation waits for the retained artifact consumer, not a flag.
 use super::core_method::{nearest_loop, SourceBoundCoreMethodTargetIssueV1 as E};
-use super::{issue_source_bound_core_method_calls_v1, VerifiedSourceBoundCoreMethodCallV1};
+use super::VerifiedSourceBoundCoreMethodCallV1;
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
@@ -49,12 +49,18 @@ pub(crate) fn issue_source_bound_core_method_calls_with_named_arrays_v1(
     brands: &VerifiedBrandProgramDeclarationCatalogV1,
     constructors: Option<&VerifiedInstanceConstructorSemanticBatchV1>,
     caller_box: &str,
+    dynamic_sources: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<NamedArrayIssuedCallsV1, E> {
     // Existing Text producers are sealed first; lexical source ordering must
     // not determine whether a nested substring can satisfy its parent's demand.
-    let mut rows = Vec::from(issue_source_bound_core_method_calls_v1(ledger)?)
-        .into_iter()
-        .collect::<BTreeMap<_, _>>();
+    let mut rows = Vec::from(
+        super::core_method::issue_source_bound_core_method_calls_with_dynamic_sources_v1(
+            ledger,
+            dynamic_sources,
+        )?,
+    )
+    .into_iter()
+    .collect::<BTreeMap<_, _>>();
     let mut field_providers = Vec::new();
     for (site, call) in ledger.method_calls() {
         let Some(manifest) =
@@ -81,6 +87,18 @@ pub(crate) fn issue_source_bound_core_method_calls_with_named_arrays_v1(
             continue;
         }
         if manifest.op != CoreMethodOp::ArrayPush {
+            continue;
+        }
+        // Dynamic call results keep their Dynamic source/lifecycle contract.
+        // Leave them to the owned-carrier source path, which must separately
+        // prove this candidate is accepted; never coerce it to Text here.
+        if call.arguments().first().is_some_and(|argument| {
+            dynamic_sources.iter().any(|source| {
+                source.owner() == ledger.owner()
+                    && source.call_site() == argument.site()
+                    && source.result_site() == argument.site()
+            })
+        }) {
             continue;
         }
         let mut candidates = Vec::new();

@@ -555,6 +555,38 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
+    /// Return the producer recorded for this exact literal Return source.
+    /// Source Loop accounting borrows the same terminal owner; it must not
+    /// rediscover a Const by scanning the emitted function.
+    pub(crate) fn terminal_literal_producer_v1(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Result<Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>, String> {
+        if !matches!(
+            self.terminal_relation_for_owner_at(owner, site),
+            Some(TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::BoolLiteral(_))
+        ) {
+            return Ok(None);
+        }
+        let emission = if self.terminal_scalar_uses_child_storage(owner, site) {
+            self.terminal_scalar_literal_values
+                .borrow()
+                .get(&(owner, site.clone()))
+                .cloned()
+        } else {
+            self.terminal_scalar_literal_value.borrow().get(site).cloned()
+        }
+        .ok_or_else(|| "[freeze:contract][ordinary-new/literal-unconsumed]".to_string())?;
+        let producer = emission
+            .producer
+            .ok_or_else(|| "[freeze:contract][ordinary-new/literal-producer-missing]".to_string())?;
+        if emission.returned.is_none() {
+            return Err("[freeze:contract][ordinary-new/literal-return-missing]".into());
+        }
+        Ok(Some(producer))
+    }
+
     pub(crate) fn complete_terminal_literal_return_v1(
         &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceStmtSiteV1, bindings: &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],

@@ -102,6 +102,30 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(())
     }
 
+    /// Exact installed-field writes retain their own source and finished graph.
+    pub(in crate::mir) fn visit_finished_map_field_installs_v1(
+        &self, module: &MirModule,
+        mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for owner in self.local_calls.keys() {
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                let function = module.functions.get(symbol).ok_or_else(|| freeze("final-provider/function-missing"))?;
+                let context = CallValidationContextV1::Finalized(self);
+                context.with_local_call_group_tree_v2(*owner, |groups| {
+                    for group in groups {
+                        let Some(packet) = group.map_field_install() else { continue; };
+                        group.validate_recorded_in_context(context, function, Some(projection))?;
+                        packet.frame().source().receiver_v1().require_finished_birth_v1(self, module)?;
+                        let row = packet.invoke();
+                        visit(function, projection.binding(row.0, &row.1)?.ok_or_else(|| freeze("map-get-binding-missing"))?)?;
+                    }
+                    Ok(())
+                })
+            })?;
+        }
+        Ok(())
+    }
+
     /// Finished condition correspondence for one original entry owner. No new
     /// source classification or executable operand is issued by this visitor.
     pub(in crate::mir) fn with_finished_bool_bindings_v1(
@@ -116,20 +140,6 @@ impl FinalizedRootSourceHandoffV1 {
                     visit(coordinate, binding.1)
                 })
         })
-    }
-
-    pub(in crate::mir) fn visit_finished_construction_writes_v1(
-        &self, module: &MirModule,
-        mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,
-    ) -> Result<(), String> {
-        for (key, validation) in &self.construction {
-            let symbol = module.canonical_callable_definition_symbol(key)
-                .ok_or_else(|| freeze("final-provider/definition-missing"))?;
-            let function = module.functions.get(symbol)
-                .ok_or_else(|| freeze("final-provider/function-missing"))?;
-            validation.visit_finished_field_writes_v1(key, function, |row| visit(function, row))?;
-        }
-        Ok(())
     }
 
     /// Exact finite-entry Local copies and SAME source-Loop edge transports.
@@ -148,7 +158,7 @@ impl FinalizedRootSourceHandoffV1 {
                         for original in packet.incoming_copy_bindings_v2(function, projection)? {
                             if let Some(finished) = projection.relation_binding(function, &original)? {
                                 let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
-                                visit(&original, coordinate)?;
+                                visit(&finished, coordinate)?;
                             }
                         }
                     }
@@ -165,7 +175,7 @@ impl FinalizedRootSourceHandoffV1 {
                         if !matches!(original.1, MirInstruction::Copy { .. }) { return Err(freeze("finished-copy/packet")); }
                         if let Some(finished) = projection.relation_binding(function, original)? {
                             let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
-                            visit(original, coordinate)?;
+                            visit(&finished, coordinate)?;
                         }
                     }
                 }
@@ -195,6 +205,20 @@ impl FinalizedRootSourceHandoffV1 {
                 Ok(())
             })
         })
+    }
+
+    pub(in crate::mir) fn visit_finished_construction_writes_v1(
+        &self, module: &MirModule,
+        mut visit: impl FnMut(&MirFunction, (BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for (key, validation) in &self.construction {
+            let symbol = module.canonical_callable_definition_symbol(key)
+                .ok_or_else(|| freeze("final-provider/definition-missing"))?;
+            let function = module.functions.get(symbol)
+                .ok_or_else(|| freeze("final-provider/function-missing"))?;
+            validation.visit_finished_field_writes_v1(key, function, |row| visit(function, row))?;
+        }
+        Ok(())
     }
 
     /// Return loans tied to the retained pool, not the visitor's callback borrow.
@@ -338,6 +362,108 @@ impl FinalizedRootSourceHandoffV1 {
             Ok(())
         })?;
         if matching != 1 { return Err(freeze("final-constructor-call/coordinate-membership")); }
+        Ok(())
+    }
+}
+
+/// Ephemeral final view of one source carrier. Construction stays with the
+/// original Loop owner and its existing finished projection, never MIR search.
+pub(in crate::mir) struct FinalizedTextLoopViewV2 {
+    pub(in crate::mir) slot: ValueId,
+    pub(in crate::mir) edges: Vec<((BasicBlockId, MirInstruction), BasicBlockId, ValueId)>,
+    pub(in crate::mir) dependencies: Vec<(BasicBlockId, MirInstruction)>,
+    pub(in crate::mir) operations: Vec<(BasicBlockId, MirInstruction)>,
+    pub(in crate::mir) normal_ends: Vec<((BasicBlockId, MirInstruction), ValueId)>,
+}
+impl FinalizedRootSourceHandoffV1 {
+    pub(in crate::mir) fn visit_finished_text_loops_v2(
+        &self, module: &MirModule,
+        mut visit: impl FnMut(&MirFunction, &FinalizedTextLoopViewV2) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.validate_finalized_root_cleanup_v1(module)?;
+        for ((owner, _), role) in self.ledger.loop_cond_after_roles.borrow().iter() {
+            let Some(proof) = role.source_proof_v2() else { continue; };
+            if proof.product().source.source.owner() != *owner {
+                return Err(freeze("source-loop/aggregate-correspondence"));
+            }
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                let function = module.functions.get(symbol)
+                    .filter(|function| function.signature.name == symbol)
+                    .ok_or_else(|| freeze("finished-local-call/child-not-finished"))?;
+                let mut views = std::collections::BTreeMap::<ValueId, FinalizedTextLoopViewV2>::new();
+                proof.visit_text_edges_v2(|slot, original_phi, predecessor, incoming, originals, normal_ends| {
+                    let phi = projection.relation_binding(function, original_phi)?
+                        .ok_or_else(|| freeze("source-loop/phi-removed"))?;
+                    let predecessor = projection.destination(predecessor)
+                        .ok_or_else(|| freeze("source-loop/aggregate-correspondence"))?;
+                    if !matches!(&phi.1, MirInstruction::Phi { inputs, .. }
+                        if inputs.iter().filter(|(pred, value)| *pred == predecessor && *value == incoming).count() == 1) {
+                        return Err(freeze("source-loop/phi-kind"));
+                    }
+                    let view = views.entry(slot).or_insert_with(|| FinalizedTextLoopViewV2 {
+                        slot, edges: Vec::new(), dependencies: Vec::new(), operations: Vec::new(), normal_ends: Vec::new(),
+                    });
+                    view.edges.push((phi, predecessor, incoming));
+                    // A port's normal suffix may End a local while retaining
+                    // the current carrier. Fault has no such retention grant.
+                    for original in normal_ends {
+                        let finished = projection.binding(original.0, &original.1)?
+                            .ok_or_else(|| freeze("finished-local-call/producer-removed"))?;
+                        if !projection.recorded().contains(&finished) {
+                            return Err(freeze("finished-local-call/producer-unrecorded"));
+                        }
+                        super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                        if !view.normal_ends.contains(&(finished.clone(), incoming)) {
+                            view.normal_ends.push((finished, incoming));
+                        }
+                    }
+                    for original in originals {
+                        if let Some(finished) = projection.relation_binding(function, original)? {
+                            if !view.dependencies.contains(&finished) { view.dependencies.push(finished); }
+                        }
+                    }
+                    Ok(())
+                })?;
+                if views.is_empty() { return Ok(()); }
+                let context = CallValidationContextV1::Finalized(self);
+                let mut originals = proof.bindings().to_vec();
+                context.with_local_call_groups_v1(*owner, |groups| {
+                    for group in groups { originals.extend_from_slice(group.bindings()); }
+                    Ok(())
+                })?;
+                // Return-expression packets keep their original scope even
+                // when direct terminal entries have moved into this handoff.
+                for ((exit_owner, _), progress) in self.ledger.root_exits.borrow().iter() {
+                    if exit_owner != owner { continue; }
+                    let order = match progress {
+                        RootHomeExitProgress::Emitted { order, bindings, .. } => {
+                            originals.extend_from_slice(bindings); order
+                        }
+                        RootHomeExitProgress::Finalized(order) => order,
+                        _ => continue,
+                    };
+                    originals.extend(order.return_expression_bindings_v1(context)?);
+                }
+                let mut operations = Vec::new();
+                for original in originals {
+                    let selected = matches!(original.1,
+                        MirInstruction::StringResidenceInstall { .. } | MirInstruction::Invoke { .. });
+                    if !selected { continue; }
+                    let finished = projection.binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("finished-local-call/producer-removed"))?;
+                    if !projection.recorded().contains(&finished) {
+                        return Err(freeze("finished-local-call/producer-unrecorded"));
+                    }
+                    super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                    if !operations.contains(&finished) { operations.push(finished); }
+                }
+                for mut view in views.into_values() {
+                    view.operations.clone_from(&operations);
+                    visit(function, &view)?;
+                }
+                Ok(())
+            })?;
+        }
         Ok(())
     }
 }

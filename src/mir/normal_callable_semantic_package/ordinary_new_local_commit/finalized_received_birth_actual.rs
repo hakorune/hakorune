@@ -42,6 +42,18 @@ impl FinalizedRootSourceHandoffV1 {
         // obligation may be Fresh, Forward or Null; removing it from Normal
         // Homes does not make every outcome owned.
         let (result_kind, release) = match original.result() {
+            LocalCallResultClassV1::Handle => {
+                let call = self.ledger.handle_call_source(original.site())
+                    .ok_or_else(|| freeze("received-birth/acquisition"))?;
+                if call.owner() != binding.owner()
+                    || call.site() != original.site()
+                    || call.local_binding() != original.local_binding()
+                    || original.local_binding().is_none()
+                {
+                    return Err(freeze("received-birth/acquisition-identity"));
+                }
+                (InvokeCallResultKind::Handle, CallReceivedReleaseV1::Handle)
+            }
             LocalCallResultClassV1::Nullable => {
                 self.ledger.borrowed_nullable_actual_class_v1(binding)?
                     .ok_or_else(|| freeze("received-birth/nullable-source-required"))?;
