@@ -17,7 +17,7 @@ type Finished = super::super::super::physical_boundary::FinishedBindings;
 mod source;
 #[path = "bool_condition_control.rs"]
 mod control;
-pub(in crate::mir) use control::borrowed_source_loop_phi_relations_v2;
+pub(in crate::mir) use source::borrowed_source_loop_phi_relations_v2;
 
 /// Cursors are observations at the existing recursive descent boundary.
 /// They never select source children or issue a value/operation contract.
