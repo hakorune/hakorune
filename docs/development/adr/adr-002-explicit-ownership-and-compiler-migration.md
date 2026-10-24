@@ -1,7 +1,7 @@
 # ADR-002: 明示する所有操作と共通ownership passへの移行
 
-Status: 設計方向を採用。新構文・全面切替の実装は未選択。
-Date: 2026-10-23
+Status: 設計方向を採用。意味契約の一部と新構文・全面切替の実装は未選択。
+Date: 2026-10-24
 Scope: 次期所有モデルの判断・未決点・移行タスクをここへ集約する。
 
 現在の言語意味論は[ownership.md](../../reference/language/ownership.md)、
@@ -46,9 +46,11 @@ return q
 | copy | 複製可能な型、Boxの新identity、入れ子の所有値・Shared・弱参照・失敗時の扱い。 |
 | share / mut | Sharedの変更手段と同期、read/mutの排他区間、再入・FFI・suspendとの関係。shareだけでは安全性を発行しない。 |
 | 構文と借用 | 宣言側read/mut/takeと呼出し側の表記、受け側takeとmove実引数の照合、借用を保存できる場所。 |
+| Dynamic carrierのread | 生存中の`SelfContainedDynamicCarrier`を通常callableの`read`入力へ渡す時、callerがcarrierを保持してcall終了後に一度だけEndし、calleeは保持・escape・returnしない。`take`/`share`や追加ownerを発行しない。このsource/ABI/lifecycle接続を明示して検証する。 |
 | 型検査 | 推論対象・注釈必須境界・明示Dynamic・診断時点。未解決型を暗黙Dynamicにしない。 |
 | 再代入と失敗 | RHSを評価して成功後にcommit、旧値のEnd。moveの消費時点、copy失敗、Fault時の責任を各辺で保持。 |
 | 既存互換 | alias、destination-demand移転、anchored borrowed returnを置換する範囲と一回の切替条件。 |
+| MIRを使う比較 | 挙動不変の整理では旧MIRを診断資料として比較する。所有規則自体を変える移行では採用済みの新source契約と明示migration例を正解とし、旧MIRの挙動を規範にしない。 |
 
 既存Mapの削除はBool結果である。上のremove/replace方針から、既存APIを所有値返却へ
 自動変更しない。APIごとの取り出し契約は移行時に明記する。
@@ -86,7 +88,7 @@ LLVM noaliasはmutの綴りから発行せず、実際の排他区間と到達�
 | 現在 | APP-json-streamのArray carrier source・commit・Endを接続 | 既存EXE smokeの全契約と出力/exit。新所有構文へ入力を書換えない。 |
 | 準備 | 数本の既存.hakoを紙上移行し、上の境界を決着 | record、Box、Array/Mapを含む少数例でmove/copy/share数・必要コピー・借用困難点を比較。copyの意味を決める前に単なる語数で評価しない。 |
 | 1 | 代表recordのmove/returnをsource→ownership検査→End→EXEへ接続 | 移転後使用とborrowed returnを拒否。同じ入力で既存SSAを本番consumerへ接続し、未接続passを作らない。置換した同一source専用edgeは検証後同seriesで退役。 |
-| 2 | 同じ型のcopyとread/mut/take callをEXEまで接続 | copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任。旧の同一source/ABI専用adapterを切替と同じseriesで退役。 |
+| 2 | 同じ型のcopyとread/mut/take callをEXEまで接続 | copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任。Dynamic carrierのreadはcallerがEnd責任を維持し、calleeへownerを渡さない。旧の同一source/ABI専用adapterを切替と同じseriesで退役。 |
 | 3 | 同じ所有型のEndを分岐/loop/再代入/Invokeへ拡張 | Return/Faultでの終了順と一度だけの消費。必要時だけdrop flag。意味が一致しcaller-zeroとなった専有HomeRelease等だけ削除。 |
 | 後続 | Box/container/Sharedへ同じ契約を広げる | 型別identity・slot commit・read支持・Endを各既存ownerで閉じる。未選択機能を現行finite goalへ追加しない。 |
 

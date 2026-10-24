@@ -891,6 +891,16 @@ may be admitted when its dedicated CFG proof closes.
 Home Flow must not synthesize an owner PHI or repair a conflict with hidden
 sharing.
 
+For a loop-carried Text value, a Static/Owned descriptor selects the current
+representation; the descriptor itself is not a Home. Its source-proved local
+residency obligation remains distinct from a borrowed Text view, including a
+view of an owned string. A rebind evaluates its RHS before committing the new
+residency and discharging the displaced owned value; Static has no End. RHS
+Fault does not publish the candidate. Backedge/continue preserve the current
+obligation; loop exit and Return discharge or explicitly transfer it once.
+The descriptor's kind may implement the physical conditional-End predicate,
+but only the original source residency proof authorizes that End.
+
 A self-contained Dynamic call result is not automatically one Home. It may be
 a trivial, owner-bearing, or weak payload inside one opaque carrier. Recipe
 `Dynamic`, runtime tags, and physical result decoding cannot choose a Home

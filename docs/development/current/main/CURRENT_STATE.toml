@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary_trees_exe: ordinary-new/borrowed-result/source-not-i64 at iterationCheck loop-carried sum using itemCheck()"
+current_blocker_token = "binary_trees_exe: ordinary-new/borrowed-result/source-not-i64; Dynamic child fields lack complete paired source, Object Home store and stored-call result proof"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-binary-tree
 latest_card_summary = """
 APP-typed-object-untyped-field-min PASS: checked Dynamic FieldGet, exact Array Home transfer and expected EXE exit 7.
 Fixed suite 9/11 PASS with current opt1 quick CLI; no timeout/SKIP.
-Remaining suite stops: boxtorrent-mini stored-child receiver; binary-trees borrowed-result/source-not-i64.
-Selected: APP-binary-trees; stop is iterationCheck's loop-carried sum from itemCheck().
-Next: source/oracle tracing, then connect result through the canonical loop consumer.
+Remaining stops: boxtorrent-mini stored-child receiver; binary-trees source-not-i64 in recursive itemCheck.
+Binary-trees Dynamic children lack complete paired construction proof and a production Object Home store.
+Next: connect exact constructor, nullable child, stored-call and result provenance without widening Dynamic arithmetic.
 """
 next_design_card = "none"
 next_design_card_path = "none"
