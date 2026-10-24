@@ -13,7 +13,7 @@ typedef struct {
 
 enum {
   LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL,
-  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW, LV4_OWNED_STRING, LV4_SLOT_BORROW, LV4_BORROWED_OBJECT, LV4_MIXED_OBJECT, LV4_DYNAMIC_CARRIER
+  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW, LV4_OWNED_STRING, LV4_SLOT_BORROW, LV4_BORROWED_OBJECT, LV4_MIXED_OBJECT, LV4_DYNAMIC_CARRIER, LV4_TEXT_OPERAND
 };
 
 static uint32_t lv4_u(yyjson_val* object, const char* key) {
@@ -88,20 +88,34 @@ static size_t lv4_value_budget(yyjson_val* fn) {
 #include "hako_llvmc_ffi_lifecycle_v4_index.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_native_admission.inc"
 
+/* Descriptor availability never creates a Home. Only Phi edge transfer may
+ * move an existing obligation into its dedicated carrier slot. */
+static int lv4_text_readable(hako_lv4_function_index* fn, hako_lv4_value* value,
+    const hako_lv4_state* state) {
+  if (!value || (value->kind != LV4_TEXT && value->kind != LV4_OWNED_STRING && value->kind != LV4_TEXT_OPERAND)) return 0;
+  int origin = lv4_text_origin(fn, value);
+  if (origin == -1) return 1;
+  if (origin < 0 || (size_t)origin >= lv4_state_count(fn)) return 0;
+  hako_lv4_state rank = lv4_string_rank(state[origin]);
+  return rank > LV4_STRING_RANK_BASE && rank < LV4_STRING_LIMIT;
+}
+
 /* Formal read admission borrows the completed value index, independently of flow. */
 static yyjson_val* lv4_borrowed_formal_parameter(hako_lv4_function_index* fn, hako_lv4_value* value) {
-  if (!value || value->kind != LV4_TAGGED || !lv4_is_ordinary(fn->function)) return NULL;
+  if (!value || (value->kind != LV4_TAGGED && value->kind != LV4_I64 && value->kind != LV4_BOOL) || !lv4_is_ordinary(fn->function)) return NULL;
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
-    if (lv4_u(param, "value") == root->id && lv4_is(param, "representation", "borrowed_kind_payload_v1")) return param;
+    if (lv4_u(param, "value") == root->id && lv4_is(param, "representation", "borrowed_kind_payload_v1") &&
+        (value->kind == LV4_TAGGED || (value->kind == LV4_I64 && yyjson_is_true(yyjson_obj_get(param, "integer_view"))) ||
+         (value->kind == LV4_BOOL && yyjson_is_true(yyjson_obj_get(param, "bool_view"))))) return param;
   }
   return NULL;
 }
 static int lv4_borrowed_formal_domain(hako_lv4_function_index* fn, hako_lv4_value* value, int text) {
   yyjson_val* param = lv4_borrowed_formal_parameter(fn, value);
-  return param && yyjson_is_true(yyjson_obj_get(param, "text_view")) == text;
+  return value && value->kind == LV4_TAGGED && param && yyjson_is_true(yyjson_obj_get(param, "text_view")) == text;
 }
 
 static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_value* value) {
@@ -164,6 +178,7 @@ static int lv4_string_indexed_operand(hako_lv4_function_index* fn, yyjson_val* o
     const hako_lv4_state* state) {
   if (lv4_is(operand, "kind", "static_text")) return 1;
   hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
+  if (lv4_is(operand, "kind", "text_operand")) return lv4_text_readable(fn, value, state);
   if (lv4_is(operand, "kind", "normal_integer")) return value && value->kind == LV4_I64;
   if (lv4_is(operand, "kind", "borrowed_text")) return lv4_borrowed_text_formal(fn, value);
   if (lv4_is(operand, "kind", "tagged_dynamic"))

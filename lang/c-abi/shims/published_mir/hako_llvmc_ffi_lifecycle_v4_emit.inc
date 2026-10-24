@@ -207,14 +207,21 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         /* Validated lifecycle handoff preserves the existing handle/token pair. */
       } else if (lv4_is(ins, "op", "array_residence_release")) {
         fprintf(f, "  call void @nyrt_handle_release_h(i64 %%v%u)\n", lv4_u(ins, "value"));
+      } else if (lv4_is(ins, "op", "const_string")) {
+        lv4_string_constant_emit(f, ins, fi);
       } else if (lv4_is(ins, "op", "copy")) {
         uint32_t src = lv4_u(ins, "src");
         int kind = lv4_input_type(in, fn, src);
+        if (lv4_input_type(in, fn, dst) == LV4_TEXT_OPERAND) {
+          fprintf(f, "  %%text%u = select i1 true, %%nyrt.string.operand %%text%u, %%nyrt.string.operand zeroinitializer\n", dst,src);
+          continue;
+        }
         if (kind == LV4_F64)
           fprintf(f, "  %%copy_bits%u = bitcast double %%v%u to i64\n"
               "  %%v%u = bitcast i64 %%copy_bits%u to double\n", dst, src, dst, dst);
         else fprintf(f, "  %%v%u = add i64 0, %%v%u\n", dst, src);
-        if (kind == LV4_TAGGED)
+        if (kind == LV4_TAGGED || (!in->native && lv4_borrowed_formal_parameter(&in->index[fi],
+            lv4_index_value(&in->index[fi], dst))))
           fprintf(f, "  %%k%u = add i32 0, %%k%u\n", dst, src);
       } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
         uint32_t alhs = lv4_u(ins, "lhs"), arhs = lv4_u(ins, "rhs");
@@ -280,7 +287,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               lv4_is(ins, "predicate", "ne") ? 1 : 0);
       } else if (lv4_is(ins, "op", "phi")) {
         yyjson_val* inputs = yyjson_obj_get(ins, "inputs");
-        fprintf(f, "  %%v%u = phi i64 ", dst);
+        int text = lv4_input_type(in, fn, dst) == LV4_TEXT_OPERAND;
+        fprintf(f, "  %%%s%u = phi %s ", text ? "text" : "v", dst, text ? "%nyrt.string.operand" : "i64");
         for (size_t pi = 0; pi < yyjson_arr_size(inputs); pi++) {
           yyjson_val* input = yyjson_arr_get(inputs, pi);
           uint32_t pred = lv4_u(input, "block");
@@ -292,7 +300,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           if (ordinal == yyjson_arr_size(incoming)) return 0;
           char label[64];
           lv4_edge_label(label, in, fi, pred, ordinal, b);
-          fprintf(f, "%s[ %%v%u, %%%s ]", pi ? ", " : "", lv4_u(input, "value"), label);
+          fprintf(f, "%s[ %%%s%u, %%%s ]", pi ? ", " : "", text ? "text" : "v", lv4_u(input, "value"), label);
         }
         fprintf(f, "\n");
       } else if (lv4_is(ins, "op", "invoke_normal_result")) {
@@ -304,12 +312,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             kind == LV4_OUTCOME ? "outcome" : kind == LV4_MAP_VIEW ? "view" :
             kind == LV4_TEXT_VIEW ? "text" : NULL;
         if (kind == LV4_OWNED_STRING) {
-          uint32_t producer_id = lv4_u(ins, "invoke_block");
-          fprintf(f,
-              "  %%v%u = load i64, ptr %%strout%u, align 8\n"
-              "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
-              "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
-              dst, producer_id, dst, producer_id, dst, dst);
+          lv4_string_result_emit(f, dst, lv4_u(ins, "invoke_block"));
         } else if (kind == LV4_DYNAMIC_CARRIER && lv4_is(producer_op, "kind", "dynamic_invoke"))
           fprintf(f, "  %%v%u = load i64, ptr %%dynout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && lv4_is(producer_op, "kind", "dynamic_carrier_integer"))
@@ -597,6 +600,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_owned_array_kind(op)) {
         lv4_owned_array_emit_call(f, op, b, site);
+
       } else if (lv4_is(op, "kind", "script_arguments_new")) {
         fprintf(f, "@\"nyash.array.checked_script_arguments_new_v1\"(ptr %%frame, i64 %llu, ptr @argv_%zu_%u, i64 %zu, ptr %%new%u)\n",
             site, fi, b, yyjson_arr_size(yyjson_obj_get(op, "values")), b);

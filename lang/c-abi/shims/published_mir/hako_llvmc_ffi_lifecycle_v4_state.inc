@@ -21,9 +21,14 @@ static hako_lv4_state lv4_map_transfer(int origin) {
 #define LV4_STRING_NEW (UINT64_C(1) << 62)
 #define LV4_STRING_RETURN (UINT64_C(1) << 61)
 #define LV4_STRING_CALL_HELD (UINT64_C(1) << 60)
+/* Carrier descriptors can be live Static, Owned, or either after a join.
+ * A virtual Home rank also orders Static residences; zero means spent. */
+#define LV4_STRING_STATIC (UINT64_C(1) << 59)
+#define LV4_STRING_OWNED (UINT64_C(1) << 58)
+#define LV4_STRING_POSSIBLE (LV4_STRING_STATIC | LV4_STRING_OWNED)
 #define LV4_STRING_REPLACEMENT (LV4_STRING_OLD | LV4_STRING_NEW)
 static hako_lv4_state lv4_string_rank(hako_lv4_state state) {
-  return state & ~(LV4_STRING_REPLACEMENT | LV4_STRING_RETURN | LV4_STRING_CALL_HELD);
+  return state & ~(LV4_STRING_REPLACEMENT | LV4_STRING_RETURN | LV4_STRING_CALL_HELD | LV4_STRING_POSSIBLE);
 }
 static int lv4_string_pending(const hako_lv4_state* state, size_t count) {
   for (size_t i = 0; i < count; i++) if (state[i] & LV4_STRING_REPLACEMENT) return 1;
@@ -74,7 +79,7 @@ static int lv4_string_push(const hako_lv4_state* state, size_t count,
 static int lv4_string_install(hako_lv4_state* state, size_t count, int origin, int replaces) {
   if (lv4_string_pending(state, count) || lv4_string_call_pending(state, count) || lv4_string_held(state, count) || replaces < -1 ||
       (replaces >= 0 && ((size_t)replaces >= count || replaces == origin ||
-          state[replaces] <= LV4_STRING_HOME_BASE || state[replaces] >= LV4_STRING_LIMIT))) return 0;
+          lv4_string_rank(state[replaces]) <= LV4_STRING_HOME_BASE || lv4_string_rank(state[replaces]) >= LV4_STRING_LIMIT))) return 0;
   if (origin < 0 || (size_t)origin >= count || state[origin] <= LV4_STRING_RANK_BASE ||
       state[origin] >= LV4_STRING_HOME_BASE || state[origin] !=
       lv4_string_domain_top(state, count, LV4_STRING_RANK_BASE, LV4_STRING_HOME_BASE)) return 0;
@@ -122,6 +127,21 @@ static int lv4_string_end(hako_lv4_state* state, size_t count, int origin, int f
   for (size_t i = 0; i < count; i++)
     if ((state[i] & LV4_STRING_CALL_HELD) && lv4_string_rank(state[i]) == top)
       state[i] &= ~LV4_STRING_CALL_HELD;
+  return 1;
+}
+
+/* The End attempt consumes on both outcomes. Only successful replacement
+ * occupies the displaced Home position; Fault keeps acquisition-order unwind. */
+static int lv4_string_end_paths(hako_lv4_state* failure, hako_lv4_state* normal,
+    size_t count, int origin, int faulted) {
+  int replacement = -1;
+  hako_lv4_state displaced = origin >= 0 && (size_t)origin < count ? failure[origin] : 0;
+  if (!faulted && (displaced & LV4_STRING_OLD))
+    for (size_t i = 0; i < count; i++) if (failure[i] & LV4_STRING_NEW) replacement = (int)i;
+  if (!lv4_string_end(failure, count, origin, faulted)) return 0;
+  memcpy(normal, failure, count * sizeof(*normal));
+  if (replacement >= 0) normal[replacement] =
+      (normal[replacement] & ~lv4_string_rank(normal[replacement])) | lv4_string_rank(displaced);
   return 1;
 }
 

@@ -5,7 +5,7 @@ typedef struct {
   uint32_t id, object_id;
   yyjson_val* instruction;
   yyjson_val* definition_block;
-  int kind, origin, object_id_set;
+  int kind, origin, object_id_set, kind_class;
   size_t kind_parent, alias_root;
   unsigned char alias_state, seed_state;
 } hako_lv4_value;
@@ -26,8 +26,12 @@ typedef struct hako_lv4_function_index {
   int receiver_object_set;
   uint32_t return_object;
   int return_object_state;
+  int has_text_carriers;
 } hako_lv4_function_index;
 
+static size_t lv4_state_count(const hako_lv4_function_index* fn) {
+  return fn->block_count + (fn->has_text_carriers ? fn->value_count : 0);
+}
 typedef struct hako_lv4_layout_index {
   uint32_t id;
   yyjson_val* row;
@@ -76,6 +80,20 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
   hako_lv4_block key = {0}; key.id = id;
   return bsearch(&key, fn->blocks, fn->block_count, sizeof(key), lv4_block_compare);
 }
+/* Copy borrows the current obligation. A Phi is a carrier location, not a
+ * transparent alias of a raw producer that executes again on the backedge. */
+static int lv4_text_origin(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  for (size_t steps = 0; value && steps <= fn->value_count; steps++) {
+    if (lv4_is(value->instruction, "op", "copy")) {
+      value = lv4_index_value(fn, lv4_u(value->instruction, "src"));
+      continue;
+    }
+    if (value->kind == LV4_TEXT) return -1;
+    return value->kind == LV4_TEXT_OPERAND || value->kind == LV4_OWNED_STRING ? value->origin : -2;
+  }
+  return -2;
+}
+
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_alias.inc"
 static int lv4_canonical_receiver(hako_lv4_function_index* fn, const hako_lv4_value* value) {
   return value && value->kind == LV4_HANDLE && value->origin == -2 &&
@@ -227,6 +245,10 @@ static int lv4_kind_unify(hako_lv4_function_index* fn, size_t index, uint32_t id
   size_t right = lv4_kind_root(fn, (size_t)(other - fn->values));
   if (left == right) return 1;
   int a = fn->values[left].kind, b = fn->values[right].kind;
+  int text_a = a == LV4_TEXT || a == LV4_OWNED_STRING || a == LV4_TEXT_OPERAND;
+  int text_b = b == LV4_TEXT || b == LV4_OWNED_STRING || b == LV4_TEXT_OPERAND;
+  if ((text_a && (text_b || b == LV4_BAD)) || (text_b && a == LV4_BAD))
+    a = b = LV4_TEXT_OPERAND;
   if (a != LV4_BAD && b != LV4_BAD && a != b) return 0;
   fn->values[right].kind_parent = left;
   fn->values[left].kind = a != LV4_BAD ? a : b;
@@ -249,15 +271,27 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
         if (!lv4_kind_unify(fn, i, lv4_u(yyjson_arr_get(inputs, j), "value"))) return 0;
     }
   }
+  for (size_t i = 0; i < fn->value_count; i++)
+    fn->values[i].kind_class = fn->values[lv4_kind_root(fn, i)].kind;
   for (size_t i = 0; i < fn->value_count; i++) {
     hako_lv4_value* value = &fn->values[i];
-    value->kind = fn->values[lv4_kind_root(fn, i)].kind;
+    int resolved = value->kind_class;
+    if (resolved == LV4_TEXT_OPERAND) {
+      if (lv4_is(value->instruction, "op", "const_string")) resolved = LV4_TEXT;
+      else if (lv4_is(value->instruction, "op", "invoke_normal_result")) resolved = LV4_OWNED_STRING;
+      else {
+        if (fn->block_count + i > INT_MAX) return 0;
+        fn->has_text_carriers = 1;
+        value->origin = lv4_is(value->instruction, "op", "phi") ? (int)(fn->block_count + i) : -1;
+      }
+    }
+    value->kind = resolved;
     if (value->kind == LV4_BAD) return 0;
   }
   for (size_t i = 0; i < fn->value_count; i++) {
     hako_lv4_value* value = &fn->values[i];
     if (!lv4_is(value->instruction, "op", "phi") ||
-        value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
+        value->kind == LV4_I64 || value->kind == LV4_BOOL || value->kind == LV4_TEXT_OPERAND) continue;
     hako_lv4_value* root = lv4_value_alias_root(fn, value);
     if (value->kind != LV4_HANDLE || !root || root == value || root->kind != LV4_HANDLE) return 0;
   }
@@ -267,6 +301,7 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     hako_lv4_value* value = &fn->values[i];
     if (!lv4_is(value->instruction, "op", "copy") &&
         !(value->kind == LV4_HANDLE && lv4_is(value->instruction, "op", "phi"))) continue;
+    if (value->kind == LV4_TEXT_OPERAND) continue;
     if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME ||
         value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW || value->kind == LV4_OWNED_STRING)
       return 0;

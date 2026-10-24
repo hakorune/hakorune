@@ -64,19 +64,6 @@ static int lv4_borrowed_typed_live(const hako_lv4_input* in,
 
 #include "hako_llvmc_ffi_lifecycle_v4_flow_workspace.inc"
 
-static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
-    const hako_lv4_state* state, int faulted) {
-  if (target >= work->count || target == work->entry) return 0;
-  hako_lv4_state* saved = work->states + target * work->count;
-  if (work->faults[target] >= 0)
-    return work->faults[target] == faulted &&
-        !memcmp(saved, state, work->count * sizeof(*state));
-  if (work->tail >= work->count) return 0;
-  memcpy(saved, state, work->count * sizeof(*state));
-  work->faults[target] = (signed char)faulted;
-  work->queue[work->tail++] = target;
-  return 1;
-}
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_return.inc"
 
@@ -86,7 +73,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   yyjson_val* blocks = hako_physical_blocks(fn->function);
   yyjson_val* block = yyjson_arr_get(blocks, bi);
   yyjson_val* term = lv4_term(block);
-  size_t count = fn->block_count;
+  size_t count = work->stride;
   int faulted = work->faults[bi];
   if (in->measurement) in->measurement->v4_flow_blocks++;
   hako_lv4_state *state = work->scratch, *normal = state + count;
@@ -101,9 +88,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   if (lv4_is(term, "op", "invoke")) {
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
-    if (lv4_string_pending(state, count) && !lv4_is(op, "kind", "string_end")) return 0;
+    if (lv4_string_pending(state, count) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))) return 0;
     if ((lv4_string_held(state, count) || lv4_string_call_pending(state, count)) && (lv4_is(op, "kind", "ordinary_call") ||
-        hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op) || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !lv4_is(op, "kind", "string_end")))) return 0;
+        hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op) || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))))) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
     } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
@@ -121,11 +108,13 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2 || hako_physical_map_field_text_read(op)) normal[bi] = LV4_LIVE;
-    } else if (lv4_is(op, "kind", "string_end")) {
+    } else if (lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (birth || !value || value->kind != LV4_OWNED_STRING ||
-          !lv4_string_end(state, count, value->origin, faulted)) return 0;
-      memcpy(normal, state, count * sizeof(*state));
+      int conditional = lv4_is(op, "kind", "string_end_if_owned");
+      if (birth || !value || (!conditional && value->kind != LV4_OWNED_STRING) ||
+          (conditional && !lv4_text_readable(fn, value, state))) return 0;
+      int origin = conditional ? lv4_text_origin(fn, value) : value->origin;
+      if (origin != -1 && !lv4_string_end_paths(state, normal, count, origin, faulted)) return 0;
     } else if (lv4_is(op, "kind", "ordinary_call")) {
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");
@@ -627,8 +616,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     int edge_faulted = ei ? failed : faulted;
     const hako_lv4_state* outgoing = ei ? state : normal;
     hako_lv4_state* projected = normal + count;
-    if (birth && edge_faulted) {
+    if (fn->has_text_carriers || (birth && edge_faulted)) {
       memcpy(projected, outgoing, count * sizeof(*projected));
+      if (fn->has_text_carriers && !lv4_text_edge(fn, lv4_u(block, "id"), next->block, outgoing, projected)) return 0;
+      outgoing = projected;
+    }
+    if (birth && edge_faulted) {
       if (!lv4_birth_drop_provided(in, fn, projected)) return 0;
       outgoing = projected;
     }
@@ -714,10 +707,11 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
        borrowed-frame projection; SSA validation still rejects undefined uses. */
     if (!entry || frames > 1 || (!fi && frames != 1) ||
         hako_physical_predecessor_count(fn->function, entry->id)) return 0;
-    if (!lv4_work_open(&work, count, entry->ordinal)) return 0;
+    if (!lv4_work_open(&work, count, lv4_state_count(fn), entry->ordinal)) return 0;
     int valid = 1;
-    while (valid == 1 && work.head < work.tail) {
-      size_t bi = work.queue[work.head++];
+    while (valid == 1 && work.pending) {
+      size_t bi = work.queue[work.head]; work.head = (work.head + 1) % work.count;
+      work.queued[bi] = 0; work.pending--;
       valid = lv4_indexed_flow_block(in, fi, bi, &work);
     }
     if (valid == LV4_FLOW_RECEIVER_MISMATCH) { lv4_work_close(&work); return valid; }

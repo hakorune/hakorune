@@ -144,6 +144,26 @@ Dynamic operand ABI and TypeError behavior. It creates no input owner or End.
 The separate Dynamic invocation ABI still refuses finite inputs containing Text;
 its tagged transport accepts tags0..3 and has no Text descriptor consumer.
 
+Text loop carriers use one immutable `%nyrt.string.operand` aggregate across
+original Copy/Phi rows. Raw constructors keep their acquisition kind/origin;
+Copy lends a read alias and stops at a Phi carrier location. Phi obligations
+move simultaneously on the exact predecessor edge: validate one source per
+obligation and occupied destinations against the snapshot, clear all sources,
+then install all destinations. Static virtual positions reserve ranks above
+all snapshot Homes, including Owned inputs not installed yet. Descriptor bits
+do not create a token or runtime Home.
+
+The existing invocation state gives Phi locations separate slots from raw
+producer origins, so a loop can reacquire the same raw SSA producer while its
+prior generation lives at the Header. Static is live and distinct from spent.
+Only carrier Static/Owned possibility bits join; rank, replacement/held flags,
+other resources and Fault state must agree. A bounded pending ring queue
+reprocesses changed states. `string_end_if_owned` skips runtime End for Static
+and uses the exact Owned handle/token otherwise; analysis conservatively checks
+both cleanup outcomes. Old-End Normal puts the new obligation at the displaced
+Home rank; Fault retains newest-first unwind. The source-backed Rust lifetime
+proof remains mandatory; these physical checks cannot issue source permission.
+
 This is the implemented consumer contract, not an execution acceptance claim.
 The unchanged app's canonical direct EXE/run/output/exit and independent source,
 wire-correspondence and Fault evidence must establish the complete connection.

@@ -18,6 +18,17 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
     yyjson_val* blocks = hako_physical_blocks(yyjson_arr_get(in->functions, fi));
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);
+      yyjson_val* rows = yyjson_obj_get(block, "instructions");
+      for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
+        yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
+        if (!lv4_is(ins, "op", "const_string")) continue;
+        yyjson_val* text = yyjson_obj_get(ins, "value");
+        size_t len = yyjson_get_len(text);
+        const unsigned char* bytes = (const unsigned char*)yyjson_get_str(text);
+        fprintf(f, "@ctext_%zu_%u = private unnamed_addr constant [%zu x i8] c\"", fi, lv4_u(ins, "dst"), len);
+        for (size_t i = 0; i < len; i++) fprintf(f, "\\%02X", bytes[i]);
+        fprintf(f, "\", align 1\n");
+      }
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       int call = lv4_is(op, "kind", "ordinary_call");
       if (!call && !hako_physical_string_operand_count(op)) continue;
@@ -38,6 +49,25 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
     }
   }
 }
+/* Immutable SSA descriptors are emitted only from original constructors. */
+static void lv4_string_constant_emit(FILE* f, yyjson_val* ins, size_t fi) {
+  uint32_t dst = lv4_u(ins, "dst");
+  size_t len = yyjson_get_len(yyjson_obj_get(ins, "value"));
+  fprintf(f, "  %%ctext%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 1, 0\n", dst);
+  fprintf(f, "  %%ctext%u_1 = insertvalue %%nyrt.string.operand %%ctext%u_0, ptr @ctext_%zu_%u, 2\n", dst,dst,fi,dst);
+  fprintf(f, "  %%text%u = insertvalue %%nyrt.string.operand %%ctext%u_1, i64 %zu, 3\n", dst,dst,len);
+}
+static void lv4_string_result_emit(FILE* f, uint32_t dst, uint32_t producer_id) {
+  fprintf(f,
+      "  %%v%u = load i64, ptr %%strout%u, align 8\n"
+      "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
+      "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
+      dst, producer_id, dst, producer_id, dst, dst);
+  fprintf(f, "  %%ctext%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 2, 0\n", dst);
+  fprintf(f, "  %%ctext%u_1 = insertvalue %%nyrt.string.operand %%ctext%u_0, i64 %%v%u, 4\n", dst,dst,dst);
+  fprintf(f, "  %%text%u = insertvalue %%nyrt.string.operand %%ctext%u_1, i64 %%t%u, 5\n", dst,dst,dst);
+}
+
 static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
   if (lv4_is(op, "kind", "ordinary_call")) {
     if (lv4_is(op, "result", "text"))
@@ -52,7 +82,7 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
     fprintf(f, "  %%strarg%u_0 = alloca %%nyrt.string.operand, align 8\n", b);
     return;
   }
-  if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end")) return;
+  if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned")) return;
   int result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind")));
   for (unsigned role = 0; role < hako_physical_string_operand_count(op); role++)
     fprintf(f, "  %%strarg%u_%u = alloca %%nyrt.string.operand, align 8\n", b, role);
@@ -64,6 +94,10 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
   int owned = lv4_is(operand, "kind", "owned_string");
   int dynamic = lv4_is(operand, "kind", "tagged_dynamic");
   uint32_t value = lv4_u(operand, "value");
+  if (lv4_is(operand, "kind", "text_operand")) {
+    fprintf(f, "  store %%nyrt.string.operand %%text%u, ptr %%strarg%u_%u, align 8\n", value,b,role);
+    return;
+  }
   if (dynamic) {
     fprintf(f, "  %%str_dynamic_text%u_%u = icmp eq i32 %%k%u, 4\n", b,role,value);
     fprintf(f, "  br i1 %%str_dynamic_text%u_%u, label %%str_dynamic_borrow%u_%u, label %%str_dynamic_scalar%u_%u\n",
@@ -125,7 +159,17 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
 static void lv4_string_emit(FILE* f, yyjson_val* op, size_t fi, uint32_t b,
     const char* normal, const char* fault) {
   unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
-  if (lv4_is(op, "kind", "string_end")) {
+  if (lv4_is(op, "kind", "string_end_if_owned")) {
+    uint32_t value = lv4_u(op, "value");
+    fprintf(f, "  %%end_kind%u = extractvalue %%nyrt.string.operand %%text%u, 0\n", b,value);
+    fprintf(f, "  switch i32 %%end_kind%u, label %%invalid [ i32 1, label %%end_static%u i32 2, label %%end_owned%u ]\n", b,b,b);
+    fprintf(f, "end_static%u:\n  br label %%end_join%u\nend_owned%u:\n", b,b,b);
+    fprintf(f, "  %%end_handle%u = extractvalue %%nyrt.string.operand %%text%u, 4\n", b,value);
+    fprintf(f, "  %%end_token%u = extractvalue %%nyrt.string.operand %%text%u, 5\n", b,value);
+    fprintf(f, "  %%end_status%u = call i32 @\"nyash.string.checked_end_v1\"(ptr %%frame, i64 %llu, i64 %%end_handle%u, i64 %%end_token%u)\n", b,site,b,b);
+    fprintf(f, "  br label %%end_join%u\nend_join%u:\n", b,b);
+    fprintf(f, "  %%status%u = phi i32 [ 0, %%end_static%u ], [ %%end_status%u, %%end_owned%u ]\n", b,b,b,b);
+  } else if (lv4_is(op, "kind", "string_end")) {
     uint32_t value = lv4_u(op, "value");
     fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_end_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%t%u)\n", b,site,value,value);
   } else {

@@ -2,7 +2,7 @@
  * This child borrows the caller's checked state; it issues no identity or role. */
 static int lv4_indexed_return(const hako_lv4_input* in,
     hako_lv4_function_index* fn, yyjson_val* term, hako_lv4_state* state, int faulted) {
-  size_t count = fn->block_count;
+  size_t count = lv4_state_count(fn);
   int birth = lv4_is(fn->function, "role", "birth_unit");
   int ordinary_bool = lv4_is(fn->function, "role", "ordinary_bool");
   int ordinary_map = lv4_is(fn->function, "role", "ordinary_map");
@@ -54,7 +54,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
     }
   }
   uint32_t return_block = 0;
-  for (size_t bi = 0; bi < count; bi++)
+  for (size_t bi = 0; bi < fn->block_count; bi++)
     if (lv4_term(fn->blocks[bi].block) == term) return_block = fn->blocks[bi].id;
   if (lv4_is(fn->function, "role", "ordinary_mixed_handle") && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));

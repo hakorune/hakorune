@@ -17,7 +17,9 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     if (lv4_is(ins, "op", "phi")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
       if (after_phi || !value) return 0;
-      if (value->kind == LV4_HANDLE) {
+      if (value->kind == LV4_TEXT_OPERAND) {
+        if (!lv4_text_readable(fn, value, state)) return 0;
+      } else if (value->kind == LV4_HANDLE) {
         if (!lv4_value_alias_root(fn, value) ||
             !lv4_handle_alias_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
       } else if (value->kind != LV4_I64 && value->kind != LV4_BOOL) return 0;
@@ -35,11 +37,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       yyjson_val* previous = yyjson_obj_get(ins, "replaces");
       hako_lv4_value* old = previous ? lv4_index_value(fn, lv4_u(ins, "replaces")) : NULL;
       if (faulted || birth || !value || value->kind != LV4_OWNED_STRING ||
-          (previous && (!old || old->kind != LV4_OWNED_STRING || old->origin < 0)) ||
+          (previous && (!old || (old->kind != LV4_OWNED_STRING && old->kind != LV4_TEXT_OPERAND) || lv4_text_origin(fn, old) < 0)) ||
           (yyjson_is_true(yyjson_obj_get(ins, "returning"))
               ? (previous || !lv4_is(fn->function, "role", "ordinary_text") ||
-                  !lv4_string_hold(state, fn->block_count, value->origin))
-              : !lv4_string_install(state, fn->block_count, value->origin, old ? old->origin : -1))) return 0;
+                  !lv4_string_hold(state, lv4_state_count(fn), value->origin))
+              : !lv4_string_install(state, lv4_state_count(fn), value->origin, old ? lv4_text_origin(fn, old) : -1))) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
       if (!root) {
@@ -64,6 +66,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !lv4_null_lane_present(fn)) return 0;
     } else if (lv4_is(ins, "op", "copy")) {
       hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
+      hako_lv4_value* dest = lv4_index_value(fn, lv4_u(ins, "dst"));
+      if (dest && dest->kind == LV4_TEXT_OPERAND) {
+        if (faulted || !lv4_text_readable(fn, source, state)) return 0;
+        continue;
+      }
       if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
           source->kind != LV4_HANDLE && source->kind != LV4_TAGGED && source->kind != LV4_SLOT_BORROW &&
           source->kind != LV4_BORROWED_OBJECT && source->kind != LV4_MIXED_OBJECT)) return 0;
