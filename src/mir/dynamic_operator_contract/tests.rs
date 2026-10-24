@@ -394,9 +394,12 @@ fn checked_comparisons_refuse_every_other_operand_domain() {
                     || (family == DynamicOperatorFamilyV1::Less
                         && left == DynamicOperatorValueClassV1::Dynamic
                         && matches!(right, DynamicOperatorValueClassV1::Dynamic | DynamicOperatorValueClassV1::I64))
-                    || (family == DynamicOperatorFamilyV1::Add
-                        && left == DynamicOperatorValueClassV1::String
+                    || (family == DynamicOperatorFamilyV1::Less
+                        && left == DynamicOperatorValueClassV1::I64
                         && right == DynamicOperatorValueClassV1::Dynamic)
+                    || (family == DynamicOperatorFamilyV1::Greater
+                        && left == DynamicOperatorValueClassV1::Dynamic
+                        && right == DynamicOperatorValueClassV1::I64)
                 {
                     assert_ne!(issue(family, left, right).unwrap().domain().left(),
                         DynamicOperatorValueClassV1::NormalInteger);

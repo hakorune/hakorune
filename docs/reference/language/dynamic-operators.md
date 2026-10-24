@@ -2,7 +2,7 @@
 
 Status: accepted language Decision; canonical semantic issuer and exact
 source/Recipe lifecycle consumer landed; physical activation 0
-Date: 2026-08-10
+Date: 2026-10-24
 
 ## Authority
 
@@ -22,6 +22,19 @@ DynamicAdd(Dynamic, I64):
   outcome     = Normal(SelfContainedNonAliasingDynamicCarrier)
               | Fault(TypeError)
   lifecycle   = EndExactlyOnceUnlessForwarded on Normal only
+
+DynamicSub(Dynamic, I64):
+  same effect/order/suspension/control/operand law
+  the Dynamic operand must contain a signed I64; subtraction wraps at 64 bits
+  outcome     = Normal(SelfContainedNonAliasingDynamicCarrier) | Fault(TypeError)
+  lifecycle   = EndExactlyOnceUnlessForwarded on Normal only
+  the input carrier remains live on both outcomes
+
+DynamicGreater(Dynamic, I64):
+  same effect/order/suspension/control/operand law
+  the Dynamic operand must contain a signed I64
+  outcome     = Normal(TrivialBool) | Fault(TypeError)
+  lifecycle   = none
 
 DynamicLess(Dynamic, Dynamic|I64):
   same effect/order/suspension/control/operand law

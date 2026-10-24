@@ -18,6 +18,18 @@ const ADD_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
     );
 
+const SUB_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Sub,
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::I64,
+        ),
+        DynamicOperatorNormalResultV1::SelfContainedNonAliasingDynamicCarrier,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
+    );
+
 const ADD_STRING_STRING: VerifiedDynamicOperatorExecutionEnvelopeV1 =
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
         DynamicOperatorDomainV1::new(
@@ -118,6 +130,15 @@ const LESS_I64_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
             DynamicOperatorValueClassV1::I64,
             DynamicOperatorValueClassV1::Dynamic,
         ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
+const GREATER_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(DynamicOperatorFamilyV1::Greater,
+            DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64),
         DynamicOperatorNormalResultV1::TrivialBool,
         DynamicOperatorSuspensionV1::MaySuspend,
         None,
@@ -415,6 +436,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::I64,
         ) => Ok(&ADD_DYNAMIC_I64),
         (
+            DynamicOperatorFamilyV1::Sub,
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::I64,
+        ) => Ok(&SUB_DYNAMIC_I64),
+        (
             DynamicOperatorFamilyV1::Less,
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::Dynamic,
@@ -424,6 +450,8 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::I64,
         ) => Ok(&LESS_DYNAMIC_I64),
+        (DynamicOperatorFamilyV1::Greater, DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::I64) => Ok(&GREATER_DYNAMIC_I64),
         (
             DynamicOperatorFamilyV1::Less,
             DynamicOperatorValueClassV1::I64,
