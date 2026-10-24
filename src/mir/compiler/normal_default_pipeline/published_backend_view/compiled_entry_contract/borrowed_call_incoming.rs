@@ -69,6 +69,28 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             Err(fault("borrowed-incoming/source-missing"))
         };
     };
+    // Source-declared entries are complete-empty by contract, so validate
+    // their original physical declaration before walking executable calls.
+    // This keeps malformed declaration parameters at the declaration gate
+    // instead of reporting a downstream call projection mismatch first.
+    let callables = program
+        .handoff()
+        .callables()
+        .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?;
+    let declarations = source.borrowed_declaration_keys_v1(callables)?;
+    for key in &declarations {
+        let owner = callables
+            .owner_for_canonical_key(key)
+            .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?;
+        let symbol = module
+            .canonical_callable_definition_symbol(key)
+            .ok_or_else(|| fault("borrowed-incoming/declaration-target"))?;
+        let function = module
+            .functions
+            .get(symbol)
+            .ok_or_else(|| fault("borrowed-incoming/callee-function-missing"))?;
+        source.borrowed_declaration_for_function_v1(owner, key, function)?;
+    }
     let mut physical = BTreeMap::new();
     // Inspect every caller and every Call result, including Birth/Unit/Handle.
     for (caller_index, function) in program.functions().iter().enumerate() {
@@ -258,8 +280,6 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     )?;
     // A complete-empty declaration has no packet and no physical call coordinate.
     // Resolve its original owner independently; real incoming coverage stays exact.
-    let declarations = source.borrowed_declaration_keys_v1(program.handoff().callables()
-        .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?)?;
     let mut source_only = Vec::new();
     for (key, callee) in &callees {
         if owners.contains_key(*key) {
@@ -272,11 +292,6 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             source_only.push(*key);
             continue;
         }
-        let owner = program
-            .handoff()
-            .callables()
-            .and_then(|callables| callables.owner_for_canonical_key(key))
-            .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?;
         if !callee.role().has_receiver() {
             return Err(fault("borrowed-incoming/declaration-target"));
         }
@@ -284,7 +299,9 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             .functions
             .get(callee.name())
             .ok_or_else(|| fault("borrowed-incoming/callee-function-missing"))?;
-        source.borrowed_declaration_for_function_v1(owner, key, function)?;
+        let owner = callables
+            .owner_for_canonical_key(key)
+            .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?;
         if callee.params() != function.params.as_slice()
             || callee.param_carriers() != function.metadata.physical_param_carriers.as_deref()
         {

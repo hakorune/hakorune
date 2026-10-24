@@ -56,7 +56,6 @@ impl FinalizedRootSourceHandoffV1 {
         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
         let entry = self.ledger.checked_borrowed_declaration_source_v1(owner).map_err(|error|
             format!("{error} owner={owner:?} key={key:?} function={}", function.signature.name))?;
-        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         if !self
             .ledger
             .borrowed_ordinary_entry_receiver_required_v1(owner)?
@@ -103,6 +102,9 @@ impl FinalizedRootSourceHandoffV1 {
         {
             return Err(freeze("borrowed-declaration/entry-correspondence"));
         }
+        // Preserve the broader finished-entry check after this declaration's
+        // own physical correspondence has reported any source-specific drift.
+        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         Ok(())
     }
 }
