@@ -79,6 +79,7 @@ impl OriginalFormalActualSeedV1 {
             Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
                 FormalActualSeedV1::Class(source.fresh_class().into()), anchor.project_source_object_v1(),
             ])),
+            Self::MethodResult(source) => method_result_source_object_v1(source.normal_representation()),
             _ => self.project_source_integer_v1(false),
         }
     }
@@ -125,6 +126,39 @@ impl OriginalFormalActualSeedV1 {
                 }
             }
         }
+    }
+}
+
+fn method_result_source_object_v1(
+    representation: Option<crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1>,
+) -> FormalActualSeedV1 {
+    match representation {
+        Some(crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name }) => {
+            FormalActualSeedV1::Class(box_name.into())
+        }
+        _ => FormalActualSeedV1::Conflict,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn source_object_projection_requires_an_exact_nominal_method_result() {
+        use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1 as Representation;
+
+        assert!(matches!(
+            method_result_source_object_v1(Some(Representation::ExactNominalBox {
+                box_name: "TreeNode".into(),
+            })),
+            FormalActualSeedV1::Class(class) if class.as_ref() == "TreeNode"
+        ));
+        assert!(matches!(
+            method_result_source_object_v1(Some(Representation::ExactI64)),
+            FormalActualSeedV1::Conflict
+        ));
+        assert!(matches!(method_result_source_object_v1(None), FormalActualSeedV1::Conflict));
     }
 }
 
