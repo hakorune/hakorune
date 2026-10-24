@@ -357,6 +357,14 @@ impl FunctionUses {
                 | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { base, key, .. }), fault_frame, .. } => {
                 self.verify_text_operands_v1(tracked, views, &[key], &[*base], *fault_frame)?;
             }
+            MirInstruction::Invoke { operation: InvokeOperation::ArrayElementWrite {
+                kind: crate::mir::ArrayElementWriteKind::Push, receiver, index: None,
+                value: crate::mir::instruction::ArrayElementWriteValueV1::Text(operand), ..
+            }, fault_frame, .. } => {
+                // The source-backed append copies Text into its own element;
+                // the input remains readonly and grants no receiver/frame use.
+                self.verify_text_operands_v1(tracked, views, &[operand], &[*receiver], *fault_frame)?;
+            }
             MirInstruction::Invoke { operation: InvokeOperation::Birth(call), fault_frame, .. } => {
                 if tracked.contains_key(fault_frame) || views.views.contains_key(fault_frame)
                     || tracked.contains_key(&call.receiver) || views.views.contains_key(&call.receiver) {
