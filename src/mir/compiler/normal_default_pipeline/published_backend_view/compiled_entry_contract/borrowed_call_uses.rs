@@ -39,7 +39,7 @@ struct FunctionUses {
     finite_input: bool,
     condition_bindings: BTreeMap<Coordinate, MirInstruction>,
     domains: BTreeMap<ValueId, BorrowedFormalDomainV1>,
-    text_arguments: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
+    text_operands: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
     owned_field_writes: BTreeMap<Coordinate, field_write::OwnedFieldWriteUse>,
     field_writes: BTreeMap<Coordinate, field_write::FieldWriteUse>,
     array_sets: BTreeMap<Coordinate, array_set::ArraySetUse>,
@@ -351,7 +351,7 @@ impl FunctionUses {
                 }
             }
             MirInstruction::Invoke { operation: InvokeOperation::String(operation), fault_frame, .. } => {
-                self.verify_text_operation_v1(tracked, views, operation, *fault_frame)?;
+                self.verify_text_operation_v1(tracked, views, coordinate, operation, *fault_frame)?;
             }
             MirInstruction::Invoke { operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { base, key, .. }
                 | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { base, key, .. }), fault_frame, .. } => {

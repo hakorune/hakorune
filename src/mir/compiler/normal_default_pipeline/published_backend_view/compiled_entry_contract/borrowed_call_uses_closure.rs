@@ -72,7 +72,7 @@ impl FunctionUses {
                 indexed.push(((*block, index), instruction));
             }
         }
-        self.verify_text_calls_v1(&indexed)?;
+        self.verify_text_occurrences_v1(&indexed)?;
         let views = self.scan_views(&tracked, &indexed)?;
         field_write::guards(self, tracked, &views, &indexed)?;
         array_set::guards(self, tracked, &views, &indexed)?;
@@ -142,7 +142,7 @@ impl FunctionUses {
                 return Err(fault("borrowed-use/published-compare-instruction"));
             }
         }
-        self.verify_text_calls_v1(&indexed)?;
+        self.verify_text_occurrences_v1(&indexed)?;
         let views = self.scan_views(tracked, &indexed)?;
         field_write::guards(self, tracked, &views, &indexed)?;
         array_set::guards(self, tracked, &views, &indexed)?;

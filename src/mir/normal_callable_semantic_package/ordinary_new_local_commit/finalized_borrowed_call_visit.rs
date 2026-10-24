@@ -174,6 +174,29 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
+    /// Original tagged String operands remain tied to their operation and side.
+    pub(in crate::mir) fn with_finished_tagged_text_operands_v1(
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
+        mut visit: impl FnMut(BindingRefV1, ValueId, usize, (BasicBlockId, usize)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if symbol != function.signature.name { return Err(freeze("finished-copy/owner")); }
+            let context = CallValidationContextV1::Finalized(self);
+            context.with_local_call_group_tree_v2(owner, |groups| {
+                for group in groups {
+                    let Some(packet) = group.initializer() else { continue; };
+                    group.validate_recorded_in_context(context, function, Some(projection))?;
+                    packet.visit_tagged_text_operands_v1(context, function, projection, |original, side, formal, value| {
+                        let finished = projection.required_effect_binding(function, original)?;
+                        let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+                        visit(formal, value, side, coordinate)
+                    })?;
+                }
+                Ok(())
+            })
+        })
+    }
+
     /// Return loans tied to the retained pool, not the visitor's callback borrow.
     pub(in crate::mir) fn borrowed_finalized_call_actuals_v1(
         &self,

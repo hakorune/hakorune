@@ -306,3 +306,68 @@ impl EmittedBoolConditionProjectionV1 {
         Ok((invoke, result))
     }
 }
+
+impl EmittedBoolConditionProjectionV1 {
+    /// The exact source null comparison chooses the surviving successor.
+    pub(super) fn validate_nonnull_consumer_v1(
+        &self, function: &MirFunction, finishing: Option<&Finished>, consumer: &Binding,
+        producer: Option<&Binding>,
+    ) -> Result<(), String> {
+        let outer = self.outer.borrow();
+        let outer = outer.as_ref().ok_or_else(|| freeze("bool-condition/outer-branch-pending"))?;
+        self.verify_outer(function, outer, finishing)?;
+        require_binding(function, consumer, finishing)?;
+        let branch = mapped(outer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+        let consumer = mapped(consumer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+        let MirInstruction::Branch { then_bb, else_bb, .. } = branch.1
+            else { return Err(freeze("bool-condition/outer-branch-source")); };
+        let nonnull = match self.frame.source().nodes().first().and_then(|node| node.binary()).map(|binary| binary.operator()) {
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal) => else_bb,
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual) => then_bb,
+            _ => return Err(freeze("bool-condition/outer-branch-source")),
+        };
+        let dom = crate::mir::verification::utils::compute_dominators(function);
+        if !dom.dominates(branch.0, consumer.0) || !dom.dominates(nonnull, consumer.0) {
+            return Err(freeze("bool-condition/outer-branch-source"));
+        }
+        if let Some(producer) = producer {
+            require_binding(function, producer, finishing)?;
+            let producer = mapped(producer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+            if !dom.dominates(producer.0, branch.0) { return Err(freeze("bool-condition/outer-branch-source")); }
+        }
+        Ok(())
+    }
+}
+
+impl CallValidationContextV1<'_> {
+    /// Source SUM refinement must also pass the SAME finished Bool/Branch owner.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_finite_entry_nonnull_use_v1(
+        self, read: &crate::mir::normal_callable_semantic_package::FiniteEntryReadV1,
+        exclusion: &crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1,
+        function: &MirFunction, finishing: &Finished, consumer: &Binding,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
+        self.with_local_call_group_tree_v2(read.requirement().binding().owner(), |groups| {
+            let mut matches = groups.iter().filter_map(|group| {
+                let packet = group.bool_condition()?;
+                let guard = exclusion.condition_read_v1(packet.frame.source())?;
+                Some((group, packet, guard))
+            });
+            let (group, packet, guard) = matches.next().ok_or_else(|| freeze("bool-condition/reference-source"))?;
+            if matches.next().is_some() || exclusion.root_binding() != read.requirement().formal().1
+                || !matches!(packet.materialization, BoolConditionOuterV2::If(_)) {
+                return Err(freeze("bool-condition/reference-source"));
+            }
+            let node = packet.frame.source().nodes().iter().position(|node| node.site() == guard)
+                .ok_or_else(|| freeze("bool-condition/reference-source"))?;
+            let Some(Reference::FiniteEntry { read: original, exclusion: None }) = packet.frame.references().get(&node)
+                else { return Err(freeze("bool-condition/reference-source")); };
+            if original.requirement().formal() != read.requirement().formal() || original.null_compare_v1().is_none()
+                || !matches!(packet.node(node)?.proof, BoolConditionValueProofV1::OriginalReference(_)) {
+                return Err(freeze("bool-condition/reference-source"));
+            }
+            group.validate_recorded_in_context(self, function, Some(finishing))?;
+            packet.validate_nonnull_consumer_v1(function, Some(finishing), consumer, None)
+        })
+    }
+}

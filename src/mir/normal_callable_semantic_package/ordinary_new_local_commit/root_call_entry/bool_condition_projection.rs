@@ -259,21 +259,7 @@ impl CallValidationContextV1<'_> {
                 return Err(freeze("bool-condition/reference-source"));
             }
             group.validate_recorded_in_context(self, function, finishing)?;
-            let outer = packet.outer.borrow();
-            let outer = outer.as_ref().ok_or_else(|| freeze("bool-condition/outer-branch-pending"))?;
-            packet.verify_outer(function, outer, finishing)?;
-            require_binding(function, &normal, finishing)?;
-            require_binding(function, consumer, finishing)?;
-            let branch = mapped(outer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
-            let normal = mapped(&normal, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
-            let field = mapped(consumer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
-            let MirInstruction::Branch { else_bb: nonnull, .. } = branch.1 else {
-                return Err(freeze("bool-condition/outer-branch-source"));
-            };
-            let dom = crate::mir::verification::utils::compute_dominators(function);
-            if !dom.dominates(normal.0, branch.0) || !dom.dominates(nonnull, field.0) {
-                return Err(freeze("bool-condition/outer-branch-source"));
-            }
+            packet.validate_nonnull_consumer_v1(function, finishing, consumer, Some(&normal))?;
             Ok(())
         })
     }

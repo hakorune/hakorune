@@ -97,6 +97,57 @@ impl EmittedInitializerExpressionProjectionV1 {
             &packet.continuation, &ordered)?;
         Ok(packet)
     }
+    /// Lend original tagged inputs of source-checked String Add operations.
+    /// The caller first validates this SAME packet and its finished group.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_tagged_text_operands_v1(
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: &super::super::physical_boundary::FinishedBindings,
+        mut visit: impl FnMut(&Binding, usize, BindingRefV1, ValueId) -> Result<(), String>,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
+        use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as Normal;
+        let frame = self.frame.evaluation();
+        let expression = self.expression();
+        for loan in frame.operations() {
+            let index = loan.node();
+            if frame.transfers_node(index) { continue; }
+            let Some(binary) = frame.source().nodes().get(index).and_then(|node| node.binary()) else { continue; };
+            if binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add
+                || loan.normal_result_v1() != Some(Normal::OwnedStringValue) { continue; }
+            if !Rc::ptr_eq(loan.source(), frame.source()) { return Err(freeze("print-expression/add-source")); }
+            let Some(EvaluatedExpressionValueV1::Operand(Operand::OwnedString(result))) = self.values.get(index).and_then(Option::as_ref)
+                else { return Err(freeze("print-expression/add-values")); };
+            let normal = expression.require_unique(|row| matches!(row,
+                MirInstruction::InvokeNormalResult { dst, .. } if dst == result))?;
+            let MirInstruction::InvokeNormalResult { invoke_block, .. } = normal.1 else { unreachable!() };
+            let invoke = expression.require_unique(|row| matches!(row,
+                MirInstruction::Invoke { operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Add { .. }), normal_landing, .. }
+                    if *normal_landing == normal.0))?;
+            if invoke.0 != invoke_block { return Err(freeze("print-expression/add-producer")); }
+            for (side, site) in [binary.lhs(), binary.rhs()].into_iter().enumerate() {
+                let node = frame.source().nodes().iter().position(|node| node.site() == site)
+                    .ok_or_else(|| freeze("print-expression/dynamic-add-operand"))?;
+                let Some(EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value))) = self.values.get(node).and_then(Option::as_ref)
+                    else { continue; };
+                let formal = match frame.references().get(&node) {
+                    Some(Reference::FiniteEntry { read, exclusion }) if read.tagged_string_integer_only_v1(exclusion.as_deref()) => {
+                        if let Some(exclusion) = exclusion {
+                            context.validate_finite_entry_nonnull_use_v1(read, exclusion, function, finishing, invoke)?;
+                        }
+                        read.requirement().formal().1
+                    }
+                    Some(Reference::DynamicEntry(read)) => read.requirement().formal().1,
+                    _ => continue,
+                };
+                let read = self.reference_reads.get(&node).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                if read.operand(frame, node, context)? != Operand::Dynamic(*value) {
+                    return Err(freeze("expression/reference-source-value"));
+                }
+                visit(invoke, side, formal, *value)?;
+            }
+        }
+        Ok(())
+    }
     fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(self.frame.evaluation(), &self.values,
             &self.calls, &self.dynamic_calls, &self.path_reads, &self.reference_reads, &self.original)

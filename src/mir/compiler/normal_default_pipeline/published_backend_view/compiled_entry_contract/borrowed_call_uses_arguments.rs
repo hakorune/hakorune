@@ -129,6 +129,20 @@ impl BorrowedCallUses {
             })?;
             state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &scalar_copies)?;
         }
+        let tracked = state.tracked()?;
+        source.with_finished_tagged_text_operands_v1(owner, function, |formal, value, side, coordinate| {
+            let expected = crate::mir::instruction::StringInvokeOperand::Dynamic(value);
+            let key = (coordinate.0, coordinate.1, side);
+            if tracked.get(&value) != Some(&formal) {
+                return Err(format!("{} function={} phase=source-image coordinate={coordinate:?} side={side} value={value:?} formal={formal:?} tracked={:?}",
+                    fault("borrowed-text/operand-correspondence"), function.signature.name, tracked.get(&value)));
+            }
+            if let Some(previous) = state.text_operands.insert(key, expected.clone()) {
+                return Err(format!("{} function={} phase=source-image coordinate={coordinate:?} side={side} previous={previous:?} expected={expected:?}",
+                    fault("borrowed-text/operand-correspondence"), function.signature.name));
+            }
+            Ok(())
+        })?;
         state.object_views =
             source.borrowed_ordinary_formal_object_views_v1(owner, function)?;
         Ok(())
@@ -195,7 +209,7 @@ impl BorrowedCallUses {
                     if !source.frame().is_i64() => {},
                 _ => return Err(fault("borrowed-text/operand-correspondence")),
             }
-            if state.text_arguments.insert((coordinate.0, coordinate.1, *ordinal as usize), operand.clone()).is_some() {
+            if state.text_operands.insert((coordinate.0, coordinate.1, *ordinal as usize), operand.clone()).is_some() {
                 return Err(fault("borrowed-text/duplicate-occurrence"));
             }
         }
@@ -205,16 +219,30 @@ impl BorrowedCallUses {
 impl FunctionUses {
     /// Both source consumers select physical Text occurrences independently;
     /// only the SAME packet image can authorize any selected occurrence.
-    pub(super) fn verify_text_calls_v1(&self, indexed: &[(Coordinate, &MirInstruction)]) -> Result<(), String> {
+    pub(super) fn verify_text_occurrences_v1(&self, indexed: &[(Coordinate, &MirInstruction)]) -> Result<(), String> {
         use crate::mir::instruction::StringInvokeOperand as Operand;
         let owned: BTreeSet<_> = indexed.iter().filter_map(|(_, instruction)| match instruction {
             MirInstruction::InvokeNormalResult { dst, invoke_block }
                 if indexed.iter().any(|(coordinate, instruction)| coordinate.0 == *invoke_block
-                    && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } if operation.owns_normal_result())) => Some(*dst),
+                    && matches!(instruction, MirInstruction::Invoke { operation, .. }
+                        if operation.normal_result_kind() == Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString))) => Some(*dst),
             _ => None,
         }).collect();
         let mut seen = BTreeSet::new();
         for (coordinate, instruction) in indexed {
+            if let MirInstruction::Invoke { operation: InvokeOperation::String(
+                crate::mir::instruction::StringInvokeOperation::Add { left, right }), .. } = instruction {
+                for (side, operand) in [left, right].into_iter().enumerate() {
+                    let key = (coordinate.0, coordinate.1, side);
+                    if let Some(expected) = self.text_operands.get(&key) {
+                        if expected != operand || !matches!(expected, Operand::Dynamic(_)) || !seen.insert(key) {
+                            return Err(format!("{} phase=string-add coordinate={coordinate:?} side={side} expected={expected:?} actual={operand:?}",
+                                fault("borrowed-text/operand-correspondence")));
+                        }
+                    }
+                }
+                continue;
+            }
             let call = match instruction {
                 MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } => call,
                 MirInstruction::Call(call) if call.args.iter().any(|value| owned.contains(value)) => return Err(fault("borrowed-text/plain-call")),
@@ -222,14 +250,15 @@ impl FunctionUses {
             };
             for (ordinal, value) in call.args.iter().enumerate() {
                 let key = (coordinate.0, coordinate.1, ordinal);
-                if !owned.contains(value) && !self.text_arguments.contains_key(&key) { continue; }
-                if !matches!(self.text_arguments.get(&key), Some(Operand::OwnedString(original)) if original == value && owned.contains(value))
+                if !owned.contains(value) && !self.text_operands.contains_key(&key) { continue; }
+                if !matches!(self.text_operands.get(&key), Some(Operand::OwnedString(original)) if original == value && owned.contains(value))
                     || !seen.insert(key) {
-                    return Err(fault("borrowed-text/operand-correspondence"));
+                    return Err(format!("{} phase=call coordinate={coordinate:?} ordinal={ordinal} expected={:?} actual={value:?}",
+                        fault("borrowed-text/operand-correspondence"), self.text_operands.get(&key)));
                 }
             }
         }
-        if seen != self.text_arguments.keys().copied().collect() { return Err(fault("borrowed-text/occurrence-coverage")); }
+        if seen != self.text_operands.keys().copied().collect() { return Err(fault("borrowed-text/occurrence-coverage")); }
         Ok(())
     }
 }
@@ -238,7 +267,7 @@ impl FunctionUses {
     /// Both final scans corroborate readonly String operands against the same
     /// sealed Text entry domains; ordinary numeric/object uses stay refused.
     pub(super) fn verify_text_operation_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
-        operation: &crate::mir::instruction::StringInvokeOperation, fault_frame: ValueId,
+        coordinate: Coordinate, operation: &crate::mir::instruction::StringInvokeOperation, fault_frame: ValueId,
     ) -> Result<(), String> {
         let scalar_values = match operation {
             crate::mir::instruction::StringInvokeOperation::Substring { start, end, .. } => {
@@ -249,7 +278,18 @@ impl FunctionUses {
             crate::mir::instruction::StringInvokeOperation::End { value } => vec![*value],
             _ => Vec::new(),
         };
-        self.verify_text_operands_v1(tracked, views, &operation.operands(), &scalar_values, fault_frame)
+        let operands = operation.operands();
+        let mut ordinary = Vec::new();
+        for (side, operand) in operands.iter().copied().enumerate() {
+            let key = (coordinate.0, coordinate.1, side);
+            if matches!(operation, crate::mir::instruction::StringInvokeOperation::Add { .. })
+                && matches!(operand, crate::mir::instruction::StringInvokeOperand::Dynamic(_))
+                && self.text_operands.get(&key) == Some(operand) {
+                continue;
+            }
+            ordinary.push(operand);
+        }
+        self.verify_text_operands_v1(tracked, views, &ordinary, &scalar_values, fault_frame)
     }
 
     /// One typed operand check for String and synchronous Map field reads.
