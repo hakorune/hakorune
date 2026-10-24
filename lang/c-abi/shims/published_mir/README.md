@@ -108,8 +108,9 @@ unadmitted until their original source support consumers close.
 
 Borrowed Text uses the existing kind/payload pair with the closed physical
 formal declaration `text_view: true`, `object_view: null`, and
-`representation: "borrowed_kind_payload_v1"`. It is currently restricted to
-ordinary-i64 functions. Unmarked formals retain their original tags0..3 domain.
+`representation: "borrowed_kind_payload_v1"`. Input views are independent of
+the ordinary result lane. A borrowed object result's supporting formal cannot
+claim a scalar-only view. Unmarked formals retain their original tags0..3 domain.
 Every incoming edge must supply either a named `borrowed_text` actual containing
 a `static_text` or live `owned_string` operand, or a `tagged` forward of the SAME
 Text formal through original Copies. Numeric tag4 constructors, scalar actuals,
@@ -127,6 +128,21 @@ silently admitted into a generic tagged domain. Empty and embedded-NUL text use
 the same descriptor contract. This backend capability issues no source proof:
 Rust must retain and verify the original closed Text entry authority before
 publishing the marker; physical fixture success cannot remove source fences.
+
+A finite source input instead carries `finite_domain`, a nonempty canonical
+subset of `["null", "i64", "bool", "text"]`, with null `object_view` and no
+exclusive view marker. It names the original source SUM, not a guessed runtime
+type. Schema rejects duplicates, unknown classes, noncanonical order and mixed
+markers. Concrete actuals require membership; tagged forwards require a known
+caller domain contained in the callee domain. Entry checks tag and Null/Bool
+payload without projecting the mixed input into one scalar class.
+
+Text membership does not grant a Text-only read. Source-authorized String Add
+uses its explicit tagged operand: tag4 takes the SAME live descriptor checks
+above and copies the descriptor, while other tags retain the existing String
+Dynamic operand ABI and TypeError behavior. It creates no input owner or End.
+The separate Dynamic invocation ABI still refuses finite inputs containing Text;
+its tagged transport accepts tags0..3 and has no Text descriptor consumer.
 
 This is the implemented consumer contract, not an execution acceptance claim.
 The unchanged app's canonical direct EXE/run/output/exit and independent source,

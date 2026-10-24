@@ -64,7 +64,18 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
   int owned = lv4_is(operand, "kind", "owned_string");
   int dynamic = lv4_is(operand, "kind", "tagged_dynamic");
   uint32_t value = lv4_u(operand, "value");
-  if (lv4_is(operand, "kind", "borrowed_text")) {
+  if (dynamic) {
+    fprintf(f, "  %%str_dynamic_text%u_%u = icmp eq i32 %%k%u, 4\n", b,role,value);
+    fprintf(f, "  br i1 %%str_dynamic_text%u_%u, label %%str_dynamic_borrow%u_%u, label %%str_dynamic_scalar%u_%u\n",
+        b,role,b,role,b,role);
+    fprintf(f, "str_dynamic_scalar%u_%u:\n", b,role);
+    fprintf(f, "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n", b,role);
+    fprintf(f, "  %%str%u_%u_1 = insertvalue %%nyrt.string.operand %%str%u_%u_0, i32 %%k%u, 1\n", b,role,b,role,value);
+    fprintf(f, "  %%str%u_%u_2 = insertvalue %%nyrt.string.operand %%str%u_%u_1, i64 %%v%u, 6\n", b,role,b,role,value);
+    fprintf(f, "  store %%nyrt.string.operand %%str%u_%u_2, ptr %%strarg%u_%u, align 8\n", b,role,b,role);
+    fprintf(f, "  br label %%str_dynamic_ready%u_%u\nstr_dynamic_borrow%u_%u:\n", b,role,b,role);
+  }
+  if (dynamic || lv4_is(operand, "kind", "borrowed_text")) {
     /* The indexed source domain proves a borrowed formal/Copy root. These
        guards supplement that proof before any descriptor memory is read. */
     fprintf(f,
@@ -88,15 +99,7 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
         b,role,b,role,b,role, b,role,value, b,role,b,role,
         b,role,b,role, b,role,b,role, b,role,b,role,b,role,
         b,role,b,role,b,role, b,role,b,role, b,role,b,role);
-    return;
-  }
-  if (dynamic) {
-    fprintf(f,
-        "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n"
-        "  %%str%u_%u_1 = insertvalue %%nyrt.string.operand %%str%u_%u_0, i32 %%k%u, 1\n"
-        "  %%str%u_%u_2 = insertvalue %%nyrt.string.operand %%str%u_%u_1, i64 %%v%u, 6\n"
-        "  store %%nyrt.string.operand %%str%u_%u_2, ptr %%strarg%u_%u, align 8\n",
-        b,role,b,role,b,role,value,b,role,b,role,value,b,role,b,role,b,role);
+    if (dynamic) fprintf(f, "  br label %%str_dynamic_ready%u_%u\nstr_dynamic_ready%u_%u:\n", b,role,b,role);
     return;
   }
   fprintf(f, "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 %d, 0\n",

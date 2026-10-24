@@ -20,11 +20,35 @@ static int hako_physical_layout_has_object(yyjson_val* layouts, uint32_t object_
   }
   return count == 1;
 }
+/* Finite source classes are input membership, never an exclusive read view.
+ * Canonical tag order is Null, I64, Bool, Text. Zero also denotes invalid. */
+static unsigned hako_physical_finite_domain(yyjson_val* param) {
+  yyjson_val* domain = yyjson_obj_get(param, "finite_domain");
+  unsigned mask = 0, previous = 0;
+  if (!yyjson_is_arr(domain) || !yyjson_arr_size(domain) || yyjson_arr_size(domain) > 4) return 0;
+  for (size_t i = 0; i < yyjson_arr_size(domain); i++) {
+    yyjson_val* name = yyjson_arr_get(domain, i);
+    unsigned tag = hako_physical_string(name, "null") ? 0 :
+        hako_physical_string(name, "i64") ? 1 : hako_physical_string(name, "bool") ? 2 :
+        hako_physical_string(name, "text") ? 4 : 5;
+    if (tag == 5 || (i && tag <= previous)) return 0;
+    mask |= 1u << tag; previous = tag;
+  }
+  return mask;
+}
+static unsigned hako_physical_input_domain(yyjson_val* param) {
+  if (yyjson_is_true(yyjson_obj_get(param, "text_view"))) return 1u << 4;
+  if (yyjson_is_true(yyjson_obj_get(param, "integer_view"))) return 1u << 1;
+  if (yyjson_is_true(yyjson_obj_get(param, "bool_view"))) return 1u << 2;
+  return hako_physical_finite_domain(param);
+}
+
 static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
   static const char* const keys[] = {"value", "representation"};
   static const char* const view_keys[] = {"value", "representation", "object_view"};
   static const char* const text_keys[] = {"value", "representation", "object_view", "text_view"};
   static const char* const integer_keys[] = {"value", "representation", "object_view", "integer_view"};
+  static const char* const finite_keys[] = {"value", "representation", "object_view", "finite_domain"};
   static const char* const bool_keys[] = {"value", "representation", "object_view", "bool_view"};
   yyjson_val* params = yyjson_obj_get(fn, "params");
   if (!yyjson_is_arr(params)) return 0;
@@ -38,11 +62,14 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       yyjson_val* text = yyjson_obj_get(param, "text_view");
       yyjson_val* integer = yyjson_obj_get(param, "integer_view");
       yyjson_val* boolean = yyjson_obj_get(param, "bool_view");
+      yyjson_val* finite = yyjson_obj_get(param, "finite_domain");
       yyjson_val* scalar_view = text ? text : integer ? integer : boolean;
-      if (((!!text + !!integer + !!boolean) > 1) ||
+      if (((!!text + !!integer + !!boolean + !!finite) > 1) ||
           (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
               !hako_physical_ordinary_function(fn)))) return 0;
-      if (!(text ? hako_physical_exact_keys(param, text_keys, 4) :
+      if (finite && (!yyjson_is_null(view) || !hako_physical_ordinary_function(fn) ||
+          !hako_physical_finite_domain(param))) return 0;
+      if (!(finite ? hako_physical_exact_keys(param, finite_keys, 4) : text ? hako_physical_exact_keys(param, text_keys, 4) :
           integer ? hako_physical_exact_keys(param, integer_keys, 4) :
           boolean ? hako_physical_exact_keys(param, bool_keys, 4) :
           hako_physical_exact_keys(param, view_keys, 3)) ||

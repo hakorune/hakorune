@@ -41,6 +41,9 @@ impl BorrowedFormalDomainV1 {
     }
     pub(in crate::mir) fn signed_only(&self) -> bool { self.sum.signed_only() }
     pub(in crate::mir) fn bool_only(&self) -> bool { self.sum.bool_only() }
+    pub(in crate::mir) fn finite_alternatives_v1(&self) -> Option<&BTreeSet<super::borrowed_formal_source::SourceValueAlternativeV1>> {
+        self.sum.finite_input().then(|| self.sum.alternatives())
+    }
     pub(in crate::mir) fn corroborates_finite_read_v1(&self, read: &crate::mir::normal_callable_semantic_package::FiniteEntryReadV1) -> bool {
         read.requirement().formal() == (self.ordinal, self.binding)
             && read.corroborates_finite_domain_v1(&self.sum)

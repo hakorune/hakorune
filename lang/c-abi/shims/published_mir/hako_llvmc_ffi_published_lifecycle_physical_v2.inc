@@ -540,7 +540,8 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
             "borrowed_kind_payload_v1") ||
         yyjson_obj_get(yyjson_arr_get(params, support), "text_view") ||
         yyjson_obj_get(yyjson_arr_get(params, support), "integer_view") ||
-        yyjson_obj_get(yyjson_arr_get(params, support), "bool_view")) return 0;
+        yyjson_obj_get(yyjson_arr_get(params, support), "bool_view") ||
+        yyjson_obj_get(yyjson_arr_get(params, support), "finite_domain")) return 0;
   }
   if (ordinal == 0) { if (!(hako_physical_string(yyjson_obj_get(function, "role"), "root_i64") || (native && hako_physical_string(yyjson_obj_get(function, "role"), "root_unit"))) || yyjson_arr_size(params) || !yyjson_is_null(yyjson_obj_get(function, "receiver")) || !yyjson_is_null(yyjson_obj_get(function, "receiver_object"))) return 0; mode = "root_owned"; }
   else if (hako_physical_string(yyjson_obj_get(function, "role"), "birth_unit")) {
@@ -600,9 +601,18 @@ static int hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_val* r
       yyjson_get_uint(yyjson_obj_get(root, "fault_abi_version")) != 1 ||
       (!native && (!hako_physical_storage_profile(yyjson_obj_get(root, "storage_profile")) ||
        !hako_physical_validate_layouts(layouts)))) return hako_physical_fail(err_out, "abi-layout");
-  for (size_t i = 0; i < yyjson_arr_size(functions); i++)
-    if (!hako_physical_validate_function(yyjson_arr_get(functions, i), functions, layouts, i, native))
-      return hako_physical_fail(err_out, "function-body");
+  for (size_t i = 0; i < yyjson_arr_size(functions); i++) {
+    yyjson_val* function = yyjson_arr_get(functions, i);
+    if (!hako_physical_validate_function(function, functions, layouts, i, native)) {
+      const char* name = yyjson_get_str(yyjson_obj_get(function, "name"));
+      const char* role = yyjson_get_str(yyjson_obj_get(function, "role"));
+      char message[320];
+      snprintf(message, sizeof(message),
+          "[freeze:contract][published-lifecycle-physical-parser/function-body] function=%zu name=%.120s role=%.60s",
+          i, name ? name : "<invalid>", role ? role : "<invalid>");
+      return set_err_owned(err_out, message);
+    }
+  }
   if (!hako_physical_u64(yyjson_obj_get(root, "process_result_site"), &process_result_site) ||
       !hako_physical_checked_sites_unique(functions, process_result_site))
     return hako_physical_fail(err_out, "diagnostic-sites");

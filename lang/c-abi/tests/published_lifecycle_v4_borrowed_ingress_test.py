@@ -14,6 +14,7 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
+FFI = Path(os.environ.get('HAKO_TEST_FFI_DIR', ROOT / 'target/release'))
 TESTS = ROOT / 'lang/c-abi/tests'
 layout = json.loads(Path(sys.argv[1]).read_text())['layouts'][0]
 OBJECT = layout['object_id']
@@ -354,8 +355,8 @@ def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱", r
 with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'borrowed.o', 'borrowed')]
-    checked([*CC, TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    checked([*CC, TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(FFI),
+             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(FFI), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
@@ -432,6 +433,22 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             (False, True, 'i64', 1), (True, True, 'i64', 1), (False, False, 'text', 1), (False, False, 'text', 2)]:
         data, text = borrowed_text_graph(owned, add=True, two=two, result=result_kind)
         data['storage_profile'] = profile
+        # Reuse the existing Add variants for finite Text/I64 transport.
+        # The Text-return rows retain their independent held-result coverage.
+        if result_kind == 'i64' and (not two or not owned):
+            ordinal = int(two)
+            for fn in data['functions'][2:] if not two else data['functions'][1:]:
+                del fn['params'][ordinal]['text_view']
+                fn['params'][ordinal]['finite_domain'] = ['i64', 'text']
+            data['functions'][2]['blocks'][0]['terminator']['instruction']['operation']['right']['kind'] = 'tagged_dynamic'
+            if two:
+                root = data['functions'][0]['blocks'][1]
+                args = root['terminator']['instruction']['operation']['call']['args']
+                text = args[0]['operand']['utf8'] + '7'
+                root['instructions'].append({'index': len(root['instructions']),
+                    'instruction': {'op': 'const_i64', 'dst': 12, 'value': 7}})
+                root['terminator']['index'] = len(root['instructions'])
+                args[1] = {'kind': 1, 'value': 12}
         compile_input(data)
         checked([*CC, '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps +
@@ -455,7 +472,15 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
                 leaf, middle = changed['functions'][2:]
                 call_block = next(b for b in middle['blocks']
                     if b['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
-                if mutation == 'result-kind': call_block['terminator']['instruction']['operation']['result'] = 'i64'
+                if profile == 2 and mutation in ['result-kind', 'early-result', 'suffix-foreign']:
+                    # Reuse three duplicate profile2 rows for canonical domain,
+                    # exclusive Text use and concrete actual membership refusal.
+                    fn = middle if mutation == 'early-result' else leaf
+                    del fn['params'][0]['text_view']
+                    fn['params'][0]['finite_domain'] = {
+                        'result-kind': ['text', 'i64'], 'early-result': ['i64', 'text'],
+                        'suffix-foreign': ['i64']}[mutation]
+                elif mutation == 'result-kind': call_block['terminator']['instruction']['operation']['result'] = 'i64'
                 elif mutation.startswith('suffix-'):
                     call_block['terminator']['instruction']['operation']['text_argument_cleanup'] = {
                         'suffix-order': [14, 13], 'suffix-duplicate': [13, 13], 'suffix-foreign': [4]}[mutation]

@@ -117,6 +117,16 @@ pub(super) fn encode_parameters(
                                             fault("borrowed-text/parameter-role"), function.name(), function.role().wire_name()));
                                     }
                                     row[view] = json!(true);
+                                } else if input.entry().has_finite_borrowed_input_v1(ordinal) {
+                                    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1 as Alternative;
+                                    let mut alternatives = domain.finite_alternatives_v1()
+                                        .ok_or_else(|| fault("borrowed-carrier-source-missing"))?.iter().map(|alternative| match alternative {
+                                            Alternative::Null => Ok((0, "null")), Alternative::SignedI64 => Ok((1, "i64")),
+                                            Alternative::Bool => Ok((2, "bool")), Alternative::Text => Ok((4, "text")),
+                                            _ => Err(fault("borrowed-carrier-source-missing")),
+                                        }).collect::<Result<Vec<_>, _>>()?;
+                                    alternatives.sort_unstable_by_key(|(tag, _)| *tag);
+                                    row["finite_domain"] = json!(alternatives.into_iter().map(|(_, name)| name).collect::<Vec<_>>());
                                 }
                             }
                         }

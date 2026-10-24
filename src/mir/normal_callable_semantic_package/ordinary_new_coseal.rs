@@ -713,7 +713,7 @@ pub(crate) use lexical_instance_call::BorrowedFormalEntryReadRequirementV1;
 
 pub(crate) use local_commit::fault_indices_after_normal_step_v2;
 
-pub(in crate::mir) use lexical_instance_call::SourceValueSumV1;
+pub(in crate::mir) use lexical_instance_call::{SourceValueSumV1, SourceValueAlternativeV1};
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn corroborate_field_map_source_v1(

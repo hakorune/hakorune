@@ -119,3 +119,111 @@ static void lv4_emit_borrowed_result_formal_guard(FILE* f, uint32_t v) {
       "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
       v,v, v,v, v,v,v, v,v,v);
 }
+
+/* Validate finite membership without converting a mixed input to one class. */
+static void lv4_emit_finite_parameter_guard(FILE* f, yyjson_val* param, uint32_t v) {
+  unsigned mask = hako_physical_finite_domain(param), step = 0;
+  fprintf(f, "  %%arg_domain%u_0 = icmp eq i32 0, 1\n", v);
+  for (unsigned tag = 0; tag <= 4; tag++) {
+    if (!(mask & (1u << tag))) continue;
+    fprintf(f, "  %%arg_domain_tag%u_%u = icmp eq i32 %%k%u, %u\n", v,tag,v,tag);
+    if (tag != 1) {
+      fprintf(f, "  %%arg_domain_payload%u_%u = icmp %s i64 %%v%u, %u\n",
+          v,tag, tag == 2 ? "ule" : tag == 4 ? "ne" : "eq", v, tag == 2 ? 1 : 0);
+      fprintf(f, "  %%arg_domain_valid%u_%u = and i1 %%arg_domain_tag%u_%u, %%arg_domain_payload%u_%u\n",
+          v,tag,v,tag,v,tag);
+    } else fprintf(f, "  %%arg_domain_valid%u_%u = and i1 %%arg_domain_tag%u_%u, true\n", v,tag,v,tag);
+    fprintf(f, "  %%arg_domain%u_%u = or i1 %%arg_domain%u_%u, %%arg_domain_valid%u_%u\n",
+        v,step+1,v,step,v,tag);
+    step++;
+  }
+  fprintf(f, "  br i1 %%arg_domain%u_%u, label %%arg_next%u, label %%invalid\narg_next%u:\n", v,step,v,v);
+}
+
+/* Every borrowed pair uses the same source-issued entry domain before effects. */
+static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
+    yyjson_val* fn, yyjson_val* param, size_t i) {
+    if (!lv4_is(param, "representation", "borrowed_kind_payload_v1")) return;
+    uint32_t v = lv4_u(param, "value");
+    yyjson_val* object_view = yyjson_obj_get(param, "object_view");
+    if (yyjson_obj_get(param, "finite_domain")) {
+      lv4_emit_finite_parameter_guard(f, param, v);
+      return;
+    }
+    if (yyjson_is_true(yyjson_obj_get(param, "integer_view"))) {
+      /* This is an ABI projection before the first body effect, not a
+         coercion or a guarded mixed-domain numeric operation. */
+      fprintf(f,
+          "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
+          "  br i1 %%arg_int%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v,v,v,v);
+      return;
+    }
+    if (yyjson_is_true(yyjson_obj_get(param, "bool_view"))) {
+      /* Exact Bool projection precedes every body effect, without I64 coercion. */
+      fprintf(f,
+          "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"
+          "  %%arg_bit%u = icmp ule i64 %%v%u, 1\n"
+          "  %%arg_ok%u = and i1 %%arg_bool%u, %%arg_bit%u\n"
+          "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v,v,v,v,v,v,v,v,v);
+      return;
+    }
+    if (yyjson_is_uint(object_view)) {
+      uint32_t runtime_type = lv4_u(lv4_layout(in, (uint32_t)yyjson_get_uint(object_view)), "runtime_type_id");
+      /* Caller provenance remains independently verified. A class domain
+         validates runtime class before any callee effect; no ownership change. */
+      fprintf(f,
+          "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
+          "  %%arg_zero%u = icmp eq i64 %%v%u, 0\n"
+          "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_zero%u\n"
+          "  br i1 %%arg_nulok%u, label %%arg_next%u, label %%arg_object_check%u\n"
+          "arg_object_check%u:\n"
+          "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
+          "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
+          "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
+          "  br i1 %%arg_live%u, label %%arg_type_check%u, label %%invalid\n"
+          "arg_type_check%u:\n"
+          "  %%arg_type%u = call i64 @\"nyash.object.type_id_h\"(i64 %%v%u)\n"
+          "  %%arg_class%u = icmp eq i64 %%arg_type%u, %u\n"
+          "  br i1 %%arg_class%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
+      return;
+    }
+    if ((lv4_is(fn, "role", "ordinary_borrowed_nullable_handle") ||
+        lv4_is(fn, "role", "ordinary_mixed_handle")) &&
+        hako_physical_u32(yyjson_obj_get(fn, "result_formal_ordinal"), NULL) &&
+        i == lv4_u(fn, "result_formal_ordinal")) {
+      lv4_emit_borrowed_result_formal_guard(f, v);
+      return;
+    }
+    if (yyjson_is_true(yyjson_obj_get(param, "text_view"))) {
+      fprintf(f,
+          "  %%arg_text%u = icmp eq i32 %%k%u, 4\n"
+          "  %%arg_textptr%u = icmp ne i64 %%v%u, 0\n"
+          "  %%arg_textok%u = and i1 %%arg_text%u, %%arg_textptr%u\n"
+          "  br i1 %%arg_textok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v, v,v, v,v,v, v,v,v);
+      return;
+    }
+    /* Nonzero supplements the closed incoming/live proof; it is not that
+       proof. The null pair (kind 0, payload 0) is the third admitted
+       shape — every other kind/payload mix is ABI drift, never a
+       silently nulled carrier. */
+    fprintf(f,
+        "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
+        "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"
+        "  %%arg_bit%u = icmp ule i64 %%v%u, 1\n"
+        "  %%arg_valid_bool%u = and i1 %%arg_bool%u, %%arg_bit%u\n"
+        "  %%arg_scalar%u = or i1 %%arg_int%u, %%arg_valid_bool%u\n"
+        "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
+        "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
+        "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
+        "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
+        "  %%arg_void%u = icmp eq i64 %%v%u, 0\n"
+        "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_void%u\n"
+        "  %%arg_pre%u = or i1 %%arg_scalar%u, %%arg_live%u\n"
+        "  %%arg_ok%u = or i1 %%arg_pre%u, %%arg_nulok%u\n"
+        "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+        v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+}

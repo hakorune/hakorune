@@ -95,7 +95,7 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
       yyjson_val* operand = yyjson_obj_get(arg, "operand");
       if (!hako_physical_exact_keys(arg, text_keys, 2) ||
           !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1") ||
-          !yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
+          !(hako_physical_input_domain(param) & (1u << 4)) ||
           !(hako_physical_string(yyjson_obj_get(operand, "kind"), "static_text") ||
             hako_physical_string(yyjson_obj_get(operand, "kind"), "owned_string")) ||
           !hako_physical_string_operand(function, operand, block, index, 1, 0)) return 0;
@@ -105,6 +105,11 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
         !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
         !hako_physical_value_available_at(function, value, block, index)) return 0;
     arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+    unsigned finite = hako_physical_finite_domain(param);
+    if (finite && yyjson_is_uint(yyjson_obj_get(arg, "kind")) &&
+        (yyjson_get_uint(yyjson_obj_get(arg, "kind")) > 4 ||
+         !(finite & (1u << yyjson_get_uint(yyjson_obj_get(arg, "kind")))))) return 0;
+    if (finite && arg_kind && strcmp(arg_kind, "tagged")) return 0;
     if (yyjson_is_true(yyjson_obj_get(param, "integer_view")) &&
         (!yyjson_is_uint(yyjson_obj_get(arg, "kind")) ||
          yyjson_get_uint(yyjson_obj_get(arg, "kind")) != 1)) return 0;
