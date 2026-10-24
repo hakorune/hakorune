@@ -76,13 +76,21 @@ fn validate_dynamic(objects: &IndexedObjects, candidate: &DynamicFieldStoredV1, 
     let DynamicFieldStoredV1::Published { value, end } = candidate else { return None; };
     match (value.kind, *end) {
         (0..=3, None) => {}
+        // A nullable object slot keeps its exact object End descriptor even
+        // when this particular Birth stores Null. The callback is required
+        // to treat the Null tag as an empty residence.
+        (1, Some(end)) if end.profile == profile && end.kind == 5
+            && end.end.is_some() && end.type_id > 0 => {}
         (4..=6, Some(end)) if end.profile == profile && end.kind == value.kind
             && end.end.is_some() && if end.kind == 5 { end.type_id > 0 } else { end.type_id == 0 } => {}
         _ => return None,
     }
     if !value.well_formed() { return None; }
     match value.kind {
-        0..=3 => end.is_none().then_some(()),
+        0 | 2 | 3 => end.is_none().then_some(()),
+        1 => end.is_none().then_some(()).or_else(||
+            end.filter(|descriptor| descriptor.kind == 5 && descriptor.type_id > 0
+                && descriptor.profile == profile && descriptor.end.is_some()).map(|_| ())),
         4 => {
             let token = std::num::NonZeroU64::new(value.token)?;
             nyash_rust::runtime::dynamic_v2_lease::with_end_authorized_text_pair(

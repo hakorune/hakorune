@@ -142,7 +142,10 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
           lv4_birth_base(fn, store) && lv4_u(store, "field_ordinal") == ordinal &&
           (lv4_is(store, "transaction", "dynamic_i64_initialize") ||
            lv4_is(store, "transaction", "dynamic_map_initialize") ||
-           lv4_is(store, "transaction", "dynamic_text_initialize"))) matched++;
+           lv4_is(store, "transaction", "dynamic_text_initialize") ||
+           (lv4_is(store, "transaction", "dynamic_value_initialize") &&
+            lv4_is(store, "value_tag", "nullable_object") &&
+            lv4_is(store, "residence", "object_home")))) matched++;
     }
     if (matched != 1) return 0;
     expected++;
@@ -236,10 +239,14 @@ static int lv4_birth_actual_object(const hako_lv4_input* in,
   size_t stores = 0;
   for (size_t i = 0; i < callee->block_count; i++) {
     yyjson_val* store = lv4_birth_store(callee, i);
-    if (!lv4_is(store, "kind", "object_field_set") ||
-        lv4_value_alias_root(callee, lv4_index_value(callee, lv4_u(store, "value"))) != formal) continue;
-    if (++stores != 1 || !lv4_birth_base(callee, store) || !lv4_birth_owned(in, store, 1) ||
-        lv4_u(store, "child_object_id") != value->object_id) return 0;
+    if (lv4_value_alias_root(callee, lv4_index_value(callee, lv4_u(store, "value"))) != formal) continue;
+    int typed_object = lv4_is(store, "kind", "object_field_set") &&
+        lv4_birth_owned(in, store, 1) && lv4_u(store, "child_object_id") == value->object_id;
+    int dynamic_nullable_object = lv4_is(store, "kind", "field_set") &&
+        lv4_is(store, "transaction", "dynamic_value_initialize") &&
+        lv4_is(store, "value_tag", "nullable_object") && lv4_is(store, "residence", "object_home") &&
+        lv4_u(store, "residence_object_id") == value->object_id && lv4_birth_owned(in, store, 0);
+    if (++stores != 1 || (!typed_object && !dynamic_nullable_object) || !lv4_birth_base(callee, store)) return 0;
   }
   return stores == 1;
 }

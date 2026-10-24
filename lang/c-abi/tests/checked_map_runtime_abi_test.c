@@ -40,10 +40,26 @@ static uint32_t field_array_end(void *frame, uint64_t site, const NyrtDynamicFie
 static uint32_t field_empty_array_end(void *frame, uint64_t site, const NyrtDynamicFieldValueV1 *value) {
   return nyrt_array_checked_empty_end_v1(frame,site,value->value);
 }
+static unsigned nullable_object_null_ends, nullable_object_value_ends;
+static uint32_t field_nullable_object_end(void *frame, uint64_t site, const NyrtDynamicFieldValueV1 *value) {
+  if (value->kind==NYRT_FIELD_NULL_V1) {
+    assert(value->value==0 && value->token==0);
+    nullable_object_null_ends++;
+    return 0;
+  }
+  assert(value->kind==NYRT_FIELD_OBJECT_V1 && value->token==0);
+  assert(nyrt_object_home_release_plain_i64_v1(frame,field_profile,site,value->value,941)==0);
+  nullable_object_value_ends++;
+  return 0;
+}
 static const NyrtDynamicFieldEndDescriptorV1 field_empty_array[] = {{1,NYRT_FIELD_ARRAY_V1,0,field_empty_array_end},{2,NYRT_FIELD_ARRAY_V1,0,field_empty_array_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_text[] = {{1,NYRT_FIELD_TEXT_V1,0,field_text_end},{2,NYRT_FIELD_TEXT_V1,0,field_text_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_array[] = {{1,NYRT_FIELD_ARRAY_V1,0,field_array_end},{2,NYRT_FIELD_ARRAY_V1,0,field_array_end}};
 static const NyrtDynamicFieldEndDescriptorV1 field_child[] = {{1,NYRT_FIELD_OBJECT_V1,941,field_object_end},{2,NYRT_FIELD_OBJECT_V1,941,field_object_end}};
+static const NyrtDynamicFieldEndDescriptorV1 field_nullable_child[] = {
+  {1,NYRT_FIELD_OBJECT_V1,941,field_nullable_object_end},
+  {2,NYRT_FIELD_OBJECT_V1,941,field_nullable_object_end}
+};
 /* Same complete-End descriptor is retained by a Map entry. The callback
  * reenters Map state, proving that the Map lock is absent during End. */
 static void *complete_map;
@@ -225,6 +241,28 @@ int main(void) {
   assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,189,field_parent,940,0,field_outcome)==0);
   field_finish(frame,189);
   assert(nyrt_array_checked_empty_end_v1(frame,189,array)==2); /* already consumed */
+  /* Nullable object residence retains the exact class End while Null stays
+   * non-owning; the same descriptor ends an Object on the other alternative. */
+  NyrtDynamicFieldValueV1 nullable_null={NYRT_FIELD_NULL_V1,0,0,0};
+  assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
+  assert(nyrt_object_checked_dynamic_initialize_v1(frame,field_profile,190,field_parent,940,0,
+      &nullable_null,&field_nullable_child[field_profile-1],field_outcome)==0);
+  field_finish(frame,191);
+  assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
+  assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,192,field_parent,940,0,field_outcome)==0);
+  field_finish(frame,192);
+  assert(nullable_object_null_ends==1 && nullable_object_value_ends==0);
+  assert(nyrt_object_checked_new_v1(frame,field_profile,193,941,child_layout,1,&child)==0);
+  assert(nyrt_object_checked_field_set_v1(frame,field_profile,194,child,941,0,17)==0);
+  NyrtDynamicFieldValueV1 nullable_object={NYRT_FIELD_OBJECT_V1,0,child,0};
+  assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
+  assert(nyrt_object_checked_dynamic_initialize_v1(frame,field_profile,195,field_parent,940,0,
+      &nullable_object,&field_nullable_child[field_profile-1],field_outcome)==0);
+  field_finish(frame,196);
+  assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
+  assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,197,field_parent,940,0,field_outcome)==0);
+  field_finish(frame,197);
+  assert(nullable_object_null_ends==1 && nullable_object_value_ends==1);
   if (field_profile==1) {
     /* Stable Map placement moves only after destination validation. Reuse the
      * complete child callback to exercise postcommit Fault without rollback. */

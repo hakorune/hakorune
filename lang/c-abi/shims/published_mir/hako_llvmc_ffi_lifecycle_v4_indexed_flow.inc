@@ -411,8 +411,28 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
       if (lv4_is(op, "transaction", "dynamic_value_initialize")) {
-        /* The source-selected tag and residence travel separately. An
-           empty Array Home may move into a Dynamic slot on Normal from a
+        /* The source-selected tag and residence travel separately. A
+           nullable object formal initializes an exact Dynamic Object Home
+           in Birth; Null remains a non-owning tag, and the caller transfers
+           a non-null actual only when Birth returns Normal. */
+        int nullable_object = lv4_is(op, "value_tag", "nullable_object") &&
+            lv4_is(op, "residence", "object_home");
+        if (nullable_object) {
+          yyjson_val* params = yyjson_obj_get(fn->function, "params");
+          uint32_t child_object = lv4_u(op, "residence_object_id");
+          int formal = 0;
+          for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
+            yyjson_val* param = yyjson_arr_get(params, pi);
+            if (lv4_u(param, "value") == lv4_u(op, "value") &&
+                lv4_is(param, "representation", "nullable_kind_payload_v1")) formal++;
+          }
+          if (!birth || faulted || !value || value->origin != -3 || value->kind != LV4_HANDLE ||
+              formal != 1 || !child_object || child_object == lv4_u(op, "object_id") ||
+              !lv4_layout(in, child_object) || !lv4_birth_dynamic(in, op) ||
+              !lv4_is(range, "kind", "none") ||
+              !lv4_birth_commit(in, fn, op, normal, bi, 0)) return 0;
+        } else {
+        /* An empty Array Home may move into a Dynamic slot on Normal from a
            root or ordinary function; Fault retains it for existing cleanup. */
         int root = lv4_is(fn->function, "role", "root_i64") ||
             lv4_is(fn->function, "role", "root_unit");
@@ -430,6 +450,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         /* The slot takes the Home only on Normal. Fault keeps the candidate
            live so the caller's existing cleanup still owns it. */
         normal[array_home->origin] = 0;
+        }
       } else if (lv4_is(op, "transaction", "dynamic_i64_initialize") ||
           lv4_is(op, "transaction", "dynamic_map_initialize") || lv4_is(op, "transaction", "dynamic_text_initialize")) {
         int text = lv4_is(op, "transaction", "dynamic_text_initialize");

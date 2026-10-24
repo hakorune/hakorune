@@ -406,6 +406,8 @@ unsafe fn dynamic_replace_inner(
     };
     match (value.kind, end) {
         (1..=3, None) => {}
+        (1, Some(end)) if end.kind == 5 && end.profile == profile
+            && end.end.is_some() && end.type_id > 0 => {}
         (4..=6, Some(end)) if end.kind == value.kind && end.profile == profile
             && end.end.is_some() && if value.kind == 5 { end.type_id > 0 } else { end.type_id == 0 } => {}
         _ => return Status::InvalidContract as u32,

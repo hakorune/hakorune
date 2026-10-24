@@ -33,6 +33,10 @@ pub enum DynamicFieldValueTagV1 {
     Bool,
     Text,
     Object,
+    /// A nullable object payload in a typed Birth formal. The slot is Null
+    /// or an Object of the residence's exact class; the same End descriptor
+    /// handles both alternatives.
+    NullableObject,
     Array,
 }
 
@@ -75,6 +79,7 @@ impl DynamicFieldSetContractV1 {
                 DynamicFieldResidenceV1::None)
                 | (DynamicFieldValueTagV1::Text, DynamicFieldResidenceV1::TextHome)
                 | (DynamicFieldValueTagV1::Object, DynamicFieldResidenceV1::ObjectHome(_))
+                | (DynamicFieldValueTagV1::NullableObject, DynamicFieldResidenceV1::ObjectHome(_))
                 | (DynamicFieldValueTagV1::Array, DynamicFieldResidenceV1::EmptyArrayHome)
         );
         paired.then_some(Self { intent, value_tag, residence })

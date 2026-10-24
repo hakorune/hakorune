@@ -69,7 +69,8 @@ static int lv4_field_outcome_alloca(FILE* f, const char* name,
  * committed End Fault never rolls back. Both exits dispose before continuation. */
 static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t profile,
     const char* site, const char* base, long long type, int slot, const char* candidate, const char* candidate_token,
-    int initialize, const char* normal, const char* fault) {
+    int initialize, uint32_t residence_object, const char* candidate_kind,
+    const char* normal, const char* fault) {
   if (slot < 0) return 0;
   if (candidate && initialize != 2) fprintf(f,
       "  store { i32, i32, i64, i64 } zeroinitializer, ptr %%%s_candidate, align 8\n"
@@ -78,6 +79,14 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  store i64 %s, ptr %%%s_payload, align 8\n",
       name, name, name, name, candidate, name);
   if (initialize == 5) fprintf(f, "  store i32 6, ptr %%%s_candidate, align 4\n", name);
+  if (initialize == 6) {
+    if (!candidate_kind || !residence_object) return 0;
+    fprintf(f,
+        "  %%%s_is_null = icmp eq i32 %s, 0\n"
+        "  %%%s_kind = select i1 %%%s_is_null, i32 1, i32 5\n"
+        "  store i32 %%%s_kind, ptr %%%s_candidate, align 4\n",
+        name, candidate_kind, name, name, name, name);
+  }
   if (initialize == 3) {
     if (!candidate || !candidate_token) return 0;
     fprintf(f, "  store i32 4, ptr %%%s_candidate, align 4\n"
@@ -98,6 +107,9 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
   else if (initialize == 5) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_array_end_descriptor, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, name, name);
+  else if (initialize == 6) fprintf(f,
+      "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_object_end_descriptor_%u, ptr %%%s_out)\n",
+      name, profile, site, base, type, slot, name, residence_object, name);
   else if (candidate) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr null, ptr %%%s_out)\n",
       name, initialize ? "checked_dynamic_initialize" : "checked_dynamic_replace",
@@ -123,7 +135,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       name, name, name, name, fault, name,
       name, site, name, name, name, name, name, name, name,
       name, name, name, name, normal,
-      initialize == 5 ? fault : (initialize ? "invalid" : fault));
+      (initialize == 5 || initialize == 6) ? fault : (initialize ? "invalid" : fault));
   return !ferror(f);
 }
 
@@ -173,7 +185,10 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
       lv4_is(op, "transaction", "dynamic_i64_initialize") ? 1 :
       (lv4_is(op, "transaction", "dynamic_value_initialize") &&
        lv4_is(op, "value_tag", "array") && lv4_is(op, "residence", "empty_array_home") &&
-       yyjson_is_null(yyjson_obj_get(op, "residence_object_id"))) ? 5 : 0;
+       yyjson_is_null(yyjson_obj_get(op, "residence_object_id"))) ? 5 :
+      (lv4_is(op, "transaction", "dynamic_value_initialize") &&
+       lv4_is(op, "value_tag", "nullable_object") && lv4_is(op, "residence", "object_home") &&
+       yyjson_is_uint(yyjson_obj_get(op, "residence_object_id"))) ? 6 : 0;
   if (!(replace ? (initialize || lv4_is(op, "transaction", "dynamic_i64_replace")) :
       lv4_is(op, "transaction", "take_dynamic"))) return 0;
   char name[32], site[32], base[32], candidate[32], token[32];
@@ -182,9 +197,19 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   snprintf(base, sizeof(base), "%%v%u", lv4_u(op, "base"));
   snprintf(candidate, sizeof(candidate), "%%v%u", lv4_u(op, "value"));
   snprintf(token, sizeof(token), "%%t%u", lv4_u(op, "value"));
+  uint32_t residence_object = 0;
+  char candidate_kind[32];
+  const char* candidate_kind_operand = NULL;
+  if (initialize == 6) {
+    if (!hako_physical_u32(yyjson_obj_get(op, "residence_object_id"), &residence_object) ||
+        !lv4_layout(in, residence_object)) return 0;
+    snprintf(candidate_kind, sizeof(candidate_kind), "%%k%u", lv4_u(op, "value"));
+    candidate_kind_operand = candidate_kind;
+  }
   return lv4_emit_dynamic_transaction(f, name, in->profile, site, base,
       (long long)lv4_type_id(in, op), lv4_slot(in, op), replace ? candidate : NULL,
-      initialize == 3 ? token : NULL, initialize, normal, fault);
+      initialize == 3 ? token : NULL, initialize, residence_object,
+      candidate_kind_operand, normal, fault);
 }
 
 /* Source-admitted complete End helpers in the lifecycle-v4 emitter. */
@@ -220,7 +245,7 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
       snprintf(name, sizeof(name), "td_dyn%u", ordinal);
       snprintf(done, sizeof(done), "%s_done", name); snprintf(fault, sizeof(fault), "%s_fault", name);
       if (array_mark || object_mark || !lv4_emit_dynamic_transaction(f, name, in->profile,
-          "%site", "%handle", type, lv4_layout_slot(layout, ordinal), NULL, NULL, 0, done, fault)) return 0;
+          "%site", "%handle", type, lv4_layout_slot(layout, ordinal), NULL, NULL, 0, 0, NULL, done, fault)) return 0;
       fprintf(f, "%s:\n  store i32 1, ptr %%td_status, align 4\n  br label %%%s\n%s:\n", fault, done, done);
       continue;
     }
@@ -278,10 +303,14 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
   fprintf(f,
       "@hako_lifecycle_object_end_descriptor_%u = private constant { i32, i32, i64, ptr } { i32 %u, i32 5, i64 %lld, ptr @hako_lifecycle_object_end_adapter_%u }\n"
       "define internal i32 @hako_lifecycle_object_end_adapter_%u(ptr %%frame, i64 %%site, ptr %%value) {\nstart:\n"
+      "  %%tagptr = getelementptr { i32, i32, i64, i64 }, ptr %%value, i32 0, i32 0\n"
+      "  %%tag = load i32, ptr %%tagptr, align 4\n"
+      "  switch i32 %%tag, label %%invalid [ i32 1, label %%empty i32 5, label %%object ]\n"
+      "empty:\n  ret i32 0\nobject:\n"
       "  %%payload = getelementptr { i32, i32, i64, i64 }, ptr %%value, i32 0, i32 2\n"
       "  %%handle = load i64, ptr %%payload, align 8\n"
       "  %%status = call i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%handle, i64 %%site)\n"
-      "  ret i32 %%status\n}\n",
+      "  ret i32 %%status\ninvalid:\n  ret i32 2\n}\n",
       id, in->profile, type, id, id, id);
   return !ferror(f);
 }

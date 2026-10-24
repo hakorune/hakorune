@@ -340,10 +340,17 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
          hako_physical_string(transaction, "dynamic_map_initialize") ||
          hako_physical_string(transaction, "dynamic_text_initialize")) :
         hako_physical_string(transaction, "take_dynamic"))) return 0;
-    if (dynamic_value &&
-        (!hako_physical_string(yyjson_obj_get(operation, "value_tag"), "array") ||
-         !hako_physical_string(yyjson_obj_get(operation, "residence"), "empty_array_home") ||
-         !yyjson_is_null(yyjson_obj_get(operation, "residence_object_id")))) return 0;
+    if (dynamic_value) {
+      int empty_array = hako_physical_string(yyjson_obj_get(operation, "value_tag"), "array") &&
+          hako_physical_string(yyjson_obj_get(operation, "residence"), "empty_array_home") &&
+          yyjson_is_null(yyjson_obj_get(operation, "residence_object_id"));
+      uint32_t child_object = 0;
+      int nullable_object = hako_physical_string(yyjson_obj_get(operation, "value_tag"), "nullable_object") &&
+          hako_physical_string(yyjson_obj_get(operation, "residence"), "object_home") &&
+          hako_physical_u32(yyjson_obj_get(operation, "residence_object_id"), &child_object) &&
+          hako_physical_layout_has_object(layouts, child_object);
+      if (!empty_array && !nullable_object) return 0;
+    }
     if (!write) return hako_physical_drain_matches(layouts, operation);
     yyjson_val* range = yyjson_obj_get(operation, "exact_numeric_runtime_check");
     return hako_physical_field_range_check(range) &&

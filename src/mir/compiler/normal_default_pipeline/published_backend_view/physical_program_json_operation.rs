@@ -317,7 +317,8 @@ pub(super) fn encode_invoke(
                     }.into();
                     encoded["value_tag"] = match contract.value_tag() {
                         Tag::Null => "null", Tag::I64 => "i64", Tag::Bool => "bool",
-                        Tag::Text => "text", Tag::Object => "object", Tag::Array => "array",
+                        Tag::Text => "text", Tag::Object => "object",
+                        Tag::NullableObject => "nullable_object", Tag::Array => "array",
                     }.into();
                     match contract.residence() {
                         Residence::None => {
