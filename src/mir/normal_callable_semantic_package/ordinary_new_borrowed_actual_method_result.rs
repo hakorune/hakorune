@@ -181,12 +181,17 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 let mut declarations = batch
                     .declarations()
                     .filter(|row| row.batch_slot() == batch_slot);
-                if declarations
-                    .next()
-                    .is_none_or(|row| row.owner() != input.owner())
-                    || declarations.next().is_some()
-                {
+                let declaration = declarations.next()
+                    .filter(|row| row.owner() == input.owner())
+                    .ok_or_else(|| freeze("source-sum/caller-owner"))?;
+                if declarations.next().is_some() {
                     return Err(freeze("source-sum/caller-owner"));
+                }
+                // Free functions have no method-parameter contract or method
+                // source context. The verified declaration owns membership;
+                // an absent Static/Instance contract still fails below.
+                if declaration.mode() == crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::TopLevel {
+                    return Ok(None);
                 }
                 let mut rows = contracts.iter().filter(|row| row.owner == input.owner());
                 let row = rows

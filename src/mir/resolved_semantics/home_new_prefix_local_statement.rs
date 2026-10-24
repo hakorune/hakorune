@@ -454,10 +454,6 @@ pub(super) fn observe<'a, E>(
             borrowed_actuals,
         )? {
             // The original Normal Text residence retains its acquisition.
-        } else if let Some(formal) = locals.opaque_formal_binding(site) {
-            // A direct unannotated-formal alias preserves its tagged carrier
-            // even when no caller SUM materialized this local read point.
-            locals.install_observed(binding, OrdinaryObservation::TaggedDynamicLocal(formal));
         } else if let Some(class) = locals.observe(site) {
             locals.install_observed(binding, class);
         } else if let Some(result_kind) = field_call::observe_local_field_call(
