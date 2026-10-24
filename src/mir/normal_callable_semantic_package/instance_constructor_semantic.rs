@@ -153,9 +153,16 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
                 if row.construction_source.as_ref().is_ok_and(|source| source.stores().iter().any(|store|
                     definition.is_array_field(store.field().declaration_ordinal() as usize)
                         && store.mode().is_err())) { continue; }
-                ConstructionPlanV1::qualify_text_stores_v1(&row.construction_source, declarations,
-                    &self.object_sources, definitions, |store| ledger.constructor_text_store_sum_v1(row, store))
+                ConstructionPlanV1::qualify_source_dynamic_stores_v1(&row.construction_source, declarations,
+                    &self.object_sources, definitions,
+                    |store| {
+                        let mode = ledger.constructor_dynamic_store_mode_v1(row, store);
+                        mode
+                    },
+                    |store| ledger.constructor_text_store_sum_v1(row, store))
             } else { continue; };
+            if let Err(reason) = &qualified {
+            }
             let Ok(plan) = qualified else {
                 continue;
             };

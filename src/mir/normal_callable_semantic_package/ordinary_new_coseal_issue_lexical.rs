@@ -11,6 +11,8 @@ use crate::mir::resolved_semantics::BindingKindV1;
 
 #[path = "ordinary_new_received_handle_arguments.rs"]
 mod received_handle;
+#[path = "ordinary_new_coseal_issue_lexical_received_object.rs"]
+mod received_object;
 
 /// The shared claim-local receiver proof for a `recv.m(...)` local call:
 /// the method-call inventory row at `site` carries a `Lexical(Local)`
@@ -640,8 +642,9 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             issue,
         });
     }
-    if let BorrowedCallActualRequestV1::ReceivedObjectArguments(destination, result) = request {
-        return super::super::lexical_instance_call::received_producer_arguments_v1(
+    if received_object::handles(&request) {
+        return received_object::project(
+            request,
             batch,
             selected,
             source,
@@ -650,10 +653,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             targets,
             candidates,
             classes,
-            site,
-            destination,
-            result,
             field_write_claims,
+            site,
         )
         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
             site: site.clone(),
@@ -902,6 +903,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::DynamicEntryRead { .. }
         | BorrowedCallActualRequestV1::Observe(..)
         | BorrowedCallActualRequestV1::ReceivedObjectArguments(_, _)
+        | BorrowedCallActualRequestV1::ReceivedFieldAliasObjectArguments { .. }
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(_)
         | BorrowedCallActualRequestV1::MixedLocalArguments(_)
@@ -997,12 +999,14 @@ pub(super) fn prepare_source_preflight_v1(
                 };
                 source_claims::stored_child_source_v1(
                     batch,
+                    instance_constructors,
                     selected,
                     entry_home_loans.for_batch_slot(slot),
                     slot,
                     input,
                     call,
                     residences,
+                    callable_result_classes,
                     &local_candidates,
                 )
             },
@@ -1010,6 +1014,7 @@ pub(super) fn prepare_source_preflight_v1(
                 source_claims::stored_child_receiver_v1(
                     batch,
                     instance_constructors,
+                    callable_result_classes,
                     site,
                     receiver,
                     residences,

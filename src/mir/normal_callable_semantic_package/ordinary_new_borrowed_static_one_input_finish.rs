@@ -103,7 +103,9 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         let incoming_rows = target.map_or(source.incoming.as_ref(), |row| row.incoming.as_ref());
-        let mut incoming = incoming_rows.iter().filter(|call| &call.call == original.call_site());
+        let mut incoming = incoming_rows
+            .iter()
+            .filter(|call| &call.call == original.call_site());
         let call = incoming
             .next()
             .ok_or_else(|| freeze("static-one/incoming-missing"))?;
@@ -159,11 +161,15 @@ impl OrdinaryNewClaimLedgerV1 {
             })
             .collect();
         originals.extend(source.target_static.values().flat_map(|cohort| {
-            cohort.incoming.iter().filter_map(|call| match &call.source {
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if original.is_current_owner_i64_source_v1() => Some(Rc::clone(original)),
-                _ => None,
-            })
+            cohort
+                .incoming
+                .iter()
+                .filter_map(|call| match &call.source {
+                    super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+                        original,
+                    ) if original.is_current_owner_i64_source_v1() => Some(Rc::clone(original)),
+                    _ => None,
+                })
         }));
         let mut replacements = Vec::new();
         for original in originals {
@@ -239,7 +245,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-one/result-completion-identity"));
             }
             let site = original.call_site();
-            let incoming_rows = target.map_or(source.incoming.as_ref(), |row| row.incoming.as_ref());
+            let incoming_rows =
+                target.map_or(source.incoming.as_ref(), |row| row.incoming.as_ref());
             let mut incoming = incoming_rows.iter().filter(|row| &row.call == site);
             let call = incoming
                 .next()

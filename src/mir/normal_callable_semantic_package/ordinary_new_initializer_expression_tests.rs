@@ -857,6 +857,9 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
                             assert_eq!(*root, contract.parameters[1].binding);
                             "entry"
                         }
+                        Producer::FieldRead(_) => {
+                            panic!("this fixture reads a formal scalar, not a field")
+                        }
                         Producer::BindingRebind(original) => {
                             let retained = flow
                                 .unwrap()

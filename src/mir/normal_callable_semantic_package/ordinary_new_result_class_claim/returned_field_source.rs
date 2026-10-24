@@ -112,7 +112,8 @@ impl OrdinaryNewResultClassClaimsV1 {
             let mut retained = source.alternatives.iter().filter(|row| row.hop == index);
             for root in hop.call.roots() {
                 let mut relations = self.construction_child_relation_loans()
-                    .filter(|row| row.outer() == root.site() && row.field() == field);
+                    .filter(|row| row.outer() == root.site() && row.field() == field
+                        && !row.is_unqualified_dynamic_v1());
                 let relation = relations.next().ok_or("returned-field/current-relation-missing")?;
                 if relations.next().is_some() { return Err("returned-field/current-relation-duplicate"); }
                 for child in relation.witnesses() {
@@ -214,7 +215,8 @@ impl<'a, 't> FieldWalkV1<'a, 't> {
             .map_err(|_| "returned-field/wrapper-class")?.ok_or("returned-field/wrapper-class")?;
         let wrapper_object = self.constructors.object_for(&wrapper_source).map_err(|_| "returned-field/wrapper-object")?;
         if !self.facts.construction_child_relation_loans().any(|row|
-            row.field().object() == wrapper_object && row.original_field_name_v1() == Ok(name.as_ref())) {
+            !row.is_unqualified_dynamic_v1() && row.field().object() == wrapper_object
+                && row.original_field_name_v1() == Ok(name.as_ref())) {
             return Ok(None);
         }
         let call = self.facts.object_call_source_v1(self.batch, self.selected, target)?;
@@ -224,7 +226,8 @@ impl<'a, 't> FieldWalkV1<'a, 't> {
         for root in call.roots() {
             if !matches!(root.step(), ResultWitnessStepV1::FreshConstruction) { return Err("returned-field/wrapper-forward-root"); }
             let mut rows = self.facts.construction_child_relation_loans().filter(|row|
-                row.outer() == root.site() && row.original_field_name_v1() == Ok(name.as_ref()));
+                !row.is_unqualified_dynamic_v1() && row.outer() == root.site()
+                    && row.original_field_name_v1() == Ok(name.as_ref()));
             let Some(relation) = rows.next() else { return Err("returned-field/field-alternative-missing"); };
             if rows.next().is_some() { return Err("returned-field/field-relation-duplicate"); }
             relation.provided_field_source_v1(wrapper)?;

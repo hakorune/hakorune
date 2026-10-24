@@ -32,6 +32,7 @@ pub(super) fn prepare_scalar_binding_producer(
                                                 Producer::Initializer(_) => "Initializer".to_owned(),
                                                 Producer::Integer { value, .. } => format!("Integer({value})"),
                                                 Producer::Call(_) => "Call".to_owned(),
+                                                Producer::FieldRead(_) => "FieldRead".to_owned(),
                                                 Producer::BindingRebind(_) => "Rebind".to_owned(),
                                                 Producer::BranchNormal(_) => "BranchNormal".to_owned(),
                                                 Producer::LoopHeader(_) => "LoopHeader".to_owned(),
@@ -524,6 +525,17 @@ pub(super) fn initializer_value(
             let value = context.original_scalar_call_result_v1(call)?;
             Some(value)
         }
+        Producer::FieldRead(source) => {
+            let (_, instruction) = context
+                .ledger()
+                .local_scalar_field_read_emission_v1(source.site_v1())?
+                .ok_or_else(|| freeze("expression/scalar-field-read-source"))?;
+            Some(
+                instruction
+                    .dst_value()
+                    .ok_or_else(|| freeze("expression/scalar-field-read-dst"))?,
+            )
+        }
         Producer::Initializer(frame) => {
             Some(context.with_original_initializer_v1(frame, |packet| Ok(packet.value()))?)
         }
@@ -660,12 +672,18 @@ pub(super) fn validate_scalar_origin(
 pub(super) fn validate_dependencies(
     read: &BindingValueObservationV2,
     producer: &ReferenceProducerV1,
+    context: CallValidationContextV1<'_>,
     function: &MirFunction,
 ) -> Result<(), String> {
     let definition = match producer {
         ReferenceProducerV1::Definition(binding) => Some(binding),
         ReferenceProducerV1::Entry(entry) => {
-            validate_dependencies_for_entry(*entry, function)?;
+            validate_dependencies_for_entry(
+                *entry,
+                Some(read.binding_value().0),
+                context,
+                function,
+            )?;
             None
         }
         ReferenceProducerV1::Phi(point) => {
@@ -719,9 +737,14 @@ pub(super) fn validate_entry_layout(
     }
     // Reuse the complete physical entry and exact Copy checks, independently
     // of optional projection permission for ordinary instruction definitions.
-    validate_dependencies_for_entry(*entry, function)
+    validate_dependencies_for_entry(*entry, Some(*formal), context, function)
 }
-pub(super) fn validate_dependencies_for_entry(entry: ValueId, function: &MirFunction) -> Result<(), String> {
+pub(super) fn validate_dependencies_for_entry(
+    entry: ValueId,
+    source_formal: Option<crate::mir::resolved_semantics::BindingRefV1>,
+    context: CallValidationContextV1<'_>,
+    function: &MirFunction,
+) -> Result<(), String> {
     use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
     let carriers = function
         .metadata
@@ -759,13 +782,21 @@ pub(super) fn validate_dependencies_for_entry(entry: ValueId, function: &MirFunc
         .iter()
         .position(|value| *value == entry)
         .unwrap();
+    let source_signed_i64 = match source_formal {
+        Some(formal) => context.ledger().source_formal_is_signed_i64_v1(formal)?,
+        None => false,
+    };
+    let entry_carrier_matches = carriers[index] == Carrier::ExistingCallableI64
+        || source_signed_i64 && carriers[index] == Carrier::BorrowedTaggedValue;
+    let entry_type_matches = function.signature.params[index] == crate::mir::MirType::Integer
+        || source_signed_i64 && function.signature.params[index] == crate::mir::MirType::Unknown;
     if function
         .metadata
         .declared_param_decls
         .get(index)
         .is_none_or(|row| row.implicit_receiver)
-        || carriers[index] != Carrier::ExistingCallableI64
-        || function.signature.params[index] != crate::mir::MirType::Integer
+        || !entry_carrier_matches
+        || !entry_type_matches
     {
         return Err(freeze("expression/scalar-entry-carrier"));
     }

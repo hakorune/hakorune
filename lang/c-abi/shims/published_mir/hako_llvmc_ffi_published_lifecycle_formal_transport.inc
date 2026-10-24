@@ -89,6 +89,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
         hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1") &&
         yyjson_is_true(yyjson_obj_get(param, "text_view"))) &&
         !hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1") &&
+        !hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
         /* A birth formal sealed as object-field-provided spells the
            nullable lane — same pair transport, the kind==0 branch is
            admitted beside the scalar kinds. */

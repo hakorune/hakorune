@@ -196,7 +196,9 @@ impl OrdinaryNewClaimLedgerV1 {
         )>,
         String,
     > {
-        if source.borrowed_receiver_source_v1().is_some() { return Ok(None); }
+        if source.borrowed_receiver_source_v1().is_some() {
+            return Ok(None);
+        }
         if let Some(qualifications) = source.object_return_sources() {
             let original = self
                 .callable_result_classes
@@ -305,9 +307,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(None);
             };
             let ingress = ingress.as_ref().map_err(Clone::clone)?;
+            let has_object_input = self.has_original_object_source_input_v1(ingress, source)?;
+            let selected_instance_input = self.selected_original_instance_input_kind_v1(ingress, contract.owner)?.is_some();
             if !ingress.definitions.contains_key(&contract.owner)
-                && !(self.has_original_object_source_input_v1(ingress, source)?
-                    && self.selected_original_instance_input_kind_v1(ingress, contract.owner)?.is_some()) {
+                && !(has_object_input && selected_instance_input) {
                 return Ok(None);
             }
         }

@@ -63,7 +63,10 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn validate_field_alias_function_v1(
         &self, site: &OwnedExprSiteV1, function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(path) = self.lexical_i64_call_source(site).and_then(|call| call.field_alias())
+        let call = self.handle_call_source(site)
+            .or_else(|| self.nullable_call_source(site))
+            .or_else(|| self.lexical_i64_call_source(site));
+        let Some(path) = call.and_then(|call| call.field_alias())
             else { return Ok(()) };
         let rows = self.local_field_reads.borrow();
         for (_, request) in &path.edges {
@@ -86,20 +89,68 @@ impl OrdinaryNewClaimLedgerV1 {
         receiver: Option<ValueId>,
     ) -> Result<bool, String> {
         let Some(path) = observation.field_alias() else { return Ok(false) };
-        if self.lexical_i64_call_source(row.call_site()) != Some(observation)
-            || observation.site() != row.call_site() || !observation.is_expression_value()
-            || !observation.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(path.root))
+        use crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1;
+        let sealed = self.handle_call_source(row.call_site()) == Some(observation)
+            || self.nullable_call_source(row.call_site()) == Some(observation)
+            || self.lexical_i64_call_source(row.call_site()) == Some(observation);
+        let result_matches = matches!(
+            (row.result(), observation.result()),
+            (Some(crate::mir::instruction::InvokeCallResultKind::Handle),
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle)
+                | (Some(crate::mir::instruction::InvokeCallResultKind::NullableHandle),
+                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable)
+                | (Some(crate::mir::instruction::InvokeCallResultKind::I64),
+                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64)
+                | (Some(crate::mir::instruction::InvokeCallResultKind::Bool),
+                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool)
+        );
+        let root_is_live = match &path.root_source {
+            FieldAliasRootSourceV1::OwnedHome { acquisition } => {
+                acquisition.owner() == observation.owner()
+                    && observation.prior_homes().contains(
+                        &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(path.root),
+                    )
+            }
+            FieldAliasRootSourceV1::InstanceEntry { batch_slot, identity } => {
+                self.checked_field_alias_entry_root_v1(path.root, *batch_slot, identity, observation.owner())?
+                    && !observation.prior_homes().contains(
+                        &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(path.root),
+                    )
+            }
+        };
+        if !sealed
+            || observation.site() != row.call_site() || !result_matches
+            || (observation.local_binding().is_none() && !observation.is_expression_value())
+            || !root_is_live
             || row.source_target().stored_receiver().is_some()
-            || path.acquisition.owner() != observation.owner()
             || path.edges.last().map(|edge| edge.0) != Some(row.receiver_binding()?) {
             return Err(fault("alias/call-source-drift"));
         }
-        let commits = self.local_commits.borrow();
-        let root = commits.get(&path.acquisition).ok_or_else(|| fault("alias/root-acquisition-missing"))?;
-        if !root.installs_ordinary(path.root) || !root.end_available() { return Err(fault("alias/root-home-drift")); }
-        let mut object = root.ordinary_object().ok_or_else(|| fault("alias/root-object"))?;
-        let mut parent = path.root;
         let reads = self.local_field_reads.borrow();
+        let mut object = match &path.root_source {
+            FieldAliasRootSourceV1::OwnedHome { acquisition } => {
+                let commits = self.local_commits.borrow();
+                let root = commits.get(acquisition).ok_or_else(|| fault("alias/root-acquisition-missing"))?;
+                if !root.installs_ordinary(path.root) || !root.end_available() {
+                    return Err(fault("alias/root-home-drift"));
+                }
+                root.ordinary_object().ok_or_else(|| fault("alias/root-object"))?
+            }
+            FieldAliasRootSourceV1::InstanceEntry { .. } => {
+                let (binding, request) = path.edges.first()
+                    .ok_or_else(|| fault("alias/entry-root-empty"))?;
+                let read = reads.get(&request.site)
+                    .ok_or_else(|| fault("alias/original-read-missing"))?;
+                if request.receiver != path.root || request.home != path.root
+                    || read.receiver != path.root || read.home != path.root
+                    || binding.owner() != observation.owner()
+                {
+                    return Err(fault("alias/entry-root-field-drift"));
+                }
+                read.source.field().object()
+            }
+        };
+        let mut parent = path.root;
         for (ordinal, (binding, request)) in path.edges.iter().enumerate() {
             let read = reads.get(&request.site).ok_or_else(|| fault("alias/original-read-missing"))?;
             if binding.owner() != observation.owner() || request.site.owner() != observation.owner()
@@ -133,6 +184,40 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(true)
     }
 
+    fn checked_field_alias_entry_root_v1(
+        &self,
+        root: BindingRefV1,
+        batch_slot: u32,
+        identity: &crate::parser::CallableDeclarationIdentityV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<bool, String> {
+        let Some((selected, signatures)) = &self.original_instance_input_issuance else {
+            return Ok(false);
+        };
+        let Some(signature) = signatures.row(batch_slot) else {
+            return Ok(false);
+        };
+        let selected_key = selected.key_for_batch_slot(batch_slot);
+        let selected_identity = selected.identity_for_batch_slot(batch_slot);
+        let mut receivers = signature.lanes().iter().filter(|lane| {
+            lane.role()
+                == crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1::InstanceReceiver
+        });
+        let exact_receiver = receivers.next().is_some_and(|lane| lane.binding() == root)
+            && receivers.next().is_none();
+        Ok(exact_receiver
+            && root.owner() == owner
+            && signature.owner() == owner
+            && signature.mode()
+                == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+            && signature.identity().same_as(identity)
+            && selected_identity.is_some_and(|actual| actual.same_as(identity))
+            && matches!(selected_key,
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                    if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod)
+        )
+    }
+
     /// Passive source correspondence for an original expression's alias root.
     /// Physical initializer/Copy membership stays with the read/LocalSSA owners.
     pub(in crate::mir::normal_callable_semantic_package) fn field_alias_source_object_v1(
@@ -142,7 +227,9 @@ impl OrdinaryNewClaimLedgerV1 {
         root_object: hakorune_mir_defs::CanonicalObjectIdV1,
         edges: &[(hakorune_mir_defs::CanonicalFieldRefV1, hakorune_mir_defs::CanonicalObjectIdV1)],
     ) -> Result<hakorune_mir_defs::CanonicalObjectIdV1, String> {
-        let mut object = self.with_local_new_source_v1(&path.acquisition, path.root, |source| {
+        let crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1::OwnedHome { acquisition } = &path.root_source
+            else { return Err(fault("alias/entry-root-expression-unsupported")); };
+        let mut object = self.with_local_new_source_v1(acquisition, path.root, |source| {
             if !source.box_source.same_source_as(root_source) || source.object != root_object { return Err(fault("alias/root-source-drift")); }
             Ok(source.object)
         })?.ok_or_else(|| fault("alias/root-source-missing"))?;

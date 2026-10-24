@@ -365,12 +365,26 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_source_scalar_resul
     array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
 ) -> Result<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>, String> {
     validate_source_scalar_result_loan_v1(source, results, loan, loan.source())?;
+    let target = loan.source();
+    if target.target().arity() == 0 && target.argument_sites().is_empty() {
+        let ingress = source.as_ref().map_err(Clone::clone)?;
+        exact_original_target(ingress, target)?;
+        let mut matching = contracts
+            .iter()
+            .filter(|contract| contract.owner == target.callee_owner());
+        let contract = matching
+            .next()
+            .ok_or_else(|| freeze("scalar-loan/zero-argument-contract-missing"))?;
+        if matching.next().is_some()
+            || contract.batch_slot != target.target_batch_slot()
+            || !contract.parameters.is_empty()
+        {
+            return Err(freeze("scalar-loan/zero-argument-contract-identity"));
+        }
+        return Ok(Box::new([]));
+    }
     super::super::borrowed_formal_actuals::project_pending_instance_arguments_by_phase_v1(
-        source,
-        pending,
-        contracts,
-        loan.source(),
-        array_ledger,
+        source, pending, contracts, target, array_ledger,
     )
 }
 

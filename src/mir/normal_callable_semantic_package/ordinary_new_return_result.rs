@@ -193,10 +193,13 @@ impl OrdinaryNewClaimLedgerV1 {
                     .is_none();
             }
         }
-        let Some((alternatives, field_supports)) = self.checked_object_callee_ancestry_v1(source)? else {
+        let ancestry = self.checked_object_callee_ancestry_v1(source)?;
+        let Some((alternatives, field_supports)) = ancestry else {
             return Ok(None);
         };
-        if missing { return Ok(None); }
+        if missing {
+            return Ok(None);
+        }
         let teardown = reduce_object_return_teardown_v1(&alternatives)?;
         Ok(Some(CheckedObjectCalleeSourceV1 { kind, teardown, field_supports }))
     }
@@ -215,7 +218,9 @@ impl OrdinaryNewClaimLedgerV1 {
             match witness.step() {
                 ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::NullLiteral => {
                     match self.checked_object_return_leaf_v1(source.target(), witness)? {
-                        None => missing = true,
+                        None => {
+                            missing = true;
+                        }
                         Some(VerifiedObjectReturnLeafV1::Null)
                             if !matches!(self.callable_result_classes.get(source.target()),
                                 Some(OrdinaryNewResultClassV1::NullableObject(_))) =>
@@ -256,7 +261,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         Some(NormalReturnDispositionV1::Verified { .. }) => {
                             return Err(freeze("call-disposition-identity"))
                         }
-                        _ => missing = true,
+                        _ => {
+                            missing = true;
+                        }
                     }
                 }
                 ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => missing = true,
@@ -264,9 +271,8 @@ impl OrdinaryNewClaimLedgerV1 {
             field_supports.push(ObjectCallFieldSupportRequirementV1 {
                 root: Rc::clone(witness), exit: value.return_site().clone(), supports: supports.into_boxed_slice(),
             });
-            missing |= self
-                .normal_exit_projection_v1(value.owner(), value.return_site())?
-                .is_none();
+            let exit_ready = self.normal_exit_projection_v1(value.owner(), value.return_site())?.is_some();
+            missing |= !exit_ready;
         }
         if missing {
             return Ok(None);

@@ -90,7 +90,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         instance_constructors,
         &field_write_claims,
         parameter_contracts,
-    );
+    )?;
     Ok((
         field_write_claims,
         field_residences,

@@ -313,14 +313,20 @@ mod tests {
             let ledger = &package.ordinary_new_claim_ledger;
             let root = paths.iter().find(|source| source.parent.is_none()).unwrap();
             if let Some(alias) = &root.request.alias_path {
+                let acquisition = match &alias.root_source {
+                    crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1::OwnedHome { acquisition } => acquisition,
+                    crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1::InstanceEntry { .. } => {
+                        panic!("this fixture's alias is rooted in an owned Home")
+                    }
+                };
                 let foreign_source = foreign.ordinary_new_claim_ledger.claims.borrow().values()
                     .find(|row| row.class() == "Outer").unwrap().box_source().clone();
                 let retained = {
                     let mut rows = ledger.claims.borrow_mut();
-                    std::mem::replace(&mut rows.get_mut(&alias.acquisition).unwrap().core.box_source, foreign_source)
+                    std::mem::replace(&mut rows.get_mut(acquisition).unwrap().core.box_source, foreign_source)
                 };
                 assert!(root.recheck(ledger).is_err(), "alias cannot borrow a replacement New source anchor");
-                ledger.claims.borrow_mut().get_mut(&alias.acquisition).unwrap().core.box_source = retained;
+                ledger.claims.borrow_mut().get_mut(acquisition).unwrap().core.box_source = retained;
             } else {
                 let mut changed = root.as_ref().clone();
                 changed.root = foreign.ordinary_new_claim_ledger.local_field_reads.borrow().values()

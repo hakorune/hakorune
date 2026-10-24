@@ -96,7 +96,34 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(None);
         };
-        corroborate_original_object_observations_v1(source.call_site(), result, flow.local_calls())
+        let dynamic_result = {
+            let class = self.callable_result_classes.get(source.target());
+            let (expected, class_name, nullable) = match class {
+                Some(OrdinaryNewResultClassV1::Object(class)) => {
+                    (InvokeCallResultKind::Handle, class.as_ref(), false)
+                }
+                Some(OrdinaryNewResultClassV1::NullableObject(class)) => {
+                    (InvokeCallResultKind::NullableHandle, class.as_ref(), true)
+                }
+                _ => {
+                    return corroborate_original_object_observations_v1(
+                        source.call_site(), result, flow.local_calls(), None,
+                    ).map(Some);
+                }
+            };
+            let roots = self.callable_result_classes
+                .checked_original_source_roots_v1(source.target(), source.callee_owner())
+                .map_err(|issue| freeze(&format!("lexical-object/dynamic-source/{issue}")))?;
+            let rooted_class = !roots.is_empty() && roots.iter().all(|root| match root.origin() {
+                crate::mir::normal_callable_semantic_package::ResultValueOriginV1::Fresh(name) => name.as_ref() == class_name,
+                crate::mir::normal_callable_semantic_package::ResultValueOriginV1::Null => nullable,
+                _ => false,
+            });
+            rooted_class.then_some(expected)
+        };
+        corroborate_original_object_observations_v1(
+            source.call_site(), result, flow.local_calls(), dynamic_result,
+        )
             .map(Some)
     }
 }
@@ -105,6 +132,7 @@ fn corroborate_original_object_observations_v1(
     site: &OwnedExprSiteV1,
     result: Option<InvokeCallResultKind>,
     observations: &[LocalCallObservationV1],
+    dynamic_result: Option<InvokeCallResultKind>,
 ) -> Result<bool, String> {
     let mut matching = observations.iter().filter(|row| row.site() == site);
     let Some(observation) = matching.next() else {
@@ -116,16 +144,14 @@ fn corroborate_original_object_observations_v1(
     if !matches!(
         observation.result(),
         LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable
-    ) || result.is_some_and(|kind| {
-        !matches!(
-            (observation.result(), kind),
-            (LocalCallResultClassV1::Handle, InvokeCallResultKind::Handle)
-                | (
-                    LocalCallResultClassV1::Nullable,
-                    InvokeCallResultKind::NullableHandle
-                )
-        )
-    }) {
+    ) && !(observation.result() == LocalCallResultClassV1::Dynamic && dynamic_result.is_some())
+        || match observation.result() {
+            LocalCallResultClassV1::Handle => result.is_some_and(|kind| kind != InvokeCallResultKind::Handle),
+            LocalCallResultClassV1::Nullable => result.is_some_and(|kind| kind != InvokeCallResultKind::NullableHandle),
+            LocalCallResultClassV1::Dynamic => result.is_some_and(|kind| Some(kind) != dynamic_result),
+            _ => true,
+        }
+    {
         return Err(freeze("lexical-object/result-observation"));
     }
     Ok(true)

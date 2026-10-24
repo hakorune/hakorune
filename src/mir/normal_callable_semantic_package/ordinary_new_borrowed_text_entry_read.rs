@@ -239,6 +239,19 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok((entry_value, value, domain))
     }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn source_formal_is_signed_i64_v1(
+        &self,
+        formal: BindingRefV1,
+    ) -> Result<bool, String> {
+        let Some(source) = self.borrowed_formal_source.as_ref() else {
+            return Ok(false);
+        };
+        let source = source.as_ref().map_err(Clone::clone)?;
+        Ok(source
+            .lend_source_value_sum_v1(formal)
+            .is_some_and(|sum| sum.signed_only()))
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -260,8 +273,15 @@ pub(in crate::mir) fn original_entry_layout_v1(&self, binding: crate::mir::resol
     };
     let mut rows = declaration.parameters.iter().filter(|row| row.binding == formal);
     let row = rows.next().ok_or_else(|| freeze("expression/scalar-entry-formal"))?;
+    let accepted_kind = accepts(&row.kind);
+    // An unannotated formal remains tagged at its declared boundary. It may
+    // enter this scalar expression lane only when the retained whole-source
+    // SUM proves every original actual is signed I64.
+    let source_signed_i64 = !accepted_kind
+        && matches!(row.kind, crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle)
+        && ledger.source_formal_is_signed_i64_v1(formal)?;
     if rows.next().is_some() || declaration.parameters.get(row.ordinal as usize).is_none_or(|original| original.binding != formal)
-        || !accepts(&row.kind) { return Err(freeze("expression/scalar-entry-contract")); }
+        || !accepted_kind && !source_signed_i64 { return Err(freeze("expression/scalar-entry-contract")); }
     let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
         .ok_or_else(|| freeze("expression/scalar-entry-issuance"))?;
     let signature = signatures.row(declaration.batch_slot).ok_or_else(|| freeze("expression/scalar-entry-signature"))?;

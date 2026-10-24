@@ -149,9 +149,17 @@ fn opaque_entry_contract_v1<'a>(
 ) -> Result<Option<&'a OwnedCallableParameterContractDeclarationV1>, ()> {
     let mut rows = contracts.iter().filter(|row| row.owner == owner);
     let contract = rows.next().ok_or(())?;
-    if rows.next().is_some() { return Err(()); }
-    Ok(contract.parameters.iter().any(|parameter| parameter.binding == root
-        && parameter.kind == CallableParameterContractKindV1::OpaqueHandle).then_some(contract))
+    if rows.next().is_some() {
+        return Err(());
+    }
+    Ok(contract
+        .parameters
+        .iter()
+        .any(|parameter| {
+            parameter.binding == root
+                && parameter.kind == CallableParameterContractKindV1::OpaqueHandle
+        })
+        .then_some(contract))
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_v1(
@@ -203,7 +211,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
     if flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) != Some(root) {
         return Ok(None);
     }
-    if opaque_entry_contract_v1(contracts, input.owner(), root).map_err(|()| reject())?.is_none() {
+    if opaque_entry_contract_v1(contracts, input.owner(), root)
+        .map_err(|()| reject())?
+        .is_none()
+    {
         return Ok(None);
     }
     let original = prepared.original_formal_read_v1(input.owner(), read, binding, root)?;
@@ -287,8 +298,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     }
     // A source read must select the same whole original entry membership as
     // its physical consumer. This grants no domain or completed actuals.
-    let Some(contract) = opaque_entry_contract_v1(contracts, input.owner(), root)
-        .map_err(|()| reject())? else { return Ok(None); };
+    let Some(contract) =
+        opaque_entry_contract_v1(contracts, input.owner(), root).map_err(|()| reject())?
+    else {
+        return Ok(None);
+    };
     if prepared
         .lend_original_input_sums_v1(&contract.parameters)
         .is_none()

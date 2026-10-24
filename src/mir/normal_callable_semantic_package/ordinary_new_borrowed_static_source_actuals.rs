@@ -9,16 +9,26 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
-pub(super) use argument_source::{validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_argument_sources_v1, observed_argument_source_v1, observed_carrier_array_append_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_field_array_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::{complete_argument_expression_v1, stage_observed_call_actuals_v1};
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{
+    bind_argument_sources_v1, lend_argument_expression_source_v1, lend_expression_core_source_v1,
+    lend_field_array_text_entry_read_v1, lend_text_entry_read_v1, observed_argument_source_v1,
+    observed_carrier_array_append_argument_source_v1,
+};
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{
+    complete_argument_expression_v1, stage_observed_call_actuals_v1,
+};
+pub(super) use argument_source::{
+    validate_qualified_argument_sources_v1, validate_static_source_actuals_v1,
+};
 
 #[path = "ordinary_new_borrowed_initializer_text_source.rs"]
 mod initializer_source;
-pub(crate) use initializer_source::FiniteEntryReadV1;
 pub(crate) use initializer_source::DynamicEntryReadV1;
-pub(in crate::mir::normal_callable_semantic_package) use initializer_source::{lend_dynamic_entry_read_v1, lend_finite_entry_read_v1};
+pub(crate) use initializer_source::FiniteEntryReadV1;
+pub(in crate::mir::normal_callable_semantic_package) use initializer_source::{
+    lend_dynamic_entry_read_v1, lend_finite_entry_read_v1,
+};
 
 #[derive(Debug, Clone)]
 pub(super) struct StaticSourceActualIdentityV1 {
@@ -40,10 +50,19 @@ impl StaticSourceActualIdentityV1 {
             && self.candidates == other.candidates
             && self.integer_evidence == other.integer_evidence
             && self.argument_sources.len() == other.argument_sources.len()
-            && self.argument_sources.iter().all(|(ordinal, plan)| other.argument_sources.get(ordinal)
-                .is_some_and(|other| Rc::ptr_eq(plan, other)))
+            && self.argument_sources.iter().all(|(ordinal, plan)| {
+                other
+                    .argument_sources
+                    .get(ordinal)
+                    .is_some_and(|other| Rc::ptr_eq(plan, other))
+            })
             && self.core_arguments.len() == other.core_arguments.len()
-            && self.core_arguments.iter().all(|(ordinal, receipt)| other.core_arguments.get(ordinal).is_some_and(|other| Rc::ptr_eq(receipt, other)))
+            && self.core_arguments.iter().all(|(ordinal, receipt)| {
+                other
+                    .core_arguments
+                    .get(ordinal)
+                    .is_some_and(|other| Rc::ptr_eq(receipt, other))
+            })
     }
 }
 impl Eq for StaticSourceActualIdentityV1 {}
@@ -51,13 +70,23 @@ impl Eq for StaticSourceActualIdentityV1 {}
 /// Passive argument plans borrow the complete original source census. They must
 /// not insert omitted callers into the legacy static-observation projection.
 pub(in crate::mir::normal_callable_semantic_package) fn original_static_source_v1<'a>(
-    prepared: &'a PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1,
+    prepared: &'a PreparedBorrowedFormalIngressV1,
+    call: &OwnedExprSiteV1,
 ) -> Result<Option<&'a Rc<StaticIncomingSourceV1>>, String> {
-    let mut rows = prepared.source_incoming.source_rows_v1().filter(|row| &row.call == call);
-    let Some(row) = rows.next() else { return Ok(None); };
-    if rows.next().is_some() { return Err(freeze("borrowed-static/core-source-identity")); }
+    let mut rows = prepared
+        .source_incoming
+        .source_rows_v1()
+        .filter(|row| &row.call == call);
+    let Some(row) = rows.next() else {
+        return Ok(None);
+    };
+    if rows.next().is_some() {
+        return Err(freeze("borrowed-static/core-source-identity"));
+    }
     let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source) = &row.source
-        else { return Ok(None); };
+    else {
+        return Ok(None);
+    };
     if let Some(legacy) = prepared.source_incoming.static_observations().get(call) {
         if !Rc::ptr_eq(legacy.as_ref().map_err(Clone::clone)?, source) {
             return Err(freeze("borrowed-static/core-source-identity"));
@@ -69,20 +98,27 @@ pub(in crate::mir::normal_callable_semantic_package) fn original_static_source_v
 impl PreparedBorrowedFormalIngressV1 {
     /// Source projection uses the same original destination purpose as admission.
     pub(in crate::mir::normal_callable_semantic_package) fn has_finite_forward_source_call_v1(
-        &self, site: &OwnedExprSiteV1,
+        &self,
+        site: &OwnedExprSiteV1,
     ) -> Result<bool, String> {
-        Ok(original_static_source_v1(self, site)?.is_some_and(|source|
-            self.original_finite_forward_input_request_v1(source.callee_owner())))
+        Ok(
+            original_static_source_v1(self, site)?.is_some_and(|source| {
+                self.original_finite_forward_input_request_v1(source.callee_owner())
+            }),
+        )
     }
 }
 
 /// The SAME original ordinary Text call source; classification only, never an
 /// executable result/ABI grant. A genuine method is selected before Array/Core.
 pub(super) fn ordinary_text_argument_source_v1(
-    prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
+    prepared: &PreparedBorrowedFormalIngressV1,
+    site: &OwnedExprSiteV1,
     method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
-    let Some(source) = original_static_source_v1(prepared, site)? else { return Ok(None) };
+    let Some(source) = original_static_source_v1(prepared, site)? else {
+        return Ok(None);
+    };
     if !matches!(source.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString) {
         return Ok(None);
     }
@@ -101,17 +137,29 @@ pub(super) fn core_argument_source_v1(
     prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
     method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     formal: &CallableParameterContractKindV1,
-) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>, String> {
-    let Some(receipt) = prepared.ordinary_core_source_v1(site) else { return Ok(None) };
-    if method.owner() != site.owner() || method.site() != site.site()
+) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>, String>{
+    let Some(receipt) = prepared.ordinary_core_source_v1(site) else {
+        return Ok(None);
+    };
+    if method.owner() != site.owner()
+        || method.site() != site.site()
         || !std::sync::Arc::ptr_eq(method, receipt.source().source())
-        || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
+        || receipt.source().target().schema()
+            != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
         || !match (formal, receipt.source().target().result()) {
-            (kind, crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller) => kind.is_ordinary_borrowed_handle(),
-            (CallableParameterContractKindV1::ExactTrivial(abi), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller) => abi.is_i64(),
+            (
+                kind,
+                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller,
+            ) => kind.is_ordinary_borrowed_handle(),
+            (
+                CallableParameterContractKindV1::ExactTrivial(abi),
+                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller,
+            ) => abi.is_i64(),
             _ => false,
         }
-    { return Err(freeze("borrowed-static/core-source-identity")); }
+    {
+        return Err(freeze("borrowed-static/core-source-identity"));
+    }
     Ok(Some(Rc::clone(receipt)))
 }
 
@@ -127,21 +175,33 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let sources = constructors.provider_static_sources_v1(claims, selected)?;
         for provider in sources {
-            let (caller, site, target, literals) = provider.original_call_v1()
+            let (caller, site, target, literals) = provider
+                .original_call_v1()
                 .ok_or_else(|| freeze("provider-static/call-source-missing"))?;
-            let Some(prepared) = self.borrowed_formal_source.as_ref() else { continue };
+            let Some(prepared) = self.borrowed_formal_source.as_ref() else {
+                continue;
+            };
             let source = prepared.as_ref().map_err(Clone::clone)?;
             // Eligibility selects only the original whole-input family. An
             // unrelated provider keeps its existing source owner and refusal.
-            if source.scalar_qualified_source_call_v1(&site)?.is_none() { continue; }
-            let original = source.source_incoming.static_observations().get(&site)
+            if source.scalar_qualified_source_call_v1(&site)?.is_none() {
+                continue;
+            }
+            let original = source
+                .source_incoming
+                .static_observations()
+                .get(&site)
                 .ok_or_else(|| freeze("provider-static/incoming-missing"))?
-                .as_ref().map_err(Clone::clone)?;
-            if original.caller() != caller || original.call_site() != &site
-                || original.target() != target || !original.is_qualified_i64_source_v1()
+                .as_ref()
+                .map_err(Clone::clone)?;
+            if original.caller() != caller
+                || original.call_site() != &site
+                || original.target() != target
+                || !original.is_qualified_i64_source_v1()
                 || !original.catalog_brand().is_same(claims.catalog_brand())
                 || original.argument_sites().len() != literals.len()
-                || literals.len() != target.arity() as usize {
+                || literals.len() != target.arity() as usize
+            {
                 return Err(freeze("provider-static/incoming-source-drift"));
             }
             let candidates: Vec<_> = original.argument_sites().iter().zip(literals).enumerate()
@@ -154,14 +214,23 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
                 }).collect();
             let rows = prepare_borrowed_call_actuals_v1(
-                prepared, contracts, &site, &candidates,
-                &[], None, &mut |_| None,
+                prepared,
+                contracts,
+                &site,
+                &candidates,
+                &[],
+                None,
+                &mut |_| None,
             )?;
-            if rows.is_none() { return Err(freeze("provider-static/actuals-missing")); }
+            if rows.is_none() {
+                return Err(freeze("provider-static/actuals-missing"));
+            }
             stage_borrowed_call_actuals_v1(&mut self.borrowed_formal_actuals, &site, Ok(rows));
-            self.borrowed_formal_actuals.get(&site)
+            self.borrowed_formal_actuals
+                .get(&site)
                 .ok_or_else(|| freeze("provider-static/actuals-unstaged"))?
-                .as_ref().map_err(Clone::clone)?;
+                .as_ref()
+                .map_err(Clone::clone)?;
         }
         Ok(())
     }
@@ -170,21 +239,33 @@ impl OrdinaryNewClaimLedgerV1 {
 /// Select passive expression inputs before the primitive executable issuer.
 /// Original source membership and Core identity, never a failed-issuer retry.
 pub(super) fn selects_static_expression_source_v1(
-    prepared: &PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1,
+    prepared: &PreparedBorrowedFormalIngressV1,
+    call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<bool, String> {
     let mut core_source = false;
     for actual in actuals {
-        let BorrowedCallActualValueV1::MethodCall(method) = &actual.value else { continue; };
+        let BorrowedCallActualValueV1::MethodCall(method) = &actual.value else {
+            continue;
+        };
         let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
-        core_source |= prepared.ordinary_core_source_v1(&site)
+        core_source |= prepared
+            .ordinary_core_source_v1(&site)
             .is_some_and(|receipt| std::sync::Arc::ptr_eq(method, receipt.source().source()))
             || ordinary_text_argument_source_v1(prepared, &site, method)?.is_some();
     }
-    let original_text_formal = |root| prepared.source_value_sum_v1(root).is_some_and(|sum|
-        sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+    let original_text_formal = |root| {
+        prepared.source_value_sum_v1(root).is_some_and(|sum| {
+            sum.alternatives().len() == 1
+                && sum
+                    .alternatives()
+                    .contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)
+        })
+    };
     let source_expression = actuals.iter().any(|actual| match actual.value {
-        BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_) => true,
+        BorrowedCallActualValueV1::Expression
+        | BorrowedCallActualValueV1::String(_)
+        | BorrowedCallActualValueV1::Binding(_) => true,
         BorrowedCallActualValueV1::SelfRooted { root, .. } => original_text_formal(root),
         _ => false,
     });
@@ -194,9 +275,16 @@ pub(super) fn selects_static_expression_source_v1(
             || source.parameters().iter().any(|formal|
         matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) && prepared.source_value_sum_v1(formal.binding)
             .is_some_and(|sum| sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))));
-    let sibling_source = finite_cohort && actuals.iter().all(|actual|
-        !matches!(actual.value, BorrowedCallActualValueV1::MethodCall(_)) ||
-            prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(call.owner(), actual.site.clone())).is_some());
+    let sibling_source = finite_cohort
+        && actuals.iter().all(|actual| {
+            !matches!(actual.value, BorrowedCallActualValueV1::MethodCall(_))
+                || prepared
+                    .ordinary_core_source_v1(&OwnedExprSiteV1::new(
+                        call.owner(),
+                        actual.site.clone(),
+                    ))
+                    .is_some()
+        });
     // Input observation retains the original target and input demand only.
     // Result meaning is issued separately from the same completed Return owner.
     Ok(original.is_some() && (core_source || source_expression || sibling_source))
@@ -215,8 +303,14 @@ pub(super) fn prepare_static_source_actuals_v1(
         .keys()
         .any(|(site, _)| site == call);
     let source_expression = selects_static_expression_source_v1(prepared, call, actuals)?;
-    let original_text_formal = |root| prepared.source_value_sum_v1(root).is_some_and(|sum|
-        sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+    let original_text_formal = |root| {
+        prepared.source_value_sum_v1(root).is_some_and(|sum| {
+            sum.alternatives().len() == 1
+                && sum
+                    .alternatives()
+                    .contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)
+        })
+    };
     let original = original_static_source_v1(prepared, call)?;
     let original_source = original
         .is_some_and(|source| {
@@ -290,33 +384,57 @@ pub(super) fn prepare_static_source_actuals_v1(
         }
         let unavailable = || {
             if crate::config::env::builder_debug_enabled() {
-                eprintln!("[static-actual/source] call={call:?} ordinal={} formal={:?} value={:?}", actual.ordinal, formal.kind, actual.value);
+                eprintln!(
+                    "[static-actual/source] call={call:?} ordinal={} formal={:?} value={:?}",
+                    actual.ordinal, formal.kind, actual.value
+                );
             }
             freeze("borrowed-static/source-actual-unavailable")
         };
         let integer = match &actual.value {
             BorrowedCallActualValueV1::Integer(_) => true,
-            BorrowedCallActualValueV1::Expression if matches!(&formal.kind,
-                CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) => false,
             BorrowedCallActualValueV1::Expression
-                if source_expression && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) => false,
+                if matches!(&formal.kind,
+                CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) =>
+            {
+                false
+            }
+            BorrowedCallActualValueV1::Expression
+                if source_expression
+                    && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) =>
+            {
+                false
+            }
             BorrowedCallActualValueV1::Bool(_) | BorrowedCallActualValueV1::Null => false,
-            BorrowedCallActualValueV1::String(_) if formal.kind.is_ordinary_borrowed_handle() => false,
+            BorrowedCallActualValueV1::String(_) if formal.kind.is_ordinary_borrowed_handle() => {
+                false
+            }
             BorrowedCallActualValueV1::Binding(binding)
-                if binding.owner() == call.owner() && formal.kind.is_ordinary_borrowed_handle() => false,
+                if binding.owner() == call.owner() && formal.kind.is_ordinary_borrowed_handle() =>
+            {
+                false
+            }
             BorrowedCallActualValueV1::Scalar(binding, kind) if binding.owner() == call.owner() => {
                 *kind == SourceScalarKind::Integer
             }
             BorrowedCallActualValueV1::SelfRooted { binding, root } => {
-                if prepared.static_arguments.contains_key(&(call.clone(), actual.ordinal)) {
+                if prepared
+                    .static_arguments
+                    .contains_key(&(call.clone(), actual.ordinal))
+                {
                     prepared.candidate_integer_agreement(*root)
-                } else if binding.owner() == call.owner() && root.owner() == call.owner()
-                    && formal.kind.is_ordinary_borrowed_handle() && original_text_formal(*root) {
+                } else if binding.owner() == call.owner()
+                    && root.owner() == call.owner()
+                    && formal.kind.is_ordinary_borrowed_handle()
+                    && original_text_formal(*root)
+                {
                     // Full-census Text source stays passive. The binder checks
                     // exact Entry provenance; the covered purpose checks current
                     // roots. No legacy forward fact or Integer proof is minted.
                     false
-                } else { return Err(freeze("borrowed-static/forward-source-missing")); }
+                } else {
+                    return Err(freeze("borrowed-static/forward-source-missing"));
+                }
             }
             BorrowedCallActualValueV1::MethodCall(method) => {
                 let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
@@ -324,7 +442,10 @@ pub(super) fn prepare_static_source_actuals_v1(
                     if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) {
                         return Err(freeze("borrowed-static/text-formal-domain"));
                     }
-                    arguments.push(LocalCallArgumentV1::BorrowedActual { ordinal: actual.ordinal, site: actual.site.clone() });
+                    arguments.push(LocalCallArgumentV1::BorrowedActual {
+                        ordinal: actual.ordinal,
+                        site: actual.site.clone(),
+                    });
                     integer_evidence.push(false);
                     continue;
                 }
@@ -350,8 +471,10 @@ pub(super) fn prepare_static_source_actuals_v1(
                     {
                         LocalCallArgumentV1::Scalar(binding)
                     }
-                    BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_) => LocalCallArgumentV1::Expression {
-                        ordinal: actual.ordinal, site: actual.site.clone(),
+                    BorrowedCallActualValueV1::Expression
+                    | BorrowedCallActualValueV1::MethodCall(_) => LocalCallArgumentV1::Expression {
+                        ordinal: actual.ordinal,
+                        site: actual.site.clone(),
                     },
                     _ if source.is_current_owner_i64_source_v1()
                         && !matches!(
@@ -565,8 +688,8 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
     let retained = original_static_source_v1(prepared, site)?;
     let has_finite_forward_source = prepared.has_finite_forward_source_call_v1(site)?;
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
-    let has_static_terminal_source = !current_owner
-        && retained.is_some_and(|row| prepared.is_static_terminal_source_v1(row));
+    let has_static_terminal_source =
+        !current_owner && retained.is_some_and(|row| prepared.is_static_terminal_source_v1(row));
     if !has_source_fact
         && !has_final_static
         && !has_finite_forward_source
@@ -613,7 +736,13 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         )
         .map(|arguments| Some(arguments.into()));
     }
-    if !has_source_fact && !current_owner && !has_static_terminal_source && source_qualified.is_none() && !has_expression_source && !has_finite_forward_source {
+    if !has_source_fact
+        && !current_owner
+        && !has_static_terminal_source
+        && source_qualified.is_none()
+        && !has_expression_source
+        && !has_finite_forward_source
+    {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {
@@ -675,7 +804,8 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         let original =
             retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
         if required_i64_arguments != original.required_i64_arguments()
-            || !(required_i64_arguments == [0] || required_i64_arguments.is_empty()) {
+            || !(required_i64_arguments == [0] || required_i64_arguments.is_empty())
+        {
             return Err(freeze("borrowed-static/scalar-required-integer-drift"));
         }
         super::static_scalar_input_finish::checked_ready_scalar_rows_v1(
@@ -718,14 +848,22 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
             .ordered_arguments_for_v1(call)
             .map(|args| Some(args.into()));
     }
-    let identity = argument_source::validate_static_source_actuals_v1(prepared, rows, site, required_i64_arguments)?;
+    let identity = argument_source::validate_static_source_actuals_v1(
+        prepared,
+        rows,
+        site,
+        required_i64_arguments,
+    )?;
     // Current qualified frames lend passive source arguments during Home scanning.
     // SourceStatic still owns no executable payload or physical permission.
     argument_source::validate_qualified_argument_sources_v1(prepared, pending, site, identity)?;
     if required_i64_arguments.iter().any(|ordinal| {
         if identity.integer_evidence.get(*ordinal as usize) == Some(&true)
-            || identity.argument_sources.get(ordinal).is_some_and(|slot| matches!(slot,
-                ArgumentExpressionV1::Qualified(frame) if frame.is_i64())) {
+            || identity.argument_sources.get(ordinal).is_some_and(|slot| {
+                matches!(slot,
+                ArgumentExpressionV1::Qualified(frame) if frame.is_i64())
+            })
+        {
             return false;
         }
         let index = *ordinal as usize;

@@ -120,7 +120,7 @@ pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRoot
 mod lexical_instance_call;
 pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
 pub(in crate::mir) use lexical_instance_call::{MainArgumentsSourceV1, MainArgumentKindV1};
-pub(in crate::mir) use lexical_instance_call::TaggedDynamicSourcePointsV1;
+pub(in crate::mir) use lexical_instance_call::SourceValueClassFactsV1;
 pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
 pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
 #[cfg(test)]

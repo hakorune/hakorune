@@ -93,6 +93,7 @@ pub(in crate::mir) fn borrowed_source_loop_phi_relations_v2(
                 Producer::SignedEntry(_)
                 | Producer::Integer { .. }
                 | Producer::Call(_)
+                | Producer::FieldRead(_)
                 | Producer::BranchNormal(_)
                 | Producer::LoopAfter { .. } => {}
             }

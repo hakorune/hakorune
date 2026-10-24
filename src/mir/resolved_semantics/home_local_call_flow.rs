@@ -299,6 +299,7 @@ pub(crate) use mixed_call::issue_mixed_local_call;
 #[path = "home_local_lexical_call.rs"]
 mod lexical_local_call;
 pub(crate) use lexical_local_call::{issue_lexical_local_call, issue_received_producer_local_call};
+pub(crate) use lexical_local_call::issue_received_producer_local_call_with_alias_v1;
 
 /// Issue a source-proved static I64 continuation, preserving its original route.
 ///

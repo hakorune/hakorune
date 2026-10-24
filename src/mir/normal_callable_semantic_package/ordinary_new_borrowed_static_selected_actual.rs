@@ -135,32 +135,54 @@ pub(super) fn original_static_forwarded_source_actual_v1(
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &snapshot.phase else {
         return Err(reject());
     };
-    let site = original.argument_sites().get(ordinal as usize).ok_or_else(reject)?;
-    let formal = original.parameters().get(ordinal as usize).ok_or_else(reject)?;
-    let fact = prepared.static_arguments.get(&(original.call_site().clone(), ordinal))
+    let site = original
+        .argument_sites()
+        .get(ordinal as usize)
         .ok_or_else(reject)?;
-    let mut candidates = identity.candidates.iter().filter(|row| row.ordinal == ordinal);
+    let formal = original
+        .parameters()
+        .get(ordinal as usize)
+        .ok_or_else(reject)?;
+    let fact = prepared
+        .static_arguments
+        .get(&(original.call_site().clone(), ordinal))
+        .ok_or_else(reject)?;
+    let mut candidates = identity
+        .candidates
+        .iter()
+        .filter(|row| row.ordinal == ordinal);
     let candidate = candidates.next().ok_or_else(reject)?;
     let BorrowedCallActualValueV1::SelfRooted { binding, root } = candidate.value else {
         return Err(reject());
     };
-    let draft = prepared.source_definition_for(original.call_site().owner()).ok_or_else(reject)?;
-    let mut uses = draft.uses.iter().filter(|row| matches!(&row.kind,
+    let draft = prepared
+        .source_definition_for(original.call_site().owner())
+        .ok_or_else(reject)?;
+    let mut uses = draft.uses.iter().filter(|row| {
+        matches!(&row.kind,
         BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal: observed }
-            if call == original.call_site() && *observed == ordinal));
+            if call == original.call_site() && *observed == ordinal)
+    });
     let use_row = uses.next().ok_or_else(reject)?;
-    if candidates.next().is_some() || uses.next().is_some()
+    if candidates.next().is_some()
+        || uses.next().is_some()
         || !Rc::ptr_eq(&identity.source, original)
         || !Rc::ptr_eq(fact.retained_call_source(), original)
-        || !formal.kind.is_ordinary_borrowed_handle() || formal.ordinal != ordinal
-        || fact.call() != original.call_site() || fact.ordinal() != ordinal
+        || !formal.kind.is_ordinary_borrowed_handle()
+        || formal.ordinal != ordinal
+        || fact.call() != original.call_site()
+        || fact.ordinal() != ordinal
         || fact.use_site().owner() != original.call_site().owner()
-        || fact.use_site().site() != site || candidate.site != *site
-        || fact.binding() != binding || fact.formal() != root
+        || fact.use_site().site() != site
+        || candidate.site != *site
+        || fact.binding() != binding
+        || fact.formal() != root
         || fact.target_formal() != formal.binding
         || binding.owner() != original.call_site().owner()
         || root.owner() != original.call_site().owner()
-        || use_row.site != *fact.use_site() || use_row.binding != binding || use_row.formal != root
+        || use_row.site != *fact.use_site()
+        || use_row.binding != binding
+        || use_row.formal != root
         || draft.origins.get(&binding) != Some(&root)
         || !matches!(snapshot.ordered_arguments.get(ordinal as usize),
             Some(LocalCallArgumentV1::BorrowedActual { ordinal: observed, site: observed_site })
@@ -170,7 +192,12 @@ pub(super) fn original_static_forwarded_source_actual_v1(
         return Err(reject());
     }
     Ok(PreparedBorrowedFormalActualV1 {
-        ordinal, site: site.clone(), formal: formal.binding,
-        source: BorrowedFormalActualSourceV1::Forwarded { binding, formal: root },
+        ordinal,
+        site: site.clone(),
+        formal: formal.binding,
+        source: BorrowedFormalActualSourceV1::Forwarded {
+            binding,
+            formal: root,
+        },
     })
 }

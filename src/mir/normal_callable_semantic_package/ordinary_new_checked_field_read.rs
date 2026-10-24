@@ -10,6 +10,38 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn local_field_read_requires_checked_v1(&self, site: &OwnedExprSiteV1) -> bool {
         self.local_field_reads.borrow().get(site).is_some_and(|row| row.source.requires_checked_field_read_v1())
     }
+
+    /// Lend the emitted value for the exact already-issued scalar local field
+    /// read. This is a source dependency lookup; it cannot create or consume
+    /// another field read.
+    pub(in crate::mir) fn local_scalar_field_read_emission_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<Binding>, String> {
+        let rows = self.local_field_reads.borrow();
+        let Some(row) = rows.get(site) else {
+            return Ok(None);
+        };
+        if row.source.result()
+            != &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar
+        {
+            return Ok(None);
+        }
+        self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
+        let LocalReadProgress::Emitted {
+            block,
+            instruction,
+            source,
+        } = &row.progress
+        else {
+            return Err(fault("scalar/emission-missing"));
+        };
+        if !Rc::ptr_eq(source, &row.source) || !source.corroborates_instruction(instruction) {
+            return Err(fault("scalar/emission-source-drift"));
+        }
+        Ok(Some((*block, instruction.clone())))
+    }
+
     pub(super) fn record_checked_local_field_read_v1(
         &self, site: &OwnedExprSiteV1, source: &Rc<LocalFieldReadSourceV1>,
         read: Option<Rc<ExactLexicalReadV1>>, invoke: Binding, normal: Binding,

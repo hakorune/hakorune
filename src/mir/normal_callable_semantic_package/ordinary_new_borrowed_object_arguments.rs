@@ -30,9 +30,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_a
     {
         return Err(freeze("borrowed-call/object-source-identity"));
     }
-    project_pending_object_target_arguments_v1(source, contracts, actuals, target,
-        ledger,
-    )
+    project_pending_object_target_arguments_v1(source, contracts, actuals, target, ledger)
 }
 
 /// Borrows the exact original target's input phase; grants no result membership.
@@ -58,27 +56,43 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_t
         return Err(freeze("borrowed-object/source-phase-drift"));
     }
     if let Some(Ok(rows)) = actuals.get(site) {
-        if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::SourceInstance(_)
-            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)) {
+        if matches!(
+            &rows.phase,
+            BorrowedCallActualEvidencePhaseV1::SourceInstance(_)
+                | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)
+        ) {
             // Original QualifiedObject membership excludes the Instance issuer.
             // Literal/executable Object rows keep their existing constructor law.
             if ingress.source_incoming.has_object_input_callee_v1(target) {
                 return Err(freeze("borrowed-object/source-phase-drift"));
             }
-            let mut originals = ingress.source_incoming.exact_rows().filter(|row| &row.call == site);
-            let original = originals.next().ok_or_else(|| freeze("borrowed-instance/original-source-missing"))?;
-            if originals.next().is_some() || original.source.require_instance()? != target
-                || original.callee != target.callee_owner() {
+            let mut originals = ingress
+                .source_incoming
+                .exact_rows()
+                .filter(|row| &row.call == site);
+            let original = originals
+                .next()
+                .ok_or_else(|| freeze("borrowed-instance/original-source-missing"))?;
+            if originals.next().is_some()
+                || original.source.require_instance()? != target
+                || original.callee != target.callee_owner()
+            {
                 return Err(freeze("borrowed-call/object-source-identity"));
             }
             // SourceObject selection above is disjoint from this phase, so
             // delegation cannot retry this owner through the Instance port.
-            let observed = matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_));
+            let observed = matches!(
+                &rows.phase,
+                BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)
+            );
             let arguments = super::instance_source::project_pending_instance_source_arguments_with_array_context_v1(
                 source, actuals, contracts, site, ledger,
             )?.ok_or_else(|| freeze("borrowed-instance/source-phase-drift"))?;
-            return Ok(if observed { ObjectCallSourceSupportV1::Observed(arguments) }
-                else { ObjectCallSourceSupportV1::SourceOnly(arguments) });
+            return Ok(if observed {
+                ObjectCallSourceSupportV1::Observed(arguments)
+            } else {
+                ObjectCallSourceSupportV1::SourceOnly(arguments)
+            });
         }
         if let BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) = &rows.phase {
             let mut calls = ingress
@@ -92,8 +106,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_t
                 return Err(freeze("borrowed-guarded/original-target"));
             }
             super::object_source::recheck_object_source_actuals_v1(
-                ingress, contracts, call, rows, identity,
-                ledger,
+                ingress, contracts, call, rows, identity, ledger,
             )?;
             return Ok(ObjectCallSourceSupportV1::Observed(
                 rows.ordered_arguments.clone(),
@@ -137,7 +150,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_t
     // protocol. SourceObject and sealed Instance arms above own their checks.
     if matches!(actuals.get(site), Some(Ok(rows))
         if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::Executable))
-        && super::instance_source::selected_original_instance_forward_v1(ingress, site)? {
+        && super::instance_source::selected_original_instance_forward_v1(ingress, site)?
+    {
         return Err(freeze("borrowed-instance/source-phase-drift"));
     }
     let mut incoming = ingress.incoming.iter().filter(|row| &row.call == site);

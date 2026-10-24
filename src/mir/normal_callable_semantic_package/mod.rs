@@ -54,7 +54,7 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
-pub(in crate::mir) use ordinary_new_coseal::TaggedDynamicSourcePointsV1;
+pub(in crate::mir) use ordinary_new_coseal::SourceValueClassFactsV1;
 pub(crate) use ordinary_new_coseal::RetainedSourceLoopProductV1;
 pub(in crate::mir) use ordinary_new_coseal::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;

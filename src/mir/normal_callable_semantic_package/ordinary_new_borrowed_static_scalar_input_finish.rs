@@ -48,12 +48,16 @@ impl StaticScalarInputFinishV1 {
         Rc::ptr_eq(&self.source, original)
             && Rc::ptr_eq(&self.completion, completion)
             && match &self.actual {
-                StaticScalarActualV1::CurrentOwner(binding) =>
+                StaticScalarActualV1::CurrentOwner(binding) => {
                     original.is_current_owner_i64_source_v1()
-                        && binding.owner() == original.call_site().owner(),
-                StaticScalarActualV1::QualifiedLiteral(identity) =>
-                    original.is_qualified_i64_source_v1() && Rc::ptr_eq(&identity.source, original),
-                StaticScalarActualV1::QualifiedExecutable(_) => original.is_qualified_i64_source_v1(),
+                        && binding.owner() == original.call_site().owner()
+                }
+                StaticScalarActualV1::QualifiedLiteral(identity) => {
+                    original.is_qualified_i64_source_v1() && Rc::ptr_eq(&identity.source, original)
+                }
+                StaticScalarActualV1::QualifiedExecutable(_) => {
+                    original.is_qualified_i64_source_v1()
+                }
             }
             && (original.required_i64_arguments() == [0]
                 || original.required_i64_arguments().is_empty())
@@ -100,7 +104,6 @@ pub(super) fn check_exact_usize_scalar_caller_v1(
     Ok(())
 }
 
-
 /// Keep qualified callers in their already-issued execution protocol. The
 /// existing qualified projection checks original inventory, payload and required
 /// Integer domains; this cannot recurse because only Executable is selected.
@@ -122,13 +125,18 @@ fn qualified_scalar_actual_v1(
             if !proof.corroborates(original, completion)
                 || !source.is_compare_only_static_input_v1(original.callee_owner())
                 || snapshot.opaque_actuals != actual.opaque_actuals
-                || snapshot.ordered_arguments != actual.ordered_arguments {
+                || snapshot.ordered_arguments != actual.ordered_arguments
+            {
                 return Err(freeze("static-scalar/qualified-snapshot-drift"));
             }
-            let call = source.scalar_qualified_source_call_v1(original.call_site())?
+            let call = source
+                .scalar_qualified_source_call_v1(original.call_site())?
                 .ok_or_else(|| freeze("static-scalar/qualified-source-missing"))?;
             super::static_source::checked_executable_qualified_arguments_v1(
-                source, call, snapshot, original.required_i64_arguments(),
+                source,
+                call,
+                snapshot,
+                original.required_i64_arguments(),
             )?;
             return Ok(true);
         }
@@ -139,14 +147,23 @@ fn qualified_scalar_actual_v1(
             return Err(freeze("static-scalar/qualified-completion-drift"));
         }
         let Some(value) = super::static_tagged_input_finish::literal_identity_v1(
-            source, original, identity, actual, original.parameters()[0].binding,
-        )? else { return Ok(false) };
-        if actual.opaque_actuals.as_ref() != [PreparedBorrowedFormalActualV1 {
-            ordinal: 0,
-            site: original.argument_sites()[0].clone(),
-            formal: original.parameters()[0].binding,
-            source: BorrowedFormalActualSourceV1::Integer(value),
-        }] {
+            source,
+            original,
+            identity,
+            actual,
+            original.parameters()[0].binding,
+        )?
+        else {
+            return Ok(false);
+        };
+        if actual.opaque_actuals.as_ref()
+            != [PreparedBorrowedFormalActualV1 {
+                ordinal: 0,
+                site: original.argument_sites()[0].clone(),
+                formal: original.parameters()[0].binding,
+                source: BorrowedFormalActualSourceV1::Integer(value),
+            }]
+        {
             return Err(freeze("static-scalar/qualified-payload-drift"));
         }
         return Ok(true);
@@ -410,10 +427,12 @@ impl OrdinaryNewClaimLedgerV1 {
         // Apply this phase boundary to every scalar family; once a finish
         // receipt exists, project all original incoming rows below so a missing
         // sibling or veto remains an error rather than a partial permission.
-        if !self.borrowed_formal_actuals.values().any(|row| matches!(row,
+        if !self.borrowed_formal_actuals.values().any(|row| {
+            matches!(row,
                 Ok(actual) if matches!(&actual.phase,
                     BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(proof)
-                        if proof.source.callee_owner() == owner))) {
+                        if proof.source.callee_owner() == owner))
+        }) {
             return Ok(None);
         }
         let catalog = self
@@ -498,22 +517,30 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok(rows) if rows.len() == projected.len() => rows,
                 _ => continue,
             };
-            if !compare_only && !cohort.iter().any(|row| row.is_current_owner_i64_source_v1())
-                && !cohort.iter().all(|row| source.is_static_terminal_source_v1(row)
-                    && source.checked_static_input(row.parameters()[0].binding)) {
+            if !compare_only
+                && !cohort
+                    .iter()
+                    .any(|row| row.is_current_owner_i64_source_v1())
+                && !cohort.iter().all(|row| {
+                    source.is_static_terminal_source_v1(row)
+                        && source.checked_static_input(row.parameters()[0].binding)
+                })
+            {
                 continue;
             }
-            let forward_only = !compare_only && !source.source_only_definitions[&owner]
-                .uses
-                .iter()
-                .any(|row| {
-                    matches!(
+            let forward_only = !compare_only
+                && !source.source_only_definitions[&owner]
+                    .uses
+                    .iter()
+                    .any(|row| {
+                        matches!(
                 row.kind,
                 super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }
             )
-                });
+                    });
             if cohort.iter().any(|original| {
-                !(original.is_current_owner_i64_source_v1() || original.is_qualified_i64_source_v1())
+                !(original.is_current_owner_i64_source_v1()
+                    || original.is_qualified_i64_source_v1())
                     || (if forward_only {
                         !original.required_i64_arguments().is_empty()
                     } else if compare_only {
@@ -544,8 +571,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-scalar/contract-identity"));
             }
             let draft = &source.source_only_definitions[&owner];
-            let scalar_formal_forward = !compare_only &&
-                !draft.uses.iter().any(|row| {
+            let scalar_formal_forward = !compare_only
+                && !draft.uses.iter().any(|row| {
                     matches!(
                 row.kind,
                 super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }
@@ -617,7 +644,9 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             let mut replacements = Vec::with_capacity(cohort.len());
             let mut checked_rows = 0;
-            let has_current_owner = cohort.iter().any(|row| row.is_current_owner_i64_source_v1());
+            let has_current_owner = cohort
+                .iter()
+                .any(|row| row.is_current_owner_i64_source_v1());
             for original in &cohort {
                 let site = original.call_site();
                 let Some(staged) = self.borrowed_formal_actuals.get(site) else {
@@ -626,42 +655,77 @@ impl OrdinaryNewClaimLedgerV1 {
                 };
                 let staged = staged.as_ref().map_err(Clone::clone)?;
                 if original.is_qualified_i64_source_v1() {
-                    if qualified_scalar_actual_v1(source, &self.borrowed_formal_actuals, original, completion)? {
-                        if compare_only && matches!(staged.phase, BorrowedCallActualEvidencePhaseV1::Executable) {
+                    if qualified_scalar_actual_v1(
+                        source,
+                        &self.borrowed_formal_actuals,
+                        original,
+                        completion,
+                    )? {
+                        if compare_only
+                            && matches!(staged.phase, BorrowedCallActualEvidencePhaseV1::Executable)
+                        {
                             let mut finished = staged.clone();
-                            finished.phase = BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(
-                                StaticScalarInputFinishV1 {
-                                    source: Rc::clone(original), completion: Rc::clone(completion),
-                                    actual: StaticScalarActualV1::QualifiedExecutable(Box::new(staged.clone())),
-                                });
+                            finished.phase =
+                                BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(
+                                    StaticScalarInputFinishV1 {
+                                        source: Rc::clone(original),
+                                        completion: Rc::clone(completion),
+                                        actual: StaticScalarActualV1::QualifiedExecutable(
+                                            Box::new(staged.clone()),
+                                        ),
+                                    },
+                                );
                             replacements.push((site.clone(), finished));
-                        } else if !has_current_owner && !matches!(staged.phase,
-                            BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_)) {
+                        } else if !has_current_owner
+                            && !matches!(
+                                staged.phase,
+                                BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_)
+                            )
+                        {
                             break;
                         }
                         checked_rows += 1;
                         continue;
                     }
-                    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &staged.phase else { break };
+                    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &staged.phase
+                    else {
+                        break;
+                    };
                     let Some(value) = super::static_tagged_input_finish::literal_identity_v1(
-                        source, original, identity, staged, contract.parameters[0].binding,
-                    )? else { break };
-                    if !staged.opaque_actuals.is_empty() { break; }
-                    replacements.push((site.clone(), PreparedBorrowedCallActualsV1 {
-                        phase: BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(
-                            StaticScalarInputFinishV1 {
-                                source: Rc::clone(original),
-                                completion: Rc::clone(completion),
-                                actual: StaticScalarActualV1::QualifiedLiteral(identity.clone()),
-                            }),
-                        ordered_arguments: staged.ordered_arguments.clone(),
-                        dynamic_invocation_arguments: None,
-                        opaque_actuals: Box::new([PreparedBorrowedFormalActualV1 {
-                            ordinal: 0, site: original.argument_sites()[0].clone(),
-                            formal: contract.parameters[0].binding,
-                            source: BorrowedFormalActualSourceV1::Integer(value),
-                        }]),
-                    }));
+                        source,
+                        original,
+                        identity,
+                        staged,
+                        contract.parameters[0].binding,
+                    )?
+                    else {
+                        break;
+                    };
+                    if !staged.opaque_actuals.is_empty() {
+                        break;
+                    }
+                    replacements.push((
+                        site.clone(),
+                        PreparedBorrowedCallActualsV1 {
+                            phase: BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(
+                                StaticScalarInputFinishV1 {
+                                    source: Rc::clone(original),
+                                    completion: Rc::clone(completion),
+                                    actual: StaticScalarActualV1::QualifiedLiteral(
+                                        identity.clone(),
+                                    ),
+                                },
+                            ),
+                            ordered_arguments: staged.ordered_arguments.clone(),
+                            dynamic_invocation_arguments: None,
+                            opaque_actuals: Box::new([PreparedBorrowedFormalActualV1 {
+                                ordinal: 0,
+                                site: original.argument_sites()[0].clone(),
+                                formal: contract.parameters[0].binding,
+                                source: BorrowedFormalActualSourceV1::Integer(value),
+                            }]),
+                        },
+                    ));
                     checked_rows += 1;
                     continue;
                 }

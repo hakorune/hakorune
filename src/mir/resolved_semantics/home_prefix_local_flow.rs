@@ -31,7 +31,7 @@ pub(crate) use source_loop::{
 };
 #[path = "home_prefix_text.rs"]
 mod text;
-pub(crate) use field_alias::FieldAliasPathV1;
+pub(crate) use field_alias::{FieldAliasPathV1, FieldAliasRootSourceV1};
 #[cfg(test)]
 pub(crate) use text::assert_identity_for_test as assert_text_residence_identity_for_test;
 pub(crate) use text::{LiveHomeV1, StaticTextReadV1, TextResidenceAcquisitionV1};
@@ -215,7 +215,7 @@ pub(super) enum OrdinaryObservation {
 /// concrete payload view.
 #[derive(Debug, Clone)]
 pub(crate) struct TaggedDynamicReadV1 {
-    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>,
+    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>,
     read: SourceExprSiteV1,
     binding: BindingRefV1,
     value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
@@ -234,7 +234,7 @@ impl Eq for TaggedDynamicReadV1 {}
 /// It carries no concrete payload tag, conversion, or ownership permission.
 #[derive(Debug, Clone)]
 pub(crate) struct TaggedDynamicValueV1 {
-    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>,
+    points: std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>,
     flow: std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
     binding: BindingRefV1,
     value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
@@ -446,6 +446,11 @@ pub(super) struct PrefixLocalFlow<'source> {
         std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
     input: ResolvedFunctionLoweringInputV1<'source>,
     locals: BTreeMap<BindingRefV1, StoredLocal>,
+    pub(super) entry_receiver: Option<PrefixEntryReceiverV1>,
+    scalar_field_reads: BTreeMap<
+        BindingRefV1,
+        std::rc::Rc<super::field_read::ScalarFieldReadSourceV1>,
+    >,
     /// Path-sensitive non-null narrowing for `ReceivedNullable` bindings:
     /// a terminated `binding == null` arm proves the surviving fall-through
     /// carries a live object. Entries are added only by the branch join
@@ -454,7 +459,15 @@ pub(super) struct PrefixLocalFlow<'source> {
     nonnull: std::collections::BTreeSet<BindingRefV1>,
     // Branch clones share source inventory, never the path-sensitive local classes.
     expression_plans: std::rc::Rc<std::cell::RefCell<Vec<super::HomeExpressionPlanV1>>>,
-    dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
+    source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
+}
+
+#[derive(Clone)]
+pub(super) struct PrefixEntryReceiverV1 {
+    pub(super) binding: BindingRefV1,
+    pub(super) owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    pub(super) batch_slot: u32,
+    pub(super) identity: crate::parser::CallableDeclarationIdentityV1,
 }
 
 impl<'source> PrefixLocalFlow<'source> {
@@ -511,12 +524,12 @@ impl<'source> PrefixLocalFlow<'source> {
     }
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
-        Self::with_tagged_dynamic_source_points(input, None)
+        Self::with_source_value_class_facts(input, None)
     }
 
-    pub(super) fn with_tagged_dynamic_source_points(
+    pub(super) fn with_source_value_class_facts(
         input: ResolvedFunctionLoweringInputV1<'source>,
-        dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
+        source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
     ) -> Self {
         Self {
             null_exclusions: Default::default(),
@@ -526,9 +539,11 @@ impl<'source> PrefixLocalFlow<'source> {
             named_arrays: Default::default(),
             input,
             locals: BTreeMap::new(),
+            entry_receiver: None,
+            scalar_field_reads: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
             expression_plans: Default::default(),
-            dynamic_source_points,
+            source_value_class_facts,
         }
     }
 
@@ -558,7 +573,35 @@ impl<'source> PrefixLocalFlow<'source> {
         self.nonnull.remove(&binding);
         self.null_exclusions.remove(&binding);
         self.opaque_formals.remove(&binding);
+        self.scalar_field_reads.remove(&binding);
         self.locals.insert(binding, value);
+    }
+
+    pub(super) fn install_scalar_field_read(
+        &mut self,
+        binding: BindingRefV1,
+        source: std::rc::Rc<super::field_read::ScalarFieldReadSourceV1>,
+    ) -> bool {
+        if !source.matches_initializer_v1(binding, source.request_site_v1()) {
+            return false;
+        }
+        self.store(
+            binding,
+            StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
+        );
+        self.scalar_field_reads.insert(binding, source);
+        true
+    }
+
+    pub(super) fn scalar_field_read_source_v1(
+        &self,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<std::rc::Rc<super::field_read::ScalarFieldReadSourceV1>> {
+        let source = self.scalar_field_reads.get(&binding)?;
+        source
+            .matches_initializer_v1(binding, site)
+            .then(|| std::rc::Rc::clone(source))
     }
 
     /// Mark the binding non-null on this surviving path. Only a live
@@ -779,11 +822,24 @@ impl<'source> PrefixLocalFlow<'source> {
                 &kind,
                 CallableParameterContractKindV1::OpaqueHandle
             ) && self
-                .dynamic_source_points
+                .source_value_class_facts
                 .as_ref()
                 .is_some_and(|points| points.proves_formal(binding));
+            let source_signed_i64 = is_opaque_formal
+                && self
+                    .source_value_class_facts
+                    .as_ref()
+                    .is_some_and(|facts| facts.proves_signed_i64_formal(binding));
+            if tagged_dynamic && source_signed_i64 {
+                return false;
+            }
+            if source_signed_i64 {
+                self.signed_formals.insert(binding);
+            }
             let value = if tagged_dynamic {
                 StoredLocal::TaggedDynamic
+            } else if source_signed_i64 {
+                StoredLocal::Trivial(Some(SourceScalarKind::Integer))
             } else {
                 match kind {
                 CallableParameterContractKindV1::ExactTrivial(abi)
@@ -906,7 +962,7 @@ impl<'source> PrefixLocalFlow<'source> {
             return None;
         }
         let flow = self.input.function().expression_source().value_flow()?;
-        let points = self.dynamic_source_points.as_ref()?;
+        let points = self.source_value_class_facts.as_ref()?;
         let value = points.proves_read(flow, site, binding)?;
         Some(TaggedDynamicReadV1 {
             points: std::rc::Rc::clone(points),
@@ -928,7 +984,7 @@ impl<'source> PrefixLocalFlow<'source> {
         {
             return None;
         }
-        let points = self.dynamic_source_points.as_ref()?;
+        let points = self.source_value_class_facts.as_ref()?;
         points.proves_value(flow, value).then(|| TaggedDynamicValueV1 {
             points: std::rc::Rc::clone(points),
             flow: std::sync::Arc::clone(flow),
@@ -1004,7 +1060,7 @@ impl<'source> PrefixLocalFlow<'source> {
     ) -> bool {
         // The loan is scoped to one exact declaration: a foreign-owner row
         // never installs, even if its bindings happen to match by accident.
-        if loan.owner() != self.input.owner() {
+        if loan.owner() != self.input.owner() || self.entry_receiver.is_some() {
             return false;
         }
         let receiver = loan.receiver();
@@ -1026,6 +1082,12 @@ impl<'source> PrefixLocalFlow<'source> {
             return false;
         }
         self.store(receiver, StoredLocal::Handle(receiver));
+        self.entry_receiver = Some(PrefixEntryReceiverV1 {
+            binding: receiver,
+            owner: loan.owner(),
+            batch_slot: loan.batch_slot(),
+            identity: loan.identity().clone(),
+        });
         true
     }
 

@@ -137,6 +137,9 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     let ExpressionPlanRootV1::Assignment { assignment } = source.root() else {
         return Ok(None);
     };
+    macro_rules! reject_rebind {
+        ($stage:literal) => {{ let _ = $stage; return Ok(None); }};
+    }
     let Some(ResolvedAssignmentTargetV1::BindingRebind(target)) =
         input.function().assignment_target(assignment.target_site())
     else {
@@ -157,7 +160,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
                 .ne(std::iter::once(assignment))
         })
     {
-        return Ok(None);
+        reject_rebind!("source-identity-or-assignment-shape");
     }
     let prior_homes = prepared.prior_homes().to_vec();
     let mut unique_homes = BTreeSet::new();
@@ -165,7 +168,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         .iter()
         .any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding()))
     {
-        return Ok(None);
+        reject_rebind!("prior-homes");
     }
     match &destination {
         BindingRebindDestinationV1::Integer
@@ -203,13 +206,13 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         _ => {}
     }
     let Ok(order) = source.ordered_postorder_v1() else {
-        return Ok(None);
+        reject_rebind!("postorder");
     };
     if source.nodes().iter().any(|node| {
         !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
     }) {
-        return Ok(None);
+        reject_rebind!("conditional-expression-child");
     }
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
     let initial_dynamic_references = source
@@ -217,14 +220,13 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         .iter()
         .enumerate()
         .filter_map(|(node, original)| {
-            matches!(original.source(), ExpressionNodeSourceV1::Reference(_))
-                .then(|| {
-                    dynamic_invocation_reference(original.site())
-                        .map(|frame| (node, CheckedExpressionReferenceV1::DynamicInvocationResult(frame)))
-                        .or_else(|| loop_dynamic_reference(original.site())
-                            .map(|read| (node, CheckedExpressionReferenceV1::LoopDynamic(read))))
-                })
-                .flatten()
+            (prepared.is_active_reference(node)
+                && matches!(original.source(), ExpressionNodeSourceV1::Reference(_)))
+                .then(|| dynamic_invocation_reference(original.site())
+                    .map(|frame| (node, CheckedExpressionReferenceV1::DynamicInvocationResult(frame)))
+                    .or_else(|| loop_dynamic_reference(original.site())
+                        .map(|read| (node, CheckedExpressionReferenceV1::LoopDynamic(read))))
+                ).flatten()
         })
         .collect();
     let Some(mut reference_proofs) =
@@ -240,7 +242,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
             },
         )
     else {
-        return Ok(None);
+        reject_rebind!("reference-seed");
     };
     let Some(super::leaves::QualifiedExpressionLeavesV1 {
         classes,
@@ -256,7 +258,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         field_request,
     )?
     else {
-        return Ok(None);
+        reject_rebind!("leaf-qualification");
     };
     let class = match destination {
         BindingRebindDestinationV1::Integer => Class::I64,
@@ -269,7 +271,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         || transferred.contains(&0)
         || classes[0] != Leaf::Value(class)
     {
-        return Ok(None);
+        reject_rebind!("root-class-or-transfer");
     }
     let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(
         &source,
@@ -277,14 +279,14 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         &classes,
         &transferred,
     ) else {
-        return Ok(None);
+        reject_rebind!("arithmetic-operations");
     };
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     // The checked purpose materializes non-owning Text roots; evaluation keeps
     // the original literal/read and its source acquisition set unchanged.
     if !text && owned_results.contains(&0) {
-        return Ok(None);
+        reject_rebind!("owned-result-destination");
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     let mut evaluation = CheckedExpressionEvaluationV1 {
@@ -300,7 +302,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         transferred_inputs: transferred,
     };
     if !evaluation.retain_core_text_entry_reads_v1() {
-        return Ok(None);
+        reject_rebind!("core-text-entry-reads");
     }
     let frame = Rc::new(CheckedBindingRebindFrameV1 {
         target: *target,
@@ -308,7 +310,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         evaluation,
     });
     if !frame.evaluation().reference_coverage_is_exact() {
-        return Ok(None);
+        reject_rebind!("reference-coverage");
     }
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source),
@@ -324,16 +326,16 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         field_write: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
-        return Ok(None);
+        reject_rebind!("field-requirements");
     };
     if !can_install(&candidate) {
-        return Ok(None);
+        reject_rebind!("installation");
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression { plan: Rc::clone(&source) },
     )? {
-        return Ok(None);
+        reject_rebind!("field-batch");
     }
     Ok(Some(candidate))
 }

@@ -33,6 +33,88 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|sum| sum.text_only())
     }
 
+    /// Select the executable lane for one untyped Birth store from the
+    /// retained formal source: a signed source sum initializes I64, while a
+    /// complete same-field constructor relation initializes an exact object
+    /// residence. No MIR carrier or field spelling selects the tag.
+    pub(in crate::mir::normal_callable_semantic_package) fn constructor_dynamic_store_mode_v1(
+        &self,
+        row: &VerifiedInstanceConstructorSemanticRowV1,
+        store: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreV1,
+    ) -> Option<crate::mir::instruction::FieldSetModeV1> {
+        use crate::mir::instruction::{
+            DynamicFieldResidenceV1 as Residence, DynamicFieldSetContractV1 as Contract,
+            DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent,
+            FieldSetModeV1 as Mode,
+        };
+        use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionStoreRhsV1;
+        use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalUseCoverageV1 as Uses;
+
+        let ConstructionStoreRhsV1::Parameter { site, binding, provided: None } = store.rhs() else {
+            return None;
+        };
+        let source = row.construction_source().as_ref().ok()?;
+        let (constructor, owner) = source.constructor()?;
+        if !constructor.same_as(row.source_id()) || *owner != binding.owner()
+            || source.object() != row.object()
+            || !source.stores().iter().any(|original| std::ptr::eq(original, store))
+            || source.stores().iter().filter(|other| other.field() == store.field()).count() != 1
+        {
+            return None;
+        }
+        let formal = row.formal_contracts().iter().find(|formal| formal.binding() == *binding)?;
+        let Uses::UnqualifiedFieldStores { sites } = formal.uses() else { return None };
+        if formal.binding() != *binding || formal.ordinal() as usize >= row.source_arity() as usize
+            || sites.len() != 1 || !sites.contains(site)
+        {
+            return None;
+        }
+
+        let mut child = None;
+        let mut nullable = false;
+        let mut outer_sites = std::collections::BTreeSet::new();
+        let relations: Vec<_> = self.callable_result_classes.construction_child_relations()
+            .filter(|relation| relation.is_unqualified_dynamic_v1()
+                && relation.field() == store.field()
+                && relation.constructor_source().same_as(constructor)
+                && relation.constructor_owner() == *owner
+                && relation.formal_binding() == *binding
+                && relation.formal_ordinal() == formal.ordinal())
+            .collect();
+        for relation in &relations {
+            if relation.field().object() != row.object()
+                || !outer_sites.insert(relation.outer().clone())
+                || relation.unqualified_field_source_v1(row.box_name()).is_err()
+                || relation.witnesses().is_empty()
+            {
+                return None;
+            }
+            for witness in relation.witnesses() {
+                match witness.origin() {
+                    ResultValueOriginV1::Null => {
+                        nullable = true;
+                    }
+                    ResultValueOriginV1::Fresh(_) => {}
+                    _ => return None,
+                }
+            }
+            if child.is_some_and(|prior| prior != relation.child()) {
+                return None;
+            }
+            child = Some(relation.child());
+        }
+        if let Some(child) = child {
+            let tag = if nullable { Tag::NullableObject } else { Tag::Object };
+            let contract = Contract::issue(Intent::Initialize, tag, Residence::ObjectHome(child))?;
+            return Some(Mode::DynamicValue(contract));
+        }
+
+        self.borrowed_formal_source.as_ref()?.as_ref().ok()?
+            .lend_source_value_sum_v1(*binding)
+            .filter(|sum| sum.signed_only())
+            .map(|_| Mode::DynamicI64Initialize)
+    }
+
     /// Existing source New claims already cloned initial eligibility. Update
     /// both families and every early ABI copy before any physical take,
     /// retaining all other core products.
@@ -73,11 +155,13 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(_, (_, handoff))| handoff.source_id().same_as(row.source_id()))
             .map(|(site, (_, handoff))| Ok((site.clone(), handoff.with_late_construction_plan_v1(row, plan)?)))
             .collect::<Result<Vec<_>, String>>()?;
+        let mut updated_local = 0usize;
+        let mut updated_result = 0usize;
         for claim in self.claims.get_mut().values_mut() {
-            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
+            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); updated_local += 1; }
         }
         for claim in self.result_claims.get_mut().values_mut() {
-            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
+            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); updated_result += 1; }
         }
         for (site, handoff) in handoffs {
             *self.birth_abi_handoffs.get_mut().get_mut(&site).expect("preflight retained ABI site") = handoff;

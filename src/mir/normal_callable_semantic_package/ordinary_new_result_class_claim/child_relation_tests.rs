@@ -499,7 +499,8 @@ fn child_relation_foreign_constructor_source_cannot_issue_same_spelling_field() 
                     foreign,
                     &fields,
                     parameters,
-                );
+                )
+                .unwrap();
                 assert_eq!(scratch.construction_child_relations().count(), 0);
             });
         },
@@ -555,7 +556,8 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
                 constructors,
                 &fields,
                 &contracts,
-            );
+            )
+            .unwrap();
             assert_eq!(scratch.construction_child_relations().count(), 7);
             assert!(!scratch
                 .construction_child_relations()

@@ -519,7 +519,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
                         borrowed_formal_source.as_ref().ok().and_then(|source| {
-                            source.lend_tagged_dynamic_source_points_v1(input.owner())
+                            source.lend_source_value_class_facts_v1(input.owner())
                         }),
                         &mut field_is_integer, &mut |site, binding| {
                             source_claims::ordinary_candidate_compatible_v1(&candidates, site, binding)
@@ -759,7 +759,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                                 entry_home,
                                 borrowed_formal_source.as_ref().ok().and_then(|source| {
-                                    source.lend_tagged_dynamic_source_points_v1(input.owner())
+                                    source.lend_source_value_class_facts_v1(input.owner())
                                 }),
                             )
                         }
@@ -771,7 +771,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
                         borrowed_formal_source.as_ref().ok().and_then(|source| {
-                            source.lend_tagged_dynamic_source_points_v1(input.owner())
+                            source.lend_source_value_class_facts_v1(input.owner())
                         }),
                     )
                 };

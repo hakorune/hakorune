@@ -1,9 +1,9 @@
-date = "2026-10-24"
+date = "2026-10-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary_trees_exe: ordinary-new/borrowed-result/source-not-i64; Dynamic child fields lack complete paired source, Object Home store and stored-call result proof"
+current_blocker_token = "binary_trees_exe: source-loop/v2/source Loop has an unavailable path; Body(14)/LoopBody(1) me.iterationCheck(builder, depth, iterations) has no selected source-result loan for scalar args"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-typed-object-untyped-field-min PASS: checked Dynamic FieldGet, exact Array Home transfer and expected EXE exit 7.
-Fixed suite 9/11 PASS with current opt1 quick CLI; no timeout/SKIP.
-Remaining stops: boxtorrent-mini stored-child receiver; binary-trees source-not-i64 in recursive itemCheck.
-Binary-trees Dynamic children lack complete paired construction proof and a production Object Home store.
-Next: connect exact constructor, nullable child, stored-call and result provenance without widening Dynamic arithmetic.
+APP-binary-trees is active; clean-source `cargo quick-build-fast` passed in 40.78s and the focused EXE smoke reached the run Loop body.
+Using `target/quick/hakorune`, `Body(14)/LoopBody(1)` fails at `me.iterationCheck(builder, depth, iterations)` with `source Loop has an unavailable path`.
+`iterationCheck` returns computed `sum` from three unannotated formals, so its original-return owner issues no `ScalarReturnSource`; `Main.pow2` already reaches the body through qualified-static ExactI64.
+The `builder` loan is retained, but exact scalar input loans for `depth` and `iterations` remain absent; `.hako` remains unchanged. `cargo quick-test-fast` compiled but had two failures and a stack-overflow abort, not yet attributed.
+The fixed-suite result remains 9/11 PASS on 2026-10-24; next connect the computed-return source and exact argument projections, then rerun the unchanged smoke.
 """
 next_design_card = "none"
 next_design_card_path = "none"

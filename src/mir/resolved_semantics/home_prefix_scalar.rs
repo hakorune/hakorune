@@ -27,6 +27,7 @@ pub(crate) enum CurrentScalarProducerV1 {
         value: i64,
     },
     Call(LocalCallObservationV1),
+    FieldRead(Rc<super::super::field_read::ScalarFieldReadSourceV1>),
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
     BindingRebind(Rc<CheckedBindingRebindFrameV1>),
     BranchNormal(Rc<BranchNormalScalarSourceV1>),
@@ -107,6 +108,10 @@ impl PartialEq for CurrentScalarReadV1 {
                 (
                     CurrentScalarProducerV1::BindingRebind(a),
                     CurrentScalarProducerV1::BindingRebind(b),
+                ) => Rc::ptr_eq(a, b),
+                (
+                    CurrentScalarProducerV1::FieldRead(a),
+                    CurrentScalarProducerV1::FieldRead(b),
                 ) => Rc::ptr_eq(a, b),
                 (a, b) => a == b,
             }
@@ -322,7 +327,11 @@ impl PrefixLocalFlow<'_> {
                     {
                         return None;
                     }
-                    if let Some(ResolvedLiteralSourceV1::Integer(value)) =
+                    if let Some(source) = self
+                        .scalar_field_read_source_v1(initializer.binding(), original)
+                    {
+                        CurrentScalarProducerV1::FieldRead(source)
+                    } else if let Some(ResolvedLiteralSourceV1::Integer(value)) =
                         function.expression_source().literal(original)
                     {
                         CurrentScalarProducerV1::Integer {

@@ -30,7 +30,19 @@ pub(super) fn encode_parameters(
                                 abi.text_formal_source_v1(index as u32)?.is_some(),
                             _ => false,
                         };
+                        let (birth_dynamic_object, birth_dynamic_i64) = match function.role() {
+                            PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } => (
+                                abi.dynamic_object_formal_source_v1(index as u32)?,
+                                abi.dynamic_i64_formal_source_v1(index as u32)?,
+                            ),
+                            _ => (None, false),
+                        };
                         if birth_text && carrier != Some(Carrier::BorrowedTaggedValue) {
+                            return Err(fault("param-carrier-drift"));
+                        }
+                        if (birth_dynamic_object.is_some() || birth_dynamic_i64)
+                            && carrier != Some(Carrier::ExistingCallableI64)
+                        {
                             return Err(fault("param-carrier-drift"));
                         }
                         let named_map = matches!(
@@ -54,6 +66,8 @@ pub(super) fn encode_parameters(
                             | (_, true) => {
                                 return Err(fault("param-carrier-drift"));
                             }
+                            _ if birth_dynamic_i64 => "i64",
+                            _ if birth_dynamic_object.is_some() => "nullable_kind_payload_v1",
                             _ if function.role().ordinary_target().is_some() => "i64",
                             _ => {
                                 // A birth formal the sealed contract proves

@@ -96,6 +96,9 @@ fn producer_is_covered(
         CurrentScalarProducerV1::Initializer(frame) => frame.evaluation(),
         CurrentScalarProducerV1::BindingRebind(frame) => frame.evaluation(),
         CurrentScalarProducerV1::Call(call) => return port.calls.contains(call.site()),
+        CurrentScalarProducerV1::FieldRead(source) => {
+            return port.covered.contains(source.statement_v1())
+        }
         CurrentScalarProducerV1::Integer { .. }
         | CurrentScalarProducerV1::SignedEntry(_)
         | CurrentScalarProducerV1::LoopHeader(_) => return true,

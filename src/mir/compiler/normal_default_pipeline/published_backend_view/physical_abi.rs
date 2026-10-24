@@ -402,10 +402,14 @@ impl<'module> PublishedMirBackendView<'module> {
                 if contract.declaration() != Declaration::Unannotated {
                     return Err(fault("formal-declaration-unavailable"));
                 }
+                let source_ordinal = formal.source_ordinal()
+                    .ok_or_else(|| fault("formal-contract-missing"))?;
+                let source_qualified_untyped = abi.dynamic_object_formal_source_v1(source_ordinal)?.is_some()
+                    || abi.dynamic_i64_formal_source_v1(source_ordinal)?;
                 if !matches!(
                     contract.uses(),
                     Uses::NoUse | Uses::I64FieldStores { .. } | Uses::ObjectFieldStores { .. }
-                ) {
+                ) && !matches!(contract.uses(), Uses::UnqualifiedFieldStores { .. } if source_qualified_untyped) {
                     return Err(fault("formal-use-unavailable"));
                 }
             }

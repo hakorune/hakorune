@@ -15,10 +15,23 @@ impl ExpressionScalarOperationLoanV1 {
         binary: &ResolvedBinaryExpressionSourceV1,
         positive_divisor: Option<i64>,
     ) -> Option<Rc<Self>> {
+        Self::issue_node_v1(source, 0, binary, positive_divisor)
+    }
+
+    /// Retain the existing scalar integer law for one exact operation node in
+    /// a complete expression. The expression root remains anchored to its
+    /// original purpose; nested nodes never create a new source root.
+    pub(super) fn issue_node_v1(
+        source: Rc<ExpressionSourcePlanV1>,
+        node_index: usize,
+        binary: &ResolvedBinaryExpressionSourceV1,
+        positive_divisor: Option<i64>,
+    ) -> Option<Rc<Self>> {
         if source.has_opaque_obligations() {
             return None;
         }
         let root = source.nodes().first()?;
+        let node = source.nodes().get(node_index)?;
         let original_value = match source.root() {
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
                 statement, call, ordinal,
@@ -35,7 +48,7 @@ impl ExpressionScalarOperationLoanV1 {
             } if positive_divisor.is_none() => value,
             _ => return None,
         };
-        if root.binary()? != binary || original_value != root.site() {
+        if node.binary()? != binary || original_value != root.site() {
             return None;
         }
         match binary.operator() {
@@ -51,7 +64,7 @@ impl ExpressionScalarOperationLoanV1 {
         }
         let loan = Rc::new(Self {
             plan: Rc::clone(&source),
-            node: 0,
+            node: node_index,
             positive_divisor,
         });
         Some(loan)

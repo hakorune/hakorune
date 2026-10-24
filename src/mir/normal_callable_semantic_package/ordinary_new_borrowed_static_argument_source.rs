@@ -248,33 +248,42 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
     result: Result<Option<PreparedBorrowedCallActualsV1>, String>,
 ) {
     let retain_static_qualification = match (staged.get(site), &result) {
-        (Some(Ok(previous)), Ok(Some(current))) => {
-            match (&previous.phase, &current.phase) {
-                (
-                    BorrowedCallActualEvidencePhaseV1::SourceStatic(old),
-                    BorrowedCallActualEvidencePhaseV1::SourceStatic(new),
-                ) if old.same_original_source_v1(new)
-                    && previous.opaque_actuals == current.opaque_actuals
-                    && previous.ordered_arguments == current.ordered_arguments
-                    && old.argument_sources.len() == new.argument_sources.len()
-                    && new.argument_sources.values().all(|slot| matches!(slot, ArgumentExpressionV1::Source(_))) =>
-                {
-                    old.argument_sources.iter().all(|(ordinal, old_slot)| {
-                        match (old_slot, new.argument_sources.get(ordinal)) {
-                            (ArgumentExpressionV1::Source(old), Some(ArgumentExpressionV1::Source(new))) =>
-                                Rc::ptr_eq(old, new),
-                            (ArgumentExpressionV1::Qualified(frame), Some(ArgumentExpressionV1::Source(plan))) =>
-                                Rc::ptr_eq(frame.source(), plan)
-                                    && Rc::ptr_eq(frame.source_loan().plan(), plan)
-                                    && frame.evaluation().reference_coverage_is_exact(),
-                            _ => false,
+        (Some(Ok(previous)), Ok(Some(current))) => match (&previous.phase, &current.phase) {
+            (
+                BorrowedCallActualEvidencePhaseV1::SourceStatic(old),
+                BorrowedCallActualEvidencePhaseV1::SourceStatic(new),
+            ) if old.same_original_source_v1(new)
+                && previous.opaque_actuals == current.opaque_actuals
+                && previous.ordered_arguments == current.ordered_arguments
+                && old.argument_sources.len() == new.argument_sources.len()
+                && new
+                    .argument_sources
+                    .values()
+                    .all(|slot| matches!(slot, ArgumentExpressionV1::Source(_))) =>
+            {
+                old.argument_sources.iter().all(|(ordinal, old_slot)| {
+                    match (old_slot, new.argument_sources.get(ordinal)) {
+                        (
+                            ArgumentExpressionV1::Source(old),
+                            Some(ArgumentExpressionV1::Source(new)),
+                        ) => Rc::ptr_eq(old, new),
+                        (
+                            ArgumentExpressionV1::Qualified(frame),
+                            Some(ArgumentExpressionV1::Source(plan)),
+                        ) => {
+                            Rc::ptr_eq(frame.source(), plan)
+                                && Rc::ptr_eq(frame.source_loan().plan(), plan)
+                                && frame.evaluation().reference_coverage_is_exact()
                         }
-                    }) && old.argument_sources.values().any(|slot|
-                        matches!(slot, ArgumentExpressionV1::Qualified(_)))
-                }
-                _ => false,
+                        _ => false,
+                    }
+                }) && old
+                    .argument_sources
+                    .values()
+                    .any(|slot| matches!(slot, ArgumentExpressionV1::Qualified(_)))
             }
-        }
+            _ => false,
+        },
         _ => false,
     };
     let reset = match (staged.get(site), &result) {
@@ -352,21 +361,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
             };
             for (ordinal, old_slot) in &old.argument_sources {
                 if let ArgumentExpressionV1::Qualified(frame) = old_slot {
-                    let Some(ArgumentExpressionV1::Source(plan)) = new.argument_sources.get(ordinal) else {
+                    let Some(ArgumentExpressionV1::Source(plan)) =
+                        new.argument_sources.get(ordinal)
+                    else {
                         unreachable!("exact source-plan correspondence checked")
                     };
                     debug_assert!(Rc::ptr_eq(frame.source(), plan));
-                    new.argument_sources.insert(
-                        *ordinal,
-                        ArgumentExpressionV1::Qualified(Rc::clone(frame)),
-                    );
+                    new.argument_sources
+                        .insert(*ordinal, ArgumentExpressionV1::Qualified(Rc::clone(frame)));
                 }
             }
         }
-        staged.insert(
-            site.clone(),
-            Ok(current),
-        );
+        staged.insert(site.clone(), Ok(current));
     } else {
         super::super::stage_borrowed_call_actuals_v1(staged, site, result);
     }
@@ -441,11 +447,17 @@ impl ArgumentExpressionSourceLoanV1 {
     }
     pub(crate) fn dynamic_array_carrier_call_is_v1(&self, site: &SourceExprSiteV1) -> bool {
         self.calls.iter().any(|(node, source)| {
-            source.dynamic_array_carrier_append().is_some_and(|original| {
-                original.owner() == self.plan.owner()
-                    && original.call_site() == site
-                    && self.plan.nodes().get(*node).is_some_and(|node| node.site() == site)
-            })
+            source
+                .dynamic_array_carrier_append()
+                .is_some_and(|original| {
+                    original.owner() == self.plan.owner()
+                        && original.call_site() == site
+                        && self
+                            .plan
+                            .nodes()
+                            .get(*node)
+                            .is_some_and(|node| node.site() == site)
+                })
         })
     }
     pub(crate) fn dynamic_array_carrier_append_root_v1(&self) -> bool {
@@ -466,7 +478,10 @@ impl ArgumentExpressionSourceLoanV1 {
         *ordinal < call.arity()
             && holder.binding().owner() == self.plan.owner()
             && holder
-                .append_candidate(&OwnedExprSiteV1::new(self.plan.owner(), call.site().clone()))
+                .append_candidate(&OwnedExprSiteV1::new(
+                    self.plan.owner(),
+                    call.site().clone(),
+                ))
                 .is_some_and(|candidate| candidate.site() == root.site())
     }
     pub(crate) fn ordinary_text_call_is(&self, site: &SourceExprSiteV1) -> bool {
@@ -1010,7 +1025,10 @@ fn lend_argument_source_inner_for_array_v1(
                     call: original, ordinal: original_ordinal, ..
                 } if *original_ordinal == ordinal
                     && holder.append_candidate(&OwnedExprSiteV1::new(plan.owner(), original.site().clone()))
-                        .is_some_and(|candidate| plan.nodes().first().is_some_and(|node| node.site() == candidate.site()))) => Some(holder),
+                        .is_some_and(|candidate| plan.nodes().first().is_some_and(|node| node.site() == candidate.site()))) =>
+        {
+            Some(holder)
+        }
         Some(_) => return Ok(None),
         None => None,
     };
@@ -1040,9 +1058,7 @@ fn lend_argument_source_inner_for_array_v1(
                 source.owner() == plan.owner() && source.call_site() == site.site()
             });
             if let Some(dynamic) = matches.next() {
-                if matches.next().is_some()
-                    || dynamic.result_site() != site.site()
-                {
+                if matches.next().is_some() || dynamic.result_site() != site.site() {
                     return Err(freeze("borrowed-static/dynamic-array-append-source"));
                 }
                 calls.insert(
@@ -1172,7 +1188,10 @@ fn dynamic_invocation_argument_source_v1(
             .any(|(actual, original)| {
                 actual.ordinal() != original.ordinal() || actual.site() != original.site()
             })
-        || plan.nodes().first().is_none_or(|node| node.site() != &candidate.site)
+        || plan
+            .nodes()
+            .first()
+            .is_none_or(|node| node.site() != &candidate.site)
     {
         return Err(reject());
     }
@@ -1385,9 +1404,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_carrier_array_a
     let Some(method) = input.function().method_call_source_v1(root.site()) else {
         return Ok(None);
     };
-    let mut targets = dynamic_calls.iter().filter(|target| {
-        target.owner() == input.owner() && target.call_site() == root.site()
-    });
+    let mut targets = dynamic_calls
+        .iter()
+        .filter(|target| target.owner() == input.owner() && target.call_site() == root.site());
     let Some(target) = targets.next() else {
         return Ok(None);
     };
@@ -1818,7 +1837,12 @@ impl OrdinaryNewClaimLedgerV1 {
         call: &OwnedExprSiteV1,
         ordinal: u32,
         site: &SourceExprSiteV1,
-    ) -> Result<Option<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>>, String> {
+    ) -> Result<
+        Option<
+            Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+        >,
+        String,
+    > {
         let Some(flow) = self
             .completion_for_owner(call.owner())
             .and_then(|completion| completion.cleanup().root_flow())
@@ -1872,7 +1896,9 @@ impl OrdinaryNewClaimLedgerV1 {
             let loop_frame = self.source_loop_argument_expression_frame_v2(call, ordinal, site)?;
             let frame = match (root, loop_frame) {
                 (Some(root), Some(loop_frame)) if Rc::ptr_eq(&root, &loop_frame) => Some(root),
-                (Some(_), Some(_)) => return Err(freeze("argument-expression/root-flow-ambiguous")),
+                (Some(_), Some(_)) => {
+                    return Err(freeze("argument-expression/root-flow-ambiguous"))
+                }
                 (Some(frame), None) | (None, Some(frame)) => Some(frame),
                 (None, None) => None,
             };
@@ -1892,8 +1918,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .dynamic_invocation_arguments
                 .as_ref()
                 .expect("checked Dynamic argument row");
-            let Some(ArgumentExpressionV1::Qualified(frame)) =
-                dynamic.arguments.get(&ordinal)
+            let Some(ArgumentExpressionV1::Qualified(frame)) = dynamic.arguments.get(&ordinal)
             else {
                 return Err(freeze("dynamic-argument/frame-missing"));
             };
@@ -1901,7 +1926,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 || !Rc::ptr_eq(frame.source(), original.plan())
                 || !frame.is_i64()
                 || !frame.evaluation().reference_coverage_is_exact()
-                || frame.source().nodes().first().is_none_or(|node| node.site() != site)
+                || frame
+                    .source()
+                    .nodes()
+                    .first()
+                    .is_none_or(|node| node.site() != site)
                 || dynamic.source.argument_sites().get(ordinal as usize) != Some(site)
             {
                 return Err(freeze("dynamic-argument/frame-identity"));

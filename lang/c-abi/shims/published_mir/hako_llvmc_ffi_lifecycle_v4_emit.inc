@@ -161,6 +161,13 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       lv4_emit_object_residence_parameter_guard(f, v);
       continue;
     }
+    if (lv4_is(param, "representation", "i64")) {
+      fprintf(f,
+          "  %%arg_i64%u = icmp eq i32 %%k%u, 1\n"
+          "  br i1 %%arg_i64%u, label %%arg_i64_next%u, label %%invalid\n"
+          "arg_i64_next%u:\n", v, v, v, v, v);
+      continue;
+    }
     fprintf(f,
         "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
         "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"

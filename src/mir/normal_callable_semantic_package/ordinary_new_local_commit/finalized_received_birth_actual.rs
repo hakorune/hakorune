@@ -104,13 +104,30 @@ impl FinalizedRootSourceHandoffV1 {
             };
             let (constructor, owner) = plan.constructor()
                 .ok_or_else(|| freeze("received-birth/constructor"))?;
+            let relation_store_count = plan.stores().iter().enumerate().filter(|(index, store)| {
+                if store.field() != relation.field() { return false; }
+                match (relation.is_unqualified_dynamic_v1(), store.rhs()) {
+                    (false, ConstructionStoreRhsV1::Parameter { binding, provided: Some(child), .. }) =>
+                        *binding == relation.formal_binding() && *child == received.object,
+                    (true, ConstructionStoreRhsV1::Parameter { binding, provided: None, .. })
+                        if *binding == relation.formal_binding() => {
+                            matches!(plan.store_execution_v1(*index).map(|execution| execution.mode()),
+                                Some(crate::mir::instruction::FieldSetModeV1::DynamicValue(contract))
+                                    if contract.intent() == crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize
+                                        && matches!((contract.value_tag(), contract.residence()),
+                                            (crate::mir::instruction::DynamicFieldValueTagV1::Object
+                                                | crate::mir::instruction::DynamicFieldValueTagV1::NullableObject,
+                                             crate::mir::instruction::DynamicFieldResidenceV1::ObjectHome(child))
+                                                if child == received.object))
+                        }
+                    _ => false,
+                }
+            }).count();
             if relation.outer() != actual.site() || relation.actual().owner() != binding.owner()
                 || relation.actual().site() != source.site() || relation.formal_ordinal() != ordinal
                 || relation.field().object() != outer.object || relation.child() != received.object
                 || relation.constructor_owner() != *owner || !relation.constructor_source().same_as(constructor)
-                || plan.stores().iter().filter(|store| store.field() == relation.field()
-                    && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { binding, provided: Some(child), .. }
-                        if *binding == relation.formal_binding() && *child == received.object)).count() != 1
+                || relation_store_count != 1
             { return Err(freeze("received-birth/source-relation")); }
             let CallReceivedProgress::Emitted { result, bindings, packet: Some(packet), .. } = &received.progress else {
                 return Err(freeze("received-birth/received-packet"));

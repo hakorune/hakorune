@@ -2,21 +2,30 @@
 use super::*;
 use std::rc::Rc;
 
-
 /// A computed actual keeps its original argument-purpose frame. Equality is
 /// identity of that qualification, never structural equality of a rebuilt plan.
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedExpressionActualSourceV1 {
-    frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+    frame: std::rc::Rc<
+        crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
+    >,
 }
 impl PartialEq for BorrowedExpressionActualSourceV1 {
-    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.frame, &other.frame) }
+    fn eq(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.frame, &other.frame)
+    }
 }
 impl Eq for BorrowedExpressionActualSourceV1 {}
 impl BorrowedExpressionActualSourceV1 {
-    pub(super) fn from_frame(frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>) -> Result<Self, String> {
-        use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
-            expression_projection::ExpressionLeafClassV1 as Leaf};
+    pub(super) fn from_frame(
+        frame: std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
+        >,
+    ) -> Result<Self, String> {
+        use crate::mir::resolved_value_profile::{
+            expression_class::ExpressionValueClassV1 as Class,
+            expression_projection::ExpressionLeafClassV1 as Leaf,
+        };
         let result_class = if frame.is_i64() {
             Class::I64
         } else if frame.is_dynamic_carrier_append_v1() {
@@ -29,7 +38,13 @@ impl BorrowedExpressionActualSourceV1 {
         }
         Ok(Self { frame })
     }
-    pub(crate) fn frame(&self) -> &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1> { &self.frame }
+    pub(crate) fn frame(
+        &self,
+    ) -> &std::rc::Rc<
+        crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
+    > {
+        &self.frame
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -91,7 +106,9 @@ impl BorrowedFormalActualSourceV1 {
     /// Retaining a qualified source is not an executable-actual phase change.
     /// The completed cohort must separately corroborate this exact frame.
     pub(in crate::mir::normal_callable_semantic_package) fn retain_expression_frame_v1(
-        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+        frame: std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
+        >,
     ) -> Result<Self, String> {
         BorrowedExpressionActualSourceV1::from_frame(frame).map(Self::Expression)
     }
@@ -151,13 +168,17 @@ impl PreparedBorrowedCallActualsV1 {
     pub(super) fn source_static_snapshot_v1(&self) -> Option<&Self> {
         match &self.phase {
             BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => Some(self),
-            BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) => finish.source_snapshot_v1(),
+            BorrowedCallActualEvidencePhaseV1::ExecutableStaticInput(finish) => {
+                finish.source_snapshot_v1()
+            }
             _ => None,
         }
     }
     /// Dispatch selection only. The source projection still validates the whole
     /// original tuple; this never grants executable actuals or Home completion.
-    pub(in crate::mir::normal_callable_semantic_package) fn has_qualified_static_argument_source_v1(&self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn has_qualified_static_argument_source_v1(
+        &self,
+    ) -> bool {
         matches!(&self.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(identity)
             if identity.argument_sources.values().any(|slot|
                 matches!(slot, model::ArgumentExpressionV1::Qualified(_))))
@@ -199,34 +220,74 @@ impl PreparedBorrowedCallActualsV1 {
             BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(ref identity) => {
                 let mut ordinals = std::collections::BTreeSet::new();
                 for (ordinal, original) in &identity.array_loans {
-                    let mut incoming = identity.incoming_arguments.iter().filter(|(index, _, _)| index == ordinal);
-                    let (_, site, formal) = incoming.next().ok_or_else(|| freeze("borrowed-instance/array-original-argument"))?;
-                    let mut actuals = self.opaque_actuals.iter().filter(|actual| actual.ordinal == *ordinal);
-                    let actual = actuals.next().ok_or_else(|| freeze("borrowed-instance/array-actual-payload-missing"))?;
+                    let mut incoming = identity
+                        .incoming_arguments
+                        .iter()
+                        .filter(|(index, _, _)| index == ordinal);
+                    let (_, site, formal) = incoming
+                        .next()
+                        .ok_or_else(|| freeze("borrowed-instance/array-original-argument"))?;
+                    let mut actuals = self
+                        .opaque_actuals
+                        .iter()
+                        .filter(|actual| actual.ordinal == *ordinal);
+                    let actual = actuals
+                        .next()
+                        .ok_or_else(|| freeze("borrowed-instance/array-actual-payload-missing"))?;
                     let BorrowedFormalActualSourceV1::Read(read) = &actual.source else {
                         return Err(freeze("borrowed-instance/array-actual-source-drift"));
                     };
-                    if incoming.next().is_some() || actuals.next().is_some() || !ordinals.insert(*ordinal)
-                        || &actual.site != site || actual.formal != *formal || !read.corroborates_array_input_v1(original) {
+                    if incoming.next().is_some()
+                        || actuals.next().is_some()
+                        || !ordinals.insert(*ordinal)
+                        || &actual.site != site
+                        || actual.formal != *formal
+                        || !read.corroborates_array_input_v1(original)
+                    {
                         return Err(freeze("borrowed-instance/array-actual-identity-drift"));
                     }
                 }
                 for (ordinal, original) in &identity.field_loans {
-                    let mut incoming = identity.incoming_arguments.iter().filter(|(index, _, _)| index == ordinal);
-                    let (_, site, formal) = incoming.next().ok_or_else(|| freeze("borrowed-instance/field-original-argument"))?;
-                    let mut actuals = self.opaque_actuals.iter().filter(|actual| actual.ordinal == *ordinal);
-                    let actual = actuals.next().ok_or_else(|| freeze("borrowed-instance/field-actual-payload-missing"))?;
+                    let mut incoming = identity
+                        .incoming_arguments
+                        .iter()
+                        .filter(|(index, _, _)| index == ordinal);
+                    let (_, site, formal) = incoming
+                        .next()
+                        .ok_or_else(|| freeze("borrowed-instance/field-original-argument"))?;
+                    let mut actuals = self
+                        .opaque_actuals
+                        .iter()
+                        .filter(|actual| actual.ordinal == *ordinal);
+                    let actual = actuals
+                        .next()
+                        .ok_or_else(|| freeze("borrowed-instance/field-actual-payload-missing"))?;
                     let BorrowedFormalActualSourceV1::Read(read) = &actual.source else {
                         return Err(freeze("borrowed-instance/field-actual-source-drift"));
                     };
-                    if incoming.next().is_some() || actuals.next().is_some() || !ordinals.insert(*ordinal)
-                        || &actual.site != site || actual.formal != *formal
-                        || !read.corroborates_field_input_v1(identity.source.call_site(), *ordinal, original) {
+                    if incoming.next().is_some()
+                        || actuals.next().is_some()
+                        || !ordinals.insert(*ordinal)
+                        || &actual.site != site
+                        || actual.formal != *formal
+                        || !read.corroborates_field_input_v1(
+                            identity.source.call_site(),
+                            *ordinal,
+                            original,
+                        )
+                    {
                         return Err(freeze("borrowed-instance/field-actual-identity-drift"));
                     }
                 }
-                if self.opaque_actuals.iter().filter(|actual| matches!(&actual.source,
-                    BorrowedFormalActualSourceV1::Read(_))).count() != ordinals.len() {
+                if self
+                    .opaque_actuals
+                    .iter()
+                    .filter(|actual| {
+                        matches!(&actual.source, BorrowedFormalActualSourceV1::Read(_))
+                    })
+                    .count()
+                    != ordinals.len()
+                {
                     return Err(freeze("borrowed-instance/array-actual-domain-drift"));
                 }
                 Ok(())
@@ -237,7 +298,9 @@ impl PreparedBorrowedCallActualsV1 {
             BorrowedCallActualEvidencePhaseV1::SourceInstance(ref original) => Err(format!(
                 "{}: call={:?}, callee={:?}, target={:?}",
                 freeze("ordinary-new/borrowed-entry/source-only-instance-actuals"),
-                original.source.call_site(), original.source.callee_owner(), original.source.target(),
+                original.source.call_site(),
+                original.source.callee_owner(),
+                original.source.target(),
             )),
             BorrowedCallActualEvidencePhaseV1::SourceObject(ref original) => Err(format!(
                 "{}: call={:?}, callee={:?}, target={:?}",
@@ -249,7 +312,10 @@ impl PreparedBorrowedCallActualsV1 {
             BorrowedCallActualEvidencePhaseV1::SourceStatic(ref original) => Err(format!(
                 "{}: call={:?}, callee={:?}, target={:?}, result={:?}",
                 freeze("ordinary-new/borrowed-entry/source-only-static-actuals"),
-                original.source.call_site(), original.source.callee_owner(), original.source.target(), original.source.source_result(),
+                original.source.call_site(),
+                original.source.callee_owner(),
+                original.source.target(),
+                original.source.source_result(),
             )),
         }
     }
@@ -268,6 +334,9 @@ impl PreparedBorrowedCallActualsV1 {
     ) -> Result<&[LocalCallArgumentV1], String> {
         if self.ordered_arguments.len() != call.source.argument_sites().len() {
             return Err(freeze("borrowed-entry/ordered-arguments-cardinality"));
+        }
+        if self.dynamic_invocation_arguments.is_some() {
+            return self.checked_dynamic_ordered_arguments_v1(call);
         }
         for (ordinal, argument) in self.ordered_arguments.iter().enumerate() {
             let opaque = call
@@ -299,6 +368,87 @@ impl PreparedBorrowedCallActualsV1 {
         }
         Ok(&self.ordered_arguments)
     }
+
+    fn checked_dynamic_ordered_arguments_v1(
+        &self,
+        call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    ) -> Result<&[LocalCallArgumentV1], String> {
+        let reject = || freeze("borrowed-entry/dynamic-ordered-arguments-identity");
+        let dynamic = self
+            .dynamic_invocation_arguments
+            .as_ref()
+            .ok_or_else(reject)?;
+        let original = call.source.require_instance()?;
+        let target = dynamic.source.target();
+        let sites = original.argument_sites();
+        if !self.opaque_actuals.is_empty()
+            || dynamic.source.call_site() != &call.call
+            || target.owner() != call.call.owner()
+            || target.call_site() != call.call.site()
+            || target.result_site() != call.call.site()
+            || target.receiver_site() != original.receiver_site()
+            || target.receiver_binding() != original.receiver_binding()?
+            || target.dispatch().selector() != original.target().name()
+            || target.dispatch().arity() != original.target().arity()
+            || target.dispatch().arity() as usize != sites.len()
+            || dynamic.source.argument_sites() != sites
+            || dynamic.candidates.len() != sites.len()
+            || dynamic.arguments.len() != sites.len()
+        {
+            return Err(reject());
+        }
+        for (ordinal, ((candidate, source), argument)) in dynamic
+            .candidates
+            .iter()
+            .zip(target.arguments())
+            .zip(self.ordered_arguments.iter())
+            .enumerate()
+        {
+            if candidate.ordinal as usize != ordinal
+                || candidate.ordinal != source.ordinal()
+                || candidate.site != *source.site()
+                || candidate.site != sites[ordinal]
+                || !matches!(argument, LocalCallArgumentV1::Expression {
+                    ordinal: observed, site
+                } if *observed as usize == ordinal && site == &candidate.site)
+            {
+                return Err(reject());
+            }
+            let slot = dynamic.arguments.get(&candidate.ordinal).ok_or_else(reject)?;
+            let plan = match slot {
+                ArgumentExpressionV1::Source(plan) => plan,
+                ArgumentExpressionV1::Qualified(frame) => frame.source(),
+            };
+            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                call: expression_call,
+                ordinal: expression_ordinal,
+                ..
+            } = plan.root()
+            else {
+                return Err(reject());
+            };
+            if plan.owner() != call.call.owner()
+                || expression_call.owner() != call.call.owner()
+                || expression_call.site() != call.call.site()
+                || *expression_ordinal as usize != ordinal
+                || expression_call.arity() != target.dispatch().arity()
+                || expression_call.arguments().len() != sites.len()
+                || expression_call.arguments().iter().zip(target.arguments()).any(
+                    |(observed, expected)| {
+                        observed.ordinal() != expected.ordinal()
+                            || observed.site() != expected.site()
+                    },
+                )
+                || plan
+                    .nodes()
+                    .first()
+                    .is_none_or(|node| node.site() != &candidate.site)
+            {
+                return Err(reject());
+            }
+        }
+        Ok(&self.ordered_arguments)
+    }
 }
 
 /// Qualification refines the existing ordinal product; it never creates a
@@ -306,7 +456,9 @@ impl PreparedBorrowedCallActualsV1 {
 #[derive(Debug, Clone)]
 pub(super) enum ArgumentExpressionV1 {
     Source(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>),
-    Qualified(Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>),
+    Qualified(
+        Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+    ),
 }
 
 /// Dynamic invocation arguments keep their source plans and checked frames in
@@ -322,11 +474,20 @@ pub(super) struct DynamicInvocationArgumentSourcesV1 {
 impl std::ops::Deref for ArgumentExpressionV1 {
     type Target = Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>;
     fn deref(&self) -> &Self::Target {
-        match self { Self::Source(plan) => plan, Self::Qualified(frame) => frame.source() }
+        match self {
+            Self::Source(plan) => plan,
+            Self::Qualified(frame) => frame.source(),
+        }
     }
 }
-impl From<Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>> for ArgumentExpressionV1 {
-    fn from(plan: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>) -> Self { Self::Source(plan) }
+impl From<Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>>
+    for ArgumentExpressionV1
+{
+    fn from(
+        plan: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    ) -> Self {
+        Self::Source(plan)
+    }
 }
 impl PartialEq for ArgumentExpressionV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -339,7 +500,6 @@ impl PartialEq for ArgumentExpressionV1 {
 }
 impl Eq for ArgumentExpressionV1 {}
 
-
 /// Bind original source structure only. Mode-specific class/loan requirements
 /// stay with the original Static/Instance issuer, outside this common product.
 pub(super) fn bind_original_argument_plans_v1(
@@ -351,24 +511,46 @@ pub(super) fn bind_original_argument_plans_v1(
 ) -> Result<BTreeMap<u32, ArgumentExpressionV1>, String> {
     let reject = || freeze("borrowed-actual/argument-source-identity");
     if input.owner() != source.call_site().owner()
-        || !input.function().method_call_source_v1(source.call_site().site())
+        || !input
+            .function()
+            .method_call_source_v1(source.call_site().site())
             .is_some_and(|original| std::sync::Arc::ptr_eq(original, method))
-        || previous.is_some_and(|old| old.len() != candidates.len()) {
+        || previous.is_some_and(|old| old.len() != candidates.len())
+    {
         return Err(reject());
     }
     let mut plans = BTreeMap::new();
     for candidate in candidates {
-        let atom = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, &candidate.site);
+        let atom = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(
+            input,
+            &candidate.site,
+        );
         let same = match (&candidate.value, atom.as_ref()) {
-            (BorrowedCallActualValueV1::Scalar(binding, _) | BorrowedCallActualValueV1::SelfRooted { binding, .. }
-                | BorrowedCallActualValueV1::ReceivedNullable(binding) | BorrowedCallActualValueV1::ReceivedMixed(binding),
-                Some(BorrowedCallActualValueV1::Binding(original))) => binding == original,
-            (BorrowedCallActualValueV1::ReceivedField { .. }, Some(BorrowedCallActualValueV1::FieldAccess)) => true,
-            (BorrowedCallActualValueV1::MethodCall(method), Some(BorrowedCallActualValueV1::MethodCall(original))) => std::sync::Arc::ptr_eq(method, original),
+            (
+                BorrowedCallActualValueV1::Scalar(binding, _)
+                | BorrowedCallActualValueV1::SelfRooted { binding, .. }
+                | BorrowedCallActualValueV1::ReceivedNullable(binding)
+                | BorrowedCallActualValueV1::ReceivedMixed(binding),
+                Some(BorrowedCallActualValueV1::Binding(original)),
+            ) => binding == original,
+            (
+                BorrowedCallActualValueV1::ReceivedField { .. },
+                Some(BorrowedCallActualValueV1::FieldAccess),
+            ) => true,
+            (
+                BorrowedCallActualValueV1::MethodCall(method),
+                Some(BorrowedCallActualValueV1::MethodCall(original)),
+            ) => std::sync::Arc::ptr_eq(method, original),
+            // Exact source binding identity only; value class is checked by its own source proof.
+            (BorrowedCallActualValueV1::Unknown, Some(BorrowedCallActualValueV1::Binding(_))) => {
+                true
+            }
             (expected, Some(original)) => expected == original,
             _ => false,
         };
-        if !same { return Err(reject()); }
+        if !same {
+            return Err(reject());
+        }
         let plan = if let Some(old) = previous {
             ArgumentExpressionV1::Source(Rc::clone(old.get(&candidate.ordinal).ok_or_else(reject)?))
         } else {
@@ -377,8 +559,15 @@ pub(super) fn bind_original_argument_plans_v1(
         };
         if !matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, .. }
                 if std::sync::Arc::ptr_eq(call, method))
-            || input.function().source_site_inventory().containing_statement(source.call_site().site()) != Some(plan.root().statement())
-            || plans.insert(candidate.ordinal, plan).is_some() { return Err(reject()); }
+            || input
+                .function()
+                .source_site_inventory()
+                .containing_statement(source.call_site().site())
+                != Some(plan.root().statement())
+            || plans.insert(candidate.ordinal, plan).is_some()
+        {
+            return Err(reject());
+        }
     }
     validate_original_argument_plans_v1(source, candidates, &plans)?;
     Ok(plans)
@@ -388,29 +577,47 @@ pub(super) fn bind_original_argument_plans_v1(
 /// frames must retain their SAME source loan, not a rebuilt plan or frame.
 fn validate_original_argument_plans_v1(
     source: super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>,
-    candidates: &[BorrowedCallActualCandidateV1], plans: &BTreeMap<u32, ArgumentExpressionV1>,
+    candidates: &[BorrowedCallActualCandidateV1],
+    plans: &BTreeMap<u32, ArgumentExpressionV1>,
 ) -> Result<(), String> {
     use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
     let reject = || freeze("borrowed-actual/argument-source-identity");
-    if plans.len() != candidates.len() || candidates.len() != source.argument_sites().len() { return Err(reject()); }
+    if plans.len() != candidates.len() || candidates.len() != source.argument_sites().len() {
+        return Err(reject());
+    }
     let mut outer = None;
     for (index, candidate) in candidates.iter().enumerate() {
         let plan = plans.get(&(index as u32)).ok_or_else(reject)?;
-        let ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = plan.root() else { return Err(reject()); };
-        if candidate.ordinal as usize != index || *ordinal != candidate.ordinal
-            || plan.owner() != source.call_site().owner() || call.owner() != plan.owner()
+        let ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = plan.root() else {
+            return Err(reject());
+        };
+        if candidate.ordinal as usize != index
+            || *ordinal != candidate.ordinal
+            || plan.owner() != source.call_site().owner()
+            || call.owner() != plan.owner()
             || call.site() != source.call_site().site()
             || call.arity() != source.target().arity()
-            || call.arguments().iter().map(|arg| arg.site()).ne(source.argument_sites().iter())
+            || call
+                .arguments()
+                .iter()
+                .map(|arg| arg.site())
+                .ne(source.argument_sites().iter())
             || source.argument_sites().get(index) != Some(&candidate.site)
-            || plan.nodes().first().is_none_or(|node| node.site() != &candidate.site)
-            || outer.is_some_and(|previous| !std::sync::Arc::ptr_eq(previous, call)) {
+            || plan
+                .nodes()
+                .first()
+                .is_none_or(|node| node.site() != &candidate.site)
+            || outer.is_some_and(|previous| !std::sync::Arc::ptr_eq(previous, call))
+        {
             return Err(reject());
         }
         outer = Some(call);
         if let ArgumentExpressionV1::Qualified(frame) = plan {
             if !Rc::ptr_eq(frame.source(), frame.source_loan().plan())
-                || !frame.evaluation().reference_coverage_is_exact() { return Err(reject()); }
+                || !frame.evaluation().reference_coverage_is_exact()
+            {
+                return Err(reject());
+            }
         }
     }
     Ok(())
@@ -418,8 +625,10 @@ fn validate_original_argument_plans_v1(
 
 impl instance_source::InstanceSourceActualIdentityV1 {
     pub(super) fn same_original_source_v1(&self, other: &Self) -> bool {
-        self.source == other.source && self.incoming_arguments == other.incoming_arguments
-            && self.candidates == other.candidates && self.array_loans == other.array_loans
+        self.source == other.source
+            && self.incoming_arguments == other.incoming_arguments
+            && self.candidates == other.candidates
+            && self.array_loans == other.array_loans
             && self.field_loans == other.field_loans
     }
 }
@@ -428,7 +637,8 @@ impl instance_source::InstanceSourceActualIdentityV1 {
 /// refinement only after source membership checks. Empty is the existing direct
 /// source-only prepare state and cannot grant an expression qualification.
 pub(super) fn retain_instance_argument_sources_v1(
-    prepared: &mut PreparedBorrowedCallActualsV1, original: &instance_source::InstanceSourceActualIdentityV1,
+    prepared: &mut PreparedBorrowedCallActualsV1,
+    original: &instance_source::InstanceSourceActualIdentityV1,
 ) -> Result<(), String> {
     let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &mut prepared.phase else {
         return Err(freeze("borrowed-instance/source-identity"));
@@ -437,15 +647,21 @@ pub(super) fn retain_instance_argument_sources_v1(
         return Err(freeze("borrowed-instance/source-identity"));
     }
     if !original.argument_sources.is_empty() {
-        validate_original_argument_plans_v1(super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
-            &original.source), &original.candidates, &original.argument_sources)?;
+        validate_original_argument_plans_v1(
+            super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+                &original.source,
+            ),
+            &original.candidates,
+            &original.argument_sources,
+        )?;
     }
     identity.argument_sources = original.argument_sources.clone();
     Ok(())
 }
 
 pub(super) fn retain_object_argument_sources_v1(
-    prepared: &mut PreparedBorrowedCallActualsV1, original: &object_source::ObjectSourceActualIdentityV1,
+    prepared: &mut PreparedBorrowedCallActualsV1,
+    original: &object_source::ObjectSourceActualIdentityV1,
 ) -> Result<(), String> {
     let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &mut prepared.phase else {
         return Err(freeze("borrowed-object/source-actual-identity"));
@@ -454,8 +670,13 @@ pub(super) fn retain_object_argument_sources_v1(
         return Err(freeze("borrowed-object/source-actual-identity"));
     }
     if !original.argument_sources.is_empty() {
-        validate_original_argument_plans_v1(super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
-            &original.source), &original.candidates, &original.argument_sources)?;
+        validate_original_argument_plans_v1(
+            super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+                &original.source,
+            ),
+            &original.candidates,
+            &original.argument_sources,
+        )?;
     }
     identity.argument_sources = original.argument_sources.clone();
     Ok(())
@@ -464,7 +685,8 @@ pub(super) fn retain_object_argument_sources_v1(
 /// The shared actual constructor consumes real Read or Expression evidence.
 /// These remain distinct source kinds with their own final membership checks.
 pub(super) fn validate_computed_actual_source_v1(
-    source: &BorrowedFormalActualSourceV1, actual: &BorrowedCallActualCandidateV1,
+    source: &BorrowedFormalActualSourceV1,
+    actual: &BorrowedCallActualCandidateV1,
     call: &OwnedExprSiteV1,
     formal: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1,
 ) -> Result<(), String> {
@@ -474,26 +696,48 @@ pub(super) fn validate_computed_actual_source_v1(
                 return Err(freeze("borrowed-actual/array-read-source-drift"));
             }
             if let BorrowedCallActualValueV1::MethodCall(method) = &actual.value {
-                if !read.corroborates_method_source_v1(method) { return Err(freeze("borrowed-actual/method-original-source-drift")); }
+                if !read.corroborates_method_source_v1(method) {
+                    return Err(freeze("borrowed-actual/method-original-source-drift"));
+                }
             }
         }
         BorrowedFormalActualSourceV1::Expression(expression) => {
             let frame = expression.frame();
             if frame.source().owner() != call.owner()
-                || frame.source().nodes().first().is_none_or(|node| node.site() != &actual.site)
+                || frame
+                    .source()
+                    .nodes()
+                    .first()
+                    .is_none_or(|node| node.site() != &actual.site)
                 || !matches!(frame.source().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call: outer, ordinal, .. }
                     if outer.site() == call.site() && *ordinal == actual.ordinal)
-                || formal.ordinal != actual.ordinal || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-            { return Err(freeze("borrowed-actual/expression-source-drift")); }
+                || formal.ordinal != actual.ordinal
+                || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+            {
+                return Err(freeze("borrowed-actual/expression-source-drift"));
+            }
             if let BorrowedCallActualValueV1::String(value) = &actual.value {
-                use crate::mir::resolved_value_profile::{expression_plan::ExpressionNodeSourceV1 as Node,
-                    expression_class::ExpressionValueClassV1 as Class, expression_projection::ExpressionLeafClassV1 as Leaf};
+                use crate::mir::resolved_value_profile::{
+                    expression_class::ExpressionValueClassV1 as Class,
+                    expression_plan::ExpressionNodeSourceV1 as Node,
+                    expression_projection::ExpressionLeafClassV1 as Leaf,
+                };
                 if !matches!(frame.source().nodes()[0].source(),
                     Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(original)) if original == value)
-                    || frame.is_i64() || frame.evaluation().root_class() != Leaf::Value(Class::String)
-                { return Err(freeze("borrowed-actual/expression-source-drift")); }
+                    || frame.is_i64()
+                    || frame.evaluation().root_class() != Leaf::Value(Class::String)
+                {
+                    return Err(freeze("borrowed-actual/expression-source-drift"));
+                }
             }
         }
+        BorrowedFormalActualSourceV1::Scalar {
+            binding,
+            kind: SourceScalarKind::Integer,
+        } if matches!(actual.value, BorrowedCallActualValueV1::Unknown)
+            && binding.owner() == call.owner()
+            && formal.ordinal == actual.ordinal
+            && formal.kind.is_ordinary_borrowed_handle() => {}
         _ => return Err(freeze("borrowed-actual/expression-or-read-required")),
     }
     Ok(())

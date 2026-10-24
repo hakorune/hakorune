@@ -320,11 +320,18 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Terminal and storage purposes contribute their original entry reads to
     /// the same whole-use closure, without granting physical entry/slot ABI.
     /// Borrow the SAME completed New actuals for the common input-use census.
-    /// No claim is consumed and no source read is accepted by its kind alone.
+    /// Exact local argument rows account only their lexical read; expression
+    /// rows contribute their checked node references. Neither grants value
+    /// type or execution authority.
     pub(super) fn new_input_evaluations_v1(
-        &self, owner: FunctionOwnerIdV1,
+        &self,
+        owner: FunctionOwnerIdV1,
+        uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
+        covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,
     ) -> Result<Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>>, String> {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
+        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as ArgumentKind;
+        use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
         let local = self.claims.borrow();
         let returned = self.result_claims.borrow();
         let taken = self.local_commits.borrow();
@@ -338,19 +345,39 @@ impl OrdinaryNewClaimLedgerV1 {
             // locations violate that transfer even when evaluations are equal.
             if !sites.insert(site) { return Err(freeze("static-input/qualified-use-identity")); }
             // Unqualified rows lend nothing; original reads remain uncovered.
-            let Ok(rows) = rows else { continue };
+            let Ok(rows) = rows else {
+                continue;
+            };
             for (index, argument) in rows.iter().enumerate() {
-                let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Expression { evaluation } = argument.kind()
-                    else { continue };
-                let ExpressionPlanRootV1::NewArgument { construction, ordinal, .. } = evaluation.source().root()
-                    else { return Err(freeze("static-input/qualified-use-identity")) };
-                if argument.owner() != owner || argument.new_site() != site || evaluation.source().owner() != owner
-                    || construction.site() != site.site() || *ordinal != argument.ordinal() || *ordinal as usize != index
-                    || construction.arguments().get(index) != Some(argument.site())
-                    || evaluation.source().nodes().first().map(|node| node.site()) != Some(argument.site()) {
+                if argument.owner() != owner || argument.new_site() != site
+                    || argument.ordinal() as usize != index {
                     return Err(freeze("static-input/qualified-use-identity"));
                 }
-                if !evaluations.iter().any(|old| Rc::ptr_eq(old, evaluation)) { evaluations.push(Rc::clone(evaluation)); }
+                match argument.kind() {
+                    ArgumentKind::Expression { evaluation } => {
+                        let ExpressionPlanRootV1::NewArgument { construction, ordinal, .. } = evaluation.source().root()
+                            else { return Err(freeze("static-input/qualified-use-identity")) };
+                        if evaluation.source().owner() != owner
+                            || construction.site() != site.site() || *ordinal != argument.ordinal()
+                            || construction.arguments().get(index) != Some(argument.site())
+                            || evaluation.source().nodes().first().map(|node| node.site()) != Some(argument.site()) {
+                            return Err(freeze("static-input/qualified-use-identity"));
+                        }
+                        if !evaluations.iter().any(|old| Rc::ptr_eq(old, evaluation)) {
+                            evaluations.push(Rc::clone(evaluation));
+                        }
+                    }
+                    ArgumentKind::Local { binding }
+                    | ArgumentKind::Handle { binding }
+                    | ArgumentKind::BoundValue { binding } => {
+                        if !uses.reads().any(|(at, reference)| at == argument.site()
+                            && *reference == ResolvedLexicalRefV1::Local(*binding))
+                            || !covered.insert((argument.site().clone(), *binding)) {
+                            return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                        }
+                    }
+                    _ => {}
+                }
             }
         }
         Ok(evaluations)

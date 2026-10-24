@@ -81,10 +81,21 @@ fn emit_object(
     }
     .ok_or_else(|| freeze("lexical-nullable/source-missing"))?;
     let borrowed_receiver = row.source_target().is_self_receiver();
+    let receiver_binding = row.receiver_binding()?;
+    let receiver_has_home = relation.prior_homes().contains(
+        &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(receiver_binding),
+    );
+    let borrowed_alias_receiver =
+        ledger.checked_field_alias_receiver_v1(&row, relation, None)?;
+    let receiver_is_borrowed_formal = !borrowed_receiver && !receiver_has_home
+        && ledger.borrowed_entry_receiver_matches_class_v1(
+            owner,
+            receiver_binding,
+            row.target().owner(),
+        )?;
     if borrowed_receiver != entry.is_some()
-        || (!borrowed_receiver
-            && (relation.prior_homes().is_empty()
-                || !relation.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(row.receiver_binding()?))))
+        || (!borrowed_receiver && !receiver_has_home && !receiver_is_borrowed_formal
+            && !borrowed_alias_receiver)
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }
@@ -128,6 +139,14 @@ fn emit_object(
             None,
         ),
     };
+    if borrowed_alias_receiver {
+        let value = receiver
+            .value_for(owner, row.receiver_site().node(), receiver_binding)
+            .map_err(|error| error.to_string())?;
+        if !ledger.checked_field_alias_receiver_v1(&row, relation, Some(value))? {
+            return Err(freeze("lexical-nullable/receiver-alias-drift"));
+        }
+    }
     if let Some((key, expected)) = locator {
         if row.target() != key
             || receiver

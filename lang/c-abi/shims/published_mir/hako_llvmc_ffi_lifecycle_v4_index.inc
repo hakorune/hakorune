@@ -393,6 +393,11 @@ static int lv4_index_open(hako_lv4_input* in) {
            lane — the kind==0 prologue seals payload 0, so the value is
            never a lease and admits no consume. */
         param->kind = LV4_HANDLE; param->origin = -3;
+      } else if (!ordinary && lv4_is(row, "representation", "i64")) {
+        /* A source-qualified signed Dynamic I64 Birth formal keeps the
+           existing kind/payload call ABI but exposes only its checked
+           Integer payload to this body. */
+        param->kind = LV4_I64; param->origin = -1;
       } else {
         /* The pair ABI is unchanged. Its checked Integer entry projection
            dominates every body use; Copy/Phi transport the projected i64. */

@@ -92,7 +92,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(false);
             };
             let rows = rows.as_ref().map_err(Clone::clone)?;
-            if let Some(fact) = source.static_arguments.get(&(original.call_site().clone(), 0)) {
+            if let Some(fact) = source
+                .static_arguments
+                .get(&(original.call_site().clone(), 0))
+            {
                 // This issuer checks Rc/site/ordinal/formal/origin and retains
                 // SourceStatic. Do not promote or overwrite forwarded rows.
                 let forwarded = issue_original_static_forwarded_actual_v1(
@@ -137,7 +140,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("static-tagged/finished-payload"));
                 }
-
             } else {
                 return Ok(false);
             }
@@ -320,7 +322,10 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter_map(|row| row.as_ref().ok())
         {
             if !source.is_static_terminal_source_v1(original)
-                || source.static_arguments.contains_key(&(original.call_site().clone(), 0)) {
+                || source
+                    .static_arguments
+                    .contains_key(&(original.call_site().clone(), 0))
+            {
                 continue;
             }
             let formal = original.parameters()[0].binding;

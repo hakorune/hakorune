@@ -46,6 +46,13 @@ impl ObjectReturnTeardownDescriptorV1 {
                 // Nullable child-field release has no accepted envelope yet.
                 !nullable && self.children.is_some()
             }
+            disposition if disposition.has_no_hook() && disposition.requires_field_end() => {
+                // Dynamic child slots carry their exact End descriptor at
+                // installation; direct cancellation is safe when the same
+                // source-sealed inventory supplies every child drain.
+                !nullable && self.children.as_deref().is_some_and(|children|
+                    disposition.supports_complete_execution(!children.is_empty()))
+            }
             _ => false,
         }
     }
@@ -194,6 +201,10 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let original: Vec<_> = self.callable_result_classes
             .construction_child_relation_loans()
+            // Dynamic-slot relations remain part of the exact constructor
+            // argument census. Their source relation grants no execution
+            // permission, but dropping them here would erase the provenance
+            // that the Birth field contract later consumes.
             .filter(|relation| relation.outer() == site)
             .collect();
         if arguments.iter().enumerate().any(|(ordinal, argument)|

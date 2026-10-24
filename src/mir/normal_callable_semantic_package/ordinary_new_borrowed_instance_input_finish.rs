@@ -7,8 +7,10 @@ use crate::mir::normal_callable_semantic_package::{
     selected_mapping::VerifiedSelectedCallableBatchMapV1, OrdinaryNewClaimLedgerV1,
 };
 
-use super::super::borrowed_formal_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
 use super::super::super::completion_index::ObjectReturnTeardownDescriptorV1;
+use super::super::borrowed_formal_source::{
+    ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1,
+};
 
 enum ArrayProducerReadinessV1 {
     Pending,
@@ -40,15 +42,28 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedIncomingCallDraftV1>, String> {
         // Successful source membership only proposes an owner. The checked
         // projection below retains all owner/global scan errors and duplicates.
-        if let Some(call) = source.source_incoming.source_rows_v1().find(|row| &row.call == site) {
+        if let Some(call) = source
+            .source_incoming
+            .source_rows_v1()
+            .find(|row| &row.call == site)
+        {
             if Self::original_finite_instance_input_request_v1(source, catalog, call.callee)? {
-                return Ok(Self::original_instance_input_calls_v1(source, catalog, call.callee)?
-                    .into_vec().into_iter().find(|row| &row.call == site));
+                return Ok(
+                    Self::original_instance_input_calls_v1(source, catalog, call.callee)?
+                        .into_vec()
+                        .into_iter()
+                        .find(|row| &row.call == site),
+                );
             }
         }
-        let mut rows = source.source_incoming.exact_rows().filter(|row| &row.call == site);
+        let mut rows = source
+            .source_incoming
+            .exact_rows()
+            .filter(|row| &row.call == site);
         let original = rows.next().cloned();
-        if rows.next().is_some() { return Err(freeze("borrowed-instance/duplicate-source")); }
+        if rows.next().is_some() {
+            return Err(freeze("borrowed-instance/duplicate-source"));
+        }
         Ok(original)
     }
 
@@ -73,12 +88,17 @@ impl OrdinaryNewClaimLedgerV1 {
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         identity: &instance_source::InstanceSourceActualIdentityV1,
     ) -> Result<TypedInputClosureV1, String> {
-        let elements: Vec<_> = identity.array_loans.iter().map(|(_, element)| element).collect();
+        let elements: Vec<_> = identity
+            .array_loans
+            .iter()
+            .map(|(_, element)| element)
+            .collect();
         self.prepare_array_holder_producer_inputs_v1(source, selected, signatures, &elements)
     }
 
     fn prepare_array_holder_producer_inputs_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         elements: &[&ArrayElementSourceLoanV1],
@@ -172,63 +192,100 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut pending = false;
         let mut seen: Vec<&ArrayElementSourceLoanV1> = Vec::new();
         for (_, element) in &identity.array_loans {
-            if seen.iter().any(|previous| element.same_holder_v1(previous)) { continue; }
+            if seen.iter().any(|previous| element.same_holder_v1(previous)) {
+                continue;
+            }
             seen.push(element);
-            match self.checked_array_holder_producers_v1(source, selected, signatures, element, results)? {
+            match self
+                .checked_array_holder_producers_v1(source, selected, signatures, element, results)?
+            {
                 ArrayProducerReadinessV1::Pending => pending = true,
-                ArrayProducerReadinessV1::Refused(issue) => return Ok(TypedInputClosureV1::Refused(issue)),
+                ArrayProducerReadinessV1::Refused(issue) => {
+                    return Ok(TypedInputClosureV1::Refused(issue))
+                }
                 ArrayProducerReadinessV1::Ready(descriptor) => plans.push((element, descriptor)),
             }
         }
-        if pending { return Ok(TypedInputClosureV1::Pending); }
+        if pending {
+            return Ok(TypedInputClosureV1::Pending);
+        }
         for (element, descriptor) in &plans {
             element.check_producer_plan_v1(descriptor, original_selected, original_signatures)?;
         }
         for (element, descriptor) in &plans {
-            element.retain_checked_producer_plan_v1(descriptor.clone(), original_selected, original_signatures)?;
+            element.retain_checked_producer_plan_v1(
+                descriptor.clone(),
+                original_selected,
+                original_signatures,
+            )?;
         }
         let mut recipes = Vec::new();
         for (element, _) in plans {
             let Some(completion) = self.completion_index.get(&element.read().owner()) else {
                 return Ok(TypedInputClosureV1::Pending);
             };
-            let completion = completion.as_ref().map_err(|issue| {
-                format!("{}: {issue:?}", freeze("array-home/completion"))
-            })?;
+            let completion = completion
+                .as_ref()
+                .map_err(|issue| format!("{}: {issue:?}", freeze("array-home/completion")))?;
             let caller = self.array_holder_caller_v1(element.read().owner(), original_selected)?;
             let Some(recipe) = ArrayHolderLifecycleRecipeV1::issue(
-                element, source, completion, caller, original_selected, original_signatures)?
-                else { return Ok(TypedInputClosureV1::Pending); };
+                element,
+                source,
+                completion,
+                caller,
+                original_selected,
+                original_signatures,
+            )?
+            else {
+                return Ok(TypedInputClosureV1::Pending);
+            };
             recipes.push(recipe);
         }
         // Preflight the complete cohort before publishing any source obligation.
         let mut retained = self.array_holder_lifecycles.borrow_mut();
         for recipe in &recipes {
-            if retained.get(&recipe.holder()).is_some_and(|old| !old.same_source(recipe)) {
+            if retained
+                .get(&recipe.holder())
+                .is_some_and(|old| !old.same_source(recipe))
+            {
                 return Err(freeze("array-lifecycle/original-recipe-drift"));
             }
         }
-        for recipe in recipes { retained.entry(recipe.holder()).or_insert(recipe); }
+        for recipe in recipes {
+            retained.entry(recipe.holder()).or_insert(recipe);
+        }
         Ok(TypedInputClosureV1::Ready(Vec::new()))
     }
 
     /// Pure whole-producer validation, shared by preparation and later demand.
     /// It never installs a recipe or lends an executable actual.
     fn checked_array_holder_producers_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         element: &ArrayElementSourceLoanV1,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<ArrayProducerReadinessV1, String> {
-        match self.prepare_array_holder_producer_inputs_v1(source, selected, signatures, &[element])? {
-            TypedInputClosureV1::Ready(rows) if rows.is_empty() => {},
-            TypedInputClosureV1::Ready(_) | TypedInputClosureV1::Pending => return Ok(ArrayProducerReadinessV1::Pending),
-            TypedInputClosureV1::Refused(issue) => return Ok(ArrayProducerReadinessV1::Refused(issue)),
+        match self.prepare_array_holder_producer_inputs_v1(
+            source,
+            selected,
+            signatures,
+            &[element],
+        )? {
+            TypedInputClosureV1::Ready(rows) if rows.is_empty() => {}
+            TypedInputClosureV1::Ready(_) | TypedInputClosureV1::Pending => {
+                return Ok(ArrayProducerReadinessV1::Pending)
+            }
+            TypedInputClosureV1::Refused(issue) => {
+                return Ok(ArrayProducerReadinessV1::Refused(issue))
+            }
         }
         let current = ArrayElementSourceLoanV1::issue(source, element.read())?
             .ok_or_else(|| freeze("array-producer-plan/current-source-missing"))?;
-        if &current != element { return Err(freeze("array-producer-plan/current-source-drift")); }
+        if &current != element {
+            return Err(freeze("array-producer-plan/current-source-drift"));
+        }
         let mut descriptor = None;
         let mut pending = false;
         for producer in element.producer_sources_v1() {
@@ -236,59 +293,100 @@ impl OrdinaryNewClaimLedgerV1 {
                 pending = true;
                 continue;
             };
-            if descriptor.as_ref().is_some_and(|previous| previous != &current) {
+            if descriptor
+                .as_ref()
+                .is_some_and(|previous| previous != &current)
+            {
                 return Err(freeze("array-producer-result/teardown-disagreement"));
             }
             descriptor = Some(current);
         }
-        if pending { return Ok(ArrayProducerReadinessV1::Pending); }
-        Ok(ArrayProducerReadinessV1::Ready(descriptor
-            .ok_or_else(|| freeze("array-producer-plan/empty-original-producers"))?))
+        if pending {
+            return Ok(ArrayProducerReadinessV1::Pending);
+        }
+        Ok(ArrayProducerReadinessV1::Ready(descriptor.ok_or_else(
+            || freeze("array-producer-plan/empty-original-producers"),
+        )?))
     }
 
     /// AppMain is not a selected child result row. Lend its SAME source key
     /// for root holder retention; this issues no completed result contract.
     pub(in crate::mir::normal_callable_semantic_package) fn checked_root_array_holder_caller_v1(
-        &self, owner: FunctionOwnerIdV1,
+        &self,
+        owner: FunctionOwnerIdV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
     ) -> Result<Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>, String> {
-        let source = self.borrowed_formal_source.as_ref()
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
             .ok_or_else(|| freeze("array-lifecycle/original-ingress-missing"))?
-            .as_ref().map_err(Clone::clone)?;
-        if source.app_main_owner != Some(owner) { return Ok(None); }
-        let (original_selected, _) = self.original_instance_input_issuance.as_ref()
+            .as_ref()
+            .map_err(Clone::clone)?;
+        if source.app_main_owner != Some(owner) {
+            return Ok(None);
+        }
+        let (original_selected, _) = self
+            .original_instance_input_issuance
+            .as_ref()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
-        let original_contracts = self.original_parameter_contracts.as_deref()
+        let original_contracts = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
         if !std::ptr::eq(selected, original_selected.as_ref())
-            || !std::ptr::eq(contracts, original_contracts) {
+            || !std::ptr::eq(contracts, original_contracts)
+        {
             return Err(freeze("array-lifecycle/original-issuance-drift"));
         }
-        self.array_holder_caller_v1(owner, original_selected).map(Some)
+        self.array_holder_caller_v1(owner, original_selected)
+            .map(Some)
     }
 
     fn array_holder_caller_v1<'a>(
-        &'a self, owner: FunctionOwnerIdV1, selected: &'a VerifiedSelectedCallableBatchMapV1,
+        &'a self,
+        owner: FunctionOwnerIdV1,
+        selected: &'a VerifiedSelectedCallableBatchMapV1,
     ) -> Result<&'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
         let mut contracts = catalog.iter().filter(|row| row.owner == owner);
-        let contract = contracts.next().ok_or_else(|| freeze("array-lifecycle/caller-missing"))?;
-        if contracts.next().is_some() { return Err(freeze("array-lifecycle/caller-duplicate")); }
+        let contract = contracts
+            .next()
+            .ok_or_else(|| freeze("array-lifecycle/caller-missing"))?;
+        if contracts.next().is_some() {
+            return Err(freeze("array-lifecycle/caller-duplicate"));
+        }
         match selected.key_for_batch_slot(contract.batch_slot) {
             Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) => Ok(key),
             None => {
-                let source = self.borrowed_formal_source.as_ref()
+                let source = self
+                    .borrowed_formal_source
+                    .as_ref()
                     .ok_or_else(|| freeze("array-lifecycle/original-ingress-missing"))?
-                    .as_ref().map_err(Clone::clone)?;
-                let root = self.root_completion.as_ref()
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                let root = self
+                    .root_completion
+                    .as_ref()
                     .ok_or_else(|| freeze("array-lifecycle/root-completion-missing"))?
-                    .as_ref().map_err(|issue| format!("{}: {issue:?}", freeze("array-lifecycle/root-completion")))?;
-                let indexed = self.completion_index.get(&owner)
+                    .as_ref()
+                    .map_err(|issue| {
+                        format!("{}: {issue:?}", freeze("array-lifecycle/root-completion"))
+                    })?;
+                let indexed = self
+                    .completion_index
+                    .get(&owner)
                     .ok_or_else(|| freeze("array-lifecycle/root-index-missing"))?
-                    .as_ref().map_err(|issue| format!("{}: {issue:?}", freeze("array-lifecycle/root-index")))?;
-                let key = self.app_main_catalog_key.as_ref()
+                    .as_ref()
+                    .map_err(|issue| {
+                        format!("{}: {issue:?}", freeze("array-lifecycle/root-index"))
+                    })?;
+                let key = self
+                    .app_main_catalog_key
+                    .as_ref()
                     .ok_or_else(|| freeze("array-lifecycle/caller-key-unavailable"))?;
                 if source.app_main_owner != Some(owner) || root.owner() != owner
                     || !std::rc::Rc::ptr_eq(root, indexed) || self.app_main_identity.is_none()
@@ -308,23 +406,54 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<Vec<std::rc::Rc<ArrayHolderLifecycleRecipeV1>>, String> {
-        let recipes: Vec<_> = self.array_holder_lifecycles.borrow().values().cloned().collect();
-        if recipes.is_empty() { return Ok(recipes); }
-        let source = self.borrowed_formal_source.as_ref()
-            .ok_or_else(|| freeze("array-lifecycle/original-ingress-missing"))?.as_ref().map_err(Clone::clone)?;
-        let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+        let recipes: Vec<_> = self
+            .array_holder_lifecycles
+            .borrow()
+            .values()
+            .cloned()
+            .collect();
+        if recipes.is_empty() {
+            return Ok(recipes);
+        }
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("array-lifecycle/original-ingress-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let (selected, signatures) = self
+            .original_instance_input_issuance
+            .as_ref()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
         for recipe in &recipes {
-            let completion = self.completion_index.get(&recipe.owner())
-                .ok_or_else(|| freeze("array-lifecycle/current-completion-missing"))?.as_ref()
-                .map_err(|issue| format!("{}: {issue:?}", freeze("array-lifecycle/current-completion")))?;
+            let completion = self
+                .completion_index
+                .get(&recipe.owner())
+                .ok_or_else(|| freeze("array-lifecycle/current-completion-missing"))?
+                .as_ref()
+                .map_err(|issue| {
+                    format!(
+                        "{}: {issue:?}",
+                        freeze("array-lifecycle/current-completion")
+                    )
+                })?;
             recipe.recheck(source, completion, selected, signatures)?;
             if recipe.caller() != self.array_holder_caller_v1(recipe.owner(), selected)? {
                 return Err(freeze("array-lifecycle/current-caller-drift"));
             }
-            match self.checked_array_holder_producers_v1(source, selected, signatures, recipe.source(), results)? {
-                ArrayProducerReadinessV1::Ready(descriptor) => recipe.source().check_producer_plan_v1(&descriptor, selected, signatures)?,
-                ArrayProducerReadinessV1::Pending => return Err(freeze("array-lifecycle/producer-unfinished")),
+            match self.checked_array_holder_producers_v1(
+                source,
+                selected,
+                signatures,
+                recipe.source(),
+                results,
+            )? {
+                ArrayProducerReadinessV1::Ready(descriptor) => recipe
+                    .source()
+                    .check_producer_plan_v1(&descriptor, selected, signatures)?,
+                ArrayProducerReadinessV1::Pending => {
+                    return Err(freeze("array-lifecycle/producer-unfinished"))
+                }
                 ArrayProducerReadinessV1::Refused(issue) => return Err(issue),
             }
         }
@@ -343,9 +472,15 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         // Original Instance membership is stable when an actual becomes executable.
         // Rechecking a completed owner yields Ready(empty), never new input permission.
-        let mut owners: std::collections::BTreeSet<_> = source.source_incoming.exact_rows()
-            .filter_map(|call| call.source.instance().filter(|target|
-                !source.source_incoming.has_object_input_callee_v1(target)).map(|_| call.callee))
+        let mut owners: std::collections::BTreeSet<_> = source
+            .source_incoming
+            .exact_rows()
+            .filter_map(|call| {
+                call.source
+                    .instance()
+                    .filter(|target| !source.source_incoming.has_object_input_callee_v1(target))
+                    .map(|_| call.callee)
+            })
             .collect();
         for contract in contracts {
             if Self::original_finite_instance_input_request_v1(source, contracts, contract.owner)? {
@@ -402,7 +537,9 @@ impl OrdinaryNewClaimLedgerV1 {
             match closure {
                 TypedInputClosureV1::Pending => {}
                 TypedInputClosureV1::Refused(issue) => {
-                    for call in Self::original_instance_input_calls_v1(source, contracts, owner)?.iter() {
+                    for call in
+                        Self::original_instance_input_calls_v1(source, contracts, owner)?.iter()
+                    {
                         if let Some(row) = self.borrowed_formal_actuals.get_mut(&call.call) {
                             if row.is_ok() {
                                 *row = Err(issue.clone());
@@ -458,16 +595,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         TypedInputClosureV1::Refused(issue) => return Err(issue),
         _ => return Err(freeze("instance-input/cohort-unfinished")),
     }
-    let matching = OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(source, catalog, &original.call)?;
+    let matching =
+        OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(source, catalog, &original.call)?;
     if !matching.as_ref().is_some_and(|row| {
-        row.callee == original.callee && row.arguments == original.arguments
+        row.callee == original.callee
+            && row.arguments == original.arguments
             && row.source.instance() == original.source.instance()
-    })
-        || ledger
-            .borrowed_formal_actuals
-            .get(&original.call)
-            .and_then(|row| row.as_ref().ok())
-            != Some(actuals)
+    }) || ledger
+        .borrowed_formal_actuals
+        .get(&original.call)
+        .and_then(|row| row.as_ref().ok())
+        != Some(actuals)
     {
         return Err(freeze("instance-input/selected-snapshot"));
     }
@@ -476,7 +614,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         return Err(freeze("instance-input/source-phase"));
     };
     instance_source::recheck_instance_source_actuals_v1(
-        source, catalog, original, actuals, identity, Some(ledger),
+        source,
+        catalog,
+        original,
+        actuals,
+        identity,
+        Some(ledger),
     )
 }
 

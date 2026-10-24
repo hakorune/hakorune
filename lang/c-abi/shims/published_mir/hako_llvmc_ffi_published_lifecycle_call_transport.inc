@@ -49,6 +49,8 @@ static int hako_physical_call_args(yyjson_val* function, yyjson_val* callee,
     if (hako_physical_string(yyjson_obj_get(param, "representation"),
         "nullable_kind_payload_v1")) {
       if (kind != 0 && kind != 3) return 0;
+    } else if (hako_physical_string(yyjson_obj_get(param, "representation"), "i64")) {
+      if (kind != 1) return 0;
     } else if (kind != 1 && kind != 2) return 0;
   }
   return 1;

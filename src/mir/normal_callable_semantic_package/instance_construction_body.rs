@@ -186,7 +186,8 @@ fn owned_field_after_store_v1(
 ) -> Option<OwnedFieldChildV1> {
     use crate::mir::instruction::{FieldResidenceEndModeV1 as End, FieldSetModeV1 as Mode};
     let kind = match mode {
-        Mode::DynamicI64Initialize | Mode::DynamicMapInitialize | Mode::DynamicTextInitialize => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
+        Mode::DynamicI64Initialize | Mode::DynamicMapInitialize | Mode::DynamicTextInitialize
+        | Mode::DynamicValue(_) => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
         _ => match store.rhs() {
             ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => OwnedFieldChildKindV1::Object(child.object()),
             ConstructionStoreRhsV1::ProviderConstruction { object: None, class, .. } if class.as_ref() == "ArrayBox" =>
@@ -226,11 +227,12 @@ impl ConstructionPlanV1 {
         Ok(Self::seal_original_execution_v1(source))
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn qualify_text_stores_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn qualify_source_dynamic_stores_v1(
         source: &ConstructionSourceEligibilityV1,
         declarations: &[crate::mir::function::UserBoxFieldDecl],
         objects: &[(crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)],
         definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
+        mut qualify_dynamic: impl FnMut(&ConstructionStoreV1) -> Option<crate::mir::instruction::FieldSetModeV1>,
         mut qualify: impl FnMut(&ConstructionStoreV1) -> Option<Rc<super::super::SourceValueSumV1>>,
     ) -> ConstructionEligibilityV1 {
         use ConstructionUnavailableV1 as U;
@@ -247,8 +249,26 @@ impl ConstructionPlanV1 {
                 Ok(mode) => (mode, None),
                 Err(U::FieldContractUnsupported) if field.declared_type_name.is_none() && !field.is_weak
                     && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. }) => {
-                    let sum = qualify(store).filter(|sum| sum.text_only()).ok_or(U::FieldContractUnsupported)?;
-                    (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum))
+                    let source_dynamic = qualify_dynamic(store);
+                    let source_dynamic_available = source_dynamic.is_some();
+                    let dynamic = source_dynamic.filter(|mode| match mode {
+                        crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize => true,
+                        crate::mir::instruction::FieldSetModeV1::DynamicValue(contract) => {
+                            use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
+                                DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent};
+                            contract.intent() == Intent::Initialize
+                                && matches!((contract.value_tag(), contract.residence()),
+                                    (Tag::Object | Tag::NullableObject, Residence::ObjectHome(_)))
+                        }
+                        _ => false,
+                    });
+                    if let Some(mode) = dynamic {
+                        (mode, None)
+                    } else {
+                        let sum = qualify(store);
+                        let sum = sum.filter(|sum| sum.text_only()).ok_or(U::FieldContractUnsupported)?;
+                        (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum))
+                    }
                 }
                 Err(reason) => return Err(reason),
             };
@@ -326,10 +346,31 @@ pub(super) fn qualified_field_demands_v1(
             .iter().enumerate()
             .find(|(_, store)| store.field().declaration_ordinal() as usize == ordinal)
             .ok_or(U::InitializationContractMissing)?;
-        modes.get(index)
-            .ok_or(U::SourceRelationMissing)?.as_ref().map_err(|reason| *reason)?;
-        let text = modes[index] == Ok(crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize);
-        let supported = if text { field.declared_type_name.is_none() && !field.is_weak
+        let mode = modes.get(index).ok_or(U::SourceRelationMissing)?;
+        if let Err(reason) = mode {
+            return Err(*reason);
+        }
+        use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
+            DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent,
+            FieldSetModeV1 as Mode};
+        let text = modes[index] == Ok(Mode::DynamicTextInitialize);
+        let dynamic_i64 = modes[index] == Ok(Mode::DynamicI64Initialize)
+            && field.declared_type_name.is_none() && !field.is_weak
+            && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
+        let dynamic_object = matches!(modes[index], Ok(Mode::DynamicValue(contract))
+            if contract.intent() == Intent::Initialize
+                && matches!((contract.value_tag(), contract.residence()),
+                    (Tag::Object | Tag::NullableObject, Residence::ObjectHome(child))
+                        if objects.iter().any(|(_, object)| object == &child)
+                            && definitions.get(child.declaration_index() as usize)
+                                // Dynamic field installation carries the child's exact End
+                                // descriptor in its residence transaction. The child may
+                                // itself own Dynamic fields, provided its source End is
+                                // hook-free and those fields have their own complete drain.
+                                .is_some_and(|definition| definition.destruction_disposition().has_no_hook())))
+            && field.declared_type_name.is_none() && !field.is_weak
+            && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
+        let supported = if text || dynamic_i64 || dynamic_object { field.declared_type_name.is_none() && !field.is_weak
             && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. })
         } else { match field.declared_type_name.as_deref() {
             Some("i64") | Some("usize") => matches!(
@@ -379,7 +420,7 @@ pub(super) fn qualified_field_demands_v1(
         if !supported {
             return Err(U::FieldContractUnsupported);
         }
-        let object_field = !matches!(
+        let object_field = !dynamic_i64 && !matches!(
             field.declared_type_name.as_deref(),
             Some("i64") | Some("usize")
         );

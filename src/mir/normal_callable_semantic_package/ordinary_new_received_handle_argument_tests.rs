@@ -312,6 +312,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
             destination,
             kind,
             &ledger.field_write_claims,
+            None,
         )
         .unwrap()
         .unwrap();
@@ -338,6 +339,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
             destination,
             other,
             &ledger.field_write_claims,
+            None,
         )
         .unwrap()
         .is_none());
@@ -363,6 +365,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
                 destination,
                 kind,
                 &ledger.field_write_claims,
+                None,
             )
             .is_err());
         }
@@ -380,6 +383,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
             destination,
             kind,
             &ledger.field_write_claims,
+            None,
         );
         if own_object_input {
             // The original owning Object loan owns this input; unrelated New
@@ -409,6 +413,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
             destination,
             kind,
             &ledger.field_write_claims,
+            None,
         )
         .unwrap_err()
         .contains(if own_object_input {
@@ -435,6 +440,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
                 destination,
                 kind,
                 &ledger.field_write_claims,
+                None,
             )
             .unwrap_err(),
             "original-actual-error"

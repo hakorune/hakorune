@@ -233,13 +233,29 @@ pub(super) fn observe<'a, E>(
             locals.install_i64_call_result(binding);
             continue;
         }
-        if let Some(selected) = local_call_flow::issue_received_producer_local_call(
+        let receiver_alias = input
+            .function()
+            .method_call(owned.site())
+            .and_then(|call| match call.receiver() {
+                crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+                    crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(receiver),
+                ) => locals
+                    .field_alias_receiver_class_v1(receiver)
+                    .and_then(|class| {
+                        locals
+                            .received_field_alias_call_path_v1(receiver)
+                            .map(|path| (receiver, class, path))
+                    }),
+                _ => None,
+            });
+        if let Some(selected) = local_call_flow::issue_received_producer_local_call_with_alias_v1(
             input,
             statement.site(),
             &owned,
             declaration.clone(),
             binding,
             &homes,
+            receiver_alias,
             borrowed_actuals,
         )? {
             match selected {

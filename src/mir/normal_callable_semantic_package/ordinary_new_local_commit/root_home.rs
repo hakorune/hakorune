@@ -309,6 +309,17 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(matches!(*progress, RootHomeExitProgress::Prepared(_)))
     }
 
+    pub(in crate::mir::normal_callable_semantic_package) fn root_home_exit_not_selected_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceNodeSiteV1,
+    ) -> Result<bool, String> {
+        Ok(matches!(
+            self.preview_root_home_exit_v1(owner, site)?,
+            prepare::RootHomePreparationV1::NotSelected
+        ))
+    }
+
     pub(crate) fn bind_root_direct_result_v1(
         &self,
         owner: FunctionOwnerIdV1,

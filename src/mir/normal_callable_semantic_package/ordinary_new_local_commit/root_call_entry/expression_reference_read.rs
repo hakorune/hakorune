@@ -238,7 +238,7 @@ impl ExpressionReferenceReadV1 {
             source,
             Reference::ArgumentEntry(_) | Reference::FiniteEntry { .. }
         ) {
-            validate_dependencies(read.binding_observation_v2(), &producer, function)?;
+            validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
         }
         Ok(PreparedExpressionReferenceReadV1 { producer })
     }
@@ -500,7 +500,7 @@ impl ExpressionReferenceReadV1 {
             Reference::StoredMapGet(frame) => {
                 let (_, normal) = context.stored_map_get_read_v1(frame, read, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
-                validate_dependencies(read.binding_observation_v2(), &producer, function)?;
+                validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
             }
             Reference::DynamicInvocationResult(initializer) => {
@@ -512,7 +512,7 @@ impl ExpressionReferenceReadV1 {
                     context,
                 )?;
                 let producer = ReferenceProducerV1::Definition(binding);
-                validate_dependencies(read.binding_observation_v2(), &producer, function)?;
+                validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
             }
             Reference::Scalar(source) => Self::prepare_scalar_read_v2(

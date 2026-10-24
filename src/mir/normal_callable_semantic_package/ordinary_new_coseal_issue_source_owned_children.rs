@@ -15,6 +15,201 @@ use crate::mir::normal_callable_semantic_package::instance_constructor_semantic:
 use crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
+#[derive(Debug)]
+struct DynamicStoredChildFieldV1 {
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    child: hakorune_mir_defs::CanonicalObjectIdV1,
+    child_class: Box<str>,
+    nullable: bool,
+    paired_fields: BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+}
+
+/// Project the exact New-site child relations for one untyped field. The
+/// relation cohort is already complete at issuance; recheck same-site field
+/// pairing and homogeneous Null/Fresh alternatives before using it as a
+/// stored-call source.
+fn dynamic_stored_child_field_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    parent_class: &str,
+    field_name: &str,
+) -> Result<Option<DynamicStoredChildFieldV1>, String> {
+    use super::super::super::result_class_claim::ResultValueOriginV1;
+    let Some(parent_source) = batch.ordinary_box_coverage().row_for(parent_class)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
+        return Ok(None);
+    };
+    let parent_object = constructors.object_for(parent_source)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    let field = constructors.with_source_object_definition(parent_source, |object, definition| {
+        let mut matches = definition.fields().iter().enumerate()
+            .filter(|(_, row)| row.name == field_name);
+        let (ordinal, declaration) = matches.next()?;
+        if matches.next().is_some() || declaration.is_weak || declaration.declared_type_name.is_some() {
+            return None;
+        }
+        hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
+    }).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    let Some(field) = field else { return Ok(None); };
+    if field.object() != parent_object { return Ok(None); }
+
+    let mut per_outer = BTreeMap::<OwnedExprSiteV1,
+        BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, bool>>::new();
+    let mut child = None;
+    let mut nullable = false;
+    for relation in facts.construction_child_relation_loans().filter(|relation|
+        relation.is_unqualified_dynamic_v1() && relation.field().object() == parent_object)
+    {
+        if relation.unqualified_field_source_v1(parent_class).is_err() || relation.witnesses().is_empty() {
+            return Ok(None);
+        }
+        let first = &relation.witnesses()[0];
+        let nonnull = match first.origin() {
+            ResultValueOriginV1::Null => false,
+            ResultValueOriginV1::Fresh(class) => {
+                let Some(source) = batch.ordinary_box_coverage().row_for(class).ok().flatten() else {
+                    return Ok(None);
+                };
+                if constructors.object_for(source).ok() != Some(relation.child()) { return Ok(None); }
+                true
+            }
+            _ => return Ok(None),
+        };
+        if !relation.witnesses().iter().all(|witness| match (nonnull, witness.origin()) {
+            (false, ResultValueOriginV1::Null) => true,
+            (true, ResultValueOriginV1::Fresh(class)) => batch.ordinary_box_coverage()
+                .row_for(class).ok().flatten()
+                .and_then(|source| constructors.object_for(&source).ok()) == Some(relation.child()),
+            _ => false,
+        }) || child.is_some_and(|prior| prior != relation.child()) {
+            return Ok(None);
+        }
+        child = Some(relation.child());
+        nullable |= !nonnull;
+        if per_outer.entry(relation.outer().clone()).or_default()
+            .insert(relation.field(), nonnull).is_some() {
+            return Ok(None);
+        }
+    }
+    let Some(child) = child else { return Ok(None); };
+    let Some(target_group) = per_outer.values().find(|fields| fields.contains_key(&field)) else {
+        return Ok(None);
+    };
+    let paired_fields: BTreeSet<_> = target_group.keys().copied().collect();
+    if per_outer.is_empty() || paired_fields.is_empty() || per_outer.values().any(|fields| {
+        fields.keys().copied().collect::<BTreeSet<_>>() != paired_fields
+            || fields.values().copied().collect::<BTreeSet<_>>().len() != 1
+    }) {
+        return Ok(None);
+    }
+    let mut child_classes = batch.ordinary_box_coverage().rows().iter().filter(|source|
+        constructors.object_for(source).ok() == Some(child));
+    let Some(child_source) = child_classes.next() else { return Ok(None); };
+    if child_classes.next().is_some() { return Ok(None); }
+    Ok(Some(DynamicStoredChildFieldV1 {
+        field, child, child_class: child_source.name().into(), nullable, paired_fields,
+    }))
+}
+
+/// A field null check refines the following source sequence only when its
+/// exact untyped child field is in the same construction pair and the null
+/// branch returns unconditionally.
+fn dynamic_child_nonnull_guard_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    parent_binding: crate::mir::resolved_semantics::BindingRefV1,
+    parent_site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    parent_class: &str,
+    dynamic: &DynamicStoredChildFieldV1,
+) -> Result<bool, String> {
+    use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1,
+        BodyStatementShapeV1, ResolvedBinaryOperatorV1, ResolvedLiteralSourceV1,
+        SourcePathSegmentV1, SourcePathV1};
+    let function = input.function();
+    let Some(shape) = input.body_shape() else { return Ok(false); };
+    let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
+        shape.expression_shape(call.receiver_site()) else { return Ok(false); };
+    if object != parent_site
+        || !matches!(shape.expression_shape(parent_site), Some(BodyExpressionShapeV1::Me {
+            receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == parent_binding) {
+        return Ok(false);
+    }
+    let Some(parent_source) = batch.ordinary_box_coverage().row_for(parent_class)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
+        return Ok(false);
+    };
+    let Some((call_field, declared)) = super::super::super::terminal_home::source_declared_field(
+        constructors, parent_source,
+        &OwnedExprSiteV1::new(input.owner(), call.site().clone()), field,
+    ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
+        return Ok(false);
+    };
+    if declared.is_some() || call_field != dynamic.field || !dynamic.paired_fields.contains(&call_field) {
+        return Ok(false);
+    }
+    let call_scope = function.exact_scope_containing(call.site().node());
+    for statement in function.if_region_sites() {
+        let condition = SourcePathV1::from_node(statement.node())
+            .child(SourcePathSegmentV1::IfCondition).expr();
+        let Some(binary) = function.expression_source().binary(&condition) else { continue; };
+        if binary.operator() != ResolvedBinaryOperatorV1::Equal { continue; }
+        let field_side = if matches!(function.expression_source().literal(binary.lhs()), Some(ResolvedLiteralSourceV1::Null)) {
+            Some((binary.rhs(), binary.lhs()))
+        } else if matches!(function.expression_source().literal(binary.rhs()), Some(ResolvedLiteralSourceV1::Null)) {
+            Some((binary.lhs(), binary.rhs()))
+        } else { None };
+        let Some((field_site, _)) = field_side else { continue; };
+        let Some(BodyExpressionShapeV1::FieldAccess { object: guard_parent, field: guard_name, .. }) =
+            shape.expression_shape(field_site) else { continue; };
+        if !matches!(shape.expression_shape(guard_parent), Some(BodyExpressionShapeV1::Me {
+            receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == parent_binding) {
+            continue;
+        }
+        let Some((guard_field, guard_declared)) = super::super::super::terminal_home::source_declared_field(
+            constructors, parent_source,
+            &OwnedExprSiteV1::new(input.owner(), call.site().clone()), guard_name,
+        ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { continue; };
+        if guard_declared.is_some() || !dynamic.paired_fields.contains(&guard_field) { continue; }
+        let valid = function.with_if_region_for_condition(&condition, |row| {
+            let bundle = row.bundle();
+            if bundle.else_pair().is_some() { return false; }
+            let Some(parent_region) = function.region(bundle.control()).and_then(|region| region.parent()) else { return false; };
+            let Some(parent_scope) = function.region(parent_region).and_then(|region| region.lexical_scope()) else {
+                return false;
+            };
+            let then_scope = bundle.then_pair().scope();
+            if call_scope != Some(parent_scope) || !statement_precedes_expression(statement, call.site()) {
+                return false;
+            }
+            let then_rows: Vec<_> = shape.statements().iter().filter(|row|
+                function.exact_scope_containing(row.site().node()) == Some(then_scope)).collect();
+            then_rows.len() == 1 && matches!(then_rows.first(), Some(BodyStatementShapeV1::Return { .. }))
+        }).unwrap_or(false);
+        if valid { return Ok(true); }
+    }
+    Ok(false)
+}
+
+fn statement_precedes_expression(
+    statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    expression: &crate::mir::resolved_semantics::SourceExprSiteV1,
+) -> bool {
+    use crate::mir::resolved_semantics::SourcePathSegmentV1;
+    let guard = statement.node().segments();
+    let path = expression.node().segments();
+    let Some((last, prefix)) = guard.split_last() else { return false; };
+    if path.len() <= prefix.len() || &path[..prefix.len()] != prefix { return false; }
+    match (last, &path[prefix.len()]) {
+        (SourcePathSegmentV1::Body(a), SourcePathSegmentV1::Body(b))
+        | (SourcePathSegmentV1::IfThen(a), SourcePathSegmentV1::IfThen(b))
+        | (SourcePathSegmentV1::IfElse(a), SourcePathSegmentV1::IfElse(b)) => a < b,
+        _ => false,
+    }
+}
+
 /// Prove the owned field children of one canonical object.
 /// `OwnedArrayFieldsNoHook`/`OwnedObjectFieldsNoHook` objects carry their
 /// residence-capable declared fields in declaration order only when each
@@ -341,12 +536,14 @@ pub(super) fn seal_provider_owned_children_v1(
 /// Borrow original receiver identity and residence; issue no child inventory.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn stored_child_source_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     entry: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
     slot: u32,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     residences: &field_write_claim::OwnedFieldResidencesV1,
+    facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     candidates: &BTreeMap<
         u32,
         Result<Vec<super::super::super::candidate::OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>,
@@ -405,9 +602,22 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         (binding, root.class().into(), Some((slot, root)))
     };
     let key = (parent_class, name.clone());
-    let Some(field_write_claim::OwnedFieldResidenceV1::Provider(class)) = residences.get(&key)
-    else {
-        return Ok(None);
+    let class = match residences.get(&key) {
+        Some(field_write_claim::OwnedFieldResidenceV1::Provider(class)) => class.clone(),
+        _ => {
+            let Some(dynamic) = dynamic_stored_child_field_v1(
+                batch, constructors, facts, &key.0, &key.1,
+            )? else {
+                return Ok(None);
+            };
+            if dynamic.nullable && !dynamic_child_nonnull_guard_v1(
+                batch, constructors, input, call, parent_binding, parent_site,
+                &key.0, &dynamic,
+            )? {
+                return Ok(None);
+            }
+            dynamic.child_class
+        }
     };
     Ok(Some(
         super::super::super::lexical_instance_call::StoredReceiverSourceV1 {
@@ -418,7 +628,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             parent_site: parent_site.clone(),
             parent_class: key.0,
             field_name: name.clone(),
-            child_class: class.clone(),
+            child_class: class,
         },
     ))
 }
@@ -427,6 +637,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn stored_child_receiver_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     site: &OwnedExprSiteV1,
     receiver: &super::super::super::lexical_instance_call::StoredReceiverSourceV1,
     residences: &field_write_claim::OwnedFieldResidencesV1,
@@ -464,9 +675,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
                 .enumerate()
                 .filter(|(_, row)| row.name == name.as_ref());
             let (ordinal, declaration) = fields.next()?;
-            if fields.next().is_some()
-                || declaration.is_weak
-                || declaration.declared_type_name.as_deref() != Some(class.as_ref())
+            if fields.next().is_some() || declaration.is_weak
+                || declaration.declared_type_name.as_deref().is_some_and(|declared| declared != class.as_ref())
             {
                 return None;
             }
@@ -475,6 +685,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
     let Some(field) = field else {
         return Ok(None);
+    };
+    let dynamic = if residences.get(&(receiver.parent_class.clone(), receiver.field_name.clone()))
+        .is_some_and(|row| matches!(row, field_write_claim::OwnedFieldResidenceV1::Provider(_))) {
+        None
+    } else {
+        let Some(dynamic) = dynamic_stored_child_field_v1(
+            batch, constructors, facts, &receiver.parent_class, &receiver.field_name,
+        )? else { return Ok(None); };
+        if dynamic.field != field || dynamic.child != child || dynamic.child_class.as_ref() != class.as_ref() {
+            return Ok(None);
+        }
+        Some(dynamic)
     };
     if receiver
         .corroborate_constructor_origin_v1(batch, constructors, site)?
@@ -499,12 +721,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let Some(inventory) = inventory else {
         return Ok(None);
     };
-    if inventory
-        .iter()
-        .filter(|row| row.field == field && row.kind == OwnedFieldChildKindV1::Object(child))
-        .count()
-        != 1
-    {
+    let expected = if dynamic.is_some() {
+        OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence)
+    } else {
+        OwnedFieldChildKindV1::Object(child)
+    };
+    if inventory.iter().filter(|row| row.field == field && row.kind == expected).count() != 1 {
         return Ok(None);
     }
     match owned.entry(parent) {

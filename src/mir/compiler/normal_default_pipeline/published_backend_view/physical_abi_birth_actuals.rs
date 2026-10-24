@@ -83,6 +83,10 @@ impl PublishedMirBackendView<'_> {
                 // pair lane — `Null` or an owned `Handle` actual whose
                 // lease moves at the call edge; a scalar or unused formal
                 // admits the scalar kinds only.
+                let birth_abi = match callee.role() {
+                    super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } => abi,
+                    _ => return Err(fault("birth-actual-formal-missing")),
+                };
                 let object_formal = entry
                     .births()
                     .iter()
@@ -100,7 +104,15 @@ impl PublishedMirBackendView<'_> {
                             crate::mir::normal_callable_semantic_package
                                 ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
                         )
-                    });
+                    }) || birth_abi.dynamic_object_formal_source_v1(actual.source().ordinal())?.is_some();
+                if birth_abi.dynamic_i64_formal_source_v1(actual.source().ordinal())? {
+                    if object_formal || scalar_actual_kind(
+                        actual.source().kind(), value, caller.value_types(),
+                    )? != 1 {
+                        return Err(fault("actual-kind-unavailable"));
+                    }
+                    continue;
+                }
                 let admitted = uses.iter().any(|(_, formal, site, ordinal)| {
                     *ordinal == actual.source().ordinal()
                         && site == actual.source().new_site()
@@ -127,6 +139,8 @@ impl PublishedMirBackendView<'_> {
                         let function = self.module().functions.get(caller.name())
                             .ok_or_else(|| fault("received-birth-caller-missing"))?;
                         match source.received_birth_actual_result_v1(call.actual(), actual.source().ordinal(), function)? {
+                            Some(crate::mir::instruction::InvokeCallResultKind::Handle) =>
+                                Some(ObjectBirthActualTransportV1::Handle),
                             Some(crate::mir::instruction::InvokeCallResultKind::NullableHandle) =>
                                 Some(ObjectBirthActualTransportV1::NullableHandle),
                             Some(crate::mir::instruction::InvokeCallResultKind::MixedHandle { .. }) =>

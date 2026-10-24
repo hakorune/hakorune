@@ -22,6 +22,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
     destination: BindingRefV1,
     requested: LocalCallResultClassV1,
     fields: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    field_alias: Option<(
+        BindingRefV1,
+        &str,
+        &crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1,
+    )>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, String> {
     let mut originals = source
         .as_ref()
@@ -56,17 +61,31 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         let ingress = source.as_ref().map_err(Clone::clone)?;
         let original = original.ok_or_else(|| freeze("original-missing"))?;
         let target = original.source.require_instance()?;
-        let loan = ingress.original_owning_object_input_source_v1(target)?
+        let loan = ingress
+            .original_owning_object_input_source_v1(target)?
             .ok_or_else(|| freeze("nullable-input-missing"))?;
-        classes.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
-        if prepared.len() != 1 || prepared[0] != target || original.callee != target.callee_owner()
-            || loan.destination() != destination || !loan.matches_target(target) {
+        classes
+            .recheck_owning_object_local_input_roots_v1(loan)
+            .map_err(freeze)?;
+        if prepared.len() != 1
+            || prepared[0] != target
+            || original.callee != target.callee_owner()
+            || loan.destination() != destination
+            || !loan.matches_target(target)
+        {
             return Err(freeze("nullable-input-identity"));
         }
-        let result = if loan.nullable() { LocalCallResultClassV1::Nullable } else { LocalCallResultClassV1::Handle };
-        if requested != result { return Ok(None); }
+        let result = if loan.nullable() {
+            LocalCallResultClassV1::Nullable
+        } else {
+            LocalCallResultClassV1::Handle
+        };
+        if requested != result {
+            return Ok(None);
+        }
         let arguments = super::object_arguments::project_pending_object_target_arguments_v1(
-            source, contracts, actuals, target, None)?;
+            source, contracts, actuals, target, None,
+        )?;
         if matches!(arguments, ObjectCallSourceSupportV1::Unavailable) {
             return Err(freeze("nullable-input-arguments-missing"));
         }
@@ -76,22 +95,34 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         }));
     }
     if let Ok(ingress) = source {
-        if let Some((loan, binding)) = ingress.recheck_field_producer_source_v1(anchor, classes, fields)? {
+        if let Some((loan, binding)) =
+            ingress.recheck_field_producer_source_v1(anchor, classes, fields)?
+        {
             require_prepared_targets(targets)?;
             let original = original.ok_or_else(|| freeze("field-producer/original-missing"))?;
             let target = original.source.require_instance()?;
-            if prepared.len() != 1 || prepared[0] != target || loan.source() != target
-                || original.callee != target.callee_owner() || binding != destination
-                || !matches!(loan.result_class(), OrdinaryNewResultClassV1::Object(_)) {
+            if prepared.len() != 1
+                || prepared[0] != target
+                || loan.source() != target
+                || original.callee != target.callee_owner()
+                || binding != destination
+                || !matches!(loan.result_class(), OrdinaryNewResultClassV1::Object(_))
+            {
                 return Err(freeze("field-producer/source-identity"));
             }
-            if requested != LocalCallResultClassV1::Handle { return Ok(None); }
+            if requested != LocalCallResultClassV1::Handle {
+                return Ok(None);
+            }
             let arguments = super::object_arguments::project_pending_object_target_arguments_v1(
-                source, contracts, actuals, target, None)?;
+                source, contracts, actuals, target, None,
+            )?;
             if matches!(arguments, ObjectCallSourceSupportV1::Unavailable) {
                 return Err(freeze("field-producer/arguments-missing"));
             }
-            return Ok(Some(BorrowedCallArgumentsV1::SourceObject { result: requested, arguments }));
+            return Ok(Some(BorrowedCallArgumentsV1::SourceObject {
+                result: requested,
+                arguments,
+            }));
         }
     }
     if let Ok(ingress) = source {
@@ -99,17 +130,28 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
             require_prepared_targets(targets)?;
             let original = original.ok_or_else(|| freeze("field-local/original-missing"))?;
             let target = original.source.require_instance()?;
-            if prepared.len() != 1 || prepared[0] != target || original.callee != target.callee_owner() {
+            if prepared.len() != 1
+                || prepared[0] != target
+                || original.callee != target.callee_owner()
+            {
                 return Err(freeze("field-local/source-identity"));
             }
-            classes.check_owning_local_object_source_v1(batch, selected, target, destination).map_err(freeze)?;
-            if requested != LocalCallResultClassV1::Handle { return Ok(None); }
+            classes
+                .check_owning_local_object_source_v1(batch, selected, target, destination)
+                .map_err(freeze)?;
+            if requested != LocalCallResultClassV1::Handle {
+                return Ok(None);
+            }
             let arguments = super::object_arguments::project_pending_object_target_arguments_v1(
-                source, contracts, actuals, target, None)?;
+                source, contracts, actuals, target, None,
+            )?;
             if matches!(arguments, ObjectCallSourceSupportV1::Unavailable) {
                 return Err(freeze("field-local/arguments-missing"));
             }
-            return Ok(Some(BorrowedCallArgumentsV1::SourceObject { result: requested, arguments }));
+            return Ok(Some(BorrowedCallArgumentsV1::SourceObject {
+                result: requested,
+                arguments,
+            }));
         }
     }
     // Existing qualified/leaf/scalar source rows remain on their own protocol.
@@ -120,6 +162,48 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
                 .is_some()
         {
             return Err(freeze("producer-dependency-missing"));
+        }
+        if matches!(classes.get(anchor.target()), Some(OrdinaryNewResultClassV1::Object(_))) {
+            require_prepared_targets(targets)?;
+            let original = original.ok_or_else(|| freeze("fresh-result/original-missing"))?;
+            let target = original.source.require_instance()?;
+            if prepared.len() != 1
+                || prepared[0] != target
+                || original.callee != target.callee_owner()
+                || target.call_site() != site
+                || target.target() != anchor.target()
+                || destination.owner() != site.owner()
+            {
+                return Err(freeze("fresh-result/target-identity"));
+            }
+            let loan = classes
+                .object_call_source_v1(batch, selected, target)
+                .map_err(freeze)?;
+            if !matches!(loan.result_class(), OrdinaryNewResultClassV1::Object(_))
+                || loan.roots().is_empty()
+                || loan.roots().iter().any(|root| {
+                    !matches!(
+                        root.origin(),
+                        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ResultValueOriginV1::Fresh(class)
+                            if class.as_ref() == loan.class()
+                    )
+                })
+            {
+                return Err(freeze("fresh-result/source-kind"));
+            }
+            if requested != LocalCallResultClassV1::Handle {
+                return Ok(None);
+            }
+            let arguments = super::object_arguments::project_pending_object_target_arguments_v1(
+                source, contracts, actuals, target, None,
+            )?;
+            if matches!(arguments, ObjectCallSourceSupportV1::Unavailable) {
+                return Err(freeze("fresh-result/arguments-unavailable"));
+            }
+            return Ok(Some(BorrowedCallArgumentsV1::SourceObject {
+                result: LocalCallResultClassV1::Handle,
+                arguments,
+            }));
         }
         return Ok(None);
     }
@@ -144,16 +228,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         _ => return Err(freeze("producer-result-missing")),
     };
     let receiver = target.receiver_binding()?;
-    let mut matching = candidates.iter().filter(|row| row.destination == receiver);
-    let candidate = matching
-        .next()
-        .ok_or_else(|| freeze("claim-local-missing"))?;
-    if matching.next().is_some()
+    let receiver_source_matches = match field_alias {
+        Some((binding, class, path)) => {
+            let root_matches = match &path.root_source {
+                crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1::OwnedHome { acquisition } => {
+                    acquisition.owner() == site.owner()
+                }
+                crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1::InstanceEntry { .. } => {
+                    path.root != binding
+                }
+            };
+            binding == receiver
+                && binding.owner() == site.owner()
+                && class == target.target().owner()
+                && path.root.owner() == site.owner()
+                && path.edges.last().is_some_and(|(alias, _)| *alias == binding)
+                && root_matches
+        }
+        None => {
+            let mut matching = candidates.iter().filter(|row| row.destination == receiver);
+            let candidate = matching.next();
+            candidate.is_some_and(|candidate| {
+                matching.next().is_none()
+                    && candidate.site.owner() == site.owner()
+                    && candidate.class.as_ref() == target.target().owner()
+            })
+        }
+    };
+    if !receiver_source_matches
         || target.is_self_receiver()
         || destination.owner() != site.owner()
         || receiver.owner() != site.owner()
-        || candidate.site.owner() != site.owner()
-        || candidate.class.as_ref() != target.target().owner()
         || target.call_site() != site
         || target.argument_sites().len() != target.target().arity() as usize
     {
@@ -163,8 +268,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         return Ok(None);
     }
     let arguments = super::object_arguments::project_pending_object_target_arguments_v1(
-        source, contracts, actuals, target,
-        None,
+        source, contracts, actuals, target, None,
     )?;
     if matches!(arguments, ObjectCallSourceSupportV1::Unavailable) {
         return Err(freeze("arguments-unavailable"));
@@ -174,8 +278,71 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         arguments,
     }))
 }
-fn require_prepared_targets(targets: &PreparedLexicalInstanceCallSourceTargetsV1) -> Result<(), String> {
-    for row in targets.as_ref().map_err(Clone::clone)? { row.as_ref().map_err(Clone::clone)?; }
+
+/// The field-alias receiver lane adds one source check to the same producer
+/// issuer: the original resolved method target must agree with the alias
+/// binding and its declared box class before the existing result/argument
+/// checks can issue a received object.
+pub(in crate::mir::normal_callable_semantic_package) fn received_field_alias_producer_arguments_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    actuals: &PendingBorrowedFormalActualsV1,
+    targets: &PreparedLexicalInstanceCallSourceTargetsV1,
+    candidates: &[OrdinaryNewCandidate],
+    classes: &OrdinaryNewResultClassClaimsV1,
+    site: &OwnedExprSiteV1,
+    destination: BindingRefV1,
+    requested: LocalCallResultClassV1,
+    fields: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    receiver: BindingRefV1,
+    receiver_class: &str,
+    alias_path: &crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1,
+) -> Result<Option<BorrowedCallArgumentsV1>, String> {
+    let ingress = source.as_ref().map_err(Clone::clone)?;
+    let mut incoming = ingress
+        .source_incoming
+        .exact_rows()
+        .filter(|row| &row.call == site);
+    let original = incoming.next().ok_or_else(|| freeze("field-alias/original-missing"))?;
+    if incoming.next().is_some() {
+        return Err(freeze("field-alias/original-not-unique"));
+    }
+    let target = original.source.require_instance()?;
+    if receiver.owner() != site.owner()
+        || original.callee != target.callee_owner()
+        || target.call_site() != site
+        || target.receiver_binding()? != receiver
+        || target.target().owner() != receiver_class
+        || alias_path.root.owner() != site.owner()
+        || alias_path.edges.last().is_none_or(|(binding, _)| *binding != receiver)
+    {
+        return Err(freeze("field-alias/receiver-identity"));
+    }
+    received_producer_arguments_v1(
+        batch,
+        selected,
+        source,
+        contracts,
+        actuals,
+        targets,
+        candidates,
+        classes,
+        site,
+        destination,
+        requested,
+        fields,
+        Some((receiver, receiver_class, alias_path)),
+    )
+}
+
+fn require_prepared_targets(
+    targets: &PreparedLexicalInstanceCallSourceTargetsV1,
+) -> Result<(), String> {
+    for row in targets.as_ref().map_err(Clone::clone)? {
+        row.as_ref().map_err(Clone::clone)?;
+    }
     Ok(())
 }
 fn freeze(reason: &str) -> String {

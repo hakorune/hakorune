@@ -160,6 +160,8 @@ impl VerifiedSourceLoopRecipeProductV2 {
     pub(crate) fn delegates_call_v2(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {
         site.owner() == self.source.source.owner() && (self.schedule.calls_v2().any(|step|
             matches!(step, SourceLoopScheduledStepV2::Call { observation, .. } if observation.site() == site))
+            || self.checked_expression_evaluations_v2().any(|evaluation|
+                evaluation.calls().iter().any(|call| call.site() == site))
             || self.scheduled_call_arguments_v2().any(|frame| frame.source().nodes().iter()
                 .any(|node| node.site() == site.site() && matches!(node.source(), Node::MethodCall))))
     }

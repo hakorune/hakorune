@@ -30,7 +30,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         ),
     >,
     entry_home: Option<&super::VerifiedInstanceEntryHomeLoanV1>,
-    dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
+    source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
 ) -> (
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
@@ -41,7 +41,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         selected,
         parameters,
         entry_home,
-        dynamic_source_points,
+        source_value_class_facts,
         &[],
         false,
         result_sites,

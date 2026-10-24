@@ -16,7 +16,9 @@ mod tests;
 impl OrdinaryNewClaimLedgerV1 {
     /// The same source input family serves producer and received-field users.
     pub(in crate::mir::normal_callable_semantic_package) fn has_original_object_source_input_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
         let producer = source.original_object_producer_callee_v1(target)?;
         let nullable = self.has_original_owning_object_input_v1(source, target)?;
@@ -25,31 +27,53 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Classify the complete original census without selecting execution.
     /// No entry, actual phase, Completion or result qualification is consulted.
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_kind_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
     ) -> Result<Option<OriginalInstanceInputKindV1>, String> {
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let mut contracts = catalog.iter().filter(|row| row.owner == owner);
-        let contract = contracts.next().ok_or_else(|| freeze("object-input/original-contract-missing"))?;
-        if contracts.next().is_some() { return Err(freeze("object-input/original-contract-duplicate")); }
-        if contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod { return Ok(None); }
+        let contract = contracts
+            .next()
+            .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
+        if contracts.next().is_some() {
+            return Err(freeze("object-input/original-contract-duplicate"));
+        }
+        if contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod {
+            return Ok(None);
+        }
         let mut kind = None;
         let calls = if Self::original_finite_instance_input_request_v1(source, catalog, owner)? {
             Self::original_instance_input_calls_v1(source, catalog, owner)?
         } else {
-            source.source_incoming.exact_rows().filter(|call| call.callee == owner)
-                .cloned().collect::<Vec<_>>().into_boxed_slice()
+            source
+                .source_incoming
+                .exact_rows()
+                .filter(|call| call.callee == owner)
+                .cloned()
+                .collect::<Vec<_>>()
+                .into_boxed_slice()
         };
         for call in &calls {
             let target = call.source.require_instance()?;
-            if target.call_site() != &call.call || target.callee_owner() != owner
+            if target.call_site() != &call.call
+                || target.callee_owner() != owner
                 || target.target_batch_slot() != contract.batch_slot
                 || target.argument_sites().len() != contract.parameters.len()
-            { return Err(freeze("object-input/original-contract-drift")); }
+            {
+                return Err(freeze("object-input/original-contract-drift"));
+            }
             let current = if source.source_incoming.has_object_input_callee_v1(target) {
                 OriginalInstanceInputKindV1::QualifiedObject
-            } else { OriginalInstanceInputKindV1::SourceInstance };
-            if kind.is_some_and(|kind| kind != current) { return Err(freeze("instance-input/original-family-drift")); }
+            } else {
+                OriginalInstanceInputKindV1::SourceInstance
+            };
+            if kind.is_some_and(|kind| kind != current) {
+                return Err(freeze("instance-input/original-family-drift"));
+            }
             kind = Some(current);
         }
         Ok(kind)
@@ -57,20 +81,34 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Retain original read/scalar/Mixed input demand and stronger Object selection.
     pub(in crate::mir::normal_callable_semantic_package) fn selected_original_instance_input_kind_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
     ) -> Result<Option<OriginalInstanceInputKindV1>, String> {
-        let Some(kind) = self.original_instance_input_kind_v1(source, owner)? else { return Ok(None) };
-        let contract = self.original_parameter_contracts.as_deref()
+        let Some(kind) = self.original_instance_input_kind_v1(source, owner)? else {
+            return Ok(None);
+        };
+        let contract = self
+            .original_parameter_contracts
+            .as_deref()
             .and_then(|catalog| catalog.iter().find(|row| row.owner == owner))
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let finite_input = Self::original_finite_instance_input_request_v1(source, catalog, owner)?;
-        let mut source_result_request = source.original_returned_field_participant_request_v1(owner)?.is_some();
+        let mut source_result_request = source
+            .original_returned_field_participant_request_v1(owner)?
+            .is_some();
         // Owning selection checks the whole callee, including every target and
         // root; share that result only within this immutable selection scan.
         let mut owning_request = None;
-        for call in source.source_incoming.exact_rows().filter(|call| call.callee == owner) {
+        for call in source
+            .source_incoming
+            .exact_rows()
+            .filter(|call| call.callee == owner)
+        {
             let target = call.source.require_instance()?;
             source_result_request |= source.original_object_producer_source_v1(target)?.is_some()
                 || source.original_mixed_input_source_v1(target)?.is_some()
@@ -83,26 +121,42 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 };
         }
-        if kind == OriginalInstanceInputKindV1::SourceInstance && !source_result_request
-            && !finite_input && !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }
-        Ok(self.selected_object_input_contract_v1(source, contract)?.then_some(kind))
+        if kind == OriginalInstanceInputKindV1::SourceInstance
+            && !source_result_request
+            && !finite_input
+            && !self.callable_scalar_result_participant_v1(owner)?
+        {
+            return Ok(None);
+        }
+        Ok(self
+            .selected_object_input_contract_v1(source, contract)?
+            .then_some(kind))
     }
 
     /// One input protocol for finishing, entry and completed-target demand.
     /// Source Instance qualification reuses the existing original entry laws;
     /// Object qualification keeps its stronger result/source requirements.
     pub(in crate::mir::normal_callable_semantic_package) fn selected_instance_input_protocol_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
     ) -> Result<Option<OriginalInstanceInputKindV1>, String> {
         match self.original_instance_input_kind_v1(source, owner)? {
-            Some(OriginalInstanceInputKindV1::QualifiedObject) =>
-                self.selected_original_instance_input_kind_v1(source, owner),
+            Some(OriginalInstanceInputKindV1::QualifiedObject) => {
+                self.selected_original_instance_input_kind_v1(source, owner)
+            }
             Some(OriginalInstanceInputKindV1::SourceInstance) => {
-                if self.selected_original_instance_input_kind_v1(source, owner)?.is_some() {
+                if self
+                    .selected_original_instance_input_kind_v1(source, owner)?
+                    .is_some()
+                {
                     return Ok(Some(OriginalInstanceInputKindV1::SourceInstance));
                 }
-                if !self.selected_source_instance_input_owner_v1(source, owner)? { return Ok(None); }
-                Ok(self.original_instance_input_requires_reconstruction_v1(source, owner)?
+                if !self.selected_source_instance_input_owner_v1(source, owner)? {
+                    return Ok(None);
+                }
+                Ok(self
+                    .original_instance_input_requires_reconstruction_v1(source, owner)?
                     .then_some(OriginalInstanceInputKindV1::SourceInstance))
             }
             None => Ok(None),
@@ -111,27 +165,52 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Original source membership selects reconstruction, never actual phase.
     pub(in crate::mir::normal_callable_semantic_package) fn original_instance_input_requires_reconstruction_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         if Self::original_finite_instance_input_request_v1(source, catalog, owner)? {
             Self::original_instance_input_calls_v1(source, catalog, owner)?;
             return Ok(true);
         }
         // exact_rows alone omits retained scanner errors and unresolved callers.
-        source.source_incoming.project_declaration_v1(owner).map_err(|issue|
-            format!("{}: {issue:?}", freeze("instance-input/original-incoming-coverage")))?;
-        let originals: Vec<_> = source.source_incoming.exact_rows()
-            .filter(|call| call.callee == owner).collect();
-        let transport: Vec<_> = source.incoming.iter()
-            .filter(|call| call.callee == owner).collect();
+        source
+            .source_incoming
+            .project_declaration_v1(owner)
+            .map_err(|issue| {
+                format!(
+                    "{}: {issue:?}",
+                    freeze("instance-input/original-incoming-coverage")
+                )
+            })?;
+        let originals: Vec<_> = source
+            .source_incoming
+            .exact_rows()
+            .filter(|call| call.callee == owner)
+            .collect();
+        let transport: Vec<_> = source
+            .incoming
+            .iter()
+            .filter(|call| call.callee == owner)
+            .collect();
         let complete_transport = source.definitions.contains_key(&owner)
             && originals.len() == transport.len()
-            && originals.iter().all(|original| transport.iter().filter(|call|
-                call.call == original.call && call.callee == original.callee
-                    && call.arguments == original.arguments
-                    && call.source.instance() == original.source.instance()).count() == 1);
+            && originals.iter().all(|original| {
+                transport
+                    .iter()
+                    .filter(|call| {
+                        call.call == original.call
+                            && call.callee == original.callee
+                            && call.arguments == original.arguments
+                            && call.source.instance() == original.source.instance()
+                    })
+                    .count()
+                    == 1
+            });
         // The original source-only forward issuer owns these inputs even if
         // a transport row also retains the same target. Do not inspect its
         // current SourceInstance/ExecutableSourceInstance phase to select it.
@@ -148,20 +227,29 @@ impl OrdinaryNewClaimLedgerV1 {
         for call in &originals {
             core_argument |= original_core_argument_input_request_v1(source, catalog, &call.call)?;
         }
-        Ok(!complete_transport || source_forward || core_argument
+        Ok(!complete_transport
+            || source_forward
+            || core_argument
             || Self::original_finite_instance_input_request_v1(source, catalog, owner)?)
     }
 
     /// Object protocols retain their original, stronger result/source qualification.
     pub(in crate::mir::normal_callable_semantic_package) fn selected_original_object_input_owner_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
         // A source Instance cannot become an Object input by validating an
         // unrelated scalar-result graph. Select this query's original family first.
         if self.original_instance_input_kind_v1(source, owner)?
-            != Some(OriginalInstanceInputKindV1::QualifiedObject) { return Ok(false); }
-        Ok(self.selected_original_instance_input_kind_v1(source, owner)?
-            == Some(OriginalInstanceInputKindV1::QualifiedObject))
+            != Some(OriginalInstanceInputKindV1::QualifiedObject)
+        {
+            return Ok(false);
+        }
+        Ok(
+            self.selected_original_instance_input_kind_v1(source, owner)?
+                == Some(OriginalInstanceInputKindV1::QualifiedObject),
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn finish_typed_object_input_actuals_v1(
@@ -256,15 +344,24 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Borrows input evidence for the exact original target without granting result authority.
     pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_typed_object_target_arguments_v1(
-        &self, target: &LexicalInstanceCallSourceTargetV1,
+        &self,
+        target: &LexicalInstanceCallSourceTargetV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<Option<&[LocalCallArgumentV1]>, String> {
-        let source = self.borrowed_formal_source.as_ref()
-            .ok_or_else(|| freeze("object-input/source-missing"))?.as_ref().map_err(Clone::clone)?;
-        if !self.selected_original_object_input_owner_v1(source, target.callee_owner())? { return Ok(None); }
-        self.checked_completed_original_instance_target_arguments_v1(target, selected, contracts, signatures)
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("object-input/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        if !self.selected_original_object_input_owner_v1(source, target.callee_owner())? {
+            return Ok(None);
+        }
+        self.checked_completed_original_instance_target_arguments_v1(
+            target, selected, contracts, signatures,
+        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_original_instance_target_arguments_v1(
@@ -293,22 +390,20 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         match self.prepare_original_instance_input_owner_v1(
-            source,
-            selected,
-            contract,
-            signatures,
-            kind,
+            source, selected, contract, signatures, kind,
         )? {
-            TypedInputClosureV1::Pending => return Ok(None),
+            TypedInputClosureV1::Pending => {
+                return Ok(None);
+            }
             TypedInputClosureV1::Refused(issue) => return Err(issue),
-            TypedInputClosureV1::Ready(rows) if !rows.is_empty() => return Ok(None),
+            TypedInputClosureV1::Ready(rows) if !rows.is_empty() => {
+                return Ok(None);
+            }
             TypedInputClosureV1::Ready(_) => {}
         }
         let call = Self::original_instance_input_call_v1(source, contracts, target.call_site())?
             .ok_or_else(|| freeze("object-input/original-row-missing"))?;
-        if call.source.require_instance()? != target
-            || call.callee != target.callee_owner()
-        {
+        if call.source.require_instance()? != target || call.callee != target.callee_owner() {
             return Err(freeze("object-input/original-target"));
         }
         let Some(actuals) = self.borrowed_formal_actuals.get(target.call_site()) else {
@@ -323,15 +418,30 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &PreparedBorrowedFormalIngressV1,
         contract: &OwnedCallableParameterContractDeclarationV1,
     ) -> Result<bool, String> {
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let mut originals = catalog.iter().filter(|row| row.owner == contract.owner);
-        let original = originals.next().ok_or_else(|| freeze("object-input/original-contract-missing"))?;
-        if originals.next().is_some() || original.batch_slot != contract.batch_slot
-            || original.mode != contract.mode || original.parameters.len() != contract.parameters.len()
-            || original.parameters.iter().zip(&contract.parameters).any(|(source, observed)|
-                source.ordinal != observed.ordinal || source.binding != observed.binding || source.kind != observed.kind)
-        { return Err(freeze("object-input/original-contract-drift")); }
+        let original = originals
+            .next()
+            .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
+        if originals.next().is_some()
+            || original.batch_slot != contract.batch_slot
+            || original.mode != contract.mode
+            || original.parameters.len() != contract.parameters.len()
+            || original
+                .parameters
+                .iter()
+                .zip(&contract.parameters)
+                .any(|(source, observed)| {
+                    source.ordinal != observed.ordinal
+                        || source.binding != observed.binding
+                        || source.kind != observed.kind
+                })
+        {
+            return Err(freeze("object-input/original-contract-drift"));
+        }
         if contract.parameters.iter().all(|formal| {
             matches!(formal.kind,
             CallableParameterContractKindV1::ExactTrivial(abi)
@@ -343,19 +453,32 @@ impl OrdinaryNewClaimLedgerV1 {
         // Mixed/Field stay SourceInstance; only the full input verifier can
         // close every incoming/Completion/signature and permit reconstruction.
         if Self::original_finite_instance_input_request_v1(source, catalog, contract.owner)? {
-            return Ok(self.checked_input_use_source_v1(contract)?.is_some());
+            if self.checked_input_use_source_v1(contract)?.is_some() {
+                return Ok(true);
+            }
+            return self.source_signed_i64_parameter_frame_v1(source, contract);
         }
-        let mut parameter_frame_request = source.original_returned_field_participant_request_v1(contract.owner)?.is_some();
-        for call in source.source_incoming.exact_rows().filter(|call| call.callee == contract.owner) {
+        let mut parameter_frame_request = source
+            .original_returned_field_participant_request_v1(contract.owner)?
+            .is_some();
+        for call in source
+            .source_incoming
+            .exact_rows()
+            .filter(|call| call.callee == contract.owner)
+        {
             if let Some(target) = call.source.instance() {
                 parameter_frame_request |= source.original_mixed_input_source_v1(target)?.is_some()
                     || self.has_original_owning_object_input_v1(source, target)?;
             }
         }
-        if parameter_frame_request || self.original_instance_input_kind_v1(source, contract.owner)?
-            == Some(OriginalInstanceInputKindV1::QualifiedObject)
+        if parameter_frame_request
+            || self.original_instance_input_kind_v1(source, contract.owner)?
+                == Some(OriginalInstanceInputKindV1::QualifiedObject)
         {
-            return self.original_object_input_parameter_frame_v1(source, contract.owner);
+            if self.original_object_input_parameter_frame_v1(source, contract.owner)? {
+                return Ok(true);
+            }
+            return self.source_signed_i64_parameter_frame_v1(source, contract);
         }
         if contract.parameters.is_empty()
             || contract
@@ -373,10 +496,20 @@ impl OrdinaryNewClaimLedgerV1 {
             // entry consumer here would recursively reselect its input family.
             if source.source_only_definitions.contains_key(&contract.owner)
                 || contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
-                || definition.origins.values().copied().collect::<BTreeSet<_>>()
-                    != contract.parameters.iter().map(|formal| formal.binding).collect()
-                || contract.parameters.iter().any(|formal|
-                    definition.origins.get(&formal.binding) != Some(&formal.binding))
+                || definition
+                    .origins
+                    .values()
+                    .copied()
+                    .collect::<BTreeSet<_>>()
+                    != contract
+                        .parameters
+                        .iter()
+                        .map(|formal| formal.binding)
+                        .collect()
+                || contract
+                    .parameters
+                    .iter()
+                    .any(|formal| definition.origins.get(&formal.binding) != Some(&formal.binding))
             {
                 return Err(freeze("object-input/original-frame-identity"));
             }
@@ -395,6 +528,36 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         Ok(false)
+    }
+
+    /// An opaque declaration can still have a complete scalar input frame when
+    /// the retained whole-source SUM proves every original formal is signed I64.
+    /// This lends source input qualification only; execution stays on the
+    /// existing completed Instance/Object cohort.
+    fn source_signed_i64_parameter_frame_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        contract: &OwnedCallableParameterContractDeclarationV1,
+    ) -> Result<bool, String> {
+        let Some(retained) = self.borrowed_formal_source.as_ref() else {
+            return Ok(false);
+        };
+        let retained = retained.as_ref().map_err(Clone::clone)?;
+        if !std::ptr::eq(retained, source) {
+            return Err(freeze("object-input/source-sum-ledger-drift"));
+        }
+        if contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
+            || contract.parameters.is_empty()
+            || contract.parameters.iter().any(|formal| {
+                formal.binding.owner() != contract.owner
+                    || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                    || !source.lend_source_value_sum_v1(formal.binding)
+                        .is_some_and(|sum| sum.signed_only())
+            })
+        {
+            return Ok(false);
+        }
+        Ok(true)
     }
 
     /// Diagnose the same prerequisite gate used by preparation, without a retained receipt.
@@ -445,27 +608,51 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let mut implicit_ready = false;
         if completion.implicit_body_end().is_some() {
-            let ingress = self.borrowed_formal_source.as_ref()
-                .ok_or_else(|| freeze("object-input/source-missing"))?.as_ref().map_err(Clone::clone)?;
-            let catalog = self.original_parameter_contracts.as_deref()
+            let ingress = self
+                .borrowed_formal_source
+                .as_ref()
+                .ok_or_else(|| freeze("object-input/source-missing"))?
+                .as_ref()
+                .map_err(Clone::clone)?;
+            let catalog = self
+                .original_parameter_contracts
+                .as_deref()
                 .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
             if Self::original_finite_instance_input_request_v1(ingress, catalog, owner)? {
                 let incoming = Self::original_instance_input_calls_v1(ingress, catalog, owner)?;
-                if incoming.is_empty() || completion.returns_value() || incoming.iter().any(|row|
-                    row.source.unit_discard_source_v1().is_none_or(|original|
-                        !original.matches_unit_completion_v1(completion))) {
+                if incoming.is_empty()
+                    || completion.returns_value()
+                    || incoming.iter().any(|row| {
+                        row.source
+                            .unit_discard_source_v1()
+                            .is_none_or(|original| !original.matches_unit_completion_v1(completion))
+                    })
+                {
                     return Err(freeze("unit-call/completion-source-drift"));
                 }
                 match flow.implicit_exit() {
-                    None => return Ok(ObjectInputCompletionGateV1::Pending("implicit-exit-missing".into())),
-                    Some(Err(issue)) => return Ok(ObjectInputCompletionGateV1::Refused(
-                        format!("{}: callee={owner:?}, implicit-exit: {issue:?}", freeze("object-input/callee-exit")))),
-                    Some(Ok(_)) => { self.implicit_root_home_source_v1(owner, completion)?; implicit_ready = true; }
+                    None => {
+                        return Ok(ObjectInputCompletionGateV1::Pending(
+                            "implicit-exit-missing".into(),
+                        ))
+                    }
+                    Some(Err(issue)) => {
+                        return Ok(ObjectInputCompletionGateV1::Refused(format!(
+                            "{}: callee={owner:?}, implicit-exit: {issue:?}",
+                            freeze("object-input/callee-exit")
+                        )))
+                    }
+                    Some(Ok(_)) => {
+                        self.implicit_root_home_source_v1(owner, completion)?;
+                        implicit_ready = true;
+                    }
                 }
             }
         }
         if completion.explicit_sites().is_empty() && !implicit_ready {
-            return Ok(ObjectInputCompletionGateV1::Pending("explicit-exits-empty".into()));
+            return Ok(ObjectInputCompletionGateV1::Pending(
+                "explicit-exits-empty".into(),
+            ));
         }
         for exit in completion.explicit_sites() {
             match flow.exit_row(exit) {
@@ -519,14 +706,22 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("object-input/contract-identity"));
         }
-        let catalog = self.original_parameter_contracts.as_deref()
+        let catalog = self
+            .original_parameter_contracts
+            .as_deref()
             .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
         let calls = match Self::original_instance_input_calls_v1(source, catalog, owner) {
             Ok(rows) => rows,
-            Err(issue) => return Ok(TypedInputClosureV1::Refused(format!("{issue}, target={key:?}"))),
+            Err(issue) => {
+                return Ok(TypedInputClosureV1::Refused(format!(
+                    "{issue}, target={key:?}"
+                )))
+            }
         };
         match self.checked_typed_object_input_completion_v1(owner)? {
-            ObjectInputCompletionGateV1::Pending(_) => return Ok(TypedInputClosureV1::Pending),
+            ObjectInputCompletionGateV1::Pending(_) => {
+                return Ok(TypedInputClosureV1::Pending);
+            }
             ObjectInputCompletionGateV1::Refused(issue) => {
                 return Ok(TypedInputClosureV1::Refused(issue))
             }
@@ -600,7 +795,10 @@ impl OrdinaryNewClaimLedgerV1 {
                         .as_deref()
                         .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
                     let Some(regenerated) = object_source::reconstruct_object_source_actuals_v1(
-                        source, catalog, call, original,
+                        source,
+                        catalog,
+                        call,
+                        original,
                         Some(self),
                     )?
                     else {
@@ -619,7 +817,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         .as_deref()
                         .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
                     object_source::recheck_object_source_actuals_v1(
-                        source, catalog, call, actuals, original,
+                        source,
+                        catalog,
+                        call,
+                        actuals,
+                        original,
                         Some(self),
                     )?;
                     actuals.ordered_arguments_for_v1(call)?;
@@ -635,14 +837,22 @@ impl OrdinaryNewClaimLedgerV1 {
                         match self.prepare_original_array_producer_inputs_v1(
                             source, selected, signatures, original,
                         )? {
-                            TypedInputClosureV1::Pending => return Ok(TypedInputClosureV1::Pending),
-                            TypedInputClosureV1::Refused(issue) => return Ok(TypedInputClosureV1::Refused(issue)),
+                            TypedInputClosureV1::Pending => {
+                                return Ok(TypedInputClosureV1::Pending)
+                            }
+                            TypedInputClosureV1::Refused(issue) => {
+                                return Ok(TypedInputClosureV1::Refused(issue))
+                            }
                             TypedInputClosureV1::Ready(_) => {}
                         }
                     }
                     let Some(regenerated) =
                         instance_source::reconstruct_instance_source_actuals_v1(
-                            source, catalog, call, original, Some(self),
+                            source,
+                            catalog,
+                            call,
+                            original,
+                            Some(self),
                         )?
                     else {
                         return Ok(TypedInputClosureV1::Pending);
@@ -662,7 +872,12 @@ impl OrdinaryNewClaimLedgerV1 {
                         .as_deref()
                         .ok_or_else(|| freeze("instance-input/original-catalog-missing"))?;
                     instance_source::recheck_instance_source_actuals_v1(
-                        source, catalog, call, actuals, original, Some(self),
+                        source,
+                        catalog,
+                        call,
+                        actuals,
+                        original,
+                        Some(self),
                     )?;
                     actuals.ordered_arguments_for_v1(call)?;
                 }

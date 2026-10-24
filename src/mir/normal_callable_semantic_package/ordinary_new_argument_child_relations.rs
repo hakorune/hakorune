@@ -32,9 +32,11 @@ fn retain_argument_loans(
     if relations.is_empty() {
         return Ok(());
     }
-    // Passive facts do not force an unavailable construction or argument
-    // observation to become executable (or a package-level error).
-    let (Ok(plan), Ok(arguments)) = (&core.construction, &mut core.argument_rows) else {
+    // Passive child identity can ride an original New actual before its
+    // physical construction plan is executable. Dynamic fields are sealed
+    // against the retained source structure; typed fields still require the
+    // executable plan below.
+    let Ok(arguments) = &mut core.argument_rows else {
         return Ok(());
     };
     let mismatch = || OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
@@ -45,19 +47,45 @@ fn retain_argument_loans(
     let OrdinaryNewConstructorDispositionV1::Birth(birth) = &core.constructor else {
         return Err(mismatch());
     };
-    let (source, owner) = plan.constructor().ok_or_else(mismatch)?;
+    let mut retained_relations = Vec::new();
     for relation in &relations {
+        if relation.field().object() != core.object
+            || relation.formal_ordinal() as usize >= core.arity
+        {
+            return Err(mismatch());
+        }
+        if relation.is_unqualified_dynamic_v1() {
+            let source = core.construction_source.as_ref().map_err(|_| mismatch())?;
+            let (constructor, owner) = source.constructor().ok_or_else(mismatch)?;
+            if !constructor.same_as(birth.source_id())
+                || !relation.constructor_source().same_as(constructor)
+                || relation.constructor_owner() != *owner
+                || relation.formal_binding().owner() != *owner
+                || relation.unqualified_field_source_v1(&core.class).is_err()
+            {
+                return Err(mismatch());
+            }
+            retained_relations.push(*relation);
+            continue;
+        }
+        let Ok(plan) = &core.construction else {
+            continue;
+        };
+        let (source, owner) = plan.constructor().ok_or_else(mismatch)?;
         if !relation.constructor_source().same_as(source)
             || !relation.constructor_source().same_as(birth.source_id())
             || relation.constructor_owner() != *owner || relation.formal_binding().owner() != *owner
-            || relation.field().object() != core.object || plan.object() != core.object
-            || relation.formal_ordinal() as usize >= core.arity
+            || plan.object() != core.object
             || plan.stores().iter().filter(|store| store.field() == relation.field()
                 && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { binding, provided: Some(child), .. }
                     if *binding == relation.formal_binding() && *child == relation.child())).count() != 1
         { return Err(mismatch()); }
+        retained_relations.push(*relation);
     }
-    for relation in &relations {
+    if retained_relations.is_empty() {
+        return Ok(());
+    }
+    for relation in &retained_relations {
         let matches = arguments
             .iter()
             .filter(|argument| {
@@ -72,7 +100,7 @@ fn retain_argument_loans(
         }
     }
     for argument in arguments.iter_mut() {
-        let retained = relations
+        let retained = retained_relations
             .iter()
             .filter(|relation| relation.formal_ordinal() == argument.ordinal())
             .map(|relation| Rc::clone(relation))

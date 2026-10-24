@@ -191,6 +191,7 @@ pub(crate) use local_flow::source_loop::{
 };
 pub(crate) use local_flow::{
     BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, FieldAliasPathV1,
+    FieldAliasRootSourceV1,
     LiveHomeV1, LoopHeaderValueBasisV1, LoopI64PreStateRequestV1, LoopTextReadV1, SourceScalarKind,
     StaticTextReadV1, TextResidenceAcquisitionV1,
 };
@@ -369,7 +370,7 @@ pub(crate) fn scan_new_home_flow<E>(
         ),
     >,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
-    dynamic_source_points: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::TaggedDynamicSourcePointsV1>>,
+    source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
     exit_sites: &[SourceStmtSiteV1],
     uncovered_implicit_exit: bool,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
@@ -532,7 +533,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 .collect(),
         ));
     };
-    let mut locals = PrefixLocalFlow::with_tagged_dynamic_source_points(input, dynamic_source_points);
+    let mut locals = PrefixLocalFlow::with_source_value_class_facts(input, source_value_class_facts);
     // A lent entry installs the loan's own verified receiver/parameter
     // bindings; without one the caller's declared parameter rows install.
     let installed = match entry_home {

@@ -181,7 +181,8 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 let mut declarations = batch
                     .declarations()
                     .filter(|row| row.batch_slot() == batch_slot);
-                let declaration = declarations.next()
+                let declaration = declarations
+                    .next()
                     .filter(|row| row.owner() == input.owner())
                     .ok_or_else(|| freeze("source-sum/caller-owner"))?;
                 if declarations.next().is_some() {

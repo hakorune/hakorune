@@ -96,6 +96,15 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         crate::mir::resolved_semantics::BindingRefV1,
         super::LocalCallResultClassV1,
     ),
+    /// The receiver is a source-proved declared field alias. The package
+    /// compares its class and binding with the exact original call target.
+    ReceivedFieldAliasObjectArguments {
+        receiver: crate::mir::resolved_semantics::BindingRefV1,
+        receiver_class: &'a str,
+        alias_path: &'a crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1,
+        destination: crate::mir::resolved_semantics::BindingRefV1,
+        result: super::LocalCallResultClassV1,
+    },
     ReceivedHandleArguments(crate::mir::resolved_semantics::BindingRefV1),
     BorrowedNullableLocalArguments(crate::mir::resolved_semantics::BindingRefV1),
     MixedLocalArguments(crate::mir::resolved_semantics::BindingRefV1),

@@ -70,32 +70,42 @@ impl SourceValueSumV1 {
     }
 }
 
-/// Source-only classification of exact points whose complete original SUM is
-/// the untyped tagged carrier. It carries the solver's original flow identity;
-/// it does not expose a concrete payload tag or executable permission.
+/// Source-only classes for exact formal and flow points in one complete
+/// original SUM. The retained flow identity prevents these facts from being
+/// reused by another callable; they grant no payload conversion or execution.
 #[derive(Debug, Clone)]
-pub(in crate::mir) struct TaggedDynamicSourcePointsV1 {
+pub(in crate::mir) struct SourceValueClassFactsV1 {
     owner: FunctionOwnerIdV1,
-    flow: std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
-    formals: BTreeSet<BindingRefV1>,
-    points: BTreeSet<SourceValueRefV1>,
+    flow: std::sync::Arc<
+        crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+    >,
+    tagged_dynamic_formals: BTreeSet<BindingRefV1>,
+    tagged_dynamic_points: BTreeSet<SourceValueRefV1>,
+    signed_i64_formals: BTreeSet<BindingRefV1>,
 }
-impl TaggedDynamicSourcePointsV1 {
+impl SourceValueClassFactsV1 {
     pub(in crate::mir) fn proves_formal(&self, binding: BindingRefV1) -> bool {
-        binding.owner() == self.owner && self.formals.contains(&binding)
+        binding.owner() == self.owner && self.tagged_dynamic_formals.contains(&binding)
+    }
+    pub(in crate::mir) fn proves_signed_i64_formal(&self, binding: BindingRefV1) -> bool {
+        binding.owner() == self.owner && self.signed_i64_formals.contains(&binding)
     }
     pub(in crate::mir) fn proves_value(
         &self,
-        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        flow: &std::sync::Arc<
+            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+        >,
         value: SourceValueRefV1,
     ) -> bool {
         self.owner == flow.owner()
             && std::sync::Arc::ptr_eq(&self.flow, flow)
-            && self.points.contains(&value)
+            && self.tagged_dynamic_points.contains(&value)
     }
     pub(in crate::mir) fn proves_read(
         &self,
-        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        flow: &std::sync::Arc<
+            crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,
+        >,
         site: &SourceExprSiteV1,
         binding: BindingRefV1,
     ) -> Option<SourceValueRefV1> {
@@ -115,7 +125,10 @@ impl TaggedDynamicSourcePointsV1 {
             );
         (self.proves_value(flow, value) || exact_formal_entry).then_some(value)
     }
-    pub(in crate::mir) fn flow(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1> {
+    pub(in crate::mir) fn flow(
+        &self,
+    ) -> &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>
+    {
         &self.flow
     }
 }
@@ -723,10 +736,75 @@ impl PreparedBorrowedFormalIngressV1 {
         self.original_formal_seeds
             .source_value_sum_v1(&self.source_incoming, formal)
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn lend_tagged_dynamic_source_points_v1(
+    /// Source class for one original call actual whose prefix observation has
+    /// no flow state. The source row, ordinal, argument site and retained
+    /// PointValue must all be the same; this lends no Home or executable call.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_actual_value_sum_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        site: &SourceExprSiteV1,
+        expected_binding: Option<BindingRefV1>,
+    ) -> Option<&SourceValueSumV1> {
+        let product = &self.original_formal_seeds;
+        if !product.corroborate_original_v1(&self.source_incoming) {
+            return None;
+        }
+        let mut incoming_rows = self
+            .source_incoming
+            .exact_rows()
+            .filter(|row| &row.call == call);
+        let incoming = incoming_rows.next()?;
+        if incoming_rows.next().is_some() {
+            return None;
+        }
+        let target = incoming.source.instance()?;
+        if incoming.callee != target.callee_owner()
+            || target.call_site() != call
+            || target.argument_sites().get(ordinal as usize) != Some(site)
+        {
+            return None;
+        }
+        let mut seed_rows = product.rows.iter().filter(|row| &row.incoming.call == call);
+        let seed_row = seed_rows.next()?;
+        if seed_rows.next().is_some()
+            || seed_row.incoming.callee != incoming.callee
+            || !seed_row.incoming.source.same_source(&incoming.source)
+            || seed_row.incoming.arguments != incoming.arguments
+        {
+            return None;
+        }
+        let (actual_ordinal, actual_site, _) = seed_row.incoming.arguments.get(ordinal as usize)?;
+        if *actual_ordinal != ordinal || actual_site != site {
+            return None;
+        }
+        let OriginalFormalActualSeedV1::PointValue {
+            owner,
+            value: Some(value),
+            ..
+        } = seed_row.seeds.get(ordinal as usize)?
+        else {
+            return None;
+        };
+        if *owner != call.owner() {
+            return None;
+        }
+        let sums = product.source_sums.as_ref()?;
+        let flow = sums.flows.get(owner)?;
+        if flow.owner() != *owner || !flow.is_complete() || flow.origin(*value).is_none() {
+            return None;
+        }
+        if expected_binding.is_some_and(|binding| {
+            binding.owner() != *owner || flow.read(site, binding) != Some(*value)
+        }) {
+            return None;
+        }
+        sums.points.get(&(*owner, *value)).map(Rc::as_ref)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_source_value_class_facts_v1(
         &self,
         owner: FunctionOwnerIdV1,
-    ) -> Option<std::rc::Rc<TaggedDynamicSourcePointsV1>> {
+    ) -> Option<std::rc::Rc<SourceValueClassFactsV1>> {
         let product = &self.original_formal_seeds;
         product
             .corroborate_original_v1(&self.source_incoming)
@@ -736,26 +814,36 @@ impl PreparedBorrowedFormalIngressV1 {
         if flow.owner() != owner || !flow.is_complete() {
             return None;
         }
-        let formals: BTreeSet<BindingRefV1> = sums
+        let tagged_dynamic_formals: BTreeSet<BindingRefV1> = sums
             .values
             .iter()
             .filter_map(|(binding, sum)| {
                 (binding.owner() == owner && sum.tagged_dynamic_only()).then_some(*binding)
             })
             .collect();
-        let points: BTreeSet<SourceValueRefV1> = sums
+        let tagged_dynamic_points: BTreeSet<SourceValueRefV1> = sums
             .points
             .iter()
             .filter_map(|((point_owner, value), sum)| {
                 (*point_owner == owner && sum.tagged_dynamic_only()).then_some(*value)
             })
             .collect();
-        (!formals.is_empty() && !points.is_empty()).then(|| {
-            std::rc::Rc::new(TaggedDynamicSourcePointsV1 {
+        let signed_i64_formals: BTreeSet<BindingRefV1> = sums
+            .values
+            .iter()
+            .filter_map(|(binding, sum)| {
+                (binding.owner() == owner && sum.signed_only()).then_some(*binding)
+            })
+            .collect();
+        let has_dynamic_points =
+            !tagged_dynamic_formals.is_empty() && !tagged_dynamic_points.is_empty();
+        (!signed_i64_formals.is_empty() || has_dynamic_points).then(|| {
+            std::rc::Rc::new(SourceValueClassFactsV1 {
                 owner,
                 flow,
-                formals,
-                points,
+                tagged_dynamic_formals,
+                tagged_dynamic_points,
+                signed_i64_formals,
             })
         })
     }

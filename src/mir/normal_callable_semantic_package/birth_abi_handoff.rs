@@ -111,6 +111,94 @@ impl BirthAbiHandoffV1 {
         Ok(input)
     }
 
+    /// Exact Dynamic Object field formal selected by the same construction
+    /// plan. The child identity and nullable tag come from its source-issued
+    /// DynamicValue contract, not the ABI carrier or physical value type.
+    pub(in crate::mir) fn dynamic_object_formal_source_v1(
+        &self,
+        ordinal: u32,
+    ) -> Result<Option<(CanonicalObjectIdV1, bool)>, String> {
+        use super::super::instance_constructor_semantic::{
+            BirthFormalDeclarationClassV1 as D, BirthFormalUseCoverageV1 as U,
+        };
+        use super::super::instance_construction::ConstructionStoreRhsV1;
+        use crate::mir::instruction::FieldSetModeV1;
+        let lane = self.parameters.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+        let formal = self.formal_contracts.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
+            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        if formal.declaration() != D::Unannotated { return Ok(None); }
+        let U::UnqualifiedFieldStores { sites } = formal.uses() else { return Ok(None) };
+        let Ok(plan) = &self.construction else { return Ok(None) };
+        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
+            if source.same_as(&self.source_id) && *owner == self.owner) {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        let mut covered = std::collections::BTreeSet::new();
+        let mut child = None;
+        let mut nullable = false;
+        for (index, store) in plan.stores().iter().enumerate() {
+            let ConstructionStoreRhsV1::Parameter { site, binding, provided } = store.rhs() else { continue };
+            if *binding != formal.binding() { continue; }
+            let execution = plan.store_execution_v1(index).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+            let (candidate, candidate_nullable) = match execution.mode() {
+                FieldSetModeV1::DynamicValue(contract) => {
+                    let Some((candidate, candidate_nullable)) = dynamic_object_contract(contract) else { return Ok(None) };
+                    (candidate, candidate_nullable)
+                }
+                _ => return Ok(None),
+            };
+            if provided.is_some() || !sites.contains(site) || !covered.insert(site)
+                || child.is_some_and(|prior| prior != candidate)
+                || (child.is_some() && nullable != candidate_nullable) {
+                return Ok(None);
+            }
+            child = Some(candidate);
+            nullable = candidate_nullable;
+        }
+        if covered.len() != sites.len() || sites.is_empty() { return Ok(None); }
+        Ok(child.map(|child| (child, nullable)))
+    }
+
+    /// Exact signed-I64 Dynamic field formal. The selected mode can only be
+    /// issued after the original Birth input source sum proves signed I64.
+    pub(in crate::mir) fn dynamic_i64_formal_source_v1(
+        &self,
+        ordinal: u32,
+    ) -> Result<bool, String> {
+        use super::super::instance_constructor_semantic::{
+            BirthFormalDeclarationClassV1 as D, BirthFormalUseCoverageV1 as U,
+        };
+        use super::super::instance_construction::ConstructionStoreRhsV1;
+        use crate::mir::instruction::FieldSetModeV1;
+        let lane = self.parameters.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+        let formal = self.formal_contracts.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
+            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        if formal.declaration() != D::Unannotated { return Ok(false); }
+        let U::UnqualifiedFieldStores { sites } = formal.uses() else { return Ok(false) };
+        let Ok(plan) = &self.construction else { return Ok(false) };
+        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
+            if source.same_as(&self.source_id) && *owner == self.owner) {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        let mut covered = std::collections::BTreeSet::new();
+        for (index, store) in plan.stores().iter().enumerate() {
+            let ConstructionStoreRhsV1::Parameter { site, binding, provided } = store.rhs() else { continue };
+            if *binding != formal.binding() { continue; }
+            let execution = plan.store_execution_v1(index).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
+            if provided.is_some() || !sites.contains(site) || !covered.insert(site)
+                || execution.mode() != FieldSetModeV1::DynamicI64Initialize {
+                return Ok(false);
+            }
+        }
+        Ok(!sites.is_empty() && covered.len() == sites.len())
+    }
+
     fn matches_construction_v1(&self, other: &ConstructionEligibilityV1) -> bool {
         match (&self.construction, other) {
             (Ok(left), Ok(right)) => left.same_execution_v1(right),
@@ -274,6 +362,19 @@ impl BirthAbiHandoffV1 {
 
     pub(crate) const fn result(&self) -> BirthResultAbiV1 {
         self.result
+    }
+}
+
+fn dynamic_object_contract(
+    contract: crate::mir::instruction::DynamicFieldSetContractV1,
+) -> Option<(CanonicalObjectIdV1, bool)> {
+    use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
+        DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent};
+    if contract.intent() != Intent::Initialize { return None; }
+    match (contract.value_tag(), contract.residence()) {
+        (Tag::Object, Residence::ObjectHome(child)) => Some((child, false)),
+        (Tag::NullableObject, Residence::ObjectHome(child)) => Some((child, true)),
+        _ => None,
     }
 }
 

@@ -33,6 +33,80 @@ pub(crate) enum LocalFieldReadResultV1 {
     BorrowedArray(BorrowedArrayFieldSourceV1),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ScalarFieldReadSourceV1 {
+    binding: BindingRefV1,
+    request: LocalFieldReadRequestV1,
+    statement: SourceStmtSiteV1,
+}
+
+impl ScalarFieldReadSourceV1 {
+    fn issue(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        binding: BindingRefV1,
+        request: LocalFieldReadRequestV1,
+    ) -> Option<Self> {
+        let site = request.site.site();
+        if binding.owner() != input.owner()
+            || request.site.owner() != input.owner()
+            || request.home.owner() != input.owner()
+            || request.receiver.owner() != input.owner()
+        {
+            return None;
+        }
+        let mut declarations = input
+            .function()
+            .expression_source()
+            .initializers()
+            .filter(|row| row.binding() == binding && row.initializer_site() == Some(site));
+        let declaration = declarations.next()?;
+        if declarations.next().is_some() {
+            return None;
+        }
+        let statement = input
+            .function()
+            .source_site_inventory()
+            .containing_statement(site)?;
+        let declaration_matches = matches!(
+            declaration.declaration_site(),
+            SourceBindingSiteV1::Local { statement: declared, .. } if declared == statement
+        );
+        declaration_matches.then_some(Self {
+            binding,
+            request,
+            statement: statement.clone(),
+        })
+    }
+
+    pub(crate) fn matches_initializer_v1(
+        &self,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+    ) -> bool {
+        self.binding == binding
+            && self.request.site.owner() == binding.owner()
+            && self.request.site.site() == site
+    }
+
+    pub(crate) fn request_site_v1(&self) -> &SourceExprSiteV1 {
+        self.request.site.site()
+    }
+
+    pub(crate) fn site_v1(&self) -> &OwnedExprSiteV1 {
+        &self.request.site
+    }
+
+    pub(crate) fn statement_v1(&self) -> &SourceStmtSiteV1 {
+        &self.statement
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct ObservedLocalFieldReadV1 {
+    request: LocalFieldReadRequestV1,
+    result: LocalFieldReadResultV1,
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedArrayFieldSourceV1 {
     pub(in crate::mir) requirement:
@@ -73,7 +147,7 @@ pub(super) fn observe_local_field_read<E>(
         &[LocalFieldReadRequestV1],
         LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
-) -> Result<Option<LocalFieldReadResultV1>, E> {
+) -> Result<Option<ObservedLocalFieldReadV1>, E> {
     let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
     };
@@ -125,7 +199,7 @@ pub(super) fn observe_local_field_read<E>(
             plan: std::rc::Rc::clone(plan.source()),
         })
         .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: false });
-    let Some(mut results) = local_field_read(&[request], demand)? else {
+    let Some(mut results) = local_field_read(std::slice::from_ref(&request), demand)? else {
         return Ok(None);
     };
     if results.len() != 1 {
@@ -134,7 +208,10 @@ pub(super) fn observe_local_field_read<E>(
     if let Some(installation) = installation {
         installation.commit();
     }
-    Ok(Some(results.remove(0)))
+    Ok(Some(ObservedLocalFieldReadV1 {
+        request,
+        result: results.remove(0),
+    }))
 }
 
 /// Original received acquisition; no class, nonnull fact or Home is issued.
@@ -320,19 +397,29 @@ pub(super) fn install_local_field_read_result(
     binding: BindingRefV1,
     locals: &mut PrefixLocalFlow<'_>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    result: LocalFieldReadResultV1,
+    observed: ObservedLocalFieldReadV1,
 ) {
     // A proven `receiver.field` initializer binds by its
     // declared result class — numeric scalars are trivial,
     // ordinary-box results are borrowed field aliases that
     // join no Home set.
+    let ObservedLocalFieldReadV1 { request, result } = observed;
     match result {
         LocalFieldReadResultV1::ArrayField(_) => {
             // Statement-call provenance never installs a local Home.
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         }
         LocalFieldReadResultV1::Scalar => {
-            locals.install_scalar_call_result(binding, local_flow::SourceScalarKind::Integer);
+            let Some(source) = ScalarFieldReadSourceV1::issue(input, binding, request) else {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                return;
+            };
+            if !locals.install_scalar_field_read(
+                binding,
+                std::rc::Rc::new(source),
+            ) {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+            }
         }
         LocalFieldReadResultV1::BorrowedArray(source) => {
             let Some(request) = field_read_request(input, site, locals) else {

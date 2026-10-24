@@ -514,13 +514,23 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(exit_site) = exit_site else {
             return Err(fault("root-exit-phase"));
         };
-        if !matches!(
-            self.root_exits.borrow().get(&(site.owner(), exit_site.into())),
-            Some(
-                local_commit::RootHomeExitProgress::Prepared(_)
-                    | local_commit::RootHomeExitProgress::Unavailable,
-            )
-        ) {
+        let recorded_ready = {
+            let exits = self.root_exits.borrow();
+            exits
+                .get(&(site.owner(), exit_site.clone().into()))
+                .map(|progress| {
+                    matches!(
+                        progress,
+                        local_commit::RootHomeExitProgress::Prepared(_)
+                            | local_commit::RootHomeExitProgress::Unavailable,
+                    )
+                })
+        };
+        let phase_ready = match recorded_ready {
+            Some(ready) => ready,
+            None => self.root_home_exit_not_selected_v1(site.owner(), exit_site.node())?,
+        };
+        if !phase_ready {
             return Err(fault("root-exit-phase"));
         }
         if row.receiver.owner() != site.owner() || row.home.owner() != site.owner() {

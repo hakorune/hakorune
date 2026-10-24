@@ -75,20 +75,23 @@ fn object_slot_original_observation_result_identity_and_duplicates_are_checked()
     assert!(corroborate_original_object_observations_v1(
         row.call_site(),
         Some(InvokeCallResultKind::Handle),
-        std::slice::from_ref(original)
+        std::slice::from_ref(original),
+        None,
     )
     .unwrap());
     assert!(corroborate_original_object_observations_v1(
         row.call_site(),
         Some(InvokeCallResultKind::NullableHandle),
-        std::slice::from_ref(original)
+        std::slice::from_ref(original),
+        None,
     )
     .unwrap_err()
     .contains("result-observation"));
     assert!(corroborate_original_object_observations_v1(
         row.call_site(),
         Some(InvokeCallResultKind::Handle),
-        &[original.clone(), original.clone()]
+        &[original.clone(), original.clone()],
+        None,
     )
     .unwrap_err()
     .contains("observation-identity"));
@@ -105,7 +108,7 @@ fn object_slot_original_observation_result_identity_and_duplicates_are_checked()
             role,
         );
         assert!(
-            corroborate_original_object_observations_v1(row.call_site(), None, &[wrong])
+            corroborate_original_object_observations_v1(row.call_site(), None, &[wrong], None)
                 .unwrap_err()
                 .contains("result-observation")
         );

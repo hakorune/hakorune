@@ -73,7 +73,8 @@ pub(super) fn construction_child_argument_kind_v1(
     use std::rc::Rc;
     let Some(context) = context else { return Ok(None); };
     let relations: Vec<_> = context.results.construction_child_relation_loans()
-        .filter(|relation| relation.actual().owner() == input.owner() && relation.actual().site() == site)
+        .filter(|relation| !relation.is_unqualified_dynamic_v1()
+            && relation.actual().owner() == input.owner() && relation.actual().site() == site)
         .collect();
     if relations.is_empty() { return Ok(None); }
     let mut parameters = contract.parameters.iter().filter(|row| row.binding == formal);

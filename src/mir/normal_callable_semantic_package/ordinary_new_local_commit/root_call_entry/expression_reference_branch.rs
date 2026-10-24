@@ -293,7 +293,7 @@ pub(super) fn validate_scalar_binding_observation_v1(
             projection.relation_binding(function, row)?;
         }
     } else if !finite_initializer_entry {
-        validate_dependencies(read, producer, function)?;
+        validate_dependencies(read, producer, context, function)?;
     }
     Ok(())
 }

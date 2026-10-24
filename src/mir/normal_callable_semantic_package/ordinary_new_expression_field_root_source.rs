@@ -118,7 +118,9 @@ impl ExpressionFieldRootSourceV1 {
             if path.root != request.home || path.edges.last().map(|edge| edge.0) != Some(request.receiver) {
                 return Err("expression-path/alias-root-drift".into());
             }
-            let mut roots = candidates.iter().filter(|row| row.destination == path.root && row.site == path.acquisition);
+            let crate::mir::resolved_semantics::home_new_prefix::FieldAliasRootSourceV1::OwnedHome { acquisition } = &path.root_source
+                else { return Err("expression-path/entry-alias-root-unsupported".into()); };
+            let mut roots = candidates.iter().filter(|row| row.destination == path.root && row.site == *acquisition);
             let candidate = roots.next().ok_or("expression-path/alias-acquisition-missing")?;
             if roots.next().is_some() { return Err("expression-path/alias-acquisition-ambiguous".into()); }
             let mut parent_source = &candidate.box_source;

@@ -57,8 +57,7 @@ pub(super) fn qualify_arithmetic_operations_v1(
                 | ResolvedBinaryOperatorV1::Divide
                 | ResolvedBinaryOperatorV1::Modulo
         ) && !source_dynamic_sub {
-            if index != 0
-                || classes.first() != Some(&Leaf::Value(Class::I64))
+            if classes.first() != Some(&Leaf::Value(Class::I64))
                 || [binary.lhs(), binary.rhs()].iter().any(|site| {
                     source
                         .nodes()
@@ -67,6 +66,9 @@ pub(super) fn qualify_arithmetic_operations_v1(
                         .is_none_or(|index| classes[index] != Leaf::Value(Class::I64))
                 })
             {
+                return None;
+            }
+            if binary.operator() != ResolvedBinaryOperatorV1::Subtract && index != 0 {
                 return None;
             }
             let divisor = if matches!(
@@ -86,8 +88,12 @@ pub(super) fn qualify_arithmetic_operations_v1(
             } else {
                 None
             };
-            let scalar =
-                ExpressionScalarOperationLoanV1::issue_root(Rc::clone(source), binary, divisor)?;
+            let scalar = ExpressionScalarOperationLoanV1::issue_node_v1(
+                Rc::clone(source),
+                index,
+                binary,
+                divisor,
+            )?;
             operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
                 plan: Rc::clone(source),
                 node: index,
