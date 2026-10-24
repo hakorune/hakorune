@@ -276,6 +276,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     if declarations.next().is_some() {
         return Err(reject());
     }
+    // A finite incoming domain does not change the declaration's entry ABI.
+    // In particular, a declared object receiving only null still belongs to
+    // the typed object/null-guard lane, not the untyped tagged-value lane.
+    if !contract.parameters.iter().any(|parameter| parameter.binding == root
+        && parameter.kind == CallableParameterContractKindV1::OpaqueHandle)
+    {
+        return Ok(None);
+    }
     if prepared
         .lend_original_input_sums_v1(&contract.parameters)
         .is_none()
