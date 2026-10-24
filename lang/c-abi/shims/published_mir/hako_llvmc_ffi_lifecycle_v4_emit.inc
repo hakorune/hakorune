@@ -213,6 +213,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     }
     if ((lv4_is(fn, "role", "ordinary_borrowed_nullable_handle") ||
         lv4_is(fn, "role", "ordinary_mixed_handle")) &&
+        hako_physical_u32(yyjson_obj_get(fn, "result_formal_ordinal"), NULL) &&
         i == lv4_u(fn, "result_formal_ordinal")) {
       lv4_emit_borrowed_result_formal_guard(f, v);
       continue;

@@ -39,13 +39,9 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       yyjson_val* integer = yyjson_obj_get(param, "integer_view");
       yyjson_val* boolean = yyjson_obj_get(param, "bool_view");
       yyjson_val* scalar_view = text ? text : integer ? integer : boolean;
-      if (((!!text + !!integer + !!boolean) > 1) || (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
-          (!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
-           !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") &&
-           !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") && (text || boolean)) &&
-           !(yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
-             (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") ||
-              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool"))))))) return 0;
+      if (((!!text + !!integer + !!boolean) > 1) ||
+          (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
+              !hako_physical_ordinary_function(fn)))) return 0;
       if (!(text ? hako_physical_exact_keys(param, text_keys, 4) :
           integer ? hako_physical_exact_keys(param, integer_keys, 4) :
           boolean ? hako_physical_exact_keys(param, bool_keys, 4) :
@@ -54,44 +50,13 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
           !hako_physical_layout_has_object(layouts, object)))) return 0;
     } else if (!hako_physical_exact_keys(param, keys, 2)) return 0;
     if (!hako_physical_u32(yyjson_obj_get(param, "value"), NULL)) return 0;
-    if (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_map") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle") ||
-        (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
-              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) {
-      /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
+    if (hako_physical_ordinary_function(fn)) {
+      /* Checked-map and tagged input lanes are independent of result kind.
+         Receiver/layout, actual provenance and each input use remain checked
+         by their existing owners. */
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
-          !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) {
-        /* The selected internal carrier uses the same pair transport. Static
-           I64 has no receiver; nullable-handle keeps its instance boundary.
-           The ordinary prologue revalidates the exact pair either way. */
-        if ((!(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") &&
-               (yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
-                yyjson_is_true(yyjson_obj_get(param, "integer_view")) ||
-                yyjson_is_true(yyjson_obj_get(param, "bool_view")))) &&
-             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
-             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
-             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") &&
-             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") &&
-             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle") &&
-             !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
-              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) ||
-            (!yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
-             !((hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
-                hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_text") ||
-                (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
-                 (yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
-                  yyjson_is_true(yyjson_obj_get(param, "bool_view")))) ||
-                (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
-              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) &&
-               yyjson_is_null(yyjson_obj_get(fn, "receiver")) &&
-               yyjson_is_null(yyjson_obj_get(fn, "receiver_object")))) ||
-            !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
-      }
+          !hako_physical_string(yyjson_obj_get(param, "representation"), "map") &&
+          !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
     } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1") &&
         /* A birth formal sealed as object-field-provided spells the
            nullable lane — same pair transport, the kind==0 branch is

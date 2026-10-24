@@ -56,20 +56,8 @@ static int lv4_borrowed_typed_live(const hako_lv4_input* in,
 }
 
 static int lv4_borrowed_formal_domain(hako_lv4_function_index* fn, hako_lv4_value* value, int text) {
-  /* The dominated `new`-argument view rides the same borrowed kind/payload
-     formal on i64 and nullable-handle callees alike — the tagged pair
-     transport is identical; only the result lane differs. */
-  int instance = fn->receiver_object_set &&
-      yyjson_is_uint(yyjson_obj_get(fn->function, "receiver"));
-  int static_scalar = (lv4_is(fn->function, "role", "ordinary_i64") ||
-      lv4_is(fn->function, "role", "ordinary_text") ||
-      (text && lv4_is(fn->function, "role", "ordinary_bool")) ||
-      lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") ||
-      lv4_is(fn->function, "role", "ordinary_mixed_handle")) &&
-      yyjson_is_null(yyjson_obj_get(fn->function, "receiver")) &&
-      yyjson_is_null(yyjson_obj_get(fn->function, "receiver_object"));
-  if (!value || value->kind != LV4_TAGGED || (!instance && !static_scalar) ||
-      !lv4_is_ordinary(fn->function)) return 0;
+  /* The same sealed input view survives every ordinary result lane. */
+  if (!value || value->kind != LV4_TAGGED || !lv4_is_ordinary(fn->function)) return 0;
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {

@@ -537,7 +537,10 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
     if (!hako_physical_u32(yyjson_obj_get(function, "result_formal_ordinal"), &support) ||
         support >= yyjson_arr_size(params) ||
         !hako_physical_string(yyjson_obj_get(yyjson_arr_get(params, support), "representation"),
-            "borrowed_kind_payload_v1")) return 0;
+            "borrowed_kind_payload_v1") ||
+        yyjson_obj_get(yyjson_arr_get(params, support), "text_view") ||
+        yyjson_obj_get(yyjson_arr_get(params, support), "integer_view") ||
+        yyjson_obj_get(yyjson_arr_get(params, support), "bool_view")) return 0;
   }
   if (ordinal == 0) { if (!(hako_physical_string(yyjson_obj_get(function, "role"), "root_i64") || (native && hako_physical_string(yyjson_obj_get(function, "role"), "root_unit"))) || yyjson_arr_size(params) || !yyjson_is_null(yyjson_obj_get(function, "receiver")) || !yyjson_is_null(yyjson_obj_get(function, "receiver_object"))) return 0; mode = "root_owned"; }
   else if (hako_physical_string(yyjson_obj_get(function, "role"), "birth_unit")) {

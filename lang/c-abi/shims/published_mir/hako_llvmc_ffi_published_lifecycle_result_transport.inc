@@ -14,6 +14,20 @@ static const char* hako_physical_ordinary_result_role(yyjson_val* result) {
   return NULL;
 }
 
+/* Input transport does not depend on the result lane. */
+static int hako_physical_ordinary_function(yyjson_val* function) {
+  yyjson_val* role = yyjson_obj_get(function, "role");
+  return hako_physical_string(role, "ordinary_unit") ||
+      hako_physical_string(role, "ordinary_bool") ||
+      hako_physical_string(role, "ordinary_i64") ||
+      hako_physical_string(role, "ordinary_map") ||
+      hako_physical_string(role, "ordinary_text") ||
+      hako_physical_string(role, "ordinary_handle") ||
+      hako_physical_string(role, "ordinary_nullable_handle") ||
+      hako_physical_string(role, "ordinary_borrowed_nullable_handle") ||
+      hako_physical_string(role, "ordinary_mixed_handle");
+}
+
 static int hako_physical_object_result_role(yyjson_val* function) {
   return hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_handle") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_handle") ||

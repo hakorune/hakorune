@@ -23,11 +23,7 @@ static int lv4_is(yyjson_val* object, const char* key, const char* text) {
   return hako_physical_string(yyjson_obj_get(object, key), text);
 }
 static int lv4_is_ordinary(yyjson_val* function) {
-  return lv4_is(function, "role", "ordinary_unit") || lv4_is(function, "role", "ordinary_bool") ||
-      lv4_is(function, "role", "ordinary_i64") || lv4_is(function, "role", "ordinary_map") ||
-      lv4_is(function, "role", "ordinary_text") ||
-      lv4_is(function, "role", "ordinary_handle") || lv4_is(function, "role", "ordinary_nullable_handle") ||
-      lv4_is(function, "role", "ordinary_borrowed_nullable_handle") || lv4_is(function, "role", "ordinary_mixed_handle");
+  return hako_physical_ordinary_function(function);
 }
 #include "hako_llvmc_ffi_lifecycle_v4_state.inc"
 static yyjson_val* lv4_term(yyjson_val* block) {

@@ -112,10 +112,9 @@ pub(super) fn encode_parameters(
                                     else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.signed_only() { Some("integer_view") }
                                     else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.bool_only() { Some("bool_view") } else { None };
                                 if let Some(view) = view {
-                                    use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
-                                    if !matches!(function.role(), Role::OrdinaryI64 { .. } | Role::OrdinaryText { .. } | Role::OrdinaryBool { .. })
-                                        && !(function.role().has_receiver() && matches!(function.role(), Role::OrdinaryUnit { .. })) {
-                                        return Err(fault("borrowed-text/parameter-role"));
+                                    if function.role().ordinary_target().is_none() {
+                                        return Err(format!("{} function={} role={} ordinal={index} view={view}",
+                                            fault("borrowed-text/parameter-role"), function.name(), function.role().wire_name()));
                                     }
                                     row[view] = json!(true);
                                 }

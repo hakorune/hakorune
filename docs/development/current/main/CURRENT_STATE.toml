@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "mir/invoke: borrowed-source-call-coverage on int_to_str recursion and string-owned-escape on its Text loop edge"
+current_blocker_token = "published-lifecycle-physical-parser/function-body"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-jso
 latest_card = "app-json-stream-aggregator"
 latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-json-stream-aggregator reaches final MIR verification; recursive tagged-call and Text edge correspondence remain open.
-Exact source-proven Array field reads now pass; bare schema-only Array reads stay rejected (Invoke tests 42/42).
-The recursive call is retained in a Plain return-expression packet but omitted from the finalized call visitor.
-Latest opt1 suite: 7/11 (6 EXEs + marker), no timeout/SKIP, 115.173s; this precedes the latest Array-read witness patch.
-Current target/quick CLI is opt0 again; other source/physical WIP remains uncommitted. See the app card.
+APP-json-stream-aggregator crossed Array Text use, tagged String operands and concrete actuals into finite SUMs; no EXE yet.
+Latest measured stop: C physical-parser/function-body after Rust JSON crosses the formal-view restriction.
+Common input-view/result-lane normalization verified; explicit ReceiverFieldSlot wire and C slot consumers remain WIP.
+Latest official suite stays historical 7/11 (6 EXEs + marker); focused publication7 PASS, Dynamic contract7 PASS/1 FAIL.
+Next: complete C slot result and finite Text membership/operand conversion; preserve lifetime/Fault checks. See app card.
 """
 next_design_card = "none"
 next_design_card_path = "none"
