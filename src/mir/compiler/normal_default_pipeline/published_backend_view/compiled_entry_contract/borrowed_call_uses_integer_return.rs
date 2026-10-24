@@ -5,8 +5,11 @@ use super::*;
 pub(super) struct IntegerReturnUse {
     formal: BindingRefV1,
     value: ValueId,
-    guard: Coordinate,
-    compare: Binding,
+    evidence: IntegerReturnEvidence,
+}
+enum IntegerReturnEvidence {
+    Compare { guard: Coordinate, compare: Binding },
+    FiniteEntry,
 }
 
 pub(super) fn entry(
@@ -29,8 +32,10 @@ pub(super) fn entry(
                     IntegerReturnUse {
                         formal,
                         value,
-                        guard,
-                        compare: compare.clone(),
+                        evidence: IntegerReturnEvidence::Compare {
+                            guard,
+                            compare: compare.clone(),
+                        },
                     },
                 )
                 .is_some()
@@ -39,7 +44,28 @@ pub(super) fn entry(
             }
             Ok(())
         },
-    )
+    )?;
+    source.with_finite_entry_integer_returns_v1(owner, function, |formal, binding, coordinate| {
+        let MirInstruction::Return { value: Some(value) } = binding.1 else {
+            return Err(fault("borrowed-return/return-kind"));
+        };
+        if !state.finite_input
+            || state
+                .integer_returns
+                .insert(
+                    coordinate,
+                    IntegerReturnUse {
+                        formal,
+                        value,
+                        evidence: IntegerReturnEvidence::FiniteEntry,
+                    },
+                )
+                .is_some()
+        {
+            return Err(fault("borrowed-return/duplicate-source"));
+        }
+        Ok(())
+    })
 }
 
 pub(super) fn guards(
@@ -47,11 +73,14 @@ pub(super) fn guards(
     indexed: &[(Coordinate, &MirInstruction)],
 ) -> Result<(), String> {
     for expected in state.integer_returns.values() {
-        let mut actual = indexed.iter().filter(|(site, _)| *site == expected.guard);
+        let IntegerReturnEvidence::Compare { guard, compare } = &expected.evidence else {
+            continue;
+        };
+        let mut actual = indexed.iter().filter(|(site, _)| site == guard);
         let Some((_, instruction)) = actual.next() else {
             return Err(fault("borrowed-return/guard-missing"));
         };
-        if **instruction != expected.compare.1 || actual.next().is_some() {
+        if **instruction != compare.1 || actual.next().is_some() {
             return Err(fault("borrowed-return/guard-correspondence"));
         }
     }
@@ -74,10 +103,25 @@ pub(super) fn observe(
     if *value != Some(expected.value) || formal != Some(&expected.formal) {
         return Err(fault("borrowed-return/operand-correspondence"));
     }
-    if !dominates(expected.guard.0, coordinate.0)
-        || (expected.guard.0 == coordinate.0 && expected.guard.1 >= coordinate.1)
-    {
-        return Err(fault("borrowed-return/undominated-return"));
+    match &expected.evidence {
+        IntegerReturnEvidence::Compare { guard, .. }
+            if !dominates(guard.0, coordinate.0)
+                || guard.0 == coordinate.0 && guard.1 >= coordinate.1 =>
+        {
+            return Err(fault("borrowed-return/undominated-return"))
+        }
+        IntegerReturnEvidence::FiniteEntry
+            if !state.finite_input
+                || state
+                    .domains
+                    .iter()
+                    .filter(|(value, _)| state.roots.get(value) == Some(&expected.formal))
+                    .next()
+                    .is_none_or(|(_, domain)| !domain.signed_only()) =>
+        {
+            return Err(fault("borrowed-return/operand-correspondence"))
+        }
+        _ => (),
     }
     if !scan.integer_returns.insert(coordinate) {
         return Err(fault("borrowed-return/duplicate-return"));
@@ -123,8 +167,10 @@ mod tests {
             IntegerReturnUse {
                 formal,
                 value,
-                guard,
-                compare: (block.id, compare),
+                evidence: IntegerReturnEvidence::Compare {
+                    guard,
+                    compare: (block.id, compare),
+                },
             },
         );
         (state, function, guard, returned, value)
@@ -149,7 +195,14 @@ mod tests {
                         *op = crate::mir::CompareOp::Gt;
                     }
                 }
-                "ordering" => state.integer_returns.get_mut(&returned).unwrap().guard = returned,
+                "ordering" => {
+                    let IntegerReturnEvidence::Compare { guard, .. } =
+                        &mut state.integer_returns.get_mut(&returned).unwrap().evidence
+                    else {
+                        panic!("Compare evidence");
+                    };
+                    *guard = returned;
+                }
                 "extra" => block
                     .instructions
                     .push(MirInstruction::Return { value: Some(value) }),

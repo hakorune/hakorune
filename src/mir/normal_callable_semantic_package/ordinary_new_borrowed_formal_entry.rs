@@ -35,6 +35,10 @@ impl BorrowedFormalDomainV1 {
     pub(in crate::mir) fn text_only(&self) -> bool { self.sum.text_only() }
     pub(in crate::mir) fn signed_only(&self) -> bool { self.sum.signed_only() }
     pub(in crate::mir) fn bool_only(&self) -> bool { self.sum.bool_only() }
+    pub(in crate::mir) fn corroborates_finite_read_v1(&self, read: &crate::mir::normal_callable_semantic_package::FiniteEntryReadV1) -> bool {
+        read.requirement().formal() == (self.ordinal, self.binding)
+            && read.corroborates_finite_domain_v1(&self.sum)
+    }
     #[cfg(test)]
     pub(super) fn source_sum_v1(&self) -> &Rc<super::borrowed_formal_source::SourceValueSumV1> { &self.sum }
 }
