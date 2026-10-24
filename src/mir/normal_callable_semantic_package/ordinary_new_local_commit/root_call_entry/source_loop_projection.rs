@@ -46,6 +46,26 @@ impl EmittedSourceLoopProjectionV2 {
     pub(super) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
         self.completion.get().and_then(|role| role.source_proof_v2()).map(|proof| proof.bindings()).unwrap_or(&[])
     }
+    /// Lend only transport Copies observed by the SAME source-edge writer.
+    /// The enclosing group must validate its whole source/physical completion.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn incoming_copy_bindings_v2(
+        &self, function: &MirFunction,
+        projection: &super::super::super::physical_boundary::FinishedBindings,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let proof = self.completion.get().and_then(|role| role.source_proof_v2())
+            .ok_or_else(|| freeze("source-loop/whole-proof-missing"))?;
+        let mut bindings = Vec::new();
+        for edge in &proof.graph.edges {
+            for incoming in &edge.values {
+                incoming.localized.require_completed_v1()?;
+                incoming.localized.verify_projected(function, &mut |row|
+                    projection.relation_binding(function, row))?;
+                incoming.localized.append_observed_bindings_v1(&mut bindings);
+            }
+        }
+        bindings.retain(|(_, row)| matches!(row, MirInstruction::Copy { .. }));
+        Ok(bindings)
+    }
     pub(super) fn validate_completion_v2(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         bindings: &[(BasicBlockId, MirInstruction)],
         coordinates: Option<&super::super::super::physical_boundary::FinishedBindings>,

@@ -121,6 +121,13 @@ impl BorrowedCallUses {
                 }
                 Ok(())
             })?;
+            let mut scalar_copies: Vec<_> = state.copies.values().filter_map(|(binding, coordinate)|
+                coordinate.map(|coordinate| (binding.clone(), coordinate))).collect();
+            source.with_finished_scalar_copies_v1(owner, function, |original, coordinate| {
+                scalar_copies.push((original.clone(), coordinate));
+                Ok(())
+            })?;
+            state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &scalar_copies)?;
         }
         state.object_views =
             source.borrowed_ordinary_formal_object_views_v1(owner, function)?;
